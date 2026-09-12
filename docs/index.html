@@ -1,22 +1,125 @@
-<!DOCTYPE html><html lang="zh"><head><meta charset="UTF-8"><title>量化看板</title>
+<!DOCTYPE html><html lang="zh"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>个人量化投资看板</title>
 <style>
-body { font-family:-apple-system,"Microsoft YaHei",sans-serif; background:#0f1c3f; color:#fff; padding:24px; }
-table { width:100%; border-collapse:collapse; background:#16264f; border-radius:8px; overflow:hidden; }
-th,td { padding:12px; text-align:center; border-bottom:1px solid #2a3b6b; }
-th { background:#1f3864; } button { background:#2e5395; color:#fff; border:none; padding:8px 16px; border-radius:6px; cursor:pointer; margin-top:16px; }
-.meta { color:#9fb3d9; font-size:13px; margin-bottom:16px; }
+:root { --bg:#f5f6f8; --card:#ffffff; --ink:#1b1f28; --sub:#6b7280; --line:#e8eaee;
+--pos:#0f9d58; --neg:#d93025; --accent:#2e5395; }
+* { box-sizing:border-box; }
+body { margin:0; font-family:-apple-system,"Microsoft YaHei",Helvetica,Arial,sans-serif;
+background:var(--bg); color:var(--ink); padding:28px 32px 60px; }
+h1 { font-size:22px; margin:0 0 4px; }
+.meta { color:var(--sub); font-size:13px; margin-bottom:28px; }
+h2 { font-size:15px; color:var(--sub); text-transform:uppercase; letter-spacing:.06em;
+margin:32px 0 12px; border-left:3px solid var(--accent); padding-left:8px; }
+.grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:14px; }
+.card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:16px;
+box-shadow:0 1px 2px rgba(0,0,0,.04); }
+.card.err { opacity:.6; }
+.sym { font-weight:700; font-size:15px; margin-bottom:6px; }
+.price { font-size:20px; font-weight:700; margin-bottom:10px; }
+.row { display:flex; justify-content:space-between; font-size:12.5px; color:var(--sub); margin-bottom:4px; }
+.row span:last-child { color:var(--ink); font-weight:600; }
+.pos { color:var(--pos) !important; } .neg { color:var(--neg) !important; }
+.badge { margin-top:8px; font-size:12px; font-weight:700; padding:4px 8px; border-radius:6px; display:inline-block; }
+.badge.on { background:#fdecea; color:var(--neg); } .badge.off { background:#e6f4ea; color:var(--pos); }
+.errmsg { font-size:12px; color:var(--sub); }
+button { background:var(--accent); color:#fff; border:none; padding:9px 18px; border-radius:8px;
+cursor:pointer; margin-top:36px; font-size:13px; }
 </style></head><body>
-<h1>📊 多资产量化管理平台 — 每日自动看板</h1>
-<div class="meta">数据更新至：2026-09-12（数据源：Twelve Data，交易日收盘后自动更新）</div>
-<table><tr><th>资产</th><th>日期</th><th>收盘价</th><th>上月最高收盘</th><th>回撤幅度</th><th>状态</th></tr>
-<tr><td>QQQM</td><td>2026-09-11</td><td>$294.39</td>
-        <td>$302.45</td><td>-2.66%</td><td>🟢 正常</td></tr><tr><td>VGT</td><td>2026-09-11</td><td>$121.07</td>
-        <td>$123.39</td><td>-1.88%</td><td>🟢 正常</td></tr><tr><td>QLD</td><td>2026-09-11</td><td>$89.55</td>
-        <td>$95.04</td><td>-5.78%</td><td>🟢 正常</td></tr><tr><td>TQQQ</td><td>2026-09-11</td><td>$70.98</td>
-        <td>$77.90</td><td>-8.88%</td><td>🟢 正常</td></tr></table>
+<h1>📊 个人量化投资看板</h1>
+<div class="meta">数据更新至：2026-09-12（数据源：Twelve Data，交易日收盘后自动更新，仅展示价格与信号，不含持仓明细）</div>
+
+<h2>核心策略仓（回撤触发加仓）</h2>
+<div class="grid"><div class="card">
+      <div class="sym">QQQM</div>
+      <div class="price">$294.39</div>
+      <div class="row"><span>回撤</span><span class="neg">-2.66%</span></div>
+      <div class="row"><span>阈值</span><span>7.00%</span></div>
+      <div class="badge off">🟢 正常</div>
+    </div><div class="card">
+      <div class="sym">VGT</div>
+      <div class="price">$121.07</div>
+      <div class="row"><span>回撤</span><span class="neg">-1.88%</span></div>
+      <div class="row"><span>阈值</span><span>10.00%</span></div>
+      <div class="badge off">🟢 正常</div>
+    </div><div class="card">
+      <div class="sym">QLD</div>
+      <div class="price">$89.55</div>
+      <div class="row"><span>回撤</span><span class="neg">-5.78%</span></div>
+      <div class="row"><span>阈值</span><span>14.00%</span></div>
+      <div class="badge off">🟢 正常</div>
+    </div><div class="card">
+      <div class="sym">TQQQ</div>
+      <div class="price">$70.98</div>
+      <div class="row"><span>回撤</span><span class="neg">-8.88%</span></div>
+      <div class="row"><span>阈值</span><span>观察仓</span></div>
+      <div class="badge off">🟢 正常</div>
+    </div></div>
+
+<h2>宽基指数</h2>
+<div class="grid"><div class="card">
+      <div class="sym">QQQ</div>
+      <div class="price">$714.88</div>
+      <div class="row"><span>今日</span><span class="pos">+0.87%</span></div>
+      <div class="row"><span>距52周高点</span><span>-4.51%</span></div>
+    </div><div class="card">
+      <div class="sym">SPY</div>
+      <div class="price">$764.29</div>
+      <div class="row"><span>今日</span><span class="pos">+0.85%</span></div>
+      <div class="row"><span>距52周高点</span><span>-1.93%</span></div>
+    </div><div class="card">
+      <div class="sym">VOO</div>
+      <div class="price">$702.56</div>
+      <div class="row"><span>今日</span><span class="pos">+0.85%</span></div>
+      <div class="row"><span>距52周高点</span><span>-1.93%</span></div>
+    </div><div class="card">
+      <div class="sym">SMH</div>
+      <div class="price">$568.53</div>
+      <div class="row"><span>今日</span><span class="pos">+1.47%</span></div>
+      <div class="row"><span>距52周高点</span><span>-15.38%</span></div>
+    </div></div>
+
+<h2>个股观察</h2>
+<div class="grid"><div class="card err"><div class="sym">SOFI</div><div class="errmsg">数据获取失败</div></div><div class="card err"><div class="sym">IREN</div><div class="errmsg">数据获取失败</div></div><div class="card err"><div class="sym">ORCL</div><div class="errmsg">数据获取失败</div></div><div class="card err"><div class="sym">TSLA</div><div class="errmsg">数据获取失败</div></div><div class="card err"><div class="sym">NVDA</div><div class="errmsg">数据获取失败</div></div><div class="card err"><div class="sym">TSM</div><div class="errmsg">数据获取失败</div></div><div class="card err"><div class="sym">LITE</div><div class="errmsg">数据获取失败</div></div><div class="card err"><div class="sym">AVGO</div><div class="errmsg">数据获取失败</div></div><div class="card">
+      <div class="sym">MRVL</div>
+      <div class="price">$236.10</div>
+      <div class="row"><span>今日</span><span class="pos">+4.03%</span></div>
+      <div class="row"><span>距52周高点</span><span>-28.43%</span></div>
+    </div><div class="card">
+      <div class="sym">NBIS</div>
+      <div class="price">$224.43</div>
+      <div class="row"><span>今日</span><span class="neg">-1.61%</span></div>
+      <div class="row"><span>距52周高点</span><span>-25.16%</span></div>
+    </div><div class="card">
+      <div class="sym">GOOG</div>
+      <div class="price">$335.45</div>
+      <div class="row"><span>今日</span><span class="pos">+1.53%</span></div>
+      <div class="row"><span>距52周高点</span><span>-17.06%</span></div>
+    </div><div class="card">
+      <div class="sym">AMD</div>
+      <div class="price">$516.13</div>
+      <div class="row"><span>今日</span><span class="pos">+2.49%</span></div>
+      <div class="row"><span>距52周高点</span><span>-11.73%</span></div>
+    </div><div class="card">
+      <div class="sym">HOOD</div>
+      <div class="price">$112.57</div>
+      <div class="row"><span>今日</span><span class="neg">-0.67%</span></div>
+      <div class="row"><span>距52周高点</span><span>-26.84%</span></div>
+    </div><div class="card">
+      <div class="sym">DRAM</div>
+      <div class="price">$59.10</div>
+      <div class="row"><span>今日</span><span class="pos">+0.92%</span></div>
+      <div class="row"><span>距52周高点</span><span>-27.34%</span></div>
+    </div><div class="card">
+      <div class="sym">SPCX</div>
+      <div class="price">$151.21</div>
+      <div class="row"><span>今日</span><span class="pos">+2.04%</span></div>
+      <div class="row"><span>距52周高点</span><span>-32.99%</span></div>
+    </div></div>
+
 <button onclick="exportData()">导出当日数据 (JSON)</button>
 <script>
-const DATA = {"updated": "2026-09-12", "assets": {"QQQM": {"date": "2026-09-11", "close": 294.39001, "prior_month_high": 302.45001, "drawdown": -0.0266490320168943, "threshold": 0.07, "triggered": false}, "VGT": {"date": "2026-09-11", "close": 121.07, "prior_month_high": 123.39, "drawdown": -0.018802171975038556, "threshold": 0.1, "triggered": false}, "QLD": {"date": "2026-09-11", "close": 89.55, "prior_month_high": 95.040001, "drawdown": -0.05776516142923869, "threshold": 0.14, "triggered": false}, "TQQQ": {"date": "2026-09-11", "close": 70.98, "prior_month_high": 77.9, "drawdown": -0.08883183568677794, "threshold": null, "triggered": false}}};
+const DATA = {"updated": "2026-09-12", "core": {"QQQM": {"date": "2026-09-11", "close": 294.39001, "prior_month_high": 302.45001, "drawdown": -0.0266490320168943, "threshold": 0.07, "triggered": false}, "VGT": {"date": "2026-09-11", "close": 121.07, "prior_month_high": 123.39, "drawdown": -0.018802171975038556, "threshold": 0.1, "triggered": false}, "QLD": {"date": "2026-09-11", "close": 89.55, "prior_month_high": 95.040001, "drawdown": -0.05776516142923869, "threshold": 0.14, "triggered": false}, "TQQQ": {"date": "2026-09-11", "close": 70.98, "prior_month_high": 77.9, "drawdown": -0.08883183568677794, "threshold": null, "triggered": false}}, "index": {"QQQ": {"name": "Invesco QQQ Trust, Series 1", "close": 714.88, "percent_change": 0.87344289, "high52": 748.65002, "dist_from_52w_high": -0.04510788632584294, "datetime": "2026-09-11"}, "SPY": {"name": "State Street SPDR S&P 500 ETF Trust", "close": 764.28998, "percent_change": 0.85242875, "high52": 779.37, "dist_from_52w_high": -0.019348987002322376, "datetime": "2026-09-11"}, "VOO": {"name": "Vanguard S&P 500 ETF", "close": 702.56, "percent_change": 0.84834177, "high52": 716.39001, "dist_from_52w_high": -0.019305140784975514, "datetime": "2026-09-11"}, "SMH": {"name": "VanEck Semiconductor ETF", "close": 568.53003, "percent_change": 1.47248, "high52": 671.83002, "dist_from_52w_high": -0.15375911603354667, "datetime": "2026-09-11"}}, "stocks": {"SOFI": {"error": "HTTP Error 429: Too Many Requests"}, "IREN": {"error": "HTTP Error 429: Too Many Requests"}, "ORCL": {"error": "HTTP Error 429: Too Many Requests"}, "TSLA": {"error": "HTTP Error 429: Too Many Requests"}, "NVDA": {"error": "HTTP Error 429: Too Many Requests"}, "TSM": {"error": "HTTP Error 429: Too Many Requests"}, "LITE": {"error": "HTTP Error 429: Too Many Requests"}, "AVGO": {"error": "HTTP Error 429: Too Many Requests"}, "MRVL": {"name": "Marvell Technology, Inc.", "close": 236.10001, "percent_change": 4.027141, "high52": 329.88, "dist_from_52w_high": -0.2842851643021705, "datetime": "2026-09-11"}, "NBIS": {"name": "Nebius Group N.V. Class A Ordinary Shares", "close": 224.42999, "percent_change": -1.61326, "high52": 299.85999, "dist_from_52w_high": -0.2515507320599857, "datetime": "2026-09-11"}, "GOOG": {"name": "Alphabet Inc. Class C Common Stock", "close": 335.45001, "percent_change": 1.53152, "high52": 404.47, "dist_from_52w_high": -0.17064303903874206, "datetime": "2026-09-11"}, "AMD": {"name": "Advanced Micro Devices Inc.", "close": 516.13, "percent_change": 2.48809, "high52": 584.72998, "dist_from_52w_high": -0.11731907435291751, "datetime": "2026-09-11"}, "HOOD": {"name": "Robinhood Markets Inc. Class A Common Stock", "close": 112.57, "percent_change": -0.67060983, "high52": 153.86, "dist_from_52w_high": -0.26836084752372297, "datetime": "2026-09-11"}, "DRAM": {"name": "Roundhill Memory ETF", "close": 59.099998, "percent_change": 0.92212618, "high52": 81.34, "dist_from_52w_high": -0.2734202360462258, "datetime": "2026-09-11"}, "SPCX": {"name": "Space Exploration Technologies Corp. Class A Common Stock", "close": 151.21001, "percent_change": 2.04482, "high52": 225.64, "dist_from_52w_high": -0.3298616823258287, "datetime": "2026-09-11"}}};
 function exportData() {
   const blob = new Blob([JSON.stringify(DATA,null,2)], {type:"application/json"});
   const a = document.createElement("a");

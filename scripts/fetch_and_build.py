@@ -1,25 +1,38 @@
 import csv, io, json, datetime, os
-import urllib.request
+import urllib.request, urllib.parse
+
+API_KEY = os.environ["TWELVE_DATA_KEY"]
 
 TICKERS = {
-    "QQQM": {"symbol": "qqqm.us", "threshold": 0.07},
-    "VGT":  {"symbol": "vgt.us",  "threshold": 0.10},
-    "QLD":  {"symbol": "qld.us",  "threshold": 0.14},
-    "TQQQ": {"symbol": "tqqq.us", "threshold": None},
+    "QQQM": {"threshold": 0.07},
+    "VGT":  {"threshold": 0.10},
+    "QLD":  {"threshold": 0.14},
+    "TQQQ": {"threshold": None},
 }
 
 def fetch_history(symbol):
-    url = f"https://stooq.com/q/d/l/?s={symbol}&i=d"
+    params = urllib.parse.urlencode({
+        "symbol": symbol,
+        "interval": "1day",
+        "outputsize": 60,
+        "apikey": API_KEY,
+    })
+    url = f"https://api.twelvedata.com/time_series?{params}"
     with urllib.request.urlopen(url, timeout=20) as resp:
-        text = resp.read().decode("utf-8")
-    return list(csv.DictReader(io.StringIO(text)))
+        payload = json.loads(resp.read().decode("utf-8"))
+    if payload.get("status") == "error":
+        raise RuntimeError(payload.get("message", "unknown Twelve Data error"))
+    return payload["values"]  # newest first
 
 def prior_month_high(rows, today):
     first_of_this_month = today.replace(day=1)
     last_month_end = first_of_this_month - datetime.timedelta(days=1)
     last_month_start = last_month_end.replace(day=1)
-    highs = [float(r["High"]) for r in rows
-             if r["High"] and last_month_start <= datetime.date.fromisoformat(r["Date"]) <= last_month_end]
+    highs = []
+    for r in rows:
+        d = datetime.date.fromisoformat(r["datetime"][:10])
+        if last_month_start <= d <= last_month_end:
+            highs.append(float(r["high"]))
     return max(highs) if highs else None
 
 def build():
@@ -27,15 +40,15 @@ def build():
     results = {}
     for name, cfg in TICKERS.items():
         try:
-            rows = fetch_history(cfg["symbol"])
-            latest = rows[-1]
-            close = float(latest["Close"])
+            rows = fetch_history(name)
+            latest = rows[0]
+            close = float(latest["close"])
             high = prior_month_high(rows, today)
             drawdown = (close - high) / high if high else None
             threshold = cfg["threshold"]
             triggered = bool(threshold is not None and drawdown is not None and -drawdown >= threshold)
             results[name] = {
-                "date": latest["Date"], "close": close,
+                "date": latest["datetime"][:10], "close": close,
                 "prior_month_high": high, "drawdown": drawdown,
                 "threshold": threshold, "triggered": triggered,
             }
@@ -47,7 +60,7 @@ def render_html(data):
     rows_html = ""
     for name, r in data["assets"].items():
         if "error" in r:
-            rows_html += f"<tr><td>{name}</td><td colspan=5>数据获取失败</td></tr>"
+            rows_html += f"<tr><td>{name}</td><td colspan=5>数据获取失败：{r['error']}</td></tr>"
             continue
         dd = r["drawdown"]
         dd_str = f"{dd*100:.2f}%" if dd is not None else "-"
@@ -63,7 +76,7 @@ th {{ background:#1f3864; }} button {{ background:#2e5395; color:#fff; border:no
 .meta {{ color:#9fb3d9; font-size:13px; margin-bottom:16px; }}
 </style></head><body>
 <h1>📊 多资产量化管理平台 — 每日自动看板</h1>
-<div class="meta">数据更新至：{data['updated']}（数据源：Stooq，交易日收盘后自动更新）</div>
+<div class="meta">数据更新至：{data['updated']}（数据源：Twelve Data，交易日收盘后自动更新）</div>
 <table><tr><th>资产</th><th>日期</th><th>收盘价</th><th>上月最高收盘</th><th>回撤幅度</th><th>状态</th></tr>
 {rows_html}</table>
 <button onclick="exportData()">导出当日数据 (JSON)</button>

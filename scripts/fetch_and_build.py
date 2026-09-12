@@ -15,6 +15,9 @@ def http_get_json(url):
     with urllib.request.urlopen(url, timeout=20) as resp:
         return json.loads(resp.read().decode("utf-8"))
 
+def throttle():
+    time.sleep(8)  # 全局统一限速，稳稳压在Twelve Data免费版每分钟8次以内
+
 def fetch_time_series(symbol, outputsize=60):
     params = urllib.parse.urlencode({"symbol": symbol, "interval": "1day",
                                       "outputsize": outputsize, "apikey": API_KEY})
@@ -56,12 +59,11 @@ def build_core(today):
                          "threshold": threshold, "triggered": triggered}
         except Exception as e:
             out[name] = {"error": str(e)}
-        time.sleep(1)
+        throttle()
     return out
 
 def build_quotes(symbols):
     out = {}
-    count = 0
     for s in symbols:
         try:
             q = fetch_quote(s)
@@ -79,10 +81,7 @@ def build_quotes(symbols):
             }
         except Exception as e:
             out[s] = {"error": str(e)}
-        count += 1
-        time.sleep(1)
-        if count % 8 == 0:
-            time.sleep(55)  # respect 8 req/min free-tier limit
+        throttle()
     return out
 
 def build():

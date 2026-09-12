@@ -7,12 +7,16 @@ th { background:#1f3864; } button { background:#2e5395; color:#fff; border:none;
 .meta { color:#9fb3d9; font-size:13px; margin-bottom:16px; }
 </style></head><body>
 <h1>📊 多资产量化管理平台 — 每日自动看板</h1>
-<div class="meta">数据更新至：2026-09-12（数据源：Stooq，交易日收盘后自动更新）</div>
+<div class="meta">数据更新至：2026-09-12（数据源：Twelve Data，交易日收盘后自动更新）</div>
 <table><tr><th>资产</th><th>日期</th><th>收盘价</th><th>上月最高收盘</th><th>回撤幅度</th><th>状态</th></tr>
-<tr><td>QQQM</td><td colspan=5>数据获取失败</td></tr><tr><td>VGT</td><td colspan=5>数据获取失败</td></tr><tr><td>QLD</td><td colspan=5>数据获取失败</td></tr><tr><td>TQQQ</td><td colspan=5>数据获取失败</td></tr></table>
+<tr><td>QQQM</td><td>2026-09-11</td><td>$294.39</td>
+        <td>$302.45</td><td>-2.66%</td><td>🟢 正常</td></tr><tr><td>VGT</td><td>2026-09-11</td><td>$121.07</td>
+        <td>$123.39</td><td>-1.88%</td><td>🟢 正常</td></tr><tr><td>QLD</td><td>2026-09-11</td><td>$89.55</td>
+        <td>$95.04</td><td>-5.78%</td><td>🟢 正常</td></tr><tr><td>TQQQ</td><td>2026-09-11</td><td>$70.98</td>
+        <td>$77.90</td><td>-8.88%</td><td>🟢 正常</td></tr></table>
 <button onclick="exportData()">导出当日数据 (JSON)</button>
 <script>
-const DATA = {"updated": "2026-09-12", "assets": {"QQQM": {"error": "HTTP Error 404: Not Found"}, "VGT": {"error": "HTTP Error 404: Not Found"}, "QLD": {"error": "HTTP Error 404: Not Found"}, "TQQQ": {"error": "HTTP Error 404: Not Found"}}};
+const DATA = {"updated": "2026-09-12", "assets": {"QQQM": {"date": "2026-09-11", "close": 294.39001, "prior_month_high": 302.45001, "drawdown": -0.0266490320168943, "threshold": 0.07, "triggered": false}, "VGT": {"date": "2026-09-11", "close": 121.07, "prior_month_high": 123.39, "drawdown": -0.018802171975038556, "threshold": 0.1, "triggered": false}, "QLD": {"date": "2026-09-11", "close": 89.55, "prior_month_high": 95.040001, "drawdown": -0.05776516142923869, "threshold": 0.14, "triggered": false}, "TQQQ": {"date": "2026-09-11", "close": 70.98, "prior_month_high": 77.9, "drawdown": -0.08883183568677794, "threshold": null, "triggered": false}}};
 function exportData() {
   const blob = new Blob([JSON.stringify(DATA,null,2)], {type:"application/json"});
   const a = document.createElement("a");

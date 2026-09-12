@@ -9,21 +9,21 @@ CORE = {"QQQM": 0.07, "VGT": 0.10, "QLD": 0.14, "TQQQ": None}
 INDEX = ["QQQ", "SPY", "VOO", "SMH", "SPX", "IXIC"] 
 VIX_SYM = "VIX" 
 
-# 个股配置字典
+# 个股配置字典（已清空模拟的加仓目标价，预留为 None）
 STOCK_META = {
-    "SOFI": {"name": "SoFi", "target": 15.0},
-    "IREN": {"name": "Iris Energy", "target": 35.0},
-    "ORCL": {"name": "Oracle", "target": 130.0},
-    "TSLA": {"name": "Tesla", "target": 250.0},
-    "NVDA": {"name": "Nvidia", "target": 110.0},
-    "TSM": {"name": "TSMC", "target": 160.0},
-    "LITE": {"name": "Lumentum", "target": 45.0},
-    "AVGO": {"name": "Broadcom", "target": 1400.0},
-    "MRVL": {"name": "Marvell", "target": 65.0},
-    "NBIS": {"name": "Nebius", "target": 25.0},
-    "GOOG": {"name": "Google", "target": 150.0},
-    "AMD": {"name": "AMD", "target": 130.0},
-    "HOOD": {"name": "Robinhood", "target": 20.0},
+    "SOFI": {"name": "SoFi", "target": None},
+    "IREN": {"name": "Iris Energy", "target": None},
+    "ORCL": {"name": "Oracle", "target": None},
+    "TSLA": {"name": "Tesla", "target": None},
+    "NVDA": {"name": "Nvidia", "target": None},
+    "TSM": {"name": "TSMC", "target": None},
+    "LITE": {"name": "Lumentum", "target": None},
+    "AVGO": {"name": "Broadcom", "target": None},
+    "MRVL": {"name": "Marvell", "target": None},
+    "NBIS": {"name": "Nebius", "target": None},
+    "GOOG": {"name": "Google", "target": None},
+    "AMD": {"name": "AMD", "target": None},
+    "HOOD": {"name": "Robinhood", "target": None},
     "DRAM": {"name": "DRAM ETF", "target": None},
     "SPCX": {"name": "SPAC ETF", "target": None}
 }
@@ -277,4 +277,3 @@ if __name__ == '__main__':
     with open(html_out, 'w', encoding='utf-8') as f:
         f.write(html)
     print(f'Generated {html_out}')
-

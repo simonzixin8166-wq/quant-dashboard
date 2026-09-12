@@ -1,0 +1,23 @@
+<!DOCTYPE html><html lang="zh"><head><meta charset="UTF-8"><title>量化看板</title>
+<style>
+body { font-family:-apple-system,"Microsoft YaHei",sans-serif; background:#0f1c3f; color:#fff; padding:24px; }
+table { width:100%; border-collapse:collapse; background:#16264f; border-radius:8px; overflow:hidden; }
+th,td { padding:12px; text-align:center; border-bottom:1px solid #2a3b6b; }
+th { background:#1f3864; } button { background:#2e5395; color:#fff; border:none; padding:8px 16px; border-radius:6px; cursor:pointer; margin-top:16px; }
+.meta { color:#9fb3d9; font-size:13px; margin-bottom:16px; }
+</style></head><body>
+<h1>📊 多资产量化管理平台 — 每日自动看板</h1>
+<div class="meta">数据更新至：2026-09-12（数据源：Stooq，交易日收盘后自动更新）</div>
+<table><tr><th>资产</th><th>日期</th><th>收盘价</th><th>上月最高收盘</th><th>回撤幅度</th><th>状态</th></tr>
+<tr><td>QQQM</td><td colspan=5>数据获取失败</td></tr><tr><td>VGT</td><td colspan=5>数据获取失败</td></tr><tr><td>QLD</td><td colspan=5>数据获取失败</td></tr><tr><td>TQQQ</td><td colspan=5>数据获取失败</td></tr></table>
+<button onclick="exportData()">导出当日数据 (JSON)</button>
+<script>
+const DATA = {"updated": "2026-09-12", "assets": {"QQQM": {"error": "HTTP Error 404: Not Found"}, "VGT": {"error": "HTTP Error 404: Not Found"}, "QLD": {"error": "HTTP Error 404: Not Found"}, "TQQQ": {"error": "HTTP Error 404: Not Found"}}};
+function exportData() {
+  const blob = new Blob([JSON.stringify(DATA,null,2)], {type:"application/json"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "dashboard_" + DATA.updated + ".json";
+  a.click();
+}
+</script></body></html>

@@ -1,0 +1,27 @@
+name: Daily Dashboard Update
+
+on:
+  schedule:
+    - cron: '30 21 * * 1-5'
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Fetch prices and build site
+        run: python scripts/fetch_and_build.py
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add docs/
+          git commit -m "Daily update $(date -u +%Y-%m-%d)" || echo "No changes"
+          git push

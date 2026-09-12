@@ -17,6 +17,8 @@ jobs:
         with:
           python-version: '3.11'
       - name: Fetch prices and build site
+        env:
+          TWELVE_DATA_KEY: ${{ secrets.TWELVE_DATA_KEY }}
         run: python scripts/fetch_and_build.py
       - name: Commit and push
         run: |

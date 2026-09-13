@@ -35,11 +35,12 @@ CN_HK_SYMBOLS = {
     "sh000001": "上证指数",
     "sh000300": "沪深300",
     "sz159307": "红利低波100 ETF",
+    "hk03086": "华夏纳指 (港股)",
+    "hk03416": "国指备兑 (港股)",
 }
-OTC_FUNDS = {"021550": "红利低波100联接"}
+OTC_FUNDS = {"021550": "红利低波100联接 (场外)"}
 TENCENT_URL = "http://qt.gtimg.cn/q={symbols}"
 FUND_EST_URL = "http://fundgz.1234567.com.cn/js/{code}.js"
-
 
 # ================= 核心抓取逻辑 =================
 def http_get_json(url):
@@ -121,7 +122,6 @@ def fetch_tencent_quotes(symbols):
             continue
         try:
             name, price, prev_close = fields[1], float(fields[3]), float(fields[4])
-            # 这里的涨跌幅不乘100，为了兼容下方美股的 fmt_pct 渲染逻辑
             pct_change = (price - prev_close) / prev_close if prev_close else None
             out[sym] = {"name": name, "price": price, "prev_close": prev_close, "day_chg": pct_change}
         except Exception as e:
@@ -142,7 +142,6 @@ def fetch_fund_estimate(fund_code):
         }
     except Exception as e:
         return {"error": str(e)}
-
 
 # ================= 指标计算 =================
 def calc_rsi(closes, period=14):
@@ -192,7 +191,6 @@ def analyze(symbol, rows, today, threshold=None, is_stock=False):
         })
     return out
 
-
 # ================= 核心构建与渲染 =================
 def build():
     today = datetime.date.today()
@@ -229,7 +227,6 @@ def build():
             stocks[name] = {"error": str(e)}
         throttle()
         
-    # 抓取 A 股与港股
     cn_hk_data = {}
     try:
         cn_hk_data.update(fetch_tencent_quotes(list(CN_HK_SYMBOLS.keys())))
@@ -290,12 +287,12 @@ def row_stock(sym, r):
 
 def mkt_card_a(title, data):
     if not data or "error" in data:
-        return f'<div class="mkt-card"><div class="name">{title}</div><div class="val" style="font-size:14px;color:var(--muted)">数据获取中</div></div>'
+        return f'<div class="mkt-card"><div class="name">{title}</div><div class="val" style="font-size:14px;color:var(--muted);margin-top:12px">接口拦截/闭市</div></div>'
     price = data.get("price", 0)
     chg = data.get("day_chg", 0)
     chg_str = f"+{fmt_pct(chg)}" if chg >= 0 else fmt_pct(chg)
     color_cls = "positive" if chg >= 0 else "negative"
-    return f'<div class="mkt-card"><div class="name">{title}</div><div class="val">{price:,.2f}</div><div class="chg {color_cls}">{chg_str}</div></div>'
+    return f'<div class="mkt-card"><div class="name">{title}</div><div class="val">{price:,.3f}</div><div class="chg {color_cls}">{chg_str}</div></div>'
 
 def render_html(data):
     engine_html = "".join(engine_item(k, v) for k, v in data["core"].items())
@@ -333,9 +330,7 @@ def render_html(data):
     qqq_note = f"成长/科技风格温度 · {src_label(mi.get('ixic_source'))}"
     vix_note = f"{src_label(mi.get('vix_source'))}"
 
-    sh000001 = cn.get("sh000001", {})
     sz159307 = cn.get("sz159307", {})
-    sh_val = f'{sh000001.get("price", 0):,.1f}' if "price" in sh000001 else "—"
     sz_val = f'{sz159307.get("price", 0):,.3f}' if "price" in sz159307 else "—"
     sz_chg = sz159307.get("day_chg")
 
@@ -370,6 +365,7 @@ def render_html(data):
 .nav-group{{margin-top:22px}} .nav-title{{color:#5c6178;font-size:10.5px;font-weight:600;letter-spacing:.5px;margin:0 10px 8px}}
 .nav-menu{{list-style:none;display:grid;gap:3px}} .nav-menu li{{display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:9px;color:var(--navmuted);cursor:pointer;font-size:13.5px;font-weight:500;transition:.16s}}
 .nav-menu li:hover{{background:rgba(255,255,255,.06);color:#fff}} .nav-menu li.active{{color:#fff;background:rgba(184,134,58,.16);box-shadow:inset 2.5px 0 0 var(--brass)}} .nav-icon{{width:18px;text-align:center;font-size:14px}}
+.nav-menu li .tag{{margin-left:auto;font-size:9px;background:rgba(255,255,255,.1);color:var(--navmuted);padding:2px 6px;border-radius:99px;font-weight:600}}
 .sidebar-footer{{margin-top:auto;color:#565b71;font-size:10.5px;line-height:1.7;padding-top:16px;border-top:1px solid var(--navline)}}
 .main{{margin-left:252px;width:calc(100% - 252px)}} .topbar{{height:64px;background:rgba(244,242,236,.9);backdrop-filter:blur(14px);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 32px;position:sticky;top:0;z-index:10}}
 .breadcrumb{{font-size:13px;color:var(--muted)}} .breadcrumb strong{{color:var(--ink);font-weight:600}} .top-meta{{display:flex;gap:18px;color:var(--muted);font-size:11.5px;align-items:center}} .live-dot{{width:7px;height:7px;border-radius:50%;background:var(--green);display:inline-block;margin-right:6px}}
@@ -400,36 +396,62 @@ def render_html(data):
 </style></head><body><div class="app">
 
 <aside class="sidebar"><div class="brand"><div class="brand-mark"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4 17 L9 9 L13 14 L20 5" stroke="#181109" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="20" cy="5" r="2.1" fill="#181109"/></svg></div><div><strong>AlphaView</strong><small>阿尔法视界 · myalphaview.com</small></div></div>
-<div class="nav-group"><div class="nav-title">美股 · 宏观</div><ul class="nav-menu"><li class="active" onclick="switchTab('tab-overview',this)"><span class="nav-icon">◆</span>市场总览</li><li onclick="switchTab('tab-index',this)"><span class="nav-icon">◫</span>指数 & ETF</li></ul></div>
-<div class="nav-group"><div class="nav-title">观察 & 持仓</div><ul class="nav-menu"><li onclick="switchTab('tab-stocks',this)"><span class="nav-icon">⌁</span>个股观察池</li><li onclick="switchTab('tab-options',this)"><span class="nav-icon">⚑</span>期权自查清单</li></ul></div>
+<div class="nav-group"><div class="nav-title">美股 · 宏观</div><ul class="nav-menu">
+  <li class="active" onclick="switchTab('tab-overview',this)"><span class="nav-icon">◆</span>市场总览</li>
+  <li onclick="switchTab('tab-engine',this)"><span class="nav-icon">◒</span>策略引擎</li>
+  <li onclick="switchTab('tab-index',this)"><span class="nav-icon">◫</span>指数 & ETF</li>
+</ul></div>
+<div class="nav-group"><div class="nav-title">A股 · 港股 · 红利</div><ul class="nav-menu">
+  <li onclick="switchTab('tab-cn-hk',this)"><span class="nav-icon">◇</span>大盘 & 红利低波 <span class="tag">NEW</span></li>
+</ul></div>
+<div class="nav-group"><div class="nav-title">观察 & 持仓</div><ul class="nav-menu">
+  <li onclick="switchTab('tab-stocks',this)"><span class="nav-icon">⌁</span>个股观察池</li>
+  <li onclick="switchTab('tab-options',this)"><span class="nav-icon">⚑</span>期权自查清单</li>
+</ul></div>
 <div class="sidebar-footer">公开研究版 · 不展示个人真实资产<br>数据仅供研究演示</div></aside>
 
-<main class="main"><header class="topbar"><div class="breadcrumb">AlphaView / <strong>市场终端</strong></div><div class="top-meta"><span><i class="live-dot"></i>数据抓取成功</span><span>更新: {data['updated']}</span></div></header><div class="content">
+<main class="main"><header class="topbar"><div class="breadcrumb">AlphaView / <strong id="bc-title">市场总览</strong></div><div class="top-meta"><span><i class="live-dot"></i>数据抓取成功</span><span>更新: {data['updated']}</span></div></header><div class="content">
 
+<!-- TAB 1: 市场总览 -->
 <div id="tab-overview" class="tab-pane active">
 <section class="hero"><div><h1>看清市场在说什么，而不是账户在做什么。</h1><p>公开版投资研究面板：聚焦市场趋势、回撤、波动率与策略触发条件。</p></div><div class="public-note"><b>公开展示模式</b>这里展示的是研究指标与策略信号，不代表任何个人账户的实际仓位或收益。</div></section>
 <section class="section"><div class="section-head"><h2>市场核心指标</h2><p>自动更新</p></div><div class="metrics">{metric_card('纳斯达克综合指数',qqq_value,qqq_chg,qqq_note,'good' if isinstance(qqq_chg,(int,float)) and qqq_chg>=0 else 'warn')}{metric_card('标普500指数',spy_value,spy_chg,spy_note,'good' if isinstance(spy_chg,(int,float)) and spy_chg>=0 else 'warn')}{metric_card('VIX恐慌指数',vol_display,None,vix_note,vol_tone)}{metric_card('红利低波100 (159307)',sz_val,sz_chg,'A股红利代理 · 腾讯行情','good')}</div></section>
 
-<section class="section"><div class="engine"><div class="engine-top"><div><div class="engine-label">STRATEGY ENGINE · 核心资产宽幅与回撤联动</div><div class="engine-title">当前状态：实时监测</div></div><div class="engine-badge {badge_cls}">{badge_txt}</div></div>
-<div class="engine-grid">{engine_html}</div><div class="engine-foot">分级规则：基于各大宽基指数及杠杆 ETF 的极值回撤触发。此处展示已整合的规则与信号，不展示实盘资金规模。</div></div></section>
-
 <section class="section"><div class="section-head"><h2>QQQ & SPY · 近 30 个交易日</h2><p>历史走势</p></div><div class="dashboard-grid"><div class="panel"><div class="panel-head"><strong>趋势对比</strong><span>收盘价</span></div><div class="chart-wrap"><canvas id="trendChart"></canvas></div></div><div class="panel"><div class="panel-head"><strong>Market Pulse</strong><span>研究状态</span></div><div class="pulse-list">
 <div class="pulse"><div><div class="pulse-label">波动环境</div><div class="pulse-main">{vol_state}</div></div><div class="pulse-right"><span class="badge {vol_tone}">VIX {vol_display}</span></div></div>
 <div class="pulse"><div><div class="pulse-label">策略观察</div><div class="pulse-main">指标运作中</div></div><div class="pulse-right"><span class="badge neutral">RULE BASED</span></div></div>
-<div class="pulse"><div><div class="pulse-label">A股情绪</div><div class="pulse-main">结构性行情</div></div><div class="pulse-right"><span class="badge good">上证 {sh_val}</span></div></div></div></div></div></section>
+<div class="pulse"><div><div class="pulse-label">全球资产</div><div class="pulse-main">中美资产跟踪</div></div><div class="pulse-right"><span class="badge good">已接入</span></div></div></div></div></div></section>
+</div>
 
-<section class="section"><div class="section-head"><h2>A股大盘 & 红利低波</h2><p>自动同步腾讯行情与天天基金盘中估值</p></div><div class="opt-grid">
+<!-- TAB 2: 策略引擎 -->
+<div id="tab-engine" class="tab-pane">
+<section class="hero"><div><h1>核心策略信号</h1><p>用回撤、RSI 与长期均线观察核心 ETF 的风险与潜在策略触发点。</p></div></section>
+<section class="section"><div class="engine"><div class="engine-top"><div><div class="engine-label">STRATEGY ENGINE · 核心资产宽幅与回撤联动</div><div class="engine-title">当前状态：实时监测</div></div><div class="engine-badge {badge_cls}">{badge_txt}</div></div>
+<div class="engine-grid">{engine_html}</div><div class="engine-foot">分级规则：基于各大宽基指数及杠杆 ETF 的极值回撤触发。此处展示已整合的规则与信号，不展示实盘资金规模。</div></div></section>
+</div>
+
+<!-- TAB 3: 指数与 ETF -->
+<div id="tab-index" class="tab-pane"><section class="hero"><div><h1>指数与行业 ETF</h1><p>从宽基指数到行业 ETF，快速观察价格、回撤、RSI 与 200 日均线距离。</p></div></section><section class="section"><div class="grid">{index_html}</div></section></div>
+
+<!-- TAB 4: A股 & 港股 & 红利 -->
+<div id="tab-cn-hk" class="tab-pane">
+<section class="hero"><div><h1>A股港股 & 红利低波</h1><p>自动同步腾讯行情与天天基金盘中估值。部分场外基金如遇防爬拦截，将显示获取失败状态。</p></div></section>
+<section class="section"><div class="section-head"><h2>大盘与红利核心池</h2><p>腾讯行情实时同步</p></div><div class="opt-grid">
 {mkt_card_a("上证指数", cn.get("sh000001"))}
 {mkt_card_a("沪深300", cn.get("sh000300"))}
 {mkt_card_a("红利低波100 ETF (159307)", cn.get("sz159307"))}
 {mkt_card_a("红利低波100 场外联接 (021550)", cn.get("021550"))}
 </div></section>
+<section class="section"><div class="section-head"><h2>港股跨境池</h2><p>腾讯行情实时同步</p></div><div class="opt-grid">
+{mkt_card_a("华夏纳指 (港股)", cn.get("hk03086"))}
+{mkt_card_a("国指备兑 (港股)", cn.get("hk03416"))}
+</div></section>
 </div>
 
-<div id="tab-index" class="tab-pane"><section class="hero"><div><h1>指数与行业 ETF</h1><p>从宽基指数到行业 ETF，快速观察价格、回撤、RSI 与 200 日均线距离。</p></div></section><section class="section"><div class="grid">{index_html}</div></section></div>
-
+<!-- TAB 5: 个股观察池 -->
 <div id="tab-stocks" class="tab-pane"><section class="hero"><div><h1>个股观察池</h1><p>包含中英文名称对照及核心技术指标监控。</p></div></section><section class="section"><div class="table-container"><table><thead><tr><th>代码</th><th>名称</th><th>最新价</th><th>涨跌幅</th><th>开盘</th><th>最高</th><th>最低</th><th>年内最高</th><th>RSI(14)</th><th>距200MA</th><th>策略参考价</th></tr></thead><tbody>{stock_html}</tbody></table></div></section></div>
 
+<!-- TAB 6: 期权自查 -->
 <div id="tab-options" class="tab-pane"><section class="hero"><div><h1>期权持仓自查清单</h1><p>静态监控清单：在持有期权头寸期间，重点审视的希腊字母与风控指标。</p></div></section><section class="section"><div class="opt-grid">
 <div class="mkt-card"><h3>⏳ 剩余到期天数 (DTE)</h3><p style="font-size:12px;color:var(--muted);margin-top:8px">越接近到期，Theta 衰减越快。最后30天内加速明显。</p></div>
 <div class="mkt-card"><h3>🎯 距行权价的距离</h3><p style="font-size:12px;color:var(--muted);margin-top:8px">决定合约是价内(ITM)、价平(ATM)还是价外(OTM)。</p></div>
@@ -443,7 +465,14 @@ def render_html(data):
 </div></main></div>
 <script>
 const CHART_DATA={chart_json};
-function switchTab(id,el){{document.querySelectorAll('.tab-pane').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.nav-menu li').forEach(l=>l.classList.remove('active'));document.getElementById(id).classList.add('active');el.classList.add('active');window.scrollTo({{top:0,behavior:'smooth'}});}}
+function switchTab(id,el){{
+    document.querySelectorAll('.tab-pane').forEach(t=>t.classList.remove('active'));
+    document.querySelectorAll('.nav-menu li').forEach(l=>l.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    el.classList.add('active');
+    document.getElementById('bc-title').innerText = el.innerText.replace('NEW', '').replace(/^[◆◒◫◇⌁⚑]/, '').trim();
+    window.scrollTo({{top:0,behavior:'smooth'}});
+}}
 window.addEventListener('load',function(){{
     const c=document.getElementById('trendChart');
     const qq=CHART_DATA.QQQ||[], sp=CHART_DATA.SPY||[];

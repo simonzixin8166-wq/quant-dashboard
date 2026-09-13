@@ -567,8 +567,8 @@ window.addEventListener('load',function(){{
 
 // ================= Supabase 魔法链接身份验证逻辑 =================
 // ⚠️ 注意：在这里替换成你获取的 URL 和 publishable key
-const SUPABASE_URL = '填入你的SUPABASE_URL';
-const SUPABASE_ANON_KEY = '填入你的ANON_KEY';
+const SUPABASE_URL = 'https://rhielbkvhgqbthcgztci.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_7_S0qA1oh31fHiihhx07PA_1LPAighW';
 
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 const authBtn = document.getElementById('authBtn');
@@ -623,8 +623,8 @@ supabaseClient.auth.onAuthStateChange((event, session) => {{
 
 # ================= 数据库推送逻辑 =================
 def push_to_supabase(data):
-    supabase_url = os.environ.get("https://rhielbkvhgqbthcgztci.supabase.co")
-    supabase_key = os.environ.get("sb_publishable_7_S0qA1oh31fHiihhx07PA_1LPAighW")
+    supabase_url = os.environ.get("SUPABASE_URL")
+    supabase_key = os.environ.get("SUPABASE_KEY")
     
     if not supabase_url or not supabase_key:
         print("注意：未找到 Supabase 环境变量，跳过数据库同步。")

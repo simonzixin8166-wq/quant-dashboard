@@ -13,7 +13,7 @@
 .table-container{overflow:auto;background:var(--surface);border:1px solid var(--line);border-radius:15px;box-shadow:var(--shadow)} table{width:100%;border-collapse:collapse;text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums} th,td{padding:14px 16px;border-bottom:1px solid var(--line);font-size:13px} th{background:var(--surface2);color:var(--muted);font-weight:700;position:sticky;top:0;font-size:11.5px} th:nth-child(1),td:nth-child(1),th:nth-child(2),td:nth-child(2){text-align:left} tr:hover td{background:#fbf7ee} tr:last-child td{border-bottom:0} .sub-text{color:var(--muted)} .footer{color:#9a9484;font-size:10px;line-height:1.7;text-align:center;padding:30px 0 12px} .tab-pane{display:none;animation:fade .22s ease} .tab-pane.active{display:block} @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
 .opt-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px} .opt-card{background:var(--surface);border:1px solid var(--line);border-radius:15px;padding:18px;box-shadow:var(--shadow)} .opt-card h3{font-size:13px;margin-bottom:8px;color:var(--accent)} .opt-card p{font-size:12px;color:var(--muted);line-height:1.7}
 @media(max-width:1000px){.sidebar{width:205px}.main{margin-left:205px;width:calc(100% - 205px)}.metrics{grid-template-columns:repeat(2,1fr)}.dashboard-grid{grid-template-columns:1fr}.content{padding:25px}} @media(max-width:700px){.sidebar{position:sticky;top:0;width:100%;height:auto;padding:10px 12px}.app{display:block}.brand{padding:3px 5px 10px;border:0}.brand-mark{width:32px;height:32px}.nav-title,.sidebar-footer{display:none}.nav-menu{display:flex;overflow-x:auto}.nav-menu li{flex:0 0 auto;padding:9px 11px;font-size:11px}.main{margin-left:0;width:100%}.topbar{height:54px;padding:0 16px}.top-meta{display:none}.content{padding:20px 14px}.hero{display:block}h1{font-size:25px}.public-note{margin-top:15px;width:100%}.metrics{grid-template-columns:1fr 1fr;gap:10px}.metric-card{min-height:118px;padding:14px}.metric-value{font-size:21px}.chart-wrap{height:250px}} @media(max-width:430px){.metrics{grid-template-columns:1fr}}
-</style></head><body><div class="app"><aside class="sidebar"><div class="brand"><div class="brand-mark">◈</div><div><strong>SIMON</strong><small>的投资分析平台</small></div></div><div class="nav-title">MARKET RESEARCH</div><ul class="nav-menu"><li class="active" onclick="switchTab('tab-overview',this)"><span class="nav-icon">⌂</span>市场总览</li><li onclick="switchTab('tab-core',this)"><span class="nav-icon">◒</span>策略信号</li><li onclick="switchTab('tab-index',this)"><span class="nav-icon">◫</span>指数 & ETF</li><li onclick="switchTab('tab-stocks',this)"><span class="nav-icon">⌁</span>个股观察池</li><li onclick="switchTab('tab-options',this)"><span class="nav-icon">⚑</span>期权持仓</li></ul><div class="sidebar-footer">公开研究版 · 不展示个人真实资产<br>数据仅用于研究与策略演示</div></aside><main class="main"><header class="topbar"><div class="breadcrumb">SIMON / <strong>市场总览</strong></div><div class="top-meta"><span><i class="live-dot"></i>数据状态正常</span><span>更新：2026-09-12</span><span>Public Research</span></div></header><div class="content">
+</style></head><body><div class="app"><aside class="sidebar"><div class="brand"><div class="brand-mark">◈</div><div><strong>SIMON</strong><small>的投资分析平台</small></div></div><div class="nav-title">MARKET RESEARCH</div><ul class="nav-menu"><li class="active" onclick="switchTab('tab-overview',this)"><span class="nav-icon">⌂</span>市场总览</li><li onclick="switchTab('tab-core',this)"><span class="nav-icon">◒</span>策略信号</li><li onclick="switchTab('tab-index',this)"><span class="nav-icon">◫</span>指数 & ETF</li><li onclick="switchTab('tab-cnhk',this)"><span class="nav-icon">◇</span>A股 & 红利</li><li onclick="switchTab('tab-stocks',this)"><span class="nav-icon">⌁</span>个股观察池</li><li onclick="switchTab('tab-options',this)"><span class="nav-icon">⚑</span>期权持仓</li></ul><div class="sidebar-footer">公开研究版 · 不展示个人真实资产<br>数据仅用于研究与策略演示</div></aside><main class="main"><header class="topbar"><div class="breadcrumb">SIMON / <strong>市场总览</strong></div><div class="top-meta"><span><i class="live-dot"></i>数据状态正常</span><span>更新：2026-09-13</span><span>Public Research</span></div></header><div class="content">
 <div id="tab-overview" class="tab-pane active"><section class="hero"><div><div class="eyebrow">QUANTITATIVE MARKET INTELLIGENCE</div><h1>用数据观察市场，而不是展示账户。</h1><p>公开版投资研究面板：聚焦市场趋势、回撤、波动率与策略触发条件。个人真实资金、持仓数量与账户信息不在公开页面展示。</p></div><div class="public-note"><strong>🔒 公开展示模式</strong>这里展示的是研究指标与策略信号，不代表任何个人账户的实际仓位或收益。</div></section><section class="section"><div class="section-head"><h2>市场核心指标</h2><p>昨日收盘 · 自动更新</p></div><div class="metrics"><div class="metric-card"><div class="metric-top"><span>纳斯达克综合指数</span><span class="metric-dot good"></span></div><div class="metric-value">$26,333.04</div><div class="metric-change positive">+0.96%</div><div class="metric-note">成长/科技风格温度 · 真实指数(Yahoo)</div></div><div class="metric-card"><div class="metric-top"><span>标普500指数</span><span class="metric-dot good"></span></div><div class="metric-value">$7,656.98</div><div class="metric-change positive">+0.86%</div><div class="metric-note">大盘风险偏好 · 真实指数(Yahoo)</div></div><div class="metric-card"><div class="metric-top"><span>VIX恐慌指数</span><span class="metric-dot good"></span></div><div class="metric-value">15.84</div><div class="metric-note">正常波动 · 真实指数(Yahoo)</div></div><div class="metric-card"><div class="metric-top"><span>策略触发状态</span><span class="metric-dot good"></span></div><div class="metric-value">暂无触发</div><div class="metric-note">仅显示规则信号，不显示资金规模</div></div></div></section><section class="section dashboard-grid"><div class="panel"><div class="panel-head"><strong>QQQ & SPY · 近 30 个交易日</strong><span>历史走势</span></div><div class="chart-wrap"><canvas id="trendChart"></canvas><div id="chartEmpty" class="chart-empty" style="display:none">当前历史数据暂不可用，待下一次自动更新。</div></div></div><div class="panel"><div class="panel-head"><strong>Market Pulse</strong><span>研究状态</span></div><div class="pulse-list"><div class="pulse"><div><div class="pulse-label">波动环境</div><div class="pulse-main">正常波动</div></div><div class="pulse-right"><span class="badge good">VIX 15.84</span></div></div><div class="pulse"><div><div class="pulse-label">策略观察</div><div class="pulse-main">暂无触发</div></div><div class="pulse-right"><span class="badge good">RULE BASED</span></div></div><div class="pulse"><div><div class="pulse-label">数据源</div><div class="pulse-main">Yahoo优先 / Twelve Data兜底</div></div><div class="pulse-right"><span class="badge neutral">API</span></div></div></div></div></section></div>
 <div id="tab-core" class="tab-pane"><section class="hero"><div><div class="eyebrow">STRATEGY ENGINE</div><h1>策略信号</h1><p>用回撤、RSI 与长期均线观察核心 ETF 的风险与潜在策略触发点。这里不显示真实仓位。</p></div></section><section class="section"><div class="section-head"><h2>核心策略观察</h2><p>规则驱动 · 不代表交易建议</p></div><div class="grid"><div class="card">
       <div class="card-header"><span class="sym">QQQM</span><span class="price">$294.39</span></div>
@@ -84,6 +84,37 @@
       <div class="row"><span>距 200MA</span><span class="fw-bold">17.91%</span></div>
       
     </div></div></section></div>
+<div id="tab-cnhk" class="tab-pane"><section class="hero"><div><div class="eyebrow">A股 & 红利低波</div><h1>A股大盘 & 红利低波跟踪</h1><p>红利低波100指数(930955)本身不在免费行情源覆盖范围内，此处用紧密跟踪该指数的场内ETF(159307)代理展示走势；场外联接基金(021550)的净值为估算值/上一交易日正式净值，非实时。</p></div></section><section class="section"><div class="grid"><div class="card">
+      <div class="card-header"><span class="sym">红利低波100ETF博时</span><span class="price">1.024</span></div>
+      <div class="divider"></div>
+      <div class="row"><span>代码</span><span class="fw-bold">sz159307</span></div>
+      <div class="row"><span>昨收</span><span class="fw-bold">1.033</span></div>
+      <div class="row"><span>涨跌幅</span><span class="neg-text fw-bold">-0.87%</span></div>
+    </div><div class="card">
+      <div class="card-header"><span class="sym">上证指数</span><span class="price">3888.11</span></div>
+      <div class="divider"></div>
+      <div class="row"><span>代码</span><span class="fw-bold">sh000001</span></div>
+      <div class="row"><span>昨收</span><span class="fw-bold">3934.4</span></div>
+      <div class="row"><span>涨跌幅</span><span class="neg-text fw-bold">-1.18%</span></div>
+    </div><div class="card">
+      <div class="card-header"><span class="sym">沪深300</span><span class="price">4510.16</span></div>
+      <div class="divider"></div>
+      <div class="row"><span>代码</span><span class="fw-bold">sh000300</span></div>
+      <div class="row"><span>昨收</span><span class="fw-bold">4548.39</span></div>
+      <div class="row"><span>涨跌幅</span><span class="neg-text fw-bold">-0.84%</span></div>
+    </div><div class="card">
+      <div class="card-header"><span class="sym">华夏纳指</span><span class="price">59.62</span></div>
+      <div class="divider"></div>
+      <div class="row"><span>代码</span><span class="fw-bold">hk03086</span></div>
+      <div class="row"><span>昨收</span><span class="fw-bold">60.12</span></div>
+      <div class="row"><span>涨跌幅</span><span class="neg-text fw-bold">-0.83%</span></div>
+    </div><div class="card">
+      <div class="card-header"><span class="sym">AGX国指兑</span><span class="price">8.23</span></div>
+      <div class="divider"></div>
+      <div class="row"><span>代码</span><span class="fw-bold">hk03416</span></div>
+      <div class="row"><span>昨收</span><span class="fw-bold">8.265</span></div>
+      <div class="row"><span>涨跌幅</span><span class="neg-text fw-bold">-0.42%</span></div>
+    </div><div class="card err"><div class="sym">红利低波100ETF联接(场外)</div><div class="errmsg">获取失败：解析失败</div></div></div></section></div>
 <div id="tab-stocks" class="tab-pane"><section class="hero"><div><div class="eyebrow">WATCHLIST</div><h1>个股观察池</h1><p>公开展示研究标的的市场数据与策略参考点，不展示个人成本、持仓数量或账户收益。</p></div></section><section class="section"><div class="table-container"><table><thead><tr><th>代码</th><th>名称</th><th>最新价</th><th>涨跌幅</th><th>开盘</th><th>最高</th><th>最低</th><th>年内最高</th><th>RSI(14)</th><th>距200MA</th><th>策略参考价</th></tr></thead><tbody><tr>
         <td><b>SOFI</b></td><td class="sub-text">SoFi Technologies</td>
         <td class="fw-bold">$17.32</td><td class="pos-text">+0.64%</td>
@@ -107,73 +138,73 @@
         <td class="fw-bold">$365.44</td><td class="pos-text">+0.52%</td>
         <td>$364.20</td><td>$368.66</td><td>$361.60</td>
         <td>$458.34</td><td>54.45</td><td>-8.39%</td>
-        <td><b>$250.00</b> </td>
+        <td><b>$330.00</b> </td>
     </tr><tr>
         <td><b>NVDA</b></td><td class="sub-text">英伟达</td>
         <td class="fw-bold">$218.29</td><td class="neg-text">-0.03%</td>
         <td>$221.24</td><td>$222.00</td><td>$218.15</td>
         <td>$236.54</td><td>49.75</td><td>10.54%</td>
-        <td><b>$110.00</b> </td>
+        <td><b>$190.00</b> </td>
     </tr><tr>
         <td><b>TSM</b></td><td class="sub-text">台积电</td>
         <td class="fw-bold">$433.24</td><td class="pos-text">+1.22%</td>
         <td>$431.55</td><td>$435.37</td><td>$428.90</td>
         <td>$479.00</td><td>56.89</td><td>15.24%</td>
-        <td><b>$160.00</b> </td>
+        <td><b>$385.00</b> </td>
     </tr><tr>
         <td><b>LITE</b></td><td class="sub-text">Lumentum</td>
         <td class="fw-bold">$927.03</td><td class="neg-text">-0.93%</td>
         <td>$945.59</td><td>$973.50</td><td>$914.65</td>
         <td>$1085.68</td><td>53.87</td><td>32.56%</td>
-        <td><b>$45.00</b> </td>
+        <td><b>$650.00</b> </td>
     </tr><tr>
         <td><b>AVGO</b></td><td class="sub-text">博通</td>
         <td class="fw-bold">$361.99</td><td class="pos-text">+0.32%</td>
         <td>$364.85</td><td>$366.78</td><td>$361.64</td>
         <td>$495.00</td><td>42.24</td><td>-2.22%</td>
-        <td><b>$1400.00</b> <span class="alert-text fw-bold ml">(信号触发!)</span></td>
+        <td><b>$340.00</b> </td>
     </tr><tr>
         <td><b>MRVL</b></td><td class="sub-text">美满电子</td>
         <td class="fw-bold">$236.10</td><td class="pos-text">+4.03%</td>
         <td>$234.63</td><td>$240.20</td><td>$229.28</td>
         <td>$329.88</td><td>55.47</td><td>52.50%</td>
-        <td><b>$65.00</b> </td>
+        <td><b>$180.00</b> </td>
     </tr><tr>
         <td><b>NBIS</b></td><td class="sub-text">Nebius</td>
         <td class="fw-bold">$224.55</td><td class="neg-text">-1.56%</td>
         <td>$234.80</td><td>$234.95</td><td>$223.64</td>
         <td>$299.86</td><td>51.44</td><td>42.39%</td>
-        <td><b>$25.00</b> </td>
+        <td><b>$180.00</b> </td>
     </tr><tr>
         <td><b>GOOG</b></td><td class="sub-text">谷歌</td>
         <td class="fw-bold">$335.45</td><td class="pos-text">+1.53%</td>
         <td>$332.73</td><td>$339.95</td><td>$332.55</td>
         <td>$404.47</td><td>46.13</td><td>-0.04%</td>
-        <td><b>$150.00</b> </td>
+        <td><b>$300.00</b> </td>
     </tr><tr>
         <td><b>AMD</b></td><td class="sub-text">超威半导体</td>
         <td class="fw-bold">$516.13</td><td class="pos-text">+2.49%</td>
         <td>$510.71</td><td>$521.06</td><td>$501.35</td>
         <td>$584.73</td><td>57.96</td><td>48.78%</td>
-        <td><b>$130.00</b> </td>
+        <td><b>$400.00</b> </td>
     </tr><tr>
         <td><b>HOOD</b></td><td class="sub-text">Robinhood</td>
         <td class="fw-bold">$112.57</td><td class="neg-text">-0.67%</td>
         <td>$113.35</td><td>$116.40</td><td>$111.02</td>
         <td>$125.25</td><td>55.79</td><td>18.30%</td>
-        <td><b>$20.00</b> </td>
+        <td><b>$70.00</b> </td>
     </tr><tr>
         <td><b>DRAM</b></td><td class="sub-text">Roundhill内存芯片ETF</td>
         <td class="fw-bold">$59.10</td><td class="pos-text">+0.92%</td>
         <td>$60.03</td><td>$60.04</td><td>$58.58</td>
         <td>$81.34</td><td>54.28</td><td>-</td>
-        <td><b>-</b> </td>
+        <td><b>$45.00</b> </td>
     </tr><tr>
         <td><b>SPCX</b></td><td class="sub-text">SpaceX代币化产品</td>
         <td class="fw-bold">$151.21</td><td class="pos-text">+2.04%</td>
         <td>$150.01</td><td>$151.85</td><td>$145.92</td>
         <td>$225.64</td><td>59.53</td><td>-</td>
-        <td><b>-</b> </td>
+        <td><b>$109.00</b> </td>
     </tr></tbody></table></div></section></div>
 <div id="tab-options" class="tab-pane"><section class="hero"><div><div class="eyebrow">OPTIONS WATCHLIST</div><h1>期权持仓监控清单</h1><p>公开版暂不接入实时期权行情（免费数据源普遍不支持及时的期权Greeks），先提供持有期权期间需要重点盯防的指标清单，作为自查参考。</p></div></section><section class="section"><div class="opt-grid">
 <div class="opt-card"><h3>⏳ 剩余到期天数 (DTE)</h3><p>越接近到期，时间价值(Theta)衰减越快，尤其是最后30天内加速明显。</p></div>
@@ -186,5 +217,5 @@
 <div class="opt-card"><h3>⚖️ 盈亏平衡价</h3><p>买入认购：行权价+权利金；买入认沽：行权价-权利金，判断到期需要标的价到哪里才不亏。</p></div>
 <div class="opt-card"><h3>📅 关键事件日历</h3><p>财报日、除息日、宏观数据发布日，都可能造成标的价或IV的剧烈跳动。</p></div>
 </div></section></div>
-<div class="footer">SIMON的投资分析平台 · Public Research Dashboard · 2026-09-12<br>市场数据与策略指标仅供研究、学习与信息参考，不构成投资建议。</div></div></main></div>
+<div class="footer">SIMON的投资分析平台 · Public Research Dashboard · 2026-09-13<br>市场数据与策略指标仅供研究、学习与信息参考，不构成投资建议。</div></div></main></div>
 <script>const CHART_DATA={"QQQ": [{"d": "2026-07-31", "c": 687.98999}, {"d": "2026-08-03", "c": 700.070007}, {"d": "2026-08-04", "c": 723.84998}, {"d": "2026-08-05", "c": 717.29999}, {"d": "2026-08-06", "c": 714.65002}, {"d": "2026-08-07", "c": 723.030029}, {"d": "2026-08-10", "c": 720.87}, {"d": "2026-08-11", "c": 718.45001}, {"d": "2026-08-12", "c": 723.70001}, {"d": "2026-08-13", "c": 732.070007}, {"d": "2026-08-14", "c": 731.070007}, {"d": "2026-08-17", "c": 729.87}, {"d": "2026-08-18", "c": 717.51001}, {"d": "2026-08-19", "c": 716.080017}, {"d": "2026-08-20", "c": 710.92999}, {"d": "2026-08-21", "c": 713.44}, {"d": "2026-08-24", "c": 706.32001}, {"d": "2026-08-25", "c": 710.71997}, {"d": "2026-08-26", "c": 711.37}, {"d": "2026-08-27", "c": 721.10999}, {"d": "2026-08-28", "c": 716.42999}, {"d": "2026-08-31", "c": 716.76001}, {"d": "2026-09-01", "c": 707.64001}, {"d": "2026-09-02", "c": 709.23999}, {"d": "2026-09-03", "c": 717.66998}, {"d": "2026-09-04", "c": 718.96002}, {"d": "2026-09-08", "c": 718.35999}, {"d": "2026-09-09", "c": 716.31}, {"d": "2026-09-10", "c": 708.69}, {"d": "2026-09-11", "c": 714.88}], "SPY": [{"d": "2026-07-31", "c": 747.030029}, {"d": "2026-08-03", "c": 757.66998}, {"d": "2026-08-04", "c": 771.33002}, {"d": "2026-08-05", "c": 769.78998}, {"d": "2026-08-06", "c": 768.56}, {"d": "2026-08-07", "c": 773.26001}, {"d": "2026-08-10", "c": 773.030029}, {"d": "2026-08-11", "c": 770.56}, {"d": "2026-08-12", "c": 772.48999}, {"d": "2026-08-13", "c": 777.88}, {"d": "2026-08-14", "c": 776.34003}, {"d": "2026-08-17", "c": 772.66998}, {"d": "2026-08-18", "c": 767.45001}, {"d": "2026-08-19", "c": 769.059998}, {"d": "2026-08-20", "c": 762.59998}, {"d": "2026-08-21", "c": 765.71997}, {"d": "2026-08-24", "c": 763.46997}, {"d": "2026-08-25", "c": 765.90997}, {"d": "2026-08-26", "c": 766.080017}, {"d": "2026-08-27", "c": 771.099976}, {"d": "2026-08-28", "c": 769.34998}, {"d": "2026-08-31", "c": 767.049988}, {"d": "2026-09-01", "c": 761.78003}, {"d": "2026-09-02", "c": 765.15997}, {"d": "2026-09-03", "c": 773.16998}, {"d": "2026-09-04", "c": 770.19}, {"d": "2026-09-08", "c": 765.96002}, {"d": "2026-09-09", "c": 762.40002}, {"d": "2026-09-10", "c": 757.83002}, {"d": "2026-09-11", "c": 764.28998}]};function switchTab(id,el){document.querySelectorAll('.tab-pane').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.nav-menu li').forEach(l=>l.classList.remove('active'));document.getElementById(id).classList.add('active');el.classList.add('active');window.scrollTo({top:0,behavior:'smooth'})}window.addEventListener('load',function(){const c=document.getElementById('trendChart'),e=document.getElementById('chartEmpty'),qq=CHART_DATA.QQQ||[],sp=CHART_DATA.SPY||[];if(!qq.length||!sp.length){c.style.display='none';e.style.display='grid';return}const labels=qq.map(x=>x.d),qv=qq.map(x=>x.c),sv=sp.map(x=>x.c);new Chart(c,{type:'line',data:{labels,datasets:[{label:'QQQ',data:qv,borderColor:'#7a1f1a',backgroundColor:'rgba(122,31,26,.08)',fill:true,borderWidth:2,pointRadius:0,tension:.35,yAxisID:'y'},{label:'SPY',data:sv,borderColor:'#1e7d4a',backgroundColor:'transparent',borderWidth:2,pointRadius:0,tension:.35,yAxisID:'y1'}]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{position:'top',align:'end'}},scales:{x:{grid:{display:false},ticks:{maxTicksLimit:7}},y:{position:'left',grid:{color:'#eee6d4'}},y1:{position:'right',grid:{drawOnChartArea:false}}}}})});</script></body></html>

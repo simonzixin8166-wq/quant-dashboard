@@ -729,7 +729,7 @@ async function handleAuth() {{
         window.location.reload();
     }} else {{
         // 如果未登录，则发起魔法链接请求
-        const email = prompt("欢迎来到 myAlphaView 私有模型。\n请输入您的邮箱地址，我们将为您发送免密登录/注册链接：");
+        const email = prompt("欢迎探索 myAlphaView 私有量化模型。\n请输入您的邮箱地址，我们将为您发送免密登录/免费注册链接：");
         if (!email) return;
         
         authBtn.innerHTML = "⏳ 正在发送...";

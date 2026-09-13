@@ -569,114 +569,115 @@ window.addEventListener('load',function(){{
 // ================= Supabase 动态数据与身份验证逻辑 =================
 const SUPABASE_URL = 'https://rhielbkvhgqbthcgztci.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_7_S0qA1oh31fHiihhx07PA_1LPAighW';
-const ADMIN_EMAIL = 'xxj8166@gmail.com'; // 主理人邮箱
+const ADMIN_EMAIL = 'xxj8166@gmail.com';
 let isAdmin = false;
 
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 const authBtn = document.getElementById('authBtn');
 
 // 拉取云端点位，并动态渲染表格
-async function fetchAndRenderTargets() {
-    const { data, error } = await supabaseClient.from('stock_targets').select('*');
-    if (data) {
-        data.forEach(row => {
-            const targetEl = document.getElementById(`target-${row.symbol}`);
-            const closeEl = document.getElementById(`close-${row.symbol}`);
-            const actionEl = document.getElementById(`action-${row.symbol}`);
+async function fetchAndRenderTargets() {{
+    const {{ data, error }} = await supabaseClient.from('stock_targets').select('*');
+    if (data) {{
+        data.forEach(row => {{
+            const targetEl = document.getElementById(`target-${{row.symbol}}`);
+            const closeEl = document.getElementById(`close-${{row.symbol}}`);
+            const actionEl = document.getElementById(`action-${{row.symbol}}`);
             
-            if (targetEl && closeEl) {
-                targetEl.innerHTML = `$${row.target_price.toFixed(2)}`;
+            if (targetEl && closeEl) {{
+                targetEl.innerHTML = `$${{row.target_price.toFixed(2)}}`;
                 
                 // 如果是主理人登录，旁边显示编辑按钮
-                if (isAdmin) {
-                    targetEl.innerHTML += ` <span style="cursor:pointer;font-size:12px;margin-left:6px;filter:grayscale(1) opacity(0.5);transition:0.2s;" onmouseover="this.style.filter='none'" onmouseout="this.style.filter='grayscale(1) opacity(0.5)'" onclick="editTarget('${row.symbol}', ${row.target_price})" title="修改策略价">✏️</span>`;
-                }
+                if (isAdmin) {{
+                    targetEl.innerHTML += ` <span style="cursor:pointer;font-size:12px;margin-left:6px;filter:grayscale(1) opacity(0.5);transition:0.2s;" onmouseover="this.style.filter='none'" onmouseout="this.style.filter='grayscale(1) opacity(0.5)'" onclick="editTarget('${{row.symbol}}', ${{row.target_price}})" title="修改策略价">✏️</span>`;
+                }}
 
                 // 前端实时判断是否跌破触发价
                 const closePrice = parseFloat(closeEl.innerText.replace('$', ''));
-                if (closePrice <= row.target_price) {
+                if (closePrice <= row.target_price) {{
                     actionEl.innerHTML = '<span class="alert-text fw-bold ml" style="margin-left:4px;">(信号触发!)</span>';
-                } else {
+                }} else {{
                     actionEl.innerHTML = '';
-                }
-            }
-        });
-    }
-}
+                }}
+            }}
+        }});
+    }}
+}}
 
 // 主理人专属：点击编辑修改价格
-async function editTarget(symbol, currentPrice) {
-    const newPrice = prompt(`主理人后台：\\n请输入 [${symbol}] 的新策略加仓价：\\n当前点位：$${currentPrice}`, currentPrice);
-    if (newPrice !== null && newPrice.trim() !== '') {
+async function editTarget(symbol, currentPrice) {{
+    const newPrice = prompt(`主理人后台：\\n请输入 [${{symbol}}] 的新策略加仓价：\\n当前点位：$${{currentPrice}}`, currentPrice);
+    if (newPrice !== null && newPrice.trim() !== '') {{
         const num = parseFloat(newPrice);
-        if (!isNaN(num)) {
+        if (!isNaN(num)) {{
             // 将新价格覆写到云端数据库
-            const { error } = await supabaseClient.from('stock_targets').upsert({ symbol: symbol, target_price: num });
-            if (error) {
+            const {{ error }} = await supabaseClient.from('stock_targets').upsert({{ symbol: symbol, target_price: num }});
+            if (error) {{
                 alert('更新失败，权限不足或网络异常：' + error.message);
-            } else {
+            }} else {{
                 fetchAndRenderTargets(); // 成功后实时刷新页面数字
-            }
-        } else {
+            }}
+        }} else {{
             alert('输入无效，请输入纯数字。');
-        }
-    }
-}
+        }}
+    }}
+}}
 
-async function checkSession() {
-    const { data: { session } } = await supabaseClient.auth.getSession();
-    if (session) {
+async function checkSession() {{
+    const {{ data: {{ session }} }} = await supabaseClient.auth.getSession();
+    if (session) {{
         // 校验是否为主理人邮箱
-        if (session.user.email === ADMIN_EMAIL) {
+        if (session.user.email === ADMIN_EMAIL) {{
             isAdmin = true;
             document.getElementById('modeTitle').innerText = "👑 主理人控制台已激活";
             document.getElementById('modeDesc').innerText = "您现在可以在下方个股面板中，直接点击✏️修改全局策略触发价。";
-        } else {
+        }} else {{
             isAdmin = false;
             document.getElementById('modeTitle').innerText = "🔥 资金与策略模型已解锁";
             document.getElementById('modeDesc').innerText = "您已安全登录，当前正在展示最新的高级量化策略信号。";
-        }
+        }}
         authBtn.innerHTML = "🔓 退出账号";
         document.getElementById('modeTitle').style.color = "var(--red)";
         document.getElementById('liveStatusText').innerText = "连接云端数据库";
-    } else {
+    }} else {{
         isAdmin = false;
         authBtn.innerHTML = "🔐 登录私有看板";
-    }
+    }}
     // 无论是否登录，都拉取最新的主理人云端点位覆盖静态数据
     fetchAndRenderTargets();
-}
+}}
 
-async function handleAuth() {
-    const { data: { session } } = await supabaseClient.auth.getSession();
-    if (session) {
+async function handleAuth() {{
+    const {{ data: {{ session }} }} = await supabaseClient.auth.getSession();
+    if (session) {{
         await supabaseClient.auth.signOut();
         alert('已退出登录，恢复为公开展示模式。');
         window.location.reload();
-    } else {
+    }} else {{
         const email = prompt("欢迎探索 myAlphaView 私有量化模型。\\n请输入您的邮箱地址，我们将为您发送免密登录/免费注册链接：");
         if (!email) return;
         
         authBtn.innerHTML = "⏳ 正在发送...";
-        const { error } = await supabaseClient.auth.signInWithOtp({
+        const {{ error }} = await supabaseClient.auth.signInWithOtp({{
             email: email,
-            options: { emailRedirectTo: window.location.origin + window.location.pathname }
-        });
+            options: {{ emailRedirectTo: window.location.origin + window.location.pathname }}
+        }});
 
-        if (error) {
+        if (error) {{
             alert("发送失败: " + error.message);
             authBtn.innerHTML = "🔐 登录私有看板";
-        } else {
+        }} else {{
             alert("✅ 魔法验证链接已发送至 " + email + "，请查收邮件并点击链接登录！");
             authBtn.innerHTML = "✉️ 请查收邮件";
-        }
-    }
-}
+        }}
+    }}
+}}
 
 window.addEventListener('load', checkSession);
-supabaseClient.auth.onAuthStateChange((event, session) => {
+supabaseClient.auth.onAuthStateChange((event, session) => {{
     if (event === 'SIGNED_IN') checkSession();
-});
+}});
+</script></body></html>'''
 
 # ================= 数据库推送逻辑 =================
 def push_to_supabase(data):

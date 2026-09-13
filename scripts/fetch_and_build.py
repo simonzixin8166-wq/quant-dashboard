@@ -628,13 +628,44 @@ window.addEventListener('load',function(){{
 }});
 </script></body></html>'''
 
+def push_to_supabase(data):
+    supabase_url = os.environ.get("SUPABASE_URL")
+    supabase_key = os.environ.get("SUPABASE_KEY")
+    
+    if not supabase_url or not supabase_key:
+        print("注意：未找到 Supabase 环境变量，跳过数据库同步。")
+        return
+        
+    endpoint = f"{supabase_url.rstrip('/')}/rest/v1/market_data"
+    headers = {
+        "apikey": supabase_key,
+        "Authorization": f"Bearer {supabase_key}",
+        "Content-Type": "application/json",
+        "Prefer": "return=minimal"
+    }
+    # 将抓取到的全量 JSON 数据装入 payload 字段
+    body = json.dumps({"payload": data}).encode("utf-8")
+    
+    req = urllib.request.Request(endpoint, data=body, headers=headers, method="POST")
+    try:
+        with urllib.request.urlopen(req, timeout=15) as resp:
+            print(f"✅ 成功将最新数据推送到 Supabase 数据库！状态码: {resp.status}")
+    except Exception as e:
+        print(f"❌ 推送 Supabase 失败: {e}")
+
 if __name__ == '__main__':
     data = build()
+    
+    # 1. 生成并保存本地静态文件 (保留，用作未登录状态下的公开预览版)
     out = os.path.join(os.path.dirname(__file__), '..', 'docs', 'data.json')
     with open(out, 'w', encoding='utf-8') as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
+        
     html = render_html(data)
     html_out = os.path.join(os.path.dirname(__file__), '..', 'docs', 'index.html')
     with open(html_out, 'w', encoding='utf-8') as f:
         f.write(html)
     print(f'Generated {html_out}')
+    
+    # 2. 将数据推送到 Supabase 的 market_data 表，实现云端备份和防休眠
+    push_to_supabase(data)

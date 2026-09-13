@@ -1,9 +1,81 @@
-<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>AlphaView 阿尔法视界</title>
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>myAlphaView · Market Intelligence</title>
 <meta name="author" content="Simon">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,380;9..144,520;9..144,620&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4">
+// myAlphaView V1.1 Step 2 — client-side Market Regime
+function rowsFor(obj){
+  if(!obj) return [];
+  if(Array.isArray(obj)) return obj;
+  for(const k of ["history","data","values","series"]) if(Array.isArray(obj[k])) return obj[k];
+  return [];
+}
+function latestNum(rows, keys){
+  for(let i=rows.length-1;i>=0;i--){
+    for(const k of keys){
+      const n=Number(rows[i]?.[k]);
+      if(Number.isFinite(n)) return n;
+    }
+  }
+  return null;
+}
+function sourceByNames(names){
+  for(const name of names){
+    if(DATA && DATA[name]) return DATA[name];
+  }
+  return null;
+}
+function calculateRegimeClient(){
+  const nasObj=sourceByNames(["NASDAQ","IXIC","nasdaq"]);
+  const spObj=sourceByNames(["SPX","SP500","S&P 500","sp500"]);
+  const nas=rowsFor(nasObj), sp=rowsFor(spObj);
+  let trend=0;
+  let foundTrend=0;
+  for(const rows of [nas,sp]){
+    const close=latestNum(rows,["close","Close","price"]);
+    const sma=latestNum(rows,["sma200","SMA200","ma200"]);
+    if(close!==null && sma!==null){foundTrend++; if(close>sma) trend+=20;}
+  }
+  if(foundTrend===0) trend=20;
+  else if(foundTrend===1) trend=trend;
+  let rsis=[];
+  for(const rows of [nas,sp]){
+    const r=latestNum(rows,["rsi","RSI"]);
+    if(r!==null) rsis.push(r);
+  }
+  let momentum=15;
+  if(rsis.length){
+    const r=rsis.reduce((a,b)=>a+b,0)/rsis.length;
+    momentum=r>=60?30:r>=50?22:r>=40?12:5;
+  }
+  const vixObj=sourceByNames(["VIX","vix"]);
+  const vix=Number(vixObj?.close ?? vixObj?.price ?? vixObj?.value ?? vixObj);
+  let risk=15;
+  if(Number.isFinite(vix)) risk=vix<16?30:vix<20?24:vix<25?16:vix<30?8:0;
+  const score=trend+risk+momentum;
+  let state="NEUTRAL";
+  if(Number.isFinite(vix)&&vix>=30) state="STRESS";
+  else if(score>=75) state="RISK-ON";
+  else if(score<50) state="RISK-OFF";
+  const cn={["RISK-ON"]:"风险偏好",NEUTRAL:"中性",["RISK-OFF"]:"风险规避",STRESS:"压力"}[state];
+  document.getElementById("regimeState").textContent=state+" · "+cn;
+  document.getElementById("regimeScore").textContent=score;
+  document.getElementById("regimeTrend").textContent=trend+"/40";
+  document.getElementById("regimeRisk").textContent=risk+"/30";
+  document.getElementById("regimeMomentum").textContent=momentum+"/30";
+  document.getElementById("barTrend").style.width=(trend/40*100)+"%";
+  document.getElementById("barRisk").style.width=(risk/30*100)+"%";
+  document.getElementById("barMomentum").style.width=(momentum/30*100)+"%";
+  document.getElementById("regimeDesc").textContent =
+    state==="STRESS" ? "波动率压力较高，研究上优先考虑风险控制与回撤。" :
+    state==="RISK-OFF" ? "趋势或动量偏弱，研究上优先确认风险是否继续扩散。" :
+    state==="RISK-ON" ? "趋势、风险与动量整体支持积极风险偏好。" :
+    "市场处于中性区间，继续等待趋势与风险信号进一步确认。";
+}
+calculateRegimeClient();
+
+</script>
 <style>
 :root{
   --bg:#f4f2ec; --surface:#ffffff; --surface2:#ebe8df;
@@ -52,9 +124,50 @@
 .opt-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px} .mkt-card{background:var(--surface);border:1px solid var(--line);border-radius:13px;padding:17px 18px;box-shadow:var(--shadow)} .mkt-card .name{font-size:12.5px;color:var(--muted);display:flex;justify-content:space-between} .mkt-card .val{font-family:var(--serif);font-size:21px;margin-top:8px} .mkt-card .chg{font-size:11.5px;font-weight:600;margin-top:4px} .soon{font-size:9.5px;background:var(--surface2);color:var(--muted);padding:2px 7px;border-radius:99px;font-weight:600}
 .footer{color:#9a9484;font-size:10.5px;line-height:1.7;text-align:center;padding:34px 0 10px}
 .tab-pane{display:none;animation:fade .3s ease} .tab-pane.active{display:block} @keyframes fade{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
-</style></head><body><div class="app">
 
-<aside class="sidebar"><div class="brand"><div class="brand-mark"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4 17 L9 9 L13 14 L20 5" stroke="#181109" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="20" cy="5" r="2.1" fill="#181109"/></svg></div><div><strong>AlphaView</strong><small>阿尔法视界 · myalphaview.com</small></div></div>
+/* myAlphaView V1.1 — Brand System / Step 1 */
+:root{
+  --mav-ink:#102033;
+  --mav-muted:#66758a;
+  --mav-paper:#f6f8fb;
+  --mav-navy:#0b1728;
+  --mav-navy-2:#15243c;
+  --mav-indigo:#5969f5;
+  --mav-violet:#7659df;
+  --mav-cyan:#36b9c9;
+  --mav-green:#15956d;
+  --mav-red:#d85a68;
+  --mav-gold:#b58a42;
+}
+.mav-brand-mark{
+  width:38px;height:38px;border-radius:12px;display:inline-grid;place-items:center;
+  color:#fff;font-weight:800;letter-spacing:-1px;
+  background:linear-gradient(135deg,var(--mav-indigo),var(--mav-violet) 58%,var(--mav-cyan));
+  box-shadow:0 8px 22px rgba(89,105,245,.24);
+}
+.mav-brand-name{font-weight:750;letter-spacing:.1px}
+.mav-brand-sub{font-size:9px;letter-spacing:1.7px;color:#8fa0b7;text-transform:uppercase}
+
+
+/* myAlphaView V1.1 Step 2 — Market Regime */
+.regime-card{position:relative;overflow:hidden;padding:22px 24px;background:linear-gradient(135deg,#101e32,#172946);color:#fff;border:0;box-shadow:0 22px 55px rgba(12,27,48,.14)}
+.regime-top{display:flex;justify-content:space-between;align-items:center;gap:15px}
+.regime-kicker{font-size:10px;letter-spacing:1.8px;color:#9eafd0}
+.regime-state{font-size:24px;font-weight:800;letter-spacing:-.5px;margin:9px 0 3px}
+.regime-desc{font-size:11px;color:#aebbd0;line-height:1.55}
+.regime-score{font-size:34px;font-weight:800}
+.regime-score small{font-size:10px;color:#91a1b8;font-weight:500}
+.regime-bars{display:grid;grid-template-columns:repeat(3,1fr);gap:13px;margin-top:20px}
+.rbar label{display:flex;justify-content:space-between;font-size:10px;color:#91a1b8;margin-bottom:7px}
+.rbar-track{height:5px;border-radius:99px;background:rgba(255,255,255,.09);overflow:hidden}
+.rbar-fill{height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,#5c6ff5,#46c3cc)}
+.regime-note{margin-top:17px;padding-top:13px;border-top:1px solid rgba(255,255,255,.08);font-size:10px;color:#8192aa}
+@media(max-width:680px){.regime-bars{grid-template-columns:1fr}.regime-score{font-size:28px}}
+
+</style><meta name="description" content="myAlphaView — Market Intelligence · 投资研究与市场情报平台。">
+</head><body><div class="app">
+
+<aside class="sidebar"><div class="brand"><div class="brand-mark"><span class="mav-brand-mark">A</span></div><div><strong>myAlphaView</strong><small>myAlphaView · myalphaview.com</small></div></div>
 <div class="nav-group"><div class="nav-title">美股 · 宏观</div><ul class="nav-menu">
   <li class="active" onclick="switchTab('tab-overview',this)"><span class="nav-icon">◆</span>市场总览</li>
   <li onclick="switchTab('tab-engine',this)"><span class="nav-icon">◒</span>策略引擎</li>
@@ -69,7 +182,7 @@
 </ul></div>
 <div class="sidebar-footer">公开研究版 · 不展示个人真实资产<br>数据仅供研究演示</div></aside>
 
-<main class="main"><header class="topbar"><div class="breadcrumb">AlphaView / <strong id="bc-title">市场总览</strong></div><div class="top-meta"><span><i class="live-dot"></i>数据抓取成功</span><span>更新: 2026-09-13</span></div></header><div class="content">
+<main class="main"><header class="topbar"><div class="breadcrumb">mymyAlphaView / <strong id="bc-title">市场总览</strong></div><div class="top-meta"><span><i class="live-dot"></i>数据抓取成功</span><span>更新: 2026-09-13</span></div></header><div class="content">
 
 <!-- TAB 1: 市场总览 -->
 <div id="tab-overview" class="tab-pane active">
@@ -238,7 +351,7 @@
 <div class="mkt-card"><h3>⚖️ 盈亏平衡价</h3><p style="font-size:12px;color:var(--muted);margin-top:8px">买入/卖出：行权价 ± 权利金。判断到期防御位置。</p></div>
 </div></section></div>
 
-<div class="footer">© 2026 AlphaView 阿尔法视界 · Built by Simon · Public Research Dashboard<br>市场数据与策略指标仅供研究、学习与信息参考，不构成投资建议。</div>
+<div class="footer">© 2026 myAlphaView myAlphaView · Built by Simon · Public Research Dashboard<br>市场数据与策略指标仅供研究、学习与信息参考，不构成投资建议。</div>
 </div></main></div>
 <script>
 const CHART_DATA={"QQQ": [{"d": "2026-07-31", "c": 687.98999}, {"d": "2026-08-03", "c": 700.070007}, {"d": "2026-08-04", "c": 723.84998}, {"d": "2026-08-05", "c": 717.29999}, {"d": "2026-08-06", "c": 714.65002}, {"d": "2026-08-07", "c": 723.030029}, {"d": "2026-08-10", "c": 720.87}, {"d": "2026-08-11", "c": 718.45001}, {"d": "2026-08-12", "c": 723.70001}, {"d": "2026-08-13", "c": 732.070007}, {"d": "2026-08-14", "c": 731.070007}, {"d": "2026-08-17", "c": 729.87}, {"d": "2026-08-18", "c": 717.51001}, {"d": "2026-08-19", "c": 716.080017}, {"d": "2026-08-20", "c": 710.92999}, {"d": "2026-08-21", "c": 713.44}, {"d": "2026-08-24", "c": 706.32001}, {"d": "2026-08-25", "c": 710.71997}, {"d": "2026-08-26", "c": 711.37}, {"d": "2026-08-27", "c": 721.10999}, {"d": "2026-08-28", "c": 716.42999}, {"d": "2026-08-31", "c": 716.76001}, {"d": "2026-09-01", "c": 707.64001}, {"d": "2026-09-02", "c": 709.23999}, {"d": "2026-09-03", "c": 717.66998}, {"d": "2026-09-04", "c": 718.96002}, {"d": "2026-09-08", "c": 718.35999}, {"d": "2026-09-09", "c": 716.31}, {"d": "2026-09-10", "c": 708.69}, {"d": "2026-09-11", "c": 714.88}], "SPY": [{"d": "2026-07-31", "c": 747.030029}, {"d": "2026-08-03", "c": 757.66998}, {"d": "2026-08-04", "c": 771.33002}, {"d": "2026-08-05", "c": 769.78998}, {"d": "2026-08-06", "c": 768.56}, {"d": "2026-08-07", "c": 773.26001}, {"d": "2026-08-10", "c": 773.030029}, {"d": "2026-08-11", "c": 770.56}, {"d": "2026-08-12", "c": 772.48999}, {"d": "2026-08-13", "c": 777.88}, {"d": "2026-08-14", "c": 776.34003}, {"d": "2026-08-17", "c": 772.66998}, {"d": "2026-08-18", "c": 767.45001}, {"d": "2026-08-19", "c": 769.059998}, {"d": "2026-08-20", "c": 762.59998}, {"d": "2026-08-21", "c": 765.71997}, {"d": "2026-08-24", "c": 763.46997}, {"d": "2026-08-25", "c": 765.90997}, {"d": "2026-08-26", "c": 766.080017}, {"d": "2026-08-27", "c": 771.099976}, {"d": "2026-08-28", "c": 769.34998}, {"d": "2026-08-31", "c": 767.049988}, {"d": "2026-09-01", "c": 761.78003}, {"d": "2026-09-02", "c": 765.15997}, {"d": "2026-09-03", "c": 773.16998}, {"d": "2026-09-04", "c": 770.19}, {"d": "2026-09-08", "c": 765.96002}, {"d": "2026-09-09", "c": 762.40002}, {"d": "2026-09-10", "c": 757.83002}, {"d": "2026-09-11", "c": 764.28998}]};

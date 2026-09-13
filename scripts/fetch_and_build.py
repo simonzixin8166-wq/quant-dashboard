@@ -294,6 +294,149 @@ def mkt_card_a(title, data):
     color_cls = "positive" if chg >= 0 else "negative"
     return f'<div class="mkt-card"><div class="name">{title}</div><div class="val">{price:,.3f}</div><div class="chg {color_cls}">{chg_str}</div></div>'
 
+
+# ===== myAlphaView V1.1 Step 2 — Market Regime Engine =====
+def _num(v):
+    try:
+        return float(v)
+    except (TypeError, ValueError):
+        return None
+
+def _latest_close(rows):
+    if not rows:
+        return None
+    for row in reversed(rows):
+        v = _num(row.get("close") if isinstance(row, dict) else None)
+        if v is not None:
+            return v
+    return None
+
+def _latest_rsi(rows):
+    if not rows:
+        return None
+    for row in reversed(rows):
+        v = _num(row.get("rsi") if isinstance(row, dict) else None)
+        if v is not None:
+            return v
+    return None
+
+def _latest_sma200(rows):
+    if not rows:
+        return None
+    for row in reversed(rows):
+        for key in ("sma200", "SMA200", "ma200"):
+            v = _num(row.get(key) if isinstance(row, dict) else None)
+            if v is not None:
+                return v
+    return None
+
+def _latest_drawdown(rows):
+    if not rows:
+        return None
+    for row in reversed(rows):
+        for key in ("drawdown", "dd", "Drawdown"):
+            v = _num(row.get(key) if isinstance(row, dict) else None)
+            if v is not None:
+                return v
+    return None
+
+def calculate_market_regime(nasdaq_rows=None, sp500_rows=None, vix_value=None):
+    """
+    Transparent 100-point scoring model.
+    Trend  : 0-40
+    Risk   : 0-30
+    Momentum: 0-30
+
+    The model intentionally avoids pretending to be a trading oracle.
+    It is a research classification layer for the public dashboard.
+    """
+    nasdaq_rows = nasdaq_rows or []
+    sp500_rows = sp500_rows or []
+
+    trend_points = 0
+    momentum_points = 0
+    risk_points = 0
+    evidence = []
+
+    # Trend: compare latest close to 200-day moving average.
+    for name, rows in (("NASDAQ", nasdaq_rows), ("S&P 500", sp500_rows)):
+        close = _latest_close(rows)
+        sma = _latest_sma200(rows)
+        if close is not None and sma is not None:
+            if close > sma:
+                trend_points += 20
+                evidence.append(f"{name} > 200MA")
+            else:
+                evidence += []
+    if not evidence:
+        trend_points = 20
+    elif trend_points == 40:
+        trend_points = 40
+    else:
+        trend_points = 20
+
+    # Momentum: RSI for both indices, neutral when unavailable.
+    rsi_values = []
+    for rows in (nasdaq_rows, sp500_rows):
+        r = _latest_rsi(rows)
+        if r is not None:
+            rsi_values.append(r)
+    if rsi_values:
+        avg_rsi = sum(rsi_values) / len(rsi_values)
+        if avg_rsi >= 60:
+            momentum_points = 30
+        elif avg_rsi >= 50:
+            momentum_points = 22
+        elif avg_rsi >= 40:
+            momentum_points = 12
+        else:
+            momentum_points = 5
+    else:
+        momentum_points = 15
+
+    # Risk: VIX. Lower VIX gets more points.
+    vix = _num(vix_value)
+    if vix is None:
+        risk_points = 15
+    elif vix < 16:
+        risk_points = 30
+    elif vix < 20:
+        risk_points = 24
+    elif vix < 25:
+        risk_points = 16
+    elif vix < 30:
+        risk_points = 8
+    else:
+        risk_points = 0
+
+    score = trend_points + risk_points + momentum_points
+
+    if vix is not None and vix >= 30:
+        regime = "STRESS"
+        regime_cn = "压力"
+    elif score >= 75:
+        regime = "RISK-ON"
+        regime_cn = "风险偏好"
+    elif score >= 50:
+        regime = "NEUTRAL"
+        regime_cn = "中性"
+    else:
+        regime = "RISK-OFF"
+        regime_cn = "风险规避"
+
+    return {
+        "regime": regime,
+        "regime_cn": regime_cn,
+        "score": score,
+        "trend": trend_points,
+        "risk": risk_points,
+        "momentum": momentum_points,
+        "vix": vix,
+        "method": "Trend 40 + Risk 30 + Momentum 30",
+        "evidence": evidence,
+    }
+
+
 def render_html(data):
     engine_html = "".join(engine_item(k, v) for k, v in data["core"].items())
     index_html = "".join(card_etf(k, v) for k, v in data["index"].items())

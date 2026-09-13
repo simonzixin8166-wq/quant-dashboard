@@ -3,13 +3,14 @@ import urllib.request, urllib.parse
 
 API_KEY = os.environ.get("TWELVE_DATA_KEY", "demo")
 BASE = "https://api.twelvedata.com"
+HEADERS = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
+FUND_HEADERS = {"User-Agent": HEADERS["User-Agent"], "Referer": "http://fund.eastmoney.com/"}
 
-# 策略阈值（核心策略仓）
+# ================= 美股配置 =================
 CORE = {"QQQM": 0.07, "VGT": 0.10, "QLD": 0.14, "TQQQ": None}
 INDEX = ["QQQ", "SPY", "VOO", "SMH"]
 VOL_PROXY_SYM = "VIXY"
 
-# 个股配置字典
 STOCK_META = {
     "SOFI": {"name": "SoFi Technologies", "target": 15.0},
     "IREN": {"name": "Iris Energy", "target": 35.0},
@@ -29,6 +30,18 @@ STOCK_META = {
 }
 STOCKS = list(STOCK_META.keys())
 
+# ================= A股/港股配置 =================
+CN_HK_SYMBOLS = {
+    "sh000001": "上证指数",
+    "sh000300": "沪深300",
+    "sz159307": "红利低波100 ETF",
+}
+OTC_FUNDS = {"021550": "红利低波100联接"}
+TENCENT_URL = "http://qt.gtimg.cn/q={symbols}"
+FUND_EST_URL = "http://fundgz.1234567.com.cn/js/{code}.js"
+
+
+# ================= 核心抓取逻辑 =================
 def http_get_json(url):
     with urllib.request.urlopen(url, timeout=20) as resp:
         return json.loads(resp.read().decode("utf-8"))
@@ -38,7 +51,7 @@ def throttle():
 
 def fetch_yahoo_index(y_symbol, range_="1y"):
     url = f"https://query1.finance.yahoo.com/v8/finance/chart/{y_symbol}?interval=1d&range={range_}"
-    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+    req = urllib.request.Request(url, headers=HEADERS)
     with urllib.request.urlopen(req, timeout=15) as resp:
         payload = json.loads(resp.read().decode("utf-8"))
     result = payload["chart"]["result"][0]
@@ -86,6 +99,52 @@ def fetch_time_series(symbol, outputsize=260, retries=3):
             if attempt == retries - 1: raise e
             time.sleep(10)
 
+def fetch_tencent_quotes(symbols):
+    joined = ",".join(symbols)
+    req = urllib.request.Request(TENCENT_URL.format(symbols=joined), headers=HEADERS)
+    try:
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            raw = resp.read().decode("gbk", errors="ignore")
+    except Exception as e:
+        return {sym: {"error": str(e)} for sym in symbols}
+    
+    out = {}
+    for line in raw.strip().split(";"):
+        line = line.strip()
+        if not line or "=" not in line: continue
+        var_part, val_part = line.split("=", 1)
+        sym = var_part.replace("v_", "").strip()
+        val = val_part.strip().strip('"')
+        fields = val.split("~")
+        if len(fields) < 5:
+            out[sym] = {"error": "Format error"}
+            continue
+        try:
+            name, price, prev_close = fields[1], float(fields[3]), float(fields[4])
+            # 这里的涨跌幅不乘100，为了兼容下方美股的 fmt_pct 渲染逻辑
+            pct_change = (price - prev_close) / prev_close if prev_close else None
+            out[sym] = {"name": name, "price": price, "prev_close": prev_close, "day_chg": pct_change}
+        except Exception as e:
+            out[sym] = {"error": str(e)}
+    return out
+
+def fetch_fund_estimate(fund_code):
+    req = urllib.request.Request(FUND_EST_URL.format(code=fund_code), headers=FUND_HEADERS)
+    try:
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            raw = resp.read().decode("utf-8", errors="ignore")
+        json_str = raw[raw.find("{"):raw.rfind("}") + 1]
+        data = json.loads(json_str)
+        est_pct = float(data.get("gszzl", 0)) / 100.0 if data.get("gszzl") else 0
+        return {
+            "name": data.get("name"), "price": float(data.get("gsz", 0)), 
+            "day_chg": est_pct, "time": data.get("gztime")
+        }
+    except Exception as e:
+        return {"error": str(e)}
+
+
+# ================= 指标计算 =================
 def calc_rsi(closes, period=14):
     if len(closes) < period + 1: return None
     closes_asc = closes[::-1]
@@ -133,6 +192,8 @@ def analyze(symbol, rows, today, threshold=None, is_stock=False):
         })
     return out
 
+
+# ================= 核心构建与渲染 =================
 def build():
     today = datetime.date.today()
     core, index, stocks, overview_charts = {}, {}, {}, {}
@@ -167,9 +228,20 @@ def build():
         except Exception as e:
             stocks[name] = {"error": str(e)}
         throttle()
+        
+    # 抓取 A 股与港股
+    cn_hk_data = {}
+    try:
+        cn_hk_data.update(fetch_tencent_quotes(list(CN_HK_SYMBOLS.keys())))
+    except: pass
+    try:
+        for code in OTC_FUNDS.keys():
+            cn_hk_data[code] = fetch_fund_estimate(code)
+    except: pass
 
     return {"updated": today.isoformat(), "core": core, "index": index,
             "stocks": stocks, "overview_charts": overview_charts,
+            "cn_hk": cn_hk_data,
             "market_indicators": {
                 "spx": spx_data, "spx_source": spx_src,
                 "ixic": ixic_data, "ixic_source": ixic_src,
@@ -179,7 +251,6 @@ def build():
 def fmt_pct(x, digits=2): return f"{x*100:.{digits}f}%" if isinstance(x, (int, float)) else "-"
 def fmt_num(x, digits=2): return f"{x:.{digits}f}" if isinstance(x, (int, float)) else "-"
 
-# 策略引擎卡片 (V1.1 Style)
 def engine_item(name, r):
     if "error" in r: return f'<div class="engine-item"><div class="k">{name}</div><div class="v">-</div><div class="pt">数据获取失败</div></div>'
     is_hit = r.get("triggered", False)
@@ -217,13 +288,22 @@ def row_stock(sym, r):
         <td><b>{target_str}</b> {action_html}</td>
     </tr>'''
 
+def mkt_card_a(title, data):
+    if not data or "error" in data:
+        return f'<div class="mkt-card"><div class="name">{title}</div><div class="val" style="font-size:14px;color:var(--muted)">数据获取中</div></div>'
+    price = data.get("price", 0)
+    chg = data.get("day_chg", 0)
+    chg_str = f"+{fmt_pct(chg)}" if chg >= 0 else fmt_pct(chg)
+    color_cls = "positive" if chg >= 0 else "negative"
+    return f'<div class="mkt-card"><div class="name">{title}</div><div class="val">{price:,.2f}</div><div class="chg {color_cls}">{chg_str}</div></div>'
+
 def render_html(data):
-    # 策略引擎映射
     engine_html = "".join(engine_item(k, v) for k, v in data["core"].items())
     index_html = "".join(card_etf(k, v) for k, v in data["index"].items())
     stock_html = "".join(row_stock(k, v) for k, v in data["stocks"].items())
 
     mi = data.get("market_indicators", {})
+    cn = data.get("cn_hk", {})
     spy, qqq, vol = mi.get("spx", {}), mi.get("ixic", {}), mi.get("vix", {})
     src_label = lambda s: "真实指数(Yahoo)" if s == "yahoo_real" else "ETF代理"
 
@@ -252,6 +332,12 @@ def render_html(data):
     spy_note = f"大盘风险偏好 · {src_label(mi.get('spx_source'))}"
     qqq_note = f"成长/科技风格温度 · {src_label(mi.get('ixic_source'))}"
     vix_note = f"{src_label(mi.get('vix_source'))}"
+
+    sh000001 = cn.get("sh000001", {})
+    sz159307 = cn.get("sz159307", {})
+    sh_val = f'{sh000001.get("price", 0):,.1f}' if "price" in sh000001 else "—"
+    sz_val = f'{sz159307.get("price", 0):,.3f}' if "price" in sz159307 else "—"
+    sz_chg = sz159307.get("day_chg")
 
     signal_count = sum(1 for v in data["core"].values() if v.get("triggered"))
     badge_cls = "t2" if signal_count > 0 else "normal"
@@ -294,7 +380,6 @@ def render_html(data):
 .metrics{{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}} .metric-card{{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px 19px;box-shadow:var(--shadow)}} .metric-top{{display:flex;justify-content:space-between;color:var(--muted);font-size:11.5px;font-weight:600}} .metric-dot{{width:7px;height:7px;border-radius:50%;background:#c9c2ac}} .metric-dot.good{{background:var(--green)}} .metric-dot.warn{{background:var(--amber)}} .metric-dot.bad{{background:var(--red)}}
 .metric-value{{font-family:var(--serif);font-size:27px;font-weight:560;margin-top:13px;font-variant-numeric:tabular-nums}} .metric-change{{font-size:12px;font-weight:600;margin-top:5px}} .positive{{color:var(--green)}} .negative{{color:var(--red)}} .metric-note{{color:var(--muted);font-size:10.5px;margin-top:9px}}
 
-/* V1.1 Strategy Engine */
 .engine{{margin-top:20px;background:var(--nav);border-radius:16px;padding:26px 28px;color:#fff;position:relative;overflow:hidden;box-shadow:0 20px 40px rgba(10,12,25,.25)}} .engine::after{{content:"";position:absolute;right:-60px;top:-60px;width:260px;height:260px;border-radius:50%;background:radial-gradient(circle,rgba(184,134,58,.25),transparent 70%)}}
 .engine-top{{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;position:relative}} .engine-label{{font-size:11px;color:var(--navmuted);letter-spacing:.3px}} .engine-title{{font-family:var(--serif);font-size:24px;margin-top:6px;font-weight:560}}
 .engine-badge{{font-size:12px;font-weight:700;padding:8px 16px;border-radius:99px;white-space:nowrap}} .engine-badge.normal{{background:rgba(255,255,255,.1);color:#cfd3e0}} .engine-badge.t2{{background:rgba(184,134,58,.35);color:#ffdca0}}
@@ -306,12 +391,10 @@ def render_html(data):
 .chart-wrap{{height:300px;padding:14px 18px 18px}} .pulse-list{{padding:6px 19px 14px}} .pulse{{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--line)}} .pulse:last-child{{border-bottom:0}} .pulse-label{{color:var(--muted);font-size:11px}} .pulse-main{{margin-top:4px;font-size:15px;font-weight:700}} .pulse-right{{text-align:right;font-size:11px;font-weight:600}}
 .badge{{display:inline-flex;border-radius:99px;padding:4px 9px;font-size:10px;font-weight:700}} .badge.good{{background:var(--green-soft);color:var(--green)}} .badge.warn{{background:var(--amber-soft);color:var(--amber)}} .badge.bad{{background:var(--red-soft);color:var(--red)}} .badge.neutral{{background:var(--surface2);color:var(--muted)}}
 
-/* 观察池表格及卡片复用样式 */
 .grid{{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}} .card{{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px;box-shadow:var(--shadow)}} .card-header{{display:flex;justify-content:space-between;align-items:center}} .sym{{font-weight:700;font-size:16px}} .price{{font-size:20px;font-weight:700;font-family:var(--serif)}} .divider{{height:1px;background:var(--line);margin:14px 0}} .row{{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:10px}} .fw-bold{{color:var(--ink);font-weight:600}} .pos-text{{color:var(--green)}} .neg-text{{color:var(--red)}} .alert-text{{color:var(--red)}} 
 .table-container{{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow)}} table{{width:100%;border-collapse:collapse;text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}} th,td{{padding:14px;border-bottom:1px solid var(--line);font-size:13px}} th{{background:var(--surface2);color:var(--muted);font-weight:600;font-size:11.5px}} th:nth-child(1),td:nth-child(1),th:nth-child(2),td:nth-child(2){{text-align:left}} tr:hover td{{background:#fbfbfb}}
 
 .opt-grid{{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px}} .mkt-card{{background:var(--surface);border:1px solid var(--line);border-radius:13px;padding:17px 18px;box-shadow:var(--shadow)}} .mkt-card .name{{font-size:12.5px;color:var(--muted);display:flex;justify-content:space-between}} .mkt-card .val{{font-family:var(--serif);font-size:21px;margin-top:8px}} .mkt-card .chg{{font-size:11.5px;font-weight:600;margin-top:4px}} .soon{{font-size:9.5px;background:var(--surface2);color:var(--muted);padding:2px 7px;border-radius:99px;font-weight:600}}
-.breadth-bar{{height:8px;border-radius:99px;background:var(--surface2);overflow:hidden;margin-top:10px}} .breadth-bar span{{display:block;height:100%;background:linear-gradient(90deg,var(--green),var(--amber),var(--red))}}
 .footer{{color:#9a9484;font-size:10.5px;line-height:1.7;text-align:center;padding:34px 0 10px}}
 .tab-pane{{display:none;animation:fade .3s ease}} .tab-pane.active{{display:block}} @keyframes fade{{from{{opacity:0;transform:translateY(5px)}}to{{opacity:1;transform:none}}}}
 </style></head><body><div class="app">
@@ -325,7 +408,7 @@ def render_html(data):
 
 <div id="tab-overview" class="tab-pane active">
 <section class="hero"><div><h1>看清市场在说什么，而不是账户在做什么。</h1><p>公开版投资研究面板：聚焦市场趋势、回撤、波动率与策略触发条件。</p></div><div class="public-note"><b>公开展示模式</b>这里展示的是研究指标与策略信号，不代表任何个人账户的实际仓位或收益。</div></section>
-<section class="section"><div class="section-head"><h2>市场核心指标</h2><p>自动更新</p></div><div class="metrics">{metric_card('纳斯达克综合指数',qqq_value,qqq_chg,qqq_note,'good' if isinstance(qqq_chg,(int,float)) and qqq_chg>=0 else 'warn')}{metric_card('标普500指数',spy_value,spy_chg,spy_note,'good' if isinstance(spy_chg,(int,float)) and spy_chg>=0 else 'warn')}{metric_card('VIX恐慌指数',vol_display,None,vix_note,vol_tone)}{metric_card('中证红利低波100','1,482.3',0.0031,'159307 联动 · 拟接入','good')}</div></section>
+<section class="section"><div class="section-head"><h2>市场核心指标</h2><p>自动更新</p></div><div class="metrics">{metric_card('纳斯达克综合指数',qqq_value,qqq_chg,qqq_note,'good' if isinstance(qqq_chg,(int,float)) and qqq_chg>=0 else 'warn')}{metric_card('标普500指数',spy_value,spy_chg,spy_note,'good' if isinstance(spy_chg,(int,float)) and spy_chg>=0 else 'warn')}{metric_card('VIX恐慌指数',vol_display,None,vix_note,vol_tone)}{metric_card('红利低波100 (159307)',sz_val,sz_chg,'A股红利代理 · 腾讯行情','good')}</div></section>
 
 <section class="section"><div class="engine"><div class="engine-top"><div><div class="engine-label">STRATEGY ENGINE · 核心资产宽幅与回撤联动</div><div class="engine-title">当前状态：实时监测</div></div><div class="engine-badge {badge_cls}">{badge_txt}</div></div>
 <div class="engine-grid">{engine_html}</div><div class="engine-foot">分级规则：基于各大宽基指数及杠杆 ETF 的极值回撤触发。此处展示已整合的规则与信号，不展示实盘资金规模。</div></div></section>
@@ -333,13 +416,14 @@ def render_html(data):
 <section class="section"><div class="section-head"><h2>QQQ & SPY · 近 30 个交易日</h2><p>历史走势</p></div><div class="dashboard-grid"><div class="panel"><div class="panel-head"><strong>趋势对比</strong><span>收盘价</span></div><div class="chart-wrap"><canvas id="trendChart"></canvas></div></div><div class="panel"><div class="panel-head"><strong>Market Pulse</strong><span>研究状态</span></div><div class="pulse-list">
 <div class="pulse"><div><div class="pulse-label">波动环境</div><div class="pulse-main">{vol_state}</div></div><div class="pulse-right"><span class="badge {vol_tone}">VIX {vol_display}</span></div></div>
 <div class="pulse"><div><div class="pulse-label">策略观察</div><div class="pulse-main">指标运作中</div></div><div class="pulse-right"><span class="badge neutral">RULE BASED</span></div></div>
-<div class="pulse"><div><div class="pulse-label">A股情绪</div><div class="pulse-main">结构性机会</div></div><div class="pulse-right"><span class="badge good">等待接入</span></div></div></div></div></div></section>
+<div class="pulse"><div><div class="pulse-label">A股情绪</div><div class="pulse-main">结构性行情</div></div><div class="pulse-right"><span class="badge good">上证 {sh_val}</span></div></div></div></div></div></section>
 
-<section class="section"><div class="section-head"><h2>A股大盘 & 红利低波（预告）</h2><p>UI 已就绪 · 等待 fetch_cn_hk.py 逻辑接入</p></div><div class="opt-grid">
-<div class="mkt-card"><div class="name">上证指数<span class="soon">拟接入</span></div><div class="val">3,286.5</div><div class="chg positive">+0.42%</div></div>
-<div class="mkt-card"><div class="name">沪深300<span class="soon">拟接入</span></div><div class="val">4,012.1</div><div class="chg negative">-0.18%</div></div>
-<div class="mkt-card"><div class="name">中证红利低波100 (159307)<span class="soon">拟接入</span></div><div class="val">1,482.3</div><div class="chg positive">+0.31%</div></div>
-<div class="mkt-card"><div class="name">两市市场宽度<span class="soon">拟接入</span></div><div class="val" style="font-size:16px;margin-top:10px">上涨 2,860 · 下跌 2,140</div><div class="breadth-bar"><span style="width:57%"></span></div></div></div></section>
+<section class="section"><div class="section-head"><h2>A股大盘 & 红利低波</h2><p>自动同步腾讯行情与天天基金盘中估值</p></div><div class="opt-grid">
+{mkt_card_a("上证指数", cn.get("sh000001"))}
+{mkt_card_a("沪深300", cn.get("sh000300"))}
+{mkt_card_a("红利低波100 ETF (159307)", cn.get("sz159307"))}
+{mkt_card_a("红利低波100 场外联接 (021550)", cn.get("021550"))}
+</div></section>
 </div>
 
 <div id="tab-index" class="tab-pane"><section class="hero"><div><h1>指数与行业 ETF</h1><p>从宽基指数到行业 ETF，快速观察价格、回撤、RSI 与 200 日均线距离。</p></div></section><section class="section"><div class="grid">{index_html}</div></section></div>

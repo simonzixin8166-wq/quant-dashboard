@@ -191,7 +191,7 @@ def analyze(symbol, rows, today, threshold=None, is_stock=False):
         })
     return out
 
-# ================= 核心构建与渲染 =================
+# ================= 核心构建 =================
 def build():
     today = datetime.date.today()
     core, index, stocks, overview_charts = {}, {}, {}, {}
@@ -245,6 +245,7 @@ def build():
                 "vix": vix_data, "vix_source": vix_src,
             }}
 
+# ================= HTML 组件与渲染 =================
 def fmt_pct(x, digits=2): return f"{x*100:.{digits}f}%" if isinstance(x, (int, float)) else "-"
 def fmt_num(x, digits=2): return f"{x:.{digits}f}" if isinstance(x, (int, float)) else "-"
 
@@ -269,16 +270,23 @@ def card_etf(name, r):
       <div class="row"><span>距 200MA</span><span class="fw-bold">{fmt_pct(r["dist_200ma"])}</span></div>
     </div>'''
 
+# 富途风格个股排版
 def row_stock(sym, r):
-    if "error" in r: return f'<tr class="err"><td><b>{sym}</b></td><td colspan="10">获取数据失败</td></tr>'
-    target = STOCK_META.get(sym, {}).get("target")
     name = STOCK_META.get(sym, {}).get("name", sym)
+    if "error" in r: 
+        return f'<tr class="err"><td><div style="font-weight:600;color:var(--ink);">{name}</div><div style="font-size:11px;color:var(--muted);margin-top:2px;">{sym}</div></td><td colspan="9">获取数据失败</td></tr>'
+    
+    target = STOCK_META.get(sym, {}).get("target")
     target_str = f"${target:.2f}" if target else "-"
     action_html = '<span class="alert-text fw-bold ml">(信号触发!)</span>' if target and r["close"] <= target else ""
     chg_cls = "pos-text" if (r["day_chg"] or 0) >= 0 else "neg-text"
     chg_sign = "+" if (r["day_chg"] or 0) >= 0 else ""
+    
     return f'''<tr>
-        <td><b>{sym}</b></td><td class="sub-text">{name}</td>
+        <td>
+            <div style="font-weight:600; font-size:13.5px; color:var(--ink); line-height:1.2;">{name}</div>
+            <div style="font-size:11px; color:var(--muted); margin-top:3px; font-weight:500;">{sym}</div>
+        </td>
         <td class="fw-bold">${r["close"]:.2f}</td><td class="{chg_cls}">{chg_sign}{fmt_pct(r["day_chg"])}</td>
         <td>${r["open"]:.2f}</td><td>${r["high"]:.2f}</td><td>${r["low"]:.2f}</td>
         <td>${fmt_num(r["ytd_high"])}</td><td>{fmt_num(r["rsi"])}</td><td>{fmt_pct(r["dist_200ma"])}</td>
@@ -293,149 +301,6 @@ def mkt_card_a(title, data):
     chg_str = f"+{fmt_pct(chg)}" if chg >= 0 else fmt_pct(chg)
     color_cls = "positive" if chg >= 0 else "negative"
     return f'<div class="mkt-card"><div class="name">{title}</div><div class="val">{price:,.3f}</div><div class="chg {color_cls}">{chg_str}</div></div>'
-
-
-# ===== myAlphaView V1.1 Step 2 — Market Regime Engine =====
-def _num(v):
-    try:
-        return float(v)
-    except (TypeError, ValueError):
-        return None
-
-def _latest_close(rows):
-    if not rows:
-        return None
-    for row in reversed(rows):
-        v = _num(row.get("close") if isinstance(row, dict) else None)
-        if v is not None:
-            return v
-    return None
-
-def _latest_rsi(rows):
-    if not rows:
-        return None
-    for row in reversed(rows):
-        v = _num(row.get("rsi") if isinstance(row, dict) else None)
-        if v is not None:
-            return v
-    return None
-
-def _latest_sma200(rows):
-    if not rows:
-        return None
-    for row in reversed(rows):
-        for key in ("sma200", "SMA200", "ma200"):
-            v = _num(row.get(key) if isinstance(row, dict) else None)
-            if v is not None:
-                return v
-    return None
-
-def _latest_drawdown(rows):
-    if not rows:
-        return None
-    for row in reversed(rows):
-        for key in ("drawdown", "dd", "Drawdown"):
-            v = _num(row.get(key) if isinstance(row, dict) else None)
-            if v is not None:
-                return v
-    return None
-
-def calculate_market_regime(nasdaq_rows=None, sp500_rows=None, vix_value=None):
-    """
-    Transparent 100-point scoring model.
-    Trend  : 0-40
-    Risk   : 0-30
-    Momentum: 0-30
-
-    The model intentionally avoids pretending to be a trading oracle.
-    It is a research classification layer for the public dashboard.
-    """
-    nasdaq_rows = nasdaq_rows or []
-    sp500_rows = sp500_rows or []
-
-    trend_points = 0
-    momentum_points = 0
-    risk_points = 0
-    evidence = []
-
-    # Trend: compare latest close to 200-day moving average.
-    for name, rows in (("NASDAQ", nasdaq_rows), ("S&P 500", sp500_rows)):
-        close = _latest_close(rows)
-        sma = _latest_sma200(rows)
-        if close is not None and sma is not None:
-            if close > sma:
-                trend_points += 20
-                evidence.append(f"{name} > 200MA")
-            else:
-                evidence += []
-    if not evidence:
-        trend_points = 20
-    elif trend_points == 40:
-        trend_points = 40
-    else:
-        trend_points = 20
-
-    # Momentum: RSI for both indices, neutral when unavailable.
-    rsi_values = []
-    for rows in (nasdaq_rows, sp500_rows):
-        r = _latest_rsi(rows)
-        if r is not None:
-            rsi_values.append(r)
-    if rsi_values:
-        avg_rsi = sum(rsi_values) / len(rsi_values)
-        if avg_rsi >= 60:
-            momentum_points = 30
-        elif avg_rsi >= 50:
-            momentum_points = 22
-        elif avg_rsi >= 40:
-            momentum_points = 12
-        else:
-            momentum_points = 5
-    else:
-        momentum_points = 15
-
-    # Risk: VIX. Lower VIX gets more points.
-    vix = _num(vix_value)
-    if vix is None:
-        risk_points = 15
-    elif vix < 16:
-        risk_points = 30
-    elif vix < 20:
-        risk_points = 24
-    elif vix < 25:
-        risk_points = 16
-    elif vix < 30:
-        risk_points = 8
-    else:
-        risk_points = 0
-
-    score = trend_points + risk_points + momentum_points
-
-    if vix is not None and vix >= 30:
-        regime = "STRESS"
-        regime_cn = "压力"
-    elif score >= 75:
-        regime = "RISK-ON"
-        regime_cn = "风险偏好"
-    elif score >= 50:
-        regime = "NEUTRAL"
-        regime_cn = "中性"
-    else:
-        regime = "RISK-OFF"
-        regime_cn = "风险规避"
-
-    return {
-        "regime": regime,
-        "regime_cn": regime_cn,
-        "score": score,
-        "trend": trend_points,
-        "risk": risk_points,
-        "momentum": momentum_points,
-        "vix": vix,
-        "method": "Trend 40 + Risk 30 + Momentum 30",
-        "evidence": evidence,
-    }
-
 
 def render_html(data):
     engine_html = "".join(engine_item(k, v) for k, v in data["core"].items())
@@ -485,10 +350,8 @@ def render_html(data):
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,380;9..144,520;9..144,620&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
-<!-- 引入 Supabase JS SDK -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-// 提取 V1.1 Step 2 的计算逻辑，保持你的 Regime 显示
 function rowsFor(obj){{
   if(!obj) return [];
   if(Array.isArray(obj)) return obj;
@@ -572,8 +435,10 @@ window.addEventListener('load', calculateRegimeClient);
 .nav-menu li:hover{{background:rgba(255,255,255,.06);color:#fff}} .nav-menu li.active{{color:#fff;background:rgba(184,134,58,.16);box-shadow:inset 2.5px 0 0 var(--brass)}} .nav-icon{{width:18px;text-align:center;font-size:14px}}
 .nav-menu li .tag{{margin-left:auto;font-size:9px;background:rgba(255,255,255,.1);color:var(--navmuted);padding:2px 6px;border-radius:99px;font-weight:600}}
 .sidebar-footer{{margin-top:auto;color:#565b71;font-size:10.5px;line-height:1.7;padding-top:16px;border-top:1px solid var(--navline)}}
-.auth-btn {{ display:block; width:100%; text-align:left; background:transparent; border:1px solid var(--navline); color:#8d93ab; padding:8px 12px; border-radius:6px; cursor:pointer; margin-top:12px; font-size:12px; transition:0.2s; }}
-.auth-btn:hover {{ background:rgba(255,255,255,0.05); color:#fff; }}
+
+.auth-btn-top {{ background: var(--brass); color: #fff; border: none; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 11.5px; font-weight: 600; transition: 0.2s; box-shadow: 0 4px 10px rgba(184,134,58,.3); margin-left: 12px; }}
+.auth-btn-top:hover {{ background: #a67732; transform: translateY(-1px); }}
+
 .main{{margin-left:252px;width:calc(100% - 252px)}} .topbar{{height:64px;background:rgba(244,242,236,.9);backdrop-filter:blur(14px);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 32px;position:sticky;top:0;z-index:10}}
 .breadcrumb{{font-size:13px;color:var(--muted)}} .breadcrumb strong{{color:var(--ink);font-weight:600}} .top-meta{{display:flex;gap:18px;color:var(--muted);font-size:11.5px;align-items:center}} .live-dot{{width:7px;height:7px;border-radius:50%;background:var(--green);display:inline-block;margin-right:6px}}
 .content{{max-width:1440px;margin:0 auto;padding:36px 32px 40px}}
@@ -595,7 +460,7 @@ window.addEventListener('load', calculateRegimeClient);
 .badge{{display:inline-flex;border-radius:99px;padding:4px 9px;font-size:10px;font-weight:700}} .badge.good{{background:var(--green-soft);color:var(--green)}} .badge.warn{{background:var(--amber-soft);color:var(--amber)}} .badge.bad{{background:var(--red-soft);color:var(--red)}} .badge.neutral{{background:var(--surface2);color:var(--muted)}}
 
 .grid{{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}} .card{{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px;box-shadow:var(--shadow)}} .card-header{{display:flex;justify-content:space-between;align-items:center}} .sym{{font-weight:700;font-size:16px}} .price{{font-size:20px;font-weight:700;font-family:var(--serif)}} .divider{{height:1px;background:var(--line);margin:14px 0}} .row{{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:10px}} .fw-bold{{color:var(--ink);font-weight:600}} .pos-text{{color:var(--green)}} .neg-text{{color:var(--red)}} .alert-text{{color:var(--red)}} 
-.table-container{{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow)}} table{{width:100%;border-collapse:collapse;text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}} th,td{{padding:14px;border-bottom:1px solid var(--line);font-size:13px}} th{{background:var(--surface2);color:var(--muted);font-weight:600;font-size:11.5px}} th:nth-child(1),td:nth-child(1),th:nth-child(2),td:nth-child(2){{text-align:left}} tr:hover td{{background:#fbfbfb}}
+.table-container{{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow)}} table{{width:100%;border-collapse:collapse;text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}} th,td{{padding:14px;border-bottom:1px solid var(--line);font-size:13px}} th{{background:var(--surface2);color:var(--muted);font-weight:600;font-size:11.5px}} th:nth-child(1),td:nth-child(1){{text-align:left}} tr:hover td{{background:#fbfbfb}}
 
 .opt-grid{{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px}} .mkt-card{{background:var(--surface);border:1px solid var(--line);border-radius:13px;padding:17px 18px;box-shadow:var(--shadow)}} .mkt-card .name{{font-size:12.5px;color:var(--muted);display:flex;justify-content:space-between}} .mkt-card .val{{font-family:var(--serif);font-size:21px;margin-top:8px}} .mkt-card .chg{{font-size:11.5px;font-weight:600;margin-top:4px}} .soon{{font-size:9.5px;background:var(--surface2);color:var(--muted);padding:2px 7px;border-radius:99px;font-weight:600}}
 .footer{{color:#9a9484;font-size:10.5px;line-height:1.7;text-align:center;padding:34px 0 10px}}
@@ -617,12 +482,14 @@ window.addEventListener('load', calculateRegimeClient);
 </ul></div>
 <div class="sidebar-footer">
   公开研究版 · 不展示个人真实资产<br>数据仅供研究演示
-  <!-- 魔法链接登录入口 -->
-  <button id="authBtn" class="auth-btn" onclick="handleAuth()">🔐 登录私有看板</button>
 </div>
 </aside>
 
-<main class="main"><header class="topbar"><div class="breadcrumb">myAlphaView / <strong id="bc-title">市场总览</strong></div><div class="top-meta"><span id="liveStatus"><i class="live-dot"></i><span id="liveStatusText">数据抓取成功</span></span><span id="updateTime">更新: {data['updated']}</span></div></header><div class="content">
+<main class="main"><header class="topbar"><div class="breadcrumb">myAlphaView / <strong id="bc-title">市场总览</strong></div><div class="top-meta">
+  <span id="liveStatus"><i class="live-dot"></i><span id="liveStatusText">数据抓取成功</span></span>
+  <span id="updateTime">更新: {data['updated']}</span>
+  <button id="authBtn" class="auth-btn-top" onclick="handleAuth()">🔐 登录私有看板</button>
+</div></header><div class="content">
 
 <!-- TAB 1: 市场总览 -->
 <div id="tab-overview" class="tab-pane active">
@@ -661,7 +528,7 @@ window.addEventListener('load', calculateRegimeClient);
 </div>
 
 <!-- TAB 5: 个股观察池 -->
-<div id="tab-stocks" class="tab-pane"><section class="hero"><div><h1>个股观察池</h1><p>包含中英文名称对照及核心技术指标监控。</p></div></section><section class="section"><div class="table-container"><table><thead><tr><th>代码</th><th>名称</th><th>最新价</th><th>涨跌幅</th><th>开盘</th><th>最高</th><th>最低</th><th>年内最高</th><th>RSI(14)</th><th>距200MA</th><th>策略参考价</th></tr></thead><tbody id="stocksTableBody">{stock_html}</tbody></table></div></section></div>
+<div id="tab-stocks" class="tab-pane"><section class="hero"><div><h1>个股观察池</h1><p>包含中英文名称对照及核心技术指标监控。</p></div></section><section class="section"><div class="table-container"><table><thead><tr><th>名称代码</th><th>最新价</th><th>涨跌幅</th><th>开盘</th><th>最高</th><th>最低</th><th>年内最高</th><th>RSI(14)</th><th>距200MA</th><th>策略参考价</th></tr></thead><tbody id="stocksTableBody">{stock_html}</tbody></table></div></section></div>
 
 <!-- TAB 6: 期权自查 -->
 <div id="tab-options" class="tab-pane"><section class="hero"><div><h1>期权持仓自查清单</h1><p>静态监控清单：在持有期权头寸期间，重点审视的希腊字母与风控指标。</p></div></section><section class="section"><div class="opt-grid">
@@ -699,9 +566,9 @@ window.addEventListener('load',function(){{
 }});
 
 // ================= Supabase 魔法链接身份验证逻辑 =================
-// ⚠️ 注意：在这里替换成你刚才获取的 URL 和 anon key
-const SUPABASE_URL = 'https://rhielbkvhgqbthcgztci.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_7_S0qA1oh31fHiihhx07PA_1LPAighW';
+// ⚠️ 注意：在这里替换成你获取的 URL 和 publishable key
+const SUPABASE_URL = '填入你的SUPABASE_URL';
+const SUPABASE_ANON_KEY = '填入你的ANON_KEY';
 
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 const authBtn = document.getElementById('authBtn');
@@ -709,7 +576,7 @@ const authBtn = document.getElementById('authBtn');
 async function checkSession() {{
     const {{ data: {{ session }} }} = await supabaseClient.auth.getSession();
     if (session) {{
-        authBtn.innerHTML = "🔓 退出私有模式";
+        authBtn.innerHTML = "🔓 退出账号";
         document.getElementById('modeTitle').innerText = "🔥 资金与策略模型已解锁";
         document.getElementById('modeTitle').style.color = "var(--red)";
         document.getElementById('modeDesc').innerText = "您已安全登录，当前正在展示包含实时计算和私有阈值的高级量化策略信号。";
@@ -723,20 +590,17 @@ async function checkSession() {{
 async function handleAuth() {{
     const {{ data: {{ session }} }} = await supabaseClient.auth.getSession();
     if (session) {{
-        // 如果已登录，则登出
         await supabaseClient.auth.signOut();
         alert('已退出登录，恢复为公开展示模式。');
         window.location.reload();
     }} else {{
-        // 如果未登录，则发起魔法链接请求
-        const email = prompt("欢迎探索 myAlphaView 私有量化模型。\n请输入您的邮箱地址，我们将为您发送免密登录/免费注册链接：");
+        const email = prompt("欢迎探索 myAlphaView 私有量化模型。\\n请输入您的邮箱地址，我们将为您发送免密登录/免费注册链接：");
         if (!email) return;
         
         authBtn.innerHTML = "⏳ 正在发送...";
         const {{ error }} = await supabaseClient.auth.signInWithOtp({{
             email: email,
             options: {{
-                // 魔法链接重定向地址，指向你的 GitHub Pages 域名
                 emailRedirectTo: window.location.origin + window.location.pathname
             }}
         }});
@@ -751,18 +615,16 @@ async function handleAuth() {{
     }}
 }}
 
-// 页面加载时检查登录状态
 window.addEventListener('load', checkSession);
-
-// 监听魔法链接回调返回的状态变化
 supabaseClient.auth.onAuthStateChange((event, session) => {{
     if (event === 'SIGNED_IN') checkSession();
 }});
 </script></body></html>'''
 
+# ================= 数据库推送逻辑 =================
 def push_to_supabase(data):
-    supabase_url = os.environ.get("SUPABASE_URL")
-    supabase_key = os.environ.get("SUPABASE_KEY")
+    supabase_url = os.environ.get("https://rhielbkvhgqbthcgztci.supabase.co")
+    supabase_key = os.environ.get("sb_publishable_7_S0qA1oh31fHiihhx07PA_1LPAighW")
     
     if not supabase_url or not supabase_key:
         print("注意：未找到 Supabase 环境变量，跳过数据库同步。")
@@ -775,10 +637,9 @@ def push_to_supabase(data):
         "Content-Type": "application/json",
         "Prefer": "return=minimal"
     }
-    # 将抓取到的全量 JSON 数据装入 payload 字段
     body = json.dumps({"payload": data}).encode("utf-8")
-    
     req = urllib.request.Request(endpoint, data=body, headers=headers, method="POST")
+    
     try:
         with urllib.request.urlopen(req, timeout=15) as resp:
             print(f"✅ 成功将最新数据推送到 Supabase 数据库！状态码: {resp.status}")
@@ -788,7 +649,7 @@ def push_to_supabase(data):
 if __name__ == '__main__':
     data = build()
     
-    # 1. 生成并保存本地静态文件 (保留，用作未登录状态下的公开预览版)
+    # 1. 生成并保存本地静态文件
     out = os.path.join(os.path.dirname(__file__), '..', 'docs', 'data.json')
     with open(out, 'w', encoding='utf-8') as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
@@ -799,5 +660,5 @@ if __name__ == '__main__':
         f.write(html)
     print(f'Generated {html_out}')
     
-    # 2. 将数据推送到 Supabase 的 market_data 表，实现云端备份和防休眠
+    # 2. 将数据推送到 Supabase
     push_to_supabase(data)

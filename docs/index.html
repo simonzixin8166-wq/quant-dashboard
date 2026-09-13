@@ -4,10 +4,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,380;9..144,520;9..144,620&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
-<!-- 引入 Supabase JS SDK -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-// 提取 V1.1 Step 2 的计算逻辑，保持你的 Regime 显示
 function rowsFor(obj){
   if(!obj) return [];
   if(Array.isArray(obj)) return obj;
@@ -91,8 +89,10 @@ window.addEventListener('load', calculateRegimeClient);
 .nav-menu li:hover{background:rgba(255,255,255,.06);color:#fff} .nav-menu li.active{color:#fff;background:rgba(184,134,58,.16);box-shadow:inset 2.5px 0 0 var(--brass)} .nav-icon{width:18px;text-align:center;font-size:14px}
 .nav-menu li .tag{margin-left:auto;font-size:9px;background:rgba(255,255,255,.1);color:var(--navmuted);padding:2px 6px;border-radius:99px;font-weight:600}
 .sidebar-footer{margin-top:auto;color:#565b71;font-size:10.5px;line-height:1.7;padding-top:16px;border-top:1px solid var(--navline)}
-.auth-btn { display:block; width:100%; text-align:left; background:transparent; border:1px solid var(--navline); color:#8d93ab; padding:8px 12px; border-radius:6px; cursor:pointer; margin-top:12px; font-size:12px; transition:0.2s; }
-.auth-btn:hover { background:rgba(255,255,255,0.05); color:#fff; }
+
+.auth-btn-top { background: var(--brass); color: #fff; border: none; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 11.5px; font-weight: 600; transition: 0.2s; box-shadow: 0 4px 10px rgba(184,134,58,.3); margin-left: 12px; }
+.auth-btn-top:hover { background: #a67732; transform: translateY(-1px); }
+
 .main{margin-left:252px;width:calc(100% - 252px)} .topbar{height:64px;background:rgba(244,242,236,.9);backdrop-filter:blur(14px);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 32px;position:sticky;top:0;z-index:10}
 .breadcrumb{font-size:13px;color:var(--muted)} .breadcrumb strong{color:var(--ink);font-weight:600} .top-meta{display:flex;gap:18px;color:var(--muted);font-size:11.5px;align-items:center} .live-dot{width:7px;height:7px;border-radius:50%;background:var(--green);display:inline-block;margin-right:6px}
 .content{max-width:1440px;margin:0 auto;padding:36px 32px 40px}
@@ -114,7 +114,7 @@ window.addEventListener('load', calculateRegimeClient);
 .badge{display:inline-flex;border-radius:99px;padding:4px 9px;font-size:10px;font-weight:700} .badge.good{background:var(--green-soft);color:var(--green)} .badge.warn{background:var(--amber-soft);color:var(--amber)} .badge.bad{background:var(--red-soft);color:var(--red)} .badge.neutral{background:var(--surface2);color:var(--muted)}
 
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px} .card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px;box-shadow:var(--shadow)} .card-header{display:flex;justify-content:space-between;align-items:center} .sym{font-weight:700;font-size:16px} .price{font-size:20px;font-weight:700;font-family:var(--serif)} .divider{height:1px;background:var(--line);margin:14px 0} .row{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:10px} .fw-bold{color:var(--ink);font-weight:600} .pos-text{color:var(--green)} .neg-text{color:var(--red)} .alert-text{color:var(--red)} 
-.table-container{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow)} table{width:100%;border-collapse:collapse;text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums} th,td{padding:14px;border-bottom:1px solid var(--line);font-size:13px} th{background:var(--surface2);color:var(--muted);font-weight:600;font-size:11.5px} th:nth-child(1),td:nth-child(1),th:nth-child(2),td:nth-child(2){text-align:left} tr:hover td{background:#fbfbfb}
+.table-container{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow)} table{width:100%;border-collapse:collapse;text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums} th,td{padding:14px;border-bottom:1px solid var(--line);font-size:13px} th{background:var(--surface2);color:var(--muted);font-weight:600;font-size:11.5px} th:nth-child(1),td:nth-child(1){text-align:left} tr:hover td{background:#fbfbfb}
 
 .opt-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px} .mkt-card{background:var(--surface);border:1px solid var(--line);border-radius:13px;padding:17px 18px;box-shadow:var(--shadow)} .mkt-card .name{font-size:12.5px;color:var(--muted);display:flex;justify-content:space-between} .mkt-card .val{font-family:var(--serif);font-size:21px;margin-top:8px} .mkt-card .chg{font-size:11.5px;font-weight:600;margin-top:4px} .soon{font-size:9.5px;background:var(--surface2);color:var(--muted);padding:2px 7px;border-radius:99px;font-weight:600}
 .footer{color:#9a9484;font-size:10.5px;line-height:1.7;text-align:center;padding:34px 0 10px}
@@ -136,12 +136,14 @@ window.addEventListener('load', calculateRegimeClient);
 </ul></div>
 <div class="sidebar-footer">
   公开研究版 · 不展示个人真实资产<br>数据仅供研究演示
-  <!-- 魔法链接登录入口 -->
-  <button id="authBtn" class="auth-btn" onclick="handleAuth()">🔐 登录私有看板</button>
 </div>
 </aside>
 
-<main class="main"><header class="topbar"><div class="breadcrumb">myAlphaView / <strong id="bc-title">市场总览</strong></div><div class="top-meta"><span id="liveStatus"><i class="live-dot"></i><span id="liveStatusText">数据抓取成功</span></span><span id="updateTime">更新: 2026-09-13</span></div></header><div class="content">
+<main class="main"><header class="topbar"><div class="breadcrumb">myAlphaView / <strong id="bc-title">市场总览</strong></div><div class="top-meta">
+  <span id="liveStatus"><i class="live-dot"></i><span id="liveStatusText">数据抓取成功</span></span>
+  <span id="updateTime">更新: 2026-09-13</span>
+  <button id="authBtn" class="auth-btn-top" onclick="handleAuth()">🔐 登录私有看板</button>
+</div></header><div class="content">
 
 <!-- TAB 1: 市场总览 -->
 <div id="tab-overview" class="tab-pane active">
@@ -208,92 +210,137 @@ window.addEventListener('load', calculateRegimeClient);
 </div>
 
 <!-- TAB 5: 个股观察池 -->
-<div id="tab-stocks" class="tab-pane"><section class="hero"><div><h1>个股观察池</h1><p>包含中英文名称对照及核心技术指标监控。</p></div></section><section class="section"><div class="table-container"><table><thead><tr><th>代码</th><th>名称</th><th>最新价</th><th>涨跌幅</th><th>开盘</th><th>最高</th><th>最低</th><th>年内最高</th><th>RSI(14)</th><th>距200MA</th><th>策略参考价</th></tr></thead><tbody id="stocksTableBody"><tr>
-        <td><b>SOFI</b></td><td class="sub-text">SoFi Technologies</td>
+<div id="tab-stocks" class="tab-pane"><section class="hero"><div><h1>个股观察池</h1><p>包含中英文名称对照及核心技术指标监控。</p></div></section><section class="section"><div class="table-container"><table><thead><tr><th>名称代码</th><th>最新价</th><th>涨跌幅</th><th>开盘</th><th>最高</th><th>最低</th><th>年内最高</th><th>RSI(14)</th><th>距200MA</th><th>策略参考价</th></tr></thead><tbody id="stocksTableBody"><tr>
+        <td>
+            <div style="font-weight:600; font-size:13.5px; color:var(--ink); line-height:1.2;">SoFi Technologies</div>
+            <div style="font-size:11px; color:var(--muted); margin-top:3px; font-weight:500;">SOFI</div>
+        </td>
         <td class="fw-bold">$17.32</td><td class="pos-text">+0.64%</td>
         <td>$17.32</td><td>$17.50</td><td>$17.12</td>
         <td>$29.86</td><td>45.25</td><td>-12.54%</td>
         <td><b>$15.00</b> </td>
     </tr><tr>
-        <td><b>IREN</b></td><td class="sub-text">Iris Energy</td>
+        <td>
+            <div style="font-weight:600; font-size:13.5px; color:var(--ink); line-height:1.2;">Iris Energy</div>
+            <div style="font-size:11px; color:var(--muted); margin-top:3px; font-weight:500;">IREN</div>
+        </td>
         <td class="fw-bold">$43.83</td><td class="pos-text">+0.44%</td>
         <td>$44.59</td><td>$45.09</td><td>$43.28</td>
         <td>$70.71</td><td>54.07</td><td>-4.00%</td>
         <td><b>$35.00</b> </td>
     </tr><tr>
-        <td><b>ORCL</b></td><td class="sub-text">甲骨文</td>
+        <td>
+            <div style="font-weight:600; font-size:13.5px; color:var(--ink); line-height:1.2;">甲骨文</div>
+            <div style="font-size:11px; color:var(--muted); margin-top:3px; font-weight:500;">ORCL</div>
+        </td>
         <td class="fw-bold">$150.28</td><td class="neg-text">-1.74%</td>
         <td>$164.43</td><td>$166.00</td><td>$149.84</td>
         <td>$250.25</td><td>51.05</td><td>-10.36%</td>
         <td><b>$130.00</b> </td>
     </tr><tr>
-        <td><b>TSLA</b></td><td class="sub-text">特斯拉</td>
+        <td>
+            <div style="font-weight:600; font-size:13.5px; color:var(--ink); line-height:1.2;">特斯拉</div>
+            <div style="font-size:11px; color:var(--muted); margin-top:3px; font-weight:500;">TSLA</div>
+        </td>
         <td class="fw-bold">$365.44</td><td class="pos-text">+0.52%</td>
         <td>$364.20</td><td>$368.66</td><td>$361.60</td>
         <td>$458.34</td><td>54.45</td><td>-8.39%</td>
         <td><b>$250.00</b> </td>
     </tr><tr>
-        <td><b>NVDA</b></td><td class="sub-text">英伟达</td>
+        <td>
+            <div style="font-weight:600; font-size:13.5px; color:var(--ink); line-height:1.2;">英伟达</div>
+            <div style="font-size:11px; color:var(--muted); margin-top:3px; font-weight:500;">NVDA</div>
+        </td>
         <td class="fw-bold">$218.29</td><td class="neg-text">-0.03%</td>
         <td>$221.24</td><td>$222.00</td><td>$218.15</td>
         <td>$236.54</td><td>49.75</td><td>10.54%</td>
         <td><b>$110.00</b> </td>
     </tr><tr>
-        <td><b>TSM</b></td><td class="sub-text">台积电</td>
+        <td>
+            <div style="font-weight:600; font-size:13.5px; color:var(--ink); line-height:1.2;">台积电</div>
+            <div style="font-size:11px; color:var(--muted); margin-top:3px; font-weight:500;">TSM</div>
+        </td>
         <td class="fw-bold">$433.24</td><td class="pos-text">+1.22%</td>
         <td>$431.55</td><td>$435.37</td><td>$428.90</td>
         <td>$479.00</td><td>56.89</td><td>15.24%</td>
         <td><b>$160.00</b> </td>
     </tr><tr>
-        <td><b>LITE</b></td><td class="sub-text">Lumentum</td>
+        <td>
+            <div style="font-weight:600; font-size:13.5px; color:var(--ink); line-height:1.2;">Lumentum</div>
+            <div style="font-size:11px; color:var(--muted); margin-top:3px; font-weight:500;">LITE</div>
+        </td>
         <td class="fw-bold">$927.03</td><td class="neg-text">-0.93%</td>
         <td>$945.59</td><td>$973.50</td><td>$914.65</td>
         <td>$1085.68</td><td>53.87</td><td>32.56%</td>
         <td><b>$45.00</b> </td>
     </tr><tr>
-        <td><b>AVGO</b></td><td class="sub-text">博通</td>
+        <td>
+            <div style="font-weight:600; font-size:13.5px; color:var(--ink); line-height:1.2;">博通</div>
+            <div style="font-size:11px; color:var(--muted); margin-top:3px; font-weight:500;">AVGO</div>
+        </td>
         <td class="fw-bold">$361.99</td><td class="pos-text">+0.32%</td>
         <td>$364.85</td><td>$366.78</td><td>$361.64</td>
         <td>$495.00</td><td>42.24</td><td>-2.22%</td>
         <td><b>$340.00</b> </td>
     </tr><tr>
-        <td><b>MRVL</b></td><td class="sub-text">美满电子</td>
+        <td>
+            <div style="font-weight:600; font-size:13.5px; color:var(--ink); line-height:1.2;">美满电子</div>
+            <div style="font-size:11px; color:var(--muted); margin-top:3px; font-weight:500;">MRVL</div>
+        </td>
         <td class="fw-bold">$236.10</td><td class="pos-text">+4.03%</td>
         <td>$234.63</td><td>$240.20</td><td>$229.28</td>
         <td>$329.88</td><td>55.47</td><td>52.50%</td>
         <td><b>$65.00</b> </td>
     </tr><tr>
-        <td><b>NBIS</b></td><td class="sub-text">Nebius</td>
+        <td>
+            <div style="font-weight:600; font-size:13.5px; color:var(--ink); line-height:1.2;">Nebius</div>
+            <div style="font-size:11px; color:var(--muted); margin-top:3px; font-weight:500;">NBIS</div>
+        </td>
         <td class="fw-bold">$224.55</td><td class="neg-text">-1.56%</td>
         <td>$234.80</td><td>$234.95</td><td>$223.64</td>
         <td>$299.86</td><td>51.44</td><td>42.39%</td>
         <td><b>$25.00</b> </td>
     </tr><tr>
-        <td><b>GOOG</b></td><td class="sub-text">谷歌</td>
+        <td>
+            <div style="font-weight:600; font-size:13.5px; color:var(--ink); line-height:1.2;">谷歌</div>
+            <div style="font-size:11px; color:var(--muted); margin-top:3px; font-weight:500;">GOOG</div>
+        </td>
         <td class="fw-bold">$335.45</td><td class="pos-text">+1.53%</td>
         <td>$332.73</td><td>$339.95</td><td>$332.55</td>
         <td>$404.47</td><td>46.13</td><td>-0.04%</td>
         <td><b>$150.00</b> </td>
     </tr><tr>
-        <td><b>AMD</b></td><td class="sub-text">超威半导体</td>
+        <td>
+            <div style="font-weight:600; font-size:13.5px; color:var(--ink); line-height:1.2;">超威半导体</div>
+            <div style="font-size:11px; color:var(--muted); margin-top:3px; font-weight:500;">AMD</div>
+        </td>
         <td class="fw-bold">$516.13</td><td class="pos-text">+2.49%</td>
         <td>$510.71</td><td>$521.06</td><td>$501.35</td>
         <td>$584.73</td><td>57.96</td><td>48.78%</td>
         <td><b>$130.00</b> </td>
     </tr><tr>
-        <td><b>HOOD</b></td><td class="sub-text">Robinhood</td>
+        <td>
+            <div style="font-weight:600; font-size:13.5px; color:var(--ink); line-height:1.2;">Robinhood</div>
+            <div style="font-size:11px; color:var(--muted); margin-top:3px; font-weight:500;">HOOD</div>
+        </td>
         <td class="fw-bold">$112.57</td><td class="neg-text">-0.67%</td>
         <td>$113.35</td><td>$116.40</td><td>$111.02</td>
         <td>$125.25</td><td>55.79</td><td>18.30%</td>
         <td><b>$20.00</b> </td>
     </tr><tr>
-        <td><b>DRAM</b></td><td class="sub-text">Roundhill内存芯片</td>
+        <td>
+            <div style="font-weight:600; font-size:13.5px; color:var(--ink); line-height:1.2;">Roundhill内存芯片</div>
+            <div style="font-size:11px; color:var(--muted); margin-top:3px; font-weight:500;">DRAM</div>
+        </td>
         <td class="fw-bold">$59.10</td><td class="pos-text">+0.92%</td>
         <td>$60.03</td><td>$60.04</td><td>$58.58</td>
         <td>$81.34</td><td>54.28</td><td>-</td>
         <td><b>-</b> </td>
     </tr><tr>
-        <td><b>SPCX</b></td><td class="sub-text">SpaceX代币化产品</td>
+        <td>
+            <div style="font-weight:600; font-size:13.5px; color:var(--ink); line-height:1.2;">SpaceX代币化产品</div>
+            <div style="font-size:11px; color:var(--muted); margin-top:3px; font-weight:500;">SPCX</div>
+        </td>
         <td class="fw-bold">$151.21</td><td class="pos-text">+2.04%</td>
         <td>$150.01</td><td>$151.85</td><td>$145.92</td>
         <td>$225.64</td><td>59.53</td><td>-</td>
@@ -336,9 +383,9 @@ window.addEventListener('load',function(){
 });
 
 // ================= Supabase 魔法链接身份验证逻辑 =================
-// ⚠️ 注意：在这里替换成你刚才获取的 URL 和 anon key
-const SUPABASE_URL = 'https://rhielbkvhgqbthcgztci.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_7_S0qA1oh31fHiihhx07PA_1LPAighW';
+// ⚠️ 注意：在这里替换成你获取的 URL 和 publishable key
+const SUPABASE_URL = '填入你的SUPABASE_URL';
+const SUPABASE_ANON_KEY = '填入你的ANON_KEY';
 
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 const authBtn = document.getElementById('authBtn');
@@ -346,7 +393,7 @@ const authBtn = document.getElementById('authBtn');
 async function checkSession() {
     const { data: { session } } = await supabaseClient.auth.getSession();
     if (session) {
-        authBtn.innerHTML = "🔓 退出私有模式";
+        authBtn.innerHTML = "🔓 退出账号";
         document.getElementById('modeTitle').innerText = "🔥 资金与策略模型已解锁";
         document.getElementById('modeTitle').style.color = "var(--red)";
         document.getElementById('modeDesc').innerText = "您已安全登录，当前正在展示包含实时计算和私有阈值的高级量化策略信号。";
@@ -360,20 +407,17 @@ async function checkSession() {
 async function handleAuth() {
     const { data: { session } } = await supabaseClient.auth.getSession();
     if (session) {
-        // 如果已登录，则登出
         await supabaseClient.auth.signOut();
         alert('已退出登录，恢复为公开展示模式。');
         window.location.reload();
     } else {
-        // 如果未登录，则发起魔法链接请求
-        const email = prompt("请输入您的管理员邮箱地址以获取安全链接：");
+        const email = prompt("欢迎探索 myAlphaView 私有量化模型。\n请输入您的邮箱地址，我们将为您发送免密登录/免费注册链接：");
         if (!email) return;
         
         authBtn.innerHTML = "⏳ 正在发送...";
         const { error } = await supabaseClient.auth.signInWithOtp({
             email: email,
             options: {
-                // 魔法链接重定向地址，指向你的 GitHub Pages 域名
                 emailRedirectTo: window.location.origin + window.location.pathname
             }
         });
@@ -388,10 +432,7 @@ async function handleAuth() {
     }
 }
 
-// 页面加载时检查登录状态
 window.addEventListener('load', checkSession);
-
-// 监听魔法链接回调返回的状态变化
 supabaseClient.auth.onAuthStateChange((event, session) => {
     if (event === 'SIGNED_IN') checkSession();
 });

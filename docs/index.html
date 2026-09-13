@@ -1,9 +1,73 @@
-<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>AlphaView 阿尔法视界</title>
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>myAlphaView · Market Intelligence</title>
 <meta name="author" content="Simon">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,380;9..144,520;9..144,620&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<!-- 引入 Supabase JS SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+// 提取 V1.1 Step 2 的计算逻辑，保持你的 Regime 显示
+function rowsFor(obj){
+  if(!obj) return [];
+  if(Array.isArray(obj)) return obj;
+  for(const k of ["history","data","values","series"]) if(Array.isArray(obj[k])) return obj[k];
+  return [];
+}
+function latestNum(rows, keys){
+  for(let i=rows.length-1;i>=0;i--){
+    for(const k of keys){
+      const n=Number(rows[i]?.[k]);
+      if(Number.isFinite(n)) return n;
+    }
+  }
+  return null;
+}
+function sourceByNames(names){
+  for(const name of names){
+    if(DATA && DATA[name]) return DATA[name];
+  }
+  return null;
+}
+function calculateRegimeClient(){
+  const nasObj=sourceByNames(["NASDAQ","IXIC","nasdaq"]);
+  const spObj=sourceByNames(["SPX","SP500","S&P 500","sp500"]);
+  const nas=rowsFor(nasObj), sp=rowsFor(spObj);
+  let trend=0;
+  let foundTrend=0;
+  for(const rows of [nas,sp]){
+    const close=latestNum(rows,["close","Close","price"]);
+    const sma=latestNum(rows,["sma200","SMA200","ma200"]);
+    if(close!==null && sma!==null){foundTrend++; if(close>sma) trend+=20;}
+  }
+  if(foundTrend===0) trend=20;
+  else if(foundTrend===1) trend=trend;
+  let rsis=[];
+  for(const rows of [nas,sp]){
+    const r=latestNum(rows,["rsi","RSI"]);
+    if(r!==null) rsis.push(r);
+  }
+  let momentum=15;
+  if(rsis.length){
+    const r=rsis.reduce((a,b)=>a+b,0)/rsis.length;
+    momentum=r>=60?30:r>=50?22:r>=40?12:5;
+  }
+  const vixObj=sourceByNames(["VIX","vix"]);
+  const vix=Number(vixObj?.close ?? vixObj?.price ?? vixObj?.value ?? vixObj);
+  let risk=15;
+  if(Number.isFinite(vix)) risk=vix<16?30:vix<20?24:vix<25?16:vix<30?8:0;
+  const score=trend+risk+momentum;
+  let state="NEUTRAL";
+  if(Number.isFinite(vix)&&vix>=30) state="STRESS";
+  else if(score>=75) state="RISK-ON";
+  else if(score<50) state="RISK-OFF";
+  const cn={["RISK-ON"]:"风险偏好",NEUTRAL:"中性",["RISK-OFF"]:"风险规避",STRESS:"压力"}[state];
+  
+  const elState = document.getElementById("regimeState");
+  if(elState) elState.textContent=state+" · "+cn;
+}
+window.addEventListener('load', calculateRegimeClient);
+</script>
 <style>
 :root{
   --bg:#f4f2ec; --surface:#ffffff; --surface2:#ebe8df;
@@ -15,17 +79,20 @@
   --amber:#c07f2e; --amber-soft:#f6ecd8;
   --shadow:0 12px 32px rgba(15,15,10,.07);
   --serif:'Fraunces',ui-serif,Georgia,serif; --sans:'Inter',-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
+  --mav-ink:#102033; --mav-indigo:#5969f5; --mav-violet:#7659df; --mav-cyan:#36b9c9;
 }
 *{box-sizing:border-box;margin:0;padding:0} body{font-family:var(--sans);background:var(--bg);color:var(--ink);min-height:100vh;-webkit-font-smoothing:antialiased} .app{display:flex;min-height:100vh}
 .sidebar{width:252px;background:linear-gradient(190deg,var(--nav),var(--nav2));color:#fff;padding:24px 16px;position:fixed;inset:0 auto 0 0;z-index:20;display:flex;flex-direction:column}
 .brand{display:flex;align-items:center;gap:12px;padding:6px 8px 24px;border-bottom:1px solid var(--navline)}
-.brand-mark{width:40px;height:40px;border-radius:12px;flex:0 0 auto;background:linear-gradient(135deg,#d8a75c,var(--brass));display:grid;place-items:center;box-shadow:0 8px 18px rgba(184,134,58,.35)}
+.mav-brand-mark{width:38px;height:38px;border-radius:12px;display:inline-grid;place-items:center;color:#fff;font-weight:800;letter-spacing:-1px;background:linear-gradient(135deg,var(--mav-indigo),var(--mav-violet) 58%,var(--mav-cyan));box-shadow:0 8px 22px rgba(89,105,245,.24);}
 .brand strong{display:block;font-family:var(--serif);font-size:17px;font-weight:600;letter-spacing:.2px} .brand small{display:block;color:var(--navmuted);margin-top:2px;font-size:11px}
 .nav-group{margin-top:22px} .nav-title{color:#5c6178;font-size:10.5px;font-weight:600;letter-spacing:.5px;margin:0 10px 8px}
 .nav-menu{list-style:none;display:grid;gap:3px} .nav-menu li{display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:9px;color:var(--navmuted);cursor:pointer;font-size:13.5px;font-weight:500;transition:.16s}
 .nav-menu li:hover{background:rgba(255,255,255,.06);color:#fff} .nav-menu li.active{color:#fff;background:rgba(184,134,58,.16);box-shadow:inset 2.5px 0 0 var(--brass)} .nav-icon{width:18px;text-align:center;font-size:14px}
 .nav-menu li .tag{margin-left:auto;font-size:9px;background:rgba(255,255,255,.1);color:var(--navmuted);padding:2px 6px;border-radius:99px;font-weight:600}
 .sidebar-footer{margin-top:auto;color:#565b71;font-size:10.5px;line-height:1.7;padding-top:16px;border-top:1px solid var(--navline)}
+.auth-btn { display:block; width:100%; text-align:left; background:transparent; border:1px solid var(--navline); color:#8d93ab; padding:8px 12px; border-radius:6px; cursor:pointer; margin-top:12px; font-size:12px; transition:0.2s; }
+.auth-btn:hover { background:rgba(255,255,255,0.05); color:#fff; }
 .main{margin-left:252px;width:calc(100% - 252px)} .topbar{height:64px;background:rgba(244,242,236,.9);backdrop-filter:blur(14px);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 32px;position:sticky;top:0;z-index:10}
 .breadcrumb{font-size:13px;color:var(--muted)} .breadcrumb strong{color:var(--ink);font-weight:600} .top-meta{display:flex;gap:18px;color:var(--muted);font-size:11.5px;align-items:center} .live-dot{width:7px;height:7px;border-radius:50%;background:var(--green);display:inline-block;margin-right:6px}
 .content{max-width:1440px;margin:0 auto;padding:36px 32px 40px}
@@ -54,7 +121,7 @@
 .tab-pane{display:none;animation:fade .3s ease} .tab-pane.active{display:block} @keyframes fade{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
 </style></head><body><div class="app">
 
-<aside class="sidebar"><div class="brand"><div class="brand-mark"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4 17 L9 9 L13 14 L20 5" stroke="#181109" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="20" cy="5" r="2.1" fill="#181109"/></svg></div><div><strong>AlphaView</strong><small>阿尔法视界 · myalphaview.com</small></div></div>
+<aside class="sidebar"><div class="brand"><div class="brand-mark"><span class="mav-brand-mark">A</span></div><div><strong>myAlphaView</strong><small>myAlphaView · myalphaview.com</small></div></div>
 <div class="nav-group"><div class="nav-title">美股 · 宏观</div><ul class="nav-menu">
   <li class="active" onclick="switchTab('tab-overview',this)"><span class="nav-icon">◆</span>市场总览</li>
   <li onclick="switchTab('tab-engine',this)"><span class="nav-icon">◒</span>策略引擎</li>
@@ -67,13 +134,18 @@
   <li onclick="switchTab('tab-stocks',this)"><span class="nav-icon">⌁</span>个股观察池</li>
   <li onclick="switchTab('tab-options',this)"><span class="nav-icon">⚑</span>期权自查清单</li>
 </ul></div>
-<div class="sidebar-footer">公开研究版 · 不展示个人真实资产<br>数据仅供研究演示</div></aside>
+<div class="sidebar-footer">
+  公开研究版 · 不展示个人真实资产<br>数据仅供研究演示
+  <!-- 魔法链接登录入口 -->
+  <button id="authBtn" class="auth-btn" onclick="handleAuth()">🔐 登录私有看板</button>
+</div>
+</aside>
 
-<main class="main"><header class="topbar"><div class="breadcrumb">AlphaView / <strong id="bc-title">市场总览</strong></div><div class="top-meta"><span><i class="live-dot"></i>数据抓取成功</span><span>更新: 2026-09-13</span></div></header><div class="content">
+<main class="main"><header class="topbar"><div class="breadcrumb">myAlphaView / <strong id="bc-title">市场总览</strong></div><div class="top-meta"><span id="liveStatus"><i class="live-dot"></i><span id="liveStatusText">数据抓取成功</span></span><span id="updateTime">更新: 2026-09-13</span></div></header><div class="content">
 
 <!-- TAB 1: 市场总览 -->
 <div id="tab-overview" class="tab-pane active">
-<section class="hero"><div><h1>看清市场在说什么，而不是账户在做什么。</h1><p>公开版投资研究面板：聚焦市场趋势、回撤、波动率与策略触发条件。</p></div><div class="public-note"><b>公开展示模式</b>这里展示的是研究指标与策略信号，不代表任何个人账户的实际仓位或收益。</div></section>
+<section class="hero"><div><h1>看清市场在说什么，而不是账户在做什么。</h1><p>公开版投资研究面板：聚焦市场趋势、回撤、波动率与策略触发条件。</p></div><div class="public-note"><b id="modeTitle">公开展示模式</b><span id="modeDesc">这里展示的是研究指标与策略信号，不代表任何个人账户的实际仓位或收益。</span></div></section>
 <section class="section"><div class="section-head"><h2>市场核心指标</h2><p>自动更新</p></div><div class="metrics"><div class="metric-card"><div class="metric-top">纳斯达克综合指数<span class="metric-dot good"></span></div><div class="metric-value">26,333.04</div><div class="metric-change positive">+0.96%</div><div class="metric-note">成长/科技风格温度 · 真实指数(Yahoo)</div></div><div class="metric-card"><div class="metric-top">标普500指数<span class="metric-dot good"></span></div><div class="metric-value">7,656.98</div><div class="metric-change positive">+0.86%</div><div class="metric-note">大盘风险偏好 · 真实指数(Yahoo)</div></div><div class="metric-card"><div class="metric-top">VIX恐慌指数<span class="metric-dot good"></span></div><div class="metric-value">15.84</div><div class="metric-note">真实指数(Yahoo)</div></div><div class="metric-card"><div class="metric-top">红利低波100 (159307)<span class="metric-dot good"></span></div><div class="metric-value">1.024</div><div class="metric-change negative">-0.87%</div><div class="metric-note">A股红利代理 · 腾讯行情</div></div></div></section>
 
 <section class="section"><div class="section-head"><h2>QQQ & SPY · 近 30 个交易日</h2><p>历史走势</p></div><div class="dashboard-grid"><div class="panel"><div class="panel-head"><strong>趋势对比</strong><span>收盘价</span></div><div class="chart-wrap"><canvas id="trendChart"></canvas></div></div><div class="panel"><div class="panel-head"><strong>Market Pulse</strong><span>研究状态</span></div><div class="pulse-list">
@@ -136,7 +208,7 @@
 </div>
 
 <!-- TAB 5: 个股观察池 -->
-<div id="tab-stocks" class="tab-pane"><section class="hero"><div><h1>个股观察池</h1><p>包含中英文名称对照及核心技术指标监控。</p></div></section><section class="section"><div class="table-container"><table><thead><tr><th>代码</th><th>名称</th><th>最新价</th><th>涨跌幅</th><th>开盘</th><th>最高</th><th>最低</th><th>年内最高</th><th>RSI(14)</th><th>距200MA</th><th>策略参考价</th></tr></thead><tbody><tr>
+<div id="tab-stocks" class="tab-pane"><section class="hero"><div><h1>个股观察池</h1><p>包含中英文名称对照及核心技术指标监控。</p></div></section><section class="section"><div class="table-container"><table><thead><tr><th>代码</th><th>名称</th><th>最新价</th><th>涨跌幅</th><th>开盘</th><th>最高</th><th>最低</th><th>年内最高</th><th>RSI(14)</th><th>距200MA</th><th>策略参考价</th></tr></thead><tbody id="stocksTableBody"><tr>
         <td><b>SOFI</b></td><td class="sub-text">SoFi Technologies</td>
         <td class="fw-bold">$17.32</td><td class="pos-text">+0.64%</td>
         <td>$17.32</td><td>$17.50</td><td>$17.12</td>
@@ -238,10 +310,12 @@
 <div class="mkt-card"><h3>⚖️ 盈亏平衡价</h3><p style="font-size:12px;color:var(--muted);margin-top:8px">买入/卖出：行权价 ± 权利金。判断到期防御位置。</p></div>
 </div></section></div>
 
-<div class="footer">© 2026 AlphaView 阿尔法视界 · Built by Simon · Public Research Dashboard<br>市场数据与策略指标仅供研究、学习与信息参考，不构成投资建议。</div>
+<div class="footer">© 2026 myAlphaView · Built by Simon · Public Research Dashboard<br>市场数据与策略指标仅供研究、学习与信息参考，不构成投资建议。</div>
 </div></main></div>
+
 <script>
-const CHART_DATA={"QQQ": [{"d": "2026-07-31", "c": 687.98999}, {"d": "2026-08-03", "c": 700.070007}, {"d": "2026-08-04", "c": 723.84998}, {"d": "2026-08-05", "c": 717.29999}, {"d": "2026-08-06", "c": 714.65002}, {"d": "2026-08-07", "c": 723.030029}, {"d": "2026-08-10", "c": 720.87}, {"d": "2026-08-11", "c": 718.45001}, {"d": "2026-08-12", "c": 723.70001}, {"d": "2026-08-13", "c": 732.070007}, {"d": "2026-08-14", "c": 731.070007}, {"d": "2026-08-17", "c": 729.87}, {"d": "2026-08-18", "c": 717.51001}, {"d": "2026-08-19", "c": 716.080017}, {"d": "2026-08-20", "c": 710.92999}, {"d": "2026-08-21", "c": 713.44}, {"d": "2026-08-24", "c": 706.32001}, {"d": "2026-08-25", "c": 710.71997}, {"d": "2026-08-26", "c": 711.37}, {"d": "2026-08-27", "c": 721.10999}, {"d": "2026-08-28", "c": 716.42999}, {"d": "2026-08-31", "c": 716.76001}, {"d": "2026-09-01", "c": 707.64001}, {"d": "2026-09-02", "c": 709.23999}, {"d": "2026-09-03", "c": 717.66998}, {"d": "2026-09-04", "c": 718.96002}, {"d": "2026-09-08", "c": 718.35999}, {"d": "2026-09-09", "c": 716.31}, {"d": "2026-09-10", "c": 708.69}, {"d": "2026-09-11", "c": 714.88}], "SPY": [{"d": "2026-07-31", "c": 747.030029}, {"d": "2026-08-03", "c": 757.66998}, {"d": "2026-08-04", "c": 771.33002}, {"d": "2026-08-05", "c": 769.78998}, {"d": "2026-08-06", "c": 768.56}, {"d": "2026-08-07", "c": 773.26001}, {"d": "2026-08-10", "c": 773.030029}, {"d": "2026-08-11", "c": 770.56}, {"d": "2026-08-12", "c": 772.48999}, {"d": "2026-08-13", "c": 777.88}, {"d": "2026-08-14", "c": 776.34003}, {"d": "2026-08-17", "c": 772.66998}, {"d": "2026-08-18", "c": 767.45001}, {"d": "2026-08-19", "c": 769.059998}, {"d": "2026-08-20", "c": 762.59998}, {"d": "2026-08-21", "c": 765.71997}, {"d": "2026-08-24", "c": 763.46997}, {"d": "2026-08-25", "c": 765.90997}, {"d": "2026-08-26", "c": 766.080017}, {"d": "2026-08-27", "c": 771.099976}, {"d": "2026-08-28", "c": 769.34998}, {"d": "2026-08-31", "c": 767.049988}, {"d": "2026-09-01", "c": 761.78003}, {"d": "2026-09-02", "c": 765.15997}, {"d": "2026-09-03", "c": 773.16998}, {"d": "2026-09-04", "c": 770.19}, {"d": "2026-09-08", "c": 765.96002}, {"d": "2026-09-09", "c": 762.40002}, {"d": "2026-09-10", "c": 757.83002}, {"d": "2026-09-11", "c": 764.28998}]};
+// 图表与菜单切换逻辑
+const DATA = {"QQQ": [{"d": "2026-07-31", "c": 687.98999}, {"d": "2026-08-03", "c": 700.070007}, {"d": "2026-08-04", "c": 723.84998}, {"d": "2026-08-05", "c": 717.29999}, {"d": "2026-08-06", "c": 714.65002}, {"d": "2026-08-07", "c": 723.030029}, {"d": "2026-08-10", "c": 720.87}, {"d": "2026-08-11", "c": 718.45001}, {"d": "2026-08-12", "c": 723.70001}, {"d": "2026-08-13", "c": 732.070007}, {"d": "2026-08-14", "c": 731.070007}, {"d": "2026-08-17", "c": 729.87}, {"d": "2026-08-18", "c": 717.51001}, {"d": "2026-08-19", "c": 716.080017}, {"d": "2026-08-20", "c": 710.92999}, {"d": "2026-08-21", "c": 713.44}, {"d": "2026-08-24", "c": 706.32001}, {"d": "2026-08-25", "c": 710.71997}, {"d": "2026-08-26", "c": 711.37}, {"d": "2026-08-27", "c": 721.10999}, {"d": "2026-08-28", "c": 716.42999}, {"d": "2026-08-31", "c": 716.76001}, {"d": "2026-09-01", "c": 707.64001}, {"d": "2026-09-02", "c": 709.23999}, {"d": "2026-09-03", "c": 717.66998}, {"d": "2026-09-04", "c": 718.96002}, {"d": "2026-09-08", "c": 718.35999}, {"d": "2026-09-09", "c": 716.31}, {"d": "2026-09-10", "c": 708.69}, {"d": "2026-09-11", "c": 714.88}], "SPY": [{"d": "2026-07-31", "c": 747.030029}, {"d": "2026-08-03", "c": 757.66998}, {"d": "2026-08-04", "c": 771.33002}, {"d": "2026-08-05", "c": 769.78998}, {"d": "2026-08-06", "c": 768.56}, {"d": "2026-08-07", "c": 773.26001}, {"d": "2026-08-10", "c": 773.030029}, {"d": "2026-08-11", "c": 770.56}, {"d": "2026-08-12", "c": 772.48999}, {"d": "2026-08-13", "c": 777.88}, {"d": "2026-08-14", "c": 776.34003}, {"d": "2026-08-17", "c": 772.66998}, {"d": "2026-08-18", "c": 767.45001}, {"d": "2026-08-19", "c": 769.059998}, {"d": "2026-08-20", "c": 762.59998}, {"d": "2026-08-21", "c": 765.71997}, {"d": "2026-08-24", "c": 763.46997}, {"d": "2026-08-25", "c": 765.90997}, {"d": "2026-08-26", "c": 766.080017}, {"d": "2026-08-27", "c": 771.099976}, {"d": "2026-08-28", "c": 769.34998}, {"d": "2026-08-31", "c": 767.049988}, {"d": "2026-09-01", "c": 761.78003}, {"d": "2026-09-02", "c": 765.15997}, {"d": "2026-09-03", "c": 773.16998}, {"d": "2026-09-04", "c": 770.19}, {"d": "2026-09-08", "c": 765.96002}, {"d": "2026-09-09", "c": 762.40002}, {"d": "2026-09-10", "c": 757.83002}, {"d": "2026-09-11", "c": 764.28998}]};
 function switchTab(id,el){
     document.querySelectorAll('.tab-pane').forEach(t=>t.classList.remove('active'));
     document.querySelectorAll('.nav-menu li').forEach(l=>l.classList.remove('active'));
@@ -252,12 +326,73 @@ function switchTab(id,el){
 }
 window.addEventListener('load',function(){
     const c=document.getElementById('trendChart');
-    const qq=CHART_DATA.QQQ||[], sp=CHART_DATA.SPY||[];
+    const qq=DATA.QQQ||[], sp=DATA.SPY||[];
     if(!qq.length||!sp.length) return;
     const labels=qq.map(x=>x.d), qv=qq.map(x=>x.c), sv=sp.map(x=>x.c);
     new Chart(c,{type:'line',data:{labels,datasets:[
         {label:'QQQ',data:qv,borderColor:'#b8863a',backgroundColor:'rgba(184,134,58,.08)',fill:true,borderWidth:2,pointRadius:0,tension:.35,yAxisID:'y'},
         {label:'SPY',data:sv,borderColor:'#1c7a4c',backgroundColor:'transparent',borderWidth:2,pointRadius:0,tension:.35,yAxisID:'y1'}
     ]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{position:'top',align:'end'}},scales:{x:{grid:{display:false},ticks:{maxTicksLimit:6}},y:{position:'left',grid:{color:'#eee9dc'}},y1:{position:'right',grid:{drawOnChartArea:false}}}}});
+});
+
+// ================= Supabase 魔法链接身份验证逻辑 =================
+// ⚠️ 注意：在这里替换成你刚才获取的 URL 和 anon key
+const SUPABASE_URL = 'https://rhielbkvhgqbthcgztci.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_7_S0qA1oh31fHiihhx07PA_1LPAighW';
+
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const authBtn = document.getElementById('authBtn');
+
+async function checkSession() {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    if (session) {
+        authBtn.innerHTML = "🔓 退出私有模式";
+        document.getElementById('modeTitle').innerText = "🔥 资金与策略模型已解锁";
+        document.getElementById('modeTitle').style.color = "var(--red)";
+        document.getElementById('modeDesc').innerText = "您已安全登录，当前正在展示包含实时计算和私有阈值的高级量化策略信号。";
+        document.getElementById('liveStatusText').innerText = "连接云端数据库";
+    } else {
+        authBtn.innerHTML = "🔐 登录私有看板";
+    }
+}
+
+// 处理登录/登出点击事件
+async function handleAuth() {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    if (session) {
+        // 如果已登录，则登出
+        await supabaseClient.auth.signOut();
+        alert('已退出登录，恢复为公开展示模式。');
+        window.location.reload();
+    } else {
+        // 如果未登录，则发起魔法链接请求
+        const email = prompt("请输入您的管理员邮箱地址以获取安全链接：");
+        if (!email) return;
+        
+        authBtn.innerHTML = "⏳ 正在发送...";
+        const { error } = await supabaseClient.auth.signInWithOtp({
+            email: email,
+            options: {
+                // 魔法链接重定向地址，指向你的 GitHub Pages 域名
+                emailRedirectTo: window.location.origin + window.location.pathname
+            }
+        });
+
+        if (error) {
+            alert("发送失败: " + error.message);
+            authBtn.innerHTML = "🔐 登录私有看板";
+        } else {
+            alert("✅ 魔法验证链接已发送至 " + email + "，请查收邮件并点击链接登录！");
+            authBtn.innerHTML = "✉️ 请查收邮件";
+        }
+    }
+}
+
+// 页面加载时检查登录状态
+window.addEventListener('load', checkSession);
+
+// 监听魔法链接回调返回的状态变化
+supabaseClient.auth.onAuthStateChange((event, session) => {
+    if (event === 'SIGNED_IN') checkSession();
 });
 </script></body></html>

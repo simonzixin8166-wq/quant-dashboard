@@ -1,6 +1,9 @@
 import json, datetime, os, time
 import urllib.request, urllib.parse
 
+# A股/港股行情模块，和本文件放在同一个 scripts/ 目录下
+from fetch_cn_hk import build_cn_hk_section
+
 API_KEY = os.environ.get("TWELVE_DATA_KEY", "demo")
 BASE = "https://api.twelvedata.com"
 
@@ -196,13 +199,20 @@ def build():
             stocks[name] = {"error": str(e)}
         throttle()
 
+    # A股/港股行情：单独失败不影响美股这部分已经抓好的数据
+    try:
+        cn_hk = build_cn_hk_section()
+    except Exception as e:
+        cn_hk = {"error": str(e)}
+
     return {"updated": today.isoformat(), "core": core, "index": index,
             "stocks": stocks, "vol_proxy": vol_data, "overview_charts": overview_charts,
             "market_indicators": {
                 "spx": spx_data, "spx_source": spx_src,
                 "ixic": ixic_data, "ixic_source": ixic_src,
                 "vix": vix_data, "vix_source": vix_src,
-            }}
+            },
+            "cn_hk": cn_hk}
 
 def fmt_pct(x, digits=2):
     return f"{x*100:.{digits}f}%" if isinstance(x, (int, float)) else "-"
@@ -247,10 +257,51 @@ def row_stock(sym, r):
         <td><b>{target_str}</b> {action_html}</td>
     </tr>'''
 
+def card_cn_hk_quote(sym, meta):
+    if "error" in meta:
+        return f'<div class="card err"><div class="sym">{meta.get("name", sym)}</div><div class="errmsg">获取失败：{meta["error"]}</div></div>'
+    chg = meta.get("pct_change")
+    chg_cls = "pos-text" if isinstance(chg, (int, float)) and chg >= 0 else "neg-text"
+    chg_sign = "+" if isinstance(chg, (int, float)) and chg >= 0 else ""
+    chg_str = f"{chg_sign}{chg}%" if isinstance(chg, (int, float)) else "-"
+    return f'''<div class="card">
+      <div class="card-header"><span class="sym">{meta.get("name", sym)}</span><span class="price">{meta.get("price", "-")}</span></div>
+      <div class="divider"></div>
+      <div class="row"><span>代码</span><span class="fw-bold">{sym}</span></div>
+      <div class="row"><span>昨收</span><span class="fw-bold">{meta.get("prev_close", "-")}</span></div>
+      <div class="row"><span>涨跌幅</span><span class="{chg_cls} fw-bold">{chg_str}</span></div>
+    </div>'''
+
+def card_otc_fund(code, meta):
+    if "error" in meta:
+        return f'<div class="card err"><div class="sym">{meta.get("name", code)}</div><div class="errmsg">获取失败：{meta["error"]}</div></div>'
+    est_chg = meta.get("est_pct_change")
+    try:
+        est_chg_f = float(est_chg)
+        chg_cls = "pos-text" if est_chg_f >= 0 else "neg-text"
+        chg_sign = "+" if est_chg_f >= 0 else ""
+    except (TypeError, ValueError):
+        chg_cls, chg_sign = "", ""
+    return f'''<div class="card">
+      <div class="card-header"><span class="sym">{meta.get("name", code)}</span><span class="price">{meta.get("est_nav", "-")}</span></div>
+      <div class="divider"></div>
+      <div class="row"><span>代码</span><span class="fw-bold">{code}（场外）</span></div>
+      <div class="row"><span>估算涨跌幅</span><span class="{chg_cls} fw-bold">{chg_sign}{est_chg}%</span></div>
+      <div class="row"><span>上一交易日净值</span><span class="fw-bold">{meta.get("nav", "-")}（{meta.get("nav_date", "-")}）</span></div>
+      <div class="row"><span>估值时间</span><span class="sub-text">{meta.get("est_time", "-")}</span></div>
+    </div>'''
+
 def render_html(data):
     core_html = "".join(card_etf(k, v) for k, v in data["core"].items())
     index_html = "".join(card_etf(k, v) for k, v in data["index"].items())
     stock_html = "".join(row_stock(k, v) for k, v in data["stocks"].items())
+
+    cn_hk = data.get("cn_hk", {})
+    if "error" in cn_hk:
+        cn_hk_html = f'<div class="card err"><div class="sym">A股/港股数据</div><div class="errmsg">整体抓取失败：{cn_hk["error"]}</div></div>'
+    else:
+        cn_hk_html = "".join(card_cn_hk_quote(k, v) for k, v in cn_hk.get("indices_and_etf", {}).items())
+        cn_hk_html += "".join(card_otc_fund(k, v) for k, v in cn_hk.get("otc_funds", {}).items())
 
     mi = data.get("market_indicators", {})
     spy = mi.get("spx", {})
@@ -310,10 +361,11 @@ def render_html(data):
 .table-container{{overflow:auto;background:var(--surface);border:1px solid var(--line);border-radius:15px;box-shadow:var(--shadow)}} table{{width:100%;border-collapse:collapse;text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}} th,td{{padding:14px 16px;border-bottom:1px solid var(--line);font-size:13px}} th{{background:var(--surface2);color:var(--muted);font-weight:700;position:sticky;top:0;font-size:11.5px}} th:nth-child(1),td:nth-child(1),th:nth-child(2),td:nth-child(2){{text-align:left}} tr:hover td{{background:#fbf7ee}} tr:last-child td{{border-bottom:0}} .sub-text{{color:var(--muted)}} .footer{{color:#9a9484;font-size:10px;line-height:1.7;text-align:center;padding:30px 0 12px}} .tab-pane{{display:none;animation:fade .22s ease}} .tab-pane.active{{display:block}} @keyframes fade{{from{{opacity:0;transform:translateY(4px)}}to{{opacity:1;transform:none}}}}
 .opt-grid{{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}} .opt-card{{background:var(--surface);border:1px solid var(--line);border-radius:15px;padding:18px;box-shadow:var(--shadow)}} .opt-card h3{{font-size:13px;margin-bottom:8px;color:var(--accent)}} .opt-card p{{font-size:12px;color:var(--muted);line-height:1.7}}
 @media(max-width:1000px){{.sidebar{{width:205px}}.main{{margin-left:205px;width:calc(100% - 205px)}}.metrics{{grid-template-columns:repeat(2,1fr)}}.dashboard-grid{{grid-template-columns:1fr}}.content{{padding:25px}}}} @media(max-width:700px){{.sidebar{{position:sticky;top:0;width:100%;height:auto;padding:10px 12px}}.app{{display:block}}.brand{{padding:3px 5px 10px;border:0}}.brand-mark{{width:32px;height:32px}}.nav-title,.sidebar-footer{{display:none}}.nav-menu{{display:flex;overflow-x:auto}}.nav-menu li{{flex:0 0 auto;padding:9px 11px;font-size:11px}}.main{{margin-left:0;width:100%}}.topbar{{height:54px;padding:0 16px}}.top-meta{{display:none}}.content{{padding:20px 14px}}.hero{{display:block}}h1{{font-size:25px}}.public-note{{margin-top:15px;width:100%}}.metrics{{grid-template-columns:1fr 1fr;gap:10px}}.metric-card{{min-height:118px;padding:14px}}.metric-value{{font-size:21px}}.chart-wrap{{height:250px}}}} @media(max-width:430px){{.metrics{{grid-template-columns:1fr}}}}
-</style></head><body><div class="app"><aside class="sidebar"><div class="brand"><div class="brand-mark">◈</div><div><strong>SIMON</strong><small>的投资分析平台</small></div></div><div class="nav-title">MARKET RESEARCH</div><ul class="nav-menu"><li class="active" onclick="switchTab('tab-overview',this)"><span class="nav-icon">⌂</span>市场总览</li><li onclick="switchTab('tab-core',this)"><span class="nav-icon">◒</span>策略信号</li><li onclick="switchTab('tab-index',this)"><span class="nav-icon">◫</span>指数 & ETF</li><li onclick="switchTab('tab-stocks',this)"><span class="nav-icon">⌁</span>个股观察池</li><li onclick="switchTab('tab-options',this)"><span class="nav-icon">⚑</span>期权持仓</li></ul><div class="sidebar-footer">公开研究版 · 不展示个人真实资产<br>数据仅用于研究与策略演示</div></aside><main class="main"><header class="topbar"><div class="breadcrumb">SIMON / <strong>市场总览</strong></div><div class="top-meta"><span><i class="live-dot"></i>数据状态正常</span><span>更新：{data['updated']}</span><span>Public Research</span></div></header><div class="content">
+</style></head><body><div class="app"><aside class="sidebar"><div class="brand"><div class="brand-mark">◈</div><div><strong>SIMON</strong><small>的投资分析平台</small></div></div><div class="nav-title">MARKET RESEARCH</div><ul class="nav-menu"><li class="active" onclick="switchTab('tab-overview',this)"><span class="nav-icon">⌂</span>市场总览</li><li onclick="switchTab('tab-core',this)"><span class="nav-icon">◒</span>策略信号</li><li onclick="switchTab('tab-index',this)"><span class="nav-icon">◫</span>指数 & ETF</li><li onclick="switchTab('tab-cnhk',this)"><span class="nav-icon">◇</span>A股 & 红利</li><li onclick="switchTab('tab-stocks',this)"><span class="nav-icon">⌁</span>个股观察池</li><li onclick="switchTab('tab-options',this)"><span class="nav-icon">⚑</span>期权持仓</li></ul><div class="sidebar-footer">公开研究版 · 不展示个人真实资产<br>数据仅用于研究与策略演示</div></aside><main class="main"><header class="topbar"><div class="breadcrumb">SIMON / <strong>市场总览</strong></div><div class="top-meta"><span><i class="live-dot"></i>数据状态正常</span><span>更新：{data['updated']}</span><span>Public Research</span></div></header><div class="content">
 <div id="tab-overview" class="tab-pane active"><section class="hero"><div><div class="eyebrow">QUANTITATIVE MARKET INTELLIGENCE</div><h1>用数据观察市场，而不是展示账户。</h1><p>公开版投资研究面板：聚焦市场趋势、回撤、波动率与策略触发条件。个人真实资金、持仓数量与账户信息不在公开页面展示。</p></div><div class="public-note"><strong>🔒 公开展示模式</strong>这里展示的是研究指标与策略信号，不代表任何个人账户的实际仓位或收益。</div></section><section class="section"><div class="section-head"><h2>市场核心指标</h2><p>昨日收盘 · 自动更新</p></div><div class="metrics">{metric_card('纳斯达克综合指数',qqq_value,qqq_chg,qqq_note,'good' if isinstance(qqq_chg,(int,float)) and qqq_chg>=0 else 'warn')}{metric_card('标普500指数',spy_value,spy_chg,spy_note,'good' if isinstance(spy_chg,(int,float)) and spy_chg>=0 else 'warn')}{metric_card('VIX恐慌指数',vol_display,None,vix_note,vol_tone)}{metric_card('策略触发状态',signal_text,None,'仅显示规则信号，不显示资金规模',signal_tone)}</div></section><section class="section dashboard-grid"><div class="panel"><div class="panel-head"><strong>QQQ & SPY · 近 30 个交易日</strong><span>历史走势</span></div><div class="chart-wrap"><canvas id="trendChart"></canvas><div id="chartEmpty" class="chart-empty" style="display:none">当前历史数据暂不可用，待下一次自动更新。</div></div></div><div class="panel"><div class="panel-head"><strong>Market Pulse</strong><span>研究状态</span></div><div class="pulse-list"><div class="pulse"><div><div class="pulse-label">波动环境</div><div class="pulse-main">{vol_state}</div></div><div class="pulse-right"><span class="badge {vol_tone}">VIX {vol_display}</span></div></div><div class="pulse"><div><div class="pulse-label">策略观察</div><div class="pulse-main">{signal_text}</div></div><div class="pulse-right"><span class="badge {signal_tone}">RULE BASED</span></div></div><div class="pulse"><div><div class="pulse-label">数据源</div><div class="pulse-main">Yahoo优先 / Twelve Data兜底</div></div><div class="pulse-right"><span class="badge neutral">API</span></div></div></div></div></section></div>
 <div id="tab-core" class="tab-pane"><section class="hero"><div><div class="eyebrow">STRATEGY ENGINE</div><h1>策略信号</h1><p>用回撤、RSI 与长期均线观察核心 ETF 的风险与潜在策略触发点。这里不显示真实仓位。</p></div></section><section class="section"><div class="section-head"><h2>核心策略观察</h2><p>规则驱动 · 不代表交易建议</p></div><div class="grid">{core_html}</div></section></div>
 <div id="tab-index" class="tab-pane"><section class="hero"><div><div class="eyebrow">INDEX & ETF</div><h1>指数与行业 ETF</h1><p>从宽基指数到行业 ETF，快速观察价格、回撤、RSI 与 200 日均线距离。</p></div></section><section class="section"><div class="grid">{index_html}</div></section></div>
+<div id="tab-cnhk" class="tab-pane"><section class="hero"><div><div class="eyebrow">A股 & 红利低波</div><h1>A股大盘 & 红利低波跟踪</h1><p>红利低波100指数(930955)本身不在免费行情源覆盖范围内，此处用紧密跟踪该指数的场内ETF(159307)代理展示走势；场外联接基金(021550)的净值为估算值/上一交易日正式净值，非实时。</p></div></section><section class="section"><div class="grid">{cn_hk_html}</div></section></div>
 <div id="tab-stocks" class="tab-pane"><section class="hero"><div><div class="eyebrow">WATCHLIST</div><h1>个股观察池</h1><p>公开展示研究标的的市场数据与策略参考点，不展示个人成本、持仓数量或账户收益。</p></div></section><section class="section"><div class="table-container"><table><thead><tr><th>代码</th><th>名称</th><th>最新价</th><th>涨跌幅</th><th>开盘</th><th>最高</th><th>最低</th><th>年内最高</th><th>RSI(14)</th><th>距200MA</th><th>策略参考价</th></tr></thead><tbody>{stock_html}</tbody></table></div></section></div>
 <div id="tab-options" class="tab-pane"><section class="hero"><div><div class="eyebrow">OPTIONS WATCHLIST</div><h1>期权持仓监控清单</h1><p>公开版暂不接入实时期权行情（免费数据源普遍不支持及时的期权Greeks），先提供持有期权期间需要重点盯防的指标清单，作为自查参考。</p></div></section><section class="section"><div class="opt-grid">
 <div class="opt-card"><h3>⏳ 剩余到期天数 (DTE)</h3><p>越接近到期，时间价值(Theta)衰减越快，尤其是最后30天内加速明显。</p></div>

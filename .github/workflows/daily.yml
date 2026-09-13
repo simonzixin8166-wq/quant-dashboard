@@ -19,6 +19,8 @@ jobs:
       - name: Fetch prices and build site
         env:
           TWELVE_DATA_KEY: ${{ secrets.TWELVE_DATA_KEY }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
         run: python scripts/fetch_and_build.py
       - name: Commit and push
         run: |

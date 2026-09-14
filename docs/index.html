@@ -5,7 +5,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,380;9..144,520;9..144,620&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
 <style>
 :root{
   --bg:#f4f2ec; --surface:#ffffff; --surface2:#ebe8df;
@@ -53,7 +52,7 @@
 .chart-wrap{height:300px;padding:14px 18px 18px} .pulse-list{padding:6px 19px 14px} .pulse{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--line)} .pulse:last-child{border-bottom:0} .pulse-label{color:var(--muted);font-size:11px} .pulse-main{margin-top:4px;font-size:15px;font-weight:700} .pulse-right{text-align:right;font-size:11px;font-weight:600}
 .badge{display:inline-flex;border-radius:99px;padding:4px 9px;font-size:10px;font-weight:700} .badge.good{background:var(--green-soft);color:var(--green)} .badge.warn{background:var(--amber-soft);color:var(--amber)} .badge.bad{background:var(--red-soft);color:var(--red)} .badge.neutral{background:var(--surface2);color:var(--muted)}
 
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px} .card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px;box-shadow:var(--shadow)} .card-header{display:flex;justify-content:space-between;align-items:center} .sym{font-weight:700;font-size:16px} .price{font-size:20px;font-weight:700;font-family:var(--serif)} .divider{height:1px;background:var(--line);margin:14px 0} .row{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:10px} .fw-bold{color:var(--ink);font-weight:600} .pos-text{color:var(--green)} .neg-text{color:var(--red)} .alert-text{color:var(--red)} 
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px} .card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px;box-shadow:var(--shadow)} .card-header{display:flex;justify-content:space-between;align-items:center} .sym{font-weight:700;font-size:16px} .price{font-size:20px;font-weight:700;font-family:var(--serif)} .divider{height:1px;background:var(--line);margin:14px 0} .row{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:10px} .fw-bold{color:var(--ink);font-weight:600} .pos-text{color:var(--green)} .neg-text{color:var(--red)} .alert-text{color:var(--red)} .errmsg{color:var(--muted);font-size:12px;margin-top:8px} 
 .table-container{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow)} table{width:100%;border-collapse:collapse;text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums} th,td{padding:14px;border-bottom:1px solid var(--line);font-size:13px} th{background:var(--surface2);color:var(--muted);font-weight:600;font-size:11.5px} th:nth-child(1),td:nth-child(1){text-align:left} tr:hover td{background:#fbfbfb}
 
 .opt-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px} .mkt-card{background:var(--surface);border:1px solid var(--line);border-radius:13px;padding:17px 18px;box-shadow:var(--shadow)} .mkt-card .name{font-size:12.5px;color:var(--muted);display:flex;justify-content:space-between} .mkt-card .val{font-family:var(--serif);font-size:21px;margin-top:8px} .mkt-card .chg{font-size:11.5px;font-weight:600;margin-top:4px} .soon{font-size:9.5px;background:var(--surface2);color:var(--muted);padding:2px 7px;border-radius:99px;font-weight:600}
@@ -68,7 +67,7 @@
   <li onclick="switchTab('tab-index',this)"><span class="nav-icon">◫</span>指数 & ETF</li>
 </ul></div>
 <div class="nav-group"><div class="nav-title">A股 · 港股 · 红利</div><ul class="nav-menu">
-  <li onclick="switchTab('tab-cn-hk',this)"><span class="nav-icon">◇</span>大盘 & 红利低波 <span class="tag">NEW</span></li>
+  <li onclick="switchTab('tab-cn-hk',this)"><span class="nav-icon">◇</span>大盘 & 红利低波</li>
 </ul></div>
 <div class="nav-group"><div class="nav-title">观察 & 持仓</div><ul class="nav-menu">
   <li onclick="switchTab('tab-stocks',this)"><span class="nav-icon">⌁</span>个股观察池</li>
@@ -90,9 +89,20 @@
 <section class="hero"><div><h1>看清市场在说什么，而不是账户在做什么。</h1><p>公开版投资研究面板：聚焦市场趋势、回撤、波动率与策略触发条件。</p></div><div class="public-note"><b id="modeTitle">公开展示模式</b><span id="modeDesc">这里展示的是研究指标与策略信号，不代表任何个人账户的实际仓位或收益。</span></div></section>
 <section class="section"><div class="section-head"><h2>市场核心指标</h2><p>自动更新</p></div><div class="metrics"><div class="metric-card"><div class="metric-top">纳斯达克综合指数<span class="metric-dot good"></span></div><div class="metric-value">26,333.04</div><div class="metric-change positive">+0.96%</div><div class="metric-note">成长/科技风格温度 · 真实指数(Yahoo)</div></div><div class="metric-card"><div class="metric-top">标普500指数<span class="metric-dot good"></span></div><div class="metric-value">7,656.98</div><div class="metric-change positive">+0.86%</div><div class="metric-note">大盘风险偏好 · 真实指数(Yahoo)</div></div><div class="metric-card"><div class="metric-top">VIX恐慌指数<span class="metric-dot good"></span></div><div class="metric-value">15.84</div><div class="metric-note">真实指数(Yahoo)</div></div><div class="metric-card"><div class="metric-top">红利低波100 (159307)<span class="metric-dot good"></span></div><div class="metric-value">1.018</div><div class="metric-change positive">+0.49%</div><div class="metric-note">A股红利代理 · 腾讯行情</div></div></div></section>
 
+<section class="section"><div class="panel">
+      <div class="panel-head"><strong>市场状态引擎</strong><span>当前得分 0/9 分</span></div>
+      <div class="pulse-list">
+        <div class="pulse"><div><div class="pulse-label">当前风控评级</div><div class="pulse-main">正常</div></div>
+          <div class="pulse-right"><span class="badge good">0/9 分</span></div></div>
+        <div class="row"><span>指数高点回撤（阈值 -8.00%）</span><span class="fw-bold">-2.04% <span class="badge neutral">未触发</span></span></div>
+        <div class="row"><span>20天宽度（阈值 ≤20%）</span><span class="fw-bold">25.25% <span class="badge neutral">未触发</span></span></div><div class="row"><span>50天宽度（阈值 ≤15%）</span><span class="fw-bold">39.17% <span class="badge neutral">未触发</span></span></div><div class="row"><span>斜率冻点(20天宽10日骤降)（阈值 ≤-30%）</span><span class="fw-bold">-19.68% <span class="badge neutral">未触发</span></span></div><div class="row"><span>200天宽度(绝对水平)（阈值 ≤50%）</span><span class="fw-bold">59.24% <span class="badge neutral">未触发</span></span></div>
+      </div>
+      
+    </div></section>
+
 <section class="section"><div class="section-head"><h2>QQQ & SPY · 近 30 个交易日</h2><p>历史走势</p></div><div class="dashboard-grid"><div class="panel"><div class="panel-head"><strong>趋势对比</strong><span>收盘价</span></div><div class="chart-wrap"><canvas id="trendChart"></canvas></div></div><div class="panel"><div class="panel-head"><strong>Market Pulse</strong><span>研究状态</span></div><div class="pulse-list">
 <div class="pulse"><div><div class="pulse-label">波动环境</div><div class="pulse-main">正常波动</div></div><div class="pulse-right"><span class="badge good">VIX 15.84</span></div></div>
-<div class="pulse"><div><div class="pulse-label">策略观察</div><div class="pulse-main">指标运作中</div></div><div class="pulse-right"><span class="badge neutral">RULE BASED</span></div></div>
+<div class="pulse"><div><div class="pulse-label">全市场健康度</div><div class="pulse-main">宽度计算已上线</div></div><div class="pulse-right"><span class="badge good">LIVE</span></div></div>
 <div class="pulse"><div><div class="pulse-label">全球资产</div><div class="pulse-main">中美资产跟踪</div></div><div class="pulse-right"><span class="badge good">已接入</span></div></div></div></div></div></section>
 </div>
 
@@ -143,8 +153,8 @@
 <div class="mkt-card"><div class="name">红利低波100 ETF (159307)</div><div class="val">1.018</div><div class="chg positive">+0.49%</div></div>
 </div></section>
 <section class="section"><div class="section-head"><h2>港股跨境池</h2><p>腾讯行情实时同步</p></div><div class="opt-grid">
-<div class="mkt-card"><div class="name">华夏纳指 (港股)</div><div class="val">59.300</div><div class="chg negative">-0.54%</div></div>
-<div class="mkt-card"><div class="name">国指备兑 (港股)</div><div class="val">8.260</div><div class="chg positive">+0.36%</div></div>
+<div class="mkt-card"><div class="name">华夏纳指 (港股)</div><div class="val">59.280</div><div class="chg negative">-0.57%</div></div>
+<div class="mkt-card"><div class="name">国指备兑 (港股)</div><div class="val">8.275</div><div class="chg positive">+0.55%</div></div>
 </div></section>
 </div>
 
@@ -300,7 +310,6 @@
 </div></main></div>
 
 <script>
-// 图表与菜单切换逻辑
 const DATA = {"QQQ": [{"d": "2026-07-31", "c": 687.98999}, {"d": "2026-08-03", "c": 700.070007}, {"d": "2026-08-04", "c": 723.84998}, {"d": "2026-08-05", "c": 717.29999}, {"d": "2026-08-06", "c": 714.65002}, {"d": "2026-08-07", "c": 723.030029}, {"d": "2026-08-10", "c": 720.87}, {"d": "2026-08-11", "c": 718.45001}, {"d": "2026-08-12", "c": 723.70001}, {"d": "2026-08-13", "c": 732.070007}, {"d": "2026-08-14", "c": 731.070007}, {"d": "2026-08-17", "c": 729.87}, {"d": "2026-08-18", "c": 717.51001}, {"d": "2026-08-19", "c": 716.080017}, {"d": "2026-08-20", "c": 710.92999}, {"d": "2026-08-21", "c": 713.44}, {"d": "2026-08-24", "c": 706.32001}, {"d": "2026-08-25", "c": 710.71997}, {"d": "2026-08-26", "c": 711.37}, {"d": "2026-08-27", "c": 721.10999}, {"d": "2026-08-28", "c": 716.42999}, {"d": "2026-08-31", "c": 716.76001}, {"d": "2026-09-01", "c": 707.64001}, {"d": "2026-09-02", "c": 709.23999}, {"d": "2026-09-03", "c": 717.66998}, {"d": "2026-09-04", "c": 718.96002}, {"d": "2026-09-08", "c": 718.35999}, {"d": "2026-09-09", "c": 716.31}, {"d": "2026-09-10", "c": 708.69}, {"d": "2026-09-11", "c": 714.88}], "SPY": [{"d": "2026-07-31", "c": 747.030029}, {"d": "2026-08-03", "c": 757.66998}, {"d": "2026-08-04", "c": 771.33002}, {"d": "2026-08-05", "c": 769.78998}, {"d": "2026-08-06", "c": 768.56}, {"d": "2026-08-07", "c": 773.26001}, {"d": "2026-08-10", "c": 773.030029}, {"d": "2026-08-11", "c": 770.56}, {"d": "2026-08-12", "c": 772.48999}, {"d": "2026-08-13", "c": 777.88}, {"d": "2026-08-14", "c": 776.34003}, {"d": "2026-08-17", "c": 772.66998}, {"d": "2026-08-18", "c": 767.45001}, {"d": "2026-08-19", "c": 769.059998}, {"d": "2026-08-20", "c": 762.59998}, {"d": "2026-08-21", "c": 765.71997}, {"d": "2026-08-24", "c": 763.46997}, {"d": "2026-08-25", "c": 765.90997}, {"d": "2026-08-26", "c": 766.080017}, {"d": "2026-08-27", "c": 771.099976}, {"d": "2026-08-28", "c": 769.34998}, {"d": "2026-08-31", "c": 767.049988}, {"d": "2026-09-01", "c": 761.78003}, {"d": "2026-09-02", "c": 765.15997}, {"d": "2026-09-03", "c": 773.16998}, {"d": "2026-09-04", "c": 770.19}, {"d": "2026-09-08", "c": 765.96002}, {"d": "2026-09-09", "c": 762.40002}, {"d": "2026-09-10", "c": 757.83002}, {"d": "2026-09-11", "c": 764.28998}]};
 function switchTab(id,el){
     document.querySelectorAll('.tab-pane').forEach(t=>t.classList.remove('active'));
@@ -330,7 +339,6 @@ let isAdmin = false;
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 const authBtn = document.getElementById('authBtn');
 
-// 拉取云端点位，并动态渲染表格
 async function fetchAndRenderTargets() {
     const { data, error } = await supabaseClient.from('stock_targets').select('*');
     if (data) {
@@ -341,13 +349,9 @@ async function fetchAndRenderTargets() {
             
             if (targetEl && closeEl) {
                 targetEl.innerHTML = `$${row.target_price.toFixed(2)}`;
-                
-                // 如果是主理人登录，旁边显示编辑按钮
                 if (isAdmin) {
                     targetEl.innerHTML += ` <span style="cursor:pointer;font-size:12px;margin-left:6px;filter:grayscale(1) opacity(0.5);transition:0.2s;" onmouseover="this.style.filter='none'" onmouseout="this.style.filter='grayscale(1) opacity(0.5)'" onclick="editTarget('${row.symbol}', ${row.target_price})" title="修改策略价">✏️</span>`;
                 }
-
-                // 前端实时判断是否跌破触发价
                 const closePrice = parseFloat(closeEl.innerText.replace('$', ''));
                 if (closePrice <= row.target_price) {
                     actionEl.innerHTML = '<span class="alert-text fw-bold ml" style="margin-left:4px;">(信号触发!)</span>';
@@ -359,18 +363,16 @@ async function fetchAndRenderTargets() {
     }
 }
 
-// 主理人专属：点击编辑修改价格
 async function editTarget(symbol, currentPrice) {
     const newPrice = prompt(`主理人后台：\n请输入 [${symbol}] 的新策略加仓价：\n当前点位：$${currentPrice}`, currentPrice);
     if (newPrice !== null && newPrice.trim() !== '') {
         const num = parseFloat(newPrice);
         if (!isNaN(num)) {
-            // 将新价格覆写到云端数据库
             const { error } = await supabaseClient.from('stock_targets').upsert({ symbol: symbol, target_price: num });
             if (error) {
                 alert('更新失败，权限不足或网络异常：' + error.message);
             } else {
-                fetchAndRenderTargets(); // 成功后实时刷新页面数字
+                fetchAndRenderTargets();
             }
         } else {
             alert('输入无效，请输入纯数字。');
@@ -381,7 +383,6 @@ async function editTarget(symbol, currentPrice) {
 async function checkSession() {
     const { data: { session } } = await supabaseClient.auth.getSession();
     if (session) {
-        // 校验是否为主理人邮箱
         if (session.user.email === ADMIN_EMAIL) {
             isAdmin = true;
             document.getElementById('modeTitle').innerText = "👑 主理人控制台已激活";
@@ -398,7 +399,6 @@ async function checkSession() {
         isAdmin = false;
         authBtn.innerHTML = "🔐 登录私有看板";
     }
-    // 无论是否登录，都拉取最新的主理人云端点位覆盖静态数据
     fetchAndRenderTargets();
 }
 

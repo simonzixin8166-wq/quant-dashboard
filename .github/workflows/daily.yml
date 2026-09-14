@@ -16,12 +16,18 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+          
+      # 👉 新增：安装并发下载与矩阵运算所需的环境包
+      - name: Install dependencies
+        run: pip install yfinance pandas
+
       - name: Fetch prices and build site
         env:
           TWELVE_DATA_KEY: ${{ secrets.TWELVE_DATA_KEY }}
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
         run: python scripts/fetch_and_build.py
+        
       - name: Commit and push
         run: |
           git config user.name "github-actions"

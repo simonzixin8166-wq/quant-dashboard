@@ -1,32 +1,37 @@
-# Market Regime — V1.1 Step 2
+# 市场状态引擎（Market Regime）— 实际实现说明
 
-## Purpose
-Classify the public market environment into:
-- RISK-ON / 风险偏好
-- NEUTRAL / 中性
-- RISK-OFF / 风险规避
-- STRESS / 压力
+⚠️ 本文档描述的是 `scripts/fetch_and_build.py` 里 `calc_market_regime()` 函数实际在跑的逻辑。
+之前版本的这份文档描述的是一套 RISK-ON/NEUTRAL/RISK-OFF/STRESS 打分系统（40分趋势+30分VIX+30分动量），
+那套逻辑已经被否决、从代码里移除，不要再参考旧版本。
 
-## Score
-- Trend: 40 points
-  - NASDAQ > 200MA: +20
-  - S&P 500 > 200MA: +20
-- Risk: 30 points, based on VIX
-  - <16: 30
-  - 16–<20: 24
-  - 20–<25: 16
-  - 25–<30: 8
-  - >=30: 0
-- Momentum: 30 points, based on average RSI
-  - >=60: 30
-  - 50–<60: 22
-  - 40–<50: 12
-  - <40: 5
+## 方法论来源
+不是独立发明的打分体系，而是对齐 Excel"多资产量化管理平台"里"参数配置"表已经验证过的
+SPY宽度恐慌分级策略——同一套5维度打分框架，同一套分级阈值。
 
-## Regime
-- VIX >= 30 → STRESS
-- score >= 75 → RISK-ON
-- score >= 50 → NEUTRAL
-- score < 50 → RISK-OFF
+## 5个打分维度（满分9分）
 
-This is a transparent research classification, not an automatic trading recommendation.
+| 维度 | 阈值 | 分值 |
+|---|---|---|
+| 指数高点回撤（标普500自身，相对真实历史最高点） | ≤ -8% | 2分 |
+| 20天宽度（成分股站上20日均线的比例） | ≤ 20% | 2分 |
+| 50天宽度（成分股站上50日均线的比例） | ≤ 15% | 2分 |
+| 斜率冻点（20天宽度10个交易日内的变化） | ≤ -30个百分点 | 2分 |
+| 200天宽度（成分股站上200日均线的比例，绝对水平） | ≤ 50% | 1分 |
+
+## 分级规则
+- 得分 ≥3 → 一级恐慌
+- 得分 ≥5 → 重点恐慌
+- 得分 ≥7 → 极限恐慌
+- 否则 → 正常
+
+## 数据来源
+- **指数高点回撤**：Yahoo Finance `^GSPC` 长历史（`range=max`），取真实历史最高点，不是只看最近一年
+- **20/50/200天宽度 + 斜率冻点**：`scripts/sp500_constituents.json` 里的标普500成分股名单（需要人工定期核对更新，不是自动抓取的活名单），通过 `yfinance` 批量拉取近300天收盘价现算
+- 宽度计算只在美股收盘那次定时任务（UTC 21:30）运行，A股/港股那次（UTC 08:15）会跳过，避免每天重复两次全量下载
+- 宽度计算失败或被跳过时，系统会自动降级为"只用指数回撤打分"，不会因为宽度数据缺失而让整个功能报错
+
+## 已知维护点
+- `sp500_constituents.json` 不会跟着标普500指数调整自动更新，需要人工对照官方公告定期核对
+- 这套宽度计算的可靠性依赖 `yfinance` 这个第三方库，Yahoo 接口变动可能导致其失效（已在 `daily.yml` 锁定版本号，降低此风险）
+
+这是一套透明的研究分级展示，不是自动交易建议，也不代表任何真实账户仓位或资金规模。

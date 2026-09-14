@@ -16,12 +16,11 @@
   --amber:#c07f2e; --amber-soft:#f6ecd8;
   --shadow:0 12px 32px rgba(15,15,10,.07);
   --serif:'Fraunces',ui-serif,Georgia,serif; --sans:'Inter',-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
-  --mav-ink:#102033; --mav-indigo:#5969f5; --mav-violet:#7659df; --mav-cyan:#36b9c9;
 }
 *{box-sizing:border-box;margin:0;padding:0} body{font-family:var(--sans);background:var(--bg);color:var(--ink);min-height:100vh;-webkit-font-smoothing:antialiased} .app{display:flex;min-height:100vh}
 .sidebar{width:252px;background:linear-gradient(190deg,var(--nav),var(--nav2));color:#fff;padding:24px 16px;position:fixed;inset:0 auto 0 0;z-index:20;display:flex;flex-direction:column}
 .brand{display:flex;align-items:center;gap:12px;padding:6px 8px 24px;border-bottom:1px solid var(--navline)}
-.mav-brand-mark{width:38px;height:38px;border-radius:12px;display:inline-grid;place-items:center;color:#fff;font-weight:800;letter-spacing:-1px;background:linear-gradient(135deg,var(--mav-indigo),var(--mav-violet) 58%,var(--mav-cyan));box-shadow:0 8px 22px rgba(89,105,245,.24);}
+.mav-brand-mark{width:38px;height:38px;border-radius:12px;flex:0 0 auto;background:linear-gradient(135deg,#d8a75c,var(--brass));display:grid;place-items:center;box-shadow:0 8px 18px rgba(184,134,58,.35)}
 .brand strong{display:block;font-family:var(--serif);font-size:17px;font-weight:600;letter-spacing:.2px} .brand small{display:block;color:var(--navmuted);margin-top:2px;font-size:11px}
 .nav-group{margin-top:22px} .nav-title{color:#5c6178;font-size:10.5px;font-weight:600;letter-spacing:.5px;margin:0 10px 8px}
 .nav-menu{list-style:none;display:grid;gap:3px} .nav-menu li{display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:9px;color:var(--navmuted);cursor:pointer;font-size:13.5px;font-weight:500;transition:.16s}
@@ -60,7 +59,7 @@
 .tab-pane{display:none;animation:fade .3s ease} .tab-pane.active{display:block} @keyframes fade{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
 </style></head><body><div class="app">
 
-<aside class="sidebar"><div class="brand"><div class="brand-mark"><span class="mav-brand-mark">A</span></div><div><strong>myAlphaView</strong><small>myAlphaView · myalphaview.com</small></div></div>
+<aside class="sidebar"><div class="brand"><div class="mav-brand-mark"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4 17 L9 9 L13 14 L20 5" stroke="#181109" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="20" cy="5" r="2.1" fill="#181109"/></svg></div><div><strong>myAlphaView</strong><small>myAlphaView · myalphaview.com</small></div></div>
 <div class="nav-group"><div class="nav-title">美股 · 宏观</div><ul class="nav-menu">
   <li class="active" onclick="switchTab('tab-overview',this)"><span class="nav-icon">◆</span>市场总览</li>
   <li onclick="switchTab('tab-engine',this)"><span class="nav-icon">◒</span>策略引擎</li>
@@ -72,6 +71,7 @@
 <div class="nav-group"><div class="nav-title">观察 & 持仓</div><ul class="nav-menu">
   <li onclick="switchTab('tab-stocks',this)"><span class="nav-icon">⌁</span>个股观察池</li>
   <li onclick="switchTab('tab-options',this)"><span class="nav-icon">⚑</span>期权自查清单</li>
+  <li onclick="switchTab('tab-archive',this)"><span class="nav-icon">📜</span>历史买点归档</li>
 </ul></div>
 <div class="sidebar-footer">
   公开研究版 · 不展示个人真实资产<br>数据仅供研究演示
@@ -87,7 +87,7 @@
 <!-- TAB 1: 市场总览 -->
 <div id="tab-overview" class="tab-pane active">
 <section class="hero"><div><h1>看清市场在说什么，而不是账户在做什么。</h1><p>公开版投资研究面板：聚焦市场趋势、回撤、波动率与策略触发条件。</p></div><div class="public-note"><b id="modeTitle">公开展示模式</b><span id="modeDesc">这里展示的是研究指标与策略信号，不代表任何个人账户的实际仓位或收益。</span></div></section>
-<section class="section"><div class="section-head"><h2>市场核心指标</h2><p>自动更新</p></div><div class="metrics"><div class="metric-card"><div class="metric-top">纳斯达克综合指数<span class="metric-dot good"></span></div><div class="metric-value">26,333.04</div><div class="metric-change positive">+0.96%</div><div class="metric-note">成长/科技风格温度 · 真实指数(Yahoo)</div></div><div class="metric-card"><div class="metric-top">标普500指数<span class="metric-dot good"></span></div><div class="metric-value">7,656.98</div><div class="metric-change positive">+0.86%</div><div class="metric-note">大盘风险偏好 · 真实指数(Yahoo)</div></div><div class="metric-card"><div class="metric-top">VIX恐慌指数<span class="metric-dot good"></span></div><div class="metric-value">18.11</div><div class="metric-note">真实指数(Yahoo)</div></div><div class="metric-card"><div class="metric-top">红利低波100 (159307)<span class="metric-dot good"></span></div><div class="metric-value">1.019</div><div class="metric-change positive">+0.59%</div><div class="metric-note">A股红利代理 · 腾讯行情</div></div></div></section>
+<section class="section"><div class="section-head"><h2>市场核心指标</h2><p>自动更新</p></div><div class="metrics"><div class="metric-card"><div class="metric-top">纳斯达克综合指数<span class="metric-dot good"></span></div><div class="metric-value">26,333.04</div><div class="metric-change positive">+0.96%</div><div class="metric-note">成长/科技风格温度 · 真实指数(Yahoo)</div></div><div class="metric-card"><div class="metric-top">标普500指数<span class="metric-dot good"></span></div><div class="metric-value">7,656.98</div><div class="metric-change positive">+0.86%</div><div class="metric-note">大盘风险偏好 · 真实指数(Yahoo)</div></div><div class="metric-card"><div class="metric-top">VIX恐慌指数<span class="metric-dot good"></span></div><div class="metric-value">18.12</div><div class="metric-note">真实指数(Yahoo)</div></div><div class="metric-card"><div class="metric-top">红利低波100 (159307)<span class="metric-dot good"></span></div><div class="metric-value">1.019</div><div class="metric-change positive">+0.59%</div><div class="metric-note">A股红利代理 · 腾讯行情</div></div></div></section>
 
 <section class="section"><div class="panel">
       <div class="panel-head"><strong>市场状态引擎</strong><span>当前得分 0/9 分</span></div>
@@ -101,7 +101,7 @@
     </div></section>
 
 <section class="section"><div class="section-head"><h2>QQQ & SPY · 近 30 个交易日</h2><p>历史走势</p></div><div class="dashboard-grid"><div class="panel"><div class="panel-head"><strong>趋势对比</strong><span>收盘价</span></div><div class="chart-wrap"><canvas id="trendChart"></canvas></div></div><div class="panel"><div class="panel-head"><strong>Market Pulse</strong><span>研究状态</span></div><div class="pulse-list">
-<div class="pulse"><div><div class="pulse-label">波动环境</div><div class="pulse-main">正常波动</div></div><div class="pulse-right"><span class="badge good">VIX 18.11</span></div></div>
+<div class="pulse"><div><div class="pulse-label">波动环境</div><div class="pulse-main">正常波动</div></div><div class="pulse-right"><span class="badge good">VIX 18.12</span></div></div>
 <div class="pulse"><div><div class="pulse-label">全市场健康度</div><div class="pulse-main">宽度计算已上线</div></div><div class="pulse-right"><span class="badge good">LIVE</span></div></div>
 <div class="pulse"><div><div class="pulse-label">全球资产</div><div class="pulse-main">中美资产跟踪</div></div><div class="pulse-right"><span class="badge good">已接入</span></div></div></div></div></div></section>
 </div>
@@ -110,7 +110,7 @@
 <div id="tab-engine" class="tab-pane">
 <section class="hero"><div><h1>核心策略信号</h1><p>用回撤、RSI 与长期均线观察核心 ETF 的风险与潜在策略触发点。</p></div></section>
 <section class="section"><div class="engine"><div class="engine-top"><div><div class="engine-label">STRATEGY ENGINE · 核心ETF三档加仓线</div><div class="engine-title">当前状态：实时监测</div></div><div class="engine-badge normal">正常 · 未触发</div></div>
-<div class="engine-grid"><div class="engine-item "><div class="k">QQQM 回撤</div><div class="v">-4.48%</div><div class="pt">未触发 · 阈值 一级12% / 二级18% / 三级25%</div></div><div class="engine-item "><div class="k">VGT 回撤</div><div class="v">-3.91%</div><div class="pt">未触发 · 阈值 一级15% / 二级20% / 三级30%</div></div><div class="engine-item "><div class="k">QLD 回撤</div><div class="v">-11.50%</div><div class="pt">未触发 · 阈值 一级25% / 二级35% / 三级50%</div></div><div class="engine-item "><div class="k">TQQQ 回撤</div><div class="v">-19.42%</div><div class="pt">未触发 · 阈值 一级40% / 二级50% / 三级70%</div></div><div class="engine-item "><div class="k">VOO 回撤</div><div class="v">-1.93%</div><div class="pt">未触发 · 阈值 一级8% / 二级10% / 三级15%</div></div></div><div class="engine-foot">分级规则：每个核心ETF各自设有一级/二级/三级三档回撤加仓线（阈值因资产而异），非全市场宽度指标——只是各资产自身相对历史高点的回撤幅度。此处展示规则与信号，不展示实盘资金规模。</div></div></section>
+<div class="engine-grid"><div class="engine-item "><div class="k">QQQM 回撤</div><div class="v">-4.48%</div><div class="pt">未触发 · 阈值 一级12% / 二级18% / 三级25%</div></div><div class="engine-item "><div class="k">QQQ 回撤</div><div class="v">-4.51%</div><div class="pt">未触发 · 阈值 一级12% / 二级18% / 三级25%</div></div><div class="engine-item "><div class="k">VGT 回撤</div><div class="v">-3.91%</div><div class="pt">未触发 · 阈值 一级15% / 二级20% / 三级30%</div></div><div class="engine-item "><div class="k">QLD 回撤</div><div class="v">-11.50%</div><div class="pt">未触发 · 阈值 一级25% / 二级35% / 三级50%</div></div><div class="engine-item "><div class="k">TQQQ 回撤</div><div class="v">-19.42%</div><div class="pt">未触发 · 阈值 一级40% / 二级50% / 三级70%</div></div><div class="engine-item "><div class="k">VOO 回撤</div><div class="v">-1.93%</div><div class="pt">未触发 · 阈值 一级8% / 二级10% / 三级15%</div></div></div><div class="engine-foot">分级规则：每个核心ETF各自设有一级/二级/三级三档回撤加仓线（阈值因资产而异），非全市场宽度指标——只是各资产自身相对历史高点的回撤幅度。此处展示规则与信号，不展示实盘资金规模。</div></div></section>
 </div>
 
 <!-- TAB 3: 指数与 ETF -->
@@ -303,8 +303,14 @@
 <div class="mkt-card"><h3>📈 隐含波动率 (IV)</h3><p style="font-size:12px;color:var(--muted);margin-top:8px">IV 飙升或回落会显著影响期权权利金。</p></div>
 <div class="mkt-card"><h3>Δ Delta (方向风险)</h3><p style="font-size:12px;color:var(--muted);margin-top:8px">标的每变动$1，期权价格大致的变动幅度。</p></div>
 <div class="mkt-card"><h3>Γ Gamma (加速风险)</h3><p style="font-size:12px;color:var(--muted);margin-top:8px">临近到期且处于 ATM 附近时，Gamma 风险极大。</p></div>
-<div class="mkt-card"><h3>⚖️ 盈亏平衡价</h3><p style="font-size:12px;color:var(--muted);margin-top:8px">买入/卖出：行权价 ± 权利金。判断到期防御位置。</p></div>
+<div class="mkt-card"><h3>⚖️ 盈亏平衡价</h3><p style="font-size:12px;color:var(--muted);margin-top:8px">买入/卖出：行权价 ± 权利金. 判断到期防御位置。</p></div>
 </div></section></div>
+
+<!-- TAB 7: 历史买点归档 -->
+<div id="tab-archive" class="tab-pane">
+<section class="hero"><div><h1>历史买点归档数据库</h1><p>完整回溯 2005 年以来各大核心资产触发一级、重点及极限加仓信号的黄金历史买点，验证策略透明度。</p></div></section>
+<section class="section"><div class="table-container"><table><thead><tr><th style="text-align:left;">资产代号</th><th>触发日期</th><th>触发收盘价</th><th>当时全期回撤幅度</th><th>触发加仓评级</th></tr></thead><tbody id="archiveTableBody"></tbody></table></div></section>
+</div>
 
 <div class="footer">© 2026 myAlphaView · Built by Simon · Public Research Dashboard<br>市场数据与策略指标仅供研究、学习与信息参考，不构成投资建议。</div>
 </div></main></div>
@@ -316,7 +322,7 @@ function switchTab(id,el){
     document.querySelectorAll('.nav-menu li').forEach(l=>l.classList.remove('active'));
     document.getElementById(id).classList.add('active');
     el.classList.add('active');
-    document.getElementById('bc-title').innerText = el.innerText.replace('NEW', '').replace(/^[◆◒◫◇⌁⚑]/, '').trim();
+    document.getElementById('bc-title').innerText = el.innerText.replace('NEW', '').replace(/^[◆◒◫◇⌁⚑📜]/, '').trim();
     window.scrollTo({top:0,behavior:'smooth'});
 }
 window.addEventListener('load',function(){
@@ -471,6 +477,6 @@ function fetchLiveCNHK() {
 }
 
 window.addEventListener('load', () => {
-    setInterval(fetchLiveCNHK, 5000); // 盘中每5秒实时刷新一次
+    setInterval(fetchLiveCNHK, 5000);
 });
 </script></body></html>

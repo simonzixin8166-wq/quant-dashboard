@@ -87,7 +87,7 @@
 <!-- TAB 1: 市场总览 -->
 <div id="tab-overview" class="tab-pane active">
 <section class="hero"><div><h1>看清市场在说什么，而不是账户在做什么。</h1><p>公开版投资研究面板：聚焦市场趋势、回撤、波动率与策略触发条件。</p></div><div class="public-note"><b id="modeTitle">公开展示模式</b><span id="modeDesc">这里展示的是研究指标与策略信号，不代表任何个人账户的实际仓位或收益。</span></div></section>
-<section class="section"><div class="section-head"><h2>市场核心指标</h2><p>自动更新</p></div><div class="metrics"><div class="metric-card"><div class="metric-top">纳斯达克综合指数<span class="metric-dot good"></span></div><div class="metric-value">26,333.04</div><div class="metric-change positive">+0.96%</div><div class="metric-note">成长/科技风格温度 · 真实指数(Yahoo)</div></div><div class="metric-card"><div class="metric-top">标普500指数<span class="metric-dot good"></span></div><div class="metric-value">7,656.98</div><div class="metric-change positive">+0.86%</div><div class="metric-note">大盘风险偏好 · 真实指数(Yahoo)</div></div><div class="metric-card"><div class="metric-top">VIX恐慌指数<span class="metric-dot good"></span></div><div class="metric-value">15.84</div><div class="metric-note">真实指数(Yahoo)</div></div><div class="metric-card"><div class="metric-top">红利低波100 (159307)<span class="metric-dot good"></span></div><div class="metric-value">1.019</div><div class="metric-change positive">+0.59%</div><div class="metric-note">A股红利代理 · 腾讯行情</div></div></div></section>
+<section class="section"><div class="section-head"><h2>市场核心指标</h2><p>自动更新</p></div><div class="metrics"><div class="metric-card"><div class="metric-top">纳斯达克综合指数<span class="metric-dot good"></span></div><div class="metric-value">26,333.04</div><div class="metric-change positive">+0.96%</div><div class="metric-note">成长/科技风格温度 · 真实指数(Yahoo)</div></div><div class="metric-card"><div class="metric-top">标普500指数<span class="metric-dot good"></span></div><div class="metric-value">7,656.98</div><div class="metric-change positive">+0.86%</div><div class="metric-note">大盘风险偏好 · 真实指数(Yahoo)</div></div><div class="metric-card"><div class="metric-top">VIX恐慌指数<span class="metric-dot good"></span></div><div class="metric-value">18.11</div><div class="metric-note">真实指数(Yahoo)</div></div><div class="metric-card"><div class="metric-top">红利低波100 (159307)<span class="metric-dot good"></span></div><div class="metric-value">1.019</div><div class="metric-change positive">+0.59%</div><div class="metric-note">A股红利代理 · 腾讯行情</div></div></div></section>
 
 <section class="section"><div class="panel">
       <div class="panel-head"><strong>市场状态引擎</strong><span>当前得分 0/9 分</span></div>
@@ -95,13 +95,13 @@
         <div class="pulse"><div><div class="pulse-label">当前风控评级</div><div class="pulse-main">正常</div></div>
           <div class="pulse-right"><span class="badge good">0/9 分</span></div></div>
         <div class="row"><span>指数高点回撤（阈值 -8.00%）</span><span class="fw-bold">-2.04% <span class="badge neutral">未触发</span></span></div>
-        <div class="row"><span>20天宽度（阈值 ≤20%）</span><span class="fw-bold">25.25% <span class="badge neutral">未触发</span></span></div><div class="row"><span>50天宽度（阈值 ≤15%）</span><span class="fw-bold">39.17% <span class="badge neutral">未触发</span></span></div><div class="row"><span>斜率冻点(20天宽10日骤降)（阈值 ≤-30%）</span><span class="fw-bold">-19.68% <span class="badge neutral">未触发</span></span></div><div class="row"><span>200天宽度(绝对水平)（阈值 ≤50%）</span><span class="fw-bold">59.24% <span class="badge neutral">未触发</span></span></div>
+        
       </div>
-      
+      <div class="errmsg" style="padding:0 19px 16px;color:var(--muted);font-size:11px">全市场宽度数据处于轻量跳过时段或抓取异常，当前以"指数回撤"参与打分。</div>
     </div></section>
 
 <section class="section"><div class="section-head"><h2>QQQ & SPY · 近 30 个交易日</h2><p>历史走势</p></div><div class="dashboard-grid"><div class="panel"><div class="panel-head"><strong>趋势对比</strong><span>收盘价</span></div><div class="chart-wrap"><canvas id="trendChart"></canvas></div></div><div class="panel"><div class="panel-head"><strong>Market Pulse</strong><span>研究状态</span></div><div class="pulse-list">
-<div class="pulse"><div><div class="pulse-label">波动环境</div><div class="pulse-main">正常波动</div></div><div class="pulse-right"><span class="badge good">VIX 15.84</span></div></div>
+<div class="pulse"><div><div class="pulse-label">波动环境</div><div class="pulse-main">正常波动</div></div><div class="pulse-right"><span class="badge good">VIX 18.11</span></div></div>
 <div class="pulse"><div><div class="pulse-label">全市场健康度</div><div class="pulse-main">宽度计算已上线</div></div><div class="pulse-right"><span class="badge good">LIVE</span></div></div>
 <div class="pulse"><div><div class="pulse-label">全球资产</div><div class="pulse-main">中美资产跟踪</div></div><div class="pulse-right"><span class="badge good">已接入</span></div></div></div></div></div></section>
 </div>
@@ -148,13 +148,13 @@
 <div id="tab-cn-hk" class="tab-pane">
 <section class="hero"><div><h1>A股港股 & 红利低波</h1><p>自动同步腾讯行情。中证红利低波100指数(930955)本身不在免费行情源覆盖范围内，用紧密跟踪该指数的场内ETF(159307)代理展示走势。</p></div></section>
 <section class="section"><div class="section-head"><h2>大盘与红利核心池</h2><p>盘中自动实时跳动刷新</p></div><div class="opt-grid">
-<div class="mkt-card"><div class="name">上证指数</div><div class="val" id="price-sh000001">3,884.620</div><div class="chg negative" id="chg-sh000001">-0.09%</div></div>
-<div class="mkt-card"><div class="name">沪深300</div><div class="val" id="price-sh000300">4,483.780</div><div class="chg negative" id="chg-sh000300">-0.58%</div></div>
+<div class="mkt-card"><div class="name">上证指数</div><div class="val" id="price-sh000001">3,885.330</div><div class="chg negative" id="chg-sh000001">-0.07%</div></div>
+<div class="mkt-card"><div class="name">沪深300</div><div class="val" id="price-sh000300">4,480.080</div><div class="chg negative" id="chg-sh000300">-0.67%</div></div>
 <div class="mkt-card"><div class="name">红利低波100 ETF (159307)</div><div class="val" id="price-sz159307">1.019</div><div class="chg positive" id="chg-sz159307">+0.59%</div></div>
 </div></section>
 <section class="section"><div class="section-head"><h2>港股跨境池</h2><p>盘中自动实时跳动刷新</p></div><div class="opt-grid">
-<div class="mkt-card"><div class="name">华夏纳指 (港股)</div><div class="val" id="price-hk03086">59.280</div><div class="chg negative" id="chg-hk03086">-0.57%</div></div>
-<div class="mkt-card"><div class="name">国指备兑 (港股)</div><div class="val" id="price-hk03416">8.275</div><div class="chg positive" id="chg-hk03416">+0.55%</div></div>
+<div class="mkt-card"><div class="name">华夏纳指 (港股)</div><div class="val" id="price-hk03086">59.100</div><div class="chg negative" id="chg-hk03086">-0.87%</div></div>
+<div class="mkt-card"><div class="name">国指备兑 (港股)</div><div class="val" id="price-hk03416">8.260</div><div class="chg positive" id="chg-hk03416">+0.36%</div></div>
 </div></section>
 </div>
 

@@ -173,16 +173,12 @@ def load_historical_signals():
             print("⚠️ 未能在预期路径下找到 Excel 文件！")
             return []
         
-        # 🟢 核心修改：由于表头在第3行，使用 skiprows=3 刚好跳过前三行（标题、图例、表头）
         df = pd.read_excel(excel_path, sheet_name='历史买点数据库', header=None, skiprows=3)
-        
         records = []
         for _, row in df.iterrows():
             asset_code = row[0]
-            # 如果资产代号为空，说明已经读到表格下方的空白行了，直接跳过
-            if pd.isna(asset_code) or str(asset_code).strip() == '':
+            if pd.isna(asset_code) or str(asset_code).strip() == '' or str(asset_code).strip() == '资产代号':
                 continue
-                
             records.append({
                 "symbol": str(asset_code).strip(),
                 "date": str(row[1])[:10],
@@ -525,7 +521,6 @@ def render_html(data):
     index_html = "".join(card_etf(k, v) for k, v in data["index"].items())
     stock_html = "".join(row_stock(k, v) for k, v in data["stocks"].items())
 
-    # 历史买点行渲染
     signals_html = ""
     for s in data.get("historical_signals", []):
         badge_cls = "warn" if "一级" in s['rating'] else ("bad" if "重点" in s['rating'] or "极限" in s['rating'] else "neutral")
@@ -714,8 +709,7 @@ def render_html(data):
 <!-- TAB 7: 历史买点归档 -->
 <div id="tab-archive" class="tab-pane">
 <section class="hero"><div><h1>历史买点归档数据库</h1><p>完整回溯 2005 年以来各大核心资产触发一级、重点及极限加仓信号的黄金历史买点，验证策略透明度。</p></div></section>
-<section class="section"><div class="table-container"><table><thead><tr><th style="text-align:left;">资产代号</th><th>触发日期</th><th>触发收盘价</th><th>当时全期回撤幅度</th><th>触发加仓评级</th></tr></thead><tbody id="archiveTableBody">{signals_html}</tbody></table></div></section>
-</div>
+<section class="section"><div class="table-container"><table><thead><tr><th style="text-align:left;">资产代号</th><th>触发日期</th><th>触发收盘价</th><th>当时全期回撤幅度</th><th>触发加仓评级</th></tr></thead><tbody id="archiveTableBody">{signals_html}</tbody></table></div></section></div>
 
 <div class="footer">© 2026 myAlphaView · Built by Simon · Public Research Dashboard<br>市场数据与策略指标仅供研究、学习与信息参考，不构成投资建议。</div>
 </div></main></div>
@@ -723,22 +717,22 @@ def render_html(data):
 <script>
 const DATA = {chart_json};
 function switchTab(id,el){{
-    document.querySelectorAll('.tab-pane').forEach(t=>t.classList.remove('active'));
-    document.querySelectorAll('.nav-menu li').forEach(l=>l.classList.remove('active'));
-    document.getElementById(id).classList.add('active');
-    el.classList.add('active');
-    document.getElementById('bc-title').innerText = el.innerText.replace('NEW', '').replace(/^[◆◒◫◇⌁⚑📜]/, '').trim();
-    window.scrollTo({{top:0,behavior:'smooth'}});
+  document.querySelectorAll('.tab-pane').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.nav-menu li').forEach(l=>l.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  el.classList.add('active');
+  document.getElementById('bc-title').innerText = el.innerText.replace('NEW', '').replace(/^[◆◒◫◇⌁⚑📜]/, '').trim();
+  window.scrollTo({{top:0,behavior:'smooth'}});
 }}
 window.addEventListener('load',function(){{
-    const c=document.getElementById('trendChart');
-    const qq=DATA.QQQ||[], sp=DATA.SPY||[];
-    if(!qq.length||!sp.length) return;
-    const labels=qq.map(x=>x.d), qv=qq.map(x=>x.c), sv=sp.map(x=>x.c);
-    new Chart(c,{{type:'line',data:{{labels,datasets:[
-        {{label:'QQQ',data:qv,borderColor:'#b8863a',backgroundColor:'rgba(184,134,58,.08)',fill:true,borderWidth:2,pointRadius:0,tension:.35,yAxisID:'y'}},
-        {{label:'SPY',data:sv,borderColor:'#1c7a4c',backgroundColor:'transparent',borderWidth:2,pointRadius:0,tension:.35,yAxisID:'y1'}}
-    ]}},options:{{responsive:true,maintainAspectRatio:false,interaction:{{mode:'index',intersect:false}},plugins:{{legend:{{position:'top',align:'end'}}}},scales:{{x:{{grid:{{display:false}},ticks:{{maxTicksLimit:6}}}},y:{{position:'left',grid:{{color:'#eee9dc'}}}},y1:{{position:'right',grid:{{drawOnChartArea:false}}}}}}}}}});
+  const c=document.getElementById('trendChart');
+  const qq=DATA.QQQ||[], sp=DATA.SPY||[];
+  if(!qq.length||!sp.length) return;
+  const labels=qq.map(x=>x.d), qv=qq.map(x=>x.c), sv=sp.map(x=>x.c);
+  new Chart(c,{{type:'line',data:{{labels,datasets:[
+      {{label:'QQQ',data:qv,borderColor:'#b8863a',backgroundColor:'rgba(184,134,58,.08)',fill:true,borderWidth:2,pointRadius:0,tension:.35,yAxisID:'y'}},
+      {{label:'SPY',data:sv,borderColor:'#1c7a4c',backgroundColor:'transparent',borderWidth:2,pointRadius:0,tension:.35,yAxisID:'y1'}}
+  ]}},options:{{responsive:true,maintainAspectRatio:false,interaction:{{mode:'index',intersect:false}},plugins:{{legend:{{position:'top',align:'end'}}}},scales:{{x:{{grid:{{display:false}},ticks:{{maxTicksLimit:6}}}},y:{{position:'left',grid:{{color:'#eee9dc'}}}},y1:{{position:'right',grid:{{drawOnChartArea:false}}}}}}}}}});
 }});
 
 // ================= Supabase 动态数据与身份验证 =================
@@ -750,139 +744,139 @@ const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 const authBtn = document.getElementById('authBtn');
 
 async function fetchAndRenderTargets() {{
-    const {{ data, error }} = await supabaseClient.from('stock_targets').select('*');
-    if (data) {{
-        data.forEach(row => {{
-            const targetEl = document.getElementById(`target-${{row.symbol}}`);
-            const closeEl = document.getElementById(`close-${{row.symbol}}`);
-            const actionEl = document.getElementById(`action-${{row.symbol}}`);
-            
-            if (targetEl && closeEl) {{
-                targetEl.innerHTML = `$${{row.target_price.toFixed(2)}}`;
-                if (isAdmin) {{
-                    targetEl.innerHTML += ` <span style="cursor:pointer;font-size:12px;margin-left:6px;filter:grayscale(1) opacity(0.5);transition:0.2s;" onmouseover="this.style.filter='none'" onmouseout="this.style.filter='grayscale(1) opacity(0.5)'" onclick="editTarget('${{row.symbol}}', ${{row.target_price}})" title="修改策略价">✏️</span>`;
-                }}
-                const closePrice = parseFloat(closeEl.innerText.replace('$', ''));
-                if (closePrice <= row.target_price) {{
-                    actionEl.innerHTML = '<span class="alert-text fw-bold ml" style="margin-left:4px;">(信号触发!)</span>';
-                }} else {{
-                    actionEl.innerHTML = '';
-                }}
-            }}
-        }});
-    }}
+  const {{ data, error }} = await supabaseClient.from('stock_targets').select('*');
+  if (data) {{
+      data.forEach(row => {{
+          const targetEl = document.getElementById(`target-${{row.symbol}}`);
+          const closeEl = document.getElementById(`close-${{row.symbol}}`);
+          const actionEl = document.getElementById(`action-${{row.symbol}}`);
+          
+          if (targetEl && closeEl) {{
+              targetEl.innerHTML = `$${{row.target_price.toFixed(2)}}`;
+              if (isAdmin) {{
+                  targetEl.innerHTML += ` <span style="cursor:pointer;font-size:12px;margin-left:6px;filter:grayscale(1) opacity(0.5);transition:0.2s;" onmouseover="this.style.filter='none'" onmouseout="this.style.filter='grayscale(1) opacity(0.5)'" onclick="editTarget('${{row.symbol}}', ${{row.target_price}})" title="修改策略价">✏️</span>`;
+              }}
+              const closePrice = parseFloat(closeEl.innerText.replace('$', ''));
+              if (closePrice <= row.target_price) {{
+                  actionEl.innerHTML = '<span class="alert-text fw-bold ml" style="margin-left:4px;">(信号触发!)</span>';
+              }} else {{
+                  actionEl.innerHTML = '';
+              }}
+          }}
+      }});
+  }}
 }}
 
 async function editTarget(symbol, currentPrice) {{
-    const newPrice = prompt(`主理人后台：\\n请输入 [${{symbol}}] 的新策略加仓价：\\n当前点位：$${{currentPrice}}`, currentPrice);
-    if (newPrice !== null && newPrice.trim() !== '') {{
-        const num = parseFloat(newPrice);
-        if (!isNaN(num)) {{
-            const {{ error }} = await supabaseClient.from('stock_targets').upsert({{ symbol: symbol, target_price: num }});
-            if (error) {{
-                alert('更新失败，权限不足或网络异常：' + error.message);
-            }} else {{
-                fetchAndRenderTargets();
-            }}
-        }} else {{
-            alert('输入无效，请输入纯数字。');
-        }}
-    }}
+  const newPrice = prompt(`主理人后台：\\n请输入 [${{symbol}}] 的新策略加仓价：\\n当前点位：$${{currentPrice}}`, currentPrice);
+  if (newPrice !== null && newPrice.trim() !== '') {{
+      const num = parseFloat(newPrice);
+      if (!isNaN(num)) {{
+          const {{ error }} = await supabaseClient.from('stock_targets').upsert({{ symbol: symbol, target_price: num }});
+          if (error) {{
+              alert('更新失败，权限不足或网络异常：' + error.message);
+          }} else {{
+              fetchAndRenderTargets();
+          }}
+      }} else {{
+          alert('输入无效，请输入纯数字。');
+      }}
+  }}
 }}
 
 async function checkSession() {{
-    const {{ data: {{ session }} }} = await supabaseClient.auth.getSession();
-    if (session) {{
-        if (session.user.email === ADMIN_EMAIL) {{
-            isAdmin = true;
-            document.getElementById('modeTitle').innerText = "👑 主理人控制台已激活";
-            document.getElementById('modeDesc').innerText = "您现在可以在下方个股面板中，直接点击✏️修改全局策略触发价。";
-        }} else {{
-            isAdmin = false;
-            document.getElementById('modeTitle').innerText = "🔥 资金与策略模型已解锁";
-            document.getElementById('modeDesc').innerText = "您已安全登录，当前正在展示最新的高级量化策略信号。";
-        }}
-        authBtn.innerHTML = "🔓 退出账号";
-        document.getElementById('modeTitle').style.color = "var(--red)";
-        document.getElementById('liveStatusText').innerText = "连接云端数据库";
-    }} else {{
-        isAdmin = false;
-        authBtn.innerHTML = "🔐 登录私有看板";
-    }}
-    fetchAndRenderTargets();
+  const {{ data: {{ session }} }} = await supabaseClient.auth.getSession();
+  if (session) {{
+      if (session.user.email === ADMIN_EMAIL) {{
+          isAdmin = true;
+          document.getElementById('modeTitle').innerText = "👑 主理人控制台已激活";
+          document.getElementById('modeDesc').innerText = "您现在可以在下方个股面板中，直接点击✏️修改全局策略触发价。";
+      }} else {{
+          isAdmin = false;
+          document.getElementById('modeTitle').innerText = "🔥 资金与策略模型已解锁";
+          document.getElementById('modeDesc').innerText = "您已安全登录，当前正在展示最新的高级量化策略信号。";
+      }}
+      authBtn.innerHTML = "🔓 退出账号";
+      document.getElementById('modeTitle').style.color = "var(--red)";
+      document.getElementById('liveStatusText').innerText = "连接云端数据库";
+  }} else {{
+      isAdmin = false;
+      authBtn.innerHTML = "🔐 登录私有看板";
+  }}
+  fetchAndRenderTargets();
 }}
 
 async function handleAuth() {{
-    const {{ data: {{ session }} }} = await supabaseClient.auth.getSession();
-    if (session) {{
-        await supabaseClient.auth.signOut();
-        alert('已退出登录，恢复为公开展示模式。');
-        window.location.reload();
-    }} else {{
-        const email = prompt("欢迎探索 myAlphaView 私有量化模型。\\n请输入您的邮箱地址，我们将为您发送免密登录/免费注册链接：");
-        if (!email) return;
-        
-        authBtn.innerHTML = "⏳ 正在发送...";
-        const {{ error }} = await supabaseClient.auth.signInWithOtp({{
-            email: email,
-            options: {{ emailRedirectTo: window.location.origin + window.location.pathname }}
-        }});
+  const {{ data: {{ session }} }} = await supabaseClient.auth.getSession();
+  if (session) {{
+      await supabaseClient.auth.signOut();
+      alert('已退出登录，恢复为公开展示模式。');
+      window.location.reload();
+  }} else {{
+      const email = prompt("欢迎探索 myAlphaView 私有量化模型。\\n请输入您的邮箱地址，我们将为您发送免密登录/免费注册链接：");
+      if (!email) return;
+      
+      authBtn.innerHTML = "⏳ 正在发送...";
+      const {{ error }} = await supabaseClient.auth.signInWithOtp({{
+          email: email,
+          options: {{ emailRedirectTo: window.location.origin + window.location.pathname }}
+      }});
 
-        if (error) {{
-            alert("发送失败: " + error.message);
-            authBtn.innerHTML = "🔐 登录私有看板";
-        }} else {{
-            alert("✅ 魔法验证链接已发送至 " + email + "，请查收邮件并点击链接登录！");
-            authBtn.innerHTML = "✉️ 请查收邮件";
-        }}
-    }}
+      if (error) {{
+          alert("发送失败: " + error.message);
+          authBtn.innerHTML = "🔐 登录私有看板";
+      }} else {{
+          alert("✅ 魔法验证链接已发送至 " + email + "，请查收邮件并点击链接登录！");
+          authBtn.innerHTML = "✉️ 请查收邮件";
+      }}
+  }}
 }}
 
 window.addEventListener('load', checkSession);
 supabaseClient.auth.onAuthStateChange((event, session) => {{
-    if (event === 'SIGNED_IN') checkSession();
+  if (event === 'SIGNED_IN') checkSession();
 }});
 
 // ================= A股/港股 实时跳动引擎 =================
 const CNHK_SYMBOLS = ['sh000001', 'sh000300', 'sz159307', 'hk03086', 'hk03416'];
 
 function fetchLiveCNHK() {{
-    const script = document.createElement('script');
-    script.src = `https://qt.gtimg.cn/q=${{CNHK_SYMBOLS.join(',')}}&r=${{Math.random()}}`;
-    
-    script.onload = () => {{
-        CNHK_SYMBOLS.forEach(sym => {{
-            const rawData = window['v_' + sym];
-            if (rawData) {{
-                const fields = rawData.split('~');
-                if (fields.length > 5) {{
-                    const currentPrice = parseFloat(fields[3]);
-                    const prevClose = parseFloat(fields[4]);
-                    const pctChange = (currentPrice - prevClose) / prevClose;
-                    
-                    const priceEl = document.getElementById(`price-${{sym}}`);
-                    const chgEl = document.getElementById(`chg-${{sym}}`);
-                    
-                    if (priceEl && chgEl) {{
-                        priceEl.innerText = currentPrice.toFixed(3);
-                        const chgStr = (pctChange >= 0 ? "+" : "") + (pctChange * 100).toFixed(2) + "%";
-                        chgEl.innerText = chgStr;
-                        if (pctChange >= 0) {{
-                            chgEl.className = "chg positive";
-                        }} else {{
-                            chgEl.className = "chg negative";
-                        }}
-                    }}
-                }}
-            }}
-        }});
-        document.head.removeChild(script);
-    }};
-    document.head.appendChild(script);
+  const script = document.createElement('script');
+  script.src = `https://qt.gtimg.cn/q=${{CNHK_SYMBOLS.join(',')}}&r=${{Math.random()}}`;
+  
+  script.onload = () => {{
+      CNHK_SYMBOLS.forEach(sym => {{
+          const rawData = window['v_' + sym];
+          if (rawData) {{
+              const fields = rawData.split('~');
+              if (fields.length > 5) {{
+                  const currentPrice = parseFloat(fields[3]);
+                  const prevClose = parseFloat(fields[4]);
+                  const pctChange = (currentPrice - prevClose) / prevClose;
+                  
+                  const priceEl = document.getElementById(`price-${{sym}}`);
+                  const chgEl = document.getElementById(`chg-${{sym}}`);
+                  
+                  if (priceEl && chgEl) {{
+                      priceEl.innerText = currentPrice.toFixed(3);
+                      const chgStr = (pctChange >= 0 ? "+" : "") + (pctChange * 100).toFixed(2) + "%";
+                      chgEl.innerText = chgStr;
+                      if (pctChange >= 0) {{
+                          chgEl.className = "chg positive";
+                      }} else {{
+                          chgEl.className = "chg negative";
+                      }}
+                  }}
+              }}
+          }}
+      }});
+      document.head.removeChild(script);
+  }};
+  document.head.appendChild(script);
 }}
 
 window.addEventListener('load', () => {{
-    setInterval(fetchLiveCNHK, 5000);
+  setInterval(fetchLiveCNHK, 5000);
 }});
 </script></body></html>'''
 

@@ -11,19 +11,19 @@
 - Primary accent: brass/gold (`--brass`) — used for the logo mark, active nav state, the dark "Strategy Engine" panel highlights
 - Positive: restrained green (`--green`)
 - Negative: restrained red (`--red`) — kept visually distinct from the brass brand accent so "brand emphasis" and "market down/alert" are never confused
-- No indigo / violet / cyan in the palette — an earlier iteration introduced these for the logo mark, but they didn't match the navy+brass system used everywhere else and have been removed. Keep the palette to navy + brass + red/green going forward; resist adding more accent hues.
+- Palette strictly bounded to navy + brass + red/green.
 
 ## Logo mark
-A stylized Greek alpha (Α) shape with the right leg extended into an upward tick and a small dot — reads as both "Alpha" (the letterform) and "ascent/breakout" (the extending line). Rendered as SVG so it stays crisp at favicon size. Drawn in brass on the navy sidebar background.
+A stylized Greek alpha (Α) shape SVG rendered in brass on the navy sidebar background, embodying insight and market ascension.
 
 ## Product principle
 The public site communicates market intelligence and research methodology.
 It does not expose personal portfolio balances, position sizes, cost basis, or account-level returns.
-This is also why capital/position-sizing rules (the Excel "资金管理" sheet) are intentionally kept off the public site — only trigger rules and signals are shown, never real allocation amounts.
+This is also why capital/position-sizing rules are intentionally kept off the public site — only trigger rules and signals are shown, never real allocation amounts.
 
 ## Status
-1. ✅ Market Regime — implemented (see MARKET_REGIME.md), real breadth data live
-2. ✅ Strategy Signal — implemented as "策略引擎" (per-asset 3-tier drawdown triggers)
-3. ✅ Data credibility/status — source labels (真实指数/ETF代理) shown per metric
+1. ✅ Market Regime — implemented (see MARKET_REGIME.md), real breadth data live with auto-skip & try-except protection
+2. ✅ Strategy Signal — implemented as "策略引擎" (per-asset 3-tier drawdown triggers, including QQQ)
+3. ✅ Data credibility/status — source labels (真实指数/ETF代理) shown per metric, plus CN/HK real-time 5s JS ticker
 4. ⏳ Research Radar (个股观察池 upgrade) — not yet started
-5. ⏳ 历史买点数据库 (historical trigger log) — not yet started
+5. ✅ 历史买点数据库 (historical trigger log) — fully implemented as Tab 7 (Archive)

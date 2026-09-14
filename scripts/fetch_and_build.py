@@ -158,9 +158,20 @@ def fetch_fund_estimate(fund_code):
 # ================= 加载历史买点数据库 =================
 def load_historical_signals():
     try:
-        excel_path = os.path.join(os.path.dirname(__file__), '..', '多资产量化管理平台_V2_3_完美修复无警告版.xlsx')
-        if not os.path.exists(excel_path):
-            excel_path = '多资产量化管理平台_V2_3_完美修复无警告版.xlsx'
+        possible_paths = [
+            os.path.join(os.path.dirname(__file__), '..', '多资产量化管理平台_V2_4_已合并宽度.xlsx'),
+            os.path.join(os.path.dirname(__file__), '多资产量化管理平台_V2_4_已合并宽度.xlsx'),
+            '多资产量化管理平台_V2_4_已合并宽度.xlsx'
+        ]
+        excel_path = None
+        for p in possible_paths:
+            if os.path.exists(p):
+                excel_path = p
+                break
+                
+        if not excel_path:
+            print("⚠️ 未能在预期路径下找到 Excel 文件！")
+            return []
         
         df = pd.read_excel(excel_path, sheet_name='历史买点数据库', skiprows=2)
         df = df.dropna(subset=['资产代号'])
@@ -173,9 +184,10 @@ def load_historical_signals():
                 "drawdown": float(row['当时全期回撤幅度']) if pd.notna(row['当时全期回撤幅度']) else 0.0,
                 "rating": str(row['触发加仓策略评级']) if pd.notna(row['触发加仓策略评级']) else "—"
             })
+        print(f"✅ 成功从 Excel 加载了 {len(records)} 条历史买点记录。")
         return records
     except Exception as e:
-        print(f"⚠️ 读取历史买点数据库失败: {e}")
+        print(f"❌ 读取历史买点数据库失败: {e}")
         return []
 
 # ================= 全市场宽度动态计算（智能分流 & 异常兜底） =================

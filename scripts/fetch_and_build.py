@@ -173,16 +173,22 @@ def load_historical_signals():
             print("⚠️ 未能在预期路径下找到 Excel 文件！")
             return []
         
-        df = pd.read_excel(excel_path, sheet_name='历史买点数据库', skiprows=2)
-        df = df.dropna(subset=['资产代号'])
+        # 🟢 核心修改：由于表头在第3行，使用 skiprows=3 刚好跳过前三行（标题、图例、表头）
+        df = pd.read_excel(excel_path, sheet_name='历史买点数据库', header=None, skiprows=3)
+        
         records = []
         for _, row in df.iterrows():
+            asset_code = row[0]
+            # 如果资产代号为空，说明已经读到表格下方的空白行了，直接跳过
+            if pd.isna(asset_code) or str(asset_code).strip() == '':
+                continue
+                
             records.append({
-                "symbol": str(row['资产代号']),
-                "date": str(row['历史买点日期'])[:10],
-                "price": float(row['触发收盘价格']) if pd.notna(row['触发收盘价格']) else 0.0,
-                "drawdown": float(row['当时全期回撤幅度']) if pd.notna(row['当时全期回撤幅度']) else 0.0,
-                "rating": str(row['触发加仓策略评级']) if pd.notna(row['触发加仓策略评级']) else "—"
+                "symbol": str(asset_code).strip(),
+                "date": str(row[1])[:10],
+                "price": float(row[2]) if pd.notna(row[2]) else 0.0,
+                "drawdown": float(row[3]) if pd.notna(row[3]) else 0.0,
+                "rating": str(row[4]).strip() if pd.notna(row[4]) else "—"
             })
         print(f"✅ 成功从 Excel 加载了 {len(records)} 条历史买点记录。")
         return records

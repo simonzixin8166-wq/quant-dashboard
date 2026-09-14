@@ -1,5 +1,5 @@
 {
-  "updated": "2026-09-13",
+  "updated": "2026-09-14",
   "core": {
     "QQQM": {
       "date": "2026-09-11",
@@ -10,7 +10,13 @@
       "rsi": 50.81796479920184,
       "dist_200ma": 0.08311381320010434,
       "drawdown": -0.04483949400861402,
-      "threshold": 0.07,
+      "tiers": {
+        "t1": 0.12,
+        "t2": 0.18,
+        "t3": 0.25
+      },
+      "level": 0,
+      "level_label": null,
       "triggered": false
     },
     "VGT": {
@@ -22,7 +28,13 @@
       "rsi": 55.425318705893915,
       "dist_200ma": 0.16039679851181898,
       "drawdown": -0.039126984126984184,
-      "threshold": 0.1,
+      "tiers": {
+        "t1": 0.15,
+        "t2": 0.2,
+        "t3": 0.3
+      },
+      "level": 0,
+      "level_label": null,
       "triggered": false
     },
     "QLD": {
@@ -34,7 +46,13 @@
       "rsi": 49.6640517528373,
       "dist_200ma": 0.1259406410818227,
       "drawdown": -0.11503112955825676,
-      "threshold": 0.14,
+      "tiers": {
+        "t1": 0.25,
+        "t2": 0.35,
+        "t3": 0.5
+      },
+      "level": 0,
+      "level_label": null,
       "triggered": false
     },
     "TQQQ": {
@@ -46,7 +64,31 @@
       "rsi": 49.04119887380843,
       "dist_200ma": 0.14568041611439242,
       "drawdown": -0.19423313403260906,
-      "threshold": null,
+      "tiers": {
+        "t1": 0.4,
+        "t2": 0.5,
+        "t3": 0.7
+      },
+      "level": 0,
+      "level_label": null,
+      "triggered": false
+    },
+    "VOO": {
+      "date": "2026-09-11",
+      "close": 702.56,
+      "prev_close": 696.65002,
+      "day_chg": 0.008483427589652412,
+      "ytd_high": 716.39001,
+      "rsi": 50.31207216527024,
+      "dist_200ma": 0.06973782798681484,
+      "drawdown": -0.019305140784975514,
+      "tiers": {
+        "t1": 0.075,
+        "t2": 0.1,
+        "t3": 0.15
+      },
+      "level": 0,
+      "level_label": null,
       "triggered": false
     }
   },
@@ -60,7 +102,9 @@
       "rsi": 50.76705011433341,
       "dist_200ma": 0.08292360970203454,
       "drawdown": -0.04510788632584294,
-      "threshold": null,
+      "tiers": null,
+      "level": 0,
+      "level_label": null,
       "triggered": false
     },
     "SPY": {
@@ -72,7 +116,9 @@
       "rsi": 50.30729491176484,
       "dist_200ma": 0.07008352115502409,
       "drawdown": -0.019348987002322376,
-      "threshold": null,
+      "tiers": null,
+      "level": 0,
+      "level_label": null,
       "triggered": false
     },
     "VOO": {
@@ -84,7 +130,9 @@
       "rsi": 50.31207216527024,
       "dist_200ma": 0.06973782798681484,
       "drawdown": -0.019305140784975514,
-      "threshold": null,
+      "tiers": null,
+      "level": 0,
+      "level_label": null,
       "triggered": false
     },
     "SMH": {
@@ -96,7 +144,9 @@
       "rsi": 51.337125758987234,
       "dist_200ma": 0.1791311040655177,
       "drawdown": -0.15375911603354667,
-      "threshold": null,
+      "tiers": null,
+      "level": 0,
+      "level_label": null,
       "triggered": false
     }
   },
@@ -531,36 +581,33 @@
   "cn_hk": {
     "sh000001": {
       "name": "上证指数",
-      "price": 3888.11,
-      "prev_close": 3934.4,
-      "day_chg": -0.011765453436356233
+      "price": 3894.28,
+      "prev_close": 3888.11,
+      "day_chg": 0.0015868892598203427
     },
     "sh000300": {
       "name": "沪深300",
-      "price": 4510.16,
-      "prev_close": 4548.39,
-      "day_chg": -0.008405171939961277
+      "price": 4495.92,
+      "prev_close": 4510.16,
+      "day_chg": -0.0031573159267076515
     },
     "sz159307": {
       "name": "红利低波100ETF博时",
-      "price": 1.024,
-      "prev_close": 1.033,
-      "day_chg": -0.008712487899322262
+      "price": 1.018,
+      "prev_close": 1.013,
+      "day_chg": 0.004935834155972474
     },
     "hk03086": {
       "name": "华夏纳指",
-      "price": 59.62,
-      "prev_close": 60.12,
-      "day_chg": -0.008316699933466402
+      "price": 59.3,
+      "prev_close": 59.62,
+      "day_chg": -0.005367326400536738
     },
     "hk03416": {
       "name": "AGX国指兑",
-      "price": 8.23,
-      "prev_close": 8.265,
-      "day_chg": -0.004234724742891729
-    },
-    "021550": {
-      "error": "Expecting property name enclosed in double quotes: line 1 column 2 (char 1)"
+      "price": 8.26,
+      "prev_close": 8.23,
+      "day_chg": 0.0036452004860266537
     }
   },
   "market_indicators": {
@@ -573,7 +620,9 @@
       "rsi": 49.99686977853461,
       "dist_200ma": 0.06902964940276776,
       "drawdown": -0.02043320209972114,
-      "threshold": null,
+      "tiers": null,
+      "level": 0,
+      "level_label": null,
       "triggered": false
     },
     "spx_source": "yahoo_real",
@@ -586,7 +635,9 @@
       "rsi": 51.82266427511807,
       "dist_200ma": 0.07584832399916824,
       "drawdown": -0.03152501747670563,
-      "threshold": null,
+      "tiers": null,
+      "level": 0,
+      "level_label": null,
       "triggered": false
     },
     "ixic_source": "yahoo_real",
@@ -599,7 +650,9 @@
       "rsi": 50.45835052138536,
       "dist_200ma": -0.12463214830629915,
       "drawdown": -0.5512747735145023,
-      "threshold": null,
+      "tiers": null,
+      "level": 0,
+      "level_label": null,
       "triggered": false
     },
     "vix_source": "yahoo_real"

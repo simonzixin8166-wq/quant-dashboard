@@ -5,67 +5,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,380;9..144,520;9..144,620&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-function rowsFor(obj){
-  if(!obj) return [];
-  if(Array.isArray(obj)) return obj;
-  for(const k of ["history","data","values","series"]) if(Array.isArray(obj[k])) return obj[k];
-  return [];
-}
-function latestNum(rows, keys){
-  for(let i=rows.length-1;i>=0;i--){
-    for(const k of keys){
-      const n=Number(rows[i]?.[k]);
-      if(Number.isFinite(n)) return n;
-    }
-  }
-  return null;
-}
-function sourceByNames(names){
-  for(const name of names){
-    if(DATA && DATA[name]) return DATA[name];
-  }
-  return null;
-}
-function calculateRegimeClient(){
-  const nasObj=sourceByNames(["NASDAQ","IXIC","nasdaq"]);
-  const spObj=sourceByNames(["SPX","SP500","S&P 500","sp500"]);
-  const nas=rowsFor(nasObj), sp=rowsFor(spObj);
-  let trend=0;
-  let foundTrend=0;
-  for(const rows of [nas,sp]){
-    const close=latestNum(rows,["close","Close","price"]);
-    const sma=latestNum(rows,["sma200","SMA200","ma200"]);
-    if(close!==null && sma!==null){foundTrend++; if(close>sma) trend+=20;}
-  }
-  if(foundTrend===0) trend=20;
-  else if(foundTrend===1) trend=trend;
-  let rsis=[];
-  for(const rows of [nas,sp]){
-    const r=latestNum(rows,["rsi","RSI"]);
-    if(r!==null) rsis.push(r);
-  }
-  let momentum=15;
-  if(rsis.length){
-    const r=rsis.reduce((a,b)=>a+b,0)/rsis.length;
-    momentum=r>=60?30:r>=50?22:r>=40?12:5;
-  }
-  const vixObj=sourceByNames(["VIX","vix"]);
-  const vix=Number(vixObj?.close ?? vixObj?.price ?? vixObj?.value ?? vixObj);
-  let risk=15;
-  if(Number.isFinite(vix)) risk=vix<16?30:vix<20?24:vix<25?16:vix<30?8:0;
-  const score=trend+risk+momentum;
-  let state="NEUTRAL";
-  if(Number.isFinite(vix)&&vix>=30) state="STRESS";
-  else if(score>=75) state="RISK-ON";
-  else if(score<50) state="RISK-OFF";
-  const cn={["RISK-ON"]:"风险偏好",NEUTRAL:"中性",["RISK-OFF"]:"风险规避",STRESS:"压力"}[state];
-  
-  const elState = document.getElementById("regimeState");
-  if(elState) elState.textContent=state+" · "+cn;
-}
-window.addEventListener('load', calculateRegimeClient);
-</script>
+
 <style>
 :root{
   --bg:#f4f2ec; --surface:#ffffff; --surface2:#ebe8df;
@@ -141,14 +81,14 @@ window.addEventListener('load', calculateRegimeClient);
 
 <main class="main"><header class="topbar"><div class="breadcrumb">myAlphaView / <strong id="bc-title">市场总览</strong></div><div class="top-meta">
   <span id="liveStatus"><i class="live-dot"></i><span id="liveStatusText">数据抓取成功</span></span>
-  <span id="updateTime">更新: 2026-09-13</span>
+  <span id="updateTime">更新: 2026-09-14</span>
   <button id="authBtn" class="auth-btn-top" onclick="handleAuth()">🔐 登录私有看板</button>
 </div></header><div class="content">
 
 <!-- TAB 1: 市场总览 -->
 <div id="tab-overview" class="tab-pane active">
 <section class="hero"><div><h1>看清市场在说什么，而不是账户在做什么。</h1><p>公开版投资研究面板：聚焦市场趋势、回撤、波动率与策略触发条件。</p></div><div class="public-note"><b id="modeTitle">公开展示模式</b><span id="modeDesc">这里展示的是研究指标与策略信号，不代表任何个人账户的实际仓位或收益。</span></div></section>
-<section class="section"><div class="section-head"><h2>市场核心指标</h2><p>自动更新</p></div><div class="metrics"><div class="metric-card"><div class="metric-top">纳斯达克综合指数<span class="metric-dot good"></span></div><div class="metric-value">26,333.04</div><div class="metric-change positive">+0.96%</div><div class="metric-note">成长/科技风格温度 · 真实指数(Yahoo)</div></div><div class="metric-card"><div class="metric-top">标普500指数<span class="metric-dot good"></span></div><div class="metric-value">7,656.98</div><div class="metric-change positive">+0.86%</div><div class="metric-note">大盘风险偏好 · 真实指数(Yahoo)</div></div><div class="metric-card"><div class="metric-top">VIX恐慌指数<span class="metric-dot good"></span></div><div class="metric-value">15.84</div><div class="metric-note">真实指数(Yahoo)</div></div><div class="metric-card"><div class="metric-top">红利低波100 (159307)<span class="metric-dot good"></span></div><div class="metric-value">1.024</div><div class="metric-change negative">-0.87%</div><div class="metric-note">A股红利代理 · 腾讯行情</div></div></div></section>
+<section class="section"><div class="section-head"><h2>市场核心指标</h2><p>自动更新</p></div><div class="metrics"><div class="metric-card"><div class="metric-top">纳斯达克综合指数<span class="metric-dot good"></span></div><div class="metric-value">26,333.04</div><div class="metric-change positive">+0.96%</div><div class="metric-note">成长/科技风格温度 · 真实指数(Yahoo)</div></div><div class="metric-card"><div class="metric-top">标普500指数<span class="metric-dot good"></span></div><div class="metric-value">7,656.98</div><div class="metric-change positive">+0.86%</div><div class="metric-note">大盘风险偏好 · 真实指数(Yahoo)</div></div><div class="metric-card"><div class="metric-top">VIX恐慌指数<span class="metric-dot good"></span></div><div class="metric-value">15.84</div><div class="metric-note">真实指数(Yahoo)</div></div><div class="metric-card"><div class="metric-top">红利低波100 (159307)<span class="metric-dot good"></span></div><div class="metric-value">1.018</div><div class="metric-change positive">+0.49%</div><div class="metric-note">A股红利代理 · 腾讯行情</div></div></div></section>
 
 <section class="section"><div class="section-head"><h2>QQQ & SPY · 近 30 个交易日</h2><p>历史走势</p></div><div class="dashboard-grid"><div class="panel"><div class="panel-head"><strong>趋势对比</strong><span>收盘价</span></div><div class="chart-wrap"><canvas id="trendChart"></canvas></div></div><div class="panel"><div class="panel-head"><strong>Market Pulse</strong><span>研究状态</span></div><div class="pulse-list">
 <div class="pulse"><div><div class="pulse-label">波动环境</div><div class="pulse-main">正常波动</div></div><div class="pulse-right"><span class="badge good">VIX 15.84</span></div></div>
@@ -159,8 +99,8 @@ window.addEventListener('load', calculateRegimeClient);
 <!-- TAB 2: 策略引擎 -->
 <div id="tab-engine" class="tab-pane">
 <section class="hero"><div><h1>核心策略信号</h1><p>用回撤、RSI 与长期均线观察核心 ETF 的风险与潜在策略触发点。</p></div></section>
-<section class="section"><div class="engine"><div class="engine-top"><div><div class="engine-label">STRATEGY ENGINE · 核心资产宽幅与回撤联动</div><div class="engine-title">当前状态：实时监测</div></div><div class="engine-badge normal">当前得分 0 · 未触发加仓分级</div></div>
-<div class="engine-grid"><div class="engine-item "><div class="k">QQQM 回撤</div><div class="v">-4.48%</div><div class="pt">未触发</div></div><div class="engine-item "><div class="k">VGT 回撤</div><div class="v">-3.91%</div><div class="pt">未触发</div></div><div class="engine-item "><div class="k">QLD 回撤</div><div class="v">-11.50%</div><div class="pt">未触发</div></div><div class="engine-item "><div class="k">TQQQ 回撤</div><div class="v">-19.42%</div><div class="pt">未触发</div></div></div><div class="engine-foot">分级规则：基于各大宽基指数及杠杆 ETF 的极值回撤触发。此处展示已整合的规则与信号，不展示实盘资金规模。</div></div></section>
+<section class="section"><div class="engine"><div class="engine-top"><div><div class="engine-label">STRATEGY ENGINE · 核心ETF三档加仓线</div><div class="engine-title">当前状态：实时监测</div></div><div class="engine-badge normal">正常 · 未触发</div></div>
+<div class="engine-grid"><div class="engine-item "><div class="k">QQQM 回撤</div><div class="v">-4.48%</div><div class="pt">未触发 · 阈值 一级12% / 二级18% / 三级25%</div></div><div class="engine-item "><div class="k">VGT 回撤</div><div class="v">-3.91%</div><div class="pt">未触发 · 阈值 一级15% / 二级20% / 三级30%</div></div><div class="engine-item "><div class="k">QLD 回撤</div><div class="v">-11.50%</div><div class="pt">未触发 · 阈值 一级25% / 二级35% / 三级50%</div></div><div class="engine-item "><div class="k">TQQQ 回撤</div><div class="v">-19.42%</div><div class="pt">未触发 · 阈值 一级40% / 二级50% / 三级70%</div></div><div class="engine-item "><div class="k">VOO 回撤</div><div class="v">-1.93%</div><div class="pt">未触发 · 阈值 一级8% / 二级10% / 三级15%</div></div></div><div class="engine-foot">分级规则：每个核心ETF各自设有一级/二级/三级三档回撤加仓线（阈值因资产而异），非全市场宽度指标——只是各资产自身相对历史高点的回撤幅度。此处展示规则与信号，不展示实盘资金规模。</div></div></section>
 </div>
 
 <!-- TAB 3: 指数与 ETF -->
@@ -196,16 +136,15 @@ window.addEventListener('load', calculateRegimeClient);
 
 <!-- TAB 4: A股 & 港股 & 红利 -->
 <div id="tab-cn-hk" class="tab-pane">
-<section class="hero"><div><h1>A股港股 & 红利低波</h1><p>自动同步腾讯行情与天天基金盘中估值。部分场外基金如遇防爬拦截，将显示获取失败状态。</p></div></section>
+<section class="hero"><div><h1>A股港股 & 红利低波</h1><p>自动同步腾讯行情。中证红利低波100指数(930955)本身不在免费行情源覆盖范围内，用紧密跟踪该指数的场内ETF(159307)代理展示走势。</p></div></section>
 <section class="section"><div class="section-head"><h2>大盘与红利核心池</h2><p>腾讯行情实时同步</p></div><div class="opt-grid">
-<div class="mkt-card"><div class="name">上证指数</div><div class="val">3,888.110</div><div class="chg negative">-1.18%</div></div>
-<div class="mkt-card"><div class="name">沪深300</div><div class="val">4,510.160</div><div class="chg negative">-0.84%</div></div>
-<div class="mkt-card"><div class="name">红利低波100 ETF (159307)</div><div class="val">1.024</div><div class="chg negative">-0.87%</div></div>
-<div class="mkt-card"><div class="name">红利低波100 场外联接 (021550)</div><div class="val" style="font-size:14px;color:var(--muted);margin-top:12px">接口拦截/闭市</div></div>
+<div class="mkt-card"><div class="name">上证指数</div><div class="val">3,894.280</div><div class="chg positive">+0.16%</div></div>
+<div class="mkt-card"><div class="name">沪深300</div><div class="val">4,495.920</div><div class="chg negative">-0.32%</div></div>
+<div class="mkt-card"><div class="name">红利低波100 ETF (159307)</div><div class="val">1.018</div><div class="chg positive">+0.49%</div></div>
 </div></section>
 <section class="section"><div class="section-head"><h2>港股跨境池</h2><p>腾讯行情实时同步</p></div><div class="opt-grid">
-<div class="mkt-card"><div class="name">华夏纳指 (港股)</div><div class="val">59.620</div><div class="chg negative">-0.83%</div></div>
-<div class="mkt-card"><div class="name">国指备兑 (港股)</div><div class="val">8.230</div><div class="chg negative">-0.42%</div></div>
+<div class="mkt-card"><div class="name">华夏纳指 (港股)</div><div class="val">59.300</div><div class="chg negative">-0.54%</div></div>
+<div class="mkt-card"><div class="name">国指备兑 (港股)</div><div class="val">8.260</div><div class="chg positive">+0.36%</div></div>
 </div></section>
 </div>
 

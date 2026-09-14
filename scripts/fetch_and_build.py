@@ -11,7 +11,7 @@ BASE = "https://api.twelvedata.com"
 HEADERS = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
 FUND_HEADERS = {"User-Agent": HEADERS["User-Agent"], "Referer": "http://fund.eastmoney.com/"}
 
-# ================= 美股配置 =================
+# ================= 美股配置 (已补全QQQ三档线) =================
 CORE_TIERS = {
     "QQQM": {"t1": 0.12, "t2": 0.18, "t3": 0.25},
     "QQQ":  {"t1": 0.12, "t2": 0.18, "t3": 0.25},
@@ -155,10 +155,31 @@ def fetch_fund_estimate(fund_code):
     except Exception as e:
         return {"error": str(e)}
 
-# ================= 全市场宽度动态计算（已加固 & 智能分流） =================
+# ================= 加载历史买点数据库 =================
+def load_historical_signals():
+    try:
+        excel_path = os.path.join(os.path.dirname(__file__), '..', '多资产量化管理平台_V2_3_完美修复无警告版.xlsx')
+        if not os.path.exists(excel_path):
+            excel_path = '多资产量化管理平台_V2_3_完美修复无警告版.xlsx'
+        
+        df = pd.read_excel(excel_path, sheet_name='历史买点数据库', skiprows=2)
+        df = df.dropna(subset=['资产代号'])
+        records = []
+        for _, row in df.iterrows():
+            records.append({
+                "symbol": str(row['资产代号']),
+                "date": str(row['历史买点日期'])[:10],
+                "price": float(row['触发收盘价格']) if pd.notna(row['触发收盘价格']) else 0.0,
+                "drawdown": float(row['当时全期回撤幅度']) if pd.notna(row['当时全期回撤幅度']) else 0.0,
+                "rating": str(row['触发加仓策略评级']) if pd.notna(row['触发加仓策略评级']) else "—"
+            })
+        return records
+    except Exception as e:
+        print(f"⚠️ 读取历史买点数据库失败: {e}")
+        return []
+
+# ================= 全市场宽度动态计算（智能分流 & 异常兜底） =================
 def calculate_daily_breadth():
-    """智能分流：如果是下午 A 股收盘运行(UTC小时<12)，跳过重型计算；
-       自带 try...except 保护，即使 Yahoo 报错也绝不让整个脚本崩溃。"""
     utc_hour = datetime.datetime.utcnow().hour
     if utc_hour < 12:
         print("🕒 当前为 A股/港股 收盘轻量运行时间段，自动跳过美股全市场宽度重计算。")
@@ -408,9 +429,12 @@ def build():
             cn_hk_data[code] = fetch_fund_estimate(code)
     except: pass
 
+    historical_signals = load_historical_signals()
+
     return {"updated": today.isoformat(), "core": core, "index": index,
             "stocks": stocks, "overview_charts": overview_charts,
             "cn_hk": cn_hk_data, "market_regime": market_regime,
+            "historical_signals": historical_signals,
             "market_indicators": {
                 "spx": spx_data, "spx_source": spx_src,
                 "ixic": ixic_data, "ixic_source": ixic_src,
@@ -482,6 +506,18 @@ def render_html(data):
     engine_badge_cls = "normal" if max_level == 0 else "t2"
     index_html = "".join(card_etf(k, v) for k, v in data["index"].items())
     stock_html = "".join(row_stock(k, v) for k, v in data["stocks"].items())
+
+    # 历史买点行渲染
+    signals_html = ""
+    for s in data.get("historical_signals", []):
+        badge_cls = "warn" if "一级" in s['rating'] else ("bad" if "重点" in s['rating'] or "极限" in s['rating'] else "neutral")
+        signals_html += f'''<tr>
+            <td style="text-align:left; font-weight:600;">{s['symbol']}</td>
+            <td>{s['date']}</td>
+            <td class="fw-bold">${s['price']:.4f}</td>
+            <td class="neg-text">{fmt_pct(s['drawdown'])}</td>
+            <td><span class="badge {badge_cls}">{s['rating']}</span></td>
+        </tr>'''
 
     mi = data.get("market_indicators", {})
     cn = data.get("cn_hk", {})
@@ -594,6 +630,7 @@ def render_html(data):
 <div class="nav-group"><div class="nav-title">观察 & 持仓</div><ul class="nav-menu">
   <li onclick="switchTab('tab-stocks',this)"><span class="nav-icon">⌁</span>个股观察池</li>
   <li onclick="switchTab('tab-options',this)"><span class="nav-icon">⚑</span>期权自查清单</li>
+  <li onclick="switchTab('tab-archive',this)"><span class="nav-icon">📜</span>历史买点归档</li>
 </ul></div>
 <div class="sidebar-footer">
   公开研究版 · 不展示个人真实资产<br>数据仅供研究演示
@@ -653,8 +690,14 @@ def render_html(data):
 <div class="mkt-card"><h3>📈 隐含波动率 (IV)</h3><p style="font-size:12px;color:var(--muted);margin-top:8px">IV 飙升或回落会显著影响期权权利金。</p></div>
 <div class="mkt-card"><h3>Δ Delta (方向风险)</h3><p style="font-size:12px;color:var(--muted);margin-top:8px">标的每变动$1，期权价格大致的变动幅度。</p></div>
 <div class="mkt-card"><h3>Γ Gamma (加速风险)</h3><p style="font-size:12px;color:var(--muted);margin-top:8px">临近到期且处于 ATM 附近时，Gamma 风险极大。</p></div>
-<div class="mkt-card"><h3>⚖️ 盈亏平衡价</h3><p style="font-size:12px;color:var(--muted);margin-top:8px">买入/卖出：行权价 ± 权利金。判断到期防御位置。</p></div>
+<div class="mkt-card"><h3>⚖️ 盈亏平衡价</h3><p style="font-size:12px;color:var(--muted);margin-top:8px">买入/卖出：行权价 ± 权利金. 判断到期防御位置。</p></div>
 </div></section></div>
+
+<!-- TAB 7: 历史买点归档 -->
+<div id="tab-archive" class="tab-pane">
+<section class="hero"><div><h1>历史买点归档数据库</h1><p>完整回溯 2005 年以来各大核心资产触发一级、重点及极限加仓信号的黄金历史买点，验证策略透明度。</p></div></section>
+<section class="section"><div class="table-container"><table><thead><tr><th style="text-align:left;">资产代号</th><th>触发日期</th><th>触发收盘价</th><th>当时全期回撤幅度</th><th>触发加仓评级</th></tr></thead><tbody id="archiveTableBody">{signals_html}</tbody></table></div></section>
+</div>
 
 <div class="footer">© 2026 myAlphaView · Built by Simon · Public Research Dashboard<br>市场数据与策略指标仅供研究、学习与信息参考，不构成投资建议。</div>
 </div></main></div>
@@ -666,7 +709,7 @@ function switchTab(id,el){{
     document.querySelectorAll('.nav-menu li').forEach(l=>l.classList.remove('active'));
     document.getElementById(id).classList.add('active');
     el.classList.add('active');
-    document.getElementById('bc-title').innerText = el.innerText.replace('NEW', '').replace(/^[◆◒◫◇⌁⚑]/, '').trim();
+    document.getElementById('bc-title').innerText = el.innerText.replace('NEW', '').replace(/^[◆◒◫◇⌁⚑📜]/, '').trim();
     window.scrollTo({{top:0,behavior:'smooth'}});
 }}
 window.addEventListener('load',function(){{
@@ -821,7 +864,7 @@ function fetchLiveCNHK() {{
 }}
 
 window.addEventListener('load', () => {{
-    setInterval(fetchLiveCNHK, 5000); // 盘中每5秒实时刷新一次
+    setInterval(fetchLiveCNHK, 5000);
 }});
 </script></body></html>'''
 

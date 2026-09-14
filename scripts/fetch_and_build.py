@@ -166,8 +166,7 @@ def calculate_daily_breadth():
         return None
         
     print(f"正在拉取 {len(tickers)} 只成分股近 2 年数据以计算最新市场宽度...")
-    # 获取 2 年数据以确保算出稳定的 200MA 和 10日斜率
-    data = yf.download(tickers, period="2y", interval="1d", threads=True)
+    data = yf.download(tickers, period="2y", interval="1d", threads=True, show_errors=False)
     closes = data['Close']
     
     ma20 = closes.rolling(window=20).mean()
@@ -179,7 +178,6 @@ def calculate_daily_breadth():
     b50 = (closes > ma50).sum(axis=1) / valid_count
     b200 = (closes > ma200).sum(axis=1) / valid_count
     
-    # 丢弃因均线计算产生的空值，提取有效数据
     b20 = b20.dropna()
     
     if len(b20) < 11:
@@ -188,7 +186,6 @@ def calculate_daily_breadth():
     latest_b20 = float(b20.iloc[-1])
     latest_b50 = float(b50.dropna().iloc[-1])
     latest_b200 = float(b200.dropna().iloc[-1])
-    # 10日斜率：今天的值减去10个交易日之前的值
     slope_10d = float(latest_b20 - b20.iloc[-11])
     
     print(f"最新市场宽度计算完成: B20={latest_b20:.2%}, B50={latest_b50:.2%}, B200={latest_b200:.2%}, 10日斜率={slope_10d:.2%}")
@@ -257,12 +254,11 @@ def analyze(symbol, rows, today, tiers=None, is_stock=False):
         })
     return out
 
-# ================= 市场状态引擎 (已激活全市场宽度打分) =================
+# ================= 市场状态引擎 =================
 def calc_market_regime(gspc_long_rows, spy_fallback_rows, vix_value, today, breadth_data):
     TIER_1, TIER_2, TIER_3 = 3, 5, 7
     TH_DRAWDOWN = -0.08
     
-    # 对齐参数配置表的阈值
     TH_B20, TH_B50, TH_B200, TH_SLOPE = 0.20, 0.15, 0.50, -0.30
 
     rows_for_ath, ath_is_full_history = (gspc_long_rows, True) if gspc_long_rows else (spy_fallback_rows, False)
@@ -280,7 +276,6 @@ def calc_market_regime(gspc_long_rows, spy_fallback_rows, vix_value, today, brea
 
     conditions = []
     
-    # 注入真实宽度打分逻辑
     if breadth_data:
         b20_hit = breadth_data["b20"] <= TH_B20
         if b20_hit: score += 2
@@ -298,7 +293,6 @@ def calc_market_regime(gspc_long_rows, spy_fallback_rows, vix_value, today, brea
         if b200_hit: score += 1
         conditions.append({"key": "200天宽度(绝对水平)", "threshold_note": f"≤{TH_B200:.0%}", "points": 1, "hit": b200_hit, "val": breadth_data["b200"]})
     else:
-        # 如果 JSON 缺失或下载失败，安全降级，不中断页面渲染
         max_available_score = 2
 
     if score >= TIER_3: tier, tier_label = "extreme", "极限恐慌"
@@ -385,7 +379,6 @@ def build():
         
     throttle()
     
-    # 触发宽度抓取计算
     breadth_data = calculate_daily_breadth()
     
     vix_value = vix_data.get("close") if "error" not in vix_data else None
@@ -416,7 +409,7 @@ def build():
                 "vix": vix_data, "vix_source": vix_src,
             }}
 
-# ================= HTML 组件与渲染 (保持原样) =================
+# ================= HTML 组件与渲染 =================
 def fmt_pct(x, digits=2): return f"{x*100:.{digits}f}%" if isinstance(x, (int, float)) else "-"
 def fmt_num(x, digits=2): return f"{x:.{digits}f}" if isinstance(x, (int, float)) else "-"
 
@@ -458,20 +451,21 @@ def row_stock(sym, r):
             <div style="font-weight:600; font-size:13.5px; color:var(--ink); line-height:1.2;">{name}</div>
             <div style="font-size:11px; color:var(--muted); margin-top:3px; font-weight:500;">{sym}</div>
         </td>
-        <td class="fw-bold" id="close-{sym}">${r["close"]:.2f}</td><td class="{chg_cls}">{chg_sign}{fmt_pct(r["day_chg"])}</td>
+        <td class="fw-bold" id="close-{sym}">${r["close"]:.2f}</td><td class="{chg_cls}" id="chg-{sym}">{chg_sign}{fmt_pct(r["day_chg"])}</td>
         <td>${r["open"]:.2f}</td><td>${r["high"]:.2f}</td><td>${r["low"]:.2f}</td>
         <td>${fmt_num(r["ytd_high"])}</td><td>{fmt_num(r["rsi"])}</td><td>{fmt_pct(r["dist_200ma"])}</td>
         <td><b id="target-{sym}">{target_str}</b> <span id="action-{sym}">{action_html}</span></td>
     </tr>'''
 
-def mkt_card_a(title, data):
+# 👉 在这里加入了专属的 id="price-{code}" 和 id="chg-{code}"
+def mkt_card_a(title, data, code=""):
     if not data or "error" in data:
         return f'<div class="mkt-card"><div class="name">{title}</div><div class="val" style="font-size:14px;color:var(--muted);margin-top:12px">接口拦截/闭市</div></div>'
     price = data.get("price", 0)
     chg = data.get("day_chg", 0)
     chg_str = f"+{fmt_pct(chg)}" if chg >= 0 else fmt_pct(chg)
     color_cls = "positive" if chg >= 0 else "negative"
-    return f'<div class="mkt-card"><div class="name">{title}</div><div class="val">{price:,.3f}</div><div class="chg {color_cls}">{chg_str}</div></div>'
+    return f'<div class="mkt-card"><div class="name">{title}</div><div class="val" id="price-{code}">{price:,.3f}</div><div class="chg {color_cls}" id="chg-{code}">{chg_str}</div></div>'
 
 def render_html(data):
     engine_html = "".join(engine_item(k, v) for k, v in data["core"].items())
@@ -632,14 +626,14 @@ def render_html(data):
 <!-- TAB 4: A股 & 港股 & 红利 -->
 <div id="tab-cn-hk" class="tab-pane">
 <section class="hero"><div><h1>A股港股 & 红利低波</h1><p>自动同步腾讯行情。中证红利低波100指数(930955)本身不在免费行情源覆盖范围内，用紧密跟踪该指数的场内ETF(159307)代理展示走势。</p></div></section>
-<section class="section"><div class="section-head"><h2>大盘与红利核心池</h2><p>腾讯行情实时同步</p></div><div class="opt-grid">
-{mkt_card_a("上证指数", cn.get("sh000001"))}
-{mkt_card_a("沪深300", cn.get("sh000300"))}
-{mkt_card_a("红利低波100 ETF (159307)", cn.get("sz159307"))}
+<section class="section"><div class="section-head"><h2>大盘与红利核心池</h2><p>盘中自动实时跳动刷新</p></div><div class="opt-grid">
+{mkt_card_a("上证指数", cn.get("sh000001"), "sh000001")}
+{mkt_card_a("沪深300", cn.get("sh000300"), "sh000300")}
+{mkt_card_a("红利低波100 ETF (159307)", cn.get("sz159307"), "sz159307")}
 </div></section>
-<section class="section"><div class="section-head"><h2>港股跨境池</h2><p>腾讯行情实时同步</p></div><div class="opt-grid">
-{mkt_card_a("华夏纳指 (港股)", cn.get("hk03086"))}
-{mkt_card_a("国指备兑 (港股)", cn.get("hk03416"))}
+<section class="section"><div class="section-head"><h2>港股跨境池</h2><p>盘中自动实时跳动刷新</p></div><div class="opt-grid">
+{mkt_card_a("华夏纳指 (港股)", cn.get("hk03086"), "hk03086")}
+{mkt_card_a("国指备兑 (港股)", cn.get("hk03416"), "hk03416")}
 </div></section>
 </div>
 
@@ -680,12 +674,11 @@ window.addEventListener('load',function(){{
     ]}},options:{{responsive:true,maintainAspectRatio:false,interaction:{{mode:'index',intersect:false}},plugins:{{legend:{{position:'top',align:'end'}}}},scales:{{x:{{grid:{{display:false}},ticks:{{maxTicksLimit:6}}}},y:{{position:'left',grid:{{color:'#eee9dc'}}}},y1:{{position:'right',grid:{{drawOnChartArea:false}}}}}}}}}});
 }});
 
-// ================= Supabase 动态数据与身份验证逻辑 =================
+// ================= Supabase 动态数据与身份验证 =================
 const SUPABASE_URL = 'https://rhielbkvhgqbthcgztci.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_7_S0qA1oh31fHiihhx07PA_1LPAighW';
 const ADMIN_EMAIL = 'xxj8166@gmail.com';
 let isAdmin = false;
-
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 const authBtn = document.getElementById('authBtn');
 
@@ -781,6 +774,48 @@ async function handleAuth() {{
 window.addEventListener('load', checkSession);
 supabaseClient.auth.onAuthStateChange((event, session) => {{
     if (event === 'SIGNED_IN') checkSession();
+}});
+
+// ================= A股/港股 实时跳动引擎 =================
+const CNHK_SYMBOLS = ['sh000001', 'sh000300', 'sz159307', 'hk03086', 'hk03416'];
+
+function fetchLiveCNHK() {{
+    const script = document.createElement('script');
+    script.src = `https://qt.gtimg.cn/q=${{CNHK_SYMBOLS.join(',')}}&r=${{Math.random()}}`;
+    
+    script.onload = () => {{
+        CNHK_SYMBOLS.forEach(sym => {{
+            const rawData = window['v_' + sym];
+            if (rawData) {{
+                const fields = rawData.split('~');
+                if (fields.length > 5) {{
+                    const currentPrice = parseFloat(fields[3]);
+                    const prevClose = parseFloat(fields[4]);
+                    const pctChange = (currentPrice - prevClose) / prevClose;
+                    
+                    const priceEl = document.getElementById(`price-${{sym}}`);
+                    const chgEl = document.getElementById(`chg-${{sym}}`);
+                    
+                    if (priceEl && chgEl) {{
+                        priceEl.innerText = currentPrice.toFixed(3);
+                        const chgStr = (pctChange >= 0 ? "+" : "") + (pctChange * 100).toFixed(2) + "%";
+                        chgEl.innerText = chgStr;
+                        if (pctChange >= 0) {{
+                            chgEl.className = "chg positive";
+                        }} else {{
+                            chgEl.className = "chg negative";
+                        }}
+                    }}
+                }}
+            }}
+        }});
+        document.head.removeChild(script);
+    }};
+    document.head.appendChild(script);
+}}
+
+window.addEventListener('load', () => {{
+    setInterval(fetchLiveCNHK, 5000); // 盘中每5秒实时刷新一次
 }});
 </script></body></html>'''
 

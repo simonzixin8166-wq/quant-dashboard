@@ -7,7 +7,16 @@ HEADERS = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/
 FUND_HEADERS = {"User-Agent": HEADERS["User-Agent"], "Referer": "http://fund.eastmoney.com/"}
 
 # ================= 美股配置 =================
-CORE = {"QQQM": 0.07, "VGT": 0.10, "QLD": 0.14, "TQQQ": None}
+# 三档加仓线，对齐 Excel"参数配置"表的真实数值（2026-09核实）。
+# 之前这里是单一阈值(如 QQQM:0.07)，跟 Excel 里真正在用的三档策略对不上，
+# TQQQ 甚至是 None（永远不触发），已经在这版修正。
+CORE_TIERS = {
+    "QQQM": {"t1": 0.12, "t2": 0.18, "t3": 0.25},
+    "VGT":  {"t1": 0.15, "t2": 0.20, "t3": 0.30},
+    "QLD":  {"t1": 0.25, "t2": 0.35, "t3": 0.50},
+    "TQQQ": {"t1": 0.40, "t2": 0.50, "t3": 0.70},
+    "VOO":  {"t1": 0.075, "t2": 0.10, "t3": 0.15},
+}
 INDEX = ["QQQ", "SPY", "VOO", "SMH"]
 VOL_PROXY_SYM = "VIXY"
 
@@ -38,7 +47,8 @@ CN_HK_SYMBOLS = {
     "hk03086": "华夏纳指 (港股)",
     "hk03416": "国指备兑 (港股)",
 }
-OTC_FUNDS = {"021550": "红利低波100联接 (场外)"}
+# 021550场外联接基金已取消跟踪（没有实时行情，意义不大，2026-09决定不展示）
+OTC_FUNDS = {}
 TENCENT_URL = "http://qt.gtimg.cn/q={symbols}"
 FUND_EST_URL = "http://fundgz.1234567.com.cn/js/{code}.js"
 
@@ -168,7 +178,17 @@ def calc_sma(closes, period=200):
 def pct_change(latest, prior):
     return (latest - prior) / prior if prior else None
 
-def analyze(symbol, rows, today, threshold=None, is_stock=False):
+def tier_reached(drawdown, tiers):
+    """drawdown是负数（比如-0.18代表跌18%）。返回 (等级0-3, 命中的档位标签或None)。"""
+    if drawdown is None or tiers is None:
+        return 0, None
+    loss = -drawdown  # 转成正数好比较
+    if loss >= tiers["t3"]: return 3, "三级"
+    if loss >= tiers["t2"]: return 2, "二级"
+    if loss >= tiers["t1"]: return 1, "一级"
+    return 0, None
+
+def analyze(symbol, rows, today, tiers=None, is_stock=False):
     closes = [float(r["close"]) for r in rows]
     latest_close = closes[0]
     prev_close = closes[1] if len(closes) > 1 else latest_close
@@ -185,9 +205,11 @@ def analyze(symbol, rows, today, threshold=None, is_stock=False):
         out.update({"open": float(rows[0]["open"]), "high": float(rows[0]["high"]), "low": float(rows[0]["low"])})
     else:
         drawdown = pct_change(latest_close, all_time_high)
+        level, level_label = tier_reached(drawdown, tiers)
         out.update({
-            "drawdown": drawdown, "threshold": threshold,
-            "triggered": bool(threshold is not None and drawdown is not None and -drawdown >= threshold),
+            "drawdown": drawdown, "tiers": tiers,
+            "level": level, "level_label": level_label,
+            "triggered": level > 0,
         })
     return out
 
@@ -196,9 +218,9 @@ def build():
     today = datetime.date.today()
     core, index, stocks, overview_charts = {}, {}, {}, {}
 
-    for name, threshold in CORE.items():
+    for name, tiers in CORE_TIERS.items():
         try:
-            core[name] = analyze(name, fetch_time_series(name), today, threshold)
+            core[name] = analyze(name, fetch_time_series(name), today, tiers)
         except Exception as e:
             core[name] = {"error": str(e)}
         throttle()
@@ -251,12 +273,13 @@ def fmt_num(x, digits=2): return f"{x:.{digits}f}" if isinstance(x, (int, float)
 
 def engine_item(name, r):
     if "error" in r: return f'<div class="engine-item"><div class="k">{name}</div><div class="v">-</div><div class="pt">数据获取失败</div></div>'
-    is_hit = r.get("triggered", False)
-    hit_cls = "hit" if is_hit else ""
+    level = r.get("level", 0)
+    hit_cls = "hit" if level > 0 else ""
     drawdown_str = fmt_pct(r.get("drawdown"))
-    thresh_str = fmt_pct(r.get("threshold")) if r.get("threshold") else "无阈值"
-    note = f"≤ -{thresh_str} → 命中" if is_hit else "未触发"
-    return f'''<div class="engine-item {hit_cls}"><div class="k">{name} 回撤</div><div class="v">{drawdown_str}</div><div class="pt">{note}</div></div>'''
+    tiers = r.get("tiers") or {}
+    tiers_str = f'一级{fmt_pct(tiers.get("t1"),0)} / 二级{fmt_pct(tiers.get("t2"),0)} / 三级{fmt_pct(tiers.get("t3"),0)}'
+    note = f'已达 {r.get("level_label")} 加仓线' if level > 0 else '未触发'
+    return f'''<div class="engine-item {hit_cls}"><div class="k">{name} 回撤</div><div class="v">{drawdown_str}</div><div class="pt">{note} · 阈值 {tiers_str}</div></div>'''
 
 def card_etf(name, r):
     if "error" in r: return f'<div class="card err"><div class="sym">{name}</div><div class="errmsg">获取失败</div></div>'
@@ -305,6 +328,10 @@ def mkt_card_a(title, data):
 
 def render_html(data):
     engine_html = "".join(engine_item(k, v) for k, v in data["core"].items())
+    core_levels = [v.get("level", 0) for v in data["core"].values() if "error" not in v]
+    max_level = max(core_levels) if core_levels else 0
+    level_names = {0: "正常 · 未触发", 1: "一级加仓线", 2: "二级加仓线", 3: "三级加仓线"}
+    engine_badge_cls = "normal" if max_level == 0 else "t2"
     index_html = "".join(card_etf(k, v) for k, v in data["index"].items())
     stock_html = "".join(row_stock(k, v) for k, v in data["stocks"].items())
 
@@ -352,67 +379,7 @@ def render_html(data):
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,380;9..144,520;9..144,620&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-function rowsFor(obj){{
-  if(!obj) return [];
-  if(Array.isArray(obj)) return obj;
-  for(const k of ["history","data","values","series"]) if(Array.isArray(obj[k])) return obj[k];
-  return [];
-}}
-function latestNum(rows, keys){{
-  for(let i=rows.length-1;i>=0;i--){{
-    for(const k of keys){{
-      const n=Number(rows[i]?.[k]);
-      if(Number.isFinite(n)) return n;
-    }}
-  }}
-  return null;
-}}
-function sourceByNames(names){{
-  for(const name of names){{
-    if(DATA && DATA[name]) return DATA[name];
-  }}
-  return null;
-}}
-function calculateRegimeClient(){{
-  const nasObj=sourceByNames(["NASDAQ","IXIC","nasdaq"]);
-  const spObj=sourceByNames(["SPX","SP500","S&P 500","sp500"]);
-  const nas=rowsFor(nasObj), sp=rowsFor(spObj);
-  let trend=0;
-  let foundTrend=0;
-  for(const rows of [nas,sp]){{
-    const close=latestNum(rows,["close","Close","price"]);
-    const sma=latestNum(rows,["sma200","SMA200","ma200"]);
-    if(close!==null && sma!==null){{foundTrend++; if(close>sma) trend+=20;}}
-  }}
-  if(foundTrend===0) trend=20;
-  else if(foundTrend===1) trend=trend;
-  let rsis=[];
-  for(const rows of [nas,sp]){{
-    const r=latestNum(rows,["rsi","RSI"]);
-    if(r!==null) rsis.push(r);
-  }}
-  let momentum=15;
-  if(rsis.length){{
-    const r=rsis.reduce((a,b)=>a+b,0)/rsis.length;
-    momentum=r>=60?30:r>=50?22:r>=40?12:5;
-  }}
-  const vixObj=sourceByNames(["VIX","vix"]);
-  const vix=Number(vixObj?.close ?? vixObj?.price ?? vixObj?.value ?? vixObj);
-  let risk=15;
-  if(Number.isFinite(vix)) risk=vix<16?30:vix<20?24:vix<25?16:vix<30?8:0;
-  const score=trend+risk+momentum;
-  let state="NEUTRAL";
-  if(Number.isFinite(vix)&&vix>=30) state="STRESS";
-  else if(score>=75) state="RISK-ON";
-  else if(score<50) state="RISK-OFF";
-  const cn={{["RISK-ON"]:"风险偏好",NEUTRAL:"中性",["RISK-OFF"]:"风险规避",STRESS:"压力"}}[state];
-  
-  const elState = document.getElementById("regimeState");
-  if(elState) elState.textContent=state+" · "+cn;
-}}
-window.addEventListener('load', calculateRegimeClient);
-</script>
+
 <style>
 :root{{
   --bg:#f4f2ec; --surface:#ffffff; --surface2:#ebe8df;
@@ -506,8 +473,8 @@ window.addEventListener('load', calculateRegimeClient);
 <!-- TAB 2: 策略引擎 -->
 <div id="tab-engine" class="tab-pane">
 <section class="hero"><div><h1>核心策略信号</h1><p>用回撤、RSI 与长期均线观察核心 ETF 的风险与潜在策略触发点。</p></div></section>
-<section class="section"><div class="engine"><div class="engine-top"><div><div class="engine-label">STRATEGY ENGINE · 核心资产宽幅与回撤联动</div><div class="engine-title">当前状态：实时监测</div></div><div class="engine-badge normal">当前得分 0 · 未触发加仓分级</div></div>
-<div class="engine-grid">{engine_html}</div><div class="engine-foot">分级规则：基于各大宽基指数及杠杆 ETF 的极值回撤触发。此处展示已整合的规则与信号，不展示实盘资金规模。</div></div></section>
+<section class="section"><div class="engine"><div class="engine-top"><div><div class="engine-label">STRATEGY ENGINE · 核心ETF三档加仓线</div><div class="engine-title">当前状态：实时监测</div></div><div class="engine-badge {engine_badge_cls}">{level_names[max_level]}</div></div>
+<div class="engine-grid">{engine_html}</div><div class="engine-foot">分级规则：每个核心ETF各自设有一级/二级/三级三档回撤加仓线（阈值因资产而异），非全市场宽度指标——只是各资产自身相对历史高点的回撤幅度。此处展示规则与信号，不展示实盘资金规模。</div></div></section>
 </div>
 
 <!-- TAB 3: 指数与 ETF -->
@@ -515,12 +482,11 @@ window.addEventListener('load', calculateRegimeClient);
 
 <!-- TAB 4: A股 & 港股 & 红利 -->
 <div id="tab-cn-hk" class="tab-pane">
-<section class="hero"><div><h1>A股港股 & 红利低波</h1><p>自动同步腾讯行情与天天基金盘中估值。部分场外基金如遇防爬拦截，将显示获取失败状态。</p></div></section>
+<section class="hero"><div><h1>A股港股 & 红利低波</h1><p>自动同步腾讯行情。中证红利低波100指数(930955)本身不在免费行情源覆盖范围内，用紧密跟踪该指数的场内ETF(159307)代理展示走势。</p></div></section>
 <section class="section"><div class="section-head"><h2>大盘与红利核心池</h2><p>腾讯行情实时同步</p></div><div class="opt-grid">
 {mkt_card_a("上证指数", cn.get("sh000001"))}
 {mkt_card_a("沪深300", cn.get("sh000300"))}
 {mkt_card_a("红利低波100 ETF (159307)", cn.get("sz159307"))}
-{mkt_card_a("红利低波100 场外联接 (021550)", cn.get("021550"))}
 </div></section>
 <section class="section"><div class="section-head"><h2>港股跨境池</h2><p>腾讯行情实时同步</p></div><div class="opt-grid">
 {mkt_card_a("华夏纳指 (港股)", cn.get("hk03086"))}

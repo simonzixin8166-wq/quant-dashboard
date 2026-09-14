@@ -1,5 +1,10 @@
 import json, datetime, os, time
 import urllib.request, urllib.parse
+import yfinance as yf
+import pandas as pd
+import warnings
+
+warnings.filterwarnings("ignore")
 
 API_KEY = os.environ.get("TWELVE_DATA_KEY", "demo")
 BASE = "https://api.twelvedata.com"
@@ -7,9 +12,6 @@ HEADERS = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/
 FUND_HEADERS = {"User-Agent": HEADERS["User-Agent"], "Referer": "http://fund.eastmoney.com/"}
 
 # ================= 美股配置 =================
-# 三档加仓线，对齐 Excel"参数配置"表的真实数值（2026-09核实）。
-# 之前这里是单一阈值(如 QQQM:0.07)，跟 Excel 里真正在用的三档策略对不上，
-# TQQQ 甚至是 None（永远不触发），已经在这版修正。
 CORE_TIERS = {
     "QQQM": {"t1": 0.12, "t2": 0.18, "t3": 0.25},
     "VGT":  {"t1": 0.15, "t2": 0.20, "t3": 0.30},
@@ -47,7 +49,6 @@ CN_HK_SYMBOLS = {
     "hk03086": "华夏纳指 (港股)",
     "hk03416": "国指备兑 (港股)",
 }
-# 021550场外联接基金已取消跟踪（没有实时行情，意义不大，2026-09决定不展示）
 OTC_FUNDS = {}
 TENCENT_URL = "http://qt.gtimg.cn/q={symbols}"
 FUND_EST_URL = "http://fundgz.1234567.com.cn/js/{code}.js"
@@ -153,6 +154,51 @@ def fetch_fund_estimate(fund_code):
     except Exception as e:
         return {"error": str(e)}
 
+# ================= 云端全市场宽度动态计算 =================
+def calculate_daily_breadth():
+    """读取 json 名单，利用 yfinance 并发拉取并计算当天的市场宽度及斜率"""
+    try:
+        json_path = os.path.join(os.path.dirname(__file__), 'sp500_constituents.json')
+        with open(json_path, 'r') as f:
+            tickers = json.load(f)
+    except Exception as e:
+        print(f"读取成分股名单失败: {e}")
+        return None
+        
+    print(f"正在拉取 {len(tickers)} 只成分股近 2 年数据以计算最新市场宽度...")
+    # 获取 2 年数据以确保算出稳定的 200MA 和 10日斜率
+    data = yf.download(tickers, period="2y", interval="1d", threads=True)
+    closes = data['Close']
+    
+    ma20 = closes.rolling(window=20).mean()
+    ma50 = closes.rolling(window=50).mean()
+    ma200 = closes.rolling(window=200).mean()
+    
+    valid_count = closes.notna().sum(axis=1)
+    b20 = (closes > ma20).sum(axis=1) / valid_count
+    b50 = (closes > ma50).sum(axis=1) / valid_count
+    b200 = (closes > ma200).sum(axis=1) / valid_count
+    
+    # 丢弃因均线计算产生的空值，提取有效数据
+    b20 = b20.dropna()
+    
+    if len(b20) < 11:
+        return None
+        
+    latest_b20 = float(b20.iloc[-1])
+    latest_b50 = float(b50.dropna().iloc[-1])
+    latest_b200 = float(b200.dropna().iloc[-1])
+    # 10日斜率：今天的值减去10个交易日之前的值
+    slope_10d = float(latest_b20 - b20.iloc[-11])
+    
+    print(f"最新市场宽度计算完成: B20={latest_b20:.2%}, B50={latest_b50:.2%}, B200={latest_b200:.2%}, 10日斜率={slope_10d:.2%}")
+    return {
+        "b20": latest_b20,
+        "b50": latest_b50,
+        "b200": latest_b200,
+        "slope_10d": slope_10d
+    }
+
 # ================= 指标计算 =================
 def calc_rsi(closes, period=14):
     if len(closes) < period + 1: return None
@@ -179,10 +225,8 @@ def pct_change(latest, prior):
     return (latest - prior) / prior if prior else None
 
 def tier_reached(drawdown, tiers):
-    """drawdown是负数（比如-0.18代表跌18%）。返回 (等级0-3, 命中的档位标签或None)。"""
-    if drawdown is None or tiers is None:
-        return 0, None
-    loss = -drawdown  # 转成正数好比较
+    if drawdown is None or tiers is None: return 0, None
+    loss = -drawdown 
     if loss >= tiers["t3"]: return 3, "三级"
     if loss >= tiers["t2"]: return 2, "二级"
     if loss >= tiers["t1"]: return 1, "一级"
@@ -213,6 +257,95 @@ def analyze(symbol, rows, today, tiers=None, is_stock=False):
         })
     return out
 
+# ================= 市场状态引擎 (已激活全市场宽度打分) =================
+def calc_market_regime(gspc_long_rows, spy_fallback_rows, vix_value, today, breadth_data):
+    TIER_1, TIER_2, TIER_3 = 3, 5, 7
+    TH_DRAWDOWN = -0.08
+    
+    # 对齐参数配置表的阈值
+    TH_B20, TH_B50, TH_B200, TH_SLOPE = 0.20, 0.15, 0.50, -0.30
+
+    rows_for_ath, ath_is_full_history = (gspc_long_rows, True) if gspc_long_rows else (spy_fallback_rows, False)
+    if not rows_for_ath:
+        return {"error": "指数历史数据不足，无法计算回撤"}
+
+    closes = [float(r["close"]) for r in rows_for_ath]
+    latest = closes[0]
+    ath = max(float(r["high"]) for r in rows_for_ath)
+    drawdown = pct_change(latest, ath)
+
+    drawdown_hit = isinstance(drawdown, (int, float)) and drawdown <= TH_DRAWDOWN
+    score = 2 if drawdown_hit else 0
+    max_available_score = 9 
+
+    conditions = []
+    
+    # 注入真实宽度打分逻辑
+    if breadth_data:
+        b20_hit = breadth_data["b20"] <= TH_B20
+        if b20_hit: score += 2
+        conditions.append({"key": "20天宽度", "threshold_note": f"≤{TH_B20:.0%}", "points": 2, "hit": b20_hit, "val": breadth_data["b20"]})
+        
+        b50_hit = breadth_data["b50"] <= TH_B50
+        if b50_hit: score += 2
+        conditions.append({"key": "50天宽度", "threshold_note": f"≤{TH_B50:.0%}", "points": 2, "hit": b50_hit, "val": breadth_data["b50"]})
+        
+        slope_hit = breadth_data["slope_10d"] <= TH_SLOPE
+        if slope_hit: score += 2
+        conditions.append({"key": "斜率冻点(20天宽10日骤降)", "threshold_note": f"≤{TH_SLOPE:.0%}", "points": 2, "hit": slope_hit, "val": breadth_data["slope_10d"]})
+        
+        b200_hit = breadth_data["b200"] <= TH_B200
+        if b200_hit: score += 1
+        conditions.append({"key": "200天宽度(绝对水平)", "threshold_note": f"≤{TH_B200:.0%}", "points": 1, "hit": b200_hit, "val": breadth_data["b200"]})
+    else:
+        # 如果 JSON 缺失或下载失败，安全降级，不中断页面渲染
+        max_available_score = 2
+
+    if score >= TIER_3: tier, tier_label = "extreme", "极限恐慌"
+    elif score >= TIER_2: tier, tier_label = "major", "重点恐慌"
+    elif score >= TIER_1: tier, tier_label = "tier1", "一级恐慌"
+    else: tier, tier_label = "normal", "正常"
+
+    return {
+        "score": score, "max_score": 9, "max_available_score": max_available_score,
+        "tier": tier, "tier_label": tier_label,
+        "drawdown": {"value": drawdown, "threshold": TH_DRAWDOWN, "hit": drawdown_hit, "points": 2,
+                     "ath_is_full_history": ath_is_full_history},
+        "conditions": conditions, "vix": vix_value,
+    }
+
+def render_market_regime(mr):
+    if "error" in mr:
+        return f'<div class="card err"><div class="sym">市场状态引擎</div><div class="errmsg">{mr["error"]}</div></div>'
+    tier_tone = {"normal": "good", "tier1": "warn", "major": "warn", "extreme": "bad"}.get(mr["tier"], "neutral")
+    dd = mr["drawdown"]
+    hit_badge = f'<span class="badge bad">命中 {dd["points"]}分</span>' if dd["hit"] else '<span class="badge neutral">未触发</span>'
+    val_str = fmt_pct(dd["value"]) if isinstance(dd["value"], (int, float)) else "-"
+    ath_note = "" if dd["ath_is_full_history"] else "（数据不足，暂估）"
+    active_row = f'<div class="row"><span>指数高点回撤（阈值 {fmt_pct(dd["threshold"])}）{ath_note}</span><span class="fw-bold">{val_str} {hit_badge}</span></div>'
+    
+    cond_rows = ""
+    if mr.get("conditions"):
+        for c in mr["conditions"]:
+            c_val = fmt_pct(c["val"]) if isinstance(c["val"], (int, float)) else "-"
+            c_badge = f'<span class="badge bad">命中 {c["points"]}分</span>' if c["hit"] else '<span class="badge neutral">未触发</span>'
+            cond_rows += f'<div class="row"><span>{c["key"]}（阈值 {c["threshold_note"]}）</span><span class="fw-bold">{c_val} {c_badge}</span></div>'
+            
+    errmsg = ""
+    if not mr.get("conditions"):
+        errmsg = '<div class="errmsg" style="padding:0 19px 16px;color:var(--muted);font-size:11px">全市场宽度数据抓取失败，当前只有"指数回撤"参与打分。</div>'
+        
+    return f'''<div class="panel">
+      <div class="panel-head"><strong>市场状态引擎</strong><span>当前得分 {mr["score"]}/{mr["max_score"]} 分</span></div>
+      <div class="pulse-list">
+        <div class="pulse"><div><div class="pulse-label">当前风控评级</div><div class="pulse-main">{mr["tier_label"]}</div></div>
+          <div class="pulse-right"><span class="badge {tier_tone}">{mr["score"]}/{mr["max_score"]} 分</span></div></div>
+        {active_row}
+        {cond_rows}
+      </div>
+      {errmsg}
+    </div>'''
+
 # ================= 核心构建 =================
 def build():
     today = datetime.date.today()
@@ -225,12 +358,15 @@ def build():
             core[name] = {"error": str(e)}
         throttle()
 
+    spy_rows_for_regime = None
     for name in INDEX:
         try:
             rows = fetch_time_series(name)
             index[name] = analyze(name, rows, today)
             if name in ("QQQ", "SPY"): 
                 overview_charts[name] = [{"d": r["datetime"][:10], "c": float(r["close"])} for r in rows[:30][::-1]]
+            if name == "SPY":
+                spy_rows_for_regime = rows 
         except Exception as e:
             index[name] = {"error": str(e)}
         throttle()
@@ -241,6 +377,19 @@ def build():
     throttle()
     vix_data, vix_src, _ = fetch_real_index_or_proxy("%5EVIX", VOL_PROXY_SYM, today)
     throttle()
+
+    try:
+        gspc_long_rows = fetch_yahoo_index("%5EGSPC", range_="max")
+    except Exception:
+        gspc_long_rows = None
+        
+    throttle()
+    
+    # 触发宽度抓取计算
+    breadth_data = calculate_daily_breadth()
+    
+    vix_value = vix_data.get("close") if "error" not in vix_data else None
+    market_regime = calc_market_regime(gspc_long_rows, spy_rows_for_regime, vix_value, today, breadth_data)
 
     for name in STOCKS:
         try:
@@ -260,14 +409,14 @@ def build():
 
     return {"updated": today.isoformat(), "core": core, "index": index,
             "stocks": stocks, "overview_charts": overview_charts,
-            "cn_hk": cn_hk_data,
+            "cn_hk": cn_hk_data, "market_regime": market_regime,
             "market_indicators": {
                 "spx": spx_data, "spx_source": spx_src,
                 "ixic": ixic_data, "ixic_source": ixic_src,
                 "vix": vix_data, "vix_source": vix_src,
             }}
 
-# ================= HTML 组件与渲染 =================
+# ================= HTML 组件与渲染 (保持原样) =================
 def fmt_pct(x, digits=2): return f"{x*100:.{digits}f}%" if isinstance(x, (int, float)) else "-"
 def fmt_num(x, digits=2): return f"{x:.{digits}f}" if isinstance(x, (int, float)) else "-"
 
@@ -293,13 +442,11 @@ def card_etf(name, r):
       <div class="row"><span>距 200MA</span><span class="fw-bold">{fmt_pct(r["dist_200ma"])}</span></div>
     </div>'''
 
-# 富途风格个股排版
 def row_stock(sym, r):
     name = STOCK_META.get(sym, {}).get("name", sym)
     if "error" in r: 
         return f'<tr class="err"><td><div style="font-weight:600;color:var(--ink);">{name}</div><div style="font-size:11px;color:var(--muted);margin-top:2px;">{sym}</div></td><td colspan="9">获取数据失败</td></tr>'
     
-    # 这里的 target 只是占位，实际会由 JS 从数据库拉取覆盖
     target = STOCK_META.get(sym, {}).get("target")
     target_str = f"${target:.2f}" if target else "-"
     action_html = '<span class="alert-text fw-bold ml">(信号触发!)</span>' if target and r["close"] <= target else ""
@@ -371,6 +518,7 @@ def render_html(data):
     sz_chg = sz159307.get("day_chg")
 
     chart_json = json.dumps(data.get("overview_charts", {}), ensure_ascii=False)
+    market_regime_html = render_market_regime(data.get("market_regime", {"error": "无数据"}))
 
     return f'''<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>myAlphaView · Market Intelligence</title>
 <meta name="author" content="Simon">
@@ -379,7 +527,6 @@ def render_html(data):
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,380;9..144,520;9..144,620&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
 <style>
 :root{{
   --bg:#f4f2ec; --surface:#ffffff; --surface2:#ebe8df;
@@ -427,7 +574,7 @@ def render_html(data):
 .chart-wrap{{height:300px;padding:14px 18px 18px}} .pulse-list{{padding:6px 19px 14px}} .pulse{{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--line)}} .pulse:last-child{{border-bottom:0}} .pulse-label{{color:var(--muted);font-size:11px}} .pulse-main{{margin-top:4px;font-size:15px;font-weight:700}} .pulse-right{{text-align:right;font-size:11px;font-weight:600}}
 .badge{{display:inline-flex;border-radius:99px;padding:4px 9px;font-size:10px;font-weight:700}} .badge.good{{background:var(--green-soft);color:var(--green)}} .badge.warn{{background:var(--amber-soft);color:var(--amber)}} .badge.bad{{background:var(--red-soft);color:var(--red)}} .badge.neutral{{background:var(--surface2);color:var(--muted)}}
 
-.grid{{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}} .card{{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px;box-shadow:var(--shadow)}} .card-header{{display:flex;justify-content:space-between;align-items:center}} .sym{{font-weight:700;font-size:16px}} .price{{font-size:20px;font-weight:700;font-family:var(--serif)}} .divider{{height:1px;background:var(--line);margin:14px 0}} .row{{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:10px}} .fw-bold{{color:var(--ink);font-weight:600}} .pos-text{{color:var(--green)}} .neg-text{{color:var(--red)}} .alert-text{{color:var(--red)}} 
+.grid{{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}} .card{{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px;box-shadow:var(--shadow)}} .card-header{{display:flex;justify-content:space-between;align-items:center}} .sym{{font-weight:700;font-size:16px}} .price{{font-size:20px;font-weight:700;font-family:var(--serif)}} .divider{{height:1px;background:var(--line);margin:14px 0}} .row{{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:10px}} .fw-bold{{color:var(--ink);font-weight:600}} .pos-text{{color:var(--green)}} .neg-text{{color:var(--red)}} .alert-text{{color:var(--red)}} .errmsg{{color:var(--muted);font-size:12px;margin-top:8px}} 
 .table-container{{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow)}} table{{width:100%;border-collapse:collapse;text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}} th,td{{padding:14px;border-bottom:1px solid var(--line);font-size:13px}} th{{background:var(--surface2);color:var(--muted);font-weight:600;font-size:11.5px}} th:nth-child(1),td:nth-child(1){{text-align:left}} tr:hover td{{background:#fbfbfb}}
 
 .opt-grid{{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px}} .mkt-card{{background:var(--surface);border:1px solid var(--line);border-radius:13px;padding:17px 18px;box-shadow:var(--shadow)}} .mkt-card .name{{font-size:12.5px;color:var(--muted);display:flex;justify-content:space-between}} .mkt-card .val{{font-family:var(--serif);font-size:21px;margin-top:8px}} .mkt-card .chg{{font-size:11.5px;font-weight:600;margin-top:4px}} .soon{{font-size:9.5px;background:var(--surface2);color:var(--muted);padding:2px 7px;border-radius:99px;font-weight:600}}
@@ -442,7 +589,7 @@ def render_html(data):
   <li onclick="switchTab('tab-index',this)"><span class="nav-icon">◫</span>指数 & ETF</li>
 </ul></div>
 <div class="nav-group"><div class="nav-title">A股 · 港股 · 红利</div><ul class="nav-menu">
-  <li onclick="switchTab('tab-cn-hk',this)"><span class="nav-icon">◇</span>大盘 & 红利低波 <span class="tag">NEW</span></li>
+  <li onclick="switchTab('tab-cn-hk',this)"><span class="nav-icon">◇</span>大盘 & 红利低波</li>
 </ul></div>
 <div class="nav-group"><div class="nav-title">观察 & 持仓</div><ul class="nav-menu">
   <li onclick="switchTab('tab-stocks',this)"><span class="nav-icon">⌁</span>个股观察池</li>
@@ -464,9 +611,11 @@ def render_html(data):
 <section class="hero"><div><h1>看清市场在说什么，而不是账户在做什么。</h1><p>公开版投资研究面板：聚焦市场趋势、回撤、波动率与策略触发条件。</p></div><div class="public-note"><b id="modeTitle">公开展示模式</b><span id="modeDesc">这里展示的是研究指标与策略信号，不代表任何个人账户的实际仓位或收益。</span></div></section>
 <section class="section"><div class="section-head"><h2>市场核心指标</h2><p>自动更新</p></div><div class="metrics">{metric_card('纳斯达克综合指数',qqq_value,qqq_chg,qqq_note,'good' if isinstance(qqq_chg,(int,float)) and qqq_chg>=0 else 'warn')}{metric_card('标普500指数',spy_value,spy_chg,spy_note,'good' if isinstance(spy_chg,(int,float)) and spy_chg>=0 else 'warn')}{metric_card('VIX恐慌指数',vol_display,None,vix_note,vol_tone)}{metric_card('红利低波100 (159307)',sz_val,sz_chg,'A股红利代理 · 腾讯行情','good')}</div></section>
 
+<section class="section">{market_regime_html}</section>
+
 <section class="section"><div class="section-head"><h2>QQQ & SPY · 近 30 个交易日</h2><p>历史走势</p></div><div class="dashboard-grid"><div class="panel"><div class="panel-head"><strong>趋势对比</strong><span>收盘价</span></div><div class="chart-wrap"><canvas id="trendChart"></canvas></div></div><div class="panel"><div class="panel-head"><strong>Market Pulse</strong><span>研究状态</span></div><div class="pulse-list">
 <div class="pulse"><div><div class="pulse-label">波动环境</div><div class="pulse-main">{vol_state}</div></div><div class="pulse-right"><span class="badge {vol_tone}">VIX {vol_display}</span></div></div>
-<div class="pulse"><div><div class="pulse-label">策略观察</div><div class="pulse-main">指标运作中</div></div><div class="pulse-right"><span class="badge neutral">RULE BASED</span></div></div>
+<div class="pulse"><div><div class="pulse-label">全市场健康度</div><div class="pulse-main">宽度计算已上线</div></div><div class="pulse-right"><span class="badge good">LIVE</span></div></div>
 <div class="pulse"><div><div class="pulse-label">全球资产</div><div class="pulse-main">中美资产跟踪</div></div><div class="pulse-right"><span class="badge good">已接入</span></div></div></div></div></div></section>
 </div>
 
@@ -511,7 +660,6 @@ def render_html(data):
 </div></main></div>
 
 <script>
-// 图表与菜单切换逻辑
 const DATA = {chart_json};
 function switchTab(id,el){{
     document.querySelectorAll('.tab-pane').forEach(t=>t.classList.remove('active'));
@@ -541,7 +689,6 @@ let isAdmin = false;
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 const authBtn = document.getElementById('authBtn');
 
-// 拉取云端点位，并动态渲染表格
 async function fetchAndRenderTargets() {{
     const {{ data, error }} = await supabaseClient.from('stock_targets').select('*');
     if (data) {{
@@ -552,13 +699,9 @@ async function fetchAndRenderTargets() {{
             
             if (targetEl && closeEl) {{
                 targetEl.innerHTML = `$${{row.target_price.toFixed(2)}}`;
-                
-                // 如果是主理人登录，旁边显示编辑按钮
                 if (isAdmin) {{
                     targetEl.innerHTML += ` <span style="cursor:pointer;font-size:12px;margin-left:6px;filter:grayscale(1) opacity(0.5);transition:0.2s;" onmouseover="this.style.filter='none'" onmouseout="this.style.filter='grayscale(1) opacity(0.5)'" onclick="editTarget('${{row.symbol}}', ${{row.target_price}})" title="修改策略价">✏️</span>`;
                 }}
-
-                // 前端实时判断是否跌破触发价
                 const closePrice = parseFloat(closeEl.innerText.replace('$', ''));
                 if (closePrice <= row.target_price) {{
                     actionEl.innerHTML = '<span class="alert-text fw-bold ml" style="margin-left:4px;">(信号触发!)</span>';
@@ -570,18 +713,16 @@ async function fetchAndRenderTargets() {{
     }}
 }}
 
-// 主理人专属：点击编辑修改价格
 async function editTarget(symbol, currentPrice) {{
     const newPrice = prompt(`主理人后台：\\n请输入 [${{symbol}}] 的新策略加仓价：\\n当前点位：$${{currentPrice}}`, currentPrice);
     if (newPrice !== null && newPrice.trim() !== '') {{
         const num = parseFloat(newPrice);
         if (!isNaN(num)) {{
-            // 将新价格覆写到云端数据库
             const {{ error }} = await supabaseClient.from('stock_targets').upsert({{ symbol: symbol, target_price: num }});
             if (error) {{
                 alert('更新失败，权限不足或网络异常：' + error.message);
             }} else {{
-                fetchAndRenderTargets(); // 成功后实时刷新页面数字
+                fetchAndRenderTargets();
             }}
         }} else {{
             alert('输入无效，请输入纯数字。');
@@ -592,7 +733,6 @@ async function editTarget(symbol, currentPrice) {{
 async function checkSession() {{
     const {{ data: {{ session }} }} = await supabaseClient.auth.getSession();
     if (session) {{
-        // 校验是否为主理人邮箱
         if (session.user.email === ADMIN_EMAIL) {{
             isAdmin = true;
             document.getElementById('modeTitle').innerText = "👑 主理人控制台已激活";
@@ -609,7 +749,6 @@ async function checkSession() {{
         isAdmin = false;
         authBtn.innerHTML = "🔐 登录私有看板";
     }}
-    // 无论是否登录，都拉取最新的主理人云端点位覆盖静态数据
     fetchAndRenderTargets();
 }}
 
@@ -673,7 +812,6 @@ def push_to_supabase(data):
 if __name__ == '__main__':
     data = build()
     
-    # 1. 生成并保存本地静态文件
     out = os.path.join(os.path.dirname(__file__), '..', 'docs', 'data.json')
     with open(out, 'w', encoding='utf-8') as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
@@ -684,5 +822,4 @@ if __name__ == '__main__':
         f.write(html)
     print(f'Generated {html_out}')
     
-    # 2. 将数据推送到 Supabase
     push_to_supabase(data)

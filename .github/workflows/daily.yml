@@ -2,7 +2,14 @@ name: Daily Dashboard Update
 
 on:
   schedule:
+    # 🕒 任务 1：美股收盘后全面更新 (含市场宽度计算)
+    # 对应北京时间：周二到周六 早上 05:30 (UTC 时间 21:30)
     - cron: '30 21 * * 1-5'
+    
+    # 🕒 任务 2：A股/港股收盘后的静态快照更新
+    # 对应北京时间：周一到周五 下午 16:15 (UTC 时间 08:15)
+    - cron: '15 8 * * 1-5'
+    
   workflow_dispatch: {}
 
 permissions:
@@ -13,11 +20,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
           
-      # 👉 新增：安装并发下载与矩阵运算所需的环境包
+      # 👉 新增核心步骤：安装计算全市场宽度所必须的并发拉取和矩阵运算库
       - name: Install dependencies
         run: pip install yfinance pandas
 

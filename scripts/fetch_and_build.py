@@ -166,7 +166,7 @@ def calculate_daily_breadth():
         return None
         
     print(f"正在拉取 {len(tickers)} 只成分股近 2 年数据以计算最新市场宽度...")
-    data = yf.download(tickers, period="2y", interval="1d", threads=True, show_errors=False)
+    data = yf.download(tickers, period="2y", interval="1d", threads=True)
     closes = data['Close']
     
     ma20 = closes.rolling(window=20).mean()

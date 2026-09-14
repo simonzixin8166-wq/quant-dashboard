@@ -14,6 +14,7 @@ FUND_HEADERS = {"User-Agent": HEADERS["User-Agent"], "Referer": "http://fund.eas
 # ================= 美股配置 =================
 CORE_TIERS = {
     "QQQM": {"t1": 0.12, "t2": 0.18, "t3": 0.25},
+    "QQQ":  {"t1": 0.12, "t2": 0.18, "t3": 0.25},
     "VGT":  {"t1": 0.15, "t2": 0.20, "t3": 0.30},
     "QLD":  {"t1": 0.25, "t2": 0.35, "t3": 0.50},
     "TQQQ": {"t1": 0.40, "t2": 0.50, "t3": 0.70},
@@ -173,7 +174,6 @@ def calculate_daily_breadth():
             tickers = json.load(f)
             
         print(f"正在拉取 {len(tickers)} 只成分股近 300 天数据以计算最新市场宽度...")
-        # 优化：从 2y 缩减为 300d，既保证 200MA 和斜率精度，又大幅提速
         data = yf.download(tickers, period="300d", interval="1d", threads=True)
         closes = data['Close']
         
@@ -539,12 +539,11 @@ def render_html(data):
   --amber:#c07f2e; --amber-soft:#f6ecd8;
   --shadow:0 12px 32px rgba(15,15,10,.07);
   --serif:'Fraunces',ui-serif,Georgia,serif; --sans:'Inter',-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
-  --mav-ink:#102033; --mav-indigo:#5969f5; --mav-violet:#7659df; --mav-cyan:#36b9c9;
 }}
 *{{box-sizing:border-box;margin:0;padding:0}} body{{font-family:var(--sans);background:var(--bg);color:var(--ink);min-height:100vh;-webkit-font-smoothing:antialiased}} .app{{display:flex;min-height:100vh}}
 .sidebar{{width:252px;background:linear-gradient(190deg,var(--nav),var(--nav2));color:#fff;padding:24px 16px;position:fixed;inset:0 auto 0 0;z-index:20;display:flex;flex-direction:column}}
 .brand{{display:flex;align-items:center;gap:12px;padding:6px 8px 24px;border-bottom:1px solid var(--navline)}}
-.mav-brand-mark{{width:38px;height:38px;border-radius:12px;display:inline-grid;place-items:center;color:#fff;font-weight:800;letter-spacing:-1px;background:linear-gradient(135deg,var(--mav-indigo),var(--mav-violet) 58%,var(--mav-cyan));box-shadow:0 8px 22px rgba(89,105,245,.24);}}
+.mav-brand-mark{{width:38px;height:38px;border-radius:12px;flex:0 0 auto;background:linear-gradient(135deg,#d8a75c,var(--brass));display:grid;place-items:center;box-shadow:0 8px 18px rgba(184,134,58,.35)}}
 .brand strong{{display:block;font-family:var(--serif);font-size:17px;font-weight:600;letter-spacing:.2px}} .brand small{{display:block;color:var(--navmuted);margin-top:2px;font-size:11px}}
 .nav-group{{margin-top:22px}} .nav-title{{color:#5c6178;font-size:10.5px;font-weight:600;letter-spacing:.5px;margin:0 10px 8px}}
 .nav-menu{{list-style:none;display:grid;gap:3px}} .nav-menu li{{display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:9px;color:var(--navmuted);cursor:pointer;font-size:13.5px;font-weight:500;transition:.16s}}
@@ -583,7 +582,7 @@ def render_html(data):
 .tab-pane{{display:none;animation:fade .3s ease}} .tab-pane.active{{display:block}} @keyframes fade{{from{{opacity:0;transform:translateY(5px)}}to{{opacity:1;transform:none}}}}
 </style></head><body><div class="app">
 
-<aside class="sidebar"><div class="brand"><div class="brand-mark"><span class="mav-brand-mark">A</span></div><div><strong>myAlphaView</strong><small>myAlphaView · myalphaview.com</small></div></div>
+<aside class="sidebar"><div class="brand"><div class="mav-brand-mark"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4 17 L9 9 L13 14 L20 5" stroke="#181109" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="20" cy="5" r="2.1" fill="#181109"/></svg></div><div><strong>myAlphaView</strong><small>myAlphaView · myalphaview.com</small></div></div>
 <div class="nav-group"><div class="nav-title">美股 · 宏观</div><ul class="nav-menu">
   <li class="active" onclick="switchTab('tab-overview',this)"><span class="nav-icon">◆</span>市场总览</li>
   <li onclick="switchTab('tab-engine',this)"><span class="nav-icon">◒</span>策略引擎</li>

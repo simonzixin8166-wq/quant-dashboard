@@ -154,47 +154,57 @@ def fetch_fund_estimate(fund_code):
     except Exception as e:
         return {"error": str(e)}
 
-# ================= 云端全市场宽度动态计算 =================
+# ================= 全市场宽度动态计算（已加固 & 智能分流） =================
 def calculate_daily_breadth():
-    """读取 json 名单，利用 yfinance 并发拉取并计算当天的市场宽度及斜率"""
+    """智能分流：如果是下午 A 股收盘运行(UTC小时<12)，跳过重型计算；
+       自带 try...except 保护，即使 Yahoo 报错也绝不让整个脚本崩溃。"""
+    utc_hour = datetime.datetime.utcnow().hour
+    if utc_hour < 12:
+        print("🕒 当前为 A股/港股 收盘轻量运行时间段，自动跳过美股全市场宽度重计算。")
+        return None
+
     try:
         json_path = os.path.join(os.path.dirname(__file__), 'sp500_constituents.json')
+        if not os.path.exists(json_path):
+            print("⚠️ 未找到 sp500_constituents.json 名单文件，跳过宽度计算。")
+            return None
+
         with open(json_path, 'r') as f:
             tickers = json.load(f)
+            
+        print(f"正在拉取 {len(tickers)} 只成分股近 300 天数据以计算最新市场宽度...")
+        # 优化：从 2y 缩减为 300d，既保证 200MA 和斜率精度，又大幅提速
+        data = yf.download(tickers, period="300d", interval="1d", threads=True)
+        closes = data['Close']
+        
+        ma20 = closes.rolling(window=20).mean()
+        ma50 = closes.rolling(window=50).mean()
+        ma200 = closes.rolling(window=200).mean()
+        
+        valid_count = closes.notna().sum(axis=1)
+        b20 = (closes > ma20).sum(axis=1) / valid_count
+        b50 = (closes > ma50).sum(axis=1) / valid_count
+        b200 = (closes > ma200).sum(axis=1) / valid_count
+        
+        b20 = b20.dropna()
+        if len(b20) < 11:
+            return None
+            
+        latest_b20 = float(b20.iloc[-1])
+        latest_b50 = float(b50.dropna().iloc[-1])
+        latest_b200 = float(b200.dropna().iloc[-1])
+        slope_10d = float(latest_b20 - b20.iloc[-11])
+        
+        print(f"✅ 最新市场宽度计算成功: B20={latest_b20:.2%}, B50={latest_b50:.2%}, B200={latest_b200:.2%}, 10日斜率={slope_10d:.2%}")
+        return {
+            "b20": latest_b20,
+            "b50": latest_b50,
+            "b200": latest_b200,
+            "slope_10d": slope_10d
+        }
     except Exception as e:
-        print(f"读取成分股名单失败: {e}")
+        print(f"❌ 警告：市场宽度计算发生异常（已自动捕获并降级兜底）: {e}")
         return None
-        
-    print(f"正在拉取 {len(tickers)} 只成分股近 2 年数据以计算最新市场宽度...")
-    data = yf.download(tickers, period="2y", interval="1d", threads=True)
-    closes = data['Close']
-    
-    ma20 = closes.rolling(window=20).mean()
-    ma50 = closes.rolling(window=50).mean()
-    ma200 = closes.rolling(window=200).mean()
-    
-    valid_count = closes.notna().sum(axis=1)
-    b20 = (closes > ma20).sum(axis=1) / valid_count
-    b50 = (closes > ma50).sum(axis=1) / valid_count
-    b200 = (closes > ma200).sum(axis=1) / valid_count
-    
-    b20 = b20.dropna()
-    
-    if len(b20) < 11:
-        return None
-        
-    latest_b20 = float(b20.iloc[-1])
-    latest_b50 = float(b50.dropna().iloc[-1])
-    latest_b200 = float(b200.dropna().iloc[-1])
-    slope_10d = float(latest_b20 - b20.iloc[-11])
-    
-    print(f"最新市场宽度计算完成: B20={latest_b20:.2%}, B50={latest_b50:.2%}, B200={latest_b200:.2%}, 10日斜率={slope_10d:.2%}")
-    return {
-        "b20": latest_b20,
-        "b50": latest_b50,
-        "b200": latest_b200,
-        "slope_10d": slope_10d
-    }
 
 # ================= 指标计算 =================
 def calc_rsi(closes, period=14):
@@ -258,7 +268,6 @@ def analyze(symbol, rows, today, tiers=None, is_stock=False):
 def calc_market_regime(gspc_long_rows, spy_fallback_rows, vix_value, today, breadth_data):
     TIER_1, TIER_2, TIER_3 = 3, 5, 7
     TH_DRAWDOWN = -0.08
-    
     TH_B20, TH_B50, TH_B200, TH_SLOPE = 0.20, 0.15, 0.50, -0.30
 
     rows_for_ath, ath_is_full_history = (gspc_long_rows, True) if gspc_long_rows else (spy_fallback_rows, False)
@@ -275,7 +284,6 @@ def calc_market_regime(gspc_long_rows, spy_fallback_rows, vix_value, today, brea
     max_available_score = 9 
 
     conditions = []
-    
     if breadth_data:
         b20_hit = breadth_data["b20"] <= TH_B20
         if b20_hit: score += 2
@@ -327,7 +335,7 @@ def render_market_regime(mr):
             
     errmsg = ""
     if not mr.get("conditions"):
-        errmsg = '<div class="errmsg" style="padding:0 19px 16px;color:var(--muted);font-size:11px">全市场宽度数据抓取失败，当前只有"指数回撤"参与打分。</div>'
+        errmsg = '<div class="errmsg" style="padding:0 19px 16px;color:var(--muted);font-size:11px">全市场宽度数据处于轻量跳过时段或抓取异常，当前以"指数回撤"参与打分。</div>'
         
     return f'''<div class="panel">
       <div class="panel-head"><strong>市场状态引擎</strong><span>当前得分 {mr["score"]}/{mr["max_score"]} 分</span></div>
@@ -457,7 +465,6 @@ def row_stock(sym, r):
         <td><b id="target-{sym}">{target_str}</b> <span id="action-{sym}">{action_html}</span></td>
     </tr>'''
 
-# 👉 在这里加入了专属的 id="price-{code}" 和 id="chg-{code}"
 def mkt_card_a(title, data, code=""):
     if not data or "error" in data:
         return f'<div class="mkt-card"><div class="name">{title}</div><div class="val" style="font-size:14px;color:var(--muted);margin-top:12px">接口拦截/闭市</div></div>'

@@ -173,6 +173,12 @@ def load_historical_signals():
             return []
         with open(json_path, 'r', encoding='utf-8') as f:
             records = json.load(f)
+        # 同一天可能出现两条记录——一条是资产自身三档加仓线触发的（★开头），
+        # 一条是全市场宽度恐慌分级触发的（⚠️/⚡/🚨开头），这是两套独立规则，
+        # 都是真实信号，不是重复数据。加一个来源标签，页面上分开展示，别让人误以为是bug。
+        for r in records:
+            rating = r.get("rating", "")
+            r["source"] = "资产自身三档线" if rating.startswith("★") else "全市场宽度恐慌"
         # 按日期倒序，最新触发的排在最前面，更符合日常查看习惯
         records.sort(key=lambda r: r.get("date", ""), reverse=True)
         print(f"✅ 成功加载了 {len(records)} 条历史买点记录。")
@@ -524,12 +530,14 @@ def render_html(data):
     signals_html = ""
     for s in data.get("historical_signals", []):
         badge_cls = "warn" if "一级" in s['rating'] else ("bad" if "重点" in s['rating'] or "极限" in s['rating'] else "neutral")
+        source_cls = "neutral" if s.get("source") == "资产自身三档线" else "good"
         signals_html += f'''<tr>
             <td style="text-align:left; font-weight:600;">{s['symbol']}</td>
             <td>{s['date']}</td>
             <td class="fw-bold">${s['price']:.4f}</td>
             <td class="neg-text">{fmt_pct(s['drawdown'])}</td>
             <td><span class="badge {badge_cls}">{s['rating']}</span></td>
+            <td><span class="badge {source_cls}">{s.get('source','-')}</span></td>
         </tr>'''
 
     mi = data.get("market_indicators", {})
@@ -709,7 +717,8 @@ def render_html(data):
 <!-- TAB 7: 历史买点归档 -->
 <div id="tab-archive" class="tab-pane">
 <section class="hero"><div><h1>历史买点归档数据库</h1><p>完整回溯 2005 年以来各大核心资产触发一级、重点及极限加仓信号的黄金历史买点，验证策略透明度。</p></div></section>
-<section class="section"><div class="table-container"><table><thead><tr><th style="text-align:left;">资产代号</th><th>触发日期</th><th>触发收盘价</th><th>当时全期回撤幅度</th><th>触发加仓评级</th></tr></thead><tbody id="archiveTableBody">{signals_html}</tbody></table></div></section></div>
+<section class="section"><div class="table-container"><table><thead><tr><th style="text-align:left;">资产代号</th><th>触发日期</th><th>触发收盘价</th><th>当时全期回撤幅度</th><th>触发加仓评级</th><th>规则体系</th></tr></thead><tbody id="archiveTableBody">{signals_html}</tbody></table></div></section>
+<section class="section"><p style="font-size:11.5px;color:var(--muted);line-height:1.7">同一资产同一天可能出现两条记录——"资产自身三档线"是该ETF自己相对历史高点的回撤触发的加仓线；"全市场宽度恐慌"是标普500全市场宽度指标触发的分级信号。两套规则相互独立，同一天都触发是正常情况，不是数据重复。</p></section></div>
 
 <div class="footer">© 2026 myAlphaView · Built by Simon · Public Research Dashboard<br>市场数据与策略指标仅供研究、学习与信息参考，不构成投资建议。</div>
 </div></main></div>

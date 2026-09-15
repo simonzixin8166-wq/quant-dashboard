@@ -122,17 +122,17 @@
 <!-- TAB 1: 市场总览 -->
 <div id="tab-overview" class="tab-pane active">
 <section class="hero"><div><h1>看清市场在说什么，而不是账户在做什么。</h1><p>公开版投资研究面板：聚焦市场趋势、回撤、波动率与策略触发条件。</p></div><div class="public-note"><b id="modeTitle">公开展示模式</b><span id="modeDesc">这里展示的是研究指标与策略信号，不代表任何个人账户的实际仓位或收益。</span></div></section>
-<section class="section"><div class="section-head"><h2>市场核心指标</h2><p>自动更新</p></div><div class="metrics"><div class="metric-card"><div class="metric-top">纳斯达克综合指数<span class="metric-dot warn"></span></div><div class="metric-value">26,186.41</div><div class="metric-change negative">-0.56%</div><div class="metric-note">成长/科技风格温度 · 真实指数(Yahoo)</div></div><div class="metric-card"><div class="metric-top">标普500指数<span class="metric-dot warn"></span></div><div class="metric-value">7,619.98</div><div class="metric-change negative">-0.48%</div><div class="metric-note">大盘风险偏好 · 真实指数(Yahoo)</div></div><div class="metric-card"><div class="metric-top">VIX恐慌指数<span class="metric-dot good"></span></div><div class="metric-value">17.10</div><div class="metric-note">真实指数(Yahoo)</div></div><div class="metric-card"><div class="metric-top">红利低波100 (159307)<span class="metric-dot good"></span></div><div class="metric-value">1.015</div><div class="metric-change negative">-0.39%</div><div class="metric-note">A股红利代理 · 腾讯行情</div></div></div></section>
+<section class="section"><div class="section-head"><h2>市场核心指标</h2><p>自动更新</p></div><div class="metrics"><div class="metric-card"><div class="metric-top">纳斯达克综合指数<span class="metric-dot warn"></span></div><div class="metric-value">26,186.41</div><div class="metric-change negative">-0.56%</div><div class="metric-note">成长/科技风格温度 · 真实指数(Yahoo)</div></div><div class="metric-card"><div class="metric-top">标普500指数<span class="metric-dot warn"></span></div><div class="metric-value">7,619.98</div><div class="metric-change negative">-0.48%</div><div class="metric-note">大盘风险偏好 · 真实指数(Yahoo)</div></div><div class="metric-card"><div class="metric-top">VIX恐慌指数<span class="metric-dot good"></span></div><div class="metric-value">17.10</div><div class="metric-note">真实指数(Yahoo)</div></div><div class="metric-card"><div class="metric-top">红利低波100 (159307)<span class="metric-dot good"></span></div><div class="metric-value">1.012</div><div class="metric-change negative">-0.69%</div><div class="metric-note">A股红利代理 · 腾讯行情</div></div></div></section>
 
 <section class="section"><div class="panel">
       <div class="panel-head"><strong>市场状态引擎</strong><span>有效评分 0/2 分（满分体系 9 分）</span></div>
       <div class="pulse-list">
-        <div class="pulse"><div><div class="pulse-label">当前风控评级</div><div class="pulse-main">正常</div></div>
+        <div class="pulse"><div><div class="pulse-label">当前风控评级</div><div class="pulse-main">正常<span class="badge neutral" style="margin-left:6px">数据不完整</span></div></div>
           <div class="pulse-right"><span class="badge good">0/2 可用分</span></div></div>
         <div class="row"><span>指数历史高点回撤（阈值 -8.00%）</span><span class="fw-bold">-2.52% <span class="badge neutral">未触发</span></span></div>
         
       </div>
-      <div class="errmsg" style="padding:0 19px 16px;color:var(--red);font-size:11px">⚠️ 宽度数据抓取异常：数据不足，已自动降级为只用"指数回撤"打分。</div>
+      <div class="errmsg" style="padding:0 19px 16px;color:var(--red);font-size:11px">⚠️ 宽度数据抓取异常：数据不足，已自动降级为只用"指数回撤"打分，"正常"结论不代表全市场宽度已确认正常，建议查日志排查。</div>
     </div></section>
 
 <section class="section"><div class="section-head"><h2>QQQ & SPY · 近 30 个交易日</h2><p>历史走势</p></div><div class="dashboard-grid"><div class="panel"><div class="panel-head"><strong>趋势对比</strong><span>收盘价</span></div><div class="chart-wrap"><canvas id="trendChart"></canvas></div></div><div class="panel"><div class="panel-head"><strong>Data Status Center</strong><span>数据状态监控</span></div><div class="pulse-list">
@@ -147,8 +147,8 @@
 <!-- TAB 2: 策略引擎 -->
 <div id="tab-engine" class="tab-pane">
 <section class="hero"><div><h1>核心策略信号</h1><p>用回撤、RSI 与长期均线观察核心 ETF 的风险与潜在策略触发点。</p></div></section>
-<section class="section"><div class="engine"><div class="engine-top"><div><div class="engine-label">STRATEGY ENGINE · 核心ETF三档加仓线</div><div class="engine-title">当前状态：实时监测</div></div><div class="engine-badge normal">正常 · 未触发</div></div>
-<div class="engine-grid"><div class="engine-item "><div class="k">QQQM 回撤 (窗口回撤)</div><div class="v">-5.25%</div><div class="pt">未触发 · 阈值 一级12% / 二级18% / 三级25%</div></div><div class="engine-item "><div class="k">QQQ 回撤 (窗口回撤)</div><div class="v">-5.27%</div><div class="pt">未触发 · 阈值 一级12% / 二级18% / 三级25%</div></div><div class="engine-item "><div class="k">VGT 回撤 (窗口回撤)</div><div class="v">-5.42%</div><div class="pt">未触发 · 阈值 一级15% / 二级20% / 三级30%</div></div><div class="engine-item "><div class="k">QLD 回撤 (窗口回撤)</div><div class="v">-12.94%</div><div class="pt">未触发 · 阈值 一级25% / 二级35% / 三级50%</div></div><div class="engine-item "><div class="k">TQQQ 回撤 (窗口回撤)</div><div class="v">-21.36%</div><div class="pt">未触发 · 阈值 一级40% / 二级50% / 三级70%</div></div><div class="engine-item "><div class="k">VOO 回撤 (窗口回撤)</div><div class="v">-2.39%</div><div class="pt">未触发 · 阈值 一级8% / 二级10% / 三级15%</div></div></div><div class="engine-foot">分级规则：每个核心ETF各自设有一级/二级/三级三档加仓线。回撤判定严格使用历史全期最高点(ATH)或跨年窗口作为打分基准，严防短视。此处展示规则与信号，不展示实盘资金规模。</div></div></section>
+<section class="section"><div class="engine"><div class="engine-top"><div><div class="engine-label">STRATEGY ENGINE · 核心ETF三档加仓线</div><div class="engine-title">当前状态：实时监测</div></div><div class="engine-badge t2">三级加仓线</div></div>
+<div class="engine-grid"><div class="engine-item "><div class="k">QQQM 回撤 (ATH)</div><div class="v">-5.25%</div><div class="pt">未触发 · 阈值 一级12% / 二级18% / 三级25%</div></div><div class="engine-item "><div class="k">QQQ 回撤 (ATH)</div><div class="v">-5.27%</div><div class="pt">未触发 · 阈值 一级12% / 二级18% / 三级25%</div></div><div class="engine-item hit"><div class="k">VGT 回撤 (ATH)</div><div class="v">-79.02%</div><div class="pt">已达 三级 加仓线 · 阈值 一级15% / 二级20% / 三级30%</div></div><div class="engine-item "><div class="k">QLD 回撤 (ATH)</div><div class="v">-12.94%</div><div class="pt">未触发 · 阈值 一级25% / 二级35% / 三级50%</div></div><div class="engine-item "><div class="k">TQQQ 回撤 (ATH)</div><div class="v">-21.36%</div><div class="pt">未触发 · 阈值 一级40% / 二级50% / 三级70%</div></div><div class="engine-item "><div class="k">VOO 回撤 (ATH)</div><div class="v">-2.39%</div><div class="pt">未触发 · 阈值 一级8% / 二级10% / 三级15%</div></div></div><div class="engine-foot">分级规则：每个核心ETF各自设有一级/二级/三级三档加仓线。回撤判定严格使用历史全期最高点(ATH)或跨年窗口作为打分基准，严防短视。此处展示规则与信号，不展示实盘资金规模。</div></div></section>
 </div>
 
 <!-- TAB 3: 指数与 ETF -->
@@ -159,13 +159,6 @@
       <div class="row"><span>最高点回撤</span><span class="neg-text fw-bold">-5.27%</span></div>
       <div class="row"><span>RSI (14)</span><span class="fw-bold">46.91</span></div>
       <div class="row"><span>距 200MA</span><span class="fw-bold">7.34%</span></div>
-    </div><div class="card">
-      <div class="card-header"><span class="sym">SPY</span><span class="price">$760.88</span></div>
-      <div class="divider"></div>
-      <div class="row"><span>当年(YTD)最高</span><span class="fw-bold">$779.37</span></div>
-      <div class="row"><span>最高点回撤</span><span class="neg-text fw-bold">-2.37%</span></div>
-      <div class="row"><span>RSI (14)</span><span class="fw-bold">47.32</span></div>
-      <div class="row"><span>距 200MA</span><span class="fw-bold">6.46%</span></div>
     </div><div class="card">
       <div class="card-header"><span class="sym">VOO</span><span class="price">$699.30</span></div>
       <div class="divider"></div>
@@ -180,19 +173,33 @@
       <div class="row"><span>最高点回撤</span><span class="neg-text fw-bold">-19.40%</span></div>
       <div class="row"><span>RSI (14)</span><span class="fw-bold">42.14</span></div>
       <div class="row"><span>距 200MA</span><span class="fw-bold">12.07%</span></div>
+    </div><div class="card">
+      <div class="card-header"><span class="sym">TQQQ</span><span class="price">$69.27</span></div>
+      <div class="divider"></div>
+      <div class="row"><span>当年(YTD)最高</span><span class="fw-bold">$88.09</span></div>
+      <div class="row"><span>最高点回撤</span><span class="neg-text fw-bold">-21.36%</span></div>
+      <div class="row"><span>RSI (14)</span><span class="fw-bold">45.27</span></div>
+      <div class="row"><span>距 200MA</span><span class="fw-bold">11.64%</span></div>
+    </div><div class="card err"><div class="sym">GCMAIN</div><div class="errmsg">获取失败</div></div><div class="card">
+      <div class="card-header"><span class="sym">BTC/USD</span><span class="price">$76908.01</span></div>
+      <div class="divider"></div>
+      <div class="row"><span>当年(YTD)最高</span><span class="fw-bold">$97924.49</span></div>
+      <div class="row"><span>最高点回撤</span><span class="neg-text fw-bold">-21.46%</span></div>
+      <div class="row"><span>RSI (14)</span><span class="fw-bold">52.58</span></div>
+      <div class="row"><span>距 200MA</span><span class="fw-bold">9.43%</span></div>
     </div></div></section></div>
 
 <!-- TAB 4: A股 & 港股 & 红利 -->
 <div id="tab-cn-hk" class="tab-pane">
 <section class="hero"><div><h1>A股港股 & 红利低波</h1><p>自动同步腾讯行情。中证红利低波100指数(930955)本身不在免费行情源覆盖范围内，用紧密跟踪该指数的场内ETF(159307)代理展示走势。</p></div></section>
 <section class="section"><div class="section-head"><h2>大盘与红利核心池</h2><p>盘中自动实时跳动刷新</p></div><div class="opt-grid">
-<div class="mkt-card"><div class="name">上证指数</div><div class="val" id="price-sh000001">3,881.410</div><div class="chg negative" id="chg-sh000001">-0.10%</div></div>
-<div class="mkt-card"><div class="name">沪深300</div><div class="val" id="price-sh000300">4,479.470</div><div class="chg negative" id="chg-sh000300">-0.01%</div></div>
-<div class="mkt-card"><div class="name">红利低波100 ETF (159307)</div><div class="val" id="price-sz159307">1.015</div><div class="chg negative" id="chg-sz159307">-0.39%</div></div>
+<div class="mkt-card"><div class="name">上证指数</div><div class="val" id="price-sh000001">3,864.280</div><div class="chg negative" id="chg-sh000001">-0.54%</div></div>
+<div class="mkt-card"><div class="name">沪深300</div><div class="val" id="price-sh000300">4,450.040</div><div class="chg negative" id="chg-sh000300">-0.67%</div></div>
+<div class="mkt-card"><div class="name">红利低波100 ETF (159307)</div><div class="val" id="price-sz159307">1.012</div><div class="chg negative" id="chg-sz159307">-0.69%</div></div>
 </div></section>
 <section class="section"><div class="section-head"><h2>港股跨境池</h2><p>盘中自动实时跳动刷新</p></div><div class="opt-grid">
-<div class="mkt-card"><div class="name">华夏纳指 (港股)</div><div class="val" id="price-hk03086">59.560</div><div class="chg positive" id="chg-hk03086">+0.78%</div></div>
-<div class="mkt-card"><div class="name">国指备兑 (港股)</div><div class="val" id="price-hk03416">8.250</div><div class="chg negative" id="chg-hk03416">-0.12%</div></div>
+<div class="mkt-card"><div class="name">华夏纳指 (港股)</div><div class="val" id="price-hk03086">59.300</div><div class="chg positive" id="chg-hk03086">+0.34%</div></div>
+<div class="mkt-card"><div class="name">国指备兑 (港股)</div><div class="val" id="price-hk03416">8.200</div><div class="chg negative" id="chg-hk03416">-0.73%</div></div>
 </div></section>
 </div>
 
@@ -332,11 +339,56 @@
         <td>$147.33</td><td>$152.56</td><td>$146.00</td>
         <td>$225.64</td><td>56.34</td><td>-</td>
         <td><b id="target-SPCX">-</b> <span id="action-SPCX"></span></td>
+    </tr><tr>
+        <td>
+            <div style="font-weight:600; font-size:13.5px; color:var(--ink); line-height:1.2;">纳指100(QQQM)</div>
+            <div style="font-size:11px; color:var(--muted); margin-top:3px; font-weight:500;">QQQM</div>
+        </td>
+        <td class="fw-bold" id="close-QQQM">$292.02</td><td class="neg-text" id="chg-QQQM">-0.81%</td>
+        <td>$289.60</td><td>$293.55</td><td>$289.36</td>
+        <td>$308.21</td><td>46.92</td><td>7.35%</td>
+        <td><b id="target-QQQM">-</b> <span id="action-QQQM"></span></td>
+    </tr><tr>
+        <td>
+            <div style="font-weight:600; font-size:13.5px; color:var(--ink); line-height:1.2;">纳指2倍做多(QLD)</div>
+            <div style="font-size:11px; color:var(--muted); margin-top:3px; font-weight:500;">QLD</div>
+        </td>
+        <td class="fw-bold" id="close-QLD">$88.10</td><td class="neg-text" id="chg-QLD">-1.62%</td>
+        <td>$86.64</td><td>$89.03</td><td>$86.48</td>
+        <td>$101.19</td><td>45.84</td><td>10.64%</td>
+        <td><b id="target-QLD">-</b> <span id="action-QLD"></span></td>
+    </tr><tr>
+        <td>
+            <div style="font-weight:600; font-size:13.5px; color:var(--ink); line-height:1.2;">信息技术ETF(VGT)</div>
+            <div style="font-size:11px; color:var(--muted); margin-top:3px; font-weight:500;">VGT</div>
+        </td>
+        <td class="fw-bold" id="close-VGT">$119.17</td><td class="neg-text" id="chg-VGT">-1.57%</td>
+        <td>$118.40</td><td>$119.99</td><td>$117.88</td>
+        <td>$126.00</td><td>49.31</td><td>14.07%</td>
+        <td><b id="target-VGT">-</b> <span id="action-VGT"></span></td>
+    </tr><tr>
+        <td>
+            <div style="font-weight:600; font-size:13.5px; color:var(--ink); line-height:1.2;">纳指100(QQQ)</div>
+            <div style="font-size:11px; color:var(--muted); margin-top:3px; font-weight:500;">QQQ</div>
+        </td>
+        <td class="fw-bold" id="close-QQQ">$709.18</td><td class="neg-text" id="chg-QQQ">-0.80%</td>
+        <td>$703.33</td><td>$712.95</td><td>$702.74</td>
+        <td>$748.65</td><td>46.91</td><td>7.34%</td>
+        <td><b id="target-QQQ">-</b> <span id="action-QQQ"></span></td>
+    </tr><tr>
+        <td>
+            <div style="font-weight:600; font-size:13.5px; color:var(--ink); line-height:1.2;">标普500(VOO)</div>
+            <div style="font-size:11px; color:var(--muted); margin-top:3px; font-weight:500;">VOO</div>
+        </td>
+        <td class="fw-bold" id="close-VOO">$699.30</td><td class="neg-text" id="chg-VOO">-0.46%</td>
+        <td>$697.78</td><td>$701.85</td><td>$696.72</td>
+        <td>$716.39</td><td>47.19</td><td>6.41%</td>
+        <td><b id="target-VOO">-</b> <span id="action-VOO"></span></td>
     </tr></tbody></table></div></section></div>
 
 <!-- TAB 6: 期权自查 (V1动态监控) -->
 <div id="tab-options" class="tab-pane">
-<section class="hero"><div><h1>期权持仓监控 V1</h1><p>脱离真实资金规模的半自动实盘雷达：结合正股当日股价，自动计算 DTE 时间衰减、盈亏平衡距离与风控预警状态。</p></div></section>
+<section class="hero"><div><h1>期权持仓监控 V1</h1><p>下表数据为<b style="color:var(--brass)">示例占位数据</b>，用于演示 DTE 时间衰减、盈亏平衡距离与风控预警状态的计算方式，不是任何真实持仓。不展示真实资金规模与实盘仓位。</p></div></section>
 <section class="section">
     <div class="table-container">
         <table>
@@ -8605,7 +8657,7 @@
 
 <script>
 const DATA = {"QQQ": [{"d": "2026-08-03", "c": 700.070007}, {"d": "2026-08-04", "c": 723.84998}, {"d": "2026-08-05", "c": 717.29999}, {"d": "2026-08-06", "c": 714.65002}, {"d": "2026-08-07", "c": 723.030029}, {"d": "2026-08-10", "c": 720.87}, {"d": "2026-08-11", "c": 718.45001}, {"d": "2026-08-12", "c": 723.70001}, {"d": "2026-08-13", "c": 732.070007}, {"d": "2026-08-14", "c": 731.070007}, {"d": "2026-08-17", "c": 729.87}, {"d": "2026-08-18", "c": 717.51001}, {"d": "2026-08-19", "c": 716.080017}, {"d": "2026-08-20", "c": 710.92999}, {"d": "2026-08-21", "c": 713.44}, {"d": "2026-08-24", "c": 706.32001}, {"d": "2026-08-25", "c": 710.71997}, {"d": "2026-08-26", "c": 711.37}, {"d": "2026-08-27", "c": 721.10999}, {"d": "2026-08-28", "c": 716.42999}, {"d": "2026-08-31", "c": 716.76001}, {"d": "2026-09-01", "c": 707.64001}, {"d": "2026-09-02", "c": 709.23999}, {"d": "2026-09-03", "c": 717.66998}, {"d": "2026-09-04", "c": 718.96002}, {"d": "2026-09-08", "c": 718.35999}, {"d": "2026-09-09", "c": 716.31}, {"d": "2026-09-10", "c": 708.69}, {"d": "2026-09-11", "c": 714.88}, {"d": "2026-09-14", "c": 709.17999}], "SPY": [{"d": "2026-08-03", "c": 757.66998}, {"d": "2026-08-04", "c": 771.33002}, {"d": "2026-08-05", "c": 769.78998}, {"d": "2026-08-06", "c": 768.56}, {"d": "2026-08-07", "c": 773.26001}, {"d": "2026-08-10", "c": 773.030029}, {"d": "2026-08-11", "c": 770.56}, {"d": "2026-08-12", "c": 772.48999}, {"d": "2026-08-13", "c": 777.88}, {"d": "2026-08-14", "c": 776.34003}, {"d": "2026-08-17", "c": 772.66998}, {"d": "2026-08-18", "c": 767.45001}, {"d": "2026-08-19", "c": 769.059998}, {"d": "2026-08-20", "c": 762.59998}, {"d": "2026-08-21", "c": 765.71997}, {"d": "2026-08-24", "c": 763.46997}, {"d": "2026-08-25", "c": 765.90997}, {"d": "2026-08-26", "c": 766.080017}, {"d": "2026-08-27", "c": 771.099976}, {"d": "2026-08-28", "c": 769.34998}, {"d": "2026-08-31", "c": 767.049988}, {"d": "2026-09-01", "c": 761.78003}, {"d": "2026-09-02", "c": 765.15997}, {"d": "2026-09-03", "c": 773.16998}, {"d": "2026-09-04", "c": 770.19}, {"d": "2026-09-08", "c": 765.96002}, {"d": "2026-09-09", "c": 762.40002}, {"d": "2026-09-10", "c": 757.83002}, {"d": "2026-09-11", "c": 764.28998}, {"d": "2026-09-14", "c": 760.88}]};
-const STOCK_PRICES = {"SOFI": 17.65, "IREN": 43.17, "ORCL": 144.78999, "TSLA": 358.97, "NVDA": 210.96001, "TSM": 418.01001, "LITE": 835.030029, "AVGO": 344.72, "MRVL": 218.82001, "NBIS": 212.19, "GOOG": 345.70999, "AMD": 493.41, "HOOD": 114.33, "DRAM": 54.8, "SPCX": 148.14999, "QQQM": 292.019989, "QQQ": 709.17999, "VGT": 119.17, "QLD": 88.099998, "TQQQ": 69.27, "VOO": 699.29999};
+const STOCK_PRICES = {"SOFI": 17.65, "IREN": 43.17, "ORCL": 144.78999, "TSLA": 358.97, "NVDA": 210.96001, "TSM": 418.01001, "LITE": 835.030029, "AVGO": 344.72, "MRVL": 218.82001, "NBIS": 212.19, "GOOG": 345.70999, "AMD": 493.41, "HOOD": 114.33, "DRAM": 54.8, "SPCX": 148.14999, "QQQM": 292.019989, "QLD": 88.099998, "VGT": 119.17, "QQQ": 709.17999, "VOO": 699.29999, "TQQQ": 69.27};
 
 function switchTab(id,el){
   document.querySelectorAll('.tab-pane').forEach(t=>t.classList.remove('active'));
@@ -8628,10 +8680,14 @@ window.addEventListener('load',function(){
   }
 
   // ================= 渲染期权监控面板 =================
-  const OPTION_POSITIONS = [
+  // ⚠️ 以下是示例占位数据，不是真实持仓，仅用于演示这个面板的计算逻辑。
+  // 确认过：2026-09 core确认这是占位数据。以后如果要接入真实持仓，
+  // 记得改掉这个数组名和上面hero区的文字说明。
+  const EXAMPLE_OPTION_POSITIONS = [
       { symbol: "NVDA", type: "Call", strike: 155, expiry: "2026-05-22", cost: 2.13 },
       { symbol: "TSLA", type: "Put", strike: 220, expiry: "2026-10-16", cost: 8.50 }
   ];
+  const OPTION_POSITIONS = EXAMPLE_OPTION_POSITIONS;
 
   const tbody = document.getElementById("optionsTableBody");
   const today = new Date();
@@ -8649,7 +8705,15 @@ window.addEventListener('load',function(){
           if (opt.type === "Call") { breakEven = opt.strike + opt.cost; } 
           else { breakEven = opt.strike - opt.cost; }
           
-          const distPct = currentPrice ? ((currentPrice - breakEven) / breakEven * 100) : 0;
+          // Put 的盈利方向和 Call 相反：Call 是现价越高于盈亏平衡价越好，
+          // Put 是现价越低于盈亏平衡价越好，两者不能共用同一个方向的公式，
+          // 否则 Put 的正负号和风险颜色会反过来。
+          let distPct = 0;
+          if (currentPrice) {
+              distPct = opt.type === "Call"
+                  ? (currentPrice - breakEven) / breakEven * 100
+                  : (breakEven - currentPrice) / breakEven * 100;
+          }
           const distStr = currentPrice ? (distPct >= 0 ? "+" : "") + distPct.toFixed(2) + "%" : "-";
           
           let statusHtml = "";

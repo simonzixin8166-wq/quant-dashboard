@@ -11,6 +11,23 @@ BASE = "https://api.twelvedata.com"
 HEADERS = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
 FUND_HEADERS = {"User-Agent": HEADERS["User-Agent"], "Referer": "http://fund.eastmoney.com/"}
 
+# ================= 节流阀配置 =================
+LAST_TD_REQUEST_TIME = 0.0
+
+def throttle():
+    """
+    智能游标节流阀：确保 Twelve Data 请求频率不超过 8次/分钟。
+    """
+    global LAST_TD_REQUEST_TIME
+    now = time.time()
+    elapsed = now - LAST_TD_REQUEST_TIME
+    target_interval = 7.6 
+    
+    if elapsed < target_interval:
+        time.sleep(target_interval - elapsed)
+        
+    LAST_TD_REQUEST_TIME = time.time()
+
 # ================= 美股配置 =================
 CORE_TIERS = {
     "QQQM": {"t1": 0.12, "t2": 0.18, "t3": 0.25},
@@ -20,9 +37,8 @@ CORE_TIERS = {
     "TQQQ": {"t1": 0.40, "t2": 0.50, "t3": 0.70},
     "VOO":  {"t1": 0.075, "t2": 0.10, "t3": 0.15},
 }
-# INDEX是内部实际抓取的清单
+
 INDEX = ["QQQ", "SPY", "VOO", "SMH", "TQQQ", "GCMAIN", "BTC/USD"]
-# DISPLAYED_INDEX是"指数&ETF"tab真正渲染出来的卡片列表
 DISPLAYED_INDEX = ["QQQ", "VOO", "SMH", "TQQQ", "GCMAIN", "BTC/USD"]
 VOL_PROXY_SYM = "VIXY"
 
@@ -42,7 +58,6 @@ STOCK_META = {
     "HOOD": {"name": "Robinhood"},
     "DRAM": {"name": "Roundhill内存芯片"},
     "SPCX": {"name": "SpaceX代币化产品"},
-    # 核心 ETF 放进观察池，用于单独配置简单的 Supabase 提醒价
     "QQQM": {"name": "纳指100(QQQM)"},
     "QLD":  {"name": "纳指2倍做多(QLD)"},
     "VGT":  {"name": "信息技术ETF(VGT)"},
@@ -79,26 +94,66 @@ def fetch_supabase_targets():
         print(f"⚠️ 无法从 Supabase 获取策略价: {e}")
         return None
 
-def get_true_aths(symbols):
+def get_core_ath_metrics(symbols):
     """
-    逐个资产单独抓取真实历史最高点，防止连坐效应崩溃。
+    ATH Integrity Layer
+    专门负责核心 ETF 的长期复权 ATH 数据。ATH、Close、Drawdown 必须来自同一序列。
     """
     result = {}
+    print("\n========== [ATH CHECK] ==========")
+
     for sym in symbols:
         try:
-            rows = fetch_yahoo_index(sym, range_="max")
-            result[sym] = max(float(r["high"]) for r in rows)
+            ticker = yf.Ticker(sym)
+            df = ticker.history(period="max", auto_adjust=True, actions=True)
+
+            if df.empty:
+                raise ValueError("Empty DataFrame")
+
+            if "High" not in df.columns or "Close" not in df.columns:
+                raise ValueError("Missing High/Close columns")
+
+            highs = df["High"].dropna()
+            closes = df["Close"].dropna()
+
+            if highs.empty or closes.empty:
+                raise ValueError("No valid High/Close data")
+
+            adj_ath = float(highs.max())
+            adj_close = float(closes.iloc[-1])
+
+            if (not math.isfinite(adj_ath) or not math.isfinite(adj_close) 
+                or adj_ath <= 0 or adj_close <= 0):
+                raise ValueError(f"Invalid price values: ATH={adj_ath}, Close={adj_close}")
+
+            drawdown = adj_close / adj_ath - 1.0
+            extreme = drawdown <= -0.75
+
+            result[sym] = {
+                "ath": adj_ath,
+                "close": adj_close,
+                "drawdown": drawdown,
+                "source": "yfinance_adjusted",
+                "extreme": extreme,
+                "valid": True,
+            }
+
+            print(f"{sym:<6} | ATH={adj_ath:>10.2f} | Close={adj_close:>10.2f} | DD={drawdown:>8.2%} | Source=yfinance_adjusted | Validation={'CHECK' if extreme else 'PASS'}")
+
         except Exception as e:
-            print(f"⚠️ {sym} 真实ATH获取失败（不影响其他资产）: {e}")
-        throttle()
+            result[sym] = {
+                "ath": None, "close": None, "drawdown": None, "source": "yfinance_adjusted",
+                "extreme": False, "valid": False, "error": str(e),
+            }
+            print(f"{sym:<6} | Validation=FAILED | Error={e}")
+
+        time.sleep(1.0)
+    print("======== [ATH CHECK END] ========\n")
     return result
 
 def http_get_json(url):
     with urllib.request.urlopen(url, timeout=20) as resp:
         return json.loads(resp.read().decode("utf-8"))
-
-def throttle():
-    time.sleep(8)
 
 def fetch_yahoo_index(y_symbol, range_="1y"):
     url = f"https://query1.finance.yahoo.com/v8/finance/chart/{y_symbol}?interval=1d&range={range_}"
@@ -137,6 +192,7 @@ def fetch_time_series(symbol, outputsize=260, retries=3):
     params = urllib.parse.urlencode({"symbol": symbol, "interval": "1day", "outputsize": outputsize, "apikey": API_KEY})
     url = f"{BASE}/time_series?{params}"
     for attempt in range(retries):
+        throttle()
         try:
             payload = http_get_json(url)
             if payload.get("status") == "error":
@@ -193,7 +249,6 @@ def fetch_fund_estimate(fund_code):
     except Exception as e:
         return {"error": str(e)}
 
-# ================= 加载历史买点数据库 =================
 def load_historical_signals():
     try:
         json_path = os.path.join(os.path.dirname(__file__), 'historical_signals.json')
@@ -212,17 +267,15 @@ def load_historical_signals():
         print(f"❌ 读取历史买点失败: {e}")
         return []
 
-# ================= 全市场宽度动态计算（智能缓存机制 + 时段拦截） =================
 def calculate_daily_breadth(old_breadth=None):
     utc_hour = datetime.datetime.utcnow().hour
-    
     if utc_hour < 12:
         if old_breadth and old_breadth.get("status") == "ok":
-            msg = "当前为A股/港股收盘时段，跳过重计算，成功读取上一交易日宽度缓存"
+            msg = "当前为A股/港股收盘时段，跳过重计算，成功读取旧宽度缓存"
             print(f"🕒 {msg}")
             return old_breadth
         else:
-            msg = "当前为A股/港股收盘时段，暂无历史缓存，按设计跳过全市场重算"
+            msg = "当前为A股/港股收盘时段，暂无历史缓存，跳过全市场重算"
             print(f"🕒 {msg}")
             return {"status": "skip", "message": msg}
 
@@ -263,7 +316,7 @@ def calculate_daily_breadth(old_breadth=None):
         }
     except Exception as e:
         if old_breadth and old_breadth.get("status") == "ok":
-            print(f"❌ 宽度计算异常: {e}。已自动降级使用上一交易日缓存数据。")
+            print(f"❌ 宽度计算异常: {e}。已自动降级使用旧缓存数据。")
             return old_breadth
         return {"status": "error", "message": str(e)}
 
@@ -300,43 +353,68 @@ def tier_reached(drawdown, tiers):
     if loss >= tiers["t1"]: return 1, "一级"
     return 0, None
 
-def analyze(symbol, rows, today, tiers=None, is_stock=False, true_ath=None):
+def analyze(symbol, rows, today, tiers=None, is_stock=False, ath_metric=None):
     closes = [float(r["close"]) for r in rows]
     latest_close = closes[0]
     prev_close = closes[1] if len(closes) > 1 else latest_close
     
-    # 提取当年(YTD)最高点用于卡片展示
     current_year = str(today.year)
     ytd_rows = [r for r in rows if r["datetime"].startswith(current_year)]
     ytd_high = max([float(r["high"]) for r in ytd_rows]) if ytd_rows else latest_close
     
-    # 严格判断真正的 ATH，防 NaN 异常
-    if true_ath is not None and isinstance(true_ath, (int, float)) and not math.isnan(true_ath):
-        all_time_high = true_ath
+    # Strategy Drawdown / ATH Integrity
+    ath_is_true = False
+    strategy_drawdown = None
+    strategy_ath = None
+    strategy_close = None
+    ath_source = None
+    ath_validation = "UNAVAILABLE"
+
+    if ath_metric and ath_metric.get("valid"):
+        strategy_ath = ath_metric.get("ath")
+        strategy_close = ath_metric.get("close")
+        strategy_drawdown = ath_metric.get("drawdown")
+        ath_source = ath_metric.get("source")
+
         ath_is_true = True
-    else:
-        all_time_high = max([float(r["high"]) for r in rows]) if rows else None
-        ath_is_true = False
-        
+        ath_validation = "CHECK" if ath_metric.get("extreme") else "PASS"
+
+    # Window fallback
+    window_high = None
+    window_drawdown = None
+
+    if rows:
+        valid_highs = [float(r["high"]) for r in rows if r.get("high") is not None]
+        if valid_highs:
+            window_high = max(valid_highs)
+        if window_high and latest_close:
+            window_drawdown = latest_close / window_high - 1.0
+
+    # Tier Trigger
+    level = 0
+    level_label = None
+
+    if not is_stock and ath_is_true and strategy_drawdown is not None and tiers:
+        if ath_validation != "CHECK":
+            level, level_label = tier_reached(strategy_drawdown, tiers)
+
     out = {
         "date": rows[0]["datetime"][:10], "close": latest_close, "prev_close": prev_close,
         "day_chg": pct_change(latest_close, prev_close), "ytd_high": ytd_high,
         "rsi": calc_rsi(closes, 14), "dist_200ma": pct_change(latest_close, calc_sma(closes, 200)),
-        "ath_is_true": ath_is_true
+        
+        "ath_is_true": ath_is_true,
+        "ath_validation": ath_validation,
+        "strategy_drawdown": strategy_drawdown,
+        "window_drawdown": window_drawdown,
     }
     
     if is_stock:
         out.update({"open": float(rows[0]["open"]), "high": float(rows[0]["high"]), "low": float(rows[0]["low"])})
     else:
-        drawdown = pct_change(latest_close, all_time_high)
-        if ath_is_true:
-            level, level_label = tier_reached(drawdown, tiers)
-        else:
-            # 窗口内最高点不是真实ATH，不允许正式触发策略，防静默错误
-            level, level_label = 0, None
-            
         out.update({
-            "drawdown": drawdown, "tiers": tiers,
+            "drawdown": strategy_drawdown if ath_is_true else window_drawdown, 
+            "tiers": tiers,
             "level": level, "level_label": level_label,
             "triggered": level > 0,
         })
@@ -382,10 +460,15 @@ def calc_market_regime(gspc_long_rows, spy_fallback_rows, vix_value, today, brea
     else:
         max_available_score = 2
 
-    if score >= TIER_3: tier, tier_label = "extreme", "极限恐慌"
-    elif score >= TIER_2: tier, tier_label = "major", "重点恐慌"
-    elif score >= TIER_1: tier, tier_label = "tier1", "一级恐慌"
-    else: tier, tier_label = "normal", "正常"
+    if score >= TIER_3: tier_label = "极限恐慌"; tier = "extreme"
+    elif score >= TIER_2: tier_label = "重点恐慌"; tier = "major"
+    elif score >= TIER_1: tier_label = "一级恐慌"; tier = "tier1"
+    else: 
+        if max_available_score < 9 and score == 0:
+            tier_label = "暂未触发"
+        else:
+            tier_label = "正常"
+        tier = "normal"
 
     return {
         "score": score, "max_score": 9, "max_available_score": max_available_score,
@@ -419,10 +502,7 @@ def render_market_regime(mr):
 
     errmsg = ""
     if not mr.get("conditions"):
-        if mr.get("breadth_status") == "skip":
-            errmsg = f'<div class="errmsg" style="padding:0 19px 16px;color:var(--muted);font-size:11px">ℹ️ {mr.get("breadth_message","")}，当前"正常"结论仅基于指数回撤这一项，不代表全市场宽度已确认正常。</div>'
-        else:
-            errmsg = f'<div class="errmsg" style="padding:0 19px 16px;color:var(--red);font-size:11px">⚠️ 宽度数据状态：{mr.get("breadth_message","")}，当前以"指数回撤"独立参与打分。</div>'
+        errmsg = f'<div class="errmsg" style="padding:0 19px 16px;color:var(--red);font-size:11px">⚠️ 市场宽度暂不可用，当前评级仅基于可用指标。</div>'
         
     return f'''<div class="panel">
       <div class="panel-head"><strong>市场状态引擎</strong><span>有效评分 {mr["score"]}/{mr["max_available_score"]} 分（满分体系 {mr["max_score"]} 分）</span></div>
@@ -456,19 +536,19 @@ def build():
         for sym, tgt in sb_targets.items():
             if sym in STOCK_META:
                 STOCK_META[sym]["target"] = tgt
-        data_status["Supabase"] = "Connected"
+        data_status["Supabase"] = "🟢 已连接"
     else:
-        data_status["Supabase"] = "Fallback/Failed"
+        data_status["Supabase"] = "🔴 Fallback"
 
-    core_aths = get_true_aths(list(CORE_TIERS.keys()))
+    core_ath_metrics = get_core_ath_metrics(list(CORE_TIERS.keys()))
 
     for name, tiers in CORE_TIERS.items():
         try:
-            t_ath = core_aths.get(name)
-            core[name] = analyze(name, fetch_time_series(name), today, tiers, true_ath=t_ath)
+            rows = fetch_time_series(name)
+            ath_metric = core_ath_metrics.get(name, {"valid": False})
+            core[name] = analyze(name, rows, today, tiers, ath_metric=ath_metric)
         except Exception as e:
             core[name] = {"error": str(e)}
-        throttle()
 
     spy_rows_for_regime = None
     for name in INDEX:
@@ -481,33 +561,27 @@ def build():
                 spy_rows_for_regime = rows 
         except Exception as e:
             index[name] = {"error": str(e)}
-        throttle()
 
     spx_data, spx_src, _ = fetch_real_index_or_proxy("%5EGSPC", "SPY", today)
-    throttle()
     ixic_data, ixic_src, _ = fetch_real_index_or_proxy("%5EIXIC", "QQQ", today)
-    throttle()
     vix_data, vix_src, _ = fetch_real_index_or_proxy("%5EVIX", VOL_PROXY_SYM, today)
-    throttle()
 
-    data_status["US Market"] = "Yahoo Real" if spx_src == "yahoo_real" else "ETF Proxy"
-    data_status["VIX"] = "Yahoo Real" if vix_src == "yahoo_real" else "ETF Proxy"
+    data_status["US Market"] = "🟢 Yahoo Real" if spx_src == "yahoo_real" else "🟡 ETF Proxy"
+    data_status["VIX"] = "🟢 Yahoo Real" if vix_src == "yahoo_real" else "🟡 ETF Proxy"
 
     try:
         gspc_long_rows = fetch_yahoo_index("%5EGSPC", range_="max")
     except Exception:
         gspc_long_rows = None
         
-    throttle()
-    
     breadth_data = calculate_daily_breadth(old_breadth)
     
     if breadth_data.get("status") == "ok" and old_breadth and breadth_data == old_breadth:
-        data_status["Breadth"] = "ok (Cached)"
+        data_status["Breadth"] = "🟡 缓存"
     elif breadth_data.get("status") == "skip":
-        data_status["Breadth"] = "Skip (Asian Session)"
+        data_status["Breadth"] = "🟡 跳过拉取"
     else:
-        data_status["Breadth"] = breadth_data.get("status", "error")
+        data_status["Breadth"] = "🟢 实时" if breadth_data.get("status") == "ok" else "🔴 异常"
     
     vix_value = vix_data.get("close") if "error" not in vix_data else None
     market_regime = calc_market_regime(gspc_long_rows, spy_rows_for_regime, vix_value, today, breadth_data)
@@ -517,25 +591,24 @@ def build():
             stocks[name] = analyze(name, fetch_time_series(name), today, is_stock=True)
         except Exception as e:
             stocks[name] = {"error": str(e)}
-        throttle()
         
     cn_hk_data = {}
     try:
         res = fetch_tencent_quotes(list(CN_HK_SYMBOLS.keys()))
         cn_hk_data.update(res)
-        data_status["CN_HK"] = "Tencent (Delayed)" if res else "Error"
+        data_status["CN_HK"] = "🟢 Tencent" if res else "🔴 Error"
     except: 
-        data_status["CN_HK"] = "Error"
+        data_status["CN_HK"] = "🔴 Error"
         
     try:
         if OTC_FUNDS:
             for code in OTC_FUNDS.keys():
                 cn_hk_data[code] = fetch_fund_estimate(code)
-            data_status["OTC"] = "EastMoney (Updated)"
+            data_status["OTC"] = "🟢 EastMoney"
         else:
-            data_status["OTC"] = "None"
+            data_status["OTC"] = "⚪ 未启用"
     except: 
-        data_status["OTC"] = "Error"
+        data_status["OTC"] = "🔴 Error"
 
     historical_signals = load_historical_signals()
 
@@ -557,14 +630,28 @@ def fmt_num(x, digits=2): return f"{x:.{digits}f}" if isinstance(x, (int, float)
 
 def engine_item(name, r):
     if "error" in r: return f'<div class="engine-item"><div class="k">{name}</div><div class="v">-</div><div class="pt">数据获取失败</div></div>'
+    
     level = r.get("level", 0)
     hit_cls = "hit" if level > 0 else ""
-    drawdown_str = fmt_pct(r.get("drawdown"))
     tiers = r.get("tiers") or {}
     tiers_str = f'一级{fmt_pct(tiers.get("t1"),0)} / 二级{fmt_pct(tiers.get("t2"),0)} / 三级{fmt_pct(tiers.get("t3"),0)}'
-    note = f'已达 {r.get("level_label")} 加仓线' if level > 0 else '未触发'
-    ath_mark = " (ATH)" if r.get("ath_is_true") else " (窗口回撤)"
-    return f'''<div class="engine-item {hit_cls}"><div class="k">{name} 回撤{ath_mark}</div><div class="v">{drawdown_str}</div><div class="pt">{note} · 阈值 {tiers_str}</div></div>'''
+
+    if r.get("ath_is_true"):
+        dd = r.get("strategy_drawdown")
+        label = "回撤 (ATH)"
+        if r.get("ath_validation") == "CHECK":
+            status_text = "⚠ 极端回撤 · 请验证数据"
+            hit_cls = "warn"
+        elif level > 0:
+            status_text = r.get("level_label")
+        else:
+            status_text = "未触发"
+    else:
+        dd = r.get("window_drawdown")
+        label = "窗口回撤"
+        status_text = "ATH 暂不可用 · 仅供参考"
+
+    return f'''<div class="engine-item {hit_cls}"><div class="k">{name} {label}</div><div class="v">{fmt_pct(dd)}</div><div class="pt">{status_text} · 阈值 {tiers_str}</div></div>'''
 
 def card_etf(name, r):
     if "error" in r: return f'<div class="card err"><div class="sym">{name}</div><div class="errmsg">获取失败</div></div>'
@@ -573,7 +660,7 @@ def card_etf(name, r):
       <div class="card-header"><span class="sym">{name}</span><span class="price">${r["close"]:.2f}</span></div>
       <div class="divider"></div>
       <div class="row"><span>当年(YTD)最高</span><span class="fw-bold">${fmt_num(r["ytd_high"])}</span></div>
-      <div class="row"><span>历史高点回撤</span><span class="{drawdown_cls}">{fmt_pct(r["drawdown"])}</span></div>
+      <div class="row"><span>策略回撤基准</span><span class="{drawdown_cls}">{fmt_pct(r["drawdown"])}</span></div>
       <div class="row"><span>RSI (14)</span><span class="fw-bold">{fmt_num(r["rsi"])}</span></div>
       <div class="row"><span>距 200MA</span><span class="fw-bold">{fmt_pct(r["dist_200ma"])}</span></div>
     </div>'''
@@ -637,23 +724,7 @@ def render_html(data):
     spy, qqq, vol = mi.get("spx", {}), mi.get("ixic", {}), mi.get("vix", {})
     src_label = lambda s: "真实指数(Yahoo)" if s == "yahoo_real" else "ETF代理"
 
-    def market_state(v):
-        if not isinstance(v, (int, float)): return ("数据待更新", "neutral")
-        if v < 15: return ("低波动", "good")
-        if v < 25: return ("正常波动", "good")
-        if v < 35: return ("波动升温", "warn")
-        return ("高风险", "bad")
-
-    def metric_card(label, value, change=None, note="", tone="neutral"):
-        change_html = ""
-        if isinstance(change, (int, float)):
-            cls = "positive" if change >= 0 else "negative"
-            sign = "+" if change >= 0 else ""
-            change_html = f'<div class="metric-change {cls}">{sign}{fmt_pct(change)}</div>'
-        return f'''<div class="metric-card"><div class="metric-top">{label}<span class="metric-dot {tone}"></span></div><div class="metric-value">{value}</div>{change_html}<div class="metric-note">{note}</div></div>'''
-
     vol_value = vol.get("close") if "error" not in vol else None
-    vol_state, vol_tone = market_state(vol_value)
     vol_display = fmt_num(vol_value) if vol_value is not None else "—"
     spy_value = f'{spy["close"]:,.2f}' if "error" not in spy else "—"
     qqq_value = f'{qqq["close"]:,.2f}' if "error" not in qqq else "—"
@@ -666,6 +737,14 @@ def render_html(data):
     sz159307 = cn.get("sz159307", {})
     sz_val = f'{sz159307.get("price", 0):,.3f}' if "price" in sz159307 else "—"
     sz_chg = sz159307.get("day_chg")
+
+    def metric_card(label, value, change=None, note="", tone="neutral"):
+        change_html = ""
+        if isinstance(change, (int, float)):
+            cls = "positive" if change >= 0 else "negative"
+            sign = "+" if change >= 0 else ""
+            change_html = f'<div class="metric-change {cls}">{sign}{fmt_pct(change)}</div>'
+        return f'''<div class="metric-card"><div class="metric-top">{label}<span class="metric-dot {tone}"></span></div><div class="metric-value">{value}</div>{change_html}<div class="metric-note">{note}</div></div>'''
 
     chart_json = json.dumps(data.get("overview_charts", {}), ensure_ascii=False)
     
@@ -705,12 +784,9 @@ def render_html(data):
 .nav-group{{margin-top:22px}} .nav-title{{color:#5c6178;font-size:10.5px;font-weight:600;letter-spacing:.5px;margin:0 10px 8px}}
 .nav-menu{{list-style:none;display:grid;gap:3px}} .nav-menu li{{display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:9px;color:var(--navmuted);cursor:pointer;font-size:13.5px;font-weight:500;transition:.16s}}
 .nav-menu li:hover{{background:rgba(255,255,255,.06);color:#fff}} .nav-menu li.active{{color:#fff;background:rgba(184,134,58,.16);box-shadow:inset 2.5px 0 0 var(--brass)}} .nav-icon{{width:18px;text-align:center;font-size:14px}}
-.nav-menu li .tag{{margin-left:auto;font-size:9px;background:rgba(255,255,255,.1);color:var(--navmuted);padding:2px 6px;border-radius:99px;font-weight:600}}
 .sidebar-footer{{margin-top:auto;color:#565b71;font-size:10.5px;line-height:1.7;padding-top:16px;border-top:1px solid var(--navline)}}
-
 .auth-btn-top {{ background: var(--brass); color: #fff; border: none; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 11.5px; font-weight: 600; transition: 0.2s; box-shadow: 0 4px 10px rgba(184,134,58,.3); margin-left: 12px; }}
 .auth-btn-top:hover {{ background: #a67732; transform: translateY(-1px); }}
-
 .main{{margin-left:252px;width:calc(100% - 252px)}} .topbar{{height:64px;background:rgba(244,242,236,.9);backdrop-filter:blur(14px);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 32px;position:sticky;top:0;z-index:10}}
 .breadcrumb{{font-size:13px;color:var(--muted)}} .breadcrumb strong{{color:var(--ink);font-weight:600}} .top-meta{{display:flex;gap:18px;color:var(--muted);font-size:11.5px;align-items:center}} .live-dot{{width:7px;height:7px;border-radius:50%;background:var(--green);display:inline-block;margin-right:6px}}
 .content{{max-width:1440px;margin:0 auto;padding:36px 32px 40px}}
@@ -719,58 +795,35 @@ def render_html(data):
 .section{{margin-top:32px}} .section-head{{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px}} .section-head h2{{font-family:var(--serif);font-size:19px;font-weight:560}} .section-head p{{color:var(--muted);font-size:11.5px}}
 .metrics{{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}} .metric-card{{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px 19px;box-shadow:var(--shadow)}} .metric-top{{display:flex;justify-content:space-between;color:var(--muted);font-size:11.5px;font-weight:600}} .metric-dot{{width:7px;height:7px;border-radius:50%;background:#c9c2ac}} .metric-dot.good{{background:var(--green)}} .metric-dot.warn{{background:var(--amber)}} .metric-dot.bad{{background:var(--red)}}
 .metric-value{{font-family:var(--serif);font-size:27px;font-weight:560;margin-top:13px;font-variant-numeric:tabular-nums}} .metric-change{{font-size:12px;font-weight:600;margin-top:5px}} .positive{{color:var(--green)}} .negative{{color:var(--red)}} .metric-note{{color:var(--muted);font-size:10.5px;margin-top:9px}}
-
 .engine{{margin-top:20px;background:var(--nav);border-radius:16px;padding:26px 28px;color:#fff;position:relative;overflow:hidden;box-shadow:0 20px 40px rgba(10,12,25,.25)}} .engine::after{{content:"";position:absolute;right:-60px;top:-60px;width:260px;height:260px;border-radius:50%;background:radial-gradient(circle,rgba(184,134,58,.25),transparent 70%)}}
 .engine-top{{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;position:relative}} .engine-label{{font-size:11px;color:var(--navmuted);letter-spacing:.3px}} .engine-title{{font-family:var(--serif);font-size:24px;margin-top:6px;font-weight:560}}
 .engine-badge{{font-size:12px;font-weight:700;padding:8px 16px;border-radius:99px;white-space:nowrap}} .engine-badge.normal{{background:rgba(255,255,255,.1);color:#cfd3e0}} .engine-badge.t2{{background:rgba(184,134,58,.35);color:#ffdca0}}
 .engine-grid{{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px, 1fr));gap:10px;margin-top:22px;position:relative}}
-.engine-item{{background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:12px 13px}} .engine-item .k{{font-size:10.5px;color:var(--navmuted)}} .engine-item .v{{font-family:var(--serif);font-size:17px;margin-top:5px}} .engine-item.hit{{border-color:rgba(184,134,58,.5);background:rgba(184,134,58,.1)}} .engine-item .pt{{font-size:10px;color:var(--brass-soft);margin-top:3px}}
+.engine-item{{background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:12px 13px}} .engine-item .k{{font-size:10.5px;color:var(--navmuted)}} .engine-item .v{{font-family:var(--serif);font-size:17px;margin-top:5px}} .engine-item.hit{{border-color:rgba(184,134,58,.5);background:rgba(184,134,58,.1)}} .engine-item.warn{{border-color:rgba(192,127,46,.5);background:rgba(192,127,46,.1)}} .engine-item .pt{{font-size:10px;color:var(--brass-soft);margin-top:3px}}
 .engine-foot{{margin-top:16px;font-size:11px;color:var(--navmuted);position:relative}}
-
 .dashboard-grid{{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(280px,.8fr);gap:16px}} .panel{{background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow)}} .panel-head{{display:flex;justify-content:space-between;align-items:center;padding:16px 19px;border-bottom:1px solid var(--line)}} .panel-head strong{{font-size:13px;font-weight:600}} .panel-head span{{color:var(--muted);font-size:10.5px}}
 .chart-wrap{{height:300px;padding:14px 18px 18px}} .pulse-list{{padding:6px 19px 14px}} .pulse{{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--line)}} .pulse:last-child{{border-bottom:0}} .pulse-label{{color:var(--muted);font-size:11px}} .pulse-main{{margin-top:4px;font-size:15px;font-weight:700}} .pulse-right{{text-align:right;font-size:11px;font-weight:600}}
 .badge{{display:inline-flex;border-radius:99px;padding:4px 9px;font-size:10px;font-weight:700}} .badge.good{{background:var(--green-soft);color:var(--green)}} .badge.warn{{background:var(--amber-soft);color:var(--amber)}} .badge.bad{{background:var(--red-soft);color:var(--red)}} .badge.neutral{{background:var(--surface2);color:var(--muted)}}
-
 .grid{{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}} .card{{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px;box-shadow:var(--shadow)}} .card-header{{display:flex;justify-content:space-between;align-items:center}} .sym{{font-weight:700;font-size:16px}} .price{{font-size:20px;font-weight:700;font-family:var(--serif)}} .divider{{height:1px;background:var(--line);margin:14px 0}} .row{{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:10px}} .fw-bold{{color:var(--ink);font-weight:600}} .pos-text{{color:var(--green)}} .neg-text{{color:var(--red)}} .alert-text{{color:var(--red)}} .errmsg{{color:var(--muted);font-size:12px;margin-top:8px}} 
 .table-container{{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow)}} table{{width:100%;border-collapse:collapse;text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}} th,td{{padding:14px;border-bottom:1px solid var(--line);font-size:13px}} th{{background:var(--surface2);color:var(--muted);font-weight:600;font-size:11.5px}} th:nth-child(1),td:nth-child(1){{text-align:left}} tr:hover td{{background:#fbfbfb}}
-
-.opt-grid{{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px}} .mkt-card{{background:var(--surface);border:1px solid var(--line);border-radius:13px;padding:17px 18px;box-shadow:var(--shadow)}} .mkt-card .name{{font-size:12.5px;color:var(--muted);display:flex;justify-content:space-between}} .mkt-card .val{{font-family:var(--serif);font-size:21px;margin-top:8px}} .mkt-card .chg{{font-size:11.5px;font-weight:600;margin-top:4px}} .soon{{font-size:9.5px;background:var(--surface2);color:var(--muted);padding:2px 7px;border-radius:99px;font-weight:600}}
+.opt-grid{{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px}} .mkt-card{{background:var(--surface);border:1px solid var(--line);border-radius:13px;padding:17px 18px;box-shadow:var(--shadow)}} .mkt-card .name{{font-size:12.5px;color:var(--muted);display:flex;justify-content:space-between}} .mkt-card .val{{font-family:var(--serif);font-size:21px;margin-top:8px}} .mkt-card .chg{{font-size:11.5px;font-weight:600;margin-top:4px}} 
 .footer{{color:#9a9484;font-size:10.5px;line-height:1.7;text-align:center;padding:34px 0 10px}}
 .tab-pane{{display:none;animation:fade .3s ease}} .tab-pane.active{{display:block}} @keyframes fade{{from{{opacity:0;transform:translateY(5px)}}to{{opacity:1;transform:none}}}}
 
-/* 期权持仓面板特别样式 */
 .opt-status {{ display:inline-flex; align-items:center; gap:5px; font-weight:600; font-size:11px; }}
-.opt-status.safe {{ color: var(--green); }}
-.opt-status.warn {{ color: var(--amber); }}
-.opt-status.danger {{ color: var(--red); }}
+.opt-status.safe {{ color: var(--green); }} .opt-status.warn {{ color: var(--amber); }} .opt-status.danger {{ color: var(--red); }}
 .opt-status::before {{ content:""; display:block; width:6px; height:6px; border-radius:50%; }}
-.opt-status.safe::before {{ background: var(--green); }}
-.opt-status.warn::before {{ background: var(--amber); }}
-.opt-status.danger::before {{ background: var(--red); }}
+.opt-status.safe::before {{ background: var(--green); }} .opt-status.warn::before {{ background: var(--amber); }} .opt-status.danger::before {{ background: var(--red); }}
 
-/* ================= 苹果 iPad & iPhone 响应式适配 ================= */
-@media (max-width: 1024px) {{
-  .dashboard-grid {{ grid-template-columns: 1fr; }} 
-  .metrics {{ grid-template-columns: repeat(2, 1fr); }} 
-}}
-
+@media (max-width: 1024px) {{ .dashboard-grid {{ grid-template-columns: 1fr; }} .metrics {{ grid-template-columns: repeat(2, 1fr); }} }}
 @media (max-width: 768px) {{
-  .app {{ flex-direction: column; }}
-  .sidebar {{ position: static; width: 100%; padding: 16px 20px; border-bottom: 1px solid var(--navline); }}
-  .nav-group {{ margin-top: 16px; }}
-  .nav-menu {{ display: flex; flex-wrap: wrap; gap: 8px; }}
-  .nav-menu li {{ font-size: 12px; padding: 8px 12px; }}
-  .main {{ margin-left: 0; width: 100%; }}
-  .topbar {{ padding: 12px 20px; height: auto; flex-direction: column; align-items: flex-start; gap: 12px; }}
-  .top-meta {{ flex-wrap: wrap; width: 100%; justify-content: space-between; }}
-  .content {{ padding: 20px; }}
-  .hero {{ flex-direction: column; align-items: flex-start; gap: 16px; }}
-  .public-note {{ width: 100%; flex: auto; }}
-  .metrics {{ grid-template-columns: 1fr; }} 
-  .engine::after {{ display: none; }}
-  .engine-top {{ flex-direction: column; gap: 12px; }}
-  .table-container {{ overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 8px; }}
-  th, td {{ padding: 10px; font-size: 12px; }}
+  .app {{ flex-direction: column; }} .sidebar {{ position: static; width: 100%; padding: 16px 20px; border-bottom: 1px solid var(--navline); }}
+  .nav-group {{ margin-top: 16px; }} .nav-menu {{ display: flex; flex-wrap: wrap; gap: 8px; }} .nav-menu li {{ font-size: 12px; padding: 8px 12px; }}
+  .main {{ margin-left: 0; width: 100%; }} .topbar {{ padding: 12px 20px; height: auto; flex-direction: column; align-items: flex-start; gap: 12px; }}
+  .top-meta {{ flex-wrap: wrap; width: 100%; justify-content: space-between; }} .content {{ padding: 20px; }}
+  .hero {{ flex-direction: column; align-items: flex-start; gap: 16px; }} .public-note {{ width: 100%; flex: auto; }}
+  .metrics {{ grid-template-columns: 1fr; }} .engine::after {{ display: none; }} .engine-top {{ flex-direction: column; gap: 12px; }}
+  .table-container {{ overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 8px; }} th, td {{ padding: 10px; font-size: 12px; }}
 }}
 </style></head><body><div class="app">
 
@@ -799,14 +852,12 @@ def render_html(data):
   <button id="authBtn" class="auth-btn-top" onclick="handleAuth()">🔐 登录私有看板</button>
 </div></header><div class="content">
 
-<!-- TAB 1: 市场总览 -->
 <div id="tab-overview" class="tab-pane active">
 <section class="hero"><div><h1>看清市场在说什么，而不是账户在做什么。</h1><p>公开版投资研究面板：聚焦市场趋势、回撤、波动率与策略触发条件。</p></div><div class="public-note"><b id="modeTitle">公开展示模式</b><span id="modeDesc">这里展示的是研究指标与策略信号，不代表任何个人账户的实际仓位或收益。</span></div></section>
 <section class="section"><div class="section-head"><h2>市场核心指标</h2><p>自动更新</p></div><div class="metrics">{metric_card('纳斯达克综合指数',qqq_value,qqq_chg,qqq_note,'good' if isinstance(qqq_chg,(int,float)) and qqq_chg>=0 else 'warn')}{metric_card('标普500指数',spy_value,spy_chg,spy_note,'good' if isinstance(spy_chg,(int,float)) and spy_chg>=0 else 'warn')}{metric_card('VIX恐慌指数',vol_display,None,vix_note,vol_tone)}{metric_card('红利低波100 (159307)',sz_val,sz_chg,'A股红利代理 · 腾讯行情','good')}</div></section>
-
 <section class="section">{market_regime_html}</section>
-
 <section class="section"><div class="section-head"><h2>QQQ & SPY · 近 30 个交易日</h2><p>历史走势</p></div><div class="dashboard-grid"><div class="panel"><div class="panel-head"><strong>趋势对比</strong><span>收盘价</span></div><div class="chart-wrap"><canvas id="trendChart"></canvas></div></div><div class="panel"><div class="panel-head"><strong>Data Status Center</strong><span>数据状态监控</span></div><div class="pulse-list">
+<div class="pulse"><div><div class="pulse-label">恐慌指数源</div><div class="pulse-main">{ds.get('VIX')}</div></div></div>
 <div class="pulse"><div><div class="pulse-label">美股宽基指数</div><div class="pulse-main">{ds.get('US Market')}</div></div></div>
 <div class="pulse"><div><div class="pulse-label">全市场宽度扫描</div><div class="pulse-main">{ds.get('Breadth')}</div></div></div>
 <div class="pulse"><div><div class="pulse-label">亚太股指代理</div><div class="pulse-main">{ds.get('CN_HK')}</div></div></div>
@@ -815,17 +866,14 @@ def render_html(data):
 </div></div></div></section>
 </div>
 
-<!-- TAB 2: 策略引擎 -->
 <div id="tab-engine" class="tab-pane">
 <section class="hero"><div><h1>核心策略信号</h1><p>用回撤、RSI 与长期均线观察核心 ETF 的风险与潜在策略触发点。</p></div></section>
 <section class="section"><div class="engine"><div class="engine-top"><div><div class="engine-label">STRATEGY ENGINE · 核心ETF三档加仓线</div><div class="engine-title">当前状态：实时监测</div></div><div class="engine-badge {engine_badge_cls}">{level_names[max_level]}</div></div>
-<div class="engine-grid">{engine_html}</div><div class="engine-foot">分级规则：每个核心ETF各自设有一级/二级/三级三档加仓线。回撤判定严格使用历史全期最高点(ATH)或跨年窗口作为打分基准，严防短视。此处展示规则与信号，不展示实盘资金规模。</div></div></section>
+<div class="engine-grid">{engine_html}</div><div class="engine-foot">分级规则：策略触发严格使用经复权验证的历史全期最高点（ATH）作为基准；ATH 暂不可用或触发异常保险丝时仅展示窗口回撤参考值，不触发正式策略信号。此处展示规则与信号，不展示实盘资金规模。</div></div></section>
 </div>
 
-<!-- TAB 3: 指数与 ETF -->
 <div id="tab-index" class="tab-pane"><section class="hero"><div><h1>指数与行业 ETF</h1><p>从宽基指数到行业 ETF，快速观察价格、当年最高点回撤、RSI 与 200 日均线距离。</p></div></section><section class="section"><div class="grid">{index_html}</div></section></div>
 
-<!-- TAB 4: A股 & 港股 & 红利 -->
 <div id="tab-cn-hk" class="tab-pane">
 <section class="hero"><div><h1>A股港股 & 红利低波</h1><p>自动同步腾讯行情。中证红利低波100指数(930955)本身不在免费行情源覆盖范围内，用紧密跟踪该指数的场内ETF(159307)代理展示走势。</p></div></section>
 <section class="section"><div class="section-head"><h2>大盘与红利核心池</h2><p>盘中自动实时跳动刷新</p></div><div class="opt-grid">
@@ -839,10 +887,8 @@ def render_html(data):
 </div></section>
 </div>
 
-<!-- TAB 5: 个股观察池 -->
 <div id="tab-stocks" class="tab-pane"><section class="hero"><div><h1>个股观察池</h1><p>包含中英文名称对照及核心技术指标监控。</p></div></section><section class="section"><div class="table-container"><table><thead><tr><th>名称代码</th><th>最新价</th><th>涨跌幅</th><th>开盘</th><th>最高</th><th>最低</th><th>当年(YTD)最高</th><th>RSI(14)</th><th>距200MA</th><th>策略参考价</th></tr></thead><tbody id="stocksTableBody">{stock_html}</tbody></table></div></section></div>
 
-<!-- TAB 6: 期权自查 (V1动态监控) -->
 <div id="tab-options" class="tab-pane">
 <section class="hero"><div><h1>期权持仓监控 V1</h1><p>下表数据为<b style="color:var(--brass)">示例占位数据</b>，用于演示 DTE 时间衰减、盈亏平衡距离与风控预警状态的计算方式，不是任何真实持仓。不展示真实资金规模与实盘仓位。</p></div></section>
 <section class="section">
@@ -861,16 +907,13 @@ def render_html(data):
                     <th>风控状态</th>
                 </tr>
             </thead>
-            <tbody id="optionsTableBody">
-                <!-- 由 JavaScript 渲染 -->
-            </tbody>
+            <tbody id="optionsTableBody"></tbody>
         </table>
     </div>
 </section>
 <section class="section"><p style="font-size:11.5px;color:var(--muted);line-height:1.7">💡 V1 使用说明：此面板采用盲盒脱敏架构，不显示你持有的真实张数和美金数额。仅展示该合约“单张”相对于当前正股价的风控健康度（基于云端每日最新的正股抓取价格测算）。</p></section>
 </div>
 
-<!-- TAB 7: 历史买点归档 -->
 <div id="tab-archive" class="tab-pane">
 <section class="hero"><div><h1>历史买点归档数据库</h1><p>完整回溯 2005 年以来各大核心资产触发一级、重点及极限加仓信号的黄金历史买点，验证策略透明度。</p></div></section>
 <section class="section"><div class="table-container"><table><thead><tr><th style="text-align:left;">资产代号</th><th>触发日期</th><th>触发收盘价</th><th>当时全期回撤幅度</th><th>触发加仓评级</th><th>规则体系</th></tr></thead><tbody id="archiveTableBody">{signals_html}</tbody></table></div></section>
@@ -903,7 +946,6 @@ window.addEventListener('load',function(){{
       ]}},options:{{responsive:true,maintainAspectRatio:false,interaction:{{mode:'index',intersect:false}},plugins:{{legend:{{position:'top',align:'end'}}}},scales:{{x:{{grid:{{display:false}},ticks:{{maxTicksLimit:6}}}},y:{{position:'left',grid:{{color:'#eee9dc'}}}},y1:{{position:'right',grid:{{drawOnChartArea:false}}}}}}}}}});
   }}
 
-  // ================= 渲染期权监控面板 =================
   const EXAMPLE_OPTION_POSITIONS = [
       {{ symbol: "NVDA", type: "Call", strike: 155, expiry: "2026-05-22", cost: 2.13 }},
       {{ symbol: "TSLA", type: "Put", strike: 220, expiry: "2026-10-16", cost: 8.50 }}
@@ -959,7 +1001,6 @@ window.addEventListener('load',function(){{
   }}
 }});
 
-// ================= Supabase 动态数据与身份验证 =================
 const SUPABASE_URL = 'https://rhielbkvhgqbthcgztci.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_7_S0qA1oh31fHiihhx07PA_1LPAighW';
 const ADMIN_EMAIL = 'xxj8166@gmail.com';
@@ -974,7 +1015,6 @@ async function fetchAndRenderTargets() {{
           const targetEl = document.getElementById(`target-${{row.symbol}}`);
           const closeEl = document.getElementById(`close-${{row.symbol}}`);
           const actionEl = document.getElementById(`action-${{row.symbol}}`);
-          
           if (targetEl && closeEl) {{
               targetEl.innerHTML = `$${{row.target_price.toFixed(2)}}`;
               if (isAdmin) {{
@@ -997,14 +1037,9 @@ async function editTarget(symbol, currentPrice) {{
       const num = parseFloat(newPrice);
       if (!isNaN(num)) {{
           const {{ error }} = await supabaseClient.from('stock_targets').upsert({{ symbol: symbol, target_price: num }});
-          if (error) {{
-              alert('更新失败，权限不足或网络异常：' + error.message);
-          }} else {{
-              fetchAndRenderTargets();
-          }}
-      }} else {{
-          alert('输入无效，请输入纯数字。');
-      }}
+          if (error) alert('更新失败：' + error.message);
+          else fetchAndRenderTargets();
+      }} else alert('输入无效，请输入纯数字。');
   }}
 }}
 
@@ -1037,20 +1072,18 @@ async function handleAuth() {{
       alert('已退出登录，恢复为公开展示模式。');
       window.location.reload();
   }} else {{
-      const email = prompt("欢迎探索 myAlphaView 私有量化模型。\\n请输入您的邮箱地址，我们将为您发送免密登录/免费注册链接：");
+      const email = prompt("请输入您的邮箱地址，获取免密登录链接：");
       if (!email) return;
-      
       authBtn.innerHTML = "⏳ 正在发送...";
       const {{ error }} = await supabaseClient.auth.signInWithOtp({{
           email: email,
           options: {{ emailRedirectTo: window.location.origin + window.location.pathname }}
       }});
-
       if (error) {{
           alert("发送失败: " + error.message);
           authBtn.innerHTML = "🔐 登录私有看板";
       }} else {{
-          alert("✅ 魔法验证链接已发送至 " + email + "，请查收邮件并点击链接登录！");
+          alert("✅ 魔法验证链接已发送，请查收邮件！");
           authBtn.innerHTML = "✉️ 请查收邮件";
       }}
   }}
@@ -1061,13 +1094,10 @@ supabaseClient.auth.onAuthStateChange((event, session) => {{
   if (event === 'SIGNED_IN') checkSession();
 }});
 
-// ================= A股/港股 实时跳动引擎 =================
 const CNHK_SYMBOLS = ['sh000001', 'sh000300', 'sz159307', 'hk03086', 'hk03416'];
-
 function fetchLiveCNHK() {{
   const script = document.createElement('script');
   script.src = `https://qt.gtimg.cn/q=${{CNHK_SYMBOLS.join(',')}}&r=${{Math.random()}}`;
-  
   script.onload = () => {{
       CNHK_SYMBOLS.forEach(sym => {{
           const rawData = window['v_' + sym];
@@ -1077,19 +1107,12 @@ function fetchLiveCNHK() {{
                   const currentPrice = parseFloat(fields[3]);
                   const prevClose = parseFloat(fields[4]);
                   const pctChange = (currentPrice - prevClose) / prevClose;
-                  
                   const priceEl = document.getElementById(`price-${{sym}}`);
                   const chgEl = document.getElementById(`chg-${{sym}}`);
-                  
                   if (priceEl && chgEl) {{
                       priceEl.innerText = currentPrice.toFixed(3);
-                      const chgStr = (pctChange >= 0 ? "+" : "") + (pctChange * 100).toFixed(2) + "%";
-                      chgEl.innerText = chgStr;
-                      if (pctChange >= 0) {{
-                          chgEl.className = "chg positive";
-                      }} else {{
-                          chgEl.className = "chg negative";
-                      }}
+                      chgEl.innerText = (pctChange >= 0 ? "+" : "") + (pctChange * 100).toFixed(2) + "%";
+                      chgEl.className = "chg " + (pctChange >= 0 ? "positive" : "negative");
                   }}
               }}
           }}
@@ -1098,10 +1121,7 @@ function fetchLiveCNHK() {{
   }};
   document.head.appendChild(script);
 }}
-
-window.addEventListener('load', () => {{
-  setInterval(fetchLiveCNHK, 5000);
-}});
+window.addEventListener('load', () => {{ setInterval(fetchLiveCNHK, 5000); }});
 </script></body></html>'''
 
 # ================= 数据库推送逻辑 =================

@@ -84,6 +84,7 @@ def get_true_aths(symbols):
         print(f"⚠️ 获取真实 ATH 失败: {e}")
         return {}
 
+# ================= 核心抓取逻辑 =================
 def http_get_json(url):
     with urllib.request.urlopen(url, timeout=20) as resp:
         return json.loads(resp.read().decode("utf-8"))
@@ -177,56 +178,53 @@ def fetch_fund_estimate(fund_code):
         json_str = raw[raw.find("{"):raw.rfind("}") + 1]
         data = json.loads(json_str)
         est_pct = float(data.get("gszzl", 0)) / 100.0 if data.get("gszzl") else 0
-        return {"name": data.get("name"), "price": float(data.get("gsz", 0)), "day_chg": est_pct, "time": data.get("gztime")}
+        return {
+            "name": data.get("name"), "price": float(data.get("gsz", 0)), 
+            "day_chg": est_pct, "time": data.get("gztime")
+        }
     except Exception as e:
         return {"error": str(e)}
 
-# ================= 加载历史买点数据库 =================
+# ================= 加载历史买点数据库 (JSON版本 - Claude原版) =================
 def load_historical_signals():
+    """
+    从 historical_signals.json 读取（跟本文件放在同一个scripts/目录）。
+    确保了隐私保护且极大地降低了数据读取出错的概率。
+    """
     try:
-        possible_paths = [
-            os.path.join(os.path.dirname(__file__), '..', '多资产量化管理平台_V2_4_已合并宽度.xlsx'),
-            os.path.join(os.path.dirname(__file__), '多资产量化管理平台_V2_4_已合并宽度.xlsx'),
-            '多资产量化管理平台_V2_4_已合并宽度.xlsx'
-        ]
-        excel_path = None
-        for p in possible_paths:
-            if os.path.exists(p):
-                excel_path = p
-                break
-                
-        if not excel_path:
+        json_path = os.path.join(os.path.dirname(__file__), 'historical_signals.json')
+        if not os.path.exists(json_path):
+            print("⚠️ 未找到 historical_signals.json，历史买点归档这个tab会是空的。")
             return []
-        
-        # 兼容跳过表头和图例，精准读取
-        df = pd.read_excel(excel_path, sheet_name='历史买点数据库', header=None, skiprows=3)
-        records = []
-        for _, row in df.iterrows():
-            asset_code = row[0]
-            if pd.isna(asset_code) or str(asset_code).strip() == '' or str(asset_code).strip() == '资产代号':
-                continue
-            records.append({
-                "symbol": str(asset_code).strip(), "date": str(row[1])[:10],
-                "price": float(row[2]) if pd.notna(row[2]) else 0.0,
-                "drawdown": float(row[3]) if pd.notna(row[3]) else 0.0,
-                "rating": str(row[4]).strip() if pd.notna(row[4]) else "—"
-            })
+        with open(json_path, 'r', encoding='utf-8') as f:
+            records = json.load(f)
+            
+        for r in records:
+            rating = r.get("rating", "")
+            r["source"] = "资产自身三档线" if rating.startswith("★") else "全市场宽度恐慌"
+            
+        records.sort(key=lambda r: r.get("date", ""), reverse=True)
+        print(f"✅ 成功加载了 {len(records)} 条历史买点记录。")
         return records
-    except Exception:
+    except Exception as e:
+        print(f"❌ 读取历史买点数据库失败: {e}")
         return []
 
-# ================= 全市场宽度动态计算 =================
+# ================= 全市场宽度动态计算（移除早晨跳过机制） =================
 def calculate_daily_breadth():
-    # 注意：已移除原先的 utc_hour 判断逻辑，每次执行都会读取最新或昨日收盘价，确保无空白状态
+    """返回一个dict，status为 'ok'/'error'。已移除早晨跳过，保证随时都有数据"""
     try:
         json_path = os.path.join(os.path.dirname(__file__), 'sp500_constituents.json')
         if not os.path.exists(json_path):
-            return None, "Error: sp500_constituents.json missing"
+            msg = "未找到 sp500_constituents.json 名单文件"
+            print(f"⚠️ {msg}")
+            return {"status": "error", "message": msg}
 
         with open(json_path, 'r') as f:
             tickers = json.load(f)
             
-        data = yf.download(tickers, period="300d", interval="1d", threads=True, progress=False)
+        print(f"正在拉取 {len(tickers)} 只成分股近 300 天数据以计算最新市场宽度...")
+        data = yf.download(tickers, period="300d", interval="1d", threads=True)
         closes = data['Close']
         
         ma20 = closes.rolling(window=20).mean()
@@ -240,19 +238,24 @@ def calculate_daily_breadth():
         
         b20 = b20.dropna()
         if len(b20) < 11:
-            return None, "Error: Insufficient Data"
+            msg = "成分股有效数据不足11个交易日，暂无法算斜率"
+            print(f"⚠️ {msg}")
+            return {"status": "error", "message": msg}
             
         latest_b20 = float(b20.iloc[-1])
         latest_b50 = float(b50.dropna().iloc[-1])
         latest_b200 = float(b200.dropna().iloc[-1])
         slope_10d = float(latest_b20 - b20.iloc[-11])
         
+        print(f"✅ 最新市场宽度计算成功: B20={latest_b20:.2%}, B50={latest_b50:.2%}, B200={latest_b200:.2%}, 10日斜率={slope_10d:.2%}")
         return {
-            "b20": latest_b20, "b50": latest_b50, 
-            "b200": latest_b200, "slope_10d": slope_10d
-        }, "Updated"
+            "status": "ok",
+            "b20": latest_b20, "b50": latest_b50, "b200": latest_b200, "slope_10d": slope_10d
+        }
     except Exception as e:
-        return None, f"Error: {e}"
+        msg = f"抓取/计算过程异常: {e}"
+        print(f"❌ {msg}")
+        return {"status": "error", "message": msg}
 
 # ================= 指标计算 =================
 def calc_rsi(closes, period=14):
@@ -336,16 +339,20 @@ def calc_market_regime(gspc_long_rows, spy_fallback_rows, vix_value, today, brea
     max_available_score = 9 
 
     conditions = []
-    if breadth_data:
+    breadth_ok = breadth_data and breadth_data.get("status") == "ok"
+    if breadth_ok:
         b20_hit = breadth_data["b20"] <= TH_B20
         if b20_hit: score += 2
         conditions.append({"key": "20天宽度", "threshold_note": f"≤{TH_B20:.0%}", "points": 2, "hit": b20_hit, "val": breadth_data["b20"]})
+        
         b50_hit = breadth_data["b50"] <= TH_B50
         if b50_hit: score += 2
         conditions.append({"key": "50天宽度", "threshold_note": f"≤{TH_B50:.0%}", "points": 2, "hit": b50_hit, "val": breadth_data["b50"]})
+        
         slope_hit = breadth_data["slope_10d"] <= TH_SLOPE
         if slope_hit: score += 2
         conditions.append({"key": "斜率冻点(20天宽10日骤降)", "threshold_note": f"≤{TH_SLOPE:.0%}", "points": 2, "hit": slope_hit, "val": breadth_data["slope_10d"]})
+        
         b200_hit = breadth_data["b200"] <= TH_B200
         if b200_hit: score += 1
         conditions.append({"key": "200天宽度(绝对水平)", "threshold_note": f"≤{TH_B200:.0%}", "points": 1, "hit": b200_hit, "val": breadth_data["b200"]})
@@ -363,6 +370,8 @@ def calc_market_regime(gspc_long_rows, spy_fallback_rows, vix_value, today, brea
         "drawdown": {"value": drawdown, "threshold": TH_DRAWDOWN, "hit": drawdown_hit, "points": 2,
                      "ath_is_full_history": ath_is_full_history},
         "conditions": conditions, "vix": vix_value,
+        "breadth_status": (breadth_data or {}).get("status", "error"),
+        "breadth_message": (breadth_data or {}).get("message", "宽度数据缺失"),
     }
 
 def render_market_regime(mr):
@@ -384,7 +393,7 @@ def render_market_regime(mr):
             
     errmsg = ""
     if not mr.get("conditions"):
-        errmsg = '<div class="errmsg" style="padding:0 19px 16px;color:var(--muted);font-size:11px">全市场宽度抓取发生异常，当前以"指数回撤"独立参与打分。</div>'
+        errmsg = f'<div class="errmsg" style="padding:0 19px 16px;color:var(--red);font-size:11px">⚠️ 宽度数据抓取异常：{mr.get("breadth_message","")}，已自动降级为只用"指数回撤"打分。</div>'
         
     return f'''<div class="panel">
       <div class="panel-head"><strong>市场状态引擎</strong><span>有效评分 {mr["score"]}/{mr["max_available_score"]} 分（满分体系 {mr["max_score"]} 分）</span></div>
@@ -416,7 +425,6 @@ def build():
     # 2. 获取真实 ATH，修复回撤定义 BUG
     core_aths = get_true_aths(list(CORE_TIERS.keys()))
 
-    # 3. 构建 Core
     for name, tiers in CORE_TIERS.items():
         try:
             t_ath = core_aths.get(name)
@@ -425,7 +433,6 @@ def build():
             core[name] = {"error": str(e)}
         throttle()
 
-    # 4. 构建 Index
     spy_rows_for_regime = None
     for name in INDEX:
         try:
@@ -456,14 +463,12 @@ def build():
         
     throttle()
     
-    # 5. 市场宽度计算与状态引擎
-    breadth_data, breadth_status = calculate_daily_breadth()
-    data_status["Breadth"] = breadth_status
+    breadth_data = calculate_daily_breadth()
+    data_status["Breadth"] = breadth_data.get("status", "error")
     
     vix_value = vix_data.get("close") if "error" not in vix_data else None
     market_regime = calc_market_regime(gspc_long_rows, spy_rows_for_regime, vix_value, today, breadth_data)
 
-    # 6. 个股
     for name in STOCKS:
         try:
             stocks[name] = analyze(name, fetch_time_series(name), today, is_stock=True)
@@ -471,7 +476,7 @@ def build():
             stocks[name] = {"error": str(e)}
         throttle()
         
-    # 7. CN_HK 数据 & OTC 基金数据 (已修复 OTC 监控状态的记录 BUG)
+    # CN_HK & OTC Fund Status
     cn_hk_data = {}
     try:
         res = fetch_tencent_quotes(list(CN_HK_SYMBOLS.keys()))
@@ -570,15 +575,18 @@ def render_html(data):
     index_html = "".join(card_etf(k, v) for k, v in data["index"].items())
     stock_html = "".join(row_stock(k, v) for k, v in data["stocks"].items())
 
+    # === Claude 的 6 列渲染逻辑（含 source 来源）===
     signals_html = ""
     for s in data.get("historical_signals", []):
         badge_cls = "warn" if "一级" in s['rating'] else ("bad" if "重点" in s['rating'] or "极限" in s['rating'] else "neutral")
+        source_cls = "neutral" if s.get("source") == "资产自身三档线" else "good"
         signals_html += f'''<tr>
             <td style="text-align:left; font-weight:600;">{s['symbol']}</td>
             <td>{s['date']}</td>
             <td class="fw-bold">${s['price']:.4f}</td>
             <td class="neg-text">{fmt_pct(s['drawdown'])}</td>
             <td><span class="badge {badge_cls}">{s['rating']}</span></td>
+            <td><span class="badge {source_cls}">{s.get('source','-')}</span></td>
         </tr>'''
 
     mi = data.get("market_indicators", {})
@@ -762,7 +770,8 @@ def render_html(data):
 <!-- TAB 7: 历史买点归档 -->
 <div id="tab-archive" class="tab-pane">
 <section class="hero"><div><h1>历史买点归档数据库</h1><p>完整回溯 2005 年以来各大核心资产触发一级、重点及极限加仓信号的黄金历史买点，验证策略透明度。</p></div></section>
-<section class="section"><div class="table-container"><table><thead><tr><th style="text-align:left;">资产代号</th><th>触发日期</th><th>触发收盘价</th><th>当时全期回撤幅度</th><th>触发加仓评级</th></tr></thead><tbody id="archiveTableBody">{signals_html}</tbody></table></div></section></div>
+<section class="section"><div class="table-container"><table><thead><tr><th style="text-align:left;">资产代号</th><th>触发日期</th><th>触发收盘价</th><th>当时全期回撤幅度</th><th>触发加仓评级</th><th>规则体系</th></tr></thead><tbody id="archiveTableBody">{signals_html}</tbody></table></div></section>
+<section class="section"><p style="font-size:11.5px;color:var(--muted);line-height:1.7">同一资产同一天可能出现两条记录——"资产自身三档线"是该ETF自己相对历史高点的回撤触发的加仓线；"全市场宽度恐慌"是标普500全市场宽度指标触发的分级信号。两套规则相互独立，同一天都触发是正常情况，不是数据重复。</p></section></div>
 
 <div class="footer">© 2026 myAlphaView · Built by Simon · Public Research Dashboard<br>市场数据与策略指标仅供研究、学习与信息参考，不构成投资建议。</div>
 </div></main></div>
@@ -774,7 +783,7 @@ function switchTab(id,el){{
   document.querySelectorAll('.nav-menu li').forEach(l=>l.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   el.classList.add('active');
-  document.getElementById('bc-title').innerText = el.innerText.replace('NEW', '').replace(/^[◆◒◫◇⌁⚑📜]/, '').trim();
+  document.getElementById('bc-title').innerText = el.innerText.replace('NEW', '').replace(/^[◆◒◫◇⌁⚑📜]/u, '').trim();
   window.scrollTo({{top:0,behavior:'smooth'}});
 }}
 window.addEventListener('load',function(){{

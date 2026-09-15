@@ -1,4 +1,4 @@
-import json, datetime, os, time
+import json, datetime, os, time, math
 import urllib.request, urllib.parse
 import yfinance as yf
 import pandas as pd
@@ -56,7 +56,6 @@ FUND_EST_URL = "http://fundgz.1234567.com.cn/js/{code}.js"
 
 # ================= 辅助/信源抓取 =================
 def fetch_supabase_targets():
-    """从 Supabase 提取最新策略价，确保 Python 静态生成和前端 JS 均为 Single Source of Truth"""
     supabase_url = os.environ.get("SUPABASE_URL")
     supabase_key = os.environ.get("SUPABASE_KEY")
     if not supabase_url or not supabase_key:
@@ -68,15 +67,13 @@ def fetch_supabase_targets():
             data = json.loads(resp.read().decode("utf-8"))
             return {item["symbol"]: float(item["target_price"]) for item in data}
     except Exception as e:
-        print(f"⚠️ 无法从 Supabase 获取策略价，回退到本地默认值: {e}")
+        print(f"⚠️ 无法从 Supabase 获取策略价: {e}")
         return None
 
 def get_true_aths(symbols):
-    """利用 yfinance 获取真实的 All-Time High，不再局限于短抓取窗口"""
     try:
         data = yf.download(symbols, period="max", interval="1d", threads=True, progress=False)
         highs = data['High'].max()
-        # 兼容 yfinance 在单只股票和多只股票时返回格式不同的问题
         if len(symbols) == 1:
             return {symbols[0]: float(highs)}
         return highs.to_dict()
@@ -84,7 +81,6 @@ def get_true_aths(symbols):
         print(f"⚠️ 获取真实 ATH 失败: {e}")
         return {}
 
-# ================= 核心抓取逻辑 =================
 def http_get_json(url):
     with urllib.request.urlopen(url, timeout=20) as resp:
         return json.loads(resp.read().decode("utf-8"))
@@ -185,16 +181,11 @@ def fetch_fund_estimate(fund_code):
     except Exception as e:
         return {"error": str(e)}
 
-# ================= 加载历史买点数据库 (JSON版本 - Claude原版) =================
+# ================= 加载历史买点数据库 =================
 def load_historical_signals():
-    """
-    从 historical_signals.json 读取（跟本文件放在同一个scripts/目录）。
-    确保了隐私保护且极大地降低了数据读取出错的概率。
-    """
     try:
         json_path = os.path.join(os.path.dirname(__file__), 'historical_signals.json')
         if not os.path.exists(json_path):
-            print("⚠️ 未找到 historical_signals.json，历史买点归档这个tab会是空的。")
             return []
         with open(json_path, 'r', encoding='utf-8') as f:
             records = json.load(f)
@@ -204,27 +195,22 @@ def load_historical_signals():
             r["source"] = "资产自身三档线" if rating.startswith("★") else "全市场宽度恐慌"
             
         records.sort(key=lambda r: r.get("date", ""), reverse=True)
-        print(f"✅ 成功加载了 {len(records)} 条历史买点记录。")
         return records
     except Exception as e:
-        print(f"❌ 读取历史买点数据库失败: {e}")
+        print(f"❌ 读取历史买点失败: {e}")
         return []
 
-# ================= 全市场宽度动态计算（移除早晨跳过机制） =================
+# ================= 全市场宽度动态计算 =================
 def calculate_daily_breadth():
-    """返回一个dict，status为 'ok'/'error'。已移除早晨跳过，保证随时都有数据"""
     try:
         json_path = os.path.join(os.path.dirname(__file__), 'sp500_constituents.json')
         if not os.path.exists(json_path):
-            msg = "未找到 sp500_constituents.json 名单文件"
-            print(f"⚠️ {msg}")
-            return {"status": "error", "message": msg}
+            return {"status": "error", "message": "名单丢失"}
 
         with open(json_path, 'r') as f:
             tickers = json.load(f)
             
-        print(f"正在拉取 {len(tickers)} 只成分股近 300 天数据以计算最新市场宽度...")
-        data = yf.download(tickers, period="300d", interval="1d", threads=True)
+        data = yf.download(tickers, period="300d", interval="1d", threads=True, progress=False)
         closes = data['Close']
         
         ma20 = closes.rolling(window=20).mean()
@@ -238,24 +224,19 @@ def calculate_daily_breadth():
         
         b20 = b20.dropna()
         if len(b20) < 11:
-            msg = "成分股有效数据不足11个交易日，暂无法算斜率"
-            print(f"⚠️ {msg}")
-            return {"status": "error", "message": msg}
+            return {"status": "error", "message": "数据不足"}
             
         latest_b20 = float(b20.iloc[-1])
         latest_b50 = float(b50.dropna().iloc[-1])
         latest_b200 = float(b200.dropna().iloc[-1])
         slope_10d = float(latest_b20 - b20.iloc[-11])
         
-        print(f"✅ 最新市场宽度计算成功: B20={latest_b20:.2%}, B50={latest_b50:.2%}, B200={latest_b200:.2%}, 10日斜率={slope_10d:.2%}")
         return {
             "status": "ok",
             "b20": latest_b20, "b50": latest_b50, "b200": latest_b200, "slope_10d": slope_10d
         }
     except Exception as e:
-        msg = f"抓取/计算过程异常: {e}"
-        print(f"❌ {msg}")
-        return {"status": "error", "message": msg}
+        return {"status": "error", "message": str(e)}
 
 # ================= 指标计算 =================
 def calc_rsi(closes, period=14):
@@ -294,22 +275,33 @@ def analyze(symbol, rows, today, tiers=None, is_stock=False, true_ath=None):
     closes = [float(r["close"]) for r in rows]
     latest_close = closes[0]
     prev_close = closes[1] if len(closes) > 1 else latest_close
+    
+    # 提取当年(YTD)最高点用于卡片展示
     current_year = str(today.year)
-    highs = [float(r["high"]) for r in rows if r["datetime"].startswith(current_year)]
-    ytd_high = max(highs) if highs else None
+    ytd_rows = [r for r in rows if r["datetime"].startswith(current_year)]
+    ytd_high = max([float(r["high"]) for r in ytd_rows]) if ytd_rows else latest_close
     
-    # 优先使用真实历史最高点
-    all_time_high = true_ath if true_ath is not None else (max([float(r["high"]) for r in rows]) if rows else None)
-    
+    # 【核心安全机制】：策略触发线坚守 ATH，严防跨年重置 Bug！
+    # 加入 math.isnan 判断防线，过滤崩溃数据
+    if true_ath is not None and isinstance(true_ath, (int, float)) and not math.isnan(true_ath):
+        all_time_high = true_ath
+        ath_is_true = True
+    else:
+        # 如果 ATH 获取失败或为 NaN，退回使用抓取窗口(如260天)内的最高点
+        all_time_high = max([float(r["high"]) for r in rows]) if rows else None
+        ath_is_true = False
+        
     out = {
         "date": rows[0]["datetime"][:10], "close": latest_close, "prev_close": prev_close,
         "day_chg": pct_change(latest_close, prev_close), "ytd_high": ytd_high,
         "rsi": calc_rsi(closes, 14), "dist_200ma": pct_change(latest_close, calc_sma(closes, 200)),
-        "ath_is_true": (true_ath is not None)
+        "ath_is_true": ath_is_true
     }
+    
     if is_stock:
         out.update({"open": float(rows[0]["open"]), "high": float(rows[0]["high"]), "low": float(rows[0]["low"])})
     else:
+        # 触发器严格基于全期最高点(ATH)计算回撤
         drawdown = pct_change(latest_close, all_time_high)
         level, level_label = tier_reached(drawdown, tiers)
         out.update({
@@ -325,16 +317,17 @@ def calc_market_regime(gspc_long_rows, spy_fallback_rows, vix_value, today, brea
     TH_DRAWDOWN = -0.08
     TH_B20, TH_B50, TH_B200, TH_SLOPE = 0.20, 0.15, 0.50, -0.30
 
-    rows_for_ath, ath_is_full_history = (gspc_long_rows, True) if gspc_long_rows else (spy_fallback_rows, False)
+    rows_for_ath = gspc_long_rows if gspc_long_rows else spy_fallback_rows
     if not rows_for_ath:
         return {"error": "指数历史数据不足，无法计算回撤"}
 
+    # 引擎同样使用历史全期数据计算回撤，不使用 YTD
     closes = [float(r["close"]) for r in rows_for_ath]
     latest = closes[0]
-    ath = max(float(r["high"]) for r in rows_for_ath)
+    ath = max([float(r["high"]) for r in rows_for_ath])
     drawdown = pct_change(latest, ath)
 
-    drawdown_hit = isinstance(drawdown, (int, float)) and drawdown <= TH_DRAWDOWN
+    drawdown_hit = isinstance(drawdown, (int, float)) and drawdown <= TH_DRAWDOWN and not math.isnan(drawdown)
     score = 2 if drawdown_hit else 0
     max_available_score = 9 
 
@@ -367,8 +360,7 @@ def calc_market_regime(gspc_long_rows, spy_fallback_rows, vix_value, today, brea
     return {
         "score": score, "max_score": 9, "max_available_score": max_available_score,
         "tier": tier, "tier_label": tier_label,
-        "drawdown": {"value": drawdown, "threshold": TH_DRAWDOWN, "hit": drawdown_hit, "points": 2,
-                     "ath_is_full_history": ath_is_full_history},
+        "drawdown": {"value": drawdown, "threshold": TH_DRAWDOWN, "hit": drawdown_hit, "points": 2},
         "conditions": conditions, "vix": vix_value,
         "breadth_status": (breadth_data or {}).get("status", "error"),
         "breadth_message": (breadth_data or {}).get("message", "宽度数据缺失"),
@@ -380,14 +372,14 @@ def render_market_regime(mr):
     tier_tone = {"normal": "good", "tier1": "warn", "major": "warn", "extreme": "bad"}.get(mr["tier"], "neutral")
     dd = mr["drawdown"]
     hit_badge = f'<span class="badge bad">命中 {dd["points"]}分</span>' if dd["hit"] else '<span class="badge neutral">未触发</span>'
-    val_str = fmt_pct(dd["value"]) if isinstance(dd["value"], (int, float)) else "-"
-    ath_note = "" if dd["ath_is_full_history"] else "（数据不足，暂估）"
-    active_row = f'<div class="row"><span>指数高点回撤（阈值 {fmt_pct(dd["threshold"])}）{ath_note}</span><span class="fw-bold">{val_str} {hit_badge}</span></div>'
+    val_str = fmt_pct(dd["value"])
+    
+    active_row = f'<div class="row"><span>指数历史高点回撤（阈值 {fmt_pct(dd["threshold"])}）</span><span class="fw-bold">{val_str} {hit_badge}</span></div>'
     
     cond_rows = ""
     if mr.get("conditions"):
         for c in mr["conditions"]:
-            c_val = fmt_pct(c["val"]) if isinstance(c["val"], (int, float)) else "-"
+            c_val = fmt_pct(c["val"])
             c_badge = f'<span class="badge bad">命中 {c["points"]}分</span>' if c["hit"] else '<span class="badge neutral">未触发</span>'
             cond_rows += f'<div class="row"><span>{c["key"]}（阈值 {c["threshold_note"]}）</span><span class="fw-bold">{c_val} {c_badge}</span></div>'
             
@@ -412,7 +404,6 @@ def build():
     core, index, stocks, overview_charts = {}, {}, {}, {}
     data_status = {}
 
-    # 1. 尝试覆盖策略目标价 (Single Source of Truth)
     sb_targets = fetch_supabase_targets()
     if sb_targets:
         for sym, tgt in sb_targets.items():
@@ -422,7 +413,6 @@ def build():
     else:
         data_status["Supabase"] = "Fallback/Failed"
 
-    # 2. 获取真实 ATH，修复回撤定义 BUG
     core_aths = get_true_aths(list(CORE_TIERS.keys()))
 
     for name, tiers in CORE_TIERS.items():
@@ -476,7 +466,6 @@ def build():
             stocks[name] = {"error": str(e)}
         throttle()
         
-    # CN_HK & OTC Fund Status
     cn_hk_data = {}
     try:
         res = fetch_tencent_quotes(list(CN_HK_SYMBOLS.keys()))
@@ -509,8 +498,9 @@ def build():
             }}
 
 # ================= HTML 组件与渲染 =================
-def fmt_pct(x, digits=2): return f"{x*100:.{digits}f}%" if isinstance(x, (int, float)) else "-"
-def fmt_num(x, digits=2): return f"{x:.{digits}f}" if isinstance(x, (int, float)) else "-"
+# NaN 防护机制
+def fmt_pct(x, digits=2): return f"{x*100:.{digits}f}%" if isinstance(x, (int, float)) and not math.isnan(x) else "-"
+def fmt_num(x, digits=2): return f"{x:.{digits}f}" if isinstance(x, (int, float)) and not math.isnan(x) else "-"
 
 def engine_item(name, r):
     if "error" in r: return f'<div class="engine-item"><div class="k">{name}</div><div class="v">-</div><div class="pt">数据获取失败</div></div>'
@@ -529,7 +519,7 @@ def card_etf(name, r):
     return f'''<div class="card">
       <div class="card-header"><span class="sym">{name}</span><span class="price">${r["close"]:.2f}</span></div>
       <div class="divider"></div>
-      <div class="row"><span>年度最高</span><span class="fw-bold">${fmt_num(r["ytd_high"])}</span></div>
+      <div class="row"><span>当年(YTD)最高</span><span class="fw-bold">${fmt_num(r["ytd_high"])}</span></div>
       <div class="row"><span>最高点回撤</span><span class="{drawdown_cls}">{fmt_pct(r["drawdown"])}</span></div>
       <div class="row"><span>RSI (14)</span><span class="fw-bold">{fmt_num(r["rsi"])}</span></div>
       <div class="row"><span>距 200MA</span><span class="fw-bold">{fmt_pct(r["dist_200ma"])}</span></div>
@@ -575,7 +565,6 @@ def render_html(data):
     index_html = "".join(card_etf(k, v) for k, v in data["index"].items())
     stock_html = "".join(row_stock(k, v) for k, v in data["stocks"].items())
 
-    # === Claude 的 6 列渲染逻辑（含 source 来源）===
     signals_html = ""
     for s in data.get("historical_signals", []):
         badge_cls = "warn" if "一级" in s['rating'] else ("bad" if "重点" in s['rating'] or "极限" in s['rating'] else "neutral")
@@ -626,6 +615,15 @@ def render_html(data):
     sz_chg = sz159307.get("day_chg")
 
     chart_json = json.dumps(data.get("overview_charts", {}), ensure_ascii=False)
+    
+    # 将股票现价传给前端期权监控雷达
+    prices_map = {}
+    for k, v in data.get("stocks", {}).items():
+        if "error" not in v: prices_map[k] = v.get("close", 0)
+    for k, v in data.get("core", {}).items():
+        if "error" not in v: prices_map[k] = v.get("close", 0)
+    prices_json = json.dumps(prices_map, ensure_ascii=False)
+
     market_regime_html = render_market_regime(data.get("market_regime", {"error": "无数据"}))
 
     return f'''<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>myAlphaView · Market Intelligence</title>
@@ -687,6 +685,41 @@ def render_html(data):
 .opt-grid{{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px}} .mkt-card{{background:var(--surface);border:1px solid var(--line);border-radius:13px;padding:17px 18px;box-shadow:var(--shadow)}} .mkt-card .name{{font-size:12.5px;color:var(--muted);display:flex;justify-content:space-between}} .mkt-card .val{{font-family:var(--serif);font-size:21px;margin-top:8px}} .mkt-card .chg{{font-size:11.5px;font-weight:600;margin-top:4px}} .soon{{font-size:9.5px;background:var(--surface2);color:var(--muted);padding:2px 7px;border-radius:99px;font-weight:600}}
 .footer{{color:#9a9484;font-size:10.5px;line-height:1.7;text-align:center;padding:34px 0 10px}}
 .tab-pane{{display:none;animation:fade .3s ease}} .tab-pane.active{{display:block}} @keyframes fade{{from{{opacity:0;transform:translateY(5px)}}to{{opacity:1;transform:none}}}}
+
+/* 期权持仓面板特别样式 */
+.opt-status {{ display:inline-flex; align-items:center; gap:5px; font-weight:600; font-size:11px; }}
+.opt-status.safe {{ color: var(--green); }}
+.opt-status.warn {{ color: var(--amber); }}
+.opt-status.danger {{ color: var(--red); }}
+.opt-status::before {{ content:""; display:block; width:6px; height:6px; border-radius:50%; }}
+.opt-status.safe::before {{ background: var(--green); }}
+.opt-status.warn::before {{ background: var(--amber); }}
+.opt-status.danger::before {{ background: var(--red); }}
+
+/* ================= 苹果 iPad & iPhone 响应式适配 ================= */
+@media (max-width: 1024px) {{
+  .dashboard-grid {{ grid-template-columns: 1fr; }} 
+  .metrics {{ grid-template-columns: repeat(2, 1fr); }} 
+}}
+
+@media (max-width: 768px) {{
+  .app {{ flex-direction: column; }}
+  .sidebar {{ position: static; width: 100%; padding: 16px 20px; border-bottom: 1px solid var(--navline); }}
+  .nav-group {{ margin-top: 16px; }}
+  .nav-menu {{ display: flex; flex-wrap: wrap; gap: 8px; }}
+  .nav-menu li {{ font-size: 12px; padding: 8px 12px; }}
+  .main {{ margin-left: 0; width: 100%; }}
+  .topbar {{ padding: 12px 20px; height: auto; flex-direction: column; align-items: flex-start; gap: 12px; }}
+  .top-meta {{ flex-wrap: wrap; width: 100%; justify-content: space-between; }}
+  .content {{ padding: 20px; }}
+  .hero {{ flex-direction: column; align-items: flex-start; gap: 16px; }}
+  .public-note {{ width: 100%; flex: auto; }}
+  .metrics {{ grid-template-columns: 1fr; }} 
+  .engine::after {{ display: none; }}
+  .engine-top {{ flex-direction: column; gap: 12px; }}
+  .table-container {{ overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 8px; }}
+  th, td {{ padding: 10px; font-size: 12px; }}
+}}
 </style></head><body><div class="app">
 
 <aside class="sidebar"><div class="brand"><div class="mav-brand-mark"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4 17 L9 9 L13 14 L20 5" stroke="#181109" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="20" cy="5" r="2.1" fill="#181109"/></svg></div><div><strong>myAlphaView</strong><small>myAlphaView · myalphaview.com</small></div></div>
@@ -700,7 +733,7 @@ def render_html(data):
 </ul></div>
 <div class="nav-group"><div class="nav-title">观察 & 持仓</div><ul class="nav-menu">
   <li onclick="switchTab('tab-stocks',this)"><span class="nav-icon">⌁</span>个股观察池</li>
-  <li onclick="switchTab('tab-options',this)"><span class="nav-icon">⚑</span>期权自查清单</li>
+  <li onclick="switchTab('tab-options',this)"><span class="nav-icon">⚑</span>期权持仓监控</li>
   <li onclick="switchTab('tab-archive',this)"><span class="nav-icon">📜</span>历史买点归档</li>
 </ul></div>
 <div class="sidebar-footer">
@@ -734,11 +767,11 @@ def render_html(data):
 <div id="tab-engine" class="tab-pane">
 <section class="hero"><div><h1>核心策略信号</h1><p>用回撤、RSI 与长期均线观察核心 ETF 的风险与潜在策略触发点。</p></div></section>
 <section class="section"><div class="engine"><div class="engine-top"><div><div class="engine-label">STRATEGY ENGINE · 核心ETF三档加仓线</div><div class="engine-title">当前状态：实时监测</div></div><div class="engine-badge {engine_badge_cls}">{level_names[max_level]}</div></div>
-<div class="engine-grid">{engine_html}</div><div class="engine-foot">分级规则：每个核心ETF各自设有一级/二级/三级三档回撤加仓线（阈值因资产而异），非全市场宽度指标——只是各资产自身相对真实历史最高点(ATH)的回撤幅度。此处展示规则与信号，不展示实盘资金规模。</div></div></section>
+<div class="engine-grid">{engine_html}</div><div class="engine-foot">分级规则：每个核心ETF各自设有一级/二级/三级三档加仓线。回撤判定严格使用历史全期最高点(ATH)或跨年窗口作为打分基准，严防短视。此处展示规则与信号，不展示实盘资金规模。</div></div></section>
 </div>
 
 <!-- TAB 3: 指数与 ETF -->
-<div id="tab-index" class="tab-pane"><section class="hero"><div><h1>指数与行业 ETF</h1><p>从宽基指数到行业 ETF，快速观察价格、回撤、RSI 与 200 日均线距离。</p></div></section><section class="section"><div class="grid">{index_html}</div></section></div>
+<div id="tab-index" class="tab-pane"><section class="hero"><div><h1>指数与行业 ETF</h1><p>从宽基指数到行业 ETF，快速观察价格、当年最高点回撤、RSI 与 200 日均线距离。</p></div></section><section class="section"><div class="grid">{index_html}</div></section></div>
 
 <!-- TAB 4: A股 & 港股 & 红利 -->
 <div id="tab-cn-hk" class="tab-pane">
@@ -755,29 +788,49 @@ def render_html(data):
 </div>
 
 <!-- TAB 5: 个股观察池 -->
-<div id="tab-stocks" class="tab-pane"><section class="hero"><div><h1>个股观察池</h1><p>包含中英文名称对照及核心技术指标监控。</p></div></section><section class="section"><div class="table-container"><table><thead><tr><th>名称代码</th><th>最新价</th><th>涨跌幅</th><th>开盘</th><th>最高</th><th>最低</th><th>年内最高</th><th>RSI(14)</th><th>距200MA</th><th>策略参考价</th></tr></thead><tbody id="stocksTableBody">{stock_html}</tbody></table></div></section></div>
+<div id="tab-stocks" class="tab-pane"><section class="hero"><div><h1>个股观察池</h1><p>包含中英文名称对照及核心技术指标监控。</p></div></section><section class="section"><div class="table-container"><table><thead><tr><th>名称代码</th><th>最新价</th><th>涨跌幅</th><th>开盘</th><th>最高</th><th>最低</th><th>当年(YTD)最高</th><th>RSI(14)</th><th>距200MA</th><th>策略参考价</th></tr></thead><tbody id="stocksTableBody">{stock_html}</tbody></table></div></section></div>
 
-<!-- TAB 6: 期权自查 -->
-<div id="tab-options" class="tab-pane"><section class="hero"><div><h1>期权持仓自查清单</h1><p>静态监控清单：在持有期权头寸期间，重点审视的希腊字母与风控指标。</p></div></section><section class="section"><div class="opt-grid">
-<div class="mkt-card"><h3>⏳ 剩余到期天数 (DTE)</h3><p style="font-size:12px;color:var(--muted);margin-top:8px">越接近到期，Theta 衰减越快。最后30天内加速明显。</p></div>
-<div class="mkt-card"><h3>🎯 距行权价的距离</h3><p style="font-size:12px;color:var(--muted);margin-top:8px">决定合约是价内(ITM)、价平(ATM)还是价外(OTM)。</p></div>
-<div class="mkt-card"><h3>📈 隐含波动率 (IV)</h3><p style="font-size:12px;color:var(--muted);margin-top:8px">IV 飙升或回落会显著影响期权权利金。</p></div>
-<div class="mkt-card"><h3>Δ Delta (方向风险)</h3><p style="font-size:12px;color:var(--muted);margin-top:8px">标的每变动$1，期权价格大致的变动幅度。</p></div>
-<div class="mkt-card"><h3>Γ Gamma (加速风险)</h3><p style="font-size:12px;color:var(--muted);margin-top:8px">临近到期且处于 ATM 附近时，Gamma 风险极大。</p></div>
-<div class="mkt-card"><h3>⚖️ 盈亏平衡价</h3><p style="font-size:12px;color:var(--muted);margin-top:8px">买入/卖出：行权价 ± 权利金. 判断到期防御位置。</p></div>
-</div></section></div>
+<!-- TAB 6: 期权自查 (V1动态监控) -->
+<div id="tab-options" class="tab-pane">
+<section class="hero"><div><h1>期权持仓监控 V1</h1><p>脱离真实资金规模的半自动实盘雷达：结合正股当日股价，自动计算 DTE 时间衰减、盈亏平衡距离与风控预警状态。</p></div></section>
+<section class="section">
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th style="text-align:left;">合约代码</th>
+                    <th>方向</th>
+                    <th>行权价</th>
+                    <th>到期日</th>
+                    <th>建仓成本</th>
+                    <th>盈亏平衡点</th>
+                    <th>正股现价</th>
+                    <th>距盈亏平衡</th>
+                    <th>风控状态</th>
+                </tr>
+            </thead>
+            <tbody id="optionsTableBody">
+                <!-- 由 JavaScript 渲染 -->
+            </tbody>
+        </table>
+    </div>
+</section>
+<section class="section"><p style="font-size:11.5px;color:var(--muted);line-height:1.7">💡 V1 使用说明：此面板采用盲盒脱敏架构，不显示你持有的真实张数和美金数额。仅展示该合约“单张”相对于当前正股价的风控健康度（基于云端每日最新的正股抓取价格测算）。</p></section>
+</div>
 
 <!-- TAB 7: 历史买点归档 -->
 <div id="tab-archive" class="tab-pane">
 <section class="hero"><div><h1>历史买点归档数据库</h1><p>完整回溯 2005 年以来各大核心资产触发一级、重点及极限加仓信号的黄金历史买点，验证策略透明度。</p></div></section>
 <section class="section"><div class="table-container"><table><thead><tr><th style="text-align:left;">资产代号</th><th>触发日期</th><th>触发收盘价</th><th>当时全期回撤幅度</th><th>触发加仓评级</th><th>规则体系</th></tr></thead><tbody id="archiveTableBody">{signals_html}</tbody></table></div></section>
-<section class="section"><p style="font-size:11.5px;color:var(--muted);line-height:1.7">同一资产同一天可能出现两条记录——"资产自身三档线"是该ETF自己相对历史高点的回撤触发的加仓线；"全市场宽度恐慌"是标普500全市场宽度指标触发的分级信号。两套规则相互独立，同一天都触发是正常情况，不是数据重复。</p></section></div>
+<section class="section"><p style="font-size:11.5px;color:var(--muted);line-height:1.7">同一资产同一天可能出现两条记录——"资产自身三档线"是该ETF自己相对真实全期最高点的回撤触发的加仓线；"全市场宽度恐慌"是标普500全市场宽度指标触发的分级信号。两套规则相互独立，同一天都触发是正常情况，不是数据重复。</p></section></div>
 
 <div class="footer">© 2026 myAlphaView · Built by Simon · Public Research Dashboard<br>市场数据与策略指标仅供研究、学习与信息参考，不构成投资建议。</div>
 </div></main></div>
 
 <script>
 const DATA = {chart_json};
+const STOCK_PRICES = {prices_json};
+
 function switchTab(id,el){{
   document.querySelectorAll('.tab-pane').forEach(t=>t.classList.remove('active'));
   document.querySelectorAll('.nav-menu li').forEach(l=>l.classList.remove('active'));
@@ -786,15 +839,66 @@ function switchTab(id,el){{
   document.getElementById('bc-title').innerText = el.innerText.replace('NEW', '').replace(/^[◆◒◫◇⌁⚑📜]/u, '').trim();
   window.scrollTo({{top:0,behavior:'smooth'}});
 }}
+
 window.addEventListener('load',function(){{
   const c=document.getElementById('trendChart');
   const qq=DATA.QQQ||[], sp=DATA.SPY||[];
-  if(!qq.length||!sp.length) return;
-  const labels=qq.map(x=>x.d), qv=qq.map(x=>x.c), sv=sp.map(x=>x.c);
-  new Chart(c,{{type:'line',data:{{labels,datasets:[
-      {{label:'QQQ',data:qv,borderColor:'#b8863a',backgroundColor:'rgba(184,134,58,.08)',fill:true,borderWidth:2,pointRadius:0,tension:.35,yAxisID:'y'}},
-      {{label:'SPY',data:sv,borderColor:'#1c7a4c',backgroundColor:'transparent',borderWidth:2,pointRadius:0,tension:.35,yAxisID:'y1'}}
-  ]}},options:{{responsive:true,maintainAspectRatio:false,interaction:{{mode:'index',intersect:false}},plugins:{{legend:{{position:'top',align:'end'}}}},scales:{{x:{{grid:{{display:false}},ticks:{{maxTicksLimit:6}}}},y:{{position:'left',grid:{{color:'#eee9dc'}}}},y1:{{position:'right',grid:{{drawOnChartArea:false}}}}}}}}}});
+  if(qq.length && sp.length) {{
+      const labels=qq.map(x=>x.d), qv=qq.map(x=>x.c), sv=sp.map(x=>x.c);
+      new Chart(c,{{type:'line',data:{{labels,datasets:[
+          {{label:'QQQ',data:qv,borderColor:'#b8863a',backgroundColor:'rgba(184,134,58,.08)',fill:true,borderWidth:2,pointRadius:0,tension:.35,yAxisID:'y'}},
+          {{label:'SPY',data:sv,borderColor:'#1c7a4c',backgroundColor:'transparent',borderWidth:2,pointRadius:0,tension:.35,yAxisID:'y1'}}
+      ]}},options:{{responsive:true,maintainAspectRatio:false,interaction:{{mode:'index',intersect:false}},plugins:{{legend:{{position:'top',align:'end'}}}},scales:{{x:{{grid:{{display:false}},ticks:{{maxTicksLimit:6}}}},y:{{position:'left',grid:{{color:'#eee9dc'}}}},y1:{{position:'right',grid:{{drawOnChartArea:false}}}}}}}}}});
+  }}
+
+  // ================= 渲染期权监控面板 =================
+  const OPTION_POSITIONS = [
+      {{ symbol: "NVDA", type: "Call", strike: 155, expiry: "2026-05-22", cost: 2.13 }},
+      {{ symbol: "TSLA", type: "Put", strike: 220, expiry: "2026-10-16", cost: 8.50 }}
+  ];
+
+  const tbody = document.getElementById("optionsTableBody");
+  const today = new Date();
+
+  if(OPTION_POSITIONS.length === 0) {{
+      tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; color:var(--muted)">当前没有记录的期权持仓</td></tr>`;
+  }} else {{
+      let html = "";
+      OPTION_POSITIONS.forEach(opt => {{
+          const expDate = new Date(opt.expiry);
+          const dte = Math.ceil((expDate - today) / (1000 * 60 * 60 * 24));
+          const currentPrice = STOCK_PRICES[opt.symbol] || 0;
+          
+          let breakEven = 0;
+          if (opt.type === "Call") {{ breakEven = opt.strike + opt.cost; }} 
+          else {{ breakEven = opt.strike - opt.cost; }}
+          
+          const distPct = currentPrice ? ((currentPrice - breakEven) / breakEven * 100) : 0;
+          const distStr = currentPrice ? (distPct >= 0 ? "+" : "") + distPct.toFixed(2) + "%" : "-";
+          
+          let statusHtml = "";
+          if(dte < 14) {{
+              statusHtml = '<span class="opt-status danger">极高风险 (DTE<14)</span>';
+          }} else if(dte < 45) {{
+              statusHtml = '<span class="opt-status warn">注意时间损耗</span>';
+          }} else {{
+              statusHtml = '<span class="opt-status safe">周期健康</span>';
+          }}
+          
+          html += `<tr>
+              <td style="text-align:left; font-weight:600; color:var(--ink)">${{opt.symbol}}</td>
+              <td>${{opt.type}}</td>
+              <td class="fw-bold">$${{opt.strike.toFixed(2)}}</td>
+              <td>${{opt.expiry}}</td>
+              <td>$${{opt.cost.toFixed(2)}}</td>
+              <td style="color:var(--navy); font-weight:600">$${{breakEven.toFixed(2)}}</td>
+              <td class="fw-bold">$${{currentPrice ? currentPrice.toFixed(2) : "-"}}</td>
+              <td class="${{distPct >= 0 ? 'pos-text' : 'neg-text'}}">${{distStr}}</td>
+              <td>${{statusHtml}}</td>
+          </tr>`;
+      }});
+      tbody.innerHTML = html;
+  }}
 }});
 
 // ================= Supabase 动态数据与身份验证 =================
@@ -948,7 +1052,6 @@ def push_to_supabase(data):
     supabase_key = os.environ.get("SUPABASE_KEY")
     
     if not supabase_url or not supabase_key:
-        print("注意：未找到 Supabase 环境变量，跳过数据库同步。")
         return
         
     endpoint = f"{supabase_url.rstrip('/')}/rest/v1/market_data"

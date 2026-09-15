@@ -724,7 +724,15 @@ def render_html(data):
     spy, qqq, vol = mi.get("spx", {}), mi.get("ixic", {}), mi.get("vix", {})
     src_label = lambda s: "真实指数(Yahoo)" if s == "yahoo_real" else "ETF代理"
 
+    def market_state(v):
+        if not isinstance(v, (int, float)): return ("数据待更新", "neutral")
+        if v < 15: return ("低波动", "good")
+        if v < 25: return ("正常波动", "good")
+        if v < 35: return ("波动升温", "warn")
+        return ("高风险", "bad")
+
     vol_value = vol.get("close") if "error" not in vol else None
+    vol_state, vol_tone = market_state(vol_value) # <--- HERE IS THE FIX!
     vol_display = fmt_num(vol_value) if vol_value is not None else "—"
     spy_value = f'{spy["close"]:,.2f}' if "error" not in spy else "—"
     qqq_value = f'{qqq["close"]:,.2f}' if "error" not in qqq else "—"

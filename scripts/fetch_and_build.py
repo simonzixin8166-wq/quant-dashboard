@@ -20,25 +20,38 @@ CORE_TIERS = {
     "TQQQ": {"t1": 0.40, "t2": 0.50, "t3": 0.70},
     "VOO":  {"t1": 0.075, "t2": 0.10, "t3": 0.15},
 }
-INDEX = ["QQQ", "SPY", "VOO", "SMH"]
+# INDEX是内部实际抓取的清单——SPY虽然不在展示列表里，但首页QQQ&SPY走势图和
+# 市场状态引擎的ATH兜底都依赖它，所以还是要抓，只是不在"指数&ETF"这个tab里单独展示。
+INDEX = ["QQQ", "SPY", "VOO", "SMH", "TQQQ", "GCMAIN", "BTC/USD"]
+# DISPLAYED_INDEX才是"指数&ETF"tab真正渲染出来的卡片列表。
+# GCMAIN是Twelve Data的COMEX黄金期货连续合约代码，BTC/USD是Twelve Data的比特币兑美元代码，
+# 如果这两个代码在你的Twelve Data账号权限下不可用，卡片会显示"获取失败"，不会影响其他资产。
+DISPLAYED_INDEX = ["QQQ", "VOO", "SMH", "TQQQ", "GCMAIN", "BTC/USD"]
 VOL_PROXY_SYM = "VIXY"
 
 STOCK_META = {
-    "SOFI": {"name": "SoFi Technologies", "target": 15.0},
-    "IREN": {"name": "Iris Energy", "target": 35.0},
-    "ORCL": {"name": "甲骨文", "target": 130.0},
-    "TSLA": {"name": "特斯拉", "target": 250.0},
-    "NVDA": {"name": "英伟达", "target": 110.0},
-    "TSM":  {"name": "台积电", "target": 160.0},
-    "LITE": {"name": "Lumentum", "target": 45.0},
-    "AVGO": {"name": "博通", "target": 340.0},
-    "MRVL": {"name": "美满电子", "target": 65.0},
-    "NBIS": {"name": "Nebius", "target": 25.0},
-    "GOOG": {"name": "谷歌", "target": 150.0},
-    "AMD":  {"name": "超威半导体", "target": 130.0},
-    "HOOD": {"name": "Robinhood", "target": 20.0},
-    "DRAM": {"name": "Roundhill内存芯片", "target": None},
-    "SPCX": {"name": "SpaceX代币化产品", "target": None},
+    "SOFI": {"name": "SoFi Technologies"},
+    "IREN": {"name": "Iris Energy"},
+    "ORCL": {"name": "甲骨文"},
+    "TSLA": {"name": "特斯拉"},
+    "NVDA": {"name": "英伟达"},
+    "TSM":  {"name": "台积电"},
+    "LITE": {"name": "Lumentum"},
+    "AVGO": {"name": "博通"},
+    "MRVL": {"name": "美满电子"},
+    "NBIS": {"name": "Nebius"},
+    "GOOG": {"name": "谷歌"},
+    "AMD":  {"name": "超威半导体"},
+    "HOOD": {"name": "Robinhood"},
+    "DRAM": {"name": "Roundhill内存芯片"},
+    "SPCX": {"name": "SpaceX代币化产品"},
+    # 下面5个是ETF，不是个股，放进观察池是因为想单独给它们设一个简单的Supabase提醒价，
+    # 跟"策略引擎"tab里那套三档加仓线是两回事、互不影响，两边都能看，用途不同
+    "QQQM": {"name": "纳指100(QQQM)"},
+    "QLD":  {"name": "纳指2倍做多(QLD)"},
+    "VGT":  {"name": "信息技术ETF(VGT)"},
+    "QQQ":  {"name": "纳指100(QQQ)"},
+    "VOO":  {"name": "标普500(VOO)"},
 }
 STOCKS = list(STOCK_META.keys())
 
@@ -71,15 +84,22 @@ def fetch_supabase_targets():
         return None
 
 def get_true_aths(symbols):
-    try:
-        data = yf.download(symbols, period="max", interval="1d", threads=True, progress=False)
-        highs = data['High'].max()
-        if len(symbols) == 1:
-            return {symbols[0]: float(highs)}
-        return highs.to_dict()
-    except Exception as e:
-        print(f"⚠️ 获取真实 ATH 失败: {e}")
-        return {}
+    """
+    逐个资产单独抓取真实历史最高点，而不是把所有资产打包成一次yfinance批量请求。
+    之前的批量写法有个问题：只要这一次批量请求本身失败（限流/网络抖动），
+    6个资产会同时集体fallback——这正是生产环境里"全部ETF都显示窗口回撤"的原因。
+    改成一个一个单独抓，复用 fetch_yahoo_index()（这个函数已经在市场状态引擎那边
+    稳定跑了一段时间），一个资产失败不会连累其他资产。
+    """
+    result = {}
+    for sym in symbols:
+        try:
+            rows = fetch_yahoo_index(sym, range_="max")
+            result[sym] = max(float(r["high"]) for r in rows)
+        except Exception as e:
+            print(f"⚠️ {sym} 真实ATH获取失败（不影响其他资产）: {e}")
+        throttle()
+    return result
 
 def http_get_json(url):
     with urllib.request.urlopen(url, timeout=20) as resp:
@@ -202,6 +222,16 @@ def load_historical_signals():
 
 # ================= 全市场宽度动态计算 =================
 def calculate_daily_breadth():
+    # 智能分流：A股/港股收盘那次轻量运行(UTC<12点)跳过这个重型计算，
+    # 只在美股收盘那次(UTC>=12点)全量跑。这个判断之前被某次改动悄悄删掉了，
+    # 导致 daily.yml 里的注释("任务2跳过重计算")变成了假话——
+    # 实际上两次定时任务都在跑500只股票的完整下载，重新加回来。
+    utc_hour = datetime.datetime.utcnow().hour
+    if utc_hour < 12:
+        msg = "当前为A股/港股收盘轻量运行时段，按设计跳过美股全市场宽度重计算（非异常）"
+        print(f"🕒 {msg}")
+        return {"status": "skip", "message": msg}
+
     try:
         json_path = os.path.join(os.path.dirname(__file__), 'sp500_constituents.json')
         if not os.path.exists(json_path):
@@ -303,7 +333,12 @@ def analyze(symbol, rows, today, tiers=None, is_stock=False, true_ath=None):
     else:
         # 触发器严格基于全期最高点(ATH)计算回撤
         drawdown = pct_change(latest_close, all_time_high)
-        level, level_label = tier_reached(drawdown, tiers)
+        if ath_is_true:
+            level, level_label = tier_reached(drawdown, tiers)
+        else:
+            # 窗口内最高点不是真实ATH，只能展示回撤数值供参考，不允许正式触发一/二/三级信号，
+            # 避免"基准错误但系统看起来正常运行"这种最危险的静默错误
+            level, level_label = 0, None
         out.update({
             "drawdown": drawdown, "tiers": tiers,
             "level": level, "level_label": level_label,
@@ -383,14 +418,21 @@ def render_market_regime(mr):
             c_badge = f'<span class="badge bad">命中 {c["points"]}分</span>' if c["hit"] else '<span class="badge neutral">未触发</span>'
             cond_rows += f'<div class="row"><span>{c["key"]}（阈值 {c["threshold_note"]}）</span><span class="fw-bold">{c_val} {c_badge}</span></div>'
             
+    data_incomplete_note = ""
+    if mr["max_available_score"] < mr["max_score"]:
+        data_incomplete_note = '<span class="badge neutral" style="margin-left:6px">数据不完整</span>'
+
     errmsg = ""
     if not mr.get("conditions"):
-        errmsg = f'<div class="errmsg" style="padding:0 19px 16px;color:var(--red);font-size:11px">⚠️ 宽度数据抓取异常：{mr.get("breadth_message","")}，已自动降级为只用"指数回撤"打分。</div>'
+        if mr.get("breadth_status") == "skip":
+            errmsg = f'<div class="errmsg" style="padding:0 19px 16px;color:var(--muted);font-size:11px">ℹ️ {mr.get("breadth_message","")}，当前"正常"结论仅基于指数回撤这一项，不代表全市场宽度已确认正常。</div>'
+        else:
+            errmsg = f'<div class="errmsg" style="padding:0 19px 16px;color:var(--red);font-size:11px">⚠️ 宽度数据抓取异常：{mr.get("breadth_message","")}，已自动降级为只用"指数回撤"打分，"正常"结论不代表全市场宽度已确认正常，建议查日志排查。</div>'
         
     return f'''<div class="panel">
       <div class="panel-head"><strong>市场状态引擎</strong><span>有效评分 {mr["score"]}/{mr["max_available_score"]} 分（满分体系 {mr["max_score"]} 分）</span></div>
       <div class="pulse-list">
-        <div class="pulse"><div><div class="pulse-label">当前风控评级</div><div class="pulse-main">{mr["tier_label"]}</div></div>
+        <div class="pulse"><div><div class="pulse-label">当前风控评级</div><div class="pulse-main">{mr["tier_label"]}{data_incomplete_note}</div></div>
           <div class="pulse-right"><span class="badge {tier_tone}">{mr["score"]}/{mr["max_available_score"]} 可用分</span></div></div>
         {active_row}
         {cond_rows}
@@ -562,7 +604,7 @@ def render_html(data):
     max_level = max(core_levels) if core_levels else 0
     level_names = {0: "正常 · 未触发", 1: "一级加仓线", 2: "二级加仓线", 3: "三级加仓线"}
     engine_badge_cls = "normal" if max_level == 0 else "t2"
-    index_html = "".join(card_etf(k, v) for k, v in data["index"].items())
+    index_html = "".join(card_etf(k, data["index"][k]) for k in DISPLAYED_INDEX if k in data["index"])
     stock_html = "".join(row_stock(k, v) for k, v in data["stocks"].items())
 
     signals_html = ""
@@ -792,7 +834,7 @@ def render_html(data):
 
 <!-- TAB 6: 期权自查 (V1动态监控) -->
 <div id="tab-options" class="tab-pane">
-<section class="hero"><div><h1>期权持仓监控 V1</h1><p>脱离真实资金规模的半自动实盘雷达：结合正股当日股价，自动计算 DTE 时间衰减、盈亏平衡距离与风控预警状态。</p></div></section>
+<section class="hero"><div><h1>期权持仓监控 V1</h1><p>下表数据为<b style="color:var(--brass)">示例占位数据</b>，用于演示 DTE 时间衰减、盈亏平衡距离与风控预警状态的计算方式，不是任何真实持仓。不展示真实资金规模与实盘仓位。</p></div></section>
 <section class="section">
     <div class="table-container">
         <table>
@@ -852,10 +894,14 @@ window.addEventListener('load',function(){{
   }}
 
   // ================= 渲染期权监控面板 =================
-  const OPTION_POSITIONS = [
+  // ⚠️ 以下是示例占位数据，不是真实持仓，仅用于演示这个面板的计算逻辑。
+  // 确认过：2026-09 core确认这是占位数据。以后如果要接入真实持仓，
+  // 记得改掉这个数组名和上面hero区的文字说明。
+  const EXAMPLE_OPTION_POSITIONS = [
       {{ symbol: "NVDA", type: "Call", strike: 155, expiry: "2026-05-22", cost: 2.13 }},
       {{ symbol: "TSLA", type: "Put", strike: 220, expiry: "2026-10-16", cost: 8.50 }}
   ];
+  const OPTION_POSITIONS = EXAMPLE_OPTION_POSITIONS;
 
   const tbody = document.getElementById("optionsTableBody");
   const today = new Date();
@@ -873,7 +919,15 @@ window.addEventListener('load',function(){{
           if (opt.type === "Call") {{ breakEven = opt.strike + opt.cost; }} 
           else {{ breakEven = opt.strike - opt.cost; }}
           
-          const distPct = currentPrice ? ((currentPrice - breakEven) / breakEven * 100) : 0;
+          // Put 的盈利方向和 Call 相反：Call 是现价越高于盈亏平衡价越好，
+          // Put 是现价越低于盈亏平衡价越好，两者不能共用同一个方向的公式，
+          // 否则 Put 的正负号和风险颜色会反过来。
+          let distPct = 0;
+          if (currentPrice) {{
+              distPct = opt.type === "Call"
+                  ? (currentPrice - breakEven) / breakEven * 100
+                  : (breakEven - currentPrice) / breakEven * 100;
+          }}
           const distStr = currentPrice ? (distPct >= 0 ? "+" : "") + distPct.toFixed(2) + "%" : "-";
           
           let statusHtml = "";

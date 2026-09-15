@@ -157,36 +157,25 @@ def fetch_fund_estimate(fund_code):
 
 # ================= 加载历史买点数据库 =================
 def load_historical_signals():
+    """
+    从 historical_signals.json 读取（跟本文件放在同一个scripts/目录）。
+    之前直接读整份Excel有两个问题：
+    1) 那份Excel里还有"资金管理"这类不该公开的sheet，一旦整份文件被提交到公开仓库，
+       等于把不想公开的内容也一起发布了；
+    2) 依赖Excel文件是否被正确提交到仓库、文件名是否精确匹配，比读一个几十KB的纯数据
+       JSON文件脆弱得多。
+    这份JSON只包含"历史买点数据库"这一张表需要的5个字段，不含其余任何sheet的内容。
+    """
     try:
-        possible_paths = [
-            os.path.join(os.path.dirname(__file__), '..', '多资产量化管理平台_V2_4_已合并宽度.xlsx'),
-            os.path.join(os.path.dirname(__file__), '多资产量化管理平台_V2_4_已合并宽度.xlsx'),
-            '多资产量化管理平台_V2_4_已合并宽度.xlsx'
-        ]
-        excel_path = None
-        for p in possible_paths:
-            if os.path.exists(p):
-                excel_path = p
-                break
-                
-        if not excel_path:
-            print("⚠️ 未能在预期路径下找到 Excel 文件！")
+        json_path = os.path.join(os.path.dirname(__file__), 'historical_signals.json')
+        if not os.path.exists(json_path):
+            print("⚠️ 未找到 historical_signals.json，历史买点归档这个tab会是空的。")
             return []
-        
-        df = pd.read_excel(excel_path, sheet_name='历史买点数据库', header=None, skiprows=3)
-        records = []
-        for _, row in df.iterrows():
-            asset_code = row[0]
-            if pd.isna(asset_code) or str(asset_code).strip() == '' or str(asset_code).strip() == '资产代号':
-                continue
-            records.append({
-                "symbol": str(asset_code).strip(),
-                "date": str(row[1])[:10],
-                "price": float(row[2]) if pd.notna(row[2]) else 0.0,
-                "drawdown": float(row[3]) if pd.notna(row[3]) else 0.0,
-                "rating": str(row[4]).strip() if pd.notna(row[4]) else "—"
-            })
-        print(f"✅ 成功从 Excel 加载了 {len(records)} 条历史买点记录。")
+        with open(json_path, 'r', encoding='utf-8') as f:
+            records = json.load(f)
+        # 按日期倒序，最新触发的排在最前面，更符合日常查看习惯
+        records.sort(key=lambda r: r.get("date", ""), reverse=True)
+        print(f"✅ 成功加载了 {len(records)} 条历史买点记录。")
         return records
     except Exception as e:
         print(f"❌ 读取历史买点数据库失败: {e}")
@@ -194,16 +183,20 @@ def load_historical_signals():
 
 # ================= 全市场宽度动态计算（智能分流 & 异常兜底） =================
 def calculate_daily_breadth():
+    """返回一个dict，status为 'ok'/'skip'/'error' 三选一，
+       方便前端区分"预期内跳过"和"真的算失败了"，不要混在一句话里让人分不清。"""
     utc_hour = datetime.datetime.utcnow().hour
     if utc_hour < 12:
-        print("🕒 当前为 A股/港股 收盘轻量运行时间段，自动跳过美股全市场宽度重计算。")
-        return None
+        msg = "当前为A股/港股收盘轻量运行时段，按设计跳过美股全市场宽度重计算（非异常）"
+        print(f"🕒 {msg}")
+        return {"status": "skip", "message": msg}
 
     try:
         json_path = os.path.join(os.path.dirname(__file__), 'sp500_constituents.json')
         if not os.path.exists(json_path):
-            print("⚠️ 未找到 sp500_constituents.json 名单文件，跳过宽度计算。")
-            return None
+            msg = "未找到 sp500_constituents.json 名单文件"
+            print(f"⚠️ {msg}")
+            return {"status": "error", "message": msg}
 
         with open(json_path, 'r') as f:
             tickers = json.load(f)
@@ -223,7 +216,9 @@ def calculate_daily_breadth():
         
         b20 = b20.dropna()
         if len(b20) < 11:
-            return None
+            msg = "成分股有效数据不足11个交易日，暂无法算斜率"
+            print(f"⚠️ {msg}")
+            return {"status": "error", "message": msg}
             
         latest_b20 = float(b20.iloc[-1])
         latest_b50 = float(b50.dropna().iloc[-1])
@@ -232,14 +227,13 @@ def calculate_daily_breadth():
         
         print(f"✅ 最新市场宽度计算成功: B20={latest_b20:.2%}, B50={latest_b50:.2%}, B200={latest_b200:.2%}, 10日斜率={slope_10d:.2%}")
         return {
-            "b20": latest_b20,
-            "b50": latest_b50,
-            "b200": latest_b200,
-            "slope_10d": slope_10d
+            "status": "ok",
+            "b20": latest_b20, "b50": latest_b50, "b200": latest_b200, "slope_10d": slope_10d
         }
     except Exception as e:
-        print(f"❌ 警告：市场宽度计算发生异常（已自动捕获并降级兜底）: {e}")
-        return None
+        msg = f"抓取/计算过程异常（已自动捕获，不会带崩整站）: {e}"
+        print(f"❌ {msg}")
+        return {"status": "error", "message": msg}
 
 # ================= 指标计算 =================
 def calc_rsi(closes, period=14):
@@ -319,7 +313,8 @@ def calc_market_regime(gspc_long_rows, spy_fallback_rows, vix_value, today, brea
     max_available_score = 9 
 
     conditions = []
-    if breadth_data:
+    breadth_ok = breadth_data and breadth_data.get("status") == "ok"
+    if breadth_ok:
         b20_hit = breadth_data["b20"] <= TH_B20
         if b20_hit: score += 2
         conditions.append({"key": "20天宽度", "threshold_note": f"≤{TH_B20:.0%}", "points": 2, "hit": b20_hit, "val": breadth_data["b20"]})
@@ -349,6 +344,8 @@ def calc_market_regime(gspc_long_rows, spy_fallback_rows, vix_value, today, brea
         "drawdown": {"value": drawdown, "threshold": TH_DRAWDOWN, "hit": drawdown_hit, "points": 2,
                      "ath_is_full_history": ath_is_full_history},
         "conditions": conditions, "vix": vix_value,
+        "breadth_status": (breadth_data or {}).get("status", "error"),
+        "breadth_message": (breadth_data or {}).get("message", "宽度数据缺失"),
     }
 
 def render_market_regime(mr):
@@ -370,7 +367,10 @@ def render_market_regime(mr):
             
     errmsg = ""
     if not mr.get("conditions"):
-        errmsg = '<div class="errmsg" style="padding:0 19px 16px;color:var(--muted);font-size:11px">全市场宽度数据处于轻量跳过时段或抓取异常，当前以"指数回撤"参与打分。</div>'
+        if mr.get("breadth_status") == "skip":
+            errmsg = f'<div class="errmsg" style="padding:0 19px 16px;color:var(--muted);font-size:11px">ℹ️ {mr.get("breadth_message","")}，当前以"指数回撤"独立参与打分，属于预期内的正常状态。</div>'
+        else:
+            errmsg = f'<div class="errmsg" style="padding:0 19px 16px;color:var(--red);font-size:11px">⚠️ 宽度数据抓取异常：{mr.get("breadth_message","")}，已自动降级为只用"指数回撤"打分，建议查看当次 Action 日志排查。</div>'
         
     return f'''<div class="panel">
       <div class="panel-head"><strong>市场状态引擎</strong><span>当前得分 {mr["score"]}/{mr["max_score"]} 分</span></div>
@@ -721,7 +721,7 @@ function switchTab(id,el){{
   document.querySelectorAll('.nav-menu li').forEach(l=>l.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   el.classList.add('active');
-  document.getElementById('bc-title').innerText = el.innerText.replace('NEW', '').replace(/^[◆◒◫◇⌁⚑📜]/, '').trim();
+  document.getElementById('bc-title').innerText = el.innerText.replace('NEW', '').replace(/^[◆◒◫◇⌁⚑📜]/u, '').trim();
   window.scrollTo({{top:0,behavior:'smooth'}});
 }}
 window.addEventListener('load',function(){{

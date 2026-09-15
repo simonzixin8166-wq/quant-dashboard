@@ -20,12 +20,9 @@ CORE_TIERS = {
     "TQQQ": {"t1": 0.40, "t2": 0.50, "t3": 0.70},
     "VOO":  {"t1": 0.075, "t2": 0.10, "t3": 0.15},
 }
-# INDEX是内部实际抓取的清单——SPY虽然不在展示列表里，但首页QQQ&SPY走势图和
-# 市场状态引擎的ATH兜底都依赖它，所以还是要抓，只是不在"指数&ETF"这个tab里单独展示。
+# INDEX是内部实际抓取的清单
 INDEX = ["QQQ", "SPY", "VOO", "SMH", "TQQQ", "GCMAIN", "BTC/USD"]
-# DISPLAYED_INDEX才是"指数&ETF"tab真正渲染出来的卡片列表。
-# GCMAIN是Twelve Data的COMEX黄金期货连续合约代码，BTC/USD是Twelve Data的比特币兑美元代码，
-# 如果这两个代码在你的Twelve Data账号权限下不可用，卡片会显示"获取失败"，不会影响其他资产。
+# DISPLAYED_INDEX是"指数&ETF"tab真正渲染出来的卡片列表
 DISPLAYED_INDEX = ["QQQ", "VOO", "SMH", "TQQQ", "GCMAIN", "BTC/USD"]
 VOL_PROXY_SYM = "VIXY"
 
@@ -45,8 +42,7 @@ STOCK_META = {
     "HOOD": {"name": "Robinhood"},
     "DRAM": {"name": "Roundhill内存芯片"},
     "SPCX": {"name": "SpaceX代币化产品"},
-    # 下面5个是ETF，不是个股，放进观察池是因为想单独给它们设一个简单的Supabase提醒价，
-    # 跟"策略引擎"tab里那套三档加仓线是两回事、互不影响，两边都能看，用途不同
+    # 核心 ETF 放进观察池，用于单独配置简单的 Supabase 提醒价
     "QQQM": {"name": "纳指100(QQQM)"},
     "QLD":  {"name": "纳指2倍做多(QLD)"},
     "VGT":  {"name": "信息技术ETF(VGT)"},
@@ -85,11 +81,7 @@ def fetch_supabase_targets():
 
 def get_true_aths(symbols):
     """
-    逐个资产单独抓取真实历史最高点，而不是把所有资产打包成一次yfinance批量请求。
-    之前的批量写法有个问题：只要这一次批量请求本身失败（限流/网络抖动），
-    6个资产会同时集体fallback——这正是生产环境里"全部ETF都显示窗口回撤"的原因。
-    改成一个一个单独抓，复用 fetch_yahoo_index()（这个函数已经在市场状态引擎那边
-    稳定跑了一段时间），一个资产失败不会连累其他资产。
+    逐个资产单独抓取真实历史最高点，防止连坐效应崩溃。
     """
     result = {}
     for sym in symbols:
@@ -220,17 +212,19 @@ def load_historical_signals():
         print(f"❌ 读取历史买点失败: {e}")
         return []
 
-# ================= 全市场宽度动态计算 =================
-def calculate_daily_breadth():
-    # 智能分流：A股/港股收盘那次轻量运行(UTC<12点)跳过这个重型计算，
-    # 只在美股收盘那次(UTC>=12点)全量跑。这个判断之前被某次改动悄悄删掉了，
-    # 导致 daily.yml 里的注释("任务2跳过重计算")变成了假话——
-    # 实际上两次定时任务都在跑500只股票的完整下载，重新加回来。
+# ================= 全市场宽度动态计算（智能缓存机制 + 时段拦截） =================
+def calculate_daily_breadth(old_breadth=None):
     utc_hour = datetime.datetime.utcnow().hour
+    
     if utc_hour < 12:
-        msg = "当前为A股/港股收盘轻量运行时段，按设计跳过美股全市场宽度重计算（非异常）"
-        print(f"🕒 {msg}")
-        return {"status": "skip", "message": msg}
+        if old_breadth and old_breadth.get("status") == "ok":
+            msg = "当前为A股/港股收盘时段，跳过重计算，成功读取上一交易日宽度缓存"
+            print(f"🕒 {msg}")
+            return old_breadth
+        else:
+            msg = "当前为A股/港股收盘时段，暂无历史缓存，按设计跳过全市场重算"
+            print(f"🕒 {msg}")
+            return {"status": "skip", "message": msg}
 
     try:
         json_path = os.path.join(os.path.dirname(__file__), 'sp500_constituents.json')
@@ -240,6 +234,7 @@ def calculate_daily_breadth():
         with open(json_path, 'r') as f:
             tickers = json.load(f)
             
+        print(f"正在拉取 {len(tickers)} 只成分股近 300 天数据以计算最新市场宽度...")
         data = yf.download(tickers, period="300d", interval="1d", threads=True, progress=False)
         closes = data['Close']
         
@@ -261,11 +256,15 @@ def calculate_daily_breadth():
         latest_b200 = float(b200.dropna().iloc[-1])
         slope_10d = float(latest_b20 - b20.iloc[-11])
         
+        print(f"✅ 最新市场宽度计算成功: B20={latest_b20:.2%}, B50={latest_b50:.2%}, B200={latest_b200:.2%}, 10日斜率={slope_10d:.2%}")
         return {
             "status": "ok",
             "b20": latest_b20, "b50": latest_b50, "b200": latest_b200, "slope_10d": slope_10d
         }
     except Exception as e:
+        if old_breadth and old_breadth.get("status") == "ok":
+            print(f"❌ 宽度计算异常: {e}。已自动降级使用上一交易日缓存数据。")
+            return old_breadth
         return {"status": "error", "message": str(e)}
 
 # ================= 指标计算 =================
@@ -311,13 +310,11 @@ def analyze(symbol, rows, today, tiers=None, is_stock=False, true_ath=None):
     ytd_rows = [r for r in rows if r["datetime"].startswith(current_year)]
     ytd_high = max([float(r["high"]) for r in ytd_rows]) if ytd_rows else latest_close
     
-    # 【核心安全机制】：策略触发线坚守 ATH，严防跨年重置 Bug！
-    # 加入 math.isnan 判断防线，过滤崩溃数据
+    # 严格判断真正的 ATH，防 NaN 异常
     if true_ath is not None and isinstance(true_ath, (int, float)) and not math.isnan(true_ath):
         all_time_high = true_ath
         ath_is_true = True
     else:
-        # 如果 ATH 获取失败或为 NaN，退回使用抓取窗口(如260天)内的最高点
         all_time_high = max([float(r["high"]) for r in rows]) if rows else None
         ath_is_true = False
         
@@ -331,14 +328,13 @@ def analyze(symbol, rows, today, tiers=None, is_stock=False, true_ath=None):
     if is_stock:
         out.update({"open": float(rows[0]["open"]), "high": float(rows[0]["high"]), "low": float(rows[0]["low"])})
     else:
-        # 触发器严格基于全期最高点(ATH)计算回撤
         drawdown = pct_change(latest_close, all_time_high)
         if ath_is_true:
             level, level_label = tier_reached(drawdown, tiers)
         else:
-            # 窗口内最高点不是真实ATH，只能展示回撤数值供参考，不允许正式触发一/二/三级信号，
-            # 避免"基准错误但系统看起来正常运行"这种最危险的静默错误
+            # 窗口内最高点不是真实ATH，不允许正式触发策略，防静默错误
             level, level_label = 0, None
+            
         out.update({
             "drawdown": drawdown, "tiers": tiers,
             "level": level, "level_label": level_label,
@@ -356,7 +352,6 @@ def calc_market_regime(gspc_long_rows, spy_fallback_rows, vix_value, today, brea
     if not rows_for_ath:
         return {"error": "指数历史数据不足，无法计算回撤"}
 
-    # 引擎同样使用历史全期数据计算回撤，不使用 YTD
     closes = [float(r["close"]) for r in rows_for_ath]
     latest = closes[0]
     ath = max([float(r["high"]) for r in rows_for_ath])
@@ -427,7 +422,7 @@ def render_market_regime(mr):
         if mr.get("breadth_status") == "skip":
             errmsg = f'<div class="errmsg" style="padding:0 19px 16px;color:var(--muted);font-size:11px">ℹ️ {mr.get("breadth_message","")}，当前"正常"结论仅基于指数回撤这一项，不代表全市场宽度已确认正常。</div>'
         else:
-            errmsg = f'<div class="errmsg" style="padding:0 19px 16px;color:var(--red);font-size:11px">⚠️ 宽度数据抓取异常：{mr.get("breadth_message","")}，已自动降级为只用"指数回撤"打分，"正常"结论不代表全市场宽度已确认正常，建议查日志排查。</div>'
+            errmsg = f'<div class="errmsg" style="padding:0 19px 16px;color:var(--red);font-size:11px">⚠️ 宽度数据状态：{mr.get("breadth_message","")}，当前以"指数回撤"独立参与打分。</div>'
         
     return f'''<div class="panel">
       <div class="panel-head"><strong>市场状态引擎</strong><span>有效评分 {mr["score"]}/{mr["max_available_score"]} 分（满分体系 {mr["max_score"]} 分）</span></div>
@@ -445,6 +440,16 @@ def build():
     today = datetime.date.today()
     core, index, stocks, overview_charts = {}, {}, {}, {}
     data_status = {}
+
+    old_data = {}
+    try:
+        old_path = os.path.join(os.path.dirname(__file__), '..', 'docs', 'data.json')
+        if os.path.exists(old_path):
+            with open(old_path, 'r', encoding='utf-8') as f:
+                old_data = json.load(f)
+    except Exception:
+        pass
+    old_breadth = old_data.get("raw_breadth")
 
     sb_targets = fetch_supabase_targets()
     if sb_targets:
@@ -495,8 +500,14 @@ def build():
         
     throttle()
     
-    breadth_data = calculate_daily_breadth()
-    data_status["Breadth"] = breadth_data.get("status", "error")
+    breadth_data = calculate_daily_breadth(old_breadth)
+    
+    if breadth_data.get("status") == "ok" and old_breadth and breadth_data == old_breadth:
+        data_status["Breadth"] = "ok (Cached)"
+    elif breadth_data.get("status") == "skip":
+        data_status["Breadth"] = "Skip (Asian Session)"
+    else:
+        data_status["Breadth"] = breadth_data.get("status", "error")
     
     vix_value = vix_data.get("close") if "error" not in vix_data else None
     market_regime = calc_market_regime(gspc_long_rows, spy_rows_for_regime, vix_value, today, breadth_data)
@@ -533,6 +544,7 @@ def build():
             "cn_hk": cn_hk_data, "market_regime": market_regime,
             "historical_signals": historical_signals,
             "data_status": data_status,
+            "raw_breadth": breadth_data,
             "market_indicators": {
                 "spx": spx_data, "spx_source": spx_src,
                 "ixic": ixic_data, "ixic_source": ixic_src,
@@ -540,7 +552,6 @@ def build():
             }}
 
 # ================= HTML 组件与渲染 =================
-# NaN 防护机制
 def fmt_pct(x, digits=2): return f"{x*100:.{digits}f}%" if isinstance(x, (int, float)) and not math.isnan(x) else "-"
 def fmt_num(x, digits=2): return f"{x:.{digits}f}" if isinstance(x, (int, float)) and not math.isnan(x) else "-"
 
@@ -562,7 +573,7 @@ def card_etf(name, r):
       <div class="card-header"><span class="sym">{name}</span><span class="price">${r["close"]:.2f}</span></div>
       <div class="divider"></div>
       <div class="row"><span>当年(YTD)最高</span><span class="fw-bold">${fmt_num(r["ytd_high"])}</span></div>
-      <div class="row"><span>最高点回撤</span><span class="{drawdown_cls}">{fmt_pct(r["drawdown"])}</span></div>
+      <div class="row"><span>历史高点回撤</span><span class="{drawdown_cls}">{fmt_pct(r["drawdown"])}</span></div>
       <div class="row"><span>RSI (14)</span><span class="fw-bold">{fmt_num(r["rsi"])}</span></div>
       <div class="row"><span>距 200MA</span><span class="fw-bold">{fmt_pct(r["dist_200ma"])}</span></div>
     </div>'''
@@ -658,7 +669,6 @@ def render_html(data):
 
     chart_json = json.dumps(data.get("overview_charts", {}), ensure_ascii=False)
     
-    # 将股票现价传给前端期权监控雷达
     prices_map = {}
     for k, v in data.get("stocks", {}).items():
         if "error" not in v: prices_map[k] = v.get("close", 0)
@@ -894,9 +904,6 @@ window.addEventListener('load',function(){{
   }}
 
   // ================= 渲染期权监控面板 =================
-  // ⚠️ 以下是示例占位数据，不是真实持仓，仅用于演示这个面板的计算逻辑。
-  // 确认过：2026-09 core确认这是占位数据。以后如果要接入真实持仓，
-  // 记得改掉这个数组名和上面hero区的文字说明。
   const EXAMPLE_OPTION_POSITIONS = [
       {{ symbol: "NVDA", type: "Call", strike: 155, expiry: "2026-05-22", cost: 2.13 }},
       {{ symbol: "TSLA", type: "Put", strike: 220, expiry: "2026-10-16", cost: 8.50 }}
@@ -919,9 +926,6 @@ window.addEventListener('load',function(){{
           if (opt.type === "Call") {{ breakEven = opt.strike + opt.cost; }} 
           else {{ breakEven = opt.strike - opt.cost; }}
           
-          // Put 的盈利方向和 Call 相反：Call 是现价越高于盈亏平衡价越好，
-          // Put 是现价越低于盈亏平衡价越好，两者不能共用同一个方向的公式，
-          // 否则 Put 的正负号和风险颜色会反过来。
           let distPct = 0;
           if (currentPrice) {{
               distPct = opt.type === "Call"

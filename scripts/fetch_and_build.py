@@ -97,32 +97,29 @@ def fetch_supabase_targets():
 def get_core_ath_metrics(symbols):
     """
     ATH Integrity Layer
-    专门负责核心 ETF 的长期复权 ATH 数据。ATH、Close、Drawdown 必须来自同一序列。
+    专门负责核心 ETF 的长期 ATH 数据。ATH、Close、Drawdown 必须来自同一序列。
+
+    之前这里用的是 yf.Ticker(sym).history()，虽然循环结构上是逐个资产单独抓，
+    但 yfinance 库内部对每个请求都要先跟 Yahoo 做一次会话认证(crumb/cookie)，
+    这个认证在 GitHub Actions 这类云端环境里经常整体失效——一旦认证失败，
+    循环里的6个资产会"看起来是分开抓的，实际上全部同时失败"。
+    同一次运行里，市场状态引擎的指数ATH（用 fetch_yahoo_index 直接打 Yahoo
+    的公开chart接口，不走 yfinance）反而能成功，说明问题出在 yfinance 库本身。
+    这里改成统一用 fetch_yahoo_index，不再依赖 yfinance。
     """
     result = {}
     print("\n========== [ATH CHECK] ==========")
 
     for sym in symbols:
         try:
-            ticker = yf.Ticker(sym)
-            df = ticker.history(period="max", auto_adjust=True, actions=True)
+            rows = fetch_yahoo_index(sym, range_="max")
+            if not rows:
+                raise ValueError("Empty rows")
 
-            if df.empty:
-                raise ValueError("Empty DataFrame")
+            adj_ath = max(float(r["high"]) for r in rows)
+            adj_close = float(rows[0]["close"])  # rows是最新在前
 
-            if "High" not in df.columns or "Close" not in df.columns:
-                raise ValueError("Missing High/Close columns")
-
-            highs = df["High"].dropna()
-            closes = df["Close"].dropna()
-
-            if highs.empty or closes.empty:
-                raise ValueError("No valid High/Close data")
-
-            adj_ath = float(highs.max())
-            adj_close = float(closes.iloc[-1])
-
-            if (not math.isfinite(adj_ath) or not math.isfinite(adj_close) 
+            if (not math.isfinite(adj_ath) or not math.isfinite(adj_close)
                 or adj_ath <= 0 or adj_close <= 0):
                 raise ValueError(f"Invalid price values: ATH={adj_ath}, Close={adj_close}")
 
@@ -133,21 +130,21 @@ def get_core_ath_metrics(symbols):
                 "ath": adj_ath,
                 "close": adj_close,
                 "drawdown": drawdown,
-                "source": "yfinance_adjusted",
+                "source": "yahoo_chart_api",
                 "extreme": extreme,
                 "valid": True,
             }
 
-            print(f"{sym:<6} | ATH={adj_ath:>10.2f} | Close={adj_close:>10.2f} | DD={drawdown:>8.2%} | Source=yfinance_adjusted | Validation={'CHECK' if extreme else 'PASS'}")
+            print(f"{sym:<6} | ATH={adj_ath:>10.2f} | Close={adj_close:>10.2f} | DD={drawdown:>8.2%} | Source=yahoo_chart_api | Validation={'CHECK' if extreme else 'PASS'}")
 
         except Exception as e:
             result[sym] = {
-                "ath": None, "close": None, "drawdown": None, "source": "yfinance_adjusted",
+                "ath": None, "close": None, "drawdown": None, "source": "yahoo_chart_api",
                 "extreme": False, "valid": False, "error": str(e),
             }
             print(f"{sym:<6} | Validation=FAILED | Error={e}")
 
-        time.sleep(1.0)
+        throttle()
     print("======== [ATH CHECK END] ========\n")
     return result
 

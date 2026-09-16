@@ -15,17 +15,12 @@ FUND_HEADERS = {"User-Agent": HEADERS["User-Agent"], "Referer": "http://fund.eas
 LAST_TD_REQUEST_TIME = 0.0
 
 def throttle():
-    """
-    智能游标节流阀：确保 Twelve Data 请求频率不超过 8次/分钟。
-    """
     global LAST_TD_REQUEST_TIME
     now = time.time()
     elapsed = now - LAST_TD_REQUEST_TIME
     target_interval = 7.6 
-    
     if elapsed < target_interval:
         time.sleep(target_interval - elapsed)
-        
     LAST_TD_REQUEST_TIME = time.time()
 
 # ================= 美股配置 =================
@@ -66,7 +61,6 @@ STOCK_META = {
 }
 STOCKS = list(STOCK_META.keys())
 
-# ================= A股/港股配置 =================
 CN_HK_SYMBOLS = {
     "sh000001": "上证指数",
     "sh000300": "沪深300",
@@ -78,7 +72,135 @@ OTC_FUNDS = {}
 TENCENT_URL = "http://qt.gtimg.cn/q={symbols}"
 FUND_EST_URL = "http://fundgz.1234567.com.cn/js/{code}.js"
 
-# ================= 辅助/信源抓取 =================
+# ================= HTTP 强穿透 ATH 获取层 =================
+def get_core_ath_metrics(symbols):
+    """
+    🏆 ATH Integrity Layer (Ultra-Stable HTTP Version)
+    直接通过 Yahoo 底层 API 穿透抓取数据，并手动应用 adjclose 比例还原完美复权价。
+    100% 绕过 yfinance 的 GitHub Actions 拦截。
+    """
+    result = {}
+    print("\n========== [ATH CHECK (HTTP Adjusted)] ==========")
+
+    for sym in symbols:
+        try:
+            url = f"https://query1.finance.yahoo.com/v8/finance/chart/{sym}?interval=1d&range=max"
+            req = urllib.request.Request(url, headers=HEADERS)
+            with urllib.request.urlopen(req, timeout=15) as resp:
+                payload = json.loads(resp.read().decode("utf-8"))
+            
+            chart_data = payload["chart"]["result"][0]
+            quotes = chart_data["indicators"]["quote"][0]
+            adjcloses = chart_data["indicators"].get("adjclose", [{}])[0].get("adjclose", [])
+            
+            valid_highs = []
+            valid_closes = []
+            
+            for i in range(len(quotes["close"])):
+                if quotes["close"][i] is None or quotes["high"][i] is None:
+                    continue
+                raw_c = float(quotes["close"][i])
+                raw_h = float(quotes["high"][i])
+                
+                adj_c = raw_c
+                if i < len(adjcloses) and adjcloses[i] is not None:
+                    adj_c = float(adjcloses[i])
+                    
+                ratio = adj_c / raw_c if raw_c > 0 else 1.0
+                adj_h = raw_h * ratio
+                
+                valid_highs.append(adj_h)
+                valid_closes.append(adj_c)
+
+            if not valid_highs or not valid_closes:
+                raise ValueError("No valid High/Close data")
+
+            adj_ath = max(valid_highs)
+            adj_close = valid_closes[-1]
+
+            if (not math.isfinite(adj_ath) or not math.isfinite(adj_close) 
+                or adj_ath <= 0 or adj_close <= 0):
+                raise ValueError(f"Invalid price values")
+
+            drawdown = adj_close / adj_ath - 1.0
+            extreme = drawdown <= -0.75
+
+            result[sym] = {
+                "ath": adj_ath, "close": adj_close, "drawdown": drawdown,
+                "source": "yahoo_http_adjusted", "extreme": extreme, "valid": True,
+            }
+            print(f"{sym:<6} | ATH={adj_ath:>10.2f} | DD={drawdown:>8.2%} | PASS")
+        except Exception as e:
+            result[sym] = {"valid": False, "error": str(e)}
+            print(f"{sym:<6} | FAILED | Error={e}")
+        time.sleep(1.0)
+    print("======== [ATH CHECK END] ========\n")
+    return result
+
+# ================= 期权 V1.5：BS定价引擎与数据抓取 =================
+def norm_cdf(x):
+    """标准正态分布的累积分布函数"""
+    return (1.0 + math.erf(x / math.sqrt(2.0))) / 2.0
+
+def norm_pdf(x):
+    """标准正态分布的概率密度函数"""
+    return math.exp(-0.5 * x**2) / math.sqrt(2.0 * math.pi)
+
+def calc_option_greeks(S, K, T, r, sigma, opt_type="Call"):
+    """自研 Python 版 Black-Scholes 期权希腊字母引擎"""
+    if T <= 0 or sigma <= 0 or S <= 0:
+        return {"theo_price": 0.0, "delta": 0.0, "gamma": 0.0}
+    d1 = (math.log(S / K) + (r + 0.5 * sigma**2) * T) / (sigma * math.sqrt(T))
+    d2 = d1 - sigma * math.sqrt(T)
+    gamma = norm_pdf(d1) / (S * sigma * math.sqrt(T))
+    if opt_type.lower() == "call":
+        delta = norm_cdf(d1)
+        theo_price = S * norm_cdf(d1) - K * math.exp(-r * T) * norm_cdf(d2)
+    else:
+        delta = norm_cdf(d1) - 1.0
+        theo_price = K * math.exp(-r * T) * norm_cdf(-d2) - S * norm_cdf(-d1)
+    return {"theo_price": theo_price, "delta": delta, "gamma": gamma}
+
+def build_yahoo_option_ticker(sym, expiry_str, opt_type, strike):
+    """将参数转换为 Yahoo 期权专属代码格式，如 NVDA261016C00155000"""
+    dt = datetime.datetime.strptime(expiry_str, '%Y-%m-%d')
+    date_str = dt.strftime('%y%m%d')
+    t_str = 'C' if opt_type.lower() == 'call' else 'P'
+    strike_val = int(round(strike * 1000))
+    strike_str = f"{strike_val:08d}"
+    return f"{sym}{date_str}{t_str}{strike_str}"
+
+def fetch_yahoo_option_quote(opt_ticker):
+    """使用 HTTP 直连 Yahoo 获取单张期权的最新价和 IV"""
+    url = f"https://query1.finance.yahoo.com/v7/finance/quote?symbols={opt_ticker}"
+    try:
+        req = urllib.request.Request(url, headers=HEADERS)
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            data = json.loads(resp.read().decode('utf-8'))
+            res = data['quoteResponse']['result']
+            if res:
+                return {
+                    "lastPrice": res[0].get("regularMarketPrice", 0.0),
+                    "impliedVolatility": res[0].get("impliedVolatility", 0.0)
+                }
+    except Exception as e:
+        print(f"⚠️ 期权 {opt_ticker} 抓取失败: {e}")
+    return None
+
+def fetch_supabase_options():
+    """从 Supabase 云端拉取真实的期权持仓"""
+    url = os.environ.get("SUPABASE_URL")
+    key = os.environ.get("SUPABASE_KEY")
+    if not url or not key: return []
+    try:
+        endpoint = f"{url.rstrip('/')}/rest/v1/options_positions"
+        req = urllib.request.Request(endpoint, headers={"apikey": key, "Authorization": f"Bearer {key}"})
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            return json.loads(resp.read().decode("utf-8"))
+    except Exception as e:
+        print(f"⚠️ 无法获取 Supabase 期权持仓: {e}")
+        return []
+
 def fetch_supabase_targets():
     supabase_url = os.environ.get("SUPABASE_URL")
     supabase_key = os.environ.get("SUPABASE_KEY")
@@ -90,93 +212,10 @@ def fetch_supabase_targets():
         with urllib.request.urlopen(req, timeout=10) as resp:
             data = json.loads(resp.read().decode("utf-8"))
             return {item["symbol"]: float(item["target_price"]) for item in data}
-    except Exception as e:
-        print(f"⚠️ 无法从 Supabase 获取策略价: {e}")
+    except Exception:
         return None
 
-def get_core_ath_metrics(symbols):
-    """
-    🏆 ATH Integrity Layer (Ultra-Stable HTTP Version)
-    终极杀手锏：直接通过 Yahoo 底层 API 穿透抓取数据，
-    并手动应用 adjclose (复权收盘价) 比例，计算出完美的复权最高价。
-    彻底避开 yfinance 在 GitHub Actions 中的 Cookie 拦截，同时完美解决 VGT 拆股问题！
-    """
-    result = {}
-    print("\n========== [ATH CHECK (HTTP Adjusted)] ==========")
-
-    for sym in symbols:
-        try:
-            # 使用 urllib 发送带 User-Agent 的纯净请求，100% 绕过雅虎反爬虫
-            url = f"https://query1.finance.yahoo.com/v8/finance/chart/{sym}?interval=1d&range=max"
-            req = urllib.request.Request(url, headers=HEADERS)
-            with urllib.request.urlopen(req, timeout=15) as resp:
-                payload = json.loads(resp.read().decode("utf-8"))
-            
-            chart_data = payload["chart"]["result"][0]
-            quotes = chart_data["indicators"]["quote"][0]
-            
-            # 提取雅虎自带的复权收盘价数组
-            adjcloses = chart_data["indicators"].get("adjclose", [{}])[0].get("adjclose", [])
-            
-            valid_highs = []
-            valid_closes = []
-            
-            for i in range(len(quotes["close"])):
-                if quotes["close"][i] is None or quotes["high"][i] is None:
-                    continue
-                    
-                raw_c = float(quotes["close"][i])
-                raw_h = float(quotes["high"][i])
-                
-                adj_c = raw_c
-                if i < len(adjcloses) and adjcloses[i] is not None:
-                    adj_c = float(adjcloses[i])
-                    
-                # 核心数学逻辑：计算复权系数 (Adjustment Ratio)
-                # 例如 VGT 拆股前，收盘800，复权收盘100，系数就是 0.125
-                # 此时把历史最高价 810 * 0.125 = 101.25，完美还原拆股后的绝对 ATH！
-                ratio = adj_c / raw_c if raw_c > 0 else 1.0
-                adj_h = raw_h * ratio
-                
-                valid_highs.append(adj_h)
-                valid_closes.append(adj_c)
-
-            if not valid_highs or not valid_closes:
-                raise ValueError("No valid High/Close data")
-
-            adj_ath = max(valid_highs)
-            adj_close = valid_closes[-1] # 最新复权收盘价
-
-            if (not math.isfinite(adj_ath) or not math.isfinite(adj_close) 
-                or adj_ath <= 0 or adj_close <= 0):
-                raise ValueError(f"Invalid price values: ATH={adj_ath}, Close={adj_close}")
-
-            drawdown = adj_close / adj_ath - 1.0
-            extreme = drawdown <= -0.75
-
-            result[sym] = {
-                "ath": adj_ath,
-                "close": adj_close,
-                "drawdown": drawdown,
-                "source": "yahoo_http_adjusted",
-                "extreme": extreme,
-                "valid": True,
-            }
-
-            print(f"{sym:<6} | ATH={adj_ath:>10.2f} | Close={adj_close:>10.2f} | DD={drawdown:>8.2%} | Source=HTTP | Validation={'CHECK' if extreme else 'PASS'}")
-
-        except Exception as e:
-            result[sym] = {
-                "ath": None, "close": None, "drawdown": None, "source": "yahoo_http_adjusted",
-                "extreme": False, "valid": False, "error": str(e),
-            }
-            print(f"{sym:<6} | Validation=FAILED | Error={e}")
-
-        time.sleep(1.0) # 保持温和的并发节奏
-        
-    print("======== [ATH CHECK END] ========\n")
-    return result
-
+# ================= 基础数据抓取函数 =================
 def http_get_json(url):
     with urllib.request.urlopen(url, timeout=20) as resp:
         return json.loads(resp.read().decode("utf-8"))
@@ -293,7 +332,6 @@ def load_historical_signals():
         print(f"❌ 读取历史买点失败: {e}")
         return []
 
-# ================= 全市场宽度动态计算（霸道缓存兜底版） =================
 def calculate_daily_breadth(old_breadth=None, today_str=None):
     utc_hour = datetime.datetime.utcnow().hour
     
@@ -308,18 +346,14 @@ def calculate_daily_breadth(old_breadth=None, today_str=None):
         except:
             pass
 
-    # 亚洲时段拦截
     if utc_hour < 12:
         if is_cache_valid:
-            print(f"🕒 亚洲时段，读取有效缓存 ({old_breadth.get('date')})")
             return old_breadth
         elif old_breadth and old_breadth.get("status") == "ok":
-            print(f"🕒 亚洲时段缓存已过期，但为防止报错，强行沿用旧缓存")
             return old_breadth
         else:
             return {"status": "skip", "message": "亚洲盘中且无缓存"}
 
-    # 美股时段全量抓取
     try:
         json_path = os.path.join(os.path.dirname(__file__), 'sp500_constituents.json')
         if not os.path.exists(json_path):
@@ -328,7 +362,6 @@ def calculate_daily_breadth(old_breadth=None, today_str=None):
         with open(json_path, 'r') as f:
             tickers = json.load(f)
             
-        print(f"正在拉取 {len(tickers)} 只成分股近 300 天数据以计算最新市场宽度...")
         data = yf.download(tickers, period="300d", interval="1d", threads=True, progress=False)
         closes = data['Close']
         
@@ -350,16 +383,13 @@ def calculate_daily_breadth(old_breadth=None, today_str=None):
         latest_b200 = float(b200.dropna().iloc[-1])
         slope_10d = float(latest_b20 - b20.iloc[-11])
         
-        print(f"✅ 最新市场宽度计算成功: B20={latest_b20:.2%}, B50={latest_b50:.2%}, B200={latest_b200:.2%}, 10日斜率={slope_10d:.2%}")
         return {
             "status": "ok",
             "date": today_str,
             "b20": latest_b20, "b50": latest_b50, "b200": latest_b200, "slope_10d": slope_10d
         }
     except Exception as e:
-        # 🟢 终极保险丝：只要有旧数据，不管过期多久，强行兜底防报错！
         if old_breadth and old_breadth.get("status") == "ok":
-            print(f"❌ YF批量抓取崩溃: {e}。触发终极保险丝：强行降级使用旧宽度缓存！")
             return old_breadth
         return {"status": "error", "message": str(e)}
 
@@ -558,153 +588,70 @@ def render_market_regime(mr):
       {errmsg}
     </div>'''
 
-# ================= 核心构建 =================
-def build():
-    today = datetime.date.today()
-    core, index, stocks, overview_charts = {}, {}, {}, {}
-    data_status = {}
+# ================= HTML 组件与渲染 (包含期权UI) =================
+def render_options_html(options_data):
+    if not options_data:
+        return '<tr><td colspan="10" style="text-align:center; color:var(--muted)">当前没有记录的期权持仓</td></tr>'
+    
+    html = ""
+    for opt in options_data:
+        sym = opt['symbol']
+        opt_type = opt['opt_type']
+        side = opt['side']
+        strike = opt['strike']
+        expiry = opt['expiry']
+        cost = opt['cost']
+        last_price = opt['last_price']
+        iv = opt['iv']
+        delta = opt['delta']
+        dte = opt['dte']
+        curr_price = opt['curr_price']
+        pnl = opt['unrealized_pnl']
+        break_even = opt['break_even']
 
-    old_data = {}
-    try:
-        old_path = os.path.join(os.path.dirname(__file__), '..', 'docs', 'data.json')
-        if os.path.exists(old_path):
-            with open(old_path, 'r', encoding='utf-8') as f:
-                old_data = json.load(f)
-    except Exception:
-        pass
-    old_breadth = old_data.get("raw_breadth")
-
-    sb_targets = fetch_supabase_targets()
-    if sb_targets:
-        for sym, tgt in sb_targets.items():
-            if sym in STOCK_META:
-                STOCK_META[sym]["target"] = tgt
-        data_status["Supabase"] = "🟢 已连接"
-    else:
-        data_status["Supabase"] = "🔴 Fallback"
-
-    core_ath_metrics = get_core_ath_metrics(list(CORE_TIERS.keys()))
-
-    for name, tiers in CORE_TIERS.items():
-        try:
-            rows = fetch_time_series(name)
-            ath_metric = core_ath_metrics.get(name, {"valid": False})
-            core[name] = analyze(name, rows, today, tiers, ath_metric=ath_metric)
-        except Exception as e:
-            core[name] = {"error": str(e)}
-
-    spy_rows_for_regime = None
-    for name in INDEX:
-        try:
-            if name == "GCMAIN":
-                rows = fetch_yahoo_index("GC=F", range_="2y")
-            elif name == "BTC/USD":
-                rows = fetch_yahoo_index("BTC-USD", range_="2y")
+        # 计算距离盈亏平衡百分比
+        dist_pct = 0
+        if curr_price and break_even:
+            if opt_type.lower() == "call":
+                dist_pct = (curr_price - break_even) / break_even * 100
             else:
-                rows = fetch_time_series(name)
-            
-            idx_tiers = CORE_TIERS.get(name)
-            ath_metric = core_ath_metrics.get(name, {"valid": False})
-            index[name] = analyze(name, rows, today, tiers=idx_tiers, ath_metric=ath_metric)
-            
-            if name in ("QQQ", "SPY"): 
-                overview_charts[name] = [{"d": r["datetime"][:10], "c": float(r["close"])} for r in rows[:30][::-1]]
-            if name == "SPY":
-                spy_rows_for_regime = rows 
-        except Exception as e:
-            index[name] = {"error": str(e)}
+                dist_pct = (break_even - curr_price) / break_even * 100
+        dist_str = f"{dist_pct:+.2f}%" if curr_price else "-"
 
-    spx_data, spx_src, _ = fetch_real_index_or_proxy("%5EGSPC", "SPY", today)
-    ixic_data, ixic_src, _ = fetch_real_index_or_proxy("%5EIXIC", "QQQ", today)
-    vix_data, vix_src, _ = fetch_real_index_or_proxy("%5EVIX", VOL_PROXY_SYM, today)
+        # UI 颜色与格式
+        pnl_cls = "pos-text" if pnl >= 0 else "neg-text"
+        pnl_str = f"${pnl:+.2f}"
+        delta_str = f"{delta:+.3f}" if delta else "-"
 
-    data_status["US Market"] = "🟢 Yahoo Real" if spx_src == "yahoo_real" else "🟡 ETF Proxy"
-    data_status["VIX"] = "🟢 Yahoo Real" if vix_src == "yahoo_real" else "🟡 ETF Proxy"
-
-    try:
-        gspc_long_rows = fetch_yahoo_index("%5EGSPC", range_="max")
-    except Exception:
-        gspc_long_rows = None
-        
-    breadth_data = calculate_daily_breadth(old_breadth, today.isoformat())
-    
-    # 🟢 修复UI标签渲染逻辑：精简错误文案
-    b_status = breadth_data.get("status")
-    if b_status == "ok":
-        if old_breadth and breadth_data == old_breadth:
-            data_status["Breadth"] = f"🟡 缓存 ({breadth_data.get('date', '未知')})"
+        # 状态标示
+        if dte < 14:
+            status_html = '<span class="opt-status danger">极高风险 (DTE<14)</span>'
+        elif dte < 45:
+            status_html = '<span class="opt-status warn">注意损耗</span>'
         else:
-            data_status["Breadth"] = "🟢 实时"
-    elif b_status == "skip":
-        data_status["Breadth"] = "🟡 跳过拉取"
-    else:
-        err_msg = breadth_data.get("message", "获取失败")
-        if len(err_msg) > 8: err_msg = err_msg[:8] + ".."
-        data_status["Breadth"] = f"🔴 异常 ({err_msg})"
-    
-    vix_value = vix_data.get("close") if "error" not in vix_data else None
-    market_regime = calc_market_regime(gspc_long_rows, spy_rows_for_regime, vix_value, today, breadth_data)
+            status_html = '<span class="opt-status safe">周期健康</span>'
 
-    for name in STOCKS:
-        try:
-            stocks[name] = analyze(name, fetch_time_series(name), today, is_stock=True)
-        except Exception as e:
-            stocks[name] = {"error": str(e)}
-        
-    cn_hk_data = {}
-    try:
-        res = fetch_tencent_quotes(list(CN_HK_SYMBOLS.keys()))
-        cn_hk_data.update(res)
-        data_status["CN_HK"] = "🟢 Tencent" if res else "🔴 Error"
-    except: 
-        data_status["CN_HK"] = "🔴 Error"
+        # Side Badge
+        side_color = "var(--green)" if side.lower() == "long" else "var(--amber)"
+        side_bg = "var(--green-soft)" if side.lower() == "long" else "var(--amber-soft)"
 
-    cnhk_mapping = {
-        "sh000001": "000001.SS",
-        "sh000300": "000300.SS",
-        "sz159307": "159307.SZ",
-        "hk03086": "3086.HK",
-        "hk03416": "3416.HK"
-    }
-    for code, yf_sym in cnhk_mapping.items():
-        try:
-            rows = fetch_yahoo_index(yf_sym, range_="1mo")
-            overview_charts[code] = [{"d": r["datetime"][:10], "c": float(r["close"])} for r in rows[::-1]]
-        except Exception as e:
-            print(f"⚠️ {code} 历史趋势图抓取失败: {e}")
-        time.sleep(0.5)
-        
-    try:
-        if OTC_FUNDS:
-            for code in OTC_FUNDS.keys():
-                cn_hk_data[code] = fetch_fund_estimate(code)
-            data_status["OTC"] = "🟢 EastMoney"
-        else:
-            data_status["OTC"] = "⚪ 未启用"
-    except: 
-        data_status["OTC"] = "🔴 Error"
+        html += f'''<tr>
+            <td style="text-align:left; font-weight:600; color:var(--ink)">
+                {sym} <span style="font-size:10px; color:{side_color}; font-weight:600; background:{side_bg}; padding:2px 6px; border-radius:4px; margin-left:4px;">{side} {opt_type}</span>
+            </td>
+            <td class="fw-bold">${strike:.2f}</td>
+            <td>{expiry} <span style="font-size:10px;color:var(--muted)">({dte}d)</span></td>
+            <td>${cost:.2f}</td>
+            <td class="fw-bold">${last_price:.2f}</td>
+            <td class="{pnl_cls} fw-bold">{pnl_str}</td>
+            <td style="color:var(--navy); font-weight:600">${break_even:.2f}</td>
+            <td class="fw-bold">${curr_price:.2f}</td>
+            <td class="{pnl_cls}">{dist_str}</td>
+            <td style="font-size:11.5px;color:var(--muted)">{iv:.1%} / {delta_str}</td>
+        </tr>'''
+    return html
 
-    historical_signals = load_historical_signals()
-
-    gen_time_utc8 = (datetime.datetime.utcnow() + datetime.timedelta(hours=8)).strftime("%Y-%m-%d %H:%M:%S")
-    spy_date = index.get("SPY", {}).get("date", "-")
-
-    return {"updated": today.isoformat(), 
-            "gen_time": gen_time_utc8,
-            "spy_date": spy_date,
-            "core": core, "index": index,
-            "stocks": stocks, "overview_charts": overview_charts,
-            "cn_hk": cn_hk_data, "market_regime": market_regime,
-            "historical_signals": historical_signals,
-            "data_status": data_status,
-            "raw_breadth": breadth_data,
-            "market_indicators": {
-                "spx": spx_data, "spx_source": spx_src,
-                "ixic": ixic_data, "ixic_source": ixic_src,
-                "vix": vix_data, "vix_source": vix_src,
-            }}
-
-# ================= HTML 组件与渲染 =================
+# ----------------- 现有的其他 HTML 渲染器 -----------------
 def fmt_pct(x, digits=2): return f"{x*100:.{digits}f}%" if isinstance(x, (int, float)) and not math.isnan(x) else "-"
 def fmt_num(x, digits=2): return f"{x:.{digits}f}" if isinstance(x, (int, float)) and not math.isnan(x) else "-"
 
@@ -723,7 +670,6 @@ def get_dist_text(dd, tiers):
 
 def engine_item(name, r):
     if "error" in r: return f'<div class="engine-item"><div class="k">{name}</div><div class="v">-</div><div class="pt">数据获取失败</div></div>'
-    
     level = r.get("level", 0)
     hit_cls = "hit" if level > 0 else ""
     tiers = r.get("tiers") or {}
@@ -733,7 +679,6 @@ def engine_item(name, r):
         dd = r.get("strategy_drawdown")
         label = "回撤 (ATH)"
         dist_text = get_dist_text(dd, tiers)
-        
         if r.get("ath_validation") == "CHECK":
             status_text = "⚠ 极端回撤 · 请验证数据"
             hit_cls = "warn"
@@ -749,20 +694,11 @@ def engine_item(name, r):
     return f'''<div class="engine-item {hit_cls}"><div class="k">{name} {label}</div><div class="v">{fmt_pct(dd)}</div><div class="pt">{status_text} · 阈值 {tiers_str}</div></div>'''
 
 def card_etf(name, r):
-    display_names = {
-        "GCMAIN": "黄金连续期货 (GC=F)",
-        "BTC/USD": "比特币 (BTC-USD)",
-        "QQQ": "纳斯达克100 (QQQ)",
-        "VOO": "标普500 (VOO)",
-        "SMH": "半导体ETF (SMH)",
-        "TQQQ": "纳指3倍做多 (TQQQ)"
-    }
+    display_names = {"GCMAIN": "黄金连续期货 (GC=F)", "BTC/USD": "比特币 (BTC-USD)", "QQQ": "纳斯达克100 (QQQ)", "VOO": "标普500 (VOO)", "SMH": "半导体ETF (SMH)", "TQQQ": "纳指3倍做多 (TQQQ)"}
     disp_name = display_names.get(name, name)
-    
     if "error" in r: return f'<div class="card err"><div class="sym">{disp_name}</div><div class="errmsg">获取失败: {r["error"]}</div></div>'
     
     drawdown_cls = "neg-text fw-bold" if r["drawdown"] and r["drawdown"] < 0 else "fw-bold"
-    
     dist_text = get_dist_text(r.get("drawdown"), r.get("tiers"))
     dist_row = ""
     if dist_text:
@@ -781,8 +717,7 @@ def card_etf(name, r):
 
 def row_stock(sym, r):
     name = STOCK_META.get(sym, {}).get("name", sym)
-    if "error" in r: 
-        return f'<tr class="err"><td><div style="font-weight:600;color:var(--ink);">{name}</div><div style="font-size:11px;color:var(--muted);margin-top:2px;">{sym}</div></td><td colspan="9">获取数据失败</td></tr>'
+    if "error" in r: return f'<tr class="err"><td><div style="font-weight:600;color:var(--ink);">{name}</div><div style="font-size:11px;color:var(--muted);margin-top:2px;">{sym}</div></td><td colspan="9">获取数据失败</td></tr>'
     
     target = STOCK_META.get(sym, {}).get("target")
     target_str = f"${target:.2f}" if target else "-"
@@ -808,16 +743,11 @@ def mkt_card_a(title, data, code=""):
     chg = data.get("day_chg", 0)
     chg_str = f"+{fmt_pct(chg)}" if chg >= 0 else fmt_pct(chg)
     color_cls = "positive" if chg >= 0 else "negative"
-    
     return f'''<div class="mkt-card hover-card" onclick="toggleMktChart('{code}', '{title}')">
         <div class="name">{title} <span class="chart-hint">📈趋势</span></div>
         <div class="val" data-live-price="{code}">{price:,.3f}</div>
         <div class="chg {color_cls}" data-live-chg="{code}">{chg_str}</div>
-        <div class="mkt-chart-wrap" id="wrap-{code}">
-            <div style="height:140px; position:relative; width:100%;">
-                <canvas id="canvas-{code}"></canvas>
-            </div>
-        </div>
+        <div class="mkt-chart-wrap" id="wrap-{code}"><div style="height:140px; position:relative; width:100%;"><canvas id="canvas-{code}"></canvas></div></div>
     </div>'''
 
 def render_html(data):
@@ -828,6 +758,9 @@ def render_html(data):
     engine_badge_cls = "normal" if max_level == 0 else "t2"
     index_html = "".join(card_etf(k, data["index"][k]) for k in DISPLAYED_INDEX if k in data["index"])
     stock_html = "".join(row_stock(k, v) for k, v in data["stocks"].items())
+
+    # 🟢 动态期权 HTML
+    options_html = render_options_html(data.get("options", []))
 
     signals_html = ""
     for s in data.get("historical_signals", []):
@@ -880,7 +813,6 @@ def render_html(data):
         return f'''<div class="metric-card"><div class="metric-top">{label}<span class="metric-dot {tone}"></span></div><div class="metric-value"{price_attr}>{value}</div>{change_html}<div class="metric-note">{note}</div></div>'''
 
     chart_json = json.dumps(data.get("overview_charts", {}), ensure_ascii=False)
-    
     prices_map = {}
     for k, v in data.get("stocks", {}).items():
         if "error" not in v: prices_map[k] = v.get("close", 0)
@@ -940,7 +872,6 @@ def render_html(data):
 .grid{{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}} .card{{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px;box-shadow:var(--shadow)}} .card-header{{display:flex;justify-content:space-between;align-items:center}} .sym{{font-weight:700;font-size:16px}} .price{{font-size:20px;font-weight:700;font-family:var(--serif)}} .divider{{height:1px;background:var(--line);margin:14px 0}} .row{{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:10px}} .fw-bold{{color:var(--ink);font-weight:600}} .pos-text{{color:var(--green)}} .neg-text{{color:var(--red)}} .alert-text{{color:var(--red)}} .errmsg{{color:var(--muted);font-size:12px;margin-top:8px}} 
 .table-container{{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow)}} table{{width:100%;border-collapse:collapse;text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}} th,td{{padding:14px;border-bottom:1px solid var(--line);font-size:13px}} th{{background:var(--surface2);color:var(--muted);font-weight:600;font-size:11.5px}} th:nth-child(1),td:nth-child(1){{text-align:left}} tr:hover td{{background:#fbfbfb}}
 
-/* 🟢 A股港股面板：新增悬停点击与折叠图表样式 */
 .mkt-card{{background:var(--surface);border:1px solid var(--line);border-radius:13px;padding:17px 18px;box-shadow:var(--shadow); align-self:start; transition: transform 0.2s, box-shadow 0.2s;}} 
 .mkt-card.hover-card {{cursor: pointer;}}
 .mkt-card.hover-card:hover {{transform: translateY(-2px); box-shadow: 0 16px 40px rgba(15,15,10,.08);}}
@@ -1039,28 +970,29 @@ def render_html(data):
 <div id="tab-stocks" class="tab-pane"><section class="hero"><div><h1>个股观察池</h1><p>包含中英文名称对照及核心技术指标监控。</p></div></section><section class="section"><div class="table-container"><table><thead><tr><th>名称代码</th><th>最新价</th><th>涨跌幅</th><th>开盘</th><th>最高</th><th>最低</th><th>当年(YTD)最高</th><th>RSI(14)</th><th>距200MA</th><th>策略参考价</th></tr></thead><tbody id="stocksTableBody">{stock_html}</tbody></table></div></section></div>
 
 <div id="tab-options" class="tab-pane">
-<section class="hero"><div><h1>期权持仓监控 V1</h1><p>下表数据为<b style="color:var(--brass)">示例占位数据</b>，用于演示 DTE 时间衰减、盈亏平衡距离与风控预警状态的计算方式，不是任何真实持仓。不展示真实资金规模与实盘仓位。</p></div></section>
+<section class="hero"><div><h1>期权持仓监控 V1.5</h1><p>全自动动态云端账本追踪：实时捕获 Yahoo 隐波 (IV) 并内置自研 Black-Scholes 引擎推演理论 Delta 与对冲收益，真实盈亏一目了然。</p></div></section>
 <section class="section">
     <div class="table-container">
         <table>
             <thead>
                 <tr>
-                    <th style="text-align:left;">合约代码</th>
-                    <th>方向</th>
+                    <th style="text-align:left;">合约 / 策略</th>
                     <th>行权价</th>
-                    <th>到期日</th>
+                    <th>到期日(DTE)</th>
                     <th>建仓成本</th>
+                    <th>最新价</th>
+                    <th>浮动盈亏</th>
                     <th>盈亏平衡点</th>
                     <th>正股现价</th>
                     <th>距盈亏平衡</th>
-                    <th>风控状态</th>
+                    <th>IV / Delta</th>
                 </tr>
             </thead>
-            <tbody id="optionsTableBody"></tbody>
+            <tbody id="optionsTableBody">{options_html}</tbody>
         </table>
     </div>
 </section>
-<section class="section"><p style="font-size:11.5px;color:var(--muted);line-height:1.7">💡 V1 使用说明：此面板采用盲盒脱敏架构，不显示你持有的真实张数和美金数额。仅展示该合约“单张”相对于当前正股价的风控健康度（基于云端每日最新的正股抓取价格测算）。</p></section>
+<section class="section"><p style="font-size:11.5px;color:var(--muted);line-height:1.7">💡 主理人说明：浮盈/浮亏自动结合 Long/Short 策略方向推演计算。Delta 指标可用于评估对冲正股所需的仓位，以及辅助预判合约归零/行权的最终概率。</p></section>
 </div>
 
 <div id="tab-archive" class="tab-pane">
@@ -1073,8 +1005,7 @@ def render_html(data):
 
 <script>
 const DATA = {chart_json};
-const STOCK_PRICES = {prices_json};
-const MKT_CHARTS = {{}}; // 🟢 用于存储 A/港股 的趋势图表实例
+const MKT_CHARTS = {{}}; 
 
 function switchTab(id,el){{
   document.querySelectorAll('.tab-pane').forEach(t=>t.classList.remove('active'));
@@ -1085,7 +1016,6 @@ function switchTab(id,el){{
   window.scrollTo({{top:0,behavior:'smooth'}});
 }}
 
-// 🟢 展开/收起 A股港股 历史趋势图
 function toggleMktChart(code, title) {{
     const wrap = document.getElementById(`wrap-${{code}}`);
     const canvas = document.getElementById(`canvas-${{code}}`);
@@ -1097,13 +1027,11 @@ function toggleMktChart(code, title) {{
     
     wrap.classList.add('open');
     
-    // 如果还没初始化过该图表，且后台传了数据过来
     if (!MKT_CHARTS[code] && DATA[code]) {{
         const chartData = DATA[code];
         const labels = chartData.map(x => x.d);
         const values = chartData.map(x => x.c);
         
-        // 自动识别这一个月的涨跌，分配绿色或红色
         const isPositive = values[values.length - 1] >= values[0];
         const color = isPositive ? '#1c7a4c' : '#b23b2e';
         const bgColor = isPositive ? 'rgba(28,122,76,.05)' : 'rgba(178,59,46,.05)';
@@ -1148,60 +1076,6 @@ window.addEventListener('load',function(){{
           {{label:'QQQ',data:qv,borderColor:'#b8863a',backgroundColor:'rgba(184,134,58,.08)',fill:true,borderWidth:2,pointRadius:0,tension:.35,yAxisID:'y'}},
           {{label:'SPY',data:sv,borderColor:'#1c7a4c',backgroundColor:'transparent',borderWidth:2,pointRadius:0,tension:.35,yAxisID:'y1'}}
       ]}},options:{{responsive:true,maintainAspectRatio:false,interaction:{{mode:'index',intersect:false}},plugins:{{legend:{{position:'top',align:'end'}}}},scales:{{x:{{grid:{{display:false}},ticks:{{maxTicksLimit:6}}}},y:{{position:'left',grid:{{color:'#eee9dc'}}}},y1:{{position:'right',grid:{{drawOnChartArea:false}}}}}}}}}});
-  }}
-
-  const EXAMPLE_OPTION_POSITIONS = [
-      {{ symbol: "NVDA", type: "Call", strike: 155, expiry: "2026-05-22", cost: 2.13 }},
-      {{ symbol: "TSLA", type: "Put", strike: 220, expiry: "2026-10-16", cost: 8.50 }}
-  ];
-  const OPTION_POSITIONS = EXAMPLE_OPTION_POSITIONS;
-
-  const tbody = document.getElementById("optionsTableBody");
-  const today = new Date();
-
-  if(OPTION_POSITIONS.length === 0) {{
-      tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; color:var(--muted)">当前没有记录的期权持仓</td></tr>`;
-  }} else {{
-      let html = "";
-      OPTION_POSITIONS.forEach(opt => {{
-          const expDate = new Date(opt.expiry);
-          const dte = Math.ceil((expDate - today) / (1000 * 60 * 60 * 24));
-          const currentPrice = STOCK_PRICES[opt.symbol] || 0;
-          
-          let breakEven = 0;
-          if (opt.type === "Call") {{ breakEven = opt.strike + opt.cost; }} 
-          else {{ breakEven = opt.strike - opt.cost; }}
-          
-          let distPct = 0;
-          if (currentPrice) {{
-              distPct = opt.type === "Call"
-                  ? (currentPrice - breakEven) / breakEven * 100
-                  : (breakEven - currentPrice) / breakEven * 100;
-          }}
-          const distStr = currentPrice ? (distPct >= 0 ? "+" : "") + distPct.toFixed(2) + "%" : "-";
-          
-          let statusHtml = "";
-          if(dte < 14) {{
-              statusHtml = '<span class="opt-status danger">极高风险 (DTE<14)</span>';
-          }} else if(dte < 45) {{
-              statusHtml = '<span class="opt-status warn">注意时间损耗</span>';
-          }} else {{
-              statusHtml = '<span class="opt-status safe">周期健康</span>';
-          }}
-          
-          html += `<tr>
-              <td style="text-align:left; font-weight:600; color:var(--ink)">${{opt.symbol}}</td>
-              <td>${{opt.type}}</td>
-              <td class="fw-bold">$${{opt.strike.toFixed(2)}}</td>
-              <td>${{opt.expiry}}</td>
-              <td>$${{opt.cost.toFixed(2)}}</td>
-              <td style="color:var(--navy); font-weight:600">$${{breakEven.toFixed(2)}}</td>
-              <td class="fw-bold">$${{currentPrice ? currentPrice.toFixed(2) : "-"}}</td>
-              <td class="${{distPct >= 0 ? 'pos-text' : 'neg-text'}}">${{distStr}}</td>
-              <td>${{statusHtml}}</td>
-          </tr>`;
-      }});
-      tbody.innerHTML = html;
   }}
 }});
 
@@ -1352,6 +1226,201 @@ def push_to_supabase(data):
             print(f"✅ 成功将最新数据推送到 Supabase 数据库！状态码: {resp.status}")
     except Exception as e:
         print(f"❌ 推送 Supabase 失败: {e}")
+
+# ================= 数据加工串联期权 =================
+def process_options_data(opt_positions, stocks, index, core, today):
+    options_data = []
+    for opt in opt_positions:
+        sym = opt['symbol']
+        opt_type = opt['opt_type']
+        side = opt['side']
+        strike = opt['strike']
+        expiry = opt['expiry']
+        cost = opt['cost']
+        qty = opt['qty']
+
+        curr_price = None
+        if sym in stocks and "error" not in stocks[sym]: curr_price = stocks[sym]["close"]
+        elif sym in index and "error" not in index[sym]: curr_price = index[sym]["close"]
+        elif sym in core and "error" not in core[sym]: curr_price = core[sym]["close"]
+
+        opt_ticker = build_yahoo_option_ticker(sym, expiry, opt_type, strike)
+        q = fetch_yahoo_option_quote(opt_ticker)
+        
+        last_price = q["lastPrice"] if q else 0.0
+        iv = q["impliedVolatility"] if q else 0.0
+
+        dte_days = (datetime.datetime.strptime(expiry, '%Y-%m-%d').date() - today).days
+        T = max(dte_days, 0) / 365.0
+        
+        greeks = calc_option_greeks(curr_price or 0, strike, T, 0.042, iv, opt_type)
+        delta = greeks["delta"]
+        if side.lower() == "short": 
+            delta = -delta
+
+        if side.lower() == 'long':
+            unrealized_pnl = (last_price - cost) * 100 * qty if last_price else 0
+            break_even = strike + cost if opt_type.lower() == 'call' else strike - cost
+        else:
+            unrealized_pnl = (cost - last_price) * 100 * qty if last_price else 0
+            break_even = strike - cost if opt_type.lower() == 'call' else strike + cost
+
+        options_data.append({
+            "symbol": sym, "opt_type": opt_type, "side": side, "strike": strike, "expiry": expiry,
+            "cost": cost, "qty": qty, "last_price": last_price, "iv": iv, "delta": delta,
+            "dte": dte_days, "curr_price": curr_price, "unrealized_pnl": unrealized_pnl,
+            "break_even": break_even
+        })
+    return options_data
+
+def build():
+    today = datetime.date.today()
+    core, index, stocks, overview_charts = {}, {}, {}, {}
+    data_status = {}
+
+    old_data = {}
+    try:
+        old_path = os.path.join(os.path.dirname(__file__), '..', 'docs', 'data.json')
+        if os.path.exists(old_path):
+            with open(old_path, 'r', encoding='utf-8') as f:
+                old_data = json.load(f)
+    except Exception:
+        pass
+    old_breadth = old_data.get("raw_breadth")
+
+    sb_targets = fetch_supabase_targets()
+    if sb_targets:
+        for sym, tgt in sb_targets.items():
+            if sym in STOCK_META:
+                STOCK_META[sym]["target"] = tgt
+        data_status["Supabase"] = "🟢 已连接"
+    else:
+        data_status["Supabase"] = "🔴 Fallback"
+
+    core_ath_metrics = get_core_ath_metrics(list(CORE_TIERS.keys()))
+
+    for name, tiers in CORE_TIERS.items():
+        try:
+            rows = fetch_time_series(name)
+            ath_metric = core_ath_metrics.get(name, {"valid": False})
+            core[name] = analyze(name, rows, today, tiers, ath_metric=ath_metric)
+        except Exception as e:
+            core[name] = {"error": str(e)}
+
+    spy_rows_for_regime = None
+    for name in INDEX:
+        try:
+            if name == "GCMAIN":
+                rows = fetch_yahoo_index("GC=F", range_="2y")
+            elif name == "BTC/USD":
+                rows = fetch_yahoo_index("BTC-USD", range_="2y")
+            else:
+                rows = fetch_time_series(name)
+            
+            idx_tiers = CORE_TIERS.get(name)
+            ath_metric = core_ath_metrics.get(name, {"valid": False})
+            index[name] = analyze(name, rows, today, tiers=idx_tiers, ath_metric=ath_metric)
+            
+            if name in ("QQQ", "SPY"): 
+                overview_charts[name] = [{"d": r["datetime"][:10], "c": float(r["close"])} for r in rows[:30][::-1]]
+            if name == "SPY":
+                spy_rows_for_regime = rows 
+        except Exception as e:
+            index[name] = {"error": str(e)}
+
+    spx_data, spx_src, _ = fetch_real_index_or_proxy("%5EGSPC", "SPY", today)
+    ixic_data, ixic_src, _ = fetch_real_index_or_proxy("%5EIXIC", "QQQ", today)
+    vix_data, vix_src, _ = fetch_real_index_or_proxy("%5EVIX", VOL_PROXY_SYM, today)
+
+    data_status["US Market"] = "🟢 Yahoo Real" if spx_src == "yahoo_real" else "🟡 ETF Proxy"
+    data_status["VIX"] = "🟢 Yahoo Real" if vix_src == "yahoo_real" else "🟡 ETF Proxy"
+
+    try:
+        gspc_long_rows = fetch_yahoo_index("%5EGSPC", range_="max")
+    except Exception:
+        gspc_long_rows = None
+        
+    breadth_data = calculate_daily_breadth(old_breadth, today.isoformat())
+    
+    b_status = breadth_data.get("status")
+    if b_status == "ok":
+        if old_breadth and breadth_data == old_breadth:
+            data_status["Breadth"] = f"🟡 缓存 ({breadth_data.get('date', '未知')})"
+        else:
+            data_status["Breadth"] = "🟢 实时"
+    elif b_status == "skip":
+        data_status["Breadth"] = "🟡 跳过拉取"
+    else:
+        err_msg = breadth_data.get("message", "获取失败")
+        if len(err_msg) > 8: err_msg = err_msg[:8] + ".."
+        data_status["Breadth"] = f"🔴 异常 ({err_msg})"
+    
+    vix_value = vix_data.get("close") if "error" not in vix_data else None
+    market_regime = calc_market_regime(gspc_long_rows, spy_rows_for_regime, vix_value, today, breadth_data)
+
+    for name in STOCKS:
+        try:
+            stocks[name] = analyze(name, fetch_time_series(name), today, is_stock=True)
+        except Exception as e:
+            stocks[name] = {"error": str(e)}
+        
+    cn_hk_data = {}
+    try:
+        res = fetch_tencent_quotes(list(CN_HK_SYMBOLS.keys()))
+        cn_hk_data.update(res)
+        data_status["CN_HK"] = "🟢 Tencent" if res else "🔴 Error"
+    except: 
+        data_status["CN_HK"] = "🔴 Error"
+
+    cnhk_mapping = {
+        "sh000001": "000001.SS",
+        "sh000300": "000300.SS",
+        "sz159307": "159307.SZ",
+        "hk03086": "3086.HK",
+        "hk03416": "3416.HK"
+    }
+    for code, yf_sym in cnhk_mapping.items():
+        try:
+            rows = fetch_yahoo_index(yf_sym, range_="1mo")
+            overview_charts[code] = [{"d": r["datetime"][:10], "c": float(r["close"])} for r in rows[::-1]]
+        except Exception as e:
+            print(f"⚠️ {code} 历史趋势图抓取失败: {e}")
+        time.sleep(0.5)
+        
+    try:
+        if OTC_FUNDS:
+            for code in OTC_FUNDS.keys():
+                cn_hk_data[code] = fetch_fund_estimate(code)
+            data_status["OTC"] = "🟢 EastMoney"
+        else:
+            data_status["OTC"] = "⚪ 未启用"
+    except: 
+        data_status["OTC"] = "🔴 Error"
+
+    historical_signals = load_historical_signals()
+
+    # 🟢 组装期权数据
+    opt_positions = fetch_supabase_options()
+    options_calculated = process_options_data(opt_positions, stocks, index, core, today)
+
+    gen_time_utc8 = (datetime.datetime.utcnow() + datetime.timedelta(hours=8)).strftime("%Y-%m-%d %H:%M:%S")
+    spy_date = index.get("SPY", {}).get("date", "-")
+
+    return {"updated": today.isoformat(), 
+            "gen_time": gen_time_utc8,
+            "spy_date": spy_date,
+            "core": core, "index": index,
+            "stocks": stocks, "overview_charts": overview_charts,
+            "options": options_calculated,
+            "cn_hk": cn_hk_data, "market_regime": market_regime,
+            "historical_signals": historical_signals,
+            "data_status": data_status,
+            "raw_breadth": breadth_data,
+            "market_indicators": {
+                "spx": spx_data, "spx_source": spx_src,
+                "ixic": ixic_data, "ixic_source": ixic_src,
+                "vix": vix_data, "vix_source": vix_src,
+            }}
 
 if __name__ == '__main__':
     data = build()

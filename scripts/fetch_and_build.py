@@ -691,7 +691,10 @@ def mkt_card_a(title, data, code=""):
     chg = data.get("day_chg", 0)
     chg_str = f"+{fmt_pct(chg)}" if chg >= 0 else fmt_pct(chg)
     color_cls = "positive" if chg >= 0 else "negative"
-    return f'<div class="mkt-card"><div class="name">{title}</div><div class="val" id="price-{code}">{price:,.3f}</div><div class="chg {color_cls}" id="chg-{code}">{chg_str}</div></div>'
+    # 用 data-live-price/data-live-chg 而不是 id——因为同一个代码(比如sz159307)
+    # 以后会同时出现在首页和A股tab两张卡片上，id在同一个页面里必须唯一，
+    # 但data属性可以重复，这样一个JS循环能同时更新两张卡片，不会互相打架
+    return f'<div class="mkt-card"><div class="name">{title}</div><div class="val" data-live-price="{code}">{price:,.3f}</div><div class="chg {color_cls}" data-live-chg="{code}">{chg_str}</div></div>'
 
 def render_html(data):
     engine_html = "".join(engine_item(k, v) for k, v in data["core"].items())
@@ -743,13 +746,14 @@ def render_html(data):
     sz_val = f'{sz159307.get("price", 0):,.3f}' if "price" in sz159307 else "—"
     sz_chg = sz159307.get("day_chg")
 
-    def metric_card(label, value, change=None, note="", tone="neutral"):
+    def metric_card(label, value, change=None, note="", tone="neutral", live_code=None):
         change_html = ""
         if isinstance(change, (int, float)):
             cls = "positive" if change >= 0 else "negative"
             sign = "+" if change >= 0 else ""
-            change_html = f'<div class="metric-change {cls}">{sign}{fmt_pct(change)}</div>'
-        return f'''<div class="metric-card"><div class="metric-top">{label}<span class="metric-dot {tone}"></span></div><div class="metric-value">{value}</div>{change_html}<div class="metric-note">{note}</div></div>'''
+            change_html = f'<div class="metric-change {cls}" data-live-chg="{live_code or ""}">{sign}{fmt_pct(change)}</div>'
+        price_attr = f' data-live-price="{live_code}"' if live_code else ""
+        return f'''<div class="metric-card"><div class="metric-top">{label}<span class="metric-dot {tone}"></span></div><div class="metric-value"{price_attr}>{value}</div>{change_html}<div class="metric-note">{note}</div></div>'''
 
     chart_json = json.dumps(data.get("overview_charts", {}), ensure_ascii=False)
     
@@ -859,7 +863,7 @@ def render_html(data):
 
 <div id="tab-overview" class="tab-pane active">
 <section class="hero"><div><h1>看清市场在说什么，而不是账户在做什么。</h1><p>公开版投资研究面板：聚焦市场趋势、回撤、波动率与策略触发条件。</p></div><div class="public-note"><b id="modeTitle">公开展示模式</b><span id="modeDesc">这里展示的是研究指标与策略信号，不代表任何个人账户的实际仓位或收益。</span></div></section>
-<section class="section"><div class="section-head"><h2>市场核心指标</h2><p>自动更新</p></div><div class="metrics">{metric_card('纳斯达克综合指数',qqq_value,qqq_chg,qqq_note,'good' if isinstance(qqq_chg,(int,float)) and qqq_chg>=0 else 'warn')}{metric_card('标普500指数',spy_value,spy_chg,spy_note,'good' if isinstance(spy_chg,(int,float)) and spy_chg>=0 else 'warn')}{metric_card('VIX恐慌指数',vol_display,None,vix_note,vol_tone)}{metric_card('红利低波100 (159307)',sz_val,sz_chg,'A股红利代理 · 腾讯行情','good')}</div></section>
+<section class="section"><div class="section-head"><h2>市场核心指标</h2><p>自动更新</p></div><div class="metrics">{metric_card('纳斯达克综合指数',qqq_value,qqq_chg,qqq_note,'good' if isinstance(qqq_chg,(int,float)) and qqq_chg>=0 else 'warn')}{metric_card('标普500指数',spy_value,spy_chg,spy_note,'good' if isinstance(spy_chg,(int,float)) and spy_chg>=0 else 'warn')}{metric_card('VIX恐慌指数',vol_display,None,vix_note,vol_tone)}{metric_card('红利低波100 (159307)',sz_val,sz_chg,'A股红利代理 · 腾讯行情','good',live_code='sz159307')}</div></section>
 <section class="section">{market_regime_html}</section>
 <section class="section"><div class="section-head"><h2>QQQ & SPY · 近 30 个交易日</h2><p>历史走势</p></div><div class="dashboard-grid"><div class="panel"><div class="panel-head"><strong>趋势对比</strong><span>收盘价</span></div><div class="chart-wrap"><canvas id="trendChart"></canvas></div></div><div class="panel"><div class="panel-head"><strong>Data Status Center</strong><span>数据状态监控</span></div><div class="pulse-list">
 <div class="pulse"><div><div class="pulse-label">恐慌指数源</div><div class="pulse-main">{ds.get('VIX')}</div></div></div>
@@ -1112,13 +1116,17 @@ function fetchLiveCNHK() {{
                   const currentPrice = parseFloat(fields[3]);
                   const prevClose = parseFloat(fields[4]);
                   const pctChange = (currentPrice - prevClose) / prevClose;
-                  const priceEl = document.getElementById(`price-${{sym}}`);
-                  const chgEl = document.getElementById(`chg-${{sym}}`);
-                  if (priceEl && chgEl) {{
-                      priceEl.innerText = currentPrice.toFixed(3);
-                      chgEl.innerText = (pctChange >= 0 ? "+" : "") + (pctChange * 100).toFixed(2) + "%";
-                      chgEl.className = "chg " + (pctChange >= 0 ? "positive" : "negative");
-                  }}
+                  // 用 data-live-price/data-live-chg 属性匹配，而不是 getElementById——
+                  // 同一个代码现在可能同时出现在首页和A股tab两张卡片上，
+                  // querySelectorAll 能把两处都更新到，getElementById只会找到第一个
+                  const priceEls = document.querySelectorAll(`[data-live-price="${{sym}}"]`);
+                  const chgEls = document.querySelectorAll(`[data-live-chg="${{sym}}"]`);
+                  priceEls.forEach(el => {{ el.innerText = currentPrice.toFixed(3); }});
+                  chgEls.forEach(el => {{
+                      el.innerText = (pctChange >= 0 ? "+" : "") + (pctChange * 100).toFixed(2) + "%";
+                      el.classList.remove("positive", "negative");
+                      el.classList.add(pctChange >= 0 ? "positive" : "negative");
+                  }});
               }}
           }}
       }});

@@ -97,20 +97,18 @@ def fetch_supabase_targets():
 def get_core_ath_metrics(symbols):
     """
     ATH Integrity Layer
-    专门负责核心 ETF 的长期复权 ATH 数据。
-    坚决使用 yf.download 的 auto_adjust=True 来清洗拆股数据（如VGT 8:1）。
+    专门负责核心 ETF 的长期复权 ATH 数据。ATH、Close、Drawdown 必须来自同一序列。
     """
     result = {}
     print("\n========== [ATH CHECK] ==========")
 
     for sym in symbols:
         try:
-            # 放弃 raw 接口，强制使用 yfinance 抓取复权数据
-            # 使用 yf.download 在 GitHub Actions 环境中比 Ticker().history 更稳定
-            df = yf.download(sym, period="max", auto_adjust=True, progress=False)
+            ticker = yf.Ticker(sym)
+            df = ticker.history(period="max", auto_adjust=True, actions=True)
 
             if df.empty:
-                raise ValueError("Empty DataFrame from yfinance")
+                raise ValueError("Empty DataFrame")
 
             if "High" not in df.columns or "Close" not in df.columns:
                 raise ValueError("Missing High/Close columns")
@@ -121,7 +119,6 @@ def get_core_ath_metrics(symbols):
             if highs.empty or closes.empty:
                 raise ValueError("No valid High/Close data")
 
-            # 抓取复权后的最高价与现价
             adj_ath = float(highs.max())
             adj_close = float(closes.iloc[-1])
 
@@ -130,8 +127,6 @@ def get_core_ath_metrics(symbols):
                 raise ValueError(f"Invalid price values: ATH={adj_ath}, Close={adj_close}")
 
             drawdown = adj_close / adj_ath - 1.0
-            
-            # 保险丝：如果复权后依然超过 -75%，标记为可疑，交由前端挂起
             extreme = drawdown <= -0.75
 
             result[sym] = {
@@ -152,9 +147,7 @@ def get_core_ath_metrics(symbols):
             }
             print(f"{sym:<6} | Validation=FAILED | Error={e}")
 
-        # 错峰延时，防止触发 Yahoo 反爬虫
         time.sleep(1.0)
-        
     print("======== [ATH CHECK END] ========\n")
     return result
 
@@ -509,7 +502,10 @@ def render_market_regime(mr):
 
     errmsg = ""
     if not mr.get("conditions"):
-        errmsg = f'<div class="errmsg" style="padding:0 19px 16px;color:var(--red);font-size:11px">⚠️ 市场宽度暂不可用，当前评级仅基于可用指标。</div>'
+        if mr.get("breadth_status") == "skip":
+            errmsg = f'<div class="errmsg" style="padding:0 19px 16px;color:var(--muted);font-size:11px">ℹ️ {mr.get("breadth_message","")}，当前"暂未触发"结论仅基于指数回撤一项。</div>'
+        else:
+            errmsg = f'<div class="errmsg" style="padding:0 19px 16px;color:var(--red);font-size:11px">⚠️ 宽度数据状态：{mr.get("breadth_message","")}，当前以"指数回撤"独立参与打分。</div>'
         
     return f'''<div class="panel">
       <div class="panel-head"><strong>市场状态引擎</strong><span>有效评分 {mr["score"]}/{mr["max_available_score"]} 分（满分体系 {mr["max_score"]} 分）</span></div>
@@ -560,8 +556,19 @@ def build():
     spy_rows_for_regime = None
     for name in INDEX:
         try:
-            rows = fetch_time_series(name)
-            index[name] = analyze(name, rows, today)
+            # 🟢 智能免费路由：黄金与BTC自动切到Yahoo Finance
+            if name == "GCMAIN":
+                rows = fetch_yahoo_index("GC=F", range_="2y")
+            elif name == "BTC/USD":
+                rows = fetch_yahoo_index("BTC-USD", range_="2y")
+            else:
+                rows = fetch_time_series(name)
+            
+            # 给 ETF 分配相同的 ATH 策略回撤
+            idx_tiers = CORE_TIERS.get(name)
+            ath_metric = core_ath_metrics.get(name, {"valid": False})
+            index[name] = analyze(name, rows, today, tiers=idx_tiers, ath_metric=ath_metric)
+            
             if name in ("QQQ", "SPY"): 
                 overview_charts[name] = [{"d": r["datetime"][:10], "c": float(r["close"])} for r in rows[:30][::-1]]
             if name == "SPY":
@@ -619,7 +626,15 @@ def build():
 
     historical_signals = load_historical_signals()
 
-    return {"updated": today.isoformat(), "core": core, "index": index,
+    # 🟢 生成当前新加坡（北京）时间
+    gen_time_utc8 = (datetime.datetime.utcnow() + datetime.timedelta(hours=8)).strftime("%Y-%m-%d %H:%M:%S")
+    # 提取最后一天 SPY 数据的时间
+    spy_date = index.get("SPY", {}).get("date", "-")
+
+    return {"updated": today.isoformat(), 
+            "gen_time": gen_time_utc8,
+            "spy_date": spy_date,
+            "core": core, "index": index,
             "stocks": stocks, "overview_charts": overview_charts,
             "cn_hk": cn_hk_data, "market_regime": market_regime,
             "historical_signals": historical_signals,
@@ -635,6 +650,20 @@ def build():
 def fmt_pct(x, digits=2): return f"{x*100:.{digits}f}%" if isinstance(x, (int, float)) and not math.isnan(x) else "-"
 def fmt_num(x, digits=2): return f"{x:.{digits}f}" if isinstance(x, (int, float)) and not math.isnan(x) else "-"
 
+# 🟢 智能计算行动倒计时（差百分之多少到下一档）
+def get_dist_text(dd, tiers):
+    if dd is None or not tiers: return ""
+    try:
+        loss = -float(dd)
+        t1, t2, t3 = tiers.get("t1"), tiers.get("t2"), tiers.get("t3")
+        if not t1: return ""
+        if loss < t1: return f"(差 {fmt_pct(t1 - loss)} 到一级)"
+        elif loss < t2: return f"(差 {fmt_pct(t2 - loss)} 到二级)"
+        elif loss < t3: return f"(差 {fmt_pct(t3 - loss)} 到三级)"
+        else: return "(已达最高档)"
+    except:
+        return ""
+
 def engine_item(name, r):
     if "error" in r: return f'<div class="engine-item"><div class="k">{name}</div><div class="v">-</div><div class="pt">数据获取失败</div></div>'
     
@@ -646,13 +675,15 @@ def engine_item(name, r):
     if r.get("ath_is_true"):
         dd = r.get("strategy_drawdown")
         label = "回撤 (ATH)"
+        dist_text = get_dist_text(dd, tiers)
+        
         if r.get("ath_validation") == "CHECK":
             status_text = "⚠ 极端回撤 · 请验证数据"
             hit_cls = "warn"
         elif level > 0:
-            status_text = r.get("level_label")
+            status_text = f'{r.get("level_label")} <span style="opacity:0.85">{dist_text}</span>'
         else:
-            status_text = "未触发"
+            status_text = f'未触发 <span style="opacity:0.85">{dist_text}</span>'
     else:
         dd = r.get("window_drawdown")
         label = "窗口回撤"
@@ -661,13 +692,34 @@ def engine_item(name, r):
     return f'''<div class="engine-item {hit_cls}"><div class="k">{name} {label}</div><div class="v">{fmt_pct(dd)}</div><div class="pt">{status_text} · 阈值 {tiers_str}</div></div>'''
 
 def card_etf(name, r):
-    if "error" in r: return f'<div class="card err"><div class="sym">{name}</div><div class="errmsg">获取失败</div></div>'
+    # 🟢 友好名称映射
+    display_names = {
+        "GCMAIN": "黄金连续期货 (GC=F)",
+        "BTC/USD": "比特币 (BTC-USD)",
+        "QQQ": "纳斯达克100 (QQQ)",
+        "VOO": "标普500 (VOO)",
+        "SMH": "半导体ETF (SMH)",
+        "TQQQ": "纳指3倍做多 (TQQQ)"
+    }
+    disp_name = display_names.get(name, name)
+    
+    if "error" in r: return f'<div class="card err"><div class="sym">{disp_name}</div><div class="errmsg">获取失败: {r["error"]}</div></div>'
+    
     drawdown_cls = "neg-text fw-bold" if r["drawdown"] and r["drawdown"] < 0 else "fw-bold"
+    
+    # 🟢 下一档距离高亮 Row
+    dist_text = get_dist_text(r.get("drawdown"), r.get("tiers"))
+    dist_row = ""
+    if dist_text:
+        clean_dist = dist_text.replace("(", "").replace(")", "")
+        dist_row = f'<div class="row"><span>下一档距离</span><span style="color:var(--brass);font-weight:700;">{clean_dist}</span></div>'
+
     return f'''<div class="card">
-      <div class="card-header"><span class="sym">{name}</span><span class="price">${r["close"]:.2f}</span></div>
+      <div class="card-header"><span class="sym">{disp_name}</span><span class="price">${r["close"]:.2f}</span></div>
       <div class="divider"></div>
       <div class="row"><span>当年(YTD)最高</span><span class="fw-bold">${fmt_num(r["ytd_high"])}</span></div>
       <div class="row"><span>策略回撤基准</span><span class="{drawdown_cls}">{fmt_pct(r["drawdown"])}</span></div>
+      {dist_row}
       <div class="row"><span>RSI (14)</span><span class="fw-bold">{fmt_num(r["rsi"])}</span></div>
       <div class="row"><span>距 200MA</span><span class="fw-bold">{fmt_pct(r["dist_200ma"])}</span></div>
     </div>'''
@@ -701,9 +753,6 @@ def mkt_card_a(title, data, code=""):
     chg = data.get("day_chg", 0)
     chg_str = f"+{fmt_pct(chg)}" if chg >= 0 else fmt_pct(chg)
     color_cls = "positive" if chg >= 0 else "negative"
-    # 用 data-live-price/data-live-chg 而不是 id——因为同一个代码(比如sz159307)
-    # 以后会同时出现在首页和A股tab两张卡片上，id在同一个页面里必须唯一，
-    # 但data属性可以重复，这样一个JS循环能同时更新两张卡片，不会互相打架
     return f'<div class="mkt-card"><div class="name">{title}</div><div class="val" data-live-price="{code}">{price:,.3f}</div><div class="chg {color_cls}" data-live-chg="{code}">{chg_str}</div></div>'
 
 def render_html(data):
@@ -742,7 +791,7 @@ def render_html(data):
         return ("高风险", "bad")
 
     vol_value = vol.get("close") if "error" not in vol else None
-    vol_state, vol_tone = market_state(vol_value) # <--- HERE IS THE FIX!
+    vol_state, vol_tone = market_state(vol_value)
     vol_display = fmt_num(vol_value) if vol_value is not None else "—"
     spy_value = f'{spy["close"]:,.2f}' if "error" not in spy else "—"
     qqq_value = f'{qqq["close"]:,.2f}' if "error" not in qqq else "—"
@@ -865,9 +914,13 @@ def render_html(data):
 </div>
 </aside>
 
-<main class="main"><header class="topbar"><div class="breadcrumb">myAlphaView / <strong id="bc-title">市场总览</strong></div><div class="top-meta">
-  <span id="liveStatus"><i class="live-dot"></i><span id="liveStatusText">数据抓取成功</span></span>
-  <span id="updateTime">更新: {data['updated']}</span>
+<main class="main"><header class="topbar"><div class="breadcrumb">myAlphaView / <strong id="bc-title">市场总览</strong></div>
+<div class="top-meta">
+  <span id="liveStatus" style="display:none;"><i class="live-dot"></i><span id="liveStatusText">数据抓取成功</span></span>
+  <div style="text-align:right; line-height:1.4;">
+    <div style="font-weight:600; font-size:12px; color:var(--ink);">生成时间: {data.get('gen_time', '-')}</div>
+    <div style="color:var(--muted); font-size:10.5px;">美股截至: {data.get('spy_date', '-')} | A/港股盘中动态刷新</div>
+  </div>
   <button id="authBtn" class="auth-btn-top" onclick="handleAuth()">🔐 登录私有看板</button>
 </div></header><div class="content">
 
@@ -1126,9 +1179,6 @@ function fetchLiveCNHK() {{
                   const currentPrice = parseFloat(fields[3]);
                   const prevClose = parseFloat(fields[4]);
                   const pctChange = (currentPrice - prevClose) / prevClose;
-                  // 用 data-live-price/data-live-chg 属性匹配，而不是 getElementById——
-                  // 同一个代码现在可能同时出现在首页和A股tab两张卡片上，
-                  // querySelectorAll 能把两处都更新到，getElementById只会找到第一个
                   const priceEls = document.querySelectorAll(`[data-live-price="${{sym}}"]`);
                   const chgEls = document.querySelectorAll(`[data-live-chg="${{sym}}"]`);
                   priceEls.forEach(el => {{ el.innerText = currentPrice.toFixed(3); }});

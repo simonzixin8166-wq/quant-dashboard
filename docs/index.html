@@ -47,7 +47,19 @@
 .badge{display:inline-flex;border-radius:99px;padding:4px 9px;font-size:10px;font-weight:700} .badge.good{background:var(--green-soft);color:var(--green)} .badge.warn{background:var(--amber-soft);color:var(--amber)} .badge.bad{background:var(--red-soft);color:var(--red)} .badge.neutral{background:var(--surface2);color:var(--muted)}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px} .card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px;box-shadow:var(--shadow)} .card-header{display:flex;justify-content:space-between;align-items:center} .sym{font-weight:700;font-size:16px} .price{font-size:20px;font-weight:700;font-family:var(--serif)} .divider{height:1px;background:var(--line);margin:14px 0} .row{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:10px} .fw-bold{color:var(--ink);font-weight:600} .pos-text{color:var(--green)} .neg-text{color:var(--red)} .alert-text{color:var(--red)} .errmsg{color:var(--muted);font-size:12px;margin-top:8px} 
 .table-container{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow)} table{width:100%;border-collapse:collapse;text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums} th,td{padding:14px;border-bottom:1px solid var(--line);font-size:13px} th{background:var(--surface2);color:var(--muted);font-weight:600;font-size:11.5px} th:nth-child(1),td:nth-child(1){text-align:left} tr:hover td{background:#fbfbfb}
-.opt-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px} .mkt-card{background:var(--surface);border:1px solid var(--line);border-radius:13px;padding:17px 18px;box-shadow:var(--shadow)} .mkt-card .name{font-size:12.5px;color:var(--muted);display:flex;justify-content:space-between} .mkt-card .val{font-family:var(--serif);font-size:21px;margin-top:8px} .mkt-card .chg{font-size:11.5px;font-weight:600;margin-top:4px} 
+
+/* 🟢 A股港股面板：新增悬停点击与折叠图表样式 */
+.mkt-card{background:var(--surface);border:1px solid var(--line);border-radius:13px;padding:17px 18px;box-shadow:var(--shadow); align-self:start; transition: transform 0.2s, box-shadow 0.2s;} 
+.mkt-card.hover-card {cursor: pointer;}
+.mkt-card.hover-card:hover {transform: translateY(-2px); box-shadow: 0 16px 40px rgba(15,15,10,.08);}
+.chart-hint {font-size: 10px; color: var(--brass); opacity: 0.8; font-weight: normal; margin-left: 6px;}
+.mkt-chart-wrap {display: none; margin-top: 15px; padding-top: 15px; border-top: 1px dashed var(--line);}
+.mkt-chart-wrap.open {display: block; animation: fadeDown 0.3s ease;}
+@keyframes fadeDown {from {opacity: 0; transform: translateY(-5px);} to {opacity: 1; transform: none;}}
+
+.mkt-card .name{font-size:12.5px;color:var(--muted);display:flex;justify-content:space-between; align-items:center;} .mkt-card .val{font-family:var(--serif);font-size:21px;margin-top:8px} .mkt-card .chg{font-size:11.5px;font-weight:600;margin-top:4px}
+.opt-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px; align-items:start;}
+
 .footer{color:#9a9484;font-size:10.5px;line-height:1.7;text-align:center;padding:34px 0 10px}
 .tab-pane{display:none;animation:fade .3s ease} .tab-pane.active{display:block} @keyframes fade{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
 
@@ -91,7 +103,7 @@
 <div class="top-meta">
   <span id="liveStatus" style="display:none;"><i class="live-dot"></i><span id="liveStatusText">数据抓取成功</span></span>
   <div style="text-align:right; line-height:1.4;">
-    <div style="font-weight:600; font-size:12px; color:var(--ink);">生成时间: 2026-09-16 11:35:39</div>
+    <div style="font-weight:600; font-size:12px; color:var(--ink);">生成时间: 2026-09-16 11:50:03</div>
     <div style="color:var(--muted); font-size:10.5px;">美股截至: 2026-09-15 | A/港股盘中动态刷新</div>
   </div>
   <button id="authBtn" class="auth-btn-top" onclick="handleAuth()">🔐 登录私有看板</button>
@@ -108,12 +120,12 @@
         <div class="row"><span>指数历史高点回撤（阈值 -8.00%）</span><span class="fw-bold">-2.95% <span class="badge neutral">未触发</span></span></div>
         
       </div>
-      <div class="errmsg" style="padding:0 19px 16px;color:var(--muted);font-size:11px">ℹ️ 当前为A股/港股收盘时段，暂无历史缓存，跳过全市场重算，当前"暂未触发"结论仅基于指数回撤一项。</div>
+      <div class="errmsg" style="padding:0 19px 16px;color:var(--red);font-size:11px">⚠️ 宽度数据状态：数据不足，当前以"指数回撤"独立参与打分。</div>
     </div></section>
 <section class="section"><div class="section-head"><h2>QQQ & SPY · 近 30 个交易日</h2><p>历史走势</p></div><div class="dashboard-grid"><div class="panel"><div class="panel-head"><strong>趋势对比</strong><span>收盘价</span></div><div class="chart-wrap"><canvas id="trendChart"></canvas></div></div><div class="panel"><div class="panel-head"><strong>Data Status Center</strong><span>数据状态监控</span></div><div class="pulse-list">
 <div class="pulse"><div><div class="pulse-label">恐慌指数源</div><div class="pulse-main">🟢 Yahoo Real</div></div></div>
 <div class="pulse"><div><div class="pulse-label">美股宽基指数</div><div class="pulse-main">🟢 Yahoo Real</div></div></div>
-<div class="pulse"><div><div class="pulse-label">全市场宽度扫描</div><div class="pulse-main">🟡 跳过拉取</div></div></div>
+<div class="pulse"><div><div class="pulse-label">全市场宽度扫描</div><div class="pulse-main">error</div></div></div>
 <div class="pulse"><div><div class="pulse-label">亚太股指代理</div><div class="pulse-main">🟢 Tencent</div></div></div>
 <div class="pulse"><div><div class="pulse-label">场外基金接口</div><div class="pulse-main">⚪ 未启用</div></div></div>
 <div class="pulse"><div><div class="pulse-label">云端策略参数集</div><div class="pulse-main">🟢 已连接</div></div></div>
@@ -159,33 +171,78 @@
       <div class="row"><span>RSI (14)</span><span class="fw-bold">42.46</span></div>
       <div class="row"><span>距 200MA</span><span class="fw-bold">9.30%</span></div>
     </div><div class="card">
-      <div class="card-header"><span class="sym">黄金连续期货 (GC=F)</span><span class="price">$4378.70</span></div>
+      <div class="card-header"><span class="sym">黄金连续期货 (GC=F)</span><span class="price">$4369.90</span></div>
       <div class="divider"></div>
       <div class="row"><span>当年(YTD)最高</span><span class="fw-bold">$5586.20</span></div>
-      <div class="row"><span>策略回撤基准</span><span class="neg-text fw-bold">-21.62%</span></div>
+      <div class="row"><span>策略回撤基准</span><span class="neg-text fw-bold">-21.77%</span></div>
       
-      <div class="row"><span>RSI (14)</span><span class="fw-bold">46.46</span></div>
-      <div class="row"><span>距 200MA</span><span class="fw-bold">-3.80%</span></div>
+      <div class="row"><span>RSI (14)</span><span class="fw-bold">45.74</span></div>
+      <div class="row"><span>距 200MA</span><span class="fw-bold">-4.00%</span></div>
     </div><div class="card">
-      <div class="card-header"><span class="sym">比特币 (BTC-USD)</span><span class="price">$75839.93</span></div>
+      <div class="card-header"><span class="sym">比特币 (BTC-USD)</span><span class="price">$75742.52</span></div>
       <div class="divider"></div>
       <div class="row"><span>当年(YTD)最高</span><span class="fw-bold">$97860.60</span></div>
-      <div class="row"><span>策略回撤基准</span><span class="neg-text fw-bold">-39.90%</span></div>
+      <div class="row"><span>策略回撤基准</span><span class="neg-text fw-bold">-39.98%</span></div>
       
-      <div class="row"><span>RSI (14)</span><span class="fw-bold">48.94</span></div>
-      <div class="row"><span>距 200MA</span><span class="fw-bold">7.97%</span></div>
+      <div class="row"><span>RSI (14)</span><span class="fw-bold">48.63</span></div>
+      <div class="row"><span>距 200MA</span><span class="fw-bold">7.84%</span></div>
     </div></div></section></div>
 
 <div id="tab-cn-hk" class="tab-pane">
 <section class="hero"><div><h1>A股港股 & 红利低波</h1><p>自动同步腾讯行情。中证红利低波100指数(930955)本身不在免费行情源覆盖范围内，用紧密跟踪该指数的场内ETF(159307)代理展示走势。</p></div></section>
-<section class="section"><div class="section-head"><h2>大盘与红利核心池</h2><p>盘中自动实时跳动刷新</p></div><div class="opt-grid">
-<div class="mkt-card"><div class="name">上证指数</div><div class="val" data-live-price="sh000001">3,886.480</div><div class="chg positive" data-live-chg="sh000001">+0.57%</div></div>
-<div class="mkt-card"><div class="name">沪深300</div><div class="val" data-live-price="sh000300">4,479.550</div><div class="chg positive" data-live-chg="sh000300">+0.66%</div></div>
-<div class="mkt-card"><div class="name">红利低波100 ETF (159307)</div><div class="val" data-live-price="sz159307">1.003</div><div class="chg negative" data-live-chg="sz159307">-0.89%</div></div>
+<section class="section"><div class="section-head"><h2>大盘与红利核心池</h2><p>点击卡片展开近 30 日历史趋势</p></div><div class="opt-grid">
+<div class="mkt-card hover-card" onclick="toggleMktChart('sh000001', '上证指数')">
+        <div class="name">上证指数 <span class="chart-hint">📈趋势</span></div>
+        <div class="val" data-live-price="sh000001">3,886.480</div>
+        <div class="chg positive" data-live-chg="sh000001">+0.57%</div>
+        <div class="mkt-chart-wrap" id="wrap-sh000001">
+            <div style="height:140px; position:relative; width:100%;">
+                <canvas id="canvas-sh000001"></canvas>
+            </div>
+        </div>
+    </div>
+<div class="mkt-card hover-card" onclick="toggleMktChart('sh000300', '沪深300')">
+        <div class="name">沪深300 <span class="chart-hint">📈趋势</span></div>
+        <div class="val" data-live-price="sh000300">4,479.550</div>
+        <div class="chg positive" data-live-chg="sh000300">+0.66%</div>
+        <div class="mkt-chart-wrap" id="wrap-sh000300">
+            <div style="height:140px; position:relative; width:100%;">
+                <canvas id="canvas-sh000300"></canvas>
+            </div>
+        </div>
+    </div>
+<div class="mkt-card hover-card" onclick="toggleMktChart('sz159307', '红利低波100 ETF (159307)')">
+        <div class="name">红利低波100 ETF (159307) <span class="chart-hint">📈趋势</span></div>
+        <div class="val" data-live-price="sz159307">1.003</div>
+        <div class="chg negative" data-live-chg="sz159307">-0.89%</div>
+        <div class="mkt-chart-wrap" id="wrap-sz159307">
+            <div style="height:140px; position:relative; width:100%;">
+                <canvas id="canvas-sz159307"></canvas>
+            </div>
+        </div>
+    </div>
 </div></section>
-<section class="section"><div class="section-head"><h2>港股跨境池</h2><p>盘中自动实时跳动刷新</p></div><div class="opt-grid">
-<div class="mkt-card"><div class="name">华夏纳指 (港股)</div><div class="val" data-live-price="hk03086">59.280</div><div class="chg negative" data-live-chg="hk03086">-0.03%</div></div>
-<div class="mkt-card"><div class="name">国指备兑 (港股)</div><div class="val" data-live-price="hk03416">8.185</div><div class="chg negative" data-live-chg="hk03416">-0.18%</div></div>
+<section class="section"><div class="section-head"><h2>港股跨境池</h2><p>点击卡片展开近 30 日历史趋势</p></div><div class="opt-grid">
+<div class="mkt-card hover-card" onclick="toggleMktChart('hk03086', '华夏纳指 (港股)')">
+        <div class="name">华夏纳指 (港股) <span class="chart-hint">📈趋势</span></div>
+        <div class="val" data-live-price="hk03086">59.300</div>
+        <div class="chg positive" data-live-chg="hk03086">+0.00%</div>
+        <div class="mkt-chart-wrap" id="wrap-hk03086">
+            <div style="height:140px; position:relative; width:100%;">
+                <canvas id="canvas-hk03086"></canvas>
+            </div>
+        </div>
+    </div>
+<div class="mkt-card hover-card" onclick="toggleMktChart('hk03416', '国指备兑 (港股)')">
+        <div class="name">国指备兑 (港股) <span class="chart-hint">📈趋势</span></div>
+        <div class="val" data-live-price="hk03416">8.195</div>
+        <div class="chg negative" data-live-chg="hk03416">-0.06%</div>
+        <div class="mkt-chart-wrap" id="wrap-hk03416">
+            <div style="height:140px; position:relative; width:100%;">
+                <canvas id="canvas-hk03416"></canvas>
+            </div>
+        </div>
+    </div>
 </div></section>
 </div>
 
@@ -195,7 +252,7 @@
             <div style="font-size:11px; color:var(--muted); margin-top:3px; font-weight:500;">SOFI</div>
         </td>
         <td class="fw-bold" id="close-SOFI">$17.07</td><td class="neg-text" id="chg-SOFI">-3.29%</td>
-        <td>$17.49</td><td>$17.59</td><td>$16.94</td>
+        <td>$17.50</td><td>$17.59</td><td>$16.94</td>
         <td>$29.86</td><td>43.81</td><td>-13.35%</td>
         <td><b id="target-SOFI">$15.00</b> <span id="action-SOFI"></span></td>
     </tr><tr>
@@ -222,7 +279,7 @@
             <div style="font-size:11px; color:var(--muted); margin-top:3px; font-weight:500;">TSLA</div>
         </td>
         <td class="fw-bold" id="close-TSLA">$356.58</td><td class="neg-text" id="chg-TSLA">-0.67%</td>
-        <td>$358.73</td><td>$362.39</td><td>$354.05</td>
+        <td>$358.75</td><td>$362.39</td><td>$354.05</td>
         <td>$458.34</td><td>50.42</td><td>-10.48%</td>
         <td><b id="target-TSLA">$330.00</b> <span id="action-TSLA"></span></td>
     </tr><tr>
@@ -231,7 +288,7 @@
             <div style="font-size:11px; color:var(--muted); margin-top:3px; font-weight:500;">NVDA</div>
         </td>
         <td class="fw-bold" id="close-NVDA">$212.17</td><td class="pos-text" id="chg-NVDA">+0.57%</td>
-        <td>$213.09</td><td>$213.94</td><td>$211.16</td>
+        <td>$213.38</td><td>$213.94</td><td>$211.16</td>
         <td>$236.54</td><td>45.07</td><td>7.27%</td>
         <td><b id="target-NVDA">$190.00</b> <span id="action-NVDA"></span></td>
     </tr><tr>
@@ -249,7 +306,7 @@
             <div style="font-size:11px; color:var(--muted); margin-top:3px; font-weight:500;">LITE</div>
         </td>
         <td class="fw-bold" id="close-LITE">$838.96</td><td class="pos-text" id="chg-LITE">+0.47%</td>
-        <td>$841.51</td><td>$856.00</td><td>$832.16</td>
+        <td>$842.71</td><td>$856.00</td><td>$832.11</td>
         <td>$1085.68</td><td>46.19</td><td>19.04%</td>
         <td><b id="target-LITE">$650.00</b> <span id="action-LITE"></span></td>
     </tr><tr>
@@ -258,7 +315,7 @@
             <div style="font-size:11px; color:var(--muted); margin-top:3px; font-weight:500;">AVGO</div>
         </td>
         <td class="fw-bold" id="close-AVGO">$339.27</td><td class="neg-text" id="chg-AVGO">-1.58%</td>
-        <td>$346.02</td><td>$347.26</td><td>$337.92</td>
+        <td>$346.04</td><td>$347.26</td><td>$337.90</td>
         <td>$495.00</td><td>32.27</td><td>-8.26%</td>
         <td><b id="target-AVGO">$340.00</b> <span id="action-AVGO"><span class="alert-text fw-bold ml">(信号触发!)</span></span></td>
     </tr><tr>
@@ -267,7 +324,7 @@
             <div style="font-size:11px; color:var(--muted); margin-top:3px; font-weight:500;">MRVL</div>
         </td>
         <td class="fw-bold" id="close-MRVL">$221.70</td><td class="pos-text" id="chg-MRVL">+1.32%</td>
-        <td>$222.02</td><td>$227.62</td><td>$220.92</td>
+        <td>$221.62</td><td>$227.62</td><td>$220.92</td>
         <td>$329.88</td><td>49.40</td><td>41.95%</td>
         <td><b id="target-MRVL">$185.00</b> <span id="action-MRVL"></span></td>
     </tr><tr>
@@ -276,7 +333,7 @@
             <div style="font-size:11px; color:var(--muted); margin-top:3px; font-weight:500;">NBIS</div>
         </td>
         <td class="fw-bold" id="close-NBIS">$207.37</td><td class="neg-text" id="chg-NBIS">-2.27%</td>
-        <td>$211.17</td><td>$216.56</td><td>$206.85</td>
+        <td>$211.03</td><td>$216.56</td><td>$206.85</td>
         <td>$299.86</td><td>45.66</td><td>30.50%</td>
         <td><b id="target-NBIS">$180.00</b> <span id="action-NBIS"></span></td>
     </tr><tr>
@@ -285,7 +342,7 @@
             <div style="font-size:11px; color:var(--muted); margin-top:3px; font-weight:500;">GOOG</div>
         </td>
         <td class="fw-bold" id="close-GOOG">$341.43</td><td class="neg-text" id="chg-GOOG">-1.24%</td>
-        <td>$343.15</td><td>$344.36</td><td>$339.18</td>
+        <td>$343.34</td><td>$344.36</td><td>$339.18</td>
         <td>$404.47</td><td>51.07</td><td>1.67%</td>
         <td><b id="target-GOOG">$300.00</b> <span id="action-GOOG"></span></td>
     </tr><tr>
@@ -294,7 +351,7 @@
             <div style="font-size:11px; color:var(--muted); margin-top:3px; font-weight:500;">AMD</div>
         </td>
         <td class="fw-bold" id="close-AMD">$504.20</td><td class="pos-text" id="chg-AMD">+2.19%</td>
-        <td>$501.12</td><td>$513.66</td><td>$497.51</td>
+        <td>$501.70</td><td>$513.67</td><td>$497.51</td>
         <td>$584.73</td><td>54.13</td><td>44.14%</td>
         <td><b id="target-AMD">$400.00</b> <span id="action-AMD"></span></td>
     </tr><tr>
@@ -303,7 +360,7 @@
             <div style="font-size:11px; color:var(--muted); margin-top:3px; font-weight:500;">HOOD</div>
         </td>
         <td class="fw-bold" id="close-HOOD">$110.45</td><td class="neg-text" id="chg-HOOD">-3.39%</td>
-        <td>$111.50</td><td>$112.83</td><td>$105.86</td>
+        <td>$111.72</td><td>$112.85</td><td>$105.86</td>
         <td>$125.25</td><td>52.97</td><td>16.10%</td>
         <td><b id="target-HOOD">$70.00</b> <span id="action-HOOD"></span></td>
     </tr><tr>
@@ -312,7 +369,7 @@
             <div style="font-size:11px; color:var(--muted); margin-top:3px; font-weight:500;">DRAM</div>
         </td>
         <td class="fw-bold" id="close-DRAM">$55.01</td><td class="pos-text" id="chg-DRAM">+0.38%</td>
-        <td>$55.83</td><td>$55.95</td><td>$54.48</td>
+        <td>$55.83</td><td>$55.96</td><td>$54.40</td>
         <td>$81.34</td><td>46.21</td><td>-</td>
         <td><b id="target-DRAM">-</b> <span id="action-DRAM"></span></td>
     </tr><tr>
@@ -348,7 +405,7 @@
             <div style="font-size:11px; color:var(--muted); margin-top:3px; font-weight:500;">VGT</div>
         </td>
         <td class="fw-bold" id="close-VGT">$118.79</td><td class="neg-text" id="chg-VGT">-0.32%</td>
-        <td>$119.34</td><td>$119.58</td><td>$118.58</td>
+        <td>$119.34</td><td>$119.59</td><td>$118.59</td>
         <td>$126.00</td><td>48.17</td><td>13.56%</td>
         <td><b id="target-VGT">-</b> <span id="action-VGT"></span></td>
     </tr><tr>
@@ -357,7 +414,7 @@
             <div style="font-size:11px; color:var(--muted); margin-top:3px; font-weight:500;">QQQ</div>
         </td>
         <td class="fw-bold" id="close-QQQ">$704.54</td><td class="neg-text" id="chg-QQQ">-0.65%</td>
-        <td>$708.76</td><td>$709.53</td><td>$703.64</td>
+        <td>$708.80</td><td>$709.53</td><td>$703.64</td>
         <td>$748.65</td><td>43.98</td><td>6.56%</td>
         <td><b id="target-QQQ">-</b> <span id="action-QQQ"></span></td>
     </tr><tr>
@@ -8637,8 +8694,9 @@
 </div></main></div>
 
 <script>
-const DATA = {"QQQ": [{"d": "2026-08-04", "c": 723.84998}, {"d": "2026-08-05", "c": 717.29999}, {"d": "2026-08-06", "c": 714.65002}, {"d": "2026-08-07", "c": 723.030029}, {"d": "2026-08-10", "c": 720.87}, {"d": "2026-08-11", "c": 718.45001}, {"d": "2026-08-12", "c": 723.70001}, {"d": "2026-08-13", "c": 732.070007}, {"d": "2026-08-14", "c": 731.070007}, {"d": "2026-08-17", "c": 729.87}, {"d": "2026-08-18", "c": 717.51001}, {"d": "2026-08-19", "c": 716.080017}, {"d": "2026-08-20", "c": 710.92999}, {"d": "2026-08-21", "c": 713.44}, {"d": "2026-08-24", "c": 706.32001}, {"d": "2026-08-25", "c": 710.71997}, {"d": "2026-08-26", "c": 711.37}, {"d": "2026-08-27", "c": 721.10999}, {"d": "2026-08-28", "c": 716.42999}, {"d": "2026-08-31", "c": 716.76001}, {"d": "2026-09-01", "c": 707.64001}, {"d": "2026-09-02", "c": 709.23999}, {"d": "2026-09-03", "c": 717.66998}, {"d": "2026-09-04", "c": 718.96002}, {"d": "2026-09-08", "c": 718.35999}, {"d": "2026-09-09", "c": 716.31}, {"d": "2026-09-10", "c": 708.69}, {"d": "2026-09-11", "c": 714.88}, {"d": "2026-09-14", "c": 709.17999}, {"d": "2026-09-15", "c": 704.53998}], "SPY": [{"d": "2026-08-04", "c": 771.33002}, {"d": "2026-08-05", "c": 769.78998}, {"d": "2026-08-06", "c": 768.56}, {"d": "2026-08-07", "c": 773.26001}, {"d": "2026-08-10", "c": 773.030029}, {"d": "2026-08-11", "c": 770.56}, {"d": "2026-08-12", "c": 772.48999}, {"d": "2026-08-13", "c": 777.88}, {"d": "2026-08-14", "c": 776.34003}, {"d": "2026-08-17", "c": 772.66998}, {"d": "2026-08-18", "c": 767.45001}, {"d": "2026-08-19", "c": 769.059998}, {"d": "2026-08-20", "c": 762.59998}, {"d": "2026-08-21", "c": 765.71997}, {"d": "2026-08-24", "c": 763.46997}, {"d": "2026-08-25", "c": 765.90997}, {"d": "2026-08-26", "c": 766.080017}, {"d": "2026-08-27", "c": 771.099976}, {"d": "2026-08-28", "c": 769.34998}, {"d": "2026-08-31", "c": 767.049988}, {"d": "2026-09-01", "c": 761.78003}, {"d": "2026-09-02", "c": 765.15997}, {"d": "2026-09-03", "c": 773.16998}, {"d": "2026-09-04", "c": 770.19}, {"d": "2026-09-08", "c": 765.96002}, {"d": "2026-09-09", "c": 762.40002}, {"d": "2026-09-10", "c": 757.83002}, {"d": "2026-09-11", "c": 764.28998}, {"d": "2026-09-14", "c": 760.88}, {"d": "2026-09-15", "c": 757.39001}]};
+const DATA = {"QQQ": [{"d": "2026-08-04", "c": 723.84998}, {"d": "2026-08-05", "c": 717.29999}, {"d": "2026-08-06", "c": 714.65002}, {"d": "2026-08-07", "c": 723.030029}, {"d": "2026-08-10", "c": 720.87}, {"d": "2026-08-11", "c": 718.45001}, {"d": "2026-08-12", "c": 723.70001}, {"d": "2026-08-13", "c": 732.070007}, {"d": "2026-08-14", "c": 731.070007}, {"d": "2026-08-17", "c": 729.87}, {"d": "2026-08-18", "c": 717.51001}, {"d": "2026-08-19", "c": 716.080017}, {"d": "2026-08-20", "c": 710.92999}, {"d": "2026-08-21", "c": 713.44}, {"d": "2026-08-24", "c": 706.32001}, {"d": "2026-08-25", "c": 710.71997}, {"d": "2026-08-26", "c": 711.37}, {"d": "2026-08-27", "c": 721.10999}, {"d": "2026-08-28", "c": 716.42999}, {"d": "2026-08-31", "c": 716.76001}, {"d": "2026-09-01", "c": 707.64001}, {"d": "2026-09-02", "c": 709.23999}, {"d": "2026-09-03", "c": 717.66998}, {"d": "2026-09-04", "c": 718.96002}, {"d": "2026-09-08", "c": 718.35999}, {"d": "2026-09-09", "c": 716.31}, {"d": "2026-09-10", "c": 708.69}, {"d": "2026-09-11", "c": 714.88}, {"d": "2026-09-14", "c": 709.17999}, {"d": "2026-09-15", "c": 704.53998}], "SPY": [{"d": "2026-08-04", "c": 771.33002}, {"d": "2026-08-05", "c": 769.78998}, {"d": "2026-08-06", "c": 768.56}, {"d": "2026-08-07", "c": 773.26001}, {"d": "2026-08-10", "c": 773.030029}, {"d": "2026-08-11", "c": 770.56}, {"d": "2026-08-12", "c": 772.48999}, {"d": "2026-08-13", "c": 777.88}, {"d": "2026-08-14", "c": 776.34003}, {"d": "2026-08-17", "c": 772.66998}, {"d": "2026-08-18", "c": 767.45001}, {"d": "2026-08-19", "c": 769.059998}, {"d": "2026-08-20", "c": 762.59998}, {"d": "2026-08-21", "c": 765.71997}, {"d": "2026-08-24", "c": 763.46997}, {"d": "2026-08-25", "c": 765.90997}, {"d": "2026-08-26", "c": 766.080017}, {"d": "2026-08-27", "c": 771.099976}, {"d": "2026-08-28", "c": 769.34998}, {"d": "2026-08-31", "c": 767.049988}, {"d": "2026-09-01", "c": 761.78003}, {"d": "2026-09-02", "c": 765.15997}, {"d": "2026-09-03", "c": 773.16998}, {"d": "2026-09-04", "c": 770.19}, {"d": "2026-09-08", "c": 765.96002}, {"d": "2026-09-09", "c": 762.40002}, {"d": "2026-09-10", "c": 757.83002}, {"d": "2026-09-11", "c": 764.28998}, {"d": "2026-09-14", "c": 760.88}, {"d": "2026-09-15", "c": 757.39001}], "sh000001": [{"d": "2026-08-17", "c": 3982.654052734375}, {"d": "2026-08-18", "c": 3990.303955078125}, {"d": "2026-08-19", "c": 3894.422119140625}, {"d": "2026-08-20", "c": 3903.720947265625}, {"d": "2026-08-21", "c": 3905.202880859375}, {"d": "2026-08-24", "c": 3882.008056640625}, {"d": "2026-08-25", "c": 3889.445068359375}, {"d": "2026-08-26", "c": 3912.52294921875}, {"d": "2026-08-27", "c": 3956.571044921875}, {"d": "2026-08-28", "c": 3952.178955078125}, {"d": "2026-08-31", "c": 3986.298095703125}, {"d": "2026-09-01", "c": 3979.887939453125}, {"d": "2026-09-02", "c": 3941.385986328125}, {"d": "2026-09-03", "c": 3942.087890625}, {"d": "2026-09-04", "c": 3930.115966796875}, {"d": "2026-09-07", "c": 3932.698974609375}, {"d": "2026-09-08", "c": 3940.551025390625}, {"d": "2026-09-09", "c": 3951.507080078125}, {"d": "2026-09-10", "c": 3934.404052734375}, {"d": "2026-09-11", "c": 3888.111083984375}, {"d": "2026-09-14", "c": 3885.3330078125}, {"d": "2026-09-15", "c": 3864.279052734375}, {"d": "2026-09-16", "c": 3886.48095703125}], "sh000300": [{"d": "2026-09-16", "c": 4479.54736328125}], "sz159307": [{"d": "2026-08-17", "c": 1.0190000534057617}, {"d": "2026-08-18", "c": 1.0210000276565552}, {"d": "2026-08-19", "c": 1.0240000486373901}, {"d": "2026-08-20", "c": 1.0299999713897705}, {"d": "2026-08-21", "c": 1.0190000534057617}, {"d": "2026-08-24", "c": 1.0240000486373901}, {"d": "2026-08-25", "c": 1.027999997138977}, {"d": "2026-08-26", "c": 1.0329999923706055}, {"d": "2026-08-27", "c": 1.0269999504089355}, {"d": "2026-08-28", "c": 1.027999997138977}, {"d": "2026-08-31", "c": 1.0290000438690186}, {"d": "2026-09-01", "c": 1.0390000343322754}, {"d": "2026-09-02", "c": 1.031000018119812}, {"d": "2026-09-03", "c": 1.034000039100647}, {"d": "2026-09-04", "c": 1.0379999876022339}, {"d": "2026-09-07", "c": 1.031000018119812}, {"d": "2026-09-08", "c": 1.0360000133514404}, {"d": "2026-09-09", "c": 1.031999945640564}, {"d": "2026-09-10", "c": 1.0329999923706055}, {"d": "2026-09-11", "c": 1.0240000486373901}, {"d": "2026-09-14", "c": 1.0190000534057617}, {"d": "2026-09-16", "c": 1.003000020980835}], "hk03086": [{"d": "2026-08-17", "c": 61.70000076293945}, {"d": "2026-08-18", "c": 60.720001220703125}, {"d": "2026-08-19", "c": 60.279998779296875}, {"d": "2026-08-20", "c": 60.2599983215332}, {"d": "2026-08-21", "c": 59.91999816894531}, {"d": "2026-08-24", "c": 59.29999923706055}, {"d": "2026-08-25", "c": 59.52000045776367}, {"d": "2026-08-26", "c": 59.47999954223633}, {"d": "2026-08-27", "c": 60.13999938964844}, {"d": "2026-08-28", "c": 60.31999969482422}, {"d": "2026-08-31", "c": 60.119998931884766}, {"d": "2026-09-01", "c": 60.02000045776367}, {"d": "2026-09-02", "c": 59.29999923706055}, {"d": "2026-09-03", "c": 59.47999954223633}, {"d": "2026-09-04", "c": 60.380001068115234}, {"d": "2026-09-07", "c": 60.47999954223633}, {"d": "2026-09-08", "c": 60.279998779296875}, {"d": "2026-09-09", "c": 60.34000015258789}, {"d": "2026-09-10", "c": 60.119998931884766}, {"d": "2026-09-11", "c": 59.619998931884766}, {"d": "2026-09-14", "c": 59.099998474121094}, {"d": "2026-09-16", "c": 59.29999923706055}], "hk03416": [{"d": "2026-08-17", "c": 8.460000038146973}, {"d": "2026-08-18", "c": 8.470000267028809}, {"d": "2026-08-19", "c": 8.479999542236328}, {"d": "2026-08-20", "c": 8.545000076293945}, {"d": "2026-08-21", "c": 8.595000267028809}, {"d": "2026-08-24", "c": 8.475000381469727}, {"d": "2026-08-25", "c": 8.475000381469727}, {"d": "2026-08-26", "c": 8.555000305175781}, {"d": "2026-08-27", "c": 8.524999618530273}, {"d": "2026-08-28", "c": 8.524999618530273}, {"d": "2026-08-31", "c": 8.395000457763672}, {"d": "2026-09-01", "c": 8.380000114440918}, {"d": "2026-09-02", "c": 8.369999885559082}, {"d": "2026-09-03", "c": 8.324999809265137}, {"d": "2026-09-04", "c": 8.430000305175781}, {"d": "2026-09-07", "c": 8.354999542236328}, {"d": "2026-09-08", "c": 8.345000267028809}, {"d": "2026-09-09", "c": 8.324999809265137}, {"d": "2026-09-10", "c": 8.265000343322754}, {"d": "2026-09-11", "c": 8.229999542236328}, {"d": "2026-09-14", "c": 8.260000228881836}, {"d": "2026-09-16", "c": 8.194999694824219}]};
 const STOCK_PRICES = {"SOFI": 17.07, "IREN": 41.58, "ORCL": 140.35001, "TSLA": 356.57999, "NVDA": 212.17, "TSM": 413.75, "LITE": 838.96002, "AVGO": 339.26999, "MRVL": 221.7, "NBIS": 207.37, "GOOG": 341.42999, "AMD": 504.20001, "HOOD": 110.45, "DRAM": 55.0099983, "SPCX": 143.49001, "QQQM": 290.089996, "QLD": 86.96, "VGT": 118.79, "QQQ": 704.53998, "VOO": 696.20001, "TQQQ": 67.9};
+const MKT_CHARTS = {}; // 🟢 用于存储 A/港股 的趋势图表实例
 
 function switchTab(id,el){
   document.querySelectorAll('.tab-pane').forEach(t=>t.classList.remove('active'));
@@ -8647,6 +8705,60 @@ function switchTab(id,el){
   el.classList.add('active');
   document.getElementById('bc-title').innerText = el.innerText.replace('NEW', '').replace(/^[◆◒◫◇⌁⚑📜]/u, '').trim();
   window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// 🟢 展开/收起 A股港股 历史趋势图
+function toggleMktChart(code, title) {
+    const wrap = document.getElementById(`wrap-${code}`);
+    const canvas = document.getElementById(`canvas-${code}`);
+    
+    if (wrap.classList.contains('open')) {
+        wrap.classList.remove('open');
+        return;
+    }
+    
+    wrap.classList.add('open');
+    
+    // 如果还没初始化过该图表，且后台传了数据过来
+    if (!MKT_CHARTS[code] && DATA[code]) {
+        const chartData = DATA[code];
+        const labels = chartData.map(x => x.d);
+        const values = chartData.map(x => x.c);
+        
+        // 自动识别这一个月的涨跌，分配绿色或红色
+        const isPositive = values[values.length - 1] >= values[0];
+        const color = isPositive ? '#1c7a4c' : '#b23b2e';
+        const bgColor = isPositive ? 'rgba(28,122,76,.05)' : 'rgba(178,59,46,.05)';
+
+        MKT_CHARTS[code] = new Chart(canvas, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: title,
+                    data: values,
+                    borderColor: color,
+                    backgroundColor: bgColor,
+                    borderWidth: 2,
+                    pointRadius: 0,
+                    fill: true,
+                    tension: 0.35
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: { mode: 'index', intersect: false },
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { display: false },
+                    y: { position: 'right', grid: { color: '#eee9dc' }, ticks: { font: {size: 9} } }
+                }
+            }
+        });
+    } else if (!DATA[code]) {
+        wrap.innerHTML = '<div style="font-size:11px;color:var(--muted);text-align:center;padding-top:20px;">暂无历史趋势数据</div>';
+    }
 }
 
 window.addEventListener('load',function(){

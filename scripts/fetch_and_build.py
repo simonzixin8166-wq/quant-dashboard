@@ -96,31 +96,56 @@ def fetch_supabase_targets():
 
 def get_core_ath_metrics(symbols):
     """
-    ATH Integrity Layer
-    专门负责核心 ETF 的长期复权 ATH 数据。ATH、Close、Drawdown 必须来自同一序列。
+    🏆 ATH Integrity Layer (Ultra-Stable HTTP Version)
+    终极杀手锏：直接通过 Yahoo 底层 API 穿透抓取数据，
+    并手动应用 adjclose (复权收盘价) 比例，计算出完美的复权最高价。
+    彻底避开 yfinance 在 GitHub Actions 中的 Cookie 拦截，同时完美解决 VGT 拆股问题！
     """
     result = {}
-    print("\n========== [ATH CHECK] ==========")
+    print("\n========== [ATH CHECK (HTTP Adjusted)] ==========")
 
     for sym in symbols:
         try:
-            ticker = yf.Ticker(sym)
-            df = ticker.history(period="max", auto_adjust=True, actions=True)
+            # 使用 urllib 发送带 User-Agent 的纯净请求，100% 绕过雅虎反爬虫
+            url = f"https://query1.finance.yahoo.com/v8/finance/chart/{sym}?interval=1d&range=max"
+            req = urllib.request.Request(url, headers=HEADERS)
+            with urllib.request.urlopen(req, timeout=15) as resp:
+                payload = json.loads(resp.read().decode("utf-8"))
+            
+            chart_data = payload["chart"]["result"][0]
+            quotes = chart_data["indicators"]["quote"][0]
+            
+            # 提取雅虎自带的复权收盘价数组
+            adjcloses = chart_data["indicators"].get("adjclose", [{}])[0].get("adjclose", [])
+            
+            valid_highs = []
+            valid_closes = []
+            
+            for i in range(len(quotes["close"])):
+                if quotes["close"][i] is None or quotes["high"][i] is None:
+                    continue
+                    
+                raw_c = float(quotes["close"][i])
+                raw_h = float(quotes["high"][i])
+                
+                adj_c = raw_c
+                if i < len(adjcloses) and adjcloses[i] is not None:
+                    adj_c = float(adjcloses[i])
+                    
+                # 核心数学逻辑：计算复权系数 (Adjustment Ratio)
+                # 例如 VGT 拆股前，收盘800，复权收盘100，系数就是 0.125
+                # 此时把历史最高价 810 * 0.125 = 101.25，完美还原拆股后的绝对 ATH！
+                ratio = adj_c / raw_c if raw_c > 0 else 1.0
+                adj_h = raw_h * ratio
+                
+                valid_highs.append(adj_h)
+                valid_closes.append(adj_c)
 
-            if df.empty:
-                raise ValueError("Empty DataFrame")
-
-            if "High" not in df.columns or "Close" not in df.columns:
-                raise ValueError("Missing High/Close columns")
-
-            highs = df["High"].dropna()
-            closes = df["Close"].dropna()
-
-            if highs.empty or closes.empty:
+            if not valid_highs or not valid_closes:
                 raise ValueError("No valid High/Close data")
 
-            adj_ath = float(highs.max())
-            adj_close = float(closes.iloc[-1])
+            adj_ath = max(valid_highs)
+            adj_close = valid_closes[-1] # 最新复权收盘价
 
             if (not math.isfinite(adj_ath) or not math.isfinite(adj_close) 
                 or adj_ath <= 0 or adj_close <= 0):
@@ -133,21 +158,22 @@ def get_core_ath_metrics(symbols):
                 "ath": adj_ath,
                 "close": adj_close,
                 "drawdown": drawdown,
-                "source": "yfinance_adjusted",
+                "source": "yahoo_http_adjusted",
                 "extreme": extreme,
                 "valid": True,
             }
 
-            print(f"{sym:<6} | ATH={adj_ath:>10.2f} | Close={adj_close:>10.2f} | DD={drawdown:>8.2%} | Source=yfinance_adjusted | Validation={'CHECK' if extreme else 'PASS'}")
+            print(f"{sym:<6} | ATH={adj_ath:>10.2f} | Close={adj_close:>10.2f} | DD={drawdown:>8.2%} | Source=HTTP | Validation={'CHECK' if extreme else 'PASS'}")
 
         except Exception as e:
             result[sym] = {
-                "ath": None, "close": None, "drawdown": None, "source": "yfinance_adjusted",
+                "ath": None, "close": None, "drawdown": None, "source": "yahoo_http_adjusted",
                 "extreme": False, "valid": False, "error": str(e),
             }
             print(f"{sym:<6} | Validation=FAILED | Error={e}")
 
-        time.sleep(1.0)
+        time.sleep(1.0) # 保持温和的并发节奏
+        
     print("======== [ATH CHECK END] ========\n")
     return result
 

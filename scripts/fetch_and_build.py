@@ -59,37 +59,48 @@ FUND_EST_URL = "http://fundgz.1234567.com.cn/js/{code}.js"
 
 # ================= 3. ATH 强复权校验 (Integrity Layer) =================
 def get_core_ath_metrics(symbols):
-    """使用 yf.download 确保分子分母均通过 auto_adjust 复权，防御拆股 Bug"""
+    """
+    ⚠️⚠️⚠️ 给以后任何要改这个函数的人（包括AI）的重要提醒 ⚠️⚠️⚠️
+    这个函数已经被反复改成用 yfinance (yf.download / yf.Ticker.history) 又反复失败了
+    至少3次——原因始终是同一个：yfinance 在 GitHub Actions 这类云端环境里，
+    需要先跟 Yahoo 做一次会话认证(crumb/cookie)，这个认证经常整体失效，
+    导致所有资产"看起来是分开抓的，实际上全部同时失败"，产生"6个ETF全部
+    ATH暂不可用"这种症状。截图证据：同一次运行里，市场状态引擎的指数ATH
+    （用 fetch_yahoo_index，不走yfinance）稳定成功，核心ETF这边用yfinance
+    却全部失败——问题出在库本身，不是数据源不可用。
+
+    改回yfinance的理由通常是"要用auto_adjust确保拆股复权准确"——这个出发点
+    没错，但代价是这个功能在生产环境里幾乎必然失败。下面这版用不含复权处理的
+    fetch_yahoo_index，理论上对少数发生过拆股的资产可能有精度误差，但已有
+    "extreme"极端回撤保险丝兜底（回撤超过75%时不触发正式信号，只供参考）——
+    一个"能用但对极端拆股场景不够精确"的方案，好过一个"更精确但几乎跑不起来"的方案。
+    如果还是想追求拆股精度，请先确认yfinance在实际GitHub Actions环境里连续跑
+    一周不失败，再考虑换回去，不要只在本地测试环境验证过就改。
+    """
     result = {}
-    print("\n========== [ATH CHECK (yf.download)] ==========")
+    print("\n========== [ATH CHECK (fetch_yahoo_index)] ==========")
     for sym in symbols:
         try:
-            df = yf.download(sym, period="max", auto_adjust=True, progress=False)
-            if df.empty: raise ValueError("Empty DataFrame from yfinance")
+            rows = fetch_yahoo_index(sym, range_="max")
+            if not rows: raise ValueError("Empty rows")
 
-            high_col, close_col = df["High"], df["Close"]
-            if isinstance(high_col, pd.DataFrame): high_col = high_col.iloc[:, 0]
-            if isinstance(close_col, pd.DataFrame): close_col = close_col.iloc[:, 0]
-
-            highs, closes = high_col.dropna(), close_col.dropna()
-            if highs.empty or closes.empty: raise ValueError("No valid High/Close data")
-
-            adj_ath, adj_close = float(highs.max()), float(closes.iloc[-1])
+            adj_ath = max(float(r["high"]) for r in rows)
+            adj_close = float(rows[0]["close"])  # rows是最新在前
             if not math.isfinite(adj_ath) or not math.isfinite(adj_close) or adj_ath <= 0 or adj_close <= 0:
-                raise ValueError(f"Invalid price values")
+                raise ValueError("Invalid price values")
 
             drawdown = adj_close / adj_ath - 1.0
             extreme = drawdown <= -0.75
 
             result[sym] = {
                 "ath": adj_ath, "close": adj_close, "drawdown": drawdown,
-                "source": "yfinance_download", "extreme": extreme, "valid": True,
+                "source": "yahoo_chart_api", "extreme": extreme, "valid": True,
             }
             print(f"{sym:<6} | ATH={adj_ath:>10.2f} | Close={adj_close:>10.2f} | DD={drawdown:>8.2%} | PASS")
         except Exception as e:
             result[sym] = {"valid": False, "error": str(e)}
             print(f"{sym:<6} | Validation=FAILED | Error={e}")
-        time.sleep(1.0)
+        throttle()
     print("======== [ATH CHECK END] ========\n")
     return result
 
@@ -162,18 +173,49 @@ def http_get_json(url):
     with urllib.request.urlopen(url, timeout=20) as resp: return json.loads(resp.read().decode("utf-8"))
 
 def fetch_yahoo_index(y_symbol, range_="1y"):
-    url = f"https://query1.finance.yahoo.com/v8/finance/chart/{y_symbol}?interval=1d&range={range_}"
+    """
+    这个函数额外请求了拆股事件数据(events=splits)并自己算复权因子——
+    之前的版本不处理拆股，导致像VGT这种历史上拆过股的资产，算出来的
+    "历史最高点"是拆股前的老尺度价格，跟现价完全不是一个量级，会出现
+    "回撤79%"这种假信号。这里自己在Python里做复权，不需要靠yfinance
+    去处理，既保住了这个接口一直很稳定这个优点，又解决了准确性问题。
+    """
+    url = f"https://query1.finance.yahoo.com/v8/finance/chart/{y_symbol}?interval=1d&range={range_}&events=splits"
     req = urllib.request.Request(url, headers=HEADERS)
     with urllib.request.urlopen(req, timeout=15) as resp:
         payload = json.loads(resp.read().decode("utf-8"))
-    q = payload["chart"]["result"][0]["indicators"]["quote"][0]
-    ts = payload["chart"]["result"][0]["timestamp"]
+    result = payload["chart"]["result"][0]
+    q = result["indicators"]["quote"][0]
+    ts = result["timestamp"]
+
+    # 拆股事件：{timestamp: {"numerator":3,"denominator":1,...}} 之类的3拆1拆股
+    # 换算成"1old股变成几new股"的比例，价格要反向缩放
+    split_events = []
+    for v in (result.get("events", {}).get("splits", {}) or {}).values():
+        try:
+            ratio = float(v["numerator"]) / float(v["denominator"])
+            if ratio > 0:
+                split_events.append((int(v["date"]), ratio))
+        except Exception:
+            continue
+    split_events.sort()
+
     rows = []
     for i in range(len(ts)):
         if q["close"][i] is None: continue
-        d = datetime.datetime.utcfromtimestamp(ts[i]).date().isoformat()
-        rows.append({"datetime": d, "close": str(q["close"][i]), "high": str(q["high"][i] if q["high"][i] is not None else q["close"][i]), "low": str(q["low"][i] if q["low"][i] is not None else q["close"][i]), "open": str(q["open"][i] if q["open"][i] is not None else q["close"][i])})
-    rows.reverse() 
+        t = ts[i]
+        # 复权因子：把这一天的价格，缩放到"如果后面所有拆股都已经发生"的现在尺度上
+        factor = 1.0
+        for split_ts, ratio in split_events:
+            if split_ts > t:
+                factor /= ratio
+        d = datetime.datetime.utcfromtimestamp(t).date().isoformat()
+        close = float(q["close"][i]) * factor
+        high = float(q["high"][i] if q["high"][i] is not None else q["close"][i]) * factor
+        low = float(q["low"][i] if q["low"][i] is not None else q["close"][i]) * factor
+        open_ = float(q["open"][i] if q["open"][i] is not None else q["close"][i]) * factor
+        rows.append({"datetime": d, "close": str(close), "high": str(high), "low": str(low), "open": str(open_)})
+    rows.reverse()
     if not rows: raise RuntimeError("Yahoo returned no rows")
     return rows
 
@@ -599,7 +641,7 @@ def render_html(data):
 <div id="tab-stocks" class="tab-pane"><section class="hero"><div><h1>个股观察池</h1><p>包含中英文名称对照及核心技术指标监控。</p></div></section><section class="section"><div class="table-container"><table><thead><tr><th>名称代码</th><th>最新价</th><th>涨跌幅</th><th>开盘</th><th>最高</th><th>最低</th><th>当年(YTD)最高</th><th>RSI(14)</th><th>距200MA</th><th>策略参考价</th></tr></thead><tbody id="stocksTableBody">{stock_html}</tbody></table></div></section></div>
 
 <div id="tab-options" class="tab-pane">
-<section class="hero"><div><h1>期权持仓监控 V1.5</h1><p>全自动动态云端账本追踪：实时捕获 Yahoo 隐波 (IV) 并内置自研 Black-Scholes 引擎推演理论 Delta 与对冲收益，真实盈亏一目了然。</p></div></section>
+<section class="hero"><div><h1>期权持仓监控 V1.5</h1><p><b style="color:var(--brass)">⚠️ 当前为示例/测试数据</b>，用于演示 IV、Delta、盈亏平衡等计算逻辑，架构还在搭建中，数据库里的内容不代表任何真实持仓，展示的盈亏数字不是真实盈亏。</p></div></section>
 <section class="section"><div class="table-container"><table><thead><tr><th style="text-align:left;">合约 / 策略</th><th>行权价</th><th>到期日(DTE)</th><th>建仓成本</th><th>最新价</th><th>浮动盈亏</th><th>盈亏平衡点</th><th>正股现价</th><th>距盈亏平衡</th><th>IV / Delta</th></tr></thead><tbody id="optionsTableBody">{options_html}</tbody></table></div></section>
 <section class="section"><p style="font-size:11.5px;color:var(--muted);line-height:1.7">💡 主理人说明：浮盈/浮亏自动结合 Long/Short 策略方向推演计算。Delta 指标可用于评估对冲正股所需的仓位，以及辅助预判合约归零/行权的最终概率。</p></section>
 </div>

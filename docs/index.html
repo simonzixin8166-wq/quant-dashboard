@@ -48,7 +48,6 @@
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px} .card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px;box-shadow:var(--shadow)} .card-header{display:flex;justify-content:space-between;align-items:center} .sym{font-weight:700;font-size:16px} .price{font-size:20px;font-weight:700;font-family:var(--serif)} .divider{height:1px;background:var(--line);margin:14px 0} .row{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:10px} .fw-bold{color:var(--ink);font-weight:600} .pos-text{color:var(--green)} .neg-text{color:var(--red)} .alert-text{color:var(--red)} .errmsg{color:var(--muted);font-size:12px;margin-top:8px} 
 .table-container{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow)} table{width:100%;border-collapse:collapse;text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums} th,td{padding:14px;border-bottom:1px solid var(--line);font-size:13px} th{background:var(--surface2);color:var(--muted);font-weight:600;font-size:11.5px} th:nth-child(1),td:nth-child(1){text-align:left} tr:hover td{background:#fbfbfb}
 
-/* 🟢 A股港股面板：新增悬停点击与折叠图表样式 */
 .mkt-card{background:var(--surface);border:1px solid var(--line);border-radius:13px;padding:17px 18px;box-shadow:var(--shadow); align-self:start; transition: transform 0.2s, box-shadow 0.2s;} 
 .mkt-card.hover-card {cursor: pointer;}
 .mkt-card.hover-card:hover {transform: translateY(-2px); box-shadow: 0 16px 40px rgba(15,15,10,.08);}
@@ -103,7 +102,7 @@
 <div class="top-meta">
   <span id="liveStatus" style="display:none;"><i class="live-dot"></i><span id="liveStatusText">数据抓取成功</span></span>
   <div style="text-align:right; line-height:1.4;">
-    <div style="font-weight:600; font-size:12px; color:var(--ink);">生成时间: 2026-09-16 12:16:02</div>
+    <div style="font-weight:600; font-size:12px; color:var(--ink);">生成时间: 2026-09-16 12:27:25</div>
     <div style="color:var(--muted); font-size:10.5px;">美股截至: 2026-09-15 | A/港股盘中动态刷新</div>
   </div>
   <button id="authBtn" class="auth-btn-top" onclick="handleAuth()">🔐 登录私有看板</button>
@@ -171,21 +170,21 @@
       <div class="row"><span>RSI (14)</span><span class="fw-bold">42.46</span></div>
       <div class="row"><span>距 200MA</span><span class="fw-bold">9.30%</span></div>
     </div><div class="card">
-      <div class="card-header"><span class="sym">黄金连续期货 (GC=F)</span><span class="price">$4367.90</span></div>
+      <div class="card-header"><span class="sym">黄金连续期货 (GC=F)</span><span class="price">$4366.60</span></div>
       <div class="divider"></div>
       <div class="row"><span>当年(YTD)最高</span><span class="fw-bold">$5586.20</span></div>
-      <div class="row"><span>策略回撤基准</span><span class="neg-text fw-bold">-21.81%</span></div>
+      <div class="row"><span>策略回撤基准</span><span class="neg-text fw-bold">-21.83%</span></div>
       
-      <div class="row"><span>RSI (14)</span><span class="fw-bold">45.57</span></div>
-      <div class="row"><span>距 200MA</span><span class="fw-bold">-4.04%</span></div>
+      <div class="row"><span>RSI (14)</span><span class="fw-bold">45.46</span></div>
+      <div class="row"><span>距 200MA</span><span class="fw-bold">-4.07%</span></div>
     </div><div class="card">
-      <div class="card-header"><span class="sym">比特币 (BTC-USD)</span><span class="price">$75809.70</span></div>
+      <div class="card-header"><span class="sym">比特币 (BTC-USD)</span><span class="price">$75922.07</span></div>
       <div class="divider"></div>
       <div class="row"><span>当年(YTD)最高</span><span class="fw-bold">$97860.60</span></div>
-      <div class="row"><span>策略回撤基准</span><span class="neg-text fw-bold">-39.93%</span></div>
+      <div class="row"><span>策略回撤基准</span><span class="neg-text fw-bold">-39.84%</span></div>
       
-      <div class="row"><span>RSI (14)</span><span class="fw-bold">48.85</span></div>
-      <div class="row"><span>距 200MA</span><span class="fw-bold">7.93%</span></div>
+      <div class="row"><span>RSI (14)</span><span class="fw-bold">49.21</span></div>
+      <div class="row"><span>距 200MA</span><span class="fw-bold">8.09%</span></div>
     </div></div></section></div>
 
 <div id="tab-cn-hk" class="tab-pane">
@@ -195,31 +194,19 @@
         <div class="name">上证指数 <span class="chart-hint">📈趋势</span></div>
         <div class="val" data-live-price="sh000001">3,886.480</div>
         <div class="chg positive" data-live-chg="sh000001">+0.57%</div>
-        <div class="mkt-chart-wrap" id="wrap-sh000001">
-            <div style="height:140px; position:relative; width:100%;">
-                <canvas id="canvas-sh000001"></canvas>
-            </div>
-        </div>
+        <div class="mkt-chart-wrap" id="wrap-sh000001"><div style="height:140px; position:relative; width:100%;"><canvas id="canvas-sh000001"></canvas></div></div>
     </div>
 <div class="mkt-card hover-card" onclick="toggleMktChart('sh000300', '沪深300')">
         <div class="name">沪深300 <span class="chart-hint">📈趋势</span></div>
         <div class="val" data-live-price="sh000300">4,479.550</div>
         <div class="chg positive" data-live-chg="sh000300">+0.66%</div>
-        <div class="mkt-chart-wrap" id="wrap-sh000300">
-            <div style="height:140px; position:relative; width:100%;">
-                <canvas id="canvas-sh000300"></canvas>
-            </div>
-        </div>
+        <div class="mkt-chart-wrap" id="wrap-sh000300"><div style="height:140px; position:relative; width:100%;"><canvas id="canvas-sh000300"></canvas></div></div>
     </div>
 <div class="mkt-card hover-card" onclick="toggleMktChart('sz159307', '红利低波100 ETF (159307)')">
         <div class="name">红利低波100 ETF (159307) <span class="chart-hint">📈趋势</span></div>
         <div class="val" data-live-price="sz159307">1.003</div>
         <div class="chg negative" data-live-chg="sz159307">-0.89%</div>
-        <div class="mkt-chart-wrap" id="wrap-sz159307">
-            <div style="height:140px; position:relative; width:100%;">
-                <canvas id="canvas-sz159307"></canvas>
-            </div>
-        </div>
+        <div class="mkt-chart-wrap" id="wrap-sz159307"><div style="height:140px; position:relative; width:100%;"><canvas id="canvas-sz159307"></canvas></div></div>
     </div>
 </div></section>
 <section class="section"><div class="section-head"><h2>港股跨境池</h2><p>点击卡片展开近 30 日历史趋势</p></div><div class="opt-grid">
@@ -227,21 +214,13 @@
         <div class="name">华夏纳指 (港股) <span class="chart-hint">📈趋势</span></div>
         <div class="val" data-live-price="hk03086">59.320</div>
         <div class="chg positive" data-live-chg="hk03086">+0.03%</div>
-        <div class="mkt-chart-wrap" id="wrap-hk03086">
-            <div style="height:140px; position:relative; width:100%;">
-                <canvas id="canvas-hk03086"></canvas>
-            </div>
-        </div>
+        <div class="mkt-chart-wrap" id="wrap-hk03086"><div style="height:140px; position:relative; width:100%;"><canvas id="canvas-hk03086"></canvas></div></div>
     </div>
 <div class="mkt-card hover-card" onclick="toggleMktChart('hk03416', '国指备兑 (港股)')">
         <div class="name">国指备兑 (港股) <span class="chart-hint">📈趋势</span></div>
         <div class="val" data-live-price="hk03416">8.205</div>
         <div class="chg positive" data-live-chg="hk03416">+0.06%</div>
-        <div class="mkt-chart-wrap" id="wrap-hk03416">
-            <div style="height:140px; position:relative; width:100%;">
-                <canvas id="canvas-hk03416"></canvas>
-            </div>
-        </div>
+        <div class="mkt-chart-wrap" id="wrap-hk03416"><div style="height:140px; position:relative; width:100%;"><canvas id="canvas-hk03416"></canvas></div></div>
     </div>
 </div></section>
 </div>
@@ -429,28 +408,68 @@
     </tr></tbody></table></div></section></div>
 
 <div id="tab-options" class="tab-pane">
-<section class="hero"><div><h1>期权持仓监控 V1</h1><p>下表数据为<b style="color:var(--brass)">示例占位数据</b>，用于演示 DTE 时间衰减、盈亏平衡距离与风控预警状态的计算方式，不是任何真实持仓。不展示真实资金规模与实盘仓位。</p></div></section>
+<section class="hero"><div><h1>期权持仓监控 V1.5</h1><p>全自动动态云端账本追踪：实时捕获 Yahoo 隐波 (IV) 并内置自研 Black-Scholes 引擎推演理论 Delta 与对冲收益，真实盈亏一目了然。</p></div></section>
 <section class="section">
     <div class="table-container">
         <table>
             <thead>
                 <tr>
-                    <th style="text-align:left;">合约代码</th>
-                    <th>方向</th>
+                    <th style="text-align:left;">合约 / 策略</th>
                     <th>行权价</th>
-                    <th>到期日</th>
+                    <th>到期日(DTE)</th>
                     <th>建仓成本</th>
+                    <th>最新价</th>
+                    <th>浮动盈亏</th>
                     <th>盈亏平衡点</th>
                     <th>正股现价</th>
                     <th>距盈亏平衡</th>
-                    <th>风控状态</th>
+                    <th>IV / Delta</th>
                 </tr>
             </thead>
-            <tbody id="optionsTableBody"></tbody>
+            <tbody id="optionsTableBody"><tr>
+            <td style="text-align:left; font-weight:600; color:var(--ink)">
+                NVDA <span style="font-size:10px; color:var(--green); font-weight:600; background:var(--green-soft); padding:2px 6px; border-radius:4px; margin-left:4px;">Long Call</span>
+            </td>
+            <td class="fw-bold">$155.00</td>
+            <td>2026-10-16 <span style="font-size:10px;color:var(--muted)">(30d)</span></td>
+            <td>$2.13</td>
+            <td class="fw-bold">$0.00</td>
+            <td class="pos-text fw-bold">$+0.00</td>
+            <td style="color:var(--navy); font-weight:600">$157.13</td>
+            <td class="fw-bold">$212.17</td>
+            <td class="pos-text">+35.03%</td>
+            <td style="font-size:11.5px;color:var(--muted)">0.0% / -</td>
+        </tr><tr>
+            <td style="text-align:left; font-weight:600; color:var(--ink)">
+                TSLA <span style="font-size:10px; color:var(--amber); font-weight:600; background:var(--amber-soft); padding:2px 6px; border-radius:4px; margin-left:4px;">Short Put</span>
+            </td>
+            <td class="fw-bold">$200.00</td>
+            <td>2026-11-20 <span style="font-size:10px;color:var(--muted)">(65d)</span></td>
+            <td>$8.50</td>
+            <td class="fw-bold">$0.00</td>
+            <td class="pos-text fw-bold">$+0.00</td>
+            <td style="color:var(--navy); font-weight:600">$208.50</td>
+            <td class="fw-bold">$356.58</td>
+            <td class="pos-text">-71.02%</td>
+            <td style="font-size:11.5px;color:var(--muted)">0.0% / -</td>
+        </tr><tr>
+            <td style="text-align:left; font-weight:600; color:var(--ink)">
+                QQQ <span style="font-size:10px; color:var(--amber); font-weight:600; background:var(--amber-soft); padding:2px 6px; border-radius:4px; margin-left:4px;">Short Call</span>
+            </td>
+            <td class="fw-bold">$500.00</td>
+            <td>2026-12-18 <span style="font-size:10px;color:var(--muted)">(93d)</span></td>
+            <td>$4.20</td>
+            <td class="fw-bold">$0.00</td>
+            <td class="pos-text fw-bold">$+0.00</td>
+            <td style="color:var(--navy); font-weight:600">$495.80</td>
+            <td class="fw-bold">$704.54</td>
+            <td class="pos-text">+42.10%</td>
+            <td style="font-size:11.5px;color:var(--muted)">0.0% / -</td>
+        </tr></tbody>
         </table>
     </div>
 </section>
-<section class="section"><p style="font-size:11.5px;color:var(--muted);line-height:1.7">💡 V1 使用说明：此面板采用盲盒脱敏架构，不显示你持有的真实张数和美金数额。仅展示该合约“单张”相对于当前正股价的风控健康度（基于云端每日最新的正股抓取价格测算）。</p></section>
+<section class="section"><p style="font-size:11.5px;color:var(--muted);line-height:1.7">💡 主理人说明：浮盈/浮亏自动结合 Long/Short 策略方向推演计算。Delta 指标可用于评估对冲正股所需的仓位，以及辅助预判合约归零/行权的最终概率。</p></section>
 </div>
 
 <div id="tab-archive" class="tab-pane">
@@ -8695,8 +8714,7 @@
 
 <script>
 const DATA = {"QQQ": [{"d": "2026-08-04", "c": 723.84998}, {"d": "2026-08-05", "c": 717.29999}, {"d": "2026-08-06", "c": 714.65002}, {"d": "2026-08-07", "c": 723.030029}, {"d": "2026-08-10", "c": 720.87}, {"d": "2026-08-11", "c": 718.45001}, {"d": "2026-08-12", "c": 723.70001}, {"d": "2026-08-13", "c": 732.070007}, {"d": "2026-08-14", "c": 731.070007}, {"d": "2026-08-17", "c": 729.87}, {"d": "2026-08-18", "c": 717.51001}, {"d": "2026-08-19", "c": 716.080017}, {"d": "2026-08-20", "c": 710.92999}, {"d": "2026-08-21", "c": 713.44}, {"d": "2026-08-24", "c": 706.32001}, {"d": "2026-08-25", "c": 710.71997}, {"d": "2026-08-26", "c": 711.37}, {"d": "2026-08-27", "c": 721.10999}, {"d": "2026-08-28", "c": 716.42999}, {"d": "2026-08-31", "c": 716.76001}, {"d": "2026-09-01", "c": 707.64001}, {"d": "2026-09-02", "c": 709.23999}, {"d": "2026-09-03", "c": 717.66998}, {"d": "2026-09-04", "c": 718.96002}, {"d": "2026-09-08", "c": 718.35999}, {"d": "2026-09-09", "c": 716.31}, {"d": "2026-09-10", "c": 708.69}, {"d": "2026-09-11", "c": 714.88}, {"d": "2026-09-14", "c": 709.17999}, {"d": "2026-09-15", "c": 704.53998}], "SPY": [{"d": "2026-08-04", "c": 771.33002}, {"d": "2026-08-05", "c": 769.78998}, {"d": "2026-08-06", "c": 768.56}, {"d": "2026-08-07", "c": 773.26001}, {"d": "2026-08-10", "c": 773.030029}, {"d": "2026-08-11", "c": 770.56}, {"d": "2026-08-12", "c": 772.48999}, {"d": "2026-08-13", "c": 777.88}, {"d": "2026-08-14", "c": 776.34003}, {"d": "2026-08-17", "c": 772.66998}, {"d": "2026-08-18", "c": 767.45001}, {"d": "2026-08-19", "c": 769.059998}, {"d": "2026-08-20", "c": 762.59998}, {"d": "2026-08-21", "c": 765.71997}, {"d": "2026-08-24", "c": 763.46997}, {"d": "2026-08-25", "c": 765.90997}, {"d": "2026-08-26", "c": 766.080017}, {"d": "2026-08-27", "c": 771.099976}, {"d": "2026-08-28", "c": 769.34998}, {"d": "2026-08-31", "c": 767.049988}, {"d": "2026-09-01", "c": 761.78003}, {"d": "2026-09-02", "c": 765.15997}, {"d": "2026-09-03", "c": 773.16998}, {"d": "2026-09-04", "c": 770.19}, {"d": "2026-09-08", "c": 765.96002}, {"d": "2026-09-09", "c": 762.40002}, {"d": "2026-09-10", "c": 757.83002}, {"d": "2026-09-11", "c": 764.28998}, {"d": "2026-09-14", "c": 760.88}, {"d": "2026-09-15", "c": 757.39001}], "sh000001": [{"d": "2026-08-17", "c": 3982.654052734375}, {"d": "2026-08-18", "c": 3990.303955078125}, {"d": "2026-08-19", "c": 3894.422119140625}, {"d": "2026-08-20", "c": 3903.720947265625}, {"d": "2026-08-21", "c": 3905.202880859375}, {"d": "2026-08-24", "c": 3882.008056640625}, {"d": "2026-08-25", "c": 3889.445068359375}, {"d": "2026-08-26", "c": 3912.52294921875}, {"d": "2026-08-27", "c": 3956.571044921875}, {"d": "2026-08-28", "c": 3952.178955078125}, {"d": "2026-08-31", "c": 3986.298095703125}, {"d": "2026-09-01", "c": 3979.887939453125}, {"d": "2026-09-02", "c": 3941.385986328125}, {"d": "2026-09-03", "c": 3942.087890625}, {"d": "2026-09-04", "c": 3930.115966796875}, {"d": "2026-09-07", "c": 3932.698974609375}, {"d": "2026-09-08", "c": 3940.551025390625}, {"d": "2026-09-09", "c": 3951.507080078125}, {"d": "2026-09-10", "c": 3934.404052734375}, {"d": "2026-09-11", "c": 3888.111083984375}, {"d": "2026-09-14", "c": 3885.3330078125}, {"d": "2026-09-15", "c": 3864.279052734375}, {"d": "2026-09-16", "c": 3886.48095703125}], "sh000300": [{"d": "2026-09-16", "c": 4479.54736328125}], "sz159307": [{"d": "2026-08-17", "c": 1.0190000534057617}, {"d": "2026-08-18", "c": 1.0210000276565552}, {"d": "2026-08-19", "c": 1.0240000486373901}, {"d": "2026-08-20", "c": 1.0299999713897705}, {"d": "2026-08-21", "c": 1.0190000534057617}, {"d": "2026-08-24", "c": 1.0240000486373901}, {"d": "2026-08-25", "c": 1.027999997138977}, {"d": "2026-08-26", "c": 1.0329999923706055}, {"d": "2026-08-27", "c": 1.0269999504089355}, {"d": "2026-08-28", "c": 1.027999997138977}, {"d": "2026-08-31", "c": 1.0290000438690186}, {"d": "2026-09-01", "c": 1.0390000343322754}, {"d": "2026-09-02", "c": 1.031000018119812}, {"d": "2026-09-03", "c": 1.034000039100647}, {"d": "2026-09-04", "c": 1.0379999876022339}, {"d": "2026-09-07", "c": 1.031000018119812}, {"d": "2026-09-08", "c": 1.0360000133514404}, {"d": "2026-09-09", "c": 1.031999945640564}, {"d": "2026-09-10", "c": 1.0329999923706055}, {"d": "2026-09-11", "c": 1.0240000486373901}, {"d": "2026-09-14", "c": 1.0190000534057617}, {"d": "2026-09-16", "c": 1.003000020980835}], "hk03086": [{"d": "2026-08-17", "c": 61.70000076293945}, {"d": "2026-08-18", "c": 60.720001220703125}, {"d": "2026-08-19", "c": 60.279998779296875}, {"d": "2026-08-20", "c": 60.2599983215332}, {"d": "2026-08-21", "c": 59.91999816894531}, {"d": "2026-08-24", "c": 59.29999923706055}, {"d": "2026-08-25", "c": 59.52000045776367}, {"d": "2026-08-26", "c": 59.47999954223633}, {"d": "2026-08-27", "c": 60.13999938964844}, {"d": "2026-08-28", "c": 60.31999969482422}, {"d": "2026-08-31", "c": 60.119998931884766}, {"d": "2026-09-01", "c": 60.02000045776367}, {"d": "2026-09-02", "c": 59.29999923706055}, {"d": "2026-09-03", "c": 59.47999954223633}, {"d": "2026-09-04", "c": 60.380001068115234}, {"d": "2026-09-07", "c": 60.47999954223633}, {"d": "2026-09-08", "c": 60.279998779296875}, {"d": "2026-09-09", "c": 60.34000015258789}, {"d": "2026-09-10", "c": 60.119998931884766}, {"d": "2026-09-11", "c": 59.619998931884766}, {"d": "2026-09-14", "c": 59.099998474121094}, {"d": "2026-09-16", "c": 59.31999969482422}], "hk03416": [{"d": "2026-08-17", "c": 8.460000038146973}, {"d": "2026-08-18", "c": 8.470000267028809}, {"d": "2026-08-19", "c": 8.479999542236328}, {"d": "2026-08-20", "c": 8.545000076293945}, {"d": "2026-08-21", "c": 8.595000267028809}, {"d": "2026-08-24", "c": 8.475000381469727}, {"d": "2026-08-25", "c": 8.475000381469727}, {"d": "2026-08-26", "c": 8.555000305175781}, {"d": "2026-08-27", "c": 8.524999618530273}, {"d": "2026-08-28", "c": 8.524999618530273}, {"d": "2026-08-31", "c": 8.395000457763672}, {"d": "2026-09-01", "c": 8.380000114440918}, {"d": "2026-09-02", "c": 8.369999885559082}, {"d": "2026-09-03", "c": 8.324999809265137}, {"d": "2026-09-04", "c": 8.430000305175781}, {"d": "2026-09-07", "c": 8.354999542236328}, {"d": "2026-09-08", "c": 8.345000267028809}, {"d": "2026-09-09", "c": 8.324999809265137}, {"d": "2026-09-10", "c": 8.265000343322754}, {"d": "2026-09-11", "c": 8.229999542236328}, {"d": "2026-09-14", "c": 8.260000228881836}, {"d": "2026-09-16", "c": 8.204999923706055}]};
-const STOCK_PRICES = {"SOFI": 17.07, "IREN": 41.58, "ORCL": 140.35001, "TSLA": 356.57999, "NVDA": 212.17, "TSM": 413.75, "LITE": 838.96002, "AVGO": 339.26999, "MRVL": 221.7, "NBIS": 207.37, "GOOG": 341.42999, "AMD": 504.20001, "HOOD": 110.45, "DRAM": 55.0099983, "SPCX": 143.49001, "QQQM": 290.089996, "QLD": 86.96, "VGT": 118.79, "QQQ": 704.53998, "VOO": 696.20001, "TQQQ": 67.9};
-const MKT_CHARTS = {}; // 🟢 用于存储 A/港股 的趋势图表实例
+const MKT_CHARTS = {}; 
 
 function switchTab(id,el){
   document.querySelectorAll('.tab-pane').forEach(t=>t.classList.remove('active'));
@@ -8707,7 +8725,6 @@ function switchTab(id,el){
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
-// 🟢 展开/收起 A股港股 历史趋势图
 function toggleMktChart(code, title) {
     const wrap = document.getElementById(`wrap-${code}`);
     const canvas = document.getElementById(`canvas-${code}`);
@@ -8719,13 +8736,11 @@ function toggleMktChart(code, title) {
     
     wrap.classList.add('open');
     
-    // 如果还没初始化过该图表，且后台传了数据过来
     if (!MKT_CHARTS[code] && DATA[code]) {
         const chartData = DATA[code];
         const labels = chartData.map(x => x.d);
         const values = chartData.map(x => x.c);
         
-        // 自动识别这一个月的涨跌，分配绿色或红色
         const isPositive = values[values.length - 1] >= values[0];
         const color = isPositive ? '#1c7a4c' : '#b23b2e';
         const bgColor = isPositive ? 'rgba(28,122,76,.05)' : 'rgba(178,59,46,.05)';
@@ -8770,60 +8785,6 @@ window.addEventListener('load',function(){
           {label:'QQQ',data:qv,borderColor:'#b8863a',backgroundColor:'rgba(184,134,58,.08)',fill:true,borderWidth:2,pointRadius:0,tension:.35,yAxisID:'y'},
           {label:'SPY',data:sv,borderColor:'#1c7a4c',backgroundColor:'transparent',borderWidth:2,pointRadius:0,tension:.35,yAxisID:'y1'}
       ]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{position:'top',align:'end'}},scales:{x:{grid:{display:false},ticks:{maxTicksLimit:6}},y:{position:'left',grid:{color:'#eee9dc'}},y1:{position:'right',grid:{drawOnChartArea:false}}}}});
-  }
-
-  const EXAMPLE_OPTION_POSITIONS = [
-      { symbol: "NVDA", type: "Call", strike: 155, expiry: "2026-05-22", cost: 2.13 },
-      { symbol: "TSLA", type: "Put", strike: 220, expiry: "2026-10-16", cost: 8.50 }
-  ];
-  const OPTION_POSITIONS = EXAMPLE_OPTION_POSITIONS;
-
-  const tbody = document.getElementById("optionsTableBody");
-  const today = new Date();
-
-  if(OPTION_POSITIONS.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; color:var(--muted)">当前没有记录的期权持仓</td></tr>`;
-  } else {
-      let html = "";
-      OPTION_POSITIONS.forEach(opt => {
-          const expDate = new Date(opt.expiry);
-          const dte = Math.ceil((expDate - today) / (1000 * 60 * 60 * 24));
-          const currentPrice = STOCK_PRICES[opt.symbol] || 0;
-          
-          let breakEven = 0;
-          if (opt.type === "Call") { breakEven = opt.strike + opt.cost; } 
-          else { breakEven = opt.strike - opt.cost; }
-          
-          let distPct = 0;
-          if (currentPrice) {
-              distPct = opt.type === "Call"
-                  ? (currentPrice - breakEven) / breakEven * 100
-                  : (breakEven - currentPrice) / breakEven * 100;
-          }
-          const distStr = currentPrice ? (distPct >= 0 ? "+" : "") + distPct.toFixed(2) + "%" : "-";
-          
-          let statusHtml = "";
-          if(dte < 14) {
-              statusHtml = '<span class="opt-status danger">极高风险 (DTE<14)</span>';
-          } else if(dte < 45) {
-              statusHtml = '<span class="opt-status warn">注意时间损耗</span>';
-          } else {
-              statusHtml = '<span class="opt-status safe">周期健康</span>';
-          }
-          
-          html += `<tr>
-              <td style="text-align:left; font-weight:600; color:var(--ink)">${opt.symbol}</td>
-              <td>${opt.type}</td>
-              <td class="fw-bold">$${opt.strike.toFixed(2)}</td>
-              <td>${opt.expiry}</td>
-              <td>$${opt.cost.toFixed(2)}</td>
-              <td style="color:var(--navy); font-weight:600">$${breakEven.toFixed(2)}</td>
-              <td class="fw-bold">$${currentPrice ? currentPrice.toFixed(2) : "-"}</td>
-              <td class="${distPct >= 0 ? 'pos-text' : 'neg-text'}">${distStr}</td>
-              <td>${statusHtml}</td>
-          </tr>`;
-      });
-      tbody.innerHTML = html;
   }
 });
 

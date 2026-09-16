@@ -267,17 +267,28 @@ def load_historical_signals():
         print(f"❌ 读取历史买点失败: {e}")
         return []
 
-def calculate_daily_breadth(old_breadth=None):
+def calculate_daily_breadth(old_breadth=None, today_str=None):
     utc_hour = datetime.datetime.utcnow().hour
+    
+    is_cache_valid = False
+    if old_breadth and old_breadth.get("status") == "ok":
+        cached_date_str = old_breadth.get("date", "2000-01-01")
+        try:
+            cached_date = datetime.datetime.strptime(cached_date_str, "%Y-%m-%d").date()
+            today_date = datetime.datetime.strptime(today_str, "%Y-%m-%d").date()
+            if (today_date - cached_date).days <= 3:
+                is_cache_valid = True
+        except:
+            pass
+
     if utc_hour < 12:
-        if old_breadth and old_breadth.get("status") == "ok":
-            msg = "当前为A股/港股收盘时段，跳过重计算，成功读取旧宽度缓存"
+        if is_cache_valid:
+            msg = f"当前为亚洲时段，读取近3天内有效缓存({old_breadth.get('date')})"
             print(f"🕒 {msg}")
             return old_breadth
         else:
-            msg = "当前为A股/港股收盘时段，暂无历史缓存，跳过全市场重算"
+            msg = "亚洲时段，但缓存已过期(Stale)或缺失，执行硬拉取重计算"
             print(f"🕒 {msg}")
-            return {"status": "skip", "message": msg}
 
     try:
         json_path = os.path.join(os.path.dirname(__file__), 'sp500_constituents.json')
@@ -312,11 +323,12 @@ def calculate_daily_breadth(old_breadth=None):
         print(f"✅ 最新市场宽度计算成功: B20={latest_b20:.2%}, B50={latest_b50:.2%}, B200={latest_b200:.2%}, 10日斜率={slope_10d:.2%}")
         return {
             "status": "ok",
+            "date": today_str,
             "b20": latest_b20, "b50": latest_b50, "b200": latest_b200, "slope_10d": slope_10d
         }
     except Exception as e:
-        if old_breadth and old_breadth.get("status") == "ok":
-            print(f"❌ 宽度计算异常: {e}。已自动降级使用旧缓存数据。")
+        if is_cache_valid:
+            print(f"❌ 宽度计算异常: {e}。由于存在有效旧缓存，自动降级沿用。")
             return old_breadth
         return {"status": "error", "message": str(e)}
 
@@ -362,7 +374,6 @@ def analyze(symbol, rows, today, tiers=None, is_stock=False, ath_metric=None):
     ytd_rows = [r for r in rows if r["datetime"].startswith(current_year)]
     ytd_high = max([float(r["high"]) for r in ytd_rows]) if ytd_rows else latest_close
     
-    # Strategy Drawdown / ATH Integrity
     ath_is_true = False
     strategy_drawdown = None
     strategy_ath = None
@@ -379,7 +390,6 @@ def analyze(symbol, rows, today, tiers=None, is_stock=False, ath_metric=None):
         ath_is_true = True
         ath_validation = "CHECK" if ath_metric.get("extreme") else "PASS"
 
-    # Window fallback
     window_high = None
     window_drawdown = None
 
@@ -390,7 +400,6 @@ def analyze(symbol, rows, today, tiers=None, is_stock=False, ath_metric=None):
         if window_high and latest_close:
             window_drawdown = latest_close / window_high - 1.0
 
-    # Tier Trigger
     level = 0
     level_label = None
 
@@ -556,7 +565,6 @@ def build():
     spy_rows_for_regime = None
     for name in INDEX:
         try:
-            # 🟢 智能免费路由：黄金与BTC自动切到Yahoo Finance
             if name == "GCMAIN":
                 rows = fetch_yahoo_index("GC=F", range_="2y")
             elif name == "BTC/USD":
@@ -564,7 +572,6 @@ def build():
             else:
                 rows = fetch_time_series(name)
             
-            # 给 ETF 分配相同的 ATH 策略回撤
             idx_tiers = CORE_TIERS.get(name)
             ath_metric = core_ath_metrics.get(name, {"valid": False})
             index[name] = analyze(name, rows, today, tiers=idx_tiers, ath_metric=ath_metric)
@@ -588,14 +595,12 @@ def build():
     except Exception:
         gspc_long_rows = None
         
-    breadth_data = calculate_daily_breadth(old_breadth)
+    breadth_data = calculate_daily_breadth(old_breadth, today.isoformat())
     
     if breadth_data.get("status") == "ok" and old_breadth and breadth_data == old_breadth:
-        data_status["Breadth"] = "🟡 缓存"
-    elif breadth_data.get("status") == "skip":
-        data_status["Breadth"] = "🟡 跳过拉取"
+        data_status["Breadth"] = f"🟡 Cached ({breadth_data.get('date', 'Unknown')})"
     else:
-        data_status["Breadth"] = "🟢 实时" if breadth_data.get("status") == "ok" else "🔴 异常"
+        data_status["Breadth"] = breadth_data.get("status", "error")
     
     vix_value = vix_data.get("close") if "error" not in vix_data else None
     market_regime = calc_market_regime(gspc_long_rows, spy_rows_for_regime, vix_value, today, breadth_data)
@@ -613,6 +618,22 @@ def build():
         data_status["CN_HK"] = "🟢 Tencent" if res else "🔴 Error"
     except: 
         data_status["CN_HK"] = "🔴 Error"
+
+    # 🟢 V1.5 (A计划)：抓取A股/港股历史趋势图数据 (近1个月，供点击展开)
+    cnhk_mapping = {
+        "sh000001": "000001.SS",
+        "sh000300": "000300.SS",
+        "sz159307": "159307.SZ",
+        "hk03086": "3086.HK",
+        "hk03416": "3416.HK"
+    }
+    for code, yf_sym in cnhk_mapping.items():
+        try:
+            rows = fetch_yahoo_index(yf_sym, range_="1mo")
+            overview_charts[code] = [{"d": r["datetime"][:10], "c": float(r["close"])} for r in rows[::-1]]
+        except Exception as e:
+            print(f"⚠️ {code} 历史趋势图抓取失败: {e}")
+        time.sleep(0.5)
         
     try:
         if OTC_FUNDS:
@@ -626,9 +647,7 @@ def build():
 
     historical_signals = load_historical_signals()
 
-    # 🟢 生成当前新加坡（北京）时间
     gen_time_utc8 = (datetime.datetime.utcnow() + datetime.timedelta(hours=8)).strftime("%Y-%m-%d %H:%M:%S")
-    # 提取最后一天 SPY 数据的时间
     spy_date = index.get("SPY", {}).get("date", "-")
 
     return {"updated": today.isoformat(), 
@@ -650,7 +669,6 @@ def build():
 def fmt_pct(x, digits=2): return f"{x*100:.{digits}f}%" if isinstance(x, (int, float)) and not math.isnan(x) else "-"
 def fmt_num(x, digits=2): return f"{x:.{digits}f}" if isinstance(x, (int, float)) and not math.isnan(x) else "-"
 
-# 🟢 智能计算行动倒计时（差百分之多少到下一档）
 def get_dist_text(dd, tiers):
     if dd is None or not tiers: return ""
     try:
@@ -692,7 +710,6 @@ def engine_item(name, r):
     return f'''<div class="engine-item {hit_cls}"><div class="k">{name} {label}</div><div class="v">{fmt_pct(dd)}</div><div class="pt">{status_text} · 阈值 {tiers_str}</div></div>'''
 
 def card_etf(name, r):
-    # 🟢 友好名称映射
     display_names = {
         "GCMAIN": "黄金连续期货 (GC=F)",
         "BTC/USD": "比特币 (BTC-USD)",
@@ -707,7 +724,6 @@ def card_etf(name, r):
     
     drawdown_cls = "neg-text fw-bold" if r["drawdown"] and r["drawdown"] < 0 else "fw-bold"
     
-    # 🟢 下一档距离高亮 Row
     dist_text = get_dist_text(r.get("drawdown"), r.get("tiers"))
     dist_row = ""
     if dist_text:
@@ -753,7 +769,18 @@ def mkt_card_a(title, data, code=""):
     chg = data.get("day_chg", 0)
     chg_str = f"+{fmt_pct(chg)}" if chg >= 0 else fmt_pct(chg)
     color_cls = "positive" if chg >= 0 else "negative"
-    return f'<div class="mkt-card"><div class="name">{title}</div><div class="val" data-live-price="{code}">{price:,.3f}</div><div class="chg {color_cls}" data-live-chg="{code}">{chg_str}</div></div>'
+    
+    # 🟢 赋予卡片点击展开事件、趋势提示和独立的 Canvas 画布容器
+    return f'''<div class="mkt-card hover-card" onclick="toggleMktChart('{code}', '{title}')">
+        <div class="name">{title} <span class="chart-hint">📈趋势</span></div>
+        <div class="val" data-live-price="{code}">{price:,.3f}</div>
+        <div class="chg {color_cls}" data-live-chg="{code}">{chg_str}</div>
+        <div class="mkt-chart-wrap" id="wrap-{code}">
+            <div style="height:140px; position:relative; width:100%;">
+                <canvas id="canvas-{code}"></canvas>
+            </div>
+        </div>
+    </div>'''
 
 def render_html(data):
     engine_html = "".join(engine_item(k, v) for k, v in data["core"].items())
@@ -874,7 +901,19 @@ def render_html(data):
 .badge{{display:inline-flex;border-radius:99px;padding:4px 9px;font-size:10px;font-weight:700}} .badge.good{{background:var(--green-soft);color:var(--green)}} .badge.warn{{background:var(--amber-soft);color:var(--amber)}} .badge.bad{{background:var(--red-soft);color:var(--red)}} .badge.neutral{{background:var(--surface2);color:var(--muted)}}
 .grid{{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}} .card{{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px;box-shadow:var(--shadow)}} .card-header{{display:flex;justify-content:space-between;align-items:center}} .sym{{font-weight:700;font-size:16px}} .price{{font-size:20px;font-weight:700;font-family:var(--serif)}} .divider{{height:1px;background:var(--line);margin:14px 0}} .row{{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:10px}} .fw-bold{{color:var(--ink);font-weight:600}} .pos-text{{color:var(--green)}} .neg-text{{color:var(--red)}} .alert-text{{color:var(--red)}} .errmsg{{color:var(--muted);font-size:12px;margin-top:8px}} 
 .table-container{{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow)}} table{{width:100%;border-collapse:collapse;text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}} th,td{{padding:14px;border-bottom:1px solid var(--line);font-size:13px}} th{{background:var(--surface2);color:var(--muted);font-weight:600;font-size:11.5px}} th:nth-child(1),td:nth-child(1){{text-align:left}} tr:hover td{{background:#fbfbfb}}
-.opt-grid{{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px}} .mkt-card{{background:var(--surface);border:1px solid var(--line);border-radius:13px;padding:17px 18px;box-shadow:var(--shadow)}} .mkt-card .name{{font-size:12.5px;color:var(--muted);display:flex;justify-content:space-between}} .mkt-card .val{{font-family:var(--serif);font-size:21px;margin-top:8px}} .mkt-card .chg{{font-size:11.5px;font-weight:600;margin-top:4px}} 
+
+/* 🟢 A股港股面板：新增悬停点击与折叠图表样式 */
+.mkt-card{{background:var(--surface);border:1px solid var(--line);border-radius:13px;padding:17px 18px;box-shadow:var(--shadow); align-self:start; transition: transform 0.2s, box-shadow 0.2s;}} 
+.mkt-card.hover-card {{cursor: pointer;}}
+.mkt-card.hover-card:hover {{transform: translateY(-2px); box-shadow: 0 16px 40px rgba(15,15,10,.08);}}
+.chart-hint {{font-size: 10px; color: var(--brass); opacity: 0.8; font-weight: normal; margin-left: 6px;}}
+.mkt-chart-wrap {{display: none; margin-top: 15px; padding-top: 15px; border-top: 1px dashed var(--line);}}
+.mkt-chart-wrap.open {{display: block; animation: fadeDown 0.3s ease;}}
+@keyframes fadeDown {{from {{opacity: 0; transform: translateY(-5px);}} to {{opacity: 1; transform: none;}}}}
+
+.mkt-card .name{{font-size:12.5px;color:var(--muted);display:flex;justify-content:space-between; align-items:center;}} .mkt-card .val{{font-family:var(--serif);font-size:21px;margin-top:8px}} .mkt-card .chg{{font-size:11.5px;font-weight:600;margin-top:4px}}
+.opt-grid{{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px; align-items:start;}}
+
 .footer{{color:#9a9484;font-size:10.5px;line-height:1.7;text-align:center;padding:34px 0 10px}}
 .tab-pane{{display:none;animation:fade .3s ease}} .tab-pane.active{{display:block}} @keyframes fade{{from{{opacity:0;transform:translateY(5px)}}to{{opacity:1;transform:none}}}}
 
@@ -948,12 +987,12 @@ def render_html(data):
 
 <div id="tab-cn-hk" class="tab-pane">
 <section class="hero"><div><h1>A股港股 & 红利低波</h1><p>自动同步腾讯行情。中证红利低波100指数(930955)本身不在免费行情源覆盖范围内，用紧密跟踪该指数的场内ETF(159307)代理展示走势。</p></div></section>
-<section class="section"><div class="section-head"><h2>大盘与红利核心池</h2><p>盘中自动实时跳动刷新</p></div><div class="opt-grid">
+<section class="section"><div class="section-head"><h2>大盘与红利核心池</h2><p>点击卡片展开近 30 日历史趋势</p></div><div class="opt-grid">
 {mkt_card_a("上证指数", cn.get("sh000001"), "sh000001")}
 {mkt_card_a("沪深300", cn.get("sh000300"), "sh000300")}
 {mkt_card_a("红利低波100 ETF (159307)", cn.get("sz159307"), "sz159307")}
 </div></section>
-<section class="section"><div class="section-head"><h2>港股跨境池</h2><p>盘中自动实时跳动刷新</p></div><div class="opt-grid">
+<section class="section"><div class="section-head"><h2>港股跨境池</h2><p>点击卡片展开近 30 日历史趋势</p></div><div class="opt-grid">
 {mkt_card_a("华夏纳指 (港股)", cn.get("hk03086"), "hk03086")}
 {mkt_card_a("国指备兑 (港股)", cn.get("hk03416"), "hk03416")}
 </div></section>
@@ -997,6 +1036,7 @@ def render_html(data):
 <script>
 const DATA = {chart_json};
 const STOCK_PRICES = {prices_json};
+const MKT_CHARTS = {{}}; // 🟢 用于存储 A/港股 的趋势图表实例
 
 function switchTab(id,el){{
   document.querySelectorAll('.tab-pane').forEach(t=>t.classList.remove('active'));
@@ -1005,6 +1045,60 @@ function switchTab(id,el){{
   el.classList.add('active');
   document.getElementById('bc-title').innerText = el.innerText.replace('NEW', '').replace(/^[◆◒◫◇⌁⚑📜]/u, '').trim();
   window.scrollTo({{top:0,behavior:'smooth'}});
+}}
+
+// 🟢 展开/收起 A股港股 历史趋势图
+function toggleMktChart(code, title) {{
+    const wrap = document.getElementById(`wrap-${{code}}`);
+    const canvas = document.getElementById(`canvas-${{code}}`);
+    
+    if (wrap.classList.contains('open')) {{
+        wrap.classList.remove('open');
+        return;
+    }}
+    
+    wrap.classList.add('open');
+    
+    // 如果还没初始化过该图表，且后台传了数据过来
+    if (!MKT_CHARTS[code] && DATA[code]) {{
+        const chartData = DATA[code];
+        const labels = chartData.map(x => x.d);
+        const values = chartData.map(x => x.c);
+        
+        // 自动识别这一个月的涨跌，分配绿色或红色
+        const isPositive = values[values.length - 1] >= values[0];
+        const color = isPositive ? '#1c7a4c' : '#b23b2e';
+        const bgColor = isPositive ? 'rgba(28,122,76,.05)' : 'rgba(178,59,46,.05)';
+
+        MKT_CHARTS[code] = new Chart(canvas, {{
+            type: 'line',
+            data: {{
+                labels: labels,
+                datasets: [{{
+                    label: title,
+                    data: values,
+                    borderColor: color,
+                    backgroundColor: bgColor,
+                    borderWidth: 2,
+                    pointRadius: 0,
+                    fill: true,
+                    tension: 0.35
+                }}]
+            }},
+            options: {{
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {{ mode: 'index', intersect: false }},
+                plugins: {{ legend: {{ display: false }} }},
+                scales: {{
+                    x: {{ display: false }},
+                    y: {{ position: 'right', grid: {{ color: '#eee9dc' }}, ticks: {{ font: {{size: 9}} }} }}
+                }}
+            }}
+        }});
+    }} else if (!DATA[code]) {{
+        wrap.innerHTML = '<div style="font-size:11px;color:var(--muted);text-align:center;padding-top:20px;">暂无历史趋势数据</div>';
+    }}
 }}
 
 window.addEventListener('load',function(){{

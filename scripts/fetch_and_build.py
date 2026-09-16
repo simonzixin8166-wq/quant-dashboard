@@ -267,6 +267,7 @@ def load_historical_signals():
         print(f"❌ 读取历史买点失败: {e}")
         return []
 
+# ================= 全市场宽度动态计算（霸道缓存兜底版） =================
 def calculate_daily_breadth(old_breadth=None, today_str=None):
     utc_hour = datetime.datetime.utcnow().hour
     
@@ -281,19 +282,22 @@ def calculate_daily_breadth(old_breadth=None, today_str=None):
         except:
             pass
 
+    # 亚洲时段拦截
     if utc_hour < 12:
         if is_cache_valid:
-            msg = f"当前为亚洲时段，读取近3天内有效缓存({old_breadth.get('date')})"
-            print(f"🕒 {msg}")
+            print(f"🕒 亚洲时段，读取有效缓存 ({old_breadth.get('date')})")
+            return old_breadth
+        elif old_breadth and old_breadth.get("status") == "ok":
+            print(f"🕒 亚洲时段缓存已过期，但为防止报错，强行沿用旧缓存")
             return old_breadth
         else:
-            msg = "亚洲时段，但缓存已过期(Stale)或缺失，执行硬拉取重计算"
-            print(f"🕒 {msg}")
+            return {"status": "skip", "message": "亚洲盘中且无缓存"}
 
+    # 美股时段全量抓取
     try:
         json_path = os.path.join(os.path.dirname(__file__), 'sp500_constituents.json')
         if not os.path.exists(json_path):
-            return {"status": "error", "message": "名单丢失"}
+            raise ValueError("名单丢失")
 
         with open(json_path, 'r') as f:
             tickers = json.load(f)
@@ -313,7 +317,7 @@ def calculate_daily_breadth(old_breadth=None, today_str=None):
         
         b20 = b20.dropna()
         if len(b20) < 11:
-            return {"status": "error", "message": "数据不足"}
+            raise ValueError("YF返回有效数据不足")
             
         latest_b20 = float(b20.iloc[-1])
         latest_b50 = float(b50.dropna().iloc[-1])
@@ -327,8 +331,9 @@ def calculate_daily_breadth(old_breadth=None, today_str=None):
             "b20": latest_b20, "b50": latest_b50, "b200": latest_b200, "slope_10d": slope_10d
         }
     except Exception as e:
-        if is_cache_valid:
-            print(f"❌ 宽度计算异常: {e}。由于存在有效旧缓存，自动降级沿用。")
+        # 🟢 终极保险丝：只要有旧数据，不管过期多久，强行兜底防报错！
+        if old_breadth and old_breadth.get("status") == "ok":
+            print(f"❌ YF批量抓取崩溃: {e}。触发终极保险丝：强行降级使用旧宽度缓存！")
             return old_breadth
         return {"status": "error", "message": str(e)}
 
@@ -597,10 +602,19 @@ def build():
         
     breadth_data = calculate_daily_breadth(old_breadth, today.isoformat())
     
-    if breadth_data.get("status") == "ok" and old_breadth and breadth_data == old_breadth:
-        data_status["Breadth"] = f"🟡 Cached ({breadth_data.get('date', 'Unknown')})"
+    # 🟢 修复UI标签渲染逻辑：精简错误文案
+    b_status = breadth_data.get("status")
+    if b_status == "ok":
+        if old_breadth and breadth_data == old_breadth:
+            data_status["Breadth"] = f"🟡 缓存 ({breadth_data.get('date', '未知')})"
+        else:
+            data_status["Breadth"] = "🟢 实时"
+    elif b_status == "skip":
+        data_status["Breadth"] = "🟡 跳过拉取"
     else:
-        data_status["Breadth"] = breadth_data.get("status", "error")
+        err_msg = breadth_data.get("message", "获取失败")
+        if len(err_msg) > 8: err_msg = err_msg[:8] + ".."
+        data_status["Breadth"] = f"🔴 异常 ({err_msg})"
     
     vix_value = vix_data.get("close") if "error" not in vix_data else None
     market_regime = calc_market_regime(gspc_long_rows, spy_rows_for_regime, vix_value, today, breadth_data)
@@ -619,7 +633,6 @@ def build():
     except: 
         data_status["CN_HK"] = "🔴 Error"
 
-    # 🟢 V1.5 (A计划)：抓取A股/港股历史趋势图数据 (近1个月，供点击展开)
     cnhk_mapping = {
         "sh000001": "000001.SS",
         "sh000300": "000300.SS",
@@ -770,7 +783,6 @@ def mkt_card_a(title, data, code=""):
     chg_str = f"+{fmt_pct(chg)}" if chg >= 0 else fmt_pct(chg)
     color_cls = "positive" if chg >= 0 else "negative"
     
-    # 🟢 赋予卡片点击展开事件、趋势提示和独立的 Canvas 画布容器
     return f'''<div class="mkt-card hover-card" onclick="toggleMktChart('{code}', '{title}')">
         <div class="name">{title} <span class="chart-hint">📈趋势</span></div>
         <div class="val" data-live-price="{code}">{price:,.3f}</div>

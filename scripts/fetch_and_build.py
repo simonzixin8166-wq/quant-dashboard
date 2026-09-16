@@ -525,6 +525,11 @@ def render_html(data):
     qqq_value = f'{qqq["close"]:,.2f}' if "error" not in qqq else "—"
     spy_chg, qqq_chg = spy.get("day_chg"), qqq.get("day_chg")
 
+    # 市场核心指标说明文字
+    spy_note = f"大盘风险偏好 · {src_label(mi.get('spx_source'))}"
+    qqq_note = f"成长/科技风格温度 · {src_label(mi.get('ixic_source'))}"
+    vix_note = f"{src_label(mi.get('vix_source'))}"
+
     sz159307 = cn.get("sz159307", {})
     sz_val = f'{sz159307.get("price", 0):,.3f}' if "price" in sz159307 else "—"
     sz_chg = sz159307.get("day_chg")

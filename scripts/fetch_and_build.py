@@ -234,32 +234,85 @@ def fetch_tencent_quotes(symbols):
             except Exception as e: out[sym] = {"error": str(e)}
     return out
 
-def calculate_daily_breadth(old_breadth=None, today_str=None):
-    is_cache_valid = False
-    if old_breadth and old_breadth.get("status") == "ok":
-        try:
-            if (datetime.datetime.strptime(today_str, "%Y-%m-%d").date() - datetime.datetime.strptime(old_breadth.get("date", "2000-01-01"), "%Y-%m-%d").date()).days <= 3:
-                is_cache_valid = True
-        except: pass
+def _extract_yf_close(raw, batch):
+    """兼容 yfinance 单代码/多代码及不同 MultiIndex 排列。"""
+    if raw is None or raw.empty: return pd.DataFrame()
+    if isinstance(raw.columns, pd.MultiIndex):
+        if "Close" in raw.columns.get_level_values(0): close = raw["Close"]
+        elif "Close" in raw.columns.get_level_values(1): close = raw.xs("Close", axis=1, level=1)
+        else: return pd.DataFrame()
+    elif "Close" in raw.columns:
+        close = raw[["Close"]].rename(columns={"Close": batch[0]})
+    else: return pd.DataFrame()
+    if isinstance(close, pd.Series): close = close.to_frame(name=batch[0])
+    return close.apply(pd.to_numeric, errors="coerce")
 
+def _compute_breadth_from_closes(data):
+    if data is None or data.empty: raise ValueError("YF未返回收盘价")
+    data = data.sort_index().loc[:, ~data.columns.duplicated()]
+    # 至少205个有效日线数据才有资格进入200日均线宽度分母。
+    eligible = data.columns[data.notna().sum() >= 205]
+    data = data[eligible]
+    if data.shape[1] < 300: raise ValueError(f"有效成分股不足: {data.shape[1]}/503")
+    coverage = data.notna().sum(axis=1)
+    data = data.loc[coverage >= max(250, int(data.shape[1] * 0.65))]
+    if len(data) < 211: raise ValueError(f"有效交易日不足: {len(data)}")
+
+    # 美股开盘期间不把尚未收盘的日K纳入日线市场宽度。
+    latest_idx = data.index[-1]
+    latest_date = latest_idx.date() if hasattr(latest_idx, "date") else None
+    if latest_date == datetime.datetime.utcnow().date() and datetime.datetime.utcnow().hour < 21:
+        data = data.iloc[:-1]
+    if len(data) < 211: raise ValueError("剔除盘中未完成日K后数据不足")
+
+    ma20, ma50, ma200 = data.rolling(20, min_periods=20).mean(), data.rolling(50, min_periods=50).mean(), data.rolling(200, min_periods=200).mean()
+    b20 = ((data > ma20).sum(axis=1) / data.notna().sum(axis=1)).iloc[199:]
+    b50 = ((data > ma50).sum(axis=1) / data.notna().sum(axis=1)).iloc[199:]
+    b200 = ((data > ma200).sum(axis=1) / data.notna().sum(axis=1)).iloc[199:]
+    if len(b20) < 11: raise ValueError(f"宽度序列不足: {len(b20)}")
+    market_date = data.index[-1].date().isoformat() if hasattr(data.index[-1], "date") else str(data.index[-1])[:10]
+    return {"status":"ok", "date":market_date, "b20":float(b20.iloc[-1]), "b50":float(b50.iloc[-1]), "b200":float(b200.iloc[-1]), "slope_10d":float(b20.iloc[-1]-b20.iloc[-11]), "symbols":int(data.shape[1])}
+
+def _cached_breadth(old_breadth, reason):
+    if not old_breadth or old_breadth.get("status") != "ok": return None
+    out = dict(old_breadth)
+    out.update({"is_cached": True, "message": reason})
+    return out
+
+def calculate_daily_breadth(old_breadth=None, today_str=None):
+    # 亚洲白天没有必要重复下载503只美股；优先展示上一完整交易日。
     if datetime.datetime.utcnow().hour < 12:
-        if is_cache_valid: return old_breadth
-        return {"status": "skip", "message": "亚洲盘中且无缓存"}
+        cached = _cached_breadth(old_breadth, "美股未收盘，使用上一完整交易日")
+        return cached or {"status":"skip", "message":"等待首次美股收盘宽度数据"}
 
     try:
-        with open(os.path.join(os.path.dirname(__file__), 'sp500_constituents.json'), 'r') as f:
-            tickers = json.load(f)
-        data = yf.download(tickers, period="300d", interval="1d", threads=True, progress=False)['Close']
-        ma20, ma50, ma200 = data.rolling(20).mean(), data.rolling(50).mean(), data.rolling(200).mean()
-        valid = data.notna().sum(axis=1)
-        b20 = ((data > ma20).sum(axis=1) / valid).dropna()
-        if len(b20) < 11: raise ValueError("YF返回有效数据不足")
-        b50, b200 = ((data > ma50).sum(axis=1) / valid).dropna(), ((data > ma200).sum(axis=1) / valid).dropna()
-        market_date = b20.index[-1].date().isoformat() if hasattr(b20.index[-1], "date") else str(b20.index[-1])[:10]
-        return {"status": "ok", "date": market_date, "b20": float(b20.iloc[-1]), "b50": float(b50.iloc[-1]), "b200": float(b200.iloc[-1]), "slope_10d": float(b20.iloc[-1] - b20.iloc[-11])}
+        with open(os.path.join(os.path.dirname(__file__), 'sp500_constituents.json'), 'r') as f: tickers = json.load(f)
+        tickers = [str(x).replace('.', '-') for x in tickers]
+        frames, failures, batch_size = [], [], 50
+        for start in range(0, len(tickers), batch_size):
+            batch = tickers[start:start+batch_size]
+            close = pd.DataFrame()
+            last_error = None
+            for attempt in range(3):
+                try:
+                    raw = yf.download(batch, period="18mo", interval="1d", auto_adjust=True, threads=False, progress=False, timeout=35)
+                    close = _extract_yf_close(raw, batch)
+                    if not close.empty: break
+                    last_error = "空数据"
+                except Exception as e: last_error = str(e)
+                time.sleep(3 * (attempt + 1))
+            if close.empty: failures.append(f"{start//batch_size+1}:{last_error}")
+            else: frames.append(close)
+            time.sleep(1.2)
+        if not frames: raise ValueError("所有YF分批请求均失败: " + "; ".join(failures[:3]))
+        result = _compute_breadth_from_closes(pd.concat(frames, axis=1))
+        result["failed_batches"] = len(failures)
+        print(f"✅ Breadth {result['date']}: {result['symbols']} symbols, failed_batches={len(failures)}")
+        return result
     except Exception as e:
-        if old_breadth and old_breadth.get("status") == "ok": return old_breadth
-        return {"status": "error", "message": str(e)}
+        cached = _cached_breadth(old_breadth, f"本次刷新失败，沿用缓存：{e}")
+        if cached: return cached
+        return {"status":"error", "message":str(e)}
 
 # ================= 6. 指标推演算法 =================
 def pct_change(latest, prior): return (latest - prior) / prior if prior else None
@@ -370,15 +423,15 @@ def build():
     spx_data, spx_src, _ = fetch_real_index_or_proxy("%5EGSPC", "SPY", today)
     ixic_data, ixic_src, _ = fetch_real_index_or_proxy("%5EIXIC", "QQQ", today)
     vix_data, vix_src, _ = fetch_real_index_or_proxy("%5EVIX", VOL_PROXY_SYM, today)
-    data_status["US Market"] = "🟢 Yahoo Real" if spx_src == "yahoo_real" else "🟡 ETF Proxy"
-    data_status["VIX"] = "🟢 Yahoo Real" if vix_src == "yahoo_real" else "🟡 ETF Proxy"
+    data_status["US Market"] = "🟢 Yahoo指数日线" if spx_src == "yahoo_real" else "🟡 ETF日线代理"
+    data_status["VIX"] = "🟢 Yahoo指数日线" if vix_src == "yahoo_real" else "🟡 ETF日线代理"
 
     try: gspc_long_rows = fetch_yahoo_index("%5EGSPC", range_="max")
     except: gspc_long_rows = None
         
     breadth_data = calculate_daily_breadth(old_breadth, today.isoformat())
     if breadth_data.get("status") == "ok":
-        data_status["Breadth"] = f"🟡 缓存 ({breadth_data.get('date', '未知')})" if old_breadth and breadth_data == old_breadth else "🟢 实时"
+        data_status["Breadth"] = f"🟡 上次收盘 ({breadth_data.get('date', '未知')})" if breadth_data.get("is_cached") else f"🟢 收盘日线 ({breadth_data.get('date', '未知')})"
     elif breadth_data.get("status") == "skip": data_status["Breadth"] = "🟡 跳过拉取"
     else: data_status["Breadth"] = f"🔴 异常 ({breadth_data.get('message', '获取失败')[:8]}..)"
 
@@ -577,8 +630,12 @@ def render_html(data):
     sz_val = f'{sz159307.get("price", 0):,.3f}' if "price" in sz159307 else "—"
     sz_chg = sz159307.get("day_chg")
 
-    def metric_card(label, value, change=None, note="", tone="neutral", live_code=None):
-        return f'''<div class="metric-card"><div class="metric-top">{label}<span class="metric-dot {tone}"></span></div><div class="metric-value"{f' data-live-price="{live_code}"' if live_code else ""}>{value}</div>{f'<div class="metric-change {"positive" if change>=0 else "negative"}" data-live-chg="{live_code or ""}">{"+" if change>=0 else ""}{fmt_pct(change)}</div>' if isinstance(change, (int, float)) else ""}<div class="metric-note">{note}</div></div>'''
+    def metric_card(label, value, change=None, note="", tone="neutral", live_code=None, us_live_code=None):
+        price_attr = f' data-us-live-price="{us_live_code}"' if us_live_code else (f' data-live-price="{live_code}"' if live_code else "")
+        change_attr = f' data-us-live-chg="{us_live_code}"' if us_live_code else f' data-live-chg="{live_code or ""}"'
+        change_html = f'<div class="metric-change {"positive" if change>=0 else "negative"}"{change_attr}>{"+" if change>=0 else ""}{fmt_pct(change)}</div>' if isinstance(change, (int, float)) else (f'<div class="metric-change"{change_attr}>—</div>' if us_live_code else "")
+        note_attr = f' data-us-live-note="{us_live_code}"' if us_live_code else ""
+        return f'''<div class="metric-card"><div class="metric-top">{label}<span class="metric-dot {tone}"></span></div><div class="metric-value"{price_attr}>{value}</div>{change_html}<div class="metric-note"{note_attr}>{note}</div></div>'''
 
     def mkt_card_a(title, mdata, code=""):
         if not mdata or "error" in mdata: return f'<div class="mkt-card"><div class="name">{title}</div><div class="val" style="font-size:14px;color:var(--muted);margin-top:12px">接口拦截/闭市</div></div>'
@@ -629,18 +686,18 @@ def render_html(data):
 <div class="sidebar-footer">公开研究版 · 不展示个人真实资产<br>数据仅供研究演示</div></aside>
 
 <main class="main"><header class="topbar"><div class="breadcrumb">myAlphaView / <strong id="bc-title">市场总览</strong></div>
-<div class="top-meta"><span id="liveStatus" style="display:none;"><i class="live-dot"></i><span id="liveStatusText">数据抓取成功</span></span><div style="text-align:right; line-height:1.4;"><div style="font-weight:600; font-size:12px; color:var(--ink);">生成时间: {data.get('gen_time', '-')}</div><div style="color:var(--muted); font-size:10.5px;">美股截至: {data.get('spy_date', '-')} | A/港股盘中动态刷新</div></div><button id="authBtn" class="auth-btn-top" onclick="handleAuth()">🔐 登录私有看板</button></div></header><div class="content">
+<div class="top-meta"><span id="liveStatus" style="display:none;"><i class="live-dot"></i><span id="liveStatusText">数据抓取成功</span></span><div style="text-align:right; line-height:1.4;"><div style="font-weight:600; font-size:12px; color:var(--ink);">生成时间: {data.get('gen_time', '-')}</div><div id="usLiveAsOf" style="color:var(--muted); font-size:10.5px;">美股收盘日线截至: {data.get('spy_date', '-')} | A/港股盘中动态刷新</div></div><button id="authBtn" class="auth-btn-top" onclick="handleAuth()">🔐 登录私有看板</button></div></header><div class="content">
 
 <div id="tab-overview" class="tab-pane active">
 <section class="hero"><div><h1>看清市场在说什么，而不是账户在做什么。</h1><p>公开版投资研究面板：聚焦市场趋势、回撤、波动率与策略触发条件。</p></div><div class="public-note"><b id="modeTitle">公开展示模式</b><span id="modeDesc">这里展示的是研究指标与策略信号，不代表任何个人账户的实际仓位或收益。</span></div></section>
-<section class="section"><div class="section-head"><h2>市场核心指标</h2><p>自动更新</p></div><div class="metrics">{metric_card('纳斯达克综合指数',qqq_value,qqq_chg,qqq_note,'good' if isinstance(qqq_chg,(int,float)) and qqq_chg>=0 else 'warn')}{metric_card('标普500指数',spy_value,spy_chg,spy_note,'good' if isinstance(spy_chg,(int,float)) and spy_chg>=0 else 'warn')}{metric_card('VIX恐慌指数',vol_display,None,vix_note,vol_tone)}{metric_card('红利低波100 (159307)',sz_val,sz_chg,'A股红利代理 · 腾讯行情','good',live_code='sz159307')}</div></section>
+<section class="section"><div class="section-head"><h2>市场核心指标</h2><p>美股盘中30秒刷新；宽度每日收盘更新</p></div><div class="metrics">{metric_card('纳斯达克综合指数',qqq_value,qqq_chg,qqq_note,'good' if isinstance(qqq_chg,(int,float)) and qqq_chg>=0 else 'warn',us_live_code='ixic')}{metric_card('标普500指数',spy_value,spy_chg,spy_note,'good' if isinstance(spy_chg,(int,float)) and spy_chg>=0 else 'warn',us_live_code='spx')}{metric_card('VIX恐慌指数',vol_display,None,vix_note,vol_tone,us_live_code='vix')}{metric_card('红利低波100 (159307)',sz_val,sz_chg,'A股红利代理 · 腾讯行情','good',live_code='sz159307')}</div></section>
 <section class="section">{market_regime_html}</section>
-<section class="section"><div class="section-head"><h2>QQQ & SPY · 近 30 个交易日</h2><p>历史走势</p></div><div class="dashboard-grid"><div class="panel"><div class="panel-head"><strong>趋势对比</strong><span>收盘价</span></div><div class="chart-wrap"><canvas id="trendChart"></canvas></div></div><div class="panel"><div class="panel-head"><strong>Data Status Center</strong><span>数据状态监控</span></div><div class="pulse-list"><div class="pulse"><div><div class="pulse-label">恐慌指数源</div><div class="pulse-main">{data['data_status'].get('VIX')}</div></div></div><div class="pulse"><div><div class="pulse-label">美股宽基指数</div><div class="pulse-main">{data['data_status'].get('US Market')}</div></div></div><div class="pulse"><div><div class="pulse-label">全市场宽度扫描</div><div class="pulse-main">{data['data_status'].get('Breadth')}</div></div></div><div class="pulse"><div><div class="pulse-label">亚太股指代理</div><div class="pulse-main">{data['data_status'].get('CN_HK')}</div></div></div><div class="pulse"><div><div class="pulse-label">场外基金接口</div><div class="pulse-main">{data['data_status'].get('OTC')}</div></div></div><div class="pulse"><div><div class="pulse-label">云端策略参数集</div><div class="pulse-main">{data['data_status'].get('Supabase')}</div></div></div></div></div></div></section>
+<section class="section"><div class="section-head"><h2>QQQ & SPY · 近 30 个交易日</h2><p>历史走势</p></div><div class="dashboard-grid"><div class="panel"><div class="panel-head"><strong>趋势对比</strong><span>收盘价</span></div><div class="chart-wrap"><canvas id="trendChart"></canvas></div></div><div class="panel"><div class="panel-head"><strong>Data Status Center</strong><span>数据状态监控</span></div><div class="pulse-list"><div class="pulse"><div><div class="pulse-label">恐慌指数源</div><div class="pulse-main" id="usLiveVixStatus">{data['data_status'].get('VIX')}</div></div></div><div class="pulse"><div><div class="pulse-label">美股宽基指数</div><div class="pulse-main" id="usLiveIndexStatus">{data['data_status'].get('US Market')}</div></div></div><div class="pulse"><div><div class="pulse-label">全市场宽度扫描（每日）</div><div class="pulse-main">{data['data_status'].get('Breadth')}</div></div></div><div class="pulse"><div><div class="pulse-label">亚太股指代理</div><div class="pulse-main">{data['data_status'].get('CN_HK')}</div></div></div><div class="pulse"><div><div class="pulse-label">场外基金接口</div><div class="pulse-main">{data['data_status'].get('OTC')}</div></div></div><div class="pulse"><div><div class="pulse-label">云端策略参数集</div><div class="pulse-main">{data['data_status'].get('Supabase')}</div></div></div></div></div></div></section>
 </div>
 
 <div id="tab-engine" class="tab-pane">
 <section class="hero"><div><h1>核心策略信号</h1><p>用回撤、RSI 与长期均线观察核心 ETF 的风险与潜在策略触发点。</p></div></section>
-<section class="section"><div class="engine"><div class="engine-top"><div><div class="engine-label">STRATEGY ENGINE · 核心ETF三档加仓线</div><div class="engine-title">当前状态：实时监测</div></div><div class="engine-badge {engine_badge_cls}">{level_names[max_level]}</div></div><div class="engine-grid">{engine_html}</div><div class="engine-foot">分级规则：策略触发严格使用经复权验证的历史全期最高点（ATH）作为基准；ATH 暂不可用或触发异常保险丝时仅展示窗口回撤参考值，不触发正式策略信号。此处展示规则与信号，不展示实盘资金规模。</div></div></section>
+<section class="section"><div class="engine"><div class="engine-top"><div><div class="engine-label">STRATEGY ENGINE · 核心ETF三档加仓线</div><div class="engine-title">当前状态：随页面生成更新</div></div><div class="engine-badge {engine_badge_cls}">{level_names[max_level]}</div></div><div class="engine-grid">{engine_html}</div><div class="engine-foot">分级规则：策略触发严格使用经复权验证的历史全期最高点（ATH）作为基准；ATH 暂不可用或触发异常保险丝时仅展示窗口回撤参考值，不触发正式策略信号。此处展示规则与信号，不展示实盘资金规模。</div></div></section>
 </div>
 
 <div id="tab-index" class="tab-pane"><section class="hero"><div><h1>指数与行业 ETF</h1><p>从宽基指数到行业 ETF，快速观察价格、当年最高点回撤、RSI 与 200 日均线距离。</p></div></section><section class="section"><div class="grid">{index_html}</div></section></div>
@@ -820,7 +877,7 @@ function openAddOptionModal() {{
 }}
 function closeAddOptionModal() {{ document.getElementById('addOptionModal').style.display = 'none'; }}
 
-// 🚀 魔术1：乐观插入行 (Optimistic Insert)
+// 保存后必须从数据库读回确认；不再插入会自动消失的“假成功”行。
 async function saveNewOptionPosition() {{
   const symbol = document.getElementById('optSym').value.trim().toUpperCase();
   const strategy = document.getElementById('optStrategy').value;
@@ -837,30 +894,21 @@ async function saveNewOptionPosition() {{
   else if (strategy === "SELL CALL") {{ opt_type = "Call"; side = "Short"; }}
   else if (strategy === "BUY CALL") {{ opt_type = "Call"; side = "Long"; }}
 
-  const {{ error }} = await supabaseClient.from('options_positions').insert([{{ symbol, opt_type, side, strike, expiry, cost, qty }}]);
+  const {{ data: {{ session }} }} = await supabaseClient.auth.getSession();
+  if (!session) {{ alert('登录状态已失效，请重新登录后再保存。'); return; }}
+
+  const payload = {{ symbol, opt_type, side, strike, expiry, cost, qty, user_id: session.user.id }};
+  const {{ data: saved, error }} = await supabaseClient.from('options_positions').insert([payload]).select().single();
   if (error) {{ 
-      alert('保存失败: ' + error.message); 
+      const migrationHint = /user_id|row-level security|policy/i.test(error.message)
+        ? '\\n\\n请先在 Supabase SQL Editor 执行项目根目录 SUPABASE_FIX_OPTIONS.sql。'
+        : '';
+      alert('保存失败: ' + error.message + migrationHint); 
   }} else {{ 
       closeAddOptionModal();
-      
-      // ✅ 纯前端瞬间生成一行"正在计算中"的假数据，欺骗视觉，无需刷新网页！
-      const tbody = document.getElementById('optionsTableBody');
-      const newRow = document.createElement('tr');
-      newRow.style.backgroundColor = 'var(--green-soft)';
-      newRow.innerHTML = `
-          <td style="text-align:left; font-weight:600; color:var(--ink)">
-              ${{symbol}} <span style="font-size:10px; color:var(--green); font-weight:600; background:#fff; padding:2px 6px; border-radius:4px; margin-left:4px;">${{side}} ${{opt_type}}</span>
-          </td>
-          <td class="fw-bold">$${{strike.toFixed(2)}}</td>
-          <td>${{expiry}}</td>
-          <td>$${{cost.toFixed(2)}}</td>
-          <td colspan="8" style="text-align:center; color:var(--brass); font-weight:600; letter-spacing:1px;">
-              ⏳ 已保存至云端，后台正在推演希腊字母与最新盈亏...
-          </td>
-      `;
-      // 将新行插入到表格最前面
-      if (tbody.firstChild) {{ tbody.insertBefore(newRow, tbody.firstChild); }} 
-      else {{ tbody.appendChild(newRow); }}
+      if (!saved || !saved.id) {{ alert('数据库未返回刚保存的记录，请检查RLS读取策略。'); return; }}
+      await window.OptionV2.loadPrivatePositions();
+      alert('✅ 期权持仓已保存并从数据库验证读回。');
   }}
 }}
 
@@ -961,7 +1009,7 @@ function fetchLiveCNHK() {{
   document.head.appendChild(script);
 }}
 window.addEventListener('load', () => {{ setInterval(fetchLiveCNHK, 5000); }});
-</script><script src="assets/options-v2.js?v=2.0"></script></body></html>'''
+</script><script src="assets/market-live.js?v=2.0.1"></script><script src="assets/options-v2.js?v=2.0.1"></script></body></html>'''
 
 def push_to_supabase(data):
     supabase_url, supabase_key = os.environ.get("SUPABASE_URL"), os.environ.get("SUPABASE_KEY")

@@ -110,7 +110,7 @@
       const {data:{session}}=await supabaseClient.auth.getSession();
       if(!session){tbody.innerHTML='<tr><td colspan="12" style="text-align:center;color:var(--muted)">请登录后查看私有期权持仓</td></tr>';return}
       const {data,error}=await supabaseClient.from('options_positions').select('*').order('expiry');if(error)throw error;
-      tbody.innerHTML=(data||[]).length?(data||[]).map(x=>`<tr id="opt-row-${x.id}"><td>${x.symbol} <span class="badge neutral">${x.side} ${x.opt_type}</span></td><td>$${Number(x.strike).toFixed(2)}</td><td>${x.expiry}</td><td>$${Number(x.cost).toFixed(2)} / 每股</td><td colspan="6" style="text-align:center;color:var(--muted)">登录数据已载入；实时估值请在策略推演中选择相同合约</td><td>${x.qty}张 × 100</td><td><button onclick="deleteOptionPosition(${x.id})">🗑️</button></td></tr>`).join(''):'<tr><td colspan="12" style="text-align:center;color:var(--muted)">当前没有期权持仓</td></tr>';
+      tbody.innerHTML=(data||[]).length?(data||[]).map(x=>`<tr id="opt-row-${x.id}"><td>${x.symbol} <span class="badge neutral">${x.side} ${x.opt_type}</span></td><td>$${Number(x.strike).toFixed(2)}</td><td>${x.expiry}</td><td>$${Number(x.cost).toFixed(2)} / 每股</td><td colspan="6" style="text-align:center;color:var(--muted)">已从私有数据库读取；实时估值请在策略推演中选择相同合约</td><td>${x.qty}张 × 100</td><td><button onclick="deleteOptionPosition(${x.id})">🗑️</button></td></tr>`).join(''):'<tr><td colspan="12" style="text-align:center;color:var(--amber)">数据库未返回持仓。若刚更新V2.0，请先执行 SUPABASE_FIX_OPTIONS.sql。</td></tr>';
     }catch(e){tbody.innerHTML=`<tr><td colspan="12" style="text-align:center;color:var(--red)">持仓读取失败：${e.message}</td></tr>`}
   }
   global.OptionV2={bsPrice,evaluate,normalizeColumnar,loadPrivatePositions,refreshQuote};

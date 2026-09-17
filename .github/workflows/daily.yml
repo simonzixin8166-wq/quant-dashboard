@@ -25,9 +25,9 @@ jobs:
         with:
           python-version: '3.11'
           
-      # 👉 锁定 yfinance 稳定版本，防止未来接口变动带来突发崩塌
+      # 使用维护中的 0.2.x 版本；旧版 0.2.51 在 GitHub Actions 批量下载时会返回空表。
       - name: Install dependencies
-        run: pip install yfinance==0.2.51 pandas
+        run: pip install "yfinance>=0.2.65,<0.3" pandas
 
       - name: Fetch prices and build site
         env:

@@ -59,24 +59,6 @@ FUND_EST_URL = "http://fundgz.1234567.com.cn/js/{code}.js"
 
 # ================= 3. ATH 强复权校验 (Integrity Layer) =================
 def get_core_ath_metrics(symbols):
-    """
-    ⚠️⚠️⚠️ 给以后任何要改这个函数的人（包括AI）的重要提醒 ⚠️⚠️⚠️
-    这个函数已经被反复改成用 yfinance (yf.download / yf.Ticker.history) 又反复失败了
-    至少3次——原因始终是同一个：yfinance 在 GitHub Actions 这类云端环境里，
-    需要先跟 Yahoo 做一次会话认证(crumb/cookie)，这个认证经常整体失效，
-    导致所有资产"看起来是分开抓的，实际上全部同时失败"，产生"6个ETF全部
-    ATH暂不可用"这种症状。截图证据：同一次运行里，市场状态引擎的指数ATH
-    （用 fetch_yahoo_index，不走yfinance）稳定成功，核心ETF这边用yfinance
-    却全部失败——问题出在库本身，不是数据源不可用。
-
-    改回yfinance的理由通常是"要用auto_adjust确保拆股复权准确"——这个出发点
-    没错，但代价是这个功能在生产环境里幾乎必然失败。下面这版用不含复权处理的
-    fetch_yahoo_index，理论上对少数发生过拆股的资产可能有精度误差，但已有
-    "extreme"极端回撤保险丝兜底（回撤超过75%时不触发正式信号，只供参考）——
-    一个"能用但对极端拆股场景不够精确"的方案，好过一个"更精确但几乎跑不起来"的方案。
-    如果还是想追求拆股精度，请先确认yfinance在实际GitHub Actions环境里连续跑
-    一周不失败，再考虑换回去，不要只在本地测试环境验证过就改。
-    """
     result = {}
     print("\n========== [ATH CHECK (fetch_yahoo_index)] ==========")
     for sym in symbols:
@@ -85,7 +67,7 @@ def get_core_ath_metrics(symbols):
             if not rows: raise ValueError("Empty rows")
 
             adj_ath = max(float(r["high"]) for r in rows)
-            adj_close = float(rows[0]["close"])  # rows是最新在前
+            adj_close = float(rows[0]["close"])
             if not math.isfinite(adj_ath) or not math.isfinite(adj_close) or adj_ath <= 0 or adj_close <= 0:
                 raise ValueError("Invalid price values")
 
@@ -104,11 +86,12 @@ def get_core_ath_metrics(symbols):
     print("======== [ATH CHECK END] ========\n")
     return result
 
-# ================= 4. 期权 BS 定价与数据抓取 (精准升级版) =================
+# ================= 4. 期权 BS 定价与真实 IV 抓取 =================
 def norm_cdf(x): return (1.0 + math.erf(x / math.sqrt(2.0))) / 2.0
 def norm_pdf(x): return math.exp(-0.5 * x**2) / math.sqrt(2.0 * math.pi)
 
 def calc_option_greeks(S, K, T, r, sigma, opt_type="Call"):
+    """手搓纯 Python 版 Black-Scholes 期权希腊字母引擎"""
     if T <= 0 or sigma <= 0 or S <= 0:
         return {"theo_price": 0.0, "delta": 0.0, "gamma": 0.0}
     d1 = (math.log(S / K) + (r + 0.5 * sigma**2) * T) / (sigma * math.sqrt(T))
@@ -140,7 +123,8 @@ def fetch_yahoo_option_quote(opt_ticker):
                 last_price = q_data.get("regularMarketPrice", 0.0)
                 iv = q_data.get("impliedVolatility", 0.0)
                 if iv and iv > 0: return {"lastPrice": float(last_price) if last_price else 0.0, "impliedVolatility": float(iv)}
-    except Exception: pass
+    except Exception:
+        pass
 
     url_v8 = f"https://query1.finance.yahoo.com/v8/finance/chart/{opt_ticker}?interval=1d&range=5d"
     try:
@@ -153,7 +137,10 @@ def fetch_yahoo_option_quote(opt_ticker):
         if last_price is None:
             closes = [c for c in result["indicators"]["quote"][0]["close"] if c is not None]
             if closes: last_price = float(closes[-1])
-        return {"lastPrice": float(last_price) if last_price else 0.0, "impliedVolatility": 0.8171}
+        return {
+            "lastPrice": float(last_price) if last_price else 0.0,
+            "impliedVolatility": 0.8171 # 兜底默认值
+        }
     except Exception as e:
         print(f"⚠️ 期权 {opt_ticker} 抓取失败: {e}")
         return None
@@ -185,13 +172,6 @@ def http_get_json(url):
     with urllib.request.urlopen(url, timeout=20) as resp: return json.loads(resp.read().decode("utf-8"))
 
 def fetch_yahoo_index(y_symbol, range_="1y"):
-    """
-    这个函数额外请求了拆股事件数据(events=splits)并自己算复权因子——
-    之前的版本不处理拆股，导致像VGT这种历史上拆过股的资产，算出来的
-    "历史最高点"是拆股前的老尺度价格，跟现价完全不是一个量级，会出现
-    "回撤79%"这种假信号。这里自己在Python里做复权，不需要靠yfinance
-    去处理，既保住了这个接口一直很稳定这个优点，又解决了准确性问题。
-    """
     url = f"https://query1.finance.yahoo.com/v8/finance/chart/{y_symbol}?interval=1d&range={range_}&events=splits"
     req = urllib.request.Request(url, headers=HEADERS)
     with urllib.request.urlopen(req, timeout=15) as resp:
@@ -200,8 +180,6 @@ def fetch_yahoo_index(y_symbol, range_="1y"):
     q = result["indicators"]["quote"][0]
     ts = result["timestamp"]
 
-    # 拆股事件：{timestamp: {"numerator":3,"denominator":1,...}} 之类的3拆1拆股
-    # 换算成"1old股变成几new股"的比例，价格要反向缩放
     split_events = []
     for v in (result.get("events", {}).get("splits", {}) or {}).values():
         try:
@@ -216,7 +194,6 @@ def fetch_yahoo_index(y_symbol, range_="1y"):
     for i in range(len(ts)):
         if q["close"][i] is None: continue
         t = ts[i]
-        # 复权因子：把这一天的价格，缩放到"如果后面所有拆股都已经发生"的现在尺度上
         factor = 1.0
         for split_ts, ratio in split_events:
             if split_ts > t:
@@ -606,6 +583,10 @@ def render_html(data):
     qqq_value = f'{qqq["close"]:,.2f}' if "error" not in qqq else "—"
     spy_chg, qqq_chg = spy.get("day_chg"), qqq.get("day_chg")
 
+    spy_note = f"大盘风险偏好 · {src_label(mi.get('spx_source'))}"
+    qqq_note = f"成长/科技风格温度 · {src_label(mi.get('ixic_source'))}"
+    vix_note = f"{src_label(mi.get('vix_source'))}"
+
     sz159307 = cn.get("sz159307", {})
     sz_val = f'{sz159307.get("price", 0):,.3f}' if "price" in sz159307 else "—"
     sz_chg = sz159307.get("day_chg")
@@ -654,7 +635,7 @@ def render_html(data):
 
 <div id="tab-overview" class="tab-pane active">
 <section class="hero"><div><h1>看清市场在说什么，而不是账户在做什么。</h1><p>公开版投资研究面板：聚焦市场趋势、回撤、波动率与策略触发条件。</p></div><div class="public-note"><b id="modeTitle">公开展示模式</b><span id="modeDesc">这里展示的是研究指标与策略信号，不代表任何个人账户的实际仓位或收益。</span></div></section>
-<section class="section"><div class="section-head"><h2>市场核心指标</h2><p>自动更新</p></div><div class="metrics">{metric_card('纳斯达克综合指数',f'{data["market_indicators"]["ixic"]["close"]:,.2f}' if "error" not in data["market_indicators"]["ixic"] else "—",data["market_indicators"]["ixic"].get("day_chg"),f"成长/科技风格温度 · {'真实指数(Yahoo)' if data['market_indicators']['ixic_source']=='yahoo_real' else 'ETF代理'}",'good' if isinstance(data["market_indicators"]["ixic"].get("day_chg"),(int,float)) and data["market_indicators"]["ixic"].get("day_chg")>=0 else 'warn')}{metric_card('标普500指数',f'{data["market_indicators"]["spx"]["close"]:,.2f}' if "error" not in data["market_indicators"]["spx"] else "—",data["market_indicators"]["spx"].get("day_chg"),f"大盘风险偏好 · {'真实指数(Yahoo)' if data['market_indicators']['spx_source']=='yahoo_real' else 'ETF代理'}",'good' if isinstance(data["market_indicators"]["spx"].get("day_chg"),(int,float)) and data["market_indicators"]["spx"].get("day_chg")>=0 else 'warn')}{metric_card('VIX恐慌指数',fmt_num(data["market_indicators"]["vix"].get("close")) if "error" not in data["market_indicators"]["vix"] else "—",None,f"{'真实指数(Yahoo)' if data['market_indicators']['vix_source']=='yahoo_real' else 'ETF代理'}",'neutral')}{metric_card('红利低波100 (159307)',f'{data["cn_hk"].get("sz159307", {{}}).get("price", 0):,.3f}' if "price" in data["cn_hk"].get("sz159307", {{}}) else "—",data["cn_hk"].get("sz159307", {{}}).get("day_chg"),'A股红利代理 · 腾讯行情','good',live_code='sz159307')}</div></section>
+<section class="section"><div class="section-head"><h2>市场核心指标</h2><p>自动更新</p></div><div class="metrics">{metric_card('纳斯达克综合指数',qqq_value,qqq_chg,qqq_note,'good' if isinstance(qqq_chg,(int,float)) and qqq_chg>=0 else 'warn')}{metric_card('标普500指数',spy_value,spy_chg,spy_note,'good' if isinstance(spy_chg,(int,float)) and spy_chg>=0 else 'warn')}{metric_card('VIX恐慌指数',vol_display,None,vix_note,vol_tone)}{metric_card('红利低波100 (159307)',sz_val,sz_chg,'A股红利代理 · 腾讯行情','good',live_code='sz159307')}</div></section>
 <section class="section">{market_regime_html}</section>
 <section class="section"><div class="section-head"><h2>QQQ & SPY · 近 30 个交易日</h2><p>历史走势</p></div><div class="dashboard-grid"><div class="panel"><div class="panel-head"><strong>趋势对比</strong><span>收盘价</span></div><div class="chart-wrap"><canvas id="trendChart"></canvas></div></div><div class="panel"><div class="panel-head"><strong>Data Status Center</strong><span>数据状态监控</span></div><div class="pulse-list"><div class="pulse"><div><div class="pulse-label">恐慌指数源</div><div class="pulse-main">{data['data_status'].get('VIX')}</div></div></div><div class="pulse"><div><div class="pulse-label">美股宽基指数</div><div class="pulse-main">{data['data_status'].get('US Market')}</div></div></div><div class="pulse"><div><div class="pulse-label">全市场宽度扫描</div><div class="pulse-main">{data['data_status'].get('Breadth')}</div></div></div><div class="pulse"><div><div class="pulse-label">亚太股指代理</div><div class="pulse-main">{data['data_status'].get('CN_HK')}</div></div></div><div class="pulse"><div><div class="pulse-label">场外基金接口</div><div class="pulse-main">{data['data_status'].get('OTC')}</div></div></div><div class="pulse"><div><div class="pulse-label">云端策略参数集</div><div class="pulse-main">{data['data_status'].get('Supabase')}</div></div></div></div></div></div></section>
 </div>

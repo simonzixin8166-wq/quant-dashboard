@@ -132,7 +132,8 @@ def fetch_yahoo_option_quote(opt_ticker):
         if last_price is None:
             closes = [c for c in result["indicators"]["quote"][0]["close"] if c is not None]
             if closes: last_price = float(closes[-1])
-        return {"lastPrice": float(last_price) if last_price else 0.0, "impliedVolatility": 0.8171}
+        # Chart 备用接口不提供可靠 IV。宁可明确缺失，也不能用固定值冒充实时隐波。
+        return {"lastPrice": float(last_price) if last_price else 0.0, "impliedVolatility": None}
     except Exception as e: return None
 
 def fetch_supabase_options():
@@ -242,7 +243,7 @@ def calculate_daily_breadth(old_breadth=None, today_str=None):
         except: pass
 
     if datetime.datetime.utcnow().hour < 12:
-        if is_cache_valid or (old_breadth and old_breadth.get("status") == "ok"): return old_breadth
+        if is_cache_valid: return old_breadth
         return {"status": "skip", "message": "亚洲盘中且无缓存"}
 
     try:
@@ -254,7 +255,8 @@ def calculate_daily_breadth(old_breadth=None, today_str=None):
         b20 = ((data > ma20).sum(axis=1) / valid).dropna()
         if len(b20) < 11: raise ValueError("YF返回有效数据不足")
         b50, b200 = ((data > ma50).sum(axis=1) / valid).dropna(), ((data > ma200).sum(axis=1) / valid).dropna()
-        return {"status": "ok", "date": today_str, "b20": float(b20.iloc[-1]), "b50": float(b50.iloc[-1]), "b200": float(b200.iloc[-1]), "slope_10d": float(b20.iloc[-1] - b20.iloc[-11])}
+        market_date = b20.index[-1].date().isoformat() if hasattr(b20.index[-1], "date") else str(b20.index[-1])[:10]
+        return {"status": "ok", "date": market_date, "b20": float(b20.iloc[-1]), "b50": float(b50.iloc[-1]), "b200": float(b200.iloc[-1]), "slope_10d": float(b20.iloc[-1] - b20.iloc[-11])}
     except Exception as e:
         if old_breadth and old_breadth.get("status") == "ok": return old_breadth
         return {"status": "error", "message": str(e)}
@@ -324,11 +326,11 @@ def process_options_data(opt_positions, stocks, index, core, today):
         opt_ticker = build_yahoo_option_ticker(sym, expiry, opt_type, strike)
         q = fetch_yahoo_option_quote(opt_ticker)
         
-        last_price, iv = (q["lastPrice"], q["impliedVolatility"]) if q else (0.0, 0.35)
+        last_price, iv = (q["lastPrice"], q.get("impliedVolatility")) if q else (0.0, None)
         dte_days = (datetime.datetime.strptime(expiry, '%Y-%m-%d').date() - today).days
         
-        greeks = calc_option_greeks(curr_price or strike, strike, max(dte_days, 0)/365.0, 0.042, iv, opt_type)
-        delta = -greeks["delta"] if side.lower() == "short" else greeks["delta"]
+        greeks = calc_option_greeks(curr_price or strike, strike, max(dte_days, 0)/365.0, 0.042, iv, opt_type) if iv else None
+        delta = (-greeks["delta"] if side.lower() == "short" else greeks["delta"]) if greeks else None
 
         break_even = strike + cost if opt_type.lower() == 'call' else strike - cost
         unrealized_pnl = ((last_price - cost) if side.lower() == 'long' else (cost - last_price)) * 100 * qty if last_price > 0 else 0.0
@@ -396,7 +398,7 @@ def build():
         else: m_max = 2
             
         m_tier = "extreme" if m_score >= 7 else ("major" if m_score >= 5 else ("tier1" if m_score >= 3 else "normal"))
-        market_regime = {"score": m_score, "max_score": 9, "max_available_score": m_max, "tier": m_tier, "tier_label": {"extreme":"极限恐慌", "major":"重点恐慌", "tier1":"一级恐慌"}.get(m_tier, "暂未触发" if m_max<9 and m_score==0 else "正常"), "drawdown": {"value": m_drawdown, "threshold": -0.08, "hit": m_score >= 2, "points": 2}, "conditions": m_cond, "vix": vix_data.get("close") if "error" not in vix_data else None, "breadth_status": (breadth_data or {}).get("status", "error"), "breadth_message": (breadth_data or {}).get("message", "宽度数据缺失")}
+        market_regime = {"score": m_score, "max_score": 9, "max_available_score": m_max, "tier": m_tier, "tier_label": {"extreme":"极限恐慌", "major":"重点恐慌", "tier1":"一级恐慌"}.get(m_tier, "盘中临时状态" if m_max<9 else "正常"), "drawdown": {"value": m_drawdown, "threshold": -0.08, "hit": m_score >= 2, "points": 2}, "conditions": m_cond, "vix": vix_data.get("close") if "error" not in vix_data else None, "breadth_status": (breadth_data or {}).get("status", "error"), "breadth_message": (breadth_data or {}).get("message", "宽度数据缺失")}
 
     for name in STOCKS:
         try: stocks[name] = analyze(name, fetch_time_series(name), today, is_stock=True)
@@ -423,7 +425,9 @@ def build():
 
     return {"updated": today.isoformat(), "gen_time": (datetime.datetime.utcnow() + datetime.timedelta(hours=8)).strftime("%Y-%m-%d %H:%M:%S"),
             "spy_date": index.get("SPY", {}).get("date", "-"), "core": core, "index": index, "stocks": stocks,
-            "overview_charts": overview_charts, "options": process_options_data(fetch_supabase_options(), stocks, index, core, today),
+            # 真实期权持仓不得写入公开的 docs/data.json / index.html。
+            # 登录用户改由浏览器在 Supabase RLS 保护下按需读取。
+            "overview_charts": overview_charts, "options": [],
             "cn_hk": cn_hk_data, "market_regime": market_regime, "historical_signals": historical_signals, "data_status": data_status,
             "raw_breadth": breadth_data, "market_indicators": {"spx": spx_data, "spx_source": spx_src, "ixic": ixic_data, "ixic_source": ixic_src, "vix": vix_data, "vix_source": vix_src}}
 
@@ -519,7 +523,7 @@ def render_html(data):
             chg = v.get("day_chg") or 0
             stock_html += f'''<tr><td><div style="font-weight:600; font-size:13.5px; color:var(--ink); line-height:1.2;">{name}</div><div style="font-size:11px; color:var(--muted); margin-top:3px; font-weight:500;">{sym}</div></td><td class="fw-bold" id="close-{sym}">${v["close"]:.2f}</td><td class="{'pos-text' if chg>=0 else 'neg-text'}" id="chg-{sym}">{chg*100:+.2f}%</td><td>${v.get("open",0):.2f}</td><td>${v.get("high",0):.2f}</td><td>${v.get("low",0):.2f}</td><td>${fmt_num(v.get("ytd_high"))}</td><td>{fmt_num(v.get("rsi"))}</td><td>{fmt_pct(v.get("dist_200ma"))}</td><td><b id="target-{sym}">${target or "-"}</b> <span id="action-{sym}">{ '<span class="alert-text fw-bold ml">(信号触发!)</span>' if target and v["close"] <= target else ""}</span></td></tr>'''
             
-    options_html = render_options_html(data.get("options", []))
+    options_html = '<tr><td colspan="12" style="text-align:center; color:var(--muted)">请登录后查看私有期权持仓</td></tr>'
 
     signals_html = ""
     for s in data.get("historical_signals", []):
@@ -583,7 +587,7 @@ def render_html(data):
     chart_json = json.dumps(data.get("overview_charts", {}), ensure_ascii=False)
 
     return f'''<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>myAlphaView · Market Intelligence</title>
-<meta name="author" content="Simon"><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,380;9..144,520;9..144,620&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"><script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<meta name="author" content="Simon"><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,380;9..144,520;9..144,620&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"><link href="assets/options-v2.css?v=2.0" rel="stylesheet"><script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{{--bg:#f4f2ec;--surface:#ffffff;--surface2:#ebe8df;--ink:#14161c;--muted:#696d76;--line:#e1ddd0;--nav:#11162a;--nav2:#0a0d1a;--navmuted:#8d93ab;--navline:rgba(255,255,255,.08);--brass:#b8863a;--brass-soft:#e8d3ab;--navy:#1f2b52;--green:#1c7a4c;--green-soft:#e5f1e9;--red:#b23b2e;--red-soft:#f6e6e2;--amber:#c07f2e;--amber-soft:#f6ecd8;--shadow:0 12px 32px rgba(15,15,10,.07);--serif:'Fraunces',ui-serif,Georgia,serif;--sans:'Inter',-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;}}
 *{{box-sizing:border-box;margin:0;padding:0}} body{{font-family:var(--sans);background:var(--bg);color:var(--ink);min-height:100vh;-webkit-font-smoothing:antialiased}} .app{{display:flex;min-height:100vh}}
@@ -650,7 +654,7 @@ def render_html(data):
 <div id="tab-stocks" class="tab-pane"><section class="hero"><div><h1>个股观察池</h1><p>包含中英文名称对照及核心技术指标监控。</p></div></section><section class="section"><div class="table-container"><table><thead><tr><th>名称代码</th><th>最新价</th><th>涨跌幅</th><th>开盘</th><th>最高</th><th>最低</th><th>当年(YTD)最高</th><th>RSI(14)</th><th>距200MA</th><th>策略参考价</th></tr></thead><tbody id="stocksTableBody">{stock_html}</tbody></table></div></section></div>
 
 <div id="tab-options" class="tab-pane">
-<section class="hero"><div><h1>期权持仓监控 V1.6</h1><p>全自动动态云端账本追踪：实时捕获 Yahoo 隐波 (IV) 并内置自研 Black-Scholes 引擎推演理论 Delta 与对冲收益，真实盈亏一目了然。</p></div></section>
+<section class="hero"><div><h1>期权持仓监控 V2.0</h1><p>登录后读取私有持仓；盘中报价、IV与Greeks由独立行情接口更新。未配置实时接口时明确显示不可用，不再使用固定假IV。</p></div></section>
 <section class="section">
     <div style="margin-bottom: 12px; display: flex; justify-content: flex-end;">
         <button onclick="openAddOptionModal()" style="background:var(--brass); color:#fff; border:none; padding:8px 16px; border-radius:6px; cursor:pointer; font-weight:600; font-size:12.5px; box-shadow:0 4px 10px rgba(184,134,58,.3);">➕ 录入新持仓</button>
@@ -680,42 +684,36 @@ def render_html(data):
 <section class="section"><p style="font-size:11.5px;color:var(--muted);line-height:1.7">💡 主理人说明：浮盈/浮亏自动结合 Long/Short 策略方向推演计算。Delta 指标可用于评估对冲正股所需的仓位，以及辅助预判合约归零/行权的最终概率。</p></section>
 </div>
 
-<!-- 新增：策略推演沙盒 -->
+<!-- 期权决策台 V2.0 -->
 <div id="tab-sandbox" class="tab-pane">
-<section class="hero"><div><h1>期权策略推演沙盒</h1><p>无需保存，纯粹的数学推演。输入你的假设条件，立即渲染到期损益曲线图，评估最大风险与安全垫。</p></div></section>
-<section class="section sandbox-grid">
-    <div class="sandbox-controls">
-        <label>正股现价 (Spot Price)</label>
-        <input type="number" id="sbSpot" placeholder="例如 150">
-        
-        <label>行权价 (Strike Price)</label>
-        <input type="number" id="sbStrike" placeholder="例如 140">
-        
-        <label>单张权利金 (Premium)</label>
-        <input type="number" id="sbPremium" placeholder="例如 5.50">
-        
-        <label>期权策略 (Strategy)</label>
-        <select id="sbStrategy">
-            <option value="SELL PUT">SELL PUT (卖出看跌 - 收租)</option>
-            <option value="SELL CALL">SELL CALL (卖出看涨 - 备兑)</option>
-            <option value="BUY CALL">BUY CALL (买入看涨)</option>
-            <option value="BUY PUT">BUY PUT (买入看跌)</option>
-        </select>
-        
-        <button class="sandbox-btn" onclick="plotSandbox()">📊 立即推演损益图</button>
+<section class="hero"><div><h1>期权开仓决策台 V2.0</h1><p>选择真实合约后，推演“目标日期股价为 X 时，这个仓位值多少钱”。金额统一按每张100股和实际张数计算。</p></div></section>
+<div id="optionV2Root" class="option-v2-shell" data-endpoint="https://rhielbkvhgqbthcgztci.supabase.co/functions/v1/options-market">
+  <div class="option-v2-toolbar"><span id="optV2Status" class="option-v2-status warn">登录后可读取期权链；未配置行情接口时可使用手动报价</span><button id="manualToggle" class="option-secondary">手动报价</button><button id="advancedToggle" class="option-secondary">高级参数</button></div>
+  <div class="option-v2-grid">
+    <div class="option-v2-card">
+      <h3>1. 选择合约与仓位</h3>
+      <div class="option-field"><label>股票代码</label><div style="display:grid;grid-template-columns:1fr auto;gap:7px"><input id="optionSymbol" list="optionSymbols" value="IREN" placeholder="IREN"><button id="loadExpirations" class="option-primary">读取到期日</button></div><datalist id="optionSymbols"><option value="IREN"><option value="LITE"><option value="NVDA"><option value="ORCL"><option value="TSLA"><option value="QQQ"><option value="SPY"></datalist></div>
+      <div class="option-field"><label>策略</label><div class="option-pills"><button class="option-pill active" data-strategy="SELL_PUT">Sell Put</button><button class="option-pill" data-strategy="BUY_CALL">Buy Call</button><button class="option-pill" data-strategy="BUY_PUT">Buy Put</button><button class="option-pill" data-strategy="COVERED_CALL">Covered Call</button><button class="option-pill" data-strategy="NAKED_CALL">Naked Call</button></div></div>
+      <div class="option-two"><div class="option-field"><label>到期日</label><select id="optExpiryV2"><option value="">选择到期日</option></select></div><div class="option-field"><label>期权方向</label><select id="chainSide"><option value="put">Put</option><option value="call">Call</option></select></div></div>
+      <div class="option-chain-wrap"><table class="option-chain"><thead><tr><th>Strike</th><th>Bid</th><th>Ask</th><th>Mid</th><th>IV</th><th>Delta</th><th>Vol</th><th>OI</th></tr></thead><tbody id="optionChainBody"></tbody></table></div>
+      <div id="selectedContract" class="option-selected" style="margin-top:10px">尚未选择真实合约</div>
+      <div class="option-two"><div class="option-field"><label>开仓价格采用</label><select id="quoteBasis"><option value="mid">Mid 中间价</option><option value="bid">Bid</option><option value="ask">Ask</option><option value="last">Last</option></select></div><div class="option-field"><label>合约张数</label><div class="qty-control"><button id="qtyMinus">−</button><input id="optionQty" type="number" min="1" value="1"><button id="qtyPlus">＋</button></div></div></div>
+      <div id="manualPanel" class="manual-panel active"><h4>手动报价 / 接口回退</h4><div class="option-two"><div class="option-field"><label>正股现价</label><input id="manualSpot" type="number" step="0.01" value="42.62"></div><div class="option-field"><label>行权价</label><input id="manualStrike" type="number" step="0.01" value="40"></div></div><div class="option-two"><div class="option-field"><label>权利金报价（每股）</label><input id="manualPremium" type="number" step="0.01" value="3.50"></div><div class="option-field"><label>当前IV（%）</label><input id="manualIv" type="number" step="0.01" value="60"></div></div><div class="option-field"><label>到期日</label><input id="manualExpiry" type="date" value="2026-10-30"></div></div>
+      <div id="advancedPanel" class="advanced-panel"><h4>高级参数</h4><div class="option-two"><div class="option-field"><label>每张单边手续费</label><input id="feePerContract" type="number" step="0.01" value="0.65"></div><div class="option-field"><label>合约乘数</label><input id="contractMultiplier" type="number" value="100"></div></div><div class="option-two"><div class="option-field"><label>无风险利率（%）</label><input id="riskFreeRate" type="number" step="0.01" value="4.20"></div><div class="option-field"><label>股息率（%）</label><input id="dividendYield" type="number" step="0.01" value="0"></div></div><div id="stockCostWrap" class="option-field" style="display:none"><label>备兑正股成本</label><input id="stockCost" type="number" step="0.01"></div></div>
     </div>
-    
-    <div class="sandbox-display">
-        <div class="sandbox-results">
-            <div class="s-res-card"><div class="s-res-label">最大盈利 (Max Profit)</div><div class="s-res-val pos-text" id="resMaxProfit">-</div></div>
-            <div class="s-res-card"><div class="s-res-label">最大亏损 (Max Loss)</div><div class="s-res-val neg-text" id="resMaxLoss">-</div></div>
-            <div class="s-res-card"><div class="s-res-label">盈亏平衡点 (Break-even)</div><div class="s-res-val" style="color:var(--navy)" id="resBreakeven">-</div></div>
-        </div>
-        <div class="panel" style="padding:20px; height:380px;">
-            <canvas id="sandboxChart"></canvas>
-        </div>
+    <div class="option-v2-card">
+      <h3>2. 设置下周情景</h3>
+      <div class="option-field"><label>目标日期</label><div class="option-pills"><button class="option-pill" data-date-preset="1">明天</button><button class="option-pill active" data-date-preset="friday">下周五</button><button class="option-pill" data-date-preset="7">7天后</button><button class="option-pill" data-date-preset="14">14天后</button></div><input id="targetDate" type="date" style="margin-top:7px"></div>
+      <div class="option-field"><label>目标股价 X</label><div class="option-pills"><button class="option-pill" data-spot-preset="-.20">-20%</button><button class="option-pill" data-spot-preset="-.10">-10%</button><button class="option-pill" data-spot-preset="-.05">-5%</button><button class="option-pill" data-spot-preset="0">现价</button><button class="option-pill" data-spot-preset="strike">行权价</button><button class="option-pill" data-spot-preset="breakeven">盈亏平衡</button><button class="option-pill" data-spot-preset=".10">+10%</button></div><input id="targetSpot" type="number" step="0.01" value="36.50" style="margin-top:7px"></div>
+      <div class="option-field"><label>IV相对变化</label><div class="option-pills"><button class="option-pill" data-iv="-.2">-20%</button><button class="option-pill" data-iv="-.1">-10%</button><button class="option-pill active" data-iv="0">维持</button><button class="option-pill" data-iv=".1">+10%</button><button class="option-pill" data-iv=".2">+20%</button></div></div>
+      <button id="runScenario" class="option-primary" style="width:100%;margin:4px 0 14px">计算目标日仓位价值</button>
+      <div id="scenarioAnswer" class="scenario-answer">选择或输入合约参数后开始推演。</div>
+      <div id="optionStats" class="option-summary"></div>
+      <h4>股价 × IV 情景矩阵（净盈亏）</h4><div id="optionHeatmap" class="option-heatmap"></div>
+      <p class="option-note" style="margin-top:12px">目标日期估值为模型推演，不是成交保证。Short仓位实际平仓重点参考Ask，Long仓位重点参考Bid。美式期权提前行权、财报跳空和流动性会造成偏差。</p>
     </div>
-</section>
+  </div>
+</div>
 </div>
 
 <div id="tab-archive" class="tab-pane">
@@ -775,7 +773,6 @@ def render_html(data):
 <script>
 const DATA = {chart_json};
 const MKT_CHARTS = {{}}; 
-let sandboxChartObj = null;
 
 function switchTab(id,el){{
   document.querySelectorAll('.tab-pane').forEach(t=>t.classList.remove('active'));
@@ -809,87 +806,9 @@ window.addEventListener('load',function(){{
   }}
 }});
 
-// 🧮 沙盒计算器逻辑
-function plotSandbox() {{
-    const spot = parseFloat(document.getElementById('sbSpot').value);
-    const strike = parseFloat(document.getElementById('sbStrike').value);
-    const premium = parseFloat(document.getElementById('sbPremium').value);
-    const strategy = document.getElementById('sbStrategy').value;
-
-    if(isNaN(spot) || isNaN(strike) || isNaN(premium)) {{ alert("请完整填写推演参数"); return; }}
-
-    let maxProfit = 0, maxLoss = 0, breakeven = 0;
-    
-    if (strategy === "SELL PUT") {{
-        maxProfit = premium; maxLoss = strike - premium; breakeven = strike - premium;
-    }} else if (strategy === "BUY PUT") {{
-        maxProfit = strike - premium; maxLoss = premium; breakeven = strike - premium;
-    }} else if (strategy === "SELL CALL") {{
-        maxProfit = premium; maxLoss = Infinity; breakeven = strike + premium;
-    }} else if (strategy === "BUY CALL") {{
-        maxProfit = Infinity; maxLoss = premium; breakeven = strike + premium;
-    }}
-
-    document.getElementById('resMaxProfit').innerText = maxProfit === Infinity ? "无限" : `$${{maxProfit.toFixed(2)}}`;
-    document.getElementById('resMaxLoss').innerText = maxLoss === Infinity ? "无限" : `$${{maxLoss.toFixed(2)}}`;
-    document.getElementById('resBreakeven').innerText = `$${{breakeven.toFixed(2)}}`;
-
-    // 绘制曲线
-    const prices = [], pnls = [], pointColors = [];
-    const minPrice = spot * 0.5, maxPrice = spot * 1.5;
-    const step = (maxPrice - minPrice) / 50;
-
-    for(let p = minPrice; p <= maxPrice; p += step) {{
-        prices.push(p.toFixed(2));
-        let pnl = 0;
-        if (strategy === "SELL PUT") pnl = premium - Math.max(0, strike - p);
-        else if (strategy === "BUY PUT") pnl = Math.max(0, strike - p) - premium;
-        else if (strategy === "SELL CALL") pnl = premium - Math.max(0, p - strike);
-        else if (strategy === "BUY CALL") pnl = Math.max(0, p - strike) - premium;
-        pnls.push(pnl.toFixed(2));
-    }}
-
-    const ctx = document.getElementById('sandboxChart').getContext('2d');
-    if(sandboxChartObj) sandboxChartObj.destroy();
-    
-    sandboxChartObj = new Chart(ctx, {{
-        type: 'line',
-        data: {{
-            labels: prices,
-            datasets: [{{
-                label: '到期盈亏 (PnL)',
-                data: pnls,
-                borderColor: '#1f2b52',
-                borderWidth: 2,
-                pointRadius: 0,
-                segment: {{
-                    borderColor: ctx => ctx.p1DataIndex != undefined && pnls[ctx.p1DataIndex] >= 0 ? '#1c7a4c' : '#b23b2e'
-                }}
-            }}]
-        }},
-        options: {{
-            responsive: true, maintainAspectRatio: false,
-            plugins: {{ legend: {{ display: false }} }},
-            scales: {{
-                x: {{ title: {{ display: true, text: '正股价格' }} }},
-                y: {{ title: {{ display: true, text: '盈亏 ($)' }} }}
-            }}
-        }},
-        plugins: [{{
-            id: 'horizontalLine',
-            beforeDraw: chart => {{
-                const {{ ctx, chartArea: {{ left, right }}, scales: {{ y }} }} = chart;
-                ctx.save(); ctx.beginPath();
-                ctx.moveTo(left, y.getPixelForValue(0));
-                ctx.lineTo(right, y.getPixelForValue(0));
-                ctx.strokeStyle = '#696d76'; ctx.stroke(); ctx.restore();
-            }}
-        }}]
-    }});
-}}
-
 const SUPABASE_URL = 'https://rhielbkvhgqbthcgztci.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_7_S0qA1oh31fHiihhx07PA_1LPAighW';
+window.SUPABASE_ANON_KEY = SUPABASE_ANON_KEY;
 const ADMIN_EMAIL = 'xxj8166@gmail.com';
 let isAdmin = false;
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -997,7 +916,8 @@ async function checkSession() {{
           isAdmin = false; document.getElementById('modeTitle').innerText = "🔥 资金与策略模型已解锁"; document.getElementById('modeDesc').innerText = "您已安全登录，当前正在展示最新的高级量化策略信号。";
       }}
       authBtn.innerHTML = "🔓 退出账号"; document.getElementById('modeTitle').style.color = "var(--red)"; document.getElementById('liveStatusText').innerText = "连接云端数据库";
-  }} else {{ isAdmin = false; authBtn.innerHTML = "🔐 登录私有看板"; }}
+      if (window.OptionV2) window.OptionV2.loadPrivatePositions();
+  }} else {{ isAdmin = false; authBtn.innerHTML = "🔐 登录私有看板"; if (window.OptionV2) window.OptionV2.loadPrivatePositions(); }}
   fetchAndRenderTargets();
 }}
 
@@ -1041,7 +961,7 @@ function fetchLiveCNHK() {{
   document.head.appendChild(script);
 }}
 window.addEventListener('load', () => {{ setInterval(fetchLiveCNHK, 5000); }});
-</script></body></html>'''
+</script><script src="assets/options-v2.js?v=2.0"></script></body></html>'''
 
 def push_to_supabase(data):
     supabase_url, supabase_key = os.environ.get("SUPABASE_URL"), os.environ.get("SUPABASE_KEY")

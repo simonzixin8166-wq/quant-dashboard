@@ -1,5 +1,5 @@
 <!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>myAlphaView · Market Intelligence</title>
-<meta name="author" content="Simon"><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,380;9..144,520;9..144,620&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"><script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<meta name="author" content="Simon"><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,380;9..144,520;9..144,620&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"><link href="assets/options-v2.css?v=2.0" rel="stylesheet"><script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{--bg:#f4f2ec;--surface:#ffffff;--surface2:#ebe8df;--ink:#14161c;--muted:#696d76;--line:#e1ddd0;--nav:#11162a;--nav2:#0a0d1a;--navmuted:#8d93ab;--navline:rgba(255,255,255,.08);--brass:#b8863a;--brass-soft:#e8d3ab;--navy:#1f2b52;--green:#1c7a4c;--green-soft:#e5f1e9;--red:#b23b2e;--red-soft:#f6e6e2;--amber:#c07f2e;--amber-soft:#f6ecd8;--shadow:0 12px 32px rgba(15,15,10,.07);--serif:'Fraunces',ui-serif,Georgia,serif;--sans:'Inter',-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;}
 *{box-sizing:border-box;margin:0;padding:0} body{font-family:var(--sans);background:var(--bg);color:var(--ink);min-height:100vh;-webkit-font-smoothing:antialiased} .app{display:flex;min-height:100vh}
@@ -63,10 +63,10 @@
 <section class="section"><div class="section-head"><h2>港股跨境池</h2><p>点击卡片展开近 30 日历史趋势</p></div><div class="opt-grid"><div class="mkt-card hover-card" onclick="toggleMktChart('hk03086', '华夏纳指 (港股)')"><div class="name">华夏纳指 (港股) <span class="chart-hint">📈趋势</span></div><div class="val" data-live-price="hk03086">59.600</div><div class="chg positive" data-live-chg="hk03086">+0.30%</div><div class="mkt-chart-wrap" id="wrap-hk03086"><div style="height:140px; position:relative; width:100%;"><canvas id="canvas-hk03086"></canvas></div></div></div><div class="mkt-card hover-card" onclick="toggleMktChart('hk03416', '国指备兑 (港股)')"><div class="name">国指备兑 (港股) <span class="chart-hint">📈趋势</span></div><div class="val" data-live-price="hk03416">8.170</div><div class="chg negative" data-live-chg="hk03416">-0.43%</div><div class="mkt-chart-wrap" id="wrap-hk03416"><div style="height:140px; position:relative; width:100%;"><canvas id="canvas-hk03416"></canvas></div></div></div></div></section>
 </div>
 
-<div id="tab-stocks" class="tab-pane"><section class="hero"><div><h1>个股观察池</h1><p>包含中英文名称对照及核心技术指标监控。</p></div></section><section class="section"><div class="table-container"><table><thead><tr><th>名称代码</th><th>最新价</th><th>涨跌幅</th><th>开盘</th><th>最高</th><th>最低</th><th>当年(YTD)最高</th><th>RSI(14)</th><th>距200MA</th><th>策略参考价</th></tr></thead><tbody id="stocksTableBody"><tr><td><div style="font-weight:600; font-size:13.5px; color:var(--ink); line-height:1.2;">SoFi Technologies</div><div style="font-size:11px; color:var(--muted); margin-top:3px; font-weight:500;">SOFI</div></td><td class="fw-bold" id="close-SOFI">$16.84</td><td class="neg-text" id="chg-SOFI">-1.35%</td><td>$17.11</td><td>$17.16</td><td>$16.53</td><td>$29.86</td><td>42.21</td><td>-14.26%</td><td><b id="target-SOFI">$15.0</b> <span id="action-SOFI"></span></td></tr><tr><td><div style="font-weight:600; font-size:13.5px; color:var(--ink); line-height:1.2;">Iris Energy</div><div style="font-size:11px; color:var(--muted); margin-top:3px; font-weight:500;">IREN</div></td><td class="fw-bold" id="close-IREN">$42.62</td><td class="pos-text" id="chg-IREN">+2.50%</td><td>$42.45</td><td>$43.91</td><td>$41.55</td><td>$70.71</td><td>51.53</td><td>-6.48%</td><td><b id="target-IREN">$35.0</b> <span id="action-IREN"></span></td></tr><tr><td><div style="font-weight:600; font-size:13.5px; color:var(--ink); line-height:1.2;">甲骨文</div><div style="font-size:11px; color:var(--muted); margin-top:3px; font-weight:500;">ORCL</div></td><td class="fw-bold" id="close-ORCL">$143.16</td><td class="pos-text" id="chg-ORCL">+2.00%</td><td>$140.03</td><td>$146.52</td><td>$139.00</td><td>$250.25</td><td>45.71</td><td>-14.16%</td><td><b id="target-ORCL">$130.0</b> <span id="action-ORCL"></span></td></tr><tr><td><div style="font-weight:600; font-size:13.5px; color:var(--ink); line-height:1.2;">特斯拉</div><div style="font-size:11px; color:var(--muted); margin-top:3px; font-weight:500;">TSLA</div></td><td class="fw-bold" id="close-TSLA">$358.08</td><td class="pos-text" id="chg-TSLA">+0.42%</td><td>$357.93</td><td>$365.10</td><td>$354.89</td><td>$458.34</td><td>51.11</td><td>-10.02%</td><td><b id="target-TSLA">$330.0</b> <span id="action-TSLA"></span></td></tr><tr><td><div style="font-weight:600; font-size:13.5px; color:var(--ink); line-height:1.2;">英伟达</div><div style="font-size:11px; color:var(--muted); margin-top:3px; font-weight:500;">NVDA</div></td><td class="fw-bold" id="close-NVDA">$213.90</td><td class="pos-text" id="chg-NVDA">+0.82%</td><td>$214.14</td><td>$216.76</td><td>$212.50</td><td>$236.54</td><td>46.74</td><td>8.06%</td><td><b id="target-NVDA">$190.0</b> <span id="action-NVDA"></span></td></tr><tr><td><div style="font-weight:600; font-size:13.5px; color:var(--ink); line-height:1.2;">台积电</div><div style="font-size:11px; color:var(--muted); margin-top:3px; font-weight:500;">TSM</div></td><td class="fw-bold" id="close-TSM">$417.72</td><td class="pos-text" id="chg-TSM">+0.96%</td><td>$418.20</td><td>$419.85</td><td>$413.88</td><td>$479.00</td><td>47.95</td><td>10.54%</td><td><b id="target-TSM">$380.0</b> <span id="action-TSM"></span></td></tr><tr><td><div style="font-weight:600; font-size:13.5px; color:var(--ink); line-height:1.2;">Lumentum</div><div style="font-size:11px; color:var(--muted); margin-top:3px; font-weight:500;">LITE</div></td><td class="fw-bold" id="close-LITE">$919.40</td><td class="pos-text" id="chg-LITE">+9.59%</td><td>$856.00</td><td>$937.88</td><td>$855.09</td><td>$1085.68</td><td>53.23</td><td>29.89%</td><td><b id="target-LITE">$650.0</b> <span id="action-LITE"></span></td></tr><tr><td><div style="font-weight:600; font-size:13.5px; color:var(--ink); line-height:1.2;">博通</div><div style="font-size:11px; color:var(--muted); margin-top:3px; font-weight:500;">AVGO</div></td><td class="fw-bold" id="close-AVGO">$339.51</td><td class="pos-text" id="chg-AVGO">+0.07%</td><td>$342.37</td><td>$344.15</td><td>$335.81</td><td>$495.00</td><td>32.46</td><td>-8.12%</td><td><b id="target-AVGO">$340.0</b> <span id="action-AVGO"><span class="alert-text fw-bold ml">(信号触发!)</span></span></td></tr><tr><td><div style="font-weight:600; font-size:13.5px; color:var(--ink); line-height:1.2;">美满电子</div><div style="font-size:11px; color:var(--muted); margin-top:3px; font-weight:500;">MRVL</div></td><td class="fw-bold" id="close-MRVL">$229.71</td><td class="pos-text" id="chg-MRVL">+3.61%</td><td>$226.73</td><td>$233.77</td><td>$224.58</td><td>$329.88</td><td>52.65</td><td>46.41%</td><td><b id="target-MRVL">$185.0</b> <span id="action-MRVL"></span></td></tr><tr><td><div style="font-weight:600; font-size:13.5px; color:var(--ink); line-height:1.2;">Nebius</div><div style="font-size:11px; color:var(--muted); margin-top:3px; font-weight:500;">NBIS</div></td><td class="fw-bold" id="close-NBIS">$209.37</td><td class="pos-text" id="chg-NBIS">+0.96%</td><td>$212.49</td><td>$220.40</td><td>$208.46</td><td>$299.86</td><td>46.46</td><td>31.29%</td><td><b id="target-NBIS">$180.0</b> <span id="action-NBIS"></span></td></tr><tr><td><div style="font-weight:600; font-size:13.5px; color:var(--ink); line-height:1.2;">谷歌</div><div style="font-size:11px; color:var(--muted); margin-top:3px; font-weight:500;">GOOG</div></td><td class="fw-bold" id="close-GOOG">$339.36</td><td class="neg-text" id="chg-GOOG">-0.61%</td><td>$343.36</td><td>$344.70</td><td>$337.45</td><td>$404.47</td><td>49.35</td><td>1.03%</td><td><b id="target-GOOG">$300.0</b> <span id="action-GOOG"></span></td></tr><tr><td><div style="font-weight:600; font-size:13.5px; color:var(--ink); line-height:1.2;">超威半导体</div><div style="font-size:11px; color:var(--muted); margin-top:3px; font-weight:500;">AMD</div></td><td class="fw-bold" id="close-AMD">$512.50</td><td class="pos-text" id="chg-AMD">+1.65%</td><td>$517.39</td><td>$527.25</td><td>$506.05</td><td>$584.73</td><td>56.08</td><td>45.89%</td><td><b id="target-AMD">$400.0</b> <span id="action-AMD"></span></td></tr><tr><td><div style="font-weight:600; font-size:13.5px; color:var(--ink); line-height:1.2;">Robinhood</div><div style="font-size:11px; color:var(--muted); margin-top:3px; font-weight:500;">HOOD</div></td><td class="fw-bold" id="close-HOOD">$104.42</td><td class="neg-text" id="chg-HOOD">-5.46%</td><td>$110.27</td><td>$111.05</td><td>$101.70</td><td>$125.25</td><td>47.02</td><td>9.90%</td><td><b id="target-HOOD">$70.0</b> <span id="action-HOOD"></span></td></tr><tr><td><div style="font-weight:600; font-size:13.5px; color:var(--ink); line-height:1.2;">Roundhill内存芯片</div><div style="font-size:11px; color:var(--muted); margin-top:3px; font-weight:500;">DRAM</div></td><td class="fw-bold" id="close-DRAM">$55.33</td><td class="pos-text" id="chg-DRAM">+0.58%</td><td>$56.41</td><td>$56.60</td><td>$54.75</td><td>$81.34</td><td>46.93</td><td>-</td><td><b id="target-DRAM">$-</b> <span id="action-DRAM"></span></td></tr><tr><td><div style="font-weight:600; font-size:13.5px; color:var(--ink); line-height:1.2;">SpaceX代币化</div><div style="font-size:11px; color:var(--muted); margin-top:3px; font-weight:500;">SPCX</div></td><td class="fw-bold" id="close-SPCX">$150.90</td><td class="pos-text" id="chg-SPCX">+5.16%</td><td>$144.84</td><td>$153.00</td><td>$144.36</td><td>$225.64</td><td>57.65</td><td>-</td><td><b id="target-SPCX">$-</b> <span id="action-SPCX"></span></td></tr><tr><td><div style="font-weight:600; font-size:13.5px; color:var(--ink); line-height:1.2;">纳指100(QQQM)</div><div style="font-size:11px; color:var(--muted); margin-top:3px; font-weight:500;">QQQM</div></td><td class="fw-bold" id="close-QQQM">$290.20</td><td class="pos-text" id="chg-QQQM">+0.04%</td><td>$291.54</td><td>$293.08</td><td>$288.23</td><td>$308.21</td><td>44.18</td><td>6.54%</td><td><b id="target-QQQM">$-</b> <span id="action-QQQM"></span></td></tr><tr><td><div style="font-weight:600; font-size:13.5px; color:var(--ink); line-height:1.2;">纳指2倍做多(QLD)</div><div style="font-size:11px; color:var(--muted); margin-top:3px; font-weight:500;">QLD</div></td><td class="fw-bold" id="close-QLD">$86.96</td><td class="pos-text" id="chg-QLD">+0.00%</td><td>$87.78</td><td>$88.73</td><td>$85.81</td><td>$101.19</td><td>43.03</td><td>8.97%</td><td><b id="target-QLD">$-</b> <span id="action-QLD"></span></td></tr><tr><td><div style="font-weight:600; font-size:13.5px; color:var(--ink); line-height:1.2;">信息技术ETF(VGT)</div><div style="font-size:11px; color:var(--muted); margin-top:3px; font-weight:500;">VGT</div></td><td class="fw-bold" id="close-VGT">$118.92</td><td class="pos-text" id="chg-VGT">+0.11%</td><td>$119.44</td><td>$120.22</td><td>$117.93</td><td>$126.00</td><td>48.61</td><td>13.55%</td><td><b id="target-VGT">$-</b> <span id="action-VGT"></span></td></tr><tr><td><div style="font-weight:600; font-size:13.5px; color:var(--ink); line-height:1.2;">纳指100(QQQ)</div><div style="font-size:11px; color:var(--muted); margin-top:3px; font-weight:500;">QQQ</div></td><td class="fw-bold" id="close-QQQ">$704.72</td><td class="pos-text" id="chg-QQQ">+0.03%</td><td>$708.00</td><td>$711.88</td><td>$700.00</td><td>$748.65</td><td>44.12</td><td>6.52%</td><td><b id="target-QQQ">$-</b> <span id="action-QQQ"></span></td></tr><tr><td><div style="font-weight:600; font-size:13.5px; color:var(--ink); line-height:1.2;">标普500(VOO)</div><div style="font-size:11px; color:var(--muted); margin-top:3px; font-weight:500;">VOO</div></td><td class="fw-bold" id="close-VOO">$693.24</td><td class="neg-text" id="chg-VOO">-0.43%</td><td>$698.17</td><td>$700.10</td><td>$689.04</td><td>$716.39</td><td>41.79</td><td>5.37%</td><td><b id="target-VOO">$-</b> <span id="action-VOO"></span></td></tr></tbody></table></div></section></div>
+<div id="tab-stocks" class="tab-pane"><section class="hero"><div><h1>个股观察池</h1><p>包含中英文名称对照及核心技术指标监控。</p></div></section><section class="section"><div class="table-container"><table><thead><tr><th>名称代码</th><th>最新价</th><th>涨跌幅</th><th>开盘</th><th>最高</th><th>最低</th><th>当年(YTD)最高</th><th>RSI(14)</th><th>距200MA</th><th>策略参考价</th></tr></thead><tbody id="stocksTableBody"><tr><td><div style="font-weight:600; font-size:13.5px; color:var(--ink); line-height:1.2;">SoFi Technologies</div><div style="font-size:11px; color:var(--muted); margin-top:3px; font-weight:500;">SOFI</div></td><td class="fw-bold" id="close-SOFI">$16.84</td><td class="neg-text" id="chg-SOFI">-1.35%</td><td>$17.11</td><td>$17.16</td><td>$16.53</td><td>$29.86</td><td>42.21</td><td>-14.26%</td><td><b id="target-SOFI">$-</b> <span id="action-SOFI"></span></td></tr><tr><td><div style="font-weight:600; font-size:13.5px; color:var(--ink); line-height:1.2;">Iris Energy</div><div style="font-size:11px; color:var(--muted); margin-top:3px; font-weight:500;">IREN</div></td><td class="fw-bold" id="close-IREN">$42.62</td><td class="pos-text" id="chg-IREN">+2.50%</td><td>$42.45</td><td>$43.91</td><td>$41.55</td><td>$70.71</td><td>51.53</td><td>-6.48%</td><td><b id="target-IREN">$-</b> <span id="action-IREN"></span></td></tr><tr><td><div style="font-weight:600; font-size:13.5px; color:var(--ink); line-height:1.2;">甲骨文</div><div style="font-size:11px; color:var(--muted); margin-top:3px; font-weight:500;">ORCL</div></td><td class="fw-bold" id="close-ORCL">$143.16</td><td class="pos-text" id="chg-ORCL">+2.00%</td><td>$140.03</td><td>$146.52</td><td>$139.00</td><td>$250.25</td><td>45.71</td><td>-14.16%</td><td><b id="target-ORCL">$-</b> <span id="action-ORCL"></span></td></tr><tr><td><div style="font-weight:600; font-size:13.5px; color:var(--ink); line-height:1.2;">特斯拉</div><div style="font-size:11px; color:var(--muted); margin-top:3px; font-weight:500;">TSLA</div></td><td class="fw-bold" id="close-TSLA">$358.08</td><td class="pos-text" id="chg-TSLA">+0.42%</td><td>$357.93</td><td>$365.10</td><td>$354.89</td><td>$458.34</td><td>51.11</td><td>-10.02%</td><td><b id="target-TSLA">$-</b> <span id="action-TSLA"></span></td></tr><tr><td><div style="font-weight:600; font-size:13.5px; color:var(--ink); line-height:1.2;">英伟达</div><div style="font-size:11px; color:var(--muted); margin-top:3px; font-weight:500;">NVDA</div></td><td class="fw-bold" id="close-NVDA">$213.90</td><td class="pos-text" id="chg-NVDA">+0.82%</td><td>$214.14</td><td>$216.76</td><td>$212.50</td><td>$236.54</td><td>46.74</td><td>8.06%</td><td><b id="target-NVDA">$-</b> <span id="action-NVDA"></span></td></tr><tr><td><div style="font-weight:600; font-size:13.5px; color:var(--ink); line-height:1.2;">台积电</div><div style="font-size:11px; color:var(--muted); margin-top:3px; font-weight:500;">TSM</div></td><td class="fw-bold" id="close-TSM">$417.72</td><td class="pos-text" id="chg-TSM">+0.96%</td><td>$418.20</td><td>$419.85</td><td>$413.88</td><td>$479.00</td><td>47.95</td><td>10.54%</td><td><b id="target-TSM">$-</b> <span id="action-TSM"></span></td></tr><tr><td><div style="font-weight:600; font-size:13.5px; color:var(--ink); line-height:1.2;">Lumentum</div><div style="font-size:11px; color:var(--muted); margin-top:3px; font-weight:500;">LITE</div></td><td class="fw-bold" id="close-LITE">$919.40</td><td class="pos-text" id="chg-LITE">+9.59%</td><td>$856.00</td><td>$937.88</td><td>$855.09</td><td>$1085.68</td><td>53.23</td><td>29.89%</td><td><b id="target-LITE">$-</b> <span id="action-LITE"></span></td></tr><tr><td><div style="font-weight:600; font-size:13.5px; color:var(--ink); line-height:1.2;">博通</div><div style="font-size:11px; color:var(--muted); margin-top:3px; font-weight:500;">AVGO</div></td><td class="fw-bold" id="close-AVGO">$339.51</td><td class="pos-text" id="chg-AVGO">+0.07%</td><td>$342.37</td><td>$344.15</td><td>$335.81</td><td>$495.00</td><td>32.46</td><td>-8.12%</td><td><b id="target-AVGO">$-</b> <span id="action-AVGO"></span></td></tr><tr><td><div style="font-weight:600; font-size:13.5px; color:var(--ink); line-height:1.2;">美满电子</div><div style="font-size:11px; color:var(--muted); margin-top:3px; font-weight:500;">MRVL</div></td><td class="fw-bold" id="close-MRVL">$229.71</td><td class="pos-text" id="chg-MRVL">+3.61%</td><td>$226.73</td><td>$233.77</td><td>$224.58</td><td>$329.88</td><td>52.65</td><td>46.41%</td><td><b id="target-MRVL">$-</b> <span id="action-MRVL"></span></td></tr><tr><td><div style="font-weight:600; font-size:13.5px; color:var(--ink); line-height:1.2;">Nebius</div><div style="font-size:11px; color:var(--muted); margin-top:3px; font-weight:500;">NBIS</div></td><td class="fw-bold" id="close-NBIS">$209.37</td><td class="pos-text" id="chg-NBIS">+0.96%</td><td>$212.49</td><td>$220.40</td><td>$208.46</td><td>$299.86</td><td>46.46</td><td>31.29%</td><td><b id="target-NBIS">$-</b> <span id="action-NBIS"></span></td></tr><tr><td><div style="font-weight:600; font-size:13.5px; color:var(--ink); line-height:1.2;">谷歌</div><div style="font-size:11px; color:var(--muted); margin-top:3px; font-weight:500;">GOOG</div></td><td class="fw-bold" id="close-GOOG">$339.36</td><td class="neg-text" id="chg-GOOG">-0.61%</td><td>$343.36</td><td>$344.70</td><td>$337.45</td><td>$404.47</td><td>49.35</td><td>1.03%</td><td><b id="target-GOOG">$-</b> <span id="action-GOOG"></span></td></tr><tr><td><div style="font-weight:600; font-size:13.5px; color:var(--ink); line-height:1.2;">超威半导体</div><div style="font-size:11px; color:var(--muted); margin-top:3px; font-weight:500;">AMD</div></td><td class="fw-bold" id="close-AMD">$512.50</td><td class="pos-text" id="chg-AMD">+1.65%</td><td>$517.39</td><td>$527.25</td><td>$506.05</td><td>$584.73</td><td>56.08</td><td>45.89%</td><td><b id="target-AMD">$-</b> <span id="action-AMD"></span></td></tr><tr><td><div style="font-weight:600; font-size:13.5px; color:var(--ink); line-height:1.2;">Robinhood</div><div style="font-size:11px; color:var(--muted); margin-top:3px; font-weight:500;">HOOD</div></td><td class="fw-bold" id="close-HOOD">$104.42</td><td class="neg-text" id="chg-HOOD">-5.46%</td><td>$110.27</td><td>$111.05</td><td>$101.70</td><td>$125.25</td><td>47.02</td><td>9.90%</td><td><b id="target-HOOD">$-</b> <span id="action-HOOD"></span></td></tr><tr><td><div style="font-weight:600; font-size:13.5px; color:var(--ink); line-height:1.2;">Roundhill内存芯片</div><div style="font-size:11px; color:var(--muted); margin-top:3px; font-weight:500;">DRAM</div></td><td class="fw-bold" id="close-DRAM">$55.33</td><td class="pos-text" id="chg-DRAM">+0.58%</td><td>$56.41</td><td>$56.60</td><td>$54.75</td><td>$81.34</td><td>46.93</td><td>-</td><td><b id="target-DRAM">$-</b> <span id="action-DRAM"></span></td></tr><tr><td><div style="font-weight:600; font-size:13.5px; color:var(--ink); line-height:1.2;">SpaceX代币化</div><div style="font-size:11px; color:var(--muted); margin-top:3px; font-weight:500;">SPCX</div></td><td class="fw-bold" id="close-SPCX">$150.90</td><td class="pos-text" id="chg-SPCX">+5.16%</td><td>$144.84</td><td>$153.00</td><td>$144.36</td><td>$225.64</td><td>57.65</td><td>-</td><td><b id="target-SPCX">$-</b> <span id="action-SPCX"></span></td></tr><tr><td><div style="font-weight:600; font-size:13.5px; color:var(--ink); line-height:1.2;">纳指100(QQQM)</div><div style="font-size:11px; color:var(--muted); margin-top:3px; font-weight:500;">QQQM</div></td><td class="fw-bold" id="close-QQQM">$290.20</td><td class="pos-text" id="chg-QQQM">+0.04%</td><td>$291.54</td><td>$293.08</td><td>$288.23</td><td>$308.21</td><td>44.18</td><td>6.54%</td><td><b id="target-QQQM">$-</b> <span id="action-QQQM"></span></td></tr><tr><td><div style="font-weight:600; font-size:13.5px; color:var(--ink); line-height:1.2;">纳指2倍做多(QLD)</div><div style="font-size:11px; color:var(--muted); margin-top:3px; font-weight:500;">QLD</div></td><td class="fw-bold" id="close-QLD">$86.96</td><td class="pos-text" id="chg-QLD">+0.00%</td><td>$87.78</td><td>$88.73</td><td>$85.81</td><td>$101.19</td><td>43.03</td><td>8.97%</td><td><b id="target-QLD">$-</b> <span id="action-QLD"></span></td></tr><tr><td><div style="font-weight:600; font-size:13.5px; color:var(--ink); line-height:1.2;">信息技术ETF(VGT)</div><div style="font-size:11px; color:var(--muted); margin-top:3px; font-weight:500;">VGT</div></td><td class="fw-bold" id="close-VGT">$118.92</td><td class="pos-text" id="chg-VGT">+0.11%</td><td>$119.44</td><td>$120.22</td><td>$117.93</td><td>$126.00</td><td>48.61</td><td>13.55%</td><td><b id="target-VGT">$-</b> <span id="action-VGT"></span></td></tr><tr><td><div style="font-weight:600; font-size:13.5px; color:var(--ink); line-height:1.2;">纳指100(QQQ)</div><div style="font-size:11px; color:var(--muted); margin-top:3px; font-weight:500;">QQQ</div></td><td class="fw-bold" id="close-QQQ">$704.72</td><td class="pos-text" id="chg-QQQ">+0.03%</td><td>$708.00</td><td>$711.88</td><td>$700.00</td><td>$748.65</td><td>44.12</td><td>6.52%</td><td><b id="target-QQQ">$-</b> <span id="action-QQQ"></span></td></tr><tr><td><div style="font-weight:600; font-size:13.5px; color:var(--ink); line-height:1.2;">标普500(VOO)</div><div style="font-size:11px; color:var(--muted); margin-top:3px; font-weight:500;">VOO</div></td><td class="fw-bold" id="close-VOO">$693.24</td><td class="neg-text" id="chg-VOO">-0.43%</td><td>$698.17</td><td>$700.10</td><td>$689.04</td><td>$716.39</td><td>41.79</td><td>5.37%</td><td><b id="target-VOO">$-</b> <span id="action-VOO"></span></td></tr></tbody></table></div></section></div>
 
 <div id="tab-options" class="tab-pane">
-<section class="hero"><div><h1>期权持仓监控 V1.6</h1><p>全自动动态云端账本追踪：实时捕获 Yahoo 隐波 (IV) 并内置自研 Black-Scholes 引擎推演理论 Delta 与对冲收益，真实盈亏一目了然。</p></div></section>
+<section class="hero"><div><h1>期权持仓监控 V2.0</h1><p>登录后读取私有持仓；盘中报价、IV与Greeks由独立行情接口更新。未配置实时接口时明确显示不可用，不再使用固定假IV。</p></div></section>
 <section class="section">
     <div style="margin-bottom: 12px; display: flex; justify-content: flex-end;">
         <button onclick="openAddOptionModal()" style="background:var(--brass); color:#fff; border:none; padding:8px 16px; border-radius:6px; cursor:pointer; font-weight:600; font-size:12.5px; box-shadow:0 4px 10px rgba(184,134,58,.3);">➕ 录入新持仓</button>
@@ -89,79 +89,43 @@
                     <th>操作</th>
                 </tr>
             </thead>
-            <tbody id="optionsTableBody"><tr id="opt-row-4">
-            <td style="text-align:left; font-weight:600; color:var(--ink)">
-                LITE <span style="font-size:10px; color:var(--amber); font-weight:600; background:var(--amber-soft); padding:2px 6px; border-radius:4px; margin-left:4px;">Short Put</span>
-            </td>
-            <td class="fw-bold">$660.00</td>
-            <td>2026-11-20 <span style="font-size:10px;color:var(--muted)">(64d)</span></td>
-            <td>$33.48</td>
-            <td class="fw-bold">$23.50</td>
-            <td class="pos-text fw-bold">$+998.00</td>
-            <td class="pos-text fw-bold">+29.81%</td>
-            <td style="color:var(--navy); font-weight:600">$626.52</td>
-            <td class="fw-bold">$919.40</td>
-            <td class="pos-text">-46.75%</td>
-            <td style="font-size:11.5px;color:var(--muted)">81.7% / +0.123</td>
-            <td style="text-align:center;"><button onclick="deleteOptionPosition(4)" style="background:none;border:none;cursor:pointer;color:var(--muted);font-size:12px;" title="删除此持仓">🗑️</button></td>
-        </tr><tr id="opt-row-7">
-            <td style="text-align:left; font-weight:600; color:var(--ink)">
-                IREN <span style="font-size:10px; color:var(--amber); font-weight:600; background:var(--amber-soft); padding:2px 6px; border-radius:4px; margin-left:4px;">Short Put</span>
-            </td>
-            <td class="fw-bold">$40.00</td>
-            <td>2026-10-30 <span style="font-size:10px;color:var(--muted)">(43d)</span></td>
-            <td>$3.50</td>
-            <td class="fw-bold">$3.65</td>
-            <td class="neg-text fw-bold">$-15.00</td>
-            <td class="neg-text fw-bold">-4.29%</td>
-            <td style="color:var(--navy); font-weight:600">$36.50</td>
-            <td class="fw-bold">$42.62</td>
-            <td class="neg-text">-16.77%</td>
-            <td style="font-size:11.5px;color:var(--muted)">81.7% / +0.350</td>
-            <td style="text-align:center;"><button onclick="deleteOptionPosition(7)" style="background:none;border:none;cursor:pointer;color:var(--muted);font-size:12px;" title="删除此持仓">🗑️</button></td>
-        </tr></tbody>
+            <tbody id="optionsTableBody"><tr><td colspan="12" style="text-align:center; color:var(--muted)">请登录后查看私有期权持仓</td></tr></tbody>
         </table>
     </div>
 </section>
 <section class="section"><p style="font-size:11.5px;color:var(--muted);line-height:1.7">💡 主理人说明：浮盈/浮亏自动结合 Long/Short 策略方向推演计算。Delta 指标可用于评估对冲正股所需的仓位，以及辅助预判合约归零/行权的最终概率。</p></section>
 </div>
 
-<!-- 新增：策略推演沙盒 -->
+<!-- 期权决策台 V2.0 -->
 <div id="tab-sandbox" class="tab-pane">
-<section class="hero"><div><h1>期权策略推演沙盒</h1><p>无需保存，纯粹的数学推演。输入你的假设条件，立即渲染到期损益曲线图，评估最大风险与安全垫。</p></div></section>
-<section class="section sandbox-grid">
-    <div class="sandbox-controls">
-        <label>正股现价 (Spot Price)</label>
-        <input type="number" id="sbSpot" placeholder="例如 150">
-        
-        <label>行权价 (Strike Price)</label>
-        <input type="number" id="sbStrike" placeholder="例如 140">
-        
-        <label>单张权利金 (Premium)</label>
-        <input type="number" id="sbPremium" placeholder="例如 5.50">
-        
-        <label>期权策略 (Strategy)</label>
-        <select id="sbStrategy">
-            <option value="SELL PUT">SELL PUT (卖出看跌 - 收租)</option>
-            <option value="SELL CALL">SELL CALL (卖出看涨 - 备兑)</option>
-            <option value="BUY CALL">BUY CALL (买入看涨)</option>
-            <option value="BUY PUT">BUY PUT (买入看跌)</option>
-        </select>
-        
-        <button class="sandbox-btn" onclick="plotSandbox()">📊 立即推演损益图</button>
+<section class="hero"><div><h1>期权开仓决策台 V2.0</h1><p>选择真实合约后，推演“目标日期股价为 X 时，这个仓位值多少钱”。金额统一按每张100股和实际张数计算。</p></div></section>
+<div id="optionV2Root" class="option-v2-shell" data-endpoint="https://rhielbkvhgqbthcgztci.supabase.co/functions/v1/options-market">
+  <div class="option-v2-toolbar"><span id="optV2Status" class="option-v2-status warn">登录后可读取期权链；未配置行情接口时可使用手动报价</span><button id="manualToggle" class="option-secondary">手动报价</button><button id="advancedToggle" class="option-secondary">高级参数</button></div>
+  <div class="option-v2-grid">
+    <div class="option-v2-card">
+      <h3>1. 选择合约与仓位</h3>
+      <div class="option-field"><label>股票代码</label><div style="display:grid;grid-template-columns:1fr auto;gap:7px"><input id="optionSymbol" list="optionSymbols" value="IREN" placeholder="IREN"><button id="loadExpirations" class="option-primary">读取到期日</button></div><datalist id="optionSymbols"><option value="IREN"><option value="LITE"><option value="NVDA"><option value="ORCL"><option value="TSLA"><option value="QQQ"><option value="SPY"></datalist></div>
+      <div class="option-field"><label>策略</label><div class="option-pills"><button class="option-pill active" data-strategy="SELL_PUT">Sell Put</button><button class="option-pill" data-strategy="BUY_CALL">Buy Call</button><button class="option-pill" data-strategy="BUY_PUT">Buy Put</button><button class="option-pill" data-strategy="COVERED_CALL">Covered Call</button><button class="option-pill" data-strategy="NAKED_CALL">Naked Call</button></div></div>
+      <div class="option-two"><div class="option-field"><label>到期日</label><select id="optExpiryV2"><option value="">选择到期日</option></select></div><div class="option-field"><label>期权方向</label><select id="chainSide"><option value="put">Put</option><option value="call">Call</option></select></div></div>
+      <div class="option-chain-wrap"><table class="option-chain"><thead><tr><th>Strike</th><th>Bid</th><th>Ask</th><th>Mid</th><th>IV</th><th>Delta</th><th>Vol</th><th>OI</th></tr></thead><tbody id="optionChainBody"></tbody></table></div>
+      <div id="selectedContract" class="option-selected" style="margin-top:10px">尚未选择真实合约</div>
+      <div class="option-two"><div class="option-field"><label>开仓价格采用</label><select id="quoteBasis"><option value="mid">Mid 中间价</option><option value="bid">Bid</option><option value="ask">Ask</option><option value="last">Last</option></select></div><div class="option-field"><label>合约张数</label><div class="qty-control"><button id="qtyMinus">−</button><input id="optionQty" type="number" min="1" value="1"><button id="qtyPlus">＋</button></div></div></div>
+      <div id="manualPanel" class="manual-panel active"><h4>手动报价 / 接口回退</h4><div class="option-two"><div class="option-field"><label>正股现价</label><input id="manualSpot" type="number" step="0.01" value="42.62"></div><div class="option-field"><label>行权价</label><input id="manualStrike" type="number" step="0.01" value="40"></div></div><div class="option-two"><div class="option-field"><label>权利金报价（每股）</label><input id="manualPremium" type="number" step="0.01" value="3.50"></div><div class="option-field"><label>当前IV（%）</label><input id="manualIv" type="number" step="0.01" value="60"></div></div><div class="option-field"><label>到期日</label><input id="manualExpiry" type="date" value="2026-10-30"></div></div>
+      <div id="advancedPanel" class="advanced-panel"><h4>高级参数</h4><div class="option-two"><div class="option-field"><label>每张单边手续费</label><input id="feePerContract" type="number" step="0.01" value="0.65"></div><div class="option-field"><label>合约乘数</label><input id="contractMultiplier" type="number" value="100"></div></div><div class="option-two"><div class="option-field"><label>无风险利率（%）</label><input id="riskFreeRate" type="number" step="0.01" value="4.20"></div><div class="option-field"><label>股息率（%）</label><input id="dividendYield" type="number" step="0.01" value="0"></div></div><div id="stockCostWrap" class="option-field" style="display:none"><label>备兑正股成本</label><input id="stockCost" type="number" step="0.01"></div></div>
     </div>
-    
-    <div class="sandbox-display">
-        <div class="sandbox-results">
-            <div class="s-res-card"><div class="s-res-label">最大盈利 (Max Profit)</div><div class="s-res-val pos-text" id="resMaxProfit">-</div></div>
-            <div class="s-res-card"><div class="s-res-label">最大亏损 (Max Loss)</div><div class="s-res-val neg-text" id="resMaxLoss">-</div></div>
-            <div class="s-res-card"><div class="s-res-label">盈亏平衡点 (Break-even)</div><div class="s-res-val" style="color:var(--navy)" id="resBreakeven">-</div></div>
-        </div>
-        <div class="panel" style="padding:20px; height:380px;">
-            <canvas id="sandboxChart"></canvas>
-        </div>
+    <div class="option-v2-card">
+      <h3>2. 设置下周情景</h3>
+      <div class="option-field"><label>目标日期</label><div class="option-pills"><button class="option-pill" data-date-preset="1">明天</button><button class="option-pill active" data-date-preset="friday">下周五</button><button class="option-pill" data-date-preset="7">7天后</button><button class="option-pill" data-date-preset="14">14天后</button></div><input id="targetDate" type="date" style="margin-top:7px"></div>
+      <div class="option-field"><label>目标股价 X</label><div class="option-pills"><button class="option-pill" data-spot-preset="-.20">-20%</button><button class="option-pill" data-spot-preset="-.10">-10%</button><button class="option-pill" data-spot-preset="-.05">-5%</button><button class="option-pill" data-spot-preset="0">现价</button><button class="option-pill" data-spot-preset="strike">行权价</button><button class="option-pill" data-spot-preset="breakeven">盈亏平衡</button><button class="option-pill" data-spot-preset=".10">+10%</button></div><input id="targetSpot" type="number" step="0.01" value="36.50" style="margin-top:7px"></div>
+      <div class="option-field"><label>IV相对变化</label><div class="option-pills"><button class="option-pill" data-iv="-.2">-20%</button><button class="option-pill" data-iv="-.1">-10%</button><button class="option-pill active" data-iv="0">维持</button><button class="option-pill" data-iv=".1">+10%</button><button class="option-pill" data-iv=".2">+20%</button></div></div>
+      <button id="runScenario" class="option-primary" style="width:100%;margin:4px 0 14px">计算目标日仓位价值</button>
+      <div id="scenarioAnswer" class="scenario-answer">选择或输入合约参数后开始推演。</div>
+      <div id="optionStats" class="option-summary"></div>
+      <h4>股价 × IV 情景矩阵（净盈亏）</h4><div id="optionHeatmap" class="option-heatmap"></div>
+      <p class="option-note" style="margin-top:12px">目标日期估值为模型推演，不是成交保证。Short仓位实际平仓重点参考Ask，Long仓位重点参考Bid。美式期权提前行权、财报跳空和流动性会造成偏差。</p>
     </div>
-</section>
+  </div>
+</div>
 </div>
 
 <div id="tab-archive" class="tab-pane">
@@ -221,7 +185,6 @@
 <script>
 const DATA = {"QQQ": [{"d": "2026-08-05", "c": 717.29999}, {"d": "2026-08-06", "c": 714.65002}, {"d": "2026-08-07", "c": 723.030029}, {"d": "2026-08-10", "c": 720.87}, {"d": "2026-08-11", "c": 718.45001}, {"d": "2026-08-12", "c": 723.70001}, {"d": "2026-08-13", "c": 732.070007}, {"d": "2026-08-14", "c": 731.070007}, {"d": "2026-08-17", "c": 729.87}, {"d": "2026-08-18", "c": 717.51001}, {"d": "2026-08-19", "c": 716.080017}, {"d": "2026-08-20", "c": 710.92999}, {"d": "2026-08-21", "c": 713.44}, {"d": "2026-08-24", "c": 706.32001}, {"d": "2026-08-25", "c": 710.71997}, {"d": "2026-08-26", "c": 711.37}, {"d": "2026-08-27", "c": 721.10999}, {"d": "2026-08-28", "c": 716.42999}, {"d": "2026-08-31", "c": 716.76001}, {"d": "2026-09-01", "c": 707.64001}, {"d": "2026-09-02", "c": 709.23999}, {"d": "2026-09-03", "c": 717.66998}, {"d": "2026-09-04", "c": 718.96002}, {"d": "2026-09-08", "c": 718.35999}, {"d": "2026-09-09", "c": 716.31}, {"d": "2026-09-10", "c": 708.69}, {"d": "2026-09-11", "c": 714.88}, {"d": "2026-09-14", "c": 709.17999}, {"d": "2026-09-15", "c": 704.53998}, {"d": "2026-09-16", "c": 704.71997}], "SPY": [{"d": "2026-08-05", "c": 769.78998}, {"d": "2026-08-06", "c": 768.56}, {"d": "2026-08-07", "c": 773.26001}, {"d": "2026-08-10", "c": 773.030029}, {"d": "2026-08-11", "c": 770.56}, {"d": "2026-08-12", "c": 772.48999}, {"d": "2026-08-13", "c": 777.88}, {"d": "2026-08-14", "c": 776.34003}, {"d": "2026-08-17", "c": 772.66998}, {"d": "2026-08-18", "c": 767.45001}, {"d": "2026-08-19", "c": 769.059998}, {"d": "2026-08-20", "c": 762.59998}, {"d": "2026-08-21", "c": 765.71997}, {"d": "2026-08-24", "c": 763.46997}, {"d": "2026-08-25", "c": 765.90997}, {"d": "2026-08-26", "c": 766.080017}, {"d": "2026-08-27", "c": 771.099976}, {"d": "2026-08-28", "c": 769.34998}, {"d": "2026-08-31", "c": 767.049988}, {"d": "2026-09-01", "c": 761.78003}, {"d": "2026-09-02", "c": 765.15997}, {"d": "2026-09-03", "c": 773.16998}, {"d": "2026-09-04", "c": 770.19}, {"d": "2026-09-08", "c": 765.96002}, {"d": "2026-09-09", "c": 762.40002}, {"d": "2026-09-10", "c": 757.83002}, {"d": "2026-09-11", "c": 764.28998}, {"d": "2026-09-14", "c": 760.88}, {"d": "2026-09-15", "c": 757.39001}, {"d": "2026-09-16", "c": 754.049988}], "sh000001": [{"d": "2026-08-17", "c": 3982.654052734375}, {"d": "2026-08-18", "c": 3990.303955078125}, {"d": "2026-08-19", "c": 3894.422119140625}, {"d": "2026-08-20", "c": 3903.720947265625}, {"d": "2026-08-21", "c": 3905.202880859375}, {"d": "2026-08-24", "c": 3882.008056640625}, {"d": "2026-08-25", "c": 3889.445068359375}, {"d": "2026-08-26", "c": 3912.52294921875}, {"d": "2026-08-27", "c": 3956.571044921875}, {"d": "2026-08-28", "c": 3952.178955078125}, {"d": "2026-08-31", "c": 3986.298095703125}, {"d": "2026-09-01", "c": 3979.887939453125}, {"d": "2026-09-02", "c": 3941.385986328125}, {"d": "2026-09-03", "c": 3942.087890625}, {"d": "2026-09-04", "c": 3930.115966796875}, {"d": "2026-09-07", "c": 3932.698974609375}, {"d": "2026-09-08", "c": 3940.551025390625}, {"d": "2026-09-09", "c": 3951.507080078125}, {"d": "2026-09-10", "c": 3934.404052734375}, {"d": "2026-09-11", "c": 3888.111083984375}, {"d": "2026-09-14", "c": 3885.3330078125}, {"d": "2026-09-15", "c": 3864.279052734375}, {"d": "2026-09-16", "c": 3891.60107421875}, {"d": "2026-09-17", "c": 3877.4580078125}], "sh000300": [{"d": "2026-09-17", "c": 4463.9873046875}], "sz159307": [{"d": "2026-08-17", "c": 1.0190000534057617}, {"d": "2026-08-18", "c": 1.0210000276565552}, {"d": "2026-08-19", "c": 1.0240000486373901}, {"d": "2026-08-20", "c": 1.0299999713897705}, {"d": "2026-08-21", "c": 1.0190000534057617}, {"d": "2026-08-24", "c": 1.0240000486373901}, {"d": "2026-08-25", "c": 1.027999997138977}, {"d": "2026-08-26", "c": 1.0329999923706055}, {"d": "2026-08-27", "c": 1.0269999504089355}, {"d": "2026-08-28", "c": 1.027999997138977}, {"d": "2026-08-31", "c": 1.0290000438690186}, {"d": "2026-09-01", "c": 1.0390000343322754}, {"d": "2026-09-02", "c": 1.031000018119812}, {"d": "2026-09-03", "c": 1.034000039100647}, {"d": "2026-09-04", "c": 1.0379999876022339}, {"d": "2026-09-07", "c": 1.031000018119812}, {"d": "2026-09-08", "c": 1.0360000133514404}, {"d": "2026-09-09", "c": 1.031999945640564}, {"d": "2026-09-10", "c": 1.0329999923706055}, {"d": "2026-09-11", "c": 1.0240000486373901}, {"d": "2026-09-14", "c": 1.0190000534057617}, {"d": "2026-09-15", "c": 1.0119999647140503}, {"d": "2026-09-17", "c": 1.00600004196167}], "hk03086": [{"d": "2026-08-17", "c": 61.70000076293945}, {"d": "2026-08-18", "c": 60.720001220703125}, {"d": "2026-08-19", "c": 60.279998779296875}, {"d": "2026-08-20", "c": 60.2599983215332}, {"d": "2026-08-21", "c": 59.91999816894531}, {"d": "2026-08-24", "c": 59.29999923706055}, {"d": "2026-08-25", "c": 59.52000045776367}, {"d": "2026-08-26", "c": 59.47999954223633}, {"d": "2026-08-27", "c": 60.13999938964844}, {"d": "2026-08-28", "c": 60.31999969482422}, {"d": "2026-08-31", "c": 60.119998931884766}, {"d": "2026-09-01", "c": 60.02000045776367}, {"d": "2026-09-02", "c": 59.29999923706055}, {"d": "2026-09-03", "c": 59.47999954223633}, {"d": "2026-09-04", "c": 60.380001068115234}, {"d": "2026-09-07", "c": 60.47999954223633}, {"d": "2026-09-08", "c": 60.279998779296875}, {"d": "2026-09-09", "c": 60.34000015258789}, {"d": "2026-09-10", "c": 60.119998931884766}, {"d": "2026-09-11", "c": 59.619998931884766}, {"d": "2026-09-14", "c": 59.099998474121094}, {"d": "2026-09-15", "c": 59.29999923706055}, {"d": "2026-09-17", "c": 59.599998474121094}], "hk03416": [{"d": "2026-08-17", "c": 8.460000038146973}, {"d": "2026-08-18", "c": 8.470000267028809}, {"d": "2026-08-19", "c": 8.479999542236328}, {"d": "2026-08-20", "c": 8.545000076293945}, {"d": "2026-08-21", "c": 8.595000267028809}, {"d": "2026-08-24", "c": 8.475000381469727}, {"d": "2026-08-25", "c": 8.475000381469727}, {"d": "2026-08-26", "c": 8.555000305175781}, {"d": "2026-08-27", "c": 8.524999618530273}, {"d": "2026-08-28", "c": 8.524999618530273}, {"d": "2026-08-31", "c": 8.395000457763672}, {"d": "2026-09-01", "c": 8.380000114440918}, {"d": "2026-09-02", "c": 8.369999885559082}, {"d": "2026-09-03", "c": 8.324999809265137}, {"d": "2026-09-04", "c": 8.430000305175781}, {"d": "2026-09-07", "c": 8.354999542236328}, {"d": "2026-09-08", "c": 8.345000267028809}, {"d": "2026-09-09", "c": 8.324999809265137}, {"d": "2026-09-10", "c": 8.265000343322754}, {"d": "2026-09-11", "c": 8.229999542236328}, {"d": "2026-09-14", "c": 8.260000228881836}, {"d": "2026-09-15", "c": 8.199999809265137}, {"d": "2026-09-17", "c": 8.170000076293945}]};
 const MKT_CHARTS = {}; 
-let sandboxChartObj = null;
 
 function switchTab(id,el){
   document.querySelectorAll('.tab-pane').forEach(t=>t.classList.remove('active'));
@@ -255,87 +218,9 @@ window.addEventListener('load',function(){
   }
 });
 
-// 🧮 沙盒计算器逻辑
-function plotSandbox() {
-    const spot = parseFloat(document.getElementById('sbSpot').value);
-    const strike = parseFloat(document.getElementById('sbStrike').value);
-    const premium = parseFloat(document.getElementById('sbPremium').value);
-    const strategy = document.getElementById('sbStrategy').value;
-
-    if(isNaN(spot) || isNaN(strike) || isNaN(premium)) { alert("请完整填写推演参数"); return; }
-
-    let maxProfit = 0, maxLoss = 0, breakeven = 0;
-    
-    if (strategy === "SELL PUT") {
-        maxProfit = premium; maxLoss = strike - premium; breakeven = strike - premium;
-    } else if (strategy === "BUY PUT") {
-        maxProfit = strike - premium; maxLoss = premium; breakeven = strike - premium;
-    } else if (strategy === "SELL CALL") {
-        maxProfit = premium; maxLoss = Infinity; breakeven = strike + premium;
-    } else if (strategy === "BUY CALL") {
-        maxProfit = Infinity; maxLoss = premium; breakeven = strike + premium;
-    }
-
-    document.getElementById('resMaxProfit').innerText = maxProfit === Infinity ? "无限" : `$${maxProfit.toFixed(2)}`;
-    document.getElementById('resMaxLoss').innerText = maxLoss === Infinity ? "无限" : `$${maxLoss.toFixed(2)}`;
-    document.getElementById('resBreakeven').innerText = `$${breakeven.toFixed(2)}`;
-
-    // 绘制曲线
-    const prices = [], pnls = [], pointColors = [];
-    const minPrice = spot * 0.5, maxPrice = spot * 1.5;
-    const step = (maxPrice - minPrice) / 50;
-
-    for(let p = minPrice; p <= maxPrice; p += step) {
-        prices.push(p.toFixed(2));
-        let pnl = 0;
-        if (strategy === "SELL PUT") pnl = premium - Math.max(0, strike - p);
-        else if (strategy === "BUY PUT") pnl = Math.max(0, strike - p) - premium;
-        else if (strategy === "SELL CALL") pnl = premium - Math.max(0, p - strike);
-        else if (strategy === "BUY CALL") pnl = Math.max(0, p - strike) - premium;
-        pnls.push(pnl.toFixed(2));
-    }
-
-    const ctx = document.getElementById('sandboxChart').getContext('2d');
-    if(sandboxChartObj) sandboxChartObj.destroy();
-    
-    sandboxChartObj = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: prices,
-            datasets: [{
-                label: '到期盈亏 (PnL)',
-                data: pnls,
-                borderColor: '#1f2b52',
-                borderWidth: 2,
-                pointRadius: 0,
-                segment: {
-                    borderColor: ctx => ctx.p1DataIndex != undefined && pnls[ctx.p1DataIndex] >= 0 ? '#1c7a4c' : '#b23b2e'
-                }
-            }]
-        },
-        options: {
-            responsive: true, maintainAspectRatio: false,
-            plugins: { legend: { display: false } },
-            scales: {
-                x: { title: { display: true, text: '正股价格' } },
-                y: { title: { display: true, text: '盈亏 ($)' } }
-            }
-        },
-        plugins: [{
-            id: 'horizontalLine',
-            beforeDraw: chart => {
-                const { ctx, chartArea: { left, right }, scales: { y } } = chart;
-                ctx.save(); ctx.beginPath();
-                ctx.moveTo(left, y.getPixelForValue(0));
-                ctx.lineTo(right, y.getPixelForValue(0));
-                ctx.strokeStyle = '#696d76'; ctx.stroke(); ctx.restore();
-            }
-        }]
-    });
-}
-
 const SUPABASE_URL = 'https://rhielbkvhgqbthcgztci.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_7_S0qA1oh31fHiihhx07PA_1LPAighW';
+window.SUPABASE_ANON_KEY = SUPABASE_ANON_KEY;
 const ADMIN_EMAIL = 'xxj8166@gmail.com';
 let isAdmin = false;
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -443,7 +328,8 @@ async function checkSession() {
           isAdmin = false; document.getElementById('modeTitle').innerText = "🔥 资金与策略模型已解锁"; document.getElementById('modeDesc').innerText = "您已安全登录，当前正在展示最新的高级量化策略信号。";
       }
       authBtn.innerHTML = "🔓 退出账号"; document.getElementById('modeTitle').style.color = "var(--red)"; document.getElementById('liveStatusText').innerText = "连接云端数据库";
-  } else { isAdmin = false; authBtn.innerHTML = "🔐 登录私有看板"; }
+      if (window.OptionV2) window.OptionV2.loadPrivatePositions();
+  } else { isAdmin = false; authBtn.innerHTML = "🔐 登录私有看板"; if (window.OptionV2) window.OptionV2.loadPrivatePositions(); }
   fetchAndRenderTargets();
 }
 
@@ -487,4 +373,4 @@ function fetchLiveCNHK() {
   document.head.appendChild(script);
 }
 window.addEventListener('load', () => { setInterval(fetchLiveCNHK, 5000); });
-</script></body></html>
+</script><script src="assets/options-v2.js?v=2.0"></script></body></html>

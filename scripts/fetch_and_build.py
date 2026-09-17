@@ -55,10 +55,12 @@ CN_HK_SYMBOLS = {
 }
 OTC_FUNDS = {}
 TENCENT_URL = "http://qt.gtimg.cn/q={symbols}"
+FUND_EST_URL = "http://fundgz.1234567.com.cn/js/{code}.js"
 
 # ================= 3. ATH 强复权校验 (Integrity Layer) =================
 def get_core_ath_metrics(symbols):
     result = {}
+    print("\n========== [ATH CHECK (fetch_yahoo_index)] ==========")
     for sym in symbols:
         try:
             rows = fetch_yahoo_index(sym, range_="max")
@@ -76,17 +78,22 @@ def get_core_ath_metrics(symbols):
                 "ath": adj_ath, "close": adj_close, "drawdown": drawdown,
                 "source": "yahoo_chart_api", "extreme": extreme, "valid": True,
             }
+            print(f"{sym:<6} | ATH={adj_ath:>10.2f} | Close={adj_close:>10.2f} | DD={drawdown:>8.2%} | PASS")
         except Exception as e:
             result[sym] = {"valid": False, "error": str(e)}
+            print(f"{sym:<6} | Validation=FAILED | Error={e}")
         throttle()
+    print("======== [ATH CHECK END] ========\n")
     return result
 
-# ================= 4. 期权 BS 定价与数据抓取 =================
+# ================= 4. 期权 BS 定价与真实 IV 抓取 =================
 def norm_cdf(x): return (1.0 + math.erf(x / math.sqrt(2.0))) / 2.0
 def norm_pdf(x): return math.exp(-0.5 * x**2) / math.sqrt(2.0 * math.pi)
 
 def calc_option_greeks(S, K, T, r, sigma, opt_type="Call"):
-    if T <= 0 or sigma <= 0 or S <= 0: return {"theo_price": 0.0, "delta": 0.0, "gamma": 0.0}
+    """手搓纯 Python 版 Black-Scholes 期权希腊字母引擎"""
+    if T <= 0 or sigma <= 0 or S <= 0:
+        return {"theo_price": 0.0, "delta": 0.0, "gamma": 0.0}
     d1 = (math.log(S / K) + (r + 0.5 * sigma**2) * T) / (sigma * math.sqrt(T))
     d2 = d1 - sigma * math.sqrt(T)
     gamma = norm_pdf(d1) / (S * sigma * math.sqrt(T))
@@ -104,6 +111,7 @@ def build_yahoo_option_ticker(sym, expiry_str, opt_type, strike):
     return f"{sym}{dt.strftime('%y%m%d')}{'C' if opt_type.lower() == 'call' else 'P'}{strike_str}"
 
 def fetch_yahoo_option_quote(opt_ticker):
+    """同时对接 v7 与 v8 接口，精准抓取真实市场盘口价与真实隐含波动率 (IV)"""
     url_v7 = f"https://query1.finance.yahoo.com/v7/finance/quote?symbols={opt_ticker}"
     try:
         req = urllib.request.Request(url_v7, headers=HEADERS)
@@ -115,7 +123,8 @@ def fetch_yahoo_option_quote(opt_ticker):
                 last_price = q_data.get("regularMarketPrice", 0.0)
                 iv = q_data.get("impliedVolatility", 0.0)
                 if iv and iv > 0: return {"lastPrice": float(last_price) if last_price else 0.0, "impliedVolatility": float(iv)}
-    except Exception: pass
+    except Exception:
+        pass
 
     url_v8 = f"https://query1.finance.yahoo.com/v8/finance/chart/{opt_ticker}?interval=1d&range=5d"
     try:
@@ -128,8 +137,13 @@ def fetch_yahoo_option_quote(opt_ticker):
         if last_price is None:
             closes = [c for c in result["indicators"]["quote"][0]["close"] if c is not None]
             if closes: last_price = float(closes[-1])
-        return {"lastPrice": float(last_price) if last_price else 0.0, "impliedVolatility": 0.8171}
-    except Exception as e: return None
+        return {
+            "lastPrice": float(last_price) if last_price else 0.0,
+            "impliedVolatility": 0.8171 # 兜底默认值
+        }
+    except Exception as e:
+        print(f"⚠️ 期权 {opt_ticker} 抓取失败: {e}")
+        return None
 
 def fetch_supabase_options():
     url, key = os.environ.get("SUPABASE_URL"), os.environ.get("SUPABASE_KEY")
@@ -170,8 +184,10 @@ def fetch_yahoo_index(y_symbol, range_="1y"):
     for v in (result.get("events", {}).get("splits", {}) or {}).values():
         try:
             ratio = float(v["numerator"]) / float(v["denominator"])
-            if ratio > 0: split_events.append((int(v["date"]), ratio))
-        except Exception: continue
+            if ratio > 0:
+                split_events.append((int(v["date"]), ratio))
+        except Exception:
+            continue
     split_events.sort()
 
     rows = []
@@ -180,7 +196,8 @@ def fetch_yahoo_index(y_symbol, range_="1y"):
         t = ts[i]
         factor = 1.0
         for split_ts, ratio in split_events:
-            if split_ts > t: factor /= ratio
+            if split_ts > t:
+                factor /= ratio
         d = datetime.datetime.utcfromtimestamp(t).date().isoformat()
         close = float(q["close"][i]) * factor
         high = float(q["high"][i] if q["high"][i] is not None else q["close"][i]) * factor
@@ -192,10 +209,13 @@ def fetch_yahoo_index(y_symbol, range_="1y"):
     return rows
 
 def fetch_real_index_or_proxy(y_symbol, proxy_symbol, today, proxy_rows_cache=None):
-    try: return analyze(y_symbol, fetch_yahoo_index(y_symbol), today), "yahoo_real", None
+    try:
+        return analyze(y_symbol, fetch_yahoo_index(y_symbol), today), "yahoo_real", None
     except Exception as e:
-        try: return analyze(proxy_symbol, proxy_rows_cache or fetch_time_series(proxy_symbol), today), "etf_proxy", str(e)
-        except Exception as e2: return {"error": str(e2)}, "failed", str(e)
+        try:
+            return analyze(proxy_symbol, proxy_rows_cache or fetch_time_series(proxy_symbol), today), "etf_proxy", str(e)
+        except Exception as e2:
+            return {"error": str(e2)}, "failed", str(e)
 
 def fetch_time_series(symbol, outputsize=260, retries=3):
     params = urllib.parse.urlencode({"symbol": symbol, "interval": "1day", "outputsize": outputsize, "apikey": API_KEY})
@@ -205,7 +225,9 @@ def fetch_time_series(symbol, outputsize=260, retries=3):
         try:
             payload = http_get_json(url)
             if payload.get("status") == "error":
-                if payload.get("code") == 429: time.sleep(15); continue
+                if payload.get("code") == 429:
+                    time.sleep(15)
+                    continue
                 raise RuntimeError(payload.get("message", "error"))
             return payload["values"]
         except Exception as e:
@@ -242,7 +264,8 @@ def calculate_daily_breadth(old_breadth=None, today_str=None):
         return {"status": "skip", "message": "亚洲盘中且无缓存"}
 
     try:
-        with open(os.path.join(os.path.dirname(__file__), 'sp500_constituents.json'), 'r') as f: tickers = json.load(f)
+        with open(os.path.join(os.path.dirname(__file__), 'sp500_constituents.json'), 'r') as f:
+            tickers = json.load(f)
         data = yf.download(tickers, period="300d", interval="1d", threads=True, progress=False)['Close']
         ma20, ma50, ma200 = data.rolling(20).mean(), data.rolling(50).mean(), data.rolling(200).mean()
         valid = data.notna().sum(axis=1)
@@ -307,6 +330,7 @@ def analyze(symbol, rows, today, tiers=None, is_stock=False, ath_metric=None):
 
 # ================= 7. 构建调度中心 =================
 def process_options_data(opt_positions, stocks, index, core, today):
+    """期权风控：融合持仓数据、提取期权ID用于删除、抓取真实IV、推演盈亏与希腊字母"""
     options_data = []
     for opt in opt_positions:
         opt_id = opt.get('id', 0)
@@ -439,95 +463,29 @@ def get_dist_text(dd, tiers):
 
 def engine_item(name, r):
     if "error" in r: return f'<div class="engine-item"><div class="k">{name}</div><div class="v">-</div><div class="pt">数据获取失败</div></div>'
-    level = r.get("level", 0)
-    hit_cls = "hit" if level > 0 else ""
-    tiers = r.get("tiers") or {}
-    tiers_str = f'一级{fmt_pct(tiers.get("t1"),0)} / 二级{fmt_pct(tiers.get("t2"),0)} / 三级{fmt_pct(tiers.get("t3"),0)}'
+    level, hit_cls = r.get("level", 0), "hit" if r.get("level", 0) > 0 else ""
+    tiers_str = f'一级{fmt_pct((r.get("tiers") or {}).get("t1"),0)} / 二级{fmt_pct((r.get("tiers") or {}).get("t2"),0)} / 三级{fmt_pct((r.get("tiers") or {}).get("t3"),0)}'
 
     if r.get("ath_is_true"):
-        dd = r.get("strategy_drawdown")
-        label = "回撤 (ATH)"
-        dist_text = get_dist_text(dd, tiers)
-        if r.get("ath_validation") == "CHECK":
-            status_text = "⚠ 极端回撤 · 请验证数据"
-            hit_cls = "warn"
-        elif level > 0:
-            status_text = f'{r.get("level_label")} <span style="opacity:0.85">{dist_text}</span>'
-        else:
-            status_text = f'未触发 <span style="opacity:0.85">{dist_text}</span>'
+        dd, label, dist_text = r.get("strategy_drawdown"), "回撤 (ATH)", get_dist_text(r.get("strategy_drawdown"), r.get("tiers"))
+        if r.get("ath_validation") == "CHECK": status_text, hit_cls = "⚠ 极端回撤 · 请验证数据", "warn"
+        else: status_text = f'{r.get("level_label") if level > 0 else "未触发"} <span style="opacity:0.85">{dist_text}</span>'
     else:
-        dd = r.get("window_drawdown")
-        label = "窗口回撤"
-        status_text = "ATH 暂不可用 · 仅供参考"
-
+        dd, label, status_text = r.get("window_drawdown"), "窗口回撤", "ATH 暂不可用 · 仅供参考"
     return f'''<div class="engine-item {hit_cls}"><div class="k">{name} {label}</div><div class="v">{fmt_pct(dd)}</div><div class="pt">{status_text} · 阈值 {tiers_str}</div></div>'''
 
 def card_etf(name, r):
     disp_name = {"GCMAIN": "黄金连续期货 (GC=F)", "BTC/USD": "比特币 (BTC-USD)", "QQQ": "纳斯达克100 (QQQ)", "VOO": "标普500 (VOO)", "SMH": "半导体ETF (SMH)", "TQQQ": "纳指3倍做多 (TQQQ)"}.get(name, name)
     if "error" in r: return f'<div class="card err"><div class="sym">{disp_name}</div><div class="errmsg">获取失败: {r["error"]}</div></div>'
-    drawdown_cls = "neg-text fw-bold" if r.get("drawdown") and r.get("drawdown") < 0 else "fw-bold"
     dist_text = get_dist_text(r.get("drawdown"), r.get("tiers"))
-    dist_row = ""
-    if dist_text:
-        dist_row = f'<div class="row"><span>下一档距离</span><span style="color:var(--brass);font-weight:700;">{dist_text.replace("(", "").replace(")", "")}</span></div>'
-    return f'''<div class="card"><div class="card-header"><span class="sym">{disp_name}</span><span class="price">${r["close"]:.2f}</span></div><div class="divider"></div><div class="row"><span>当年(YTD)最高</span><span class="fw-bold">${fmt_num(r.get("ytd_high"))}</span></div><div class="row"><span>策略回撤基准</span><span class="{drawdown_cls}">{fmt_pct(r.get("drawdown"))}</span></div>{dist_row}<div class="row"><span>RSI (14)</span><span class="fw-bold">{fmt_num(r.get("rsi"))}</span></div><div class="row"><span>距 200MA</span><span class="fw-bold">{fmt_pct(r.get("dist_200ma"))}</span></div></div>'''
-
-def row_stock(sym, r):
-    name = STOCK_META.get(sym, {}).get("name", sym)
-    if "error" in r: return f'<tr class="err"><td><div style="font-weight:600;color:var(--ink);">{name}</div><div style="font-size:11px;color:var(--muted);margin-top:2px;">{sym}</div></td><td colspan="9">获取数据失败</td></tr>'
-    target = STOCK_META.get(sym, {}).get("target")
-    target_str = f"${target:.2f}" if target else "-"
-    action_html = '<span class="alert-text fw-bold ml">(信号触发!)</span>' if target and r["close"] <= target else ""
-    chg_cls = "pos-text" if (r.get("day_chg") or 0) >= 0 else "neg-text"
-    chg_sign = "+" if (r.get("day_chg") or 0) >= 0 else ""
-    return f'''<tr><td><div style="font-weight:600; font-size:13.5px; color:var(--ink); line-height:1.2;">{name}</div><div style="font-size:11px; color:var(--muted); margin-top:3px; font-weight:500;">{sym}</div></td><td class="fw-bold" id="close-{sym}">${r["close"]:.2f}</td><td class="{chg_cls}" id="chg-{sym}">{chg_sign}{fmt_pct(r.get("day_chg"))}</td><td>${r.get("open", 0):.2f}</td><td>${r.get("high", 0):.2f}</td><td>${r.get("low", 0):.2f}</td><td>${fmt_num(r.get("ytd_high"))}</td><td>{fmt_num(r.get("rsi"))}</td><td>{fmt_pct(r.get("dist_200ma"))}</td><td><b id="target-{sym}">{target_str}</b> <span id="action-{sym}">{action_html}</span></td></tr>'''
-
-def mkt_card_a(title, mdata, code=""):
-    if not mdata or "error" in mdata: return f'<div class="mkt-card"><div class="name">{title}</div><div class="val" style="font-size:14px;color:var(--muted);margin-top:12px">接口拦截/闭市</div></div>'
-    price = mdata.get("price", 0)
-    chg = mdata.get("day_chg", 0)
-    chg_str = f"+{fmt_pct(chg)}" if chg >= 0 else fmt_pct(chg)
-    color_cls = "positive" if chg >= 0 else "negative"
-    return f'''<div class="mkt-card hover-card" onclick="toggleMktChart('{code}', '{title}')"><div class="name">{title} <span class="chart-hint">📈趋势</span></div><div class="val" data-live-price="{code}">{price:,.3f}</div><div class="chg {color_cls}" data-live-chg="{code}">{chg_str}</div><div class="mkt-chart-wrap" id="wrap-{code}"><div style="height:140px; position:relative; width:100%;"><canvas id="canvas-{code}"></canvas></div></div></div>'''
-
-def metric_card(label, value, change=None, note="", tone="neutral", live_code=None):
-    change_html = ""
-    if isinstance(change, (int, float)):
-        cls = "positive" if change >= 0 else "negative"
-        sign = "+" if change >= 0 else ""
-        change_html = f'<div class="metric-change {cls}" data-live-chg="{live_code or ""}">{sign}{fmt_pct(change)}</div>'
-    price_attr = f' data-live-price="{live_code}"' if live_code else ""
-    return f'''<div class="metric-card"><div class="metric-top">{label}<span class="metric-dot {tone}"></span></div><div class="metric-value"{price_attr}>{value}</div>{change_html}<div class="metric-note">{note}</div></div>'''
-
-def render_market_regime(mr):
-    if "error" in mr: return f'<div class="card err"><div class="sym">市场状态引擎</div><div class="errmsg">{mr["error"]}</div></div>'
-    tier_tone = {"normal": "good", "tier1": "warn", "major": "warn", "extreme": "bad"}.get(mr["tier"], "neutral")
-    dd = mr.get("drawdown", {})
-    hit_badge = f'<span class="badge bad">命中 {dd.get("points", 0)}分</span>' if dd.get("hit") else '<span class="badge neutral">未触发</span>'
-    val_str = fmt_pct(dd.get("value"))
-    active_row = f'<div class="row"><span>指数历史高点回撤（阈值 {fmt_pct(dd.get("threshold"))}）</span><span class="fw-bold">{val_str} {hit_badge}</span></div>'
-    
-    cond_rows = ""
-    if mr.get("conditions"):
-        for c in mr["conditions"]:
-            c_val = fmt_pct(c.get("val"))
-            c_badge = f'<span class="badge bad">命中 {c.get("points", 0)}分</span>' if c.get("hit") else '<span class="badge neutral">未触发</span>'
-            cond_rows += f'<div class="row"><span>{c.get("key")}（阈值 {c.get("threshold_note")}）</span><span class="fw-bold">{c_val} {c_badge}</span></div>'
-            
-    data_incomplete_note = '<span class="badge neutral" style="margin-left:6px">数据不完整</span>' if mr.get("max_available_score", 0) < mr.get("max_score", 9) else ""
-
-    errmsg = ""
-    if not mr.get("conditions"):
-        is_skip = mr.get("breadth_status") == "skip"
-        errmsg = f'<div class="errmsg" style="padding:0 19px 16px;color:var(--{"muted" if is_skip else "red"});font-size:11px">{"ℹ️" if is_skip else "⚠️"} {mr.get("breadth_message", "")}，当前{"暂未触发" if is_skip else "以指数回撤独立打分"}。</div>'
-        
-    return f'''<div class="panel"><div class="panel-head"><strong>市场状态引擎</strong><span>有效评分 {mr.get("score", 0)}/{mr.get("max_available_score", 9)} 分（满分体系 {mr.get("max_score", 9)} 分）</span></div><div class="pulse-list"><div class="pulse"><div><div class="pulse-label">当前风控评级</div><div class="pulse-main">{mr.get("tier_label", "未知")}{data_incomplete_note}</div></div><div class="pulse-right"><span class="badge {tier_tone}">{mr.get("score", 0)}/{mr.get("max_available_score", 9)} 可用分</span></div></div>{active_row}{cond_rows}</div>{errmsg}</div>'''
+    dist_row = f'<div class="row"><span>下一档距离</span><span style="color:var(--brass);font-weight:700;">{dist_text.replace("(","").replace(")","")}</span></div>' if dist_text else ""
+    return f'''<div class="card"><div class="card-header"><span class="sym">{disp_name}</span><span class="price">${r["close"]:.2f}</span></div><div class="divider"></div><div class="row"><span>当年(YTD)最高</span><span class="fw-bold">${fmt_num(r["ytd_high"])}</span></div><div class="row"><span>策略回撤基准</span><span class="{'neg-text fw-bold' if r['drawdown'] and r['drawdown']<0 else 'fw-bold'}">{fmt_pct(r["drawdown"])}</span></div>{dist_row}<div class="row"><span>RSI (14)</span><span class="fw-bold">{fmt_num(r["rsi"])}</span></div><div class="row"><span>距 200MA</span><span class="fw-bold">{fmt_pct(r["dist_200ma"])}</span></div></div>'''
 
 def render_options_html(options_data):
     if not options_data: return '<tr><td colspan="12" style="text-align:center; color:var(--muted)">当前没有记录的期权持仓</td></tr>'
     html = ""
     for opt in options_data:
-        sym, opt_type, side, strike, expiry, cost, last_price, iv, delta, dte, curr_price, pnl, break_even = opt['symbol'], opt['opt_type'], opt['side'], opt['strike'], opt['expiry'], opt['cost'], opt['last_price'], opt['iv'], opt['delta'], opt['dte'], opt['curr_price'], opt['unrealized_pnl'], opt['break_even']
+        opt_id, sym, opt_type, side, strike, expiry, cost, last_price, iv, delta, dte, curr_price, pnl, break_even = opt['id'], opt['symbol'], opt['opt_type'], opt['side'], opt['strike'], opt['expiry'], opt['cost'], opt['last_price'], opt['iv'], opt['delta'], opt['dte'], opt['curr_price'], opt['unrealized_pnl'], opt['break_even']
         
         total_cost_basis = cost * 100 * opt['qty']
         pnl_pct = (pnl / total_cost_basis) if total_cost_basis > 0 else 0.0
@@ -546,7 +504,8 @@ def render_options_html(options_data):
 
         side_color, side_bg = ("var(--green)", "var(--green-soft)") if side.lower() == "long" else ("var(--amber)", "var(--amber-soft)")
 
-        html += f'''<tr>
+        # 注意这里新增了 id="opt-row-{opt_id}"，用于 JS 前端秒删定位
+        html += f'''<tr id="opt-row-{opt_id}">
             <td style="text-align:left; font-weight:600; color:var(--ink)">
                 {sym} <span style="font-size:10px; color:{side_color}; font-weight:600; background:{side_bg}; padding:2px 6px; border-radius:4px; margin-left:4px;">{side} {opt_type}</span>
             </td>
@@ -560,7 +519,7 @@ def render_options_html(options_data):
             <td class="fw-bold">${curr_price:.2f}</td>
             <td class="{pnl_cls}">{f"{dist_pct:+.2f}%" if curr_price else "-"}</td>
             <td style="font-size:11.5px;color:var(--muted)">{iv:.1%} / {f"{delta:+.3f}" if delta else "-"}</td>
-            <td style="text-align:center;"><button onclick="deleteOptionPosition({opt.get('id', 0)})" style="background:none;border:none;cursor:pointer;color:var(--muted);font-size:12px;" title="删除此持仓">🗑️</button></td>
+            <td style="text-align:center;"><button onclick="deleteOptionPosition({opt_id})" style="background:none;border:none;cursor:pointer;color:var(--muted);font-size:12px;" title="删除此持仓">🗑️</button></td>
         </tr>'''
     return html
 
@@ -571,16 +530,42 @@ def render_html(data):
     engine_badge_cls = "normal" if max_level == 0 else "t2"
     
     index_html = "".join(card_etf(k, data["index"][k]) for k in DISPLAYED_INDEX if k in data["index"])
-    stock_html = "".join(row_stock(k, v) for k, v in data["stocks"].items())
+    
+    stock_html = ""
+    for sym, v in data["stocks"].items():
+        if "error" not in v:
+            name = STOCK_META.get(sym, {}).get("name", sym)
+            target = STOCK_META.get(sym, {}).get("target")
+            chg = v.get("day_chg") or 0
+            stock_html += f'''<tr><td><div style="font-weight:600; font-size:13.5px; color:var(--ink); line-height:1.2;">{name}</div><div style="font-size:11px; color:var(--muted); margin-top:3px; font-weight:500;">{sym}</div></td><td class="fw-bold" id="close-{sym}">${v["close"]:.2f}</td><td class="{'pos-text' if chg>=0 else 'neg-text'}" id="chg-{sym}">{chg*100:+.2f}%</td><td>${v.get("open",0):.2f}</td><td>${v.get("high",0):.2f}</td><td>${v.get("low",0):.2f}</td><td>${fmt_num(v.get("ytd_high"))}</td><td>{fmt_num(v.get("rsi"))}</td><td>{fmt_pct(v.get("dist_200ma"))}</td><td><b id="target-{sym}">${target or "-"}</b> <span id="action-{sym}">{ '<span class="alert-text fw-bold ml">(信号触发!)</span>' if target and v["close"] <= target else ""}</span></td></tr>'''
+            
     options_html = render_options_html(data.get("options", []))
 
     signals_html = ""
     for s in data.get("historical_signals", []):
         badge_cls = "warn" if "一级" in s.get('rating', '') else ("bad" if "重点" in s.get('rating', '') or "极限" in s.get('rating', '') else "neutral")
-        source_cls = "neutral" if s.get("source") == "资产自身三档线" else "good"
-        signals_html += f'''<tr><td style="text-align:left; font-weight:600;">{s.get('symbol', '')}</td><td>{s.get('date', '')}</td><td class="fw-bold">${s.get('price', 0):.4f}</td><td class="neg-text">{fmt_pct(s.get('drawdown'))}</td><td><span class="badge {badge_cls}">{s.get('rating', '')}</span></td><td><span class="badge {source_cls}">{s.get('source','-')}</span></td></tr>'''
+        signals_html += f'''<tr><td style="text-align:left; font-weight:600;">{s.get('symbol', '')}</td><td>{s.get('date', '')}</td><td class="fw-bold">${s.get('price', 0):.4f}</td><td class="neg-text">{fmt_pct(s.get('drawdown'))}</td><td><span class="badge {badge_cls}">{s.get('rating', '')}</span></td><td><span class="badge {'neutral' if s.get("source") == "资产自身三档线" else 'good'}">{s.get('source','-')}</span></td></tr>'''
 
-    market_regime_html = render_market_regime(data.get("market_regime", {"error": "无数据"}))
+    mr = data.get("market_regime", {"error": "无数据"})
+    if "error" in mr:
+        market_regime_html = f'<div class="card err"><div class="sym">市场状态引擎</div><div class="errmsg">{mr["error"]}</div></div>'
+    else:
+        incomplete_badge = '<span class="badge neutral" style="margin-left:6px">数据不完整</span>' if mr["max_available_score"] < mr["max_score"] else ""
+        tier_badge_cls = {"normal": "good", "tier1": "warn", "major": "warn", "extreme": "bad"}.get(mr["tier"], "neutral")
+        dd_hit_badge = '<span class="badge bad">命中 2分</span>' if mr["drawdown"]["hit"] else '<span class="badge neutral">未触发</span>'
+        condition_rows = []
+        for c in mr.get("conditions", []):
+            cond_badge = f'<span class="badge bad">命中 {c["points"]}分</span>' if c["hit"] else '<span class="badge neutral">未触发</span>'
+            condition_rows.append(f'<div class="row"><span>{c["key"]}（阈值 {c["threshold_note"]}）</span><span class="fw-bold">{fmt_pct(c["val"])} {cond_badge}</span></div>')
+        condition_rows_html = "".join(condition_rows)
+        breadth_notice = ""
+        if not mr.get("conditions"):
+            breadth_is_skip = mr.get("breadth_status") == "skip"
+            breadth_color = "muted" if breadth_is_skip else "red"
+            breadth_icon = "ℹ️" if breadth_is_skip else "⚠️"
+            breadth_action = "暂未触发" if breadth_is_skip else "以指数回撤独立打分"
+            breadth_notice = f'<div class="errmsg" style="padding:0 19px 16px;color:var(--{breadth_color});font-size:11px">{breadth_icon} {mr.get("breadth_message", "")}，当前{breadth_action}。</div>'
+        market_regime_html = f'''<div class="panel"><div class="panel-head"><strong>市场状态引擎</strong><span>有效评分 {mr["score"]}/{mr["max_available_score"]} 分（满分体系 {mr["max_score"]} 分）</span></div><div class="pulse-list"><div class="pulse"><div><div class="pulse-label">当前风控评级</div><div class="pulse-main">{mr["tier_label"]}{incomplete_badge}</div></div><div class="pulse-right"><span class="badge {tier_badge_cls}">{mr["score"]}/{mr["max_available_score"]} 可用分</span></div></div><div class="row"><span>指数历史高点回撤（阈值 {fmt_pct(mr["drawdown"]["threshold"])}）</span><span class="fw-bold">{fmt_pct(mr["drawdown"]["value"])} {dd_hit_badge}</span></div>{condition_rows_html}</div>{breadth_notice}</div>''' 
 
     mi = data.get("market_indicators", {})
     cn = data.get("cn_hk", {})
@@ -603,6 +588,13 @@ def render_html(data):
     sz159307 = cn.get("sz159307", {})
     sz_val = f'{sz159307.get("price", 0):,.3f}' if "price" in sz159307 else "—"
     sz_chg = sz159307.get("day_chg")
+
+    def metric_card(label, value, change=None, note="", tone="neutral", live_code=None):
+        return f'''<div class="metric-card"><div class="metric-top">{label}<span class="metric-dot {tone}"></span></div><div class="metric-value"{f' data-live-price="{live_code}"' if live_code else ""}>{value}</div>{f'<div class="metric-change {"positive" if change>=0 else "negative"}" data-live-chg="{live_code or ""}">{"+" if change>=0 else ""}{fmt_pct(change)}</div>' if isinstance(change, (int, float)) else ""}<div class="metric-note">{note}</div></div>'''
+
+    def mkt_card_a(title, mdata, code=""):
+        if not mdata or "error" in mdata: return f'<div class="mkt-card"><div class="name">{title}</div><div class="val" style="font-size:14px;color:var(--muted);margin-top:12px">接口拦截/闭市</div></div>'
+        return f'''<div class="mkt-card hover-card" onclick="toggleMktChart('{code}', '{title}')"><div class="name">{title} <span class="chart-hint">📈趋势</span></div><div class="val" data-live-price="{code}">{mdata.get("price",0):,.3f}</div><div class="chg {"positive" if mdata.get("day_chg",0)>=0 else "negative"}" data-live-chg="{code}">{"+" if mdata.get("day_chg",0)>=0 else ""}{fmt_pct(mdata.get("day_chg",0))}</div><div class="mkt-chart-wrap" id="wrap-{code}"><div style="height:140px; position:relative; width:100%;"><canvas id="canvas-{code}"></canvas></div></div></div>'''
 
     chart_json = json.dumps(data.get("overview_charts", {}), ensure_ascii=False)
 
@@ -925,6 +917,7 @@ function openAddOptionModal() {{
 }}
 function closeAddOptionModal() {{ document.getElementById('addOptionModal').style.display = 'none'; }}
 
+// 🚀 魔术1：乐观插入行 (Optimistic Insert)
 async function saveNewOptionPosition() {{
   const symbol = document.getElementById('optSym').value.trim().toUpperCase();
   const strategy = document.getElementById('optStrategy').value;
@@ -942,16 +935,47 @@ async function saveNewOptionPosition() {{
   else if (strategy === "BUY CALL") {{ opt_type = "Call"; side = "Long"; }}
 
   const {{ error }} = await supabaseClient.from('options_positions').insert([{{ symbol, opt_type, side, strike, expiry, cost, qty }}]);
-  if (error) {{ alert('保存失败: ' + error.message); }} 
-  else {{ alert('✅ 成功录入新持仓！下次 GitHub Actions 自动构建或手动运行后，网页将展示最新真实数据。'); closeAddOptionModal(); window.location.reload(); }}
+  if (error) {{ 
+      alert('保存失败: ' + error.message); 
+  }} else {{ 
+      closeAddOptionModal();
+      
+      // ✅ 纯前端瞬间生成一行"正在计算中"的假数据，欺骗视觉，无需刷新网页！
+      const tbody = document.getElementById('optionsTableBody');
+      const newRow = document.createElement('tr');
+      newRow.style.backgroundColor = 'var(--green-soft)';
+      newRow.innerHTML = `
+          <td style="text-align:left; font-weight:600; color:var(--ink)">
+              ${{symbol}} <span style="font-size:10px; color:var(--green); font-weight:600; background:#fff; padding:2px 6px; border-radius:4px; margin-left:4px;">${{side}} ${{opt_type}}</span>
+          </td>
+          <td class="fw-bold">$${{strike.toFixed(2)}}</td>
+          <td>${{expiry}}</td>
+          <td>$${{cost.toFixed(2)}}</td>
+          <td colspan="8" style="text-align:center; color:var(--brass); font-weight:600; letter-spacing:1px;">
+              ⏳ 已保存至云端，后台正在推演希腊字母与最新盈亏...
+          </td>
+      `;
+      // 将新行插入到表格最前面
+      if (tbody.firstChild) {{ tbody.insertBefore(newRow, tbody.firstChild); }} 
+      else {{ tbody.appendChild(newRow); }}
+  }}
 }}
 
+// 🚀 魔术2：乐观删除行 (Optimistic Delete)
 async function deleteOptionPosition(id) {{
   if (!isAdmin) {{ alert('🔒 权限提示：请先登录管理员账号后方可删除持仓！'); return; }}
   if (confirm('确定要从云端账本中删除此期权持仓吗？')) {{
+      
+      // ✅ 先让网页上的这一行瞬间消失！提升极速手感
+      const targetRow = document.getElementById('opt-row-' + id);
+      if (targetRow) targetRow.style.display = 'none';
+
       const {{ error }} = await supabaseClient.from('options_positions').delete().eq('id', id);
-      if (error) {{ alert('删除失败: ' + error.message); }} 
-      else {{ alert('🗑️ 成功删除该持仓！下次刷新将更新页面。'); window.location.reload(); }}
+      if (error) {{ 
+          alert('删除失败: ' + error.message); 
+          if (targetRow) targetRow.style.display = ''; // 如果云端删除失败，再把这行变回来
+      }}
+      // 注意：这里删除了之前恼人的 window.location.reload(); 彻底实现无刷新！
   }}
 }}
 

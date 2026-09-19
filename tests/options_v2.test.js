@@ -16,4 +16,11 @@ const covered=globalThis.OptionV2.evaluate({...base,strategy:'COVERED_CALL',stri
 assert(Number.isFinite(covered.maxLoss),'Covered Call cannot be treated as naked unlimited loss');
 assert(covered.grossPnl>0,'Covered Call must include the stock leg');
 
+const held={symbol:'LITE',expiry:'2026-11-20',opt_type:'Put',side:'Short',strike:660,cost:33.48,qty:1};
+assert.strictEqual(globalThis.OptionV2.occSymbol(held),'LITE261120P00660000','OCC symbol must preserve strike ×1000');
+const heldMetrics=globalThis.OptionV2.positionMetrics(held,{bid:34.9,ask:43.2,mid:39.05,last:40});
+assert(Math.abs(heldMetrics.mark-43.2)<.001,'Short position must use Ask as conservative close price');
+assert(Math.abs(heldMetrics.pnl+972)<.01,'Existing position P&L must use saved entry cost ×100');
+assert(Math.abs(heldMetrics.breakeven-626.52)<.001,'Saved short put break-even must use actual entry cost');
+
 console.log('options_v2.test.js: all assertions passed');

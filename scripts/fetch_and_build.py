@@ -711,7 +711,7 @@ def render_html(data):
 <div id="tab-stocks" class="tab-pane"><section class="hero"><div><h1>个股观察池</h1><p>包含中英文名称对照及核心技术指标监控。</p></div></section><section class="section"><div class="table-container"><table><thead><tr><th>名称代码</th><th>最新价</th><th>涨跌幅</th><th>开盘</th><th>最高</th><th>最低</th><th>当年(YTD)最高</th><th>RSI(14)</th><th>距200MA</th><th>策略参考价</th></tr></thead><tbody id="stocksTableBody">{stock_html}</tbody></table></div></section></div>
 
 <div id="tab-options" class="tab-pane">
-<section class="hero"><div><h1>期权持仓监控 V2.0</h1><p>登录后读取私有持仓；盘中报价、IV与Greeks由独立行情接口更新。未配置实时接口时明确显示不可用，不再使用固定假IV。</p></div></section>
+<section class="hero"><div><h1>期权持仓监控 V2.1</h1><p>登录后读取私有持仓；点击每行“↻”直接读取该合约报价并按真实建仓成本计算浮动盈亏，点击“推演”可带入同一仓位分析下周情景。未取得真实IV时明确显示不可用，不使用固定假IV。</p></div></section>
 <section class="section">
     <div style="margin-bottom: 12px; display: flex; justify-content: flex-end;">
         <button onclick="openAddOptionModal()" style="background:var(--brass); color:#fff; border:none; padding:8px 16px; border-radius:6px; cursor:pointer; font-weight:600; font-size:12.5px; box-shadow:0 4px 10px rgba(184,134,58,.3);">➕ 录入新持仓</button>
@@ -743,9 +743,10 @@ def render_html(data):
 
 <!-- 期权决策台 V2.0 -->
 <div id="tab-sandbox" class="tab-pane">
-<section class="hero"><div><h1>期权开仓决策台 V2.0</h1><p>选择真实合约后，推演“目标日期股价为 X 时，这个仓位值多少钱”。金额统一按每张100股和实际张数计算。</p></div></section>
+<section class="hero"><div><h1>期权决策台 V2.1</h1><p>既可按当前报价模拟新开仓，也可从持仓监控带入真实成本，推演“目标日期股价为 X 时，这个仓位值多少钱”。金额统一按每张100股和实际张数计算。</p></div></section>
 <div id="optionV2Root" class="option-v2-shell" data-endpoint="https://rhielbkvhgqbthcgztci.supabase.co/functions/v1/options-market">
   <div class="option-v2-toolbar"><span id="optV2Status" class="option-v2-status warn">登录后可读取期权链；未配置行情接口时可使用手动报价</span><button id="manualToggle" class="option-secondary">手动报价</button><button id="advancedToggle" class="option-secondary">高级参数</button></div>
+  <details class="option-v2-card" style="margin-bottom:14px;padding:14px 18px"><summary style="cursor:pointer;font-weight:700">如何使用：现有持仓与新开仓的区别</summary><p class="option-note" style="margin-top:10px;line-height:1.8">现有持仓请从“期权持仓监控”点击“推演”，系统会保留数据库中的真实建仓成本；不要重新点击期权链，否则会切换成按当前报价模拟新开仓。目标日期必须早于到期日；目标股价 X 是你假设该日正股可能达到的价格；IV 变化用于测试波动率收缩或上升。Short 仓位当前平仓成本优先采用 Ask，Long 仓位当前卖出价值优先采用 Bid。</p></details>
   <div class="option-v2-grid">
     <div class="option-v2-card">
       <h3>1. 选择合约与仓位</h3>

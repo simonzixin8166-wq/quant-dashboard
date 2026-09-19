@@ -56,6 +56,18 @@ supabase db push
 - Edge Function 对相同请求缓存15秒。
 - API Token只存在Supabase Secret中，不得写入HTML或GitHub仓库。
 
+## 403说明
+
+MarketData 官方明确不支持 Lambda、Supabase Edge Functions 等会轮换出口 IP 的 Serverless 部署。403 表示同一 Token 在五分钟内出现多个出口 IP，并非到期日或计算参数错误。
+
+V2.1 已采取以下保护：
+
+- 到期日和期权链在浏览器会话内缓存10分钟，单合约报价缓存1分钟。
+- 收到403后暂停请求5分钟，不再自动轮询扩大封锁。
+- 持仓表允许按行刷新；无法取得行情时保留手动报价模式，不生成假IV。
+
+若需要长期稳定的全自动盘中行情，必须将 MarketData 请求迁移到具有固定出口 IP 的单一服务器，或改用明确支持 Serverless 的期权数据供应商。
+
 ## 估值说明
 
 目标日期估值采用 Black-Scholes 作为情景推演模型。美股个股期权通常为美式期权，因此结果是估算值，不能替代实际 Bid/Ask。Short仓位实际平仓成本应重点参考 Ask，Long仓位平仓价值应重点参考 Bid。

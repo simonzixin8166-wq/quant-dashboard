@@ -6,6 +6,21 @@
   const fmt = (n, key) => key === 'vix' ? Number(n).toFixed(2) : Number(n).toLocaleString('en-US', { maximumFractionDigits: 2 });
   const pct = n => `${Number(n) >= 0 ? '+' : ''}${(Number(n) * 100).toFixed(2)}%`;
 
+  function updateVixGauge(value) {
+    const v = Number(value);
+    if (!Number.isFinite(v)) return;
+    const zones = v < 15
+      ? ['平静区', '#1f9d63']
+      : v < 20 ? ['温和波动', '#91b63c']
+      : v < 25 ? ['警戒区', '#e2a62b']
+      : v < 30 ? ['高风险', '#db7131']
+      : ['极端恐慌', '#bd3f35'];
+    const angle = -90 + Math.min(Math.max(v, 0), 40) / 40 * 180;
+    document.querySelectorAll('[data-vix-gauge]').forEach(el => el.style.setProperty('--vix-angle', `${angle}deg`));
+    document.querySelectorAll('[data-vix-zone]').forEach(el => { el.textContent = zones[0]; el.style.color = zones[1]; });
+    document.querySelectorAll('[data-vix-dot]').forEach(el => { el.style.background = zones[1]; });
+  }
+
   function setStatus(id, text, good) {
     const el = document.getElementById(id);
     if (el) el.textContent = `${good ? '🟢' : '🟡'} ${text}`;
@@ -14,6 +29,7 @@
   function updateExact(key, quote) {
     if (!quote || quote.error || !Number.isFinite(Number(quote.price))) return false;
     document.querySelectorAll(`[data-us-live-price="${key}"]`).forEach(el => { el.textContent = fmt(quote.price, key); });
+    if (key === 'vix') updateVixGauge(quote.price);
     if (Number.isFinite(Number(quote.changepct))) {
       document.querySelectorAll(`[data-us-live-chg="${key}"]`).forEach(el => {
         el.textContent = pct(quote.changepct);
@@ -54,5 +70,10 @@
     }
   }
 
-  window.addEventListener('load', () => { refresh(); window.setInterval(refresh, 30000); });
+  window.addEventListener('load', () => {
+    const initialVix = document.querySelector('[data-us-live-price="vix"]')?.textContent;
+    updateVixGauge(initialVix);
+    refresh();
+    window.setInterval(refresh, 30000);
+  });
 })();

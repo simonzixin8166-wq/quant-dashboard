@@ -4,7 +4,7 @@
 alter table public.options_positions
   add column if not exists user_id uuid references auth.users(id) default auth.uid();
 
--- V2.2：合约乘数与安全的持仓生命周期。
+-- V2.5：合约乘数、安全的持仓生命周期与可审计的年化ROC口径。
 alter table public.options_positions
   add column if not exists multiplier integer not null default 100 check (multiplier > 0),
   add column if not exists status text not null default 'open' check (status in ('open','pending_settlement','closed','expired_worthless','assigned','exercised','rolled')),
@@ -16,7 +16,9 @@ alter table public.options_positions
   add column if not exists realized_pnl numeric,
   add column if not exists settlement_type text,
   add column if not exists rolled_from_id bigint references public.options_positions(id),
-  add column if not exists rolled_to_id bigint references public.options_positions(id);
+  add column if not exists rolled_to_id bigint references public.options_positions(id),
+  add column if not exists entry_date date,
+  add column if not exists collateral_mode text check (collateral_mode in ('cash_secured','naked','covered','debit'));
 
 create index if not exists options_positions_user_status_expiry_idx
   on public.options_positions(user_id, status, expiry);
@@ -55,6 +57,24 @@ from auth.users u
 where p.user_id is null
   and lower(u.email) = 'xxj8166@gmail.com';
 
-select id, symbol, opt_type, side, strike, expiry, cost, qty, user_id
+create table if not exists public.strategy_budgets (
+  user_id uuid not null references auth.users(id) on delete cascade,
+  symbol text not null,
+  reserve_amount numeric not null default 0 check (reserve_amount >= 0),
+  currency text not null default 'USD',
+  tier1_pct numeric not null default 0.20,
+  tier2_pct numeric not null default 0.30,
+  tier3_pct numeric not null default 0.50,
+  updated_at timestamptz not null default now(),
+  primary key (user_id, symbol),
+  check (abs((tier1_pct + tier2_pct + tier3_pct) - 1) < 0.000001)
+);
+
+alter table public.strategy_budgets enable row level security;
+drop policy if exists "strategy_budgets_private" on public.strategy_budgets;
+create policy "strategy_budgets_private" on public.strategy_budgets
+for all using (user_id = auth.uid()) with check (user_id = auth.uid());
+
+select id, symbol, opt_type, side, strike, expiry, cost, qty, multiplier, entry_date, collateral_mode, user_id
 from public.options_positions
 order by expiry;

@@ -4,8 +4,14 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+import sys
+import types
 
 ROOT = Path(__file__).resolve().parents[1]
+try:
+    import yfinance  # noqa: F401
+except ModuleNotFoundError:
+    sys.modules["yfinance"] = types.SimpleNamespace(download=lambda *args, **kwargs: None)
 spec = importlib.util.spec_from_file_location("dashboard", ROOT / "scripts" / "fetch_and_build.py")
 dashboard = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(dashboard)
@@ -20,6 +26,9 @@ closes = pd.DataFrame(prices, index=dates, columns=[f"S{i:03d}" for i in range(5
 result = dashboard._compute_breadth_from_closes(closes)
 assert result["status"] == "ok"
 assert result["symbols"] == 503
+assert result["coverage"] == 503
+assert result["coverage_pct"] == 1
+assert result["quality_gate"] == "pass"
 for key in ("b20", "b50", "b200"):
     assert 0 <= result[key] <= 1
 assert -1 <= result["slope_10d"] <= 1
@@ -27,5 +36,11 @@ assert -1 <= result["slope_10d"] <= 1
 cached = dashboard._cached_breadth(result, "test fallback")
 assert cached["status"] == "ok" and cached["is_cached"] is True
 assert cached["date"] == result["date"]
+
+try:
+    dashboard._compute_breadth_from_closes(closes.iloc[:, :449])
+    raise AssertionError("449 symbols must fail the 450/90% breadth quality gate")
+except ValueError as exc:
+    assert "覆盖不足" in str(exc)
 
 print("test_breadth.py: all assertions passed")

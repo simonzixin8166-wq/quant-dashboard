@@ -28,8 +28,15 @@ assert(Math.abs(customMultiplier.pnl-14.8)<.01,'Saved contract multiplier must b
 const missingAsk=globalThis.OptionV2.positionMetrics(held,{bid:2.5,ask:null,mid:3,last:2.8});
 assert.strictEqual(missingAsk.mark,3,'Missing Alpaca quote fields must not be converted to a fake zero price');
 const expiredRisk=globalThis.OptionV2.positionRisk({...held,expiry:'2000-01-01'},null);
-assert.strictEqual(expiredRisk.level,'danger','Expired positions must be marked pending settlement, never safe');
+assert.strictEqual(expiredRisk.level,'l3','Expired positions must be marked L3 pending settlement');
 const wideSpreadRisk=globalThis.OptionV2.positionRisk({...held,expiry:'2099-01-01'},{underlyingPrice:800,bid:10,ask:20,mid:15});
-assert.strictEqual(wideSpreadRisk.level,'warn','Wide bid/ask spreads must trigger a liquidity warning');
+assert.strictEqual(wideSpreadRisk.level,'l2','Wide bid/ask spreads must trigger L2 liquidity warning');
+
+const rocPosition={...held,entry_date:'2026-09-01',collateral_mode:'cash_secured',multiplier:100,open_fee:0};
+const roc=globalThis.OptionV2.annualizedRoc(rocPosition,null);
+const expectedRoc=(3348/(66000-3348))*(365/80);
+assert(Math.abs(roc.value-expectedRoc)<1e-10,'Cash-secured ROC must use net premium, secured capital and entry DTE');
+assert.strictEqual(globalThis.OptionV2.annualizedRoc({...rocPosition,entry_date:null},null).label,'待补建仓日期','Legacy rows must not invent an entry date');
+assert.strictEqual(globalThis.OptionV2.annualizedRoc({...rocPosition,collateral_mode:'naked'},null).value,null,'Naked positions must not show cash-secured ROC');
 
 console.log('options_v2.test.js: all assertions passed');

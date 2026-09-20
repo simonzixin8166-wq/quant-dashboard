@@ -1,6 +1,8 @@
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, apikey, content-type, x-client-info, prefer',
   'Access-Control-Allow-Methods': 'GET, OPTIONS',
   'Cache-Control': 'private, max-age=30'
 };
@@ -18,16 +20,25 @@ const memoryCache = new Map<string, CacheEntry>();
 const FEED = 'indicative';
 const PROVIDER = 'Alpaca';
 const DATA_BASE = 'https://data.alpaca.markets';
-const clean = (value: string | null, pattern: RegExp) => value && pattern.test(value) ? value : null;
+
+const clean = (value: string | null, pattern: RegExp) => (value && pattern.test(value) ? value : null);
 const jsonHeaders = { ...corsHeaders, 'Content-Type': 'application/json; charset=utf-8' };
 const jsonResponse = (value: unknown, status = 200, extra: Record<string, string> = {}) =>
   new Response(JSON.stringify(value), { status, headers: { ...jsonHeaders, ...extra } });
-const finiteOrNull = (value: unknown) => value === null || value === undefined || value === ''
-  ? null : Number.isFinite(Number(value)) ? Number(value) : null;
+
+const finiteOrNull = (value: unknown) =>
+  value === null || value === undefined || value === ''
+    ? null
+    : Number.isFinite(Number(value))
+    ? Number(value)
+    : null;
 
 function isoDateInNewYork() {
   const parts = new Intl.DateTimeFormat('en-CA', {
-    timeZone: 'America/New_York', year: 'numeric', month: '2-digit', day: '2-digit'
+    timeZone: 'America/New_York',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit'
   }).formatToParts(new Date());
   const values = Object.fromEntries(parts.map((part) => [part.type, part.value]));
   return `${values.year}-${values.month}-${values.day}`;
@@ -59,7 +70,11 @@ async function fetchAlpaca(url: string, headers: Record<string, string>) {
   const response = await fetch(url, { headers });
   const text = await response.text();
   let body: any = null;
-  try { body = text ? JSON.parse(text) : {}; } catch { body = { message: text }; }
+  try {
+    body = text ? JSON.parse(text) : {};
+  } catch {
+    body = { message: text };
+  }
   if (!response.ok) {
     const error = new Error(body?.message || body?.error || `Alpaca HTTP ${response.status}`) as Error & { status?: number };
     error.status = response.status;
@@ -89,8 +104,10 @@ function normalizeSnapshots(snapshots: Record<string, AlpacaSnapshot>, underlyin
     const last = finiteOrNull(snapshot.latestTrade?.p);
     const validBid = bid !== null && bid >= 0 ? bid : null;
     const validAsk = ask !== null && ask >= 0 ? ask : null;
-    const mid = validBid !== null && validAsk !== null && (validBid > 0 || validAsk > 0)
-      ? (validBid + validAsk) / 2 : null;
+    const mid =
+      validBid !== null && validAsk !== null && (validBid > 0 || validAsk > 0)
+        ? (validBid + validAsk) / 2
+        : null;
     const quoteTime = snapshot.latestQuote?.t || snapshot.latestTrade?.t;
     return {
       optionSymbol,
@@ -113,21 +130,32 @@ function normalizeSnapshots(snapshots: Record<string, AlpacaSnapshot>, underlyin
     };
   }).filter(Boolean) as Record<string, unknown>[];
 
-  const keys = ['optionSymbol', 'strike', 'expiration', 'side', 'bid', 'ask', 'mid', 'last', 'iv',
-    'delta', 'gamma', 'theta', 'vega', 'volume', 'openInterest', 'underlyingPrice', 'updated'];
+  const keys = [
+    'optionSymbol', 'strike', 'expiration', 'side', 'bid', 'ask', 'mid', 'last', 'iv',
+    'delta', 'gamma', 'theta', 'vega', 'volume', 'openInterest', 'underlyingPrice', 'updated'
+  ];
   const columnar: Record<string, unknown> = {
-    s: 'ok', provider: PROVIDER, feed: FEED, delayed: true,
+    s: 'ok',
+    provider: PROVIDER,
+    feed: FEED,
+    delayed: true,
     disclaimer: 'Indicative参考行情；成交延迟且报价经过调整，下单前请以券商Bid/Ask为准',
     receivedAt: new Date().toISOString()
   };
-  keys.forEach((key) => { columnar[key] = rows.map((row) => row[key] ?? null); });
+  keys.forEach((key) => {
+    columnar[key] = rows.map((row) => row[key] ?? null);
+  });
   return columnar;
 }
 
 async function listExpirations(symbol: string, headers: Record<string, string>) {
   const today = isoDateInNewYork();
-  const candidates = [Deno.env.get('ALPACA_TRADING_BASE_URL'), 'https://paper-api.alpaca.markets', 'https://api.alpaca.markets']
-    .filter((value, index, all): value is string => Boolean(value) && all.indexOf(value) === index);
+  const candidates = [
+    Deno.env.get('ALPACA_TRADING_BASE_URL'),
+    'https://paper-api.alpaca.markets',
+    'https://api.alpaca.markets'
+  ].filter((value, index, all): value is string => Boolean(value) && all.indexOf(value) === index);
+
   let lastError: unknown = null;
   for (const base of candidates) {
     try {
@@ -138,7 +166,9 @@ async function listExpirations(symbol: string, headers: Record<string, string>) 
       url.searchParams.set('expiration_date_lte', addYears(today, 3));
       url.searchParams.set('limit', '10000');
       const raw = await fetchAlpaca(url.toString(), headers);
-      const expirations = [...new Set((raw.option_contracts || []).map((item: any) => item.expiration_date).filter(Boolean))].sort();
+      const expirations = [
+        ...new Set((raw.option_contracts || []).map((item: any) => item.expiration_date).filter(Boolean))
+      ].sort();
       return { s: 'ok', provider: PROVIDER, feed: FEED, delayed: true, expirations, receivedAt: new Date().toISOString() };
     } catch (error) {
       lastError = error;
@@ -181,21 +211,46 @@ async function optionQuote(optionSymbol: string, headers: Record<string, string>
   return normalizeSnapshots(raw.snapshots || {}, spot);
 }
 
-Deno.serve(async (req: Request) => {
+serve(async (req: Request) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
   if (req.method !== 'GET') return jsonResponse({ error: 'Method not allowed' }, 405);
 
-  const key = Deno.env.get('ALPACA_API_KEY');
-  const secret = Deno.env.get('ALPACA_API_SECRET');
-  if (!key || !secret) return jsonResponse({ error: 'Supabase尚未配置 ALPACA_API_KEY / ALPACA_API_SECRET' }, 503);
+  // 关键兼容修复：覆盖所有常见命名格式，确保无论配置哪种都能被准确提取
+  const key =
+    Deno.env.get('ALPACA_API_KEY') ||
+    Deno.env.get('APCA_API_KEY_ID') ||
+    Deno.env.get('ALPACA_KEY_ID');
+
+  const secret =
+    Deno.env.get('ALPACA_API_SECRET') ||
+    Deno.env.get('ALPACA_SECRET') ||
+    Deno.env.get('APCA_API_SECRET_KEY') ||
+    Deno.env.get('ALPACA_SECRET_KEY');
+
+  if (!key || !secret) {
+    return jsonResponse(
+      { error: 'Supabase尚未配置 ALPACA_API_KEY / ALPACA_API_SECRET (已检查 APCA_* 及 ALPACA_* 别名)' },
+      503
+    );
+  }
 
   const requestUrl = new URL(req.url);
   const action = requestUrl.searchParams.get('action') || '';
   const symbol = clean(requestUrl.searchParams.get('symbol')?.toUpperCase() || null, /^[A-Z0-9.\-]{1,12}$/);
   const expiration = clean(requestUrl.searchParams.get('expiration'), /^\d{4}-\d{2}-\d{2}$/);
   const side = clean(requestUrl.searchParams.get('side'), /^(call|put)$/);
-  const optionSymbol = clean(requestUrl.searchParams.get('optionSymbol')?.toUpperCase() || null, /^[A-Z0-9.\-]{1,12}\d{6}[CP]\d{8}$/);
-  if (!((action === 'expirations' && symbol) || (action === 'chain' && symbol && expiration && side) || (action === 'quote' && optionSymbol))) {
+  const optionSymbol = clean(
+    requestUrl.searchParams.get('optionSymbol')?.toUpperCase() || null,
+    /^[A-Z0-9.\-]{1,12}\d{6}[CP]\d{8}$/
+  );
+
+  if (
+    !(
+      (action === 'expirations' && symbol) ||
+      (action === 'chain' && symbol && expiration && side) ||
+      (action === 'quote' && optionSymbol)
+    )
+  ) {
     return jsonResponse({ error: '无效或缺失的查询参数' }, 400);
   }
 
@@ -211,11 +266,13 @@ Deno.serve(async (req: Request) => {
     'APCA-API-SECRET-KEY': secret,
     'Accept': 'application/json'
   };
+
   try {
     let result: unknown;
     if (action === 'expirations') result = await listExpirations(symbol!, alpacaHeaders);
     else if (action === 'chain') result = await optionChain(symbol!, expiration!, side!, alpacaHeaders);
     else result = await optionQuote(optionSymbol!, alpacaHeaders);
+
     const body = JSON.stringify(result);
     memoryCache.set(cacheKey, { at: Date.now(), body, status: 200 });
     return new Response(body, { status: 200, headers: { ...jsonHeaders, 'X-Cache': 'MISS' } });

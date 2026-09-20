@@ -33,6 +33,7 @@ jobs:
         run: python -m py_compile scripts/fetch_and_build.py scripts/update_market_events.py
 
       - name: Update official FOMC and CPI calendar
+        continue-on-error: true
         run: python scripts/update_market_events.py
 
       - name: Fetch prices and build site

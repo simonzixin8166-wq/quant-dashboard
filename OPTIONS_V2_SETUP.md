@@ -1,4 +1,4 @@
-# 期权决策台 V2.0 配置
+# myAlphaView V2.2 配置
 
 ## 已完成
 
@@ -9,10 +9,13 @@
 - 到期日、行权价、Bid/Mid/Ask、IV、Greeks 可由期权链选择并自动填入。
 - 无行情密钥时仍可使用手动报价模式。
 - 真实持仓不再写入公开的 `docs/data.json` 和 `docs/index.html`，登录后再读取 Supabase。
+- 增加理论行权资金、DTE/虚实值/价差联合风险提示，以及官方 FOMC/CPI 日历。
+- 增加深色模式、紧凑登录首屏、骨架屏与非阻塞错误提示。
+- 暂缓组合 Greeks 与 IV Rank，避免在行情源不稳定或历史 IV 不足时显示误导性精确数字。
 
 ## 部署实时接口
 
-1. 在 MarketData.app 创建 API Token。开发阶段可用免费计划，盘中决策必须使用实时期权计划。
+1. 在 MarketData.app 创建 API Token。当前版本接受延迟行情，但页面必须显示真实返回的时间，不把延迟数据标成实时。
 2. 安装并登录 Supabase CLI。
 3. 在项目根目录执行：
 
@@ -50,11 +53,12 @@ supabase db push
 ## 数据刷新规则
 
 - 完整期权链：仅在选择股票、到期日或 Call/Put 时请求。
-- 已选合约：美股盘中每30秒更新一次。
+- 已选合约：按需手动刷新并缓存1分钟；当前不自动轮询，以避免Serverless轮换IP触发403。
 - 标普500、纳斯达克综合与VIX：`market-snapshot` 每30秒读取一次分钟行情；失败时只显示明确标注的 SPY/QQQ/VIXY 实时代理，不把代理价格冒充指数。
 - 全市场宽度：必须基于完整收盘日线，每个美股交易日收盘后更新；盘中沿用上一收盘日结果。
 - Edge Function 对相同请求缓存15秒。
 - API Token只存在Supabase Secret中，不得写入HTML或GitHub仓库。
+- GitHub Action 每日从 Federal Reserve 与 BLS 官方来源更新 FOMC/CPI 日历；抓取失败时保留上次成功文件，不生成推测日期。
 
 ## 403说明
 

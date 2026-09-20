@@ -520,7 +520,7 @@ def card_etf(name, r):
     return f'''<div class="card"><div class="card-header"><span class="sym">{disp_name}</span><span class="price">${r["close"]:.2f}</span></div><div class="divider"></div><div class="row"><span>当年(YTD)最高</span><span class="fw-bold">${fmt_num(r["ytd_high"])}</span></div><div class="row"><span>策略回撤基准</span><span class="{'neg-text fw-bold' if r['drawdown'] and r['drawdown']<0 else 'fw-bold'}">{fmt_pct(r["drawdown"])}</span></div>{dist_row}<div class="row"><span>RSI (14)</span><span class="fw-bold">{fmt_num(r["rsi"])}</span></div><div class="row"><span>距 200MA</span><span class="fw-bold">{fmt_pct(r["dist_200ma"])}</span></div></div>'''
 
 def render_options_html(options_data):
-    if not options_data: return '<tr><td colspan="12" style="text-align:center; color:var(--muted)">当前没有记录的期权持仓</td></tr>'
+    if not options_data: return '<tr><td colspan="13" style="text-align:center; color:var(--muted)">当前没有记录的期权持仓</td></tr>'
     html = ""
     for opt in options_data:
         opt_id, sym, opt_type, side, strike, expiry, cost, last_price, iv, delta, dte, curr_price, pnl, break_even = opt['id'], opt['symbol'], opt['opt_type'], opt['side'], opt['strike'], opt['expiry'], opt['cost'], opt['last_price'], opt['iv'], opt['delta'], opt['dte'], opt['curr_price'], opt['unrealized_pnl'], opt['break_even']
@@ -576,7 +576,7 @@ def render_html(data):
             chg = v.get("day_chg") or 0
             stock_html += f'''<tr><td><div style="font-weight:600; font-size:13.5px; color:var(--ink); line-height:1.2;">{name}</div><div style="font-size:11px; color:var(--muted); margin-top:3px; font-weight:500;">{sym}</div></td><td class="fw-bold" id="close-{sym}">${v["close"]:.2f}</td><td class="{'pos-text' if chg>=0 else 'neg-text'}" id="chg-{sym}">{chg*100:+.2f}%</td><td>${v.get("open",0):.2f}</td><td>${v.get("high",0):.2f}</td><td>${v.get("low",0):.2f}</td><td>${fmt_num(v.get("ytd_high"))}</td><td>{fmt_num(v.get("rsi"))}</td><td>{fmt_pct(v.get("dist_200ma"))}</td><td><b id="target-{sym}">${target or "-"}</b> <span id="action-{sym}">{ '<span class="alert-text fw-bold ml">(信号触发!)</span>' if target and v["close"] <= target else ""}</span></td></tr>'''
             
-    options_html = '<tr><td colspan="12" style="text-align:center; color:var(--muted)">请登录后查看私有期权持仓</td></tr>'
+    options_html = '<tr><td colspan="13" style="text-align:center; color:var(--muted)">请登录后查看私有期权持仓</td></tr>'
 
     signals_html = ""
     for s in data.get("historical_signals", []):
@@ -644,7 +644,7 @@ def render_html(data):
     chart_json = json.dumps(data.get("overview_charts", {}), ensure_ascii=False)
 
     return f'''<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>myAlphaView · Market Intelligence</title>
-<meta name="author" content="Simon"><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,380;9..144,520;9..144,620&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"><link href="assets/options-v2.css?v=2.0" rel="stylesheet"><script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<meta name="author" content="Simon"><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,380;9..144,520;9..144,620&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"><link href="assets/options-v2.css?v=2.2" rel="stylesheet"><script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{{--bg:#f4f2ec;--surface:#ffffff;--surface2:#ebe8df;--ink:#14161c;--muted:#696d76;--line:#e1ddd0;--nav:#11162a;--nav2:#0a0d1a;--navmuted:#8d93ab;--navline:rgba(255,255,255,.08);--brass:#b8863a;--brass-soft:#e8d3ab;--navy:#1f2b52;--green:#1c7a4c;--green-soft:#e5f1e9;--red:#b23b2e;--red-soft:#f6e6e2;--amber:#c07f2e;--amber-soft:#f6ecd8;--shadow:0 12px 32px rgba(15,15,10,.07);--serif:'Fraunces',ui-serif,Georgia,serif;--sans:'Inter',-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;}}
 *{{box-sizing:border-box;margin:0;padding:0}} body{{font-family:var(--sans);background:var(--bg);color:var(--ink);min-height:100vh;-webkit-font-smoothing:antialiased}} .app{{display:flex;min-height:100vh}}
@@ -677,7 +677,7 @@ def render_html(data):
 .s-res-label {{ font-size: 11px; color: var(--muted); }}
 .s-res-val {{ font-family: var(--serif); font-size: 20px; font-weight: 600; margin-top: 6px; }}
 @media (max-width: 800px) {{ .sandbox-grid {{ grid-template-columns: 1fr; }} }}
-</style></head><body><div class="app">
+</style><link href="assets/dashboard-v2.2.css?v=2.2" rel="stylesheet"></head><body><div class="app">
 
 <aside class="sidebar"><div class="brand"><div class="mav-brand-mark"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4 17 L9 9 L13 14 L20 5" stroke="#181109" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="20" cy="5" r="2.1" fill="#181109"/></svg></div><div><strong>myAlphaView</strong><small>myAlphaView · myalphaview.com</small></div></div>
 <div class="nav-group"><div class="nav-title">美股 · 宏观</div><ul class="nav-menu"><li class="active" onclick="switchTab('tab-overview',this)"><span class="nav-icon">◆</span>市场总览</li><li onclick="switchTab('tab-engine',this)"><span class="nav-icon">◒</span>策略引擎</li><li onclick="switchTab('tab-index',this)"><span class="nav-icon">◫</span>指数 & ETF</li></ul></div>
@@ -686,7 +686,7 @@ def render_html(data):
 <div class="sidebar-footer">公开研究版 · 不展示个人真实资产<br>数据仅供研究演示</div></aside>
 
 <main class="main"><header class="topbar"><div class="breadcrumb">myAlphaView / <strong id="bc-title">市场总览</strong></div>
-<div class="top-meta"><span id="liveStatus" style="display:none;"><i class="live-dot"></i><span id="liveStatusText">数据抓取成功</span></span><div style="text-align:right; line-height:1.4;"><div style="font-weight:600; font-size:12px; color:var(--ink);">生成时间: {data.get('gen_time', '-')}</div><div id="usLiveAsOf" style="color:var(--muted); font-size:10.5px;">美股收盘日线截至: {data.get('spy_date', '-')} | A/港股盘中动态刷新</div></div><button id="authBtn" class="auth-btn-top" onclick="handleAuth()">🔐 登录私有看板</button></div></header><div class="content">
+<div class="top-meta"><span id="liveStatus" style="display:none;"><i class="live-dot"></i><span id="liveStatusText">数据抓取成功</span></span><div style="text-align:right; line-height:1.4;"><div style="font-weight:600; font-size:12px; color:var(--ink);">生成时间: {data.get('gen_time', '-')}</div><div id="usLiveAsOf" style="color:var(--muted); font-size:10.5px;">美股收盘日线截至: {data.get('spy_date', '-')} | A/港股盘中动态刷新</div></div><button id="themeToggle" class="theme-toggle" title="切换深浅主题">🌙 深色</button><button id="authBtn" class="auth-btn-top" onclick="handleAuth()">🔐 登录私有看板</button></div></header><div class="content">
 
 <div id="tab-overview" class="tab-pane active">
 <section class="hero"><div><h1>看清市场在说什么，而不是账户在做什么。</h1><p>公开版投资研究面板：聚焦市场趋势、回撤、波动率与策略触发条件。</p></div><div class="public-note"><b id="modeTitle">公开展示模式</b><span id="modeDesc">这里展示的是研究指标与策略信号，不代表任何个人账户的实际仓位或收益。</span></div></section>
@@ -711,8 +711,10 @@ def render_html(data):
 <div id="tab-stocks" class="tab-pane"><section class="hero"><div><h1>个股观察池</h1><p>包含中英文名称对照及核心技术指标监控。</p></div></section><section class="section"><div class="table-container"><table><thead><tr><th>名称代码</th><th>最新价</th><th>涨跌幅</th><th>开盘</th><th>最高</th><th>最低</th><th>当年(YTD)最高</th><th>RSI(14)</th><th>距200MA</th><th>策略参考价</th></tr></thead><tbody id="stocksTableBody">{stock_html}</tbody></table></div></section></div>
 
 <div id="tab-options" class="tab-pane">
-<section class="hero"><div><h1>期权持仓监控 V2.1</h1><p>登录后读取私有持仓；点击每行“↻”直接读取该合约报价并按真实建仓成本计算浮动盈亏，点击“推演”可带入同一仓位分析下周情景。未取得真实IV时明确显示不可用，不使用固定假IV。</p></div></section>
+<section class="hero"><div><h1>期权持仓与风险监控 V2.2</h1><p>优先呈现真实建仓成本、理论行权资金、临期风险和官方宏观事件。行情缺失或过期时明确标注，不使用猜测值。</p></div></section>
 <section class="section">
+    <div id="macroEventStrip" class="event-strip"><div class="event-item skeleton">正在读取FOMC/CPI官方日历</div></div>
+    <div id="optionRiskSummary" class="risk-grid"><div class="risk-card skeleton">正在计算持仓风险</div></div>
     <div style="margin-bottom: 12px; display: flex; justify-content: flex-end;">
         <button onclick="openAddOptionModal()" style="background:var(--brass); color:#fff; border:none; padding:8px 16px; border-radius:6px; cursor:pointer; font-weight:600; font-size:12.5px; box-shadow:0 4px 10px rgba(184,134,58,.3);">➕ 录入新持仓</button>
     </div>
@@ -730,6 +732,7 @@ def render_html(data):
                     <th>盈亏平衡点</th>
                     <th>正股现价</th>
                     <th>距盈亏平衡</th>
+                    <th>风险状态</th>
                     <th>IV / Delta</th>
                     <th>操作</th>
                 </tr>
@@ -743,7 +746,7 @@ def render_html(data):
 
 <!-- 期权决策台 V2.0 -->
 <div id="tab-sandbox" class="tab-pane">
-<section class="hero"><div><h1>期权决策台 V2.1</h1><p>既可按当前报价模拟新开仓，也可从持仓监控带入真实成本，推演“目标日期股价为 X 时，这个仓位值多少钱”。金额统一按每张100股和实际张数计算。</p></div></section>
+<section class="hero"><div><h1>期权决策台 V2.2</h1><p>既可按当前报价模拟新开仓，也可从持仓监控带入真实成本，推演“目标日期股价为 X 时，这个仓位值多少钱”。金额统一按每张100股和实际张数计算。</p></div></section>
 <div id="optionV2Root" class="option-v2-shell" data-endpoint="https://rhielbkvhgqbthcgztci.supabase.co/functions/v1/options-market">
   <div class="option-v2-toolbar"><span id="optV2Status" class="option-v2-status warn">登录后可读取期权链；未配置行情接口时可使用手动报价</span><button id="manualToggle" class="option-secondary">手动报价</button><button id="advancedToggle" class="option-secondary">高级参数</button></div>
   <details class="option-v2-card" style="margin-bottom:14px;padding:14px 18px"><summary style="cursor:pointer;font-weight:700">如何使用：现有持仓与新开仓的区别</summary><p class="option-note" style="margin-top:10px;line-height:1.8">现有持仓请从“期权持仓监控”点击“推演”，系统会保留数据库中的真实建仓成本；不要重新点击期权链，否则会切换成按当前报价模拟新开仓。目标日期必须早于到期日；目标股价 X 是你假设该日正股可能达到的价格；IV 变化用于测试波动率收缩或上升。Short 仓位当前平仓成本优先采用 Ask，Long 仓位当前卖出价值优先采用 Bid。</p></details>
@@ -958,6 +961,7 @@ async function editTarget(symbol, currentPrice) {{
 
 async function checkSession() {{
   const {{ data: {{ session }} }} = await supabaseClient.auth.getSession();
+  document.body.classList.toggle('private-mode', Boolean(session));
   if (session) {{
       if (session.user.email === ADMIN_EMAIL) {{
           isAdmin = true; document.getElementById('modeTitle').innerText = "👑 主理人控制台已激活"; document.getElementById('modeDesc').innerText = "您现在可以在下方个股面板中直接修改加仓价，或在期权面板中直接录入/删除持仓。";
@@ -1010,7 +1014,7 @@ function fetchLiveCNHK() {{
   document.head.appendChild(script);
 }}
 window.addEventListener('load', () => {{ setInterval(fetchLiveCNHK, 5000); }});
-</script><script src="assets/market-live.js?v=2.0.1"></script><script src="assets/options-v2.js?v=2.0.1"></script></body></html>'''
+</script><script src="assets/market-live.js?v=2.0.1"></script><script src="assets/dashboard-v2.2.js?v=2.2"></script><script src="assets/options-v2.js?v=2.2"></script></body></html>'''
 
 def push_to_supabase(data):
     supabase_url, supabase_key = os.environ.get("SUPABASE_URL"), os.environ.get("SUPABASE_KEY")

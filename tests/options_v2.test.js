@@ -23,4 +23,11 @@ assert(Math.abs(heldMetrics.mark-43.2)<.001,'Short position must use Ask as cons
 assert(Math.abs(heldMetrics.pnl+972)<.01,'Existing position P&L must use saved entry cost ×100');
 assert(Math.abs(heldMetrics.breakeven-626.52)<.001,'Saved short put break-even must use actual entry cost');
 
+const customMultiplier=globalThis.OptionV2.positionMetrics({...held,multiplier:10},{bid:30,ask:32,mid:31,last:31});
+assert(Math.abs(customMultiplier.pnl-14.8)<.01,'Saved contract multiplier must be respected instead of always forcing 100');
+const expiredRisk=globalThis.OptionV2.positionRisk({...held,expiry:'2000-01-01'},null);
+assert.strictEqual(expiredRisk.level,'danger','Expired positions must be marked pending settlement, never safe');
+const wideSpreadRisk=globalThis.OptionV2.positionRisk({...held,expiry:'2099-01-01'},{underlyingPrice:800,bid:10,ask:20,mid:15});
+assert.strictEqual(wideSpreadRisk.level,'warn','Wide bid/ask spreads must trigger a liquidity warning');
+
 console.log('options_v2.test.js: all assertions passed');

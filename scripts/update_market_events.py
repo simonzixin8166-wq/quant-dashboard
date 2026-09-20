@@ -3,18 +3,32 @@ import datetime as dt
 import json
 import os
 import re
+import time
 import urllib.request
 from zoneinfo import ZoneInfo
 
-HEADERS = {"User-Agent": "Mozilla/5.0 myAlphaView/2.2 (public research dashboard)"}
+HEADERS = {
+    "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/124 Safari/537.36",
+    "Accept": "text/html,application/xhtml+xml,text/calendar;q=0.9,*/*;q=0.8",
+    "Accept-Language": "en-US,en;q=0.8",
+}
 FED_URL = "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
 BLS_ICS_URL = "https://www.bls.gov/schedule/news_release/bls.ics"
 ET = ZoneInfo("America/New_York")
+OUTPUT_PATH = os.path.join(os.path.dirname(__file__), "..", "docs", "data", "market_events.json")
 
-def fetch_text(url):
-    req = urllib.request.Request(url, headers=HEADERS)
-    with urllib.request.urlopen(req, timeout=30) as response:
-        return response.read().decode("utf-8-sig")
+def fetch_text(url, attempts=3):
+    last_error = None
+    for attempt in range(attempts):
+        try:
+            req = urllib.request.Request(url, headers=HEADERS)
+            with urllib.request.urlopen(req, timeout=30) as response:
+                return response.read().decode("utf-8-sig")
+        except Exception as exc:
+            last_error = exc
+            if attempt + 1 < attempts:
+                time.sleep(2 ** attempt)
+    raise last_error
 
 def parse_bls_cpi(text):
     events = []
@@ -40,15 +54,59 @@ def parse_fomc(text):
             events.append({"type":"FOMC","title":"FOMC利率决议日","datetime":value.isoformat(),"source":"Federal Reserve","source_url":FED_URL})
     return events
 
+def load_cached_events(out):
+    try:
+        with open(out, encoding="utf-8") as f:
+            payload = json.load(f)
+        if payload.get("policy") != "official_sources_only":
+            return {}, None
+        grouped = {"CPI": [], "FOMC": []}
+        for event in payload.get("events", []):
+            kind = event.get("type")
+            if kind in grouped and event.get("datetime") and event.get("source"):
+                grouped[kind].append(event)
+        return grouped, payload.get("updated_at")
+    except (OSError, ValueError, TypeError):
+        return {}, None
+
 def main():
-    events = parse_bls_cpi(fetch_text(BLS_ICS_URL)) + parse_fomc(fetch_text(FED_URL))
+    out = OUTPUT_PATH
+    cached, cached_at = load_cached_events(out)
+    events, status, refreshed = [], {}, False
+    sources = (
+        ("CPI", BLS_ICS_URL, parse_bls_cpi),
+        ("FOMC", FED_URL, parse_fomc),
+    )
+    for kind, url, parser in sources:
+        try:
+            current = parser(fetch_text(url))
+            if not current:
+                raise ValueError(f"{kind} official source returned no recognized events")
+            events.extend(current)
+            status[kind] = "fresh"
+            refreshed = True
+            print(f"{kind}: refreshed {len(current)} events from official source")
+        except Exception as exc:
+            fallback = cached.get(kind, [])
+            events.extend(fallback)
+            status[kind] = "cached" if fallback else "unavailable"
+            print(f"WARNING: {kind} refresh failed ({exc}); using {len(fallback)} cached official events")
+
     events.sort(key=lambda x:x["datetime"])
     if not events:
-        raise RuntimeError("Official calendars returned no recognized events; existing file was not overwritten")
-    payload = {"updated_at":dt.datetime.now(dt.timezone.utc).isoformat(),"policy":"official_sources_only","events":events}
-    out = os.path.join(os.path.dirname(__file__), "..", "docs", "data", "market_events.json")
+        print("WARNING: official calendars unavailable and no valid cache exists; continuing without overwriting")
+        return
+    if not refreshed:
+        print(f"Official calendar endpoints unavailable; retained last verified file from {cached_at or 'unknown time'}")
+        return
+
+    now = dt.datetime.now(dt.timezone.utc).isoformat()
+    payload = {"updated_at":now,"policy":"official_sources_only","source_status":status,"events":events}
     os.makedirs(os.path.dirname(out), exist_ok=True)
-    with open(out,"w",encoding="utf-8") as f: json.dump(payload,f,ensure_ascii=False,indent=2)
-    print(f"Wrote {len(events)} official events to {out}")
+    temp = out + ".tmp"
+    with open(temp,"w",encoding="utf-8") as f:
+        json.dump(payload,f,ensure_ascii=False,indent=2)
+    os.replace(temp,out)
+    print(f"Wrote {len(events)} verified official events to {out}; status={status}")
 
 if __name__ == "__main__": main()

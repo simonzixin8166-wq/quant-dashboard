@@ -29,6 +29,12 @@ jobs:
       - name: Install dependencies
         run: pip install "yfinance>=0.2.65,<0.3" pandas
 
+      - name: Validate scripts before execution
+        run: python -m py_compile scripts/fetch_and_build.py scripts/update_market_events.py
+
+      - name: Update official FOMC and CPI calendar
+        run: python scripts/update_market_events.py
+
       - name: Fetch prices and build site
         env:
           TWELVE_DATA_KEY: ${{ secrets.TWELVE_DATA_KEY }}

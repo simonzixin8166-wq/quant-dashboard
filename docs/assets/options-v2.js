@@ -4,6 +4,7 @@
   const $=id=>document.getElementById(id);
   const money=n=>Number.isFinite(n)?new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',maximumFractionDigits:2}).format(n):'—';
   const pct=n=>Number.isFinite(n)?`${(n*100).toFixed(1)}%`:'—';
+  const quoteNumber=v=>v===null||v===undefined||v===''?NaN:Number(v);
   const clamp=(n,a,b)=>Math.min(b,Math.max(a,n));
   function normCdf(x){const t=1/(1+.2316419*Math.abs(x)),d=.3989423*Math.exp(-x*x/2);let p=1-d*t*(.31938153+t*(-.356563782+t*(1.781477937+t*(-1.821255978+t*1.330274429))));return x>=0?p:1-p}
   function bsPrice(S,K,T,r,sigma,type,q=0){
@@ -44,15 +45,14 @@
   async function api(params){
     const root=$('optionV2Root'),endpoint=root?.dataset.endpoint;if(!endpoint)throw new Error('尚未配置实时接口');
     const jwt=await token();if(!jwt)throw new Error('请先登录私有看板');
-    const blockedUntil=Number(sessionStorage.getItem('optionApiBlockedUntil')||0);
-    if(Date.now()<blockedUntil)throw new Error(`行情源403冷却中，请在 ${new Date(blockedUntil).toLocaleTimeString()} 后重试或使用手动报价`);
     const cacheKey=`optionApi:${JSON.stringify(params)}`,cached=JSON.parse(sessionStorage.getItem(cacheKey)||'null'),ttl=params.action==='quote'?60000:600000;
     if(cached&&Date.now()-cached.at<ttl)return cached.body;
     const u=new URL(endpoint);Object.entries(params).forEach(([k,v])=>v!==undefined&&u.searchParams.set(k,v));
     const res=await fetch(u,{headers:{Authorization:`Bearer ${jwt}`,apikey:global.SUPABASE_ANON_KEY||''}});const body=await res.json();
     if(!res.ok){
       const upstream=body.error||body.errmsg||`接口错误 ${res.status}`;
-      if(res.status===403){sessionStorage.setItem('optionApiBlockedUntil',String(Date.now()+300000));throw new Error('行情源403：MarketData不支持Serverless轮换IP。系统已暂停请求5分钟；期间请使用手动报价')}
+      if(res.status===401)throw new Error(`Alpaca密钥无效或密钥类型不匹配：${upstream}`);
+      if(res.status===403)throw new Error(`Alpaca拒绝访问，请检查账户的数据权限：${upstream}`);
       if(res.status===402)throw new Error(`当前行情套餐无权读取该数据：${upstream}`);
       if(res.status===429)throw new Error(`行情额度或并发已达上限：${upstream}`);
       throw new Error(upstream);
@@ -60,6 +60,7 @@
     sessionStorage.setItem(cacheKey,JSON.stringify({body,at:Date.now()}));return body;
   }
   function setStatus(text,tone='warn'){$('optV2Status').textContent=text;$('optV2Status').className=`option-v2-status ${tone}`;if(tone==='bad')global.MAV?.toast(text,'bad')}
+  function feedLabel(raw){return raw?.provider==='Alpaca'?'Alpaca Indicative参考行情':raw?.provider||'参考行情'}
   function todayIso(){const parts=new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date()),v=Object.fromEntries(parts.map(x=>[x.type,x.value]));return `${v.year}-${v.month}-${v.day}`}
   function nextFriday(){const d=new Date(`${todayIso()}T12:00:00Z`);let add=(5-d.getUTCDay()+7)%7;if(add===0)add=7;d.setUTCDate(d.getUTCDate()+add);return d.toISOString().slice(0,10)}
   function inputs(){
@@ -84,11 +85,11 @@
   function strategyChanged(value){state.strategy=value;document.querySelectorAll('[data-strategy]').forEach(b=>b.classList.toggle('active',b.dataset.strategy===value));const m=strategyMeta(value);$('chainSide').value=m.type;$('stockCostWrap').style.display=value==='COVERED_CALL'?'grid':'none';renderChain();render()}
   async function loadExpirations(){
     const symbol=$('optionSymbol').value.trim().toUpperCase();if(!symbol)return setStatus('请输入股票代码','bad');setStatus('正在读取到期日…','warn');
-    try{const raw=await api({action:'expirations',symbol}),dates=raw.expirations||raw.expiration||[];const arr=Array.isArray(dates)?dates:[];$('optExpiryV2').innerHTML='<option value="">选择到期日</option>'+arr.map(d=>{const v=typeof d==='number'?new Date(d*1000).toISOString().slice(0,10):String(d).slice(0,10);return `<option value="${v}">${v}</option>`}).join('');state.apiMode=true;setStatus(`已连接实时接口 · ${symbol}`,'good')}catch(e){state.apiMode=false;setStatus(`${e.message}；可使用手动报价模式`,'bad');$('manualPanel').classList.add('active')}
+    try{const raw=await api({action:'expirations',symbol}),dates=raw.expirations||raw.expiration||[];const arr=Array.isArray(dates)?dates:[];$('optExpiryV2').innerHTML='<option value="">选择到期日</option>'+arr.map(d=>{const v=typeof d==='number'?new Date(d*1000).toISOString().slice(0,10):String(d).slice(0,10);return `<option value="${v}">${v}</option>`}).join('');if(!arr.length)throw new Error(`${symbol} 没有返回可用期权到期日`);state.apiMode=true;setStatus(`${feedLabel(raw)} · ${symbol} · ${arr.length}个到期日`,'good')}catch(e){state.apiMode=false;setStatus(`${e.message}；可使用手动报价模式`,'bad');$('manualPanel').classList.add('active')}
   }
   async function loadChain(){
     const symbol=$('optionSymbol').value.trim().toUpperCase(),expiration=$('optExpiryV2').value,side=$('chainSide').value;if(!symbol||!expiration)return;
-    setStatus('正在读取期权链…','warn');try{const raw=await api({action:'chain',symbol,expiration,side}),rows=normalizeColumnar(raw);state.chain=rows.filter(x=>x.side===side||!x.side).sort((a,b)=>a.strike-b.strike);renderChain();setStatus(`期权链已更新 · ${state.chain.length}份合约`,'good')}catch(e){setStatus(e.message,'bad')}
+    setStatus('正在读取期权链…','warn');try{const raw=await api({action:'chain',symbol,expiration,side}),rows=normalizeColumnar(raw);state.chain=rows.filter(x=>x.side===side||!x.side).sort((a,b)=>a.strike-b.strike);renderChain();setStatus(`${feedLabel(raw)} · ${state.chain.length}份合约`,'good')}catch(e){setStatus(e.message,'bad')}
   }
   function renderChain(){
     const tbody=$('optionChainBody');if(!tbody)return;const rows=state.chain.filter(x=>!x.side||x.side===$('chainSide').value);tbody.innerHTML=rows.length?rows.map((x,i)=>`<tr data-chain-index="${state.chain.indexOf(x)}"><td>${money(x.strike)}</td><td>${money(x.bid)}</td><td>${money(x.ask)}</td><td>${money(x.mid)}</td><td>${pct(x.iv)}</td><td>${Number.isFinite(x.delta)?Number(x.delta).toFixed(3):'—'}</td><td>${x.volume??'—'}</td><td>${x.openInterest??'—'}</td></tr>`).join(''):'<tr><td colspan="8" style="text-align:center">请选择到期日加载期权链，或展开手动报价</td></tr>';
@@ -98,10 +99,10 @@
     const x=state.chain[i];state.selected=x;document.querySelectorAll('#optionChainBody tr').forEach(r=>r.classList.remove('selected'));tr.classList.add('selected');
     state.positionMode=false;$('manualStrike').value=x.strike;$('manualSpot').value=x.underlyingPrice||$('manualSpot').value;$('manualIv').value=Number.isFinite(x.iv)?(x.iv*100).toFixed(2):$('manualIv').value;
     const basis=$('quoteBasis').value,v=x[basis]??x.mid??x.last??x.ask??x.bid;$('manualPremium').value=Number(v||0).toFixed(2);$('targetSpot').value=$('manualSpot').value;$('manualExpiry').value=$('optExpiryV2').value;
-    $('selectedContract').textContent=`已选 ${x.optionSymbol||''}｜Strike ${money(x.strike)}｜Bid ${money(x.bid)} / Mid ${money(x.mid)} / Ask ${money(x.ask)}｜IV ${pct(x.iv)}｜数据 ${x.updated?new Date(x.updated*1000).toLocaleString():'—'}`;render();scheduleQuoteRefresh();
+    $('selectedContract').textContent=`已选 ${x.optionSymbol||''}｜Strike ${money(x.strike)}｜Bid ${money(x.bid)} / Mid ${money(x.mid)} / Ask ${money(x.ask)}｜IV ${pct(x.iv)}｜Alpaca Indicative · ${x.updated?new Date(x.updated*1000).toLocaleString():'时间未知'}`;render();scheduleQuoteRefresh();
   }
   async function refreshQuote(){if(!state.selected?.optionSymbol||!state.apiMode)return;try{const raw=await api({action:'quote',optionSymbol:state.selected.optionSymbol}),x=normalizeColumnar(raw)[0];if(!x)return;state.selected={...state.selected,...x};const basis=$('quoteBasis').value;$('manualPremium').value=Number(x[basis]??x.mid??x.last??0).toFixed(2);$('manualIv').value=Number.isFinite(x.iv)?(x.iv*100).toFixed(2):$('manualIv').value;setStatus(`报价已刷新 · ${new Date().toLocaleTimeString()}`,'good');render()}catch(e){setStatus(`刷新失败：${e.message}`,'bad')}}
-  function scheduleQuoteRefresh(){clearInterval(state.refreshTimer);state.refreshTimer=null;setStatus('已选合约；点击“读取到期日”或重新选择合约时更新报价。为避免403，不再自动轮询','warn')}
+  function scheduleQuoteRefresh(){clearInterval(state.refreshTimer);state.refreshTimer=setInterval(refreshQuote,15*60*1000);setStatus('Alpaca Indicative参考行情 · 已选合约每15分钟刷新；下单前请以IBKR Bid/Ask确认','warn')}
   function setPreset(kind,value){
     if(kind==='date'){if(value==='friday')$('targetDate').value=nextFriday();else{const d=new Date(`${todayIso()}T12:00:00Z`);d.setUTCDate(d.getUTCDate()+Number(value));$('targetDate').value=d.toISOString().slice(0,10)}}
     if(kind==='spot'){const s=+$('manualSpot').value,k=+$('manualStrike').value,p=+$('manualPremium').value;let v=s;if(value==='strike')v=k;else if(value==='breakeven')v=strategyMeta(state.strategy).type==='put'?k-p:k+p;else v=s*(1+Number(value));$('targetSpot').value=v.toFixed(2)}render();
@@ -138,7 +139,7 @@
   }
   function positionMetrics(position,quote){
     const short=String(position.side).toLowerCase()==='short',qty=Math.max(1,Number(position.qty)||1),cost=Number(position.cost)||0,multiplier=Math.max(1,Number(position.multiplier)||MULTIPLIER);
-    const bid=Number(quote.bid),ask=Number(quote.ask),mid=Number(quote.mid),last=Number(quote.last);
+    const bid=quoteNumber(quote.bid),ask=quoteNumber(quote.ask),mid=quoteNumber(quote.mid),last=quoteNumber(quote.last);
     const mark=short?(Number.isFinite(ask)?ask:Number.isFinite(mid)?mid:last):(Number.isFinite(bid)?bid:Number.isFinite(mid)?mid:last);
     const pnl=Number.isFinite(mark)?(short?cost-mark:mark-cost)*multiplier*qty:null;
     const base=cost*multiplier*qty,pnlPct=Number.isFinite(pnl)&&base>0?pnl/base:null,type=String(position.opt_type).toLowerCase();
@@ -147,7 +148,7 @@
   }
   function eventsBefore(expiry){const start=new Date(`${todayIso()}T00:00:00`),end=new Date(`${expiry}T23:59:59`);return state.events.filter(x=>{const d=new Date(x.datetime);return d>=start&&d<=end})}
   function positionRisk(position,quote){
-    const dte=rawDaysBetween(todayIso(),position.expiry),spot=Number(quote?.underlyingPrice),strike=Number(position.strike),type=String(position.opt_type).toLowerCase(),bid=Number(quote?.bid),ask=Number(quote?.ask),mid=Number(quote?.mid),spread=Number.isFinite(bid)&&Number.isFinite(ask)&&mid>0?(ask-bid)/mid:null;
+    const dte=rawDaysBetween(todayIso(),position.expiry),spot=quoteNumber(quote?.underlyingPrice),strike=Number(position.strike),type=String(position.opt_type).toLowerCase(),bid=quoteNumber(quote?.bid),ask=quoteNumber(quote?.ask),mid=quoteNumber(quote?.mid),spread=Number.isFinite(bid)&&Number.isFinite(ask)&&mid>0?(ask-bid)/mid:null;
     const itm=Number.isFinite(spot)?(type==='put'?spot<strike:spot>strike):null,distance=Number.isFinite(spot)&&strike>0?Math.abs(spot/strike-1):null;
     let level='unknown',label='等待有效报价';
     if(dte<0){level='danger';label='已到期 · 待结算'}
@@ -165,10 +166,10 @@
     const positions=[...state.positions.values()].filter(x=>!x.status||['open','pending_settlement'].includes(x.status));let obligation=0,due=0,covered=0,eventCount=0;
     positions.forEach(p=>{const mult=Math.max(1,Number(p.multiplier)||MULTIPLIER),qty=Math.max(1,Number(p.qty)||1);if(String(p.side).toLowerCase()==='short'&&String(p.opt_type).toLowerCase()==='put')obligation+=Number(p.strike)*mult*qty;const cached=JSON.parse(sessionStorage.getItem(`optionQuote:${p.id}`)||'null');if(cached?.quote)covered++;const risk=positionRisk(p,cached?.quote);if(risk.dte<=14)due++;if(risk.events.length)eventCount++});
     const stamp=state.eventsUpdated?new Date(state.eventsUpdated).toLocaleString():'未读取';
-    host.innerHTML=`<div class="risk-card"><div class="k">理论行权资金</div><div class="v">${money(obligation)}</div><div class="s">Short Put行权价×乘数×张数；不是IBKR实际保证金</div></div><div class="risk-card"><div class="k">14天内到期</div><div class="v">${due} 笔</div><div class="s">临期仓位需结合虚实值和价差检查</div></div><div class="risk-card"><div class="k">行情覆盖</div><div class="v">${covered}/${positions.length}</div><div class="s">仅统计本次浏览器内仍有效的真实报价</div></div><div class="risk-card"><div class="k">到期前宏观事件</div><div class="v">${eventCount} 笔</div><div class="s">FOMC/CPI官方日历更新：${stamp}</div></div>`;
+    host.innerHTML=`<div class="risk-card"><div class="k">理论行权资金</div><div class="v">${money(obligation)}</div><div class="s">Short Put行权价×乘数×张数；不是IBKR实际保证金</div></div><div class="risk-card"><div class="k">14天内到期</div><div class="v">${due} 笔</div><div class="s">临期仓位需结合虚实值和价差检查</div></div><div class="risk-card"><div class="k">行情覆盖</div><div class="v">${covered}/${positions.length}</div><div class="s">仅统计浏览器内有效的Alpaca参考报价</div></div><div class="risk-card"><div class="k">到期前宏观事件</div><div class="v">${eventCount} 笔</div><div class="s">FOMC/CPI官方日历更新：${stamp}</div></div>`;
   }
   function renderPositionRow(x,quote=null,message='点击“刷新”读取行情'){
-    const risk=positionRisk(x,quote),dte=risk.dte,m=quote?positionMetrics(x,quote):null,underlying=Number(quote?.underlyingPrice),iv=Number(quote?.iv),delta=Number(quote?.delta);
+    const risk=positionRisk(x,quote),dte=risk.dte,m=quote?positionMetrics(x,quote):null,underlying=quoteNumber(quote?.underlyingPrice),iv=quoteNumber(quote?.iv),delta=quoteNumber(quote?.delta);
     const pnlClass=m&&Number.isFinite(m.pnl)?(m.pnl>=0?'pos-text':'neg-text'):'',distance=Number.isFinite(underlying)?(underlying/m.breakeven-1):null;
     const eventText=risk.events.length?[...new Set(risk.events.map(e=>e.type))].join('/'):'无已知宏观事件';
     return `<tr id="opt-row-${x.id}"><td>${x.symbol} <span class="badge neutral">${x.side} ${x.opt_type}</span></td><td>$${Number(x.strike).toFixed(2)}</td><td>${x.expiry} (${dte}d)</td><td>$${Number(x.cost).toFixed(2)} / 每股</td><td>${m&&Number.isFinite(m.mark)?money(m.mark):'—'}</td><td class="${m?pnlClass:''}">${m&&Number.isFinite(m.pnl)?money(m.pnl):message}</td><td class="${m?pnlClass:''}">${m&&Number.isFinite(m.pnlPct)?pct(m.pnlPct):'—'}</td><td>$${Number(m?.breakeven??(String(x.opt_type).toLowerCase()==='put'?Number(x.strike)-Number(x.cost):Number(x.strike)+Number(x.cost))).toFixed(2)}</td><td>${Number.isFinite(underlying)?money(underlying):'—'}</td><td>${Number.isFinite(distance)?pct(distance):'—'}</td><td><span class="risk-chip ${risk.level}" title="${eventText}">${risk.label}</span></td><td>${Number.isFinite(iv)?pct(iv):'—'} / ${Number.isFinite(delta)?delta.toFixed(3):'—'}</td><td><button onclick="OptionV2.refreshPosition('${x.id}')" title="刷新报价">↻</button> <button onclick="OptionV2.openPositionScenario('${x.id}')" title="按真实成本推演">推演</button> <button onclick="deleteOptionPosition(${x.id})" title="删除">🗑️</button></td></tr>`;
@@ -191,8 +192,8 @@
     const p=state.positions.get(String(id));if(!p)return;
     state.positionMode=true;state.strategy=`${String(p.side).toUpperCase()==='SHORT'?'SELL':'BUY'}_${String(p.opt_type).toUpperCase()}`;if(state.strategy==='SELL_CALL')state.strategy='NAKED_CALL';
     const nav=document.querySelector('[onclick*="tab-sandbox"]');if(typeof global.switchTab==='function')global.switchTab('tab-sandbox',nav);
-    $('optionSymbol').value=p.symbol;$('manualStrike').value=Number(p.strike).toFixed(2);$('manualPremium').value=Number(p.cost).toFixed(2);$('manualExpiry').value=p.expiry;$('optionQty').value=p.qty||1;$('contractMultiplier').value=100;
-    strategyChanged(state.strategy);$('manualPanel').classList.add('active');$('selectedContract').textContent=`持仓推演模式：${p.symbol} ${p.side} ${p.opt_type}｜真实建仓成本 ${money(Number(p.cost))}/股｜${p.qty||1}张 × 100`;
+    $('optionSymbol').value=p.symbol;$('manualStrike').value=Number(p.strike).toFixed(2);$('manualPremium').value=Number(p.cost).toFixed(2);$('manualExpiry').value=p.expiry;$('optionQty').value=p.qty||1;$('contractMultiplier').value=p.multiplier||100;
+    strategyChanged(state.strategy);$('manualPanel').classList.add('active');$('selectedContract').textContent=`持仓推演模式：${p.symbol} ${p.side} ${p.opt_type}｜真实建仓成本 ${money(Number(p.cost))}/股｜${p.qty||1}张 × ${p.multiplier||100}`;
     const cached=JSON.parse(sessionStorage.getItem(`optionQuote:${id}`)||'null');if(cached?.quote){const q=cached.quote;$('manualSpot').value=q.underlyingPrice||$('manualSpot').value;$('manualIv').value=Number.isFinite(q.iv)?(q.iv*100).toFixed(2):$('manualIv').value}
     $('targetSpot').value=$('manualSpot').value;render();
   }

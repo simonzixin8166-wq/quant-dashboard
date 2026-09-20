@@ -1,4 +1,4 @@
-# myAlphaView V2.2 配置
+# myAlphaView V2.3 · Alpaca 配置
 
 ## 已完成
 
@@ -13,14 +13,14 @@
 - 增加深色模式、紧凑登录首屏、骨架屏与非阻塞错误提示。
 - 暂缓组合 Greeks 与 IV Rank，避免在行情源不稳定或历史 IV 不足时显示误导性精确数字。
 
-## 部署实时接口
+## 部署 Alpaca 参考行情接口
 
-1. 在 MarketData.app 创建 API Token。当前版本接受延迟行情，但页面必须显示真实返回的时间，不把延迟数据标成实时。
+1. 在 Alpaca 创建 Trading API（Paper 或 Live）Key。免费 Basic 期权数据为 Indicative Feed：成交可能延迟且报价经过调整，只能作为模拟与监控参考。
 2. 安装并登录 Supabase CLI。
 3. 在项目根目录执行：
 
 ```bash
-supabase secrets set MARKETDATA_API_TOKEN=你的Token
+supabase secrets set ALPACA_API_KEY=你的Key ALPACA_API_SECRET=你的Secret
 supabase functions deploy options-market
 supabase functions deploy market-snapshot --no-verify-jwt
 ```
@@ -53,24 +53,22 @@ supabase db push
 ## 数据刷新规则
 
 - 完整期权链：仅在选择股票、到期日或 Call/Put 时请求。
-- 已选合约：按需手动刷新并缓存1分钟；当前不自动轮询，以避免Serverless轮换IP触发403。
+- 已选合约：页面每15分钟刷新，浏览器缓存1分钟；完整期权链缓存10分钟。
 - 标普500、纳斯达克综合与VIX：`market-snapshot` 每30秒读取一次分钟行情；失败时只显示明确标注的 SPY/QQQ/VIXY 实时代理，不把代理价格冒充指数。
 - 全市场宽度：必须基于完整收盘日线，每个美股交易日收盘后更新；盘中沿用上一收盘日结果。
 - Edge Function 对相同请求缓存15秒。
 - API Token只存在Supabase Secret中，不得写入HTML或GitHub仓库。
 - GitHub Action 每日从 Federal Reserve 与 BLS 官方来源更新 FOMC/CPI 日历；抓取失败时保留上次成功文件，不生成推测日期。
 
-## 403说明
+## Alpaca 数据口径与报错说明
 
-MarketData 官方明确不支持 Lambda、Supabase Edge Functions 等会轮换出口 IP 的 Serverless 部署。403 表示同一 Token 在五分钟内出现多个出口 IP，并非到期日或计算参数错误。
-
-V2.1 已采取以下保护：
-
-- 到期日和期权链在浏览器会话内缓存10分钟，单合约报价缓存1分钟。
-- 收到403后暂停请求5分钟，不再自动轮询扩大封锁。
-- 持仓表允许按行刷新；无法取得行情时保留手动报价模式，不生成假IV。
-
-若需要长期稳定的全自动盘中行情，必须将 MarketData 请求迁移到具有固定出口 IP 的单一服务器，或改用明确支持 Serverless 的期权数据供应商。
+- `401`：通常是 Key/Secret 填错，或 Paper Key 与接口环境不匹配。函数会自动尝试 Paper 与 Live 合约目录。
+- `403`：账户没有相应数据权限；不再采用 MarketData 的五分钟封锁逻辑。
+- `429`：达到免费层请求频率；页面保留最近一次浏览器缓存并允许手动报价。
+- 免费层固定请求 `feed=indicative`，页面不得写成“OPRA实时行情”或“可成交价格”。
+- 正股参考价来自 Alpaca Basic 的 IEX Snapshot，不等于全市场综合报价；推演时可手动改成 IBKR 当前正股价。
+- Alpaca Option Snapshot 当前不提供可靠的 Open Interest 字段时，页面显示 `—`，不会生成猜测值。
+- Short 持仓盈亏优先按 Ask 估算平仓成本；Long 持仓优先按 Bid 估算卖出价值。
 
 ## 估值说明
 

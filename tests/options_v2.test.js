@@ -25,6 +25,8 @@ assert(Math.abs(heldMetrics.breakeven-626.52)<.001,'Saved short put break-even m
 
 const customMultiplier=globalThis.OptionV2.positionMetrics({...held,multiplier:10},{bid:30,ask:32,mid:31,last:31});
 assert(Math.abs(customMultiplier.pnl-14.8)<.01,'Saved contract multiplier must be respected instead of always forcing 100');
+const missingAsk=globalThis.OptionV2.positionMetrics(held,{bid:2.5,ask:null,mid:3,last:2.8});
+assert.strictEqual(missingAsk.mark,3,'Missing Alpaca quote fields must not be converted to a fake zero price');
 const expiredRisk=globalThis.OptionV2.positionRisk({...held,expiry:'2000-01-01'},null);
 assert.strictEqual(expiredRisk.level,'danger','Expired positions must be marked pending settlement, never safe');
 const wideSpreadRisk=globalThis.OptionV2.positionRisk({...held,expiry:'2099-01-01'},{underlyingPrice:800,bid:10,ask:20,mid:15});

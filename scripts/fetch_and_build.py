@@ -1,4 +1,4 @@
-import json, datetime, os, time, math
+import json, datetime, os, time, math, tempfile
 import urllib.request, urllib.parse
 import yfinance as yf
 import pandas as pd
@@ -7,9 +7,9 @@ import warnings
 warnings.filterwarnings("ignore")
 
 # 单一版本源：每日 Action 生成 HTML 时，页面标题和静态资源缓存版本都从这里读取。
-APP_VERSION = "2.5"
-OPTIONS_VERSION = "2.5"
-ASSET_VERSION = "2.5"
+APP_VERSION = "2.6"
+OPTIONS_VERSION = "2.6"
+ASSET_VERSION = "2.6"
 
 API_KEY = os.environ.get("TWELVE_DATA_KEY", "demo")
 BASE = "https://api.twelvedata.com"
@@ -453,7 +453,8 @@ def build():
         recent_rows = m_rows[:252] if len(m_rows) >= 252 else m_rows
         high_52w = max([float(r["high"]) for r in recent_rows])
         dist_52w_high = pct_change(float(m_rows[0]["close"]), high_52w)
-        if isinstance(m_drawdown, (int, float)) and m_drawdown <= -0.08 and not math.isnan(m_drawdown): m_score += 2
+        drawdown_hit = isinstance(m_drawdown, (int, float)) and not math.isnan(m_drawdown) and m_drawdown <= -0.08
+        if drawdown_hit: m_score += 2
         
         if breadth_data and breadth_data.get("status") == "ok":
             b20, b50, b200, slope = breadth_data["b20"], breadth_data["b50"], breadth_data["b200"], breadth_data["slope_10d"]
@@ -472,7 +473,7 @@ def build():
                 divergence_level, divergence_label = "l2", "指数近高位，市场宽度开始背离"
 
         m_tier = "extreme" if m_score >= 7 else ("major" if m_score >= 5 else ("tier1" if m_score >= 3 else "normal"))
-        market_regime = {"score": m_score, "max_score": 9, "max_available_score": m_max, "tier": m_tier, "tier_label": {"extreme":"极限恐慌", "major":"重点恐慌", "tier1":"一级恐慌"}.get(m_tier, "盘中临时状态" if m_max<9 else "正常"), "drawdown": {"value": m_drawdown, "threshold": -0.08, "hit": m_score >= 2, "points": 2}, "conditions": m_cond, "vix": vix_data.get("close") if "error" not in vix_data else None, "breadth_status": (breadth_data or {}).get("status", "error"), "breadth_message": (breadth_data or {}).get("message", "宽度数据缺失"), "dist_52w_high": dist_52w_high, "divergence": {"level":divergence_level, "label":divergence_label, "near_high":near_high}}
+        market_regime = {"score": m_score, "max_score": 9, "max_available_score": m_max, "tier": m_tier, "tier_label": {"extreme":"极限恐慌", "major":"重点恐慌", "tier1":"一级恐慌"}.get(m_tier, "盘中临时状态" if m_max<9 else "正常"), "drawdown": {"value": m_drawdown, "threshold": -0.08, "hit": drawdown_hit, "points": 2}, "conditions": m_cond, "vix": vix_data.get("close") if "error" not in vix_data else None, "breadth_status": (breadth_data or {}).get("status", "error"), "breadth_message": (breadth_data or {}).get("message", "宽度数据缺失"), "dist_52w_high": dist_52w_high, "divergence": {"level":divergence_level, "label":divergence_label, "near_high":near_high}}
 
     for name in STOCKS:
         try: stocks[name] = analyze(name, fetch_time_series(name), today, is_stock=True)
@@ -1100,11 +1101,49 @@ def push_to_supabase(data):
     try: urllib.request.urlopen(req, timeout=15); print("✅ 成功将最新数据推送到 Supabase")
     except Exception as e: print(f"❌ 推送 Supabase 失败: {e}")
 
+def validate_build_data(data):
+    """阻止严重缺数的构建覆盖上一份可用站点。缓存宽度仍属于有效数据。"""
+    errors = []
+    indicators = data.get("market_indicators") or {}
+    for key in ("spx", "vix"):
+        row = indicators.get(key) or {}
+        if not isinstance(row.get("close"), (int, float)) or row.get("close", 0) <= 0:
+            errors.append(f"{key.upper()} 缺少有效收盘值")
+    for key, minimum in (("core", 4), ("index", 4)):
+        valid = sum(1 for row in (data.get(key) or {}).values() if isinstance(row, dict) and "error" not in row)
+        if valid < minimum: errors.append(f"{key} 有效资产仅 {valid} 个，最低要求 {minimum} 个")
+    stocks = data.get("stocks") or {}
+    valid_stocks = sum(1 for row in stocks.values() if isinstance(row, dict) and "error" not in row)
+    if stocks and valid_stocks / len(stocks) < 0.5:
+        errors.append(f"观察池有效率仅 {valid_stocks}/{len(stocks)}")
+    if "error" in (data.get("market_regime") or {}): errors.append("市场状态引擎不可用")
+    if (data.get("raw_breadth") or {}).get("status") != "ok": errors.append("市场宽度没有可用的本次或缓存结果")
+    if errors: raise RuntimeError("构建质量门未通过：" + "；".join(errors))
+
+
+def atomic_write(path, content):
+    directory = os.path.dirname(os.path.abspath(path))
+    os.makedirs(directory, exist_ok=True)
+    fd, temporary = tempfile.mkstemp(prefix=".mav-build-", dir=directory, text=True)
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as handle:
+            handle.write(content)
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.replace(temporary, path)
+    except Exception:
+        try: os.unlink(temporary)
+        except FileNotFoundError: pass
+        raise
+
+
 if __name__ == '__main__':
     data = build()
-    out = os.path.join(os.path.dirname(__file__), '..', 'docs', 'data.json')
-    with open(out, 'w', encoding='utf-8') as f: json.dump(data, f, ensure_ascii=False, indent=2)
-    html_out = os.path.join(os.path.dirname(__file__), '..', 'docs', 'index.html')
-    with open(html_out, 'w', encoding='utf-8') as f: f.write(render_html(data))
-    print(f'Generated {html_out}')
+    validate_build_data(data)
+    docs_dir = os.path.join(os.path.dirname(__file__), '..', 'docs')
+    out = os.path.join(docs_dir, 'data.json')
+    html_out = os.path.join(docs_dir, 'index.html')
+    atomic_write(out, json.dumps(data, ensure_ascii=False, indent=2))
+    atomic_write(html_out, render_html(data))
+    print(f'Generated {html_out} (quality gate passed)')
     push_to_supabase(data)

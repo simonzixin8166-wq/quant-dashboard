@@ -15,6 +15,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: daily-dashboard-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   update:
     runs-on: ubuntu-latest
@@ -46,6 +50,7 @@ jobs:
       - name: Verify generated dashboard contract
         run: |
           node --check docs/assets/options-v2.js
+          node --check docs/assets/market-live.js
           node --check docs/assets/strategy-budget.js
           node tests/options_v2.test.js
           python tests/test_breadth.py
@@ -59,4 +64,5 @@ jobs:
           git config user.email "actions@github.com"
           git add docs/
           git commit -m "Daily update $(date -u +%Y-%m-%d)" || echo "No changes"
-          git push
+          git pull --rebase origin main
+          git push origin HEAD:main

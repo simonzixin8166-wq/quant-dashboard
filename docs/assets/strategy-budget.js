@@ -5,7 +5,7 @@
   const saveTimers=new Map();
 
   function renderCard(card){
-    const reserve=Math.max(0,Number(card.querySelector('.budget-input')?.value)||0),drawdown=Number(card.dataset.drawdown),loss=Number.isFinite(drawdown)?-drawdown:null,tiers=[Number(card.dataset.t1),Number(card.dataset.t2),Number(card.dataset.t3)],alloc=[.2,.3,.5];
+    const reserve=Math.max(0,Number(card.querySelector('.budget-input')?.value)||0),rawDrawdown=card.dataset.drawdown,drawdown=rawDrawdown===''?NaN:Number(rawDrawdown),loss=Number.isFinite(drawdown)?-drawdown:null,tiers=[Number(card.dataset.t1),Number(card.dataset.t2),Number(card.dataset.t3)],alloc=[.2,.3,.5];
     card.querySelectorAll('[data-tier-amount]').forEach((node,i)=>node.textContent=reserve?money(reserve*alloc[i]):'—');
     let reached=0;tiers.forEach((x,i)=>{if(loss!==null&&loss>=x)reached=i+1});
     card.classList.toggle('triggered',reached>0);
@@ -13,7 +13,7 @@
     if(!reserve)next.textContent='输入该资产预留资金后计算每档金额';
     else if(loss===null)next.textContent='ATH 尚未校验，不触发正式加仓档位';
     else if(reached===3)next.textContent=`已达三级：本档计划 ${money(reserve*.5)}（仅提示，不自动下单）`;
-    else{const gap=Math.max(0,tiers[reached]-loss);next.textContent=`下一档：${reached+1}级，距离触发 ${Math.round(gap*1000)/10}% · 计划 ${money(reserve*alloc[reached])}`}
+    else{const gap=Math.max(0,tiers[reached]-loss);next.textContent=`下一档：${reached+1}级，回撤幅度还差 ${Math.round(gap*1000)/10} 个百分点 · 计划 ${money(reserve*alloc[reached])}`}
   }
 
   function duplicateExposureNotice(){

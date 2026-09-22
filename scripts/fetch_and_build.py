@@ -7,9 +7,9 @@ import warnings
 warnings.filterwarnings("ignore")
 
 # 单一版本源：每日 Action 生成 HTML 时，页面标题和静态资源缓存版本都从这里读取。
-APP_VERSION = "2.8"
-OPTIONS_VERSION = "2.8"
-ASSET_VERSION = "2.8"
+APP_VERSION = "3.0"
+OPTIONS_VERSION = "3.0"
+ASSET_VERSION = "3.0"
 
 API_KEY = os.environ.get("TWELVE_DATA_KEY", "demo")
 BASE = "https://api.twelvedata.com"
@@ -524,22 +524,48 @@ def get_dist_text(dd, tiers):
 def engine_item(name, r):
     if "error" in r: return f'<div class="engine-item"><div class="k">{name}</div><div class="v">-</div><div class="pt">数据获取失败</div></div>'
     level, hit_cls = r.get("level", 0), "hit" if r.get("level", 0) > 0 else ""
-    tiers_str = f'一级{fmt_pct((r.get("tiers") or {}).get("t1"),0)} / 二级{fmt_pct((r.get("tiers") or {}).get("t2"),0)} / 三级{fmt_pct((r.get("tiers") or {}).get("t3"),0)}'
+    tiers = r.get("tiers") or CORE_TIERS.get(name) or {}
+    tiers_str = f'一级{fmt_pct(tiers.get("t1"),1)} / 二级{fmt_pct(tiers.get("t2"),1)} / 三级{fmt_pct(tiers.get("t3"),1)}'
 
     if r.get("ath_is_true"):
-        dd, label, dist_text = r.get("strategy_drawdown"), "回撤 (ATH)", get_dist_text(r.get("strategy_drawdown"), r.get("tiers"))
+        dd, label, dist_text = r.get("strategy_drawdown"), "回撤 (ATH)", get_dist_text(r.get("strategy_drawdown"), tiers)
         if r.get("ath_validation") == "CHECK": status_text, hit_cls = "⚠ 极端回撤 · 请验证数据", "warn"
         else: status_text = f'{r.get("level_label") if level > 0 else "未触发"} <span style="opacity:0.85">{dist_text}</span>'
     else:
         dd, label, status_text = r.get("window_drawdown"), "窗口回撤", "ATH 暂不可用 · 仅供参考"
-    return f'''<div class="engine-item {hit_cls}"><div class="k">{name} {label}</div><div class="v">{fmt_pct(dd)}</div><div class="pt">{status_text} · 阈值 {tiers_str}</div></div>'''
+    close = r.get("close")
+    formal_signal = bool(r.get("ath_is_true") and r.get("ath_validation") != "CHECK")
+    ath = close / (1 + dd) if formal_signal and isinstance(close, (int, float)) and isinstance(dd, (int, float)) and dd > -1 else None
+    tier_values = [tiers.get("t1"), tiers.get("t2"), tiers.get("t3")]
+    next_index = min(level, 2)
+    next_tier = tier_values[next_index] if tier_values else None
+    trigger = ath * (1 - next_tier) if ath and isinstance(next_tier, (int, float)) else None
+    price_gap = trigger / close - 1 if trigger and close else None
+    trigger_label = "三级线" if level >= 3 else f"{next_index + 1}级线"
+    reference = '<span class="engine-reference">同指数参考</span>' if name == "QQQ" else ''
+    action_text = "仅观察：ATH尚未通过校验" if not formal_signal else ({0:"等待：不提前加仓",1:"一级：使用20%预留",2:"二级：追加30%预留",3:"三级：使用最后50%预留"}.get(level,"等待"))
+    return f'''<article class="engine-item {hit_cls}" data-budget-symbol="{name}" data-drawdown="{dd if isinstance(dd,(int,float)) else ''}" data-t1="{tiers.get('t1','')}" data-t2="{tiers.get('t2','')}" data-t3="{tiers.get('t3','')}"><div class="engine-item-head"><div class="k">{name} {label} {reference}</div><div class="engine-state">{status_text}</div></div><div class="v">{fmt_pct(dd)}</div><div class="engine-action">{action_text}</div><div class="engine-trigger"><span>{trigger_label}触发价</span><b>{'$'+format(trigger,'.2f') if trigger else '待校验'}</b><small>{'距当前 '+fmt_pct(price_gap) if isinstance(price_gap,(int,float)) else '仅供参考'}</small></div><div class="pt">阈值 {tiers_str}</div><label class="engine-budget-label">该资产预留资金（USD）<input class="budget-input" type="number" min="0" step="100" placeholder="登录后设置"></label><div class="budget-allocation"><span>一级 20%<b data-tier-amount="1">—</b></span><span>二级 30%<b data-tier-amount="2">—</b></span><span>三级 50%<b data-tier-amount="3">—</b></span></div><div class="budget-next" data-budget-next>等待预算</div></article>'''
 
 def card_etf(name, r):
     disp_name = {"GCMAIN": "黄金连续期货 (GC=F)", "BTC/USD": "比特币 (BTC-USD)", "QQQ": "纳斯达克100 (QQQ)", "VOO": "标普500 (VOO)", "SMH": "半导体ETF (SMH)", "TQQQ": "纳指3倍做多 (TQQQ)"}.get(name, name)
     if "error" in r: return f'<div class="card err"><div class="sym">{disp_name}</div><div class="errmsg">获取失败: {r["error"]}</div></div>'
-    dist_text = get_dist_text(r.get("drawdown"), r.get("tiers"))
-    dist_row = f'<div class="row"><span>下一档距离</span><span style="color:var(--brass);font-weight:700;">{dist_text.replace("(","").replace(")","")}</span></div>' if dist_text else ""
-    return f'''<div class="card"><div class="card-header"><span class="sym">{disp_name}</span><span class="price">${r["close"]:.2f}</span></div><div class="divider"></div><div class="row"><span>当年(YTD)最高</span><span class="fw-bold">${fmt_num(r["ytd_high"])}</span></div><div class="row"><span>策略回撤基准</span><span class="{'neg-text fw-bold' if r['drawdown'] and r['drawdown']<0 else 'fw-bold'}">{fmt_pct(r["drawdown"])}</span></div>{dist_row}<div class="row"><span>RSI (14)</span><span class="fw-bold">{fmt_num(r["rsi"])}</span></div><div class="row"><span>距 200MA</span><span class="fw-bold">{fmt_pct(r["dist_200ma"])}</span></div></div>'''
+    drawdown, close, tiers = r.get("drawdown"), r.get("close"), r.get("tiers") or {}
+    basis = "策略基准：历史ATH" if r.get("ath_is_true") else "参考基准：近2年窗口高点"
+    high_label = "ATH" if r.get("ath_is_true") else "窗口高点"
+    high = close / (1 + drawdown) if isinstance(close,(int,float)) and isinstance(drawdown,(int,float)) and drawdown > -1 else None
+    formal_signal = bool(r.get("ath_is_true") and r.get("ath_validation") != "CHECK")
+    level = r.get("level",0) or 0
+    tier_values = [tiers.get("t1"),tiers.get("t2"),tiers.get("t3")]
+    next_tier = tier_values[min(level,2)] if tiers else None
+    trigger = high * (1-next_tier) if formal_signal and high and isinstance(next_tier,(int,float)) else None
+    gap = trigger/close-1 if trigger and close else None
+    if trigger:
+        trigger_row = f'<div class="row trigger-row"><span>{"三级" if level>=3 else str(level+1)+"级"}触发价</span><span><b>${trigger:.2f}</b><small>距触发 {fmt_pct(gap)}</small></span></div>'
+    elif tiers:
+        trigger_row = '<div class="row"><span>策略信号</span><span class="muted-value">ATH未校验，不触发正式信号</span></div>'
+    else:
+        trigger_row = '<div class="row"><span>策略信号</span><span class="muted-value">不参与核心ETF加仓信号</span></div>'
+    return f'''<div class="card asset-card"><div class="card-header"><span class="sym">{disp_name}</span><span class="price">${r["close"]:.2f}</span></div><div class="asset-basis">{basis}</div><div class="divider"></div><div class="row"><span>{high_label}</span><span class="fw-bold">${fmt_num(high)}</span></div><div class="row"><span>当前回撤</span><span class="{'neg-text fw-bold' if drawdown and drawdown<0 else 'fw-bold'}">{fmt_pct(drawdown)}</span></div>{trigger_row}<div class="row"><span>RSI / 距200MA</span><span class="fw-bold">{fmt_num(r["rsi"])} / {fmt_pct(r["dist_200ma"])}</span></div><div class="asset-date">收盘日线截至：{r.get("date","-")}</div></div>'''
 
 def render_options_html(options_data):
     if not options_data: return '<tr><td colspan="14" style="text-align:center; color:var(--muted)">当前没有记录的期权持仓</td></tr>'
@@ -582,27 +608,51 @@ def render_options_html(options_data):
         </tr>'''
     return html
 
+def classify_stock_status(close, target=None, rsi=None, dist_200ma=None):
+    """Return the single highest-priority decision state for a watchlist row."""
+    if isinstance(target, (int, float)) and target > 0 and isinstance(close, (int, float)):
+        if close <= target:
+            return "triggered", "已触发"
+        if close / target - 1 <= .05:
+            return "near", "接近策略价"
+    if isinstance(rsi, (int, float)) and rsi < 35:
+        return "oversold", "超卖观察"
+    if isinstance(dist_200ma, (int, float)) and dist_200ma < -.10:
+        return "weak", "趋势偏弱"
+    if (isinstance(rsi, (int, float)) and rsi > 70) or (isinstance(dist_200ma, (int, float)) and dist_200ma > .25):
+        return "hot", "过热"
+    return "normal", "正常观察"
+
 def render_html(data):
-    engine_html = "".join(engine_item(k, v) for k, v in data["core"].items())
-    budget_cards = []
-    for symbol, tiers in CORE_TIERS.items():
-        core_row = data.get("core", {}).get(symbol, {})
-        drawdown = core_row.get("strategy_drawdown") if core_row.get("ath_is_true") else None
-        budget_cards.append(f'''<article class="budget-card" data-budget-symbol="{symbol}" data-drawdown="{drawdown if isinstance(drawdown,(int,float)) else ''}" data-t1="{tiers['t1']}" data-t2="{tiers['t2']}" data-t3="{tiers['t3']}"><div class="budget-head"><strong>{symbol}</strong><span>{fmt_pct(drawdown) if isinstance(drawdown,(int,float)) else 'ATH待校验'}</span></div><div class="budget-thresholds">触发线 {fmt_pct(-tiers['t1'],1)} / {fmt_pct(-tiers['t2'],1)} / {fmt_pct(-tiers['t3'],1)}</div><label>该资产预留加仓资金（USD）<input class="budget-input" type="number" min="0" step="100" placeholder="登录后设置"></label><div class="budget-allocation"><span>一级 20%<b data-tier-amount="1">—</b></span><span>二级 30%<b data-tier-amount="2">—</b></span><span>三级 50%<b data-tier-amount="3">—</b></span></div><div class="budget-next" data-budget-next>等待预算</div></article>''')
-    budget_html = "".join(budget_cards)
+    engine_order = ["QQQM", "VGT", "QLD", "VOO", "TQQQ", "QQQ"]
+    engine_html = "".join(engine_item(k, data["core"].get(k, {"error":"无数据"})) for k in engine_order)
     max_level = max([v.get("level", 0) for v in data["core"].values() if "error" not in v] or [0])
     level_names = {0: "正常 · 未触发", 1: "一级加仓线", 2: "二级加仓线", 3: "三级加仓线"}
     engine_badge_cls = "normal" if max_level == 0 else "t2"
     
-    index_html = "".join(card_etf(k, data["index"][k]) for k in DISPLAYED_INDEX if k in data["index"])
+    def asset_group(title, subtitle, symbols):
+        cards = "".join(card_etf(k, data["index"][k]) for k in symbols if k in data["index"])
+        return f'<div class="asset-group"><div class="section-head compact"><h2>{title}</h2><p>{subtitle}</p></div><div class="grid">{cards}</div></div>'
+    index_html = "".join([
+        asset_group("核心指数", "长期趋势与正式策略触发", ["QQQ","VOO"]),
+        asset_group("卫星及杠杆", "行业卫星仓与高波动工具", ["SMH","TQQQ"]),
+        asset_group("另类资产", "黄金与比特币使用近2年窗口回撤，仅供参考", ["GCMAIN","BTC/USD"]),
+    ])
     
     stock_html = ""
     for sym, v in data["stocks"].items():
         if "error" not in v:
             name = STOCK_META.get(sym, {}).get("name", sym)
             target = STOCK_META.get(sym, {}).get("target")
-            chg = v.get("day_chg") or 0
-            stock_html += f'''<tr><td><div style="font-weight:600; font-size:13.5px; color:var(--ink); line-height:1.2;">{name}</div><div style="font-size:11px; color:var(--muted); margin-top:3px; font-weight:500;">{sym}</div></td><td class="fw-bold" id="close-{sym}">${v["close"]:.2f}</td><td class="{'pos-text' if chg>=0 else 'neg-text'}" id="chg-{sym}">{chg*100:+.2f}%</td><td>${v.get("open",0):.2f}</td><td>${v.get("high",0):.2f}</td><td>${v.get("low",0):.2f}</td><td>${fmt_num(v.get("ytd_high"))}</td><td>{fmt_num(v.get("rsi"))}</td><td>{fmt_pct(v.get("dist_200ma"))}</td><td><b id="target-{sym}">${target or "-"}</b> <span id="action-{sym}">{ '<span class="alert-text fw-bold ml">(信号触发!)</span>' if target and v["close"] <= target else ""}</span></td></tr>'''
+            chg, close, ytd_high, rsi, dist = v.get("day_chg") or 0, v["close"], v.get("ytd_high"), v.get("rsi"), v.get("dist_200ma")
+            ytd_dd = close/ytd_high-1 if ytd_high else None
+            target_distance = target/close-1 if target and close else None
+            status, status_label = classify_stock_status(close, target, rsi, dist)
+            if target:
+                target_gap_text = f'低于策略价 {fmt_pct(close/target-1)}' if close <= target else f'还需下跌 {fmt_pct(abs(target_distance))}'
+            else: target_gap_text = "等待策略数据"
+            target_display = f"${target:.2f}" if isinstance(target,(int,float)) else "—"
+            stock_html += f'''<tr data-stock-row data-status="{status}" data-target-distance="{abs(target_distance) if isinstance(target_distance,(int,float)) else 999}" data-drawdown="{abs(ytd_dd) if isinstance(ytd_dd,(int,float)) else 0}" data-rsi="{rsi if isinstance(rsi,(int,float)) else 999}" data-dist200="{dist if isinstance(dist,(int,float)) else 0}"><td class="stock-identity"><div class="stock-name">{name}</div><div class="stock-symbol">{sym}</div><details class="stock-details"><summary>行情详情</summary><div>开 ${v.get("open",0):.2f} · 高 ${v.get("high",0):.2f} · 低 ${v.get("low",0):.2f}<br>YTD高点 ${fmt_num(ytd_high)} · 日线截至 {v.get("date","-")}</div></details></td><td data-label="最新价 / 涨跌"><b id="close-{sym}">${close:.2f}</b><small id="chg-{sym}" class="{'pos-text' if chg>=0 else 'neg-text'}">{chg*100:+.2f}%</small></td><td data-label="YTD回撤" class="neg-text fw-bold">{fmt_pct(ytd_dd)}</td><td data-label="RSI">{fmt_num(rsi)}</td><td data-label="距200MA" class="{'neg-text' if isinstance(dist,(int,float)) and dist<0 else ''}">{fmt_pct(dist)}</td><td data-label="策略价 / 距离" id="target-cell-{sym}"><b id="target-{sym}">{target_display}</b><small id="target-gap-{sym}">{target_gap_text}</small></td><td data-label="状态"><span id="stock-status-{sym}" class="stock-status {status}">{status_label}</span><span id="action-{sym}"></span></td></tr>'''
             
     options_html = '<tr><td colspan="14" style="text-align:center; color:var(--muted)">请登录后查看私有期权持仓</td></tr>'
 
@@ -684,9 +734,11 @@ def render_html(data):
         change_html = f'<span class="vix-change {"positive" if change>=0 else "negative"}" data-us-live-chg="vix">{"+" if change>=0 else ""}{fmt_pct(change)}</span>' if isinstance(change, (int, float)) else '<span class="vix-change" data-us-live-chg="vix">—</span>'
         return f'''<div class="metric-card vix-metric-card" data-vix-card><div class="metric-top">VIX恐慌指数<span class="metric-dot" data-vix-dot style="background:{zone_color}"></span></div><div class="vix-gauge" data-vix-gauge style="--vix-angle:{angle:.2f}deg"><svg viewBox="0 0 200 108" role="img" aria-label="VIX风险分区半圆仪表盘"><path class="vix-arc calm" d="M18 100 A82 82 0 0 1 68.6 24.2"/><path class="vix-arc mild" d="M68.6 24.2 A82 82 0 0 1 100 18"/><path class="vix-arc caution" d="M100 18 A82 82 0 0 1 131.4 24.2"/><path class="vix-arc high" d="M131.4 24.2 A82 82 0 0 1 158 42"/><path class="vix-arc extreme" d="M158 42 A82 82 0 0 1 182 100"/></svg><span class="vix-needle"></span><span class="vix-hub"></span></div><div class="vix-reading"><strong data-us-live-price="vix">{fmt_num(numeric) if numeric is not None else "—"}</strong>{change_html}<span class="vix-zone" data-vix-zone style="color:{zone_color}">{zone}</span></div><div class="vix-band-legend" aria-label="VIX风险区间"><span class="calm">&lt;15</span><span class="mild">15–20</span><span class="caution">20–25</span><span class="high">25–30</span><span class="extreme">≥30</span></div><div class="metric-note" data-us-live-note="vix">{note}</div></div>'''
 
-    def mkt_card_a(title, mdata, code=""):
+    def mkt_card_a(title, mdata, code="", proxy=False):
         if not mdata or "error" in mdata: return f'<div class="mkt-card"><div class="name">{title}</div><div class="val" style="font-size:14px;color:var(--muted);margin-top:12px">接口拦截/闭市</div></div>'
-        return f'''<div class="mkt-card hover-card" onclick="toggleMktChart('{code}', '{title}')"><div class="name">{title} <span class="chart-hint">📈趋势</span></div><div class="val" data-live-price="{code}">{mdata.get("price",0):,.3f}</div><div class="chg {"positive" if mdata.get("day_chg",0)>=0 else "negative"}" data-live-chg="{code}">{"+" if mdata.get("day_chg",0)>=0 else ""}{fmt_pct(mdata.get("day_chg",0))}</div><div class="mkt-chart-wrap" id="wrap-{code}"><div style="height:140px; position:relative; width:100%;"><canvas id="canvas-{code}"></canvas></div></div></div>'''
+        decimals = 2 if code.startswith('sh') else 3
+        proxy_badge = '<span class="proxy-badge">指数代理</span>' if proxy else ''
+        return f'''<div class="mkt-card hover-card" onclick="toggleMktChart('{code}', '{title}')"><div class="name"><span>{title} {proxy_badge}</span><span class="chart-hint">30日趋势</span></div><div class="mkt-quote"><div class="val" data-live-price="{code}">{mdata.get("price",0):,.{decimals}f}</div><div class="chg {"positive" if mdata.get("day_chg",0)>=0 else "negative"}" data-live-chg="{code}">{"+" if mdata.get("day_chg",0)>=0 else ""}{fmt_pct(mdata.get("day_chg",0))}</div></div><div class="mkt-meta"><span data-market-state="{code}">腾讯行情 · 状态检查中</span><span data-live-time="{code}">页面生成 {data.get("gen_time","-")}</span></div><div class="mkt-chart-wrap" id="wrap-{code}"><div style="height:140px; position:relative; width:100%;"><canvas id="canvas-{code}"></canvas></div></div></div>'''
 
     chart_json = json.dumps(data.get("overview_charts", {}), ensure_ascii=False)
 
@@ -708,10 +760,13 @@ def render_html(data):
 .grid{{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}} .card{{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px;box-shadow:var(--shadow)}} .card-header{{display:flex;justify-content:space-between;align-items:center}} .sym{{font-weight:700;font-size:16px}} .price{{font-size:20px;font-weight:700;font-family:var(--serif)}} .divider{{height:1px;background:var(--line);margin:14px 0}} .row{{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:10px}} .fw-bold{{color:var(--ink);font-weight:600}} .pos-text{{color:var(--green)}} .neg-text{{color:var(--red)}} .alert-text{{color:var(--red)}} .errmsg{{color:var(--muted);font-size:12px;margin-top:8px}} 
 .table-container{{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow)}} table{{width:100%;border-collapse:collapse;text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}} th,td{{padding:14px;border-bottom:1px solid var(--line);font-size:13px}} th{{background:var(--surface2);color:var(--muted);font-weight:600;font-size:11.5px}} th:nth-child(1),td:nth-child(1){{text-align:left}} tr:hover td{{background:#fbfbfb}}
 .mkt-card{{background:var(--surface);border:1px solid var(--line);border-radius:13px;padding:17px 18px;box-shadow:var(--shadow); align-self:start; transition: transform 0.2s, box-shadow 0.2s;}} .mkt-card.hover-card {{cursor: pointer;}} .mkt-card.hover-card:hover {{transform: translateY(-2px); box-shadow: 0 16px 40px rgba(15,15,10,.08);}} .chart-hint {{font-size: 10px; color: var(--brass); opacity: 0.8; font-weight: normal; margin-left: 6px;}} .mkt-chart-wrap {{display: none; margin-top: 15px; padding-top: 15px; border-top: 1px dashed var(--line);}} .mkt-chart-wrap.open {{display: block; animation: fadeDown 0.3s ease;}} @keyframes fadeDown {{from {{opacity: 0; transform: translateY(-5px);}} to {{opacity: 1; transform: none;}}}} .mkt-card .name{{font-size:12.5px;color:var(--muted);display:flex;justify-content:space-between; align-items:center;}} .mkt-card .val{{font-family:var(--serif);font-size:21px;margin-top:8px}} .mkt-card .chg{{font-size:11.5px;font-weight:600;margin-top:4px}} .opt-grid{{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px; align-items:start;}}
+.compact-hero{{margin-bottom:18px;align-items:center}}.compact-hero h1{{font-size:30px}}.compact-hero p{{margin-top:7px}}.overview-hero{{align-items:center;margin-bottom:18px;padding:14px 16px;background:var(--surface);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow)}}.overview-hero h1{{font-size:25px}}.overview-hero p{{margin-top:5px;font-size:11.5px}}.overview-hero .public-note{{padding:9px 12px;flex-basis:240px;box-shadow:none}}.data-legend{{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}}.data-legend span{{padding:3px 7px;border-radius:99px;background:var(--surface2);color:var(--muted);font-size:9px}}.data-legend .live{{color:var(--green);background:var(--green-soft)}}.data-legend .close{{color:var(--navy)}}.data-legend .missing{{color:var(--red);background:var(--red-soft)}}.engine-asof{{font-size:10.5px;color:var(--navmuted);margin-top:6px}}.engine-grid{{grid-template-columns:repeat(3,minmax(0,1fr))}}.engine-item{{padding:15px;min-width:0}}.engine-item-head{{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}}.engine-state{{font-size:9.5px;color:var(--brass-soft);text-align:right}}.engine-reference{{display:inline-block;padding:2px 5px;border-radius:99px;background:rgba(255,255,255,.08);font-size:8px}}.engine-trigger{{display:grid;grid-template-columns:1fr auto;gap:2px 8px;margin-top:9px;padding:8px;border-radius:8px;background:rgba(255,255,255,.05);font-size:10px;color:var(--navmuted)}}.engine-trigger b{{color:#fff;font-size:12px}}.engine-trigger small{{grid-column:1/-1;color:var(--brass-soft)}}.engine-budget-label{{display:block;font-size:9.5px;color:var(--navmuted);margin-top:10px}}.engine .budget-input{{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.13);color:#fff;padding:7px 8px}}.engine .budget-allocation{{margin-top:7px}}.engine .budget-allocation span{{background:rgba(255,255,255,.05);color:var(--navmuted);padding:6px}}.engine .budget-allocation b{{color:#fff}}.engine .budget-next{{color:var(--brass-soft);border-color:rgba(255,255,255,.1);margin-top:7px;padding-top:7px}}.asset-groups{{display:grid;gap:24px}}.asset-group .grid{{grid-template-columns:repeat(2,minmax(0,1fr))}}.section-head.compact{{margin-bottom:10px}}.asset-basis{{font-size:10px;color:var(--brass);margin-top:6px}}.asset-date{{font-size:9px;color:var(--muted);border-top:1px solid var(--line);padding-top:8px;margin-top:10px}}.trigger-row>span:last-child{{display:grid;justify-items:end}}.trigger-row small{{font-size:9px;color:var(--brass)}}.muted-value{{color:var(--muted);font-size:10px;white-space:normal;text-align:right;max-width:190px}}.mkt-card{{padding:14px 16px}}.mkt-quote{{display:flex;justify-content:space-between;align-items:flex-end;margin-top:7px}}.mkt-card .val{{margin-top:0;font-size:20px}}.mkt-card .chg{{margin:0}}.mkt-meta{{display:flex;justify-content:space-between;gap:10px;margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:9px;color:var(--muted)}}.proxy-badge{{display:inline-block;margin-left:5px;padding:2px 5px;border-radius:99px;background:var(--amber-soft);color:var(--amber);font-size:8px;font-weight:700}}.stock-toolbar{{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:10px}}.stock-filters{{display:flex;flex-wrap:wrap;gap:6px}}.stock-toolbar button,.stock-toolbar select{{border:1px solid var(--line);background:var(--surface);color:var(--muted);padding:7px 10px;border-radius:99px;font-size:10.5px;cursor:pointer}}.stock-toolbar button.active{{background:var(--navy);border-color:var(--navy);color:#fff}}.stock-toolbar select{{border-radius:7px}}.stock-name{{font-weight:700;font-size:12.5px}}.stock-symbol{{font-size:10px;color:var(--muted);margin-top:2px}}.stock-table thead th{{position:sticky;top:0;z-index:2}}.stock-table td small{{display:block;font-size:9.5px;margin-top:3px}}.stock-status{{display:inline-block;padding:4px 7px;border-radius:99px;font-size:9.5px;font-weight:700;background:var(--surface2);color:var(--muted)}}.stock-status.triggered{{background:var(--red-soft);color:var(--red)}}.stock-status.near,.stock-status.oversold{{background:var(--amber-soft);color:var(--amber)}}.stock-status.hot{{background:var(--red-soft);color:var(--red)}}.stock-status.weak{{background:rgba(70,90,130,.12);color:#52678f}}.stock-details{{margin-top:5px}}.stock-details summary{{cursor:pointer;color:var(--brass);font-size:9px;list-style:none}}.stock-details summary::-webkit-details-marker{{display:none}}.stock-details div{{margin-top:6px;text-align:left;font-size:9.5px;line-height:1.7;color:var(--muted)}}
+.engine-action{{margin-top:7px;font-size:10px;font-weight:700;color:#fff}}
 .footer{{color:#9a9484;font-size:10.5px;line-height:1.7;text-align:center;padding:34px 0 10px}} .tab-pane{{display:none;animation:fade .3s ease}} .tab-pane.active{{display:block}} @keyframes fade{{from{{opacity:0;transform:translateY(5px)}}to{{opacity:1;transform:none}}}}
 .opt-status {{ display:inline-flex; align-items:center; gap:5px; font-weight:600; font-size:11px; }} .opt-status.safe {{ color: var(--green); }} .opt-status.warn {{ color: var(--amber); }} .opt-status.danger {{ color: var(--red); }} .opt-status::before {{ content:""; display:block; width:6px; height:6px; border-radius:50%; }} .opt-status.safe::before {{ background: var(--green); }} .opt-status.warn::before {{ background: var(--amber); }} .opt-status.danger::before {{ background: var(--red); }}
 @media (max-width: 1024px) {{ .dashboard-grid {{ grid-template-columns: 1fr; }} .metrics {{ grid-template-columns: repeat(2, 1fr); }} }}
-@media (max-width: 768px) {{ .app {{ flex-direction: column; }} .sidebar {{ position: static; width: 100%; padding: 16px 20px; border-bottom: 1px solid var(--navline); }} .nav-group {{ margin-top: 16px; }} .nav-menu {{ display: flex; flex-wrap: wrap; gap: 8px; }} .nav-menu li {{ font-size: 12px; padding: 8px 12px; }} .main {{ margin-left: 0; width: 100%; }} .topbar {{ padding: 12px 20px; height: auto; flex-direction: column; align-items: flex-start; gap: 12px; }} .top-meta {{ flex-wrap: wrap; width: 100%; justify-content: space-between; }} .content {{ padding: 20px; }} .hero {{ flex-direction: column; align-items: flex-start; gap: 16px; }} .public-note {{ width: 100%; flex: auto; }} .metrics {{ grid-template-columns: 1fr; }} .engine::after {{ display: none; }} .engine-top {{ flex-direction: column; gap: 12px; }} .table-container {{ overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 8px; }} th, td {{ padding: 10px; font-size: 12px; }} }}
+@media (max-width: 1000px) {{.engine-grid{{grid-template-columns:repeat(2,minmax(0,1fr))}}}} @media (max-width: 768px) {{ .app {{ flex-direction: column; }} .sidebar {{ position: static; width: 100%; padding: 16px 20px; border-bottom: 1px solid var(--navline); }} .nav-group {{ margin-top: 16px; }} .nav-menu {{ display: flex; flex-wrap: wrap; gap: 8px; }} .nav-menu li {{ font-size: 12px; padding: 8px 12px; }} .main {{ margin-left: 0; width: 100%; }} .topbar {{ padding: 12px 20px; height: auto; flex-direction: column; align-items: flex-start; gap: 12px; }} .top-meta {{ flex-wrap: wrap; width: 100%; justify-content: space-between; }} .content {{ padding: 20px; }} .hero {{ flex-direction: column; align-items:flex-start;gap:10px}} .compact-hero h1{{font-size:26px}}.public-note {{ width: 100%; flex: auto; }} .metrics {{ grid-template-columns: 1fr; }} .engine{{padding:20px}}.engine::after {{ display: none; }} .engine-top {{ flex-direction: column; gap: 12px; }}.engine-grid,.asset-group .grid{{grid-template-columns:1fr}}.stock-toolbar{{align-items:flex-start;flex-direction:column}}.mkt-meta{{flex-direction:column;gap:3px}} .table-container {{ overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 8px; }} th, td {{ padding: 10px; font-size: 12px; }} }}
+@media (max-width: 680px) {{.stock-table{{overflow:visible;background:transparent;border:0;box-shadow:none}}.stock-table table,.stock-table tbody{{display:block}}.stock-table thead{{display:none}}.stock-table tr[data-stock-row]{{display:grid;grid-template-columns:1fr 1fr;background:var(--surface);border:1px solid var(--line);border-radius:12px;margin-bottom:10px;padding:12px;box-shadow:var(--shadow)}}.stock-table td{{display:flex;justify-content:space-between;gap:10px;align-items:center;border:0;padding:7px 5px;text-align:right!important;white-space:normal}}.stock-table td::before{{content:attr(data-label);font-size:9.5px;color:var(--muted);font-weight:500}}.stock-table td.stock-identity{{grid-column:1/-1;display:block;text-align:left!important;border-bottom:1px solid var(--line);padding-bottom:9px;margin-bottom:2px}}.stock-table td.stock-identity::before{{display:none}}.stock-table td[data-label="策略价 / 距离"],.stock-table td[data-label="状态"]{{grid-column:1/-1}}.stock-table td small{{margin-top:0}}}}
 /* 沙盒特有样式 */
 .sandbox-grid {{ display: grid; grid-template-columns: 300px 1fr; gap: 24px; }}
 .sandbox-controls {{ background: var(--surface); padding: 20px; border-radius: 12px; border: 1px solid var(--line); box-shadow: var(--shadow); }}
@@ -736,7 +791,7 @@ def render_html(data):
 <div class="top-meta"><span id="liveStatus" style="display:none;"><i class="live-dot"></i><span id="liveStatusText">数据抓取成功</span></span><div style="text-align:right; line-height:1.4;"><div style="font-weight:600; font-size:12px; color:var(--ink);">生成时间: {data.get('gen_time', '-')}</div><div id="usLiveAsOf" style="color:var(--muted); font-size:10.5px;">美股收盘日线截至: {data.get('spy_date', '-')} | A/港股盘中动态刷新</div></div><button id="themeToggle" class="theme-toggle" title="切换深浅主题">🌙 深色</button><button id="authBtn" class="auth-btn-top" onclick="handleAuth()">🔐 登录私有看板</button></div></header><div class="content">
 
 <div id="tab-overview" class="tab-pane active">
-<section class="hero"><div><h1>看清市场在说什么，而不是账户在做什么。</h1><p>公开版投资研究面板：聚焦市场趋势、回撤、波动率与策略触发条件。</p></div><div class="public-note" id="modePanel"><b id="modeTitle">公开展示模式</b><span id="modeDesc">这里展示的是研究指标与策略信号，不代表任何个人账户的实际仓位或收益。</span></div><button id="privateModeShield" class="private-mode-shield" type="button" title="私有控制台已连接，真实持仓受 Supabase RLS 保护">🛡️ 私有模式</button></section>
+<section class="hero overview-hero"><div><h1>市场与风险驾驶舱</h1><p>先看市场状态、策略距离和必须处理的风险，再决定是否行动。</p><div class="data-legend" aria-label="数据状态说明"><span class="live">盘中延迟行情</span><span class="close">最近有效收盘</span><span class="missing">不可用不计分</span></div></div><div class="public-note" id="modePanel"><b id="modeTitle">公开展示模式</b><span id="modeDesc">展示研究指标与策略信号；私有持仓需登录后读取。</span></div><button id="privateModeShield" class="private-mode-shield" type="button" title="私有控制台已连接，真实持仓受 Supabase RLS 保护">🛡️ 私有模式</button></section>
 <section class="section"><div class="section-head"><h2>市场核心指标</h2><p>美股盘中30秒刷新；宽度每日收盘更新</p></div><div class="metrics">{metric_card('纳斯达克综合指数',qqq_value,qqq_chg,qqq_note,'good' if isinstance(qqq_chg,(int,float)) and qqq_chg>=0 else 'warn',us_live_code='ixic')}{metric_card('标普500指数',spy_value,spy_chg,spy_note,'good' if isinstance(spy_chg,(int,float)) and spy_chg>=0 else 'warn',us_live_code='spx')}{vix_gauge_card(vol_value,None,vix_note)}{metric_card('红利低波100 (159307)',sz_val,sz_chg,'A股红利代理 · 腾讯行情','good',live_code='sz159307')}</div></section>
 <section class="section private-console"><div class="panel risk-todo"><div class="panel-head"><strong>今日风险待办</strong><span>只列需要人工确认的事项</span></div><div id="riskTodoList" class="risk-todo-list"><div class="risk-todo-empty">正在检查临期期权、缺失报价、宏观事件与宽度背离…</div></div></div></section>
 <section class="section">{market_regime_html}</section>
@@ -745,20 +800,19 @@ def render_html(data):
 </div>
 
 <div id="tab-engine" class="tab-pane">
-<section class="hero"><div><h1>核心策略信号</h1><p>用回撤、RSI 与长期均线观察核心 ETF 的风险与潜在策略触发点。</p></div></section>
-<section class="section"><div class="engine"><div class="engine-top"><div><div class="engine-label">STRATEGY ENGINE · 核心ETF三档加仓线</div><div class="engine-title">当前状态：随页面生成更新</div></div><div class="engine-badge {engine_badge_cls}">{level_names[max_level]}</div></div><div class="engine-grid">{engine_html}</div><div class="engine-foot">分级规则：策略触发严格使用经复权验证的历史全期最高点（ATH）作为基准；ATH 暂不可用或触发异常保险丝时仅展示窗口回撤参考值，不触发正式策略信号。</div></div></section>
-<section class="section"><div class="section-head"><h2>核心资产预留加仓资金</h2><p>阈值保持资产差异化；20% / 30% / 50% 仅分配该资产预算</p></div><div id="strategyBudgetGrid" class="budget-grid">{budget_html}</div><p class="option-note" style="margin-top:10px">预算不会自动下单，也不是账户总资产占比。若同时给 QQQ 与 QQQM 设置预算，系统会提示重叠敞口。</p></section>
+<section class="hero compact-hero"><div><h1>核心策略信号</h1><p>正式信号按经复权ATH与收盘价确认；卡片同时给出触发价格和该资产预留资金。</p></div></section>
+<section class="section"><div class="engine"><div class="engine-top"><div><div class="engine-label">STRATEGY ENGINE · 核心ETF三档加仓线</div><div class="engine-title">当前状态：{level_names[max_level]}</div><div class="engine-asof">策略数据截至 {data.get('spy_date','-')} 美股收盘 · 盘中价格仅供参考</div></div><div class="engine-badge {engine_badge_cls}">{level_names[max_level]}</div></div><div id="strategyBudgetGrid" class="engine-grid">{engine_html}</div><div class="engine-foot">分级规则：严格使用经复权验证的历史全期最高点（ATH）；20% / 30% / 50% 仅分配该资产预留预算，不自动下单。QQQ与QQQM属于同指数敞口。</div></div></section>
 </div>
 
-<div id="tab-index" class="tab-pane"><section class="hero"><div><h1>指数与行业 ETF</h1><p>从宽基指数到行业 ETF，快速观察价格、当年最高点回撤、RSI 与 200 日均线距离。</p></div></section><section class="section"><div class="grid">{index_html}</div></section></div>
+<div id="tab-index" class="tab-pane"><section class="hero compact-hero"><div><h1>指数、行业与另类资产</h1><p>区分历史ATH与窗口高点，直接显示下一档触发价格和真实价格距离。</p></div></section><section class="section asset-groups">{index_html}</section></div>
 
 <div id="tab-cn-hk" class="tab-pane">
-<section class="hero"><div><h1>A股港股 & 红利低波</h1><p>自动同步腾讯行情。中证红利低波100指数(930955)本身不在免费行情源覆盖范围内，用紧密跟踪该指数的场内ETF(159307)代理展示走势。</p></div></section>
-<section class="section"><div class="section-head"><h2>大盘与红利核心池</h2><p>点击卡片展开近 30 日历史趋势</p></div><div class="opt-grid">{mkt_card_a("上证指数", data["cn_hk"].get("sh000001"), "sh000001")}{mkt_card_a("沪深300", data["cn_hk"].get("sh000300"), "sh000300")}{mkt_card_a("红利低波100 ETF (159307)", data["cn_hk"].get("sz159307"), "sz159307")}</div></section>
+<section class="hero compact-hero"><div><h1>A股港股 & 红利低波</h1><p>自动同步腾讯行情；159307明确作为中证红利低波100指数的场内代理标的。</p></div></section>
+<section class="section"><div class="section-head"><h2>大盘与红利核心池</h2><p>点击卡片展开近 30 日历史趋势</p></div><div class="opt-grid">{mkt_card_a("上证指数", data["cn_hk"].get("sh000001"), "sh000001")}{mkt_card_a("沪深300", data["cn_hk"].get("sh000300"), "sh000300")}{mkt_card_a("红利低波100 ETF (159307)", data["cn_hk"].get("sz159307"), "sz159307", True)}</div></section>
 <section class="section"><div class="section-head"><h2>港股跨境池</h2><p>点击卡片展开近 30 日历史趋势</p></div><div class="opt-grid">{mkt_card_a("华夏纳指 (港股)", data["cn_hk"].get("hk03086"), "hk03086")}{mkt_card_a("国指备兑 (港股)", data["cn_hk"].get("hk03416"), "hk03416")}</div></section>
 </div>
 
-<div id="tab-stocks" class="tab-pane"><section class="hero"><div><h1>个股观察池</h1><p>包含中英文名称对照及核心技术指标监控。</p></div></section><section class="section"><div class="table-container"><table><thead><tr><th>名称代码</th><th>最新价</th><th>涨跌幅</th><th>开盘</th><th>最高</th><th>最低</th><th>当年(YTD)最高</th><th>RSI(14)</th><th>距200MA</th><th>策略参考价</th></tr></thead><tbody id="stocksTableBody">{stock_html}</tbody></table></div></section></div>
+<div id="tab-stocks" class="tab-pane"><section class="hero compact-hero"><div><h1>个股观察池</h1><p>按策略距离和风险状态自动排出关注顺序；开高低收折叠在名称下方。</p></div></section><section class="section"><div class="stock-toolbar"><div class="stock-filters"><button class="active" data-stock-filter="all" onclick="StockDecision.filter(this,'all')">全部</button><button data-stock-filter="triggered" onclick="StockDecision.filter(this,'triggered')">已触发</button><button data-stock-filter="near" onclick="StockDecision.filter(this,'near')">接近策略价</button><button data-stock-filter="oversold" onclick="StockDecision.filter(this,'oversold')">超卖</button><button data-stock-filter="weak" onclick="StockDecision.filter(this,'weak')">趋势偏弱</button><button data-stock-filter="hot" onclick="StockDecision.filter(this,'hot')">过热</button></div><select id="stockSort" onchange="StockDecision.sort(this.value)"><option value="priority">关注优先</option><option value="target">距策略价最近</option><option value="drawdown">YTD回撤最大</option><option value="rsi">RSI最低</option><option value="default">默认顺序</option></select></div><div class="table-container stock-table"><table><thead><tr><th>名称</th><th>最新价 / 涨跌</th><th>YTD回撤</th><th>RSI</th><th>距200MA</th><th>策略价 / 距离</th><th>状态</th></tr></thead><tbody id="stocksTableBody">{stock_html}</tbody></table></div></section></div>
 
 <div id="tab-options" class="tab-pane">
 <section class="hero"><div><h1>期权持仓与风险监控 V{OPTIONS_VERSION}</h1><p>优先呈现真实建仓成本、现金担保年化ROC、临期风险和官方宏观事件。自动行情来自 Alpaca Indicative 免费参考源；下单前仍以 IBKR Bid/Ask 为准。</p></div></section>
@@ -1014,15 +1068,25 @@ async function saveNewOptionPosition() {{
 
 async function fetchAndRenderTargets() {{
   const {{ data, error }} = await supabaseClient.from('stock_targets').select('*');
+  if (error) {{
+      document.querySelectorAll('#stocksTableBody [id^="target-gap-"]').forEach(el => el.textContent = '策略数据不可用');
+      window.MAV?.toast(`策略价读取失败：${{error.message}}`, 'warn');
+      return;
+  }}
   if (data) {{
+      const loaded = new Set(data.map(row => row.symbol));
       data.forEach(row => {{
-          const targetEl = document.getElementById(`target-${{row.symbol}}`), closeEl = document.getElementById(`close-${{row.symbol}}`), actionEl = document.getElementById(`action-${{row.symbol}}`);
+          const targetEl = document.getElementById(`target-${{row.symbol}}`), closeEl = document.getElementById(`close-${{row.symbol}}`);
           if (targetEl && closeEl) {{
-              targetEl.innerHTML = `$${{row.target_price.toFixed(2)}}`;
-              if (isAdmin) targetEl.innerHTML += ` <span style="cursor:pointer;font-size:12px;margin-left:6px;filter:grayscale(1) opacity(0.5);transition:0.2s;" onmouseover="this.style.filter='none'" onmouseout="this.style.filter='grayscale(1) opacity(0.5)'" onclick="editTarget('${{row.symbol}}', ${{row.target_price}})" title="修改策略价">✏️</span>`;
-              actionEl.innerHTML = (parseFloat(closeEl.innerText.replace('$', '')) <= row.target_price) ? '<span class="alert-text fw-bold ml" style="margin-left:4px;">(信号触发!)</span>' : '';
+              window.StockDecision?.updateTarget(row.symbol, row.target_price);
+              if (isAdmin) targetEl.insertAdjacentHTML('beforeend', ` <span class="target-edit" onclick="editTarget('${{row.symbol}}', ${{row.target_price}})" title="修改策略价">✏️</span>`);
           }}
       }});
+      document.querySelectorAll('#stocksTableBody tr[data-stock-row]').forEach(row => {{
+          const symbol = row.querySelector('.stock-symbol')?.textContent?.trim();
+          if (symbol && !loaded.has(symbol)) window.StockDecision?.updateTarget(symbol, null);
+      }});
+      window.StockDecision?.sort('priority');
   }}
 }}
 
@@ -1088,14 +1152,22 @@ function fetchLiveCNHK() {{
               const fields = rawData.split('~');
               if (fields.length > 5) {{
                   const currentPrice = parseFloat(fields[3]), prevClose = parseFloat(fields[4]), pctChange = (currentPrice - prevClose) / prevClose;
-                  document.querySelectorAll(`[data-live-price="${{sym}}"]`).forEach(el => el.innerText = currentPrice.toFixed(3));
+                  const decimals = sym.startsWith('sh') ? 2 : 3;
+                  document.querySelectorAll(`[data-live-price="${{sym}}"]`).forEach(el => el.innerText = currentPrice.toFixed(decimals));
                   document.querySelectorAll(`[data-live-chg="${{sym}}"]`).forEach(el => {{
                       el.innerText = (pctChange >= 0 ? "+" : "") + (pctChange * 100).toFixed(2) + "%";
                       el.classList.remove("positive", "negative"); el.classList.add(pctChange >= 0 ? "positive" : "negative");
                   }});
+                  const nowText = new Intl.DateTimeFormat('zh-CN',{{timeZone:'Asia/Shanghai',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}}).format(new Date());
+                  document.querySelectorAll(`[data-market-state="${{sym}}"]`).forEach(el => el.textContent = `腾讯行情 · ${{isAsiaMarketWindow()?'交易时段':'休市'}}`);
+                  document.querySelectorAll(`[data-live-time="${{sym}}"]`).forEach(el => el.textContent = `更新 ${{nowText}}`);
               }}
           }}
       }});
+      document.head.removeChild(script);
+  }};
+  script.onerror = () => {{
+      CNHK_SYMBOLS.forEach(sym => document.querySelectorAll(`[data-market-state="${{sym}}"]`).forEach(el => el.textContent='腾讯行情暂不可用 · 保留页面快照'));
       document.head.removeChild(script);
   }};
   document.head.appendChild(script);

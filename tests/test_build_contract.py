@@ -15,7 +15,22 @@ assert f'assets/strategy-budget.js?v={asset_version}' in page
 assert "Alpaca Indicative" in generator and "Alpaca Indicative" in page
 assert "VIX风险分区半圆仪表盘" in generator and "VIX风险分区半圆仪表盘" in page
 assert "年化ROC" in generator and "年化ROC" in page
-assert "核心资产预留加仓资金" in generator and "核心资产预留加仓资金" in page
+assert 'id="strategyBudgetGrid"' in generator and 'id="strategyBudgetGrid"' in page
+assert page.count('id="strategyBudgetGrid"') == 1
+assert "该资产预留资金（USD）" in generator and "该资产预留资金（USD）" in page
+assert "一级7.5%" in page
+assert "指数、行业与另类资产" in generator and "指数、行业与另类资产" in page
+assert "data-stock-row" in generator and "data-stock-row" in page
+assert version == "3.0"
+assert "市场与风险驾驶舱" in generator and "市场与风险驾驶舱" in page
+assert "卫星及杠杆" in generator and "卫星及杠杆" in page
+assert "不参与核心ETF加仓信号" in generator and "不参与核心ETF加仓信号" in page
+assert "收盘日线截至：" in generator and "收盘日线截至：" in page
+stock_section = page.split('<div id="tab-stocks"', 1)[1].split('<div id="tab-options"', 1)[0]
+assert stock_section.count("<th>") == 7 and "<th>行情详情</th>" not in stock_section
+assert "@media (max-width: 680px)" in generator and 'data-label="策略价 / 距离"' in page
+assert "等待：不提前加仓" in generator and "等待：不提前加仓" in page
+assert "rsi < 35" in generator and "dist_200ma < -.10" in generator and "rsi > 70" in generator
 assert 'colspan="14"' in page
 assert '"hit": drawdown_hit' in generator
 assert '"hit": m_score >= 2' not in generator
@@ -36,6 +51,12 @@ assert "deleteOptionPosition" not in page and "deleteOptionPosition" not in gene
 close_migration = (ROOT / "supabase" / "migrations" / "202609220002_options_close_workflow.sql").read_text(encoding="utf-8")
 assert "close_notes" in close_migration and "settlement_stock_price" in close_migration
 assert "const saveTimers=new Map()" in budget_js
+assert "回撤幅度还差" in budget_js
+decision_js = (ROOT / "docs" / "assets" / "dashboard-v2.2.js").read_text(encoding="utf-8")
+assert "global.StockDecision" in decision_js and "sortStocks('priority')" in decision_js
+assert "const rank={triggered:0,near:1,oversold:2,weak:3,hot:4,normal:5}" in decision_js
+assert "rsi<35" in decision_js and "dist<-.10" in decision_js and "rsi>70" in decision_js
+assert "hasValue=target!==null" in decision_js
 assert "AbortSignal.timeout(10_000)" in options_function and "UPSTREAM_RATE_LIMIT" in options_function
 assert "fetchWithTimeout" in market_function and "X-Cache': 'STALE" in market_function
 assert "concurrency:" in workflow and "git pull --rebase origin main" in workflow

@@ -1,4 +1,4 @@
-# myAlphaView V2.8 · Alpaca、风险驾驶舱与期权生命周期配置
+# myAlphaView V3.0 · Alpaca、风险驾驶舱与期权生命周期配置
 
 ## 已完成
 

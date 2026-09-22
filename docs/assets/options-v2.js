@@ -59,7 +59,7 @@
     if(!raw||raw.s!=='ok')return[];const keys=Object.keys(raw).filter(k=>Array.isArray(raw[k])),n=(raw.optionSymbol||[]).length,out=[];
     for(let i=0;i<n;i++){const row={};keys.forEach(k=>row[k]=raw[k][i]);out.push(row)}return out;
   }
-  const state={chain:[],selected:null,strategy:'SELL_PUT',refreshTimer:null,positionsTimer:null,bulkRefreshing:false,lastBulkAt:0,apiMode:false,positions:new Map(),positionMode:false,events:[],eventsUpdated:null};
+  const state={chain:[],selected:null,strategy:'SELL_PUT',refreshTimer:null,positionsTimer:null,bulkRefreshing:false,lastBulkAt:0,apiMode:false,positions:new Map(),history:[],positionMode:false,events:[],eventsUpdated:null,lifecycleId:null};
   async function token(){try{const r=await supabaseClient.auth.getSession();return r.data.session?.access_token||null}catch(e){return null}}
   async function api(params){
     const root=$('optionV2Root'),endpoint=root?.dataset.endpoint;if(!endpoint)throw new Error('尚未配置实时接口');
@@ -143,13 +143,14 @@
     tbody.innerHTML='<tr><td colspan="14"><div class="skeleton" style="height:42px;border-radius:8px">正在读取私有持仓</div></td></tr>';
     try{
       const {data:{session}}=await supabaseClient.auth.getSession();
-      if(!session){tbody.innerHTML='<tr><td colspan="14" style="text-align:center;color:var(--muted)">请登录后查看私有期权持仓</td></tr>';state.positions.clear();clearInterval(state.positionsTimer);setAutoStatus('登录后启用持仓自动检查');renderRiskSummary();return}
+      if(!session){tbody.innerHTML='<tr><td colspan="14" style="text-align:center;color:var(--muted)">请登录后查看私有期权持仓</td></tr>';state.positions.clear();state.history=[];renderLifecycleHistory();clearInterval(state.positionsTimer);setAutoStatus('登录后启用持仓自动检查');renderRiskSummary();return}
       const {data,error}=await supabaseClient.from('options_positions').select('*').order('expiry');if(error)throw error;
       const rows=data||[],expiredOpen=rows.filter(x=>(!x.status||x.status==='open')&&rawDaysBetween(todayIso(),x.expiry)<0).map(x=>x.id);
       if(expiredOpen.length){const {error:updateError}=await supabaseClient.from('options_positions').update({status:'pending_settlement'}).in('id',expiredOpen);if(!updateError)rows.forEach(x=>{if(expiredOpen.includes(x.id))x.status='pending_settlement'})}
       const active=rows.filter(x=>!x.status||['open','pending_settlement'].includes(x.status));state.positions=new Map(active.map(x=>[String(x.id),x]));
+      state.history=rows.filter(x=>x.status&&!['open','pending_settlement'].includes(x.status)).sort((a,b)=>String(b.closed_at||b.expiry).localeCompare(String(a.closed_at||a.expiry)));
       tbody.innerHTML=active.length?active.map(x=>{const cached=readCachedQuote(x.id),freshness=quoteFreshness(cached);return renderPositionRow(x,cached?.quote,freshness.label,freshness)}).join(''):'<tr><td colspan="14" style="text-align:center;color:var(--muted)">当前没有开放或待结算的期权持仓</td></tr>';
-      renderRiskSummary();schedulePositionRefresh();setTimeout(()=>refreshAllPositions({onlyNeeded:true,reason:'登录后检查'}),250);
+      renderLifecycleHistory();renderRiskSummary();schedulePositionRefresh();setTimeout(()=>refreshAllPositions({onlyNeeded:true,reason:'登录后检查'}),250);
     }catch(e){tbody.innerHTML=`<tr><td colspan="14" style="text-align:center;color:var(--red)">持仓读取失败：${e.message}</td></tr>`;global.MAV?.toast(`持仓读取失败：${e.message}`,'bad')}
   }
   function occSymbol(position){
@@ -221,8 +222,50 @@
     const rocButton=(!x.entry_date||!x.collateral_mode)?` <button onclick="OptionV2.completeRocFields('${x.id}')" title="补录建仓日期与担保方式">补ROC</button>`:'';
     const quoteState=freshness?`<div class="quote-state ${freshness.tone}">${freshness.label}</div>`:'';
     const pnlPrefix=isReference&&m&&Number.isFinite(m.pnl)?'约 ':'';
-    return `<tr id="opt-row-${x.id}"><td>${x.symbol} <span class="badge neutral">${x.side} ${x.opt_type}</span></td><td>$${Number(x.strike).toFixed(2)}</td><td>${x.expiry} (${dte}d)</td><td>$${Number(x.cost).toFixed(2)} / 每股</td><td>${m&&Number.isFinite(m.mark)?money(m.mark):'—'}${quoteState}</td><td class="${m?pnlClass:''}" title="${isReference?'基于上一有效报价，仅供参考':''}">${m&&Number.isFinite(m.pnl)?pnlPrefix+money(m.pnl):message}</td><td class="${m?pnlClass:''}">${m&&Number.isFinite(m.pnlPct)?pnlPrefix+pct(m.pnlPct):'—'}</td><td>$${Number(m?.breakeven??(String(x.opt_type).toLowerCase()==='put'?Number(x.strike)-Number(x.cost):Number(x.strike)+Number(x.cost))).toFixed(2)}</td><td>${Number.isFinite(underlying)?money(underlying):'—'}</td><td>${Number.isFinite(distance)?pct(distance):'—'}</td><td>${rocHtml}</td><td><span class="risk-chip ${risk.level}${riskEscalationClass(x.id,risk.level)}" title="${eventText}">${risk.label}</span></td><td>${Number.isFinite(iv)?pct(iv):'—'} / ${Number.isFinite(delta)?delta.toFixed(3):'—'}</td><td><button onclick="OptionV2.refreshPosition('${x.id}')" title="刷新报价">↻</button> <button onclick="OptionV2.openPositionScenario('${x.id}')" title="按真实成本推演">推演</button>${rocButton} <button onclick="deleteOptionPosition(${x.id})" title="删除">🗑️</button></td></tr>`;
+    const pending=x.status==='pending_settlement'?'<span class="settlement-chip">待结算</span>':'';
+    return `<tr id="opt-row-${x.id}"><td>${x.symbol} <span class="badge neutral">${x.side} ${x.opt_type}</span>${pending}</td><td>$${Number(x.strike).toFixed(2)}</td><td>${x.expiry} (${dte}d)</td><td>$${Number(x.cost).toFixed(2)} / 每股</td><td>${m&&Number.isFinite(m.mark)?money(m.mark):'—'}${quoteState}</td><td class="${m?pnlClass:''}" title="${isReference?'基于上一有效报价，仅供参考':''}">${m&&Number.isFinite(m.pnl)?pnlPrefix+money(m.pnl):message}</td><td class="${m?pnlClass:''}">${m&&Number.isFinite(m.pnlPct)?pnlPrefix+pct(m.pnlPct):'—'}</td><td>$${Number(m?.breakeven??(String(x.opt_type).toLowerCase()==='put'?Number(x.strike)-Number(x.cost):Number(x.strike)+Number(x.cost))).toFixed(2)}</td><td>${Number.isFinite(underlying)?money(underlying):'—'}</td><td>${Number.isFinite(distance)?pct(distance):'—'}</td><td>${rocHtml}</td><td><span class="risk-chip ${risk.level}${riskEscalationClass(x.id,risk.level)}" title="${eventText}">${risk.label}</span></td><td>${Number.isFinite(iv)?pct(iv):'—'} / ${Number.isFinite(delta)?delta.toFixed(3):'—'}</td><td><button onclick="OptionV2.refreshPosition('${x.id}')" title="刷新报价">↻</button> <button onclick="OptionV2.openPositionScenario('${x.id}')" title="按真实成本推演">推演</button>${rocButton} <button class="manage-option-btn" onclick="OptionV2.openLifecycle('${x.id}')" title="平仓或结算">管理</button></td></tr>`;
   }
+  function realizedPnl(position,{status='closed',exitPrice=0,closeFee=0}={}){
+    const qty=Math.max(1,Number(position.qty)||1),multiplier=Math.max(1,Number(position.multiplier)||MULTIPLIER),entry=Number(position.cost)||0,openFee=Math.max(0,Number(position.open_fee)||0),fee=Math.max(0,Number(closeFee)||0),short=String(position.side).toLowerCase()==='short';
+    const exit=status==='expired_worthless'?0:Number(exitPrice);
+    if(!Number.isFinite(exit)||exit<0)return null;
+    if(status==='assigned')return short?entry*multiplier*qty-openFee-fee:-entry*multiplier*qty-openFee-fee;
+    return (short?entry-exit:exit-entry)*multiplier*qty-openFee-fee;
+  }
+  function assignmentBasis(position,closeFee=0){
+    const qty=Math.max(1,Number(position.qty)||1),multiplier=Math.max(1,Number(position.multiplier)||MULTIPLIER),units=qty*multiplier,cost=Number(position.cost)||0,fees=(Math.max(0,Number(position.open_fee)||0)+Math.max(0,Number(closeFee)||0))/units,type=String(position.opt_type).toLowerCase();
+    return type==='put'?Number(position.strike)-cost+fees:Number(position.strike)+cost-fees;
+  }
+  function lifecycleLabels(status){return({closed:'主动平仓',expired_worthless:'到期作废',assigned:'被行权'})[status]||status||'—'}
+  function openLifecycle(id){
+    const p=state.positions.get(String(id));if(!p)return;state.lifecycleId=String(id);
+    $('lifecycleTitle').textContent=`管理 ${p.symbol} ${p.side} ${p.opt_type} $${Number(p.strike).toFixed(2)}`;$('lifecycleSummary').textContent=`${p.qty||1}张 × ${p.multiplier||100}｜建仓 ${money(Number(p.cost))}/股｜到期 ${p.expiry}`;
+    $('lifecycleAction').value=p.status==='pending_settlement'?'expired_worthless':'closed';$('lifecycleDate').value=todayIso();$('lifecycleExitPrice').value='';$('lifecycleCloseFee').value='0';$('lifecycleStockPrice').value='';$('lifecycleNotes').value='';
+    const cached=readCachedQuote(id),metrics=cached?.quote?positionMetrics(p,cached.quote):null;if(metrics&&Number.isFinite(metrics.mark))$('lifecycleExitPrice').value=Number(metrics.mark).toFixed(2);
+    updateLifecyclePreview();$('optionLifecycleModal').style.display='grid';
+  }
+  function closeLifecycle(){state.lifecycleId=null;$('optionLifecycleModal').style.display='none'}
+  function updateLifecyclePreview(){
+    const p=state.positions.get(String(state.lifecycleId));if(!p)return;const status=$('lifecycleAction').value,exitPrice=Number($('lifecycleExitPrice').value),closeFee=Number($('lifecycleCloseFee').value)||0,pnl=realizedPnl(p,{status,exitPrice,closeFee});
+    $('lifecycleExitWrap').style.display=status==='closed'?'grid':'none';$('lifecycleStockWrap').style.display=status==='assigned'?'grid':'none';
+    const extra=status==='assigned'?`<div>行权后的${String(p.opt_type).toLowerCase()==='put'?'正股有效成本':'有效卖出价'}：<strong>${money(assignmentBasis(p,closeFee))}/股</strong></div>`:'';
+    $('lifecyclePreview').innerHTML=`<div>预计期权已实现盈亏：<strong class="${pnl>=0?'pos-text':'neg-text'}">${money(pnl)}</strong></div>${extra}<small>已按 ${p.multiplier||100}×${p.qty||1} 计算，并扣除开仓与本次费用；行权后的正股盈亏不计入期权盈亏。</small>`;
+  }
+  async function saveLifecycle(){
+    const p=state.positions.get(String(state.lifecycleId));if(!p)return;const status=$('lifecycleAction').value,closedDate=$('lifecycleDate').value,exitPrice=status==='closed'?Number($('lifecycleExitPrice').value):0,closeFee=Number($('lifecycleCloseFee').value)||0,stockPrice=$('lifecycleStockPrice').value===''?null:Number($('lifecycleStockPrice').value),notes=$('lifecycleNotes').value.trim();
+    if(!closedDate){alert('请选择处理日期。');return}if(p.entry_date&&closedDate<p.entry_date){alert('处理日期不能早于建仓日期。');return}if(status==='expired_worthless'&&closedDate<String(p.expiry)){alert('到期作废的处理日期不能早于到期日。');return}if(status==='closed'&&(!Number.isFinite(exitPrice)||exitPrice<0)){alert('请输入有效的平仓成交价（每股）。');return}if(status==='assigned'&&String(p.side).toLowerCase()!=='short'){alert('当前版本的“被行权”仅用于 Short Put / Short Call。');return}
+    const realized=realizedPnl(p,{status,exitPrice,closeFee}),payload={status,closed_at:`${closedDate}T20:00:00Z`,exit_price:status==='closed'?exitPrice:0,close_fee:closeFee,realized_pnl:realized,settlement_type:status,settlement_stock_price:status==='assigned'?stockPrice:null,close_notes:notes||null};
+    $('saveLifecycleBtn').disabled=true;const {error}=await supabaseClient.from('options_positions').update(payload).eq('id',p.id);$('saveLifecycleBtn').disabled=false;if(error){global.MAV?.toast(`处理失败：${error.message}`,'bad');return}sessionStorage.removeItem(`optionQuote:${p.id}`);closeLifecycle();await loadPrivatePositions();global.MAV?.toast(`${p.symbol} 已记录为“${lifecycleLabels(status)}”`,'good');
+  }
+  async function deleteLifecycleRecord(){
+    const p=state.positions.get(String(state.lifecycleId));if(!p)return;if(!confirm(`仅当录入错误时永久删除 ${p.symbol} 这笔记录。此操作不可恢复，是否继续？`))return;
+    const typed=prompt('请输入 DELETE 确认永久删除');if(typed!=='DELETE')return;const {error}=await supabaseClient.from('options_positions').delete().eq('id',p.id);if(error){global.MAV?.toast(`删除失败：${error.message}`,'bad');return}closeLifecycle();await loadPrivatePositions();global.MAV?.toast('错误记录已永久删除','good');
+  }
+  function renderLifecycleHistory(){
+    const tbody=$('optionHistoryBody'),count=$('optionHistoryCount'),button=$('toggleOptionHistory');if(!tbody)return;if(count)count.textContent=`${state.history.length} 笔`;if(button&&!$('optionHistorySection')?.hidden)button.textContent='收起历史';else if(button)button.textContent=`查看历史（${state.history.length}）`;
+    tbody.innerHTML=state.history.length?state.history.map(p=>{const pnl=p.realized_pnl===null||p.realized_pnl===undefined?NaN:Number(p.realized_pnl),assigned=p.status==='assigned'?assignmentBasis(p,p.close_fee):null,notes=String(p.close_notes||'').replace(/[<>&"]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]));return `<tr><td>${p.symbol} <span class="badge neutral">${p.side} ${p.opt_type}</span></td><td>${p.entry_date||'—'} → ${String(p.closed_at||'').slice(0,10)||'—'}</td><td>${lifecycleLabels(p.status)}</td><td>${p.status==='closed'?money(Number(p.exit_price)):'—'}</td><td>${money(Number(p.open_fee||0)+Number(p.close_fee||0))}</td><td class="${pnl>=0?'pos-text':'neg-text'}">${Number.isFinite(pnl)?money(pnl):'—'}</td><td>${Number.isFinite(assigned)?money(assigned)+'/股':'—'}</td><td title="${notes}">${notes||'—'}</td></tr>`}).join(''):'<tr><td colspan="8" style="text-align:center;color:var(--muted)">尚无已关闭或已结算记录</td></tr>';
+  }
+  function toggleHistory(){const section=$('optionHistorySection'),button=$('toggleOptionHistory');if(!section)return;const open=section.hidden;section.hidden=!open;if(button)button.textContent=open?'收起历史':`查看历史（${state.history.length}）`}
   async function completeRocFields(id){
     const p=state.positions.get(String(id));if(!p)return;const entry=prompt(`请输入 ${p.symbol} 的真实建仓日期（YYYY-MM-DD）`,p.entry_date||'');if(entry===null)return;
     if(!/^\d{4}-\d{2}-\d{2}$/.test(entry)||entry>String(p.expiry)){alert('日期格式无效，或建仓日期晚于到期日。');return}
@@ -273,7 +316,7 @@
     $('targetSpot').value=$('manualSpot').value;render();
   }
   function setMarketEvents(events,updatedAt){state.events=Array.isArray(events)?events:[];state.eventsUpdated=updatedAt||null;const tbody=$('optionsTableBody');if(tbody&&state.positions.size)tbody.innerHTML=[...state.positions.values()].map(p=>{const cached=readCachedQuote(p.id),freshness=quoteFreshness(cached);return renderPositionRow(p,cached?.quote,freshness.label,freshness)}).join('');renderRiskSummary()}
-  global.OptionV2={bsPrice,evaluate,normalizeColumnar,loadPrivatePositions,refreshQuote,refreshPosition,refreshAllPositions,openPositionScenario,completeRocFields,occSymbol,positionMetrics,annualizedRoc,positionRisk,quoteFreshness,isUsRegularSession,setMarketEvents};
+  global.OptionV2={bsPrice,evaluate,normalizeColumnar,loadPrivatePositions,refreshQuote,refreshPosition,refreshAllPositions,openPositionScenario,completeRocFields,occSymbol,positionMetrics,annualizedRoc,positionRisk,quoteFreshness,isUsRegularSession,setMarketEvents,realizedPnl,assignmentBasis,openLifecycle,closeLifecycle,updateLifecyclePreview,saveLifecycle,deleteLifecycleRecord,toggleHistory};
   if(typeof document!=='undefined'){
     document.addEventListener('DOMContentLoaded',()=>{bind();$('refreshAllOptions')?.addEventListener('click',()=>refreshAllPositions({force:true,reason:'手动刷新'}))});
     document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&Date.now()-state.lastBulkAt>=POSITION_REFRESH_MS)refreshAllPositions({onlyNeeded:true,reason:'返回页面检查'})});

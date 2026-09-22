@@ -21,6 +21,19 @@ assert '"hit": drawdown_hit' in generator
 assert '"hit": m_score >= 2' not in generator
 assert "validate_build_data(data)" in generator and "atomic_write(html_out" in generator
 assert "已过期 ·" in (ROOT / "docs" / "assets" / "options-v2.js").read_text(encoding="utf-8")
+options_js = (ROOT / "docs" / "assets" / "options-v2.js").read_text(encoding="utf-8")
+market_live_js = (ROOT / "docs" / "assets" / "market-live.js").read_text(encoding="utf-8")
+budget_js = (ROOT / "docs" / "assets" / "strategy-budget.js").read_text(encoding="utf-8")
+options_function = (ROOT / "supabase" / "functions" / "options-market" / "index.ts").read_text(encoding="utf-8")
+market_function = (ROOT / "supabase" / "functions" / "market-snapshot" / "index.ts").read_text(encoding="utf-8")
+workflow = (ROOT / ".github" / "workflows" / "daily.yml").read_text(encoding="utf-8")
+assert 'id="refreshAllOptions"' in page and "refreshAllPositions" in options_js
+assert "休市 · 上次报价" in options_js and "POSITION_REFRESH_MS=15*60*1000" in options_js
+assert "document.visibilityState" in options_js and "document.visibilityState" in market_live_js
+assert "const saveTimers=new Map()" in budget_js
+assert "AbortSignal.timeout(10_000)" in options_function and "UPSTREAM_RATE_LIMIT" in options_function
+assert "fetchWithTimeout" in market_function and "X-Cache': 'STALE" in market_function
+assert "concurrency:" in workflow and "git pull --rebase origin main" in workflow
 stock_targets_rls = (ROOT / "supabase" / "migrations" / "202609220001_stock_targets_private.sql").read_text(encoding="utf-8")
 assert "enable row level security" in stock_targets_rls and "stock_targets_admin_update" in stock_targets_rls
 assert "期权持仓与风险监控 V2.2" not in generator

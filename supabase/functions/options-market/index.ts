@@ -67,7 +67,16 @@ function epochSeconds(value?: string) {
 }
 
 async function fetchAlpaca(url: string, headers: Record<string, string>) {
-  const response = await fetch(url, { headers });
+  let response: Response;
+  try {
+    response = await fetch(url, { headers, signal: AbortSignal.timeout(10_000) });
+  } catch (error) {
+    const timeout = error instanceof DOMException && error.name === 'TimeoutError';
+    const wrapped = new Error(timeout ? 'Alpaca请求超过10秒' : `Alpaca网络错误：${error instanceof Error ? error.message : String(error)}`) as Error & { status?: number; code?: string };
+    wrapped.status = timeout ? 504 : 502;
+    wrapped.code = timeout ? 'UPSTREAM_TIMEOUT' : 'UPSTREAM_NETWORK';
+    throw wrapped;
+  }
   const text = await response.text();
   let body: any = null;
   try {
@@ -76,8 +85,9 @@ async function fetchAlpaca(url: string, headers: Record<string, string>) {
     body = { message: text };
   }
   if (!response.ok) {
-    const error = new Error(body?.message || body?.error || `Alpaca HTTP ${response.status}`) as Error & { status?: number };
+    const error = new Error(body?.message || body?.error || `Alpaca HTTP ${response.status}`) as Error & { status?: number; code?: string };
     error.status = response.status;
+    error.code = response.status === 429 ? 'UPSTREAM_RATE_LIMIT' : 'UPSTREAM_HTTP';
     throw error;
   }
   return body;
@@ -280,6 +290,11 @@ serve(async (req: Request) => {
     const status = (error as Error & { status?: number }).status || 502;
     const publicStatus = [400, 401, 403, 404, 429].includes(status) ? status : 502;
     const message = error instanceof Error ? error.message : String(error);
-    return jsonResponse({ error: `Alpaca行情请求失败：${message}`, provider: PROVIDER }, publicStatus);
+    const code = (error as Error & { code?: string }).code || 'UPSTREAM_ERROR';
+    return jsonResponse(
+      { error: `Alpaca行情请求失败：${message}`, code, provider: PROVIDER, retryable: status === 429 || status >= 500, failedAt: new Date().toISOString() },
+      publicStatus,
+      status === 429 ? { 'Retry-After': '60' } : {}
+    );
   }
 });

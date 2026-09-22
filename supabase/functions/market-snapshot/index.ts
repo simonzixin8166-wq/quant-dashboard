@@ -7,11 +7,16 @@ const corsHeaders = {
 };
 
 let cache = { at: 0, body: '' };
+let lastGood = { at: 0, body: '' };
 const exactSymbols = { spx: '^GSPC', ixic: '^IXIC', vix: '^VIX' };
+
+async function fetchWithTimeout(url: string, init: RequestInit = {}, timeoutMs = 10000) {
+  return await fetch(url, { ...init, signal: AbortSignal.timeout(timeoutMs) });
+}
 
 async function yahooMinuteQuote(symbol) {
   const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?range=5d&interval=1m&includePrePost=true`;
-  const response = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0', Accept: 'application/json' } });
+  const response = await fetchWithTimeout(url, { headers: { 'User-Agent': 'Mozilla/5.0', Accept: 'application/json' } });
   if (!response.ok) throw new Error(`Yahoo ${response.status}`);
   const payload = await response.json();
   const result = payload?.chart?.result?.[0];
@@ -33,7 +38,7 @@ async function yahooMinuteQuote(symbol) {
 async function marketDataProxies() {
   const token = Deno.env.get('MARKETDATA_API_TOKEN');
   if (!token) return {};
-  const response = await fetch('https://api.marketdata.app/v1/stocks/prices/?symbols=SPY,QQQ,VIXY', {
+  const response = await fetchWithTimeout('https://api.marketdata.app/v1/stocks/prices/?symbols=SPY,QQQ,VIXY', {
     headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' },
   });
   if (!response.ok) return {};
@@ -65,7 +70,19 @@ Deno.serve(async (request) => {
   const exact = Object.fromEntries(entries);
   const proxies = await marketDataProxies().catch(() => ({}));
   const ok = Object.values(exact).some((item) => !item.error) || Object.keys(proxies).length > 0;
-  const body = JSON.stringify({ s: ok ? 'ok' : 'error', exact, proxies, fetchedAt: Math.floor(Date.now() / 1000) });
+  if (ok) {
+    const body = JSON.stringify({ s: 'ok', exact, proxies, fetchedAt: Math.floor(Date.now() / 1000), stale: false });
+    cache = { at: Date.now(), body };
+    lastGood = cache;
+    return new Response(body, { status: 200, headers: { ...corsHeaders, 'X-Cache': 'MISS' } });
+  }
+  if (lastGood.body) {
+    const fallback = { ...JSON.parse(lastGood.body), stale: true, fallbackReason: '上游行情暂不可用', lastSuccessAt: Math.floor(lastGood.at / 1000) };
+    const body = JSON.stringify(fallback);
+    cache = { at: Date.now(), body };
+    return new Response(body, { status: 200, headers: { ...corsHeaders, 'X-Cache': 'STALE' } });
+  }
+  const body = JSON.stringify({ s: 'error', code: 'UPSTREAM_UNAVAILABLE', exact, proxies, retryable: true, failedAt: Math.floor(Date.now() / 1000) });
   cache = { at: Date.now(), body };
-  return new Response(body, { status: ok ? 200 : 502, headers: { ...corsHeaders, 'X-Cache': 'MISS' } });
+  return new Response(body, { status: 502, headers: { ...corsHeaders, 'X-Cache': 'MISS', 'Retry-After': '60' } });
 });

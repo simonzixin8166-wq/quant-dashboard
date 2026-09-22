@@ -7,9 +7,9 @@ import warnings
 warnings.filterwarnings("ignore")
 
 # 单一版本源：每日 Action 生成 HTML 时，页面标题和静态资源缓存版本都从这里读取。
-APP_VERSION = "2.6"
-OPTIONS_VERSION = "2.6"
-ASSET_VERSION = "2.6"
+APP_VERSION = "2.7"
+OPTIONS_VERSION = "2.7"
+ASSET_VERSION = "2.7"
 
 API_KEY = os.environ.get("TWELVE_DATA_KEY", "demo")
 BASE = "https://api.twelvedata.com"
@@ -765,7 +765,9 @@ def render_html(data):
 <section class="section">
     <div id="macroEventStrip" class="event-strip"><div class="event-item skeleton">正在读取FOMC/CPI官方日历</div></div>
     <div id="optionRiskSummary" class="risk-grid"><div class="risk-card skeleton">正在计算持仓风险</div></div>
-    <div style="margin-bottom: 12px; display: flex; justify-content: flex-end;">
+    <div class="option-position-toolbar">
+        <span id="optionAutoStatus" class="option-auto-status">登录后检查持仓报价；美股常规时段每15分钟自动刷新</span>
+        <button id="refreshAllOptions" class="option-secondary" type="button">↻ 刷新全部持仓</button>
         <button onclick="openAddOptionModal()" style="background:var(--brass); color:#fff; border:none; padding:8px 16px; border-radius:6px; cursor:pointer; font-weight:600; font-size:12.5px; box-shadow:0 4px 10px rgba(184,134,58,.3);">➕ 录入新持仓</button>
     </div>
     <div class="table-container">
@@ -1069,7 +1071,15 @@ window.addEventListener('load', checkSession);
 supabaseClient.auth.onAuthStateChange((event, session) => {{ if (event === 'SIGNED_IN') checkSession(); }});
 
 const CNHK_SYMBOLS = ['sh000001', 'sh000300', 'sz159307', 'hk03086', 'hk03416'];
+let cnhkTimer = null;
+function isAsiaMarketWindow() {{
+  const parts = new Intl.DateTimeFormat('en-US', {{ timeZone:'Asia/Shanghai', weekday:'short', hour:'2-digit', minute:'2-digit', hourCycle:'h23' }}).formatToParts(new Date());
+  const values = Object.fromEntries(parts.map(part => [part.type, part.value]));
+  const minute = Number(values.hour) * 60 + Number(values.minute);
+  return !['Sat','Sun'].includes(values.weekday) && minute >= 555 && minute <= 975;
+}}
 function fetchLiveCNHK() {{
+  if (document.visibilityState === 'hidden') return;
   const script = document.createElement('script');
   script.src = `https://qt.gtimg.cn/q=${{CNHK_SYMBOLS.join(',')}}&r=${{Math.random()}}`;
   script.onload = () => {{
@@ -1091,7 +1101,12 @@ function fetchLiveCNHK() {{
   }};
   document.head.appendChild(script);
 }}
-window.addEventListener('load', () => {{ setInterval(fetchLiveCNHK, 5000); }});
+function scheduleCNHK() {{
+  clearTimeout(cnhkTimer);
+  cnhkTimer = setTimeout(() => {{ fetchLiveCNHK(); scheduleCNHK(); }}, isAsiaMarketWindow() ? 120000 : 15 * 60 * 1000);
+}}
+window.addEventListener('load', () => {{ fetchLiveCNHK(); scheduleCNHK(); }});
+document.addEventListener('visibilitychange', () => {{ if (document.visibilityState === 'visible') {{ fetchLiveCNHK(); scheduleCNHK(); }} else clearTimeout(cnhkTimer); }});
 </script><script src="assets/market-live.js?v={ASSET_VERSION}"></script><script src="assets/dashboard-v2.2.js?v={ASSET_VERSION}"></script><script src="assets/strategy-budget.js?v={ASSET_VERSION}"></script><script src="assets/options-v2.js?v={ASSET_VERSION}"></script></body></html>'''
 
 def push_to_supabase(data):

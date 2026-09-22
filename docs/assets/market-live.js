@@ -5,6 +5,20 @@
   const proxyNames = { spx: 'SPY', ixic: 'QQQ', vix: 'VIXY' };
   const fmt = (n, key) => key === 'vix' ? Number(n).toFixed(2) : Number(n).toLocaleString('en-US', { maximumFractionDigits: 2 });
   const pct = n => `${Number(n) >= 0 ? '+' : ''}${(Number(n) * 100).toFixed(2)}%`;
+  let refreshTimer = null;
+
+  function isUsRegularSession(now = new Date()) {
+    const parts = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', weekday: 'short', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).formatToParts(now);
+    const values = Object.fromEntries(parts.map(part => [part.type, part.value]));
+    const minute = Number(values.hour) * 60 + Number(values.minute);
+    return !['Sat', 'Sun'].includes(values.weekday) && minute >= 570 && minute < 960;
+  }
+
+  function nextDelay() { return isUsRegularSession() ? 90000 : 15 * 60 * 1000; }
+  function schedule() {
+    clearTimeout(refreshTimer);
+    refreshTimer = window.setTimeout(async () => { if (document.visibilityState === 'visible') await refresh(); schedule(); }, nextDelay());
+  }
 
   function updateVixGauge(value) {
     const v = Number(value);
@@ -51,7 +65,8 @@
 
   async function refresh() {
     try {
-      const response = await fetch(`${endpoint}?t=${Date.now()}`, { cache: 'no-store' });
+      if (document.visibilityState === 'hidden') return;
+      const response = await fetch(`${endpoint}?t=${Date.now()}`, { cache: 'no-store', signal: AbortSignal.timeout(12000) });
       const body = await response.json();
       if (!response.ok || body.s !== 'ok') throw new Error(body.error || `HTTP ${response.status}`);
       const spxOk = updateExact('spx', body.exact?.spx);
@@ -60,10 +75,14 @@
       if (!spxOk) showProxy('spx', body.proxies?.SPY);
       if (!ixicOk) showProxy('ixic', body.proxies?.QQQ);
       if (!vixOk) showProxy('vix', body.proxies?.VIXY);
-      setStatus('usLiveIndexStatus', spxOk && ixicOk ? '指数分钟行情（30秒刷新）' : '指数日线；盘中代理见上方', spxOk && ixicOk);
-      setStatus('usLiveVixStatus', vixOk ? 'VIX分钟行情（30秒刷新）' : 'VIX日线；VIXY代理见上方', vixOk);
+      const cadence = isUsRegularSession() ? '常规时段90秒检查' : '休市15分钟检查';
+      const stalePrefix = body.stale ? '缓存行情 · ' : '';
+      setStatus('usLiveIndexStatus', spxOk && ixicOk ? `${stalePrefix}指数分钟行情（${cadence}）` : '指数日线；盘中代理见上方', spxOk && ixicOk && !body.stale);
+      setStatus('usLiveVixStatus', vixOk ? `${stalePrefix}VIX分钟行情（${cadence}）` : 'VIX日线；VIXY代理见上方', vixOk && !body.stale);
       const asOf = document.getElementById('usLiveAsOf');
-      if (asOf) asOf.textContent = `美股盘中接口: ${new Date().toLocaleTimeString()} | 宽度指标: 上一完整收盘日`;
+      const providerTimes = [body.exact?.spx?.updated, body.exact?.ixic?.updated, body.exact?.vix?.updated].map(Number).filter(Number.isFinite);
+      const providerStamp = providerTimes.length ? new Date(Math.max(...providerTimes) * 1000).toLocaleString() : '时间未知';
+      if (asOf) asOf.textContent = `美股行情时点: ${providerStamp}${body.stale ? '（缓存）' : ''} | ${isUsRegularSession() ? '常规交易时段' : '当前休市'} | 宽度: 上一完整收盘日`;
     } catch (_error) {
       setStatus('usLiveIndexStatus', '实时接口未部署/暂不可用，保留收盘日线', false);
       setStatus('usLiveVixStatus', '实时接口未部署/暂不可用，保留收盘日线', false);
@@ -74,6 +93,7 @@
     const initialVix = document.querySelector('[data-us-live-price="vix"]')?.textContent;
     updateVixGauge(initialVix);
     refresh();
-    window.setInterval(refresh, 30000);
+    schedule();
   });
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') { refresh(); schedule(); } else clearTimeout(refreshTimer); });
 })();

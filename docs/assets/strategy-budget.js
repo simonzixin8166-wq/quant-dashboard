@@ -2,7 +2,7 @@
   'use strict';
   const money=n=>Number.isFinite(n)?new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0}).format(n):'—';
   const cards=()=>[...document.querySelectorAll('[data-budget-symbol]')];
-  let saveTimer=null;
+  const saveTimers=new Map();
 
   function renderCard(card){
     const reserve=Math.max(0,Number(card.querySelector('.budget-input')?.value)||0),drawdown=Number(card.dataset.drawdown),loss=Number.isFinite(drawdown)?-drawdown:null,tiers=[Number(card.dataset.t1),Number(card.dataset.t2),Number(card.dataset.t3)],alloc=[.2,.3,.5];
@@ -33,13 +33,13 @@
 
   function bindCard(card,enabled){
     const input=card.querySelector('.budget-input');if(!input)return;input.disabled=!enabled;
-    if(input.dataset.bound)return;input.dataset.bound='1';input.addEventListener('input',()=>{renderCard(card);duplicateExposureNotice();clearTimeout(saveTimer);saveTimer=setTimeout(()=>save(card),600)});
+    if(input.dataset.bound)return;input.dataset.bound='1';input.addEventListener('input',()=>{renderCard(card);duplicateExposureNotice();const symbol=card.dataset.budgetSymbol;clearTimeout(saveTimers.get(symbol));saveTimers.set(symbol,setTimeout(()=>{saveTimers.delete(symbol);save(card)},600))});
   }
 
   async function load(){
     if(typeof supabaseClient==='undefined')return;const {data:{session}}=await supabaseClient.auth.getSession();
     cards().forEach(c=>bindCard(c,Boolean(session)));
-    if(!session){cards().forEach(renderCard);return}
+    if(!session){saveTimers.forEach(clearTimeout);saveTimers.clear();cards().forEach(card=>{const input=card.querySelector('.budget-input');if(input)input.value='';renderCard(card)});duplicateExposureNotice();return}
     const {data,error}=await supabaseClient.from('strategy_budgets').select('*');
     if(error){global.MAV?.toast(`预算读取失败：${error.message}`,'bad');return}
     const map=new Map((data||[]).map(x=>[x.symbol,x]));cards().forEach(card=>{const row=map.get(card.dataset.budgetSymbol),input=card.querySelector('.budget-input');if(row)input.value=Number(row.reserve_amount)||0;renderCard(card)});duplicateExposureNotice();

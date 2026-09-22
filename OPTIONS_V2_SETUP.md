@@ -1,4 +1,4 @@
-# myAlphaView V2.5 · Alpaca 与风险驾驶舱配置
+# myAlphaView V2.8 · Alpaca、风险驾驶舱与期权生命周期配置
 
 ## 已完成
 
@@ -38,7 +38,7 @@ supabase functions deploy market-snapshot --no-verify-jwt
 
 `SUPABASE_FIX_OPTIONS.sql`
 
-该文件现已同时包含 V2.5 的 `entry_date`、`collateral_mode` 和私有 `strategy_budgets` 表。看到最后查询返回已有持仓后，再回网页刷新。已有持仓可在持仓表点击“补ROC”补录真实建仓日期与担保方式；系统不会用 `opened_at` 猜测。
+该文件现已同时包含 `entry_date`、`collateral_mode`、生命周期字段、平仓备注和私有 `strategy_budgets` 表。看到最后查询返回已有持仓后，再回网页刷新。已有持仓可在持仓表点击“补ROC”补录真实建仓日期与担保方式；系统不会用 `opened_at` 猜测。V2.8 也可单独执行 `supabase/migrations/202609220002_options_close_workflow.sql` 完成增量升级。
 
 ## 必须检查的数据库安全设置
 

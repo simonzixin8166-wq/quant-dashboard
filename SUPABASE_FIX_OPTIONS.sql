@@ -18,7 +18,9 @@ alter table public.options_positions
   add column if not exists rolled_from_id bigint references public.options_positions(id),
   add column if not exists rolled_to_id bigint references public.options_positions(id),
   add column if not exists entry_date date,
-  add column if not exists collateral_mode text check (collateral_mode in ('cash_secured','naked','covered','debit'));
+  add column if not exists collateral_mode text check (collateral_mode in ('cash_secured','naked','covered','debit')),
+  add column if not exists close_notes text,
+  add column if not exists settlement_stock_price numeric;
 
 create index if not exists options_positions_user_status_expiry_idx
   on public.options_positions(user_id, status, expiry);
@@ -75,6 +77,6 @@ drop policy if exists "strategy_budgets_private" on public.strategy_budgets;
 create policy "strategy_budgets_private" on public.strategy_budgets
 for all using (user_id = auth.uid()) with check (user_id = auth.uid());
 
-select id, symbol, opt_type, side, strike, expiry, cost, qty, multiplier, entry_date, collateral_mode, user_id
+select id, symbol, opt_type, side, strike, expiry, cost, qty, multiplier, entry_date, collateral_mode, status, realized_pnl, user_id
 from public.options_positions
 order by expiry;

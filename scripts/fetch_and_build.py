@@ -7,9 +7,9 @@ import warnings
 warnings.filterwarnings("ignore")
 
 # 单一版本源：每日 Action 生成 HTML 时，页面标题和静态资源缓存版本都从这里读取。
-APP_VERSION = "2.7"
-OPTIONS_VERSION = "2.7"
-ASSET_VERSION = "2.7"
+APP_VERSION = "2.8"
+OPTIONS_VERSION = "2.8"
+ASSET_VERSION = "2.8"
 
 API_KEY = os.environ.get("TWELVE_DATA_KEY", "demo")
 BASE = "https://api.twelvedata.com"
@@ -578,7 +578,7 @@ def render_options_html(options_data):
             <td class="fw-bold">${curr_price:.2f}</td>
             <td class="{pnl_cls}">{f"{dist_pct:+.2f}%" if curr_price else "-"}</td>
             <td style="font-size:11.5px;color:var(--muted)">{iv:.1%} / {f"{delta:+.3f}" if delta else "-"}</td>
-            <td style="text-align:center;"><button onclick="deleteOptionPosition({opt_id})" style="background:none;border:none;cursor:pointer;color:var(--muted);font-size:12px;" title="删除此持仓">🗑️</button></td>
+            <td style="text-align:center;"><button class="manage-option-btn" onclick="OptionV2.openLifecycle('{opt_id}')" title="平仓或结算">管理</button></td>
         </tr>'''
     return html
 
@@ -768,6 +768,7 @@ def render_html(data):
     <div class="option-position-toolbar">
         <span id="optionAutoStatus" class="option-auto-status">登录后检查持仓报价；美股常规时段每15分钟自动刷新</span>
         <button id="refreshAllOptions" class="option-secondary" type="button">↻ 刷新全部持仓</button>
+        <button id="toggleOptionHistory" class="option-secondary" type="button" onclick="OptionV2.toggleHistory()">查看历史（0）</button>
         <button onclick="openAddOptionModal()" style="background:var(--brass); color:#fff; border:none; padding:8px 16px; border-radius:6px; cursor:pointer; font-weight:600; font-size:12.5px; box-shadow:0 4px 10px rgba(184,134,58,.3);">➕ 录入新持仓</button>
     </div>
     <div class="table-container">
@@ -792,6 +793,10 @@ def render_html(data):
             </thead>
             <tbody id="optionsTableBody">{options_html}</tbody>
         </table>
+    </div>
+    <div id="optionHistorySection" class="option-history" hidden>
+      <div class="option-history-head"><div><strong>期权交易历史</strong><span>关闭后保留完整账本，不再从数据库删除</span></div><span id="optionHistoryCount">0 笔</span></div>
+      <div class="table-container"><table><thead><tr><th>合约 / 策略</th><th>建仓 → 结束</th><th>处理结果</th><th>平仓价</th><th>总费用</th><th>已实现盈亏</th><th>行权有效价</th><th>备注</th></tr></thead><tbody id="optionHistoryBody"><tr><td colspan="8" style="text-align:center;color:var(--muted)">登录后读取历史记录</td></tr></tbody></table></div>
     </div>
 </section>
 <section class="section"><p style="font-size:11.5px;color:var(--muted);line-height:1.7">💡 主理人说明：浮盈/浮亏自动结合 Long/Short 策略方向推演计算。Delta 指标可用于评估对冲正股所需的仓位，以及辅助预判合约归零/行权的最终概率。</p></section>
@@ -837,6 +842,18 @@ def render_html(data):
 
 <div class="footer">© 2026 myAlphaView · Built by Simon · Public Research Dashboard<br>市场数据与策略指标仅供研究、学习与信息参考，不构成投资建议。</div>
 </div></main></div>
+
+<div id="optionLifecycleModal" class="option-modal-backdrop" style="display:none">
+  <div class="option-modal-card">
+    <div class="option-modal-head"><div><h3 id="lifecycleTitle">管理期权持仓</h3><p id="lifecycleSummary"></p></div><button type="button" onclick="OptionV2.closeLifecycle()">×</button></div>
+    <div class="option-field"><label>处理方式</label><select id="lifecycleAction" onchange="OptionV2.updateLifecyclePreview()"><option value="closed">主动平仓</option><option value="expired_worthless">到期作废（价值归零）</option><option value="assigned">被行权</option></select></div>
+    <div class="option-two"><div class="option-field"><label>处理日期</label><input id="lifecycleDate" type="date"></div><div id="lifecycleExitWrap" class="option-field"><label>平仓成交价（每股）</label><input id="lifecycleExitPrice" type="number" min="0" step="0.01" oninput="OptionV2.updateLifecyclePreview()"></div></div>
+    <div class="option-two"><div class="option-field"><label>本次总手续费</label><input id="lifecycleCloseFee" type="number" min="0" step="0.01" value="0" oninput="OptionV2.updateLifecyclePreview()"></div><div id="lifecycleStockWrap" class="option-field" style="display:none"><label>行权时正股价（可选，仅留档）</label><input id="lifecycleStockPrice" type="number" min="0" step="0.01"></div></div>
+    <div class="option-field"><label>备注（可选）</label><textarea id="lifecycleNotes" rows="2" maxlength="500" placeholder="例如：50%止盈、到期被指派、券商成交单号"></textarea></div>
+    <div id="lifecyclePreview" class="lifecycle-preview"></div>
+    <div class="option-modal-actions"><button class="option-danger-link" type="button" onclick="OptionV2.deleteLifecycleRecord()">仅纠错：永久删除</button><span></span><button class="option-secondary" type="button" onclick="OptionV2.closeLifecycle()">取消</button><button id="saveLifecycleBtn" class="option-primary" type="button" onclick="OptionV2.saveLifecycle()">确认并归档</button></div>
+  </div>
+</div>
 
 <!-- ➕ 添加期权持仓弹窗 HTML -->
 <div id="addOptionModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:100; place-items:center;">
@@ -992,24 +1009,6 @@ async function saveNewOptionPosition() {{
       if (!saved || !saved.id) {{ alert('数据库未返回刚保存的记录，请检查RLS读取策略。'); return; }}
       await window.OptionV2.loadPrivatePositions();
       alert('✅ 期权持仓已保存并从数据库验证读回。');
-  }}
-}}
-
-// 🚀 魔术2：乐观删除行 (Optimistic Delete)
-async function deleteOptionPosition(id) {{
-  if (!isAdmin) {{ alert('🔒 权限提示：请先登录管理员账号后方可删除持仓！'); return; }}
-  if (confirm('确定要从云端账本中删除此期权持仓吗？')) {{
-      
-      // ✅ 先让网页上的这一行瞬间消失！提升极速手感
-      const targetRow = document.getElementById('opt-row-' + id);
-      if (targetRow) targetRow.style.display = 'none';
-
-      const {{ error }} = await supabaseClient.from('options_positions').delete().eq('id', id);
-      if (error) {{ 
-          alert('删除失败: ' + error.message); 
-          if (targetRow) targetRow.style.display = ''; // 如果云端删除失败，再把这行变回来
-      }}
-      // 注意：这里删除了之前恼人的 window.location.reload(); 彻底实现无刷新！
   }}
 }}
 

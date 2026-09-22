@@ -51,11 +51,13 @@ jobs:
         run: |
           node --check docs/assets/options-v2.js
           node --check docs/assets/market-live.js
+          node --check docs/assets/dashboard-v2.2.js
           node --check docs/assets/strategy-budget.js
           node tests/options_v2.test.js
           python tests/test_breadth.py
           python tests/test_market_events.py
           python tests/test_vix_gauge.py
+          python tests/test_decision_ui.py
           python tests/test_build_contract.py
         
       - name: Commit and push

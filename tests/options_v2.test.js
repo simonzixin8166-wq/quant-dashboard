@@ -39,4 +39,11 @@ assert(Math.abs(roc.value-expectedRoc)<1e-10,'Cash-secured ROC must use net prem
 assert.strictEqual(globalThis.OptionV2.annualizedRoc({...rocPosition,entry_date:null},null).label,'待补建仓日期','Legacy rows must not invent an entry date');
 assert.strictEqual(globalThis.OptionV2.annualizedRoc({...rocPosition,collateral_mode:'naked'},null).value,null,'Naked positions must not show cash-secured ROC');
 
+const now=Date.now();
+assert.strictEqual(globalThis.OptionV2.quoteFreshness({quote:{bid:1},at:now-10*60*1000},now).status,'fresh','A quote under 30 minutes must be fresh');
+assert.strictEqual(globalThis.OptionV2.quoteFreshness({quote:{bid:1},at:now-45*60*1000},now).status,'delayed','A 30-90 minute quote must be delayed');
+assert.strictEqual(globalThis.OptionV2.quoteFreshness({quote:{bid:1},at:now-2*60*60*1000},now).usable,false,'A quote older than 90 minutes must not count as coverage');
+assert.strictEqual(globalThis.OptionV2.quoteFreshness({quote:{bid:1,updated:(now-2*60*60*1000)/1000},at:now},now).status,'stale','Provider timestamp must take precedence over browser fetch time');
+assert.strictEqual(globalThis.OptionV2.positionRisk({...held,expiry:'2099-01-01'},null,{status:'stale'}).level,'l2','A stale quote must create an explicit risk warning');
+
 console.log('options_v2.test.js: all assertions passed');

@@ -49,4 +49,12 @@ assert.strictEqual(globalThis.OptionV2.isUsRegularSession(new Date('2026-09-22T1
 assert.strictEqual(globalThis.OptionV2.isUsRegularSession(new Date('2026-09-22T20:30:00Z')),false,'16:30 New York must be outside regular session');
 assert.strictEqual(globalThis.OptionV2.positionRisk({...held,expiry:'2099-01-01'},null,{status:'stale'}).level,'l2','A stale quote must create an explicit risk warning');
 
+const lifecycleBase={...held,cost:3.5,qty:2,multiplier:100,open_fee:1.3};
+assert(Math.abs(globalThis.OptionV2.realizedPnl(lifecycleBase,{status:'closed',exitPrice:1.25,closeFee:1.3})-447.4)<.001,'Short close P&L must include multiplier, quantity and both fees');
+assert(Math.abs(globalThis.OptionV2.realizedPnl({...lifecycleBase,side:'Long'},{status:'closed',exitPrice:5,closeFee:1.3})-297.4)<.001,'Long close P&L direction must be correct');
+assert(Math.abs(globalThis.OptionV2.realizedPnl(lifecycleBase,{status:'expired_worthless',closeFee:0})-698.7)<.001,'Expired short option must retain premium less opening fee');
+assert(Math.abs(globalThis.OptionV2.realizedPnl({...lifecycleBase,side:'Long'},{status:'expired_worthless',closeFee:0})+701.3)<.001,'Expired long option must lose premium plus opening fee');
+assert(Math.abs(globalThis.OptionV2.assignmentBasis(lifecycleBase,1.3)-656.513)<.001,'Assigned short put basis must include premium, multiplier, quantity and fees');
+assert(Math.abs(globalThis.OptionV2.assignmentBasis({...lifecycleBase,opt_type:'Call'},1.3)-663.487)<.001,'Assigned short call effective sale price must include premium and fees');
+
 console.log('options_v2.test.js: all assertions passed');

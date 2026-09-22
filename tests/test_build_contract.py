@@ -30,6 +30,11 @@ workflow = (ROOT / ".github" / "workflows" / "daily.yml").read_text(encoding="ut
 assert 'id="refreshAllOptions"' in page and "refreshAllPositions" in options_js
 assert "休市 · 上次报价" in options_js and "POSITION_REFRESH_MS=15*60*1000" in options_js
 assert "document.visibilityState" in options_js and "document.visibilityState" in market_live_js
+assert 'id="optionLifecycleModal"' in page and 'id="optionHistoryBody"' in page
+assert "realizedPnl" in options_js and "assignmentBasis" in options_js
+assert "deleteOptionPosition" not in page and "deleteOptionPosition" not in generator
+close_migration = (ROOT / "supabase" / "migrations" / "202609220002_options_close_workflow.sql").read_text(encoding="utf-8")
+assert "close_notes" in close_migration and "settlement_stock_price" in close_migration
 assert "const saveTimers=new Map()" in budget_js
 assert "AbortSignal.timeout(10_000)" in options_function and "UPSTREAM_RATE_LIMIT" in options_function
 assert "fetchWithTimeout" in market_function and "X-Cache': 'STALE" in market_function

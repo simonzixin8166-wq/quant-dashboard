@@ -7,9 +7,9 @@ import warnings
 warnings.filterwarnings("ignore")
 
 # 单一版本源：每日 Action 生成 HTML 时，页面标题和静态资源缓存版本都从这里读取。
-APP_VERSION = "3.0"
-OPTIONS_VERSION = "3.0"
-ASSET_VERSION = "3.0"
+APP_VERSION = "3.1"
+OPTIONS_VERSION = "3.1"
+ASSET_VERSION = "3.1"
 
 API_KEY = os.environ.get("TWELVE_DATA_KEY", "demo")
 BASE = "https://api.twelvedata.com"
@@ -743,7 +743,7 @@ def render_html(data):
     chart_json = json.dumps(data.get("overview_charts", {}), ensure_ascii=False)
 
     return f'''<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>myAlphaView · Market Intelligence</title>
-<meta name="author" content="Simon"><meta name="application-version" content="{APP_VERSION}"><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,380;9..144,520;9..144,620&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"><link href="assets/options-v2.css?v={ASSET_VERSION}" rel="stylesheet"><script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<meta name="author" content="Simon"><meta name="application-version" content="{APP_VERSION}"><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,380;9..144,520;9..144,620&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"><link href="assets/options-v2.css?v={ASSET_VERSION}" rel="stylesheet"><link href="assets/roll-manager.css?v={ASSET_VERSION}" rel="stylesheet"><script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{{--bg:#f4f2ec;--surface:#ffffff;--surface2:#ebe8df;--ink:#14161c;--muted:#696d76;--line:#e1ddd0;--nav:#11162a;--nav2:#0a0d1a;--navmuted:#8d93ab;--navline:rgba(255,255,255,.08);--brass:#b8863a;--brass-soft:#e8d3ab;--navy:#1f2b52;--green:#1c7a4c;--green-soft:#e5f1e9;--red:#b23b2e;--red-soft:#f6e6e2;--amber:#c07f2e;--amber-soft:#f6ecd8;--shadow:0 12px 32px rgba(15,15,10,.07);--serif:'Fraunces',ui-serif,Georgia,serif;--sans:'Inter',-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;}}
 *{{box-sizing:border-box;margin:0;padding:0}} body{{font-family:var(--sans);background:var(--bg);color:var(--ink);min-height:100vh;-webkit-font-smoothing:antialiased}} .app{{display:flex;min-height:100vh}}
@@ -853,6 +853,18 @@ def render_html(data):
       <div class="table-container"><table><thead><tr><th>合约 / 策略</th><th>建仓 → 结束</th><th>处理结果</th><th>平仓价</th><th>总费用</th><th>已实现盈亏</th><th>行权有效价</th><th>备注</th></tr></thead><tbody id="optionHistoryBody"><tr><td colspan="8" style="text-align:center;color:var(--muted)">登录后读取历史记录</td></tr></tbody></table></div>
     </div>
 </section>
+<section class="section">
+  <div id="rollManagerRoot" class="roll-manager">
+    <div class="roll-manager-head"><div><h2>Covered Call / Sell Put 展期管理</h2><p>网站内显示“收盘Delta待办”；盘中Delta仅供参考。Call和Put使用不同阈值，Put还会区分“愿意接货”与“避免指派”。</p></div><div class="roll-manager-actions"><button type="button" onclick="RollManager.load()">↻ 刷新</button><button type="button" onclick="RollManager.loadIrenPreset()">载入IREN示例</button><button class="primary" type="button" onclick="RollManager.openUnderlying()">＋ 新增正股计划</button></div></div>
+    <div id="rollManagerSummary" class="roll-summary"><div class="roll-empty">登录后读取展期计划</div></div>
+    <div class="roll-section-title"><h3>正股覆盖与分层减仓</h3><span>Covered股数 = 开放的Covered Call张数 × 合约乘数</span></div>
+    <div id="rollUnderlyingGrid" class="roll-underlyings"></div>
+    <div class="roll-section-title"><h3>展期纪律清单</h3><span>Call使用Roll Up；Put使用Roll Down & Out</span></div>
+    <div id="rollPositionList" class="roll-position-list"></div>
+    <div class="roll-history"><details><summary>查看展期历史（平旧仓＋开新仓＋净收付）</summary><div class="table-container"><table><thead><tr><th>标的 / 策略</th><th>旧合约</th><th>新合约</th><th>本次净额</th><th>累计权利金</th><th>成交时间</th></tr></thead><tbody id="rollHistoryBody"><tr><td colspan="6" class="roll-empty">登录后读取</td></tr></tbody></table></div></details></div>
+    <p class="option-note">纪律提示：Delta不是指派概率保证。美股个股期权卖方可能在到期前被指派；临近除息、深度实值、流动性差或重大事件前，请额外核对时间价值、Bid/Ask与券商保证金。</p>
+  </div>
+</section>
 <section class="section"><p style="font-size:11.5px;color:var(--muted);line-height:1.7">💡 主理人说明：浮盈/浮亏自动结合 Long/Short 策略方向推演计算。Delta 指标可用于评估对冲正股所需的仓位，以及辅助预判合约归零/行权的最终概率。</p></section>
 </div>
 
@@ -896,6 +908,22 @@ def render_html(data):
 
 <div class="footer">© 2026 myAlphaView · Built by Simon · Public Research Dashboard<br>市场数据与策略指标仅供研究、学习与信息参考，不构成投资建议。</div>
 </div></main></div>
+
+<div id="underlyingModal" class="option-modal-backdrop" style="display:none">
+  <div class="option-modal-card"><div class="option-modal-head"><div><h3>正股覆盖计划</h3><p>跨设备保存到私有Supabase；分层目标只做纪律记录。</p></div><button type="button" onclick="RollManager.closeUnderlying()">×</button></div>
+    <div class="roll-form-grid"><div class="option-field"><label>股票代码</label><input id="underlyingSymbol" placeholder="IREN"></div><div class="option-field"><label>总持股数</label><input id="underlyingShares" type="number" min="0" step="1"></div><div class="option-field"><label>正股成本 / 股</label><input id="underlyingCost" type="number" min="0" step="0.01"></div><div class="option-field"><label>当前价（可手工更新）</label><input id="underlyingPrice" type="number" min="0" step="0.01"></div><div class="option-field"><label>Covered Call观察Delta</label><input id="underlyingWatch" type="number" min="0.01" max="0.99" step="0.01" value="0.70"></div><div class="option-field"><label>Covered Call紧急Delta</label><input id="underlyingUrgent" type="number" min="0.01" max="1" step="0.01" value="0.80"></div><div class="option-field"><label>Sell Put观察 |Delta|</label><input id="putWatch" type="number" min="0.01" max="0.99" step="0.01" value="0.50"></div><div class="option-field"><label>Sell Put紧急 |Delta|</label><input id="putUrgent" type="number" min="0.01" max="1" step="0.01" value="0.70"></div><div class="option-field wide"><label>Sell Put到期偏好</label><select id="putAssignmentMode"><option value="accept">愿意按计划接货</option><option value="avoid">尽量避免被指派</option></select></div><div class="option-field wide"><label>分层减仓（每行：价格区间:比例）</label><textarea id="underlyingTargets" rows="3" placeholder="65-70:50%&#10;75-80:50%"></textarea></div></div>
+    <div class="option-modal-actions"><span></span><span></span><button class="option-secondary" type="button" onclick="RollManager.closeUnderlying()">取消</button><button class="option-primary" type="button" onclick="RollManager.saveUnderlying()">保存计划</button></div>
+  </div>
+</div>
+
+<div id="rollModal" class="option-modal-backdrop" style="display:none">
+  <div class="option-modal-card"><div class="option-modal-head"><div><h3 id="rollModalTitle">展期管理</h3><p id="rollModalSummary"></p></div><button type="button" onclick="RollManager.closeRoll()">×</button></div><input id="rollPositionId" type="hidden">
+    <div class="roll-form-grid"><div class="option-field"><label>Delta（IBKR）</label><input id="rollDelta" type="number" min="-1" max="1" step="0.0001" oninput="RollManager.updateMonitorPreview()"></div><div class="option-field"><label>观察口径</label><select id="rollObservation" onchange="RollManager.updateMonitorPreview()"><option value="close">收盘Delta（触发纪律）</option><option value="intraday">盘中Delta（仅参考）</option></select></div><div class="option-field"><label>连续处于观察区的收盘数</label><input id="rollWatchCloses" type="number" min="0" step="1" value="0" oninput="RollManager.updateMonitorPreview()"></div><label class="roll-inline-check"><input id="rollCatalyst" type="checkbox" onchange="RollManager.updateMonitorPreview()">已有实锤消息 / 催化剂</label><div class="option-field wide"><label>观察与成交备注</label><textarea id="rollNotes" rows="2" maxlength="500" placeholder="例如：Horizon交付已官宣；IBKR组合单号"></textarea></div></div>
+    <div id="monitorPreview" class="monitor-preview"></div><button class="option-secondary" type="button" onclick="RollManager.saveObservation()">保存本次Delta观察</button>
+    <div id="rollCalculator" class="roll-calculator"><h4>按IBKR实际成交价计算展期</h4><div class="roll-form-grid"><div class="option-field"><label>新行权价</label><input id="newRollStrike" type="number" min="0.01" step="0.01" oninput="RollManager.updateRollPreview()"></div><div class="option-field"><label>新到期日</label><input id="newRollExpiry" type="date" onchange="RollManager.updateRollPreview()"></div><div class="option-field"><label>买回旧仓 Debit / 股</label><input id="rollCloseDebit" type="number" min="0" step="0.01" oninput="RollManager.updateRollPreview()"></div><div class="option-field"><label>卖出新仓 Credit / 股</label><input id="rollOpenCredit" type="number" min="0" step="0.01" oninput="RollManager.updateRollPreview()"></div><div class="option-field"><label>旧仓平仓总手续费</label><input id="rollCloseFee" type="number" min="0" step="0.01" value="0" oninput="RollManager.updateRollPreview()"></div><div class="option-field"><label>新仓开仓总手续费</label><input id="rollOpenFee" type="number" min="0" step="0.01" value="0" oninput="RollManager.updateRollPreview()"></div></div><div id="rollPreview" class="roll-preview"></div></div>
+    <div class="option-modal-actions"><span></span><span></span><button class="option-secondary" type="button" onclick="RollManager.closeRoll()">取消</button><button id="confirmRollBtn" class="option-primary" type="button" onclick="RollManager.confirmRoll()">确认IBKR已成交并记账</button></div>
+  </div>
+</div>
 
 <div id="optionLifecycleModal" class="option-modal-backdrop" style="display:none">
   <div class="option-modal-card">
@@ -1062,6 +1090,7 @@ async function saveNewOptionPosition() {{
       closeAddOptionModal();
       if (!saved || !saved.id) {{ alert('数据库未返回刚保存的记录，请检查RLS读取策略。'); return; }}
       await window.OptionV2.loadPrivatePositions();
+      if (window.RollManager) await window.RollManager.load();
       alert('✅ 期权持仓已保存并从数据库验证读回。');
   }}
 }}
@@ -1113,7 +1142,8 @@ async function checkSession() {{
       authBtn.innerHTML = "🔓 退出账号"; document.getElementById('modeTitle').style.color = "var(--red)"; document.getElementById('liveStatusText').innerText = "连接云端数据库";
       if (window.OptionV2) window.OptionV2.loadPrivatePositions();
       if (window.StrategyBudget) window.StrategyBudget.load();
-  }} else {{ isAdmin = false; authBtn.innerHTML = "🔐 登录私有看板"; if (window.OptionV2) window.OptionV2.loadPrivatePositions(); if (window.StrategyBudget) window.StrategyBudget.load(); }}
+      if (window.RollManager) window.RollManager.load();
+  }} else {{ isAdmin = false; authBtn.innerHTML = "🔐 登录私有看板"; if (window.OptionV2) window.OptionV2.loadPrivatePositions(); if (window.StrategyBudget) window.StrategyBudget.load(); if (window.RollManager) window.RollManager.load(); }}
   fetchAndRenderTargets();
 }}
 
@@ -1178,7 +1208,7 @@ function scheduleCNHK() {{
 }}
 window.addEventListener('load', () => {{ fetchLiveCNHK(); scheduleCNHK(); }});
 document.addEventListener('visibilitychange', () => {{ if (document.visibilityState === 'visible') {{ fetchLiveCNHK(); scheduleCNHK(); }} else clearTimeout(cnhkTimer); }});
-</script><script src="assets/market-live.js?v={ASSET_VERSION}"></script><script src="assets/dashboard-v2.2.js?v={ASSET_VERSION}"></script><script src="assets/strategy-budget.js?v={ASSET_VERSION}"></script><script src="assets/options-v2.js?v={ASSET_VERSION}"></script></body></html>'''
+</script><script src="assets/market-live.js?v={ASSET_VERSION}"></script><script src="assets/dashboard-v2.2.js?v={ASSET_VERSION}"></script><script src="assets/strategy-budget.js?v={ASSET_VERSION}"></script><script src="assets/options-v2.js?v={ASSET_VERSION}"></script><script src="assets/roll-manager.js?v={ASSET_VERSION}"></script></body></html>'''
 
 def push_to_supabase(data):
     supabase_url, supabase_key = os.environ.get("SUPABASE_URL"), os.environ.get("SUPABASE_KEY")

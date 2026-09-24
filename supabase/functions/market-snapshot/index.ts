@@ -14,6 +14,29 @@ async function fetchWithTimeout(url: string, init: RequestInit = {}, timeoutMs =
   return await fetch(url, { ...init, signal: AbortSignal.timeout(timeoutMs) });
 }
 
+function nyDate(epochSeconds: number) {
+  return new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'America/New_York', year: 'numeric', month: '2-digit', day: '2-digit',
+  }).format(new Date(epochSeconds * 1000));
+}
+
+async function yahooPreviousRegularClose(symbol: string, quoteEpoch: number) {
+  const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?range=10d&interval=1d&includePrePost=false`;
+  const response = await fetchWithTimeout(url, { headers: { 'User-Agent': 'Mozilla/5.0', Accept: 'application/json' } });
+  if (!response.ok) throw new Error(`Yahoo daily ${response.status}`);
+  const payload = await response.json();
+  const result = payload?.chart?.result?.[0];
+  const timestamps = result?.timestamp || [];
+  const closes = result?.indicators?.quote?.[0]?.close || [];
+  const quoteDate = nyDate(quoteEpoch);
+  const completed = timestamps.map((ts: number, index: number) => ({
+    date: nyDate(Number(ts)), close: Number(closes[index]),
+  })).filter((row) => row.date < quoteDate && Number.isFinite(row.close) && row.close > 0);
+  const previous = completed.at(-1)?.close;
+  if (!Number.isFinite(previous) || previous <= 0) throw new Error('Yahoo缺少上一交易日正式收盘价');
+  return Number(previous);
+}
+
 async function yahooMinuteQuote(symbol) {
   const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?range=5d&interval=1m&includePrePost=true`;
   const response = await fetchWithTimeout(url, { headers: { 'User-Agent': 'Mozilla/5.0', Accept: 'application/json' } });
@@ -23,13 +46,18 @@ async function yahooMinuteQuote(symbol) {
   const meta = result?.meta || {};
   const closes = result?.indicators?.quote?.[0]?.close || [];
   const price = Number(meta.regularMarketPrice ?? [...closes].reverse().find(Number.isFinite));
-  const previous = Number(meta.chartPreviousClose ?? meta.previousClose);
+  const updated = Number(meta.regularMarketTime || Math.floor(Date.now() / 1000));
+  // chartPreviousClose在range=5d时可能是整个区间开始前的收盘价，不能作为昨收。
+  // 单独从日线中取“报价交易日之前”的最后一个正式收盘价。
+  const previous = await yahooPreviousRegularClose(symbol, updated);
   if (!Number.isFinite(price) || price <= 0) throw new Error('Yahoo返回空价格');
   return {
     symbol,
     price,
     changepct: Number.isFinite(previous) && previous > 0 ? price / previous - 1 : null,
-    updated: Number(meta.regularMarketTime || Math.floor(Date.now() / 1000)),
+    previousRegularClose: previous,
+    changeBasis: 'previous_regular_close',
+    updated,
     source: 'Yahoo分钟行情',
     proxy: false,
   };

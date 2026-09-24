@@ -59,7 +59,14 @@
     if(!raw||raw.s!=='ok')return[];const keys=Object.keys(raw).filter(k=>Array.isArray(raw[k])),n=(raw.optionSymbol||[]).length,out=[];
     for(let i=0;i<n;i++){const row={};keys.forEach(k=>row[k]=raw[k][i]);out.push(row)}return out;
   }
-  const state={chain:[],selected:null,strategy:'SELL_PUT',refreshTimer:null,positionsTimer:null,bulkRefreshing:false,lastBulkAt:0,apiMode:false,positions:new Map(),history:[],positionMode:false,events:[],eventsUpdated:null,lifecycleId:null};
+  const state={chain:[],selected:null,strategy:'SELL_PUT',refreshTimer:null,positionsTimer:null,bulkRefreshing:false,lastBulkAt:0,apiMode:false,positions:new Map(),history:[],accounts:[],positionMode:false,events:[],eventsUpdated:null,lifecycleId:null};
+  function accountName(id){return state.accounts.find(x=>String(x.id)===String(id))?.name||'待分配账户'}
+  async function populateAccountSelect(selectId='optBrokerAccount',preferred=''){
+    const node=$(selectId);if(!node)return;
+    if(!state.accounts.length){const {data:{session}}=await supabaseClient.auth.getSession();if(session){const {data}=await supabaseClient.from('broker_accounts').select('*').eq('is_active',true).order('sort_order').order('name');state.accounts=data||[]}}
+    node.innerHTML='<option value="">请选择券商账户</option>'+state.accounts.map(x=>`<option value="${x.id}">${String(x.name).replace(/[<>&"]/g,'')}</option>`).join('');
+    if(preferred)node.value=String(preferred);
+  }
   async function token(){try{const r=await supabaseClient.auth.getSession();return r.data.session?.access_token||null}catch(e){return null}}
   async function api(params){
     const root=$('optionV2Root'),endpoint=root?.dataset.endpoint;if(!endpoint)throw new Error('尚未配置实时接口');
@@ -140,18 +147,18 @@
   }
   async function loadPrivatePositions(){
     const tbody=$('optionsTableBody');if(!tbody)return;
-    tbody.innerHTML='<tr><td colspan="14"><div class="skeleton" style="height:42px;border-radius:8px">正在读取私有持仓</div></td></tr>';
+    tbody.innerHTML='<tr><td colspan="9"><div class="skeleton" style="height:42px;border-radius:8px">正在读取私有持仓</div></td></tr>';
     try{
       const {data:{session}}=await supabaseClient.auth.getSession();
-      if(!session){tbody.innerHTML='<tr><td colspan="14" style="text-align:center;color:var(--muted)">请登录后查看私有期权持仓</td></tr>';state.positions.clear();state.history=[];renderLifecycleHistory();clearInterval(state.positionsTimer);setAutoStatus('登录后启用持仓自动检查');renderRiskSummary();return}
-      const {data,error}=await supabaseClient.from('options_positions').select('*').order('expiry');if(error)throw error;
+      if(!session){tbody.innerHTML='<tr><td colspan="9" style="text-align:center;color:var(--muted)">请登录后查看私有期权持仓</td></tr>';state.positions.clear();state.history=[];state.accounts=[];renderLifecycleHistory();clearInterval(state.positionsTimer);setAutoStatus('登录后启用持仓自动检查');renderRiskSummary();return}
+      const [accountResult,positionResult]=await Promise.all([supabaseClient.from('broker_accounts').select('*').order('sort_order').order('name'),supabaseClient.from('options_positions').select('*').order('expiry')]);if(accountResult.error)throw accountResult.error;if(positionResult.error)throw positionResult.error;state.accounts=accountResult.data||[];const data=positionResult.data;
       const rows=data||[],expiredOpen=rows.filter(x=>(!x.status||x.status==='open')&&rawDaysBetween(todayIso(),x.expiry)<0).map(x=>x.id);
       if(expiredOpen.length){const {error:updateError}=await supabaseClient.from('options_positions').update({status:'pending_settlement'}).in('id',expiredOpen);if(!updateError)rows.forEach(x=>{if(expiredOpen.includes(x.id))x.status='pending_settlement'})}
       const active=rows.filter(x=>!x.status||['open','pending_settlement'].includes(x.status));state.positions=new Map(active.map(x=>[String(x.id),x]));
       state.history=rows.filter(x=>x.status&&!['open','pending_settlement'].includes(x.status)).sort((a,b)=>String(b.closed_at||b.expiry).localeCompare(String(a.closed_at||a.expiry)));
-      tbody.innerHTML=active.length?active.map(x=>{const cached=readCachedQuote(x.id),freshness=quoteFreshness(cached);return renderPositionRow(x,cached?.quote,freshness.label,freshness)}).join(''):'<tr><td colspan="14" style="text-align:center;color:var(--muted)">当前没有开放或待结算的期权持仓</td></tr>';
+      tbody.innerHTML=active.length?active.map(x=>{const cached=readCachedQuote(x.id),freshness=quoteFreshness(cached);return renderPositionRow(x,cached?.quote,freshness.label,freshness)}).join(''):'<tr><td colspan="9" style="text-align:center;color:var(--muted)">当前没有开放或待结算的期权持仓</td></tr>';
       renderLifecycleHistory();renderRiskSummary();schedulePositionRefresh();setTimeout(()=>refreshAllPositions({onlyNeeded:true,reason:'登录后检查'}),250);
-    }catch(e){tbody.innerHTML=`<tr><td colspan="14" style="text-align:center;color:var(--red)">持仓读取失败：${e.message}</td></tr>`;global.MAV?.toast(`持仓读取失败：${e.message}`,'bad')}
+    }catch(e){tbody.innerHTML=`<tr><td colspan="9" style="text-align:center;color:var(--red)">持仓读取失败：${e.message}</td></tr>`;global.MAV?.toast(`持仓读取失败：${e.message}`,'bad')}
   }
   function occSymbol(position){
     const root=String(position.symbol||'').toUpperCase().replace(/[^A-Z0-9]/g,''),date=String(position.expiry||'').replaceAll('-','').slice(2),cp=String(position.opt_type||'put').toLowerCase()==='call'?'C':'P',strike=String(Math.round(Number(position.strike)*1000)).padStart(8,'0');
@@ -207,24 +214,27 @@
   }
   function renderRiskSummary(){
     const host=$('optionRiskSummary');if(!host)return;
-    const positions=[...state.positions.values()].filter(x=>!x.status||['open','pending_settlement'].includes(x.status));let obligation=0,due=0,liveCovered=0,referenceCovered=0,eventCount=0;
-    positions.forEach(p=>{const mult=Math.max(1,Number(p.multiplier)||MULTIPLIER),qty=Math.max(1,Number(p.qty)||1);if(String(p.side).toLowerCase()==='short'&&String(p.opt_type).toLowerCase()==='put')obligation+=Number(p.strike)*mult*qty;const cached=readCachedQuote(p.id),freshness=quoteFreshness(cached);if(freshness.live&&freshness.usable)liveCovered++;else if(freshness.status==='closed')referenceCovered++;const risk=positionRisk(p,freshness.usable?cached?.quote:null,freshness);if(risk.dte<=14)due++;if(risk.events.length)eventCount++});
+    const positions=[...state.positions.values()].filter(x=>!x.status||['open','pending_settlement'].includes(x.status));let obligation=0,due=0,liveCovered=0,referenceCovered=0,eventCount=0,nakedPut=0;
+    positions.forEach(p=>{const mult=Math.max(1,Number(p.multiplier)||MULTIPLIER),qty=Math.max(1,Number(p.qty)||1);if(String(p.side).toLowerCase()==='short'&&String(p.opt_type).toLowerCase()==='put'){obligation+=Number(p.strike)*mult*qty;if(String(p.collateral_mode).toLowerCase()==='naked')nakedPut++}const cached=readCachedQuote(p.id),freshness=quoteFreshness(cached);if(freshness.live&&freshness.usable)liveCovered++;else if(freshness.status==='closed')referenceCovered++;const risk=positionRisk(p,freshness.usable?cached?.quote:null,freshness);if(risk.dte<=14)due++;if(risk.events.length)eventCount++});
     const stamp=state.eventsUpdated?new Date(state.eventsUpdated).toLocaleString():'未读取';
     const coverageText=isUsRegularSession()?`${liveCovered}/${positions.length}`:`${referenceCovered}/${positions.length}`;
     const coverageNote=isUsRegularSession()?'美股常规时段有效Alpaca参考报价':`休市参考覆盖；实时覆盖 ${liveCovered}/${positions.length}`;
-    host.innerHTML=`<div class="risk-card"><div class="k">理论行权资金</div><div class="v">${money(obligation)}</div><div class="s">Short Put行权价×乘数×张数；不是IBKR实际保证金</div></div><div class="risk-card"><div class="k">14天内到期</div><div class="v">${due} 笔</div><div class="s">临期仓位需结合虚实值和价差检查</div></div><div class="risk-card"><div class="k">${isUsRegularSession()?'实时行情覆盖':'休市参考覆盖'}</div><div class="v">${coverageText}</div><div class="s">${coverageNote}</div></div><div class="risk-card"><div class="k">到期前宏观事件</div><div class="v">${eventCount} 笔</div><div class="s">FOMC/CPI官方日历更新：${stamp}</div></div>`;
+    host.innerHTML=`<div class="risk-card"><div class="k">理论行权资金</div><div class="v">${money(obligation)}</div><div class="s">按账户归属统计；Naked Put ${nakedPut}笔，不等于券商保证金</div></div><div class="risk-card"><div class="k">14天内到期</div><div class="v">${due} 笔</div><div class="s">临期仓位需结合虚实值和价差检查</div></div><div class="risk-card"><div class="k">${isUsRegularSession()?'实时行情覆盖':'休市参考覆盖'}</div><div class="v">${coverageText}</div><div class="s">${coverageNote}</div></div><div class="risk-card"><div class="k">账户 / 宏观事件</div><div class="v">${state.accounts.length} / ${eventCount}</div><div class="s">FOMC/CPI官方日历更新：${stamp}</div></div>`;
     renderRiskTodo();
   }
   function renderPositionRow(x,quote=null,message='点击“刷新”读取行情',freshness=null){
     const riskQuote=freshness&&!freshness.usable?null:quote,risk=positionRisk(x,riskQuote,freshness),dte=risk.dte,m=quote?positionMetrics(x,quote):null,underlying=quoteNumber(quote?.underlyingPrice),iv=quoteNumber(quote?.iv),delta=quoteNumber(quote?.delta);
-    const isReference=freshness&&['closed','stale'].includes(freshness.status),pnlClass=isReference?'quote-reference':m&&Number.isFinite(m.pnl)?(m.pnl>=0?'pos-text':'neg-text'):'',distance=Number.isFinite(underlying)?(underlying/m.breakeven-1):null;
+    const isReference=freshness&&['closed','stale'].includes(freshness.status),pnlClass=isReference?'quote-reference':m&&Number.isFinite(m.pnl)?(m.pnl>=0?'pos-text':'neg-text'):'',distance=Number.isFinite(underlying)&&m?underlying/m.breakeven-1:null;
     const eventText=risk.events.length?[...new Set(risk.events.map(e=>e.type))].join('/'):'无已知宏观事件',roc=annualizedRoc(x,quote),rocHtml=Number.isFinite(roc.value)?`<span class="roc-chip ${roc.tone}" title="净权利金 ${money(roc.netPremium)}；现金担保资本 ${money(roc.securedCapital)}；建仓DTE ${roc.entryDte}">${pct(roc.value)}${roc.candidate?' · 候选':''}</span>`:`<span class="roc-missing">— ${roc.label}</span>`;
     const rocButton=(!x.entry_date||!x.collateral_mode)?` <button onclick="OptionV2.completeRocFields('${x.id}')" title="补录建仓日期与担保方式">补ROC</button>`:'';
     const quoteState=freshness?`<div class="quote-state ${freshness.tone}">${freshness.label}</div>`:'';
     const pnlPrefix=isReference&&m&&Number.isFinite(m.pnl)?'约 ':'';
     const pending=x.status==='pending_settlement'?'<span class="settlement-chip">待结算</span>':'';
     const rollButton=String(x.side).toLowerCase()==='short'&&['call','put'].includes(String(x.opt_type).toLowerCase())?` <button class="manage-option-btn" onclick="RollManager.openCalculator('${x.id}')" title="Covered Call Roll Up / Sell Put Roll Down & Out">展期</button>`:'';
-    return `<tr id="opt-row-${x.id}"><td>${x.symbol} <span class="badge neutral">${x.side} ${x.opt_type}</span>${pending}</td><td>$${Number(x.strike).toFixed(2)}</td><td>${x.expiry} (${dte}d)</td><td>$${Number(x.cost).toFixed(2)} / 每股</td><td>${m&&Number.isFinite(m.mark)?money(m.mark):'—'}${quoteState}</td><td class="${m?pnlClass:''}" title="${isReference?'基于上一有效报价，仅供参考':''}">${m&&Number.isFinite(m.pnl)?pnlPrefix+money(m.pnl):message}</td><td class="${m?pnlClass:''}">${m&&Number.isFinite(m.pnlPct)?pnlPrefix+pct(m.pnlPct):'—'}</td><td>$${Number(m?.breakeven??(String(x.opt_type).toLowerCase()==='put'?Number(x.strike)-Number(x.cost):Number(x.strike)+Number(x.cost))).toFixed(2)}</td><td>${Number.isFinite(underlying)?money(underlying):'—'}</td><td>${Number.isFinite(distance)?pct(distance):'—'}</td><td>${rocHtml}</td><td><span class="risk-chip ${risk.level}${riskEscalationClass(x.id,risk.level)}" title="${eventText}">${risk.label}</span></td><td>${Number.isFinite(iv)?pct(iv):'—'} / ${Number.isFinite(delta)?delta.toFixed(3):'—'}</td><td><button onclick="OptionV2.refreshPosition('${x.id}')" title="刷新报价">↻</button> <button onclick="OptionV2.openPositionScenario('${x.id}')" title="按真实成本推演">推演</button>${rocButton}${rollButton} <button class="manage-option-btn" onclick="OptionV2.openLifecycle('${x.id}')" title="平仓或结算">管理</button></td></tr>`;
+    const strategy=`${String(x.side).toLowerCase()==='short'?'Sell':'Buy'} ${String(x.opt_type).toLowerCase()==='call'?'Call':'Put'}`;
+    const bid=quoteNumber(quote?.bid),ask=quoteNumber(quote?.ask),mid=quoteNumber(quote?.mid),quoteDetail=[Number.isFinite(bid)?`Bid ${money(bid)}`:'',Number.isFinite(ask)?`Ask ${money(ask)}`:'',Number.isFinite(mid)?`Mid ${money(mid)}`:''].filter(Boolean).join(' · ');
+    const manualDelta=quoteNumber(x.monitor_delta),shownDelta=Number.isFinite(delta)?delta:manualDelta;
+    return `<tr id="opt-row-${x.id}" class="option-position-row"><td><span class="account-badge">${accountName(x.broker_account_id)}</span><strong>${x.symbol} $${Number(x.strike).toFixed(2)}</strong>${pending}<small>${strategy} · ${x.qty||1}张×${x.multiplier||100}</small></td><td><b>${x.expiry}</b><small>${dte} DTE · ${x.collateral_mode||'未标注担保'}</small></td><td><b>${money(Number(x.cost))}/股</b><small>总权利金 ${money(Number(x.cost)*(x.qty||1)*(x.multiplier||100))}<br>费用 ${money(Number(x.open_fee||0))}</small></td><td><b>${m&&Number.isFinite(m.mark)?money(m.mark):'—'}/股</b><small>${quoteDetail||message}</small>${quoteState}</td><td class="${m?pnlClass:''}" title="${isReference?'基于上一有效报价，仅供参考':''}"><b>${m&&Number.isFinite(m.pnl)?pnlPrefix+money(m.pnl):'—'}</b><small>${m&&Number.isFinite(m.pnlPct)?pnlPrefix+pct(m.pnlPct):message}</small></td><td><b>${Number.isFinite(shownDelta)?shownDelta.toFixed(3):'—'}</b><small>IV ${Number.isFinite(iv)?pct(iv):'—'}${!Number.isFinite(delta)&&Number.isFinite(manualDelta)?' · 手工收盘':''}</small></td><td>${rocHtml}<small>平衡 ${money(m?.breakeven??(String(x.opt_type).toLowerCase()==='put'?Number(x.strike)-Number(x.cost):Number(x.strike)+Number(x.cost)))}${Number.isFinite(underlying)?` · 正股 ${money(underlying)}`:''}${Number.isFinite(distance)?` · ${pct(distance)}`:''}</small></td><td><span class="risk-chip ${risk.level}${riskEscalationClass(x.id,risk.level)}" title="${eventText}">${risk.label}</span><small>${eventText}</small></td><td><button onclick="OptionV2.refreshPosition('${x.id}')" title="刷新报价">↻</button><button onclick="OptionV2.openPositionScenario('${x.id}')">推演</button>${rocButton}${rollButton}<button class="manage-option-btn" onclick="OptionV2.openLifecycle('${x.id}')">管理</button></td></tr>`;
   }
   function realizedPnl(position,{status='closed',exitPrice=0,closeFee=0}={}){
     const qty=Math.max(1,Number(position.qty)||1),multiplier=Math.max(1,Number(position.multiplier)||MULTIPLIER),entry=Number(position.cost)||0,openFee=Math.max(0,Number(position.open_fee)||0),fee=Math.max(0,Number(closeFee)||0),short=String(position.side).toLowerCase()==='short';
@@ -241,11 +251,13 @@
   function openLifecycle(id){
     const p=state.positions.get(String(id));if(!p)return;state.lifecycleId=String(id);
     $('lifecycleTitle').textContent=`管理 ${p.symbol} ${p.side} ${p.opt_type} $${Number(p.strike).toFixed(2)}`;$('lifecycleSummary').textContent=`${p.qty||1}张 × ${p.multiplier||100}｜建仓 ${money(Number(p.cost))}/股｜到期 ${p.expiry}`;
+    const account=$('lifecycleAccount');if(account){account.innerHTML=state.accounts.map(x=>`<option value="${x.id}">${String(x.name).replace(/[<>&"]/g,'')}</option>`).join('');account.value=String(p.broker_account_id||'')}
     $('lifecycleAction').value=p.status==='pending_settlement'?'expired_worthless':'closed';$('lifecycleDate').value=todayIso();$('lifecycleExitPrice').value='';$('lifecycleCloseFee').value='0';$('lifecycleStockPrice').value='';$('lifecycleNotes').value='';
     const cached=readCachedQuote(id),metrics=cached?.quote?positionMetrics(p,cached.quote):null;if(metrics&&Number.isFinite(metrics.mark))$('lifecycleExitPrice').value=Number(metrics.mark).toFixed(2);
     updateLifecyclePreview();$('optionLifecycleModal').style.display='grid';
   }
   function closeLifecycle(){state.lifecycleId=null;$('optionLifecycleModal').style.display='none'}
+  async function savePositionAccount(){const p=state.positions.get(String(state.lifecycleId)),broker_account_id=Number($('lifecycleAccount')?.value);if(!p||!broker_account_id){alert('请选择账户。');return}const {error}=await supabaseClient.from('options_positions').update({broker_account_id}).eq('id',p.id);if(error){global.MAV?.toast(`账户更新失败：${error.message}`,'bad');return}closeLifecycle();await loadPrivatePositions();await global.RollManager?.load();global.MAV?.toast(`${p.symbol} 已更新所属账户`,'good')}
   function updateLifecyclePreview(){
     const p=state.positions.get(String(state.lifecycleId));if(!p)return;const status=$('lifecycleAction').value,exitPrice=Number($('lifecycleExitPrice').value),closeFee=Number($('lifecycleCloseFee').value)||0,pnl=realizedPnl(p,{status,exitPrice,closeFee});
     $('lifecycleExitWrap').style.display=status==='closed'?'grid':'none';$('lifecycleStockWrap').style.display=status==='assigned'?'grid':'none';
@@ -255,7 +267,7 @@
   async function saveLifecycle(){
     const p=state.positions.get(String(state.lifecycleId));if(!p)return;const status=$('lifecycleAction').value,closedDate=$('lifecycleDate').value,exitPrice=status==='closed'?Number($('lifecycleExitPrice').value):0,closeFee=Number($('lifecycleCloseFee').value)||0,stockPrice=$('lifecycleStockPrice').value===''?null:Number($('lifecycleStockPrice').value),notes=$('lifecycleNotes').value.trim();
     if(!closedDate){alert('请选择处理日期。');return}if(p.entry_date&&closedDate<p.entry_date){alert('处理日期不能早于建仓日期。');return}if(status==='expired_worthless'&&closedDate<String(p.expiry)){alert('到期作废的处理日期不能早于到期日。');return}if(status==='closed'&&(!Number.isFinite(exitPrice)||exitPrice<0)){alert('请输入有效的平仓成交价（每股）。');return}if(status==='assigned'&&String(p.side).toLowerCase()!=='short'){alert('当前版本的“被行权”仅用于 Short Put / Short Call。');return}
-    const realized=realizedPnl(p,{status,exitPrice,closeFee}),payload={status,closed_at:`${closedDate}T20:00:00Z`,exit_price:status==='closed'?exitPrice:0,close_fee:closeFee,realized_pnl:realized,settlement_type:status,settlement_stock_price:status==='assigned'?stockPrice:null,close_notes:notes||null};
+    const broker_account_id=Number($('lifecycleAccount')?.value||p.broker_account_id),realized=realizedPnl(p,{status,exitPrice,closeFee}),payload={broker_account_id,status,closed_at:`${closedDate}T20:00:00Z`,exit_price:status==='closed'?exitPrice:0,close_fee:closeFee,realized_pnl:realized,settlement_type:status,settlement_stock_price:status==='assigned'?stockPrice:null,close_notes:notes||null};
     $('saveLifecycleBtn').disabled=true;const {error}=await supabaseClient.from('options_positions').update(payload).eq('id',p.id);$('saveLifecycleBtn').disabled=false;if(error){global.MAV?.toast(`处理失败：${error.message}`,'bad');return}sessionStorage.removeItem(`optionQuote:${p.id}`);closeLifecycle();await loadPrivatePositions();global.MAV?.toast(`${p.symbol} 已记录为“${lifecycleLabels(status)}”`,'good');
   }
   async function deleteLifecycleRecord(){
@@ -264,7 +276,7 @@
   }
   function renderLifecycleHistory(){
     const tbody=$('optionHistoryBody'),count=$('optionHistoryCount'),button=$('toggleOptionHistory');if(!tbody)return;if(count)count.textContent=`${state.history.length} 笔`;if(button&&!$('optionHistorySection')?.hidden)button.textContent='收起历史';else if(button)button.textContent=`查看历史（${state.history.length}）`;
-    tbody.innerHTML=state.history.length?state.history.map(p=>{const pnl=p.realized_pnl===null||p.realized_pnl===undefined?NaN:Number(p.realized_pnl),assigned=p.status==='assigned'?assignmentBasis(p,p.close_fee):null,notes=String(p.close_notes||'').replace(/[<>&"]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]));return `<tr><td>${p.symbol} <span class="badge neutral">${p.side} ${p.opt_type}</span></td><td>${p.entry_date||'—'} → ${String(p.closed_at||'').slice(0,10)||'—'}</td><td>${lifecycleLabels(p.status)}</td><td>${p.status==='closed'?money(Number(p.exit_price)):'—'}</td><td>${money(Number(p.open_fee||0)+Number(p.close_fee||0))}</td><td class="${pnl>=0?'pos-text':'neg-text'}">${Number.isFinite(pnl)?money(pnl):'—'}</td><td>${Number.isFinite(assigned)?money(assigned)+'/股':'—'}</td><td title="${notes}">${notes||'—'}</td></tr>`}).join(''):'<tr><td colspan="8" style="text-align:center;color:var(--muted)">尚无已关闭或已结算记录</td></tr>';
+    tbody.innerHTML=state.history.length?state.history.map(p=>{const pnl=p.realized_pnl===null||p.realized_pnl===undefined?NaN:Number(p.realized_pnl),assigned=p.status==='assigned'?assignmentBasis(p,p.close_fee):null,notes=String(p.close_notes||'').replace(/[<>&"]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]));return `<tr><td><span class="account-badge">${accountName(p.broker_account_id)}</span><br>${p.symbol} <span class="badge neutral">${p.side} ${p.opt_type}</span></td><td>${p.entry_date||'—'} → ${String(p.closed_at||'').slice(0,10)||'—'}</td><td>${lifecycleLabels(p.status)}</td><td>${p.status==='closed'?money(Number(p.exit_price)):'—'}</td><td>${money(Number(p.open_fee||0)+Number(p.close_fee||0))}</td><td class="${pnl>=0?'pos-text':'neg-text'}">${Number.isFinite(pnl)?money(pnl):'—'}</td><td>${Number.isFinite(assigned)?money(assigned)+'/股':'—'}</td><td title="${notes}">${notes||'—'}</td></tr>`}).join(''):'<tr><td colspan="8" style="text-align:center;color:var(--muted)">尚无已关闭或已结算记录</td></tr>';
   }
   function toggleHistory(){const section=$('optionHistorySection'),button=$('toggleOptionHistory');if(!section)return;const open=section.hidden;section.hidden=!open;if(button)button.textContent=open?'收起历史':`查看历史（${state.history.length}）`}
   async function completeRocFields(id){
@@ -278,7 +290,7 @@
   }
   async function refreshPosition(id,{silent=false}={}){
     const position=state.positions.get(String(id));if(!position)return;
-    const row=$(`opt-row-${id}`);if(row&&!silent)row.innerHTML=`<td colspan="14" style="text-align:center;color:var(--muted)"><div class="skeleton" style="height:32px;border-radius:7px">正在读取 ${position.symbol} 合约报价…</div></td>`;
+    const row=$(`opt-row-${id}`);if(row&&!silent)row.innerHTML=`<td colspan="9" style="text-align:center;color:var(--muted)"><div class="skeleton" style="height:32px;border-radius:7px">正在读取 ${position.symbol} 合约报价…</div></td>`;
     try{
       const raw=await api({action:'quote',optionSymbol:occSymbol(position)}),quote=normalizeColumnar(raw)[0];if(!quote)throw new Error('行情源没有返回该合约');
       const cached={quote,at:Date.now()};sessionStorage.setItem(`optionQuote:${id}`,JSON.stringify(cached));
@@ -317,7 +329,7 @@
     $('targetSpot').value=$('manualSpot').value;render();
   }
   function setMarketEvents(events,updatedAt){state.events=Array.isArray(events)?events:[];state.eventsUpdated=updatedAt||null;const tbody=$('optionsTableBody');if(tbody&&state.positions.size)tbody.innerHTML=[...state.positions.values()].map(p=>{const cached=readCachedQuote(p.id),freshness=quoteFreshness(cached);return renderPositionRow(p,cached?.quote,freshness.label,freshness)}).join('');renderRiskSummary()}
-  global.OptionV2={bsPrice,evaluate,normalizeColumnar,loadPrivatePositions,refreshQuote,refreshPosition,refreshAllPositions,openPositionScenario,completeRocFields,occSymbol,positionMetrics,annualizedRoc,positionRisk,quoteFreshness,isUsRegularSession,setMarketEvents,realizedPnl,assignmentBasis,openLifecycle,closeLifecycle,updateLifecyclePreview,saveLifecycle,deleteLifecycleRecord,toggleHistory};
+  global.OptionV2={bsPrice,evaluate,normalizeColumnar,loadPrivatePositions,populateAccountSelect,refreshQuote,refreshPosition,refreshAllPositions,openPositionScenario,completeRocFields,occSymbol,positionMetrics,annualizedRoc,positionRisk,quoteFreshness,isUsRegularSession,setMarketEvents,realizedPnl,assignmentBasis,openLifecycle,closeLifecycle,savePositionAccount,updateLifecyclePreview,saveLifecycle,deleteLifecycleRecord,toggleHistory};
   if(typeof document!=='undefined'){
     document.addEventListener('DOMContentLoaded',()=>{bind();$('refreshAllOptions')?.addEventListener('click',()=>refreshAllPositions({force:true,reason:'手动刷新'}))});
     document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&Date.now()-state.lastBulkAt>=POSITION_REFRESH_MS)refreshAllPositions({onlyNeeded:true,reason:'返回页面检查'})});

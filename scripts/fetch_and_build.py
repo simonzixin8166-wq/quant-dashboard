@@ -7,9 +7,9 @@ import warnings
 warnings.filterwarnings("ignore")
 
 # 单一版本源：每日 Action 生成 HTML 时，页面标题和静态资源缓存版本都从这里读取。
-APP_VERSION = "3.1"
-OPTIONS_VERSION = "3.1"
-ASSET_VERSION = "3.1"
+APP_VERSION = "3.2"
+OPTIONS_VERSION = "3.2"
+ASSET_VERSION = "3.2"
 
 API_KEY = os.environ.get("TWELVE_DATA_KEY", "demo")
 BASE = "https://api.twelvedata.com"
@@ -568,7 +568,7 @@ def card_etf(name, r):
     return f'''<div class="card asset-card"><div class="card-header"><span class="sym">{disp_name}</span><span class="price">${r["close"]:.2f}</span></div><div class="asset-basis">{basis}</div><div class="divider"></div><div class="row"><span>{high_label}</span><span class="fw-bold">${fmt_num(high)}</span></div><div class="row"><span>当前回撤</span><span class="{'neg-text fw-bold' if drawdown and drawdown<0 else 'fw-bold'}">{fmt_pct(drawdown)}</span></div>{trigger_row}<div class="row"><span>RSI / 距200MA</span><span class="fw-bold">{fmt_num(r["rsi"])} / {fmt_pct(r["dist_200ma"])}</span></div><div class="asset-date">收盘日线截至：{r.get("date","-")}</div></div>'''
 
 def render_options_html(options_data):
-    if not options_data: return '<tr><td colspan="14" style="text-align:center; color:var(--muted)">当前没有记录的期权持仓</td></tr>'
+    if not options_data: return '<tr><td colspan="9" style="text-align:center; color:var(--muted)">当前没有记录的期权持仓</td></tr>'
     html = ""
     for opt in options_data:
         opt_id, sym, opt_type, side, strike, expiry, cost, last_price, iv, delta, dte, curr_price, pnl, break_even = opt['id'], opt['symbol'], opt['opt_type'], opt['side'], opt['strike'], opt['expiry'], opt['cost'], opt['last_price'], opt['iv'], opt['delta'], opt['dte'], opt['curr_price'], opt['unrealized_pnl'], opt['break_even']
@@ -654,7 +654,7 @@ def render_html(data):
             target_display = f"${target:.2f}" if isinstance(target,(int,float)) else "—"
             stock_html += f'''<tr data-stock-row data-status="{status}" data-target-distance="{abs(target_distance) if isinstance(target_distance,(int,float)) else 999}" data-drawdown="{abs(ytd_dd) if isinstance(ytd_dd,(int,float)) else 0}" data-rsi="{rsi if isinstance(rsi,(int,float)) else 999}" data-dist200="{dist if isinstance(dist,(int,float)) else 0}"><td class="stock-identity"><div class="stock-name">{name}</div><div class="stock-symbol">{sym}</div><details class="stock-details"><summary>行情详情</summary><div>开 ${v.get("open",0):.2f} · 高 ${v.get("high",0):.2f} · 低 ${v.get("low",0):.2f}<br>YTD高点 ${fmt_num(ytd_high)} · 日线截至 {v.get("date","-")}</div></details></td><td data-label="最新价 / 涨跌"><b id="close-{sym}">${close:.2f}</b><small id="chg-{sym}" class="{'pos-text' if chg>=0 else 'neg-text'}">{chg*100:+.2f}%</small></td><td data-label="YTD回撤" class="neg-text fw-bold">{fmt_pct(ytd_dd)}</td><td data-label="RSI">{fmt_num(rsi)}</td><td data-label="距200MA" class="{'neg-text' if isinstance(dist,(int,float)) and dist<0 else ''}">{fmt_pct(dist)}</td><td data-label="策略价 / 距离" id="target-cell-{sym}"><b id="target-{sym}">{target_display}</b><small id="target-gap-{sym}">{target_gap_text}</small></td><td data-label="状态"><span id="stock-status-{sym}" class="stock-status {status}">{status_label}</span><span id="action-{sym}"></span></td></tr>'''
             
-    options_html = '<tr><td colspan="14" style="text-align:center; color:var(--muted)">请登录后查看私有期权持仓</td></tr>'
+    options_html = '<tr><td colspan="9" style="text-align:center; color:var(--muted)">请登录后查看私有期权持仓</td></tr>'
 
     signals_html = ""
     for s in data.get("historical_signals", []):
@@ -823,26 +823,13 @@ def render_html(data):
         <span id="optionAutoStatus" class="option-auto-status">登录后检查持仓报价；美股常规时段每15分钟自动刷新</span>
         <button id="refreshAllOptions" class="option-secondary" type="button">↻ 刷新全部持仓</button>
         <button id="toggleOptionHistory" class="option-secondary" type="button" onclick="OptionV2.toggleHistory()">查看历史（0）</button>
-        <button onclick="openAddOptionModal()" style="background:var(--brass); color:#fff; border:none; padding:8px 16px; border-radius:6px; cursor:pointer; font-weight:600; font-size:12.5px; box-shadow:0 4px 10px rgba(184,134,58,.3);">➕ 录入新持仓</button>
+        <button onclick="openAddOptionModal()" style="background:var(--brass); color:#fff; border:none; padding:8px 16px; border-radius:6px; cursor:pointer; font-weight:600; font-size:12.5px; box-shadow:0 4px 10px rgba(184,134,58,.3);">➕ 录入期权成交</button>
     </div>
     <div class="table-container">
         <table>
             <thead>
                 <tr>
-                    <th style="text-align:left;">合约 / 策略</th>
-                    <th>行权价</th>
-                    <th>到期日(DTE)</th>
-                    <th>建仓成本</th>
-                    <th>最新价</th>
-                    <th>浮动盈亏</th>
-                    <th>盈亏比例</th>
-                    <th>盈亏平衡点</th>
-                    <th>正股现价</th>
-                    <th>距盈亏平衡</th>
-                    <th>年化ROC</th>
-                    <th>风险状态</th>
-                    <th>IV / Delta</th>
-                    <th>操作</th>
+                    <th style="text-align:left;">账户 / 合约</th><th>策略 / DTE</th><th>建仓价</th><th>当前估值</th><th>浮动盈亏</th><th>Delta</th><th>资金 / 有效价</th><th>风险状态</th><th>操作</th>
                 </tr>
             </thead>
             <tbody id="optionsTableBody">{options_html}</tbody>
@@ -855,9 +842,9 @@ def render_html(data):
 </section>
 <section class="section">
   <div id="rollManagerRoot" class="roll-manager">
-    <div class="roll-manager-head"><div><h2>Covered Call / Sell Put 展期管理</h2><p>网站内显示“收盘Delta待办”；盘中Delta仅供参考。Call和Put使用不同阈值，Put还会区分“愿意接货”与“避免指派”。</p></div><div class="roll-manager-actions"><button type="button" onclick="RollManager.load()">↻ 刷新</button><button type="button" onclick="RollManager.loadIrenPreset()">载入IREN示例</button><button class="primary" type="button" onclick="RollManager.openUnderlying()">＋ 新增正股计划</button></div></div>
+    <div class="roll-manager-head"><div><h2>分账户期权与展期管理</h2><p>同一股票按券商账户隔离；Covered Call占用该账户正股，Sell Put独立统计资金。收盘Delta触发纪律，盘中Delta仅供参考。</p></div><div class="roll-manager-actions"><button type="button" onclick="RollManager.load()">↻ 刷新</button><button type="button" onclick="RollManager.openAccounts()">账户管理</button><button type="button" onclick="RollManager.prefillSellPut()">＋ Sell Put</button><button class="primary" type="button" onclick="RollManager.openUnderlying()">＋ 正股持仓</button></div></div>
     <div id="rollManagerSummary" class="roll-summary"><div class="roll-empty">登录后读取展期计划</div></div>
-    <div class="roll-section-title"><h3>正股覆盖与分层减仓</h3><span>Covered股数 = 开放的Covered Call张数 × 合约乘数</span></div>
+    <div class="roll-section-title"><h3>分账户正股覆盖与分层减仓</h3><span>不同券商账户不得互相覆盖</span></div>
     <div id="rollUnderlyingGrid" class="roll-underlyings"></div>
     <div class="roll-section-title"><h3>展期纪律清单</h3><span>Call使用Roll Up；Put使用Roll Down & Out</span></div>
     <div id="rollPositionList" class="roll-position-list"></div>
@@ -911,8 +898,17 @@ def render_html(data):
 
 <div id="underlyingModal" class="option-modal-backdrop" style="display:none">
   <div class="option-modal-card"><div class="option-modal-head"><div><h3>正股覆盖计划</h3><p>跨设备保存到私有Supabase；分层目标只做纪律记录。</p></div><button type="button" onclick="RollManager.closeUnderlying()">×</button></div>
-    <div class="roll-form-grid"><div class="option-field"><label>股票代码</label><input id="underlyingSymbol" placeholder="IREN"></div><div class="option-field"><label>总持股数</label><input id="underlyingShares" type="number" min="0" step="1"></div><div class="option-field"><label>正股成本 / 股</label><input id="underlyingCost" type="number" min="0" step="0.01"></div><div class="option-field"><label>当前价（可手工更新）</label><input id="underlyingPrice" type="number" min="0" step="0.01"></div><div class="option-field"><label>Covered Call观察Delta</label><input id="underlyingWatch" type="number" min="0.01" max="0.99" step="0.01" value="0.70"></div><div class="option-field"><label>Covered Call紧急Delta</label><input id="underlyingUrgent" type="number" min="0.01" max="1" step="0.01" value="0.80"></div><div class="option-field"><label>Sell Put观察 |Delta|</label><input id="putWatch" type="number" min="0.01" max="0.99" step="0.01" value="0.50"></div><div class="option-field"><label>Sell Put紧急 |Delta|</label><input id="putUrgent" type="number" min="0.01" max="1" step="0.01" value="0.70"></div><div class="option-field wide"><label>Sell Put到期偏好</label><select id="putAssignmentMode"><option value="accept">愿意按计划接货</option><option value="avoid">尽量避免被指派</option></select></div><div class="option-field wide"><label>分层减仓（每行：价格区间:比例）</label><textarea id="underlyingTargets" rows="3" placeholder="65-70:50%&#10;75-80:50%"></textarea></div></div>
+    <div class="roll-form-grid"><div class="option-field wide"><label>券商账户（账户之间不能互相覆盖）</label><select id="underlyingAccount"></select></div><div class="option-field"><label>股票代码</label><input id="underlyingSymbol" placeholder="IREN"></div><div class="option-field"><label>该账户持股数</label><input id="underlyingShares" type="number" min="0" step="1"></div><div class="option-field"><label>正股成本 / 股</label><input id="underlyingCost" type="number" min="0" step="0.01"></div><div class="option-field"><label>当前价（可手工更新）</label><input id="underlyingPrice" type="number" min="0" step="0.01"></div><div class="option-field"><label>Covered Call观察Delta</label><input id="underlyingWatch" type="number" min="0.01" max="0.99" step="0.01" value="0.70"></div><div class="option-field"><label>Covered Call紧急Delta</label><input id="underlyingUrgent" type="number" min="0.01" max="1" step="0.01" value="0.80"></div><div class="option-field"><label>Sell Put观察 |Delta|</label><input id="putWatch" type="number" min="0.01" max="0.99" step="0.01" value="0.50"></div><div class="option-field"><label>Sell Put紧急 |Delta|</label><input id="putUrgent" type="number" min="0.01" max="1" step="0.01" value="0.70"></div><div class="option-field wide"><label>Sell Put到期偏好</label><select id="putAssignmentMode"><option value="accept">愿意按计划接货</option><option value="avoid">尽量避免被指派</option></select></div><div class="option-field wide"><label>分层减仓（每行：价格区间:比例）</label><textarea id="underlyingTargets" rows="3" placeholder="65-70:50%&#10;75-80:50%"></textarea></div></div>
     <div class="option-modal-actions"><span></span><span></span><button class="option-secondary" type="button" onclick="RollManager.closeUnderlying()">取消</button><button class="option-primary" type="button" onclick="RollManager.saveUnderlying()">保存计划</button></div>
+  </div>
+</div>
+
+<div id="accountModal" class="option-modal-backdrop" style="display:none">
+  <div class="option-modal-card"><div class="option-modal-head"><div><h3>券商账户管理</h3><p>账户只是私有别名；不要填写账号、密码或完整账户号码。</p></div><button type="button" onclick="RollManager.closeAccounts()">×</button></div>
+    <div id="accountList" class="account-list"></div>
+    <input id="accountId" type="hidden">
+    <div class="roll-form-grid"><div class="option-field"><label>账户名称</label><input id="accountName" placeholder="例如：IBKR主账户"></div><div class="option-field"><label>券商</label><input id="accountBroker" placeholder="IBKR / Tradier"></div><div class="option-field"><label>排序</label><input id="accountSort" type="number" value="0"></div></div>
+    <div class="option-modal-actions"><span></span><span></span><button class="option-secondary" type="button" onclick="RollManager.closeAccounts()">关闭</button><button class="option-primary" type="button" onclick="RollManager.saveAccount()">保存账户</button></div>
   </div>
 </div>
 
@@ -920,7 +916,7 @@ def render_html(data):
   <div class="option-modal-card"><div class="option-modal-head"><div><h3 id="rollModalTitle">展期管理</h3><p id="rollModalSummary"></p></div><button type="button" onclick="RollManager.closeRoll()">×</button></div><input id="rollPositionId" type="hidden">
     <div class="roll-form-grid"><div class="option-field"><label>Delta（IBKR）</label><input id="rollDelta" type="number" min="-1" max="1" step="0.0001" oninput="RollManager.updateMonitorPreview()"></div><div class="option-field"><label>观察口径</label><select id="rollObservation" onchange="RollManager.updateMonitorPreview()"><option value="close">收盘Delta（触发纪律）</option><option value="intraday">盘中Delta（仅参考）</option></select></div><div class="option-field"><label>连续处于观察区的收盘数</label><input id="rollWatchCloses" type="number" min="0" step="1" value="0" oninput="RollManager.updateMonitorPreview()"></div><label class="roll-inline-check"><input id="rollCatalyst" type="checkbox" onchange="RollManager.updateMonitorPreview()">已有实锤消息 / 催化剂</label><div class="option-field wide"><label>观察与成交备注</label><textarea id="rollNotes" rows="2" maxlength="500" placeholder="例如：Horizon交付已官宣；IBKR组合单号"></textarea></div></div>
     <div id="monitorPreview" class="monitor-preview"></div><button class="option-secondary" type="button" onclick="RollManager.saveObservation()">保存本次Delta观察</button>
-    <div id="rollCalculator" class="roll-calculator"><h4>按IBKR实际成交价计算展期</h4><div class="roll-form-grid"><div class="option-field"><label>新行权价</label><input id="newRollStrike" type="number" min="0.01" step="0.01" oninput="RollManager.updateRollPreview()"></div><div class="option-field"><label>新到期日</label><input id="newRollExpiry" type="date" onchange="RollManager.updateRollPreview()"></div><div class="option-field"><label>买回旧仓 Debit / 股</label><input id="rollCloseDebit" type="number" min="0" step="0.01" oninput="RollManager.updateRollPreview()"></div><div class="option-field"><label>卖出新仓 Credit / 股</label><input id="rollOpenCredit" type="number" min="0" step="0.01" oninput="RollManager.updateRollPreview()"></div><div class="option-field"><label>旧仓平仓总手续费</label><input id="rollCloseFee" type="number" min="0" step="0.01" value="0" oninput="RollManager.updateRollPreview()"></div><div class="option-field"><label>新仓开仓总手续费</label><input id="rollOpenFee" type="number" min="0" step="0.01" value="0" oninput="RollManager.updateRollPreview()"></div></div><div id="rollPreview" class="roll-preview"></div></div>
+    <div id="rollCalculator" class="roll-calculator"><h4>按券商实际成交价计算展期</h4><div class="roll-form-grid"><div class="option-field"><label>本次展期张数</label><input id="rollQty" type="number" min="1" step="1" oninput="RollManager.updateRollPreview()"></div><div class="option-field"><label>新行权价</label><input id="newRollStrike" type="number" min="0.01" step="0.01" oninput="RollManager.updateRollPreview()"></div><div class="option-field"><label>新到期日</label><input id="newRollExpiry" type="date" onchange="RollManager.updateRollPreview()"></div><div class="option-field"><label>买回旧仓 Debit / 股</label><input id="rollCloseDebit" type="number" min="0" step="0.01" oninput="RollManager.updateRollPreview()"></div><div class="option-field"><label>卖出新仓 Credit / 股</label><input id="rollOpenCredit" type="number" min="0" step="0.01" oninput="RollManager.updateRollPreview()"></div><div class="option-field"><label>旧仓平仓总手续费</label><input id="rollCloseFee" type="number" min="0" step="0.01" value="0" oninput="RollManager.updateRollPreview()"></div><div class="option-field"><label>新仓开仓总手续费</label><input id="rollOpenFee" type="number" min="0" step="0.01" value="0" oninput="RollManager.updateRollPreview()"></div></div><div id="rollPreview" class="roll-preview"></div></div>
     <div class="option-modal-actions"><span></span><span></span><button class="option-secondary" type="button" onclick="RollManager.closeRoll()">取消</button><button id="confirmRollBtn" class="option-primary" type="button" onclick="RollManager.confirmRoll()">确认IBKR已成交并记账</button></div>
   </div>
 </div>
@@ -928,33 +924,39 @@ def render_html(data):
 <div id="optionLifecycleModal" class="option-modal-backdrop" style="display:none">
   <div class="option-modal-card">
     <div class="option-modal-head"><div><h3 id="lifecycleTitle">管理期权持仓</h3><p id="lifecycleSummary"></p></div><button type="button" onclick="OptionV2.closeLifecycle()">×</button></div>
+    <div class="option-field"><label>所属券商账户</label><select id="lifecycleAccount"></select><small class="option-note">可将升级前归入“待分配账户”的仓位调整到真实账户。</small></div>
     <div class="option-field"><label>处理方式</label><select id="lifecycleAction" onchange="OptionV2.updateLifecyclePreview()"><option value="closed">主动平仓</option><option value="expired_worthless">到期作废（价值归零）</option><option value="assigned">被行权</option></select></div>
     <div class="option-two"><div class="option-field"><label>处理日期</label><input id="lifecycleDate" type="date"></div><div id="lifecycleExitWrap" class="option-field"><label>平仓成交价（每股）</label><input id="lifecycleExitPrice" type="number" min="0" step="0.01" oninput="OptionV2.updateLifecyclePreview()"></div></div>
     <div class="option-two"><div class="option-field"><label>本次总手续费</label><input id="lifecycleCloseFee" type="number" min="0" step="0.01" value="0" oninput="OptionV2.updateLifecyclePreview()"></div><div id="lifecycleStockWrap" class="option-field" style="display:none"><label>行权时正股价（可选，仅留档）</label><input id="lifecycleStockPrice" type="number" min="0" step="0.01"></div></div>
     <div class="option-field"><label>备注（可选）</label><textarea id="lifecycleNotes" rows="2" maxlength="500" placeholder="例如：50%止盈、到期被指派、券商成交单号"></textarea></div>
     <div id="lifecyclePreview" class="lifecycle-preview"></div>
-    <div class="option-modal-actions"><button class="option-danger-link" type="button" onclick="OptionV2.deleteLifecycleRecord()">仅纠错：永久删除</button><span></span><button class="option-secondary" type="button" onclick="OptionV2.closeLifecycle()">取消</button><button id="saveLifecycleBtn" class="option-primary" type="button" onclick="OptionV2.saveLifecycle()">确认并归档</button></div>
+    <div class="option-modal-actions"><button class="option-danger-link" type="button" onclick="OptionV2.deleteLifecycleRecord()">仅纠错：永久删除</button><button class="option-secondary" type="button" onclick="OptionV2.savePositionAccount()">只更新账户</button><button class="option-secondary" type="button" onclick="OptionV2.closeLifecycle()">取消</button><button id="saveLifecycleBtn" class="option-primary" type="button" onclick="OptionV2.saveLifecycle()">确认并归档</button></div>
   </div>
 </div>
 
 <!-- ➕ 添加期权持仓弹窗 HTML -->
 <div id="addOptionModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:100; place-items:center;">
-  <div style="background:var(--surface); padding:24px; border-radius:14px; width:400px; box-shadow:0 20px 40px rgba(0,0,0,0.2);">
-    <h3 style="margin-bottom:16px; font-family:var(--serif);">录入新期权持仓</h3>
+  <div style="background:var(--surface); padding:24px; border-radius:14px; width:min(560px,calc(100vw - 28px)); max-height:90vh; overflow:auto; box-shadow:0 20px 40px rgba(0,0,0,0.2);">
+    <h3 style="margin-bottom:5px; font-family:var(--serif);">录入期权实际成交</h3><p style="font-size:10.5px;color:var(--muted);margin:0 0 16px">按券商成交单录入；权利金为每股价格，盈亏自动按张数×合约乘数计算。</p>
     <div style="display:grid; gap:12px;">
+      <div style="display:grid;grid-template-columns:1fr auto;gap:8px;align-items:end"><div><label style="font-size:11.5px;color:var(--muted)">券商账户</label><select id="optBrokerAccount" style="width:100%;padding:8px;border:1px solid var(--line);border-radius:6px;margin-top:4px"><option value="">请先选择账户</option></select></div><button type="button" class="option-secondary" onclick="RollManager.openAccounts()">管理账户</button></div>
       <div>
         <label style="font-size:11.5px; color:var(--muted);">正股代码 (Symbol)</label>
         <input type="text" id="optSym" placeholder="例如 LITE" style="width:100%; padding:8px; border:1px solid var(--line); border-radius:6px; margin-top:4px;">
       </div>
       <div>
         <label style="font-size:11.5px; color:var(--muted);">交易策略 (Strategy)</label>
-        <select id="optStrategy" style="width:100%; padding:8px; border:1px solid var(--line); border-radius:6px; margin-top:4px;">
+        <select id="optStrategy" onchange="updateOptionEntryFields()" style="width:100%; padding:8px; border:1px solid var(--line); border-radius:6px; margin-top:4px;">
             <option value="SELL PUT">SELL PUT (卖出看跌)</option>
             <option value="BUY PUT">BUY PUT (买入看跌)</option>
             <option value="SELL CALL">SELL CALL (卖出看涨)</option>
             <option value="BUY CALL">BUY CALL (买入看涨)</option>
         </select>
       </div>
+      <div id="optAssignmentWrap">
+        <label style="font-size:11.5px;color:var(--muted)">Sell Put到期偏好</label><select id="optAssignmentMode" style="width:100%;padding:8px;border:1px solid var(--line);border-radius:6px;margin-top:4px"><option value="accept">愿意按计划接货</option><option value="avoid">尽量避免被指派</option></select>
+      </div>
+      <div id="optEntryHint" class="option-note"></div>
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
         <div>
           <label style="font-size:11.5px; color:var(--muted);">行权价 (Strike)</label>
@@ -987,7 +989,7 @@ def render_html(data):
       </div>
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
         <div>
-          <label style="font-size:11.5px; color:var(--muted);">单张成本 (Cost)</label>
+          <label style="font-size:11.5px; color:var(--muted);">成交权利金（每股）</label>
           <input type="number" step="0.01" id="optCost" placeholder="例如 33.48" style="width:100%; padding:8px; border:1px solid var(--line); border-radius:6px; margin-top:4px;">
         </div>
         <div>
@@ -1047,12 +1049,24 @@ let isAdmin = false;
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 const authBtn = document.getElementById('authBtn');
 
-function openAddOptionModal() {{
+async function openAddOptionModal(preset={{}}) {{
   if (!isAdmin) {{ alert('🔒 权限提示：请先点击右上角 [🔐 登录私有看板] 并通过主理人邮箱登录后，方可录入真实期权！'); return; }}
   if (!document.getElementById('optEntryDate').value) document.getElementById('optEntryDate').value = new Date().toISOString().slice(0,10);
+  if (window.OptionV2?.populateAccountSelect) await window.OptionV2.populateAccountSelect('optBrokerAccount', preset.broker_account_id || preset.accountId);
+  if (preset.symbol) document.getElementById('optSym').value = preset.symbol;
+  if (preset.strategy) document.getElementById('optStrategy').value = preset.strategy;
+  if (preset.collateral_mode || preset.collateralMode) document.getElementById('optCollateralMode').value = preset.collateral_mode || preset.collateralMode;
+  if (preset.qty) document.getElementById('optQty').value = preset.qty;
+  updateOptionEntryFields();
   document.getElementById('addOptionModal').style.display = 'grid';
 }}
 function closeAddOptionModal() {{ document.getElementById('addOptionModal').style.display = 'none'; }}
+function updateOptionEntryFields() {{
+  const strategy=document.getElementById('optStrategy').value,mode=document.getElementById('optCollateralMode'),assignment=document.getElementById('optAssignmentWrap'),hint=document.getElementById('optEntryHint');
+  if(strategy==='SELL PUT'){{mode.value=mode.value==='naked'?'naked':'cash_secured';assignment.style.display='block';hint.textContent='Sell Put不占用正股；Cash-Secured理论资金 = 行权价 × 100 × 张数。';}}
+  else if(strategy==='SELL CALL'){{mode.value=mode.value==='naked'?'naked':'covered';assignment.style.display='none';hint.textContent='Covered Call只能使用同一券商账户内尚未被占用的正股。';}}
+  else{{mode.value='debit';assignment.style.display='none';hint.textContent='Long期权按支付权利金监控，不进入Short展期纪律。';}}
+}}
 
 // 保存后必须从数据库读回确认；不再插入会自动消失的“假成功”行。
 async function saveNewOptionPosition() {{
@@ -1066,8 +1080,11 @@ async function saveNewOptionPosition() {{
   const collateral_mode = document.getElementById('optCollateralMode').value;
   const multiplier = parseInt(document.getElementById('optMultiplier').value) || 100;
   const open_fee = parseFloat(document.getElementById('optOpenFee').value) || 0;
+  const broker_account_id = parseInt(document.getElementById('optBrokerAccount').value);
+  const assignment_mode = document.getElementById('optAssignmentMode').value;
 
-  if (!symbol || isNaN(strike) || !expiry || isNaN(cost) || isNaN(qty) || !entry_date) {{ alert('请完整填写所有期权参数和真实建仓日期！'); return; }}
+  if (!broker_account_id) {{ alert('请先选择这笔成交所属的券商账户。'); return; }}
+  if (!symbol || isNaN(strike) || !expiry || isNaN(cost) || isNaN(qty) || qty<=0 || !entry_date) {{ alert('请完整填写所有期权参数和真实建仓日期！'); return; }}
   if (entry_date > expiry) {{ alert('建仓日期不能晚于到期日。'); return; }}
 
   let opt_type = "Put", side = "Short";
@@ -1079,7 +1096,12 @@ async function saveNewOptionPosition() {{
   const {{ data: {{ session }} }} = await supabaseClient.auth.getSession();
   if (!session) {{ alert('登录状态已失效，请重新登录后再保存。'); return; }}
 
-  const payload = {{ symbol, opt_type, side, strike, expiry, cost, qty, multiplier, open_fee, entry_date, collateral_mode, user_id: session.user.id }};
+  if(strategy==='SELL CALL'&&collateral_mode==='covered'&&window.RollManager?.availableCoveredShares){{
+    const available=window.RollManager.availableCoveredShares(broker_account_id,symbol);
+    if(qty*multiplier>available){{alert(`该账户可用覆盖股数仅 ${{available}} 股，本次需要 ${{qty*multiplier}} 股。请调整张数、账户或担保方式。`);return;}}
+  }}
+  const premium_chain_per_share = side==='Short' ? Math.max(0,cost-open_fee/(qty*multiplier)) : null;
+  const payload = {{ broker_account_id, symbol, opt_type, side, strike, expiry, cost, qty, multiplier, open_fee, entry_date, collateral_mode, assignment_mode, premium_chain_per_share, user_id: session.user.id }};
   const {{ data: saved, error }} = await supabaseClient.from('options_positions').insert([payload]).select().single();
   if (error) {{ 
       const migrationHint = /user_id|row-level security|policy/i.test(error.message)
@@ -1091,7 +1113,7 @@ async function saveNewOptionPosition() {{
       if (!saved || !saved.id) {{ alert('数据库未返回刚保存的记录，请检查RLS读取策略。'); return; }}
       await window.OptionV2.loadPrivatePositions();
       if (window.RollManager) await window.RollManager.load();
-      alert('✅ 期权持仓已保存并从数据库验证读回。');
+      alert('✅ 期权成交已按账户保存，并从数据库验证读回。');
   }}
 }}
 

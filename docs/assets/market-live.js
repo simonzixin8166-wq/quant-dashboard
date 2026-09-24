@@ -44,7 +44,9 @@
     if (!quote || quote.error || !Number.isFinite(Number(quote.price))) return false;
     document.querySelectorAll(`[data-us-live-price="${key}"]`).forEach(el => { el.textContent = fmt(quote.price, key); });
     if (key === 'vix') updateVixGauge(quote.price);
-    if (Number.isFinite(Number(quote.changepct))) {
+    // 只有接口明确确认“上一交易日正式收盘”为基准时才覆盖静态收盘涨跌幅。
+    // 旧版Edge Function的chartPreviousClose可能指向5日区间起点，必须拒绝。
+    if (quote.changeBasis === 'previous_regular_close' && Number.isFinite(Number(quote.changepct))) {
       document.querySelectorAll(`[data-us-live-chg="${key}"]`).forEach(el => {
         el.textContent = pct(quote.changepct);
         el.classList.remove('positive', 'negative');
@@ -52,7 +54,8 @@
       });
     }
     const stamp = quote.updated ? new Date(Number(quote.updated) * 1000).toLocaleTimeString() : new Date().toLocaleTimeString();
-    document.querySelectorAll(`[data-us-live-note="${key}"]`).forEach(el => { el.textContent = `${quote.source} · ${stamp}`; });
+    const basis = quote.changeBasis === 'previous_regular_close' ? '较昨收' : '涨跌幅沿用收盘日线';
+    document.querySelectorAll(`[data-us-live-note="${key}"]`).forEach(el => { el.textContent = `${quote.source} · ${basis} · ${stamp}`; });
     return true;
   }
 

@@ -33,7 +33,12 @@
 
   function bindCard(card,enabled){
     const input=card.querySelector('.budget-input');if(!input)return;input.disabled=!enabled;
+    let clear=card.querySelector('.budget-clear');if(!clear){clear=document.createElement('button');clear.type='button';clear.className='budget-clear';clear.textContent='清除预算';clear.addEventListener('click',()=>clearBudget(card));card.append(clear)}clear.disabled=!enabled;
     if(input.dataset.bound)return;input.dataset.bound='1';input.addEventListener('input',()=>{renderCard(card);duplicateExposureNotice();const symbol=card.dataset.budgetSymbol;clearTimeout(saveTimers.get(symbol));saveTimers.set(symbol,setTimeout(()=>{saveTimers.delete(symbol);save(card)},600))});
+  }
+
+  async function clearBudget(card){
+    const {data:{session}}=await supabaseClient.auth.getSession();if(!session)return;const symbol=card.dataset.budgetSymbol;if(!confirm(`清除 ${symbol} 的预留加仓资金？\n\n只删除手工预算，不改变策略阈值。`))return;clearTimeout(saveTimers.get(symbol));saveTimers.delete(symbol);const {error}=await supabaseClient.from('strategy_budgets').delete().eq('user_id',session.user.id).eq('symbol',symbol);if(error){global.MAV?.toast(`预算清除失败：${error.message}`,'bad');return}card.querySelector('.budget-input').value='';renderCard(card);duplicateExposureNotice();global.MAV?.toast(`${symbol} 预算已清除`,'good');
   }
 
   async function load(){
@@ -45,6 +50,6 @@
     const map=new Map((data||[]).map(x=>[x.symbol,x]));cards().forEach(card=>{const row=map.get(card.dataset.budgetSymbol),input=card.querySelector('.budget-input');if(row)input.value=Number(row.reserve_amount)||0;renderCard(card)});duplicateExposureNotice();
   }
 
-  global.StrategyBudget={load,renderCard};
+  global.StrategyBudget={load,renderCard,clearBudget};
   if(typeof document!=='undefined')document.addEventListener('DOMContentLoaded',()=>cards().forEach(renderCard));
 })(typeof window!=='undefined'?window:globalThis);

@@ -21,7 +21,7 @@ assert "该资产预留资金（USD）" in generator and "该资产预留资金�
 assert "一级7.5%" in page
 assert "指数、行业与另类资产" in generator and "指数、行业与另类资产" in page
 assert "data-stock-row" in generator and "data-stock-row" in page
-assert version == "3.2.1"
+assert version == "3.3.0"
 assert "市场与风险驾驶舱" in generator and "市场与风险驾驶舱" in page
 assert "卫星及杠杆" in generator and "卫星及杠杆" in page
 assert "不参与核心ETF加仓信号" in generator and "不参与核心ETF加仓信号" in page
@@ -67,7 +67,7 @@ assert "期权决策台 V2.2" not in generator
 roll_js = (ROOT / "docs" / "assets" / "roll-manager.js").read_text(encoding="utf-8")
 roll_css = (ROOT / "docs" / "assets" / "roll-manager.css").read_text(encoding="utf-8")
 roll_migration = (ROOT / "supabase" / "migrations" / "202609230001_option_roll_manager.sql").read_text(encoding="utf-8")
-assert 'assets/roll-manager.js?v=3.2.1' in page and 'assets/roll-manager.css?v=3.2.1' in page
+assert 'assets/roll-manager.js?v=3.3.0' in page and 'assets/roll-manager.css?v=3.3.0' in page
 assert 'id="rollManagerRoot"' in page and "分账户期权与展期管理" in page
 assert "classifyRoll" in roll_js and "record_option_roll_v32" in roll_js
 assert "option_underlyings" in roll_migration and "option_roll_journal" in roll_migration
@@ -84,5 +84,17 @@ assert "availableCoveredShares" in roll_js and "accountPositions" in roll_js
 assert "previous_regular_close" in market_function and "meta.chartPreviousClose" not in market_function
 assert "restoreArchivedPosition" in options_js and "恢复持仓" in options_js
 assert "['closed','expired_worthless','assigned']" in options_js
+assert "deletePosition" in options_js and "quick-delete-position" in options_js
+assert "输入 DELETE 确认永久删除" in options_js and "属于展期链" in options_js
+assert "quick-delete-position" in (ROOT / "docs" / "assets" / "options-v2.css").read_text(encoding="utf-8")
+assert "renderPositionTable" in options_js and "option-account-group" in options_js
+assert 'id="optionPnlSummary"' in page and "浮盈合计" in options_js and "浮亏合计" in options_js
+assert "editPosition" in options_js and 'id="optEditId"' in page
+assert "deleteUnderlying" in roll_js and "toggleAccount" in roll_js and "clearObservation" in roll_js
+assert "undoRoll" in roll_js and "undo_option_roll_v33" in roll_js
+undo_migration = (ROOT / "supabase" / "migrations" / "202609240002_crud_and_roll_undo.sql").read_text(encoding="utf-8")
+assert "create or replace function public.undo_option_roll_v33" in undo_migration
+assert "NEW_POSITION_ALREADY_CHANGED" in undo_migration and "LATER_ROLL_EXISTS" in undo_migration
+assert "clearBudget" in budget_js and "deleteTarget" in generator
 
 print("test_build_contract.py: all assertions passed")

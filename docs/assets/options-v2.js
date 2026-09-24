@@ -64,7 +64,7 @@
   async function populateAccountSelect(selectId='optBrokerAccount',preferred=''){
     const node=$(selectId);if(!node)return;
     if(!state.accounts.length){const {data:{session}}=await supabaseClient.auth.getSession();if(session){const {data}=await supabaseClient.from('broker_accounts').select('*').eq('is_active',true).order('sort_order').order('name');state.accounts=data||[]}}
-    node.innerHTML='<option value="">请选择券商账户</option>'+state.accounts.map(x=>`<option value="${x.id}">${String(x.name).replace(/[<>&"]/g,'')}</option>`).join('');
+    node.innerHTML='<option value="">请选择券商账户</option>'+state.accounts.filter(x=>x.is_active!==false).map(x=>`<option value="${x.id}">${String(x.name).replace(/[<>&"]/g,'')}</option>`).join('');
     if(preferred)node.value=String(preferred);
   }
   async function token(){try{const r=await supabaseClient.auth.getSession();return r.data.session?.access_token||null}catch(e){return null}}
@@ -150,14 +150,13 @@
     tbody.innerHTML='<tr><td colspan="9"><div class="skeleton" style="height:42px;border-radius:8px">正在读取私有持仓</div></td></tr>';
     try{
       const {data:{session}}=await supabaseClient.auth.getSession();
-      if(!session){tbody.innerHTML='<tr><td colspan="9" style="text-align:center;color:var(--muted)">请登录后查看私有期权持仓</td></tr>';state.positions.clear();state.history=[];state.accounts=[];renderLifecycleHistory();clearInterval(state.positionsTimer);setAutoStatus('登录后启用持仓自动检查');renderRiskSummary();return}
+      if(!session){tbody.innerHTML='<tr><td colspan="9" style="text-align:center;color:var(--muted)">请登录后查看私有期权持仓</td></tr>';if($('optionPnlSummary'))$('optionPnlSummary').innerHTML='<div class="option-pnl-empty">登录后统计分账户期权盈亏</div>';state.positions.clear();state.history=[];state.accounts=[];renderLifecycleHistory();clearInterval(state.positionsTimer);setAutoStatus('登录后启用持仓自动检查');renderRiskSummary();return}
       const [accountResult,positionResult]=await Promise.all([supabaseClient.from('broker_accounts').select('*').order('sort_order').order('name'),supabaseClient.from('options_positions').select('*').order('expiry')]);if(accountResult.error)throw accountResult.error;if(positionResult.error)throw positionResult.error;state.accounts=accountResult.data||[];const data=positionResult.data;
       const rows=data||[],expiredOpen=rows.filter(x=>(!x.status||x.status==='open')&&rawDaysBetween(todayIso(),x.expiry)<0).map(x=>x.id);
       if(expiredOpen.length){const {error:updateError}=await supabaseClient.from('options_positions').update({status:'pending_settlement'}).in('id',expiredOpen);if(!updateError)rows.forEach(x=>{if(expiredOpen.includes(x.id))x.status='pending_settlement'})}
       const active=rows.filter(x=>!x.status||['open','pending_settlement'].includes(x.status));state.positions=new Map(active.map(x=>[String(x.id),x]));
       state.history=rows.filter(x=>x.status&&!['open','pending_settlement'].includes(x.status)).sort((a,b)=>String(b.closed_at||b.expiry).localeCompare(String(a.closed_at||a.expiry)));
-      tbody.innerHTML=active.length?active.map(x=>{const cached=readCachedQuote(x.id),freshness=quoteFreshness(cached);return renderPositionRow(x,cached?.quote,freshness.label,freshness)}).join(''):'<tr><td colspan="9" style="text-align:center;color:var(--muted)">当前没有开放或待结算的期权持仓</td></tr>';
-      renderLifecycleHistory();renderRiskSummary();schedulePositionRefresh();setTimeout(()=>refreshAllPositions({onlyNeeded:true,reason:'登录后检查'}),250);
+      renderPositionTable();renderLifecycleHistory();renderRiskSummary();schedulePositionRefresh();setTimeout(()=>refreshAllPositions({onlyNeeded:true,reason:'登录后检查'}),250);
     }catch(e){tbody.innerHTML=`<tr><td colspan="9" style="text-align:center;color:var(--red)">持仓读取失败：${e.message}</td></tr>`;global.MAV?.toast(`持仓读取失败：${e.message}`,'bad')}
   }
   function occSymbol(position){
@@ -172,6 +171,20 @@
     const base=cost*multiplier*qty,pnlPct=Number.isFinite(pnl)&&base>0?pnl/base:null,type=String(position.opt_type).toLowerCase();
     const breakeven=type==='put'?Number(position.strike)-cost:Number(position.strike)+cost;
     return{mark,pnl,pnlPct,breakeven,qty,short,multiplier};
+  }
+  function pnlAggregate(positions){
+    return positions.reduce((a,p)=>{const cached=readCachedQuote(p.id),m=cached?.quote?positionMetrics(p,cached.quote):null,v=m?.pnl;if(Number.isFinite(v)){a.priced++;a.net+=v;if(v>=0)a.profit+=v;else a.loss+=v}else a.unpriced++;return a},{profit:0,loss:0,net:0,priced:0,unpriced:0,total:positions.length});
+  }
+  function aggregateHtml(a,compact=false){
+    const values=`<span>盈利 <b class="pos-text">${money(a.profit)}</b></span><span>亏损 <b class="neg-text">${money(a.loss)}</b></span><span>净盈亏 <b class="${a.net>=0?'pos-text':'neg-text'}">${money(a.net)}</b></span><span>有报价 ${a.priced}/${a.total}</span>`;
+    return compact?values:`<div class="option-pnl-stat"><small>浮盈合计</small><strong class="pos-text">${money(a.profit)}</strong></div><div class="option-pnl-stat"><small>浮亏合计</small><strong class="neg-text">${money(a.loss)}</strong></div><div class="option-pnl-stat"><small>净浮动盈亏</small><strong class="${a.net>=0?'pos-text':'neg-text'}">${money(a.net)}</strong></div><div class="option-pnl-stat"><small>报价覆盖</small><strong>${a.priced}/${a.total}</strong><span>${a.unpriced?'另有 '+a.unpriced+' 笔待报价':'全部已估值'}</span></div>`;
+  }
+  function renderPositionTable(){
+    const tbody=$('optionsTableBody'),summary=$('optionPnlSummary');if(!tbody)return;const positions=[...state.positions.values()];
+    if(summary)summary.innerHTML=positions.length?aggregateHtml(pnlAggregate(positions)):'<div class="option-pnl-empty">暂无开放持仓</div>';
+    if(!positions.length){tbody.innerHTML='<tr><td colspan="9" style="text-align:center;color:var(--muted)">当前没有开放或待结算的期权持仓</td></tr>';return}
+    const order=new Map(state.accounts.map((a,i)=>[String(a.id),i])),groups=new Map();positions.sort((a,b)=>(order.get(String(a.broker_account_id))??999)-(order.get(String(b.broker_account_id))??999)||String(a.expiry).localeCompare(String(b.expiry))).forEach(p=>{const key=String(p.broker_account_id||'unassigned');if(!groups.has(key))groups.set(key,[]);groups.get(key).push(p)});
+    tbody.innerHTML=[...groups.entries()].map(([accountId,rows])=>{const stats=pnlAggregate(rows),head=`<tr class="option-account-group"><td colspan="9"><strong>${accountName(accountId)}</strong><div>${aggregateHtml(stats,true)}</div></td></tr>`,body=rows.map(x=>{const cached=readCachedQuote(x.id),freshness=quoteFreshness(cached);return renderPositionRow(x,cached?.quote,freshness.label,freshness)}).join('');return head+body}).join('');
   }
   function annualizedRoc(position,quote=null){
     const mode=String(position.collateral_mode||'').toLowerCase(),side=String(position.side||'').toLowerCase(),type=String(position.opt_type||'').toLowerCase();
@@ -234,7 +247,11 @@
     const strategy=`${String(x.side).toLowerCase()==='short'?'Sell':'Buy'} ${String(x.opt_type).toLowerCase()==='call'?'Call':'Put'}`;
     const bid=quoteNumber(quote?.bid),ask=quoteNumber(quote?.ask),mid=quoteNumber(quote?.mid),quoteDetail=[Number.isFinite(bid)?`Bid ${money(bid)}`:'',Number.isFinite(ask)?`Ask ${money(ask)}`:'',Number.isFinite(mid)?`Mid ${money(mid)}`:''].filter(Boolean).join(' · ');
     const manualDelta=quoteNumber(x.monitor_delta),shownDelta=Number.isFinite(delta)?delta:manualDelta;
-    return `<tr id="opt-row-${x.id}" class="option-position-row"><td><span class="account-badge">${accountName(x.broker_account_id)}</span><strong>${x.symbol} $${Number(x.strike).toFixed(2)}</strong>${pending}<small>${strategy} · ${x.qty||1}张×${x.multiplier||100}</small></td><td><b>${x.expiry}</b><small>${dte} DTE · ${x.collateral_mode||'未标注担保'}</small></td><td><b>${money(Number(x.cost))}/股</b><small>总权利金 ${money(Number(x.cost)*(x.qty||1)*(x.multiplier||100))}<br>费用 ${money(Number(x.open_fee||0))}</small></td><td><b>${m&&Number.isFinite(m.mark)?money(m.mark):'—'}/股</b><small>${quoteDetail||message}</small>${quoteState}</td><td class="${m?pnlClass:''}" title="${isReference?'基于上一有效报价，仅供参考':''}"><b>${m&&Number.isFinite(m.pnl)?pnlPrefix+money(m.pnl):'—'}</b><small>${m&&Number.isFinite(m.pnlPct)?pnlPrefix+pct(m.pnlPct):message}</small></td><td><b>${Number.isFinite(shownDelta)?shownDelta.toFixed(3):'—'}</b><small>IV ${Number.isFinite(iv)?pct(iv):'—'}${!Number.isFinite(delta)&&Number.isFinite(manualDelta)?' · 手工收盘':''}</small></td><td>${rocHtml}<small>平衡 ${money(m?.breakeven??(String(x.opt_type).toLowerCase()==='put'?Number(x.strike)-Number(x.cost):Number(x.strike)+Number(x.cost)))}${Number.isFinite(underlying)?` · 正股 ${money(underlying)}`:''}${Number.isFinite(distance)?` · ${pct(distance)}`:''}</small></td><td><span class="risk-chip ${risk.level}${riskEscalationClass(x.id,risk.level)}" title="${eventText}">${risk.label}</span><small>${eventText}</small></td><td><button onclick="OptionV2.refreshPosition('${x.id}')" title="刷新报价">↻</button><button onclick="OptionV2.openPositionScenario('${x.id}')">推演</button>${rocButton}${rollButton}<button class="manage-option-btn" onclick="OptionV2.openLifecycle('${x.id}')">管理</button></td></tr>`;
+    return `<tr id="opt-row-${x.id}" class="option-position-row"><td><strong>${x.symbol} $${Number(x.strike).toFixed(2)}</strong>${pending}<small>${strategy} · ${x.qty||1}张×${x.multiplier||100}</small><div class="position-inline-actions"><button type="button" onclick="OptionV2.editPosition('${x.id}')">编辑</button><button class="quick-delete-position" type="button" onclick="OptionV2.deletePosition('${x.id}')" title="仅用于删除重复或录入错误的持仓">删除</button></div></td><td><b>${x.expiry}</b><small>${dte} DTE · ${x.collateral_mode||'未标注担保'}</small></td><td><b>${money(Number(x.cost))}/股</b><small>总权利金 ${money(Number(x.cost)*(x.qty||1)*(x.multiplier||100))}<br>费用 ${money(Number(x.open_fee||0))}</small></td><td><b>${m&&Number.isFinite(m.mark)?money(m.mark):'—'}/股</b><small>${quoteDetail||message}</small>${quoteState}</td><td class="${m?pnlClass:''}" title="${isReference?'基于上一有效报价，仅供参考':''}"><b>${m&&Number.isFinite(m.pnl)?pnlPrefix+money(m.pnl):'—'}</b><small>${m&&Number.isFinite(m.pnlPct)?pnlPrefix+pct(m.pnlPct):message}</small></td><td><b>${Number.isFinite(shownDelta)?shownDelta.toFixed(3):'—'}</b><small>IV ${Number.isFinite(iv)?pct(iv):'—'}${!Number.isFinite(delta)&&Number.isFinite(manualDelta)?' · 手工收盘':''}</small></td><td>${rocHtml}<small>平衡 ${money(m?.breakeven??(String(x.opt_type).toLowerCase()==='put'?Number(x.strike)-Number(x.cost):Number(x.strike)+Number(x.cost)))}${Number.isFinite(underlying)?` · 正股 ${money(underlying)}`:''}${Number.isFinite(distance)?` · ${pct(distance)}`:''}</small></td><td><span class="risk-chip ${risk.level}${riskEscalationClass(x.id,risk.level)}" title="${eventText}">${risk.label}</span><small>${eventText}</small></td><td><button onclick="OptionV2.refreshPosition('${x.id}')" title="刷新报价">↻</button><button onclick="OptionV2.openPositionScenario('${x.id}')">推演</button>${rocButton}${rollButton}<button class="manage-option-btn" onclick="OptionV2.openLifecycle('${x.id}')">管理</button></td></tr>`;
+  }
+  function editPosition(id){
+    const p=state.positions.get(String(id));if(!p)return;if(p.rolled_from_id||p.rolled_to_id){global.MAV?.toast('展期链仓位不能直接改写成交信息；请使用展期或平仓流程。','warn');return}
+    const strategy=`${String(p.side).toLowerCase()==='short'?'SELL':'BUY'} ${String(p.opt_type).toLowerCase()==='call'?'CALL':'PUT'}`;global.openAddOptionModal?.({edit_id:p.id,broker_account_id:p.broker_account_id,symbol:p.symbol,strategy,strike:p.strike,expiry:p.expiry,cost:p.cost,qty:p.qty,multiplier:p.multiplier,open_fee:p.open_fee,entry_date:p.entry_date,collateral_mode:p.collateral_mode,assignment_mode:p.assignment_mode});
   }
   function realizedPnl(position,{status='closed',exitPrice=0,closeFee=0}={}){
     const qty=Math.max(1,Number(position.qty)||1),multiplier=Math.max(1,Number(position.multiplier)||MULTIPLIER),entry=Number(position.cost)||0,openFee=Math.max(0,Number(position.open_fee)||0),fee=Math.max(0,Number(closeFee)||0),short=String(position.side).toLowerCase()==='short';
@@ -270,9 +287,17 @@
     const broker_account_id=Number($('lifecycleAccount')?.value||p.broker_account_id),realized=realizedPnl(p,{status,exitPrice,closeFee}),payload={broker_account_id,status,closed_at:`${closedDate}T20:00:00Z`,exit_price:status==='closed'?exitPrice:0,close_fee:closeFee,realized_pnl:realized,settlement_type:status,settlement_stock_price:status==='assigned'?stockPrice:null,close_notes:notes||null};
     $('saveLifecycleBtn').disabled=true;const {error}=await supabaseClient.from('options_positions').update(payload).eq('id',p.id);$('saveLifecycleBtn').disabled=false;if(error){global.MAV?.toast(`处理失败：${error.message}`,'bad');return}sessionStorage.removeItem(`optionQuote:${p.id}`);closeLifecycle();await loadPrivatePositions();global.MAV?.toast(`${p.symbol} 已记录为“${lifecycleLabels(status)}”`,'good');
   }
+  async function deletePosition(id,{closeModal=false}={}){
+    const p=state.positions.get(String(id));if(!p)return false;
+    if(p.rolled_from_id||p.rolled_to_id){global.MAV?.toast('该持仓属于展期链，为保护账本不能直接删除；请用管理功能正常平仓或结算。','warn');return false}
+    const strategy=`${String(p.side).toLowerCase()==='short'?'Sell':'Buy'} ${String(p.opt_type).toLowerCase()==='call'?'Call':'Put'}`,details=`账户：${accountName(p.broker_account_id)}\n合约：${p.symbol} ${strategy} $${Number(p.strike).toFixed(2)}\n到期：${p.expiry}\n数量：${p.qty||1}张 × ${p.multiplier||100}`;
+    if(!confirm(`仅用于删除重复或录入错误的持仓：\n\n${details}\n\n删除后不会进入历史，且不可恢复。是否继续？`))return false;
+    const typed=prompt(`请再次核对：\n${details}\n\n输入 DELETE 确认永久删除`);if(typed!=='DELETE'){if(typed!==null)global.MAV?.toast('未输入完整的 DELETE，已取消删除','warn');return false}
+    const {error}=await supabaseClient.from('options_positions').delete().eq('id',p.id);if(error){const linked=/foreign key|violates|reference/i.test(String(error.message));global.MAV?.toast(linked?'该记录已有关联账本，不能直接删除；请使用正常平仓/结算流程。':`删除失败：${error.message}`,'bad');return false}
+    sessionStorage.removeItem(`optionQuote:${p.id}`);if(closeModal)closeLifecycle();await loadPrivatePositions();await global.RollManager?.load();global.MAV?.toast(`${p.symbol} 错误记录已永久删除`,'good');return true;
+  }
   async function deleteLifecycleRecord(){
-    const p=state.positions.get(String(state.lifecycleId));if(!p)return;if(!confirm(`仅当录入错误时永久删除 ${p.symbol} 这笔记录。此操作不可恢复，是否继续？`))return;
-    const typed=prompt('请输入 DELETE 确认永久删除');if(typed!=='DELETE')return;const {error}=await supabaseClient.from('options_positions').delete().eq('id',p.id);if(error){global.MAV?.toast(`删除失败：${error.message}`,'bad');return}closeLifecycle();await loadPrivatePositions();global.MAV?.toast('错误记录已永久删除','good');
+    const id=state.lifecycleId;if(!id)return;await deletePosition(id,{closeModal:true});
   }
   function renderLifecycleHistory(){
     const tbody=$('optionHistoryBody'),count=$('optionHistoryCount'),button=$('toggleOptionHistory');if(!tbody)return;if(count)count.textContent=`${state.history.length} 笔`;if(button&&!$('optionHistorySection')?.hidden)button.textContent='收起历史';else if(button)button.textContent=`查看历史（${state.history.length}）`;
@@ -303,12 +328,10 @@
     try{
       const raw=await api({action:'quote',optionSymbol:occSymbol(position)}),quote=normalizeColumnar(raw)[0];if(!quote)throw new Error('行情源没有返回该合约');
       const cached={quote,at:Date.now()};sessionStorage.setItem(`optionQuote:${id}`,JSON.stringify(cached));
-      if(row)row.outerHTML=renderPositionRow(position,quote,quoteFreshness(cached).label,quoteFreshness(cached));
-      renderRiskSummary();return true;
+      renderPositionTable();renderRiskSummary();return true;
     }catch(e){
       const cached=readCachedQuote(id),freshness=quoteFreshness(cached);
-      if(row)row.outerHTML=renderPositionRow(position,cached?.quote,cached?freshness.label:e.message,freshness);
-      renderRiskSummary();return false;
+      renderPositionTable();renderRiskSummary();return false;
     }
   }
   function setAutoStatus(text,tone=''){
@@ -337,8 +360,8 @@
     const cached=readCachedQuote(id),freshness=quoteFreshness(cached);if(cached?.quote){const q=cached.quote;$('manualSpot').value=q.underlyingPrice||$('manualSpot').value;$('manualIv').value=Number.isFinite(q.iv)?(q.iv*100).toFixed(2):$('manualIv').value;if(!freshness.usable)global.MAV?.toast(`${p.symbol} 缓存报价已过期，推演前请刷新或手工确认`,'warn')}
     $('targetSpot').value=$('manualSpot').value;render();
   }
-  function setMarketEvents(events,updatedAt){state.events=Array.isArray(events)?events:[];state.eventsUpdated=updatedAt||null;const tbody=$('optionsTableBody');if(tbody&&state.positions.size)tbody.innerHTML=[...state.positions.values()].map(p=>{const cached=readCachedQuote(p.id),freshness=quoteFreshness(cached);return renderPositionRow(p,cached?.quote,freshness.label,freshness)}).join('');renderRiskSummary()}
-  global.OptionV2={bsPrice,evaluate,normalizeColumnar,loadPrivatePositions,populateAccountSelect,refreshQuote,refreshPosition,refreshAllPositions,openPositionScenario,completeRocFields,occSymbol,positionMetrics,annualizedRoc,positionRisk,quoteFreshness,isUsRegularSession,setMarketEvents,realizedPnl,assignmentBasis,openLifecycle,closeLifecycle,savePositionAccount,updateLifecyclePreview,saveLifecycle,deleteLifecycleRecord,restoreArchivedPosition,toggleHistory};
+  function setMarketEvents(events,updatedAt){state.events=Array.isArray(events)?events:[];state.eventsUpdated=updatedAt||null;if(state.positions.size)renderPositionTable();renderRiskSummary()}
+  global.OptionV2={bsPrice,evaluate,normalizeColumnar,loadPrivatePositions,populateAccountSelect,refreshQuote,refreshPosition,refreshAllPositions,openPositionScenario,completeRocFields,occSymbol,positionMetrics,annualizedRoc,positionRisk,quoteFreshness,isUsRegularSession,setMarketEvents,realizedPnl,assignmentBasis,openLifecycle,closeLifecycle,savePositionAccount,updateLifecyclePreview,saveLifecycle,editPosition,deletePosition,deleteLifecycleRecord,restoreArchivedPosition,toggleHistory,getPosition:id=>state.positions.get(String(id))};
   if(typeof document!=='undefined'){
     document.addEventListener('DOMContentLoaded',()=>{bind();$('refreshAllOptions')?.addEventListener('click',()=>refreshAllPositions({force:true,reason:'手动刷新'}))});
     document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&Date.now()-state.lastBulkAt>=POSITION_REFRESH_MS)refreshAllPositions({onlyNeeded:true,reason:'返回页面检查'})});

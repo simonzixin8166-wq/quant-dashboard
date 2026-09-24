@@ -7,9 +7,9 @@ import warnings
 warnings.filterwarnings("ignore")
 
 # 单一版本源：每日 Action 生成 HTML 时，页面标题和静态资源缓存版本都从这里读取。
-APP_VERSION = "3.2"
-OPTIONS_VERSION = "3.2"
-ASSET_VERSION = "3.2"
+APP_VERSION = "3.2.1"
+OPTIONS_VERSION = "3.2.1"
+ASSET_VERSION = "3.2.1"
 
 API_KEY = os.environ.get("TWELVE_DATA_KEY", "demo")
 BASE = "https://api.twelvedata.com"
@@ -837,7 +837,7 @@ def render_html(data):
     </div>
     <div id="optionHistorySection" class="option-history" hidden>
       <div class="option-history-head"><div><strong>期权交易历史</strong><span>关闭后保留完整账本，不再从数据库删除</span></div><span id="optionHistoryCount">0 笔</span></div>
-      <div class="table-container"><table><thead><tr><th>合约 / 策略</th><th>建仓 → 结束</th><th>处理结果</th><th>平仓价</th><th>总费用</th><th>已实现盈亏</th><th>行权有效价</th><th>备注</th></tr></thead><tbody id="optionHistoryBody"><tr><td colspan="8" style="text-align:center;color:var(--muted)">登录后读取历史记录</td></tr></tbody></table></div>
+      <div class="table-container"><table><thead><tr><th>合约 / 策略</th><th>建仓 → 结束</th><th>处理结果</th><th>平仓价</th><th>总费用</th><th>已实现盈亏</th><th>行权有效价</th><th>备注</th><th>操作</th></tr></thead><tbody id="optionHistoryBody"><tr><td colspan="9" style="text-align:center;color:var(--muted)">登录后读取历史记录</td></tr></tbody></table></div>
     </div>
 </section>
 <section class="section">

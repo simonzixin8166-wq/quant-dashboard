@@ -7,14 +7,13 @@ import warnings
 warnings.filterwarnings("ignore")
 
 # 单一版本源：每日 Action 生成 HTML 时，页面标题和静态资源缓存版本都从这里读取。
-APP_VERSION = "3.5.0"
-OPTIONS_VERSION = "3.5.0"
-ASSET_VERSION = "3.5.0"
+APP_VERSION = "3.6.0"
+OPTIONS_VERSION = "3.6.0"
+ASSET_VERSION = "3.6.0"
 
 API_KEY = os.environ.get("TWELVE_DATA_KEY", "demo")
 BASE = "https://api.twelvedata.com"
 HEADERS = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
-FUND_HEADERS = {"User-Agent": HEADERS["User-Agent"], "Referer": "http://fund.eastmoney.com/"}
 
 # ================= 1. 智能节流阀 =================
 LAST_TD_REQUEST_TIME = 0.0
@@ -58,7 +57,6 @@ CN_HK_SYMBOLS = {
     "sh000001": "上证指数", "sh000300": "沪深300", "sz159307": "红利低波100 ETF",
     "hk03086": "华夏纳指 (港股)", "hk03416": "国指备兑 (港股)",
 }
-OTC_FUNDS = {}
 TENCENT_URL = "http://qt.gtimg.cn/q={symbols}"
 
 # ================= 3. ATH 强复权校验 =================
@@ -303,6 +301,38 @@ def _cached_breadth(old_breadth, reason):
     out.update({"is_cached": True, "message": reason})
     return out
 
+def _previous_completed_us_session(now=None):
+    """近似计算最近一个已经完成的美股交易日；节假日由缓存降级说明兜底。"""
+    now = now or datetime.datetime.utcnow()
+    candidate = now.date() if now.hour >= 21 else now.date() - datetime.timedelta(days=1)
+    while candidate.weekday() >= 5:
+        candidate -= datetime.timedelta(days=1)
+    return candidate
+
+def _weekday_gap(start, end):
+    """统计 start 之后至 end（含）的工作日数量，不引入额外交易日历依赖。"""
+    if not start or not end or start >= end: return 0
+    cursor, count = start + datetime.timedelta(days=1), 0
+    while cursor <= end:
+        if cursor.weekday() < 5: count += 1
+        cursor += datetime.timedelta(days=1)
+    return count
+
+def breadth_freshness(breadth, now=None):
+    if not breadth or breadth.get("status") != "ok":
+        return {"tone":"bad", "label":"不可用", "meta":(breadth or {}).get("message", "等待首次完整收盘数据")}
+    try: market_date = datetime.date.fromisoformat(str(breadth.get("date")))
+    except (TypeError, ValueError):
+        return {"tone":"bad", "label":"日期异常", "meta":"宽度快照缺少有效交易日期"}
+    expected = _previous_completed_us_session(now)
+    gap = _weekday_gap(market_date, expected)
+    cached = bool(breadth.get("is_cached"))
+    if gap == 0:
+        return {"tone":"good", "label":f"已更新至 {market_date.isoformat()}", "meta":"503只成分股完整收盘扫描"}
+    if gap == 1:
+        return {"tone":"warn", "label":f"最近有效收盘 {market_date.isoformat()}", "meta":breadth.get("message") or "等待下一次完整收盘扫描"}
+    return {"tone":"bad", "label":f"数据陈旧 · {market_date.isoformat()}", "meta":breadth.get("message") or f"落后约 {gap} 个交易日，请检查每日任务"}
+
 def calculate_daily_breadth(old_breadth=None, today_str=None):
     # 亚洲白天没有必要重复下载503只美股；优先展示上一完整交易日。
     if datetime.datetime.utcnow().hour < 12:
@@ -463,8 +493,10 @@ def build():
     except: gspc_long_rows = None
         
     breadth_data = calculate_daily_breadth(old_breadth, today.isoformat())
+    breadth_state = breadth_freshness(breadth_data)
     if breadth_data.get("status") == "ok":
-        data_status["Breadth"] = f"🟡 上次收盘 ({breadth_data.get('date', '未知')})" if breadth_data.get("is_cached") else f"🟢 收盘日线 ({breadth_data.get('date', '未知')})"
+        icon = {"good":"🟢", "warn":"🟡", "bad":"🔴"}.get(breadth_state["tone"], "🟡")
+        data_status["Breadth"] = f"{icon} {breadth_state['label']}"
     elif breadth_data.get("status") == "skip": data_status["Breadth"] = "🟡 跳过拉取"
     else: data_status["Breadth"] = f"🔴 异常 ({breadth_data.get('message', '获取失败')[:8]}..)"
 
@@ -505,8 +537,8 @@ def build():
     cn_hk_data = {}
     try:
         cn_hk_data.update(fetch_tencent_quotes(list(CN_HK_SYMBOLS.keys())))
-        data_status["CN_HK"] = "🟢 Tencent" if cn_hk_data else "🔴 Error"
-    except: data_status["CN_HK"] = "🔴 Error"
+        data_status["CN_HK"] = "🟢 腾讯行情" if cn_hk_data else "🔴 暂不可用"
+    except: data_status["CN_HK"] = "🔴 暂不可用"
 
     for code, yf_sym in {"sh000001": "000001.SS", "sh000300": "000300.SS", "sz159307": "159307.SZ", "hk03086": "3086.HK", "hk03416": "3416.HK"}.items():
         try: overview_charts[code] = [{"d": r["datetime"][:10], "c": float(r["close"])} for r in fetch_yahoo_index(yf_sym, range_="1mo")[::-1]]
@@ -716,9 +748,31 @@ def render_html(data):
     breadth = data.get("raw_breadth") or {}
     if breadth.get("status") == "ok":
         divergence = mr.get("divergence", {"level":"l1", "label":"未触发宽度顶背离"}) if "error" not in mr else {"level":"unknown", "label":"等待指数数据"}
-        breadth_summary_html = f'''<section class="section"><div class="section-head"><h2>标普500市场宽度</h2><p>完整收盘日线 · {breadth.get('date','—')} · 覆盖 {breadth.get('coverage',breadth.get('symbols','—'))}/{breadth.get('universe',503)} ({fmt_pct(breadth.get('coverage_pct'))})</p></div><div class="breadth-grid"><div class="breadth-card"><span>站上20日线</span><strong>{fmt_pct(breadth.get('b20'))}</strong></div><div class="breadth-card"><span>站上50日线</span><strong>{fmt_pct(breadth.get('b50'))}</strong></div><div class="breadth-card"><span>站上200日线</span><strong>{fmt_pct(breadth.get('b200'))}</strong></div><div class="breadth-card"><span>20日宽度10日斜率</span><strong>{fmt_pct(breadth.get('slope_10d'))}</strong></div></div><div class="risk-alert {divergence.get('level','unknown')}"><span class="risk-level">{divergence.get('level','unknown').upper()}</span><div><strong>{divergence.get('label','等待判断')}</strong><p>此背离提示与恐慌加仓评分相互独立；L2/L3 时优先检查 QLD/TQQQ、新增杠杆和裸卖期权风险。</p></div></div></section>'''
+        breadth_summary_html = f'''<section class="section protected-section"><div class="section-head"><h2>标普500市场宽度</h2><p>完整收盘日线 · {breadth.get('date','—')} · 覆盖 {breadth.get('coverage',breadth.get('symbols','—'))}/{breadth.get('universe',503)} ({fmt_pct(breadth.get('coverage_pct'))})</p></div><div class="breadth-grid"><div class="breadth-card"><span>站上20日线</span><strong>{fmt_pct(breadth.get('b20'))}</strong></div><div class="breadth-card"><span>站上50日线</span><strong>{fmt_pct(breadth.get('b50'))}</strong></div><div class="breadth-card"><span>站上200日线</span><strong>{fmt_pct(breadth.get('b200'))}</strong></div><div class="breadth-card"><span>20日宽度10日斜率</span><strong>{fmt_pct(breadth.get('slope_10d'))}</strong></div></div><div class="risk-alert {divergence.get('level','unknown')}"><span class="risk-level">{divergence.get('level','unknown').upper()}</span><div><strong>{divergence.get('label','等待判断')}</strong><p>此背离提示与恐慌加仓评分相互独立；L2/L3 时优先检查 QLD/TQQQ、新增杠杆和裸卖期权风险。</p></div></div></section>'''
     else:
-        breadth_summary_html = f'''<section class="section"><div class="risk-alert unknown"><span class="risk-level">—</span><div><strong>市场宽度暂不可用于决策</strong><p>{breadth.get('message','等待首次满足质量门槛的完整收盘数据')}。系统不会用残缺样本参与9分制评分。</p></div></div></section>'''
+        breadth_summary_html = f'''<section class="section protected-section"><div class="risk-alert unknown"><span class="risk-level">—</span><div><strong>市场宽度暂不可用于决策</strong><p>{breadth.get('message','等待首次满足质量门槛的完整收盘数据')}。系统不会用残缺样本参与9分制评分。</p></div></div></section>'''
+
+    def clean_status(value):
+        text = str(value or "等待数据")
+        return text.removeprefix("🟢 ").removeprefix("🟡 ").removeprefix("🔴 ")
+
+    def status_tone(value):
+        text = str(value or "")
+        return "bad" if text.startswith("🔴") else ("warn" if text.startswith("🟡") else "good")
+
+    def status_item(label, value, meta, element_id="", tone=None):
+        item_tone = tone or status_tone(value)
+        id_attr = f' id="{element_id}"' if element_id else ""
+        return f'''<div class="status-item" data-tone="{item_tone}"><span class="status-dot" aria-hidden="true"></span><div class="status-copy"><div class="status-label">{label}</div><div class="status-value"{id_attr}>{clean_status(value)}</div><div class="status-meta">{meta}</div></div></div>'''
+
+    breadth_state = breadth_freshness(breadth)
+    status_center_html = "".join([
+        status_item("VIX 恐慌指数", data["data_status"].get("VIX"), "盘中5分钟刷新 · 休市15分钟检查", "usLiveVixStatus"),
+        status_item("美股宽基指数", data["data_status"].get("US Market"), "盘中5分钟刷新 · 涨跌基于昨收", "usLiveIndexStatus"),
+        status_item("标普500市场宽度", breadth_state["label"], breadth_state["meta"], tone=breadth_state["tone"]),
+        status_item("亚太市场行情", data["data_status"].get("CN_HK"), "A股与港股交易时段动态刷新"),
+        status_item("云端策略配置", data["data_status"].get("Supabase"), "策略价、观察池与账户配置"),
+    ])
 
     mi = data.get("market_indicators", {})
     cn = data.get("cn_hk", {})
@@ -779,7 +833,7 @@ def render_html(data):
     chart_json = json.dumps(data.get("overview_charts", {}), ensure_ascii=False)
 
     return f'''<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>myAlphaView · Market Intelligence</title>
-<meta name="author" content="Simon"><meta name="application-version" content="{APP_VERSION}"><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,380;9..144,520;9..144,620&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"><link href="assets/options-v2.css?v={ASSET_VERSION}" rel="stylesheet"><link href="assets/roll-manager.css?v={ASSET_VERSION}" rel="stylesheet"><script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<meta name="author" content="Simon"><meta name="application-version" content="{APP_VERSION}"><meta name="robots" content="noindex,nofollow,noarchive,nosnippet"><meta name="referrer" content="no-referrer"><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,380;9..144,520;9..144,620&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"><link href="assets/options-v2.css?v={ASSET_VERSION}" rel="stylesheet"><link href="assets/roll-manager.css?v={ASSET_VERSION}" rel="stylesheet"><script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{{--bg:#f4f2ec;--surface:#ffffff;--surface2:#ebe8df;--ink:#14161c;--muted:#696d76;--line:#e1ddd0;--nav:#11162a;--nav2:#0a0d1a;--navmuted:#8d93ab;--navline:rgba(255,255,255,.08);--brass:#b8863a;--brass-soft:#e8d3ab;--navy:#1f2b52;--green:#1c7a4c;--green-soft:#e5f1e9;--red:#b23b2e;--red-soft:#f6e6e2;--amber:#c07f2e;--amber-soft:#f6ecd8;--shadow:0 12px 32px rgba(15,15,10,.07);--serif:'Fraunces',ui-serif,Georgia,serif;--sans:'Inter',-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;}}
 *{{box-sizing:border-box;margin:0;padding:0}} body{{font-family:var(--sans);background:var(--bg);color:var(--ink);min-height:100vh;-webkit-font-smoothing:antialiased}} .app{{display:flex;min-height:100vh}}
@@ -815,24 +869,26 @@ def render_html(data):
 .s-res-label {{ font-size: 11px; color: var(--muted); }}
 .s-res-val {{ font-family: var(--serif); font-size: 20px; font-weight: 600; margin-top: 6px; }}
 @media (max-width: 800px) {{ .sandbox-grid {{ grid-template-columns: 1fr; }} }}
-</style><link href="assets/dashboard-v2.2.css?v={ASSET_VERSION}" rel="stylesheet"></head><body data-app-version="{APP_VERSION}"><div class="app">
+</style><link href="assets/dashboard-v2.2.css?v={ASSET_VERSION}" rel="stylesheet"></head><body class="auth-pending" data-app-version="{APP_VERSION}"><div class="app">
 
 <aside class="sidebar"><div class="brand"><div class="mav-brand-mark"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4 17 L9 9 L13 14 L20 5" stroke="#181109" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="20" cy="5" r="2.1" fill="#181109"/></svg></div><div><strong>myAlphaView</strong><small>myAlphaView · myalphaview.com</small></div></div>
-<div class="nav-group"><div class="nav-title">美股 · 宏观</div><ul class="nav-menu"><li class="active" onclick="switchTab('tab-overview',this)"><span class="nav-icon">◆</span>市场总览</li><li onclick="switchTab('tab-engine',this)"><span class="nav-icon">◒</span>策略引擎</li><li onclick="switchTab('tab-index',this)"><span class="nav-icon">◫</span>指数 & ETF</li></ul></div>
-<div class="nav-group"><div class="nav-title">A股 · 港股 · 红利</div><ul class="nav-menu"><li onclick="switchTab('tab-cn-hk',this)"><span class="nav-icon">◇</span>大盘 & 红利低波</li></ul></div>
-<div class="nav-group"><div class="nav-title">观察 & 持仓</div><ul class="nav-menu"><li onclick="switchTab('tab-stocks',this)"><span class="nav-icon">⌁</span>个股观察池</li><li onclick="switchTab('tab-options',this)"><span class="nav-icon">⚑</span>期权持仓监控</li><li onclick="switchTab('tab-sandbox',this)"><span class="nav-icon">🧮</span>策略推演沙盒</li><li onclick="switchTab('tab-archive',this)"><span class="nav-icon">📜</span>历史买点归档</li></ul></div>
-<div class="sidebar-footer">公开研究版 · 不展示个人真实资产<br>数据仅供研究演示</div></aside>
+<div class="nav-group"><div class="nav-title">美股 · 宏观</div><ul class="nav-menu"><li class="active" onclick="switchTab('tab-overview',this)"><span class="nav-icon">◆</span>市场总览</li><li data-auth-required onclick="switchTab('tab-engine',this)"><span class="nav-icon">◒</span>策略引擎</li><li data-auth-required onclick="switchTab('tab-index',this)"><span class="nav-icon">◫</span>指数 & ETF</li></ul></div>
+<div class="nav-group"><div class="nav-title">A股 · 港股 · 红利</div><ul class="nav-menu"><li data-auth-required onclick="switchTab('tab-cn-hk',this)"><span class="nav-icon">◇</span>大盘 & 红利低波</li></ul></div>
+<div class="nav-group"><div class="nav-title">观察 & 持仓</div><ul class="nav-menu"><li data-auth-required onclick="switchTab('tab-stocks',this)"><span class="nav-icon">⌁</span>个股观察池</li><li data-auth-required onclick="switchTab('tab-options',this)"><span class="nav-icon">⚑</span>期权持仓监控</li><li data-auth-required onclick="switchTab('tab-sandbox',this)"><span class="nav-icon">🧮</span>策略推演沙盒</li><li data-auth-required onclick="switchTab('tab-archive',this)"><span class="nav-icon">📜</span>历史买点归档</li></ul></div>
+<div class="sidebar-footer">主理人私有看板 · 敏感持仓由 Supabase RLS 保护<br>未登录仅提供市场概览预览</div></aside>
 
 <main class="main"><header class="topbar"><div class="breadcrumb">myAlphaView / <strong id="bc-title">市场总览</strong></div>
 <div class="top-meta"><span id="liveStatus" style="display:none;"><i class="live-dot"></i><span id="liveStatusText">数据抓取成功</span></span><div style="text-align:right; line-height:1.4;"><div style="font-weight:600; font-size:12px; color:var(--ink);">生成时间: {data.get('gen_time', '-')}</div><div id="usLiveAsOf" style="color:var(--muted); font-size:10.5px;">美股收盘日线截至: {data.get('spy_date', '-')} | A/港股盘中动态刷新</div></div><button id="themeToggle" class="theme-toggle" title="切换深浅主题">🌙 深色</button><button id="authBtn" class="auth-btn-top" onclick="handleAuth()">🔐 登录私有看板</button></div></header><div class="content">
 
 <div id="tab-overview" class="tab-pane active">
-<section class="hero overview-hero"><div><h1>市场与风险驾驶舱</h1><p>先看市场状态、策略距离和必须处理的风险，再决定是否行动。</p><div class="data-legend" aria-label="数据状态说明"><span class="live">盘中延迟行情</span><span class="close">最近有效收盘</span><span class="missing">不可用不计分</span></div></div><div class="public-note" id="modePanel"><b id="modeTitle">公开展示模式</b><span id="modeDesc">展示研究指标与策略信号；私有持仓需登录后读取。</span></div><button id="privateModeShield" class="private-mode-shield" type="button" title="私有控制台已连接，真实持仓受 Supabase RLS 保护">🛡️ 私有模式</button></section>
-<section class="section"><div class="section-head"><h2>市场核心指标</h2><p>美股盘中30秒刷新；宽度每日收盘更新</p></div><div class="metrics">{metric_card('纳斯达克综合指数',qqq_value,qqq_chg,qqq_note,'good' if isinstance(qqq_chg,(int,float)) and qqq_chg>=0 else 'warn',us_live_code='ixic')}{metric_card('标普500指数',spy_value,spy_chg,spy_note,'good' if isinstance(spy_chg,(int,float)) and spy_chg>=0 else 'warn',us_live_code='spx')}{vix_gauge_card(vol_value,None,vix_note)}{metric_card('红利低波100 (159307)',sz_val,sz_chg,'A股红利代理 · ≤0.995（含）进入加仓区','good',live_code='sz159307')}</div></section>
+<section class="hero overview-hero"><div><h1>市场与风险驾驶舱</h1><p>先看市场状态、策略距离和必须处理的风险，再决定是否行动。</p><div class="data-legend" aria-label="数据状态说明"><span class="live">盘中延迟行情</span><span class="close">最近有效收盘</span><span class="missing">不可用不计分</span></div></div><div class="public-note" id="modePanel"><b id="modeTitle">访客预览模式</b><span id="modeDesc">未登录仅显示市场概览；策略、观察池与持仓模块需要主理人登录。</span></div><button id="privateModeShield" class="private-mode-shield" type="button" title="私有控制台已连接，真实持仓受 Supabase RLS 保护">🛡️ 私有模式</button></section>
+<section class="section"><div class="section-head"><h2>市场核心指标</h2><p>美股盘中5分钟刷新；宽度每日收盘更新</p></div><div class="metrics">{metric_card('纳斯达克综合指数',qqq_value,qqq_chg,qqq_note,'good' if isinstance(qqq_chg,(int,float)) and qqq_chg>=0 else 'warn',us_live_code='ixic')}{metric_card('标普500指数',spy_value,spy_chg,spy_note,'good' if isinstance(spy_chg,(int,float)) and spy_chg>=0 else 'warn',us_live_code='spx')}{vix_gauge_card(vol_value,None,vix_note)}{metric_card('红利低波100 (159307)',sz_val,sz_chg,'A股红利代理 · ≤0.995（含）进入加仓区','good',live_code='sz159307')}</div></section>
+<section class="public-access-gate"><div><span class="access-lock">🔐</span><strong>其余模块仅限主理人登录后浏览</strong><p>包括策略信号、市场宽度、个股观察、期权持仓、推演与历史记录。</p></div><button type="button" onclick="handleAuth()">登录解锁</button></section>
 <section class="section private-console"><div class="panel risk-todo"><div class="panel-head"><strong>今日风险待办</strong><span>只列需要人工确认的事项</span></div><div id="riskTodoList" class="risk-todo-list"><div class="risk-todo-empty">正在检查临期期权、缺失报价、宏观事件与宽度背离…</div></div></div></section>
-<section class="section">{market_regime_html}</section>
+<section class="section protected-section">{market_regime_html}</section>
 {breadth_summary_html}
-<section class="section"><div class="section-head"><h2>QQQ & SPY · 近 30 个交易日</h2><p>历史走势</p></div><div class="dashboard-grid"><div class="panel"><div class="panel-head"><strong>趋势对比</strong><span>收盘价</span></div><div class="chart-wrap"><canvas id="trendChart"></canvas></div></div><div class="panel"><div class="panel-head"><strong>Data Status Center</strong><span>数据状态监控</span></div><div class="pulse-list"><div class="pulse"><div><div class="pulse-label">恐慌指数源</div><div class="pulse-main" id="usLiveVixStatus">{data['data_status'].get('VIX')}</div></div></div><div class="pulse"><div><div class="pulse-label">美股宽基指数</div><div class="pulse-main" id="usLiveIndexStatus">{data['data_status'].get('US Market')}</div></div></div><div class="pulse"><div><div class="pulse-label">全市场宽度扫描（每日）</div><div class="pulse-main">{data['data_status'].get('Breadth')}</div></div></div><div class="pulse"><div><div class="pulse-label">亚太股指代理</div><div class="pulse-main">{data['data_status'].get('CN_HK')}</div></div></div><div class="pulse"><div><div class="pulse-label">场外基金接口</div><div class="pulse-main">{data['data_status'].get('OTC')}</div></div></div><div class="pulse"><div><div class="pulse-label">云端策略参数集</div><div class="pulse-main">{data['data_status'].get('Supabase')}</div></div></div></div></div></div></section>
+<section class="section protected-section"><div class="section-head"><h2>QQQ & SPY · 近 30 个交易日</h2><p>收盘趋势与数据健康状态</p></div><div class="dashboard-grid"><div class="panel"><div class="panel-head"><strong>趋势对比</strong><span>最近30个交易日收盘价</span></div><div class="chart-wrap"><canvas id="trendChart"></canvas></div></div><div class="panel status-panel"><div class="panel-head"><strong>数据健康状态</strong><span>自动更新与降级说明</span></div><div class="status-list">{status_center_html}</div></div></div></section>
+<section class="section private-console"><div class="panel"><div class="panel-head"><strong>匿名访问统计</strong><span>不记录姓名、邮箱或IP地址</span></div><div id="siteAnalyticsRoot" class="site-analytics"><div class="site-analytics-empty">正在读取访问统计…</div></div></div></section>
 </div>
 
 <div id="tab-engine" class="tab-pane">
@@ -930,7 +986,7 @@ def render_html(data):
 <section class="section"><div class="table-container"><table><thead><tr><th style="text-align:left;">资产代号</th><th>触发日期</th><th>触发收盘价</th><th>当时全期回撤幅度</th><th>触发加仓评级</th><th>规则体系</th></tr></thead><tbody id="archiveTableBody">{signals_html}</tbody></table></div></section>
 <section class="section"><p style="font-size:11.5px;color:var(--muted);line-height:1.7">同一资产同一天可能出现两条记录——"资产自身三档线"是该ETF自己相对真实全期最高点的回撤触发的加仓线；"全市场宽度恐慌"是标普500全市场宽度指标触发的分级信号。两套规则相互独立，同一天都触发是正常情况，不是数据重复。</p></section></div>
 
-<div class="footer">© 2026 myAlphaView · Built by Simon · Public Research Dashboard<br>市场数据与策略指标仅供研究、学习与信息参考，不构成投资建议。</div>
+<div class="footer">© 2026 myAlphaView · Private Research Dashboard<br>市场数据与策略指标仅供研究参考，不构成投资建议；本站仅记录匿名访问次数，不采集姓名、邮箱或IP地址。</div>
 </div></main></div>
 
 <div id="underlyingModal" class="option-modal-backdrop" style="display:none">
@@ -1054,6 +1110,11 @@ const DATA = {chart_json};
 const MKT_CHARTS = {{}}; 
 
 function switchTab(id,el){{
+  if(id !== 'tab-overview' && !document.body.classList.contains('private-mode')){{
+    window.MAV?.toast('此模块仅限主理人登录后浏览。请点击右上角登录。','warn');
+    document.getElementById('authBtn')?.focus();
+    return;
+  }}
   document.querySelectorAll('.tab-pane').forEach(t=>t.classList.remove('active'));
   document.querySelectorAll('.nav-menu li').forEach(l=>l.classList.remove('active'));
   document.getElementById(id).classList.add('active');
@@ -1091,6 +1152,7 @@ window.SUPABASE_ANON_KEY = SUPABASE_ANON_KEY;
 const ADMIN_EMAIL = 'xxj8166@gmail.com';
 let isAdmin = false;
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+window.mavSupabase = supabaseClient;
 const authBtn = document.getElementById('authBtn');
 
 async function openAddOptionModal(preset={{}}) {{
@@ -1220,20 +1282,35 @@ async function deleteTarget(symbol) {{
 }}
 
 async function checkSession() {{
-  const {{ data: {{ session }} }} = await supabaseClient.auth.getSession();
-  document.body.classList.toggle('private-mode', Boolean(session));
-  if (session) {{
-      if (session.user.email === ADMIN_EMAIL) {{
-          isAdmin = true; document.getElementById('modeTitle').innerText = "👑 主理人控制台已激活"; document.getElementById('modeDesc').innerText = "您现在可以在下方个股面板中直接修改加仓价，或在期权面板中直接录入/删除持仓。";
-      }} else {{
-          isAdmin = false; document.getElementById('modeTitle').innerText = "🔥 资金与策略模型已解锁"; document.getElementById('modeDesc').innerText = "您已安全登录，当前正在展示最新的高级量化策略信号。";
-      }}
+  let session = null;
+  try {{ const result = await supabaseClient.auth.getSession(); session = result.data.session; }}
+  catch (_error) {{ document.body.classList.remove('auth-pending'); document.body.classList.remove('private-mode'); authBtn.innerHTML = "🔐 登录暂不可用"; return; }}
+  const authorized = Boolean(session && String(session.user.email || '').toLowerCase() === ADMIN_EMAIL.toLowerCase());
+  document.body.classList.toggle('private-mode', authorized);
+  document.body.classList.remove('auth-pending');
+  if (session && !authorized) {{
+      await supabaseClient.auth.signOut();
+      isAdmin = false;
+      authBtn.innerHTML = "🔐 登录私有看板";
+      window.MAV?.toast('该账户没有主理人访问权限，已安全退出。','bad');
+      window.SiteAnalytics?.onAuth(null, false);
+      return;
+  }}
+  if (authorized) {{
+      isAdmin = true; document.getElementById('modeTitle').innerText = "👑 主理人控制台已激活"; document.getElementById('modeDesc').innerText = "策略、观察池、期权与历史模块已解锁；真实持仓继续受 Supabase RLS 保护。";
       authBtn.innerHTML = "🔓 退出账号"; document.getElementById('modeTitle').style.color = "var(--red)"; document.getElementById('liveStatusText').innerText = "连接云端数据库";
       if (window.OptionV2) window.OptionV2.loadPrivatePositions();
       if (window.RollManager) window.RollManager.load();
       if (window.StockWatchlist) window.StockWatchlist.load();
-  }} else {{ isAdmin = false; authBtn.innerHTML = "🔐 登录私有看板"; if (window.OptionV2) window.OptionV2.loadPrivatePositions(); if (window.RollManager) window.RollManager.load(); }}
-  fetchAndRenderTargets();
+      fetchAndRenderTargets();
+  }} else {{
+      isAdmin = false; authBtn.innerHTML = "🔐 登录私有看板";
+      document.getElementById('modeTitle').innerText = "访客预览模式";
+      document.getElementById('modeDesc').innerText = "未登录仅显示市场概览；策略、观察池与持仓模块需要主理人登录。";
+      if (window.OptionV2) window.OptionV2.loadPrivatePositions();
+      if (window.RollManager) window.RollManager.load();
+  }}
+  window.SiteAnalytics?.onAuth(session, authorized);
 }}
 
 async function handleAuth() {{
@@ -1242,6 +1319,7 @@ async function handleAuth() {{
   else {{
       const email = prompt("请输入您的邮箱地址，获取免密登录链接：");
       if (!email) return;
+      if (email.trim().toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {{ alert('该邮箱没有主理人访问权限。'); return; }}
       authBtn.innerHTML = "⏳ 正在发送...";
       const {{ error }} = await supabaseClient.auth.signInWithOtp({{ email: email, options: {{ emailRedirectTo: window.location.origin + window.location.pathname }} }});
       if (error) {{ alert("发送失败: " + error.message); authBtn.innerHTML = "🔐 登录私有看板"; }} 
@@ -1302,7 +1380,7 @@ function scheduleCNHK() {{
 }}
 window.addEventListener('load', () => {{ fetchLiveCNHK(); scheduleCNHK(); }});
 document.addEventListener('visibilitychange', () => {{ if (document.visibilityState === 'visible') {{ fetchLiveCNHK(); scheduleCNHK(); }} else clearTimeout(cnhkTimer); }});
-</script><script src="assets/market-live.js?v={ASSET_VERSION}"></script><script src="assets/dashboard-v2.2.js?v={ASSET_VERSION}"></script><script src="assets/options-v2.js?v={ASSET_VERSION}"></script><script src="assets/roll-manager.js?v={ASSET_VERSION}"></script><script src="assets/stock-watchlist.js?v={ASSET_VERSION}"></script></body></html>'''
+</script><script src="assets/market-live.js?v={ASSET_VERSION}"></script><script src="assets/dashboard-v2.2.js?v={ASSET_VERSION}"></script><script src="assets/options-v2.js?v={ASSET_VERSION}"></script><script src="assets/roll-manager.js?v={ASSET_VERSION}"></script><script src="assets/stock-watchlist.js?v={ASSET_VERSION}"></script><script src="assets/site-analytics.js?v={ASSET_VERSION}"></script></body></html>'''
 
 def push_to_supabase(data):
     supabase_url, supabase_key = os.environ.get("SUPABASE_URL"), os.environ.get("SUPABASE_KEY")

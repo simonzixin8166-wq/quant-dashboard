@@ -21,7 +21,7 @@ assert "strategy-tier-grid" in generator and "只判断是否进入加仓区" in
 assert "1级回撤" in page and "7.5%" in page
 assert "指数、行业与另类资产" in generator and "指数、行业与另类资产" in page
 assert "data-stock-row" in generator and "data-stock-row" in page
-assert version == "3.5.0"
+assert version == "3.6.0"
 assert "市场与风险驾驶舱" in generator and "市场与风险驾驶舱" in page
 assert "卫星及杠杆" in generator and "卫星及杠杆" in page
 assert "不参与核心ETF加仓信号" in generator and "不参与核心ETF加仓信号" in page
@@ -64,7 +64,7 @@ assert "期权决策台 V2.2" not in generator
 roll_js = (ROOT / "docs" / "assets" / "roll-manager.js").read_text(encoding="utf-8")
 roll_css = (ROOT / "docs" / "assets" / "roll-manager.css").read_text(encoding="utf-8")
 roll_migration = (ROOT / "supabase" / "migrations" / "202609230001_option_roll_manager.sql").read_text(encoding="utf-8")
-assert 'assets/roll-manager.js?v=3.5.0' in page and 'assets/roll-manager.css?v=3.5.0' in page
+assert 'assets/roll-manager.js?v=3.6.0' in page and 'assets/roll-manager.css?v=3.6.0' in page
 assert 'id="rollManagerRoot"' in page and "分账户期权与展期管理" in page
 assert "classifyRoll" in roll_js and "record_option_roll_v32" in roll_js
 assert "option_underlyings" in roll_migration and "option_roll_journal" in roll_migration
@@ -96,7 +96,7 @@ assert "deleteTarget" in generator
 stock_js = (ROOT / "docs" / "assets" / "stock-watchlist.js").read_text(encoding="utf-8")
 stock_function = (ROOT / "supabase" / "functions" / "stock-market" / "index.ts").read_text(encoding="utf-8")
 watchlist_migration = (ROOT / "supabase" / "migrations" / "202609240003_stock_watchlist.sql").read_text(encoding="utf-8")
-assert 'assets/stock-watchlist.js?v=3.5.0' in page and 'id="stockWatchModal"' in page
+assert 'assets/stock-watchlist.js?v=3.6.0' in page and 'id="stockWatchModal"' in page
 assert "stock_watchlist" in stock_js and "StockWatchlist" in stock_js and "删除个股" in stock_js
 assert "scope=${scope}" in stock_js and "DAILY_CACHE_KEY" in stock_js and "ensureDaily" in stock_js
 assert "stock_watchlist_public_read" in watchlist_migration and "stock_watchlist_admin_delete" in watchlist_migration
@@ -105,5 +105,18 @@ assert "scope === 'quote'" in stock_function and "completedClose/ytdHigh-1" in s
 assert "stock-market" in (ROOT / ".github" / "workflows" / "deploy-supabase.yml").read_text(encoding="utf-8")
 assert "≤0.995（含）" in page and 'data-buy-zone="sz159307"' in page
 assert "option-pnl-account-grid" in options_js and "risk-account-breakdown" in options_js
+assert "场外基金接口" not in generator and "Data Status Center" not in generator
+assert "数据健康状态" in generator and "盘中5分钟刷新" in generator
+assert "strategy-budget.js" not in workflow
+assert 'class="auth-pending"' in page and "public-access-gate" in page
+assert "data-auth-required" in page and "protected-section" in page
+assert "noindex,nofollow,noarchive,nosnippet" in page and 'name="referrer" content="no-referrer"' in page
+assert "authorized = Boolean" in generator and "该账户没有主理人访问权限" in generator
+assert 'assets/site-analytics.js?v=3.6.0' in page and 'id="siteAnalyticsRoot"' in page
+analytics_js = (ROOT / "docs" / "assets" / "site-analytics.js").read_text(encoding="utf-8")
+analytics_migration = (ROOT / "supabase" / "migrations" / "202609240004_private_gate_analytics.sql").read_text(encoding="utf-8")
+assert "record_site_visit_v36" in analytics_js and "get_site_visit_summary_v36" in analytics_js
+assert "enable row level security" in analytics_migration and "ADMIN_ONLY" in analytics_migration
+assert "No IP address" in analytics_migration and "robots.txt" not in generator
 
 print("test_build_contract.py: all assertions passed")

@@ -14,7 +14,7 @@
     return !['Sat', 'Sun'].includes(values.weekday) && minute >= 570 && minute < 960;
   }
 
-  function nextDelay() { return isUsRegularSession() ? 90000 : 15 * 60 * 1000; }
+  function nextDelay() { return isUsRegularSession() ? 5 * 60 * 1000 : 15 * 60 * 1000; }
   function schedule() {
     clearTimeout(refreshTimer);
     refreshTimer = window.setTimeout(async () => { if (document.visibilityState === 'visible') await refresh(); schedule(); }, nextDelay());
@@ -37,7 +37,10 @@
 
   function setStatus(id, text, good) {
     const el = document.getElementById(id);
-    if (el) el.textContent = `${good ? '🟢' : '🟡'} ${text}`;
+    if (!el) return;
+    el.textContent = text;
+    const item = el.closest('.status-item');
+    if (item) item.dataset.tone = good ? 'good' : 'warn';
   }
 
   function updateExact(key, quote) {
@@ -78,7 +81,7 @@
       if (!spxOk) showProxy('spx', body.proxies?.SPY);
       if (!ixicOk) showProxy('ixic', body.proxies?.QQQ);
       if (!vixOk) showProxy('vix', body.proxies?.VIXY);
-      const cadence = isUsRegularSession() ? '常规时段90秒检查' : '休市15分钟检查';
+      const cadence = isUsRegularSession() ? '盘中5分钟刷新' : '休市15分钟检查';
       const stalePrefix = body.stale ? '缓存行情 · ' : '';
       setStatus('usLiveIndexStatus', spxOk && ixicOk ? `${stalePrefix}指数分钟行情（${cadence}）` : '指数日线；盘中代理见上方', spxOk && ixicOk && !body.stale);
       setStatus('usLiveVixStatus', vixOk ? `${stalePrefix}VIX分钟行情（${cadence}）` : 'VIX日线；VIXY代理见上方', vixOk && !body.stale);

@@ -37,6 +37,12 @@ cached = dashboard._cached_breadth(result, "test fallback")
 assert cached["status"] == "ok" and cached["is_cached"] is True
 assert cached["date"] == result["date"]
 
+fixed_now = datetime.datetime(2026, 9, 24, 14, 0)
+fresh = dashboard.breadth_freshness({"status":"ok", "date":"2026-09-23"}, fixed_now)
+assert fresh["tone"] == "good" and "2026-09-23" in fresh["label"]
+stale = dashboard.breadth_freshness({"status":"ok", "date":"2026-09-18", "is_cached":True}, fixed_now)
+assert stale["tone"] == "bad" and "数据陈旧" in stale["label"]
+
 try:
     dashboard._compute_breadth_from_closes(closes.iloc[:, :449])
     raise AssertionError("449 symbols must fail the 450/90% breadth quality gate")

@@ -13,7 +13,6 @@ A股 / 港股 行情抓取模块
 确认无误后再接入每日自动构建流程。
 """
 
-import json
 import urllib.request
 
 # ---------- 标的清单 ----------
@@ -30,13 +29,7 @@ CN_HK_SYMBOLS = {
     "hk03416": {"name": "Global X 国指备兑(港股)", "kind": "hk_etf"},
 }
 
-# 场外联接基金：没有"实时行情"，只有盘中估值 + 收盘后的正式净值
-OTC_FUNDS = {
-    "021550": "红利低波100ETF联接(场外)",
-}
-
 TENCENT_URL = "http://qt.gtimg.cn/q={symbols}"
-FUND_EST_URL = "http://fundgz.1234567.com.cn/js/{code}.js"
 
 HEADERS = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
 
@@ -85,54 +78,14 @@ def fetch_tencent_quotes(symbols):
     return out
 
 
-FUND_HEADERS = {
-    "User-Agent": HEADERS["User-Agent"],
-    # 天天基金对没有 Referer 的请求（尤其是云服务器IP）有时会拦截，
-    # 加上这个头模拟"从基金页面发起请求"，能明显提高成功率。
-    "Referer": "http://fund.eastmoney.com/",
-}
-
-
-def fetch_fund_estimate(fund_code):
-    """
-    场外联接基金的盘中估值 / 昨日正式净值。
-    这是天天基金公开使用的估值接口，返回 JSONP，需要手动剥掉外层函数名。
-    收盘后 gsz(估算净值) 会等于 dwjz(正式净值)。
-    """
-    req = urllib.request.Request(FUND_EST_URL.format(code=fund_code), headers=FUND_HEADERS)
-    with urllib.request.urlopen(req, timeout=10) as resp:
-        raw = resp.read().decode("utf-8", errors="ignore")
-
-    json_str = raw[raw.find("{"):raw.rfind("}") + 1]
-    try:
-        data = json.loads(json_str)
-    except json.JSONDecodeError:
-        # 失败时把原始返回打出来，而不是直接吞掉——
-        # 如果这里打印出来是一段HTML或者空字符串，基本就能确认是IP被拦截，
-        # 不是接口格式变了。截断到200字符避免刷屏。
-        return {"error": "解析失败", "raw_response_preview": raw[:200]}
-    return {
-        "name": data.get("name"),
-        "nav_date": data.get("jzrq"),       # 上一交易日正式净值日期
-        "nav": data.get("dwjz"),            # 上一交易日正式净值
-        "est_nav": data.get("gsz"),         # 当前估算净值
-        "est_pct_change": data.get("gszzl"),# 当前估算涨跌幅(%)
-        "est_time": data.get("gztime"),     # 估值时间
-    }
-
-
 def build_cn_hk_section():
     """整合成一个可以直接塞进 data.json 的结构。"""
-    result = {"indices_and_etf": {}, "otc_funds": {}}
+    result = {"indices_and_etf": {}}
 
     quotes = fetch_tencent_quotes(list(CN_HK_SYMBOLS.keys()))
     for sym, meta in CN_HK_SYMBOLS.items():
         q = quotes.get(sym, {"error": "未取到数据"})
         result["indices_and_etf"][sym] = {**meta, **q}
-
-    for code, name in OTC_FUNDS.items():
-        est = fetch_fund_estimate(code)
-        result["otc_funds"][code] = {"name": name, **est}
 
     return result
 
@@ -142,4 +95,4 @@ if __name__ == "__main__":
     print("=== 原始返回（用于核对字段顺序） ===")
     debug_print_raw()
     print("\n=== 解析后的结构 ===")
-    print(json.dumps(build_cn_hk_section(), ensure_ascii=False, indent=2))
+    print(build_cn_hk_section())

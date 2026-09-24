@@ -40,7 +40,8 @@ voo = module.engine_item("VOO", {
     "level": 0,
     "level_label": "未触发",
 })
-assert "一级7.5%" in voo
-assert "等待：不提前加仓" in voo
+assert "1级回撤" in voo and "7.5%" in voo
+assert "等待触发 · 不提前加仓" in voo
+assert "strategy-tier-grid" in voo
 
 print("test_decision_ui.py: all assertions passed")

@@ -7,9 +7,9 @@ import warnings
 warnings.filterwarnings("ignore")
 
 # 单一版本源：每日 Action 生成 HTML 时，页面标题和静态资源缓存版本都从这里读取。
-APP_VERSION = "3.3.0"
-OPTIONS_VERSION = "3.3.0"
-ASSET_VERSION = "3.3.0"
+APP_VERSION = "3.5.0"
+OPTIONS_VERSION = "3.5.0"
+ASSET_VERSION = "3.5.0"
 
 API_KEY = os.environ.get("TWELVE_DATA_KEY", "demo")
 BASE = "https://api.twelvedata.com"
@@ -162,6 +162,20 @@ def fetch_supabase_targets():
             data = json.loads(resp.read().decode("utf-8"))
             return {item["symbol"]: float(item["target_price"]) for item in data}
     except: return None
+
+def fetch_supabase_watchlist():
+    """返回数据库观察池；None 表示接口不可用，空列表表示用户主动清空。"""
+    supabase_url = os.environ.get("SUPABASE_URL")
+    supabase_key = os.environ.get("SUPABASE_KEY")
+    if not supabase_url or not supabase_key: return None
+    try:
+        endpoint = f"{supabase_url.rstrip('/')}/rest/v1/stock_watchlist?select=symbol,display_name,sort_order&order=sort_order.asc,symbol.asc"
+        req = urllib.request.Request(endpoint, headers={"apikey": supabase_key, "Authorization": f"Bearer {supabase_key}"})
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            return json.loads(resp.read().decode("utf-8"))
+    except Exception as e:
+        print(f"WARNING: stock_watchlist unavailable, using code defaults: {e}")
+        return None
 
 # ================= 5. 基础行情抓取引擎 =================
 def http_get_json(url):
@@ -410,6 +424,15 @@ def build():
     except: old_breadth = None
 
     sb_targets = fetch_supabase_targets()
+    sb_watchlist = fetch_supabase_watchlist()
+    active_stocks = list(STOCKS)
+    if sb_watchlist is not None:
+        active_stocks = []
+        for item in sb_watchlist:
+            sym = str(item.get("symbol", "")).strip().upper()
+            if not sym: continue
+            active_stocks.append(sym)
+            STOCK_META[sym] = {**STOCK_META.get(sym, {}), "name": item.get("display_name") or sym}
     data_status["Supabase"] = "🟢 已连接" if sb_targets else "🔴 Fallback"
     if sb_targets:
         for sym, tgt in sb_targets.items():
@@ -475,7 +498,7 @@ def build():
         m_tier = "extreme" if m_score >= 7 else ("major" if m_score >= 5 else ("tier1" if m_score >= 3 else "normal"))
         market_regime = {"score": m_score, "max_score": 9, "max_available_score": m_max, "tier": m_tier, "tier_label": {"extreme":"极限恐慌", "major":"重点恐慌", "tier1":"一级恐慌"}.get(m_tier, "盘中临时状态" if m_max<9 else "正常"), "drawdown": {"value": m_drawdown, "threshold": -0.08, "hit": drawdown_hit, "points": 2}, "conditions": m_cond, "vix": vix_data.get("close") if "error" not in vix_data else None, "breadth_status": (breadth_data or {}).get("status", "error"), "breadth_message": (breadth_data or {}).get("message", "宽度数据缺失"), "dist_52w_high": dist_52w_high, "divergence": {"level":divergence_level, "label":divergence_label, "near_high":near_high}}
 
-    for name in STOCKS:
+    for name in active_stocks:
         try: stocks[name] = analyze(name, fetch_time_series(name), today, is_stock=True)
         except Exception as e: stocks[name] = {"error": str(e)}
         
@@ -525,8 +548,6 @@ def engine_item(name, r):
     if "error" in r: return f'<div class="engine-item"><div class="k">{name}</div><div class="v">-</div><div class="pt">数据获取失败</div></div>'
     level, hit_cls = r.get("level", 0), "hit" if r.get("level", 0) > 0 else ""
     tiers = r.get("tiers") or CORE_TIERS.get(name) or {}
-    tiers_str = f'一级{fmt_pct(tiers.get("t1"),1)} / 二级{fmt_pct(tiers.get("t2"),1)} / 三级{fmt_pct(tiers.get("t3"),1)}'
-
     if r.get("ath_is_true"):
         dd, label, dist_text = r.get("strategy_drawdown"), "回撤 (ATH)", get_dist_text(r.get("strategy_drawdown"), tiers)
         if r.get("ath_validation") == "CHECK": status_text, hit_cls = "⚠ 极端回撤 · 请验证数据", "warn"
@@ -541,10 +562,20 @@ def engine_item(name, r):
     next_tier = tier_values[next_index] if tier_values else None
     trigger = ath * (1 - next_tier) if ath and isinstance(next_tier, (int, float)) else None
     price_gap = trigger / close - 1 if trigger and close else None
-    trigger_label = "三级线" if level >= 3 else f"{next_index + 1}级线"
+    trigger_label = "最高档状态" if level >= 3 else f"下一档 · {next_index + 1}级"
     reference = '<span class="engine-reference">同指数参考</span>' if name == "QQQ" else ''
-    action_text = "仅观察：ATH尚未通过校验" if not formal_signal else ({0:"等待：不提前加仓",1:"一级：使用20%预留",2:"二级：追加30%预留",3:"三级：使用最后50%预留"}.get(level,"等待"))
-    return f'''<article class="engine-item {hit_cls}" data-budget-symbol="{name}" data-drawdown="{dd if isinstance(dd,(int,float)) else ''}" data-t1="{tiers.get('t1','')}" data-t2="{tiers.get('t2','')}" data-t3="{tiers.get('t3','')}"><div class="engine-item-head"><div class="k">{name} {label} {reference}</div><div class="engine-state">{status_text}</div></div><div class="v">{fmt_pct(dd)}</div><div class="engine-action">{action_text}</div><div class="engine-trigger"><span>{trigger_label}触发价</span><b>{'$'+format(trigger,'.2f') if trigger else '待校验'}</b><small>{'距当前 '+fmt_pct(price_gap) if isinstance(price_gap,(int,float)) else '仅供参考'}</small></div><div class="pt">阈值 {tiers_str}</div><label class="engine-budget-label">该资产预留资金（USD）<input class="budget-input" type="number" min="0" step="100" placeholder="登录后设置"></label><div class="budget-allocation"><span>一级 20%<b data-tier-amount="1">—</b></span><span>二级 30%<b data-tier-amount="2">—</b></span><span>三级 50%<b data-tier-amount="3">—</b></span></div><div class="budget-next" data-budget-next>等待预算</div></article>'''
+    action_text = "仅观察：ATH尚未通过校验" if not formal_signal else ({0:"等待触发 · 不提前加仓",1:"一级已触发 · 进入第一档加仓区",2:"二级已触发 · 进入第二档加仓区",3:"三级已触发 · 极端回撤加仓区"}.get(level,"等待触发"))
+    tier_cards = []
+    for index, value in enumerate(tier_values, start=1):
+        tier_price = ath * (1 - value) if ath and isinstance(value, (int, float)) else None
+        tier_class = "reached" if level >= index else ("next" if formal_signal and level + 1 == index else "")
+        tier_cards.append(f'<span class="strategy-tier {tier_class}"><small>{index}级回撤</small><b>{fmt_pct(value,1)}</b><em>{"$"+format(tier_price,".2f") if tier_price else "待校验"}</em></span>')
+    if level >= 3 and formal_signal:
+        trigger_value, trigger_note = "三级已触发", "已进入策略最高档加仓区"
+    else:
+        trigger_value = '$'+format(trigger,'.2f') if trigger else '待校验'
+        trigger_note = '距当前 '+fmt_pct(price_gap) if isinstance(price_gap,(int,float)) else '仅供参考'
+    return f'''<article class="engine-item {hit_cls}" data-signal-symbol="{name}" data-drawdown="{dd if isinstance(dd,(int,float)) else ''}" data-t1="{tiers.get('t1','')}" data-t2="{tiers.get('t2','')}" data-t3="{tiers.get('t3','')}"><div class="engine-item-head"><div class="k">{name} {label} {reference}</div><div class="engine-state">{status_text}</div></div><div class="engine-value-row"><div><small>当前回撤</small><div class="v">{fmt_pct(dd)}</div></div><span class="engine-action">{action_text}</span></div><div class="engine-trigger"><span>{trigger_label}</span><b>{trigger_value}</b><small>{trigger_note}</small></div><div class="strategy-tier-grid">{"".join(tier_cards)}</div></article>'''
 
 def card_etf(name, r):
     disp_name = {"GCMAIN": "黄金连续期货 (GC=F)", "BTC/USD": "比特币 (BTC-USD)", "QQQ": "纳斯达克100 (QQQ)", "VOO": "标普500 (VOO)", "SMH": "半导体ETF (SMH)", "TQQQ": "纳指3倍做多 (TQQQ)"}.get(name, name)
@@ -734,11 +765,16 @@ def render_html(data):
         change_html = f'<span class="vix-change {"positive" if change>=0 else "negative"}" data-us-live-chg="vix">{"+" if change>=0 else ""}{fmt_pct(change)}</span>' if isinstance(change, (int, float)) else '<span class="vix-change" data-us-live-chg="vix">—</span>'
         return f'''<div class="metric-card vix-metric-card" data-vix-card><div class="metric-top">VIX恐慌指数<span class="metric-dot" data-vix-dot style="background:{zone_color}"></span></div><div class="vix-gauge" data-vix-gauge style="--vix-angle:{angle:.2f}deg"><svg viewBox="0 0 200 108" role="img" aria-label="VIX风险分区半圆仪表盘"><path class="vix-arc calm" d="M18 100 A82 82 0 0 1 68.6 24.2"/><path class="vix-arc mild" d="M68.6 24.2 A82 82 0 0 1 100 18"/><path class="vix-arc caution" d="M100 18 A82 82 0 0 1 131.4 24.2"/><path class="vix-arc high" d="M131.4 24.2 A82 82 0 0 1 158 42"/><path class="vix-arc extreme" d="M158 42 A82 82 0 0 1 182 100"/></svg><span class="vix-needle"></span><span class="vix-hub"></span></div><div class="vix-reading"><strong data-us-live-price="vix">{fmt_num(numeric) if numeric is not None else "—"}</strong>{change_html}<span class="vix-zone" data-vix-zone style="color:{zone_color}">{zone}</span></div><div class="vix-band-legend" aria-label="VIX风险区间"><span class="calm">&lt;15</span><span class="mild">15–20</span><span class="caution">20–25</span><span class="high">25–30</span><span class="extreme">≥30</span></div><div class="metric-note" data-us-live-note="vix">{note}</div></div>'''
 
-    def mkt_card_a(title, mdata, code="", proxy=False):
+    def mkt_card_a(title, mdata, code="", proxy=False, buy_below=None):
         if not mdata or "error" in mdata: return f'<div class="mkt-card"><div class="name">{title}</div><div class="val" style="font-size:14px;color:var(--muted);margin-top:12px">接口拦截/闭市</div></div>'
         decimals = 2 if code.startswith('sh') else 3
         proxy_badge = '<span class="proxy-badge">指数代理</span>' if proxy else ''
-        return f'''<div class="mkt-card hover-card" onclick="toggleMktChart('{code}', '{title}')"><div class="name"><span>{title} {proxy_badge}</span><span class="chart-hint">30日趋势</span></div><div class="mkt-quote"><div class="val" data-live-price="{code}">{mdata.get("price",0):,.{decimals}f}</div><div class="chg {"positive" if mdata.get("day_chg",0)>=0 else "negative"}" data-live-chg="{code}">{"+" if mdata.get("day_chg",0)>=0 else ""}{fmt_pct(mdata.get("day_chg",0))}</div></div><div class="mkt-meta"><span data-market-state="{code}">腾讯行情 · 状态检查中</span><span data-live-time="{code}">页面生成 {data.get("gen_time","-")}</span></div><div class="mkt-chart-wrap" id="wrap-{code}"><div style="height:140px; position:relative; width:100%;"><canvas id="canvas-{code}"></canvas></div></div></div>'''
+        price = float(mdata.get("price", 0) or 0)
+        buy_html = ''
+        if isinstance(buy_below, (int,float)):
+            triggered = price <= buy_below
+            buy_html = f'<div class="buy-zone {"triggered" if triggered else ""}" data-buy-zone="{code}" data-threshold="{buy_below:.3f}"><span>加仓区 ≤ {buy_below:.3f}（含）</span><strong>{"已进入加仓区" if triggered else f"距加仓区 {price-buy_below:.3f}"}</strong></div>'
+        return f'''<div class="mkt-card hover-card" onclick="toggleMktChart('{code}', '{title}')"><div class="name"><span>{title} {proxy_badge}</span><span class="chart-hint">30日趋势</span></div><div class="mkt-quote"><div class="val" data-live-price="{code}">{price:,.{decimals}f}</div><div class="chg {"positive" if mdata.get("day_chg",0)>=0 else "negative"}" data-live-chg="{code}">{"+" if mdata.get("day_chg",0)>=0 else ""}{fmt_pct(mdata.get("day_chg",0))}</div></div>{buy_html}<div class="mkt-meta"><span data-market-state="{code}">腾讯行情 · 状态检查中</span><span data-live-time="{code}">页面生成 {data.get("gen_time","-")}</span></div><div class="mkt-chart-wrap" id="wrap-{code}"><div style="height:140px; position:relative; width:100%;"><canvas id="canvas-{code}"></canvas></div></div></div>'''
 
     chart_json = json.dumps(data.get("overview_charts", {}), ensure_ascii=False)
 
@@ -792,7 +828,7 @@ def render_html(data):
 
 <div id="tab-overview" class="tab-pane active">
 <section class="hero overview-hero"><div><h1>市场与风险驾驶舱</h1><p>先看市场状态、策略距离和必须处理的风险，再决定是否行动。</p><div class="data-legend" aria-label="数据状态说明"><span class="live">盘中延迟行情</span><span class="close">最近有效收盘</span><span class="missing">不可用不计分</span></div></div><div class="public-note" id="modePanel"><b id="modeTitle">公开展示模式</b><span id="modeDesc">展示研究指标与策略信号；私有持仓需登录后读取。</span></div><button id="privateModeShield" class="private-mode-shield" type="button" title="私有控制台已连接，真实持仓受 Supabase RLS 保护">🛡️ 私有模式</button></section>
-<section class="section"><div class="section-head"><h2>市场核心指标</h2><p>美股盘中30秒刷新；宽度每日收盘更新</p></div><div class="metrics">{metric_card('纳斯达克综合指数',qqq_value,qqq_chg,qqq_note,'good' if isinstance(qqq_chg,(int,float)) and qqq_chg>=0 else 'warn',us_live_code='ixic')}{metric_card('标普500指数',spy_value,spy_chg,spy_note,'good' if isinstance(spy_chg,(int,float)) and spy_chg>=0 else 'warn',us_live_code='spx')}{vix_gauge_card(vol_value,None,vix_note)}{metric_card('红利低波100 (159307)',sz_val,sz_chg,'A股红利代理 · 腾讯行情','good',live_code='sz159307')}</div></section>
+<section class="section"><div class="section-head"><h2>市场核心指标</h2><p>美股盘中30秒刷新；宽度每日收盘更新</p></div><div class="metrics">{metric_card('纳斯达克综合指数',qqq_value,qqq_chg,qqq_note,'good' if isinstance(qqq_chg,(int,float)) and qqq_chg>=0 else 'warn',us_live_code='ixic')}{metric_card('标普500指数',spy_value,spy_chg,spy_note,'good' if isinstance(spy_chg,(int,float)) and spy_chg>=0 else 'warn',us_live_code='spx')}{vix_gauge_card(vol_value,None,vix_note)}{metric_card('红利低波100 (159307)',sz_val,sz_chg,'A股红利代理 · ≤0.995（含）进入加仓区','good',live_code='sz159307')}</div></section>
 <section class="section private-console"><div class="panel risk-todo"><div class="panel-head"><strong>今日风险待办</strong><span>只列需要人工确认的事项</span></div><div id="riskTodoList" class="risk-todo-list"><div class="risk-todo-empty">正在检查临期期权、缺失报价、宏观事件与宽度背离…</div></div></div></section>
 <section class="section">{market_regime_html}</section>
 {breadth_summary_html}
@@ -800,19 +836,19 @@ def render_html(data):
 </div>
 
 <div id="tab-engine" class="tab-pane">
-<section class="hero compact-hero"><div><h1>核心策略信号</h1><p>正式信号按经复权ATH与收盘价确认；卡片同时给出触发价格和该资产预留资金。</p></div></section>
-<section class="section"><div class="engine"><div class="engine-top"><div><div class="engine-label">STRATEGY ENGINE · 核心ETF三档加仓线</div><div class="engine-title">当前状态：{level_names[max_level]}</div><div class="engine-asof">策略数据截至 {data.get('spy_date','-')} 美股收盘 · 盘中价格仅供参考</div></div><div class="engine-badge {engine_badge_cls}">{level_names[max_level]}</div></div><div id="strategyBudgetGrid" class="engine-grid">{engine_html}</div><div class="engine-foot">分级规则：严格使用经复权验证的历史全期最高点（ATH）；20% / 30% / 50% 仅分配该资产预留预算，不自动下单。QQQ与QQQM属于同指数敞口。</div></div></section>
+<section class="hero compact-hero"><div><h1>核心策略信号</h1><p>正式信号按经复权ATH与完整收盘价确认；只判断是否进入加仓区，不记录或分配资金。</p></div></section>
+<section class="section"><div class="engine"><div class="engine-top"><div><div class="engine-label">STRATEGY ENGINE · 核心ETF三档加仓线</div><div class="engine-title">当前状态：{level_names[max_level]}</div><div class="engine-asof">策略数据截至 {data.get('spy_date','-')} 美股收盘 · 盘中价格仅供距离参考</div></div><div class="engine-badge {engine_badge_cls}">{level_names[max_level]}</div></div><div id="strategySignalGrid" class="engine-grid">{engine_html}</div><div class="engine-foot">规则：严格使用经复权验证的历史全期最高点（ATH）和各资产独立阈值；到达点位只提示进入对应加仓区，不自动下单。QQQ与QQQM属于同一指数敞口。</div></div></section>
 </div>
 
 <div id="tab-index" class="tab-pane"><section class="hero compact-hero"><div><h1>指数、行业与另类资产</h1><p>区分历史ATH与窗口高点，直接显示下一档触发价格和真实价格距离。</p></div></section><section class="section asset-groups">{index_html}</section></div>
 
 <div id="tab-cn-hk" class="tab-pane">
 <section class="hero compact-hero"><div><h1>A股港股 & 红利低波</h1><p>自动同步腾讯行情；159307明确作为中证红利低波100指数的场内代理标的。</p></div></section>
-<section class="section"><div class="section-head"><h2>大盘与红利核心池</h2><p>点击卡片展开近 30 日历史趋势</p></div><div class="opt-grid">{mkt_card_a("上证指数", data["cn_hk"].get("sh000001"), "sh000001")}{mkt_card_a("沪深300", data["cn_hk"].get("sh000300"), "sh000300")}{mkt_card_a("红利低波100 ETF (159307)", data["cn_hk"].get("sz159307"), "sz159307", True)}</div></section>
+<section class="section"><div class="section-head"><h2>大盘与红利核心池</h2><p>点击卡片展开近 30 日历史趋势</p></div><div class="opt-grid">{mkt_card_a("上证指数", data["cn_hk"].get("sh000001"), "sh000001")}{mkt_card_a("沪深300", data["cn_hk"].get("sh000300"), "sh000300")}{mkt_card_a("红利低波100 ETF (159307)", data["cn_hk"].get("sz159307"), "sz159307", True, 0.995)}</div></section>
 <section class="section"><div class="section-head"><h2>港股跨境池</h2><p>点击卡片展开近 30 日历史趋势</p></div><div class="opt-grid">{mkt_card_a("华夏纳指 (港股)", data["cn_hk"].get("hk03086"), "hk03086")}{mkt_card_a("国指备兑 (港股)", data["cn_hk"].get("hk03416"), "hk03416")}</div></section>
 </div>
 
-<div id="tab-stocks" class="tab-pane"><section class="hero compact-hero"><div><h1>个股观察池</h1><p>按策略距离和风险状态自动排出关注顺序；开高低收折叠在名称下方。</p></div></section><section class="section"><div class="stock-toolbar"><div class="stock-filters"><button class="active" data-stock-filter="all" onclick="StockDecision.filter(this,'all')">全部</button><button data-stock-filter="triggered" onclick="StockDecision.filter(this,'triggered')">已触发</button><button data-stock-filter="near" onclick="StockDecision.filter(this,'near')">接近策略价</button><button data-stock-filter="oversold" onclick="StockDecision.filter(this,'oversold')">超卖</button><button data-stock-filter="weak" onclick="StockDecision.filter(this,'weak')">趋势偏弱</button><button data-stock-filter="hot" onclick="StockDecision.filter(this,'hot')">过热</button></div><select id="stockSort" onchange="StockDecision.sort(this.value)"><option value="priority">关注优先</option><option value="target">距策略价最近</option><option value="drawdown">YTD回撤最大</option><option value="rsi">RSI最低</option><option value="default">默认顺序</option></select></div><div class="table-container stock-table"><table><thead><tr><th>名称</th><th>最新价 / 涨跌</th><th>YTD回撤</th><th>RSI</th><th>距200MA</th><th>策略价 / 距离</th><th>状态</th></tr></thead><tbody id="stocksTableBody">{stock_html}</tbody></table></div></section></div>
+<div id="tab-stocks" class="tab-pane"><section class="hero compact-hero"><div><h1>个股观察池</h1><p>按策略距离和风险状态自动排出关注顺序；登录后由Alpaca参考行情盘中更新，技术指标以最近完整收盘日线计算。</p></div><div class="stock-watch-actions"><span id="stockWatchStatus" class="stock-watch-status">公开版显示最近构建数据</span><button type="button" onclick="StockWatchlist.refresh()">↻ 刷新行情</button><button class="primary" type="button" onclick="StockWatchlist.openAdd()">＋ 新增个股</button></div></section><section class="section"><div class="stock-toolbar"><div class="stock-filters"><button class="active" data-stock-filter="all" onclick="StockDecision.filter(this,'all')">全部</button><button data-stock-filter="triggered" onclick="StockDecision.filter(this,'triggered')">已触发</button><button data-stock-filter="near" onclick="StockDecision.filter(this,'near')">接近策略价</button><button data-stock-filter="oversold" onclick="StockDecision.filter(this,'oversold')">超卖</button><button data-stock-filter="weak" onclick="StockDecision.filter(this,'weak')">趋势偏弱</button><button data-stock-filter="hot" onclick="StockDecision.filter(this,'hot')">过热</button></div><select id="stockSort" onchange="StockDecision.sort(this.value)"><option value="priority">关注优先</option><option value="target">距策略价最近</option><option value="drawdown">YTD回撤最大</option><option value="rsi">RSI最低</option><option value="default">默认顺序</option></select></div><div class="table-container stock-table"><table><thead><tr><th>名称</th><th>最新价 / 涨跌</th><th>YTD回撤</th><th>RSI</th><th>距200MA</th><th>策略价 / 距离</th><th>状态</th></tr></thead><tbody id="stocksTableBody">{stock_html}</tbody></table></div></section></div>
 
 <div id="tab-options" class="tab-pane">
 <section class="hero"><div><h1>期权持仓与风险监控 V{OPTIONS_VERSION}</h1><p>优先呈现真实建仓成本、现金担保年化ROC、临期风险和官方宏观事件。自动行情来自 Alpaca Indicative 免费参考源；下单前仍以 IBKR Bid/Ask 为准。</p></div></section>
@@ -932,6 +968,13 @@ def render_html(data):
     <div class="option-field"><label>备注（可选）</label><textarea id="lifecycleNotes" rows="2" maxlength="500" placeholder="例如：50%止盈、到期被指派、券商成交单号"></textarea></div>
     <div id="lifecyclePreview" class="lifecycle-preview"></div>
     <div class="option-modal-actions"><button class="option-danger-link" type="button" onclick="OptionV2.deleteLifecycleRecord()">仅纠错：永久删除</button><button class="option-secondary" type="button" onclick="OptionV2.savePositionAccount()">只更新账户</button><button class="option-secondary" type="button" onclick="OptionV2.closeLifecycle()">取消</button><button id="saveLifecycleBtn" class="option-primary" type="button" onclick="OptionV2.saveLifecycle()">确认并归档</button></div>
+  </div>
+</div>
+
+<div id="stockWatchModal" class="option-modal-backdrop" style="display:none">
+  <div class="option-modal-card"><div class="option-modal-head"><div><h3 id="stockWatchModalTitle">新增观察个股</h3><p>网站内直接新增或删除，无需进入Supabase；保存后立即读取报价与完整收盘日线指标。</p></div><button type="button" onclick="StockWatchlist.close()">×</button></div>
+    <input id="watchOriginalSymbol" type="hidden"><div class="roll-form-grid"><div class="option-field"><label>美股代码</label><input id="watchSymbol" maxlength="12" placeholder="例如 AAPL"></div><div class="option-field"><label>显示名称</label><input id="watchName" maxlength="60" placeholder="例如 苹果"></div><div class="option-field wide"><label>策略参考价（可选）</label><input id="watchTarget" type="number" min="0" step="0.01" placeholder="留空则只观察行情"></div></div>
+    <div class="option-modal-actions"><span></span><span></span><button class="option-secondary" type="button" onclick="StockWatchlist.close()">取消</button><button class="option-primary" type="button" onclick="StockWatchlist.save()">验证并保存</button></div>
   </div>
 </div>
 
@@ -1187,9 +1230,9 @@ async function checkSession() {{
       }}
       authBtn.innerHTML = "🔓 退出账号"; document.getElementById('modeTitle').style.color = "var(--red)"; document.getElementById('liveStatusText').innerText = "连接云端数据库";
       if (window.OptionV2) window.OptionV2.loadPrivatePositions();
-      if (window.StrategyBudget) window.StrategyBudget.load();
       if (window.RollManager) window.RollManager.load();
-  }} else {{ isAdmin = false; authBtn.innerHTML = "🔐 登录私有看板"; if (window.OptionV2) window.OptionV2.loadPrivatePositions(); if (window.StrategyBudget) window.StrategyBudget.load(); if (window.RollManager) window.RollManager.load(); }}
+      if (window.StockWatchlist) window.StockWatchlist.load();
+  }} else {{ isAdmin = false; authBtn.innerHTML = "🔐 登录私有看板"; if (window.OptionV2) window.OptionV2.loadPrivatePositions(); if (window.RollManager) window.RollManager.load(); }}
   fetchAndRenderTargets();
 }}
 
@@ -1230,6 +1273,11 @@ function fetchLiveCNHK() {{
                   const currentPrice = parseFloat(fields[3]), prevClose = parseFloat(fields[4]), pctChange = (currentPrice - prevClose) / prevClose;
                   const decimals = sym.startsWith('sh') ? 2 : 3;
                   document.querySelectorAll(`[data-live-price="${{sym}}"]`).forEach(el => el.innerText = currentPrice.toFixed(decimals));
+                  document.querySelectorAll(`[data-buy-zone="${{sym}}"]`).forEach(el => {{
+                      const threshold=parseFloat(el.dataset.threshold),triggered=currentPrice<=threshold;
+                      el.classList.toggle('triggered',triggered);
+                      const strong=el.querySelector('strong');if(strong)strong.textContent=triggered?'已进入加仓区':`距加仓区 ${{(currentPrice-threshold).toFixed(3)}}`;
+                  }});
                   document.querySelectorAll(`[data-live-chg="${{sym}}"]`).forEach(el => {{
                       el.innerText = (pctChange >= 0 ? "+" : "") + (pctChange * 100).toFixed(2) + "%";
                       el.classList.remove("positive", "negative"); el.classList.add(pctChange >= 0 ? "positive" : "negative");
@@ -1254,7 +1302,7 @@ function scheduleCNHK() {{
 }}
 window.addEventListener('load', () => {{ fetchLiveCNHK(); scheduleCNHK(); }});
 document.addEventListener('visibilitychange', () => {{ if (document.visibilityState === 'visible') {{ fetchLiveCNHK(); scheduleCNHK(); }} else clearTimeout(cnhkTimer); }});
-</script><script src="assets/market-live.js?v={ASSET_VERSION}"></script><script src="assets/dashboard-v2.2.js?v={ASSET_VERSION}"></script><script src="assets/strategy-budget.js?v={ASSET_VERSION}"></script><script src="assets/options-v2.js?v={ASSET_VERSION}"></script><script src="assets/roll-manager.js?v={ASSET_VERSION}"></script></body></html>'''
+</script><script src="assets/market-live.js?v={ASSET_VERSION}"></script><script src="assets/dashboard-v2.2.js?v={ASSET_VERSION}"></script><script src="assets/options-v2.js?v={ASSET_VERSION}"></script><script src="assets/roll-manager.js?v={ASSET_VERSION}"></script><script src="assets/stock-watchlist.js?v={ASSET_VERSION}"></script></body></html>'''
 
 def push_to_supabase(data):
     supabase_url, supabase_key = os.environ.get("SUPABASE_URL"), os.environ.get("SUPABASE_KEY")

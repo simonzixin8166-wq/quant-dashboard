@@ -21,7 +21,7 @@ assert "strategy-tier-grid" in generator and "只判断是否进入加仓区" in
 assert "1级回撤" in page and "7.5%" in page
 assert "指数、行业与另类资产" in generator and "指数、行业与另类资产" in page
 assert "data-stock-row" in generator and "data-stock-row" in page
-assert version == "3.9.0"
+assert version == "4.0.0"
 assert "市场与风险驾驶舱" in generator and "市场与风险驾驶舱" in page
 assert "卫星及杠杆" in generator and "卫星及杠杆" in page
 assert "不参与核心ETF加仓信号" in generator and "不参与核心ETF加仓信号" in page
@@ -154,5 +154,15 @@ assert '"display": "standalone"' in manifest and '"purpose": "maskable"' in mani
 assert "SKIP_WAITING" in service_worker and "request.mode==='navigate'" in service_worker
 assert "/rest/v1/" in service_worker and "/functions/v1/" in service_worker and "/auth/v1/" in service_worker
 assert "beforeinstallprompt" in pwa_js and "controllerchange" in pwa_js
+dashboard_css = (ROOT / "docs" / "assets" / "dashboard-v2.2.css").read_text(encoding="utf-8")
+assert ".sidebar" in dashboard_css and "overflow-y:auto" in dashboard_css
+assert "max-height:860px" in dashboard_css and "scrollbar-width:thin" in dashboard_css
+mobile_css = (ROOT / "docs" / "assets" / "mobile-shell.css").read_text(encoding="utf-8")
+mobile_js = (ROOT / "docs" / "assets" / "mobile-shell.js").read_text(encoding="utf-8")
+assert f'assets/mobile-shell.css?v={asset_version}' in page and f'assets/mobile-shell.js?v={asset_version}' in page
+assert 'id="mobileBottomNav"' in page and 'id="mobileNavSheet"' in page
+assert "mobile-bottom-nav" in mobile_css and "option-positions-table" in mobile_css
+assert "MobileShell" in mobile_js and "tab-overview" in mobile_js and "tab-options" in mobile_js
+assert 'class="table-container option-positions-table"' in page
 
 print("test_build_contract.py: all assertions passed")

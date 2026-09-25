@@ -57,3 +57,30 @@ html[data-theme="dark"] .engine{background:linear-gradient(145deg,var(--engine-b
 .engine-foot{color:var(--muted);border-top:1px solid var(--line);padding-top:13px;line-height:1.65;font-size:0}.engine-foot::after{content:"规则：严格使用经复权验证的历史全期最高点（ATH）和各资产独立阈值；到达点位只提示进入对应加仓区，不自动下单。QQQ与QQQM属于同一指数敞口。";font-size:11px}.engine-budget-label,.budget-allocation,.budget-next,.budget-clear{display:none!important}
 @media(max-width:680px){.engine{padding:18px 16px}.engine-title{font-size:21px}.engine-badge{padding:6px 10px}.engine-value-row{align-items:flex-start;flex-direction:column}.engine-action{max-width:100%;text-align:left}}
 @media(max-width:560px){.public-access-gate{align-items:flex-start;flex-direction:column}.public-access-gate button{width:100%}.site-analytics-grid{grid-template-columns:1fr}}
+/* V3.9.1: keep every navigation module reachable in ordinary-height windows. */
+.sidebar{
+  overflow-y:auto;
+  overflow-x:hidden;
+  overscroll-behavior:contain;
+  scrollbar-width:thin;
+  scrollbar-color:rgba(216,167,92,.5) transparent;
+}
+.sidebar::-webkit-scrollbar{width:6px}
+.sidebar::-webkit-scrollbar-track{background:transparent}
+.sidebar::-webkit-scrollbar-thumb{background:rgba(216,167,92,.42);border-radius:99px}
+.sidebar .brand,.sidebar .nav-group,.sidebar .sidebar-footer{flex:0 0 auto}
+.sidebar .sidebar-footer{margin-top:22px;padding-bottom:max(10px,env(safe-area-inset-bottom))}
+
+@media (max-height:860px) and (min-width:769px){
+  .sidebar{padding:16px 12px}
+  .sidebar .brand{padding-bottom:15px}
+  .sidebar .nav-group{margin-top:13px}
+  .sidebar .nav-title{margin-bottom:5px}
+  .sidebar .nav-menu{gap:1px}
+  .sidebar .nav-menu li{padding:8px 11px}
+  .sidebar .sidebar-footer{margin-top:14px}
+}
+
+@media (max-width:768px){
+  .sidebar{overflow:visible;max-height:none}
+}

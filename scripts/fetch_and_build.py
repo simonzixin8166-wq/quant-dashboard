@@ -13,9 +13,9 @@ except ModuleNotFoundError:
 warnings.filterwarnings("ignore")
 
 # 单一版本源：每日 Action 生成 HTML 时，页面标题和静态资源缓存版本都从这里读取。
-APP_VERSION = "3.9.0"
-OPTIONS_VERSION = "3.9.0"
-ASSET_VERSION = "3.9.0"
+APP_VERSION = "4.0.0"
+OPTIONS_VERSION = "4.0.0"
+ASSET_VERSION = "4.0.0"
 
 API_KEY = os.environ.get("TWELVE_DATA_KEY", "demo")
 BASE = "https://api.twelvedata.com"
@@ -913,7 +913,7 @@ def render_html(data):
     chart_json = json.dumps(data.get("overview_charts", {}), ensure_ascii=False)
 
     return f'''<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"><title>myAlphaView · Market Intelligence</title>
-<meta name="author" content="Simon"><meta name="application-version" content="{APP_VERSION}"><meta name="robots" content="noindex,nofollow,noarchive,nosnippet"><meta name="referrer" content="no-referrer"><meta name="theme-color" content="#1f2b52"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="myAlphaView"><link rel="manifest" href="manifest.webmanifest?v={ASSET_VERSION}"><link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png"><link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png"><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,380;9..144,520;9..144,620&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"><link href="assets/options-v2.css?v={ASSET_VERSION}" rel="stylesheet"><link href="assets/roll-manager.css?v={ASSET_VERSION}" rel="stylesheet"><link href="assets/finance-tools.css?v={ASSET_VERSION}" rel="stylesheet"><link href="assets/opportunity-radar.css?v={ASSET_VERSION}" rel="stylesheet"><link href="assets/pwa.css?v={ASSET_VERSION}" rel="stylesheet"><script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<meta name="author" content="Simon"><meta name="application-version" content="{APP_VERSION}"><meta name="robots" content="noindex,nofollow,noarchive,nosnippet"><meta name="referrer" content="no-referrer"><meta name="theme-color" content="#1f2b52"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="myAlphaView"><link rel="manifest" href="manifest.webmanifest?v={ASSET_VERSION}"><link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png"><link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png"><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,380;9..144,520;9..144,620&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"><link href="assets/options-v2.css?v={ASSET_VERSION}" rel="stylesheet"><link href="assets/roll-manager.css?v={ASSET_VERSION}" rel="stylesheet"><link href="assets/finance-tools.css?v={ASSET_VERSION}" rel="stylesheet"><link href="assets/opportunity-radar.css?v={ASSET_VERSION}" rel="stylesheet"><link href="assets/pwa.css?v={ASSET_VERSION}" rel="stylesheet"><link href="assets/mobile-shell.css?v={ASSET_VERSION}" rel="stylesheet"><script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{{--bg:#f4f2ec;--surface:#ffffff;--surface2:#ebe8df;--ink:#14161c;--muted:#696d76;--line:#e1ddd0;--nav:#11162a;--nav2:#0a0d1a;--navmuted:#8d93ab;--navline:rgba(255,255,255,.08);--brass:#b8863a;--brass-soft:#e8d3ab;--navy:#1f2b52;--green:#1c7a4c;--green-soft:#e5f1e9;--red:#b23b2e;--red-soft:#f6e6e2;--amber:#c07f2e;--amber-soft:#f6ecd8;--shadow:0 12px 32px rgba(15,15,10,.07);--serif:'Fraunces',ui-serif,Georgia,serif;--sans:'Inter',-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;}}
 *{{box-sizing:border-box;margin:0;padding:0}} body{{font-family:var(--sans);background:var(--bg);color:var(--ink);min-height:100vh;-webkit-font-smoothing:antialiased}} .app{{display:flex;min-height:100vh}}
@@ -957,6 +957,7 @@ def render_html(data):
 <div class="nav-group"><div class="nav-title">观察 & 持仓</div><ul class="nav-menu"><li data-auth-required onclick="switchTab('tab-stocks',this)"><span class="nav-icon">⌁</span>个股观察池</li><li data-auth-required onclick="switchTab('tab-options',this)"><span class="nav-icon">⚑</span>期权持仓监控</li><li data-auth-required onclick="switchTab('tab-archive',this)"><span class="nav-icon">📜</span>历史买点归档</li></ul></div>
 <div class="nav-group"><div class="nav-title">规划 & 工具</div><ul class="nav-menu"><li data-auth-required onclick="switchTab('tab-finance-tools',this)"><span class="nav-icon">◎</span>理财工具</li><li data-auth-required onclick="switchTab('tab-sandbox',this)"><span class="nav-icon">🧮</span>策略推演沙盒</li></ul></div>
 <div class="sidebar-footer">主理人私有看板 · 敏感持仓由 Supabase RLS 保护<br>未登录仅提供市场概览预览</div></aside>
+<div id="mobileNavBackdrop" class="mobile-nav-backdrop" aria-hidden="true"></div><aside id="mobileNavSheet" class="mobile-nav-sheet" aria-hidden="true" aria-label="全部模块"><div class="mobile-nav-sheet-head"><strong>全部模块</strong><button id="mobileNavClose" type="button" aria-label="关闭菜单">×</button></div><nav id="mobileNavList" class="mobile-nav-list"></nav><div class="mobile-nav-actions"><button id="mobileThemeAction" type="button">切换主题</button><button id="mobileInstallAction" type="button">安装应用</button><button id="mobileAuthAction" type="button">登录</button></div></aside><nav id="mobileBottomNav" class="mobile-bottom-nav" aria-label="手机主导航"></nav>
 
 <main class="main"><header class="topbar"><div class="breadcrumb">myAlphaView / <strong id="bc-title">市场总览</strong></div>
 <div class="top-meta"><span id="liveStatus" style="display:none;"><i class="live-dot"></i><span id="liveStatusText">数据抓取成功</span></span><div style="text-align:right; line-height:1.4;"><div style="font-weight:600; font-size:12px; color:var(--ink);">生成时间: {data.get('gen_time', '-')}</div><div id="usLiveAsOf" style="color:var(--muted); font-size:10.5px;">美股收盘日线截至: {data.get('spy_date', '-')} | A/港股盘中动态刷新</div></div><button id="pwaInstallButton" class="pwa-install" type="button" title="安装到当前设备">＋ 安装应用</button><button id="themeToggle" class="theme-toggle" title="切换深浅主题">🌙 深色</button><button id="authBtn" class="auth-btn-top" onclick="handleAuth()">🔐 登录私有看板</button></div></header><div class="content">
@@ -1002,7 +1003,7 @@ def render_html(data):
         <button onclick="openAddOptionModal()" style="background:var(--brass); color:#fff; border:none; padding:8px 16px; border-radius:6px; cursor:pointer; font-weight:600; font-size:12.5px; box-shadow:0 4px 10px rgba(184,134,58,.3);">➕ 录入期权成交</button>
     </div>
     <div class="option-pnl-head"><strong>开放期权盈亏汇总</strong><span>Short按Ask、Long按Bid估值；休市为最近参考报价，无报价仓位不计入金额</span></div><div id="optionPnlSummary" class="option-pnl-summary"><div class="option-pnl-empty">登录后统计分账户期权盈亏</div></div>
-    <div class="table-container">
+    <div class="table-container option-positions-table">
         <table>
             <thead>
                 <tr>
@@ -1261,6 +1262,7 @@ function switchTab(id,el){{
   document.getElementById(id).classList.add('active');
   el.classList.add('active');
   document.getElementById('bc-title').innerText = el.innerText.replace('NEW', '').replace(/^[◆◒◫◇⌁⚑◎🧮📜]/u, '').trim();
+  window.MobileShell?.sync(id);
   window.scrollTo({{top:0,behavior:'smooth'}});
 }}
 
@@ -1521,7 +1523,7 @@ function scheduleCNHK() {{
 }}
 window.addEventListener('load', () => {{ fetchLiveCNHK(); scheduleCNHK(); }});
 document.addEventListener('visibilitychange', () => {{ if (document.visibilityState === 'visible') {{ fetchLiveCNHK(); scheduleCNHK(); }} else clearTimeout(cnhkTimer); }});
-</script><div id="pwaNetworkBanner" class="pwa-network" hidden>当前离线 · 行情和持仓暂停更新</div><div id="pwaUpdateBanner" class="pwa-update" hidden role="status" aria-live="polite"><div class="pwa-update-copy"><strong>网站已有新版本</strong><span>更新后网页版与手机应用保持一致</span></div><div class="pwa-update-actions"><button id="pwaUpdateNow" class="pwa-update-now" type="button">立即更新</button><button id="pwaUpdateLater" class="pwa-update-later" type="button">稍后</button></div></div><script src="assets/market-live.js?v={ASSET_VERSION}"></script><script src="assets/dashboard-v2.2.js?v={ASSET_VERSION}"></script><script src="assets/options-v2.js?v={ASSET_VERSION}"></script><script src="assets/roll-manager.js?v={ASSET_VERSION}"></script><script src="assets/stock-watchlist.js?v={ASSET_VERSION}"></script><script src="assets/finance-tools.js?v={ASSET_VERSION}"></script><script src="assets/opportunity-radar.js?v={ASSET_VERSION}"></script><script src="assets/site-analytics.js?v={ASSET_VERSION}"></script><script src="assets/pwa.js?v={ASSET_VERSION}"></script></body></html>'''
+</script><div id="pwaNetworkBanner" class="pwa-network" hidden>当前离线 · 行情和持仓暂停更新</div><div id="pwaUpdateBanner" class="pwa-update" hidden role="status" aria-live="polite"><div class="pwa-update-copy"><strong>网站已有新版本</strong><span>更新后网页版与手机应用保持一致</span></div><div class="pwa-update-actions"><button id="pwaUpdateNow" class="pwa-update-now" type="button">立即更新</button><button id="pwaUpdateLater" class="pwa-update-later" type="button">稍后</button></div></div><script src="assets/market-live.js?v={ASSET_VERSION}"></script><script src="assets/dashboard-v2.2.js?v={ASSET_VERSION}"></script><script src="assets/options-v2.js?v={ASSET_VERSION}"></script><script src="assets/roll-manager.js?v={ASSET_VERSION}"></script><script src="assets/stock-watchlist.js?v={ASSET_VERSION}"></script><script src="assets/finance-tools.js?v={ASSET_VERSION}"></script><script src="assets/opportunity-radar.js?v={ASSET_VERSION}"></script><script src="assets/site-analytics.js?v={ASSET_VERSION}"></script><script src="assets/mobile-shell.js?v={ASSET_VERSION}"></script><script src="assets/pwa.js?v={ASSET_VERSION}"></script></body></html>'''
 
 def push_to_supabase(data):
     supabase_url, supabase_key = os.environ.get("SUPABASE_URL"), os.environ.get("SUPABASE_KEY")

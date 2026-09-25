@@ -21,7 +21,7 @@ assert "strategy-tier-grid" in generator and "只判断是否进入加仓区" in
 assert "1级回撤" in page and "7.5%" in page
 assert "指数、行业与另类资产" in generator and "指数、行业与另类资产" in page
 assert "data-stock-row" in generator and "data-stock-row" in page
-assert version == "3.8.1"
+assert version == "3.9.0"
 assert "市场与风险驾驶舱" in generator and "市场与风险驾驶舱" in page
 assert "卫星及杠杆" in generator and "卫星及杠杆" in page
 assert "不参与核心ETF加仓信号" in generator and "不参与核心ETF加仓信号" in page
@@ -143,5 +143,16 @@ assert "weekend') return null" in market_live_js and "2 * 60 * 60 * 1000" in mar
 assert "30 * 60 * 1000" in market_live_js and "周末停止轮询" in page
 assert "responseTtl" in market_function and "6 * 60 * 60 * 1000" in market_function
 assert "needsProxy" in market_function and "cache.ttlMs" in market_function
+
+manifest = (ROOT / "docs" / "manifest.webmanifest").read_text(encoding="utf-8")
+service_worker = (ROOT / "docs" / "sw.js").read_text(encoding="utf-8")
+pwa_js = (ROOT / "docs" / "assets" / "pwa.js").read_text(encoding="utf-8")
+assert 'rel="manifest"' in page and 'manifest.webmanifest' in page
+assert f'assets/pwa.js?v={asset_version}' in page and f'assets/pwa.css?v={asset_version}' in page
+assert 'id="pwaInstallButton"' in page and 'id="pwaUpdateBanner"' in page
+assert '"display": "standalone"' in manifest and '"purpose": "maskable"' in manifest
+assert "SKIP_WAITING" in service_worker and "request.mode==='navigate'" in service_worker
+assert "/rest/v1/" in service_worker and "/functions/v1/" in service_worker and "/auth/v1/" in service_worker
+assert "beforeinstallprompt" in pwa_js and "controllerchange" in pwa_js
 
 print("test_build_contract.py: all assertions passed")

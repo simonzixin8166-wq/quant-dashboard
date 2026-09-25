@@ -21,7 +21,7 @@ assert "strategy-tier-grid" in generator and "只判断是否进入加仓区" in
 assert "1级回撤" in page and "7.5%" in page
 assert "指数、行业与另类资产" in generator and "指数、行业与另类资产" in page
 assert "data-stock-row" in generator and "data-stock-row" in page
-assert version == "3.8.0"
+assert version == "3.8.1"
 assert "市场与风险驾驶舱" in generator and "市场与风险驾驶舱" in page
 assert "卫星及杠杆" in generator and "卫星及杠杆" in page
 assert "不参与核心ETF加仓信号" in generator and "不参与核心ETF加仓信号" in page
@@ -139,5 +139,9 @@ assert "hard_exit" in strategy_py and "tier2" in strategy_py and "full_restore" 
 assert "filterContracts" in opportunity_js and "spread<=.15" in opportunity_js
 assert ".opportunity-block" in opportunity_css and ".leaps-card" in opportunity_css
 assert "data-risk-todo" in options_js and "策略机会历史" in page
+assert "weekend') return null" in market_live_js and "2 * 60 * 60 * 1000" in market_live_js
+assert "30 * 60 * 1000" in market_live_js and "周末停止轮询" in page
+assert "responseTtl" in market_function and "6 * 60 * 60 * 1000" in market_function
+assert "needsProxy" in market_function and "cache.ttlMs" in market_function
 
 print("test_build_contract.py: all assertions passed")

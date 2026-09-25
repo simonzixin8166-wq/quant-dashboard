@@ -13,9 +13,9 @@ except ModuleNotFoundError:
 warnings.filterwarnings("ignore")
 
 # 单一版本源：每日 Action 生成 HTML 时，页面标题和静态资源缓存版本都从这里读取。
-APP_VERSION = "3.8.0"
-OPTIONS_VERSION = "3.8.0"
-ASSET_VERSION = "3.8.0"
+APP_VERSION = "3.8.1"
+OPTIONS_VERSION = "3.8.1"
+ASSET_VERSION = "3.8.1"
 
 API_KEY = os.environ.get("TWELVE_DATA_KEY", "demo")
 BASE = "https://api.twelvedata.com"
@@ -847,8 +847,8 @@ def render_html(data):
 
     breadth_state = breadth_freshness(breadth)
     status_center_html = "".join([
-        status_item("VIX 恐慌指数", data["data_status"].get("VIX"), "盘中5分钟刷新 · 休市15分钟检查", "usLiveVixStatus"),
-        status_item("美股宽基指数", data["data_status"].get("US Market"), "盘中5分钟刷新 · 涨跌基于昨收", "usLiveIndexStatus"),
+        status_item("VIX 恐慌指数", data["data_status"].get("VIX"), "盘中5分钟 · 盘前盘后30分钟 · 周末停止轮询", "usLiveVixStatus"),
+        status_item("美股宽基指数", data["data_status"].get("US Market"), "盘中5分钟 · 节假日2小时 · 涨跌基于昨收", "usLiveIndexStatus"),
         status_item("标普500市场宽度", breadth_state["label"], breadth_state["meta"], tone=breadth_state["tone"]),
         status_item("亚太市场行情", data["data_status"].get("CN_HK"), "A股与港股交易时段动态刷新"),
         status_item("云端策略配置", data["data_status"].get("Supabase"), "策略价、观察池与账户配置"),

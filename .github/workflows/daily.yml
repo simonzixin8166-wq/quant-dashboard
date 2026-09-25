@@ -34,7 +34,7 @@ jobs:
         run: pip install "yfinance>=0.2.65,<0.3" pandas
 
       - name: Validate scripts before execution
-        run: python -m py_compile scripts/fetch_and_build.py scripts/update_market_events.py
+        run: python -m py_compile scripts/fetch_and_build.py scripts/opportunity_strategy.py scripts/update_market_events.py
 
       - name: Update official FOMC and CPI calendar
         continue-on-error: true
@@ -55,8 +55,11 @@ jobs:
           node --check docs/assets/roll-manager.js
           node --check docs/assets/stock-watchlist.js
           node --check docs/assets/site-analytics.js
+          node --check docs/assets/opportunity-radar.js
           node tests/options_v2.test.js
           node tests/roll_manager.test.js
+          node tests/opportunity_radar.test.js
+          python tests/test_opportunity_strategy.py
           python tests/test_breadth.py
           python tests/test_market_events.py
           python tests/test_vix_gauge.py

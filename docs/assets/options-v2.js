@@ -219,6 +219,7 @@
   function renderRiskTodo(){
     const host=$('riskTodoList');if(!host)return;const items=[];
     document.querySelectorAll('.risk-alert.l2,.risk-alert.l3').forEach(x=>items.push({level:x.classList.contains('l3')?'l3':'l2',text:x.querySelector('strong')?.textContent||'市场宽度预警'}));
+    document.querySelectorAll('[data-risk-todo]').forEach(x=>{const level=x.dataset.riskLevel||'l2',text=x.dataset.riskTodo;if(text&&!items.some(item=>item.text===text))items.push({level,text})});
     state.positions.forEach(p=>{const cached=readCachedQuote(p.id),freshness=quoteFreshness(cached),risk=positionRisk(p,freshness.usable?cached?.quote:null,freshness);if(risk.level==='l2'||risk.level==='l3')items.push({level:risk.level,text:`${p.symbol} ${p.expiry}：${risk.label.replace(/^L[23]\s*/, '')}`})});
     host.innerHTML=items.length?items.map(x=>`<div class="risk-todo-item ${x.level}"><span>${x.level.toUpperCase()}</span><strong>${x.text}</strong></div>`).join(''):'<div class="risk-todo-empty">当前没有触发 L2/L3 待办；仍需在下单前核对券商报价与保证金。</div>';
   }

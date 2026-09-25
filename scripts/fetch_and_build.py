@@ -3,13 +3,19 @@ import urllib.request, urllib.parse
 import yfinance as yf
 import pandas as pd
 import warnings
+try:
+    from opportunity_strategy import build_tqqq_x2_strategy, build_leaps_radar, merge_alert_history
+except ModuleNotFoundError:
+    import sys
+    sys.path.insert(0, os.path.dirname(__file__))
+    from opportunity_strategy import build_tqqq_x2_strategy, build_leaps_radar, merge_alert_history
 
 warnings.filterwarnings("ignore")
 
 # 单一版本源：每日 Action 生成 HTML 时，页面标题和静态资源缓存版本都从这里读取。
-APP_VERSION = "3.6.0"
-OPTIONS_VERSION = "3.6.0"
-ASSET_VERSION = "3.6.0"
+APP_VERSION = "3.8.0"
+OPTIONS_VERSION = "3.8.0"
+ASSET_VERSION = "3.8.0"
 
 API_KEY = os.environ.get("TWELVE_DATA_KEY", "demo")
 BASE = "https://api.twelvedata.com"
@@ -449,9 +455,11 @@ def process_options_data(opt_positions, stocks, index, core, today):
 def build():
     today = datetime.date.today()
     core, index, stocks, overview_charts, data_status = {}, {}, {}, {}, {}
+    old_data = {}
     try:
-        with open(os.path.join(os.path.dirname(__file__), '..', 'docs', 'data.json'), 'r', encoding='utf-8') as f: old_breadth = json.load(f).get("raw_breadth")
-    except: old_breadth = None
+        with open(os.path.join(os.path.dirname(__file__), '..', 'docs', 'data.json'), 'r', encoding='utf-8') as f: old_data = json.load(f)
+    except: old_data = {}
+    old_breadth = old_data.get("raw_breadth")
 
     sb_targets = fetch_supabase_targets()
     sb_watchlist = fetch_supabase_watchlist()
@@ -470,8 +478,12 @@ def build():
 
     core_ath_metrics = get_core_ath_metrics(list(CORE_TIERS.keys()))
 
+    strategy_rows = {}
     for name, tiers in CORE_TIERS.items():
-        try: core[name] = analyze(name, fetch_time_series(name), today, tiers, ath_metric=core_ath_metrics.get(name, {"valid": False}))
+        try:
+            rows = fetch_time_series(name)
+            core[name] = analyze(name, rows, today, tiers, ath_metric=core_ath_metrics.get(name, {"valid": False}))
+            if name in ("VGT",): strategy_rows[name] = rows
         except Exception as e: core[name] = {"error": str(e)}
 
     spy_rows_for_regime = None
@@ -479,6 +491,7 @@ def build():
         try:
             rows = fetch_yahoo_index("GC=F", range_="2y") if name == "GCMAIN" else (fetch_yahoo_index("BTC-USD", range_="2y") if name == "BTC/USD" else fetch_time_series(name))
             index[name] = analyze(name, rows, today, tiers=CORE_TIERS.get(name), ath_metric=core_ath_metrics.get(name, {"valid": False}))
+            if name in ("QQQ", "SMH", "TQQQ"): strategy_rows[name] = rows
             if name in ("QQQ", "SPY"): overview_charts[name] = [{"d": r["datetime"][:10], "c": float(r["close"])} for r in rows[:30][::-1]]
             if name == "SPY": spy_rows_for_regime = rows 
         except Exception as e: index[name] = {"error": str(e)}
@@ -488,6 +501,15 @@ def build():
     vix_data, vix_src, _ = fetch_real_index_or_proxy("%5EVIX", VOL_PROXY_SYM, today)
     data_status["US Market"] = "🟢 Yahoo指数日线" if spx_src == "yahoo_real" else "🟡 ETF日线代理"
     data_status["VIX"] = "🟢 Yahoo指数日线" if vix_src == "yahoo_real" else "🟡 ETF日线代理"
+
+    # 机会雷达使用约5年的完整日线形成闭合状态；抓取失败时退回现有日线。
+    try: qqq_strategy_rows = fetch_yahoo_index("QQQ", range_="5y")
+    except Exception: qqq_strategy_rows = strategy_rows.get("QQQ", [])
+    try: vix_strategy_rows = fetch_yahoo_index("%5EVIX", range_="5y")
+    except Exception: vix_strategy_rows = []
+    tqqq_x2 = build_tqqq_x2_strategy(qqq_strategy_rows, vix_strategy_rows, recorded_position=0)
+    leaps_radar = build_leaps_radar(strategy_rows, vix_data.get("close") if "error" not in vix_data else None)
+    opportunity_history = merge_alert_history(old_data.get("opportunity_history"), tqqq_x2, leaps_radar)
 
     try: gspc_long_rows = fetch_yahoo_index("%5EGSPC", range_="max")
     except: gspc_long_rows = None
@@ -559,7 +581,8 @@ def build():
             # 登录用户改由浏览器在 Supabase RLS 保护下按需读取。
             "overview_charts": overview_charts, "options": [],
             "cn_hk": cn_hk_data, "market_regime": market_regime, "historical_signals": historical_signals, "data_status": data_status,
-            "raw_breadth": breadth_data, "market_indicators": {"spx": spx_data, "spx_source": spx_src, "ixic": ixic_data, "ixic_source": ixic_src, "vix": vix_data, "vix_source": vix_src}}
+            "raw_breadth": breadth_data, "market_indicators": {"spx": spx_data, "spx_source": spx_src, "ixic": ixic_data, "ixic_source": ixic_src, "vix": vix_data, "vix_source": vix_src},
+            "tqqq_x2": tqqq_x2, "leaps_radar": leaps_radar, "opportunity_history": opportunity_history}
 
 # ================= 8. 前端 HTML 组件独立渲染函数 =================
 def fmt_pct(x, digits=2): return f"{x*100:.{digits}f}%" if isinstance(x, (int, float)) and not math.isnan(x) else "-"
@@ -686,12 +709,69 @@ def classify_stock_status(close, target=None, rsi=None, dist_200ma=None):
         return "hot", "过热"
     return "normal", "正常观察"
 
+def render_tqqq_x2(strategy):
+    if not strategy.get("available"):
+        return f'''<section class="opportunity-block" id="tqqqX2Module"><div class="opportunity-head"><div><span class="opportunity-kicker">TQQQ DAILY SCAN</span><h2>TQQQ X2 风险敞口</h2></div><span class="opportunity-badge unavailable">数据不足</span></div><div class="opportunity-empty">{strategy.get("error","等待完整收盘数据")}</div></section>'''
+    s = strategy["snapshot"]
+    target = strategy["target_position"]
+    risk_level = "l3" if target == 0 else ("l2" if target == 33 else "l1")
+    risk_attr = f' data-risk-todo="TQQQ X2：{strategy["action"]}" data-risk-level="{risk_level}"' if target < 67 else ""
+    rule_labels = {
+        "hard_exit": "硬退出", "tier2": "二级降险", "tier1": "一级降险",
+        "full_restore": "完整恢复", "partial_restore": "部分恢复", "hold": "状态延续",
+    }
+    rows = "".join(f'''<tr><td>{row["date"]}</td><td>{row["target_position"]}%</td><td>{row["target_daily_exposure"]:.2f}x</td><td>{rule_labels.get(row["rule"],row["rule"])}</td><td>{row["vix"]:.2f}</td><td>{fmt_pct(row.get("vix_3d_change"))}</td></tr>''' for row in strategy.get("history", [])[-20:][::-1])
+    checks = [
+        ("一级降险", s.get("tier1"), "VIX三日涨幅>20%、VIX≥18、QQQ低于MA20"),
+        ("二级降险", s.get("tier2"), "VIX三日涨幅>20%、VIX≥20、QQQ确认跌破MA50"),
+        ("硬退出", s.get("hard_exit"), "VIX>26且低于MA50，或低于MA200且VIX>24"),
+        ("超卖恢复", s.get("oversold_restore"), "RSI≤30、硬退出已解除且VIX≤26"),
+        ("趋势恢复", s.get("trend_restore"), "连续两日站上上升MA20且VIX三日涨幅≤20%"),
+    ]
+    check_html = "".join(f'''<div class="strategy-check {'hit' if hit else ''}"><span>{'●' if hit else '○'}</span><div><b>{name}</b><small>{desc}</small></div></div>''' for name,hit,desc in checks)
+    return f'''<section class="opportunity-block" id="tqqqX2Module"{risk_attr}>
+      <div class="opportunity-head"><div><span class="opportunity-kicker">TQQQ DAILY SCAN · 收盘确认</span><h2>TQQQ X2 风险敞口</h2><p>目标X2表示约2倍日内敞口；当前记录为空仓。仅作次日行动提示，不纳入核心配置。</p></div><span class="opportunity-badge state-{target}">{strategy["status_label"]}</span></div>
+      <div class="tqqq-decision-grid"><div class="tqqq-action"><span>建议目标</span><strong>{target}% TQQQ</strong><em>约 {strategy["target_daily_exposure"]:.2f}x 日内敞口</em></div><div class="tqqq-action secondary"><span>当前记录</span><strong>{strategy["recorded_position"]}% · 空仓</strong><em>不推导差额、金额或交易数量</em></div><div class="tqqq-action emphasis"><span>收盘动作</span><strong>{strategy["action"]}</strong><em>规则：{rule_labels.get(strategy["rule"],strategy["rule"])}</em></div></div>
+      <div class="strategy-metrics"><div><span>QQQ</span><b>${s["qqq"]:.2f}</b></div><div><span>MA20 / MA50</span><b>{s["ma20"]:.2f} / {s["ma50"]:.2f}</b></div><div><span>MA200</span><b>{s["ma200"]:.2f}</b></div><div><span>RSI(14)</span><b>{s["rsi14"]:.1f}</b></div><div><span>VIX</span><b>{s["vix"]:.2f}</b></div><div><span>VIX三日变化</span><b>{fmt_pct(s.get("vix_3d_change"))}</b></div></div>
+      <div class="strategy-checks">{check_html}</div>
+      <div class="opportunity-foot"><span>市场日线：{strategy["date"]}</span><span>{strategy["note"]}</span></div>
+      <details class="opportunity-history"><summary>查看最近20个交易日状态记录</summary><div class="table-container"><table><thead><tr><th>日期</th><th>TQQQ目标</th><th>日内敞口</th><th>生效规则</th><th>VIX</th><th>VIX三日</th></tr></thead><tbody>{rows}</tbody></table></div></details>
+    </section>'''
+
+def render_leaps_radar(radar):
+    cards = []
+    for row in radar.get("assets", []):
+        if not row.get("available"):
+            cards.append(f'''<article class="leaps-card unavailable"><div class="leaps-title"><b>{row.get("symbol","-")}</b><span>数据不足</span></div><p>{row.get("error","等待日线")}</p></article>''')
+            continue
+        risk_attr = f' data-risk-todo="{row["symbol"]} LEAPS：{row["status_label"]}" data-risk-level="{row["risk_level"]}"' if row["status"] in ("candidate","strong") else ""
+        trend = "200MA上升" if row.get("ma200_rising") else "200MA未上升"
+        caution = "趋势/波动门槛需谨慎" if row.get("trend_risk") or row.get("vix_risk") else "未触发额外风险拦截"
+        cards.append(f'''<article class="leaps-card status-{row["status"]}"{risk_attr}><div class="leaps-title"><div><b>{row["symbol"]}</b><small>收盘日线 {row["date"]}</small></div><span>{row["status_label"]}</span></div><div class="leaps-price">${row["close"]:.2f}</div><div class="leaps-grid"><div><span>RSI(14)</span><b>{row["rsi14"]:.1f}</b></div><div><span>63日高点回撤</span><b>{fmt_pct(row["drawdown63"])}</b></div><div><span>距200MA</span><b>{fmt_pct(row["dist_200ma"])}</b></div><div><span>趋势状态</span><b>{trend}</b></div></div><p class="leaps-caution">{caution}</p><button type="button" class="leaps-load" data-leaps-symbol="{row["symbol"]}">查看候选合约</button></article>''')
+    return f'''<section class="opportunity-block" id="leapsRadarModule">
+      <div class="opportunity-head"><div><span class="opportunity-kicker">LEAPS CALL OPPORTUNITY</span><h2>LEAPS Call 机会雷达</h2><p>QQQ、SMH、VGT 按完整收盘日线筛选；提醒机会，不代表立即买入。</p></div><div class="leaps-risk-cap"><b>单次≤1%</b><span>全部LEAPS合计≤3%</span><small>仅显示风险上限，不计算金额</small></div></div>
+      <div class="leaps-cards">{"".join(cards)}</div>
+      <div class="leaps-rule-note"><span>观察：RSI≤40 或 63日回撤≥5%</span><span>候选：RSI≤35 且回撤≥8%</span><span>强候选：RSI连续两日≤30 且回撤≥10%</span></div>
+      <div id="leapsContractPanel" class="leaps-contract-panel" hidden><div class="leaps-contract-head"><div><span class="opportunity-kicker">INDICATIVE OPTION CHAIN</span><h3 id="leapsContractTitle">候选合约</h3></div><div class="leaps-contract-controls"><label>筛选方式<select id="leapsMode"><option value="growth">成长型：Delta 0.50–0.60</option><option value="replacement">替代正股：Delta 0.70–0.85</option></select></label><label>到期日<select id="leapsExpiry"></select></label><button type="button" id="leapsReload">刷新</button></div></div><div id="leapsContractStatus" class="leaps-contract-status">请选择上方资产。</div><div class="table-container"><table><thead><tr><th>到期日 / DTE</th><th>行权价</th><th>Bid / Ask</th><th>中间价</th><th>Delta</th><th>IV</th><th>价差质量</th></tr></thead><tbody id="leapsContractBody"><tr><td colspan="7">等待选择</td></tr></tbody></table></div><p class="leaps-disclaimer">Alpaca Indicative 仅作免费参考；下单前必须以 IBKR Bid/Ask、合约乘数及流动性为准。本模块不生成投入金额、合约数量或下单指令。</p></div>
+      <details class="leaps-method"><summary>查看合约筛选与风险纪律</summary><div><p><b>成长型：</b>DTE 365–900天，Delta 0.50–0.60。</p><p><b>替代正股：</b>DTE 540–900天，Delta 0.70–0.85。</p><p>优先有效Bid/Ask且相对价差≤10%；超过15%不进入候选。低于下降中的200MA、VIX≥30或报价陈旧时保留“高风险”提示。</p></div></details>
+    </section>'''
+
+def render_opportunity_history(history):
+    labels = {"TQQQ_X2": "TQQQ X2", "LEAPS": "LEAPS机会"}
+    rows = "".join(f'''<tr><td>{item.get("date","-")}</td><td>{labels.get(item.get("kind"),item.get("kind","-"))}</td><td>{item.get("symbol","-")}</td><td><span class="opportunity-history-level {item.get("level","l1")}">{item.get("level","l1").upper()}</span></td><td>{item.get("label","-")}</td></tr>''' for item in (history or [])[:40])
+    if not rows:
+        rows = '<tr><td colspan="5">尚无达到记录条件的收盘信号</td></tr>'
+    return f'''<section class="opportunity-block opportunity-ledger"><details><summary>策略机会历史（最近40条）</summary><div class="table-container"><table><thead><tr><th>日期</th><th>模块</th><th>标的</th><th>级别</th><th>收盘结论</th></tr></thead><tbody>{rows}</tbody></table></div></details></section>'''
+
 def render_html(data):
     engine_order = ["QQQM", "VGT", "QLD", "VOO", "TQQQ", "QQQ"]
     engine_html = "".join(engine_item(k, data["core"].get(k, {"error":"无数据"})) for k in engine_order)
     max_level = max([v.get("level", 0) for v in data["core"].values() if "error" not in v] or [0])
     level_names = {0: "正常 · 未触发", 1: "一级加仓线", 2: "二级加仓线", 3: "三级加仓线"}
     engine_badge_cls = "normal" if max_level == 0 else "t2"
+    tqqq_x2_html = render_tqqq_x2(data.get("tqqq_x2") or {})
+    leaps_radar_html = render_leaps_radar(data.get("leaps_radar") or {})
+    opportunity_history_html = render_opportunity_history(data.get("opportunity_history") or [])
     
     def asset_group(title, subtitle, symbols):
         cards = "".join(card_etf(k, data["index"][k]) for k in symbols if k in data["index"])
@@ -833,7 +913,7 @@ def render_html(data):
     chart_json = json.dumps(data.get("overview_charts", {}), ensure_ascii=False)
 
     return f'''<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>myAlphaView · Market Intelligence</title>
-<meta name="author" content="Simon"><meta name="application-version" content="{APP_VERSION}"><meta name="robots" content="noindex,nofollow,noarchive,nosnippet"><meta name="referrer" content="no-referrer"><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,380;9..144,520;9..144,620&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"><link href="assets/options-v2.css?v={ASSET_VERSION}" rel="stylesheet"><link href="assets/roll-manager.css?v={ASSET_VERSION}" rel="stylesheet"><script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<meta name="author" content="Simon"><meta name="application-version" content="{APP_VERSION}"><meta name="robots" content="noindex,nofollow,noarchive,nosnippet"><meta name="referrer" content="no-referrer"><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,380;9..144,520;9..144,620&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"><link href="assets/options-v2.css?v={ASSET_VERSION}" rel="stylesheet"><link href="assets/roll-manager.css?v={ASSET_VERSION}" rel="stylesheet"><link href="assets/finance-tools.css?v={ASSET_VERSION}" rel="stylesheet"><link href="assets/opportunity-radar.css?v={ASSET_VERSION}" rel="stylesheet"><script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{{--bg:#f4f2ec;--surface:#ffffff;--surface2:#ebe8df;--ink:#14161c;--muted:#696d76;--line:#e1ddd0;--nav:#11162a;--nav2:#0a0d1a;--navmuted:#8d93ab;--navline:rgba(255,255,255,.08);--brass:#b8863a;--brass-soft:#e8d3ab;--navy:#1f2b52;--green:#1c7a4c;--green-soft:#e5f1e9;--red:#b23b2e;--red-soft:#f6e6e2;--amber:#c07f2e;--amber-soft:#f6ecd8;--shadow:0 12px 32px rgba(15,15,10,.07);--serif:'Fraunces',ui-serif,Georgia,serif;--sans:'Inter',-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;}}
 *{{box-sizing:border-box;margin:0;padding:0}} body{{font-family:var(--sans);background:var(--bg);color:var(--ink);min-height:100vh;-webkit-font-smoothing:antialiased}} .app{{display:flex;min-height:100vh}}
@@ -874,7 +954,8 @@ def render_html(data):
 <aside class="sidebar"><div class="brand"><div class="mav-brand-mark"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4 17 L9 9 L13 14 L20 5" stroke="#181109" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="20" cy="5" r="2.1" fill="#181109"/></svg></div><div><strong>myAlphaView</strong><small>myAlphaView · myalphaview.com</small></div></div>
 <div class="nav-group"><div class="nav-title">美股 · 宏观</div><ul class="nav-menu"><li class="active" onclick="switchTab('tab-overview',this)"><span class="nav-icon">◆</span>市场总览</li><li data-auth-required onclick="switchTab('tab-engine',this)"><span class="nav-icon">◒</span>策略引擎</li><li data-auth-required onclick="switchTab('tab-index',this)"><span class="nav-icon">◫</span>指数 & ETF</li></ul></div>
 <div class="nav-group"><div class="nav-title">A股 · 港股 · 红利</div><ul class="nav-menu"><li data-auth-required onclick="switchTab('tab-cn-hk',this)"><span class="nav-icon">◇</span>大盘 & 红利低波</li></ul></div>
-<div class="nav-group"><div class="nav-title">观察 & 持仓</div><ul class="nav-menu"><li data-auth-required onclick="switchTab('tab-stocks',this)"><span class="nav-icon">⌁</span>个股观察池</li><li data-auth-required onclick="switchTab('tab-options',this)"><span class="nav-icon">⚑</span>期权持仓监控</li><li data-auth-required onclick="switchTab('tab-sandbox',this)"><span class="nav-icon">🧮</span>策略推演沙盒</li><li data-auth-required onclick="switchTab('tab-archive',this)"><span class="nav-icon">📜</span>历史买点归档</li></ul></div>
+<div class="nav-group"><div class="nav-title">观察 & 持仓</div><ul class="nav-menu"><li data-auth-required onclick="switchTab('tab-stocks',this)"><span class="nav-icon">⌁</span>个股观察池</li><li data-auth-required onclick="switchTab('tab-options',this)"><span class="nav-icon">⚑</span>期权持仓监控</li><li data-auth-required onclick="switchTab('tab-archive',this)"><span class="nav-icon">📜</span>历史买点归档</li></ul></div>
+<div class="nav-group"><div class="nav-title">规划 & 工具</div><ul class="nav-menu"><li data-auth-required onclick="switchTab('tab-finance-tools',this)"><span class="nav-icon">◎</span>理财工具</li><li data-auth-required onclick="switchTab('tab-sandbox',this)"><span class="nav-icon">🧮</span>策略推演沙盒</li></ul></div>
 <div class="sidebar-footer">主理人私有看板 · 敏感持仓由 Supabase RLS 保护<br>未登录仅提供市场概览预览</div></aside>
 
 <main class="main"><header class="topbar"><div class="breadcrumb">myAlphaView / <strong id="bc-title">市场总览</strong></div>
@@ -894,6 +975,9 @@ def render_html(data):
 <div id="tab-engine" class="tab-pane">
 <section class="hero compact-hero"><div><h1>核心策略信号</h1><p>正式信号按经复权ATH与完整收盘价确认；只判断是否进入加仓区，不记录或分配资金。</p></div></section>
 <section class="section"><div class="engine"><div class="engine-top"><div><div class="engine-label">STRATEGY ENGINE · 核心ETF三档加仓线</div><div class="engine-title">当前状态：{level_names[max_level]}</div><div class="engine-asof">策略数据截至 {data.get('spy_date','-')} 美股收盘 · 盘中价格仅供距离参考</div></div><div class="engine-badge {engine_badge_cls}">{level_names[max_level]}</div></div><div id="strategySignalGrid" class="engine-grid">{engine_html}</div><div class="engine-foot">规则：严格使用经复权验证的历史全期最高点（ATH）和各资产独立阈值；到达点位只提示进入对应加仓区，不自动下单。QQQ与QQQM属于同一指数敞口。</div></div></section>
+<section class="section">{tqqq_x2_html}</section>
+<section class="section">{leaps_radar_html}</section>
+<section class="section">{opportunity_history_html}</section>
 </div>
 
 <div id="tab-index" class="tab-pane"><section class="hero compact-hero"><div><h1>指数、行业与另类资产</h1><p>区分历史ATH与窗口高点，直接显示下一档触发价格和真实价格距离。</p></div></section><section class="section asset-groups">{index_html}</section></div>
@@ -946,6 +1030,63 @@ def render_html(data):
   </div>
 </section>
 <section class="section"><p style="font-size:11.5px;color:var(--muted);line-height:1.7">💡 主理人说明：浮盈/浮亏自动结合 Long/Short 策略方向推演计算。Delta 指标可用于评估对冲正股所需的仓位，以及辅助预判合约归零/行权的最终概率。</p></section>
+</div>
+
+<!-- 理财工具 -->
+<div id="tab-finance-tools" class="tab-pane">
+<section class="hero compact-hero finance-hero"><div><h1>理财工具</h1><p>用同一组现金流假设计算期末资产，或反推每期投入、所需收益率、起始本金与投资年限。所有字段与结果均使用中文。</p></div><div class="finance-privacy-note"><b>仅在本机计算</b><span>方案保存在当前浏览器，不上传账户、资产或目标金额。</span></div></section>
+<div id="financeToolsRoot" class="finance-tools-shell">
+  <section class="finance-mode-panel" aria-label="计算目标">
+    <div class="finance-section-kicker">选择要解决的问题</div>
+    <div class="finance-mode-tabs" role="tablist">
+      <button type="button" class="active" data-finance-mode="end">期末能有多少</button>
+      <button type="button" data-finance-mode="contribution">每期需要投入多少</button>
+      <button type="button" data-finance-mode="return">需要多少年化收益</button>
+      <button type="button" data-finance-mode="start">起始需要多少本金</button>
+      <button type="button" data-finance-mode="length">需要投资多少年</button>
+    </div>
+  </section>
+  <div class="finance-layout">
+    <section class="finance-card finance-input-card">
+      <div class="finance-card-head"><div><span class="finance-section-kicker">规划参数</span><h2 id="financeModeTitle">计算期末资产</h2></div><button type="button" class="finance-ghost" id="financeReset">重置</button></div>
+      <div class="finance-form-grid">
+        <label data-finance-field="target"><span>目标金额</span><input id="financeTarget" type="number" min="0" step="1000" value="1000000"><small>用于反推目标</small></label>
+        <label data-finance-field="start"><span>起始本金</span><input id="financeStart" type="number" min="0" step="1000" value="100000"><small>当前已经投入的本金</small></label>
+        <label data-finance-field="years"><span>投资期限（年）</span><input id="financeYears" type="number" min="0.1" max="100" step="0.1" value="20"><small>允许小数年</small></label>
+        <label data-finance-field="rate"><span>预期年化复合收益率</span><div class="finance-input-suffix"><input id="financeRate" type="number" min="-99" max="200" step="0.1" value="8"><b>%</b></div><small>按年化复合收益率折算到每个投入周期</small></label>
+        <label data-finance-field="contribution"><span>定期投入金额</span><input id="financeContribution" type="number" min="0" step="100" value="4000"><small>不包含起始本金</small></label>
+        <label><span>投入频率</span><select id="financeFrequency"><option value="12">每月</option><option value="52">每周</option><option value="252">每个交易日</option><option value="1">每年</option></select><small>交易日按每年252次估算</small></label>
+        <label><span>投入时间</span><select id="financeTiming"><option value="end">每期期末</option><option value="begin">每期期初</option></select><small>期初投入会多获得一期收益</small></label>
+        <label><span>显示币种</span><select id="financeCurrency"><option value="CNY">人民币（¥）</option><option value="USD">美元（$）</option></select><small>只改变金额格式，不做汇率换算</small></label>
+      </div>
+      <div class="finance-quick-row"><span>收益情景</span><button type="button" data-rate-preset="5">保守 5%</button><button type="button" data-rate-preset="8" class="active">基准 8%</button><button type="button" data-rate-preset="12">积极 12%</button></div>
+      <div id="financeValidation" class="finance-validation" aria-live="polite"></div>
+      <div class="finance-actions"><button type="button" class="finance-primary" id="financeCalculate">开始计算</button><button type="button" class="finance-secondary" id="financeSave">保存当前方案</button><button type="button" class="finance-secondary" id="financeExport">导出明细 CSV</button></div>
+      <p class="finance-disclaimer">本工具为现金流规划模型，不预测市场收益，也未计入税费、通胀、汇率和基金费率。交易日定投按每年252次均匀估算。</p>
+    </section>
+    <section class="finance-card finance-result-card">
+      <div class="finance-card-head"><div><span class="finance-section-kicker">计算结果</span><h2 id="financeAnswerLabel">预计期末资产</h2></div><span id="financeAnswerMeta" class="finance-answer-meta">20年 · 年化8%</span></div>
+      <div id="financeAnswer" class="finance-answer">—</div>
+      <div id="financeAnswerHint" class="finance-answer-hint">输入参数后自动计算</div>
+      <div class="finance-result-grid">
+        <div><span>累计投入本金</span><strong id="financePrincipal">—</strong></div>
+        <div><span>累计投资收益</span><strong id="financeInterest">—</strong></div>
+        <div><span>收益占期末资产</span><strong id="financeInterestShare">—</strong></div>
+        <div><span>目标完成度</span><strong id="financeTargetProgress">—</strong></div>
+      </div>
+      <div class="finance-composition"><div class="finance-chart-wrap"><canvas id="financeCompositionChart"></canvas></div><div id="financeCompositionLegend" class="finance-chart-legend"></div></div>
+    </section>
+  </div>
+  <section class="finance-card finance-growth-card">
+    <div class="finance-card-head"><div><span class="finance-section-kicker">资产积累路径</span><h2>本金、定投与收益如何变化</h2></div><div class="finance-view-tabs"><button type="button" class="active" data-finance-view="chart">增长图</button><button type="button" data-finance-view="table">逐年明细</button></div></div>
+    <div id="financeChartView" class="finance-growth-chart"><canvas id="financeGrowthChart"></canvas></div>
+    <div id="financeTableView" class="finance-schedule-wrap" hidden><table><thead><tr><th>年份</th><th>年初余额</th><th>本年投入</th><th>本年收益</th><th>年末余额</th></tr></thead><tbody id="financeScheduleBody"></tbody></table></div>
+  </section>
+  <section class="finance-lower-grid">
+    <div class="finance-card"><div class="finance-card-head"><div><span class="finance-section-kicker">收益率敏感度</span><h2>不同收益情景</h2></div></div><div id="financeScenarios" class="finance-scenarios"></div></div>
+    <div class="finance-card"><div class="finance-card-head"><div><span class="finance-section-kicker">本机方案</span><h2>已保存的规划</h2></div><span class="finance-local-tag">仅此浏览器</span></div><div id="financeSavedPlans" class="finance-saved-plans"><p>尚未保存方案</p></div></div>
+  </section>
+</div>
 </div>
 
 <!-- 期权决策台 -->
@@ -1119,7 +1260,7 @@ function switchTab(id,el){{
   document.querySelectorAll('.nav-menu li').forEach(l=>l.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   el.classList.add('active');
-  document.getElementById('bc-title').innerText = el.innerText.replace('NEW', '').replace(/^[◆◒◫◇⌁⚑🧮📜]/u, '').trim();
+  document.getElementById('bc-title').innerText = el.innerText.replace('NEW', '').replace(/^[◆◒◫◇⌁⚑◎🧮📜]/u, '').trim();
   window.scrollTo({{top:0,behavior:'smooth'}});
 }}
 
@@ -1380,7 +1521,7 @@ function scheduleCNHK() {{
 }}
 window.addEventListener('load', () => {{ fetchLiveCNHK(); scheduleCNHK(); }});
 document.addEventListener('visibilitychange', () => {{ if (document.visibilityState === 'visible') {{ fetchLiveCNHK(); scheduleCNHK(); }} else clearTimeout(cnhkTimer); }});
-</script><script src="assets/market-live.js?v={ASSET_VERSION}"></script><script src="assets/dashboard-v2.2.js?v={ASSET_VERSION}"></script><script src="assets/options-v2.js?v={ASSET_VERSION}"></script><script src="assets/roll-manager.js?v={ASSET_VERSION}"></script><script src="assets/stock-watchlist.js?v={ASSET_VERSION}"></script><script src="assets/site-analytics.js?v={ASSET_VERSION}"></script></body></html>'''
+</script><script src="assets/market-live.js?v={ASSET_VERSION}"></script><script src="assets/dashboard-v2.2.js?v={ASSET_VERSION}"></script><script src="assets/options-v2.js?v={ASSET_VERSION}"></script><script src="assets/roll-manager.js?v={ASSET_VERSION}"></script><script src="assets/stock-watchlist.js?v={ASSET_VERSION}"></script><script src="assets/finance-tools.js?v={ASSET_VERSION}"></script><script src="assets/opportunity-radar.js?v={ASSET_VERSION}"></script><script src="assets/site-analytics.js?v={ASSET_VERSION}"></script></body></html>'''
 
 def push_to_supabase(data):
     supabase_url, supabase_key = os.environ.get("SUPABASE_URL"), os.environ.get("SUPABASE_KEY")

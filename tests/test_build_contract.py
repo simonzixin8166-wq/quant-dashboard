@@ -21,7 +21,7 @@ assert "strategy-tier-grid" in generator and "只判断是否进入加仓区" in
 assert "1级回撤" in page and "7.5%" in page
 assert "指数、行业与另类资产" in generator and "指数、行业与另类资产" in page
 assert "data-stock-row" in generator and "data-stock-row" in page
-assert version == "3.6.0"
+assert version == "3.8.0"
 assert "市场与风险驾驶舱" in generator and "市场与风险驾驶舱" in page
 assert "卫星及杠杆" in generator and "卫星及杠杆" in page
 assert "不参与核心ETF加仓信号" in generator and "不参与核心ETF加仓信号" in page
@@ -64,7 +64,7 @@ assert "期权决策台 V2.2" not in generator
 roll_js = (ROOT / "docs" / "assets" / "roll-manager.js").read_text(encoding="utf-8")
 roll_css = (ROOT / "docs" / "assets" / "roll-manager.css").read_text(encoding="utf-8")
 roll_migration = (ROOT / "supabase" / "migrations" / "202609230001_option_roll_manager.sql").read_text(encoding="utf-8")
-assert 'assets/roll-manager.js?v=3.6.0' in page and 'assets/roll-manager.css?v=3.6.0' in page
+assert f'assets/roll-manager.js?v={asset_version}' in page and f'assets/roll-manager.css?v={asset_version}' in page
 assert 'id="rollManagerRoot"' in page and "分账户期权与展期管理" in page
 assert "classifyRoll" in roll_js and "record_option_roll_v32" in roll_js
 assert "option_underlyings" in roll_migration and "option_roll_journal" in roll_migration
@@ -96,7 +96,7 @@ assert "deleteTarget" in generator
 stock_js = (ROOT / "docs" / "assets" / "stock-watchlist.js").read_text(encoding="utf-8")
 stock_function = (ROOT / "supabase" / "functions" / "stock-market" / "index.ts").read_text(encoding="utf-8")
 watchlist_migration = (ROOT / "supabase" / "migrations" / "202609240003_stock_watchlist.sql").read_text(encoding="utf-8")
-assert 'assets/stock-watchlist.js?v=3.6.0' in page and 'id="stockWatchModal"' in page
+assert f'assets/stock-watchlist.js?v={asset_version}' in page and 'id="stockWatchModal"' in page
 assert "stock_watchlist" in stock_js and "StockWatchlist" in stock_js and "删除个股" in stock_js
 assert "scope=${scope}" in stock_js and "DAILY_CACHE_KEY" in stock_js and "ensureDaily" in stock_js
 assert "stock_watchlist_public_read" in watchlist_migration and "stock_watchlist_admin_delete" in watchlist_migration
@@ -112,11 +112,32 @@ assert 'class="auth-pending"' in page and "public-access-gate" in page
 assert "data-auth-required" in page and "protected-section" in page
 assert "noindex,nofollow,noarchive,nosnippet" in page and 'name="referrer" content="no-referrer"' in page
 assert "authorized = Boolean" in generator and "该账户没有主理人访问权限" in generator
-assert 'assets/site-analytics.js?v=3.6.0' in page and 'id="siteAnalyticsRoot"' in page
+assert f'assets/site-analytics.js?v={asset_version}' in page and 'id="siteAnalyticsRoot"' in page
 analytics_js = (ROOT / "docs" / "assets" / "site-analytics.js").read_text(encoding="utf-8")
 analytics_migration = (ROOT / "supabase" / "migrations" / "202609240004_private_gate_analytics.sql").read_text(encoding="utf-8")
 assert "record_site_visit_v36" in analytics_js and "get_site_visit_summary_v36" in analytics_js
 assert "enable row level security" in analytics_migration and "ADMIN_ONLY" in analytics_migration
 assert "No IP address" in analytics_migration and "robots.txt" not in generator
+finance_js = (ROOT / "docs" / "assets" / "finance-tools.js").read_text(encoding="utf-8")
+finance_css = (ROOT / "docs" / "assets" / "finance-tools.css").read_text(encoding="utf-8")
+assert 'id="tab-finance-tools"' in page and "理财工具" in page
+assert f'assets/finance-tools.js?v={asset_version}' in page and f'assets/finance-tools.css?v={asset_version}' in page
+assert "期末能有多少" in page and "每期需要投入多少" in page and "需要多少年化收益" in page
+assert "每个交易日" in page and "每年252次估算" in page
+assert "solveYears" in finance_js and "solveRate" in finance_js and "mav_finance_plans_v37" in finance_js
+assert "撤回删除" in finance_js and "导出明细 CSV" in page
+assert ".finance-tools-shell" in finance_css and ".finance-saved-item" in finance_css
+opportunity_js = (ROOT / "docs" / "assets" / "opportunity-radar.js").read_text(encoding="utf-8")
+opportunity_css = (ROOT / "docs" / "assets" / "opportunity-radar.css").read_text(encoding="utf-8")
+strategy_py = (ROOT / "scripts" / "opportunity_strategy.py").read_text(encoding="utf-8")
+assert f'assets/opportunity-radar.js?v={asset_version}' in page and f'assets/opportunity-radar.css?v={asset_version}' in page
+assert 'id="tqqqX2Module"' in page and "TQQQ X2 风险敞口" in page
+assert 'id="leapsRadarModule"' in page and "LEAPS Call 机会雷达" in page
+assert "单次≤1%" in page and "全部LEAPS合计≤3%" in page
+assert "不计算金额" in page and "不生成投入金额" in page
+assert "hard_exit" in strategy_py and "tier2" in strategy_py and "full_restore" in strategy_py
+assert "filterContracts" in opportunity_js and "spread<=.15" in opportunity_js
+assert ".opportunity-block" in opportunity_css and ".leaps-card" in opportunity_css
+assert "data-risk-todo" in options_js and "策略机会历史" in page
 
 print("test_build_contract.py: all assertions passed")

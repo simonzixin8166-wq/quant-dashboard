@@ -21,7 +21,7 @@ assert "strategy-tier-grid" in generator and "只判断是否进入加仓区" in
 assert "1级回撤" in page and "7.5%" in page
 assert "指数、行业与另类资产" in generator and "指数、行业与另类资产" in page
 assert "data-stock-row" in generator and "data-stock-row" in page
-assert version == "4.5.0"
+assert version == "4.5.1"
 assert "市场与风险驾驶舱" in generator and "市场与风险驾驶舱" in page
 assert "卫星及杠杆" in generator and "卫星及杠杆" in page
 assert "不参与核心ETF加仓信号" in generator and "不参与核心ETF加仓信号" in page
@@ -170,3 +170,4 @@ print("test_build_contract.py: all assertions passed")
 assert "Trend Pulse" in generator and "tab-trend-pulse" in generator
 assert "calculate_trend_pulse" in generator and "Supertrend" in generator and "ADX" in generator
 assert (ROOT / "docs" / "assets" / "design-v4.5.css").exists()
+assert (ROOT / "docs" / "assets" / "design-v4.5.1.css").exists()

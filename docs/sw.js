@@ -1,17 +1,17 @@
 const CACHE_PREFIX='mav-shell-';
-const CACHE_NAME=`${CACHE_PREFIX}4.5.0`;
+const CACHE_NAME=`${CACHE_PREFIX}4.5.1`;
 const OFFLINE_URL='./offline.html';
 const SHELL=[
   './','./index.html','./manifest.webmanifest',OFFLINE_URL,'./assets/myalpha-logo-v44.png',
-  './assets/dashboard-v2.2.css?v=4.0.0','./assets/design-v4.5.css?v=4.5.0','./assets/options-v2.css?v=4.0.0',
+  './assets/dashboard-v2.2.css?v=4.0.0','./assets/design-v4.5.css?v=4.5.1','./assets/design-v4.5.1.css?v=4.5.1','./assets/options-v2.css?v=4.0.0',
   './assets/roll-manager.css?v=4.0.0','./assets/finance-tools.css?v=4.0.0',
   './assets/opportunity-radar.css?v=4.0.0','./assets/pwa.css?v=4.0.0',
   './assets/mobile-shell.css?v=4.0.0','./assets/mobile-shell.js?v=4.0.0',
   './assets/dashboard-v2.2.js?v=4.0.0','./assets/options-v2.js?v=4.0.0',
-  './assets/roll-manager.js?v=4.0.0','./assets/stock-watchlist.js?v=4.5.0',
+  './assets/roll-manager.js?v=4.0.0','./assets/stock-watchlist.js?v=4.5.1',
   './assets/finance-tools.js?v=4.0.0','./assets/opportunity-radar.js?v=4.0.0',
   './assets/site-analytics.js?v=4.0.0','./assets/market-live.js?v=4.0.0',
-  './assets/pwa.js?v=4.5.0','./icons/icon-192.png','./icons/icon-512.png','./icons/icon-maskable-512.png'
+  './assets/pwa.js?v=4.5.1','./icons/icon-192.png','./icons/icon-512.png','./icons/icon-maskable-512.png'
 ];
 
 self.addEventListener('install',event=>{

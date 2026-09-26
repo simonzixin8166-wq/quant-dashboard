@@ -1,0 +1,65 @@
+/* myAlphaView V4.5.1 — readability + alignment hotfix */
+
+/* --- Trend Pulse cards: fixed 3×2 metric grid --- */
+.trend-card-grid{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:0!important;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.trend-card-grid .trend-metric{min-width:0;padding:12px 12px!important;display:grid!important;grid-template-rows:auto auto;align-content:start;gap:5px;border-right:1px solid var(--line)}
+.trend-card-grid .trend-metric:nth-child(3n){border-right:0}
+.trend-card-grid .trend-metric:nth-child(-n+3){border-bottom:1px solid var(--line)}
+.trend-card-grid .trend-metric span{padding:0!important;font-size:13.5px!important;line-height:1.25;color:var(--muted);white-space:nowrap}
+.trend-card-grid .trend-metric b{display:block!important;margin:0!important;font-size:17px!important;line-height:1.22!important;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#1d2025}
+.trend-card-v45{overflow:visible!important}
+.trend-integrity{position:relative;min-height:38px;flex-wrap:nowrap!important;white-space:nowrap}
+.trend-integrity span{font-size:13px!important}.trend-integrity strong{font-size:14px!important}.trend-integrity small{font-size:12.5px!important;white-space:nowrap}
+.info-tip{appearance:none;border:0;background:transparent;color:#7f8793;font:700 15px/1 system-ui;cursor:pointer;padding:3px;margin:0;position:relative;border-radius:50%;outline:none}
+.info-tip:hover,.info-tip:focus-visible{color:#1f5fbf;background:#eef4ff}
+.info-tip::after{content:attr(data-tooltip);position:absolute;left:50%;bottom:calc(100% + 10px);transform:translateX(-50%) translateY(3px);width:min(330px,72vw);padding:10px 12px;border:1px solid #d8dde4;border-radius:7px;background:#15191f;color:#fff;font-size:12.5px;font-weight:500;line-height:1.55;white-space:normal;box-shadow:0 10px 28px rgba(18,24,33,.2);opacity:0;visibility:hidden;pointer-events:none;transition:.15s ease;z-index:60}
+.info-tip:hover::after,.info-tip:focus::after,.info-tip:focus-visible::after{opacity:1;visibility:visible;transform:translateX(-50%) translateY(0)}
+
+/* --- Stock watchlist / stock details: larger but balanced --- */
+.stock-table table{table-layout:fixed!important;width:100%!important;min-width:1180px!important}
+.stock-table th{font-size:14.5px!important;line-height:1.3!important;padding:14px 12px!important;white-space:nowrap}
+.stock-table td{font-size:16px!important;line-height:1.45!important;padding:18px 14px!important;vertical-align:middle!important}
+.stock-table th:first-child,.stock-table td:first-child{width:31%}
+.stock-table .stock-name{font-size:22px!important;line-height:1.15!important;font-weight:800!important;color:#20242a}
+.stock-table .stock-symbol{font-size:15.5px!important;line-height:1.3!important;margin-top:6px!important;color:#68717d!important;font-weight:600!important}
+.stock-details{margin-top:10px!important;color:#656e79!important}
+.stock-details summary{font-size:14.5px!important;font-weight:750!important;color:#b77a1f!important;cursor:pointer;list-style:none;width:max-content}
+.stock-details summary::-webkit-details-marker{display:none}
+.stock-details summary::after{content:'  ▾';font-size:11px;color:#8e96a0}
+.stock-details[open] summary::after{content:'  ▴'}
+.stock-details>div{margin-top:9px!important;font-size:14.5px!important;line-height:1.7!important;color:#606975!important;max-width:560px}
+.stock-table td>b{font-size:21px!important}.stock-table td>small{font-size:14px!important;line-height:1.35!important}
+.stock-table .stock-status{font-size:14px!important;white-space:nowrap}
+.stock-table .position-inline-actions,.stock-identity .stock-actions{font-size:14px!important}
+.stock-identity button,.stock-identity a{font-size:14px!important}
+
+/* --- Options account summary: hierarchy, no tiny numbers --- */
+.option-pnl-account-grid{gap:14px!important}
+.option-pnl-account{padding:18px 20px!important;border-radius:9px!important;min-height:116px;display:grid;align-content:center}
+.option-pnl-account>strong{font-size:21px!important;line-height:1.2!important;color:#1f242b}
+.option-pnl-account>div{display:flex!important;align-items:center;gap:22px!important;flex-wrap:wrap;margin-top:13px!important;font-size:14.5px!important;line-height:1.35!important;color:#69727e!important}
+.option-pnl-account>div span{white-space:nowrap}.option-pnl-account>div b{font-size:16.5px!important}
+.option-pnl-total-label{font-size:13px!important}.option-pnl-stat small{font-size:13px!important}.option-pnl-stat strong{font-size:22px!important}.option-pnl-stat span{font-size:12.5px!important}
+.option-account-group td{padding:13px 17px!important}.option-account-group td>strong{font-size:18px!important;color:#fff!important}.option-account-group td>div{margin-top:5px!important;font-size:13px!important;gap:14px!important;color:#dfe4ef!important}
+.option-account-group .account-detail-note{font-size:13px!important;color:#dfe4ef!important}
+
+/* Option position cards: make labels and values comfortably readable */
+.option-contract strong,.option-expiry b,.option-pnl b{font-size:20px!important}.option-contract span,.option-expiry span,.option-pnl span{font-size:14px!important}.option-pnl small,.option-card-metrics small{font-size:12.5px!important}.option-card-metrics b,.option-card-metrics .roc-chip,.option-card-metrics .risk-chip{font-size:15.5px!important}.option-card-metrics span{font-size:13px!important}.option-card-actions button{font-size:13px!important}
+
+@media(max-width:1180px){
+  .stock-table{overflow-x:auto!important}.stock-table table{min-width:1080px!important}
+  .option-pnl-account>div{gap:14px!important}
+}
+@media(max-width:760px){
+  .trend-card-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  .trend-card-grid .trend-metric{border-right:1px solid var(--line)!important;border-bottom:1px solid var(--line)!important}
+  .trend-card-grid .trend-metric:nth-child(2n){border-right:0!important}.trend-card-grid .trend-metric:nth-last-child(-n+2){border-bottom:0!important}
+  .trend-integrity{flex-wrap:wrap!important;white-space:normal}.trend-integrity small{margin-left:0!important;width:100%}
+  .option-pnl-account-grid{grid-template-columns:1fr!important}.option-pnl-account{min-height:auto}
+  .stock-table table{min-width:960px!important}
+}
+@media(max-width:520px){
+  .trend-card-grid{grid-template-columns:1fr 1fr!important}
+  .trend-card-grid .trend-metric span{font-size:12.5px!important}.trend-card-grid .trend-metric b{font-size:15.5px!important}
+  .option-pnl-account>strong{font-size:19px!important}.option-pnl-account>div{font-size:13.5px!important;gap:10px!important}
+}

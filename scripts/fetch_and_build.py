@@ -1,4 +1,4 @@
-import json, datetime, os, time, math, tempfile
+import json, datetime, os, time, math, tempfile, html
 import urllib.request, urllib.parse
 import yfinance as yf
 import pandas as pd
@@ -14,7 +14,7 @@ warnings.filterwarnings("ignore")
 
 # 单一版本源：每日 Action 生成 HTML 时，页面标题和静态资源缓存版本都从这里读取。
 APP_VERSION = "4.0.0"
-OPTIONS_VERSION = "4.0.0"
+OPTIONS_VERSION = "4.0.0"  # PWA/期权功能冻结，本轮只升级网站信息架构
 ASSET_VERSION = "4.0.0"
 
 API_KEY = os.environ.get("TWELVE_DATA_KEY", "demo")
@@ -425,6 +425,169 @@ def analyze(symbol, rows, today, tiers=None, is_stock=False, ath_metric=None):
     else: out.update({"drawdown": strategy_drawdown if ath_is_true else window_drawdown, "tiers": tiers, "level": level, "level_label": level_label})
     return out
 
+
+# ================= 6.5 研究简报 / IREN Daily Brief =================
+def _safe_float(value):
+    try:
+        value = float(value)
+        return value if math.isfinite(value) else None
+    except Exception:
+        return None
+
+
+def _news_signal(title):
+    """仅按标题做保守的方向标签，用于快速筛选，不作为投资结论。"""
+    text = (title or "").lower()
+    positive = (
+        "contract", "agreement", "partnership", "expands", "expansion", "launches",
+        "beats", "beat estimates", "upgrade", "raised price target", "raises price target",
+        "ai cloud", "data center deal", "new customer", "revenue growth", "record revenue",
+    )
+    negative = (
+        "downgrade", "offering", "dilution", "dilutive", "lawsuit", "investigation",
+        "misses", "missed estimates", "cuts guidance", "cut guidance", "delay", "delays",
+        "default", "selloff", "share sale", "secondary offering",
+    )
+    if any(k in text for k in positive) and not any(k in text for k in negative):
+        return "positive", "偏利好"
+    if any(k in text for k in negative) and not any(k in text for k in positive):
+        return "negative", "偏利空"
+    return "neutral", "中性"
+
+
+def fetch_iren_news(limit=5):
+    """读取 IREN 最新公开新闻。失败时返回空列表，不影响主页面构建。"""
+    query = urllib.parse.urlencode({"q": "IREN", "quotesCount": 1, "newsCount": max(limit, 5)})
+    url = f"https://query1.finance.yahoo.com/v1/finance/search?{query}"
+    try:
+        req = urllib.request.Request(url, headers=HEADERS)
+        with urllib.request.urlopen(req, timeout=12) as resp:
+            payload = json.loads(resp.read().decode("utf-8"))
+        items = []
+        now_ts = int(time.time())
+        for row in payload.get("news", []):
+            title = (row.get("title") or "").strip()
+            link = row.get("link") or ""
+            publisher = (row.get("publisher") or "Yahoo Finance").strip()
+            ts = int(row.get("providerPublishTime") or 0)
+            if ts and now_ts - ts > 72 * 3600:
+                continue
+            if not title or not link:
+                continue
+            tone, label = _news_signal(title)
+            items.append({
+                "title": title,
+                "link": link,
+                "publisher": publisher,
+                "published_at": datetime.datetime.utcfromtimestamp(ts).strftime("%Y-%m-%d %H:%M UTC") if ts else "",
+                "tone": tone,
+                "label": label,
+            })
+            if len(items) >= limit:
+                break
+        return items
+    except Exception as e:
+        print(f"WARNING: IREN news unavailable: {e}")
+        return []
+
+
+def _distance_to_first_tier(symbol, row):
+    tiers = CORE_TIERS.get(symbol) or {}
+    t1 = _safe_float(tiers.get("t1"))
+    dd = _safe_float((row or {}).get("strategy_drawdown"))
+    if t1 is None or dd is None:
+        return None
+    return max(0.0, t1 - (-dd))
+
+
+def build_market_brief(market_regime, market_indicators, core, breadth_data):
+    mr = market_regime or {}
+    vix = _safe_float(((market_indicators or {}).get("vix") or {}).get("close"))
+    spx_dd = _safe_float((mr.get("drawdown") or {}).get("value"))
+    score = mr.get("score")
+    max_available = mr.get("max_available_score")
+
+    if isinstance(vix, (int, float)):
+        if vix < 15: vol_sentence = f"VIX {vix:.1f}，波动环境偏平静。"
+        elif vix < 20: vol_sentence = f"VIX {vix:.1f}，波动环境仍属温和。"
+        elif vix < 25: vol_sentence = f"VIX {vix:.1f}，市场警觉度有所升高。"
+        else: vol_sentence = f"VIX {vix:.1f}，波动压力明显上升。"
+    else: vol_sentence = "VIX 当前缺少可靠读数。"
+
+    if isinstance(spx_dd, (int, float)):
+        if spx_dd > -0.05: index_sentence = f"标普500仍接近历史高位，当前回撤约 {spx_dd:.1%}。"
+        elif spx_dd > -0.10: index_sentence = f"标普500处于温和回撤区间，当前回撤约 {spx_dd:.1%}。"
+        else: index_sentence = f"标普500回撤已经明显扩大，当前约 {spx_dd:.1%}。"
+    else: index_sentence = "标普500历史回撤暂不可用。"
+
+    candidates = []
+    for sym, row in (core or {}).items():
+        if "error" in (row or {}): continue
+        dist = _distance_to_first_tier(sym, row)
+        if dist is not None: candidates.append((dist, sym, row))
+    candidates.sort(key=lambda x: x[0])
+    if candidates:
+        dist, sym, row = candidates[0]
+        dd = _safe_float(row.get("strategy_drawdown"))
+        strategy_sentence = f"核心ETF中 {sym} 最接近一级加仓线，当前ATH回撤约 {dd:.1%}，距离一级阈值约 {dist:.1%}。"
+    else:
+        strategy_sentence = "核心ETF当前没有足够数据计算正式触发距离。"
+
+    breadth_ok = (breadth_data or {}).get("status") == "ok"
+    if breadth_ok:
+        b20 = _safe_float((breadth_data or {}).get("b20")); b50 = _safe_float((breadth_data or {}).get("b50"))
+        breadth_sentence = f"市场宽度仍可用：20日宽度 {b20:.0%}，50日宽度 {b50:.0%}。" if b20 is not None and b50 is not None else "市场宽度数据可用。"
+    else:
+        breadth_sentence = "市场宽度当前不完整，本次判断只使用可用指标。"
+
+    headline = f"当前市场状态评分 {score}/{max_available}；先看变化，再看是否接近策略阈值。" if isinstance(score, int) and isinstance(max_available, int) else "先看市场变化，再看核心资产是否接近策略阈值。"
+    return {"headline": headline, "paragraphs": [index_sentence + vol_sentence, breadth_sentence + strategy_sentence]}
+
+
+def build_what_changed(current, previous):
+    """对比上一份 data.json 快照；不假设一定是“昨日”。"""
+    if not previous:
+        return {"available": False, "items": [], "note": "首次快照，下一次更新后开始显示变化。"}
+    items = []
+    def add(label, cur, prev, kind="pct"):
+        cur = _safe_float(cur); prev = _safe_float(prev)
+        if cur is None or prev is None: return
+        delta = cur - prev
+        if kind == "number": current_text, delta_text = f"{cur:.2f}", f"{delta:+.2f}"
+        else: current_text, delta_text = f"{cur:.1%}", f"{delta:+.1%}"
+        tone = "neutral"
+        if label == "VIX": tone = "bad" if delta > 0 else ("good" if delta < 0 else "neutral")
+        elif label in ("SPX回撤", "QLD回撤", "TQQQ回撤"): tone = "bad" if delta < 0 else ("good" if delta > 0 else "neutral")
+        elif label == "20日宽度": tone = "good" if delta > 0 else ("bad" if delta < 0 else "neutral")
+        items.append({"label": label, "current": current_text, "delta": delta_text, "tone": tone})
+    add("VIX", (((current.get("market_indicators") or {}).get("vix") or {}).get("close")), (((previous.get("market_indicators") or {}).get("vix") or {}).get("close")), "number")
+    add("SPX回撤", (((current.get("market_regime") or {}).get("drawdown") or {}).get("value")), (((previous.get("market_regime") or {}).get("drawdown") or {}).get("value")))
+    add("20日宽度", ((current.get("raw_breadth") or {}).get("b20")), ((previous.get("raw_breadth") or {}).get("b20")))
+    add("QLD回撤", (((current.get("core") or {}).get("QLD") or {}).get("strategy_drawdown")), (((previous.get("core") or {}).get("QLD") or {}).get("strategy_drawdown")))
+    add("TQQQ回撤", (((current.get("core") or {}).get("TQQQ") or {}).get("strategy_drawdown")), (((previous.get("core") or {}).get("TQQQ") or {}).get("strategy_drawdown")))
+    return {"available": bool(items), "items": items[:5], "note": "较上一份有效快照"}
+
+
+def build_iren_brief(stocks, news):
+    row = (stocks or {}).get("IREN") or {}
+    if not row or "error" in row:
+        return {"available": False, "summary": "IREN 行情暂不可用。", "news": news or []}
+    close = _safe_float(row.get("close")); day_chg = _safe_float(row.get("day_chg")); rsi = _safe_float(row.get("rsi")); dist_200 = _safe_float(row.get("dist_200ma")); ytd_high = _safe_float(row.get("ytd_high"))
+    ytd_dd = close / ytd_high - 1.0 if close and ytd_high else None
+    target = _safe_float((STOCK_META.get("IREN") or {}).get("target")); target_gap = close / target - 1.0 if close and target else None
+    tech_bits = []
+    if day_chg is not None: tech_bits.append(f"当日 {day_chg:+.1%}")
+    if ytd_dd is not None: tech_bits.append(f"距YTD高点 {ytd_dd:.1%}")
+    if rsi is not None: tech_bits.append(f"RSI {rsi:.0f}")
+    if dist_200 is not None: tech_bits.append(f"距200MA {dist_200:+.1%}")
+    if rsi is not None and rsi >= 70: state = "短线偏热，追涨风险上升。"
+    elif rsi is not None and rsi <= 30: state = "短线进入超卖区，波动可能放大。"
+    elif dist_200 is not None and dist_200 < 0: state = "价格仍在200日均线下方，趋势确认偏弱。"
+    elif day_chg is not None and day_chg <= -0.06: state = "单日跌幅较大，优先检查是否有基本面或行业催化。"
+    else: state = "技术状态暂无极端信号，继续观察趋势与消息催化。"
+    target_note = f"当前相对策略参考价 {target_gap:+.1%}。" if target_gap is not None else "当前没有有效策略参考价。"
+    return {"available": True, "price": close, "day_chg": day_chg, "ytd_drawdown": ytd_dd, "rsi": rsi, "dist_200ma": dist_200, "summary": "；".join(tech_bits) + "。" if tech_bits else "技术数据不足。", "view": state + target_note, "news": news or [], "date": row.get("date", "-")}
+
 # ================= 7. 构建调度中心 =================
 def process_options_data(opt_positions, stocks, index, core, today):
     options_data = []
@@ -471,6 +634,8 @@ def build():
             if not sym: continue
             active_stocks.append(sym)
             STOCK_META[sym] = {**STOCK_META.get(sym, {}), "name": item.get("display_name") or sym}
+    if "IREN" not in active_stocks:
+        active_stocks.insert(0, "IREN")  # 网站固定研究标的，不代表公开仓位规模
     data_status["Supabase"] = "🟢 已连接" if sb_targets else "🔴 Fallback"
     if sb_targets:
         for sym, tgt in sb_targets.items():
@@ -575,6 +740,15 @@ def build():
             historical_signals.sort(key=lambda r: r.get("date", ""), reverse=True)
     except: historical_signals = []
 
+    iren_news = fetch_iren_news(limit=4)
+    iren_brief = build_iren_brief(stocks, iren_news)
+    current_snapshot = {
+        "market_indicators": {"spx": spx_data, "ixic": ixic_data, "vix": vix_data},
+        "market_regime": market_regime, "raw_breadth": breadth_data, "core": core, "stocks": stocks,
+    }
+    research_brief = build_market_brief(market_regime, current_snapshot["market_indicators"], core, breadth_data)
+    what_changed = build_what_changed(current_snapshot, old_data)
+
     return {"updated": today.isoformat(), "gen_time": (datetime.datetime.utcnow() + datetime.timedelta(hours=8)).strftime("%Y-%m-%d %H:%M:%S"),
             "spy_date": index.get("SPY", {}).get("date", "-"), "core": core, "index": index, "stocks": stocks,
             # 真实期权持仓不得写入公开的 docs/data.json / index.html。
@@ -582,6 +756,7 @@ def build():
             "overview_charts": overview_charts, "options": [],
             "cn_hk": cn_hk_data, "market_regime": market_regime, "historical_signals": historical_signals, "data_status": data_status,
             "raw_breadth": breadth_data, "market_indicators": {"spx": spx_data, "spx_source": spx_src, "ixic": ixic_data, "ixic_source": ixic_src, "vix": vix_data, "vix_source": vix_src},
+            "research_brief": research_brief, "what_changed": what_changed, "iren_brief": iren_brief,
             "tqqq_x2": tqqq_x2, "leaps_radar": leaps_radar, "opportunity_history": opportunity_history}
 
 # ================= 8. 前端 HTML 组件独立渲染函数 =================
@@ -907,8 +1082,39 @@ def render_html(data):
         buy_html = ''
         if isinstance(buy_below, (int,float)):
             triggered = price <= buy_below
-            buy_html = f'<div class="buy-zone {"triggered" if triggered else ""}" data-buy-zone="{code}" data-threshold="{buy_below:.3f}"><span>加仓区 ≤ {buy_below:.3f}（含）</span><strong>{"已进入加仓区" if triggered else f"距加仓区 {price-buy_below:.3f}"}</strong></div>'
+            buy_html = f'<div class="buy-zone {"triggered" if triggered else ""}" data-buy-zone="{code}" data-threshold="{buy_below:.3f}"><span>加仓区 ≤{buy_below:.3f}（含）</span><strong>{"已进入加仓区" if triggered else f"距加仓区 {price-buy_below:.3f}"}</strong></div>'
         return f'''<div class="mkt-card hover-card" onclick="toggleMktChart('{code}', '{title}')"><div class="name"><span>{title} {proxy_badge}</span><span class="chart-hint">30日趋势</span></div><div class="mkt-quote"><div class="val" data-live-price="{code}">{price:,.{decimals}f}</div><div class="chg {"positive" if mdata.get("day_chg",0)>=0 else "negative"}" data-live-chg="{code}">{"+" if mdata.get("day_chg",0)>=0 else ""}{fmt_pct(mdata.get("day_chg",0))}</div></div>{buy_html}<div class="mkt-meta"><span data-market-state="{code}">腾讯行情 · 状态检查中</span><span data-live-time="{code}">页面生成 {data.get("gen_time","-")}</span></div><div class="mkt-chart-wrap" id="wrap-{code}"><div style="height:140px; position:relative; width:100%;"><canvas id="canvas-{code}"></canvas></div></div></div>'''
+
+    # V4.1 Website-first：首页以“结论→变化→证据”为主，而不是继续叠加卡片。
+    research = data.get("research_brief") or {}
+    research_paragraphs = "".join(f'<p>{html.escape(str(p))}</p>' for p in research.get("paragraphs", []) if p)
+    research_brief_html = f'<section class="research-shell"><div class="research-brief"><div class="research-kicker">市场简报</div><h2>{html.escape(str(research.get("headline", "今日市场概览")))}</h2><div class="research-copy">{research_paragraphs}</div></div><aside class="brief-vix">{vix_gauge_card(vol_value,None,vix_note)}</aside></section>'
+
+    changes = data.get("what_changed") or {}
+    if changes.get("available"):
+        change_items = "".join(f'<div class="change-item {item.get("tone","neutral")}"><span>{html.escape(str(item.get("label","-")))}</span><b>{html.escape(str(item.get("current","-")))}</b><small>{html.escape(str(item.get("delta","-")))}</small></div>' for item in changes.get("items", []))
+        what_changed_html = f'<section class="change-strip"><div class="change-strip-head"><h2>今日变化</h2><span>{html.escape(str(changes.get("note","较上一快照")))}</span></div><div class="change-grid">{change_items}</div></section>'
+    else:
+        what_changed_html = f'<section class="change-strip"><div class="change-strip-head"><h2>今日变化</h2><span>等待下一次快照</span></div><p class="change-empty">{html.escape(str(changes.get("note","首次快照，下一次更新后开始显示变化。")))}</p></section>'
+
+    iren = data.get("iren_brief") or {}
+    news_rows = []
+    for item in iren.get("news", [])[:4]:
+        tone = item.get("tone", "neutral")
+        title = html.escape(str(item.get("title", "")))
+        publisher = html.escape(str(item.get("publisher", "")))
+        published_at = html.escape(str(item.get("published_at", "")))
+        label = html.escape(str(item.get("label", "中性")))
+        link = html.escape(str(item.get("link", "")), quote=True)
+        stamp = publisher + ((" · " + published_at) if published_at else "")
+        news_rows.append(f'<a class="iren-news-row" href="{link}" target="_blank" rel="noopener noreferrer"><span class="news-tone {tone}">{label}</span><span class="news-title">{title}</span><small>{stamp}</small></a>')
+    news_html = "".join(news_rows) if news_rows else '<div class="iren-no-news">过去72小时未获取到重要新增消息；新闻接口异常时也会显示为空。</div>'
+    if iren.get("available"):
+        iren_brief_html = f'<section class="iren-brief"><div class="iren-brief-main"><div class="research-kicker">IREN Daily Brief</div><div class="iren-title-row"><h2>IREN 每日观察</h2><span>日线截至 {html.escape(str(iren.get("date","-")))}</span></div><p class="iren-summary">{html.escape(str(iren.get("summary","")))}</p><p class="iren-view">{html.escape(str(iren.get("view","")))}</p><div class="iren-disclaimer">新闻方向标签由标题关键词规则生成，仅用于快速筛选，不代替基本面判断。</div></div><div class="iren-news"><div class="iren-news-head">最新消息</div>{news_html}</div></section>'
+    else:
+        iren_brief_html = f'<section class="iren-brief"><div class="iren-brief-main"><div class="research-kicker">IREN Daily Brief</div><h2>IREN 每日观察</h2><p>{html.escape(str(iren.get("summary","IREN 行情暂不可用。")))}</p></div><div class="iren-news">{news_html}</div></section>'
+
+    tape_html = f'<div class="tape-wrap"><section class="market-tape" aria-label="市场核心指标"><div class="tape-item"><span>NASDAQ</span><b data-us-live-price="ixic">{qqq_value}</b><small data-us-live-chg="ixic" class="{"positive" if isinstance(qqq_chg,(int,float)) and qqq_chg>=0 else "negative"}">{("+" if isinstance(qqq_chg,(int,float)) and qqq_chg>=0 else "") + fmt_pct(qqq_chg) if isinstance(qqq_chg,(int,float)) else "—"}</small></div><div class="tape-item"><span>S&amp;P 500</span><b data-us-live-price="spx">{spy_value}</b><small data-us-live-chg="spx" class="{"positive" if isinstance(spy_chg,(int,float)) and spy_chg>=0 else "negative"}">{("+" if isinstance(spy_chg,(int,float)) and spy_chg>=0 else "") + fmt_pct(spy_chg) if isinstance(spy_chg,(int,float)) else "—"}</small></div><div class="tape-item"><span>VIX</span><b data-us-live-price="vix">{vol_display}</b><small data-us-live-note="vix">{html.escape(vix_note)}</small></div><div class="tape-item"><span>红利低波100</span><b data-live-price="sz159307">{sz_val}</b><small data-live-chg="sz159307" class="{"positive" if isinstance(sz_chg,(int,float)) and sz_chg>=0 else "negative"}">{("+" if isinstance(sz_chg,(int,float)) and sz_chg>=0 else "") + fmt_pct(sz_chg) if isinstance(sz_chg,(int,float)) else "—"}</small></div></section><div class="tape-note">美股盘中5分钟刷新；宽度每日收盘更新</div></div>'
 
     chart_json = json.dumps(data.get("overview_charts", {}), ensure_ascii=False)
 
@@ -924,6 +1130,7 @@ def render_html(data):
 .hero{{display:flex;justify-content:space-between;gap:28px;align-items:flex-end;margin-bottom:28px}} .hero h1{{font-family:var(--serif);font-size:34px;font-weight:560;line-height:1.18;letter-spacing:-.2px;max-width:640px}} .hero p{{color:var(--muted);margin-top:12px;font-size:13.5px;line-height:1.75;max-width:600px}} .public-note{{flex:0 0 260px;background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--brass);border-radius:4px;padding:14px 16px;font-size:11.5px;color:#555;line-height:1.65}} .public-note b{{color:var(--ink);display:block;margin-bottom:4px;font-size:12px}}
 .section{{margin-top:32px}} .section-head{{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px}} .section-head h2{{font-family:var(--serif);font-size:19px;font-weight:560}} .section-head p{{color:var(--muted);font-size:11.5px}}
 .metrics{{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}} .metric-card{{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px 19px;box-shadow:var(--shadow)}} .metric-top{{display:flex;justify-content:space-between;color:var(--muted);font-size:11.5px;font-weight:600}} .metric-dot{{width:7px;height:7px;border-radius:50%;background:#c9c2ac}} .metric-dot.good{{background:var(--green)}} .metric-dot.warn{{background:var(--amber)}} .metric-dot.bad{{background:var(--red)}} .metric-value{{font-family:var(--serif);font-size:27px;font-weight:560;margin-top:13px;font-variant-numeric:tabular-nums}} .metric-change{{font-size:12px;font-weight:600;margin-top:5px}} .positive{{color:var(--green)}} .negative{{color:var(--red)}} .metric-note{{color:var(--muted);font-size:10.5px;margin-top:9px}}
+.tape-wrap{{margin-top:18px}}.market-tape{{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin-top:0}}.tape-item{{padding:13px 18px;border-right:1px solid var(--line);display:grid;grid-template-columns:1fr auto;align-items:baseline;gap:4px 10px;min-width:0}}.tape-item:last-child{{border-right:0}}.tape-item span{{font-size:10px;color:var(--muted);font-weight:600}}.tape-item b{{font-size:18px;font-family:var(--serif);font-weight:560;font-variant-numeric:tabular-nums}}.tape-item small{{grid-column:2;font-size:10px;white-space:nowrap}}.tape-note{{margin-top:6px;text-align:right;font-size:9.5px;color:var(--muted)}}.research-shell{{margin-top:30px;display:grid;grid-template-columns:minmax(0,1fr) 280px;gap:30px;align-items:start;padding-bottom:24px;border-bottom:1px solid var(--line)}}.research-brief{{padding:0 4px;max-width:1060px}}.brief-vix .metric-card{{box-shadow:none;border-radius:8px}}.research-kicker{{font-size:10px;font-weight:700;color:var(--brass);margin-bottom:8px}}.research-brief h2,.iren-brief h2,.change-strip h2{{font-family:var(--serif);font-weight:560}}.research-brief h2{{font-size:26px;line-height:1.3;max-width:900px}}.research-copy{{margin-top:13px;display:grid;gap:8px;max-width:920px}}.research-copy p{{font-size:13px;line-height:1.85;color:#464b55}}.change-strip{{margin-top:22px;padding:18px 0 6px;border-bottom:1px solid var(--line)}}.change-strip-head{{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:11px}}.change-strip-head h2{{font-size:17px}}.change-strip-head span,.change-empty{{font-size:10.5px;color:var(--muted)}}.change-grid{{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:0;border-top:1px solid var(--line)}}.change-item{{display:grid;grid-template-columns:1fr auto;gap:3px 8px;padding:12px 14px 11px 0;border-right:1px solid var(--line)}}.change-item:last-child{{border-right:0}}.change-item span{{font-size:10px;color:var(--muted)}}.change-item b{{font-size:13px}}.change-item small{{grid-column:2;font-size:10px}}.change-item.good small{{color:var(--green)}}.change-item.bad small{{color:var(--red)}}.iren-brief{{margin-top:28px;display:grid;grid-template-columns:minmax(0,1.05fr) minmax(360px,.95fr);gap:30px;padding:22px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}}.iren-brief-main{{padding-left:16px;border-left:3px solid var(--brass)}}.iren-title-row{{display:flex;justify-content:space-between;gap:20px;align-items:baseline}}.iren-title-row h2{{font-size:22px}}.iren-title-row span{{font-size:10px;color:var(--muted)}}.iren-summary{{margin-top:10px;font-size:13px;line-height:1.75;color:var(--ink)}}.iren-view{{margin-top:8px;font-size:12px;line-height:1.75;color:var(--muted)}}.iren-disclaimer{{margin-top:12px;font-size:9.5px;color:#8b8f98}}.iren-news-head{{font-size:11px;font-weight:700;margin-bottom:5px}}.iren-news-row{{display:grid;grid-template-columns:auto 1fr;gap:3px 8px;padding:9px 0;border-bottom:1px solid var(--line);text-decoration:none;color:inherit}}.iren-news-row:last-child{{border-bottom:0}}.news-tone{{font-size:9px;font-weight:700;padding:2px 6px;border-radius:99px;align-self:start}}.news-tone.positive{{background:var(--green-soft);color:var(--green)}}.news-tone.negative{{background:var(--red-soft);color:var(--red)}}.news-tone.neutral{{background:var(--surface2);color:var(--muted)}}.news-title{{font-size:11.5px;line-height:1.5;font-weight:600}}.iren-news-row small{{grid-column:2;font-size:9px;color:var(--muted)}}.iren-no-news{{font-size:11px;color:var(--muted);line-height:1.6;padding:8px 0}}
 .engine{{margin-top:20px;background:var(--nav);border-radius:16px;padding:26px 28px;color:#fff;position:relative;overflow:hidden;box-shadow:0 20px 40px rgba(10,12,25,.25)}} .engine::after{{content:"";position:absolute;right:-60px;top:-60px;width:260px;height:260px;border-radius:50%;background:radial-gradient(circle,rgba(184,134,58,.25),transparent 70%)}} .engine-top{{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;position:relative}} .engine-label{{font-size:11px;color:var(--navmuted);letter-spacing:.3px}} .engine-title{{font-family:var(--serif);font-size:24px;margin-top:6px;font-weight:560}} .engine-badge{{font-size:12px;font-weight:700;padding:8px 16px;border-radius:99px;white-space:nowrap}} .engine-badge.normal{{background:rgba(255,255,255,.1);color:#cfd3e0}} .engine-badge.t2{{background:rgba(184,134,58,.35);color:#ffdca0}} .engine-grid{{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px, 1fr));gap:10px;margin-top:22px;position:relative}} .engine-item{{background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:12px 13px}} .engine-item .k{{font-size:10.5px;color:var(--navmuted)}} .engine-item .v{{font-family:var(--serif);font-size:17px;margin-top:5px}} .engine-item.hit{{border-color:rgba(184,134,58,.5);background:rgba(184,134,58,.1)}} .engine-item.warn{{border-color:rgba(192,127,46,.5);background:rgba(192,127,46,.1)}} .engine-item .pt{{font-size:10px;color:var(--brass-soft);margin-top:3px}} .engine-foot{{margin-top:16px;font-size:11px;color:var(--navmuted);position:relative}}
 .dashboard-grid{{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(280px,.8fr);gap:16px}} .panel{{background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow)}} .panel-head{{display:flex;justify-content:space-between;align-items:center;padding:16px 19px;border-bottom:1px solid var(--line)}} .panel-head strong{{font-size:13px;font-weight:600}} .panel-head span{{color:var(--muted);font-size:10.5px}} .chart-wrap{{height:300px;padding:14px 18px 18px}} .pulse-list{{padding:6px 19px 14px}} .pulse{{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--line)}} .pulse:last-child{{border-bottom:0}} .pulse-label{{color:var(--muted);font-size:11px}} .pulse-main{{margin-top:4px;font-size:15px;font-weight:700}} .pulse-right{{text-align:right;font-size:11px;font-weight:600}}
 .badge{{display:inline-flex;border-radius:99px;padding:4px 9px;font-size:10px;font-weight:700}} .badge.good{{background:var(--green-soft);color:var(--green)}} .badge.warn{{background:var(--amber-soft);color:var(--amber)}} .badge.bad{{background:var(--red-soft);color:var(--red)}} .badge.neutral{{background:var(--surface2);color:var(--muted)}}
@@ -935,7 +1142,7 @@ def render_html(data):
 .footer{{color:#9a9484;font-size:10.5px;line-height:1.7;text-align:center;padding:34px 0 10px}} .tab-pane{{display:none;animation:fade .3s ease}} .tab-pane.active{{display:block}} @keyframes fade{{from{{opacity:0;transform:translateY(5px)}}to{{opacity:1;transform:none}}}}
 .opt-status {{ display:inline-flex; align-items:center; gap:5px; font-weight:600; font-size:11px; }} .opt-status.safe {{ color: var(--green); }} .opt-status.warn {{ color: var(--amber); }} .opt-status.danger {{ color: var(--red); }} .opt-status::before {{ content:""; display:block; width:6px; height:6px; border-radius:50%; }} .opt-status.safe::before {{ background: var(--green); }} .opt-status.warn::before {{ background: var(--amber); }} .opt-status.danger::before {{ background: var(--red); }}
 @media (max-width: 1024px) {{ .dashboard-grid {{ grid-template-columns: 1fr; }} .metrics {{ grid-template-columns: repeat(2, 1fr); }} }}
-@media (max-width: 1000px) {{.engine-grid{{grid-template-columns:repeat(2,minmax(0,1fr))}}}} @media (max-width: 768px) {{ .app {{ flex-direction: column; }} .sidebar {{ position: static; width: 100%; padding: 16px 20px; border-bottom: 1px solid var(--navline); }} .nav-group {{ margin-top: 16px; }} .nav-menu {{ display: flex; flex-wrap: wrap; gap: 8px; }} .nav-menu li {{ font-size: 12px; padding: 8px 12px; }} .main {{ margin-left: 0; width: 100%; }} .topbar {{ padding: 12px 20px; height: auto; flex-direction: column; align-items: flex-start; gap: 12px; }} .top-meta {{ flex-wrap: wrap; width: 100%; justify-content: space-between; }} .content {{ padding: 20px; }} .hero {{ flex-direction: column; align-items:flex-start;gap:10px}} .compact-hero h1{{font-size:26px}}.public-note {{ width: 100%; flex: auto; }} .metrics {{ grid-template-columns: 1fr; }} .engine{{padding:20px}}.engine::after {{ display: none; }} .engine-top {{ flex-direction: column; gap: 12px; }}.engine-grid,.asset-group .grid{{grid-template-columns:1fr}}.stock-toolbar{{align-items:flex-start;flex-direction:column}}.mkt-meta{{flex-direction:column;gap:3px}} .table-container {{ overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 8px; }} th, td {{ padding: 10px; font-size: 12px; }} }}
+@media (max-width: 1000px) {{.engine-grid{{grid-template-columns:repeat(2,minmax(0,1fr))}}}} @media (max-width: 900px) {{.market-tape{{grid-template-columns:repeat(2,minmax(0,1fr))}}.tape-item:nth-child(2){{border-right:0}}.tape-item:nth-child(-n+2){{border-bottom:1px solid var(--line)}}.change-grid{{grid-template-columns:repeat(2,minmax(0,1fr))}}.change-item{{border-bottom:1px solid var(--line)}}.iren-brief{{grid-template-columns:1fr;gap:18px}}.research-shell{{grid-template-columns:1fr}}.brief-vix{{max-width:360px}}}} @media (max-width: 768px) {{ .app {{ flex-direction: column; }} .sidebar {{ position: static; width: 100%; padding: 16px 20px; border-bottom: 1px solid var(--navline); }} .nav-group {{ margin-top: 16px; }} .nav-menu {{ display: flex; flex-wrap: wrap; gap: 8px; }} .nav-menu li {{ font-size: 12px; padding: 8px 12px; }} .main {{ margin-left: 0; width: 100%; }} .topbar {{ padding: 12px 20px; height: auto; flex-direction: column; align-items: flex-start; gap: 12px; }} .top-meta {{ flex-wrap: wrap; width: 100%; justify-content: space-between; }} .content {{ padding: 20px; }} .hero {{ flex-direction: column; align-items:flex-start;gap:10px}} .compact-hero h1{{font-size:26px}}.public-note {{ width: 100%; flex: auto; }} .metrics {{ grid-template-columns: 1fr; }} .engine{{padding:20px}}.engine::after {{ display: none; }} .engine-top {{ flex-direction: column; gap: 12px; }}.engine-grid,.asset-group .grid{{grid-template-columns:1fr}}.stock-toolbar{{align-items:flex-start;flex-direction:column}}.mkt-meta{{flex-direction:column;gap:3px}} .table-container {{ overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 8px; }} th, td {{ padding: 10px; font-size: 12px; }} }}
 @media (max-width: 680px) {{.stock-table{{overflow:visible;background:transparent;border:0;box-shadow:none}}.stock-table table,.stock-table tbody{{display:block}}.stock-table thead{{display:none}}.stock-table tr[data-stock-row]{{display:grid;grid-template-columns:1fr 1fr;background:var(--surface);border:1px solid var(--line);border-radius:12px;margin-bottom:10px;padding:12px;box-shadow:var(--shadow)}}.stock-table td{{display:flex;justify-content:space-between;gap:10px;align-items:center;border:0;padding:7px 5px;text-align:right!important;white-space:normal}}.stock-table td::before{{content:attr(data-label);font-size:9.5px;color:var(--muted);font-weight:500}}.stock-table td.stock-identity{{grid-column:1/-1;display:block;text-align:left!important;border-bottom:1px solid var(--line);padding-bottom:9px;margin-bottom:2px}}.stock-table td.stock-identity::before{{display:none}}.stock-table td[data-label="策略价 / 距离"],.stock-table td[data-label="状态"]{{grid-column:1/-1}}.stock-table td small{{margin-top:0}}}}
 /* 沙盒特有样式 */
 .sandbox-grid {{ display: grid; grid-template-columns: 300px 1fr; gap: 24px; }}
@@ -964,7 +1171,10 @@ def render_html(data):
 
 <div id="tab-overview" class="tab-pane active">
 <section class="hero overview-hero"><div><h1>市场与风险驾驶舱</h1><p>先看市场状态、策略距离和必须处理的风险，再决定是否行动。</p><div class="data-legend" aria-label="数据状态说明"><span class="live">盘中延迟行情</span><span class="close">最近有效收盘</span><span class="missing">不可用不计分</span></div></div><div class="public-note" id="modePanel"><b id="modeTitle">访客预览模式</b><span id="modeDesc">未登录仅显示市场概览；策略、观察池与持仓模块需要主理人登录。</span></div><button id="privateModeShield" class="private-mode-shield" type="button" title="私有控制台已连接，真实持仓受 Supabase RLS 保护">🛡️ 私有模式</button></section>
-<section class="section"><div class="section-head"><h2>市场核心指标</h2><p>美股盘中5分钟刷新；宽度每日收盘更新</p></div><div class="metrics">{metric_card('纳斯达克综合指数',qqq_value,qqq_chg,qqq_note,'good' if isinstance(qqq_chg,(int,float)) and qqq_chg>=0 else 'warn',us_live_code='ixic')}{metric_card('标普500指数',spy_value,spy_chg,spy_note,'good' if isinstance(spy_chg,(int,float)) and spy_chg>=0 else 'warn',us_live_code='spx')}{vix_gauge_card(vol_value,None,vix_note)}{metric_card('红利低波100 (159307)',sz_val,sz_chg,'A股红利代理 · ≤0.995（含）进入加仓区','good',live_code='sz159307')}</div></section>
+{tape_html}
+{research_brief_html}
+{what_changed_html}
+{iren_brief_html}
 <section class="public-access-gate"><div><span class="access-lock">🔐</span><strong>其余模块仅限主理人登录后浏览</strong><p>包括策略信号、市场宽度、个股观察、期权持仓、推演与历史记录。</p></div><button type="button" onclick="handleAuth()">登录解锁</button></section>
 <section class="section private-console"><div class="panel risk-todo"><div class="panel-head"><strong>今日风险待办</strong><span>只列需要人工确认的事项</span></div><div id="riskTodoList" class="risk-todo-list"><div class="risk-todo-empty">正在检查临期期权、缺失报价、宏观事件与宽度背离…</div></div></div></section>
 <section class="section protected-section">{market_regime_html}</section>
@@ -975,7 +1185,7 @@ def render_html(data):
 
 <div id="tab-engine" class="tab-pane">
 <section class="hero compact-hero"><div><h1>核心策略信号</h1><p>正式信号按经复权ATH与完整收盘价确认；只判断是否进入加仓区，不记录或分配资金。</p></div></section>
-<section class="section"><div class="engine"><div class="engine-top"><div><div class="engine-label">STRATEGY ENGINE · 核心ETF三档加仓线</div><div class="engine-title">当前状态：{level_names[max_level]}</div><div class="engine-asof">策略数据截至 {data.get('spy_date','-')} 美股收盘 · 盘中价格仅供距离参考</div></div><div class="engine-badge {engine_badge_cls}">{level_names[max_level]}</div></div><div id="strategySignalGrid" class="engine-grid">{engine_html}</div><div class="engine-foot">规则：严格使用经复权验证的历史全期最高点（ATH）和各资产独立阈值；到达点位只提示进入对应加仓区，不自动下单。QQQ与QQQM属于同一指数敞口。</div></div></section>
+<section class="section"><div class="engine"><div class="engine-top"><div><div class="engine-label">核心ETF三档加仓线</div><div class="engine-title">当前状态：{level_names[max_level]}</div><div class="engine-asof">策略数据截至 {data.get('spy_date','-')} 美股收盘 · 盘中价格仅供距离参考</div></div><div class="engine-badge {engine_badge_cls}">{level_names[max_level]}</div></div><div id="strategySignalGrid" class="engine-grid">{engine_html}</div><div class="engine-foot">规则：严格使用经复权验证的历史全期最高点（ATH）和各资产独立阈值；到达点位只提示进入对应加仓区，不自动下单。QQQ与QQQM属于同一指数敞口。</div></div></section>
 <section class="section">{tqqq_x2_html}</section>
 <section class="section">{leaps_radar_html}</section>
 <section class="section">{opportunity_history_html}</section>

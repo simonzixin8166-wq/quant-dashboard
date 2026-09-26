@@ -13,9 +13,9 @@ except ModuleNotFoundError:
 warnings.filterwarnings("ignore")
 
 # 单一版本源：每日 Action 生成 HTML 时，页面标题和静态资源缓存版本都从这里读取。
-APP_VERSION = "4.1.1"
-OPTIONS_VERSION = "4.0.0"  # PWA/期权功能冻结；V4.1.1 继续以网站为主
-ASSET_VERSION = "4.1.1"
+APP_VERSION = "4.2.1"
+OPTIONS_VERSION = "4.0.0"  # PWA/期权功能冻结；V4.2.1 继续以网站为主
+ASSET_VERSION = "4.2.1"
 
 API_KEY = os.environ.get("TWELVE_DATA_KEY", "demo")
 BASE = "https://api.twelvedata.com"
@@ -510,7 +510,7 @@ def fetch_iren_sec_filings(limit=3):
     """读取 IREN 最近 SEC 重要申报，作为公司级信息优先源。"""
     url = "https://data.sec.gov/submissions/CIK0001878848.json"
     sec_headers = {
-        "User-Agent": "myAlphaView/4.1.1 contact@myalphaview.com",
+        "User-Agent": "myAlphaView/4.2.1 contact@myalphaview.com",
         "Accept": "application/json",
     }
     form_names = {"8-K": "当前报告", "6-K": "境外发行人报告", "10-Q": "季度报告", "10-K": "年度报告", "20-F": "年度报告", "S-3": "注册声明", "F-3": "注册声明"}
@@ -1264,7 +1264,7 @@ def render_html(data):
     chart_json = json.dumps(data.get("overview_charts", {}), ensure_ascii=False)
 
     return f'''<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"><title>myAlphaView · Market Intelligence</title>
-<meta name="author" content="Simon"><meta name="application-version" content="{APP_VERSION}"><meta name="robots" content="noindex,nofollow,noarchive,nosnippet"><meta name="referrer" content="no-referrer"><meta name="theme-color" content="#f5f7fb"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="myAlphaView"><link rel="manifest" href="manifest.webmanifest?v={ASSET_VERSION}"><link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png"><link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png"><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,380;9..144,520;9..144,620&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"><link href="assets/options-v2.css?v={ASSET_VERSION}" rel="stylesheet"><link href="assets/roll-manager.css?v={ASSET_VERSION}" rel="stylesheet"><link href="assets/finance-tools.css?v={ASSET_VERSION}" rel="stylesheet"><link href="assets/opportunity-radar.css?v={ASSET_VERSION}" rel="stylesheet"><link href="assets/pwa.css?v={ASSET_VERSION}" rel="stylesheet"><link href="assets/mobile-shell.css?v={ASSET_VERSION}" rel="stylesheet"><script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<meta name="author" content="Simon"><meta name="application-version" content="{APP_VERSION}"><meta name="robots" content="noindex,nofollow,noarchive,nosnippet"><meta name="referrer" content="no-referrer"><meta name="theme-color" content="#D71920"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="myAlphaView"><link rel="manifest" href="manifest.webmanifest?v={ASSET_VERSION}"><link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png"><link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png"><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,380;9..144,520;9..144,620&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"><link href="assets/options-v2.css?v={ASSET_VERSION}" rel="stylesheet"><link href="assets/roll-manager.css?v={ASSET_VERSION}" rel="stylesheet"><link href="assets/finance-tools.css?v={ASSET_VERSION}" rel="stylesheet"><link href="assets/opportunity-radar.css?v={ASSET_VERSION}" rel="stylesheet"><link href="assets/pwa.css?v={ASSET_VERSION}" rel="stylesheet"><link href="assets/mobile-shell.css?v={ASSET_VERSION}" rel="stylesheet"><script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{{--bg:#f4f2ec;--surface:#ffffff;--surface2:#ebe8df;--ink:#14161c;--muted:#696d76;--line:#e1ddd0;--nav:#11162a;--nav2:#0a0d1a;--navmuted:#8d93ab;--navline:rgba(255,255,255,.08);--brass:#b8863a;--brass-soft:#e8d3ab;--navy:#1f2b52;--green:#1c7a4c;--green-soft:#e5f1e9;--red:#b23b2e;--red-soft:#f6e6e2;--amber:#c07f2e;--amber-soft:#f6ecd8;--shadow:0 12px 32px rgba(15,15,10,.07);--serif:'Fraunces',ui-serif,Georgia,serif;--sans:'Inter',-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;}}
 *{{box-sizing:border-box;margin:0;padding:0}} body{{font-family:var(--sans);background:var(--bg);color:var(--ink);min-height:100vh;-webkit-font-smoothing:antialiased}} .app{{display:flex;min-height:100vh}}
@@ -1302,23 +1302,23 @@ def render_html(data):
 .s-res-val {{ font-family: var(--serif); font-size: 20px; font-weight: 600; margin-top: 6px; }}
 @media (max-width: 800px) {{ .sandbox-grid {{ grid-template-columns: 1fr; }} }}
 
-/* ===== V4.1.1 Website-first visual refinement ===== */
+/* ===== V4.1.1 Website-first visual refinement (retained under V4.2 overrides) ===== */
 :root{{--bg:#f5f7fb;--surface:#ffffff;--surface2:#f0f3f8;--ink:#1d1d1f;--muted:#6e6e73;--line:#e4e7ec;--nav:#111827;--nav2:#0b1220;--navmuted:#a7afbf;--brass:#b98536;--brass-soft:#f3e2c7;--accent:#0071e3;--accent-soft:#eaf4ff;--green:#218a5a;--green-soft:#eaf7f0;--red:#c24135;--red-soft:#fff0ee;--amber:#b7791f;--amber-soft:#fff6e5;--shadow:0 10px 30px rgba(15,23,42,.055);--serif:-apple-system,BlinkMacSystemFont,"SF Pro Display","Inter","PingFang SC","Microsoft YaHei",sans-serif;--sans:-apple-system,BlinkMacSystemFont,"SF Pro Text","Inter","PingFang SC","Microsoft YaHei",sans-serif}}
 body{{font-size:15px;background:linear-gradient(180deg,#f7f9fc 0,#f3f6fa 100%);letter-spacing:-.005em}}.topbar{{background:rgba(247,249,252,.82);border-color:rgba(0,0,0,.07)}}.content{{max-width:1500px;padding:42px 40px 56px}}.sidebar{{background:linear-gradient(180deg,#111827,#0b1220)}}.mav-brand-mark{{background:linear-gradient(135deg,#f0c678,#b98536);box-shadow:none}}.brand strong{{font-size:18px}}.brand small{{font-size:12px}}.nav-title{{font-size:11.5px;color:#7f8a9d}}.nav-menu li{{font-size:14.5px;padding:11px 12px}}.nav-menu li.active{{background:rgba(0,113,227,.15);box-shadow:inset 3px 0 0 var(--accent)}}.auth-btn-top{{background:var(--accent);font-size:12.5px;padding:8px 15px;border-radius:10px;box-shadow:none}}.auth-btn-top:hover{{background:#0068d1}}.breadcrumb{{font-size:14px}}.top-meta{{font-size:12.5px}}.hero{{margin-bottom:22px}}.hero h1,.compact-hero h1{{font-family:var(--sans);font-size:40px;font-weight:720;line-height:1.12;letter-spacing:-1.15px}}.hero p{{font-size:15px;line-height:1.7}}.public-note{{font-size:13px;border:0;border-left:3px solid var(--accent);border-radius:12px;background:rgba(255,255,255,.78);box-shadow:0 4px 18px rgba(15,23,42,.04)}}.public-note b{{font-size:13px}}.section-head h2,.engine-title,.research-brief h2,.iren-brief h2,.change-strip h2{{font-family:var(--sans)}}.section-head h2{{font-size:22px;font-weight:700}}.section-head p{{font-size:12.5px}}.market-tape{{background:rgba(255,255,255,.9);border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:var(--shadow)}}.tape-item{{padding:17px 20px}}.tape-item span{{font-size:12px}}.tape-item b{{font-family:var(--sans);font-size:22px;font-weight:700;letter-spacing:-.4px}}.tape-item small{{font-size:11.5px}}.tape-note{{font-size:11px;margin-top:9px}}.research-shell{{margin-top:26px;gap:34px;padding:30px 32px;background:rgba(255,255,255,.72);border:1px solid rgba(228,231,236,.95);border-radius:24px;box-shadow:0 16px 46px rgba(15,23,42,.045)}}.research-brief{{padding:3px 0}}.research-kicker{{font-size:12px;color:var(--accent);margin-bottom:10px}}.research-brief h2{{font-size:30px;font-weight:720;line-height:1.28;letter-spacing:-.65px}}.research-copy{{margin-top:16px;gap:10px}}.research-copy p{{font-size:15px;line-height:1.78;color:#474b52;text-wrap:pretty}}.brief-vix .metric-card{{background:#f8fafc;border:1px solid var(--line);border-radius:18px;padding:20px;box-shadow:none}}.metric-top{{font-size:12.5px}}.metric-note{{font-size:11.5px}}.change-strip{{margin-top:20px;padding:20px 24px;background:var(--accent-soft);border:0;border-radius:20px}}.change-strip-head{{margin-bottom:12px}}.change-strip-head h2{{font-size:20px;font-weight:700}}.change-strip-head span,.change-empty{{font-size:12px}}.change-grid{{border-top:1px solid rgba(0,113,227,.13)}}.change-item{{padding:14px 16px 10px 0;border-color:rgba(0,113,227,.12)}}.change-item span{{font-size:11.5px}}.change-item b{{font-size:16px}}.change-item small{{font-size:11.5px}}.iren-brief{{margin-top:24px;grid-template-columns:minmax(330px,.86fr) minmax(0,1.4fr);gap:0;padding:0;border:0;border-radius:24px;background:linear-gradient(145deg,#101827,#18243a);overflow:hidden;box-shadow:0 20px 45px rgba(15,23,42,.16)}}.iren-brief-main{{padding:30px 30px 28px;border:0;color:#fff}}.iren-eyebrow{{font-size:12px;font-weight:700;color:#8fc7ff;margin-bottom:9px}}.iren-title-row h2{{font-size:28px;font-weight:720;color:#fff;letter-spacing:-.5px}}.iren-title-row span{{font-size:11.5px;color:#9ba8bc}}.iren-metrics{{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:22px}}.iren-metrics>div{{padding:12px 13px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.08);border-radius:14px}}.iren-metrics span{{display:block;font-size:11px;color:#a8b3c5}}.iren-metrics b{{display:block;margin-top:4px;font-size:17px;font-weight:700;color:#fff}}.iren-metrics b.up{{color:#79d8a6}}.iren-metrics b.down{{color:#ff9b93}}.iren-view{{font-size:14px;line-height:1.75;color:#d5dbe5;margin-top:18px}}.iren-disclaimer{{font-size:11px;line-height:1.55;color:#8e9caf;margin-top:14px}}.iren-news{{background:#fff;padding:26px 28px}}.iren-news-head{{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:6px}}.iren-news-head strong{{font-size:18px}}.iren-news-head span{{font-size:11.5px;color:var(--muted)}}.iren-news-row{{grid-template-columns:auto auto 1fr;gap:5px 8px;padding:15px 0;border-color:#edf0f4}}.iren-news-row:hover .news-title-zh{{color:var(--accent)}}.news-tone{{font-size:10.5px;padding:3px 7px;border-radius:8px}}.news-source-kind{{font-size:10.5px;color:#7a828d;padding-top:3px;white-space:nowrap}}.news-copy{{grid-column:3;display:flex;flex-direction:column;min-width:0}}.news-title-zh{{font-size:15px;line-height:1.5;font-weight:700;color:#22262d;transition:.15s}}.news-original{{font-size:11.5px;line-height:1.45;color:#8a919d;margin-top:3px}}.news-impact{{font-size:12.5px;line-height:1.55;color:#525a66;margin-top:7px}}.iren-news-row small{{grid-column:auto;font-size:11px;color:#9299a4;margin-top:6px}}.iren-no-news{{font-size:13px}}.engine{{border-radius:22px;background:linear-gradient(145deg,#111827,#172033);box-shadow:0 18px 40px rgba(15,23,42,.16)}}.engine::after{{background:radial-gradient(circle,rgba(0,113,227,.22),transparent 70%)}}.engine-title{{font-size:26px;font-weight:700}}.engine-label{{font-size:12px}}.engine-item{{border-radius:14px}}.engine-item .k{{font-size:11.5px}}.engine-item .v{{font-family:var(--sans);font-size:19px;font-weight:700}}.engine-item .pt{{font-size:11px}}.panel,.metric-card,.mkt-card{{border-color:var(--line);box-shadow:0 8px 24px rgba(15,23,42,.045)}}.panel{{border-radius:18px}}.panel-head strong{{font-size:14.5px}}.panel-head span{{font-size:11.5px}}.pulse-label{{font-size:12px}}.pulse-main{{font-size:16px}}.stock-table th,.table-container th{{font-size:12px}}.stock-table td,.table-container td{{font-size:13.5px;line-height:1.55}}.stock-name{{font-size:14px}}.stock-symbol{{font-size:11.5px}}.footer{{font-size:11.5px;color:#8a9099}}
 @media (max-width:900px){{.content{{padding:28px 22px 42px}}.hero h1,.compact-hero h1{{font-size:32px}}.research-shell{{padding:24px}}.research-brief h2{{font-size:25px}}.iren-brief{{grid-template-columns:1fr}}.iren-news{{padding:22px}}.iren-metrics{{grid-template-columns:repeat(3,minmax(0,1fr))}}}}
 @media (max-width:560px){{body{{font-size:15px}}.content{{padding:22px 16px 36px}}.hero h1,.compact-hero h1{{font-size:29px}}.hero p{{font-size:14px}}.market-tape{{border-radius:16px}}.tape-item{{padding:14px}}.tape-item b{{font-size:19px}}.research-shell{{padding:20px;border-radius:18px}}.research-brief h2{{font-size:22px}}.research-copy p{{font-size:14.5px}}.change-strip{{padding:18px;border-radius:16px}}.iren-brief{{border-radius:18px}}.iren-brief-main{{padding:24px 20px}}.iren-title-row{{display:block}}.iren-title-row span{{display:block;margin-top:5px}}.iren-title-row h2{{font-size:25px}}.iren-metrics{{grid-template-columns:repeat(2,minmax(0,1fr))}}.iren-news{{padding:20px}}.iren-news-row{{grid-template-columns:auto 1fr}}.news-source-kind{{grid-column:2}}.news-copy{{grid-column:2}}.news-title-zh{{font-size:14.5px}}.news-impact{{font-size:12.5px}}}}
-</style><link href="assets/dashboard-v2.2.css?v={ASSET_VERSION}" rel="stylesheet"></head><body class="auth-pending" data-app-version="{APP_VERSION}"><div class="app">
+</style><link href="assets/dashboard-v2.2.css?v={ASSET_VERSION}" rel="stylesheet"><link href="assets/design-v4.2.1.css?v={ASSET_VERSION}" rel="stylesheet"></head><body class="auth-pending" data-app-version="{APP_VERSION}"><div class="app">
 
-<aside class="sidebar"><div class="brand"><div class="mav-brand-mark"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4 17 L9 9 L13 14 L20 5" stroke="#181109" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="20" cy="5" r="2.1" fill="#181109"/></svg></div><div><strong>myAlphaView</strong><small>myAlphaView · myalphaview.com</small></div></div>
+<aside class="sidebar"><div class="brand"><div class="mav-brand-mark"><svg viewBox="0 0 40 48" fill="none" aria-hidden="true"><path d="M5 40L15 10L19 22L30 5L24 31L35 24L27 43Z" fill="#D71920"/><circle cx="14.5" cy="30.5" r="4.5" fill="#D71920"/></svg></div><div><strong>myAlphaView</strong><small>Research · Market Intelligence</small></div></div>
 <div class="nav-group"><div class="nav-title">美股 · 宏观</div><ul class="nav-menu"><li class="active" onclick="switchTab('tab-overview',this)"><span class="nav-icon">◆</span>市场总览</li><li data-auth-required onclick="switchTab('tab-engine',this)"><span class="nav-icon">◒</span>策略引擎</li><li data-auth-required onclick="switchTab('tab-index',this)"><span class="nav-icon">◫</span>指数 & ETF</li></ul></div>
 <div class="nav-group"><div class="nav-title">A股 · 港股 · 红利</div><ul class="nav-menu"><li data-auth-required onclick="switchTab('tab-cn-hk',this)"><span class="nav-icon">◇</span>大盘 & 红利低波</li></ul></div>
 <div class="nav-group"><div class="nav-title">观察 & 持仓</div><ul class="nav-menu"><li data-auth-required onclick="switchTab('tab-stocks',this)"><span class="nav-icon">⌁</span>个股观察池</li><li data-auth-required onclick="switchTab('tab-options',this)"><span class="nav-icon">⚑</span>期权持仓监控</li><li data-auth-required onclick="switchTab('tab-archive',this)"><span class="nav-icon">📜</span>历史买点归档</li></ul></div>
 <div class="nav-group"><div class="nav-title">规划 & 工具</div><ul class="nav-menu"><li data-auth-required onclick="switchTab('tab-finance-tools',this)"><span class="nav-icon">◎</span>理财工具</li><li data-auth-required onclick="switchTab('tab-sandbox',this)"><span class="nav-icon">🧮</span>策略推演沙盒</li></ul></div>
-<div class="sidebar-footer">主理人私有看板 · 敏感持仓由 Supabase RLS 保护<br>未登录仅提供市场概览预览</div></aside>
+<div class="sidebar-footer">主理人私有看板 · 敏感持仓由 Supabase RLS 保护<br>未登录仅提供市场概览预览<br><a href="mailto:xxj8166@gmail.com" style="color:#9ea7bf;text-decoration:none">意见交流邮箱：xxj8166@gmail.com</a></div></aside>
 <div id="mobileNavBackdrop" class="mobile-nav-backdrop" aria-hidden="true"></div><aside id="mobileNavSheet" class="mobile-nav-sheet" aria-hidden="true" aria-label="全部模块"><div class="mobile-nav-sheet-head"><strong>全部模块</strong><button id="mobileNavClose" type="button" aria-label="关闭菜单">×</button></div><nav id="mobileNavList" class="mobile-nav-list"></nav><div class="mobile-nav-actions"><button id="mobileThemeAction" type="button">切换主题</button><button id="mobileInstallAction" type="button">安装应用</button><button id="mobileAuthAction" type="button">登录</button></div></aside><nav id="mobileBottomNav" class="mobile-bottom-nav" aria-label="手机主导航"></nav>
 
 <main class="main"><header class="topbar"><div class="breadcrumb">myAlphaView / <strong id="bc-title">市场总览</strong></div>
-<div class="top-meta"><span id="liveStatus" style="display:none;"><i class="live-dot"></i><span id="liveStatusText">数据抓取成功</span></span><div style="text-align:right; line-height:1.4;"><div style="font-weight:600; font-size:12px; color:var(--ink);">生成时间: {data.get('gen_time', '-')}</div><div id="usLiveAsOf" style="color:var(--muted); font-size:10.5px;">美股收盘日线截至: {data.get('spy_date', '-')} | A/港股盘中动态刷新</div></div><button id="pwaInstallButton" class="pwa-install" type="button" title="安装到当前设备">＋ 安装应用</button><button id="themeToggle" class="theme-toggle" title="切换深浅主题">🌙 深色</button><button id="authBtn" class="auth-btn-top" onclick="handleAuth()">🔐 登录私有看板</button></div></header><div class="content">
+<div class="top-meta"><span id="liveStatus" style="display:none;"><i class="live-dot"></i><span id="liveStatusText">数据抓取成功</span></span><div style="text-align:right; line-height:1.4;"><div style="font-weight:600; font-size:12px; color:var(--ink);">生成时间: {data.get('gen_time', '-')}</div><div id="usLiveAsOf" style="color:var(--muted); font-size:10.5px;">美股收盘日线截至: {data.get('spy_date', '-')} | A/港股盘中动态刷新</div></div><button id="pwaInstallButton" class="pwa-install" type="button" title="安装到当前设备">＋ 安装应用</button><button id="themeToggle" class="theme-toggle" title="切换深浅主题">🌙 深色</button><button id="authBtn" class="auth-btn-top" onclick="handleAuth()">登录 / 注册</button></div></header><div class="content">
 
 <div id="tab-overview" class="tab-pane active">
 <section class="hero overview-hero"><div><h1>市场与风险驾驶舱</h1><p>先看市场状态、策略距离和必须处理的风险，再决定是否行动。</p><div class="data-legend" aria-label="数据状态说明"><span class="live">盘中延迟行情</span><span class="close">最近有效收盘</span><span class="missing">不可用不计分</span></div></div><div class="public-note" id="modePanel"><b id="modeTitle">访客预览模式</b><span id="modeDesc">未登录仅显示市场概览；策略、观察池与持仓模块需要主理人登录。</span></div><button id="privateModeShield" class="private-mode-shield" type="button" title="私有控制台已连接，真实持仓受 Supabase RLS 保护">🛡️ 私有模式</button></section>
@@ -1489,7 +1489,7 @@ body{{font-size:15px;background:linear-gradient(180deg,#f7f9fc 0,#f3f6fa 100%);l
 <section class="section"><div class="table-container"><table><thead><tr><th style="text-align:left;">资产代号</th><th>触发日期</th><th>触发收盘价</th><th>当时全期回撤幅度</th><th>触发加仓评级</th><th>规则体系</th></tr></thead><tbody id="archiveTableBody">{signals_html}</tbody></table></div></section>
 <section class="section"><p style="font-size:11.5px;color:var(--muted);line-height:1.7">同一资产同一天可能出现两条记录——"资产自身三档线"是该ETF自己相对真实全期最高点的回撤触发的加仓线；"全市场宽度恐慌"是标普500全市场宽度指标触发的分级信号。两套规则相互独立，同一天都触发是正常情况，不是数据重复。</p></section></div>
 
-<div class="footer">© 2026 myAlphaView · Private Research Dashboard<br>市场数据与策略指标仅供研究参考，不构成投资建议；本站仅记录匿名访问次数，不采集姓名、邮箱或IP地址。</div>
+<div class="footer">© 2026 myAlphaView · Market Intelligence<br>市场数据与策略指标仅供研究参考，不构成投资建议；本站仅记录匿名访问次数，不采集姓名、邮箱或IP地址。<br>意见交流邮箱：<a href="mailto:xxj8166@gmail.com">xxj8166@gmail.com</a></div>
 </div></main></div>
 
 <div id="underlyingModal" class="option-modal-backdrop" style="display:none">
@@ -1788,27 +1788,27 @@ async function deleteTarget(symbol) {{
 async function checkSession() {{
   let session = null;
   try {{ const result = await supabaseClient.auth.getSession(); session = result.data.session; }}
-  catch (_error) {{ document.body.classList.remove('auth-pending'); document.body.classList.remove('private-mode'); authBtn.innerHTML = "🔐 登录暂不可用"; return; }}
+  catch (_error) {{ document.body.classList.remove('auth-pending'); document.body.classList.remove('private-mode'); authBtn.innerHTML = "登录暂不可用"; return; }}
   const authorized = Boolean(session && String(session.user.email || '').toLowerCase() === ADMIN_EMAIL.toLowerCase());
   document.body.classList.toggle('private-mode', authorized);
   document.body.classList.remove('auth-pending');
   if (session && !authorized) {{
       await supabaseClient.auth.signOut();
       isAdmin = false;
-      authBtn.innerHTML = "🔐 登录私有看板";
+      authBtn.innerHTML = "登录 / 注册";
       window.MAV?.toast('该账户没有主理人访问权限，已安全退出。','bad');
       window.SiteAnalytics?.onAuth(null, false);
       return;
   }}
   if (authorized) {{
       isAdmin = true; document.getElementById('modeTitle').innerText = "👑 主理人控制台已激活"; document.getElementById('modeDesc').innerText = "策略、观察池、期权与历史模块已解锁；真实持仓继续受 Supabase RLS 保护。";
-      authBtn.innerHTML = "🔓 退出账号"; document.getElementById('modeTitle').style.color = "var(--red)"; document.getElementById('liveStatusText').innerText = "连接云端数据库";
+      authBtn.innerHTML = "退出账号"; document.getElementById('modeTitle').style.color = "var(--red)"; document.getElementById('liveStatusText').innerText = "连接云端数据库";
       if (window.OptionV2) window.OptionV2.loadPrivatePositions();
       if (window.RollManager) window.RollManager.load();
       if (window.StockWatchlist) window.StockWatchlist.load();
       fetchAndRenderTargets();
   }} else {{
-      isAdmin = false; authBtn.innerHTML = "🔐 登录私有看板";
+      isAdmin = false; authBtn.innerHTML = "登录 / 注册";
       document.getElementById('modeTitle').innerText = "访客预览模式";
       document.getElementById('modeDesc').innerText = "未登录仅显示市场概览；策略、观察池与持仓模块需要主理人登录。";
       if (window.OptionV2) window.OptionV2.loadPrivatePositions();
@@ -1819,16 +1819,67 @@ async function checkSession() {{
 
 async function handleAuth() {{
   const {{ data: {{ session }} }} = await supabaseClient.auth.getSession();
-  if (session) {{ await supabaseClient.auth.signOut(); alert('已退出登录，恢复为公开展示模式。'); window.location.reload(); }} 
-  else {{
-      const email = prompt("请输入您的邮箱地址，获取免密登录链接：");
-      if (!email) return;
-      if (email.trim().toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {{ alert('该邮箱没有主理人访问权限。'); return; }}
-      authBtn.innerHTML = "⏳ 正在发送...";
-      const {{ error }} = await supabaseClient.auth.signInWithOtp({{ email: email, options: {{ emailRedirectTo: window.location.origin + window.location.pathname }} }});
-      if (error) {{ alert("发送失败: " + error.message); authBtn.innerHTML = "🔐 登录私有看板"; }} 
-      else {{ alert("✅ 魔法验证链接已发送，请查收邮件！"); authBtn.innerHTML = "✉️ 请查收邮件"; }}
+  if (session) {{
+      await supabaseClient.auth.signOut();
+      window.MAV?.toast('已退出登录，恢复为公开展示模式。','good');
+      window.location.reload();
+  }} else {{
+      openAuthModal('login');
   }}
+}}
+
+function openAuthModal(tab='login') {{
+  const overlay = document.getElementById('authOverlay');
+  if (!overlay) return;
+  overlay.hidden = false;
+  document.body.style.overflow = 'hidden';
+  switchAuthTab(tab);
+  setTimeout(() => document.getElementById(tab === 'login' ? 'authLoginEmail' : 'authRegisterEmail')?.focus(), 40);
+}}
+
+function closeAuthModal() {{
+  const overlay = document.getElementById('authOverlay');
+  if (overlay) overlay.hidden = true;
+  document.body.style.overflow = '';
+}}
+
+function switchAuthTab(tab) {{
+  document.querySelectorAll('[data-auth-tab]').forEach(btn => btn.classList.toggle('active', btn.dataset.authTab === tab));
+  const login = document.getElementById('authLoginPanel');
+  const register = document.getElementById('authRegisterPanel');
+  if (login) login.hidden = tab !== 'login';
+  if (register) register.hidden = tab !== 'register';
+}}
+
+async function submitAuthLogin() {{
+  const email = String(document.getElementById('authLoginEmail')?.value || '').trim().toLowerCase();
+  const status = document.getElementById('authLoginStatus');
+  if (!email || !email.includes('@')) {{ if(status) status.textContent='请输入有效邮箱地址。'; return; }}
+  if (email !== ADMIN_EMAIL.toLowerCase()) {{
+      if(status) status.textContent='该邮箱暂未获得私有看板权限。如需访问，可切换到“注册”提交申请。';
+      return;
+  }}
+  if(status) status.textContent='正在发送免密登录链接…';
+  authBtn.innerHTML = '正在发送...';
+  const {{ error }} = await supabaseClient.auth.signInWithOtp({{ email, options: {{ emailRedirectTo: window.location.origin + window.location.pathname }} }});
+  if (error) {{
+      if(status) status.textContent='发送失败：' + error.message;
+      authBtn.innerHTML='登录 / 注册';
+  }} else {{
+      if(status) status.textContent='登录链接已发送，请到邮箱中打开。';
+      authBtn.innerHTML='请查收邮件';
+  }}
+}}
+
+function submitAccessRequest() {{
+  const email = String(document.getElementById('authRegisterEmail')?.value || '').trim();
+  const note = String(document.getElementById('authRegisterNote')?.value || '').trim();
+  const status = document.getElementById('authRegisterStatus');
+  if (!email || !email.includes('@')) {{ if(status) status.textContent='请输入有效邮箱地址。'; return; }}
+  const subject = encodeURIComponent('myAlphaView 访问申请');
+  const body = encodeURIComponent(`申请邮箱：${{email}}\n\n用途/留言：${{note || '未填写'}}\n\n来自：${{window.location.href}}`);
+  if(status) status.textContent='正在打开邮件客户端，请发送申请邮件。';
+  window.location.href = `mailto:xxj8166@gmail.com?subject=${{subject}}&body=${{body}}`;
 }}
 
 window.addEventListener('load', checkSession);
@@ -1884,7 +1935,29 @@ function scheduleCNHK() {{
 }}
 window.addEventListener('load', () => {{ fetchLiveCNHK(); scheduleCNHK(); }});
 document.addEventListener('visibilitychange', () => {{ if (document.visibilityState === 'visible') {{ fetchLiveCNHK(); scheduleCNHK(); }} else clearTimeout(cnhkTimer); }});
-</script><div id="pwaNetworkBanner" class="pwa-network" hidden>当前离线 · 行情和持仓暂停更新</div><div id="pwaUpdateBanner" class="pwa-update" hidden role="status" aria-live="polite"><div class="pwa-update-copy"><strong>网站已有新版本</strong><span>更新后网页版与手机应用保持一致</span></div><div class="pwa-update-actions"><button id="pwaUpdateNow" class="pwa-update-now" type="button">立即更新</button><button id="pwaUpdateLater" class="pwa-update-later" type="button">稍后</button></div></div><script src="assets/market-live.js?v={ASSET_VERSION}"></script><script src="assets/dashboard-v2.2.js?v={ASSET_VERSION}"></script><script src="assets/options-v2.js?v={ASSET_VERSION}"></script><script src="assets/roll-manager.js?v={ASSET_VERSION}"></script><script src="assets/stock-watchlist.js?v={ASSET_VERSION}"></script><script src="assets/finance-tools.js?v={ASSET_VERSION}"></script><script src="assets/opportunity-radar.js?v={ASSET_VERSION}"></script><script src="assets/site-analytics.js?v={ASSET_VERSION}"></script><script src="assets/mobile-shell.js?v={ASSET_VERSION}"></script><script src="assets/pwa.js?v={ASSET_VERSION}"></script></body></html>'''
+</script>
+<div id="authOverlay" class="auth-overlay" hidden role="dialog" aria-modal="true" aria-labelledby="authDialogTitle" onclick="if(event.target===this)closeAuthModal()">
+  <div class="auth-dialog">
+    <button class="auth-close" type="button" onclick="closeAuthModal()" aria-label="关闭">×</button>
+    <div class="auth-brand"><div class="mav-brand-mark"><svg viewBox="0 0 40 48" fill="none" aria-hidden="true"><path d="M5 40L15 10L19 22L30 5L24 31L35 24L27 43Z" fill="#D71920"/><circle cx="14.5" cy="30.5" r="4.5" fill="#D71920"/></svg></div><div><strong>myAlphaView</strong><div style="font-size:12px;color:var(--muted);margin-top:2px">Market Intelligence</div></div></div>
+    <div class="auth-tabs"><button type="button" class="active" data-auth-tab="login" onclick="switchAuthTab('login')">登录</button><button type="button" data-auth-tab="register" onclick="switchAuthTab('register')">注册</button></div>
+    <section id="authLoginPanel" class="auth-panel">
+      <h2 id="authDialogTitle">欢迎回来</h2><p>使用已授权邮箱获取免密登录链接。私有策略、观察池和持仓继续由 Supabase RLS 保护。</p>
+      <label class="auth-field"><span>邮箱地址</span><input id="authLoginEmail" type="email" autocomplete="email" placeholder="your@email.com" onkeydown="if(event.key==='Enter')submitAuthLogin()"></label>
+      <button class="auth-primary" type="button" onclick="submitAuthLogin()">发送登录链接</button>
+      <div id="authLoginStatus" class="auth-secondary-note">无需输入密码。登录链接仅发送到已授权账户。</div>
+    </section>
+    <section id="authRegisterPanel" class="auth-panel" hidden>
+      <h2>申请访问</h2><p>目前私有功能仅开放授权账户。这里保留“注册”入口，但不会自动开放真实持仓或策略权限。</p>
+      <label class="auth-field"><span>邮箱地址</span><input id="authRegisterEmail" type="email" autocomplete="email" placeholder="your@email.com"></label>
+      <label class="auth-field"><span>用途 / 留言</span><input id="authRegisterNote" type="text" placeholder="例如：希望体验私有研究工具"></label>
+      <button class="auth-primary" type="button" onclick="submitAccessRequest()">提交注册申请</button>
+      <div id="authRegisterStatus" class="auth-secondary-note">点击后会打开你的邮件客户端，发送访问申请，不会自动授予私有权限。</div>
+    </section>
+    <div class="auth-contact">意见交流邮箱：<a href="mailto:xxj8166@gmail.com">xxj8166@gmail.com</a></div>
+  </div>
+</div>
+<div id="pwaNetworkBanner" class="pwa-network" hidden>当前离线 · 行情和持仓暂停更新</div><div id="pwaUpdateBanner" class="pwa-update" hidden role="status" aria-live="polite"><div class="pwa-update-copy"><strong>网站已有新版本</strong><span>更新后网页版与手机应用保持一致</span></div><div class="pwa-update-actions"><button id="pwaUpdateNow" class="pwa-update-now" type="button">立即更新</button><button id="pwaUpdateLater" class="pwa-update-later" type="button">稍后</button></div></div><script src="assets/market-live.js?v={ASSET_VERSION}"></script><script src="assets/dashboard-v2.2.js?v={ASSET_VERSION}"></script><script src="assets/options-v2.js?v={ASSET_VERSION}"></script><script src="assets/roll-manager.js?v={ASSET_VERSION}"></script><script src="assets/stock-watchlist.js?v={ASSET_VERSION}"></script><script src="assets/finance-tools.js?v={ASSET_VERSION}"></script><script src="assets/opportunity-radar.js?v={ASSET_VERSION}"></script><script src="assets/site-analytics.js?v={ASSET_VERSION}"></script><script src="assets/mobile-shell.js?v={ASSET_VERSION}"></script><script src="assets/pwa.js?v={ASSET_VERSION}"></script></body></html>'''
 
 def push_to_supabase(data):
     supabase_url, supabase_key = os.environ.get("SUPABASE_URL"), os.environ.get("SUPABASE_KEY")

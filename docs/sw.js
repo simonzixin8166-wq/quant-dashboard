@@ -3,7 +3,7 @@ const CACHE_NAME=`${CACHE_PREFIX}4.0.0`;
 const OFFLINE_URL='./offline.html';
 const SHELL=[
   './','./index.html','./manifest.webmanifest',OFFLINE_URL,
-  './assets/dashboard-v2.2.css?v=4.0.0','./assets/options-v2.css?v=4.0.0',
+  './assets/dashboard-v2.2.css?v=4.0.0','./assets/design-v4.2.1.css?v=4.2.1','./assets/options-v2.css?v=4.0.0',
   './assets/roll-manager.css?v=4.0.0','./assets/finance-tools.css?v=4.0.0',
   './assets/opportunity-radar.css?v=4.0.0','./assets/pwa.css?v=4.0.0',
   './assets/mobile-shell.css?v=4.0.0','./assets/mobile-shell.js?v=4.0.0',

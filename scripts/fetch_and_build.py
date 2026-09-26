@@ -13,9 +13,9 @@ except ModuleNotFoundError:
 warnings.filterwarnings("ignore")
 
 # 单一版本源：每日 Action 生成 HTML 时，页面标题和静态资源缓存版本都从这里读取。
-APP_VERSION = "4.2.1"
-OPTIONS_VERSION = "4.0.0"  # PWA/期权功能冻结；V4.2.1 继续以网站为主
-ASSET_VERSION = "4.2.1"
+APP_VERSION = "4.4.0"
+OPTIONS_VERSION = "4.0.0"  # PWA/期权功能冻结；V4.3 继续以网站为主
+ASSET_VERSION = "4.4.0"
 
 API_KEY = os.environ.get("TWELVE_DATA_KEY", "demo")
 BASE = "https://api.twelvedata.com"
@@ -426,6 +426,322 @@ def analyze(symbol, rows, today, tiers=None, is_stock=False, ath_metric=None):
     return out
 
 
+# ================= 6.4 V4.3 Trend Pulse 多周期趋势引擎 =================
+def _trend_frame(rows):
+    """把行情行转换为升序DataFrame；Trend Pulse只使用可解释的价格/量能数据。"""
+    records = []
+    for r in rows or []:
+        try:
+            records.append({
+                "date": pd.to_datetime(str(r.get("datetime", ""))[:10]),
+                "open": float(r.get("open")), "high": float(r.get("high")),
+                "low": float(r.get("low")), "close": float(r.get("close")),
+                "volume": float(r.get("volume") or 0),
+            })
+        except Exception:
+            continue
+    if not records:
+        return pd.DataFrame()
+    df = pd.DataFrame(records).dropna(subset=["date","open","high","low","close"])
+    df = df.sort_values("date").drop_duplicates("date").set_index("date")
+    return df
+
+def _wilder(series, period):
+    return series.ewm(alpha=1.0/period, adjust=False, min_periods=period).mean()
+
+def _trend_indicators(df):
+    if df is None or len(df) < 35:
+        return pd.DataFrame()
+    out = df.copy()
+    c,h,l = out["close"],out["high"],out["low"]
+    out["ema20"] = c.ewm(span=20, adjust=False).mean()
+    out["ema50"] = c.ewm(span=50, adjust=False).mean()
+    out["ema200"] = c.ewm(span=200, adjust=False).mean()
+    out["macd"] = c.ewm(span=12, adjust=False).mean() - c.ewm(span=26, adjust=False).mean()
+    out["macd_signal"] = out["macd"].ewm(span=9, adjust=False).mean()
+    out["macd_hist"] = out["macd"] - out["macd_signal"]
+
+    delta = c.diff()
+    gain = delta.clip(lower=0)
+    loss = (-delta).clip(lower=0)
+    rs = _wilder(gain,14) / _wilder(loss,14).replace(0, float("nan"))
+    out["rsi"] = 100 - 100/(1+rs)
+
+    prev_close = c.shift(1)
+    tr = pd.concat([(h-l).abs(),(h-prev_close).abs(),(l-prev_close).abs()],axis=1).max(axis=1)
+    out["atr"] = _wilder(tr,14)
+    up_move = h.diff(); down_move = -l.diff()
+    plus_dm = up_move.where((up_move > down_move) & (up_move > 0),0.0)
+    minus_dm = down_move.where((down_move > up_move) & (down_move > 0),0.0)
+    plus_di = 100 * _wilder(plus_dm,14) / out["atr"].replace(0,float("nan"))
+    minus_di = 100 * _wilder(minus_dm,14) / out["atr"].replace(0,float("nan"))
+    dx = 100 * (plus_di-minus_di).abs()/(plus_di+minus_di).replace(0,float("nan"))
+    out["plus_di"],out["minus_di"],out["adx"] = plus_di,minus_di,_wilder(dx,14)
+
+    # Supertrend(10,3)：只用于趋势方向，不作为独立交易指令。
+    atr10 = _wilder(tr,10)
+    hl2 = (h+l)/2
+    upper = hl2 + 3.0*atr10
+    lower = hl2 - 3.0*atr10
+    final_upper, final_lower = upper.copy(), lower.copy()
+    st = pd.Series(index=out.index,dtype=float)
+    direction = pd.Series(index=out.index,dtype=float)
+    for i in range(1,len(out)):
+        if pd.notna(final_upper.iloc[i-1]):
+            if upper.iloc[i] < final_upper.iloc[i-1] or c.iloc[i-1] > final_upper.iloc[i-1]: final_upper.iloc[i] = upper.iloc[i]
+            else: final_upper.iloc[i] = final_upper.iloc[i-1]
+            if lower.iloc[i] > final_lower.iloc[i-1] or c.iloc[i-1] < final_lower.iloc[i-1]: final_lower.iloc[i] = lower.iloc[i]
+            else: final_lower.iloc[i] = final_lower.iloc[i-1]
+        prev_st = st.iloc[i-1]
+        if pd.isna(prev_st):
+            st.iloc[i] = final_lower.iloc[i] if c.iloc[i] >= hl2.iloc[i] else final_upper.iloc[i]
+        elif prev_st == final_upper.iloc[i-1]:
+            st.iloc[i] = final_upper.iloc[i] if c.iloc[i] <= final_upper.iloc[i] else final_lower.iloc[i]
+        else:
+            st.iloc[i] = final_lower.iloc[i] if c.iloc[i] >= final_lower.iloc[i] else final_upper.iloc[i]
+        direction.iloc[i] = 1.0 if c.iloc[i] >= st.iloc[i] else -1.0
+    out["supertrend"] = st
+    out["st_dir"] = direction.fillna(0)
+
+    # OBV / MFI：若数据源缺少成交量则保持中性，不硬凑分数。
+    vol = out["volume"].fillna(0)
+    obv_step = pd.Series(0.0,index=out.index)
+    obv_step[delta>0] = vol[delta>0]; obv_step[delta<0] = -vol[delta<0]
+    out["obv"] = obv_step.cumsum()
+    out["obv_slope10"] = out["obv"] - out["obv"].shift(10)
+    tp=(h+l+c)/3; flow=tp*vol
+    pos=flow.where(tp.diff()>0,0.0).rolling(14).sum(); neg=flow.where(tp.diff()<0,0.0).rolling(14).sum()
+    ratio=pos/neg.replace(0,float("nan")); out["mfi"] = 100 - 100/(1+ratio)
+
+    out["high20"] = h.rolling(20).max(); out["low20"] = l.rolling(20).min()
+    out["prior_high20"] = out["high20"].shift(20); out["prior_low20"] = out["low20"].shift(20)
+    return out
+
+def _pulse_score_frame(ind, weekly_bias=0.0):
+    if ind is None or ind.empty: return pd.DataFrame()
+    x=ind.copy(); score=pd.Series(0.0,index=x.index)
+    # 价格结构/均线（20分）
+    bull_stack=(x.close>x.ema20)&(x.ema20>x.ema50)
+    bear_stack=(x.close<x.ema20)&(x.ema20<x.ema50)
+    score += bull_stack.astype(float)*20 - bear_stack.astype(float)*20
+    score += ((~bull_stack)&(x.close>x.ema20)).astype(float)*8
+    score -= ((~bear_stack)&(x.close<x.ema20)).astype(float)*8
+    # Supertrend（20分）
+    score += x.st_dir.fillna(0)*20
+    # ADX/DI（最多15分）
+    adx_weight=((x.adx.fillna(0)-15)/20).clip(0,1)*15
+    score += adx_weight.where(x.plus_di>=x.minus_di,-adx_weight)
+    # MACD（10分）
+    score += (x.macd_hist>0).astype(float)*10 - (x.macd_hist<0).astype(float)*10
+    # RSI位置（10分，避免把超买简单视为利空）
+    score += ((x.rsi.fillna(50)-50)/20).clip(-1,1)*10
+    # 价格结构 HH/HL 或 LH/LL（10分）
+    hh=x.high20>x.prior_high20; hl=x.low20>x.prior_low20
+    lh=x.high20<x.prior_high20; ll=x.low20<x.prior_low20
+    score += (hh&hl).astype(float)*10 - (lh&ll).astype(float)*10
+    # 量能（5分）；没有volume时自然为0
+    score += (x.obv_slope10>0).astype(float)*5 - (x.obv_slope10<0).astype(float)*5
+    # 周线方向最多15分，作为多周期共振项
+    score += float(weekly_bias)
+    x["pulse"] = score.clip(-100,100)
+    return x
+
+def _weekly_bias(df):
+    if df is None or len(df)<80: return 0.0, "数据不足"
+    w=df.resample("W-FRI").agg({"open":"first","high":"max","low":"min","close":"last","volume":"sum"}).dropna()
+    if len(w)<16: return 0.0,"数据不足"
+    c=w.close; e8=c.ewm(span=8,adjust=False).mean(); e21=c.ewm(span=21,adjust=False).mean()
+    macd=c.ewm(span=6,adjust=False).mean()-c.ewm(span=13,adjust=False).mean()
+    bias=0.0
+    bias += 8 if c.iloc[-1]>e8.iloc[-1]>e21.iloc[-1] else (-8 if c.iloc[-1]<e8.iloc[-1]<e21.iloc[-1] else 0)
+    bias += 7 if macd.iloc[-1]>0 else -7
+    label="多头" if bias>=8 else ("空头" if bias<=-8 else "过渡")
+    return bias,label
+
+
+def fetch_secondary_stock_snapshots(symbols):
+    """Batch Yahoo cross-check for Trend Pulse latest closes. Non-fatal if Yahoo is unavailable."""
+    out = {}
+    syms = [str(s).strip().upper() for s in (symbols or []) if str(s).strip()]
+    if not syms:
+        return out
+    try:
+        data = yf.download(syms, period="10d", interval="1d", auto_adjust=False, progress=False, threads=True)
+        if data is None or data.empty:
+            return out
+        close = data["Close"] if "Close" in data else None
+        if close is None:
+            return out
+        if isinstance(close, pd.Series):
+            close = close.to_frame(name=syms[0])
+        for sym in syms:
+            try:
+                ser = close[sym] if sym in close.columns else (close.iloc[:,0] if len(syms)==1 else None)
+                if ser is None:
+                    continue
+                ser = ser.dropna()
+                if ser.empty:
+                    continue
+                idx = ser.index[-1]
+                px = float(ser.iloc[-1])
+                if math.isfinite(px) and px > 0:
+                    out[sym] = {"date": pd.Timestamp(idx).date().isoformat(), "close": px, "source": "Yahoo Finance"}
+            except Exception:
+                continue
+    except Exception as e:
+        print(f"⚠️ Trend Pulse Yahoo 批量校验失败: {e}")
+    return out
+
+def validate_trend_input(symbol, rows, secondary=None, today=None):
+    """Trend Pulse input integrity gate. Descriptive metrics may render on CHECK; research guidance only renders on PASS."""
+    issues = []
+    hard_fail = False
+    df = _trend_frame(rows)
+    if df.empty:
+        return {"status":"FAIL","label":"数据不可用","issues":["无有效OHLC日线"],"rows":0,"dual_source":False}
+    today = today or df.index[-1].date()
+    if len(df) < 80:
+        hard_fail = True; issues.append(f"历史日线仅{len(df)}条，低于80条最低要求")
+    elif len(df) < 220:
+        issues.append(f"历史日线{len(df)}条，EMA200处于有限历史模式")
+    # OHLC structural validity across the actual rows used by the engine.
+    bad = ((df[["open","high","low","close"]] <= 0).any(axis=1) |
+           (df["high"] < df[["open","close","low"]].max(axis=1)) |
+           (df["low"] > df[["open","close","high"]].min(axis=1)))
+    if bool(bad.any()):
+        hard_fail = True; issues.append(f"发现{int(bad.sum())}条OHLC结构异常")
+    latest_date = df.index[-1].date()
+    age_days = (today - latest_date).days
+    if age_days < 0:
+        hard_fail = True; issues.append("最新行情日期位于未来")
+    elif age_days > 7:
+        hard_fail = True; issues.append(f"最新行情已滞后{age_days}天")
+    primary_close = float(df.close.iloc[-1])
+    dual_source = False
+    mismatch = None
+    secondary_date = None
+    secondary_close = None
+    if secondary and secondary.get("close"):
+        secondary_close = float(secondary["close"]); secondary_date = secondary.get("date")
+        mismatch = abs(primary_close-secondary_close)/secondary_close if secondary_close else None
+        try:
+            date_gap = abs((latest_date - datetime.date.fromisoformat(str(secondary_date))).days)
+        except Exception:
+            date_gap = 99
+        if date_gap <= 3 and mismatch is not None and mismatch <= 0.015:
+            dual_source = True
+        else:
+            hard_fail = True
+            issues.append(f"Twelve/Yahoo最新价或日期不一致（价差{(mismatch or 0):.2%}）")
+    else:
+        issues.append("Yahoo二次行情暂不可用，未完成双源校验")
+    status = "FAIL" if hard_fail else ("PASS" if dual_source and len(df)>=220 else "CHECK")
+    label = {"PASS":"双源校验通过","CHECK":"有限校验","FAIL":"暂停趋势结论"}[status]
+    return {
+        "status":status,"label":label,"issues":issues,"rows":int(len(df)),"dual_source":dual_source,
+        "primary_source":"Twelve Data","secondary_source":"Yahoo Finance" if secondary else None,
+        "as_of":latest_date.isoformat(),"age_days":age_days,"primary_close":round(primary_close,4),
+        "secondary_close":round(secondary_close,4) if secondary_close is not None else None,
+        "secondary_date":secondary_date,"price_mismatch_pct":round(mismatch,6) if mismatch is not None else None
+    }
+
+def build_trend_interpretation(tp):
+    integrity = tp.get("data_integrity") or {}
+    if integrity.get("status") != "PASS":
+        return {
+            "analysis":"趋势指标仅作数据展示，当前未满足双源完整校验条件。",
+            "risk_watch":"请先确认最新交易日、OHLC完整性以及Twelve Data与Yahoo最新价一致。",
+            "guidance":"暂停生成研究提示，避免在数据未充分验证时形成误导。",
+            "confidence":"未验证"
+        }
+    state=tp.get("state","震荡观察"); weekly=tp.get("weekly","过渡")
+    slope5=float(tp.get("slope5") or 0); adx=tp.get("adx"); plus=tp.get("plus_di"); minus=tp.get("minus_di")
+    rsi=tp.get("rsi"); st=tp.get("supertrend","-"); structure=tp.get("structure","-")
+    if state in ("趋势启动","趋势延续","二次启动"):
+        analysis=f"{state}：日线脉冲位于正区，5日斜率{slope5:+.1f}，周线为{weekly}，Supertrend为{st}。"
+        guidance="趋势结构尚未显示明确破坏；更适合继续跟踪趋势延续性，等待回踩确认，不把单日涨跌直接解释为趋势反转。"
+    elif state == "高位钝化":
+        analysis=f"高位钝化：趋势仍偏强，但5日斜率{slope5:+.1f}，边际动能趋缓。"
+        guidance="避免仅因高分追高；重点等待斜率重新上行，或观察是否转入高位下拐。"
+    elif state == "趋势退潮":
+        analysis=f"趋势退潮：高位脉冲明显回落，5日斜率{slope5:+.1f}，周线为{weekly}。"
+        guidance="优先观察风险控制条件；若日线Supertrend翻空且周线同步转弱，应把趋势破坏风险置于短期反弹之前。"
+    elif state == "修复中":
+        analysis=f"修复中：脉冲仍在负区但开始回升，5日斜率{slope5:+.1f}，周线为{weekly}。"
+        guidance="把当前视为观察阶段，等待脉冲上穿0轴及日周方向进一步一致后再提高趋势判断置信度。"
+    elif state == "趋势恶化":
+        analysis=f"趋势恶化：脉冲位于负区且未形成有效上拐，周线为{weekly}，Supertrend为{st}。"
+        guidance="以风险观察为主，不把普通反弹直接视为趋势反转；等待结构与斜率真正修复。"
+    else:
+        analysis=f"震荡观察：趋势证据尚未形成一致方向，5日斜率{slope5:+.1f}，周线为{weekly}。"
+        guidance="减少对单一指标的依赖，等待日线、周线及趋势强度形成更清晰共振。"
+    risk=[]
+    if isinstance(adx,(int,float)):
+        risk.append(f"ADX {adx:.1f}" + ("，趋势强度较明确" if adx>=25 else "，趋势强度仍有限"))
+    if isinstance(plus,(int,float)) and isinstance(minus,(int,float)):
+        risk.append(f"+DI/-DI {plus:.1f}/{minus:.1f}")
+    if isinstance(rsi,(int,float)):
+        risk.append(f"RSI {rsi:.0f}" + ("，短线偏热" if rsi>=70 else ("，短线偏弱" if rsi<=30 else "")))
+    risk.append(f"结构 {structure}")
+    return {"analysis":analysis,"risk_watch":"；".join(risk)+"。","guidance":guidance,"confidence":"高（双源校验）"}
+
+def calculate_trend_pulse(rows, symbol=None, secondary=None, today=None):
+    """V4.3 自研趋势跟踪：借鉴动态曲线/多周期思想，但不复制或冒充第三方TCDS公式。"""
+    df=_trend_frame(rows)
+    integrity = validate_trend_input(symbol or "-", rows, secondary=secondary, today=today)
+    if integrity.get("status") == "FAIL":
+        return {"available":False,"error":"数据完整性校验未通过","data_integrity":integrity}
+    if len(df)<55: return {"available":False,"error":"日线不足55个交易日","data_integrity":integrity}
+    weekly_bias,weekly_label=_weekly_bias(df)
+    ind=_trend_indicators(df)
+    scored=_pulse_score_frame(ind,weekly_bias)
+    valid=scored.dropna(subset=["pulse"])
+    if valid.empty: return {"available":False,"error":"趋势指标计算失败"}
+    cur=valid.iloc[-1]; prev=valid.iloc[-2] if len(valid)>1 else cur
+    slope5=float(cur.pulse-valid.pulse.iloc[-6]) if len(valid)>=6 else 0.0
+    slope20=float(cur.pulse-valid.pulse.iloc[-21]) if len(valid)>=21 else slope5
+    recent=valid.pulse.iloc[-12:] if len(valid)>=12 else valid.pulse
+    rebound=bool(len(recent)>=6 and cur.pulse>30 and slope5>6 and recent.min() < cur.pulse-12)
+    crossed=bool(prev.pulse<=0<cur.pulse and slope5>3)
+    if cur.pulse<0:
+        state="修复中" if slope5>2 else "趋势恶化"; tone="warn" if slope5>2 else "bad"
+    elif crossed:
+        state,tone="趋势启动","good"
+    elif cur.pulse>=70 and slope5<-6:
+        state,tone="趋势退潮","bad"
+    elif cur.pulse>=70 and abs(slope5)<=4:
+        state,tone="高位钝化","warn"
+    elif rebound:
+        state,tone="二次启动","good"
+    elif cur.pulse>=20 and slope5>0:
+        state,tone="趋势延续","good"
+    else:
+        state,tone="震荡观察","neutral"
+    structure="中性"
+    try:
+        if cur.high20>cur.prior_high20 and cur.low20>cur.prior_low20: structure="HH/HL"
+        elif cur.high20<cur.prior_high20 and cur.low20<cur.prior_low20: structure="LH/LL"
+        elif cur.high20>cur.prior_high20: structure="HH/LL"
+        elif cur.low20>cur.prior_low20: structure="LH/HL"
+    except Exception: pass
+    vol_available=bool(df.volume.fillna(0).sum()>0)
+    series=[{"d":idx.date().isoformat(),"v":round(float(row.pulse),2)} for idx,row in valid.iloc[-90:].iterrows()]
+    summary=(f"日线{state}，周线{weekly_label}；5日脉冲变化 {slope5:+.1f}。"
+             + ("多周期方向一致。" if (cur.pulse>=20 and weekly_bias>0) or (cur.pulse<0 and weekly_bias<0) else "多周期尚未完全共振。"))
+    result = {
+        "available":True,"date":valid.index[-1].date().isoformat(),"score":round(float(cur.pulse),1),
+        "state":state,"tone":tone,"slope5":round(slope5,1),"slope20":round(slope20,1),
+        "weekly":weekly_label,"weekly_bias":round(float(weekly_bias),1),"structure":structure,
+        "supertrend":"多头" if cur.st_dir>=0 else "空头","adx":round(float(cur.adx),1) if pd.notna(cur.adx) else None,
+        "plus_di":round(float(cur.plus_di),1) if pd.notna(cur.plus_di) else None,"minus_di":round(float(cur.minus_di),1) if pd.notna(cur.minus_di) else None,
+        "rsi":round(float(cur.rsi),1) if pd.notna(cur.rsi) else None,"mfi":round(float(cur.mfi),1) if pd.notna(cur.mfi) and vol_available else None,
+        "macd_hist":round(float(cur.macd_hist),4) if pd.notna(cur.macd_hist) else None,"volume_available":vol_available,
+        "summary":summary,"series":series,"data_integrity":integrity,
+        "method":"Trend Pulse V1 · 价格结构 + EMA + Supertrend + ADX/DI + MACD + RSI + OBV/MFI + 周线共振"
+    }
+    result.update(build_trend_interpretation(result))
+    return result
+
 # ================= 6.5 研究简报 / IREN Daily Brief =================
 def _safe_float(value):
     try:
@@ -755,7 +1071,7 @@ def process_options_data(opt_positions, stocks, index, core, today):
 
 def build():
     today = datetime.date.today()
-    core, index, stocks, overview_charts, data_status = {}, {}, {}, {}, {}
+    core, index, stocks, overview_charts, data_status, trend_pulse = {}, {}, {}, {}, {}, {}
     old_data = {}
     try:
         with open(os.path.join(os.path.dirname(__file__), '..', 'docs', 'data.json'), 'r', encoding='utf-8') as f: old_data = json.load(f)
@@ -855,9 +1171,15 @@ def build():
         m_tier = "extreme" if m_score >= 7 else ("major" if m_score >= 5 else ("tier1" if m_score >= 3 else "normal"))
         market_regime = {"score": m_score, "max_score": 9, "max_available_score": m_max, "tier": m_tier, "tier_label": {"extreme":"极限恐慌", "major":"重点恐慌", "tier1":"一级恐慌"}.get(m_tier, "盘中临时状态" if m_max<9 else "正常"), "drawdown": {"value": m_drawdown, "threshold": -0.08, "hit": drawdown_hit, "points": 2}, "conditions": m_cond, "vix": vix_data.get("close") if "error" not in vix_data else None, "breadth_status": (breadth_data or {}).get("status", "error"), "breadth_message": (breadth_data or {}).get("message", "宽度数据缺失"), "dist_52w_high": dist_52w_high, "divergence": {"level":divergence_level, "label":divergence_label, "near_high":near_high}}
 
+    trend_secondary = fetch_secondary_stock_snapshots(active_stocks)
     for name in active_stocks:
-        try: stocks[name] = analyze(name, fetch_time_series(name), today, is_stock=True)
-        except Exception as e: stocks[name] = {"error": str(e)}
+        try:
+            stock_rows = fetch_time_series(name)
+            stocks[name] = analyze(name, stock_rows, today, is_stock=True)
+            trend_pulse[name] = calculate_trend_pulse(stock_rows, symbol=name, secondary=trend_secondary.get(name), today=today)
+        except Exception as e:
+            stocks[name] = {"error": str(e)}
+            trend_pulse[name] = {"available": False, "error": str(e)}
         
     cn_hk_data = {}
     try:
@@ -894,7 +1216,7 @@ def build():
             "overview_charts": overview_charts, "options": [],
             "cn_hk": cn_hk_data, "market_regime": market_regime, "historical_signals": historical_signals, "data_status": data_status,
             "raw_breadth": breadth_data, "market_indicators": {"spx": spx_data, "spx_source": spx_src, "ixic": ixic_data, "ixic_source": ixic_src, "vix": vix_data, "vix_source": vix_src},
-            "research_brief": research_brief, "what_changed": what_changed, "iren_brief": iren_brief,
+            "research_brief": research_brief, "what_changed": what_changed, "iren_brief": iren_brief, "trend_pulse": trend_pulse,
             "tqqq_x2": tqqq_x2, "leaps_radar": leaps_radar, "opportunity_history": opportunity_history}
 
 # ================= 8. 前端 HTML 组件独立渲染函数 =================
@@ -1108,7 +1430,11 @@ def render_html(data):
                 target_gap_text = f'低于策略价 {fmt_pct(close/target-1)}' if close <= target else f'还需下跌 {fmt_pct(abs(target_distance))}'
             else: target_gap_text = "等待策略数据"
             target_display = f"${target:.2f}" if isinstance(target,(int,float)) else "—"
-            stock_html += f'''<tr data-stock-row data-status="{status}" data-target-distance="{abs(target_distance) if isinstance(target_distance,(int,float)) else 999}" data-drawdown="{abs(ytd_dd) if isinstance(ytd_dd,(int,float)) else 0}" data-rsi="{rsi if isinstance(rsi,(int,float)) else 999}" data-dist200="{dist if isinstance(dist,(int,float)) else 0}"><td class="stock-identity"><div class="stock-name">{name}</div><div class="stock-symbol">{sym}</div><details class="stock-details"><summary>行情详情</summary><div>开 ${v.get("open",0):.2f} · 高 ${v.get("high",0):.2f} · 低 ${v.get("low",0):.2f}<br>YTD高点 ${fmt_num(ytd_high)} · 日线截至 {v.get("date","-")}</div></details></td><td data-label="最新价 / 涨跌"><b id="close-{sym}">${close:.2f}</b><small id="chg-{sym}" class="{'pos-text' if chg>=0 else 'neg-text'}">{chg*100:+.2f}%</small></td><td data-label="YTD回撤" class="neg-text fw-bold">{fmt_pct(ytd_dd)}</td><td data-label="RSI">{fmt_num(rsi)}</td><td data-label="距200MA" class="{'neg-text' if isinstance(dist,(int,float)) and dist<0 else ''}">{fmt_pct(dist)}</td><td data-label="策略价 / 距离" id="target-cell-{sym}"><b id="target-{sym}">{target_display}</b><small id="target-gap-{sym}">{target_gap_text}</small></td><td data-label="状态"><span id="stock-status-{sym}" class="stock-status {status}">{status_label}</span><span id="action-{sym}"></span></td></tr>'''
+            tp = (data.get("trend_pulse") or {}).get(sym, {})
+            tp_score = tp.get("score") if tp.get("available") else None
+            tp_tone = tp.get("tone", "neutral")
+            tp_html = f'<b class="trend-score {tp_tone}">{tp_score:+.0f}</b><small>{html.escape(tp.get("state","等待数据"))}</small>' if isinstance(tp_score,(int,float)) else '<b>—</b><small>数据不足</small>'
+            stock_html += f'''<tr data-stock-row data-status="{status}" data-target-distance="{abs(target_distance) if isinstance(target_distance,(int,float)) else 999}" data-drawdown="{abs(ytd_dd) if isinstance(ytd_dd,(int,float)) else 0}" data-rsi="{rsi if isinstance(rsi,(int,float)) else 999}" data-dist200="{dist if isinstance(dist,(int,float)) else 0}" data-pulse="{tp_score if isinstance(tp_score,(int,float)) else -999}"><td class="stock-identity"><div class="stock-name">{name}</div><div class="stock-symbol">{sym}</div><details class="stock-details"><summary>行情详情</summary><div>开 ${v.get("open",0):.2f} · 高 ${v.get("high",0):.2f} · 低 ${v.get("low",0):.2f}<br>YTD高点 ${fmt_num(ytd_high)} · 日线截至 {v.get("date","-")}</div></details></td><td data-label="最新价 / 涨跌"><b id="close-{sym}">${close:.2f}</b><small id="chg-{sym}" class="{'pos-text' if chg>=0 else 'neg-text'}">{chg*100:+.2f}%</small></td><td data-label="Trend Pulse">{tp_html}</td><td data-label="YTD回撤" class="neg-text fw-bold">{fmt_pct(ytd_dd)}</td><td data-label="RSI">{fmt_num(rsi)}</td><td data-label="距200MA" class="{'neg-text' if isinstance(dist,(int,float)) and dist<0 else ''}">{fmt_pct(dist)}</td><td data-label="策略价 / 距离" id="target-cell-{sym}"><b id="target-{sym}">{target_display}</b><small id="target-gap-{sym}">{target_gap_text}</small></td><td data-label="状态"><span id="stock-status-{sym}" class="stock-status {status}">{status_label}</span><span id="action-{sym}"></span></td></tr>'''
             
     options_html = '<tr><td colspan="9" style="text-align:center; color:var(--muted)">请登录后查看私有期权持仓</td></tr>'
 
@@ -1235,6 +1561,16 @@ def render_html(data):
     else:
         what_changed_html = f'<section class="change-strip"><div class="change-strip-head"><h2>今日变化</h2><span>等待下一次快照</span></div><p class="change-empty">{html.escape(str(changes.get("note","首次快照，下一次更新后开始显示变化。")))}</p></section>'
 
+    trend_data = data.get("trend_pulse") or {}
+    iren_tp = trend_data.get("IREN") or {}
+    if iren_tp.get("available"):
+        tp_tone = iren_tp.get("tone","neutral")
+        integrity = iren_tp.get("data_integrity") or {}
+        int_status = integrity.get("status","CHECK")
+        trend_home_html = f'''<div class="iren-trend-inline"><div><span>Trend Pulse</span><b class="{tp_tone}">{iren_tp.get("score",0):+.0f}</b></div><div><span>趋势状态</span><strong>{html.escape(iren_tp.get("state","-"))}</strong></div><div><span>周线</span><strong>{html.escape(iren_tp.get("weekly","-"))}</strong></div><div><span>数据校验</span><strong class="integrity-{int_status.lower()}">{html.escape(integrity.get("label","待校验"))}</strong></div></div><div class="trend-interpretation"><p><b>分析结果</b>{html.escape(iren_tp.get("analysis",""))}</p><p><b>风险观察</b>{html.escape(iren_tp.get("risk_watch",""))}</p><p><b>研究提示</b>{html.escape(iren_tp.get("guidance",""))}</p></div>'''
+    else:
+        trend_home_html = '<div class="iren-trend-inline unavailable">Trend Pulse 等待足够日线数据</div>'
+
     iren = data.get("iren_brief") or {}
     news_rows = []
     for item in iren.get("news", [])[:5]:
@@ -1255,16 +1591,36 @@ def render_html(data):
     if iren.get("available"):
         iren_price = _safe_float(iren.get("price")); iren_chg = _safe_float(iren.get("day_chg")); iren_dd = _safe_float(iren.get("ytd_drawdown")); iren_rsi = _safe_float(iren.get("rsi")); iren_ma = _safe_float(iren.get("dist_200ma"))
         iren_metrics = f'<div class="iren-metrics"><div><span>最新价</span><b>${iren_price:.2f}</b></div><div><span>当日</span><b class="{"up" if (iren_chg or 0)>=0 else "down"}">{iren_chg:+.1%}</b></div><div><span>距YTD高点</span><b>{iren_dd:.1%}</b></div><div><span>RSI</span><b>{iren_rsi:.0f}</b></div><div><span>距200MA</span><b>{iren_ma:+.1%}</b></div></div>' if all(v is not None for v in (iren_price, iren_chg, iren_dd, iren_rsi, iren_ma)) else ''
-        iren_brief_html = f'<section class="iren-brief"><div class="iren-brief-main"><div class="iren-eyebrow">重点研究 · IREN</div><div class="iren-title-row"><h2>IREN 每日观察</h2><span>日线截至 {html.escape(str(iren.get("date","-")))}</span></div>{iren_metrics}<p class="iren-view">{html.escape(str(iren.get("view","")))}</p><div class="iren-disclaimer">消息方向标签用于快速筛选。官方披露优先；媒体观点与价格目标不等同于公司基本面事实。</div></div><div class="iren-news"><div class="iren-news-head"><strong>最新消息</strong><span>中文标题 · 原文保留</span></div>{news_html}</div></section>'
+        iren_brief_html = f'<section class="iren-brief"><div class="iren-brief-main"><div class="iren-eyebrow">重点研究 · IREN</div><div class="iren-title-row"><h2>IREN 每日观察</h2><span>日线截至 {html.escape(str(iren.get("date","-")))}</span></div>{iren_metrics}{trend_home_html}<p class="iren-view">{html.escape(str(iren.get("view","")))}</p><div class="iren-disclaimer">消息方向标签用于快速筛选。官方披露优先；媒体观点与价格目标不等同于公司基本面事实。</div></div><div class="iren-news"><div class="iren-news-head"><strong>最新消息</strong><span>中文标题 · 原文保留</span></div>{news_html}</div></section>'
     else:
         iren_brief_html = f'<section class="iren-brief"><div class="iren-brief-main"><div class="research-kicker">IREN Daily Brief</div><h2>IREN 每日观察</h2><p>{html.escape(str(iren.get("summary","IREN 行情暂不可用。")))}</p></div><div class="iren-news">{news_html}</div></section>'
 
-    tape_html = f'<div class="tape-wrap"><section class="market-tape" aria-label="市场核心指标"><div class="tape-item"><span>NASDAQ</span><b data-us-live-price="ixic">{qqq_value}</b><small data-us-live-chg="ixic" class="{"positive" if isinstance(qqq_chg,(int,float)) and qqq_chg>=0 else "negative"}">{("+" if isinstance(qqq_chg,(int,float)) and qqq_chg>=0 else "") + fmt_pct(qqq_chg) if isinstance(qqq_chg,(int,float)) else "—"}</small></div><div class="tape-item"><span>S&amp;P 500</span><b data-us-live-price="spx">{spy_value}</b><small data-us-live-chg="spx" class="{"positive" if isinstance(spy_chg,(int,float)) and spy_chg>=0 else "negative"}">{("+" if isinstance(spy_chg,(int,float)) and spy_chg>=0 else "") + fmt_pct(spy_chg) if isinstance(spy_chg,(int,float)) else "—"}</small></div><div class="tape-item"><span>VIX</span><b data-us-live-price="vix">{vol_display}</b><small data-us-live-note="vix">{html.escape(vix_note)}</small></div><div class="tape-item"><span>红利低波100</span><b data-live-price="sz159307">{sz_val}</b><small data-live-chg="sz159307" class="{"positive" if isinstance(sz_chg,(int,float)) and sz_chg>=0 else "negative"}">{("+" if isinstance(sz_chg,(int,float)) and sz_chg>=0 else "") + fmt_pct(sz_chg) if isinstance(sz_chg,(int,float)) else "—"}</small></div></section><div class="tape-note">美股盘中5分钟刷新；宽度每日收盘更新</div></div>'
+    tape_html = f'<div class="tape-wrap"><section class="market-tape" aria-label="市场核心指标"><div class="tape-item"><span>NASDAQ</span><b data-us-live-price="ixic">{qqq_value}</b><small data-us-live-chg="ixic" class="{"positive" if isinstance(qqq_chg,(int,float)) and qqq_chg>=0 else "negative"}">{("+" if isinstance(qqq_chg,(int,float)) and qqq_chg>=0 else "") + fmt_pct(qqq_chg) if isinstance(qqq_chg,(int,float)) else "—"}</small></div><div class="tape-item"><span>S&amp;P 500</span><b data-us-live-price="spx">{spy_value}</b><small data-us-live-chg="spx" class="{"positive" if isinstance(spy_chg,(int,float)) and spy_chg>=0 else "negative"}">{("+" if isinstance(spy_chg,(int,float)) and spy_chg>=0 else "") + fmt_pct(spy_chg) if isinstance(spy_chg,(int,float)) else "—"}</small></div><div class="tape-item"><span>VIX</span><b data-us-live-price="vix">{vol_display}</b><small data-us-live-note="vix">{html.escape(vix_note)}</small></div><div class="tape-item"><span>红利低波100</span><b data-live-price="sz159307">{sz_val}</b><small data-live-chg="sz159307" class="{"positive" if isinstance(sz_chg,(int,float)) and sz_chg>=0 else "negative"}">{("+" if isinstance(sz_chg,(int,float)) and sz_chg>=0 else "") + fmt_pct(sz_chg) if isinstance(sz_chg,(int,float)) else "—"}</small></div></section><div class="tape-note">美股核心指数与IREN盘中5分钟；普通观察股10分钟；期权15分钟；趋势/宽度按完整收盘确认</div></div>'
 
+    trend_data = data.get("trend_pulse") or {}
+    iren_tp = trend_data.get("IREN") or {}
+    if iren_tp.get("available"):
+        tp_tone = iren_tp.get("tone","neutral")
+        integrity = iren_tp.get("data_integrity") or {}
+        int_status = integrity.get("status","CHECK")
+        trend_home_html = f'''<div class="iren-trend-inline"><div><span>Trend Pulse</span><b class="{tp_tone}">{iren_tp.get("score",0):+.0f}</b></div><div><span>趋势状态</span><strong>{html.escape(iren_tp.get("state","-"))}</strong></div><div><span>周线</span><strong>{html.escape(iren_tp.get("weekly","-"))}</strong></div><div><span>数据校验</span><strong class="integrity-{int_status.lower()}">{html.escape(integrity.get("label","待校验"))}</strong></div></div><div class="trend-interpretation"><p><b>分析结果</b>{html.escape(iren_tp.get("analysis",""))}</p><p><b>风险观察</b>{html.escape(iren_tp.get("risk_watch",""))}</p><p><b>研究提示</b>{html.escape(iren_tp.get("guidance",""))}</p></div>'''
+    else:
+        trend_home_html = '<div class="iren-trend-inline unavailable">Trend Pulse 等待足够日线数据</div>'
+
+    trend_cards=[]
+    for sym,tp in trend_data.items():
+        if not tp.get("available"): continue
+        tone=tp.get("tone","neutral")
+        integrity = tp.get("data_integrity") or {}
+        isty = integrity.get("status","CHECK").lower()
+        trend_cards.append(f'''<article class="trend-card" data-tone="{tone}"><div class="trend-card-top"><div><span>{html.escape(STOCK_META.get(sym,{}).get("name",sym))}</span><h3>{sym}</h3></div><div class="trend-score-xl {tone}">{tp.get("score",0):+.0f}</div></div><div class="trend-state {tone}">{html.escape(tp.get("state","-"))}</div><div class="trend-integrity integrity-{isty}">{html.escape(integrity.get("label","待校验"))} · {html.escape(str(integrity.get("as_of","-")))}</div><div class="trend-card-grid"><span>周线 <b>{html.escape(tp.get("weekly","-"))}</b></span><span>5日斜率 <b>{tp.get("slope5",0):+.1f}</b></span><span>Supertrend <b>{html.escape(tp.get("supertrend","-"))}</b></span><span>ADX <b>{fmt_num(tp.get("adx"),1)}</b></span><span>+DI / -DI <b>{fmt_num(tp.get("plus_di"),1)} / {fmt_num(tp.get("minus_di"),1)}</b></span><span>结构 <b>{html.escape(tp.get("structure","-"))}</b></span></div><p class="trend-analysis"><b>分析：</b>{html.escape(tp.get("analysis",""))}</p><p class="trend-guidance"><b>研究提示：</b>{html.escape(tp.get("guidance",""))}</p></article>''')
+    trend_cards_html=''.join(trend_cards) or '<div class="trend-empty">等待趋势数据</div>'
+
+    trend_json = json.dumps(trend_data, ensure_ascii=False)
     chart_json = json.dumps(data.get("overview_charts", {}), ensure_ascii=False)
 
-    return f'''<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"><title>myAlphaView · Market Intelligence</title>
-<meta name="author" content="Simon"><meta name="application-version" content="{APP_VERSION}"><meta name="robots" content="noindex,nofollow,noarchive,nosnippet"><meta name="referrer" content="no-referrer"><meta name="theme-color" content="#D71920"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="myAlphaView"><link rel="manifest" href="manifest.webmanifest?v={ASSET_VERSION}"><link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png"><link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png"><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,380;9..144,520;9..144,620&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"><link href="assets/options-v2.css?v={ASSET_VERSION}" rel="stylesheet"><link href="assets/roll-manager.css?v={ASSET_VERSION}" rel="stylesheet"><link href="assets/finance-tools.css?v={ASSET_VERSION}" rel="stylesheet"><link href="assets/opportunity-radar.css?v={ASSET_VERSION}" rel="stylesheet"><link href="assets/pwa.css?v={ASSET_VERSION}" rel="stylesheet"><link href="assets/mobile-shell.css?v={ASSET_VERSION}" rel="stylesheet"><script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    return f'''<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"><title>Myalpha View · 投资分析及策略</title>
+<meta name="author" content="Simon"><meta name="application-version" content="{APP_VERSION}"><meta name="robots" content="noindex,nofollow,noarchive,nosnippet"><meta name="referrer" content="no-referrer"><meta name="theme-color" content="#D71920"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="Myalpha View"><link rel="manifest" href="manifest.webmanifest?v={ASSET_VERSION}"><link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png"><link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png"><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,380;9..144,520;9..144,620&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"><link href="assets/options-v2.css?v={ASSET_VERSION}" rel="stylesheet"><link href="assets/roll-manager.css?v={ASSET_VERSION}" rel="stylesheet"><link href="assets/finance-tools.css?v={ASSET_VERSION}" rel="stylesheet"><link href="assets/opportunity-radar.css?v={ASSET_VERSION}" rel="stylesheet"><link href="assets/pwa.css?v={ASSET_VERSION}" rel="stylesheet"><link href="assets/mobile-shell.css?v={ASSET_VERSION}" rel="stylesheet"><script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{{--bg:#f4f2ec;--surface:#ffffff;--surface2:#ebe8df;--ink:#14161c;--muted:#696d76;--line:#e1ddd0;--nav:#11162a;--nav2:#0a0d1a;--navmuted:#8d93ab;--navline:rgba(255,255,255,.08);--brass:#b8863a;--brass-soft:#e8d3ab;--navy:#1f2b52;--green:#1c7a4c;--green-soft:#e5f1e9;--red:#b23b2e;--red-soft:#f6e6e2;--amber:#c07f2e;--amber-soft:#f6ecd8;--shadow:0 12px 32px rgba(15,15,10,.07);--serif:'Fraunces',ui-serif,Georgia,serif;--sans:'Inter',-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;}}
 *{{box-sizing:border-box;margin:0;padding:0}} body{{font-family:var(--sans);background:var(--bg);color:var(--ink);min-height:100vh;-webkit-font-smoothing:antialiased}} .app{{display:flex;min-height:100vh}}
@@ -1307,17 +1663,17 @@ def render_html(data):
 body{{font-size:15px;background:linear-gradient(180deg,#f7f9fc 0,#f3f6fa 100%);letter-spacing:-.005em}}.topbar{{background:rgba(247,249,252,.82);border-color:rgba(0,0,0,.07)}}.content{{max-width:1500px;padding:42px 40px 56px}}.sidebar{{background:linear-gradient(180deg,#111827,#0b1220)}}.mav-brand-mark{{background:linear-gradient(135deg,#f0c678,#b98536);box-shadow:none}}.brand strong{{font-size:18px}}.brand small{{font-size:12px}}.nav-title{{font-size:11.5px;color:#7f8a9d}}.nav-menu li{{font-size:14.5px;padding:11px 12px}}.nav-menu li.active{{background:rgba(0,113,227,.15);box-shadow:inset 3px 0 0 var(--accent)}}.auth-btn-top{{background:var(--accent);font-size:12.5px;padding:8px 15px;border-radius:10px;box-shadow:none}}.auth-btn-top:hover{{background:#0068d1}}.breadcrumb{{font-size:14px}}.top-meta{{font-size:12.5px}}.hero{{margin-bottom:22px}}.hero h1,.compact-hero h1{{font-family:var(--sans);font-size:40px;font-weight:720;line-height:1.12;letter-spacing:-1.15px}}.hero p{{font-size:15px;line-height:1.7}}.public-note{{font-size:13px;border:0;border-left:3px solid var(--accent);border-radius:12px;background:rgba(255,255,255,.78);box-shadow:0 4px 18px rgba(15,23,42,.04)}}.public-note b{{font-size:13px}}.section-head h2,.engine-title,.research-brief h2,.iren-brief h2,.change-strip h2{{font-family:var(--sans)}}.section-head h2{{font-size:22px;font-weight:700}}.section-head p{{font-size:12.5px}}.market-tape{{background:rgba(255,255,255,.9);border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:var(--shadow)}}.tape-item{{padding:17px 20px}}.tape-item span{{font-size:12px}}.tape-item b{{font-family:var(--sans);font-size:22px;font-weight:700;letter-spacing:-.4px}}.tape-item small{{font-size:11.5px}}.tape-note{{font-size:11px;margin-top:9px}}.research-shell{{margin-top:26px;gap:34px;padding:30px 32px;background:rgba(255,255,255,.72);border:1px solid rgba(228,231,236,.95);border-radius:24px;box-shadow:0 16px 46px rgba(15,23,42,.045)}}.research-brief{{padding:3px 0}}.research-kicker{{font-size:12px;color:var(--accent);margin-bottom:10px}}.research-brief h2{{font-size:30px;font-weight:720;line-height:1.28;letter-spacing:-.65px}}.research-copy{{margin-top:16px;gap:10px}}.research-copy p{{font-size:15px;line-height:1.78;color:#474b52;text-wrap:pretty}}.brief-vix .metric-card{{background:#f8fafc;border:1px solid var(--line);border-radius:18px;padding:20px;box-shadow:none}}.metric-top{{font-size:12.5px}}.metric-note{{font-size:11.5px}}.change-strip{{margin-top:20px;padding:20px 24px;background:var(--accent-soft);border:0;border-radius:20px}}.change-strip-head{{margin-bottom:12px}}.change-strip-head h2{{font-size:20px;font-weight:700}}.change-strip-head span,.change-empty{{font-size:12px}}.change-grid{{border-top:1px solid rgba(0,113,227,.13)}}.change-item{{padding:14px 16px 10px 0;border-color:rgba(0,113,227,.12)}}.change-item span{{font-size:11.5px}}.change-item b{{font-size:16px}}.change-item small{{font-size:11.5px}}.iren-brief{{margin-top:24px;grid-template-columns:minmax(330px,.86fr) minmax(0,1.4fr);gap:0;padding:0;border:0;border-radius:24px;background:linear-gradient(145deg,#101827,#18243a);overflow:hidden;box-shadow:0 20px 45px rgba(15,23,42,.16)}}.iren-brief-main{{padding:30px 30px 28px;border:0;color:#fff}}.iren-eyebrow{{font-size:12px;font-weight:700;color:#8fc7ff;margin-bottom:9px}}.iren-title-row h2{{font-size:28px;font-weight:720;color:#fff;letter-spacing:-.5px}}.iren-title-row span{{font-size:11.5px;color:#9ba8bc}}.iren-metrics{{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:22px}}.iren-metrics>div{{padding:12px 13px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.08);border-radius:14px}}.iren-metrics span{{display:block;font-size:11px;color:#a8b3c5}}.iren-metrics b{{display:block;margin-top:4px;font-size:17px;font-weight:700;color:#fff}}.iren-metrics b.up{{color:#79d8a6}}.iren-metrics b.down{{color:#ff9b93}}.iren-view{{font-size:14px;line-height:1.75;color:#d5dbe5;margin-top:18px}}.iren-disclaimer{{font-size:11px;line-height:1.55;color:#8e9caf;margin-top:14px}}.iren-news{{background:#fff;padding:26px 28px}}.iren-news-head{{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:6px}}.iren-news-head strong{{font-size:18px}}.iren-news-head span{{font-size:11.5px;color:var(--muted)}}.iren-news-row{{grid-template-columns:auto auto 1fr;gap:5px 8px;padding:15px 0;border-color:#edf0f4}}.iren-news-row:hover .news-title-zh{{color:var(--accent)}}.news-tone{{font-size:10.5px;padding:3px 7px;border-radius:8px}}.news-source-kind{{font-size:10.5px;color:#7a828d;padding-top:3px;white-space:nowrap}}.news-copy{{grid-column:3;display:flex;flex-direction:column;min-width:0}}.news-title-zh{{font-size:15px;line-height:1.5;font-weight:700;color:#22262d;transition:.15s}}.news-original{{font-size:11.5px;line-height:1.45;color:#8a919d;margin-top:3px}}.news-impact{{font-size:12.5px;line-height:1.55;color:#525a66;margin-top:7px}}.iren-news-row small{{grid-column:auto;font-size:11px;color:#9299a4;margin-top:6px}}.iren-no-news{{font-size:13px}}.engine{{border-radius:22px;background:linear-gradient(145deg,#111827,#172033);box-shadow:0 18px 40px rgba(15,23,42,.16)}}.engine::after{{background:radial-gradient(circle,rgba(0,113,227,.22),transparent 70%)}}.engine-title{{font-size:26px;font-weight:700}}.engine-label{{font-size:12px}}.engine-item{{border-radius:14px}}.engine-item .k{{font-size:11.5px}}.engine-item .v{{font-family:var(--sans);font-size:19px;font-weight:700}}.engine-item .pt{{font-size:11px}}.panel,.metric-card,.mkt-card{{border-color:var(--line);box-shadow:0 8px 24px rgba(15,23,42,.045)}}.panel{{border-radius:18px}}.panel-head strong{{font-size:14.5px}}.panel-head span{{font-size:11.5px}}.pulse-label{{font-size:12px}}.pulse-main{{font-size:16px}}.stock-table th,.table-container th{{font-size:12px}}.stock-table td,.table-container td{{font-size:13.5px;line-height:1.55}}.stock-name{{font-size:14px}}.stock-symbol{{font-size:11.5px}}.footer{{font-size:11.5px;color:#8a9099}}
 @media (max-width:900px){{.content{{padding:28px 22px 42px}}.hero h1,.compact-hero h1{{font-size:32px}}.research-shell{{padding:24px}}.research-brief h2{{font-size:25px}}.iren-brief{{grid-template-columns:1fr}}.iren-news{{padding:22px}}.iren-metrics{{grid-template-columns:repeat(3,minmax(0,1fr))}}}}
 @media (max-width:560px){{body{{font-size:15px}}.content{{padding:22px 16px 36px}}.hero h1,.compact-hero h1{{font-size:29px}}.hero p{{font-size:14px}}.market-tape{{border-radius:16px}}.tape-item{{padding:14px}}.tape-item b{{font-size:19px}}.research-shell{{padding:20px;border-radius:18px}}.research-brief h2{{font-size:22px}}.research-copy p{{font-size:14.5px}}.change-strip{{padding:18px;border-radius:16px}}.iren-brief{{border-radius:18px}}.iren-brief-main{{padding:24px 20px}}.iren-title-row{{display:block}}.iren-title-row span{{display:block;margin-top:5px}}.iren-title-row h2{{font-size:25px}}.iren-metrics{{grid-template-columns:repeat(2,minmax(0,1fr))}}.iren-news{{padding:20px}}.iren-news-row{{grid-template-columns:auto 1fr}}.news-source-kind{{grid-column:2}}.news-copy{{grid-column:2}}.news-title-zh{{font-size:14.5px}}.news-impact{{font-size:12.5px}}}}
-</style><link href="assets/dashboard-v2.2.css?v={ASSET_VERSION}" rel="stylesheet"><link href="assets/design-v4.2.1.css?v={ASSET_VERSION}" rel="stylesheet"></head><body class="auth-pending" data-app-version="{APP_VERSION}"><div class="app">
+</style><link href="assets/dashboard-v2.2.css?v={ASSET_VERSION}" rel="stylesheet"><link href="assets/design-v4.4.css?v={ASSET_VERSION}" rel="stylesheet"></head><body class="auth-pending" data-app-version="{APP_VERSION}"><div class="app">
 
-<aside class="sidebar"><div class="brand"><div class="mav-brand-mark"><svg viewBox="0 0 40 48" fill="none" aria-hidden="true"><path d="M5 40L15 10L19 22L30 5L24 31L35 24L27 43Z" fill="#D71920"/><circle cx="14.5" cy="30.5" r="4.5" fill="#D71920"/></svg></div><div><strong>myAlphaView</strong><small>Research · Market Intelligence</small></div></div>
+<aside class="sidebar"><div class="brand brand-v44"><img src="assets/myalpha-logo-v44.png" alt="投资分析及策略 · Myalpha View"></div>
 <div class="nav-group"><div class="nav-title">美股 · 宏观</div><ul class="nav-menu"><li class="active" onclick="switchTab('tab-overview',this)"><span class="nav-icon">◆</span>市场总览</li><li data-auth-required onclick="switchTab('tab-engine',this)"><span class="nav-icon">◒</span>策略引擎</li><li data-auth-required onclick="switchTab('tab-index',this)"><span class="nav-icon">◫</span>指数 & ETF</li></ul></div>
 <div class="nav-group"><div class="nav-title">A股 · 港股 · 红利</div><ul class="nav-menu"><li data-auth-required onclick="switchTab('tab-cn-hk',this)"><span class="nav-icon">◇</span>大盘 & 红利低波</li></ul></div>
-<div class="nav-group"><div class="nav-title">观察 & 持仓</div><ul class="nav-menu"><li data-auth-required onclick="switchTab('tab-stocks',this)"><span class="nav-icon">⌁</span>个股观察池</li><li data-auth-required onclick="switchTab('tab-options',this)"><span class="nav-icon">⚑</span>期权持仓监控</li><li data-auth-required onclick="switchTab('tab-archive',this)"><span class="nav-icon">📜</span>历史买点归档</li></ul></div>
+<div class="nav-group"><div class="nav-title">观察 & 持仓</div><ul class="nav-menu"><li data-auth-required onclick="switchTab('tab-stocks',this)"><span class="nav-icon">⌁</span>个股观察池</li><li data-auth-required onclick="switchTab('tab-trend-pulse',this)"><span class="nav-icon">∿</span>趋势脉冲</li><li data-auth-required onclick="switchTab('tab-options',this)"><span class="nav-icon">⚑</span>期权持仓监控</li><li data-auth-required onclick="switchTab('tab-archive',this)"><span class="nav-icon">📜</span>历史买点归档</li></ul></div>
 <div class="nav-group"><div class="nav-title">规划 & 工具</div><ul class="nav-menu"><li data-auth-required onclick="switchTab('tab-finance-tools',this)"><span class="nav-icon">◎</span>理财工具</li><li data-auth-required onclick="switchTab('tab-sandbox',this)"><span class="nav-icon">🧮</span>策略推演沙盒</li></ul></div>
 <div class="sidebar-footer">主理人私有看板 · 敏感持仓由 Supabase RLS 保护<br>未登录仅提供市场概览预览<br><a href="mailto:xxj8166@gmail.com" style="color:#9ea7bf;text-decoration:none">意见交流邮箱：xxj8166@gmail.com</a></div></aside>
 <div id="mobileNavBackdrop" class="mobile-nav-backdrop" aria-hidden="true"></div><aside id="mobileNavSheet" class="mobile-nav-sheet" aria-hidden="true" aria-label="全部模块"><div class="mobile-nav-sheet-head"><strong>全部模块</strong><button id="mobileNavClose" type="button" aria-label="关闭菜单">×</button></div><nav id="mobileNavList" class="mobile-nav-list"></nav><div class="mobile-nav-actions"><button id="mobileThemeAction" type="button">切换主题</button><button id="mobileInstallAction" type="button">安装应用</button><button id="mobileAuthAction" type="button">登录</button></div></aside><nav id="mobileBottomNav" class="mobile-bottom-nav" aria-label="手机主导航"></nav>
 
-<main class="main"><header class="topbar"><div class="breadcrumb">myAlphaView / <strong id="bc-title">市场总览</strong></div>
+<main class="main"><header class="topbar"><div class="breadcrumb">Myalpha View / <strong id="bc-title">市场总览</strong></div>
 <div class="top-meta"><span id="liveStatus" style="display:none;"><i class="live-dot"></i><span id="liveStatusText">数据抓取成功</span></span><div style="text-align:right; line-height:1.4;"><div style="font-weight:600; font-size:12px; color:var(--ink);">生成时间: {data.get('gen_time', '-')}</div><div id="usLiveAsOf" style="color:var(--muted); font-size:10.5px;">美股收盘日线截至: {data.get('spy_date', '-')} | A/港股盘中动态刷新</div></div><button id="pwaInstallButton" class="pwa-install" type="button" title="安装到当前设备">＋ 安装应用</button><button id="themeToggle" class="theme-toggle" title="切换深浅主题">🌙 深色</button><button id="authBtn" class="auth-btn-top" onclick="handleAuth()">登录 / 注册</button></div></header><div class="content">
 
 <div id="tab-overview" class="tab-pane active">
@@ -1350,7 +1706,7 @@ body{{font-size:15px;background:linear-gradient(180deg,#f7f9fc 0,#f3f6fa 100%);l
 <section class="section"><div class="section-head"><h2>港股跨境池</h2><p>点击卡片展开近 30 日历史趋势</p></div><div class="opt-grid">{mkt_card_a("华夏纳指 (港股)", data["cn_hk"].get("hk03086"), "hk03086")}{mkt_card_a("国指备兑 (港股)", data["cn_hk"].get("hk03416"), "hk03416")}</div></section>
 </div>
 
-<div id="tab-stocks" class="tab-pane"><section class="hero compact-hero"><div><h1>个股观察池</h1><p>按策略距离和风险状态自动排出关注顺序；登录后由Alpaca参考行情盘中更新，技术指标以最近完整收盘日线计算。</p></div><div class="stock-watch-actions"><span id="stockWatchStatus" class="stock-watch-status">公开版显示最近构建数据</span><button type="button" onclick="StockWatchlist.refresh()">↻ 刷新行情</button><button class="primary" type="button" onclick="StockWatchlist.openAdd()">＋ 新增个股</button></div></section><section class="section"><div class="stock-toolbar"><div class="stock-filters"><button class="active" data-stock-filter="all" onclick="StockDecision.filter(this,'all')">全部</button><button data-stock-filter="triggered" onclick="StockDecision.filter(this,'triggered')">已触发</button><button data-stock-filter="near" onclick="StockDecision.filter(this,'near')">接近策略价</button><button data-stock-filter="oversold" onclick="StockDecision.filter(this,'oversold')">超卖</button><button data-stock-filter="weak" onclick="StockDecision.filter(this,'weak')">趋势偏弱</button><button data-stock-filter="hot" onclick="StockDecision.filter(this,'hot')">过热</button></div><select id="stockSort" onchange="StockDecision.sort(this.value)"><option value="priority">关注优先</option><option value="target">距策略价最近</option><option value="drawdown">YTD回撤最大</option><option value="rsi">RSI最低</option><option value="default">默认顺序</option></select></div><div class="table-container stock-table"><table><thead><tr><th>名称</th><th>最新价 / 涨跌</th><th>YTD回撤</th><th>RSI</th><th>距200MA</th><th>策略价 / 距离</th><th>状态</th></tr></thead><tbody id="stocksTableBody">{stock_html}</tbody></table></div></section></div>
+<div id="tab-stocks" class="tab-pane"><section class="hero compact-hero"><div><h1>个股观察池</h1><p>按策略距离和风险状态自动排出关注顺序；登录后由Alpaca参考行情盘中更新，技术指标以最近完整收盘日线计算。</p></div><div class="stock-watch-actions"><span id="stockWatchStatus" class="stock-watch-status">公开版显示最近构建数据</span><button type="button" onclick="StockWatchlist.refresh()">↻ 刷新行情</button><button class="primary" type="button" onclick="StockWatchlist.openAdd()">＋ 新增个股</button></div></section><section class="section"><div class="stock-toolbar"><div class="stock-filters"><button class="active" data-stock-filter="all" onclick="StockDecision.filter(this,'all')">全部</button><button data-stock-filter="triggered" onclick="StockDecision.filter(this,'triggered')">已触发</button><button data-stock-filter="near" onclick="StockDecision.filter(this,'near')">接近策略价</button><button data-stock-filter="oversold" onclick="StockDecision.filter(this,'oversold')">超卖</button><button data-stock-filter="weak" onclick="StockDecision.filter(this,'weak')">趋势偏弱</button><button data-stock-filter="hot" onclick="StockDecision.filter(this,'hot')">过热</button></div><select id="stockSort" onchange="StockDecision.sort(this.value)"><option value="priority">关注优先</option><option value="target">距策略价最近</option><option value="drawdown">YTD回撤最大</option><option value="rsi">RSI最低</option><option value="default">默认顺序</option></select></div><div class="table-container stock-table"><table><thead><tr><th>名称</th><th>最新价 / 涨跌</th><th>Trend Pulse</th><th>YTD回撤</th><th>RSI</th><th>距200MA</th><th>策略价 / 距离</th><th>状态</th></tr></thead><tbody id="stocksTableBody">{stock_html}</tbody></table></div></section></div>
 
 <div id="tab-options" class="tab-pane">
 <section class="hero"><div><h1>期权持仓与风险监控 V{OPTIONS_VERSION}</h1><p>优先呈现真实建仓成本、现金担保年化ROC、临期风险和官方宏观事件。自动行情来自 Alpaca Indicative 免费参考源；下单前仍以 IBKR Bid/Ask 为准。</p></div></section>
@@ -1451,6 +1807,8 @@ body{{font-size:15px;background:linear-gradient(180deg,#f7f9fc 0,#f3f6fa 100%);l
 </div>
 </div>
 
+<div id="tab-trend-pulse" class="tab-pane"><section class="hero compact-hero"><div><h1>趋势脉冲</h1><p>跟踪“趋势正在变强还是变弱”，不预测明日价格。V1 使用价格结构、Supertrend、ADX/DI、MACD、RSI、量能与周线共振；与回撤加仓策略相互独立。</p></div></section><section class="section trend-feature"><div class="trend-feature-copy"><span class="trend-kicker">IREN · 重点跟踪</span><h2>多周期趋势状态</h2><p>{html.escape(iren_tp.get("analysis") or iren_tp.get("summary","等待趋势数据"))}</p><div class="trend-feature-advice"><b>研究提示</b><span>{html.escape(iren_tp.get("guidance","等待完整双源校验"))}</span></div><div class="trend-feature-metrics"><span>Pulse <b class="{iren_tp.get('tone','neutral')}">{iren_tp.get('score','—')}</b></span><span>状态 <b>{html.escape(iren_tp.get('state','—'))}</b></span><span>周线 <b>{html.escape(iren_tp.get('weekly','—'))}</b></span><span>结构 <b>{html.escape(iren_tp.get('structure','—'))}</b></span></div></div><div class="trend-chart-panel"><div class="trend-chart-head"><strong>IREN Trend Pulse</strong><span>-100 至 +100 · 最近90个交易日</span></div><canvas id="trendPulseChartIREN"></canvas></div></section><section class="section"><div class="section-head"><h2>观察池趋势状态</h2><p>连续曲线优先于单日静态分数</p></div><div class="trend-card-grid-wrap">{trend_cards_html}</div></section><section class="trend-method-note"><strong>方法边界</strong><p>Trend Pulse 是 myAlphaView 自研、透明可回测的趋势跟踪指标。它借鉴公开的“多周期 + 动态曲线”研究思路，但不复制、也不声称等同于第三方 TCDS / DeepWave 的未公开公式。</p></section></div>
+
 <!-- 期权决策台 -->
 <div id="tab-sandbox" class="tab-pane">
 <section class="hero"><div><h1>期权决策台 V{OPTIONS_VERSION}</h1><p>既可按 Alpaca 参考报价模拟新开仓，也可从持仓监控带入真实成本，推演“目标日期股价为 X 时，这个仓位值多少钱”。金额统一按合约乘数（默认100）和实际张数计算。</p></div></section>
@@ -1489,7 +1847,7 @@ body{{font-size:15px;background:linear-gradient(180deg,#f7f9fc 0,#f3f6fa 100%);l
 <section class="section"><div class="table-container"><table><thead><tr><th style="text-align:left;">资产代号</th><th>触发日期</th><th>触发收盘价</th><th>当时全期回撤幅度</th><th>触发加仓评级</th><th>规则体系</th></tr></thead><tbody id="archiveTableBody">{signals_html}</tbody></table></div></section>
 <section class="section"><p style="font-size:11.5px;color:var(--muted);line-height:1.7">同一资产同一天可能出现两条记录——"资产自身三档线"是该ETF自己相对真实全期最高点的回撤触发的加仓线；"全市场宽度恐慌"是标普500全市场宽度指标触发的分级信号。两套规则相互独立，同一天都触发是正常情况，不是数据重复。</p></section></div>
 
-<div class="footer">© 2026 myAlphaView · Market Intelligence<br>市场数据与策略指标仅供研究参考，不构成投资建议；本站仅记录匿名访问次数，不采集姓名、邮箱或IP地址。<br>意见交流邮箱：<a href="mailto:xxj8166@gmail.com">xxj8166@gmail.com</a></div>
+<div class="footer">© 2026 Myalpha View · 投资分析及策略<br>市场数据与策略指标仅供研究参考，不构成投资建议；本站仅记录匿名访问次数，不采集姓名、邮箱或IP地址。<br>意见交流邮箱：<a href="mailto:xxj8166@gmail.com">xxj8166@gmail.com</a></div>
 </div></main></div>
 
 <div id="underlyingModal" class="option-modal-backdrop" style="display:none">
@@ -1610,6 +1968,7 @@ body{{font-size:15px;background:linear-gradient(180deg,#f7f9fc 0,#f3f6fa 100%);l
 
 <script>
 const DATA = {chart_json};
+const TREND_PULSE = {trend_json};
 const MKT_CHARTS = {{}}; 
 
 function switchTab(id,el){{
@@ -1622,7 +1981,7 @@ function switchTab(id,el){{
   document.querySelectorAll('.nav-menu li').forEach(l=>l.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   el.classList.add('active');
-  document.getElementById('bc-title').innerText = el.innerText.replace('NEW', '').replace(/^[◆◒◫◇⌁⚑◎🧮📜]/u, '').trim();
+  document.getElementById('bc-title').innerText = el.innerText.replace('NEW', '').replace(/^[◆◒◫◇⌁∿⚑◎🧮📜]/u, '').trim();
   window.MobileShell?.sync(id);
   window.scrollTo({{top:0,behavior:'smooth'}});
 }}
@@ -1882,6 +2241,15 @@ function submitAccessRequest() {{
   window.location.href = `mailto:xxj8166@gmail.com?subject=${{subject}}&body=${{body}}`;
 }}
 
+
+window.addEventListener('load',function(){{
+  const canvas=document.getElementById('trendPulseChartIREN');
+  const pulse=TREND_PULSE.IREN;
+  if(!canvas || !pulse || !pulse.available || !Array.isArray(pulse.series) || !pulse.series.length) return;
+  const values=pulse.series.map(x=>x.v), labels=pulse.series.map(x=>x.d.slice(5));
+  new Chart(canvas,{{type:'line',data:{{labels,datasets:[{{label:'Trend Pulse',data:values,borderColor:'#d71920',backgroundColor:'rgba(215,25,32,.07)',fill:true,borderWidth:2.4,pointRadius:0,tension:.28}}]}},options:{{responsive:true,maintainAspectRatio:false,interaction:{{mode:'index',intersect:false}},plugins:{{legend:{{display:false}}}},scales:{{x:{{grid:{{display:false}},ticks:{{maxTicksLimit:7}}}},y:{{min:-100,max:100,ticks:{{stepSize:50}},grid:{{color:'rgba(100,105,115,.12)'}}}}}}}}}});
+}});
+
 window.addEventListener('load', checkSession);
 supabaseClient.auth.onAuthStateChange((event, session) => {{ if (event === 'SIGNED_IN') checkSession(); }});
 
@@ -1931,7 +2299,7 @@ function fetchLiveCNHK() {{
 }}
 function scheduleCNHK() {{
   clearTimeout(cnhkTimer);
-  cnhkTimer = setTimeout(() => {{ fetchLiveCNHK(); scheduleCNHK(); }}, isAsiaMarketWindow() ? 120000 : 15 * 60 * 1000);
+  cnhkTimer = setTimeout(() => {{ fetchLiveCNHK(); scheduleCNHK(); }}, isAsiaMarketWindow() ? 300000 : 15 * 60 * 1000);
 }}
 window.addEventListener('load', () => {{ fetchLiveCNHK(); scheduleCNHK(); }});
 document.addEventListener('visibilitychange', () => {{ if (document.visibilityState === 'visible') {{ fetchLiveCNHK(); scheduleCNHK(); }} else clearTimeout(cnhkTimer); }});
@@ -1939,7 +2307,7 @@ document.addEventListener('visibilitychange', () => {{ if (document.visibilitySt
 <div id="authOverlay" class="auth-overlay" hidden role="dialog" aria-modal="true" aria-labelledby="authDialogTitle" onclick="if(event.target===this)closeAuthModal()">
   <div class="auth-dialog">
     <button class="auth-close" type="button" onclick="closeAuthModal()" aria-label="关闭">×</button>
-    <div class="auth-brand"><div class="mav-brand-mark"><svg viewBox="0 0 40 48" fill="none" aria-hidden="true"><path d="M5 40L15 10L19 22L30 5L24 31L35 24L27 43Z" fill="#D71920"/><circle cx="14.5" cy="30.5" r="4.5" fill="#D71920"/></svg></div><div><strong>myAlphaView</strong><div style="font-size:12px;color:var(--muted);margin-top:2px">Market Intelligence</div></div></div>
+    <div class="auth-brand auth-brand-v44"><img src="assets/myalpha-logo-v44.png" alt="投资分析及策略 · Myalpha View"></div>
     <div class="auth-tabs"><button type="button" class="active" data-auth-tab="login" onclick="switchAuthTab('login')">登录</button><button type="button" data-auth-tab="register" onclick="switchAuthTab('register')">注册</button></div>
     <section id="authLoginPanel" class="auth-panel">
       <h2 id="authDialogTitle">欢迎回来</h2><p>使用已授权邮箱获取免密登录链接。私有策略、观察池和持仓继续由 Supabase RLS 保护。</p>

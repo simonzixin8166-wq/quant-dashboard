@@ -13,4 +13,4 @@ assert '今日变化' in page
 assert 'IREN 每日观察' in page
 assert 'market-tape' in page
 assert 'STRATEGY ENGINE ·' not in page
-assert 'IREN Daily Brief' in page
+assert 'IREN 每日观察' in page and '重点研究 · IREN' in page

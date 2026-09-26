@@ -1,4 +1,4 @@
-import json, datetime, os, time, math, tempfile, html
+import json, datetime, os, time, math, tempfile, html, re
 import urllib.request, urllib.parse
 import yfinance as yf
 import pandas as pd
@@ -13,9 +13,9 @@ except ModuleNotFoundError:
 warnings.filterwarnings("ignore")
 
 # 单一版本源：每日 Action 生成 HTML 时，页面标题和静态资源缓存版本都从这里读取。
-APP_VERSION = "4.0.0"
-OPTIONS_VERSION = "4.0.0"  # PWA/期权功能冻结，本轮只升级网站信息架构
-ASSET_VERSION = "4.0.0"
+APP_VERSION = "4.1.1"
+OPTIONS_VERSION = "4.0.0"  # PWA/期权功能冻结；V4.1.1 继续以网站为主
+ASSET_VERSION = "4.1.1"
 
 API_KEY = os.environ.get("TWELVE_DATA_KEY", "demo")
 BASE = "https://api.twelvedata.com"
@@ -436,17 +436,18 @@ def _safe_float(value):
 
 
 def _news_signal(title):
-    """仅按标题做保守的方向标签，用于快速筛选，不作为投资结论。"""
+    """按标题做保守方向标签；只用于筛选，不作为投资结论。"""
     text = (title or "").lower()
     positive = (
         "contract", "agreement", "partnership", "expands", "expansion", "launches",
         "beats", "beat estimates", "upgrade", "raised price target", "raises price target",
         "ai cloud", "data center deal", "new customer", "revenue growth", "record revenue",
+        "wins", "awarded", "accelerates", "strategic partnership", "sold out",
     )
     negative = (
         "downgrade", "offering", "dilution", "dilutive", "lawsuit", "investigation",
         "misses", "missed estimates", "cuts guidance", "cut guidance", "delay", "delays",
-        "default", "selloff", "share sale", "secondary offering",
+        "default", "selloff", "share sale", "secondary offering", "falls", "drops", "slumps",
     )
     if any(k in text for k in positive) and not any(k in text for k in negative):
         return "positive", "偏利好"
@@ -455,16 +456,124 @@ def _news_signal(title):
     return "neutral", "中性"
 
 
-def fetch_iren_news(limit=5):
-    """读取 IREN 最新公开新闻。失败时返回空列表，不影响主页面构建。"""
-    query = urllib.parse.urlencode({"q": "IREN", "quotesCount": 1, "newsCount": max(limit, 5)})
+def _news_impact(title, tone, source_type="media"):
+    """给出一句可解释的影响说明，不预测股价方向。"""
+    text = (title or "").lower()
+    if source_type == "official":
+        return "官方披露，信息优先级最高；建议打开原文核对合同、融资、业绩或资本开支等具体条款。"
+    if any(k in text for k in ("contract", "customer", "partnership", "agreement", "ai cloud", "data center")):
+        return "若涉及新增客户、AI云或数据中心合同，重点看合同金额、期限、GPU/电力交付节奏及资本开支。"
+    if any(k in text for k in ("offering", "dilution", "share sale", "secondary offering")):
+        return "若涉及融资或增发，重点评估潜在摊薄、融资成本以及资金是否用于高回报扩产。"
+    if any(k in text for k in ("upgrade", "downgrade", "price target", "upside", "cheap", "buy")):
+        return "这更偏分析师或媒体估值观点，影响主要来自预期变化，不等同于公司基本面事实变化。"
+    if any(k in text for k in ("bitcoin", "btc", "mining", "miner")):
+        return "与比特币/矿业相关，可能影响矿业收入预期和板块情绪；需与AI云业务进展分开观察。"
+    if tone == "positive":
+        return "标题信息偏正面，但需结合原文确认是否形成可量化的收入、利润或产能贡献。"
+    if tone == "negative":
+        return "标题信息偏负面，重点确认是否涉及基本面变化、融资摊薄或行业风险，而非单纯股价波动。"
+    return "当前更偏信息或观点更新，尚不足以单独构成基本面结论。"
+
+
+def _normalize_news_title(title):
+    text = (title or "").lower()
+    text = re.sub(r"\([^)]*\)", " ", text)
+    text = re.sub(r"\biren\b|\biris energy\b|\bstock\b|\bshares?\b", " ", text)
+    return re.sub(r"[^a-z0-9]+", " ", text).strip()
+
+
+def _translate_news_title(title, cache=None):
+    """轻量标题翻译：缓存优先；外部翻译失败则保留英文，不阻塞网站构建。"""
+    if not title:
+        return ""
+    cache = cache or {}
+    if title in cache and cache[title]:
+        return cache[title]
+    # 已经包含较多中文时直接使用。
+    if sum('\u4e00' <= c <= '\u9fff' for c in title) >= 3:
+        return title
+    try:
+        params = urllib.parse.urlencode({"q": title[:480], "langpair": "en|zh-CN"})
+        req = urllib.request.Request(f"https://api.mymemory.translated.net/get?{params}", headers=HEADERS)
+        with urllib.request.urlopen(req, timeout=7) as resp:
+            payload = json.loads(resp.read().decode("utf-8"))
+        translated = (((payload or {}).get("responseData") or {}).get("translatedText") or "").strip()
+        if translated and translated.lower() != title.lower() and "MYMEMORY WARNING" not in translated.upper():
+            return html.unescape(translated)
+    except Exception as e:
+        print(f"WARNING: IREN title translation unavailable: {e}")
+    return title
+
+
+def fetch_iren_sec_filings(limit=3):
+    """读取 IREN 最近 SEC 重要申报，作为公司级信息优先源。"""
+    url = "https://data.sec.gov/submissions/CIK0001878848.json"
+    sec_headers = {
+        "User-Agent": "myAlphaView/4.1.1 contact@myalphaview.com",
+        "Accept": "application/json",
+    }
+    form_names = {"8-K": "当前报告", "6-K": "境外发行人报告", "10-Q": "季度报告", "10-K": "年度报告", "20-F": "年度报告", "S-3": "注册声明", "F-3": "注册声明"}
+    try:
+        req = urllib.request.Request(url, headers=sec_headers)
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            payload = json.loads(resp.read().decode("utf-8"))
+        recent = ((payload.get("filings") or {}).get("recent") or {})
+        forms = recent.get("form") or []
+        filings = []
+        today = datetime.date.today()
+        for i, form in enumerate(forms):
+            if form not in form_names:
+                continue
+            filing_date = (recent.get("filingDate") or [""] * len(forms))[i]
+            try:
+                age = (today - datetime.date.fromisoformat(filing_date)).days
+            except Exception:
+                age = 999
+            if age > 7:
+                continue
+            accession = (recent.get("accessionNumber") or [""] * len(forms))[i]
+            primary = (recent.get("primaryDocument") or [""] * len(forms))[i]
+            if not accession or not primary:
+                continue
+            accession_flat = accession.replace("-", "")
+            link = f"https://www.sec.gov/Archives/edgar/data/1878848/{accession_flat}/{primary}"
+            title_zh = f"IREN 提交 {form}：{form_names[form]}"
+            filings.append({
+                "title": f"IREN filed {form} ({form_names[form]})",
+                "title_zh": title_zh,
+                "link": link,
+                "publisher": "SEC / IREN",
+                "published_at": filing_date,
+                "tone": "neutral",
+                "label": "官方",
+                "source_type": "official",
+                "source_label": "官方披露",
+                "priority": 0,
+                "impact": _news_impact(title_zh, "neutral", "official"),
+                "ts": int(datetime.datetime.fromisoformat(filing_date).timestamp()) if filing_date else 0,
+            })
+            if len(filings) >= limit:
+                break
+        return filings
+    except Exception as e:
+        print(f"WARNING: IREN SEC filings unavailable: {e}")
+        return []
+
+
+def fetch_iren_news(limit=5, previous_news=None):
+    """IREN 新闻 V2：官方申报优先、媒体新闻去重、中文标题缓存、影响解释。"""
+    previous_news = previous_news or []
+    translation_cache = {str(x.get("title", "")): str(x.get("title_zh", "")) for x in previous_news if x.get("title") and x.get("title_zh")}
+    items = fetch_iren_sec_filings(limit=2)
+    query = urllib.parse.urlencode({"q": "IREN", "quotesCount": 1, "newsCount": max(limit * 2, 10)})
     url = f"https://query1.finance.yahoo.com/v1/finance/search?{query}"
     try:
         req = urllib.request.Request(url, headers=HEADERS)
         with urllib.request.urlopen(req, timeout=12) as resp:
             payload = json.loads(resp.read().decode("utf-8"))
-        items = []
         now_ts = int(time.time())
+        high_quality_publishers = ("Reuters", "Bloomberg", "CNBC", "The Wall Street Journal", "Barrons", "MarketWatch")
         for row in payload.get("news", []):
             title = (row.get("title") or "").strip()
             link = row.get("link") or ""
@@ -475,21 +584,50 @@ def fetch_iren_news(limit=5):
             if not title or not link:
                 continue
             tone, label = _news_signal(title)
+            low = title.lower()
+            opinion_like = any(k in low for k in ("is it too late", "cheap", "upside potential", "should you buy", "prediction", "could soar", "monster run"))
+            source_type = "newswire" if publisher in high_quality_publishers else ("opinion" if opinion_like else "media")
+            priority = 1 if source_type == "newswire" else (3 if source_type == "opinion" else 2)
+            source_label = "重要媒体" if source_type == "newswire" else ("市场观点" if source_type == "opinion" else "媒体报道")
+            title_zh = _translate_news_title(title, translation_cache)
             items.append({
                 "title": title,
+                "title_zh": title_zh,
                 "link": link,
                 "publisher": publisher,
                 "published_at": datetime.datetime.utcfromtimestamp(ts).strftime("%Y-%m-%d %H:%M UTC") if ts else "",
                 "tone": tone,
                 "label": label,
+                "source_type": source_type,
+                "source_label": source_label,
+                "priority": priority,
+                "impact": _news_impact(title, tone, source_type),
+                "ts": ts,
             })
-            if len(items) >= limit:
-                break
-        return items
     except Exception as e:
-        print(f"WARNING: IREN news unavailable: {e}")
-        return []
+        print(f"WARNING: IREN media news unavailable: {e}")
 
+    # 语义近似去重：保留官方/高质量来源及更新更晚的条目。
+    items.sort(key=lambda x: (x.get("priority", 9), -int(x.get("ts") or 0)))
+    deduped, seen = [], []
+    for item in items:
+        norm = _normalize_news_title(item.get("title"))
+        tokens = set(norm.split())
+        duplicate = False
+        for old_norm, old_tokens in seen:
+            if norm and old_norm and (norm == old_norm or (tokens and old_tokens and len(tokens & old_tokens) / max(1, min(len(tokens), len(old_tokens))) >= 0.72)):
+                duplicate = True
+                break
+        if duplicate:
+            continue
+        deduped.append(item)
+        seen.append((norm, tokens))
+        if len(deduped) >= limit:
+            break
+    for item in deduped:
+        item.pop("ts", None)
+        item.pop("priority", None)
+    return deduped
 
 def _distance_to_first_tier(symbol, row):
     tiers = CORE_TIERS.get(symbol) or {}
@@ -740,7 +878,7 @@ def build():
             historical_signals.sort(key=lambda r: r.get("date", ""), reverse=True)
     except: historical_signals = []
 
-    iren_news = fetch_iren_news(limit=4)
+    iren_news = fetch_iren_news(limit=5, previous_news=((old_data.get("iren_brief") or {}).get("news") or []))
     iren_brief = build_iren_brief(stocks, iren_news)
     current_snapshot = {
         "market_indicators": {"spx": spx_data, "ixic": ixic_data, "vix": vix_data},
@@ -1099,18 +1237,25 @@ def render_html(data):
 
     iren = data.get("iren_brief") or {}
     news_rows = []
-    for item in iren.get("news", [])[:4]:
+    for item in iren.get("news", [])[:5]:
         tone = item.get("tone", "neutral")
         title = html.escape(str(item.get("title", "")))
+        title_zh = html.escape(str(item.get("title_zh") or item.get("title", "")))
         publisher = html.escape(str(item.get("publisher", "")))
         published_at = html.escape(str(item.get("published_at", "")))
         label = html.escape(str(item.get("label", "中性")))
+        source_label = html.escape(str(item.get("source_label", "媒体报道")))
+        impact = html.escape(str(item.get("impact", "")))
         link = html.escape(str(item.get("link", "")), quote=True)
         stamp = publisher + ((" · " + published_at) if published_at else "")
-        news_rows.append(f'<a class="iren-news-row" href="{link}" target="_blank" rel="noopener noreferrer"><span class="news-tone {tone}">{label}</span><span class="news-title">{title}</span><small>{stamp}</small></a>')
-    news_html = "".join(news_rows) if news_rows else '<div class="iren-no-news">过去72小时未获取到重要新增消息；新闻接口异常时也会显示为空。</div>'
+        original = f'<span class="news-original">{title}</span>' if title_zh != title else ''
+        impact_html = f'<span class="news-impact">{impact}</span>' if impact else ''
+        news_rows.append(f'<a class="iren-news-row" href="{link}" target="_blank" rel="noopener noreferrer"><span class="news-tone {tone}">{label}</span><span class="news-source-kind">{source_label}</span><span class="news-copy"><strong class="news-title-zh">{title_zh}</strong>{original}{impact_html}<small>{stamp}</small></span></a>')
+    news_html = "".join(news_rows) if news_rows else '<div class="iren-no-news">过去72小时未获取到重要新增消息；官方申报与媒体接口异常时也会显示为空。</div>'
     if iren.get("available"):
-        iren_brief_html = f'<section class="iren-brief"><div class="iren-brief-main"><div class="research-kicker">IREN Daily Brief</div><div class="iren-title-row"><h2>IREN 每日观察</h2><span>日线截至 {html.escape(str(iren.get("date","-")))}</span></div><p class="iren-summary">{html.escape(str(iren.get("summary","")))}</p><p class="iren-view">{html.escape(str(iren.get("view","")))}</p><div class="iren-disclaimer">新闻方向标签由标题关键词规则生成，仅用于快速筛选，不代替基本面判断。</div></div><div class="iren-news"><div class="iren-news-head">最新消息</div>{news_html}</div></section>'
+        iren_price = _safe_float(iren.get("price")); iren_chg = _safe_float(iren.get("day_chg")); iren_dd = _safe_float(iren.get("ytd_drawdown")); iren_rsi = _safe_float(iren.get("rsi")); iren_ma = _safe_float(iren.get("dist_200ma"))
+        iren_metrics = f'<div class="iren-metrics"><div><span>最新价</span><b>${iren_price:.2f}</b></div><div><span>当日</span><b class="{"up" if (iren_chg or 0)>=0 else "down"}">{iren_chg:+.1%}</b></div><div><span>距YTD高点</span><b>{iren_dd:.1%}</b></div><div><span>RSI</span><b>{iren_rsi:.0f}</b></div><div><span>距200MA</span><b>{iren_ma:+.1%}</b></div></div>' if all(v is not None for v in (iren_price, iren_chg, iren_dd, iren_rsi, iren_ma)) else ''
+        iren_brief_html = f'<section class="iren-brief"><div class="iren-brief-main"><div class="iren-eyebrow">重点研究 · IREN</div><div class="iren-title-row"><h2>IREN 每日观察</h2><span>日线截至 {html.escape(str(iren.get("date","-")))}</span></div>{iren_metrics}<p class="iren-view">{html.escape(str(iren.get("view","")))}</p><div class="iren-disclaimer">消息方向标签用于快速筛选。官方披露优先；媒体观点与价格目标不等同于公司基本面事实。</div></div><div class="iren-news"><div class="iren-news-head"><strong>最新消息</strong><span>中文标题 · 原文保留</span></div>{news_html}</div></section>'
     else:
         iren_brief_html = f'<section class="iren-brief"><div class="iren-brief-main"><div class="research-kicker">IREN Daily Brief</div><h2>IREN 每日观察</h2><p>{html.escape(str(iren.get("summary","IREN 行情暂不可用。")))}</p></div><div class="iren-news">{news_html}</div></section>'
 
@@ -1119,7 +1264,7 @@ def render_html(data):
     chart_json = json.dumps(data.get("overview_charts", {}), ensure_ascii=False)
 
     return f'''<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"><title>myAlphaView · Market Intelligence</title>
-<meta name="author" content="Simon"><meta name="application-version" content="{APP_VERSION}"><meta name="robots" content="noindex,nofollow,noarchive,nosnippet"><meta name="referrer" content="no-referrer"><meta name="theme-color" content="#1f2b52"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="myAlphaView"><link rel="manifest" href="manifest.webmanifest?v={ASSET_VERSION}"><link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png"><link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png"><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,380;9..144,520;9..144,620&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"><link href="assets/options-v2.css?v={ASSET_VERSION}" rel="stylesheet"><link href="assets/roll-manager.css?v={ASSET_VERSION}" rel="stylesheet"><link href="assets/finance-tools.css?v={ASSET_VERSION}" rel="stylesheet"><link href="assets/opportunity-radar.css?v={ASSET_VERSION}" rel="stylesheet"><link href="assets/pwa.css?v={ASSET_VERSION}" rel="stylesheet"><link href="assets/mobile-shell.css?v={ASSET_VERSION}" rel="stylesheet"><script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<meta name="author" content="Simon"><meta name="application-version" content="{APP_VERSION}"><meta name="robots" content="noindex,nofollow,noarchive,nosnippet"><meta name="referrer" content="no-referrer"><meta name="theme-color" content="#f5f7fb"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="myAlphaView"><link rel="manifest" href="manifest.webmanifest?v={ASSET_VERSION}"><link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png"><link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png"><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,380;9..144,520;9..144,620&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"><link href="assets/options-v2.css?v={ASSET_VERSION}" rel="stylesheet"><link href="assets/roll-manager.css?v={ASSET_VERSION}" rel="stylesheet"><link href="assets/finance-tools.css?v={ASSET_VERSION}" rel="stylesheet"><link href="assets/opportunity-radar.css?v={ASSET_VERSION}" rel="stylesheet"><link href="assets/pwa.css?v={ASSET_VERSION}" rel="stylesheet"><link href="assets/mobile-shell.css?v={ASSET_VERSION}" rel="stylesheet"><script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{{--bg:#f4f2ec;--surface:#ffffff;--surface2:#ebe8df;--ink:#14161c;--muted:#696d76;--line:#e1ddd0;--nav:#11162a;--nav2:#0a0d1a;--navmuted:#8d93ab;--navline:rgba(255,255,255,.08);--brass:#b8863a;--brass-soft:#e8d3ab;--navy:#1f2b52;--green:#1c7a4c;--green-soft:#e5f1e9;--red:#b23b2e;--red-soft:#f6e6e2;--amber:#c07f2e;--amber-soft:#f6ecd8;--shadow:0 12px 32px rgba(15,15,10,.07);--serif:'Fraunces',ui-serif,Georgia,serif;--sans:'Inter',-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;}}
 *{{box-sizing:border-box;margin:0;padding:0}} body{{font-family:var(--sans);background:var(--bg);color:var(--ink);min-height:100vh;-webkit-font-smoothing:antialiased}} .app{{display:flex;min-height:100vh}}
@@ -1156,6 +1301,12 @@ def render_html(data):
 .s-res-label {{ font-size: 11px; color: var(--muted); }}
 .s-res-val {{ font-family: var(--serif); font-size: 20px; font-weight: 600; margin-top: 6px; }}
 @media (max-width: 800px) {{ .sandbox-grid {{ grid-template-columns: 1fr; }} }}
+
+/* ===== V4.1.1 Website-first visual refinement ===== */
+:root{{--bg:#f5f7fb;--surface:#ffffff;--surface2:#f0f3f8;--ink:#1d1d1f;--muted:#6e6e73;--line:#e4e7ec;--nav:#111827;--nav2:#0b1220;--navmuted:#a7afbf;--brass:#b98536;--brass-soft:#f3e2c7;--accent:#0071e3;--accent-soft:#eaf4ff;--green:#218a5a;--green-soft:#eaf7f0;--red:#c24135;--red-soft:#fff0ee;--amber:#b7791f;--amber-soft:#fff6e5;--shadow:0 10px 30px rgba(15,23,42,.055);--serif:-apple-system,BlinkMacSystemFont,"SF Pro Display","Inter","PingFang SC","Microsoft YaHei",sans-serif;--sans:-apple-system,BlinkMacSystemFont,"SF Pro Text","Inter","PingFang SC","Microsoft YaHei",sans-serif}}
+body{{font-size:15px;background:linear-gradient(180deg,#f7f9fc 0,#f3f6fa 100%);letter-spacing:-.005em}}.topbar{{background:rgba(247,249,252,.82);border-color:rgba(0,0,0,.07)}}.content{{max-width:1500px;padding:42px 40px 56px}}.sidebar{{background:linear-gradient(180deg,#111827,#0b1220)}}.mav-brand-mark{{background:linear-gradient(135deg,#f0c678,#b98536);box-shadow:none}}.brand strong{{font-size:18px}}.brand small{{font-size:12px}}.nav-title{{font-size:11.5px;color:#7f8a9d}}.nav-menu li{{font-size:14.5px;padding:11px 12px}}.nav-menu li.active{{background:rgba(0,113,227,.15);box-shadow:inset 3px 0 0 var(--accent)}}.auth-btn-top{{background:var(--accent);font-size:12.5px;padding:8px 15px;border-radius:10px;box-shadow:none}}.auth-btn-top:hover{{background:#0068d1}}.breadcrumb{{font-size:14px}}.top-meta{{font-size:12.5px}}.hero{{margin-bottom:22px}}.hero h1,.compact-hero h1{{font-family:var(--sans);font-size:40px;font-weight:720;line-height:1.12;letter-spacing:-1.15px}}.hero p{{font-size:15px;line-height:1.7}}.public-note{{font-size:13px;border:0;border-left:3px solid var(--accent);border-radius:12px;background:rgba(255,255,255,.78);box-shadow:0 4px 18px rgba(15,23,42,.04)}}.public-note b{{font-size:13px}}.section-head h2,.engine-title,.research-brief h2,.iren-brief h2,.change-strip h2{{font-family:var(--sans)}}.section-head h2{{font-size:22px;font-weight:700}}.section-head p{{font-size:12.5px}}.market-tape{{background:rgba(255,255,255,.9);border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:var(--shadow)}}.tape-item{{padding:17px 20px}}.tape-item span{{font-size:12px}}.tape-item b{{font-family:var(--sans);font-size:22px;font-weight:700;letter-spacing:-.4px}}.tape-item small{{font-size:11.5px}}.tape-note{{font-size:11px;margin-top:9px}}.research-shell{{margin-top:26px;gap:34px;padding:30px 32px;background:rgba(255,255,255,.72);border:1px solid rgba(228,231,236,.95);border-radius:24px;box-shadow:0 16px 46px rgba(15,23,42,.045)}}.research-brief{{padding:3px 0}}.research-kicker{{font-size:12px;color:var(--accent);margin-bottom:10px}}.research-brief h2{{font-size:30px;font-weight:720;line-height:1.28;letter-spacing:-.65px}}.research-copy{{margin-top:16px;gap:10px}}.research-copy p{{font-size:15px;line-height:1.78;color:#474b52;text-wrap:pretty}}.brief-vix .metric-card{{background:#f8fafc;border:1px solid var(--line);border-radius:18px;padding:20px;box-shadow:none}}.metric-top{{font-size:12.5px}}.metric-note{{font-size:11.5px}}.change-strip{{margin-top:20px;padding:20px 24px;background:var(--accent-soft);border:0;border-radius:20px}}.change-strip-head{{margin-bottom:12px}}.change-strip-head h2{{font-size:20px;font-weight:700}}.change-strip-head span,.change-empty{{font-size:12px}}.change-grid{{border-top:1px solid rgba(0,113,227,.13)}}.change-item{{padding:14px 16px 10px 0;border-color:rgba(0,113,227,.12)}}.change-item span{{font-size:11.5px}}.change-item b{{font-size:16px}}.change-item small{{font-size:11.5px}}.iren-brief{{margin-top:24px;grid-template-columns:minmax(330px,.86fr) minmax(0,1.4fr);gap:0;padding:0;border:0;border-radius:24px;background:linear-gradient(145deg,#101827,#18243a);overflow:hidden;box-shadow:0 20px 45px rgba(15,23,42,.16)}}.iren-brief-main{{padding:30px 30px 28px;border:0;color:#fff}}.iren-eyebrow{{font-size:12px;font-weight:700;color:#8fc7ff;margin-bottom:9px}}.iren-title-row h2{{font-size:28px;font-weight:720;color:#fff;letter-spacing:-.5px}}.iren-title-row span{{font-size:11.5px;color:#9ba8bc}}.iren-metrics{{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:22px}}.iren-metrics>div{{padding:12px 13px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.08);border-radius:14px}}.iren-metrics span{{display:block;font-size:11px;color:#a8b3c5}}.iren-metrics b{{display:block;margin-top:4px;font-size:17px;font-weight:700;color:#fff}}.iren-metrics b.up{{color:#79d8a6}}.iren-metrics b.down{{color:#ff9b93}}.iren-view{{font-size:14px;line-height:1.75;color:#d5dbe5;margin-top:18px}}.iren-disclaimer{{font-size:11px;line-height:1.55;color:#8e9caf;margin-top:14px}}.iren-news{{background:#fff;padding:26px 28px}}.iren-news-head{{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:6px}}.iren-news-head strong{{font-size:18px}}.iren-news-head span{{font-size:11.5px;color:var(--muted)}}.iren-news-row{{grid-template-columns:auto auto 1fr;gap:5px 8px;padding:15px 0;border-color:#edf0f4}}.iren-news-row:hover .news-title-zh{{color:var(--accent)}}.news-tone{{font-size:10.5px;padding:3px 7px;border-radius:8px}}.news-source-kind{{font-size:10.5px;color:#7a828d;padding-top:3px;white-space:nowrap}}.news-copy{{grid-column:3;display:flex;flex-direction:column;min-width:0}}.news-title-zh{{font-size:15px;line-height:1.5;font-weight:700;color:#22262d;transition:.15s}}.news-original{{font-size:11.5px;line-height:1.45;color:#8a919d;margin-top:3px}}.news-impact{{font-size:12.5px;line-height:1.55;color:#525a66;margin-top:7px}}.iren-news-row small{{grid-column:auto;font-size:11px;color:#9299a4;margin-top:6px}}.iren-no-news{{font-size:13px}}.engine{{border-radius:22px;background:linear-gradient(145deg,#111827,#172033);box-shadow:0 18px 40px rgba(15,23,42,.16)}}.engine::after{{background:radial-gradient(circle,rgba(0,113,227,.22),transparent 70%)}}.engine-title{{font-size:26px;font-weight:700}}.engine-label{{font-size:12px}}.engine-item{{border-radius:14px}}.engine-item .k{{font-size:11.5px}}.engine-item .v{{font-family:var(--sans);font-size:19px;font-weight:700}}.engine-item .pt{{font-size:11px}}.panel,.metric-card,.mkt-card{{border-color:var(--line);box-shadow:0 8px 24px rgba(15,23,42,.045)}}.panel{{border-radius:18px}}.panel-head strong{{font-size:14.5px}}.panel-head span{{font-size:11.5px}}.pulse-label{{font-size:12px}}.pulse-main{{font-size:16px}}.stock-table th,.table-container th{{font-size:12px}}.stock-table td,.table-container td{{font-size:13.5px;line-height:1.55}}.stock-name{{font-size:14px}}.stock-symbol{{font-size:11.5px}}.footer{{font-size:11.5px;color:#8a9099}}
+@media (max-width:900px){{.content{{padding:28px 22px 42px}}.hero h1,.compact-hero h1{{font-size:32px}}.research-shell{{padding:24px}}.research-brief h2{{font-size:25px}}.iren-brief{{grid-template-columns:1fr}}.iren-news{{padding:22px}}.iren-metrics{{grid-template-columns:repeat(3,minmax(0,1fr))}}}}
+@media (max-width:560px){{body{{font-size:15px}}.content{{padding:22px 16px 36px}}.hero h1,.compact-hero h1{{font-size:29px}}.hero p{{font-size:14px}}.market-tape{{border-radius:16px}}.tape-item{{padding:14px}}.tape-item b{{font-size:19px}}.research-shell{{padding:20px;border-radius:18px}}.research-brief h2{{font-size:22px}}.research-copy p{{font-size:14.5px}}.change-strip{{padding:18px;border-radius:16px}}.iren-brief{{border-radius:18px}}.iren-brief-main{{padding:24px 20px}}.iren-title-row{{display:block}}.iren-title-row span{{display:block;margin-top:5px}}.iren-title-row h2{{font-size:25px}}.iren-metrics{{grid-template-columns:repeat(2,minmax(0,1fr))}}.iren-news{{padding:20px}}.iren-news-row{{grid-template-columns:auto 1fr}}.news-source-kind{{grid-column:2}}.news-copy{{grid-column:2}}.news-title-zh{{font-size:14.5px}}.news-impact{{font-size:12.5px}}}}
 </style><link href="assets/dashboard-v2.2.css?v={ASSET_VERSION}" rel="stylesheet"></head><body class="auth-pending" data-app-version="{APP_VERSION}"><div class="app">
 
 <aside class="sidebar"><div class="brand"><div class="mav-brand-mark"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4 17 L9 9 L13 14 L20 5" stroke="#181109" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="20" cy="5" r="2.1" fill="#181109"/></svg></div><div><strong>myAlphaView</strong><small>myAlphaView · myalphaview.com</small></div></div>

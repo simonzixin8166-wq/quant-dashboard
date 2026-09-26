@@ -21,13 +21,13 @@ assert "strategy-tier-grid" in generator and "只判断是否进入加仓区" in
 assert "1级回撤" in page and "7.5%" in page
 assert "指数、行业与另类资产" in generator and "指数、行业与另类资产" in page
 assert "data-stock-row" in generator and "data-stock-row" in page
-assert version == "4.2.1"
+assert version == "4.4.0"
 assert "市场与风险驾驶舱" in generator and "市场与风险驾驶舱" in page
 assert "卫星及杠杆" in generator and "卫星及杠杆" in page
 assert "不参与核心ETF加仓信号" in generator and "不参与核心ETF加仓信号" in page
 assert "收盘日线截至：" in generator and "收盘日线截至：" in page
 stock_section = page.split('<div id="tab-stocks"', 1)[1].split('<div id="tab-options"', 1)[0]
-assert stock_section.count("<th>") == 7 and "<th>行情详情</th>" not in stock_section
+assert stock_section.count("<th>") == 8 and "<th>行情详情</th>" not in stock_section
 assert "@media (max-width: 680px)" in generator and 'data-label="策略价 / 距离"' in page
 assert "等待触发 · 不提前加仓" in generator
 assert "rsi < 35" in generator and "dist_200ma < -.10" in generator and "rsi > 70" in generator
@@ -106,7 +106,7 @@ assert "stock-market" in (ROOT / ".github" / "workflows" / "deploy-supabase.yml"
 assert "≤0.995（含）" in page and 'data-buy-zone="sz159307"' in page
 assert "option-pnl-account-grid" in options_js and "risk-account-breakdown" in options_js
 assert "场外基金接口" not in generator and "Data Status Center" not in generator
-assert "数据健康状态" in generator and "盘中5分钟刷新" in generator
+assert "数据健康状态" in generator and "普通观察股10分钟" in generator and "期权15分钟" in generator
 assert "strategy-budget.js" not in workflow
 assert 'class="auth-pending"' in page and "public-access-gate" in page
 assert "data-auth-required" in page and "protected-section" in page
@@ -166,3 +166,7 @@ assert "MobileShell" in mobile_js and "tab-overview" in mobile_js and "tab-optio
 assert 'class="table-container option-positions-table"' in page
 
 print("test_build_contract.py: all assertions passed")
+
+assert "Trend Pulse" in generator and "tab-trend-pulse" in generator
+assert "calculate_trend_pulse" in generator and "Supertrend" in generator and "ADX" in generator
+assert (ROOT / "docs" / "assets" / "design-v4.4.css").exists()

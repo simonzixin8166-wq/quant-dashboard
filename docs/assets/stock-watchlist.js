@@ -72,7 +72,7 @@
     global.StockDecision?.sort('priority');
     global.fetchAndRenderTargets?.();
     const stamp=document.getElementById('stockWatchStatus');
-    if(stamp)stamp.textContent=`${state.items.length}只 · ${sessionOpen()?'价格盘中5分钟更新':'休市保留最近报价'} · 指标${Object.keys(state.daily).length?'按完整收盘日线':'等待日线'} · ${new Date().toLocaleTimeString()}`;
+    if(stamp)stamp.textContent=`${state.items.length}只 · ${sessionOpen()?'普通观察股盘中10分钟更新':'休市保留最近报价'} · 指标${Object.keys(state.daily).length?'按完整收盘日线':'等待日线'} · ${new Date().toLocaleTimeString()}`;
   }
   async function load(){
     if(state.loading)return;state.loading=true;
@@ -97,7 +97,7 @@
     }catch(error){global.MAV?.toast(`个股行情刷新失败：${error.message}`,'warn')}
     finally{schedule()}
   }
-  function schedule(){clearTimeout(state.timer);state.timer=setTimeout(()=>{if(document.visibilityState==='visible')refresh();else schedule()},sessionOpen()?300000:1800000)}
+  function schedule(){clearTimeout(state.timer);state.timer=setTimeout(()=>{if(document.visibilityState==='visible')refresh();else schedule()},sessionOpen()?600000:1800000)}
 
   function openAdd(){
     if(!isAdmin){alert('请先使用主理人账户登录。');return}

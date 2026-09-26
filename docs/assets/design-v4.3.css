@@ -1,0 +1,97 @@
+/* myAlphaView V4.3 — Research clarity + Trend Pulse
+   Website-first refinement: smaller heading scale, denser IREN brief, clearer red/green semantics. */
+@import url('./design-v4.2.1.css?v=4.2.1');
+
+:root{
+  --accent:#d71920;
+  --green:#00875a;
+  --red:#d71920;
+  --amber:#a85d00;
+}
+
+/* 1) Typography rebalance: keep body readable, stop headings from dominating */
+.hero h1{font-size:38px!important;line-height:1.16!important;letter-spacing:-1.05px!important}
+.compact-hero h1{font-size:31px!important;line-height:1.18!important;letter-spacing:-.7px!important}
+.hero p{font-size:17px!important;line-height:1.68!important;max-width:920px}
+.section-head h2{font-size:24px!important;line-height:1.25!important;letter-spacing:-.3px!important}
+.section-head p{font-size:14px!important}
+.research-brief h2{font-size:29px!important;line-height:1.28!important}
+.change-strip-head h2{font-size:22px!important}
+.engine-title{font-size:29px!important;line-height:1.25!important}
+.finance-hero h1{font-size:36px!important}
+.finance-card-head h2{font-size:23px!important}
+.option-v2-card h3,.roll-card h3{font-size:20px!important}
+
+/* 2) Home hero is lighter and shorter */
+.overview-hero{padding:25px 30px!important;min-height:0!important}
+.data-legend{margin-top:14px!important}
+.public-note{max-width:420px}
+
+/* 3) IREN redesign: horizontal research strip instead of a tall narrow slab */
+.iren-brief{display:block!important;overflow:hidden!important}
+.iren-brief-main{padding:27px 30px 24px!important;border-right:0!important;border-bottom:4px solid var(--red)!important;background:#17191d!important}
+.iren-title-row{display:flex!important;align-items:flex-end!important;justify-content:space-between!important;gap:18px!important;margin-top:4px!important}
+.iren-title-row h2{font-size:29px!important;line-height:1.18!important;margin:0!important}
+.iren-title-row span{font-size:13px!important;white-space:nowrap}
+.iren-metrics{display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:10px!important;margin-top:20px!important}
+.iren-metrics>div{padding:13px 14px!important;min-height:78px!important}
+.iren-metrics span{font-size:12.5px!important}
+.iren-metrics b{font-size:20px!important;margin-top:4px!important}
+.iren-view{font-size:15.5px!important;line-height:1.7!important;margin:14px 0 0!important;max-width:1180px}
+.iren-disclaimer{font-size:12.5px!important;margin-top:8px!important}
+.iren-news{padding:25px 30px!important}
+.iren-news-head{margin-bottom:2px!important}
+.iren-news-head strong{font-size:20px!important}
+.iren-news-row{padding:12px 0!important}
+.news-title-zh{font-size:16.5px!important;line-height:1.45!important}
+.news-original{font-size:12.5px!important}
+.news-impact{font-size:14px!important;line-height:1.55!important;margin-top:5px!important}
+
+.iren-trend-inline{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:13px;padding-top:13px;border-top:1px solid rgba(255,255,255,.13)}
+.iren-trend-inline>div{display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding:8px 10px;border-radius:5px;background:rgba(255,255,255,.055)}
+.iren-trend-inline span{font-size:12px;color:#aeb4bd}.iren-trend-inline b,.iren-trend-inline strong{font-size:15px;color:#fff}
+.iren-trend-inline .good{color:#67d7a8!important}.iren-trend-inline .warn{color:#ffc66d!important}.iren-trend-inline .bad{color:#ff7a80!important}
+.iren-trend-summary{margin:8px 0 0;font-size:13.5px;line-height:1.55;color:#cbd0d7}
+
+/* 4) Trend Pulse */
+.trend-feature{display:grid;grid-template-columns:minmax(320px,.85fr) minmax(520px,1.4fr);gap:18px;align-items:stretch}
+.trend-feature-copy,.trend-chart-panel,.trend-card,.trend-method-note{background:#fff;border:1px solid var(--line);border-radius:10px}
+.trend-feature-copy{padding:26px 28px;border-top:4px solid var(--red)}
+.trend-kicker{font-size:12.5px;font-weight:800;color:var(--red)}
+.trend-feature-copy h2{font-size:27px;line-height:1.2;margin:7px 0 10px}
+.trend-feature-copy>p{font-size:15px;line-height:1.7;color:var(--muted)}
+.trend-feature-metrics{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:18px}
+.trend-feature-metrics span{display:flex;justify-content:space-between;gap:10px;padding:10px 12px;background:#f6f7f8;border-radius:6px;font-size:13px;color:var(--muted)}
+.trend-feature-metrics b{font-size:14px;color:var(--ink)}
+.trend-feature-metrics .good,.trend-score.good,.trend-score-xl.good{color:var(--green)!important}
+.trend-feature-metrics .warn,.trend-score.warn,.trend-score-xl.warn{color:var(--amber)!important}
+.trend-feature-metrics .bad,.trend-score.bad,.trend-score-xl.bad{color:var(--red)!important}
+.trend-chart-panel{padding:20px 22px;min-height:310px}.trend-chart-panel canvas{height:250px!important;max-height:250px!important}
+.trend-chart-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px}.trend-chart-head strong{font-size:17px}.trend-chart-head span{font-size:12.5px;color:var(--muted)}
+.trend-card-grid-wrap{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.trend-card{padding:18px 19px;border-top:3px solid #a9adb4}
+.trend-card[data-tone="good"]{border-top-color:var(--green)}.trend-card[data-tone="warn"]{border-top-color:var(--amber)}.trend-card[data-tone="bad"]{border-top-color:var(--red)}
+.trend-card-top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.trend-card-top span{font-size:12px;color:var(--muted)}.trend-card-top h3{font-size:21px;line-height:1.15;margin-top:2px}
+.trend-score-xl{font-size:29px;font-weight:800;letter-spacing:-.7px}
+.trend-state{display:inline-flex;margin:10px 0 12px;padding:4px 8px;border-radius:4px;background:#f1f2f4;font-size:12.5px;font-weight:800}.trend-state.good{background:var(--green-soft);color:var(--green)}.trend-state.warn{background:var(--amber-soft);color:var(--amber)}.trend-state.bad{background:var(--red-soft);color:var(--red)}
+.trend-card-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}.trend-card-grid span{display:flex;justify-content:space-between;gap:8px;font-size:12.5px;color:var(--muted);border-bottom:1px solid #eceef1;padding-bottom:5px}.trend-card-grid b{color:var(--ink);font-size:12.5px}.trend-card>p{font-size:13px;line-height:1.55;color:var(--muted);margin-top:11px}
+.trend-method-note{margin-top:18px;padding:16px 18px;border-left:4px solid #1769aa}.trend-method-note strong{font-size:14px}.trend-method-note p{margin-top:3px;font-size:13.5px;line-height:1.6;color:var(--muted)}
+.trend-score{display:block;font-size:17px!important;font-weight:800}.stock-table td small{display:block;margin-top:3px}.trend-empty{padding:22px;color:var(--muted)}
+
+/* 5) Reduce excessive title scale inside legacy sections too */
+.tab-pane>.hero{padding-top:24px!important;padding-bottom:24px!important}
+.card .sym{font-size:17px!important}.card .price{font-size:22px!important}
+.breadth-card strong{font-size:25px!important}
+.pulse-main{font-size:17px!important}.metric-value{font-size:27px!important}
+
+@media(max-width:1100px){
+  .hero h1{font-size:34px!important}.compact-hero h1{font-size:29px!important}
+  .iren-metrics{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+  .trend-feature{grid-template-columns:1fr}.trend-card-grid-wrap{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:768px){
+  .hero h1{font-size:31px!important}.compact-hero h1{font-size:27px!important}.section-head h2{font-size:22px!important}
+  .iren-brief-main,.iren-news{padding:22px 18px!important}.iren-title-row{display:block!important}.iren-title-row h2{font-size:26px!important}.iren-title-row span{display:block;margin-top:5px}
+  .iren-metrics{grid-template-columns:repeat(2,minmax(0,1fr))!important}.iren-trend-inline{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .trend-feature-copy{padding:21px}.trend-feature-copy h2{font-size:24px}.trend-card-grid-wrap{grid-template-columns:1fr}.trend-chart-panel{padding:16px;min-height:280px}.trend-chart-panel canvas{height:225px!important}
+}

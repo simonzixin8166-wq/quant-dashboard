@@ -1,29 +1,18 @@
-# myAlphaView Brand System
+# Myalpha View Brand System — V4.4
 
-## Official brand
-- Primary brand: **myAlphaView**
-- Product descriptor: **Market Intelligence**
-- Chinese descriptor: **投资研究与市场情报平台**
-- Domain: **myalphaview.com**
+## 品牌
+- 中文：投资分析及策略
+- 英文：Myalpha View
+- 字重：Myalpha 加粗，View 常规
+- 图形：红色向右上方前进的公牛
 
-## Visual direction (current)
-- Base: deep navy (`--nav` / `--nav2`) sidebar, warm off-white (`--bg`) content area
-- Primary accent: brass/gold (`--brass`) — used for the logo mark, active nav state, the dark "Strategy Engine" panel highlights
-- Positive: restrained green (`--green`)
-- Negative: restrained red (`--red`) — kept visually distinct from the brass brand accent so "brand emphasis" and "market down/alert" are never confused
-- Palette strictly bounded to navy + brass + red/green.
+## 视觉原则
+- 白底、黑字、高对比、少阴影。
+- 红色：品牌动作、下跌、风险。
+- 绿色：上涨、健康、正向状态。
+- 灰色：次要说明、边框、背景层次。
+- 不用大面积高饱和背景抢夺数据注意力。
 
-## Logo mark
-A stylized Greek alpha (Α) shape SVG rendered in brass on the navy sidebar background, embodying insight and market ascension.
-
-## Product principle
-The public site communicates market intelligence and research methodology.
-It does not expose personal portfolio balances, position sizes, cost basis, or account-level returns.
-This is also why capital/position-sizing rules are intentionally kept off the public site — only trigger rules and signals are shown, never real allocation amounts.
-
-## Status
-1. ✅ Market Regime — implemented (see MARKET_REGIME.md), real breadth data live with auto-skip & try-except protection
-2. ✅ Strategy Signal — implemented as "策略引擎" (per-asset 3-tier drawdown triggers, including QQQ)
-3. ✅ Data credibility/status — source labels (真实指数/ETF代理) shown per metric, plus CN/HK real-time 5s JS ticker
-4. ⏳ Research Radar (个股观察池 upgrade) — not yet started
-5. ✅ 历史买点数据库 (historical trigger log) — fully implemented as Tab 7 (Archive)
+## 数据原则
+- 盘中行情标为参考。
+- Trend Pulse、宽度、ATH/回撤正式状态以完整收盘日线确认。

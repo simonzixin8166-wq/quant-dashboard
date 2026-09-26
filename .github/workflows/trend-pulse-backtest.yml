@@ -1,0 +1,76 @@
+name: Trend Pulse 5Y Backtest
+
+on:
+  schedule:
+    # 美股完成日线后自动验证。22:30 UTC 对应北京时间次日 06:30；
+    # 无论美国处于夏令时还是冬令时，都在美股常规收盘之后。
+    - cron: '30 22 * * 1-5'
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: trend-pulse-backtest-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  backtest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install "yfinance>=0.2.65,<0.3" pandas numpy
+
+      - name: Syntax check
+        run: python -m py_compile scripts/backtest_trend_pulse.py
+
+      - name: Run 5Y walk-forward event study
+        run: |
+          python scripts/backtest_trend_pulse.py \
+            --symbols IREN NVDA ORCL TSLA \
+            --period 5y \
+            --outdir docs/research \
+            --skip-if-no-new-data
+
+      - name: Show summary
+        if: always()
+        run: |
+          if [ -f docs/research/trend_pulse_backtest.md ]; then
+            cat docs/research/trend_pulse_backtest.md
+          else
+            echo "No report yet."
+          fi
+
+      - name: Upload research artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: trend-pulse-5y-backtest
+          if-no-files-found: warn
+          path: |
+            docs/research/trend_pulse_backtest.json
+            docs/research/trend_pulse_backtest.md
+            docs/research/trend_pulse_events.csv
+            docs/research/trend_pulse_summary.csv
+
+      - name: Commit research outputs
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add docs/research/trend_pulse_backtest.json docs/research/trend_pulse_backtest.md docs/research/trend_pulse_events.csv docs/research/trend_pulse_summary.csv 2>/dev/null || true
+          if git diff --cached --quiet; then
+            echo "No new completed market day; nothing to commit."
+            exit 0
+          fi
+          git commit -m "Update Trend Pulse 5Y validation $(date -u +%Y-%m-%d)"
+          git pull --rebase origin main
+          git push origin HEAD:main

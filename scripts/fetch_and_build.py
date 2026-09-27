@@ -13,9 +13,9 @@ except ModuleNotFoundError:
 warnings.filterwarnings("ignore")
 
 # 单一版本源：每日 Action 生成 HTML 时，页面标题和静态资源缓存版本都从这里读取。
-APP_VERSION = "4.6.1"
+APP_VERSION = "4.7.1"
 OPTIONS_VERSION = "4.0.0"  # 网站优先；APP/PWA 功能已移除，仅保留响应式手机网页
-ASSET_VERSION = "4.6.1"
+ASSET_VERSION = "4.7.1"
 
 API_KEY = os.environ.get("TWELVE_DATA_KEY", "demo")
 BASE = "https://api.twelvedata.com"
@@ -1274,6 +1274,81 @@ def get_dist_text(dd, tiers):
         else: return "(已达最高档)"
     except: return ""
 
+def core_action_summary(core):
+    """Public-safe, amount-free action summary for QQQM/VGT/QLD."""
+    cards=[]
+    for sym, role in (("QQQM","核心成长"),("VGT","科技核心"),("QLD","杠杆卫星")):
+        row=(core or {}).get(sym) or {}
+        if not row or "error" in row:
+            cards.append({"symbol":sym,"role":role,"dd":None,"distance":None,"level":None,"action":"等待数据","tone":"neutral"})
+            continue
+        dd=_safe_float(row.get("strategy_drawdown"))
+        level=int(row.get("level",0) or 0)
+        dist=_distance_to_first_tier(sym,row)
+        if not row.get("ath_is_true") or row.get("ath_validation")=="CHECK":
+            action,tone="仅观察 · 等待ATH校验","neutral"
+        elif level>=3:
+            action,tone="三级加仓区 · 极端回撤","risk"
+        elif level==2:
+            action,tone="二级加仓区 · 按规则执行","risk"
+        elif level==1:
+            action,tone="一级加仓区 · 按规则执行","watch"
+        elif isinstance(dist,(int,float)) and dist<=0.03:
+            action,tone="接近一级 · 准备备用资金","warn"
+        else:
+            action,tone="正常定投 · 暂不额外加仓","good"
+        cards.append({"symbol":sym,"role":role,"dd":dd,"distance":dist,"level":level,"action":action,"tone":tone})
+    return cards
+
+
+def build_daily_action_html(data, trend_data):
+    core_cards=core_action_summary(data.get("core") or {})
+    core_html=[]
+    for c in core_cards:
+        dist_text=(f"距一级 {c['distance']:.1%}" if isinstance(c.get('distance'),(int,float)) else "距离待校验")
+        dd_text=fmt_pct(c.get('dd'))
+        core_html.append(
+            f'<article class="daily-core-card {c["tone"]}">'
+            f'<div class="daily-core-head"><div><strong>{c["symbol"]}</strong><span>{c["role"]}</span></div><b>{dd_text}</b></div>'
+            f'<div class="daily-core-action">{html.escape(c["action"])}</div><small>{dist_text}</small></article>'
+        )
+    candidates=[]
+    for sym,tp in (trend_data or {}).items():
+        if not tp.get("available"):
+            continue
+        score=_safe_float(tp.get("score")); slope=_safe_float(tp.get("slope5")) or 0.0; weekly=tp.get("weekly","-")
+        if score is None:
+            continue
+        basic=trend_pulse_band(score,slope,weekly)
+        pri={"risk":5,"watch":4,"good":3,"caution":2,"warn":2,"wait":1,"neutral":0}.get(basic.get("tone"),0)
+        candidates.append((pri,abs(score),sym,basic,tp))
+    candidates.sort(reverse=True)
+    stock_rows=[]
+    for _,__,sym,basic,tp in candidates[:3]:
+        stock_rows.append(
+            f'<div class="daily-stock-row"><div><strong>{sym}</strong><span>{html.escape(str(basic["zone"]))}</span></div>'
+            f'<b>{float(tp.get("score")):+.0f}</b><em>{html.escape(str(basic["action"]))}</em></div>'
+        )
+    if not stock_rows:
+        stock_rows=['<div class="daily-empty">当前没有足够趋势数据。</div>']
+    mr=data.get("market_regime") or {}
+    market_label=mr.get("tier_label") or "等待数据"
+    vix=_safe_float(((data.get("market_indicators") or {}).get("vix") or {}).get("close"))
+    market_note=(f"VIX {vix:.1f}" if isinstance(vix,(int,float)) else "VIX待更新")
+    html_out=(
+        '<section class="section private-console daily-action-section">'
+        '<div class="section-head daily-action-head"><div><h2>今日行动摘要</h2><p>先看核心ETF，再看个股机会和期权风险；不展示任何账户金额。</p></div>'
+        f'<span class="daily-asof">收盘确认 · {html.escape(str(data.get("spy_date","-")))}</span></div>'
+        '<div class="daily-action-grid">'
+        f'<div class="daily-action-panel"><div class="daily-action-title"><strong>市场环境</strong><span>{html.escape(str(market_label))}</span></div><div class="daily-market-main">{html.escape(str(market_label))}</div><small>{market_note} · 以完整收盘数据确认</small></div>'
+        f'<div class="daily-action-panel daily-core-panel"><div class="daily-action-title"><strong>核心ETF</strong><span>QQQM / VGT / QLD</span></div><div class="daily-core-grid">{"".join(core_html)}</div></div>'
+        f'<div class="daily-action-panel"><div class="daily-action-title"><strong>个股关注</strong><span>Trend Pulse</span></div><div class="daily-stock-list">{"".join(stock_rows)}</div></div>'
+        '<div class="daily-action-panel"><div class="daily-action-title"><strong>期权风险</strong><span>私有持仓</span></div><div class="daily-option-callout">登录后由“今日风险待办”自动检查临期、缺失报价与宏观事件。</div><button type="button" class="daily-jump" onclick="switchTab(\'tab-options\',document.querySelector(\'[onclick*=\\\"tab-options\\\"]\'))">查看期权持仓</button></div>'
+        '</div></section>'
+    )
+    return html_out, ''.join(core_html)
+
+
 def engine_item(name, r):
     if "error" in r: return f'<div class="engine-item"><div class="k">{name}</div><div class="v">-</div><div class="pt">数据获取失败</div></div>'
     level, hit_cls = r.get("level", 0), "hit" if r.get("level", 0) > 0 else ""
@@ -1475,7 +1550,7 @@ def render_html(data):
             tp_tone = tp.get("tone", "neutral")
             tp_html = f'<b class="trend-score {tp_tone}">{tp_score:+.0f}</b><small>{html.escape(tp.get("state","等待数据"))}</small>' if isinstance(tp_score,(int,float)) else '<b>—</b><small>数据不足</small>'
             detail_id = f"stock-detail-{sym}"
-            stock_html += f'''<tr data-stock-row data-detail-id="{detail_id}" data-status="{status}" data-target-distance="{abs(target_distance) if isinstance(target_distance,(int,float)) else 999}" data-drawdown="{abs(ytd_dd) if isinstance(ytd_dd,(int,float)) else 0}" data-rsi="{rsi if isinstance(rsi,(int,float)) else 999}" data-dist200="{dist if isinstance(dist,(int,float)) else 0}" data-pulse="{tp_score if isinstance(tp_score,(int,float)) else -999}"><td class="stock-identity"><div class="stock-name-line"><span class="stock-name">{name}</span><span class="stock-symbol">{sym}</span><button type="button" class="stock-detail-toggle" onclick="StockDecision.toggleDetails('{sym}', this)" aria-expanded="false">行情详情⌄</button></div></td><td data-label="最新价 / 涨跌"><b id="close-{sym}">${close:.2f}</b><small id="chg-{sym}" class="{'pos-text' if chg>=0 else 'neg-text'}">{chg*100:+.2f}%</small></td><td data-label="Trend Pulse">{tp_html}</td><td data-label="YTD回撤" class="neg-text fw-bold">{fmt_pct(ytd_dd)}</td><td data-label="RSI">{fmt_num(rsi)}</td><td data-label="距200MA" class="{'neg-text' if isinstance(dist,(int,float)) and dist<0 else ''}">{fmt_pct(dist)}</td><td data-label="策略价 / 距离" id="target-cell-{sym}"><b id="target-{sym}">{target_display}</b><small id="target-gap-{sym}">{target_gap_text}</small></td><td data-label="状态"><span id="stock-status-{sym}" class="stock-status {status}">{status_label}</span><span id="action-{sym}"></span></td><td data-label="操作" class="stock-actions-cell"><div class="stock-row-actions" id="stock-actions-{sym}"></div></td></tr><tr id="{detail_id}" class="stock-detail-row" data-detail-for="{sym}" hidden><td colspan="9"><div class="stock-detail-panel"><div><span>当日区间</span><b>开 ${v.get('open',0):.2f} · 高 ${v.get('high',0):.2f} · 低 ${v.get('low',0):.2f}</b></div><div><span>YTD高点</span><b>${fmt_num(ytd_high)}</b></div><div><span>完整日线</span><b>{v.get('date','-')}</b></div><div><span>Trend Pulse</span><b>{(f'{tp_score:+.0f} · ' + html.escape(tp.get('state','等待数据'))) if isinstance(tp_score,(int,float)) else '数据不足'}</b></div></div></td></tr>'''
+            stock_html += f'''<tr data-stock-row data-symbol="{sym}" data-detail-id="{detail_id}" data-status="{status}" data-target-distance="{abs(target_distance) if isinstance(target_distance,(int,float)) else 999}" data-drawdown="{abs(ytd_dd) if isinstance(ytd_dd,(int,float)) else 0}" data-rsi="{rsi if isinstance(rsi,(int,float)) else 999}" data-dist200="{dist if isinstance(dist,(int,float)) else 0}" data-pulse="{tp_score if isinstance(tp_score,(int,float)) else -999}"><td class="stock-identity"><div class="stock-name-line"><span class="stock-name">{name}</span><span class="stock-symbol">{sym}</span><button type="button" class="stock-detail-toggle" onclick="StockDecision.toggleDetails('{sym}', this)" aria-expanded="false">行情详情⌄</button><button type="button" class="stock-mobile-menu" aria-label="{sym} 操作菜单" onclick="StockDecision.openContextMenuForSymbol('{sym}', this)">⋯</button></div></td><td data-label="最新价 / 涨跌"><b id="close-{sym}">${close:.2f}</b><small id="chg-{sym}" class="{'pos-text' if chg>=0 else 'neg-text'}">{chg*100:+.2f}%</small></td><td data-label="Trend Pulse">{tp_html}</td><td data-label="YTD回撤" class="neg-text fw-bold">{fmt_pct(ytd_dd)}</td><td data-label="RSI">{fmt_num(rsi)}</td><td data-label="距200MA" class="{'neg-text' if isinstance(dist,(int,float)) and dist<0 else ''}">{fmt_pct(dist)}</td><td data-label="策略价 / 距离" id="target-cell-{sym}"><b id="target-{sym}">{target_display}</b><small id="target-gap-{sym}">{target_gap_text}</small></td><td data-label="状态"><span id="stock-status-{sym}" class="stock-status {status}">{status_label}</span><span id="action-{sym}"></span></td></tr><tr id="{detail_id}" class="stock-detail-row" data-detail-for="{sym}" hidden><td colspan="8"><div class="stock-detail-panel"><div><span>当日区间</span><b>开 ${v.get('open',0):.2f} · 高 ${v.get('high',0):.2f} · 低 ${v.get('low',0):.2f}</b></div><div><span>YTD高点</span><b>${fmt_num(ytd_high)}</b></div><div><span>完整日线</span><b>{v.get('date','-')}</b></div><div><span>Trend Pulse</span><b>{(f'{tp_score:+.0f} · ' + html.escape(tp.get('state','等待数据'))) if isinstance(tp_score,(int,float)) else '数据不足'}</b></div></div></td></tr>'''
             
     options_html = '<tr><td colspan="9" style="text-align:center; color:var(--muted)">请登录后查看私有期权持仓</td></tr>'
 
@@ -1603,6 +1678,7 @@ def render_html(data):
         what_changed_html = f'<section class="change-strip"><div class="change-strip-head"><h2>今日变化</h2><span>等待下一次快照</span></div><p class="change-empty">{html.escape(str(changes.get("note","首次快照，下一次更新后开始显示变化。")))}</p></section>'
 
     trend_data = data.get("trend_pulse") or {}
+    daily_action_html, core_status_cards_html = build_daily_action_html(data, trend_data)
     iren_tp = trend_data.get("IREN") or {}
     if iren_tp.get("available"):
         tp_tone = iren_tp.get("tone","neutral")
@@ -1717,7 +1793,7 @@ def render_html(data):
 body{{font-size:15px;background:linear-gradient(180deg,#f7f9fc 0,#f3f6fa 100%);letter-spacing:-.005em}}.topbar{{background:rgba(247,249,252,.82);border-color:rgba(0,0,0,.07)}}.content{{max-width:1500px;padding:42px 40px 56px}}.sidebar{{background:linear-gradient(180deg,#111827,#0b1220)}}.mav-brand-mark{{background:linear-gradient(135deg,#f0c678,#b98536);box-shadow:none}}.brand strong{{font-size:18px}}.brand small{{font-size:12px}}.nav-title{{font-size:11.5px;color:#7f8a9d}}.nav-menu li{{font-size:14.5px;padding:11px 12px}}.nav-menu li.active{{background:rgba(0,113,227,.15);box-shadow:inset 3px 0 0 var(--accent)}}.auth-btn-top{{background:var(--accent);font-size:12.5px;padding:8px 15px;border-radius:10px;box-shadow:none}}.auth-btn-top:hover{{background:#0068d1}}.breadcrumb{{font-size:14px}}.top-meta{{font-size:12.5px}}.hero{{margin-bottom:22px}}.hero h1,.compact-hero h1{{font-family:var(--sans);font-size:40px;font-weight:720;line-height:1.12;letter-spacing:-1.15px}}.hero p{{font-size:15px;line-height:1.7}}.public-note{{font-size:13px;border:0;border-left:3px solid var(--accent);border-radius:12px;background:rgba(255,255,255,.78);box-shadow:0 4px 18px rgba(15,23,42,.04)}}.public-note b{{font-size:13px}}.section-head h2,.engine-title,.research-brief h2,.iren-brief h2,.change-strip h2{{font-family:var(--sans)}}.section-head h2{{font-size:22px;font-weight:700}}.section-head p{{font-size:12.5px}}.market-tape{{background:rgba(255,255,255,.9);border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:var(--shadow)}}.tape-item{{padding:17px 20px}}.tape-item span{{font-size:12px}}.tape-item b{{font-family:var(--sans);font-size:22px;font-weight:700;letter-spacing:-.4px}}.tape-item small{{font-size:11.5px}}.tape-note{{font-size:11px;margin-top:9px}}.research-shell{{margin-top:26px;gap:34px;padding:30px 32px;background:rgba(255,255,255,.72);border:1px solid rgba(228,231,236,.95);border-radius:24px;box-shadow:0 16px 46px rgba(15,23,42,.045)}}.research-brief{{padding:3px 0}}.research-kicker{{font-size:12px;color:var(--accent);margin-bottom:10px}}.research-brief h2{{font-size:30px;font-weight:720;line-height:1.28;letter-spacing:-.65px}}.research-copy{{margin-top:16px;gap:10px}}.research-copy p{{font-size:15px;line-height:1.78;color:#474b52;text-wrap:pretty}}.brief-vix .metric-card{{background:#f8fafc;border:1px solid var(--line);border-radius:18px;padding:20px;box-shadow:none}}.metric-top{{font-size:12.5px}}.metric-note{{font-size:11.5px}}.change-strip{{margin-top:20px;padding:20px 24px;background:var(--accent-soft);border:0;border-radius:20px}}.change-strip-head{{margin-bottom:12px}}.change-strip-head h2{{font-size:20px;font-weight:700}}.change-strip-head span,.change-empty{{font-size:12px}}.change-grid{{border-top:1px solid rgba(0,113,227,.13)}}.change-item{{padding:14px 16px 10px 0;border-color:rgba(0,113,227,.12)}}.change-item span{{font-size:11.5px}}.change-item b{{font-size:16px}}.change-item small{{font-size:11.5px}}.iren-brief{{margin-top:24px;grid-template-columns:minmax(330px,.86fr) minmax(0,1.4fr);gap:0;padding:0;border:0;border-radius:24px;background:linear-gradient(145deg,#101827,#18243a);overflow:hidden;box-shadow:0 20px 45px rgba(15,23,42,.16)}}.iren-brief-main{{padding:30px 30px 28px;border:0;color:#fff}}.iren-eyebrow{{font-size:12px;font-weight:700;color:#8fc7ff;margin-bottom:9px}}.iren-title-row h2{{font-size:28px;font-weight:720;color:#fff;letter-spacing:-.5px}}.iren-title-row span{{font-size:11.5px;color:#9ba8bc}}.iren-metrics{{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:22px}}.iren-metrics>div{{padding:12px 13px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.08);border-radius:14px}}.iren-metrics span{{display:block;font-size:11px;color:#a8b3c5}}.iren-metrics b{{display:block;margin-top:4px;font-size:17px;font-weight:700;color:#fff}}.iren-metrics b.up{{color:#79d8a6}}.iren-metrics b.down{{color:#ff9b93}}.iren-view{{font-size:14px;line-height:1.75;color:#d5dbe5;margin-top:18px}}.iren-disclaimer{{font-size:11px;line-height:1.55;color:#8e9caf;margin-top:14px}}.iren-news{{background:#fff;padding:26px 28px}}.iren-news-head{{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:6px}}.iren-news-head strong{{font-size:18px}}.iren-news-head span{{font-size:11.5px;color:var(--muted)}}.iren-news-row{{grid-template-columns:auto auto 1fr;gap:5px 8px;padding:15px 0;border-color:#edf0f4}}.iren-news-row:hover .news-title-zh{{color:var(--accent)}}.news-tone{{font-size:10.5px;padding:3px 7px;border-radius:8px}}.news-source-kind{{font-size:10.5px;color:#7a828d;padding-top:3px;white-space:nowrap}}.news-copy{{grid-column:3;display:flex;flex-direction:column;min-width:0}}.news-title-zh{{font-size:15px;line-height:1.5;font-weight:700;color:#22262d;transition:.15s}}.news-original{{font-size:11.5px;line-height:1.45;color:#8a919d;margin-top:3px}}.news-impact{{font-size:12.5px;line-height:1.55;color:#525a66;margin-top:7px}}.iren-news-row small{{grid-column:auto;font-size:11px;color:#9299a4;margin-top:6px}}.iren-no-news{{font-size:13px}}.engine{{border-radius:22px;background:linear-gradient(145deg,#111827,#172033);box-shadow:0 18px 40px rgba(15,23,42,.16)}}.engine::after{{background:radial-gradient(circle,rgba(0,113,227,.22),transparent 70%)}}.engine-title{{font-size:26px;font-weight:700}}.engine-label{{font-size:12px}}.engine-item{{border-radius:14px}}.engine-item .k{{font-size:11.5px}}.engine-item .v{{font-family:var(--sans);font-size:19px;font-weight:700}}.engine-item .pt{{font-size:11px}}.panel,.metric-card,.mkt-card{{border-color:var(--line);box-shadow:0 8px 24px rgba(15,23,42,.045)}}.panel{{border-radius:18px}}.panel-head strong{{font-size:14.5px}}.panel-head span{{font-size:11.5px}}.pulse-label{{font-size:12px}}.pulse-main{{font-size:16px}}.stock-table th,.table-container th{{font-size:12px}}.stock-table td,.table-container td{{font-size:13.5px;line-height:1.55}}.stock-name{{font-size:14px}}.stock-symbol{{font-size:11.5px}}.footer{{font-size:11.5px;color:#8a9099}}
 @media (max-width:900px){{.content{{padding:28px 22px 42px}}.hero h1,.compact-hero h1{{font-size:32px}}.research-shell{{padding:24px}}.research-brief h2{{font-size:25px}}.iren-brief{{grid-template-columns:1fr}}.iren-news{{padding:22px}}.iren-metrics{{grid-template-columns:repeat(3,minmax(0,1fr))}}}}
 @media (max-width:560px){{body{{font-size:15px}}.content{{padding:22px 16px 36px}}.hero h1,.compact-hero h1{{font-size:29px}}.hero p{{font-size:14px}}.market-tape{{border-radius:16px}}.tape-item{{padding:14px}}.tape-item b{{font-size:19px}}.research-shell{{padding:20px;border-radius:18px}}.research-brief h2{{font-size:22px}}.research-copy p{{font-size:14.5px}}.change-strip{{padding:18px;border-radius:16px}}.iren-brief{{border-radius:18px}}.iren-brief-main{{padding:24px 20px}}.iren-title-row{{display:block}}.iren-title-row span{{display:block;margin-top:5px}}.iren-title-row h2{{font-size:25px}}.iren-metrics{{grid-template-columns:repeat(2,minmax(0,1fr))}}.iren-news{{padding:20px}}.iren-news-row{{grid-template-columns:auto 1fr}}.news-source-kind{{grid-column:2}}.news-copy{{grid-column:2}}.news-title-zh{{font-size:14.5px}}.news-impact{{font-size:12.5px}}}}
-</style><link href="assets/dashboard-v2.2.css?v={ASSET_VERSION}" rel="stylesheet"><link href="assets/design-v4.5.css?v={ASSET_VERSION}" rel="stylesheet"><link href="assets/design-v4.5.1.css?v={ASSET_VERSION}" rel="stylesheet"><link href="assets/design-v4.5.2.css?v={ASSET_VERSION}" rel="stylesheet"><link href="assets/design-v4.5.3.css?v={ASSET_VERSION}" rel="stylesheet"><link href="assets/design-v4.5.4.css?v={ASSET_VERSION}" rel="stylesheet"><link href="assets/design-v4.6.css?v={ASSET_VERSION}" rel="stylesheet"><link href="assets/design-v4.6.1.css?v={ASSET_VERSION}" rel="stylesheet"></head><body class="auth-pending" data-app-version="{APP_VERSION}"><div class="app">
+</style><link href="assets/dashboard-v2.2.css?v={ASSET_VERSION}" rel="stylesheet"><link href="assets/design-v4.5.css?v={ASSET_VERSION}" rel="stylesheet"><link href="assets/design-v4.5.1.css?v={ASSET_VERSION}" rel="stylesheet"><link href="assets/design-v4.5.2.css?v={ASSET_VERSION}" rel="stylesheet"><link href="assets/design-v4.5.3.css?v={ASSET_VERSION}" rel="stylesheet"><link href="assets/design-v4.5.4.css?v={ASSET_VERSION}" rel="stylesheet"><link href="assets/design-v4.6.css?v={ASSET_VERSION}" rel="stylesheet"><link href="assets/design-v4.6.1.css?v={ASSET_VERSION}" rel="stylesheet"><link href="assets/design-v4.7.css?v={ASSET_VERSION}" rel="stylesheet"><link href="assets/design-v4.7.1.css?v={ASSET_VERSION}" rel="stylesheet"></head><body class="auth-pending" data-app-version="{APP_VERSION}"><div class="app">
 
 <aside class="sidebar"><div class="brand brand-v44"><img src="assets/myalpha-logo-v44.png" alt="投资分析及策略 · Myalpha View"></div>
 <div class="nav-group"><div class="nav-title">美股 · 核心资产</div><ul class="nav-menu"><li class="active" onclick="switchTab('tab-overview',this)"><span class="nav-icon">◆</span>市场总览</li><li data-auth-required onclick="switchTab('tab-engine',this)"><span class="nav-icon">◒</span>回撤策略</li><li data-auth-required onclick="switchTab('tab-index',this)"><span class="nav-icon">◫</span>指数 & ETF</li></ul></div>
@@ -1737,6 +1813,7 @@ body{{font-size:15px;background:linear-gradient(180deg,#f7f9fc 0,#f3f6fa 100%);l
 {what_changed_html}
 {iren_brief_html}
 <section class="public-access-gate"><div><span class="access-lock">🔐</span><strong>其余模块仅限主理人登录后浏览</strong><p>包括策略信号、市场宽度、个股观察、期权持仓、推演与历史记录。</p></div><button type="button" onclick="handleAuth()">登录解锁</button></section>
+{daily_action_html}
 <section class="section private-console"><div class="panel risk-todo"><div class="panel-head"><strong>今日风险待办</strong><span>只列需要人工确认的事项</span></div><div id="riskTodoList" class="risk-todo-list"><div class="risk-todo-empty">正在检查临期期权、缺失报价、宏观事件与宽度背离…</div></div></div></section>
 <section class="section protected-section">{market_regime_html}</section>
 {breadth_summary_html}
@@ -1746,6 +1823,7 @@ body{{font-size:15px;background:linear-gradient(180deg,#f7f9fc 0,#f3f6fa 100%);l
 
 <div id="tab-engine" class="tab-pane">
 <section class="hero compact-hero"><div><h1>核心策略信号</h1><p>正式信号按经复权ATH与完整收盘价确认；只判断是否进入加仓区，不记录或分配资金。</p></div></section>
+<section class="section core-status-v47"><div class="section-head"><div><h2>核心ETF状态中心</h2><p>不记录资金，只回答“现在处于什么位置、当前该做什么”。</p></div></div><div class="core-status-grid-v47">{core_status_cards_html}</div></section>
 <section class="section"><div class="engine"><div class="engine-top"><div><div class="engine-label">核心ETF三档加仓线</div><div class="engine-title">当前状态：{level_names[max_level]}</div><div class="engine-asof">策略数据截至 {data.get('spy_date','-')} 美股收盘 · 盘中价格仅供距离参考</div></div><div class="engine-badge {engine_badge_cls}">{level_names[max_level]}</div></div><div id="strategySignalGrid" class="engine-grid">{engine_html}</div><div class="engine-foot">规则：严格使用经复权验证的历史全期最高点（ATH）和各资产独立阈值；到达点位只提示进入对应加仓区，不自动下单。QQQ与QQQM属于同一指数敞口。</div></div></section>
 <section class="section">{tqqq_x2_html}</section>
 <section class="section">{leaps_radar_html}</section>
@@ -1760,7 +1838,7 @@ body{{font-size:15px;background:linear-gradient(180deg,#f7f9fc 0,#f3f6fa 100%);l
 <section class="section"><div class="section-head"><h2>港股跨境池</h2><p>点击卡片展开近 30 日历史趋势</p></div><div class="opt-grid">{mkt_card_a("华夏纳指 (港股)", data["cn_hk"].get("hk03086"), "hk03086")}{mkt_card_a("国指备兑 (港股)", data["cn_hk"].get("hk03416"), "hk03416")}</div></section>
 </div>
 
-<div id="tab-stocks" class="tab-pane"><section class="hero compact-hero stock-hero-v45"><div class="stock-hero-title"><h1>个股观察池</h1><p>按策略距离与趋势状态自动排序，盘中报价和完整收盘技术指标分开呈现。</p></div><div class="stock-hero-side"><div class="stock-hero-actions"><span class="stock-count-chip">{len([x for x in trend_data.values() if x.get("available")]) or len(STOCKS)}只</span><button type="button" onclick="StockWatchlist.refresh()">↻ 刷新行情</button><button class="primary" type="button" onclick="StockWatchlist.openAdd()">＋ 新增个股</button></div><span id="stockWatchStatus" class="stock-watch-status">公开版显示最近构建数据</span></div></section><section class="section"><div class="stock-toolbar"><div class="stock-filters"><button class="active" data-stock-filter="all" onclick="StockDecision.filter(this,'all')">全部</button><button data-stock-filter="triggered" onclick="StockDecision.filter(this,'triggered')">已触发</button><button data-stock-filter="near" onclick="StockDecision.filter(this,'near')">接近策略价</button><button data-stock-filter="oversold" onclick="StockDecision.filter(this,'oversold')">超卖</button><button data-stock-filter="weak" onclick="StockDecision.filter(this,'weak')">趋势偏弱</button><button data-stock-filter="hot" onclick="StockDecision.filter(this,'hot')">过热</button></div><select id="stockSort" onchange="StockDecision.sort(this.value)"><option value="priority">关注优先</option><option value="target">距策略价最近</option><option value="drawdown">YTD回撤最大</option><option value="rsi">RSI最低</option><option value="default">默认顺序</option></select></div><div class="table-container stock-table"><table><thead><tr><th>名称</th><th>最新价 / 涨跌</th><th>Trend Pulse</th><th>YTD回撤</th><th>RSI</th><th>距200MA</th><th>策略价 / 距离</th><th>状态</th><th>操作</th></tr></thead><tbody id="stocksTableBody">{stock_html}</tbody></table></div></section></div>
+<div id="tab-stocks" class="tab-pane"><section class="hero compact-hero stock-hero-v45"><div class="stock-hero-title"><h1>个股观察池</h1><p>按策略距离与趋势状态自动排序，盘中报价和完整收盘技术指标分开呈现。</p></div><div class="stock-hero-side"><div class="stock-hero-actions"><span class="stock-count-chip">{len([x for x in trend_data.values() if x.get("available")]) or len(STOCKS)}只</span><button type="button" onclick="StockWatchlist.refresh()">↻ 刷新行情</button><button class="primary" type="button" onclick="StockWatchlist.openAdd()">＋ 新增个股</button></div><span id="stockWatchStatus" class="stock-watch-status">公开版显示最近构建数据</span></div></section><section class="section"><div class="stock-toolbar"><div class="stock-filters"><button class="active" data-stock-filter="all" onclick="StockDecision.filter(this,'all')">全部</button><button data-stock-filter="triggered" onclick="StockDecision.filter(this,'triggered')">已触发</button><button data-stock-filter="near" onclick="StockDecision.filter(this,'near')">接近策略价</button><button data-stock-filter="oversold" onclick="StockDecision.filter(this,'oversold')">超卖</button><button data-stock-filter="weak" onclick="StockDecision.filter(this,'weak')">趋势偏弱</button><button data-stock-filter="hot" onclick="StockDecision.filter(this,'hot')">过热</button></div><select id="stockSort" onchange="StockDecision.sort(this.value)"><option value="priority">关注优先</option><option value="target">距策略价最近</option><option value="drawdown">YTD回撤最大</option><option value="rsi">RSI最低</option><option value="default">默认顺序</option></select></div><div class="table-container stock-table"><table><thead><tr><th>名称</th><th>最新价 / 涨跌</th><th>Trend Pulse</th><th>YTD回撤</th><th>RSI</th><th>距200MA</th><th>策略价 / 距离</th><th>状态</th></tr></thead><tbody id="stocksTableBody">{stock_html}</tbody></table></div></section></div>
 
 <div id="tab-options" class="tab-pane">
 <section class="hero"><div><h1>期权持仓与风险监控 V{OPTIONS_VERSION}</h1><p>优先呈现真实建仓成本、现金担保年化ROC、临期风险和官方宏观事件。自动行情来自 Alpaca Indicative 免费参考源；下单前仍以 IBKR Bid/Ask 为准。</p></div></section>
@@ -2166,17 +2244,13 @@ async function fetchAndRenderTargets() {{
   }}
   if (data) {{
       const loaded = new Set(data.map(row => row.symbol));
-      document.querySelectorAll('.target-controls').forEach(el=>el.remove());
       data.forEach(row => {{
-          const targetEl = document.getElementById(`target-${{row.symbol}}`), targetCell=document.getElementById(`target-cell-${{row.symbol}}`), actionCell=document.getElementById(`stock-actions-${{row.symbol}}`), closeEl = document.getElementById(`close-${{row.symbol}}`);
-          if (targetEl && closeEl) {{
-              window.StockDecision?.updateTarget(row.symbol, row.target_price);
-              if (isAdmin&&actionCell) actionCell.insertAdjacentHTML('beforeend', `<span class="target-controls"><button onclick="editTarget('${{row.symbol}}', ${{row.target_price}})">策略价</button><button class="danger" onclick="deleteTarget('${{row.symbol}}')">删策略价</button></span>`);
-          }}
+          const targetEl = document.getElementById(`target-${{row.symbol}}`), closeEl = document.getElementById(`close-${{row.symbol}}`);
+          if (targetEl && closeEl) window.StockDecision?.updateTarget(row.symbol, row.target_price);
       }});
       document.querySelectorAll('#stocksTableBody tr[data-stock-row]').forEach(row => {{
-          const symbol = row.querySelector('.stock-symbol')?.textContent?.trim();
-          if (symbol && !loaded.has(symbol)) {{window.StockDecision?.updateTarget(symbol, null);const cell=document.getElementById(`stock-actions-${{symbol}}`);if(isAdmin&&cell)cell.insertAdjacentHTML('beforeend',`<span class="target-controls"><button onclick="editTarget('${{symbol}}', null)">＋策略价</button></span>`);}}
+          const symbol = row.dataset.symbol || row.querySelector('.stock-symbol')?.textContent?.trim();
+          if (symbol && !loaded.has(symbol)) window.StockDecision?.updateTarget(symbol, null);
       }});
       window.StockDecision?.sort('priority');
   }}
@@ -2198,6 +2272,9 @@ async function deleteTarget(symbol) {{
   const {{error}}=await supabaseClient.from('stock_targets').delete().eq('symbol',symbol);
   if(error)alert('删除失败：'+error.message);else fetchAndRenderTargets();
 }}
+
+window.editTarget = editTarget;
+window.deleteTarget = deleteTarget;
 
 async function checkSession() {{
   let session = null;

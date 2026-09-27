@@ -1,0 +1,27 @@
+/* V4.7.1 — compact stock rows + desktop context menu */
+.stock-table table{table-layout:fixed}
+.stock-table th,.stock-table td{white-space:nowrap}
+.stock-table th:nth-child(1){width:24%}.stock-table th:nth-child(2){width:15%}.stock-table th:nth-child(3){width:13%}.stock-table th:nth-child(4){width:10%}.stock-table th:nth-child(5){width:8%}.stock-table th:nth-child(6){width:10%}.stock-table th:nth-child(7){width:13%}.stock-table th:nth-child(8){width:7%}
+.stock-table td{padding-top:6px!important;padding-bottom:6px!important}
+.stock-table tr[data-stock-row] td{height:52px!important}
+.stock-table .stock-name-line{gap:7px!important}
+.stock-table .stock-name{font-size:15px!important}.stock-table .stock-symbol{font-size:10.5px!important}
+.stock-detail-toggle{margin-left:8px!important;font-size:10.5px!important;padding:2px 0!important}
+.stock-table td>b{font-size:15px!important}.stock-table td>small,.stock-table .trend-score+small{font-size:10px!important}
+.stock-table .trend-score{font-size:16px!important}.stock-table .stock-status{font-size:10px!important;padding:3px 6px!important}
+.stock-mobile-menu{display:none;border:0;background:transparent;color:var(--muted);font-size:20px;line-height:1;padding:0 2px;cursor:pointer}
+.stock-detail-row td{white-space:normal!important}
+.stock-detail-panel{grid-template-columns:1.6fr .85fr .85fr 1fr!important}
+.stock-detail-panel>div{padding:9px 13px!important}.stock-detail-panel span{font-size:10px!important}.stock-detail-panel b{font-size:12px!important}
+.stock-context-menu{position:fixed;z-index:10050;width:216px;padding:6px;background:#fff;border:1px solid #d7dbe2;border-radius:10px;box-shadow:0 16px 45px rgba(20,26,38,.18);font-family:inherit}
+.stock-context-menu[hidden]{display:none!important}
+.stock-context-menu button{display:block;width:100%;border:0;background:transparent;text-align:left;padding:9px 11px;border-radius:7px;font-size:13px;color:var(--ink);cursor:pointer}
+.stock-context-menu button:hover,.stock-context-menu button:focus{background:#f2f4f7;outline:none}
+.stock-context-menu button.danger{color:var(--red)}
+.stock-context-menu button.danger:hover{background:var(--red-soft)}
+.stock-context-sep{height:1px;background:var(--line);margin:5px 4px}
+@media(max-width:760px){
+  .stock-table table{table-layout:auto}.stock-mobile-menu{display:inline-block;margin-left:auto}.stock-detail-toggle{margin-left:4px!important}
+  .stock-table tr[data-stock-row] td{height:auto!important}.stock-table th,.stock-table td{white-space:normal}
+  .stock-context-menu{width:min(260px,calc(100vw - 20px))}
+}

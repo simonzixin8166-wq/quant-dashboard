@@ -31,9 +31,34 @@
     if(status==='normal'&&rsi<35){status='oversold';label='超卖观察'}else if(status==='normal'&&dist<-.10){status='weak';label='趋势偏弱'}else if(status==='normal'&&(rsi>70||dist>.25)){status='hot';label='过热'}
     row.dataset.status=status;row.dataset.targetDistance=distance;statusNode.className=`stock-status ${status}`;statusNode.textContent=label;applyStockFilter();
   }
-  function toggleDetails(symbol,button){const row=document.getElementById(`stock-detail-${symbol}`);if(!row)return;const shouldOpen=row.hidden;document.querySelectorAll('.stock-detail-row').forEach(x=>x.hidden=true);document.querySelectorAll('.stock-detail-toggle').forEach(x=>{x.setAttribute('aria-expanded','false');x.textContent='行情详情⌄'});row.hidden=!shouldOpen;if(shouldOpen&&button){button.setAttribute('aria-expanded','true');button.textContent='收起详情⌃'}}
-  function initStocks(){stockRows().forEach((row,i)=>row.dataset.defaultOrder=String(i));sortStocks('priority')}
-  global.StockDecision={filter:filterStocks,sort:sortStocks,updateTarget,toggleDetails};
+  function toggleDetails(symbol,button){const row=document.getElementById(`stock-detail-${symbol}`);if(!row)return;const shouldOpen=row.hidden;document.querySelectorAll('.stock-detail-row').forEach(x=>x.hidden=true);document.querySelectorAll('.stock-detail-toggle').forEach(x=>{x.setAttribute('aria-expanded','false');x.textContent='行情详情⌄'});row.hidden=!shouldOpen;if(shouldOpen){const b=button||document.querySelector(`tr[data-stock-row][data-symbol="${CSS.escape(symbol)}"] .stock-detail-toggle`);if(b){b.setAttribute('aria-expanded','true');b.textContent='收起详情⌃'}}}
+  let stockContextMenu=null;
+  function ensureContextMenu(){
+    if(stockContextMenu)return stockContextMenu;
+    stockContextMenu=document.createElement('div');stockContextMenu.id='stockContextMenu';stockContextMenu.className='stock-context-menu';stockContextMenu.hidden=true;stockContextMenu.setAttribute('role','menu');document.body.appendChild(stockContextMenu);return stockContextMenu;
+  }
+  function closeContextMenu(){if(stockContextMenu)stockContextMenu.hidden=true}
+  function contextMenuHtml(symbol){
+    const admin=Boolean(global.isAdmin ?? (typeof isAdmin!=='undefined'&&isAdmin));
+    const parts=[`<button type="button" data-cmd="details">查看行情详情</button>`];
+    if(admin){parts.push('<div class="stock-context-sep"></div>',`<button type="button" data-cmd="edit">修改个股</button>`,`<button type="button" data-cmd="target">设置 / 修改策略价</button>`,`<button type="button" data-cmd="delete-target">删除策略价</button>`,'<div class="stock-context-sep"></div>',`<button type="button" class="danger" data-cmd="delete-stock">删除个股</button>`)}
+    return parts.join('');
+  }
+  function openContextMenu(symbol,x,y){
+    const menu=ensureContextMenu();menu.dataset.symbol=symbol;menu.innerHTML=contextMenuHtml(symbol);menu.hidden=false;
+    const w=220,h=Math.min(330,menu.scrollHeight||260),left=Math.max(8,Math.min(x,innerWidth-w-8)),top=Math.max(8,Math.min(y,innerHeight-h-8));menu.style.left=`${left}px`;menu.style.top=`${top}px`;
+  }
+  function openContextMenuForSymbol(symbol,anchor){const r=anchor.getBoundingClientRect();openContextMenu(symbol,Math.min(r.right,innerWidth-8),Math.min(r.bottom+6,innerHeight-8))}
+  function handleContextAction(event){const btn=event.target.closest('button[data-cmd]');if(!btn||!stockContextMenu)return;const symbol=stockContextMenu.dataset.symbol,cmd=btn.dataset.cmd;closeContextMenu();if(cmd==='details')toggleDetails(symbol);if(cmd==='edit')global.StockWatchlist?.openEdit(symbol);if(cmd==='target'){const raw=document.getElementById(`target-${symbol}`)?.textContent?.replace(/[$,]/g,'');const current=raw&&raw!=='—'?Number(raw):null;global.editTarget?.(symbol,Number.isFinite(current)?current:null);}if(cmd==='delete-target')global.deleteTarget?.(symbol);if(cmd==='delete-stock')global.StockWatchlist?.remove(symbol)}
+  function initStockContextMenu(){
+    const menu=ensureContextMenu();menu.addEventListener('click',handleContextAction);
+    document.addEventListener('contextmenu',event=>{const row=event.target.closest('#stocksTableBody tr[data-stock-row]');if(!row)return;event.preventDefault();openContextMenu(row.dataset.symbol||row.querySelector('.stock-symbol')?.textContent?.trim(),event.clientX,event.clientY)});
+    document.addEventListener('click',event=>{if(!event.target.closest('#stockContextMenu')&&!event.target.closest('.stock-mobile-menu'))closeContextMenu()});
+    window.addEventListener('resize',closeContextMenu);window.addEventListener('scroll',closeContextMenu,true);
+    document.addEventListener('dblclick',event=>{const row=event.target.closest('#stocksTableBody tr[data-stock-row]');if(row&&!event.target.closest('button,a,input,select,summary'))toggleDetails(row.dataset.symbol||row.querySelector('.stock-symbol')?.textContent?.trim())});
+  }
+  function initStocks(){stockRows().forEach((row,i)=>{row.dataset.defaultOrder=String(i);if(!row.dataset.symbol)row.dataset.symbol=row.querySelector('.stock-symbol')?.textContent?.trim()||''});sortStocks('priority');initStockContextMenu()}
+  global.StockDecision={filter:filterStocks,sort:sortStocks,updateTarget,toggleDetails,openContextMenuForSymbol};
   global.MAV={toast,applyTheme};
   document.addEventListener('DOMContentLoaded',()=>{initTheme();loadEvents();initStocks()});
 })(window);

@@ -13,9 +13,9 @@ except ModuleNotFoundError:
 warnings.filterwarnings("ignore")
 
 # 单一版本源：每日 Action 生成 HTML 时，页面标题和静态资源缓存版本都从这里读取。
-APP_VERSION = "4.7.1"
+APP_VERSION = "4.8.0"
 OPTIONS_VERSION = "4.0.0"  # 网站优先；APP/PWA 功能已移除，仅保留响应式手机网页
-ASSET_VERSION = "4.7.1"
+ASSET_VERSION = "4.8.0"
 
 API_KEY = os.environ.get("TWELVE_DATA_KEY", "demo")
 BASE = "https://api.twelvedata.com"
@@ -1308,9 +1308,11 @@ def build_daily_action_html(data, trend_data):
         dist_text=(f"距一级 {c['distance']:.1%}" if isinstance(c.get('distance'),(int,float)) else "距离待校验")
         dd_text=fmt_pct(c.get('dd'))
         core_html.append(
-            f'<article class="daily-core-card {c["tone"]}">'
-            f'<div class="daily-core-head"><div><strong>{c["symbol"]}</strong><span>{c["role"]}</span></div><b>{dd_text}</b></div>'
-            f'<div class="daily-core-action">{html.escape(c["action"])}</div><small>{dist_text}</small></article>'
+            f'<div class="daily-core-row {c["tone"]}">'
+            f'<div class="daily-core-id"><strong>{c["symbol"]}</strong><span>{c["role"]}</span></div>'
+            f'<b class="daily-core-dd">{dd_text}</b>'
+            f'<div class="daily-core-action">{html.escape(c["action"])}</div>'
+            f'<small class="daily-core-distance">{dist_text}</small></div>'
         )
     candidates=[]
     for sym,tp in (trend_data or {}).items():
@@ -1343,7 +1345,7 @@ def build_daily_action_html(data, trend_data):
         f'<div class="daily-action-panel"><div class="daily-action-title"><strong>市场环境</strong><span>{html.escape(str(market_label))}</span></div><div class="daily-market-main">{html.escape(str(market_label))}</div><small>{market_note} · 以完整收盘数据确认</small></div>'
         f'<div class="daily-action-panel daily-core-panel"><div class="daily-action-title"><strong>核心ETF</strong><span>QQQM / VGT / QLD</span></div><div class="daily-core-grid">{"".join(core_html)}</div></div>'
         f'<div class="daily-action-panel"><div class="daily-action-title"><strong>个股关注</strong><span>Trend Pulse</span></div><div class="daily-stock-list">{"".join(stock_rows)}</div></div>'
-        '<div class="daily-action-panel"><div class="daily-action-title"><strong>期权风险</strong><span>私有持仓</span></div><div class="daily-option-callout">登录后由“今日风险待办”自动检查临期、缺失报价与宏观事件。</div><button type="button" class="daily-jump" onclick="switchTab(\'tab-options\',document.querySelector(\'[onclick*=\\\"tab-options\\\"]\'))">查看期权持仓</button></div>'
+        '<div class="daily-action-panel"><div class="daily-action-title"><strong>期权风险</strong><span>私有持仓</span></div><div class="daily-option-callout">登录后由“今日风险待办”自动检查临期、缺失报价与宏观事件。</div><button type="button" class="daily-jump" onclick="openDashboardTab(\'tab-options\')">查看期权持仓</button></div>'
         '</div></section>'
     )
     return html_out, ''.join(core_html)
@@ -1740,7 +1742,7 @@ def render_html(data):
         direction = trend_direction_text(score, slope5)
         stock_price_html = f'<div class="trend-price-line"><span>当前股价</span><b>${stock_price:.2f}</b></div>' if stock_price is not None else '<div class="trend-price-line"><span>当前股价</span><b>—</b></div>'
         detail_help = '技术细节用于系统校验，不要求普通投资者逐项判断。ADX衡量趋势强度；DI比较多空方向；Supertrend是趋势跟随线；结构表示近期高低点组合。'
-        trend_cards.append(f'''<article class="trend-card trend-card-simple" data-tone="{tone}"><div class="trend-card-top"><div><span>{html.escape(STOCK_META.get(sym,{}).get("name",sym))}</span><h3>{sym}</h3>{stock_price_html}</div><div class="trend-score-box"><span>Trend Pulse</span><div class="trend-score-xl {tone}">{score:+.0f}</div><small>-100 至 +100</small></div></div><div class="trend-simple-verdict"><div><span>当前走势</span><strong>{html.escape(direction)}</strong></div><div><span>基础判断</span><strong class="judgement-{basic['tone']}">{html.escape(basic['action'])}</strong></div><div><span>所在区间</span><strong>{html.escape(basic['zone'])}</strong></div></div><p class="trend-basic-summary">{html.escape(basic['summary'])}</p><div class="trend-easy-metrics"><div><span>5日动能</span><b>{slope5:+.1f} · {'改善' if slope5>0 else ('减弱' if slope5<0 else '持平')}</b></div><div><span>中期方向</span><b>{html.escape(str(weekly))}</b></div><div><span>数据状态</span><b class="integrity-{isty}">{html.escape(integrity.get('label','待校验'))}</b><button class="info-tip" type="button" aria-label="数据状态说明" data-tooltip="{html.escape(integrity_desc)}">ⓘ</button></div></div><details class="trend-tech-details"><summary>查看技术细节（可选）</summary><p>{detail_help}</p><div class="trend-card-grid"><div class="trend-metric"><span>Supertrend</span><b>{html.escape(tp.get('supertrend','-'))}</b></div><div class="trend-metric"><span>ADX 趋势强度</span><b>{fmt_num(tp.get('adx'),1)}</b></div><div class="trend-metric"><span>+DI / -DI 多空</span><b>{fmt_num(tp.get('plus_di'),1)} / {fmt_num(tp.get('minus_di'),1)}</b></div><div class="trend-metric"><span>价格结构</span><b>{html.escape(tp.get('structure','-'))}</b></div></div></details><div class="trend-integrity-foot"><small>收盘确认 · {html.escape(str(integrity.get('as_of','-')))}</small></div></article>''')
+        trend_cards.append(f'''<article class="trend-card trend-card-simple" data-tone="{tone}"><div class="trend-card-top"><div><span>{html.escape(STOCK_META.get(sym,{}).get("name",sym))}</span><h3>{sym}</h3>{stock_price_html}</div><div class="trend-score-box"><span>Trend Pulse</span><div class="trend-score-xl {tone}">{score:+.0f}</div><small>-100 至 +100</small></div></div><div class="trend-simple-verdict"><div><span>当前走势</span><strong>{html.escape(direction)}</strong></div><div><span>基础判断</span><strong class="judgement-{basic['tone']}">{html.escape(basic['action'])}</strong></div><div><span>所在区间</span><strong>{html.escape(basic['zone'])}</strong></div></div><p class="trend-basic-summary">{html.escape(basic['summary'])}</p><div class="trend-easy-metrics"><div><span>5日动能</span><b>{slope5:+.1f} · {'改善' if slope5>0 else ('减弱' if slope5<0 else '持平')}</b></div><div><span>中期方向</span><b>{html.escape(str(weekly))}</b></div><div class="trend-data-status"><span>数据状态</span><div class="trend-status-value"><b class="integrity-{isty}">{html.escape(integrity.get('label','待校验'))}</b><button class="info-tip" type="button" aria-label="数据状态说明" data-tooltip="{html.escape(integrity_desc)}">ⓘ</button></div></div></div><details class="trend-tech-details"><summary>查看技术细节（可选）</summary><p>{detail_help}</p><div class="trend-card-grid"><div class="trend-metric"><span>Supertrend</span><b>{html.escape(tp.get('supertrend','-'))}</b></div><div class="trend-metric"><span>ADX 趋势强度</span><b>{fmt_num(tp.get('adx'),1)}</b></div><div class="trend-metric"><span>+DI / -DI 多空</span><b>{fmt_num(tp.get('plus_di'),1)} / {fmt_num(tp.get('minus_di'),1)}</b></div><div class="trend-metric"><span>价格结构</span><b>{html.escape(tp.get('structure','-'))}</b></div></div></details><div class="trend-integrity-foot"><small>收盘确认 · {html.escape(str(integrity.get('as_of','-')))}</small></div></article>''')
     trend_cards_html=''.join(trend_cards) or '<div class="trend-empty">等待趋势数据</div>' 
 
     iren_basic = trend_pulse_band(iren_tp.get("score",0), iren_tp.get("slope5",0), iren_tp.get("weekly","-")) if iren_tp.get("available") else {"zone":"等待数据","action":"等待数据","tone":"neutral","summary":"等待足够数据。"}
@@ -1793,7 +1795,7 @@ def render_html(data):
 body{{font-size:15px;background:linear-gradient(180deg,#f7f9fc 0,#f3f6fa 100%);letter-spacing:-.005em}}.topbar{{background:rgba(247,249,252,.82);border-color:rgba(0,0,0,.07)}}.content{{max-width:1500px;padding:42px 40px 56px}}.sidebar{{background:linear-gradient(180deg,#111827,#0b1220)}}.mav-brand-mark{{background:linear-gradient(135deg,#f0c678,#b98536);box-shadow:none}}.brand strong{{font-size:18px}}.brand small{{font-size:12px}}.nav-title{{font-size:11.5px;color:#7f8a9d}}.nav-menu li{{font-size:14.5px;padding:11px 12px}}.nav-menu li.active{{background:rgba(0,113,227,.15);box-shadow:inset 3px 0 0 var(--accent)}}.auth-btn-top{{background:var(--accent);font-size:12.5px;padding:8px 15px;border-radius:10px;box-shadow:none}}.auth-btn-top:hover{{background:#0068d1}}.breadcrumb{{font-size:14px}}.top-meta{{font-size:12.5px}}.hero{{margin-bottom:22px}}.hero h1,.compact-hero h1{{font-family:var(--sans);font-size:40px;font-weight:720;line-height:1.12;letter-spacing:-1.15px}}.hero p{{font-size:15px;line-height:1.7}}.public-note{{font-size:13px;border:0;border-left:3px solid var(--accent);border-radius:12px;background:rgba(255,255,255,.78);box-shadow:0 4px 18px rgba(15,23,42,.04)}}.public-note b{{font-size:13px}}.section-head h2,.engine-title,.research-brief h2,.iren-brief h2,.change-strip h2{{font-family:var(--sans)}}.section-head h2{{font-size:22px;font-weight:700}}.section-head p{{font-size:12.5px}}.market-tape{{background:rgba(255,255,255,.9);border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:var(--shadow)}}.tape-item{{padding:17px 20px}}.tape-item span{{font-size:12px}}.tape-item b{{font-family:var(--sans);font-size:22px;font-weight:700;letter-spacing:-.4px}}.tape-item small{{font-size:11.5px}}.tape-note{{font-size:11px;margin-top:9px}}.research-shell{{margin-top:26px;gap:34px;padding:30px 32px;background:rgba(255,255,255,.72);border:1px solid rgba(228,231,236,.95);border-radius:24px;box-shadow:0 16px 46px rgba(15,23,42,.045)}}.research-brief{{padding:3px 0}}.research-kicker{{font-size:12px;color:var(--accent);margin-bottom:10px}}.research-brief h2{{font-size:30px;font-weight:720;line-height:1.28;letter-spacing:-.65px}}.research-copy{{margin-top:16px;gap:10px}}.research-copy p{{font-size:15px;line-height:1.78;color:#474b52;text-wrap:pretty}}.brief-vix .metric-card{{background:#f8fafc;border:1px solid var(--line);border-radius:18px;padding:20px;box-shadow:none}}.metric-top{{font-size:12.5px}}.metric-note{{font-size:11.5px}}.change-strip{{margin-top:20px;padding:20px 24px;background:var(--accent-soft);border:0;border-radius:20px}}.change-strip-head{{margin-bottom:12px}}.change-strip-head h2{{font-size:20px;font-weight:700}}.change-strip-head span,.change-empty{{font-size:12px}}.change-grid{{border-top:1px solid rgba(0,113,227,.13)}}.change-item{{padding:14px 16px 10px 0;border-color:rgba(0,113,227,.12)}}.change-item span{{font-size:11.5px}}.change-item b{{font-size:16px}}.change-item small{{font-size:11.5px}}.iren-brief{{margin-top:24px;grid-template-columns:minmax(330px,.86fr) minmax(0,1.4fr);gap:0;padding:0;border:0;border-radius:24px;background:linear-gradient(145deg,#101827,#18243a);overflow:hidden;box-shadow:0 20px 45px rgba(15,23,42,.16)}}.iren-brief-main{{padding:30px 30px 28px;border:0;color:#fff}}.iren-eyebrow{{font-size:12px;font-weight:700;color:#8fc7ff;margin-bottom:9px}}.iren-title-row h2{{font-size:28px;font-weight:720;color:#fff;letter-spacing:-.5px}}.iren-title-row span{{font-size:11.5px;color:#9ba8bc}}.iren-metrics{{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:22px}}.iren-metrics>div{{padding:12px 13px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.08);border-radius:14px}}.iren-metrics span{{display:block;font-size:11px;color:#a8b3c5}}.iren-metrics b{{display:block;margin-top:4px;font-size:17px;font-weight:700;color:#fff}}.iren-metrics b.up{{color:#79d8a6}}.iren-metrics b.down{{color:#ff9b93}}.iren-view{{font-size:14px;line-height:1.75;color:#d5dbe5;margin-top:18px}}.iren-disclaimer{{font-size:11px;line-height:1.55;color:#8e9caf;margin-top:14px}}.iren-news{{background:#fff;padding:26px 28px}}.iren-news-head{{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:6px}}.iren-news-head strong{{font-size:18px}}.iren-news-head span{{font-size:11.5px;color:var(--muted)}}.iren-news-row{{grid-template-columns:auto auto 1fr;gap:5px 8px;padding:15px 0;border-color:#edf0f4}}.iren-news-row:hover .news-title-zh{{color:var(--accent)}}.news-tone{{font-size:10.5px;padding:3px 7px;border-radius:8px}}.news-source-kind{{font-size:10.5px;color:#7a828d;padding-top:3px;white-space:nowrap}}.news-copy{{grid-column:3;display:flex;flex-direction:column;min-width:0}}.news-title-zh{{font-size:15px;line-height:1.5;font-weight:700;color:#22262d;transition:.15s}}.news-original{{font-size:11.5px;line-height:1.45;color:#8a919d;margin-top:3px}}.news-impact{{font-size:12.5px;line-height:1.55;color:#525a66;margin-top:7px}}.iren-news-row small{{grid-column:auto;font-size:11px;color:#9299a4;margin-top:6px}}.iren-no-news{{font-size:13px}}.engine{{border-radius:22px;background:linear-gradient(145deg,#111827,#172033);box-shadow:0 18px 40px rgba(15,23,42,.16)}}.engine::after{{background:radial-gradient(circle,rgba(0,113,227,.22),transparent 70%)}}.engine-title{{font-size:26px;font-weight:700}}.engine-label{{font-size:12px}}.engine-item{{border-radius:14px}}.engine-item .k{{font-size:11.5px}}.engine-item .v{{font-family:var(--sans);font-size:19px;font-weight:700}}.engine-item .pt{{font-size:11px}}.panel,.metric-card,.mkt-card{{border-color:var(--line);box-shadow:0 8px 24px rgba(15,23,42,.045)}}.panel{{border-radius:18px}}.panel-head strong{{font-size:14.5px}}.panel-head span{{font-size:11.5px}}.pulse-label{{font-size:12px}}.pulse-main{{font-size:16px}}.stock-table th,.table-container th{{font-size:12px}}.stock-table td,.table-container td{{font-size:13.5px;line-height:1.55}}.stock-name{{font-size:14px}}.stock-symbol{{font-size:11.5px}}.footer{{font-size:11.5px;color:#8a9099}}
 @media (max-width:900px){{.content{{padding:28px 22px 42px}}.hero h1,.compact-hero h1{{font-size:32px}}.research-shell{{padding:24px}}.research-brief h2{{font-size:25px}}.iren-brief{{grid-template-columns:1fr}}.iren-news{{padding:22px}}.iren-metrics{{grid-template-columns:repeat(3,minmax(0,1fr))}}}}
 @media (max-width:560px){{body{{font-size:15px}}.content{{padding:22px 16px 36px}}.hero h1,.compact-hero h1{{font-size:29px}}.hero p{{font-size:14px}}.market-tape{{border-radius:16px}}.tape-item{{padding:14px}}.tape-item b{{font-size:19px}}.research-shell{{padding:20px;border-radius:18px}}.research-brief h2{{font-size:22px}}.research-copy p{{font-size:14.5px}}.change-strip{{padding:18px;border-radius:16px}}.iren-brief{{border-radius:18px}}.iren-brief-main{{padding:24px 20px}}.iren-title-row{{display:block}}.iren-title-row span{{display:block;margin-top:5px}}.iren-title-row h2{{font-size:25px}}.iren-metrics{{grid-template-columns:repeat(2,minmax(0,1fr))}}.iren-news{{padding:20px}}.iren-news-row{{grid-template-columns:auto 1fr}}.news-source-kind{{grid-column:2}}.news-copy{{grid-column:2}}.news-title-zh{{font-size:14.5px}}.news-impact{{font-size:12.5px}}}}
-</style><link href="assets/dashboard-v2.2.css?v={ASSET_VERSION}" rel="stylesheet"><link href="assets/design-v4.5.css?v={ASSET_VERSION}" rel="stylesheet"><link href="assets/design-v4.5.1.css?v={ASSET_VERSION}" rel="stylesheet"><link href="assets/design-v4.5.2.css?v={ASSET_VERSION}" rel="stylesheet"><link href="assets/design-v4.5.3.css?v={ASSET_VERSION}" rel="stylesheet"><link href="assets/design-v4.5.4.css?v={ASSET_VERSION}" rel="stylesheet"><link href="assets/design-v4.6.css?v={ASSET_VERSION}" rel="stylesheet"><link href="assets/design-v4.6.1.css?v={ASSET_VERSION}" rel="stylesheet"><link href="assets/design-v4.7.css?v={ASSET_VERSION}" rel="stylesheet"><link href="assets/design-v4.7.1.css?v={ASSET_VERSION}" rel="stylesheet"></head><body class="auth-pending" data-app-version="{APP_VERSION}"><div class="app">
+</style><link href="assets/dashboard-v2.2.css?v={ASSET_VERSION}" rel="stylesheet"><link href="assets/design-v4.8.css?v={ASSET_VERSION}" rel="stylesheet"></head><body class="auth-pending" data-app-version="{APP_VERSION}"><div class="app">
 
 <aside class="sidebar"><div class="brand brand-v44"><img src="assets/myalpha-logo-v44.png" alt="投资分析及策略 · Myalpha View"></div>
 <div class="nav-group"><div class="nav-title">美股 · 核心资产</div><ul class="nav-menu"><li class="active" onclick="switchTab('tab-overview',this)"><span class="nav-icon">◆</span>市场总览</li><li data-auth-required onclick="switchTab('tab-engine',this)"><span class="nav-icon">◒</span>回撤策略</li><li data-auth-required onclick="switchTab('tab-index',this)"><span class="nav-icon">◫</span>指数 & ETF</li></ul></div>
@@ -1807,7 +1809,7 @@ body{{font-size:15px;background:linear-gradient(180deg,#f7f9fc 0,#f3f6fa 100%);l
 <div class="top-meta"><span id="liveStatus" style="display:none;"><i class="live-dot"></i><span id="liveStatusText">数据抓取成功</span></span><div style="text-align:right; line-height:1.4;"><div style="font-weight:600; font-size:12px; color:var(--ink);">生成时间: {data.get('gen_time', '-')}</div><div id="usLiveAsOf" style="color:var(--muted); font-size:10.5px;">美股收盘日线截至: {data.get('spy_date', '-')} | A/港股盘中动态刷新</div></div><button id="themeToggle" class="theme-toggle" title="切换深浅主题">🌙 深色</button><button id="authBtn" class="auth-btn-top" onclick="handleAuth()">登录 / 注册</button></div></header><div class="content">
 
 <div id="tab-overview" class="tab-pane active">
-<section class="hero overview-hero"><div><h1>市场与风险驾驶舱</h1><p>先看市场状态、策略距离和必须处理的风险，再决定是否行动。</p><div class="data-legend" aria-label="数据状态说明"><span class="live">盘中延迟行情</span><span class="close">最近有效收盘</span><span class="missing">不可用不计分</span></div></div><div class="public-note" id="modePanel"><b id="modeTitle">访客预览模式</b><span id="modeDesc">未登录仅显示市场概览；策略、观察池与持仓模块需要主理人登录。</span></div><button id="privateModeShield" class="private-mode-shield" type="button" title="私有控制台已连接，真实持仓受 Supabase RLS 保护">🛡️ 私有模式</button></section>
+<section class="hero overview-hero"><div><h1>市场与风险驾驶舱</h1><p>先看市场状态、策略距离和必须处理的风险，再决定是否行动。</p><div class="data-legend" aria-label="数据状态说明"><span class="live">盘中延迟行情</span><span class="close">最近有效收盘</span><span class="missing">不可用不计分</span></div></div><div class="public-note" id="modePanel"><b id="modeTitle">访客预览模式</b><span id="modeDesc">未登录仅显示市场概览；策略、观察池与持仓模块需要主理人登录。</span></div><span id="privateModeShield" class="private-mode-shield" role="status" title="私有控制台已连接，真实持仓受 Supabase RLS 保护">🛡️ 私有模式</span></section>
 {tape_html}
 {research_brief_html}
 {what_changed_html}
@@ -2108,16 +2110,23 @@ function switchTab(id,el){{
   if(id !== 'tab-overview' && !document.body.classList.contains('private-mode')){{
     window.MAV?.toast('此模块仅限主理人登录后浏览。请点击右上角登录。','warn');
     document.getElementById('authBtn')?.focus();
-    return;
+    return false;
   }}
+  const pane=document.getElementById(id);
+  if(!pane){{ window.MAV?.toast('目标模块暂不可用，请刷新页面后重试。','bad'); return false; }}
+  const navEl=(el&&el.matches&&el.matches('.nav-menu li'))?el:Array.from(document.querySelectorAll('.nav-menu li')).find(node=>(node.getAttribute('onclick')||'').includes(`'${{id}}'`));
   document.querySelectorAll('.tab-pane').forEach(t=>t.classList.remove('active'));
   document.querySelectorAll('.nav-menu li').forEach(l=>l.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  el.classList.add('active');
-  document.getElementById('bc-title').innerText = el.innerText.replace('NEW', '').replace(/^[◆◒◫◇⌁∿⚑◎🧮📜]/u, '').trim();
+  pane.classList.add('active');
+  if(navEl) navEl.classList.add('active');
+  const label=(navEl?.innerText||pane.dataset.title||id).replace('NEW','').replace(/^[◆◒◫◇⌁∿⚑◎🧮📜]/u,'').trim();
+  const bc=document.getElementById('bc-title'); if(bc) bc.innerText=label;
   window.MobileShell?.sync(id);
   window.scrollTo({{top:0,behavior:'smooth'}});
+  return true;
 }}
+function openDashboardTab(id){{ return switchTab(id,null); }}
+window.openDashboardTab=openDashboardTab;
 
 function toggleMktChart(code, title) {{
     const wrap = document.getElementById(`wrap-${{code}}`);
@@ -2492,6 +2501,25 @@ def validate_build_data(data):
     if errors: raise RuntimeError("构建质量门未通过：" + "；".join(errors))
 
 
+def cleanup_legacy_design_css(docs_dir):
+    """Remove obsolete design-v4.x cascade files after V4.8 consolidation."""
+    assets_dir = os.path.join(docs_dir, "assets")
+    keep = "design-v4.8.css"
+    removed = []
+    if os.path.isdir(assets_dir):
+        for name in os.listdir(assets_dir):
+            if name.startswith("design-v4") and name.endswith(".css") and name != keep:
+                path = os.path.join(assets_dir, name)
+                try:
+                    os.remove(path)
+                    removed.append(name)
+                except FileNotFoundError:
+                    pass
+    if removed:
+        print("Removed legacy design CSS: " + ", ".join(sorted(removed)))
+    return removed
+
+
 def cleanup_legacy_pwa(docs_dir):
     """Remove legacy PWA/app artifacts from pre-V4.5.3 checkouts.
 
@@ -2551,6 +2579,7 @@ if __name__ == '__main__':
     data = build()
     validate_build_data(data)
     docs_dir = os.path.join(os.path.dirname(__file__), '..', 'docs')
+    cleanup_legacy_design_css(docs_dir)
     cleanup_legacy_pwa(docs_dir)
     out = os.path.join(docs_dir, 'data.json')
     html_out = os.path.join(docs_dir, 'index.html')

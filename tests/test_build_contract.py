@@ -21,7 +21,7 @@ assert "strategy-tier-grid" in generator and "只判断是否进入加仓区" in
 assert "1级回撤" in page and "7.5%" in page
 assert "指数、行业与另类资产" in generator and "指数、行业与另类资产" in page
 assert "data-stock-row" in generator and "data-stock-row" in page
-assert version == "4.7.1"
+assert version == "4.8.0"
 assert "市场与风险驾驶舱" in generator and "市场与风险驾驶舱" in page
 assert "卫星及杠杆" in generator and "卫星及杠杆" in page
 assert "不参与核心ETF加仓信号" in generator and "不参与核心ETF加仓信号" in page
@@ -29,7 +29,6 @@ assert "收盘日线截至：" in generator and "收盘日线截至：" in page
 stock_section = page.split('<div id="tab-stocks"', 1)[1].split('<div id="tab-options"', 1)[0]
 assert stock_section.count("<th>") == 8 and "<th>行情详情</th>" not in stock_section
 assert "<th>操作</th>" not in stock_section
-assert "stock-context-menu" in (ROOT / "docs" / "assets" / "design-v4.7.1.css").read_text(encoding="utf-8")
 assert "@media (max-width: 680px)" in generator and 'data-label="策略价 / 距离"' in page
 assert "等待触发 · 不提前加仓" in generator
 assert "rsi < 35" in generator and "dist_200ma < -.10" in generator and "rsi > 70" in generator
@@ -161,24 +160,33 @@ assert "mobile-bottom-nav" in mobile_css and "option-positions-table" in mobile_
 assert "MobileShell" in mobile_js and "tab-overview" in mobile_js and "tab-options" in mobile_js
 assert 'class="table-container option-positions-table"' in page
 
+
+# V4.8 unified design contract
+unified_css = ROOT / "docs" / "assets" / "design-v4.8.css"
+assert unified_css.exists()
+css_text = unified_css.read_text(encoding="utf-8")
+assert "stock-context-menu" in css_text
+assert "V4.8 final normalization layer" in css_text
+assert f'assets/design-v4.8.css?v={asset_version}' in page
+legacy_design = [p for p in (ROOT / "docs" / "assets").glob("design-v4*.css") if p.name != "design-v4.8.css"]
+assert not legacy_design, f"legacy design CSS still present: {[p.name for p in legacy_design]}"
+
 print("test_build_contract.py: all assertions passed")
 
 assert "Trend Pulse" in generator and "tab-trend-pulse" in generator
 assert "calculate_trend_pulse" in generator and "Supertrend" in generator and "ADX" in generator
-assert (ROOT / "docs" / "assets" / "design-v4.5.css").exists()
-assert (ROOT / "docs" / "assets" / "design-v4.5.1.css").exists()
-assert (ROOT / "docs" / "assets" / "design-v4.5.2.css").exists()
-assert (ROOT / "docs" / "assets" / "design-v4.5.3.css").exists()
-assert (ROOT / "docs" / "assets" / "design-v4.5.4.css").exists()
 assert 'manifest.webmanifest' not in page and 'pwa.js' not in page and '安装应用' not in page
 assert '怎样理解 Trend Pulse' in page and '技术细节（可选）' in page
 
 # V4.6.1: core execution center intentionally removed; website remains responsive only
 assert 'tab-core-execution' not in page and '核心资产执行中心' not in page
 assert 'core-execution.js' not in page and 'core-execution.css' not in page
-assert (ROOT / "docs" / "assets" / "design-v4.6.1.css").exists()
 
 # V4.7 action dashboard
 assert "今日行动摘要" in page
 assert "核心ETF状态中心" in page
-assert (ROOT / "docs" / "assets" / "design-v4.7.css").exists()
+
+# V4.7.2 daily action / interaction audit
+assert "openDashboardTab('tab-options')" in page
+assert "function openDashboardTab(id)" in page
+assert '<span id="privateModeShield"' in page

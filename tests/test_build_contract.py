@@ -21,7 +21,7 @@ assert "strategy-tier-grid" in generator and "只判断是否进入加仓区" in
 assert "1级回撤" in page and "7.5%" in page
 assert "指数、行业与另类资产" in generator and "指数、行业与另类资产" in page
 assert "data-stock-row" in generator and "data-stock-row" in page
-assert version == "4.6.0"
+assert version == "4.6.1"
 assert "市场与风险驾驶舱" in generator and "市场与风险驾驶舱" in page
 assert "卫星及杠杆" in generator and "卫星及杠杆" in page
 assert "不参与核心ETF加仓信号" in generator and "不参与核心ETF加仓信号" in page
@@ -170,10 +170,7 @@ assert (ROOT / "docs" / "assets" / "design-v4.5.4.css").exists()
 assert 'manifest.webmanifest' not in page and 'pwa.js' not in page and '安装应用' not in page
 assert '怎样理解 Trend Pulse' in page and '技术细节（可选）' in page
 
-# V4.6 core execution center
-assert 'id="tab-core-execution"' in page and '核心资产执行中心' in page
-assert f'assets/core-execution.js?v={asset_version}' in page and f'assets/core-execution.css?v={asset_version}' in page
-assert (ROOT / "docs" / "assets" / "design-v4.6.css").exists()
-core_js=(ROOT / "docs" / "assets" / "core-execution.js").read_text(encoding="utf-8")
-assert "QQQM" in core_js and "VGT" in core_js and "QLD" in core_js
-assert "strategy_budgets" in core_js and "正常DCA" in core_js and "回撤加仓" in core_js
+# V4.6.1: core execution center intentionally removed; website remains responsive only
+assert 'tab-core-execution' not in page and '核心资产执行中心' not in page
+assert 'core-execution.js' not in page and 'core-execution.css' not in page
+assert (ROOT / "docs" / "assets" / "design-v4.6.1.css").exists()

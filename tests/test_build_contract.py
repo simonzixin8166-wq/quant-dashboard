@@ -21,13 +21,13 @@ assert "strategy-tier-grid" in generator and "只判断是否进入加仓区" in
 assert "1级回撤" in page and "7.5%" in page
 assert "指数、行业与另类资产" in generator and "指数、行业与另类资产" in page
 assert "data-stock-row" in generator and "data-stock-row" in page
-assert version == "4.5.1"
+assert version == "4.5.3"
 assert "市场与风险驾驶舱" in generator and "市场与风险驾驶舱" in page
 assert "卫星及杠杆" in generator and "卫星及杠杆" in page
 assert "不参与核心ETF加仓信号" in generator and "不参与核心ETF加仓信号" in page
 assert "收盘日线截至：" in generator and "收盘日线截至：" in page
 stock_section = page.split('<div id="tab-stocks"', 1)[1].split('<div id="tab-options"', 1)[0]
-assert stock_section.count("<th>") == 8 and "<th>行情详情</th>" not in stock_section
+assert stock_section.count("<th>") == 9 and "<th>行情详情</th>" not in stock_section
 assert "@media (max-width: 680px)" in generator and 'data-label="策略价 / 距离"' in page
 assert "等待触发 · 不提前加仓" in generator
 assert "rsi < 35" in generator and "dist_200ma < -.10" in generator and "rsi > 70" in generator
@@ -144,16 +144,9 @@ assert "30 * 60 * 1000" in market_live_js and "周末停止轮询" in page
 assert "responseTtl" in market_function and "6 * 60 * 60 * 1000" in market_function
 assert "needsProxy" in market_function and "cache.ttlMs" in market_function
 
-manifest = (ROOT / "docs" / "manifest.webmanifest").read_text(encoding="utf-8")
-service_worker = (ROOT / "docs" / "sw.js").read_text(encoding="utf-8")
-pwa_js = (ROOT / "docs" / "assets" / "pwa.js").read_text(encoding="utf-8")
-assert 'rel="manifest"' in page and 'manifest.webmanifest' in page
-assert f'assets/pwa.js?v={asset_version}' in page and f'assets/pwa.css?v={asset_version}' in page
-assert 'id="pwaInstallButton"' in page and 'id="pwaUpdateBanner"' in page
-assert '"display": "standalone"' in manifest and '"purpose": "maskable"' in manifest
-assert "SKIP_WAITING" in service_worker and "request.mode==='navigate'" in service_worker
-assert "/rest/v1/" in service_worker and "/functions/v1/" in service_worker and "/auth/v1/" in service_worker
-assert "beforeinstallprompt" in pwa_js and "controllerchange" in pwa_js
+assert not (ROOT / "docs" / "sw.js").exists()
+assert not (ROOT / "docs" / "manifest.webmanifest").exists()
+assert not (ROOT / "docs" / "assets" / "pwa.js").exists()
 dashboard_css = (ROOT / "docs" / "assets" / "dashboard-v2.2.css").read_text(encoding="utf-8")
 assert ".sidebar" in dashboard_css and "overflow-y:auto" in dashboard_css
 assert "max-height:860px" in dashboard_css and "scrollbar-width:thin" in dashboard_css
@@ -171,3 +164,7 @@ assert "Trend Pulse" in generator and "tab-trend-pulse" in generator
 assert "calculate_trend_pulse" in generator and "Supertrend" in generator and "ADX" in generator
 assert (ROOT / "docs" / "assets" / "design-v4.5.css").exists()
 assert (ROOT / "docs" / "assets" / "design-v4.5.1.css").exists()
+assert (ROOT / "docs" / "assets" / "design-v4.5.2.css").exists()
+assert (ROOT / "docs" / "assets" / "design-v4.5.3.css").exists()
+assert 'manifest.webmanifest' not in page and 'pwa.js' not in page and '安装应用' not in page
+assert '怎样理解 Trend Pulse' in page and '技术细节（可选）' in page

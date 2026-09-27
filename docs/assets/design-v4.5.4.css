@@ -1,0 +1,91 @@
+/* Myalpha View V4.5.4 — alignment, compact watchlist and strategy polish */
+@import url('./design-v4.5.3.css?v=4.5.3');
+
+/* 1) Plain-language Trend Pulse mini metrics: same height, single-line values. */
+.trend-card-simple .trend-easy-metrics{
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  gap:8px!important;
+  align-items:stretch!important;
+}
+.trend-card-simple .trend-easy-metrics>div{
+  min-height:70px!important;
+  padding:9px 10px!important;
+  display:grid!important;
+  grid-template-rows:auto 1fr!important;
+  align-content:center!important;
+  align-items:center!important;
+  gap:5px!important;
+  min-width:0!important;
+}
+.trend-card-simple .trend-easy-metrics>div>span{
+  font-size:11.5px!important;
+  line-height:1.2!important;
+  white-space:nowrap!important;
+}
+.trend-card-simple .trend-easy-metrics>div>b{
+  font-size:13px!important;
+  line-height:1.25!important;
+  white-space:nowrap!important;
+  overflow:visible!important;
+  text-overflow:clip!important;
+}
+.trend-card-simple .trend-easy-metrics>div:last-child{
+  grid-template-columns:minmax(0,1fr) auto!important;
+  grid-template-rows:auto 1fr!important;
+  column-gap:5px!important;
+}
+.trend-card-simple .trend-easy-metrics>div:last-child>span{grid-column:1/-1!important}
+.trend-card-simple .trend-easy-metrics>div:last-child>b{grid-column:1!important;align-self:center!important}
+.trend-card-simple .trend-easy-metrics>div:last-child>.info-tip{grid-column:2!important;align-self:center!important;margin:0!important}
+
+/* 2) Core ETF engine: keep status and action chips on one line on desktop. */
+.engine-item-head{align-items:center!important;gap:8px!important}
+.engine-item .k{min-width:0!important;flex:1 1 auto!important;white-space:nowrap!important}
+.engine-state{
+  flex:0 0 auto!important;
+  max-width:none!important;
+  white-space:nowrap!important;
+  font-size:11.5px!important;
+  line-height:1.2!important;
+}
+.engine-action{white-space:nowrap!important;font-size:11.5px!important;padding:6px 9px!important}
+
+/* 3) Stock watchlist: significantly reduce vertical whitespace while preserving details. */
+.stock-table th{padding:10px 9px!important;font-size:12.5px!important}
+.stock-table td{padding:9px 9px!important;font-size:13.5px!important;line-height:1.3!important}
+.stock-table tr[data-stock-row]{height:auto!important}
+.stock-table .stock-name{font-size:16.5px!important;line-height:1.15!important;margin:0!important}
+.stock-table .stock-symbol{display:inline-block!important;font-size:12px!important;line-height:1.2!important;margin:3px 0 0!important}
+.stock-details{display:inline-block!important;margin:3px 0 0 8px!important;vertical-align:baseline!important}
+.stock-details summary{font-size:11.5px!important;line-height:1.2!important;white-space:nowrap!important}
+.stock-details>div{font-size:11.5px!important;line-height:1.45!important;margin-top:6px!important;max-width:360px!important}
+.stock-table td>b{font-size:17px!important;line-height:1.1!important}
+.stock-table td>small{font-size:11.5px!important;line-height:1.2!important;margin-top:2px!important}
+.stock-table .trend-score{font-size:17px!important;line-height:1!important}
+.stock-table .stock-status{font-size:11.5px!important}
+.stock-table .stock-row-actions{gap:5px!important;justify-content:flex-end!important}
+.stock-table .watchlist-actions button,.stock-table .target-controls button{padding:4px 6px!important;font-size:10.5px!important}
+.stock-table th:first-child,.stock-table td:first-child{width:18%!important}
+.stock-table th:last-child,.stock-table td:last-child{width:95px!important}
+.stock-table table{min-width:1140px!important}
+
+/* 4) Today changes: equal columns and compact labels after replacing breadth with VGT. */
+.change-item span{font-size:11.5px!important}.change-item b{font-size:17px!important}.change-item small{font-size:11px!important}
+
+/* Tablet: allow engine status wrapping only when truly necessary. */
+@media(max-width:1180px){
+  .engine-item .k{white-space:normal!important}
+  .engine-state{white-space:normal!important;max-width:48%!important;text-wrap:balance}
+}
+@media(max-width:760px){
+  .trend-card-simple .trend-easy-metrics{grid-template-columns:1fr!important}
+  .trend-card-simple .trend-easy-metrics>div{min-height:52px!important;display:grid!important;grid-template-columns:1fr auto!important;grid-template-rows:1fr!important}
+  .trend-card-simple .trend-easy-metrics>div>span{grid-column:1!important;align-self:center!important}
+  .trend-card-simple .trend-easy-metrics>div>b{grid-column:2!important;align-self:center!important}
+  .trend-card-simple .trend-easy-metrics>div:last-child{grid-template-columns:1fr auto auto!important;grid-template-rows:1fr!important}
+  .trend-card-simple .trend-easy-metrics>div:last-child>span{grid-column:1!important}
+  .trend-card-simple .trend-easy-metrics>div:last-child>b{grid-column:2!important}
+  .trend-card-simple .trend-easy-metrics>div:last-child>.info-tip{grid-column:3!important}
+  .engine-state{white-space:normal!important;max-width:50%!important}
+  .stock-details{display:block!important;margin-left:0!important}
+}

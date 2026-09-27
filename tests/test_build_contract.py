@@ -21,13 +21,15 @@ assert "strategy-tier-grid" in generator and "只判断是否进入加仓区" in
 assert "1级回撤" in page and "7.5%" in page
 assert "指数、行业与另类资产" in generator and "指数、行业与另类资产" in page
 assert "data-stock-row" in generator and "data-stock-row" in page
-assert version == "4.6.1"
+assert version == "4.7.1"
 assert "市场与风险驾驶舱" in generator and "市场与风险驾驶舱" in page
 assert "卫星及杠杆" in generator and "卫星及杠杆" in page
 assert "不参与核心ETF加仓信号" in generator and "不参与核心ETF加仓信号" in page
 assert "收盘日线截至：" in generator and "收盘日线截至：" in page
 stock_section = page.split('<div id="tab-stocks"', 1)[1].split('<div id="tab-options"', 1)[0]
-assert stock_section.count("<th>") == 9 and "<th>行情详情</th>" not in stock_section
+assert stock_section.count("<th>") == 8 and "<th>行情详情</th>" not in stock_section
+assert "<th>操作</th>" not in stock_section
+assert "stock-context-menu" in (ROOT / "docs" / "assets" / "design-v4.7.1.css").read_text(encoding="utf-8")
 assert "@media (max-width: 680px)" in generator and 'data-label="策略价 / 距离"' in page
 assert "等待触发 · 不提前加仓" in generator
 assert "rsi < 35" in generator and "dist_200ma < -.10" in generator and "rsi > 70" in generator
@@ -97,7 +99,8 @@ stock_js = (ROOT / "docs" / "assets" / "stock-watchlist.js").read_text(encoding=
 stock_function = (ROOT / "supabase" / "functions" / "stock-market" / "index.ts").read_text(encoding="utf-8")
 watchlist_migration = (ROOT / "supabase" / "migrations" / "202609240003_stock_watchlist.sql").read_text(encoding="utf-8")
 assert f'assets/stock-watchlist.js?v={asset_version}' in page and 'id="stockWatchModal"' in page
-assert "stock_watchlist" in stock_js and "StockWatchlist" in stock_js and "删除个股" in stock_js
+assert "stock_watchlist" in stock_js and "StockWatchlist" in stock_js
+assert "删除个股" in decision_js and "contextmenu" in decision_js and "openContextMenuForSymbol" in decision_js
 assert "scope=${scope}" in stock_js and "DAILY_CACHE_KEY" in stock_js and "ensureDaily" in stock_js
 assert "stock_watchlist_public_read" in watchlist_migration and "stock_watchlist_admin_delete" in watchlist_migration
 assert "Alpaca IEX参考行情" in stock_function and "dist200" in stock_function and "ytdDrawdown" in stock_function
@@ -174,3 +177,8 @@ assert '怎样理解 Trend Pulse' in page and '技术细节（可选）' in page
 assert 'tab-core-execution' not in page and '核心资产执行中心' not in page
 assert 'core-execution.js' not in page and 'core-execution.css' not in page
 assert (ROOT / "docs" / "assets" / "design-v4.6.1.css").exists()
+
+# V4.7 action dashboard
+assert "今日行动摘要" in page
+assert "核心ETF状态中心" in page
+assert (ROOT / "docs" / "assets" / "design-v4.7.css").exists()

@@ -27,7 +27,6 @@
   function action(kind){
     if(kind==='theme')byId('themeToggle')?.click();
     if(kind==='auth')global.handleAuth?.();
-    if(kind==='install')byId('pwaInstallButton')?.click();
     close();
   }
   function build(){
@@ -41,7 +40,6 @@
     byId('mobileNavClose')?.addEventListener('click',close);
     byId('mobileThemeAction')?.addEventListener('click',()=>action('theme'));
     byId('mobileAuthAction')?.addEventListener('click',()=>action('auth'));
-    byId('mobileInstallAction')?.addEventListener('click',()=>action('install'));
     document.addEventListener('keydown',event=>{if(event.key==='Escape')close();});
     new MutationObserver(()=>{
       document.querySelectorAll('#mobileNavList button[data-mobile-tab]').forEach(button=>button.classList.toggle('locked',button.dataset.mobileTab!=='tab-overview'&&!document.body.classList.contains('private-mode')));

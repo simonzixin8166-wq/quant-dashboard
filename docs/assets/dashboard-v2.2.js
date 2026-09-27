@@ -10,7 +10,8 @@
   }
   const stockState={filter:'all'};
   function stockRows(){return [...document.querySelectorAll('#stocksTableBody tr[data-stock-row]')]}
-  function applyStockFilter(){stockRows().forEach(row=>{row.hidden=stockState.filter!=='all'&&row.dataset.status!==stockState.filter})}
+  function detailRow(row){const id=row?.dataset?.detailId;return id?document.getElementById(id):null}
+  function applyStockFilter(){stockRows().forEach(row=>{const hidden=stockState.filter!=='all'&&row.dataset.status!==stockState.filter;row.hidden=hidden;const d=detailRow(row);if(d&&hidden)d.hidden=true})}
   function filterStocks(button,status){stockState.filter=status;document.querySelectorAll('[data-stock-filter]').forEach(x=>x.classList.toggle('active',x===button));applyStockFilter()}
   function sortStocks(mode){
     const body=document.getElementById('stocksTableBody');if(!body)return;const rows=stockRows();
@@ -21,7 +22,7 @@
     if(mode==='drawdown')rows.sort((a,b)=>number(b,'drawdown',0)-number(a,'drawdown',0));
     if(mode==='rsi')rows.sort((a,b)=>number(a,'rsi')-number(b,'rsi'));
     if(mode==='default')rows.sort((a,b)=>number(a,'defaultOrder')-number(b,'defaultOrder'));
-    rows.forEach(row=>body.appendChild(row));applyStockFilter();
+    rows.forEach(row=>{body.appendChild(row);const d=detailRow(row);if(d)body.appendChild(d)});applyStockFilter();
   }
   function updateTarget(symbol,target){
     const closeNode=document.getElementById(`close-${symbol}`),targetNode=document.getElementById(`target-${symbol}`),gapNode=document.getElementById(`target-gap-${symbol}`),statusNode=document.getElementById(`stock-status-${symbol}`),row=targetNode?.closest('tr');if(!closeNode||!targetNode||!gapNode||!statusNode||!row)return;
@@ -30,8 +31,9 @@
     if(status==='normal'&&rsi<35){status='oversold';label='超卖观察'}else if(status==='normal'&&dist<-.10){status='weak';label='趋势偏弱'}else if(status==='normal'&&(rsi>70||dist>.25)){status='hot';label='过热'}
     row.dataset.status=status;row.dataset.targetDistance=distance;statusNode.className=`stock-status ${status}`;statusNode.textContent=label;applyStockFilter();
   }
+  function toggleDetails(symbol,button){const row=document.getElementById(`stock-detail-${symbol}`);if(!row)return;const shouldOpen=row.hidden;document.querySelectorAll('.stock-detail-row').forEach(x=>x.hidden=true);document.querySelectorAll('.stock-detail-toggle').forEach(x=>{x.setAttribute('aria-expanded','false');x.textContent='行情详情⌄'});row.hidden=!shouldOpen;if(shouldOpen&&button){button.setAttribute('aria-expanded','true');button.textContent='收起详情⌃'}}
   function initStocks(){stockRows().forEach((row,i)=>row.dataset.defaultOrder=String(i));sortStocks('priority')}
-  global.StockDecision={filter:filterStocks,sort:sortStocks,updateTarget};
+  global.StockDecision={filter:filterStocks,sort:sortStocks,updateTarget,toggleDetails};
   global.MAV={toast,applyTheme};
   document.addEventListener('DOMContentLoaded',()=>{initTheme();loadEvents();initStocks()});
 })(window);

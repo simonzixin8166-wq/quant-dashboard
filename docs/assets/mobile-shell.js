@@ -2,7 +2,6 @@
   'use strict';
   const PRIMARY=[
     {id:'tab-overview',label:'总览',icon:'◆'},
-    {id:'tab-core-execution',label:'核心',icon:'◎'},
     {id:'tab-stocks',label:'观察',icon:'⌁'},
     {id:'tab-options',label:'期权',icon:'⚑'}
   ];

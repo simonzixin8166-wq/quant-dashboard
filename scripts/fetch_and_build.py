@@ -2415,6 +2415,45 @@ def validate_build_data(data):
     if errors: raise RuntimeError("构建质量门未通过：" + "；".join(errors))
 
 
+def cleanup_legacy_pwa(docs_dir):
+    """Remove legacy PWA/app artifacts from pre-V4.5.3 checkouts.
+
+    V4.5.3 is website-only. Users may upgrade by replacing only this generator,
+    so stale PWA files from older releases must be deleted during every build
+    before the repository contract is verified. Mobile responsive browsing is
+    kept through mobile-shell.css/js; only install/offline PWA artifacts go.
+    """
+    obsolete = [
+        "sw.js",
+        "manifest.webmanifest",
+        "offline.html",
+        os.path.join("assets", "pwa.js"),
+    ]
+    removed = []
+    for rel in obsolete:
+        path = os.path.join(docs_dir, rel)
+        try:
+            if os.path.isfile(path) or os.path.islink(path):
+                os.remove(path)
+                removed.append(rel)
+        except FileNotFoundError:
+            pass
+    # Old install icons are no longer referenced by the website-only build.
+    # Leave the icons directory itself alone because other site assets may be
+    # stored there; only known PWA icon filenames are removed.
+    for name in ("icon-192.png", "icon-512.png", "apple-touch-icon.png"):
+        path = os.path.join(docs_dir, "icons", name)
+        try:
+            if os.path.isfile(path) or os.path.islink(path):
+                os.remove(path)
+                removed.append(os.path.join("icons", name))
+        except FileNotFoundError:
+            pass
+    if removed:
+        print("Removed legacy PWA artifacts: " + ", ".join(removed))
+    return removed
+
+
 def atomic_write(path, content):
     directory = os.path.dirname(os.path.abspath(path))
     os.makedirs(directory, exist_ok=True)
@@ -2435,6 +2474,7 @@ if __name__ == '__main__':
     data = build()
     validate_build_data(data)
     docs_dir = os.path.join(os.path.dirname(__file__), '..', 'docs')
+    cleanup_legacy_pwa(docs_dir)
     out = os.path.join(docs_dir, 'data.json')
     html_out = os.path.join(docs_dir, 'index.html')
     atomic_write(out, json.dumps(data, ensure_ascii=False, indent=2))

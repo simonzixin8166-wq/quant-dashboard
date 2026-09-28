@@ -1,0 +1,11 @@
+const fs=require('fs'),path=require('path');
+const root=path.resolve(__dirname,'..');
+const sw=fs.readFileSync(path.join(root,'docs/assets/stock-watchlist.js'),'utf8');
+const dash=fs.readFileSync(path.join(root,'docs/assets/dashboard-v2.2.js'),'utf8');
+const wxc=fs.readFileSync(path.join(root,'docs/assets/wenxuecity.js'),'utf8');
+const updater=fs.readFileSync(path.join(root,'scripts/update_wenxuecity.py'),'utf8');
+for(const x of ['Research Thesis','失效条件 / 什么事实说明判断错了','plainGuide','stock_research_notes']) if(!sw.includes(x)) throw new Error('missing stock research marker '+x);
+if(!dash.includes('data-cmd="research"')) throw new Error('missing research context menu');
+for(const x of ['具体操作','历史操作','operationRows','不是本站当前买卖建议']) if(!wxc.includes(x)) throw new Error('missing operation UI '+x);
+for(const x of ['OPERATION_KEYS','operations数组','禁止根据常识补全']) if(!updater.includes(x)) throw new Error('missing operation extraction '+x);
+console.log('stock_research_and_operations.test.js: all assertions passed');

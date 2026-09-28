@@ -13,9 +13,9 @@ except ModuleNotFoundError:
 warnings.filterwarnings("ignore")
 
 # 单一版本源：每日 Action 生成 HTML 时，页面标题和静态资源缓存版本都从这里读取。
-APP_VERSION = "4.9.5"
+APP_VERSION = "4.9.6"
 OPTIONS_VERSION = "4.0.0"  # 网站优先；APP/PWA 功能已移除，仅保留响应式手机网页
-ASSET_VERSION = "4.9.5"
+ASSET_VERSION = "4.9.6"
 
 API_KEY = os.environ.get("TWELVE_DATA_KEY", "demo")
 BASE = "https://api.twelvedata.com"
@@ -1593,7 +1593,7 @@ def render_html(data):
             tp_tone = tp.get("tone", "neutral")
             tp_html = f'<b class="trend-score {tp_tone}">{tp_score:+.0f}</b><small>{html.escape(tp.get("state","等待数据"))}</small>' if isinstance(tp_score,(int,float)) else '<b>—</b><small>数据不足</small>'
             detail_id = f"stock-detail-{sym}"
-            stock_html += f'''<tr data-stock-row data-symbol="{sym}" data-detail-id="{detail_id}" data-status="{status}" data-target-distance="{abs(target_distance) if isinstance(target_distance,(int,float)) else 999}" data-drawdown="{abs(ytd_dd) if isinstance(ytd_dd,(int,float)) else 0}" data-rsi="{rsi if isinstance(rsi,(int,float)) else 999}" data-dist200="{dist if isinstance(dist,(int,float)) else 0}" data-pulse="{tp_score if isinstance(tp_score,(int,float)) else -999}"><td class="stock-identity"><div class="stock-name-line"><span class="stock-name">{name}</span><span class="stock-symbol">{sym}</span><button type="button" class="stock-mobile-menu" aria-label="{sym} 操作菜单" onclick="StockDecision.openContextMenuForSymbol('{sym}', this)">⋯</button></div></td><td data-label="最新价 / 涨跌"><b id="close-{sym}">${close:.2f}</b><small id="chg-{sym}" class="{'pos-text' if chg>=0 else 'neg-text'}">{chg*100:+.2f}%</small></td><td data-label="Trend Pulse">{tp_html}</td><td data-label="YTD回撤" class="neg-text fw-bold">{fmt_pct(ytd_dd)}</td><td data-label="RSI">{fmt_num(rsi)}</td><td data-label="距200MA" class="{'neg-text' if isinstance(dist,(int,float)) and dist<0 else ''}">{fmt_pct(dist)}</td><td data-label="策略价 / 距离" id="target-cell-{sym}"><b id="target-{sym}">{target_display}</b><small id="target-gap-{sym}">{target_gap_text}</small></td><td data-label="状态"><span id="stock-status-{sym}" class="stock-status {status}">{status_label}</span><span id="action-{sym}"></span></td></tr><tr id="{detail_id}" class="stock-detail-row" data-detail-for="{sym}" hidden><td colspan="8"><div class="stock-detail-panel"><div><span>当日区间</span><b>开 ${v.get('open',0):.2f} · 高 ${v.get('high',0):.2f} · 低 ${v.get('low',0):.2f}</b></div><div><span>YTD高点</span><b>${fmt_num(ytd_high)}</b></div><div><span>完整日线</span><b>{v.get('date','-')}</b></div><div><span>Trend Pulse</span><b>{(f'{tp_score:+.0f} · ' + html.escape(tp.get('state','等待数据'))) if isinstance(tp_score,(int,float)) else '数据不足'}</b></div></div></td></tr>'''
+            stock_html += f'''<tr data-stock-row data-symbol="{sym}" data-detail-id="{detail_id}" data-status="{status}" data-target-distance="{abs(target_distance) if isinstance(target_distance,(int,float)) else 999}" data-drawdown="{abs(ytd_dd) if isinstance(ytd_dd,(int,float)) else 0}" data-rsi="{rsi if isinstance(rsi,(int,float)) else 999}" data-dist200="{dist if isinstance(dist,(int,float)) else 0}" data-pulse="{tp_score if isinstance(tp_score,(int,float)) else -999}"><td class="stock-identity"><div class="stock-name-line"><span class="stock-name">{name}</span><span class="stock-symbol">{sym}</span><button type="button" class="stock-mobile-menu" aria-label="{sym} 操作菜单" onclick="StockDecision.openContextMenuForSymbol('{sym}', this)">⋯</button></div></td><td data-label="最新价 / 涨跌"><b id="close-{sym}">${close:.2f}</b><small id="chg-{sym}" class="{'pos-text' if chg>=0 else 'neg-text'}">{chg*100:+.2f}%</small></td><td data-label="Trend Pulse">{tp_html}</td><td data-label="YTD回撤" class="neg-text fw-bold">{fmt_pct(ytd_dd)}</td><td data-label="RSI">{fmt_num(rsi)}</td><td data-label="距200MA" class="{'neg-text' if isinstance(dist,(int,float)) and dist<0 else ''}">{fmt_pct(dist)}</td><td data-label="策略价 / 距离" id="target-cell-{sym}"><b id="target-{sym}">{target_display}</b><small id="target-gap-{sym}">{target_gap_text}</small></td><td data-label="状态"><span id="stock-status-{sym}" class="stock-status {status}">{status_label}</span><span id="action-{sym}"></span></td></tr><tr id="{detail_id}" class="stock-detail-row" data-detail-for="{sym}" hidden><td colspan="8"><div class="stock-detail-panel"><div><span>当日区间</span><b>开 ${v.get('open',0):.2f} · 高 ${v.get('high',0):.2f} · 低 ${v.get('low',0):.2f}</b></div><div><span>YTD高点</span><b>${fmt_num(ytd_high)}</b></div><div><span>完整日线</span><b>{v.get('date','-')}</b></div><div><span>Trend Pulse</span><b>{(f'{tp_score:+.0f} · ' + html.escape(tp.get('state','等待数据'))) if isinstance(tp_score,(int,float)) else '数据不足'}</b></div><div class="stock-research-card" data-research-placeholder="{sym}"><div class="stock-research-head"><div><h4>投资论点 · Research Thesis</h4><p>登录后加载私有研究卡；Trend Pulse只做第二层确认。</p></div></div></div></div></td></tr>'''
             
     options_html = '<tr><td colspan="9" style="text-align:center; color:var(--muted)">请登录后查看私有期权持仓</td></tr>'
 
@@ -2022,8 +2022,7 @@ body{{font-size:15px;background:linear-gradient(180deg,#f7f9fc 0,#f3f6fa 100%);l
 <section class="section"><div class="table-container"><table><thead><tr><th style="text-align:left;">资产代号</th><th>触发日期</th><th>触发收盘价</th><th>当时全期回撤幅度</th><th>触发加仓评级</th><th>规则体系</th></tr></thead><tbody id="archiveTableBody">{signals_html}</tbody></table></div></section>
 <section class="section"><p style="font-size:11.5px;color:var(--muted);line-height:1.7">同一资产同一天可能出现两条记录——"资产自身三档线"是该ETF自己相对真实全期最高点的回撤触发的加仓线；"全市场宽度恐慌"是标普500全市场宽度指标触发的分级信号。两套规则相互独立，同一天都触发是正常情况，不是数据重复。</p></section></div>
 
-<section class="section private-console site-analytics-bottom"><div class="panel"><div class="panel-head"><strong>匿名访问统计</strong><span>低优先级站点运维信息 · 不记录姓名、邮箱或IP地址</span></div><div id="siteAnalyticsRoot" class="site-analytics"><div class="site-analytics-empty">正在读取访问统计…</div></div></div></section>
-<div class="footer">© 2026 Myalpha View · 投资分析及策略<br>市场数据与策略指标仅供研究参考，不构成投资建议；本站仅记录匿名访问次数，不采集姓名、邮箱或IP地址。<br>意见交流邮箱：<a href="mailto:xxj8166@gmail.com">xxj8166@gmail.com</a></div>
+<div class="footer footer-with-analytics"><div class="footer-main">© 2026 Myalpha View · 投资分析及策略<br>市场数据与策略指标仅供研究参考，不构成投资建议；本站仅记录匿名访问次数，不采集姓名、邮箱或IP地址。<br>意见交流邮箱：<a href="mailto:xxj8166@gmail.com">xxj8166@gmail.com</a></div><div class="footer-analytics private-console"><div class="footer-analytics-head"><strong>匿名访问统计</strong><span>低优先级站点运维信息 · 不记录姓名、邮箱或IP地址</span></div><div id="siteAnalyticsRoot" class="site-analytics"><div class="site-analytics-empty">正在读取访问统计…</div></div></div></div>
 </div></main></div>
 
 <div id="underlyingModal" class="option-modal-backdrop" style="display:none">
@@ -2164,6 +2163,7 @@ function switchTab(id,el){{
   const label=(navEl?.innerText||pane.dataset.title||id).replace('NEW','').replace(/^[◆◒◫◇⌁∿⚑◎🧮📜]/u,'').trim();
   const bc=document.getElementById('bc-title'); if(bc) bc.innerText=label;
   window.MobileShell?.sync(id);
+  if(id === 'tab-stocks') document.querySelectorAll('.stock-table').forEach(node=>{{node.scrollLeft=0;}});
   window.scrollTo({{top:0,behavior:'smooth'}});
   return true;
 }}

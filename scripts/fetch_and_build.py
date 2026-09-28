@@ -13,9 +13,9 @@ except ModuleNotFoundError:
 warnings.filterwarnings("ignore")
 
 # 单一版本源：每日 Action 生成 HTML 时，页面标题和静态资源缓存版本都从这里读取。
-APP_VERSION = "4.8.0"
+APP_VERSION = "4.8.1"
 OPTIONS_VERSION = "4.0.0"  # 网站优先；APP/PWA 功能已移除，仅保留响应式手机网页
-ASSET_VERSION = "4.8.0"
+ASSET_VERSION = "4.8.1"
 
 API_KEY = os.environ.get("TWELVE_DATA_KEY", "demo")
 BASE = "https://api.twelvedata.com"
@@ -64,6 +64,37 @@ CN_HK_SYMBOLS = {
     "hk03086": "华夏纳指 (港股)", "hk03416": "国指备兑 (港股)",
 }
 TENCENT_URL = "http://qt.gtimg.cn/q={symbols}"
+
+def fetch_usdcny_reference(previous=None):
+    """Latest completed daily USD/CNY reference via Yahoo/yfinance.
+
+    This is deliberately daily, not intraday: it is a context reference card and should
+    not consume scarce realtime quotas. Falls back to the last generated value.
+    """
+    previous = previous or {}
+    try:
+        hist = yf.download("CNY=X", period="10d", interval="1d", auto_adjust=True, progress=False, threads=False)
+        if hist is None or hist.empty:
+            raise ValueError("empty USD/CNY history")
+        close_col = hist["Close"]
+        if hasattr(close_col, "columns"):
+            close_col = close_col.iloc[:, 0]
+        close_col = close_col.dropna()
+        if close_col.empty:
+            raise ValueError("empty USD/CNY close")
+        value = float(close_col.iloc[-1])
+        idx = close_col.index[-1]
+        date = idx.date().isoformat() if hasattr(idx, "date") else str(idx)[:10]
+        if not math.isfinite(value) or value <= 0:
+            raise ValueError("invalid USD/CNY")
+        return {"value": value, "date": date, "source": "Yahoo Finance", "status": "ok"}
+    except Exception as e:
+        old = _safe_float(previous.get("value")) if isinstance(previous, dict) else None
+        if old and old > 0:
+            return {"value": old, "date": str(previous.get("date") or "-"), "source": str(previous.get("source") or "cached"), "status": "cached"}
+        print(f"WARNING: USD/CNY reference unavailable: {e}")
+        return {"value": None, "date": "-", "source": "Yahoo Finance", "status": "unavailable"}
+
 
 # ================= 3. ATH 强复权校验 =================
 def get_core_ath_metrics(symbols):
@@ -1200,6 +1231,7 @@ def build():
             historical_signals.sort(key=lambda r: r.get("date", ""), reverse=True)
     except: historical_signals = []
 
+    fx_usdcny = fetch_usdcny_reference(old_data.get("fx_usdcny") or {})
     iren_news = fetch_iren_news(limit=5, previous_news=((old_data.get("iren_brief") or {}).get("news") or []))
     iren_brief = build_iren_brief(stocks, iren_news)
     current_snapshot = {
@@ -1216,7 +1248,7 @@ def build():
             "overview_charts": overview_charts, "options": [],
             "cn_hk": cn_hk_data, "market_regime": market_regime, "historical_signals": historical_signals, "data_status": data_status,
             "raw_breadth": breadth_data, "market_indicators": {"spx": spx_data, "spx_source": spx_src, "ixic": ixic_data, "ixic_source": ixic_src, "vix": vix_data, "vix_source": vix_src},
-            "research_brief": research_brief, "what_changed": what_changed, "iren_brief": iren_brief, "trend_pulse": trend_pulse,
+            "research_brief": research_brief, "what_changed": what_changed, "iren_brief": iren_brief, "trend_pulse": trend_pulse, "fx_usdcny": fx_usdcny,
             "tqqq_x2": tqqq_x2, "leaps_radar": leaps_radar, "opportunity_history": opportunity_history}
 
 # ================= 8. 前端 HTML 组件独立渲染函数 =================
@@ -1348,7 +1380,16 @@ def build_daily_action_html(data, trend_data):
         '<div class="daily-action-panel"><div class="daily-action-title"><strong>期权风险</strong><span>私有持仓</span></div><div class="daily-option-callout">登录后由“今日风险待办”自动检查临期、缺失报价与宏观事件。</div><button type="button" class="daily-jump" onclick="openDashboardTab(\'tab-options\')">查看期权持仓</button></div>'
         '</div></section>'
     )
-    return html_out, ''.join(core_html)
+    status_cards=[]
+    for c in core_cards:
+        dist_text=(f"距一级 {c['distance']:.1%}" if isinstance(c.get('distance'),(int,float)) else "距离待校验")
+        status_cards.append(
+            f'<article class="core-status-card-v481 {c["tone"]}">'
+            f'<div class="core-status-card-head"><div><strong>{c["symbol"]}</strong><span>{c["role"]}</span></div><b>{fmt_pct(c.get("dd"))}</b></div>'
+            f'<div class="core-status-card-action">{html.escape(c["action"])}</div>'
+            f'<div class="core-status-card-distance">{dist_text}</div></article>'
+        )
+    return html_out, ''.join(status_cards)
 
 
 def engine_item(name, r):
@@ -1552,7 +1593,7 @@ def render_html(data):
             tp_tone = tp.get("tone", "neutral")
             tp_html = f'<b class="trend-score {tp_tone}">{tp_score:+.0f}</b><small>{html.escape(tp.get("state","等待数据"))}</small>' if isinstance(tp_score,(int,float)) else '<b>—</b><small>数据不足</small>'
             detail_id = f"stock-detail-{sym}"
-            stock_html += f'''<tr data-stock-row data-symbol="{sym}" data-detail-id="{detail_id}" data-status="{status}" data-target-distance="{abs(target_distance) if isinstance(target_distance,(int,float)) else 999}" data-drawdown="{abs(ytd_dd) if isinstance(ytd_dd,(int,float)) else 0}" data-rsi="{rsi if isinstance(rsi,(int,float)) else 999}" data-dist200="{dist if isinstance(dist,(int,float)) else 0}" data-pulse="{tp_score if isinstance(tp_score,(int,float)) else -999}"><td class="stock-identity"><div class="stock-name-line"><span class="stock-name">{name}</span><span class="stock-symbol">{sym}</span><button type="button" class="stock-detail-toggle" onclick="StockDecision.toggleDetails('{sym}', this)" aria-expanded="false">行情详情⌄</button><button type="button" class="stock-mobile-menu" aria-label="{sym} 操作菜单" onclick="StockDecision.openContextMenuForSymbol('{sym}', this)">⋯</button></div></td><td data-label="最新价 / 涨跌"><b id="close-{sym}">${close:.2f}</b><small id="chg-{sym}" class="{'pos-text' if chg>=0 else 'neg-text'}">{chg*100:+.2f}%</small></td><td data-label="Trend Pulse">{tp_html}</td><td data-label="YTD回撤" class="neg-text fw-bold">{fmt_pct(ytd_dd)}</td><td data-label="RSI">{fmt_num(rsi)}</td><td data-label="距200MA" class="{'neg-text' if isinstance(dist,(int,float)) and dist<0 else ''}">{fmt_pct(dist)}</td><td data-label="策略价 / 距离" id="target-cell-{sym}"><b id="target-{sym}">{target_display}</b><small id="target-gap-{sym}">{target_gap_text}</small></td><td data-label="状态"><span id="stock-status-{sym}" class="stock-status {status}">{status_label}</span><span id="action-{sym}"></span></td></tr><tr id="{detail_id}" class="stock-detail-row" data-detail-for="{sym}" hidden><td colspan="8"><div class="stock-detail-panel"><div><span>当日区间</span><b>开 ${v.get('open',0):.2f} · 高 ${v.get('high',0):.2f} · 低 ${v.get('low',0):.2f}</b></div><div><span>YTD高点</span><b>${fmt_num(ytd_high)}</b></div><div><span>完整日线</span><b>{v.get('date','-')}</b></div><div><span>Trend Pulse</span><b>{(f'{tp_score:+.0f} · ' + html.escape(tp.get('state','等待数据'))) if isinstance(tp_score,(int,float)) else '数据不足'}</b></div></div></td></tr>'''
+            stock_html += f'''<tr data-stock-row data-symbol="{sym}" data-detail-id="{detail_id}" data-status="{status}" data-target-distance="{abs(target_distance) if isinstance(target_distance,(int,float)) else 999}" data-drawdown="{abs(ytd_dd) if isinstance(ytd_dd,(int,float)) else 0}" data-rsi="{rsi if isinstance(rsi,(int,float)) else 999}" data-dist200="{dist if isinstance(dist,(int,float)) else 0}" data-pulse="{tp_score if isinstance(tp_score,(int,float)) else -999}"><td class="stock-identity"><div class="stock-name-line"><span class="stock-name">{name}</span><span class="stock-symbol">{sym}</span><button type="button" class="stock-mobile-menu" aria-label="{sym} 操作菜单" onclick="StockDecision.openContextMenuForSymbol('{sym}', this)">⋯</button></div></td><td data-label="最新价 / 涨跌"><b id="close-{sym}">${close:.2f}</b><small id="chg-{sym}" class="{'pos-text' if chg>=0 else 'neg-text'}">{chg*100:+.2f}%</small></td><td data-label="Trend Pulse">{tp_html}</td><td data-label="YTD回撤" class="neg-text fw-bold">{fmt_pct(ytd_dd)}</td><td data-label="RSI">{fmt_num(rsi)}</td><td data-label="距200MA" class="{'neg-text' if isinstance(dist,(int,float)) and dist<0 else ''}">{fmt_pct(dist)}</td><td data-label="策略价 / 距离" id="target-cell-{sym}"><b id="target-{sym}">{target_display}</b><small id="target-gap-{sym}">{target_gap_text}</small></td><td data-label="状态"><span id="stock-status-{sym}" class="stock-status {status}">{status_label}</span><span id="action-{sym}"></span></td></tr><tr id="{detail_id}" class="stock-detail-row" data-detail-for="{sym}" hidden><td colspan="8"><div class="stock-detail-panel"><div><span>当日区间</span><b>开 ${v.get('open',0):.2f} · 高 ${v.get('high',0):.2f} · 低 ${v.get('low',0):.2f}</b></div><div><span>YTD高点</span><b>${fmt_num(ytd_high)}</b></div><div><span>完整日线</span><b>{v.get('date','-')}</b></div><div><span>Trend Pulse</span><b>{(f'{tp_score:+.0f} · ' + html.escape(tp.get('state','等待数据'))) if isinstance(tp_score,(int,float)) else '数据不足'}</b></div></div></td></tr>'''
             
     options_html = '<tr><td colspan="9" style="text-align:center; color:var(--muted)">请登录后查看私有期权持仓</td></tr>'
 
@@ -1710,7 +1751,7 @@ def render_html(data):
     if iren.get("available"):
         iren_price = _safe_float(iren.get("price")); iren_chg = _safe_float(iren.get("day_chg")); iren_dd = _safe_float(iren.get("ytd_drawdown")); iren_rsi = _safe_float(iren.get("rsi")); iren_ma = _safe_float(iren.get("dist_200ma"))
         iren_metrics = f'<div class="iren-metrics"><div><span>最新价</span><b>${iren_price:.2f}</b></div><div><span>当日</span><b class="{"up" if (iren_chg or 0)>=0 else "down"}">{iren_chg:+.1%}</b></div><div><span>距YTD高点</span><b>{iren_dd:.1%}</b></div><div><span>RSI</span><b>{iren_rsi:.0f}</b></div><div><span>距200MA</span><b>{iren_ma:+.1%}</b></div></div>' if all(v is not None for v in (iren_price, iren_chg, iren_dd, iren_rsi, iren_ma)) else ''
-        iren_brief_html = f'<section class="iren-brief"><div class="iren-brief-main"><div class="iren-eyebrow">重点研究 · IREN</div><div class="iren-title-row"><h2>IREN 每日观察</h2><span>日线截至 {html.escape(str(iren.get("date","-")))}</span></div>{iren_metrics}{trend_home_html}<p class="iren-view">{html.escape(str(iren.get("view","")))}</p><div class="iren-disclaimer">消息方向标签用于快速筛选。官方披露优先；媒体观点与价格目标不等同于公司基本面事实。</div></div><div class="iren-news"><div class="iren-news-head"><strong>最新消息</strong><span>中文标题 · 原文保留</span></div>{news_html}</div></section>'
+        iren_brief_html = f'<section class="iren-brief"><div class="iren-brief-main"><div class="iren-eyebrow">重点研究 · IREN</div><div class="iren-title-row"><h2>IREN 每日观察</h2><span>日线截至 {html.escape(str(iren.get("date","-")))}</span></div>{iren_metrics}{trend_home_html}<p class="iren-view">{html.escape(str(iren.get("view","")))}</p><div class="iren-disclaimer">消息方向标签用于快速筛选。官方披露优先；媒体观点与价格目标不等同于公司基本面事实。</div></div><div class="iren-news"><div class="iren-news-head"><strong>最新消息</strong><span>最近72小时 · 随 Daily 更新 · 中文标题/原文保留</span></div>{news_html}</div></section>'
     else:
         iren_brief_html = f'<section class="iren-brief"><div class="iren-brief-main"><div class="research-kicker">IREN Daily Brief</div><h2>IREN 每日观察</h2><p>{html.escape(str(iren.get("summary","IREN 行情暂不可用。")))}</p></div><div class="iren-news">{news_html}</div></section>'
 
@@ -1742,7 +1783,7 @@ def render_html(data):
         direction = trend_direction_text(score, slope5)
         stock_price_html = f'<div class="trend-price-line"><span>当前股价</span><b>${stock_price:.2f}</b></div>' if stock_price is not None else '<div class="trend-price-line"><span>当前股价</span><b>—</b></div>'
         detail_help = '技术细节用于系统校验，不要求普通投资者逐项判断。ADX衡量趋势强度；DI比较多空方向；Supertrend是趋势跟随线；结构表示近期高低点组合。'
-        trend_cards.append(f'''<article class="trend-card trend-card-simple" data-tone="{tone}"><div class="trend-card-top"><div><span>{html.escape(STOCK_META.get(sym,{}).get("name",sym))}</span><h3>{sym}</h3>{stock_price_html}</div><div class="trend-score-box"><span>Trend Pulse</span><div class="trend-score-xl {tone}">{score:+.0f}</div><small>-100 至 +100</small></div></div><div class="trend-simple-verdict"><div><span>当前走势</span><strong>{html.escape(direction)}</strong></div><div><span>基础判断</span><strong class="judgement-{basic['tone']}">{html.escape(basic['action'])}</strong></div><div><span>所在区间</span><strong>{html.escape(basic['zone'])}</strong></div></div><p class="trend-basic-summary">{html.escape(basic['summary'])}</p><div class="trend-easy-metrics"><div><span>5日动能</span><b>{slope5:+.1f} · {'改善' if slope5>0 else ('减弱' if slope5<0 else '持平')}</b></div><div><span>中期方向</span><b>{html.escape(str(weekly))}</b></div><div class="trend-data-status"><span>数据状态</span><div class="trend-status-value"><b class="integrity-{isty}">{html.escape(integrity.get('label','待校验'))}</b><button class="info-tip" type="button" aria-label="数据状态说明" data-tooltip="{html.escape(integrity_desc)}">ⓘ</button></div></div></div><details class="trend-tech-details"><summary>查看技术细节（可选）</summary><p>{detail_help}</p><div class="trend-card-grid"><div class="trend-metric"><span>Supertrend</span><b>{html.escape(tp.get('supertrend','-'))}</b></div><div class="trend-metric"><span>ADX 趋势强度</span><b>{fmt_num(tp.get('adx'),1)}</b></div><div class="trend-metric"><span>+DI / -DI 多空</span><b>{fmt_num(tp.get('plus_di'),1)} / {fmt_num(tp.get('minus_di'),1)}</b></div><div class="trend-metric"><span>价格结构</span><b>{html.escape(tp.get('structure','-'))}</b></div></div></details><div class="trend-integrity-foot"><small>收盘确认 · {html.escape(str(integrity.get('as_of','-')))}</small></div></article>''')
+        trend_cards.append(f'''<article class="trend-card trend-card-simple" data-tone="{tone}"><div class="trend-card-top"><div><span>{html.escape(STOCK_META.get(sym,{}).get("name",sym))}</span><h3>{sym}</h3>{stock_price_html}</div><div class="trend-score-box"><span>Trend Pulse</span><div class="trend-score-xl {tone}">{score:+.0f}</div><small>-100 至 +100</small></div></div><div class="trend-simple-verdict"><div><span>当前走势</span><strong>{html.escape(direction)}</strong></div><div><span>基础判断</span><strong class="judgement-{basic['tone']}">{html.escape(basic['action'])}</strong></div><div><span>所在区间</span><strong>{html.escape(basic['zone'])}</strong></div></div><p class="trend-basic-summary">{html.escape(basic['summary'])}</p><div class="trend-easy-metrics"><div><span>5日动能</span><b>{slope5:+.1f} · {'改善' if slope5>0 else ('减弱' if slope5<0 else '持平')}</b></div><div><span>中期方向</span><b>{html.escape(str(weekly))}</b></div><div class="trend-data-status"><span class="trend-status-label">数据状态 <button class="info-tip" type="button" aria-label="数据状态说明" data-tooltip="{html.escape(integrity_desc)}">ⓘ</button></span><b class="integrity-{isty}">{html.escape(integrity.get('label','待校验'))}</b></div></div><details class="trend-tech-details"><summary>查看技术细节（可选）</summary><p>{detail_help}</p><div class="trend-card-grid"><div class="trend-metric"><span>Supertrend</span><b>{html.escape(tp.get('supertrend','-'))}</b></div><div class="trend-metric"><span>ADX 趋势强度</span><b>{fmt_num(tp.get('adx'),1)}</b></div><div class="trend-metric"><span>+DI / -DI 多空</span><b>{fmt_num(tp.get('plus_di'),1)} / {fmt_num(tp.get('minus_di'),1)}</b></div><div class="trend-metric"><span>价格结构</span><b>{html.escape(tp.get('structure','-'))}</b></div></div></details><div class="trend-integrity-foot"><small>收盘确认 · {html.escape(str(integrity.get('as_of','-')))}</small></div></article>''')
     trend_cards_html=''.join(trend_cards) or '<div class="trend-empty">等待趋势数据</div>' 
 
     iren_basic = trend_pulse_band(iren_tp.get("score",0), iren_tp.get("slope5",0), iren_tp.get("weekly","-")) if iren_tp.get("available") else {"zone":"等待数据","action":"等待数据","tone":"neutral","summary":"等待足够数据。"}
@@ -1809,7 +1850,7 @@ body{{font-size:15px;background:linear-gradient(180deg,#f7f9fc 0,#f3f6fa 100%);l
 <div class="top-meta"><span id="liveStatus" style="display:none;"><i class="live-dot"></i><span id="liveStatusText">数据抓取成功</span></span><div style="text-align:right; line-height:1.4;"><div style="font-weight:600; font-size:12px; color:var(--ink);">生成时间: {data.get('gen_time', '-')}</div><div id="usLiveAsOf" style="color:var(--muted); font-size:10.5px;">美股收盘日线截至: {data.get('spy_date', '-')} | A/港股盘中动态刷新</div></div><button id="themeToggle" class="theme-toggle" title="切换深浅主题">🌙 深色</button><button id="authBtn" class="auth-btn-top" onclick="handleAuth()">登录 / 注册</button></div></header><div class="content">
 
 <div id="tab-overview" class="tab-pane active">
-<section class="hero overview-hero"><div><h1>市场与风险驾驶舱</h1><p>先看市场状态、策略距离和必须处理的风险，再决定是否行动。</p><div class="data-legend" aria-label="数据状态说明"><span class="live">盘中延迟行情</span><span class="close">最近有效收盘</span><span class="missing">不可用不计分</span></div></div><div class="public-note" id="modePanel"><b id="modeTitle">访客预览模式</b><span id="modeDesc">未登录仅显示市场概览；策略、观察池与持仓模块需要主理人登录。</span></div><span id="privateModeShield" class="private-mode-shield" role="status" title="私有控制台已连接，真实持仓受 Supabase RLS 保护">🛡️ 私有模式</span></section>
+<section class="hero overview-hero"><div><h1>市场与风险驾驶舱</h1><p>先看市场状态、策略距离和必须处理的风险，再决定是否行动。</p><div class="data-legend" aria-label="数据状态说明"><span class="live">盘中延迟行情</span><span class="close">最近有效收盘</span><span class="missing">不可用不计分</span></div></div><div class="overview-side-tools"><div class="fx-reference-card" title="日度参考汇率，不用于实时换汇"><span>USD/CNY</span><strong>{fmt_num((data.get('fx_usdcny') or {}).get('value'),4)}</strong><small>最新日度汇率 · {(data.get('fx_usdcny') or {}).get('date','-')}</small></div><span id="privateModeShield" class="private-mode-shield" role="status" title="私有控制台已连接，真实持仓受 Supabase RLS 保护">🛡️ 私有模式</span></div><div class="public-note" id="modePanel"><b id="modeTitle">访客预览模式</b><span id="modeDesc">未登录仅显示市场概览；策略、观察池与持仓模块需要主理人登录。</span></div></section>
 {tape_html}
 {research_brief_html}
 {what_changed_html}

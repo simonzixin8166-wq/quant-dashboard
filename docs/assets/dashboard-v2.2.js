@@ -41,7 +41,7 @@
   function contextMenuHtml(symbol){
     const admin=Boolean(global.isAdmin ?? (typeof isAdmin!=='undefined'&&isAdmin));
     const parts=[`<button type="button" data-cmd="details">查看行情详情</button>`];
-    if(admin){parts.push('<div class="stock-context-sep"></div>',`<button type="button" data-cmd="edit">修改个股</button>`,`<button type="button" data-cmd="target">设置 / 修改策略价</button>`,`<button type="button" data-cmd="delete-target">删除策略价</button>`,'<div class="stock-context-sep"></div>',`<button type="button" class="danger" data-cmd="delete-stock">删除个股</button>`)}
+    if(admin){parts.push('<div class="stock-context-sep"></div>',`<button type="button" data-cmd="research">编辑研究卡</button>`,`<button type="button" data-cmd="edit">修改个股</button>`,`<button type="button" data-cmd="target">设置 / 修改策略价</button>`,`<button type="button" data-cmd="delete-target">删除策略价</button>`,'<div class="stock-context-sep"></div>',`<button type="button" class="danger" data-cmd="delete-stock">删除个股</button>`)}
     return parts.join('');
   }
   function openContextMenu(symbol,x,y){
@@ -49,7 +49,7 @@
     const w=220,h=Math.min(330,menu.scrollHeight||260),left=Math.max(8,Math.min(x,innerWidth-w-8)),top=Math.max(8,Math.min(y,innerHeight-h-8));menu.style.left=`${left}px`;menu.style.top=`${top}px`;
   }
   function openContextMenuForSymbol(symbol,anchor){const r=anchor.getBoundingClientRect();openContextMenu(symbol,Math.min(r.right,innerWidth-8),Math.min(r.bottom+6,innerHeight-8))}
-  function handleContextAction(event){const btn=event.target.closest('button[data-cmd]');if(!btn||!stockContextMenu)return;const symbol=stockContextMenu.dataset.symbol,cmd=btn.dataset.cmd;closeContextMenu();if(cmd==='details')toggleDetails(symbol);if(cmd==='edit')global.StockWatchlist?.openEdit(symbol);if(cmd==='target'){const raw=document.getElementById(`target-${symbol}`)?.textContent?.replace(/[$,]/g,'');const current=raw&&raw!=='—'?Number(raw):null;global.editTarget?.(symbol,Number.isFinite(current)?current:null);}if(cmd==='delete-target')global.deleteTarget?.(symbol);if(cmd==='delete-stock')global.StockWatchlist?.remove(symbol)}
+  function handleContextAction(event){const btn=event.target.closest('button[data-cmd]');if(!btn||!stockContextMenu)return;const symbol=stockContextMenu.dataset.symbol,cmd=btn.dataset.cmd;closeContextMenu();if(cmd==='details')toggleDetails(symbol);if(cmd==='research')global.StockWatchlist?.openResearch(symbol);if(cmd==='edit')global.StockWatchlist?.openEdit(symbol);if(cmd==='target'){const raw=document.getElementById(`target-${symbol}`)?.textContent?.replace(/[$,]/g,'');const current=raw&&raw!=='—'?Number(raw):null;global.editTarget?.(symbol,Number.isFinite(current)?current:null);}if(cmd==='delete-target')global.deleteTarget?.(symbol);if(cmd==='delete-stock')global.StockWatchlist?.remove(symbol)}
   function initStockContextMenu(){
     const menu=ensureContextMenu();menu.addEventListener('click',handleContextAction);
     document.addEventListener('contextmenu',event=>{const row=event.target.closest('#stocksTableBody tr[data-stock-row]');if(!row)return;event.preventDefault();openContextMenu(row.dataset.symbol||row.querySelector('.stock-symbol')?.textContent?.trim(),event.clientX,event.clientY)});

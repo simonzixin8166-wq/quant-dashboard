@@ -1,7 +1,7 @@
 window.MYALPHA_RESEARCH_METHODS = {
-  version: '4.9.5',
+  version: '4.9.6',
   updated_at: '2026-09-28',
-  principle: '专业指标保留，但默认先给普通投资者一句话结论、原因、可执行方案和失效条件。博主方法只作为研究来源，不自动变成交易规则。',
+  principle: '专业指标保留，但默认先给普通投资者一句话结论、原因、可执行方案和失效条件。博主方法只作为研究来源，不自动变成交易规则；作者明确披露的股票/期权价格、执行价、到期日、仓位或退出条件会单独记录为历史操作实例，供复盘参考。',
   authors: [{id:'brightline', name:'BrightLine'}],
   methods: [
     {

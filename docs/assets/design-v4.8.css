@@ -754,7 +754,9 @@ body{font-size:var(--fz-body)!important;line-height:1.55!important}
 .private-mode-shield{cursor:default!important;user-select:none}
 @media(max-width:1260px){.daily-action-grid{grid-template-columns:1fr 1.55fr!important}.daily-core-row{grid-template-columns:70px 70px minmax(140px,1fr) 76px}.daily-action-panel:nth-child(3),.daily-action-panel:nth-child(4){grid-row:2}}
 @media(max-width:760px){.daily-action-grid{grid-template-columns:1fr!important}.daily-action-panel:nth-child(3),.daily-action-panel:nth-child(4){grid-row:auto}.daily-core-row{grid-template-columns:62px 62px minmax(0,1fr);grid-template-areas:'id dd distance' 'action action action';gap:5px 8px}.daily-core-id{grid-area:id}.daily-core-dd{grid-area:dd;text-align:left}.daily-core-distance{grid-area:distance}.daily-core-action{grid-area:action;white-space:normal;overflow:visible}.trend-card-simple .trend-easy-metrics>div:last-child>b{font-size:11.5px!important}}
-\n.trend-card-simple .trend-easy-metrics>.trend-data-status{display:block!important}.trend-card-simple .trend-data-status>span{display:block!important;white-space:nowrap}.trend-status-value{display:flex!important;align-items:center!important;gap:5px!important;margin-top:5px!important;min-width:0}.trend-status-value>b{font-size:12px!important;line-height:1.25!important;white-space:nowrap!important;overflow:visible!important}.trend-status-value>.info-tip{flex:0 0 18px!important;width:18px!important;height:18px!important;padding:0!important;margin:0!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;font-size:14px!important}\n
+
+.trend-card-simple .trend-easy-metrics>.trend-data-status{display:block!important}.trend-card-simple .trend-data-status>span{display:block!important;white-space:nowrap}.trend-status-value{display:flex!important;align-items:center!important;gap:5px!important;margin-top:5px!important;min-width:0}.trend-status-value>b{font-size:12px!important;line-height:1.25!important;white-space:nowrap!important;overflow:visible!important}.trend-status-value>.info-tip{flex:0 0 18px!important;width:18px!important;height:18px!important;padding:0!important;margin:0!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;font-size:14px!important}
+
 /* ===== V4.8 final normalization layer ===== */
 .section-title,.tab-page h1,.tab-page h2{letter-spacing:-.015em}
 .card,.panel,.strategy-card,.stock-card,.tool-card{max-width:100%}
@@ -831,4 +833,117 @@ button,[role="button"],a{-webkit-tap-highlight-color:transparent}
   .trend-easy-metrics{grid-template-columns:1fr!important}.trend-card-simple .trend-data-status>b{font-size:12.5px!important}
   .iren-news-head{display:block!important}.iren-news-head span{display:block!important;text-align:left!important;margin-top:3px!important}
 }
-\n\n/* V4.9.4 — compact full-width stock scan + low-priority analytics */\n.site-analytics-bottom{margin-top:34px!important;opacity:.82}\n.site-analytics-bottom .panel{box-shadow:none!important;background:#fafbfc!important}\n.site-analytics-bottom .panel-head{padding:13px 16px!important}\n.site-analytics-bottom .site-analytics-grid{gap:10px!important}\n.site-analytics-bottom .site-analytics-card{padding:12px 14px!important;min-height:82px!important}\n.site-analytics-bottom .site-analytics-card span{font-size:11px!important}\n.site-analytics-bottom .site-analytics-card strong{font-size:22px!important}\n.site-analytics-bottom .site-analytics-note{font-size:10.5px!important}\n@media (min-width:981px){\n  .stock-table{overflow-x:hidden!important}\n  .stock-table table{min-width:0!important;width:100%!important;table-layout:fixed!important}\n  .stock-table th,.stock-table td{padding-left:5px!important;padding-right:5px!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}\n  .stock-table th:nth-child(1),.stock-table td:nth-child(1){width:18%!important}\n  .stock-table th:nth-child(2),.stock-table td:nth-child(2){width:13%!important}\n  .stock-table th:nth-child(3),.stock-table td:nth-child(3){width:11%!important}\n  .stock-table th:nth-child(4),.stock-table td:nth-child(4){width:10%!important}\n  .stock-table th:nth-child(5),.stock-table td:nth-child(5){width:7%!important}\n  .stock-table th:nth-child(6),.stock-table td:nth-child(6){width:10%!important}\n  .stock-table th:nth-child(7),.stock-table td:nth-child(7){width:18%!important}\n  .stock-table th:nth-child(8),.stock-table td:nth-child(8){width:13%!important}\n  .stock-table .stock-name-line{gap:5px!important}\n  .stock-table .stock-name{font-size:14.5px!important}\n  .stock-table .stock-symbol{font-size:10px!important}\n  .stock-table td>b{font-size:14.5px!important}\n  .stock-table .trend-score{font-size:15.5px!important}\n  .stock-table .stock-status{font-size:9.8px!important;padding:3px 5px!important;max-width:100%;display:inline-block;overflow:hidden;text-overflow:ellipsis}\n  .stock-table td:nth-child(7) small{font-size:9.5px!important}\n}\n
+
+
+/* V4.9.4 — compact full-width stock scan + low-priority analytics */
+.site-analytics-bottom{margin-top:34px!important;opacity:.82}
+.site-analytics-bottom .panel{box-shadow:none!important;background:#fafbfc!important}
+.site-analytics-bottom .panel-head{padding:13px 16px!important}
+.site-analytics-bottom .site-analytics-grid{gap:10px!important}
+.site-analytics-bottom .site-analytics-card{padding:12px 14px!important;min-height:82px!important}
+.site-analytics-bottom .site-analytics-card span{font-size:11px!important}
+.site-analytics-bottom .site-analytics-card strong{font-size:22px!important}
+.site-analytics-bottom .site-analytics-note{font-size:10.5px!important}
+@media (min-width:981px){
+  .stock-table{overflow-x:hidden!important}
+  .stock-table table{min-width:0!important;width:100%!important;table-layout:fixed!important}
+  .stock-table th,.stock-table td{padding-left:5px!important;padding-right:5px!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+  .stock-table th:nth-child(1),.stock-table td:nth-child(1){width:18%!important}
+  .stock-table th:nth-child(2),.stock-table td:nth-child(2){width:13%!important}
+  .stock-table th:nth-child(3),.stock-table td:nth-child(3){width:11%!important}
+  .stock-table th:nth-child(4),.stock-table td:nth-child(4){width:10%!important}
+  .stock-table th:nth-child(5),.stock-table td:nth-child(5){width:7%!important}
+  .stock-table th:nth-child(6),.stock-table td:nth-child(6){width:10%!important}
+  .stock-table th:nth-child(7),.stock-table td:nth-child(7){width:18%!important}
+  .stock-table th:nth-child(8),.stock-table td:nth-child(8){width:13%!important}
+  .stock-table .stock-name-line{gap:5px!important}
+  .stock-table .stock-name{font-size:14.5px!important}
+  .stock-table .stock-symbol{font-size:10px!important}
+  .stock-table td>b{font-size:14.5px!important}
+  .stock-table .trend-score{font-size:15.5px!important}
+  .stock-table .stock-status{font-size:9.8px!important;padding:3px 5px!important;max-width:100%;display:inline-block;overflow:hidden;text-overflow:ellipsis}
+  .stock-table td:nth-child(7) small{font-size:9.5px!important}
+}
+
+
+/* V4.9.6 — Stock research card / plain-language decision layer */
+.stock-detail-panel{align-items:stretch}
+.stock-research-card{grid-column:1/-1;border-top:1px solid var(--line,#e5e7eb);padding-top:14px;margin-top:4px}
+.stock-research-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:10px}
+.stock-research-head h4{margin:0;font-size:16px}.stock-research-head p{margin:3px 0 0;color:var(--muted,#667085);font-size:12px}
+.stock-research-actions{display:flex;gap:8px;flex-wrap:wrap}.stock-research-actions button{white-space:nowrap}
+.stock-research-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.stock-research-item{border:1px solid var(--line,#e5e7eb);border-radius:12px;padding:11px 12px;background:var(--surface,#fff);min-width:0}
+.stock-research-item.wide{grid-column:span 2}.stock-research-item span{display:block;color:var(--muted,#667085);font-size:11px;font-weight:700;margin-bottom:5px}.stock-research-item p{margin:0;font-size:13px;line-height:1.55;white-space:pre-wrap}
+.stock-research-guide{grid-column:1/-1;background:color-mix(in srgb,var(--surface,#fff) 88%,#eef6ff);border:1px solid var(--line,#e5e7eb);border-radius:12px;padding:11px 12px;font-size:13px;line-height:1.55}
+.stock-research-empty{grid-column:1/-1;border:1px dashed var(--line,#d0d5dd);border-radius:12px;padding:13px;color:var(--muted,#667085);font-size:13px}
+.stock-research-modal{max-width:760px}.stock-research-form{display:grid;grid-template-columns:1fr 1fr;gap:12px}.stock-research-form label{display:grid;gap:6px;font-size:12px;font-weight:700}.stock-research-form label.wide{grid-column:1/-1}.stock-research-form input,.stock-research-form textarea{width:100%;box-sizing:border-box}.stock-research-form textarea{min-height:88px;resize:vertical}.stock-research-help{font-size:12px;color:var(--muted,#667085);line-height:1.5;margin:0 0 12px}
+@media(max-width:900px){.stock-research-grid{grid-template-columns:1fr 1fr}.stock-research-item.wide{grid-column:1/-1}}
+@media(max-width:640px){.stock-research-grid,.stock-research-form{grid-template-columns:1fr}.stock-research-item.wide,.stock-research-form label.wide{grid-column:auto}.stock-research-head{flex-direction:column}}
+
+
+/* ===== V4.9.6 final layout hotfix: one-screen watchlist + footer analytics ===== */
+/* Desktop watchlist: all eight columns must fit inside the content width with no horizontal drag. */
+@media (min-width: 761px){
+  .stock-table{
+    width:100%!important;
+    max-width:100%!important;
+    overflow-x:clip!important;
+  }
+  .stock-table table{
+    width:100%!important;
+    min-width:0!important;
+    max-width:100%!important;
+    table-layout:fixed!important;
+  }
+  .stock-table th,.stock-table td{
+    box-sizing:border-box!important;
+    padding-left:5px!important;
+    padding-right:5px!important;
+    white-space:nowrap!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+  }
+  .stock-table th:nth-child(1),.stock-table td:nth-child(1){width:20%!important}
+  .stock-table th:nth-child(2),.stock-table td:nth-child(2){width:13%!important}
+  .stock-table th:nth-child(3),.stock-table td:nth-child(3){width:12%!important}
+  .stock-table th:nth-child(4),.stock-table td:nth-child(4){width:10%!important}
+  .stock-table th:nth-child(5),.stock-table td:nth-child(5){width:7%!important}
+  .stock-table th:nth-child(6),.stock-table td:nth-child(6){width:10%!important}
+  .stock-table th:nth-child(7),.stock-table td:nth-child(7){width:17%!important}
+  .stock-table th:nth-child(8),.stock-table td:nth-child(8){width:11%!important}
+  .stock-table .stock-name-line{display:flex!important;align-items:center!important;gap:6px!important;min-width:0!important}
+  .stock-table .stock-name{font-size:15px!important;line-height:1.15!important;min-width:0!important;overflow:hidden!important;text-overflow:ellipsis!important}
+  .stock-table .stock-symbol{font-size:10.5px!important;line-height:1.15!important;flex:0 0 auto!important;margin:0!important}
+  .stock-table td>b{font-size:15.5px!important}
+  .stock-table .trend-score{font-size:16px!important}
+  .stock-table td>small,.stock-table .trend-score+small{font-size:10.5px!important}
+  .stock-table .stock-status{font-size:10px!important;padding:3px 6px!important;max-width:100%!important;overflow:hidden!important;text-overflow:ellipsis!important}
+}
+/* Footer analytics: part of the footer itself, deliberately low visual priority. */
+.footer.footer-with-analytics{
+  margin-top:38px!important;
+  padding:22px 18px 14px!important;
+  border-top:1px solid var(--line)!important;
+}
+.footer-main{font-size:12.5px;line-height:1.8;color:#7b8088}
+.footer-analytics{
+  margin:18px auto 0;
+  padding-top:14px;
+  border-top:1px solid rgba(0,0,0,.06);
+  max-width:980px;
+  opacity:.72;
+}
+.footer-analytics-head{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;margin-bottom:9px}
+.footer-analytics-head strong{font-size:11px;color:#777f8a}
+.footer-analytics-head span{font-size:9.5px;color:#9aa0a8}
+.footer-analytics .site-analytics{padding:0!important}
+.footer-analytics .site-analytics-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;max-width:620px;margin:0 auto}
+.footer-analytics .site-analytics-card{padding:7px 9px!important;min-height:0!important;border:1px solid rgba(0,0,0,.055)!important;border-radius:8px!important;background:rgba(255,255,255,.42)!important;text-align:center}
+.footer-analytics .site-analytics-card span{font-size:9px!important}
+.footer-analytics .site-analytics-card strong{font-size:16px!important;margin-top:2px!important}
+.footer-analytics .site-analytics-note,.footer-analytics .site-analytics-empty{font-size:9px!important;line-height:1.5!important;margin-top:7px!important;color:#9aa0a8!important}
+@media (max-width:760px){
+  .footer.footer-with-analytics{padding-left:10px!important;padding-right:10px!important}
+  .footer-analytics .site-analytics-grid{grid-template-columns:1fr!important;max-width:300px}
+}

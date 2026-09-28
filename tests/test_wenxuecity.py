@@ -63,7 +63,9 @@ class Tests(unittest.TestCase):
   d=w.make_digest(state,'2026-09-25',[],[],[{'status':'ok'}],'later');self.assertIn('未发现新增',d['note'])
  def test_analysis_schema(self):
   with self.assertRaises(ValueError):w.validate_analysis({'author_view':'buy'})
-  self.assertEqual(len(w.validate_analysis({k:'未提供' for k in w.ANALYSIS_KEYS})),5)
+  validated=w.validate_analysis({k:'未提供' for k in w.ANALYSIS_KEYS})
+  self.assertEqual(set(validated),set(w.ANALYSIS_KEYS)|{'operations'})
+  self.assertEqual(validated['operations'],[])
  @unittest.skipUnless(importlib.util.find_spec('pandas_market_calendars'),'calendar dependency unavailable locally')
  def test_calendar_dst_holiday_early_close(self):
   for text,expected in [('2026-09-28T20:40:00+00:00','2026-09-28'),('2026-09-28T19:40:00+00:00',None),('2026-12-01T20:40:00+00:00',None),('2026-12-01T21:40:00+00:00','2026-12-01'),('2026-12-25T21:40:00+00:00',None),('2026-11-27T18:40:00+00:00','2026-11-27')]:

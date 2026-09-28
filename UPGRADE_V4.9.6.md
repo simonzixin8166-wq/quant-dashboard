@@ -32,3 +32,9 @@
 - 个股观察池桌面端固定为一屏 8 列：名称、最新价/涨跌、Trend Pulse、YTD回撤、RSI、距200MA、策略价/距离、状态。
 - 移除桌面端残留的表格最小宽度约束并重置历史横向滚动位置；移动端继续使用卡片布局。
 - 修复 `design-v4.8.css` 中历史补丁误写的字面量 `\n`，确保最终覆盖规则可以被浏览器正常解析。
+
+## Hotfix: Wenxuecity collector schema test
+
+- `validate_analysis()` now always returns the five narrative analysis fields plus an `operations` array.
+- Updated `tests/test_wenxuecity.py` to validate the new schema explicitly instead of assuming a fixed object length of 5.
+- No collector logic, strategy thresholds, Trend Pulse logic, or UI behavior changed in this hotfix.

@@ -53,11 +53,7 @@
     try {
       const [week, month] = await Promise.all([getSummary(7), getSummary(30)]);
       const last = month?.last_visit ? new Date(month.last_visit).toLocaleString('zh-CN') : '暂无记录';
-      root.innerHTML = `<div class="site-analytics-grid">
-        <div class="site-analytics-card"><span>近7日访问</span><strong>${number(week?.total_views)}</strong></div>
-        <div class="site-analytics-card"><span>近30日访问</span><strong>${number(month?.total_views)}</strong></div>
-        <div class="site-analytics-card"><span>近30日匿名浏览器</span><strong>${number(month?.unique_visitors)}</strong></div>
-      </div><div class="site-analytics-note">最近访问：${last}。同一浏览器每天只计一次；无法据此确认访问者真实身份。</div>`;
+      root.innerHTML = `<span class="site-analytics-line"><b>匿名访问统计</b>：近7日 ${number(week?.total_views)} · 近30日 ${number(month?.total_views)} · 近30日匿名浏览器 ${number(month?.unique_visitors)}</span><span class="site-analytics-note">最近访问：${last} · 同一浏览器每天只计一次 · 无法据此确认访问者真实身份</span>`;
     } catch (error) {
       root.innerHTML = `<div class="site-analytics-empty">访问统计尚未启用。请先执行 V3.6.0 的 Supabase SQL：${String(error.message || error)}</div>`;
     }

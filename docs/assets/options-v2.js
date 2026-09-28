@@ -93,10 +93,36 @@
     const expiry=$('optExpiryV2').value||$('manualExpiry').value||todayIso(),target=$('targetDate').value||nextFriday();
     return{strategy:state.strategy,spot:+$('manualSpot').value,strike:+$('manualStrike').value,premium:+$('manualPremium').value,qty:+$('optionQty').value,multiplier:+$('contractMultiplier').value,targetSpot:+$('targetSpot').value,iv:+$('manualIv').value/100,ivChange:+document.querySelector('[data-iv].active')?.dataset.iv||0,fee:+$('feePerContract').value,rate:+$('riskFreeRate').value/100,dividend:+$('dividendYield').value/100,dte:daysBetween(todayIso(),expiry),forwardDays:daysBetween(todayIso(),target),stockCost:+$('stockCost').value};
   }
+  function decisionPurposeMeta(strategy,purpose){
+    const expected={SELL_PUT:'income',BUY_CALL:'bullish',BUY_PUT:'protect',COVERED_CALL:'covered'};
+    if(strategy==='NAKED_CALL')return{tone:'bad',label:'高风险结构',text:'裸卖 Call 的最大亏损理论上没有上限，不适合作为普通投资者的默认策略。'};
+    if(!purpose||purpose==='other')return{tone:'warn',label:'用途待确认',text:'先写清这笔期权到底要解决什么问题，再比较股票、现金和期权哪种工具更合适。'};
+    if(expected[strategy]===purpose)return{tone:'good',label:'用途基本匹配',text:'所选策略与当前目的基本一致；下一步重点检查最坏结果、到期时间和报价质量。'};
+    return{tone:'warn',label:'用途需要复核',text:'当前策略和你选择的主要目的并不完全匹配，先确认是否有更直接、风险更容易理解的表达方式。'};
+  }
+  function decisionStrategyText(strategy,r){
+    if(strategy==='SELL_PUT')return{title:'Sell Put 在做什么',body:`你收取权利金，代价是承诺必要时按行权价买入股票。到期盈亏平衡约 ${money(r.breakeven)}；按当前输入，最坏结果口径约 ${money(r.maxLoss)}。`,risk:'关键问题：如果股价大跌，你是否仍愿意按这个有效价格接货？'};
+    if(strategy==='BUY_CALL')return{title:'Buy Call 在做什么',body:`用有限权利金换取上涨敞口。最大亏损约 ${money(r.maxLoss)}，到期盈亏平衡约 ${money(r.breakeven)}。`,risk:'关键问题：方向对还不够，涨幅必须在到期前兑现。'};
+    if(strategy==='BUY_PUT')return{title:'Buy Put 在做什么',body:`用权利金购买下跌保护或看跌敞口。最大亏损约 ${money(r.maxLoss)}，到期盈亏平衡约 ${money(r.breakeven)}。`,risk:'关键问题：这是保险还是方向交易？保护持仓时还要衡量保险成本。'};
+    if(strategy==='COVERED_CALL')return{title:'Covered Call 在做什么',body:`用已有正股换取权利金收入，但上涨超过行权价后收益会被封顶。到期盈亏平衡约 ${money(r.breakeven)}。`,risk:'关键问题：如果股票快速上涨，你是否愿意按行权价交出股票？'};
+    return{title:'Naked Call 在做什么',body:'你收取权利金，但股票上涨时理论亏损没有上限。',risk:'普通投资者应优先考虑风险封顶的替代结构。'};
+  }
+  function renderDecisionAssistant(p=null,r=null){
+    const host=$('optionDecisionSummary');if(!host)return;p=p||inputs();
+    if(!p.spot||!p.strike||!p.premium){host.innerHTML='<div class="option-decision-empty">输入正股、行权价和权利金后生成解释。</div>';return}
+    r=r||evaluate(p);const purpose=$('decisionPurpose')?.value||'other',pm=decisionPurposeMeta(state.strategy,purpose),st=decisionStrategyText(state.strategy,r);
+    const expiry=$('optExpiryV2')?.value||$('manualExpiry')?.value||'',catalyst=$('decisionCatalystDate')?.value||'';
+    let tt='good',title=`还有 ${p.dte} DTE`,txt=p.dte>=60?'时间相对充裕，但仍要关注事件前后的IV变化。':p.dte>=30?'时间处于常见中短期期权区间，方向和时间点都重要。':p.dte>=14?'剩余时间已经不长，Long仓位对时间损耗更敏感。':'已经临近到期，价格跳动和流动性风险会明显增加。';if(p.dte<30)tt='warn';if(p.dte<14)tt='bad';
+    if(catalyst&&expiry){const gap=rawDaysBetween(catalyst,expiry);if(gap<0){tt='bad';title='到期日在关键事件之前';txt='如果核心逻辑依赖这个事件，期权可能在催化剂发生前就到期。'}else if(gap<30){tt='warn';title=`事件后仅留 ${gap} 天`;txt='关键事件在到期日前，但时间缓冲较少；事件延期会增加风险。'}else{tt='good';title=`事件后留 ${gap} 天`;txt='到期日在关键事件之后，并留有一定时间缓冲。'}}
+    const iv=p.iv,ivLabel=iv>=.60?'绝对IV偏高':iv>=.35?'绝对IV中等':'绝对IV较低',ivText=iv>=.60?'Long期权对IV回落更敏感；不能只凭高IV判断“贵”，还要和该标的自身历史比较。':iv>=.35?'是否昂贵仍要与该股票自身历史IV比较。':'绝对IV不高，但是否“便宜”仍取决于该标的历史波动与事件风险。';
+    const delta=quoteNumber(state.selected?.delta),deltaText=Number.isFinite(delta)?`当前 Delta ${delta.toFixed(2)}：正股每变化 $1，期权理论价格约变化 $${Math.abs(delta).toFixed(2)}；它不是胜率。`:'尚未取得真实 Delta；不要把缺失的 Greeks 当成已知。';
+    const rt=state.strategy==='NAKED_CALL'?'bad':(p.dte<14?'warn':'neutral');
+    host.innerHTML=`<div class="option-decision-callout ${pm.tone}"><span>${pm.label}</span><strong>${pm.text}</strong></div><div class="option-decision-grid"><article><span>① 策略本质</span><h3>${st.title}</h3><p>${st.body}</p><small>${st.risk}</small></article><article class="${rt}"><span>② 最坏结果</span><h3>${Number.isFinite(r.maxLoss)?money(r.maxLoss):'理论上无限'}</h3><p>${state.strategy==='SELL_PUT'?`把接货资金当成真实义务，不要只看收到的 ${money(r.premiumCash)} 权利金。`:state.strategy==='NAKED_CALL'?'亏损没有理论上限，保证金也可能快速增加。':'按当前输入、到期口径估算。'}</p><small>先确认最坏结果，再讨论收益。</small></article><article class="${tt}"><span>③ 时间是否够</span><h3>${title}</h3><p>${txt}</p><small>DTE越短，对判断兑现时间要求越高。</small></article><article><span>④ IV / Delta怎么读</span><h3>${ivLabel} · IV ${pct(iv)}</h3><p>${ivText}</p><small>${deltaText}</small></article></div><div class="option-decision-bottom">普通投资者检查顺序：<b>投资逻辑 → 为什么不用股票 → 最坏结果 → 时间是否够 → IV/流动性 → 再看收益情景</b>。本卡是风险解释，不是自动买卖信号。</div>`;
+  }
   function render(){
     const p=inputs();if(!p.spot||!p.strike||!p.premium||!p.targetSpot)return;
-    if(p.forwardDays>p.dte){$('scenarioAnswer').innerHTML='<strong>目标日期不能晚于期权到期日。</strong><div class="sub">请缩短目标日期，或在左侧选择更远的到期日。</div>';$('optionStats').innerHTML='';$('optionHeatmap').innerHTML='';return}
-    const r=evaluate(p),direction=r.netPnl>=0?'预计盈利':'预计亏损';
+    if(p.forwardDays>p.dte){renderDecisionAssistant(p,evaluate(p));$('scenarioAnswer').innerHTML='<strong>目标日期不能晚于期权到期日。</strong><div class="sub">请缩短目标日期，或在左侧选择更远的到期日。</div>';$('optionStats').innerHTML='';$('optionHeatmap').innerHTML='';return}
+    const r=evaluate(p),direction=r.netPnl>=0?'预计盈利':'预计亏损';renderDecisionAssistant(p,r);
     $('scenarioAnswer').innerHTML=`如果目标日正股为 <strong>${money(p.targetSpot)}</strong>，IV为 <strong>${pct(r.futureIv)}</strong>，预计每股期权价值 <strong>${money(r.optionPrice)}</strong>；${r.qty}张合约价值 <strong>${money(r.positionValue)}</strong>，${direction} <strong>${money(Math.abs(r.netPnl))}</strong>。<div class="sub">目标日剩余 ${r.remaining} DTE；结果已按 ${r.mult}×${r.qty} 计算并扣除双边估算费用。</div>`;
     const stats=[['目标日合约价值',money(r.positionValue),'整仓，不是每股'],['预计净盈亏',money(r.netPnl),r.returnOnCapital==null?'—':`资金回报 ${pct(r.returnOnCapital)}`],['最大盈利',Number.isFinite(r.maxProfit)?money(r.maxProfit):'无限','到期口径'],['最大亏损',Number.isFinite(r.maxLoss)?money(r.maxLoss):'无限','到期口径'],['盈亏平衡价',money(r.breakeven),'到期口径'],['资金占用',r.capital?money(r.capital):'依券商保证金','现金担保/成本'],['未来IV',pct(r.futureIv),'当前IV按相对比例变化'],['剩余期限',`${r.remaining}天`,'目标日期时']];
     $('optionStats').innerHTML=stats.map((x,i)=>`<div class="option-stat ${i===1?(r.netPnl>=0?'positive':'negative'):''}"><div class="k">${x[0]}</div><div class="v">${x[1]}</div><div class="s">${x[2]}</div></div>`).join('');
@@ -143,6 +169,7 @@
     document.querySelectorAll('[data-iv]').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('[data-iv]').forEach(x=>x.classList.remove('active'));b.classList.add('active');render()}));
     $('loadExpirations').addEventListener('click',loadExpirations);$('optExpiryV2').addEventListener('change',loadChain);$('chainSide').addEventListener('change',loadChain);$('manualToggle').addEventListener('click',()=>$('manualPanel').classList.toggle('active'));$('advancedToggle').addEventListener('click',()=>$('advancedPanel').classList.toggle('active'));$('qtyMinus').addEventListener('click',()=>changeQty(-1));$('qtyPlus').addEventListener('click',()=>changeQty(1));$('runScenario').addEventListener('click',render);
     ['manualSpot','manualStrike','manualPremium','manualIv','manualExpiry','targetDate','targetSpot','optionQty','feePerContract','stockCost','riskFreeRate','dividendYield'].forEach(id=>$(id)?.addEventListener('input',render));
+    $('decisionPurpose')?.addEventListener('change',()=>renderDecisionAssistant());$('decisionCatalystDate')?.addEventListener('input',()=>renderDecisionAssistant());
     $('quoteBasis').addEventListener('change',()=>{if(state.selected){const x=state.selected,v=x[$('quoteBasis').value]??x.mid??x.last;$('manualPremium').value=Number(v||0).toFixed(2);render()}});strategyChanged('SELL_PUT');renderChain();
   }
   async function loadPrivatePositions(){
@@ -363,7 +390,7 @@
     $('targetSpot').value=$('manualSpot').value;render();
   }
   function setMarketEvents(events,updatedAt){state.events=Array.isArray(events)?events:[];state.eventsUpdated=updatedAt||null;if(state.positions.size)renderPositionTable();renderRiskSummary()}
-  global.OptionV2={bsPrice,evaluate,normalizeColumnar,loadPrivatePositions,populateAccountSelect,refreshQuote,refreshPosition,refreshAllPositions,openPositionScenario,completeRocFields,occSymbol,positionMetrics,annualizedRoc,positionRisk,quoteFreshness,isUsRegularSession,setMarketEvents,realizedPnl,assignmentBasis,openLifecycle,closeLifecycle,savePositionAccount,updateLifecyclePreview,saveLifecycle,editPosition,deletePosition,deleteLifecycleRecord,restoreArchivedPosition,toggleHistory,getPosition:id=>state.positions.get(String(id))};
+  global.OptionV2={bsPrice,evaluate,normalizeColumnar,renderDecisionAssistant,loadPrivatePositions,populateAccountSelect,refreshQuote,refreshPosition,refreshAllPositions,openPositionScenario,completeRocFields,occSymbol,positionMetrics,annualizedRoc,positionRisk,quoteFreshness,isUsRegularSession,setMarketEvents,realizedPnl,assignmentBasis,openLifecycle,closeLifecycle,savePositionAccount,updateLifecyclePreview,saveLifecycle,editPosition,deletePosition,deleteLifecycleRecord,restoreArchivedPosition,toggleHistory,getPosition:id=>state.positions.get(String(id))};
   if(typeof document!=='undefined'){
     document.addEventListener('DOMContentLoaded',()=>{bind();$('refreshAllOptions')?.addEventListener('click',()=>refreshAllPositions({force:true,reason:'手动刷新'}))});
     document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&Date.now()-state.lastBulkAt>=POSITION_REFRESH_MS)refreshAllPositions({onlyNeeded:true,reason:'返回页面检查'})});

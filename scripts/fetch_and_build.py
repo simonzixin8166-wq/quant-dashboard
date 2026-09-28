@@ -13,9 +13,9 @@ except ModuleNotFoundError:
 warnings.filterwarnings("ignore")
 
 # 单一版本源：每日 Action 生成 HTML 时，页面标题和静态资源缓存版本都从这里读取。
-APP_VERSION = "4.9.6"
-OPTIONS_VERSION = "4.0.0"  # 网站优先；APP/PWA 功能已移除，仅保留响应式手机网页
-ASSET_VERSION = "4.9.6"
+APP_VERSION = "4.9.7"
+OPTIONS_VERSION = "4.1.0"  # 网站优先；APP/PWA 功能已移除，仅保留响应式手机网页
+ASSET_VERSION = "4.9.7"
 
 API_KEY = os.environ.get("TWELVE_DATA_KEY", "demo")
 BASE = "https://api.twelvedata.com"
@@ -1989,6 +1989,15 @@ body{{font-size:15px;background:linear-gradient(180deg,#f7f9fc 0,#f3f6fa 100%);l
 <section class="hero"><div><h1>期权决策台 V{OPTIONS_VERSION}</h1><p>既可按 Alpaca 参考报价模拟新开仓，也可从持仓监控带入真实成本，推演“目标日期股价为 X 时，这个仓位值多少钱”。金额统一按合约乘数（默认100）和实际张数计算。</p></div></section>
 <div id="optionV2Root" class="option-v2-shell" data-endpoint="https://rhielbkvhgqbthcgztci.supabase.co/functions/v1/options-market">
   <div class="option-v2-toolbar"><span id="optV2Status" class="option-v2-status warn">登录后可读取 Alpaca Indicative 参考行情；接口异常时可使用手动报价</span><button id="manualToggle" class="option-secondary">手动报价</button><button id="advancedToggle" class="option-secondary">高级参数</button></div>
+  <section class="option-decision-assistant" aria-label="期权决策助手">
+    <div class="option-decision-head"><div><span class="option-decision-kicker">普通投资者决策助手</span><h2>先回答“为什么用期权”，再看 Greeks</h2></div><span class="option-decision-badge">V4.1</span></div>
+    <div class="option-decision-inputs">
+      <label><span>这笔交易主要想解决什么？</span><select id="decisionPurpose"><option value="income">愿意接货，同时收取权利金</option><option value="bullish">看涨，但希望用较少本金获得敞口</option><option value="protect">保护已有持仓的下跌风险</option><option value="covered">持有正股，希望增加权利金收入</option><option value="other">其他 / 仍在研究</option></select></label>
+      <label><span>关键事件 / 催化剂日期（可选）</span><input id="decisionCatalystDate" type="date"><small>例如财报、产品发布、监管结果；用于检查到期日是否留有时间缓冲。</small></label>
+    </div>
+    <div id="optionDecisionSummary" class="option-decision-summary"><div class="option-decision-empty">选择策略并输入合约参数后，这里会用通俗语言解释用途、最坏结果、时间风险和关键指标。</div></div>
+    <details class="option-decision-guide"><summary>这些专业指标怎么理解？</summary><div class="option-decision-guide-grid"><p><b>Delta</b>：正股每变化 $1，期权价格理论上大约变化多少；不是“胜率”。</p><p><b>IV</b>：市场对未来波动的定价。IV高时买方通常付得更贵，但不同股票不能只靠一个固定阈值判断贵不贵。</p><p><b>DTE</b>：距离到期还有多少天。时间越短，对方向和时间点要求越高。</p><p><b>Theta</b>：时间流逝造成的期权价值损耗；Long期权通常受损，临近到期往往更敏感。</p></div></details>
+  </section>
   <details class="option-v2-card" style="margin-bottom:14px;padding:14px 18px"><summary style="cursor:pointer;font-weight:700">如何使用：现有持仓与新开仓的区别</summary><p class="option-note" style="margin-top:10px;line-height:1.8">现有持仓请从“期权持仓监控”点击“推演”，系统会保留数据库中的真实建仓成本；不要重新点击期权链，否则会切换成按当前报价模拟新开仓。目标日期必须早于到期日；目标股价 X 是你假设该日正股可能达到的价格；IV 变化用于测试波动率收缩或上升。Short 仓位当前平仓成本优先采用 Ask，Long 仓位当前卖出价值优先采用 Bid。</p></details>
   <div class="option-v2-grid">
     <div class="option-v2-card">
@@ -2022,7 +2031,7 @@ body{{font-size:15px;background:linear-gradient(180deg,#f7f9fc 0,#f3f6fa 100%);l
 <section class="section"><div class="table-container"><table><thead><tr><th style="text-align:left;">资产代号</th><th>触发日期</th><th>触发收盘价</th><th>当时全期回撤幅度</th><th>触发加仓评级</th><th>规则体系</th></tr></thead><tbody id="archiveTableBody">{signals_html}</tbody></table></div></section>
 <section class="section"><p style="font-size:11.5px;color:var(--muted);line-height:1.7">同一资产同一天可能出现两条记录——"资产自身三档线"是该ETF自己相对真实全期最高点的回撤触发的加仓线；"全市场宽度恐慌"是标普500全市场宽度指标触发的分级信号。两套规则相互独立，同一天都触发是正常情况，不是数据重复。</p></section></div>
 
-<div class="footer footer-with-analytics"><div class="footer-main">© 2026 Myalpha View · 投资分析及策略<br>市场数据与策略指标仅供研究参考，不构成投资建议；本站仅记录匿名访问次数，不采集姓名、邮箱或IP地址。<br>意见交流邮箱：<a href="mailto:xxj8166@gmail.com">xxj8166@gmail.com</a></div><div class="footer-analytics private-console"><div class="footer-analytics-head"><strong>匿名访问统计</strong><span>低优先级站点运维信息 · 不记录姓名、邮箱或IP地址</span></div><div id="siteAnalyticsRoot" class="site-analytics"><div class="site-analytics-empty">正在读取访问统计…</div></div></div></div>
+<div class="footer footer-with-analytics"><div class="footer-main">© 2026 Myalpha View · 投资分析及策略<br>市场数据与策略指标仅供研究参考，不构成投资建议；本站仅记录匿名访问次数，不采集姓名、邮箱或IP地址。 · 意见交流邮箱：<a href="mailto:xxj8166@gmail.com">xxj8166@gmail.com</a></div><div class="footer-analytics private-console"><div id="siteAnalyticsRoot" class="site-analytics"><span class="site-analytics-empty">正在读取访问统计…</span></div></div></div>
 </div></main></div>
 
 <div id="underlyingModal" class="option-modal-backdrop" style="display:none">

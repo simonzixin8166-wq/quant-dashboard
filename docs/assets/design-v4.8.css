@@ -761,3 +761,73 @@ body{font-size:var(--fz-body)!important;line-height:1.55!important}
 .table-wrap,.stock-table-wrap,.options-table-wrap{max-width:100%;overflow-x:auto}
 button,[role="button"],a{-webkit-tap-highlight-color:transparent}
 @media (max-width:900px){:root{--ui-radius:12px}}
+
+/* ===== V4.8.1 polish: FX reference, unclipped core ETF, context-only stock details, mobile cards ===== */
+.overview-hero{align-items:center!important}
+.overview-side-tools{margin-left:auto;display:flex;align-items:center;gap:10px;flex:0 0 auto}
+.fx-reference-card{min-width:148px;padding:10px 14px;border:1px solid var(--line);border-radius:12px;background:var(--surface);display:grid;gap:2px;box-shadow:none}
+.fx-reference-card span{font-size:10.5px;color:var(--muted);font-weight:700;white-space:nowrap}
+.fx-reference-card strong{font-size:20px;line-height:1.1;font-variant-numeric:tabular-nums;white-space:nowrap}
+.fx-reference-card small{font-size:9.5px;color:var(--muted);white-space:nowrap}
+.private-mode-shield{position:static!important;margin:0!important;white-space:nowrap}
+
+/* Daily action: use two clean rows; core ETF gets enough width, nothing is ellipsized. */
+.daily-action-grid{grid-template-columns:minmax(190px,.7fr) minmax(620px,2.3fr)!important;grid-template-areas:'market core' 'stocks options'!important;gap:12px!important}
+.daily-action-grid>.daily-action-panel:nth-child(1){grid-area:market}
+.daily-action-grid>.daily-action-panel:nth-child(2){grid-area:core}
+.daily-action-grid>.daily-action-panel:nth-child(3){grid-area:stocks}
+.daily-action-grid>.daily-action-panel:nth-child(4){grid-area:options}
+.daily-core-row{grid-template-columns:86px 82px minmax(245px,1fr) 96px!important;gap:10px!important;padding:9px 12px!important}
+.daily-core-action{white-space:normal!important;overflow:visible!important;text-overflow:clip!important;line-height:1.35!important}
+.daily-core-distance{white-space:nowrap!important;text-align:right!important}
+
+/* Core ETF status center: real cards instead of reusing narrow list-row geometry. */
+.core-status-grid-v47{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:12px!important;overflow:visible!important}
+.core-status-card-v481{display:grid;gap:10px;min-width:0;padding:15px 16px;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+.core-status-card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;min-width:0}
+.core-status-card-head>div{min-width:0}.core-status-card-head strong{display:block;font-size:17px;line-height:1.1}.core-status-card-head span{display:block;margin-top:4px;font-size:10.5px;color:var(--muted);white-space:nowrap}
+.core-status-card-head>b{font-size:19px;line-height:1.1;white-space:nowrap;font-variant-numeric:tabular-nums}
+.core-status-card-action{font-size:13px;font-weight:750;line-height:1.45;min-height:38px}
+.core-status-card-distance{font-size:11px;color:var(--muted);padding-top:9px;border-top:1px solid var(--line);white-space:nowrap}
+.core-status-card-v481.good .core-status-card-action{color:var(--green)}.core-status-card-v481.watch .core-status-card-action,.core-status-card-v481.warn .core-status-card-action{color:#ad6800}.core-status-card-v481.risk .core-status-card-action{color:var(--red)}
+
+/* Watchlist: no inline details control; context menu only on desktop, ellipsis only on mobile. */
+.stock-detail-toggle{display:none!important}
+.stock-table table{min-width:1040px!important}
+.stock-table th,.stock-table td{padding-left:7px!important;padding-right:7px!important}
+.stock-table th:nth-child(1){width:18%!important}.stock-table th:nth-child(2){width:14%!important}.stock-table th:nth-child(3){width:12%!important}.stock-table th:nth-child(4){width:10%!important}.stock-table th:nth-child(5){width:8%!important}.stock-table th:nth-child(6){width:10%!important}.stock-table th:nth-child(7){width:17%!important}.stock-table th:nth-child(8){width:11%!important}
+.stock-table .stock-name-line{gap:6px!important}.stock-table .stock-name{font-size:15px!important}.stock-table .stock-symbol{font-size:10.5px!important}
+.stock-detail-panel{grid-template-columns:1.7fr .8fr .8fr 1fr!important}
+
+/* Trend data-status info icon belongs to the label, never outside the value box. */
+.trend-card-simple .trend-data-status{display:grid!important;grid-template-rows:auto 1fr!important;gap:5px!important}
+.trend-status-label{display:flex!important;align-items:center!important;gap:4px!important;white-space:nowrap!important}
+.trend-status-label .info-tip{width:17px!important;height:17px!important;flex:0 0 17px!important;padding:0!important;margin:0!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;font-size:13px!important}
+.trend-card-simple .trend-data-status>b{font-size:12px!important;line-height:1.3!important;white-space:nowrap!important;overflow:visible!important}
+.trend-status-value{display:contents!important}
+
+/* News cadence hint stays compact. */
+.iren-news-head{display:flex!important;align-items:baseline!important;justify-content:space-between!important;gap:12px!important}
+.iren-news-head span{white-space:normal!important;text-align:right!important}
+
+@media(max-width:1260px){
+  .daily-action-grid{grid-template-columns:1fr 1.6fr!important;grid-template-areas:'market core' 'stocks options'!important}
+  .daily-core-row{grid-template-columns:78px 74px minmax(190px,1fr) 90px!important}
+  .core-status-grid-v47{grid-template-columns:repeat(3,minmax(190px,1fr))!important;overflow-x:auto!important}
+  .overview-hero{flex-wrap:wrap!important}.overview-side-tools{order:2;margin-left:0!important}.public-note{order:3;width:100%!important;flex-basis:100%!important}
+}
+
+@media(max-width:760px){
+  .overview-hero{display:grid!important;grid-template-columns:1fr!important;gap:12px!important}.overview-side-tools{width:100%;display:grid;grid-template-columns:1fr auto!important}.fx-reference-card{min-width:0}.public-note{width:auto!important}
+  .daily-action-grid{grid-template-columns:1fr!important;grid-template-areas:'market' 'core' 'stocks' 'options'!important}.daily-core-row{grid-template-columns:68px 64px minmax(0,1fr)!important;grid-template-areas:'id dd distance' 'action action action'!important}.daily-core-action{grid-area:action!important}.daily-core-distance{grid-area:distance!important;font-size:9.5px!important}.daily-core-dd{grid-area:dd!important;text-align:left!important}.daily-core-id{grid-area:id!important}
+  .core-status-grid-v47{grid-template-columns:1fr!important;overflow:visible!important}.core-status-card-action{min-height:0}
+  .stock-table{overflow:visible!important}.stock-table table,.stock-table tbody{display:block!important;min-width:0!important;width:100%!important}.stock-table thead{display:none!important}
+  .stock-table tr[data-stock-row]{display:grid!important;grid-template-columns:1fr 1fr!important;border:1px solid var(--line)!important;border-radius:12px!important;margin-bottom:10px!important;overflow:hidden!important;background:var(--surface)!important}
+  .stock-table tr[data-stock-row] td{display:grid!important;grid-template-columns:88px minmax(0,1fr)!important;align-items:center!important;gap:8px!important;height:auto!important;padding:8px 10px!important;border-bottom:1px solid var(--line)!important;white-space:normal!important}
+  .stock-table tr[data-stock-row] td::before{content:attr(data-label);font-size:10.5px;color:var(--muted);font-weight:700}
+  .stock-table tr[data-stock-row] td.stock-identity{grid-column:1/-1!important;display:block!important;padding:10px!important}.stock-table tr[data-stock-row] td.stock-identity::before{display:none!important}
+  .stock-table tr[data-stock-row] td:last-child{border-bottom:0!important}.stock-table .stock-name-line{display:flex!important;align-items:center!important;gap:7px!important}.stock-mobile-menu{display:inline-flex!important;margin-left:auto!important}
+  .stock-detail-row{display:table-row!important}.stock-detail-row[hidden]{display:none!important}.stock-detail-row td{display:block!important;padding:0!important;border:0!important}.stock-detail-panel{grid-template-columns:1fr 1fr!important;border:1px solid var(--line);border-radius:10px;margin:-2px 0 10px;overflow:hidden}.stock-detail-panel>div:nth-child(2n){border-right:0!important}
+  .trend-easy-metrics{grid-template-columns:1fr!important}.trend-card-simple .trend-data-status>b{font-size:12.5px!important}
+  .iren-news-head{display:block!important}.iren-news-head span{display:block!important;text-align:left!important;margin-top:3px!important}
+}

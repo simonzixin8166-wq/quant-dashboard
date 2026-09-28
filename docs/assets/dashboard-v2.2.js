@@ -31,7 +31,7 @@
     if(status==='normal'&&rsi<35){status='oversold';label='超卖观察'}else if(status==='normal'&&dist<-.10){status='weak';label='趋势偏弱'}else if(status==='normal'&&(rsi>70||dist>.25)){status='hot';label='过热'}
     row.dataset.status=status;row.dataset.targetDistance=distance;statusNode.className=`stock-status ${status}`;statusNode.textContent=label;applyStockFilter();
   }
-  function toggleDetails(symbol,button){const row=document.getElementById(`stock-detail-${symbol}`);if(!row)return;const shouldOpen=row.hidden;document.querySelectorAll('.stock-detail-row').forEach(x=>x.hidden=true);document.querySelectorAll('.stock-detail-toggle').forEach(x=>{x.setAttribute('aria-expanded','false');x.textContent='行情详情⌄'});row.hidden=!shouldOpen;if(shouldOpen){const b=button||document.querySelector(`tr[data-stock-row][data-symbol="${CSS.escape(symbol)}"] .stock-detail-toggle`);if(b){b.setAttribute('aria-expanded','true');b.textContent='收起详情⌃'}}}
+  function toggleDetails(symbol){const row=document.getElementById(`stock-detail-${symbol}`);if(!row)return;const shouldOpen=row.hidden;document.querySelectorAll('.stock-detail-row').forEach(x=>x.hidden=true);row.hidden=!shouldOpen}
   let stockContextMenu=null;
   function ensureContextMenu(){
     if(stockContextMenu)return stockContextMenu;
@@ -55,7 +55,6 @@
     document.addEventListener('contextmenu',event=>{const row=event.target.closest('#stocksTableBody tr[data-stock-row]');if(!row)return;event.preventDefault();openContextMenu(row.dataset.symbol||row.querySelector('.stock-symbol')?.textContent?.trim(),event.clientX,event.clientY)});
     document.addEventListener('click',event=>{if(!event.target.closest('#stockContextMenu')&&!event.target.closest('.stock-mobile-menu'))closeContextMenu()});
     window.addEventListener('resize',closeContextMenu);window.addEventListener('scroll',closeContextMenu,true);
-    document.addEventListener('dblclick',event=>{const row=event.target.closest('#stocksTableBody tr[data-stock-row]');if(row&&!event.target.closest('button,a,input,select,summary'))toggleDetails(row.dataset.symbol||row.querySelector('.stock-symbol')?.textContent?.trim())});
   }
   function initStocks(){stockRows().forEach((row,i)=>{row.dataset.defaultOrder=String(i);if(!row.dataset.symbol)row.dataset.symbol=row.querySelector('.stock-symbol')?.textContent?.trim()||''});sortStocks('priority');initStockContextMenu()}
   global.StockDecision={filter:filterStocks,sort:sortStocks,updateTarget,toggleDetails,openContextMenuForSymbol};

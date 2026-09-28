@@ -68,4 +68,9 @@ class Tests(unittest.TestCase):
  def test_calendar_dst_holiday_early_close(self):
   for text,expected in [('2026-09-28T20:40:00+00:00','2026-09-28'),('2026-09-28T19:40:00+00:00',None),('2026-12-01T20:40:00+00:00',None),('2026-12-01T21:40:00+00:00','2026-12-01'),('2026-12-25T21:40:00+00:00',None),('2026-11-27T18:40:00+00:00','2026-11-27')]:
    self.assertEqual(w.close_window(dt.datetime.fromisoformat(text)),expected)
+
+ def test_archive_year_count(self):
+  raw='<div>2026 (129)</div><a href="/myblog/82458/202609/100.html">文章</a>'
+  self.assertEqual(w.archive_year_count(raw, 2026),129)
+  self.assertEqual(w.article_year({'url':'https://blog.wenxuecity.com/myblog/82458/202609/100.html'}),2026)
 if __name__=='__main__':unittest.main()

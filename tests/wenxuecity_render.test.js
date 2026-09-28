@@ -4,18 +4,18 @@ const fs=require('node:fs');const vm=require('node:vm');const path=require('node
 const base=path.join(__dirname,'../docs/assets');
 const nodes=new Map();function node(key){if(!nodes.has(key))nodes.set(key,{innerHTML:'',disabled:false,querySelector:s=>node(s),querySelectorAll:()=>[]});return nodes.get(key)}
 const context={window:{},document:{getElementById:()=>node('root')},URL,Map,Date,Number,String,JSON};
-vm.createContext(context);vm.runInContext(fs.readFileSync(path.join(base,'wenxuecity-curated.js'),'utf8'),context);
+vm.createContext(context);vm.runInContext(fs.readFileSync(path.join(base,'research-methods.js'),'utf8'),context);vm.runInContext(fs.readFileSync(path.join(base,'wenxuecity-curated.js'),'utf8'),context);
 let source=fs.readFileSync(path.join(base,'wenxuecity.js'),'utf8');
 assert(source.includes('render();load();'));
 source=source.replace('render();load();','globalThis.renderTab=(value)=>{tab=value;render()};render();');
 vm.runInContext(source,context);
-assert(node('#wxcContent').innerHTML.includes('11篇博客'));
+context.renderTab('overview');assert(node('#wxcContent').innerHTML.includes('20篇博客'));
 assert(node('#wxcContent').innerHTML.includes('2篇论坛主贴'));
-context.renderTab('blogs');assert.equal((node('#wxcResults').innerHTML.match(/<article>/g)||[]).length,11);
+context.renderTab('blogs');assert.equal((node('#wxcResults').innerHTML.match(/<article>/g)||[]).length,20);
 assert(node('#wxcResults').innerHTML.includes('Gemini生成'));
 assert(node('#wxcResults').innerHTML.includes('加仓价格档位'));
 context.renderTab('forum');assert.equal((node('#wxcContent').innerHTML.match(/<article>/g)||[]).length,2);
 assert(node('#wxcContent').innerHTML.includes('不冒充今日收盘日报'));
-context.renderTab('methods');assert.equal((node('#wxcResults').innerHTML.match(/<article>/g)||[]).length,13);
+context.renderTab('methods');assert.equal((node('#wxcResults').innerHTML.match(/<article>/g)||[]).length,22);
 context.renderTab('status');assert(!node('#wxcContent').innerHTML.includes('三篇'));
-console.log('PASS: embedded content renders overview, 11 blogs, 2 forum posts, 13 method cards without API/network');
+context.renderTab('assistant');assert(node('#wxcContent').innerHTML.includes('普通投资者 · 方法研究助手'));console.log('PASS: embedded content renders overview, 20 blogs, 2 forum posts, 22 method cards and assistant without API/network');

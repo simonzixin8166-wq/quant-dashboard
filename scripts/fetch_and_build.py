@@ -13,9 +13,9 @@ except ModuleNotFoundError:
 warnings.filterwarnings("ignore")
 
 # 单一版本源：每日 Action 生成 HTML 时，页面标题和静态资源缓存版本都从这里读取。
-APP_VERSION = "4.9.3"
+APP_VERSION = "4.9.5"
 OPTIONS_VERSION = "4.0.0"  # 网站优先；APP/PWA 功能已移除，仅保留响应式手机网页
-ASSET_VERSION = "4.9.3"
+ASSET_VERSION = "4.9.5"
 
 API_KEY = os.environ.get("TWELVE_DATA_KEY", "demo")
 BASE = "https://api.twelvedata.com"
@@ -1861,7 +1861,7 @@ body{{font-size:15px;background:linear-gradient(180deg,#f7f9fc 0,#f3f6fa 100%);l
 <section class="section protected-section">{market_regime_html}</section>
 {breadth_summary_html}
 <section class="section protected-section"><div class="section-head"><h2>QQQ & SPY · 近 30 个交易日</h2><p>收盘趋势与数据健康状态</p></div><div class="dashboard-grid"><div class="panel"><div class="panel-head"><strong>趋势对比</strong><span>最近30个交易日收盘价</span></div><div class="chart-wrap"><canvas id="trendChart"></canvas></div></div><div class="panel status-panel"><div class="panel-head"><strong>数据健康状态</strong><span>自动更新与降级说明</span></div><div class="status-list">{status_center_html}</div></div></div></section>
-<section class="section private-console"><div class="panel"><div class="panel-head"><strong>匿名访问统计</strong><span>不记录姓名、邮箱或IP地址</span></div><div id="siteAnalyticsRoot" class="site-analytics"><div class="site-analytics-empty">正在读取访问统计…</div></div></div></section>
+
 </div>
 
 <div id="tab-engine" class="tab-pane">
@@ -2022,6 +2022,7 @@ body{{font-size:15px;background:linear-gradient(180deg,#f7f9fc 0,#f3f6fa 100%);l
 <section class="section"><div class="table-container"><table><thead><tr><th style="text-align:left;">资产代号</th><th>触发日期</th><th>触发收盘价</th><th>当时全期回撤幅度</th><th>触发加仓评级</th><th>规则体系</th></tr></thead><tbody id="archiveTableBody">{signals_html}</tbody></table></div></section>
 <section class="section"><p style="font-size:11.5px;color:var(--muted);line-height:1.7">同一资产同一天可能出现两条记录——"资产自身三档线"是该ETF自己相对真实全期最高点的回撤触发的加仓线；"全市场宽度恐慌"是标普500全市场宽度指标触发的分级信号。两套规则相互独立，同一天都触发是正常情况，不是数据重复。</p></section></div>
 
+<section class="section private-console site-analytics-bottom"><div class="panel"><div class="panel-head"><strong>匿名访问统计</strong><span>低优先级站点运维信息 · 不记录姓名、邮箱或IP地址</span></div><div id="siteAnalyticsRoot" class="site-analytics"><div class="site-analytics-empty">正在读取访问统计…</div></div></div></section>
 <div class="footer">© 2026 Myalpha View · 投资分析及策略<br>市场数据与策略指标仅供研究参考，不构成投资建议；本站仅记录匿名访问次数，不采集姓名、邮箱或IP地址。<br>意见交流邮箱：<a href="mailto:xxj8166@gmail.com">xxj8166@gmail.com</a></div>
 </div></main></div>
 
@@ -2513,7 +2514,7 @@ document.addEventListener('visibilitychange', () => {{ if (document.visibilitySt
     </div>
   </div>
 </div>
-<script>(function(){{if("serviceWorker" in navigator){{navigator.serviceWorker.getRegistrations().then(function(rs){{rs.forEach(function(r){{r.unregister();}});}}).catch(function(){{}});}}if(window.caches){{caches.keys().then(function(keys){{keys.filter(function(k){{return /myalpha|pwa|dashboard/i.test(k);}}).forEach(function(k){{caches.delete(k);}});}}).catch(function(){{}});}}}})();</script><script src="assets/market-live.js?v={ASSET_VERSION}"></script><script src="assets/dashboard-v2.2.js?v={ASSET_VERSION}"></script><script src="assets/options-v2.js?v={ASSET_VERSION}"></script><script src="assets/roll-manager.js?v={ASSET_VERSION}"></script><script src="assets/stock-watchlist.js?v={ASSET_VERSION}"></script><script src="assets/finance-tools.js?v={ASSET_VERSION}"></script><script src="assets/opportunity-radar.js?v={ASSET_VERSION}"></script><script src="assets/site-analytics.js?v={ASSET_VERSION}"></script><script src="assets/knowledge.js?v={ASSET_VERSION}"></script><script src="assets/wenxuecity-curated.js?v={ASSET_VERSION}"></script><script src="assets/wenxuecity.js?v={ASSET_VERSION}"></script><script src="assets/mobile-shell.js?v={ASSET_VERSION}"></script></body></html>'''
+<script>(function(){{if("serviceWorker" in navigator){{navigator.serviceWorker.getRegistrations().then(function(rs){{rs.forEach(function(r){{r.unregister();}});}}).catch(function(){{}});}}if(window.caches){{caches.keys().then(function(keys){{keys.filter(function(k){{return /myalpha|pwa|dashboard/i.test(k);}}).forEach(function(k){{caches.delete(k);}});}}).catch(function(){{}});}}}})();</script><script src="assets/market-live.js?v={ASSET_VERSION}"></script><script src="assets/dashboard-v2.2.js?v={ASSET_VERSION}"></script><script src="assets/options-v2.js?v={ASSET_VERSION}"></script><script src="assets/roll-manager.js?v={ASSET_VERSION}"></script><script src="assets/stock-watchlist.js?v={ASSET_VERSION}"></script><script src="assets/finance-tools.js?v={ASSET_VERSION}"></script><script src="assets/opportunity-radar.js?v={ASSET_VERSION}"></script><script src="assets/site-analytics.js?v={ASSET_VERSION}"></script><script src="assets/knowledge.js?v={ASSET_VERSION}"></script><script src="assets/research-methods.js?v={ASSET_VERSION}"></script><script src="assets/wenxuecity-curated.js?v={ASSET_VERSION}"></script><script src="assets/wenxuecity.js?v={ASSET_VERSION}"></script><script src="assets/mobile-shell.js?v={ASSET_VERSION}"></script></body></html>'''
 
 def push_to_supabase(data):
     supabase_url, supabase_key = os.environ.get("SUPABASE_URL"), os.environ.get("SUPABASE_KEY")

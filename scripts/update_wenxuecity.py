@@ -95,6 +95,17 @@ class Fetcher:
         if not self.robots[host].can_fetch(UA,url): raise RuntimeError('robots disallows source')
         return self.raw(url)
 
+
+def archive_year_count(raw, year):
+    """Best-effort count printed in the public archive sidebar, e.g. `2026 (129)`."""
+    page=Page(raw)
+    m=re.search(r'(?:^|\n)\s*'+re.escape(str(year))+r'\s*\((\d+)\)', page.text)
+    return int(m.group(1)) if m else None
+
+def article_year(item):
+    m=re.search(r'/myblog/\d+/(\d{4})\d{2}/\d+\.html', urllib.parse.urlsplit(item.get('url','')).path)
+    return int(m.group(1)) if m else None
+
 def parse_listing(raw,url,kind,authors):
     page=Page(raw); items={}; next_url=None
     for a in page.links:
@@ -209,6 +220,73 @@ def upsert(items,item,parsed,analyst,now):
     items[key]=record
     return key,not old,changed
 
+def load_research_inbox():
+    path=ROOT/'config/research_inbox.json'
+    if not path.exists(): return []
+    value=json.loads(path.read_text(encoding='utf-8'))
+    rows=value.get('items',[]) if isinstance(value,dict) else []
+    return rows if isinstance(rows,list) else []
+
+def process_research_inbox(state, config, fetcher, analyst, now):
+    """Process user-supplied URLs or pasted text before automatic discovery.
+
+    URL-only entries are auto-fetched only for the already approved Wenxuecity hosts.
+    Pasted text can be analyzed without network access. Optional curated `analysis`
+    is accepted after the same validation used by the collector.
+    """
+    authors={a['id']:a for a in config.get('authors',[]) if a.get('enabled',True)}
+    items={x['id']:x for x in state.get('articles',[])}
+    changed=[]; reports=[]
+    for row in load_research_inbox():
+        if not isinstance(row,dict) or row.get('enabled',True) is False: continue
+        author=authors.get(row.get('author_id'))
+        if not author: continue
+        url=(row.get('url') or '').strip()
+        text=(row.get('text') or '').strip()
+        title=(row.get('title') or '').strip() or '用户补充研究材料'
+        kind=row.get('kind') or ('forum' if 'bbs.wenxuecity.com' in url else 'blog')
+        report={'url':url or 'pasted-text','kind':'inbox','checked_at':now,'status':'ok','new':0,'changed':0,'errors':[]}
+        try:
+            if url:
+                # Fetching remains restricted to the approved hosts. Other-domain text
+                # can still be pasted into `text` and retained with attribution.
+                parsed_url=urllib.parse.urlsplit(url)
+                if parsed_url.hostname in HOSTS:
+                    url=canonical(url)
+                elif not text:
+                    raise ValueError('external URL requires pasted text; automatic fetch is not enabled')
+            if not url:
+                url='https://blog.wenxuecity.com/myblog/'+str(author.get('blog_id','82458'))+'/manual/'+hashlib.sha256((title+text).encode()).hexdigest()[:12]
+            item={'url':url,'title':title,'author_id':author['id'],'author':author['name'],'kind':kind}
+            if text:
+                parsed={'published_raw':row.get('published_raw',''),'published_timezone':row.get('published_timezone','source_unspecified'),'edited_raw':'','text':text}
+            else:
+                parsed=parse_article(fetcher.get(url),item)
+            key=hashlib.sha256(url.encode()).hexdigest()[:20]
+            old=items.get(key)
+            digest=hashlib.sha256(parsed['text'].encode()).hexdigest()
+            record=dict(old or {},**item,id=key,published_raw=parsed.get('published_raw') or row.get('published_raw',''),published_timezone=parsed.get('published_timezone','source_unspecified'),edited_raw=parsed.get('edited_raw',''),last_seen_at=now)
+            record.setdefault('first_seen_at',now)
+            is_changed=bool(old and old.get('content_hash') and old.get('content_hash')!=digest)
+            if row.get('analysis'):
+                record['analysis']=validate_analysis(row['analysis']); record['analysis_status']='manual_review'; record['analyzed_at']=now
+            elif not old or old.get('content_hash')!=digest or record.get('analysis_status') in ('awaiting_api','budget_deferred','analysis_error','pending'):
+                analysis,status=analyst.analyze(record,parsed['text']);record['analysis']=analysis;record['analysis_status']=status
+                if analysis:record['analyzed_at']=now
+            record['content_hash']=digest;record['body_scope']='text_only';record['facts_verified']=False
+            record['content_origin']=row.get('content_origin') or ('用户提供正文' if row.get('text') else '用户提供链接')
+            record['topic']=row.get('topic') or record.get('topic') or '待归类'
+            record['provenance']='research_inbox'
+            items[key]=record
+            report['new']=0 if old else 1;report['changed']=1 if is_changed else 0
+            if not old or is_changed: changed.append(key)
+        except Exception as e:
+            report['status']='error';report['errors'].append({'error':str(e)[:160]})
+        reports.append(report)
+    state['articles']=sorted(items.values(),key=lambda x:(x.get('published_raw',''),x['id']),reverse=True)
+    state['inbox_sources']=reports
+    return changed,reports
+
 def close_window(now):
     import pandas_market_calendars as mcal
     local=now.astimezone(ZoneInfo('America/New_York'))
@@ -235,12 +313,23 @@ def collect(state,config,kind,fetcher,analyst,now):
             for _ in range(config.get('max_listing_pages',6)):
                 if not url or url in seen_pages: break
                 seen_pages.add(url)
-                listed,next_url=parse_listing(fetcher.get(url),url,kind,authors)
+                raw=fetcher.get(url)
+                listed,next_url=parse_listing(raw,url,kind,authors)
                 report['pages']+=1
+                if kind=='blog' and report['pages']==1:
+                    years=sorted({int(y) for a in authors for y in a.get('archive_years',[])})
+                    counts={str(y):archive_year_count(raw,y) for y in years}
+                    report['archive_counts']={k:v for k,v in counts.items() if v is not None}
                 for item in listed:candidates[item['url']]=item
                 url=next_url
             report['has_more_pages']=bool(url)
             if url: report['status']='partial'
+            # Prioritize configured archive years (2026 for BrightLine) before older history.
+            if kind=='blog':
+                target_years={int(y) for a in authors for y in a.get('archive_years',[])}
+                if target_years:
+                    candidates={k:v for k,v in candidates.items() if article_year(v) in target_years}
+            report['discovered_candidates']=len(candidates)
             # Prefer newest unseen posts; retry unfinished analyses, then check known articles for edits.
             ordered=sorted(candidates.values(),key=lambda x:tuple(int(v) for v in re.findall(r'\d+',urllib.parse.urlsplit(x['url']).path)),reverse=True)
             def priority(item):
@@ -266,6 +355,11 @@ def collect(state,config,kind,fetcher,analyst,now):
         reports.append(report)
     state['articles']=sorted(items.values(),key=lambda x:(x.get('published_raw',''),x['id']),reverse=True)
     state['sources']=[x for x in state.get('sources',[]) if x.get('kind')!=kind]+reports
+    if kind=='blog':
+        target_years={int(y) for a in authors for y in a.get('archive_years',[])}
+        collected=sum(1 for x in state['articles'] if x.get('kind')=='blog' and article_year(x) in target_years)
+        target=max([v for r in reports for v in (r.get('archive_counts') or {}).values()] or [0])
+        state['blog_coverage']={'years':sorted(target_years),'collected':collected,'archive_count':target or None,'updated_at':now}
     return new_ids,changed_ids,reports
 
 def make_digest(state,session,new_ids,changed_ids,reports,now):
@@ -303,8 +397,10 @@ def main():
         if not args.force and any(x['session']==session and x['status']=='ok' for x in state.get('digests',[])):
             print('Session already completed.');return
     fetcher=Fetcher(config.get('request_interval_seconds',3));analyst=Analyst(config.get('max_ai_calls_per_run',8))
+    inbox_changed,inbox_reports=process_research_inbox(state,config,fetcher,analyst,now.isoformat())
     kind='blog' if args.mode=='blog' else 'forum'
     new,changed,reports=collect(state,config,kind,fetcher,analyst,now.isoformat())
+    changed=list(dict.fromkeys(inbox_changed+changed))
     if session:make_digest(state,session,new,changed,reports,now.isoformat())
     state['authors']=[{k:a.get(k) for k in ('id','name','blog_url','forum_names')} for a in config['authors'] if a.get('enabled',True)]
     state.update(last_attempt_at=now.isoformat(),ai_enabled=analyst.ready,schedule_status='configured_not_verified',version=1)

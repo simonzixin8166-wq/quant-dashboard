@@ -1,0 +1,94 @@
+name: Wenxuecity Research Update
+on:
+  schedule:
+    - cron: '10 */6 * * *'
+    # Both summer/winter regular closes and early closes; NYSE calendar gates actual work.
+    - cron: '40 17,18,20,21 * * 1-5'
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'blog: 博客检查；close: 收盘归纳（仍受交易日限制）'
+        required: true
+        default: blog
+        type: choice
+        options: [blog, close]
+permissions:
+  contents: write
+concurrency:
+  group: daily-dashboard-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    outputs:
+      changed: ${{ steps.commit.outputs.changed }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install trading calendar
+        run: pip install 'pandas_market_calendars>=5,<6'
+      - name: Verify collector
+        run: |
+          python -m unittest discover -s tests -p 'test_wenxuecity.py'
+          node --check docs/assets/wenxuecity.js
+      - name: Collect public articles
+        id: collect
+        continue-on-error: true
+        env:
+          WXC_AI_KEY: ${{ secrets.WXC_AI_KEY }}
+          WXC_AI_MODEL: ${{ vars.WXC_AI_MODEL }}
+          EVENT_NAME: ${{ github.event_name }}
+          SCHEDULE: ${{ github.event.schedule }}
+          INPUT_MODE: ${{ inputs.mode }}
+        run: |
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            python scripts/update_wenxuecity.py --mode "$INPUT_MODE" --force
+          elif [ "$SCHEDULE" = '10 */6 * * *' ]; then
+            python scripts/update_wenxuecity.py --mode blog
+          else
+            python scripts/update_wenxuecity.py --mode close
+          fi
+      - name: Preserve results and failure status
+        id: commit
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add docs/data/wenxuecity.json
+          if git diff --cached --quiet; then
+            echo 'changed=false' >> "$GITHUB_OUTPUT"
+          else
+            git commit -m 'Update Wenxuecity research and source status'
+            git pull --rebase origin main
+            git push origin HEAD:main
+            echo 'changed=true' >> "$GITHUB_OUTPUT"
+          fi
+      - name: Flag unsuccessful collection
+        if: steps.collect.outcome == 'failure'
+        run: |
+          echo '::warning::Collection failed; source status was saved and existing articles retained.'
+  # Enable WXC_DEPLOY_PAGES=true only when this repo uses GitHub Pages Actions publishing.
+  # Pushes made with GITHUB_TOKEN do not trigger another Actions workflow automatically.
+  publish-pages:
+    if: needs.collect.outputs.changed == 'true' && vars.WXC_DEPLOY_PAGES == 'true'
+    needs: collect
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs
+      - uses: actions/deploy-pages@v4
+        id: deployment

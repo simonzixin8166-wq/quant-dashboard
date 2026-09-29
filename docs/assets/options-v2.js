@@ -183,7 +183,7 @@
       if(expiredOpen.length){const {error:updateError}=await supabaseClient.from('options_positions').update({status:'pending_settlement'}).in('id',expiredOpen);if(!updateError)rows.forEach(x=>{if(expiredOpen.includes(x.id))x.status='pending_settlement'})}
       const active=rows.filter(x=>!x.status||['open','pending_settlement'].includes(x.status));state.positions=new Map(active.map(x=>[String(x.id),x]));
       state.history=rows.filter(x=>x.status&&!['open','pending_settlement'].includes(x.status)).sort((a,b)=>String(b.closed_at||b.expiry).localeCompare(String(a.closed_at||a.expiry)));
-      renderPositionTable();renderLifecycleHistory();renderRiskSummary();schedulePositionRefresh();setTimeout(()=>refreshAllPositions({onlyNeeded:true,reason:'登录后检查'}),250);
+      renderPositionTable();renderLifecycleHistory();renderRiskSummary();schedulePositionRefresh();window.dispatchEvent(new CustomEvent('mav:options-updated',{detail:{reason:'positions-loaded'}}));setTimeout(()=>refreshAllPositions({onlyNeeded:true,reason:'登录后检查'}),250);
     }catch(e){tbody.innerHTML=`<tr><td colspan="9" style="text-align:center;color:var(--red)">持仓读取失败：${e.message}</td></tr>`;global.MAV?.toast(`持仓读取失败：${e.message}`,'bad')}
   }
   function occSymbol(position){
@@ -375,7 +375,7 @@
     for(let i=0;i<entries.length;i++){
       const [id]=entries[i];setAutoStatus(`${reason}：正在刷新 ${i+1}/${entries.length}`,'warn');if(await refreshPosition(id,{silent:true}))success++;if(i<entries.length-1)await new Promise(resolve=>setTimeout(resolve,450));
     }
-    state.lastBulkAt=Date.now();state.bulkRefreshing=false;setAutoStatus(`完成 ${success}/${entries.length} · ${new Date().toLocaleTimeString()}`,success===entries.length?'good':'warn');renderRiskSummary();global.RollManager?.load();
+    state.lastBulkAt=Date.now();state.bulkRefreshing=false;setAutoStatus(`完成 ${success}/${entries.length} · ${new Date().toLocaleTimeString()}`,success===entries.length?'good':'warn');renderRiskSummary();global.RollManager?.load();window.dispatchEvent(new CustomEvent('mav:options-updated',{detail:{reason:'quotes-refreshed',success,total:entries.length}}));
   }
   function schedulePositionRefresh(){
     clearInterval(state.positionsTimer);state.positionsTimer=setInterval(()=>{if(document.visibilityState==='visible'&&isUsRegularSession())refreshAllPositions({onlyNeeded:true,reason:'15分钟自动检查'})},POSITION_REFRESH_MS);
@@ -431,7 +431,7 @@
     if(typeof global.openDashboardTab==='function')global.openDashboardTab('tab-sandbox');
     setTimeout(()=>{const input=$('optionSymbol');if(input)input.value=symbol;try{strategyChanged(strategy)}catch{};const btn=$('loadExpirations');if(btn)btn.focus()},80);
   }
-  global.OptionV2={bsPrice,evaluate,normalizeColumnar,renderDecisionAssistant,loadPrivatePositions,populateAccountSelect,refreshQuote,refreshPosition,refreshAllPositions,openPositionScenario,completeRocFields,occSymbol,positionMetrics,annualizedRoc,positionRisk,quoteFreshness,isUsRegularSession,setMarketEvents,realizedPnl,assignmentBasis,openLifecycle,closeLifecycle,savePositionAccount,updateLifecyclePreview,saveLifecycle,editPosition,deletePosition,deleteLifecycleRecord,restoreArchivedPosition,toggleHistory,autoScreenOpportunity,openForSymbol,getPosition:id=>state.positions.get(String(id))};
+  global.OptionV2={bsPrice,evaluate,normalizeColumnar,renderDecisionAssistant,loadPrivatePositions,populateAccountSelect,refreshQuote,refreshPosition,refreshAllPositions,openPositionScenario,completeRocFields,occSymbol,positionMetrics,annualizedRoc,positionRisk,quoteFreshness,isUsRegularSession,setMarketEvents,realizedPnl,assignmentBasis,openLifecycle,closeLifecycle,savePositionAccount,updateLifecyclePreview,saveLifecycle,editPosition,deletePosition,deleteLifecycleRecord,restoreArchivedPosition,toggleHistory,autoScreenOpportunity,openForSymbol,getPosition:id=>state.positions.get(String(id)),getPositions:()=>[...state.positions.values()],getCachedQuote:id=>readCachedQuote(id),getEvents:()=>state.events.slice()};
   if(typeof document!=='undefined'){
     document.addEventListener('DOMContentLoaded',()=>{bind();$('refreshAllOptions')?.addEventListener('click',()=>refreshAllPositions({force:true,reason:'手动刷新'}))});
     document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&Date.now()-state.lastBulkAt>=POSITION_REFRESH_MS)refreshAllPositions({onlyNeeded:true,reason:'返回页面检查'})});

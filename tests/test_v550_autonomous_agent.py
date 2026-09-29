@@ -61,4 +61,17 @@ assert agent["discovery_queue"][0]["symbol"] == "LITE"
 assert agent["private_position_agent"]["mode"] == "browser-private"
 assert "不会自动下单" in agent["guardrails"][0]
 
+generator = (ROOT / "scripts" / "fetch_and_build.py").read_text(encoding="utf-8")
+options_js = (ROOT / "docs" / "assets" / "options-v2.js").read_text(encoding="utf-8")
+agent_js = (ROOT / "docs" / "assets" / "autonomous-agent.js").read_text(encoding="utf-8")
+workflow = (ROOT / ".github" / "workflows" / "daily.yml").read_text(encoding="utf-8")
+
+assert 'id="agentAttentionRoot"' in generator
+assert 'assets/autonomous-agent.js' in generator
+assert 'assets/autonomous-agent.css' in generator
+assert "getPositions:()=>[...state.positions.values()]" in options_js
+assert "mav:options-updated" in options_js
+assert "当前方案：" in agent_js
+assert "Build V5.5 Autonomous Research Agent" in workflow
+
 print("PASS V5.5 Autonomous Research Agent")

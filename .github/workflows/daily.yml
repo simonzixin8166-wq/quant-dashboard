@@ -47,6 +47,9 @@ jobs:
           SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
         run: python scripts/fetch_and_build.py
 
+      - name: Generate immutable build manifest
+        run: python scripts/generate_build_manifest.py
+
       - name: Validate assistant market alert rules
         continue-on-error: true
         run: python scripts/backtest_assistant_rules.py --period 5y --skip-if-no-new-data
@@ -74,6 +77,7 @@ jobs:
           python tests/test_build_contract.py
           python tests/test_v510_autonomous_assistant.py
           python tests/test_v520_decision_journal.py
+          python -m py_compile scripts/generate_build_manifest.py scripts/verify_deployment.py
         
       - name: Commit and push
         run: |

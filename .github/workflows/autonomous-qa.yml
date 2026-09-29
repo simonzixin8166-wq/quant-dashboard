@@ -1,0 +1,67 @@
+name: Autonomous QA & Security
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'docs/**'
+      - 'scripts/**'
+      - 'supabase/**'
+      - '.github/workflows/**'
+  workflow_dispatch: {}
+permissions:
+  contents: read
+concurrency:
+  group: autonomous-qa-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  deployment-qa:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - name: Public bundle secret exposure guard
+        run: |
+          if grep -R -n -E 'sb_secret_|service_role[^A-Za-z0-9_]' docs/ --exclude='*.map'; then
+            echo 'Potential privileged secret material found in public docs/'; exit 1;
+          fi
+          echo 'Public bundle secret scan PASS'
+      - name: Verify deployed build matches repository build
+        run: python scripts/verify_deployment.py --base-url https://myalphaview.com --timeout 600
+      - uses: actions/setup-node@v4
+        with: {node-version: '20'}
+      - name: Install pinned browser test runtime
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Browser autonomous QA
+        env:
+          BASE_URL: https://myalphaview.com
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          QA_EMAIL: ${{ secrets.QA_EMAIL }}
+        run: node scripts/autonomous_site_qa.mjs
+      - name: Upload sanitized QA report and public screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: autonomous-qa-${{ github.run_number }}
+          path: qa-artifacts/
+          retention-days: 14
+
+  codeql:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+      packages: read
+    strategy:
+      fail-fast: false
+      matrix:
+        language: ['javascript-typescript','python']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+      - uses: github/codeql-action/analyze@v3

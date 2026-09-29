@@ -6,8 +6,8 @@ a=(ROOT/'docs/assets/investment-assistant.js').read_text(encoding='utf-8')
 o=(ROOT/'docs/assets/options-v2.js').read_text(encoding='utf-8')
 r=(ROOT/'docs/assets/research-methods.js').read_text(encoding='utf-8')
 s=(ROOT/'docs/assets/stock-watchlist.js').read_text(encoding='utf-8')
-assert 'APP_VERSION = "5.2.0"' in g and 'ASSET_VERSION = "5.2.0"' in g
-assert 'application-version" content="5.2.0"' in p and '?v=5.2.0' in p
+assert 'APP_VERSION = "5.2.1"' in g and 'ASSET_VERSION = "5.2.1"' in g
+assert 'application-version" content="5.2.1"' in p and '?v=5.2.1' in p
 assert 'MYALPHA_RULE_REGISTRY' in r and "version:'5.1.0'" in r
 for token in ['market-watch','market-fear','market-panic','sell-put-fear','buy-call-repair','leaps-long-term','thesis-required','data-freshness']:
     assert token in r

@@ -194,7 +194,16 @@ def build_regime(series: Dict[str, dict]) -> dict:
     }
 
 
+def _load_previous() -> dict:
+    try:
+        return json.loads(OUT.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+
+
 def build_macro_context() -> dict:
+    previous = _load_previous()
+    previous_series = previous.get("series") or {}
     series = {}
     errors = []
 
@@ -221,10 +230,25 @@ def build_macro_context() -> dict:
                 "official": True,
             }
         except Exception as exc:
-            errors.append({"series": series_id, "error": str(exc)[:180]})
+            cached = previous_series.get(series_id)
+            if isinstance(cached, dict) and cached.get("latest"):
+                series[series_id] = {
+                    **cached,
+                    "cached": True,
+                    "cache_reason": str(exc)[:180],
+                    "source": cached.get("source") or "FRED/ALFRED",
+                }
+            errors.append({"series": series_id, "error": str(exc)[:180], "cache_used": bool(cached)})
 
     regime = build_regime(series)
     available = sum(1 for row in series.values() if row.get("latest"))
+    cached_count = sum(1 for row in series.values() if row.get("cached"))
+    latest_dates = [
+        str((row.get("latest") or {}).get("date"))
+        for row in series.values()
+        if (row.get("latest") or {}).get("date")
+    ]
+    newest_observation = max(latest_dates) if latest_dates else None
 
     return {
         "version": VERSION,
@@ -238,12 +262,21 @@ def build_macro_context() -> dict:
             "available_series": available,
             "expected_series": len(SERIES),
             "coverage": round(available / len(SERIES), 3),
+            "cached_series": cached_count,
+            "newest_observation": newest_observation,
             "errors": errors,
-            "confidence": "HIGH" if available >= 12 else "MEDIUM" if available >= 8 else "LOW",
+            "confidence": (
+                "HIGH"
+                if available >= 12 and cached_count <= 2
+                else "MEDIUM"
+                if available >= 8
+                else "LOW"
+            ),
         },
         "guardrails": [
             "Current snapshot uses information available at run time.",
             "Historical replay must query realtime_start=realtime_end=historical date.",
+            "On transient FRED failures, the last valid cached series is retained and marked cached.",
             "Macro state changes research context only; it never modifies core trading thresholds.",
         ],
     }

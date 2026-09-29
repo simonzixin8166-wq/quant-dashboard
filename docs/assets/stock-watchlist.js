@@ -104,8 +104,10 @@
     body.innerHTML=state.items.length?state.items.map(rowHtml).join(''):'<tr><td colspan="8" class="stock-watch-empty">观察池为空，点击“新增个股”开始添加。</td></tr>';
     global.StockDecision?.sort('priority');
     global.fetchAndRenderTargets?.();
+    const count=state.items.length;
+    const chip=document.getElementById('stockCountChip');if(chip)chip.textContent=`${count}只`;
     const stamp=document.getElementById('stockWatchStatus');
-    if(stamp)stamp.textContent=`${state.items.length}只 · ${sessionOpen()?'普通观察股盘中10分钟更新':'休市保留最近报价'} · 指标${Object.keys(state.daily).length?'按完整收盘日线':'等待日线'} · ${new Date().toLocaleTimeString()}`;
+    if(stamp)stamp.textContent=`${count}只 · ${sessionOpen()?'普通观察股盘中10分钟更新':'休市保留最近报价'} · 指标${Object.keys(state.daily).length?'按完整收盘日线':'等待日线'} · ${new Date().toLocaleTimeString()}`;
   }
   async function load(){
     if(state.loading)return;state.loading=true;
@@ -164,7 +166,16 @@
     await supabaseClient.from('stock_targets').delete().eq('symbol',symbol);
     state.items=state.items.filter(x=>x.symbol!==symbol);delete state.quotes[symbol];delete state.daily[symbol];saveDailyCache();render();global.MAV?.toast(`${symbol} 已从观察池删除`,'good');
   }
+
+  function assistantStatus(){
+    const rows=state.items.map(item=>{const symbol=String(item.symbol).toUpperCase(),tp=(global.MAV_TREND_PULSE||{})[symbol]||{},r=state.research[symbol]||{};return {symbol,score:num(tp.score),stage:tp.state||'',hasThesis:Boolean((r.thesis||'').trim())};});
+    const risk=rows.filter(x=>/趋势恶化|趋势退潮/.test(x.stage)||(x.score!==null&&x.score<=-60)).sort((a,b)=>(a.score??0)-(b.score??0)).slice(0,3);
+    const improving=rows.filter(x=>/二次启动|趋势启动|趋势延续|修复中/.test(x.stage)).sort((a,b)=>(b.score??-999)-(a.score??-999)).slice(0,3);
+    const hot=rows.filter(x=>x.score!==null&&x.score>=75&&!/趋势退潮/.test(x.stage)).sort((a,b)=>b.score-a.score).slice(0,3);
+    return {count:state.items.length,researchCount:rows.filter(x=>x.hasThesis).length,risk,improving,hot,loaded:Boolean(state.items.length)};
+  }
+
   function assistantCandidates(mode='fear'){return state.items.map(item=>{const symbol=String(item.symbol).toUpperCase(),tp=(global.MAV_TREND_PULSE||{})[symbol]||{},r=state.research[symbol]||{},q=combined(symbol);const score=num(tp.score),stage=tp.state||'',hasThesis=Boolean((r.thesis||'').trim());let eligible=false,why='';if(mode==='fear'){eligible=!['趋势恶化','趋势退潮'].includes(stage)&&(score===null||score>-20);why=stage?trendStage(stage):'等待趋势确认';}else{eligible=score!==null&&score>=75;why=stage?trendStage(stage):trendZone(score);}return {symbol,name:item.display_name||symbol,score,stage,zone:trendZone(score),hasThesis,eligible,why,changePct:num(q.changePct)};}).filter(x=>x.eligible).sort((a,b)=>(b.hasThesis-a.hasThesis)||((b.score??-999)-(a.score??-999))).slice(0,6)}
-  global.StockWatchlist={load,refresh,openAdd,openEdit,close,save,remove,openResearch,closeResearch,saveResearch,assistantCandidates};
+  global.StockWatchlist={load,refresh,openAdd,openEdit,close,save,remove,openResearch,closeResearch,saveResearch,assistantCandidates,assistantStatus};
   document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&state.items.length)refresh()});
 })(window);

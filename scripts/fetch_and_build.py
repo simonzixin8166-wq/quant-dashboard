@@ -13,9 +13,9 @@ except ModuleNotFoundError:
 warnings.filterwarnings("ignore")
 
 # 单一版本源：每日 Action 生成 HTML 时，页面标题和静态资源缓存版本都从这里读取。
-APP_VERSION = "5.1.0"
+APP_VERSION = "5.1.1"
 OPTIONS_VERSION = "4.1.0"  # 网站优先；APP/PWA 功能已移除，仅保留响应式手机网页
-ASSET_VERSION = "5.1.0"
+ASSET_VERSION = "5.1.1"
 
 API_KEY = os.environ.get("TWELVE_DATA_KEY", "demo")
 BASE = "https://api.twelvedata.com"
@@ -1876,7 +1876,7 @@ body{{font-size:15px;background:linear-gradient(180deg,#f7f9fc 0,#f3f6fa 100%);l
 <div id="tab-overview" class="tab-pane active">
 <section class="hero overview-hero"><div><h1>市场与风险驾驶舱</h1><p>先看市场状态、策略距离和必须处理的风险，再决定是否行动。</p><div class="data-legend" aria-label="数据状态说明"><span class="live">盘中延迟行情</span><span class="close">最近有效收盘</span><span class="missing">不可用不计分</span></div></div><div class="overview-side-tools"><div class="fx-reference-card" title="日度参考汇率，不用于实时换汇"><span>USD/CNY</span><strong>{fmt_num((data.get('fx_usdcny') or {}).get('value'),4)}</strong><small>最新日度汇率 · {(data.get('fx_usdcny') or {}).get('date','-')}</small></div><span id="privateModeShield" class="private-mode-shield" role="status" title="私有控制台已连接，真实持仓受 Supabase RLS 保护">🛡️ 私有模式</span></div><div class="public-note" id="modePanel"><b id="modeTitle">访客预览模式</b><span id="modeDesc">未登录仅显示市场概览；策略、观察池与持仓模块需要主理人登录。</span></div></section>
 {tape_html}
-<section id="marketOptionAlert" class="market-option-alert" hidden aria-live="polite"></section>
+<section id="marketOptionAlert" class="market-option-alert assistant-normal" aria-live="polite"><div class="assistant-placeholder"><span>AI INVESTMENT ASSISTANT</span><b>AI 投资助手 · 正在值守</b><small>正在读取市场状态；正常行情保持安静，条件触发时自动升级提醒。</small></div></section>
 {research_brief_html}
 {what_changed_html}
 {iren_brief_html}
@@ -1906,10 +1906,10 @@ body{{font-size:15px;background:linear-gradient(180deg,#f7f9fc 0,#f3f6fa 100%);l
 <section class="section"><div class="section-head"><h2>港股跨境池</h2><p>点击卡片展开近 30 日历史趋势</p></div><div class="opt-grid">{mkt_card_a("华夏纳指 (港股)", data["cn_hk"].get("hk03086"), "hk03086")}{mkt_card_a("国指备兑 (港股)", data["cn_hk"].get("hk03416"), "hk03416")}</div></section>
 </div>
 
-<div id="tab-stocks" class="tab-pane"><section class="hero compact-hero stock-hero-v45"><div class="stock-hero-title"><h1>个股观察池</h1><p>按策略距离与趋势状态自动排序，盘中报价和完整收盘技术指标分开呈现。</p></div><div class="stock-hero-side"><div class="stock-hero-actions"><span class="stock-count-chip">{len([x for x in trend_data.values() if x.get("available")]) or len(STOCKS)}只</span><button type="button" onclick="StockWatchlist.refresh()">↻ 刷新行情</button><button class="primary" type="button" onclick="StockWatchlist.openAdd()">＋ 新增个股</button></div><span id="stockWatchStatus" class="stock-watch-status">公开版显示最近构建数据</span></div></section><section class="section"><div class="stock-toolbar"><div class="stock-filters"><button class="active" data-stock-filter="all" onclick="StockDecision.filter(this,'all')">全部</button><button data-stock-filter="triggered" onclick="StockDecision.filter(this,'triggered')">已触发</button><button data-stock-filter="near" onclick="StockDecision.filter(this,'near')">接近策略价</button><button data-stock-filter="oversold" onclick="StockDecision.filter(this,'oversold')">超卖</button><button data-stock-filter="weak" onclick="StockDecision.filter(this,'weak')">趋势偏弱</button><button data-stock-filter="hot" onclick="StockDecision.filter(this,'hot')">过热</button></div><select id="stockSort" onchange="StockDecision.sort(this.value)"><option value="priority">关注优先</option><option value="target">距策略价最近</option><option value="drawdown">YTD回撤最大</option><option value="rsi">RSI最低</option><option value="default">默认顺序</option></select></div><div class="table-container stock-table"><table><thead><tr><th>名称</th><th>最新价 / 涨跌</th><th>Trend Pulse</th><th>YTD回撤</th><th>RSI</th><th>距200MA</th><th>策略价 / 距离</th><th>状态</th></tr></thead><tbody id="stocksTableBody">{stock_html}</tbody></table></div></section></div>
+<div id="tab-stocks" class="tab-pane"><section class="hero compact-hero stock-hero-v45"><div class="stock-hero-title"><h1>个股观察池</h1><p>按策略距离与趋势状态自动排序，盘中报价和完整收盘技术指标分开呈现。</p></div><div class="stock-hero-side"><div class="stock-hero-actions"><span id="stockCountChip" class="stock-count-chip">{len([x for x in trend_data.values() if x.get("available")]) or len(STOCKS)}只</span><button type="button" onclick="StockWatchlist.refresh()">↻ 刷新行情</button><button class="primary" type="button" onclick="StockWatchlist.openAdd()">＋ 新增个股</button></div><span id="stockWatchStatus" class="stock-watch-status">公开版显示最近构建数据</span></div></section><section class="section"><div class="stock-toolbar"><div class="stock-filters"><button class="active" data-stock-filter="all" onclick="StockDecision.filter(this,'all')">全部</button><button data-stock-filter="triggered" onclick="StockDecision.filter(this,'triggered')">已触发</button><button data-stock-filter="near" onclick="StockDecision.filter(this,'near')">接近策略价</button><button data-stock-filter="oversold" onclick="StockDecision.filter(this,'oversold')">超卖</button><button data-stock-filter="weak" onclick="StockDecision.filter(this,'weak')">趋势偏弱</button><button data-stock-filter="hot" onclick="StockDecision.filter(this,'hot')">过热</button></div><select id="stockSort" onchange="StockDecision.sort(this.value)"><option value="priority">关注优先</option><option value="target">距策略价最近</option><option value="drawdown">YTD回撤最大</option><option value="rsi">RSI最低</option><option value="default">默认顺序</option></select></div><div class="table-container stock-table"><table><thead><tr><th>名称</th><th>最新价 / 涨跌</th><th>Trend Pulse</th><th>YTD回撤</th><th>RSI</th><th>距200MA</th><th>策略价 / 距离</th><th>状态</th></tr></thead><tbody id="stocksTableBody">{stock_html}</tbody></table></div></section></div>
 
 <div id="tab-options" class="tab-pane">
-<section class="hero"><div><h1>期权持仓与风险监控 V{OPTIONS_VERSION}</h1><p>优先呈现真实建仓成本、现金担保年化ROC、临期风险和官方宏观事件。自动行情来自 Alpaca Indicative 免费参考源；下单前仍以 IBKR Bid/Ask 为准。</p></div></section>
+<section class="hero"><div><h1>期权持仓与风险监控 <span class="app-version-badge">Myalpha View V{APP_VERSION}</span></h1><p><span class="module-engine-version">Options Engine V{OPTIONS_VERSION}</span> · 优先呈现真实建仓成本、现金担保年化ROC、临期风险和官方宏观事件。自动行情来自 Alpaca Indicative 免费参考源；下单前仍以 IBKR Bid/Ask 为准。</p></div></section>
 <section class="section">
     <div id="macroEventStrip" class="event-strip"><div class="event-item skeleton">正在读取FOMC/CPI官方日历</div></div>
     <div id="optionRiskSummary" class="risk-grid"><div class="risk-card skeleton">正在计算持仓风险</div></div>
@@ -2011,7 +2011,7 @@ body{{font-size:15px;background:linear-gradient(180deg,#f7f9fc 0,#f3f6fa 100%);l
 
 <!-- 期权决策台 -->
 <div id="tab-sandbox" class="tab-pane">
-<section class="hero"><div><h1>期权决策台 V{OPTIONS_VERSION}</h1><p>既可按 Alpaca 参考报价模拟新开仓，也可从持仓监控带入真实成本，推演“目标日期股价为 X 时，这个仓位值多少钱”。金额统一按合约乘数（默认100）和实际张数计算。</p></div></section>
+<section class="hero"><div><h1>期权决策台 <span class="app-version-badge">Myalpha View V{APP_VERSION}</span></h1><p><span class="module-engine-version">Options Engine V{OPTIONS_VERSION}</span> · 既可按 Alpaca 参考报价模拟新开仓，也可从持仓监控带入真实成本，推演“目标日期股价为 X 时，这个仓位值多少钱”。金额统一按合约乘数（默认100）和实际张数计算。</p></div></section>
 <div id="optionV2Root" class="option-v2-shell" data-endpoint="https://rhielbkvhgqbthcgztci.supabase.co/functions/v1/options-market">
   <div class="option-v2-toolbar"><span id="optV2Status" class="option-v2-status warn">登录后可读取 Alpaca Indicative 参考行情；接口异常时可使用手动报价</span><button id="manualToggle" class="option-secondary">手动报价</button><button id="advancedToggle" class="option-secondary">高级参数</button></div>
   <section class="option-decision-assistant" aria-label="期权决策助手">

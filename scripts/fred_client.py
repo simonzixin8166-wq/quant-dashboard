@@ -69,7 +69,7 @@ def series_vintage_dates(
             "series_id": series_id,
             "realtime_start": realtime_start,
             "realtime_end": realtime_end,
-            "limit": 10000,
+            "limit": 1000,
         },
         api_key=api_key,
     )

@@ -2,7 +2,7 @@
 import hashlib,json,datetime,pathlib,re
 ROOT=pathlib.Path(__file__).resolve().parents[1]
 DOCS=ROOT/'docs'
-FILES=['index.html','data.json','assets/investment-assistant.js','assets/decision-journal.js','assets/autonomous-qa.js','assets/market-live.js','assets/stock-watchlist.js','assets/options-v2.js']
+FILES=['index.html','data.json','assets/investment-assistant.js','assets/decision-journal.js','assets/autonomous-qa.js','assets/market-live.js','assets/stock-watchlist.js','assets/options-v2.js','research/historical_journal.json']
 def sha(p): return hashlib.sha256(p.read_bytes()).hexdigest()
 meta=(DOCS/'index.html').read_text(encoding='utf-8',errors='ignore')
 m=re.search(r'<meta name="application-version" content="([^"]+)"',meta)

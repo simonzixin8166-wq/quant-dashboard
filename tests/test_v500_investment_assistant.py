@@ -9,7 +9,7 @@ wxc=(ROOT/'docs/assets/wenxuecity.js').read_text(encoding='utf-8')
 methods=(ROOT/'docs/assets/research-methods.js').read_text(encoding='utf-8')
 css=(ROOT/'docs/assets/design-v4.8.css').read_text(encoding='utf-8')
 
-assert 'APP_VERSION = "5.2.1"' in g and 'ASSET_VERSION = "5.2.1"' in g
+assert 'APP_VERSION = "5.3.0"' in g and 'ASSET_VERSION = "5.3.0"' in g
 assert 'id="marketOptionAlert"' in g and 'id="marketOptionAlert"' in p
 assert 'marketOptionAlert' in js and '30–45 DTE' in methods and 'Delta 0.16–0.20' in methods
 assert 'LEAPS Call 研究候选' in methods and '12–24个月以上' in methods

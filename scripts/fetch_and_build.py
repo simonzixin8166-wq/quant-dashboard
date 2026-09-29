@@ -13,9 +13,9 @@ except ModuleNotFoundError:
 warnings.filterwarnings("ignore")
 
 # 单一版本源：每日 Action 生成 HTML 时，页面标题和静态资源缓存版本都从这里读取。
-APP_VERSION = "5.2.1"
+APP_VERSION = "5.3.0"
 OPTIONS_VERSION = "4.1.0"  # 网站优先；APP/PWA 功能已移除，仅保留响应式手机网页
-ASSET_VERSION = "5.2.1"
+ASSET_VERSION = "5.3.0"
 
 API_KEY = os.environ.get("TWELVE_DATA_KEY", "demo")
 BASE = "https://api.twelvedata.com"
@@ -474,7 +474,7 @@ def analyze(symbol, rows, today, tiers=None, is_stock=False, ath_metric=None):
         "rsi": calc_rsi(closes, 14), "dist_200ma": pct_change(latest_close, sum(closes[:200])/200 if len(closes)>=200 else None),
         "ath_is_true": ath_is_true, "ath_validation": ath_validation, "strategy_drawdown": strategy_drawdown, "window_drawdown": window_drawdown,
     }
-    if is_stock: out.update({"open": float(rows[0]["open"]), "high": float(rows[0]["high"]), "low": float(rows[0]["low"])})
+    if is_stock: out.update({"open": float(rows[0]["open"]), "high": float(rows[0]["high"]), "low": float(rows[0]["low"]), "volume": float(rows[0].get("volume") or 0)})
     else: out.update({"drawdown": strategy_drawdown if ath_is_true else window_drawdown, "tiers": tiers, "level": level, "level_label": level_label})
     return out
 

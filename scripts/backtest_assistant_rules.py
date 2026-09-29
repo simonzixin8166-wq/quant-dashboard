@@ -66,7 +66,7 @@ def main():
             fwd[h]={'n':len(vals),'avg':val(sum(vals)/len(vals)) if vals else None,'median':val(pd.Series(vals).median()) if vals else None,'positive_rate':val(sum(x>0 for x in vals)/len(vals)) if vals else None}
         maes=[e['mae20'] for e in es if e['mae20'] is not None]
         groups.append({'level':level,'label':meta['label'],'events':len(es),'forward':fwd,'mae20_avg':val(sum(maes)/len(maes)) if maes else None})
-    payload={'version':'5.2.1','generated_at':datetime.now(timezone.utc).isoformat(),'as_of':as_of,'period':args.period,'method':'state-transition event study; QQQ forward returns after market alert escalation','groups':groups,'events':events[-80:],'limitations':['This is an underlying-market event study, not an options premium backtest.','No transaction costs, IV changes, assignment or bid/ask spreads are modeled.','Thresholds are research alerts, not automated trading instructions.']}
+    payload={'version':'5.3.0','generated_at':datetime.now(timezone.utc).isoformat(),'as_of':as_of,'period':args.period,'method':'state-transition event study; QQQ forward returns after market alert escalation','groups':groups,'events':events[-80:],'limitations':['This is an underlying-market event study, not an options premium backtest.','No transaction costs, IV changes, assignment or bid/ask spreads are modeled.','Thresholds are research alerts, not automated trading instructions.']}
     out.write_text(json.dumps(payload,ensure_ascii=False,indent=2))
     print(f'Wrote {out} with {len(events)} transition events through {as_of}')
 if __name__=='__main__': main()

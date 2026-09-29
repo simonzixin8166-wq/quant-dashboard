@@ -1,13 +1,10 @@
 name: Autonomous QA & Security
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'docs/**'
-      - 'scripts/**'
-      - 'supabase/**'
-      - '.github/workflows/**'
+  workflow_run:
+    workflows: ["Daily Dashboard Update"]
+    types: [completed]
   workflow_dispatch: {}
+
 permissions:
   contents: read
 concurrency:
@@ -15,7 +12,8 @@ concurrency:
   cancel-in-progress: true
 jobs:
   deployment-qa:
-    runs-on: ubuntu-latest
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -50,7 +48,8 @@ jobs:
           retention-days: 14
 
   codeql:
-    runs-on: ubuntu-latest
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-24.04
     permissions:
       contents: read
       security-events: write
@@ -61,7 +60,7 @@ jobs:
         language: ['javascript-typescript','python']
     steps:
       - uses: actions/checkout@v4
-      - uses: github/codeql-action/init@v3
+      - uses: github/codeql-action/init@v4
         with:
           languages: ${{ matrix.language }}
-      - uses: github/codeql-action/analyze@v3
+      - uses: github/codeql-action/analyze@v4

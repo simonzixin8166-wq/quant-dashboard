@@ -36,66 +36,168 @@
     return{mark,pnl,pnlPct,spread,delta,iv,spot,dte};
   }
 
+  function daysUntilEvent(event){
+    const d=new Date(event?.datetime);
+    if(Number.isNaN(d.getTime()))return null;
+    return Math.ceil((d-new Date())/86400000);
+  }
+
   function optionAdvice(position,quote){
     const m=optionMetrics(position,quote),side=String(position.side||'').toLowerCase(),type=String(position.opt_type||'').toLowerCase();
     const short=side==='short',absDelta=m.delta===null?null:Math.abs(m.delta),strike=n(position.strike),events=global.OptionV2?.getEvents?.()||[];
-    const upcoming=events.filter(e=>{const d=new Date(e.datetime);return d>=new Date()&&d<=new Date(position.expiry+'T23:59:59Z')});
-    let level='quiet',timing='无需处理',action='继续持有并自动监控。',reasons=[];
+    const eventRows=events.map(e=>({event:e,days:daysUntilEvent(e)})).filter(x=>x.days!==null&&x.days>=0&&x.days<=Math.max(0,m.dte));
+    const nearEvents=eventRows.filter(x=>x.days<=7);
+    const immediateEvents=eventRows.filter(x=>x.days<=2);
+    const assignment=String(position.assignment_mode||'accept').toLowerCase();
+    const purpose=String(position.strategy_note||'').trim();
+    const capture=m.pnlPct;
+    const remaining=capture===null?null:Math.max(0,1-capture);
+    const spreadGood=m.spread!==null&&m.spread<=0.12;
+    const spreadWide=m.spread!==null&&m.spread>0.20;
+    const deltaLow=absDelta!==null&&absDelta<=0.15;
+    const deltaHigh=absDelta!==null&&absDelta>=0.35;
+    const nearStrike=m.spot!==null&&strike?m.spot/strike-1:null;
+
+    let level='quiet',timing='无需处理',decision='继续持有',action='继续持有并自动监控。',reasons=[],changeConditions=[],edge='';
+
+    if(!quote){
+      return{
+        level:'review',timing:'今天',decision:'先刷新报价',
+        action:'当前缺少有效期权报价，今天先刷新 Bid/Ask、Delta、IV 和正股价格，再做持有/平仓判断。',
+        reasons:['没有可用实时/参考报价，不能可靠比较剩余收益与风险'],
+        changeConditions:['取得有效报价后重新计算'],
+        edge:'数据不足，暂不做方向性判断。',
+        metrics:m
+      };
+    }
 
     if(position.status==='pending_settlement'){
-      return{level:'action',timing:'今天',action:'今天完成到期结算检查；确认是否作废、被行权或需要补录结算。',reasons:['该仓位已到期并处于待结算状态'],metrics:m};
+      return{
+        level:'action',timing:'今天',decision:'完成结算',
+        action:'今天完成到期结算检查；确认作废、被行权或需要补录结算。',
+        reasons:['该仓位已到期并处于待结算状态'],
+        changeConditions:['结算状态确认后从开放仓位移除'],
+        edge:'继续等待没有额外收益，优先完成账本与行权确认。',
+        metrics:m
+      };
     }
 
     if(short&&type==='put'){
-      const nearStrike=m.spot!==null&&strike?m.spot/strike-1:null;
-      if(m.dte<=7&&(nearStrike===null||nearStrike<=0.03||(absDelta!==null&&absDelta>=0.35))){
-        level='action';timing='今天';action='今天优先决定平仓、展期或接受行权，不建议拖到临近到期后再处理。';
-        reasons.push(`仅剩 ${m.dte} DTE，且行权风险已进入重点检查区`);
-      }else if(m.pnlPct!==null&&m.pnlPct>=0.80&&m.spread!==null&&m.spread<=0.20){
-        level='action';timing='今天';action='当前方案：今天优先平仓锁定大部分权利金收益；若实际买回价差异常扩大，则不追价并转为明日复查。';
-        reasons.push(`已获得约 ${pct(m.pnlPct,0)} 建仓权利金收益`);
-        if(absDelta!==null)reasons.push(`|Delta| 已降至 ${absDelta.toFixed(2)}`);
-      }else if(m.pnlPct!==null&&m.pnlPct>=0.65&&(absDelta===null||absDelta<=0.18)){
-        level='review';
-        if(m.spread!==null&&m.spread<=0.12){timing='今天';action='今天评估平仓：剩余权利金相对已获利润偏少，若买回报价正常可优先锁定；否则明天再看。'}
-        else{timing='明日复查';action='今天不追价，明天重新比较剩余权利金、Delta 与买卖价差后再决定是否平仓。'}
-        reasons.push(`已获得约 ${pct(m.pnlPct,0)} 建仓权利金收益`);
-      }else if(m.dte<=14){
-        level='review';timing='今天';action='今天复查是否继续持有到期；重点看正股距行权价、Delta、流动性和到期前事件。';
-        reasons.push(`进入 ${m.dte} DTE 临期区`);
+      if(m.dte<=7&&(nearStrike===null||nearStrike<=0.03||deltaHigh)){
+        level='action';timing='今天';
+        if(assignment==='avoid'){
+          decision='今天优先平仓/展期';
+          action='今天优先在流动性正常时平仓或展期；当前已进入临期行权风险区，不建议把决定拖到最后几个交易日。';
+        }else{
+          decision='今天确认是否接受接货';
+          action='今天明确二选一：若仍愿意按有效成本接货，可继续持有；若不愿接货，今天优先平仓或展期。';
+        }
+        reasons.push(`仅剩 ${m.dte} DTE，|Delta| ${absDelta===null?'—':absDelta.toFixed(2)}`);
+        if(nearStrike!==null)reasons.push(`正股相对行权价 ${pct(nearStrike,1)}`);
+        changeConditions.push('正股远离行权价且 Delta 明显下降','出现新的公司级事件或 Thesis 变化');
+      }else if(capture!==null&&capture>=0.80&&deltaLow){
+        if(spreadGood){
+          level='action';timing='今天';decision='今天优先平仓';
+          action='今天优先买回平仓，锁定大部分权利金收益；剩余收益已较少，而尾部风险和资金占用仍然存在。';
+        }else{
+          level='review';timing='明日复查';decision='今天不追价';
+          action='利润已经高度兑现，但当前买卖价差不理想；今天不追价，挂合理限价，若未成交则明天重新评估。';
+        }
+        reasons.push(`已获取约 ${pct(capture,0)} 权利金收益，剩余约 ${pct(remaining,0)}`);
+        reasons.push(`|Delta| 已降至 ${absDelta.toFixed(2)}，方向风险明显下降`);
+        if(m.spread!==null)reasons.push(`Bid/Ask 相对价差约 ${pct(m.spread,0)}`);
+        changeConditions.push('正股快速回落导致 Delta 重新升高','IV急升或出现新的重大公司事件');
+        edge='主要收益已经实现；继续持有的边际收益低于开仓初期。';
+      }else if(capture!==null&&capture>=0.60&&deltaLow&&m.dte>=21){
+        level='review';timing='今天';
+        if(spreadGood&&capture>=0.70){
+          decision='今天可以平仓';
+          action='当前更偏向今天平仓：已兑现较多收益、Delta较低且执行成本可控；若你仍希望继续赚剩余时间价值，也只建议保留到预设利润目标而不是机械持有到期。';
+        }else{
+          decision='继续持有，明日复查';
+          action='今天继续持有，不急于平仓；目前仍有一定剩余权利金，且距离到期尚远。明天继续比较剩余收益、Delta 和价差。';
+        }
+        reasons.push(`当前已获取约 ${pct(capture,0)} 权利金收益`);
+        reasons.push(`|Delta| ${absDelta.toFixed(2)}，DTE ${m.dte}`);
+        if(m.spread!==null)reasons.push(`Bid/Ask 相对价差约 ${pct(m.spread,0)}`);
+        changeConditions.push('利润捕获达到80%附近','Delta回升至0.20以上','出现7天内重大事件');
+        edge=`剩余可赚约 ${pct(remaining,0)} 的原始权利金；是否继续持有取决于执行成本和尾部风险。`;
+      }else if(capture!==null&&capture<0&&deltaHigh){
+        level='review';timing='今天';
+        if(assignment==='avoid'){
+          decision='今天评估展期/减风险';
+          action='当前亏损且 Delta 已进入较高风险区；今天优先评估展期或降低敞口，不建议只因还有时间就忽略风险。';
+        }else{
+          decision='继续持有，但确认接货逻辑';
+          action='如果原计划就是愿意接货，今天可以继续持有；但必须重新确认有效接货成本、资金占用和公司 Thesis 是否仍成立。';
+        }
+        reasons.push(`当前 P/L ${pct(capture,0)}，|Delta| ${absDelta.toFixed(2)}`);
+        changeConditions.push('Thesis失效','不再愿意接货','Delta进一步升高或进入21 DTE以内');
+        edge='当前重点不是剩余权利金，而是接货风险与原始建仓逻辑是否仍成立。';
+      }else{
+        decision='继续持有';
+        action='今天继续持有并自动监控；当前尚未达到利润锁定、临期或高Delta风险阈值。';
+        reasons.push(`P/L ${capture===null?'—':pct(capture,0)} · |Delta| ${absDelta===null?'—':absDelta.toFixed(2)} · DTE ${m.dte}`);
+        changeConditions.push('利润捕获进入70%–80%区间','Delta明显上升','进入21 DTE以内');
+        edge='当前继续持有仍有合理的剩余时间价值，但需要等待更明确的退出触发条件。';
       }
     }else if(short&&type==='call'){
       if(m.dte<=7||(m.spot!==null&&strike&&m.spot>=strike*0.98)){
-        level='action';timing='今天';action='今天优先检查是否需要平仓或展期，避免在临近到期时被动处理行权风险。';
-        reasons.push('Short Call 已进入临期/近平值重点检查区');
-      }else if(m.pnlPct!==null&&m.pnlPct>=0.80){
-        level='review';timing='今天';action='今天评估是否提前锁定大部分权利金收益，并重新比较继续占用标的/保证金的价值。';
-        reasons.push(`已获得约 ${pct(m.pnlPct,0)} 建仓权利金收益`);
+        level='action';timing='今天';decision='今天评估平仓/展期';
+        action='今天优先检查平仓或展期，避免临近到期时被动处理指派风险；若本来就愿意在该行权价卖出正股，则可以保留到期方案。';
+        reasons.push('Short Call 已进入临期或近平值风险区');
+        changeConditions.push('正股回落远离行权价','确认愿意按行权价卖出正股');
+      }else if(capture!==null&&capture>=0.80){
+        level='review';timing='今天';decision=spreadGood?'今天优先平仓':'今天不追价';
+        action=spreadGood?'今天优先买回平仓，锁定大部分权利金收益并恢复正股上涨空间。':'利润已高度兑现，但当前执行成本偏高；今天不追价，等待更合理买回报价。';
+        reasons.push(`已获得约 ${pct(capture,0)} 权利金收益`);
+        changeConditions.push('正股继续快速上涨接近行权价','价差收窄');
+        edge='继续持有的剩余收益有限，但会继续占用正股上行空间。';
+      }else{
+        decision='继续持有';
+        action='今天继续持有并监控正股距行权价、Delta 与剩余权利金。';
+        reasons.push(`P/L ${capture===null?'—':pct(capture,0)} · |Delta| ${absDelta===null?'—':absDelta.toFixed(2)} · DTE ${m.dte}`);
+        changeConditions.push('利润捕获进入80%附近','正股接近行权价','进入14 DTE以内');
+        edge='当前仍有可赚时间价值，尚未出现必须提前处理的条件。';
       }
     }else{
       if(m.dte<=21){
-        level='review';timing='今天';action='今天复查 Long 期权：时间价值损耗已进入敏感区，需要重新确认方向、催化剂与剩余期限是否匹配。';
+        level='review';timing='今天';decision='今天重新评估是否继续持有';
+        action='Long 期权已进入时间价值损耗敏感区；今天重新确认方向、催化剂和剩余期限是否仍匹配，若催化剂延后应优先处理。';
         reasons.push(`仅剩 ${m.dte} DTE`);
+      }else if(capture!==null&&capture>=1.0){
+        level='review';timing='今天';decision='今天评估锁定利润';
+        action='当前浮盈已达到建仓成本的约1倍或以上；今天评估部分或全部锁定利润，并重新比较继续持有的波动率与回撤风险。';
+        reasons.push(`当前浮盈约 ${pct(capture,0)}`);
+      }else{
+        decision='继续持有';
+        action='今天继续持有；当前没有触发时间衰减、盈利锁定或临近事件的强制复查条件。';
+        reasons.push(`P/L ${capture===null?'—':pct(capture,0)} · DTE ${m.dte}`);
       }
-      if(m.pnlPct!==null&&m.pnlPct>=1.0){
-        level='review';timing='今天';action='今天评估是否锁定部分或全部利润，并比较继续持有的事件/波动率风险。';
-        reasons.push(`当前浮盈约 ${pct(m.pnlPct,0)}`);
-      }
+      changeConditions.push('进入21 DTE以内','核心催化剂变化','浮盈/亏损显著扩大');
+      edge='Long仓位的核心判断仍然是方向、催化兑现时间与IV是否匹配。';
     }
 
-    if(upcoming.length){
+    if(immediateEvents.length){
+      if(rank(level)<3)level='action';
+      timing='今天';
+      reasons.push(`未来2天内存在 ${[...new Set(immediateEvents.map(x=>x.event.type))].join('/')} 事件`);
+      action+=' 由于事件已非常接近，今天必须把事件风险纳入最终决定。';
+    }else if(nearEvents.length){
       if(rank(level)<2)level='review';
       if(timing==='无需处理')timing='今天';
-      reasons.push(`到期前存在 ${[...new Set(upcoming.map(x=>x.type))].join('/')} 事件`);
-      if(action==='继续持有并自动监控。')action='今天复查到期前事件风险；确认事件是否改变原始建仓逻辑。';
-    }
-    if(m.spread!==null&&m.spread>0.20){
-      if(rank(level)<2)level='review';
-      reasons.push(`买卖价差约 ${pct(m.spread,0)}，执行成本偏高`);
-      if(timing==='今天')action+=' 当前价差偏宽时不建议追价。';
+      reasons.push(`未来7天内存在 ${[...new Set(nearEvents.map(x=>x.event.type))].join('/')} 事件`);
+      if(decision==='继续持有')action+=' 同时需要确认是否愿意跨越该事件继续持仓。';
     }
 
-    return{level,timing,action,reasons,metrics:m};
+    if(spreadWide){
+      if(rank(level)<2)level='review';
+      reasons.push(`买卖价差约 ${pct(m.spread,0)}，执行成本偏高`);
+      if(/平仓|展期/.test(decision))action+=' 当前价差偏宽，不建议用市价单追价。';
+    }
+    if(purpose)reasons.push(`策略备注：${purpose}`);
+
+    return{level,timing,decision,action,reasons,changeConditions,edge,metrics:m};
   }
 
   function privateAttention(){
@@ -116,19 +218,26 @@
   function card(item){
     const m=item.metrics||{};
     const metrics=item.kind==='option'
-      ?[`P/L ${m.pnlPct===null?'—':pct(m.pnlPct,0)}`,`DTE ${m.dte??'—'}`,`Δ ${m.delta===null?'—':Number(m.delta).toFixed(2)}`,`IV ${m.iv===null?'—':pct(m.iv,0)}`]
+      ?[`P/L ${m.pnlPct===null?'—':pct(m.pnlPct,0)}`,`DTE ${m.dte??'—'}`,`Δ ${m.delta===null?'—':Number(m.delta).toFixed(2)}`,`IV ${m.iv===null?'—':pct(m.iv,0)}`,`价差 ${m.spread===null?'—':pct(m.spread,0)}`]
       :[`当日 ${m.day_change===null||m.day_change===undefined?'—':pct(m.day_change,1)}`,`研究优先级 ${m.research_priority??'—'}`];
-    return `<article class="agent-card agent-${esc(item.level)}"><div class="agent-card-head"><div><span>${item.kind==='option'?'PRIVATE POSITION':'WATCHLIST'}</span><h3>${esc(item.symbol)} · ${esc(item.label)}</h3></div><b>${esc(levelLabel(item.level))} · ${esc(item.timing)}</b></div><div class="agent-metrics">${metrics.map(x=>`<span>${esc(x)}</span>`).join('')}</div><p><strong>当前方案：</strong>${esc(item.action)}</p>${item.reasons?.length?`<ul>${item.reasons.slice(0,4).map(r=>`<li>${esc(r)}</li>`).join('')}</ul>`:''}${item.kind==='option'?'<small>不会自动下单；执行前仍需以券商实时报价、保证金与事件信息确认。</small>':''}</article>`;
+    const decision=item.decision||levelLabel(item.level);
+    const change=item.changeConditions?.length?`<div class="agent-change"><b>改变判断的条件</b><span>${item.changeConditions.slice(0,4).map(esc).join(' · ')}</span></div>`:'';
+    const edge=item.edge?`<div class="agent-edge"><b>剩余风险收益：</b>${esc(item.edge)}</div>`:'';
+    return `<article class="agent-card agent-${esc(item.level)}"><div class="agent-card-head"><div><span>${item.kind==='option'?'PRIVATE POSITION':'WATCHLIST'}</span><h3>${esc(item.symbol)} · ${esc(item.label)}</h3></div><b>${esc(levelLabel(item.level))} · ${esc(item.timing)}</b></div><div class="agent-decision">${esc(decision)}</div><div class="agent-metrics">${metrics.map(x=>`<span>${esc(x)}</span>`).join('')}</div><p><strong>当前方案：</strong>${esc(item.action)}</p>${edge}${item.reasons?.length?`<ul>${item.reasons.slice(0,5).map(r=>`<li>${esc(r)}</li>`).join('')}</ul>`:''}${change}${item.kind==='option'?'<small>系统不会自动下单；若执行，请以券商实时报价、保证金与公司事件为最终确认。</small>':''}</article>`;
   }
 
   function render(){
     const host=$('agentAttentionRoot');if(!host)return;
-    const pub=publicAttention(),priv=privateAttention(),all=[...priv,...pub].sort((a,b)=>rank(b.level)-rank(a.level));
-    const attention=all.filter(x=>x.level!=='quiet');
-    const counts={action:attention.filter(x=>x.level==='action').length,review:attention.filter(x=>x.level==='review').length,watch:attention.filter(x=>x.level==='watch').length};
+    const pub=publicAttention(),priv=privateAttention();
+    const optionAttention=priv.filter(x=>x.level!=='quiet').sort((a,b)=>rank(b.level)-rank(a.level)||((a.metrics?.dte??999)-(b.metrics?.dte??999)));
+    const stockAttention=pub.filter(x=>x.level!=='quiet').sort((a,b)=>rank(b.level)-rank(a.level));
+    const all=[...optionAttention,...stockAttention];
+    const counts={action:all.filter(x=>x.level==='action').length,review:all.filter(x=>x.level==='review').length,watch:all.filter(x=>x.level==='watch').length};
     const discovery=state.publicData?.discovery_queue||[];
-    host.innerHTML=`<div class="agent-attention-head"><div><span class="agent-kicker">MYALPHA AUTONOMOUS AGENT · V5.5</span><h2>自主研究助手</h2><p>系统已经主动扫描持仓、关注池和异常变化；只有值得你注意的事项才会浮到这里。</p></div><div class="agent-counts"><span class="action">需处理 <b>${counts.action}</b></span><span class="review">需复查 <b>${counts.review}</b></span><span>观察 <b>${counts.watch}</b></span></div></div>
-      ${attention.length?`<div class="agent-grid">${attention.slice(0,8).map(card).join('')}</div>`:'<div class="agent-empty">当前没有需要打扰你的重大变化；系统仍在后台记录和学习。</div>'}
+    const optionsHtml=optionAttention.length?`<div class="agent-section-title"><b>期权持仓决策</b><span>${optionAttention.length} 笔需要注意</span></div><div class="agent-grid">${optionAttention.map(card).join('')}</div>`:'<div class="agent-section-title"><b>期权持仓决策</b><span>当前无需要处理的异常</span></div>';
+    const stocksHtml=stockAttention.length?`<div class="agent-section-title"><b>关注股与核心资产</b><span>${stockAttention.length} 项变化</span></div><div class="agent-grid">${stockAttention.map(card).join('')}</div>`:'<div class="agent-section-title"><b>关注股与核心资产</b><span>当前无重要变化</span></div>';
+    host.innerHTML=`<div class="agent-attention-head"><div><span class="agent-kicker">MYALPHA AUTONOMOUS AGENT · V5.5</span><h2>自主研究助手</h2><p>不是只告诉你“需要复查”，而是明确说明今天做什么、为什么、什么条件会改变判断。</p></div><div class="agent-counts"><span class="action">需处理 <b>${counts.action}</b></span><span class="review">需复查 <b>${counts.review}</b></span><span>观察 <b>${counts.watch}</b></span></div></div>
+      ${all.length?optionsHtml+stocksHtml:'<div class="agent-empty">当前没有需要打扰你的重大变化；系统仍在后台记录和学习。</div>'}
       ${discovery.length?`<details class="agent-discovery"><summary>自主发现 · 异常机会 ${discovery.length}</summary><div>${discovery.slice(0,8).map(x=>`<p><b>${esc(x.symbol)}</b> · ${pct(x.price_change,1)} · ${esc(x.event_strength)}<br><small>${esc(x.next_step)} ${esc(x.guardrail)}</small></p>`).join('')}</div></details>`:''}
       <div class="agent-foot">自主研究 ≠ 自动交易。系统负责主动发现、解释、排序和提出方案；最终交易仍由投资者确认。</div>`;
     state.lastRender=Date.now();

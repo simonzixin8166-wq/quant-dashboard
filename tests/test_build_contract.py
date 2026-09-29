@@ -24,6 +24,8 @@ assert "1级回撤" in page and "7.5%" in page
 assert "指数、行业与另类资产" in generator and "指数、行业与另类资产" in page
 assert "data-stock-row" in generator and "data-stock-row" in page
 assert version == "5.2.1"
+assert ".qa-empty{{padding:28px" in generator
+assert ".qa-empty{padding:28px" not in generator
 assert "市场与风险驾驶舱" in generator and "市场与风险驾驶舱" in page
 assert "卫星及杠杆" in generator and "卫星及杠杆" in page
 assert "不参与核心ETF加仓信号" in generator and "不参与核心ETF加仓信号" in page

@@ -72,6 +72,11 @@ assert 'assets/autonomous-agent.css' in generator
 assert "getPositions:()=>[...state.positions.values()]" in options_js
 assert "mav:options-updated" in options_js
 assert "当前方案：" in agent_js
+assert "剩余风险收益：" in agent_js
+assert "改变判断的条件" in agent_js
+assert "今天优先平仓" in agent_js
+assert "未来7天内存在" in agent_js
+assert "到期前存在" not in agent_js
 assert "Build V5.5 Autonomous Research Agent" in workflow
 
 print("PASS V5.5 Autonomous Research Agent")

@@ -7,6 +7,8 @@
   const num=value=>Number.isFinite(Number(value))?Number(value):null;
   const money=value=>num(value)===null?'—':`$${Number(value).toFixed(2)}`;
   const pct=value=>num(value)===null?'—':`${Number(value)>=0?'+':''}${(Number(value)*100).toFixed(2)}%`;
+  const trendZone=score=>{score=num(score);if(score===null)return '数据不足';if(score>=75)return '强势高位';if(score>=50)return '上升确认';if(score>=20)return '转强区';if(score>-20)return '震荡区';if(score>-60)return '弱势区';return '风险区'};
+  const trendStage=state=>({二次启动:'↗ 回踩后重新转强',高位钝化:'→ 强势但上涨变慢',趋势退潮:'↘ 分数仍高但正在转弱',趋势启动:'↗ 趋势刚转强',趋势延续:'↗ 趋势继续增强',修复中:'↗ 弱势开始修复',趋势恶化:'↘ 弱势继续恶化',震荡观察:'→ 方向仍不清晰'})[state]||state||'等待数据';
 
   function nyParts(){
     const parts=new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',year:'numeric',month:'2-digit',day:'2-digit',weekday:'short',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts(new Date());
@@ -91,9 +93,9 @@
   function rowHtml(item,index){
     const symbol=String(item.symbol).toUpperCase(),q=combined(symbol),price=num(q.price),chg=num(q.changePct),dd=num(q.ytdDrawdown),rsi=num(q.rsi),dist=num(q.dist200),[status,label]=statusOf(q,null);
     const tp=(global.MAV_TREND_PULSE||{})[symbol]||{},tpScore=Number.isFinite(Number(tp.score))?Number(tp.score):null,tpTone=tp.tone||'neutral';
-    const pulseHtml=tpScore===null?'<b>—</b><small>数据不足</small>':`<b class="trend-score ${tpTone}">${tpScore>=0?'+':''}${tpScore.toFixed(0)}</b><small>${esc(tp.state||'等待数据')}</small>`;
+    const pulseHtml=tpScore===null?'<b>—</b><small>数据不足</small>':`<b class="trend-score ${tpTone}">${tpScore>=0?'+':''}${tpScore.toFixed(0)}</b><small class="trend-zone-mini">${esc(trendZone(tpScore))}</small><small class="trend-stage-mini">${esc(trendStage(tp.state))}</small>`;
     const detailId=`stock-detail-${symbol}`;
-    const detailPulse=tpScore===null?'数据不足':`${tpScore>=0?'+':''}${tpScore.toFixed(0)} · ${esc(tp.state||'等待数据')}`;
+    const detailPulse=tpScore===null?'数据不足':`${tpScore>=0?'+':''}${tpScore.toFixed(0)} · ${esc(trendZone(tpScore))} · ${esc(trendStage(tp.state))}`;
     return `<tr data-stock-row data-symbol="${esc(symbol)}" data-detail-id="${detailId}" data-status="${status}" data-target-distance="999" data-drawdown="${dd===null?0:Math.abs(dd)}" data-rsi="${rsi===null?999:rsi}" data-dist200="${dist===null?0:dist}" data-pulse="${tpScore===null?-999:tpScore}" data-default-order="${index}"><td class="stock-identity"><div class="stock-name-line"><span class="stock-name">${esc(item.display_name||symbol)}</span><span class="stock-symbol">${esc(symbol)}</span><button type="button" class="stock-mobile-menu" aria-label="${esc(symbol)} 操作菜单" onclick="StockDecision.openContextMenuForSymbol('${esc(symbol)}', this)">⋯</button></div></td><td data-label="最新价 / 涨跌"><b id="close-${esc(symbol)}">${money(price)}</b><small id="chg-${esc(symbol)}" class="${chg!==null&&chg>=0?'pos-text':'neg-text'}">${pct(chg)}</small></td><td data-label="Trend Pulse">${pulseHtml}</td><td data-label="YTD回撤" class="neg-text fw-bold">${pct(dd)}</td><td data-label="RSI">${rsi===null?'—':rsi.toFixed(2)}</td><td data-label="距200MA" class="${dist!==null&&dist<0?'neg-text':''}">${pct(dist)}</td><td data-label="策略价 / 距离" id="target-cell-${esc(symbol)}"><b id="target-${esc(symbol)}">—</b><small id="target-gap-${esc(symbol)}">等待策略数据</small></td><td data-label="状态"><span id="stock-status-${esc(symbol)}" class="stock-status ${status}">${label}</span><span id="action-${esc(symbol)}"></span></td></tr><tr id="${detailId}" class="stock-detail-row" data-detail-for="${esc(symbol)}" hidden><td colspan="8"><div class="stock-detail-panel"><div><span>当日区间</span><b>开 ${money(q.open)} · 高 ${money(q.high)} · 低 ${money(q.low)}</b></div><div><span>YTD高点</span><b>${money(q.ytdHigh)}</b></div><div><span>完整日线</span><b>${esc(q.dailyAsOf||'等待数据')}</b></div><div><span>Trend Pulse</span><b>${detailPulse}</b></div>${researchHtml(symbol,q,tp)}</div></td></tr>`;
   }
 
@@ -162,6 +164,7 @@
     await supabaseClient.from('stock_targets').delete().eq('symbol',symbol);
     state.items=state.items.filter(x=>x.symbol!==symbol);delete state.quotes[symbol];delete state.daily[symbol];saveDailyCache();render();global.MAV?.toast(`${symbol} 已从观察池删除`,'good');
   }
-  global.StockWatchlist={load,refresh,openAdd,openEdit,close,save,remove,openResearch,closeResearch,saveResearch};
+  function assistantCandidates(mode='fear'){return state.items.map(item=>{const symbol=String(item.symbol).toUpperCase(),tp=(global.MAV_TREND_PULSE||{})[symbol]||{},r=state.research[symbol]||{},q=combined(symbol);const score=num(tp.score),stage=tp.state||'',hasThesis=Boolean((r.thesis||'').trim());let eligible=false,why='';if(mode==='fear'){eligible=!['趋势恶化','趋势退潮'].includes(stage)&&(score===null||score>-20);why=stage?trendStage(stage):'等待趋势确认';}else{eligible=score!==null&&score>=75;why=stage?trendStage(stage):trendZone(score);}return {symbol,name:item.display_name||symbol,score,stage,zone:trendZone(score),hasThesis,eligible,why,changePct:num(q.changePct)};}).filter(x=>x.eligible).sort((a,b)=>(b.hasThesis-a.hasThesis)||((b.score??-999)-(a.score??-999))).slice(0,6)}
+  global.StockWatchlist={load,refresh,openAdd,openEdit,close,save,remove,openResearch,closeResearch,saveResearch,assistantCandidates};
   document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&state.items.length)refresh()});
 })(window);

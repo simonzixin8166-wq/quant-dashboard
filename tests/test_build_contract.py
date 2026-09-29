@@ -11,6 +11,8 @@ asset_version = re.search(r'^ASSET_VERSION = "([^"]+)"', generator, re.M).group(
 assert f'data-app-version="{version}"' in page
 assert f'assets/options-v2.js?v={asset_version}' in page
 assert f'assets/market-live.js?v={asset_version}' in page
+assert f'assets/investment-assistant.js?v={asset_version}' in page
+assert f'assets/investment-assistant.css?v={asset_version}' in page
 assert 'assets/strategy-budget.js' not in page and 'assets/strategy-budget.js' not in generator
 assert "Alpaca Indicative" in generator and "Alpaca Indicative" in page
 assert "VIX风险分区半圆仪表盘" in generator and "VIX风险分区半圆仪表盘" in page
@@ -21,7 +23,7 @@ assert "strategy-tier-grid" in generator and "只判断是否进入加仓区" in
 assert "1级回撤" in page and "7.5%" in page
 assert "指数、行业与另类资产" in generator and "指数、行业与另类资产" in page
 assert "data-stock-row" in generator and "data-stock-row" in page
-assert version == "4.9.7"
+assert version == "5.0.0"
 assert "市场与风险驾驶舱" in generator and "市场与风险驾驶舱" in page
 assert "卫星及杠杆" in generator and "卫星及杠杆" in page
 assert "不参与核心ETF加仓信号" in generator and "不参与核心ETF加仓信号" in page

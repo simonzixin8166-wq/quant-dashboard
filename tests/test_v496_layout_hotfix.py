@@ -5,9 +5,10 @@ html=(root/'docs/index.html').read_text()
 gen=(root/'scripts/fetch_and_build.py').read_text()
 assert '\\n' not in css, 'design CSS contains literal \\n tokens'
 assert 'footer footer-with-analytics' in html
-assert 'footer-analytics private-console' in html
+assert 'id="siteAnalyticsRoot" class="site-analytics private-console"' in html
 assert '<section class="section private-console site-analytics-bottom">' not in html
 assert 'footer footer-with-analytics' in gen
+assert 'footer-main #siteAnalyticsRoot.site-analytics' in css
 assert '.stock-table table{' in css and 'min-width:0!important' in css
 for n,w in [(1,'20%'),(2,'13%'),(3,'12%'),(4,'10%'),(5,'7%'),(6,'10%'),(7,'17%'),(8,'11%')]:
     needle=f'.stock-table th:nth-child({n}),.stock-table td:nth-child({n}){{width:{w}!important}}'

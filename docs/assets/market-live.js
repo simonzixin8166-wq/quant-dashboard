@@ -112,6 +112,7 @@
       const providerStamp = providerTimes.length ? new Date(Math.max(...providerTimes) * 1000).toLocaleString() : '时间未知';
       const marketLabel = providerMarketState === 'REGULAR' ? '常规交易时段' : (usSessionPhase() === 'weekend' ? '周末休市' : '当前休市');
       if (asOf) asOf.textContent = `美股行情时点: ${providerStamp}${body.stale ? '（缓存）' : ''} | ${marketLabel} | 宽度: 上一完整收盘日`;
+      globalThis.MAVInvestmentAssistant?.updateFromMarket?.(body);
     } catch (_error) {
       setStatus('usLiveIndexStatus', '实时接口未部署/暂不可用，保留收盘日线', false);
       setStatus('usLiveVixStatus', '实时接口未部署/暂不可用，保留收盘日线', false);

@@ -19,14 +19,17 @@ function candidates(mode){try{return global.StockWatchlist?.assistantCandidates?
 function stockStatus(){try{return global.StockWatchlist?.assistantStatus?.()||{count:0,researchCount:0,risk:[],improving:[],hot:[],loaded:false}}catch{return {count:0,researchCount:0,risk:[],improving:[],hot:[],loaded:false}}}
 function usRegular(){const p=new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',weekday:'short',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts(new Date());const v=Object.fromEntries(p.map(x=>[x.type,x.value])),m=Number(v.hour)*60+Number(v.minute);return !['Sat','Sun'].includes(v.weekday)&&m>=570&&m<960}
 function scanCadence(){return usRegular()?'盘中约5分钟自动复查':'当前休市；页面打开时检查，盘前盘后约30分钟复查'}
+function nextScanAt(){const ms=usRegular()?5*60*1000:30*60*1000;return clock((state.lastScanAt||Date.now())+ms)}
 function clock(ts=Date.now()){try{return new Date(ts).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}catch{return '—'}}
 function button(label,tab){return `<button type="button" onclick="openDashboardTab('${tab}')">${label}</button>`}
 function readJournal(){try{return JSON.parse(localStorage.getItem('mavDecisionJournalV51')||'[]')}catch{return []}}
 function writeJournal(items){try{localStorage.setItem('mavDecisionJournalV51',JSON.stringify(items.slice(-120)))}catch{}}
 function recordEvent(snapshot,c,items){
+  const enriched=(items||[]).map(x=>{const snap=global.StockWatchlist?.assistantSnapshot?.(x.symbol)||{};return {...x,...snap}});
+  if(global.MAVDecisionJournal?.recordAssistantEvent){global.MAVDecisionJournal.recordAssistantEvent({snapshot,classification:c,candidates:enriched,optionIdeas:state.optionIdeas});return}
   const key=[new Date().toISOString().slice(0,10),c.level,Math.round((snapshot.ixic||0)*1000),Math.round((snapshot.spx||0)*1000),Math.round(snapshot.vix||0)].join('|');
   const journal=readJournal();if(journal.some(x=>x.key===key))return;
-  journal.push({key,at:new Date().toISOString(),level:c.level,mode:c.mode,spx:snapshot.spx,ixic:snapshot.ixic,vix:snapshot.vix,candidates:(items||[]).map(x=>x.symbol),source:'automatic-scan-v5.1'});writeJournal(journal);
+  journal.push({key,at:new Date().toISOString(),level:c.level,mode:c.mode,spx:snapshot.spx,ixic:snapshot.ixic,vix:snapshot.vix,candidates:enriched,source:'automatic-scan-v5.2'});writeJournal(journal);
 }
 function notifyTransition(c){
   const key=`${c.mode}:${c.level}`;const prev=state.lastAlertKey;if(key===prev)return;
@@ -60,17 +63,21 @@ function buildAgentSummary(snapshot,c,list){
 }
 function topThree(snapshot,c){
   const ss=stockStatus(),items=[];
-  if(c.level==='normal') items.push({tone:'good',title:'市场无需特别处理',text:`NASDAQ ${pct(snapshot.ixic)}、S&P 500 ${pct(snapshot.spx)}、VIX ${snapshot.vix===null?'—':snapshot.vix.toFixed(1)}；尚未触发观察阈值。`});
-  else items.push({tone:c.level==='panic'?'bad':'warn',title:c.title,text:plainMarket(snapshot,c)});
+  if(c.level==='normal') items.push({tone:'good',title:'市场无需特别处理',text:`NASDAQ ${pct(snapshot.ixic)}、S&P 500 ${pct(snapshot.spx)}、VIX ${snapshot.vix===null?'—':snapshot.vix.toFixed(1)}；尚未触发观察阈值。`,actions:[['查看市场细节','tab-overview']]});
+  else items.push({tone:c.level==='panic'?'bad':'warn',title:c.title,text:plainMarket(snapshot,c),actions:[['查看市场细节','tab-overview']]});
   if(ss.loaded){
-    if(ss.risk.length)items.push({tone:'bad',title:'关注池先看风险',text:`${ss.risk.map(x=>x.symbol).join(' / ')} 处于弱势或退潮阶段，优先复核 Thesis 与失效条件。`});
-    else if(ss.improving.length)items.push({tone:'good',title:'关注池出现修复',text:`${ss.improving.map(x=>x.symbol).join(' / ')} 出现重新转强/修复迹象，仍需基本面与价格条件确认。`});
-    else items.push({tone:'neutral',title:`关注池已扫描 ${ss.count} 只`,text:`当前没有需要升级为高优先级的个股变化；已有研究卡 ${ss.researchCount}/${ss.count}。`});
-  }else items.push({tone:'neutral',title:'关注池等待扫描',text:'登录私有模式后，Stock Agent 会自动检查观察股、研究卡和 Trend Pulse。'});
-  if(c.mode==='normal')items.push({tone:'neutral',title:'期权暂不需要动作',text:'当前没有达到市场级 Sell Put / Buy Call / LEAPS 机会提醒阈值；继续等待条件变化。'});
-  else if(c.mode==='fear')items.push({tone:'warn',title:'期权进入研究模式',text:'Sell Put / Buy Call / LEAPS 仅作为候选；先检查 Thesis、财报、IV、DTE 与最大风险。'});
-  else items.push({tone:'warn',title:'高位风险管理',text:'可比较 Covered Call / Protective Put 的收益封顶与保护成本，不因高分继续追涨。'});
+    if(ss.risk.length){const sym=ss.risk[0].symbol;items.push({tone:'bad',title:'关注池先看风险',text:`${ss.risk.map(x=>x.symbol).join(' / ')} 处于弱势或退潮阶段，优先复核 Thesis 与失效条件。`,symbol:sym,actions:[['查看研究卡','stock'],['看趋势','trend']]});}
+    else if(ss.improving.length){const sym=ss.improving[0].symbol;items.push({tone:'good',title:'关注池出现修复',text:`${ss.improving.map(x=>x.symbol).join(' / ')} 出现重新转强/修复迹象，仍需基本面与价格条件确认。`,symbol:sym,actions:[['查看研究卡','stock'],['看趋势','trend']]});}
+    else items.push({tone:'neutral',title:`关注池已扫描 ${ss.count} 只`,text:`当前没有需要升级为高优先级的个股变化；已有研究卡 ${ss.researchCount}/${ss.count}。`,actions:[['打开观察池','tab-stocks']]});
+  }else items.push({tone:'neutral',title:'关注池等待扫描',text:'登录私有模式后，Stock Agent 会自动检查观察股、研究卡和 Trend Pulse。',actions:[['打开观察池','tab-stocks']]});
+  if(c.mode==='normal')items.push({tone:'neutral',title:'期权暂不需要动作',text:'当前没有达到市场级 Sell Put / Buy Call / LEAPS 机会提醒阈值；继续等待条件变化。',actions:[['期权决策台','tab-sandbox']]});
+  else if(c.mode==='fear')items.push({tone:'warn',title:'期权进入研究模式',text:'Sell Put / Buy Call / LEAPS 仅作为候选；先检查 Thesis、财报、IV、DTE 与最大风险。',actions:[['期权决策台','tab-sandbox']]});
+  else items.push({tone:'warn',title:'高位风险管理',text:'可比较 Covered Call / Protective Put 的收益封顶与保护成本，不因高分继续追涨。',actions:[['期权决策台','tab-sandbox']]});
   return items.slice(0,3);
+}
+function actionHtml(item){
+  const actions=item.actions||[];if(!actions.length)return '';
+  return `<div class="assistant-inline-actions">${actions.map(([label,target])=>{if(target==='stock'&&item.symbol)return `<button type="button" onclick="StockWatchlist.focus('${esc(item.symbol)}')">${esc(label)}</button>`;if(target==='trend')return `<button type="button" onclick="openDashboardTab('tab-trend-pulse')">${esc(label)}</button>`;return `<button type="button" onclick="openDashboardTab('${esc(target)}')">${esc(label)}</button>`}).join('')}</div>`;
 }
 function optionIdeasHtml(){
   if(state.scanning)return '<div class="agent-option-scan"><b>Options Agent 正在自动读取期权链…</b><small>只扫描前3个关注池候选，避免无意义请求。</small></div>';
@@ -86,12 +93,12 @@ function render(snapshot){
   const agents=buildAgentSummary(snapshot,c,list);
   if(c.mode==='normal'){
     const top=topThree(snapshot,c);
-    root.innerHTML=`<div class="assistant-duty-head"><div><span>AI INVESTMENT ASSISTANT · 自动值守</span><h2>AI 投资助手 · 正常值守</h2><p>没有重要触发也会持续扫描；只有状态变化时才升级提醒。</p></div><div class="assistant-scan-time"><b>最近扫描 ${clock(state.lastScanAt)}</b><small>${esc(scanCadence())}</small></div></div><div class="agent-strip">${agents.map(a=>`<div><span>${esc(a.name)}</span><b>${esc(a.status)}</b><small>${esc(a.detail)}</small></div>`).join('')}</div><div class="assistant-top3"><div class="agent-section-title"><b>今天最重要的 3 件事</b><small>系统先替你看完，再告诉你什么值得处理。</small></div><div class="assistant-top3-grid">${top.map((x,i)=>`<article class="${esc(x.tone)}"><span>0${i+1}</span><div><b>${esc(x.title)}</b><p>${esc(x.text)}</p></div></article>`).join('')}</div></div><p class="market-option-disclaimer">正常值守不等于“没有扫描”。Market / Stock / Options / Risk Agent 会持续复查；仅在条件变化时提高提醒等级。</p>`;
+    root.innerHTML=`<div class="assistant-duty-head"><div><span>AI INVESTMENT ASSISTANT · 自动值守</span><h2>AI 投资助手 · 正常值守</h2><p>没有重要触发也会持续扫描；只有状态变化时才升级提醒。</p></div><div class="assistant-scan-time"><b>最近扫描 ${clock(state.lastScanAt)}</b><small>${esc(scanCadence())} · 下一次约 ${nextScanAt()}</small></div></div><div class="agent-strip">${agents.map(a=>`<div><span>${esc(a.name)}</span><b>${esc(a.status)}</b><small>${esc(a.detail)}</small></div>`).join('')}</div><div class="assistant-top3"><div class="agent-section-title"><b>今天最重要的 3 件事</b><small>系统先替你看完，再告诉你什么值得处理。</small></div><div class="assistant-top3-grid">${top.map((x,i)=>`<article class="${esc(x.tone)}"><span>0${i+1}</span><div><b>${esc(x.title)}</b><p>${esc(x.text)}</p>${actionHtml(x)}</div></article>`).join('')}</div></div><p class="market-option-disclaimer">正常值守不等于“没有扫描”。Market / Stock / Options / Risk Agent 会持续复查；仅在条件变化时提高提醒等级。</p>`;
     return;
   }
-  const candidateHtml=list.length?list.slice(0,6).map(x=>{const d=stockDecision(x,c);return `<article class="agent-stock ${d.tone}"><div><b>${esc(x.symbol)}</b><span>${esc(x.zone||'')}</span></div><strong>${esc(d.label)}</strong><p>${esc(d.text)}</p><small>${esc(x.why||'')} ${x.hasThesis?'· 已有研究卡':'· Thesis未填写'}</small></article>`}).join(''):'<article class="agent-stock wait"><div><b>暂无个股候选</b></div><p>市场条件已触发，但观察池还没有满足多条件过滤的标的。</p></article>';
+  const candidateHtml=list.length?list.slice(0,6).map(x=>{const d=stockDecision(x,c);return `<article class="agent-stock ${d.tone}"><div><b>${esc(x.symbol)}</b><span>${esc(x.zone||'')}</span></div><strong>${esc(d.label)}</strong><p>${esc(d.text)}</p><small>${esc(x.why||'')} ${x.hasThesis?'· 已有研究卡':'· Thesis未填写'}</small><div class="assistant-inline-actions"><button type="button" onclick="StockWatchlist.focus('${esc(x.symbol)}')">研究卡</button><button type="button" onclick="openDashboardTab('tab-trend-pulse')">趋势</button><button type="button" onclick="OptionV2.openForSymbol('${esc(x.symbol)}','SELL_PUT')">期权方案</button></div></article>`}).join(''):'<article class="agent-stock wait"><div><b>暂无个股候选</b></div><p>市场条件已触发，但观察池还没有满足多条件过滤的标的。</p></article>';
   const strategyHtml=c.mode==='fear'?`<article><strong>Sell Put</strong><p>${esc(sp?.plain||'')}</p><small>${esc(sp?.params||'')}</small></article><article><strong>Buy Call</strong><p>${esc(bc?.plain||'')}</p><small>先等修复确认，再检查IV与到期时间。</small></article><article><strong>LEAPS Call</strong><p>${esc(leaps?.plain||'')}</p><small>${esc(leaps?.params||'')}</small></article>`:`<article><strong>Covered Call</strong><p>${esc(cc?.plain||'')}</p></article><article><strong>Protective Put</strong><p>${esc(pp?.plain||'')}</p></article>`;
-  root.innerHTML=`<div class="market-option-alert-head"><div><span>AUTONOMOUS INVESTMENT ASSISTANT · 自动扫描 · ${esc(scanCadence())}</span><h2>${esc(c.title)}</h2></div><div class="market-option-alert-numbers"><b>NASDAQ ${pct(snapshot.ixic)}</b><b>S&P 500 ${pct(snapshot.spx)}</b><b>VIX ${snapshot.vix===null?'—':snapshot.vix.toFixed(1)}</b></div></div><p class="market-option-alert-lead">${esc(plainMarket(snapshot,c))}</p><div class="agent-strip">${agents.map(a=>`<div><span>${esc(a.name)}</span><b>${esc(a.status)}</b><small>${esc(a.detail)}</small></div>`).join('')}</div><div class="agent-section-title"><b>关注池自动筛选</b><small>先过滤冲突，再给研究优先级；不会自动下单。</small></div><div class="agent-stock-grid">${candidateHtml}</div><div class="agent-section-title"><b>可研究的期权表达</b><small>策略经验先作为候选，不把单一市场跌幅机械转换为交易。</small></div><div class="market-option-strategies">${strategyHtml}</div>${c.mode==='fear'?`<div class="agent-section-title"><b>自动期权链初筛</b><small>Sell Put 按30–45 DTE、|Delta| 0.16–0.20；LEAPS 只做长期期限与流动性比较。</small></div>${optionIdeasHtml()}`:''}<div class="market-option-actions">${button('打开个股观察池','tab-stocks')}${button('进入期权决策与推演','tab-sandbox')}</div><details class="agent-rules"><summary>查看本次用到的策略规则</summary><div>${(registry().rules||[]).filter(r=>['首页','个股观察池','期权','全站'].includes(r.module)).map(r=>`<p><b>${esc(r.agent)} · ${esc(r.id)}</b> ${esc(r.trigger)}<br><span>${esc(r.action)}</span></p>`).join('')}</div></details><p class="market-option-disclaimer">自动扫描 ≠ 自动交易。AI只负责发现、解释、排序和冲突检查；核心ETF阈值不会自行学习修改，所有交易由投资者决定。</p>`;
+  root.innerHTML=`<div class="market-option-alert-head"><div><span>AUTONOMOUS INVESTMENT ASSISTANT · 最近 ${clock(state.lastScanAt)} · ${esc(scanCadence())} · 下次约 ${nextScanAt()}</span><h2>${esc(c.title)}</h2></div><div class="market-option-alert-numbers"><b>NASDAQ ${pct(snapshot.ixic)}</b><b>S&P 500 ${pct(snapshot.spx)}</b><b>VIX ${snapshot.vix===null?'—':snapshot.vix.toFixed(1)}</b></div></div><p class="market-option-alert-lead">${esc(plainMarket(snapshot,c))}</p><div class="agent-strip">${agents.map(a=>`<div><span>${esc(a.name)}</span><b>${esc(a.status)}</b><small>${esc(a.detail)}</small></div>`).join('')}</div><div class="agent-section-title"><b>关注池自动筛选</b><small>先过滤冲突，再给研究优先级；不会自动下单。</small></div><div class="agent-stock-grid">${candidateHtml}</div><div class="agent-section-title"><b>可研究的期权表达</b><small>策略经验先作为候选，不把单一市场跌幅机械转换为交易。</small></div><div class="market-option-strategies">${strategyHtml}</div>${c.mode==='fear'?`<div class="agent-section-title"><b>自动期权链初筛</b><small>Sell Put 按30–45 DTE、|Delta| 0.16–0.20；LEAPS 只做长期期限与流动性比较。</small></div>${optionIdeasHtml()}`:''}<div class="market-option-actions">${button('打开个股观察池','tab-stocks')}${button('进入期权决策与推演','tab-sandbox')}${button('查看决策复盘','tab-journal')}</div><details class="agent-rules"><summary>查看本次用到的策略规则</summary><div>${(registry().rules||[]).filter(r=>['首页','个股观察池','期权','全站'].includes(r.module)).map(r=>`<p><b>${esc(r.agent)} · ${esc(r.id)}</b> ${esc(r.trigger)}<br><span>${esc(r.action)}</span></p>`).join('')}</div></details><p class="market-option-disclaimer">自动扫描 ≠ 自动交易。AI只负责发现、解释、排序和冲突检查；核心ETF阈值不会自行学习修改，所有交易由投资者决定。</p>`;
   root.hidden=false;
   if(c.mode==='fear')scheduleOptionScan(list,c);
 }

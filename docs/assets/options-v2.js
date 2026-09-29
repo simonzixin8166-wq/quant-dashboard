@@ -426,7 +426,12 @@
     return out;
   }
 
-  global.OptionV2={bsPrice,evaluate,normalizeColumnar,renderDecisionAssistant,loadPrivatePositions,populateAccountSelect,refreshQuote,refreshPosition,refreshAllPositions,openPositionScenario,completeRocFields,occSymbol,positionMetrics,annualizedRoc,positionRisk,quoteFreshness,isUsRegularSession,setMarketEvents,realizedPnl,assignmentBasis,openLifecycle,closeLifecycle,savePositionAccount,updateLifecyclePreview,saveLifecycle,editPosition,deletePosition,deleteLifecycleRecord,restoreArchivedPosition,toggleHistory,autoScreenOpportunity,getPosition:id=>state.positions.get(String(id))};
+  function openForSymbol(symbol,strategy='SELL_PUT'){
+    symbol=String(symbol||'').toUpperCase();
+    if(typeof global.openDashboardTab==='function')global.openDashboardTab('tab-sandbox');
+    setTimeout(()=>{const input=$('optionSymbol');if(input)input.value=symbol;try{strategyChanged(strategy)}catch{};const btn=$('loadExpirations');if(btn)btn.focus()},80);
+  }
+  global.OptionV2={bsPrice,evaluate,normalizeColumnar,renderDecisionAssistant,loadPrivatePositions,populateAccountSelect,refreshQuote,refreshPosition,refreshAllPositions,openPositionScenario,completeRocFields,occSymbol,positionMetrics,annualizedRoc,positionRisk,quoteFreshness,isUsRegularSession,setMarketEvents,realizedPnl,assignmentBasis,openLifecycle,closeLifecycle,savePositionAccount,updateLifecyclePreview,saveLifecycle,editPosition,deletePosition,deleteLifecycleRecord,restoreArchivedPosition,toggleHistory,autoScreenOpportunity,openForSymbol,getPosition:id=>state.positions.get(String(id))};
   if(typeof document!=='undefined'){
     document.addEventListener('DOMContentLoaded',()=>{bind();$('refreshAllOptions')?.addEventListener('click',()=>refreshAllPositions({force:true,reason:'手动刷新'}))});
     document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&Date.now()-state.lastBulkAt>=POSITION_REFRESH_MS)refreshAllPositions({onlyNeeded:true,reason:'返回页面检查'})});

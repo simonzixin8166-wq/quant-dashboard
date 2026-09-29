@@ -13,9 +13,9 @@ except ModuleNotFoundError:
 warnings.filterwarnings("ignore")
 
 # 单一版本源：每日 Action 生成 HTML 时，页面标题和静态资源缓存版本都从这里读取。
-APP_VERSION = "5.1.1"
+APP_VERSION = "5.2.0"
 OPTIONS_VERSION = "4.1.0"  # 网站优先；APP/PWA 功能已移除，仅保留响应式手机网页
-ASSET_VERSION = "5.1.1"
+ASSET_VERSION = "5.2.0"
 
 API_KEY = os.environ.get("TWELVE_DATA_KEY", "demo")
 BASE = "https://api.twelvedata.com"
@@ -711,22 +711,22 @@ def build_trend_interpretation(tp):
     slope5=float(tp.get("slope5") or 0); adx=tp.get("adx"); plus=tp.get("plus_di"); minus=tp.get("minus_di")
     rsi=tp.get("rsi"); st=tp.get("supertrend","-"); structure=tp.get("structure","-")
     if state in ("趋势启动","趋势延续","二次启动"):
-        analysis=f"{state}：日线脉冲位于正区，5日斜率{slope5:+.1f}，周线为{weekly}，Supertrend为{st}。"
+        analysis=f"{state}：日线脉冲位于正区，5日斜率{fmt_signed(slope5,1)}，周线为{weekly}，Supertrend为{st}。"
         guidance="趋势结构尚未显示明确破坏；更适合继续跟踪趋势延续性，等待回踩确认，不把单日涨跌直接解释为趋势反转。"
     elif state == "高位钝化":
-        analysis=f"高位钝化：趋势仍偏强，但5日斜率{slope5:+.1f}，边际动能趋缓。"
+        analysis=f"高位钝化：趋势仍偏强，但5日斜率{fmt_signed(slope5,1)}，边际动能趋缓。"
         guidance="避免仅因高分追高；重点等待斜率重新上行，或观察是否转入高位下拐。"
     elif state == "趋势退潮":
-        analysis=f"趋势退潮：高位脉冲明显回落，5日斜率{slope5:+.1f}，周线为{weekly}。"
+        analysis=f"趋势退潮：高位脉冲明显回落，5日斜率{fmt_signed(slope5,1)}，周线为{weekly}。"
         guidance="优先观察风险控制条件；若日线Supertrend翻空且周线同步转弱，应把趋势破坏风险置于短期反弹之前。"
     elif state == "修复中":
-        analysis=f"修复中：脉冲仍在负区但开始回升，5日斜率{slope5:+.1f}，周线为{weekly}。"
+        analysis=f"修复中：脉冲仍在负区但开始回升，5日斜率{fmt_signed(slope5,1)}，周线为{weekly}。"
         guidance="把当前视为观察阶段，等待脉冲上穿0轴及日周方向进一步一致后再提高趋势判断置信度。"
     elif state == "趋势恶化":
         analysis=f"趋势恶化：脉冲位于负区且未形成有效上拐，周线为{weekly}，Supertrend为{st}。"
         guidance="以风险观察为主，不把普通反弹直接视为趋势反转；等待结构与斜率真正修复。"
     else:
-        analysis=f"震荡观察：趋势证据尚未形成一致方向，5日斜率{slope5:+.1f}，周线为{weekly}。"
+        analysis=f"震荡观察：趋势证据尚未形成一致方向，5日斜率{fmt_signed(slope5,1)}，周线为{weekly}。"
         guidance="减少对单一指标的依赖，等待日线、周线及趋势强度形成更清晰共振。"
     risk=[]
     if isinstance(adx,(int,float)):
@@ -779,7 +779,7 @@ def calculate_trend_pulse(rows, symbol=None, secondary=None, today=None):
     except Exception: pass
     vol_available=bool(df.volume.fillna(0).sum()>0)
     series=[{"d":idx.date().isoformat(),"v":round(float(row.pulse),2)} for idx,row in valid.iloc[-90:].iterrows()]
-    summary=(f"日线{state}，周线{weekly_label}；5日脉冲变化 {slope5:+.1f}。"
+    summary=(f"日线{state}，周线{weekly_label}；5日脉冲变化 {fmt_signed(slope5,1)}。"
              + ("多周期方向一致。" if (cur.pulse>=20 and weekly_bias>0) or (cur.pulse<0 and weekly_bias<0) else "多周期尚未完全共振。"))
     result = {
         "available":True,"date":valid.index[-1].date().isoformat(),"score":round(float(cur.pulse),1),
@@ -1277,6 +1277,26 @@ def build():
 def fmt_pct(x, digits=2): return f"{x*100:.{digits}f}%" if isinstance(x, (int, float)) and not math.isnan(x) else "-"
 def fmt_num(x, digits=2): return f"{x:.{digits}f}" if isinstance(x, (int, float)) and not math.isnan(x) else "-"
 
+def fmt_pulse_score(x):
+    """Canonical Trend Pulse display: signed integer, never '-0'."""
+    if not isinstance(x, (int, float)) or math.isnan(x):
+        return "—"
+    rounded = int(round(x))
+    if rounded == 0:
+        return "0"
+    return f"{rounded:+d}"
+
+def fmt_signed(x, digits=1, zero_eps=None):
+    if not isinstance(x, (int, float)) or math.isnan(x):
+        return "—"
+    if zero_eps is None:
+        zero_eps = 0.5 * (10 ** (-digits))
+    if abs(x) < zero_eps:
+        x = 0.0
+    if x == 0:
+        return f"{0:.{digits}f}"
+    return f"{x:+.{digits}f}"
+
 
 def trend_pulse_band(score, slope5=0, weekly="-"):
     """面向普通投资者的 Trend Pulse 基础判断。
@@ -1751,7 +1771,7 @@ def render_html(data):
         tp_tone = iren_tp.get("tone","neutral")
         integrity = iren_tp.get("data_integrity") or {}
         int_status = integrity.get("status","CHECK")
-        trend_home_html = f'''<div class="iren-trend-inline"><div><span>Trend Pulse</span><b class="{tp_tone}">{iren_tp.get("score",0):+.0f}</b></div><div><span>趋势状态</span><strong>{html.escape(iren_tp.get("state","-"))}</strong></div><div><span>周线</span><strong>{html.escape(iren_tp.get("weekly","-"))}</strong></div><div><span>数据校验</span><strong class="integrity-{int_status.lower()}">{html.escape(integrity.get("label","待校验"))}</strong></div></div><div class="trend-interpretation"><p><b>分析结果</b>{html.escape(iren_tp.get("analysis",""))}</p><p><b>风险观察</b>{html.escape(iren_tp.get("risk_watch",""))}</p><p><b>研究提示</b>{html.escape(iren_tp.get("guidance",""))}</p></div>'''
+        trend_home_html = f'''<div class="iren-trend-inline iren-trend-compact"><div><span>Trend Pulse</span><b class="{tp_tone}">{fmt_pulse_score(iren_tp.get("score",0))}</b></div><div><span>动态阶段</span><strong>{html.escape(iren_tp.get("state","-"))}</strong></div><div><span>数据校验</span><strong class="integrity-{int_status.lower()}">{html.escape(integrity.get("label","待校验"))}</strong></div></div><div class="iren-quick-actions"><button type="button" onclick="openDashboardTab('tab-trend-pulse')">查看完整趋势证据</button><button type="button" onclick="StockWatchlist.focus('IREN')">打开 IREN 研究卡</button></div>'''
     else:
         trend_home_html = '<div class="iren-trend-inline unavailable">Trend Pulse 等待足够日线数据</div>'
 
@@ -1787,7 +1807,7 @@ def render_html(data):
         tp_tone = iren_tp.get("tone","neutral")
         integrity = iren_tp.get("data_integrity") or {}
         int_status = integrity.get("status","CHECK")
-        trend_home_html = f'''<div class="iren-trend-inline"><div><span>Trend Pulse</span><b class="{tp_tone}">{iren_tp.get("score",0):+.0f}</b></div><div><span>趋势状态</span><strong>{html.escape(iren_tp.get("state","-"))}</strong></div><div><span>周线</span><strong>{html.escape(iren_tp.get("weekly","-"))}</strong></div><div><span>数据校验</span><strong class="integrity-{int_status.lower()}">{html.escape(integrity.get("label","待校验"))}</strong></div></div><div class="trend-interpretation"><p><b>分析结果</b>{html.escape(iren_tp.get("analysis",""))}</p><p><b>风险观察</b>{html.escape(iren_tp.get("risk_watch",""))}</p><p><b>研究提示</b>{html.escape(iren_tp.get("guidance",""))}</p></div>'''
+        trend_home_html = f'''<div class="iren-trend-inline iren-trend-compact"><div><span>Trend Pulse</span><b class="{tp_tone}">{fmt_pulse_score(iren_tp.get("score",0))}</b></div><div><span>动态阶段</span><strong>{html.escape(iren_tp.get("state","-"))}</strong></div><div><span>数据校验</span><strong class="integrity-{int_status.lower()}">{html.escape(integrity.get("label","待校验"))}</strong></div></div><div class="iren-quick-actions"><button type="button" onclick="openDashboardTab('tab-trend-pulse')">查看完整趋势证据</button><button type="button" onclick="StockWatchlist.focus('IREN')">打开 IREN 研究卡</button></div>'''
     else:
         trend_home_html = '<div class="iren-trend-inline unavailable">Trend Pulse 等待足够日线数据</div>'
 
@@ -1807,7 +1827,7 @@ def render_html(data):
         direction = trend_direction_text(score, slope5)
         stock_price_html = f'<div class="trend-price-line"><span>当前股价</span><b>${stock_price:.2f}</b></div>' if stock_price is not None else '<div class="trend-price-line"><span>当前股价</span><b>—</b></div>'
         detail_help = '技术细节用于系统校验，不要求普通投资者逐项判断。ADX衡量趋势强度；DI比较多空方向；Supertrend是趋势跟随线；结构表示近期高低点组合。'
-        trend_cards.append(f'''<article class="trend-card trend-card-simple" data-tone="{tone}"><div class="trend-card-top"><div><span>{html.escape(STOCK_META.get(sym,{}).get("name",sym))}</span><h3>{sym}</h3>{stock_price_html}</div><div class="trend-score-box"><span>Trend Pulse</span><div class="trend-score-xl {tone}">{score:+.0f}</div><small>-100 至 +100</small></div></div><div class="trend-simple-verdict"><div><span>当前走势</span><strong>{html.escape(direction)}</strong></div><div><span>基础判断</span><strong class="judgement-{basic['tone']}">{html.escape(basic['action'])}</strong></div><div><span>所在区间</span><strong>{html.escape(basic['zone'])}</strong></div></div><p class="trend-basic-summary">{html.escape(basic['summary'])}</p><div class="trend-easy-metrics"><div><span>5日动能</span><b>{slope5:+.1f} · {'改善' if slope5>0 else ('减弱' if slope5<0 else '持平')}</b></div><div><span>中期方向</span><b>{html.escape(str(weekly))}</b></div><div class="trend-data-status"><span class="trend-status-label">数据状态 <button class="info-tip" type="button" aria-label="数据状态说明" data-tooltip="{html.escape(integrity_desc)}">ⓘ</button></span><b class="integrity-{isty}">{html.escape(integrity.get('label','待校验'))}</b></div></div><details class="trend-tech-details"><summary>查看技术细节（可选）</summary><p>{detail_help}</p><div class="trend-card-grid"><div class="trend-metric"><span>Supertrend</span><b>{html.escape(tp.get('supertrend','-'))}</b></div><div class="trend-metric"><span>ADX 趋势强度</span><b>{fmt_num(tp.get('adx'),1)}</b></div><div class="trend-metric"><span>+DI / -DI 多空</span><b>{fmt_num(tp.get('plus_di'),1)} / {fmt_num(tp.get('minus_di'),1)}</b></div><div class="trend-metric"><span>价格结构</span><b>{html.escape(tp.get('structure','-'))}</b></div></div></details><div class="trend-integrity-foot"><small>收盘确认 · {html.escape(str(integrity.get('as_of','-')))}</small></div></article>''')
+        trend_cards.append(f'''<article class="trend-card trend-card-simple" data-tone="{tone}"><div class="trend-card-top"><div><span>{html.escape(STOCK_META.get(sym,{}).get("name",sym))}</span><h3>{sym}</h3>{stock_price_html}</div><div class="trend-score-box"><span>Trend Pulse</span><div class="trend-score-xl {tone}">{fmt_pulse_score(score)}</div><small>-100 至 +100</small></div></div><div class="trend-simple-verdict"><div><span>当前走势</span><strong>{html.escape(direction)}</strong></div><div><span>基础判断</span><strong class="judgement-{basic['tone']}">{html.escape(basic['action'])}</strong></div><div><span>所在区间</span><strong>{html.escape(basic['zone'])}</strong></div></div><p class="trend-basic-summary">{html.escape(basic['summary'])}</p><div class="trend-easy-metrics"><div><span>5日动能</span><b>{fmt_signed(slope5,1)} · {'改善' if slope5>0 else ('减弱' if slope5<0 else '持平')}</b></div><div><span>中期方向</span><b>{html.escape(str(weekly))}</b></div><div class="trend-data-status"><span class="trend-status-label">数据状态 <button class="info-tip" type="button" aria-label="数据状态说明" data-tooltip="{html.escape(integrity_desc)}">ⓘ</button></span><b class="integrity-{isty}">{html.escape(integrity.get('label','待校验'))}</b></div></div><details class="trend-tech-details"><summary>查看技术细节（可选）</summary><p>{detail_help}</p><div class="trend-card-grid"><div class="trend-metric"><span>Supertrend</span><b>{html.escape(tp.get('supertrend','-'))}</b></div><div class="trend-metric"><span>ADX 趋势强度</span><b>{fmt_num(tp.get('adx'),1)}</b></div><div class="trend-metric"><span>+DI / -DI 多空</span><b>{fmt_num(tp.get('plus_di'),1)} / {fmt_num(tp.get('minus_di'),1)}</b></div><div class="trend-metric"><span>价格结构</span><b>{html.escape(tp.get('structure','-'))}</b></div></div></details><div class="trend-integrity-foot"><small>收盘确认 · {html.escape(str(integrity.get('as_of','-')))}</small></div></article>''')
     trend_cards_html=''.join(trend_cards) or '<div class="trend-empty">等待趋势数据</div>' 
 
     iren_basic = trend_pulse_band(iren_tp.get("score",0), iren_tp.get("slope5",0), iren_tp.get("weekly","-")) if iren_tp.get("available") else {"zone":"等待数据","action":"等待数据","tone":"neutral","summary":"等待足够数据。"}
@@ -1817,7 +1837,7 @@ def render_html(data):
     chart_json = json.dumps(data.get("overview_charts", {}), ensure_ascii=False)
 
     return f'''<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"><title>Myalpha View · 投资分析及策略</title>
-<meta name="author" content="Simon"><meta name="application-version" content="{APP_VERSION}"><meta name="robots" content="noindex,nofollow,noarchive,nosnippet"><meta name="referrer" content="no-referrer"><meta name="theme-color" content="#D71920"><link rel="icon" type="image/png" href="icons/bull-logo-v44.png"><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,380;9..144,520;9..144,620&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"><link href="assets/options-v2.css?v={ASSET_VERSION}" rel="stylesheet"><link href="assets/investment-assistant.css?v={ASSET_VERSION}" rel="stylesheet"><link href="assets/roll-manager.css?v={ASSET_VERSION}" rel="stylesheet"><link href="assets/finance-tools.css?v={ASSET_VERSION}" rel="stylesheet"><link href="assets/opportunity-radar.css?v={ASSET_VERSION}" rel="stylesheet"><link href="assets/mobile-shell.css?v={ASSET_VERSION}" rel="stylesheet"><script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<meta name="author" content="Simon"><meta name="application-version" content="{APP_VERSION}"><meta name="robots" content="noindex,nofollow,noarchive,nosnippet"><meta name="referrer" content="no-referrer"><meta name="theme-color" content="#D71920"><link rel="icon" type="image/png" href="icons/bull-logo-v44.png"><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,380;9..144,520;9..144,620&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"><link href="assets/options-v2.css?v={ASSET_VERSION}" rel="stylesheet"><link href="assets/investment-assistant.css?v={ASSET_VERSION}" rel="stylesheet"><link href="assets/decision-journal.css?v={ASSET_VERSION}" rel="stylesheet"><link href="assets/roll-manager.css?v={ASSET_VERSION}" rel="stylesheet"><link href="assets/finance-tools.css?v={ASSET_VERSION}" rel="stylesheet"><link href="assets/opportunity-radar.css?v={ASSET_VERSION}" rel="stylesheet"><link href="assets/mobile-shell.css?v={ASSET_VERSION}" rel="stylesheet"><script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{{--bg:#f4f2ec;--surface:#ffffff;--surface2:#ebe8df;--ink:#14161c;--muted:#696d76;--line:#e1ddd0;--nav:#11162a;--nav2:#0a0d1a;--navmuted:#8d93ab;--navline:rgba(255,255,255,.08);--brass:#b8863a;--brass-soft:#e8d3ab;--navy:#1f2b52;--green:#1c7a4c;--green-soft:#e5f1e9;--red:#b23b2e;--red-soft:#f6e6e2;--amber:#c07f2e;--amber-soft:#f6ecd8;--shadow:0 12px 32px rgba(15,15,10,.07);--serif:'Fraunces',ui-serif,Georgia,serif;--sans:'Inter',-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;}}
 *{{box-sizing:border-box;margin:0;padding:0}} body{{font-family:var(--sans);background:var(--bg);color:var(--ink);min-height:100vh;-webkit-font-smoothing:antialiased}} .app{{display:flex;min-height:100vh}}
@@ -1866,7 +1886,7 @@ body{{font-size:15px;background:linear-gradient(180deg,#f7f9fc 0,#f3f6fa 100%);l
 <div class="nav-group"><div class="nav-title">美股 · 核心资产</div><ul class="nav-menu"><li class="active" onclick="switchTab('tab-overview',this)"><span class="nav-icon">◆</span>市场总览</li><li data-auth-required onclick="switchTab('tab-engine',this)"><span class="nav-icon">◒</span>回撤策略</li><li data-auth-required onclick="switchTab('tab-index',this)"><span class="nav-icon">◫</span>指数 & ETF</li></ul></div>
 <div class="nav-group"><div class="nav-title">A股 · 港股 · 红利</div><ul class="nav-menu"><li data-auth-required onclick="switchTab('tab-cn-hk',this)"><span class="nav-icon">◇</span>大盘 & 红利低波</li></ul></div>
 <div class="nav-group"><div class="nav-title">观察 & 持仓</div><ul class="nav-menu"><li data-auth-required onclick="switchTab('tab-stocks',this)"><span class="nav-icon">⌁</span>个股观察池</li><li data-auth-required onclick="switchTab('tab-trend-pulse',this)"><span class="nav-icon">∿</span>趋势脉冲</li><li data-auth-required onclick="switchTab('tab-options',this)"><span class="nav-icon">⚑</span>期权持仓监控</li><li data-auth-required onclick="switchTab('tab-archive',this)"><span class="nav-icon">📜</span>历史买点归档</li></ul></div>
-<div class="nav-group"><div class="nav-title">规划 & 工具</div><ul class="nav-menu"><li data-auth-required onclick="switchTab('tab-finance-tools',this)"><span class="nav-icon">◎</span>理财工具</li><li data-auth-required onclick="switchTab('tab-sandbox',this)"><span class="nav-icon">🧮</span>期权决策与推演</li></ul></div>
+<div class="nav-group"><div class="nav-title">规划 & 工具</div><ul class="nav-menu"><li data-auth-required onclick="switchTab('tab-finance-tools',this)"><span class="nav-icon">◎</span>理财工具</li><li data-auth-required onclick="switchTab('tab-sandbox',this)"><span class="nav-icon">🧮</span>期权决策与推演</li><li data-auth-required onclick="switchTab('tab-journal',this)"><span class="nav-icon">◷</span>决策复盘</li></ul></div>
 <div class="nav-group"><div class="nav-title">学习 &amp; 方法</div><ul class="nav-menu"><li data-auth-required onclick="switchTab('tab-knowledge',this)"><span class="nav-icon">◎</span>投资知识与方法</li></ul></div><div class="nav-group"><div class="nav-title">方法研究中心</div><ul class="nav-menu"><li data-auth-required onclick="switchTab('tab-wenxuecity',this)"><span class="nav-icon">◎</span>文学城 / 博主经验</li></ul></div><div class="sidebar-footer">主理人私有看板 · 敏感持仓由 Supabase RLS 保护<br>未登录仅提供市场概览预览<br><a href="mailto:xxj8166@gmail.com" style="color:#9ea7bf;text-decoration:none">意见交流邮箱：xxj8166@gmail.com</a></div></aside>
 <div id="mobileNavBackdrop" class="mobile-nav-backdrop" aria-hidden="true"></div><aside id="mobileNavSheet" class="mobile-nav-sheet" aria-hidden="true" aria-label="全部模块"><div class="mobile-nav-sheet-head"><strong>全部模块</strong><button id="mobileNavClose" type="button" aria-label="关闭菜单">×</button></div><nav id="mobileNavList" class="mobile-nav-list"></nav><div class="mobile-nav-actions mobile-nav-actions-web"><button id="mobileThemeAction" type="button">切换主题</button><button id="mobileAuthAction" type="button">登录</button></div></aside><nav id="mobileBottomNav" class="mobile-bottom-nav" aria-label="手机主导航"></nav>
 
@@ -1898,7 +1918,7 @@ body{{font-size:15px;background:linear-gradient(180deg,#f7f9fc 0,#f3f6fa 100%);l
 <section class="section">{opportunity_history_html}</section>
 </div>
 
-<div id="tab-wenxuecity" class="tab-pane" data-title="方法研究中心"><div id="wxcRoot"></div></div><div id="tab-knowledge" class="tab-pane" data-title="投资知识与方法"><div id="knowledgeRoot"></div></div><div id="tab-index" class="tab-pane"><section class="hero compact-hero"><div><h1>指数、行业与另类资产</h1><p>区分历史ATH与窗口高点，直接显示下一档触发价格和真实价格距离。</p></div></section><section class="section asset-groups">{index_html}</section></div>
+<div id="tab-wenxuecity" class="tab-pane" data-title="方法研究中心"><div id="wxcRoot"></div></div><div id="tab-knowledge" class="tab-pane" data-title="投资知识与方法"><div id="knowledgeRoot"></div></div><div id="tab-journal" class="tab-pane" data-title="决策复盘"><div id="decisionJournalRoot" class="decision-journal-root"><section class="hero compact-hero"><div><h1>Decision Journal · 决策复盘</h1><p>自动记录重要市场状态与研究候选，并在20 / 60 / 120个交易日后验证结果。先验证，再学习；样本不足时不下结论。</p></div></section><div class="journal-loading">正在整理决策记录与历史验证…</div></div></div><div id="tab-index" class="tab-pane"><section class="hero compact-hero"><div><h1>指数、行业与另类资产</h1><p>区分历史ATH与窗口高点，直接显示下一档触发价格和真实价格距离。</p></div></section><section class="section asset-groups">{index_html}</section></div>
 
 <div id="tab-cn-hk" class="tab-pane">
 <section class="hero compact-hero"><div><h1>A股港股 & 红利低波</h1><p>自动同步腾讯行情；159307明确作为中证红利低波100指数的场内代理标的。</p></div></section>
@@ -2007,7 +2027,7 @@ body{{font-size:15px;background:linear-gradient(180deg,#f7f9fc 0,#f3f6fa 100%);l
 </div>
 </div>
 
-<div id="tab-trend-pulse" class="tab-pane"><section class="hero compact-hero trend-hero-simple"><div><h1>趋势脉冲</h1><p>用一个 -100～+100 的分数概括当前趋势。普通投资者先看“当前走势”和“基础判断”；技术指标收在可选详情里。</p></div></section><section class="section trend-guide"><div class="section-head"><h2>怎样理解 Trend Pulse</h2><p>基础规则待5年历史回测持续验证；分数不能单独替代仓位纪律。</p></div><div class="trend-guide-grid"><div class="risk"><b>-100 ～ -60</b><span>风险区</span><em>避免新仓 / 考虑减仓</em></div><div class="warn"><b>-59 ～ -20</b><span>弱势区</span><em>观察修复</em></div><div class="neutral"><b>-19 ～ +19</b><span>震荡区</span><em>等待方向</em></div><div class="watch"><b>+20 ～ +49</b><span>转强区</span><em>重点观察 / 条件满足可小仓试探</em></div><div class="good"><b>+50 ～ +74</b><span>上升确认</span><em>持有 / 回踩关注</em></div><div class="caution"><b>+75 ～ +100</b><span>强势高位</span><em>持有为主 / 不追高</em></div></div><p class="trend-guide-note"><strong>先看位置，再看方向：</strong>分数区间回答“现在整体强不强”；动态阶段回答“正在变强、走平还是转弱”。所以同样 +80 多，可以分别是“回踩后重新转强”“强势但上涨变慢”或“分数仍高但正在转弱”。减仓/退出仍需结合负区、5日动能和中期方向。</p></section><section class="section trend-feature trend-feature-v453"><div class="trend-chart-panel"><div class="trend-chart-head"><strong>IREN Trend Pulse</strong><span>-100 至 +100 · 最近90个交易日</span></div><canvas id="trendPulseChartIREN"></canvas></div><div class="trend-feature-copy"><span class="trend-kicker">IREN · 重点跟踪</span><div class="trend-main-score"><span>当前 Pulse</span><strong class="{iren_tp.get('tone','neutral')}">{iren_tp.get('score','—')}</strong><small>{html.escape(iren_basic['zone'])}</small></div><div class="trend-main-verdict"><div><span>当前走势</span><b>{html.escape(iren_direction)}</b></div><div><span>基础判断</span><b class="judgement-{iren_basic['tone']}">{html.escape(iren_basic['action'])}</b></div></div><p class="trend-main-summary">{html.escape(iren_basic['summary'])}</p><div class="trend-easy-metrics"><div><span>5日动能</span><b>{iren_tp.get('slope5',0):+.1f} · {'改善' if iren_tp.get('slope5',0)>0 else ('减弱' if iren_tp.get('slope5',0)<0 else '持平')}</b></div><div><span>中期方向</span><b>{html.escape(iren_tp.get('weekly','—'))}</b></div></div><details class="trend-tech-details"><summary>查看技术细节（可选）</summary><p>ADX、DI、Supertrend 和价格结构只用于系统确认；普通投资者无需逐项判断。</p><div class="trend-card-grid"><div class="trend-metric"><span>Supertrend</span><b>{html.escape(iren_tp.get('supertrend','—'))}</b></div><div class="trend-metric"><span>ADX 趋势强度</span><b>{fmt_num(iren_tp.get('adx'),1)}</b></div><div class="trend-metric"><span>+DI / -DI 多空</span><b>{fmt_num(iren_tp.get('plus_di'),1)} / {fmt_num(iren_tp.get('minus_di'),1)}</b></div><div class="trend-metric"><span>价格结构</span><b>{html.escape(iren_tp.get('structure','—'))}</b></div></div></details></div></section><section class="section"><div class="section-head"><h2>观察池趋势状态</h2><p>先看走势与基础判断；技术细节按需展开。</p></div><div class="trend-card-grid-wrap">{trend_cards_html}</div></section><section class="trend-method-note"><strong>方法边界</strong><p>Trend Pulse 是 myAlphaView 自研、透明可回测的趋势跟踪指标。区间是便于普通投资者阅读的基础解释，不是保证收益的机械买卖指令；正式状态以完整收盘数据确认。</p></section></div>
+<div id="tab-trend-pulse" class="tab-pane"><section class="hero compact-hero trend-hero-simple"><div><h1>趋势脉冲</h1><p>用一个 -100～+100 的分数概括当前趋势。普通投资者先看“当前走势”和“基础判断”；技术指标收在可选详情里。</p></div></section><section class="section trend-guide"><div class="section-head"><h2>怎样理解 Trend Pulse</h2><p>基础规则待5年历史回测持续验证；分数不能单独替代仓位纪律。</p></div><div class="trend-guide-grid"><div class="risk"><b>-100 ～ -60</b><span>风险区</span><em>避免新仓 / 考虑减仓</em></div><div class="warn"><b>-59 ～ -20</b><span>弱势区</span><em>观察修复</em></div><div class="neutral"><b>-19 ～ +19</b><span>震荡区</span><em>等待方向</em></div><div class="watch"><b>+20 ～ +49</b><span>转强区</span><em>重点观察 / 条件满足可小仓试探</em></div><div class="good"><b>+50 ～ +74</b><span>上升确认</span><em>持有 / 回踩关注</em></div><div class="caution"><b>+75 ～ +100</b><span>强势高位</span><em>持有为主 / 不追高</em></div></div><p class="trend-guide-note"><strong>先看位置，再看方向：</strong>分数区间回答“现在整体强不强”；动态阶段回答“正在变强、走平还是转弱”。所以同样 +80 多，可以分别是“回踩后重新转强”“强势但上涨变慢”或“分数仍高但正在转弱”。减仓/退出仍需结合负区、5日动能和中期方向。</p></section><section class="section trend-feature trend-feature-v453"><div class="trend-chart-panel"><div class="trend-chart-head"><strong>IREN Trend Pulse</strong><span>-100 至 +100 · 最近90个交易日</span></div><canvas id="trendPulseChartIREN"></canvas></div><div class="trend-feature-copy"><span class="trend-kicker">IREN · 重点跟踪</span><div class="trend-main-score"><span>当前 Pulse</span><strong class="{iren_tp.get('tone','neutral')}">{fmt_pulse_score(iren_tp.get('score'))}</strong><small>{html.escape(iren_basic['zone'])}</small></div><div class="trend-main-verdict"><div><span>当前走势</span><b>{html.escape(iren_direction)}</b></div><div><span>基础判断</span><b class="judgement-{iren_basic['tone']}">{html.escape(iren_basic['action'])}</b></div></div><p class="trend-main-summary">{html.escape(iren_basic['summary'])}</p><div class="trend-easy-metrics"><div><span>5日动能</span><b>{fmt_signed(iren_tp.get('slope5',0),1)} · {'改善' if iren_tp.get('slope5',0)>0 else ('减弱' if iren_tp.get('slope5',0)<0 else '持平')}</b></div><div><span>中期方向</span><b>{html.escape(iren_tp.get('weekly','—'))}</b></div></div><details class="trend-tech-details"><summary>查看技术细节（可选）</summary><p>ADX、DI、Supertrend 和价格结构只用于系统确认；普通投资者无需逐项判断。</p><div class="trend-card-grid"><div class="trend-metric"><span>Supertrend</span><b>{html.escape(iren_tp.get('supertrend','—'))}</b></div><div class="trend-metric"><span>ADX 趋势强度</span><b>{fmt_num(iren_tp.get('adx'),1)}</b></div><div class="trend-metric"><span>+DI / -DI 多空</span><b>{fmt_num(iren_tp.get('plus_di'),1)} / {fmt_num(iren_tp.get('minus_di'),1)}</b></div><div class="trend-metric"><span>价格结构</span><b>{html.escape(iren_tp.get('structure','—'))}</b></div></div></details></div></section><section class="section"><div class="section-head"><h2>观察池趋势状态</h2><p>先看走势与基础判断；技术细节按需展开。</p></div><div class="trend-card-grid-wrap">{trend_cards_html}</div></section><section class="trend-method-note"><strong>方法边界</strong><p>Trend Pulse 是 myAlphaView 自研、透明可回测的趋势跟踪指标。区间是便于普通投资者阅读的基础解释，不是保证收益的机械买卖指令；正式状态以完整收盘数据确认。</p></section></div>
 
 <!-- 期权决策台 -->
 <div id="tab-sandbox" class="tab-pane">
@@ -2464,7 +2484,7 @@ window.addEventListener('load',function(){{
   const pulse=TREND_PULSE.IREN;
   if(!canvas || !pulse || !pulse.available || !Array.isArray(pulse.series) || !pulse.series.length) return;
   const values=pulse.series.map(x=>x.v), labels=pulse.series.map(x=>x.d.slice(5));
-  new Chart(canvas,{{type:'bar',data:{{labels,datasets:[{{label:'Trend Pulse',data:values,backgroundColor:values.map(v=>v>10?'rgba(0,135,90,.78)':v<-10?'rgba(215,25,32,.76)':'rgba(104,112,123,.46)'),borderColor:values.map(v=>v>10?'#00875a':v<-10?'#d71920':'#68707b'),borderWidth:0,borderRadius:2,barPercentage:.82,categoryPercentage:.92}}]}},options:{{responsive:true,maintainAspectRatio:false,interaction:{{mode:'index',intersect:false}},plugins:{{legend:{{display:false}},tooltip:{{callbacks:{{label:(ctx)=>` Trend Pulse ${{Number(ctx.raw).toFixed(0)}}`}}}}}},scales:{{x:{{grid:{{display:false}},ticks:{{maxTicksLimit:7}}}},y:{{min:-100,max:100,ticks:{{stepSize:50}},grid:{{color:(ctx)=>ctx.tick&&ctx.tick.value===0?'rgba(21,23,26,.42)':'rgba(100,105,115,.12)',lineWidth:(ctx)=>ctx.tick&&ctx.tick.value===0?1.6:1}}}}}}}}}});
+  new Chart(canvas,{{type:'bar',data:{{labels,datasets:[{{label:'Trend Pulse',data:values,backgroundColor:values.map(v=>v>10?'rgba(0,135,90,.78)':v<-10?'rgba(215,25,32,.76)':'rgba(104,112,123,.46)'),borderColor:values.map(v=>v>10?'#00875a':v<-10?'#d71920':'#68707b'),borderWidth:0,borderRadius:2,barPercentage:.82,categoryPercentage:.92}}]}},options:{{responsive:true,maintainAspectRatio:false,interaction:{{mode:'index',intersect:false}},plugins:{{legend:{{display:false}},tooltip:{{callbacks:{{label:(ctx)=>` Trend Pulse ${{Math.round(Number(ctx.raw))===0?'0':(Number(ctx.raw)>0?'+':'')+Math.round(Number(ctx.raw))}}`}}}}}},scales:{{x:{{grid:{{display:false}},ticks:{{maxTicksLimit:7}}}},y:{{min:-100,max:100,ticks:{{stepSize:50}},grid:{{color:(ctx)=>ctx.tick&&ctx.tick.value===0?'rgba(21,23,26,.42)':'rgba(100,105,115,.12)',lineWidth:(ctx)=>ctx.tick&&ctx.tick.value===0?1.6:1}}}}}}}}}});
 }});
 
 window.addEventListener('load', checkSession);
@@ -2548,7 +2568,7 @@ document.addEventListener('visibilitychange', () => {{ if (document.visibilitySt
     </div>
   </div>
 </div>
-<script>(function(){{if("serviceWorker" in navigator){{navigator.serviceWorker.getRegistrations().then(function(rs){{rs.forEach(function(r){{r.unregister();}});}}).catch(function(){{}});}}if(window.caches){{caches.keys().then(function(keys){{keys.filter(function(k){{return /myalpha|pwa|dashboard/i.test(k);}}).forEach(function(k){{caches.delete(k);}});}}).catch(function(){{}});}}}})();</script><script src="assets/market-live.js?v={ASSET_VERSION}"></script><script src="assets/investment-assistant.js?v={ASSET_VERSION}"></script><script src="assets/dashboard-v2.2.js?v={ASSET_VERSION}"></script><script src="assets/options-v2.js?v={ASSET_VERSION}"></script><script src="assets/roll-manager.js?v={ASSET_VERSION}"></script><script src="assets/stock-watchlist.js?v={ASSET_VERSION}"></script><script src="assets/finance-tools.js?v={ASSET_VERSION}"></script><script src="assets/opportunity-radar.js?v={ASSET_VERSION}"></script><script src="assets/site-analytics.js?v={ASSET_VERSION}"></script><script src="assets/knowledge.js?v={ASSET_VERSION}"></script><script src="assets/research-methods.js?v={ASSET_VERSION}"></script><script src="assets/wenxuecity-curated.js?v={ASSET_VERSION}"></script><script src="assets/wenxuecity.js?v={ASSET_VERSION}"></script><script src="assets/mobile-shell.js?v={ASSET_VERSION}"></script></body></html>'''
+<script>(function(){{if("serviceWorker" in navigator){{navigator.serviceWorker.getRegistrations().then(function(rs){{rs.forEach(function(r){{r.unregister();}});}}).catch(function(){{}});}}if(window.caches){{caches.keys().then(function(keys){{keys.filter(function(k){{return /myalpha|pwa|dashboard/i.test(k);}}).forEach(function(k){{caches.delete(k);}});}}).catch(function(){{}});}}}})();</script><script src="assets/market-live.js?v={ASSET_VERSION}"></script><script src="assets/investment-assistant.js?v={ASSET_VERSION}"></script><script src="assets/decision-journal.js?v={ASSET_VERSION}"></script><script src="assets/dashboard-v2.2.js?v={ASSET_VERSION}"></script><script src="assets/options-v2.js?v={ASSET_VERSION}"></script><script src="assets/roll-manager.js?v={ASSET_VERSION}"></script><script src="assets/stock-watchlist.js?v={ASSET_VERSION}"></script><script src="assets/finance-tools.js?v={ASSET_VERSION}"></script><script src="assets/opportunity-radar.js?v={ASSET_VERSION}"></script><script src="assets/site-analytics.js?v={ASSET_VERSION}"></script><script src="assets/knowledge.js?v={ASSET_VERSION}"></script><script src="assets/research-methods.js?v={ASSET_VERSION}"></script><script src="assets/wenxuecity-curated.js?v={ASSET_VERSION}"></script><script src="assets/wenxuecity.js?v={ASSET_VERSION}"></script><script src="assets/mobile-shell.js?v={ASSET_VERSION}"></script></body></html>'''
 
 def push_to_supabase(data):
     supabase_url, supabase_key = os.environ.get("SUPABASE_URL"), os.environ.get("SUPABASE_KEY")

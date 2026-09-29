@@ -8,7 +8,7 @@ const corsHeaders = {
 
 type Bar = { t?: string; o?: number; h?: number; l?: number; c?: number };
 type CacheEntry = { at: number; body: string };
-type Scope = 'quote' | 'daily' | 'all';
+type Scope = 'quote' | 'daily' | 'history' | 'all';
 const cache = new Map<string, CacheEntry>();
 const DATA_BASE = 'https://data.alpaca.markets';
 
@@ -112,6 +112,25 @@ async function dailyRows(symbols: string[], headers: Record<string,string>) {
   return rows;
 }
 
+async function historyRows(symbols: string[], headers: Record<string,string>) {
+  const end = new Date();
+  const endpoint = new URL(`${DATA_BASE}/v2/stocks/bars`);
+  endpoint.searchParams.set('symbols', symbols.join(','));
+  endpoint.searchParams.set('timeframe','1Day');
+  endpoint.searchParams.set('start', new Date(end.getTime() - 900 * 86400000).toISOString());
+  endpoint.searchParams.set('adjustment','all');
+  endpoint.searchParams.set('feed','iex');
+  endpoint.searchParams.set('limit','10000');
+  endpoint.searchParams.set('sort','asc');
+  const payload = await fetchAlpaca(endpoint.toString(), headers);
+  const rows: Record<string,unknown> = {};
+  for (const symbol of symbols) {
+    const bars: Bar[] = (payload?.bars?.[symbol] || []).filter((bar:Bar)=>finite(bar.c)!==null);
+    rows[symbol] = { symbol, bars: bars.map((bar:Bar)=>({ d: bar.t ? nyDate(bar.t) : null, c: finite(bar.c) })).filter((x:any)=>x.d&&x.c!==null), dailySource:'Alpaca复权历史日线' };
+  }
+  return rows;
+}
+
 Deno.serve(async (request) => {
   if (request.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
   if (request.method !== 'GET') return json({ error:'Method not allowed' }, 405);
@@ -124,20 +143,21 @@ Deno.serve(async (request) => {
   const symbols = [...new Set((url.searchParams.get('symbols') || '').toUpperCase().split(',').map(x=>x.trim()).filter(x=>/^[A-Z0-9.-]{1,12}$/.test(x)))].slice(0,25).sort();
   if (!symbols.length) return json({ error:'缺少有效symbols参数' }, 400);
   const requestedScope = url.searchParams.get('scope') || 'all';
-  const scope: Scope = requestedScope === 'quote' || requestedScope === 'daily' ? requestedScope : 'all';
+  const scope: Scope = requestedScope === 'quote' || requestedScope === 'daily' || requestedScope === 'history' ? requestedScope : 'all';
   const cacheKey = `${scope}:${symbols.join(',')}`;
   const hit = cache.get(cacheKey);
-  const ttl = scope === 'quote' ? 60000 : 900000;
+  const ttl = scope === 'quote' ? 60000 : scope === 'history' ? 3600000 : 900000;
   if (hit && Date.now() - hit.at < ttl) return new Response(hit.body, { headers:{...corsHeaders,'X-Cache':'HIT'} });
 
   const headers = { 'APCA-API-KEY-ID':key, 'APCA-API-SECRET-KEY':secret, Accept:'application/json' };
   try {
-    const [quotes, daily] = await Promise.all([
-      scope === 'daily' ? Promise.resolve({}) : quoteRows(symbols, headers),
-      scope === 'quote' ? Promise.resolve({}) : dailyRows(symbols, headers),
+    const [quotes, daily, history] = await Promise.all([
+      scope === 'daily' || scope === 'history' ? Promise.resolve({}) : quoteRows(symbols, headers),
+      scope === 'quote' || scope === 'history' ? Promise.resolve({}) : dailyRows(symbols, headers),
+      scope === 'history' ? historyRows(symbols, headers) : Promise.resolve({}),
     ]);
     const rows: Record<string,unknown> = {};
-    for (const symbol of symbols) rows[symbol] = { ...(quotes as any)[symbol], ...(daily as any)[symbol], symbol };
+    for (const symbol of symbols) rows[symbol] = { ...(quotes as any)[symbol], ...(daily as any)[symbol], ...(history as any)[symbol], symbol };
     const body = JSON.stringify({ s:'ok', scope, rows, receivedAt:new Date().toISOString(), delayed:true, disclaimer:'参考行情；下单前以券商报价为准' });
     cache.set(cacheKey,{at:Date.now(),body});
     return new Response(body,{headers:{...corsHeaders,'X-Cache':'MISS'}});

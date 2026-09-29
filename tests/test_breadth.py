@@ -49,4 +49,15 @@ try:
 except ValueError as exc:
     assert "覆盖不足" in str(exc)
 
+
+# Regression guard: a source snapshot older than the cached breadth must never win.
+assert dashboard._breadth_date({"date":"2026-09-25"}) == datetime.date(2026, 9, 25)
+assert dashboard._breadth_date({"date":"bad"}) is None
+
+# Morning skip is only valid when cache already covers the latest completed session.
+# At 2026-09-29 02:00 UTC the latest completed US weekday is 2026-09-28.
+expected = dashboard._previous_completed_us_session(datetime.datetime(2026, 9, 29, 2, 0))
+assert expected == datetime.date(2026, 9, 28)
+assert datetime.date(2026, 9, 24) < expected
+
 print("test_breadth.py: all assertions passed")

@@ -13,9 +13,9 @@ except ModuleNotFoundError:
 warnings.filterwarnings("ignore")
 
 # 单一版本源：每日 Action 生成 HTML 时，页面标题和静态资源缓存版本都从这里读取。
-APP_VERSION = "5.0.0"
+APP_VERSION = "5.1.0"
 OPTIONS_VERSION = "4.1.0"  # 网站优先；APP/PWA 功能已移除，仅保留响应式手机网页
-ASSET_VERSION = "5.0.0"
+ASSET_VERSION = "5.1.0"
 
 API_KEY = os.environ.get("TWELVE_DATA_KEY", "demo")
 BASE = "https://api.twelvedata.com"
@@ -370,10 +370,20 @@ def breadth_freshness(breadth, now=None):
         return {"tone":"warn", "label":f"最近有效收盘 {market_date.isoformat()}", "meta":breadth.get("message") or "等待下一次完整收盘扫描"}
     return {"tone":"bad", "label":f"数据陈旧 · {market_date.isoformat()}", "meta":breadth.get("message") or f"落后约 {gap} 个交易日，请检查每日任务"}
 
+def _breadth_date(breadth):
+    try:
+        return datetime.date.fromisoformat(str((breadth or {}).get("date")))
+    except (TypeError, ValueError):
+        return None
+
 def calculate_daily_breadth(old_breadth=None, today_str=None):
-    # 亚洲白天没有必要重复下载503只美股；优先展示上一完整交易日。
-    if datetime.datetime.utcnow().hour < 12:
-        cached = _cached_breadth(old_breadth, "美股未收盘，使用上一完整交易日")
+    # 亚洲白天只有在缓存已经覆盖最近完成的美股交易日时才跳过重算。
+    # 这样即使用户上午用发布包覆盖了 docs/data.json，也不会把较新的宽度快照回退成旧日期。
+    now_utc = datetime.datetime.utcnow()
+    expected_session = _previous_completed_us_session(now_utc)
+    old_date = _breadth_date(old_breadth)
+    if now_utc.hour < 12 and old_date and old_date >= expected_session:
+        cached = _cached_breadth(old_breadth, "已是最近完整美股交易日，亚洲时段沿用缓存")
         return cached or {"status":"skip", "message":"等待首次美股收盘宽度数据"}
 
     try:
@@ -398,6 +408,18 @@ def calculate_daily_breadth(old_breadth=None, today_str=None):
         if not frames: raise ValueError("所有YF分批请求均失败: " + "; ".join(failures[:3]))
         result = _compute_breadth_from_closes(pd.concat(frames, axis=1))
         result["failed_batches"] = len(failures)
+
+        # 永不让来源端偶发的旧快照覆盖仓库里更新的宽度日期。
+        result_date = _breadth_date(result)
+        if old_date and result_date and result_date < old_date:
+            cached = _cached_breadth(
+                old_breadth,
+                f"来源返回 {result_date.isoformat()}，早于现有缓存 {old_date.isoformat()}，已保留较新快照",
+            )
+            if cached:
+                print(f"⚠️ Breadth source regressed {result_date} < cache {old_date}; keeping cache")
+                return cached
+
         print(f"✅ Breadth {result['date']}: {result['symbols']} symbols, failed_batches={len(failures)}")
         return result
     except Exception as e:

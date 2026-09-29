@@ -89,7 +89,7 @@
   }
   function openResearch(symbol){const m=ensureResearchModal(),r=state.research[symbol]||{};document.getElementById('researchSymbol').value=symbol;document.getElementById('stockResearchTitle').textContent=`${symbol} · 个股研究卡`;document.getElementById('researchEdge').value=r.edge||'';document.getElementById('researchThesis').value=r.thesis||'';document.getElementById('researchCatalysts').value=r.catalysts||'';document.getElementById('researchRisks').value=r.risks||'';document.getElementById('researchInvalidation').value=r.invalidation||'';document.getElementById('researchValuation').value=r.valuation_note||'';document.getElementById('researchPlan').value=r.plan||'';document.getElementById('researchNextReview').value=r.next_review_date||'';m.style.display='grid'}
   function closeResearch(){const m=document.getElementById('stockResearchModal');if(m)m.style.display='none'}
-  async function saveResearch(){const symbol=document.getElementById('researchSymbol').value;const {data:{session}}=await supabaseClient.auth.getSession();if(!session){alert('请先登录');return}const payload={user_id:session.user.id,symbol,edge:document.getElementById('researchEdge').value.trim(),thesis:document.getElementById('researchThesis').value.trim(),catalysts:document.getElementById('researchCatalysts').value.trim(),risks:document.getElementById('researchRisks').value.trim(),invalidation:document.getElementById('researchInvalidation').value.trim(),valuation_note:document.getElementById('researchValuation').value.trim(),plan:document.getElementById('researchPlan').value.trim(),next_review_date:document.getElementById('researchNextReview').value||null,updated_at:new Date().toISOString()};const {data,error}=await supabaseClient.from('stock_research_notes').upsert(payload).select().single();if(error){alert(`研究卡保存失败：${error.message}`);return}state.research[symbol]=data;state.researchReady=true;closeResearch();render();global.MAV?.toast(`${symbol} 研究卡已保存`,'good')}
+  async function saveResearch(){const symbol=document.getElementById('researchSymbol').value;const {data:{session}}=await supabaseClient.auth.getSession();if(!session){alert('请先登录');return}const payload={user_id:session.user.id,symbol,edge:document.getElementById('researchEdge').value.trim(),thesis:document.getElementById('researchThesis').value.trim(),catalysts:document.getElementById('researchCatalysts').value.trim(),risks:document.getElementById('researchRisks').value.trim(),invalidation:document.getElementById('researchInvalidation').value.trim(),valuation_note:document.getElementById('researchValuation').value.trim(),plan:document.getElementById('researchPlan').value.trim(),next_review_date:document.getElementById('researchNextReview').value||null,updated_at:new Date().toISOString()};const {data,error}=await supabaseClient.from('stock_research_notes').upsert(payload).select().single();if(error){alert(`研究卡保存失败：${error.message}`);return}state.research[symbol]=data;state.researchReady=true;closeResearch();render();global.MAVInvestmentAssistant?.rescan?.();global.MAV?.toast(`${symbol} 研究卡已保存`,'good')}
   function rowHtml(item,index){
     const symbol=String(item.symbol).toUpperCase(),q=combined(symbol),price=num(q.price),chg=num(q.changePct),dd=num(q.ytdDrawdown),rsi=num(q.rsi),dist=num(q.dist200),[status,label]=statusOf(q,null);
     const tp=(global.MAV_TREND_PULSE||{})[symbol]||{},tpScore=Number.isFinite(Number(tp.score))?Number(tp.score):null,tpTone=tp.tone||'neutral';
@@ -117,7 +117,7 @@
       const symbols=state.items.map(x=>x.symbol);
       const [quotes]=await Promise.all([fetchMarket(symbols,'quote'),ensureDaily(symbols),loadResearch(symbols)]);
       state.quotes=quotes;
-      render();schedule();
+      render();global.MAVInvestmentAssistant?.rescan?.();schedule();
     }catch(error){global.MAV?.toast(`观察池读取失败：${error.message}。请确认已执行V3.4迁移并部署stock-market。`,'bad')}
     finally{state.loading=false}
   }
@@ -126,7 +126,7 @@
     try{
       const symbols=state.items.map(x=>x.symbol);
       const [quotes]=await Promise.all([fetchMarket(symbols,'quote'),ensureDaily(symbols),loadResearch(symbols)]);
-      state.quotes={...state.quotes,...quotes};render();
+      state.quotes={...state.quotes,...quotes};render();global.MAVInvestmentAssistant?.rescan?.();
     }catch(error){global.MAV?.toast(`个股行情刷新失败：${error.message}`,'warn')}
     finally{schedule()}
   }

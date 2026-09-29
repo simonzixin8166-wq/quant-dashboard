@@ -390,7 +390,43 @@
     $('targetSpot').value=$('manualSpot').value;render();
   }
   function setMarketEvents(events,updatedAt){state.events=Array.isArray(events)?events:[];state.eventsUpdated=updatedAt||null;if(state.positions.size)renderPositionTable();renderRiskSummary()}
-  global.OptionV2={bsPrice,evaluate,normalizeColumnar,renderDecisionAssistant,loadPrivatePositions,populateAccountSelect,refreshQuote,refreshPosition,refreshAllPositions,openPositionScenario,completeRocFields,occSymbol,positionMetrics,annualizedRoc,positionRisk,quoteFreshness,isUsRegularSession,setMarketEvents,realizedPnl,assignmentBasis,openLifecycle,closeLifecycle,savePositionAccount,updateLifecyclePreview,saveLifecycle,editPosition,deletePosition,deleteLifecycleRecord,restoreArchivedPosition,toggleHistory,getPosition:id=>state.positions.get(String(id))};
+
+  function dteFromToday(expiry){return daysBetween(todayIso(),expiry)}
+  function bestExpiry(expirations,minDays,maxDays,targetDays){
+    const rows=(expirations||[]).map(exp=>({exp,dte:dteFromToday(exp)})).filter(x=>x.dte>=minDays&&x.dte<=maxDays);
+    rows.sort((a,b)=>Math.abs(a.dte-targetDays)-Math.abs(b.dte-targetDays));return rows[0]||null;
+  }
+  function spreadRatio(row){const bid=Number(row.bid),ask=Number(row.ask),mid=Number(row.mid);if(!(bid>0&&ask>0&&mid>0))return 99;return Math.max(0,ask-bid)/mid}
+  function rowMetrics(row){const parts=[];if(Number.isFinite(Number(row.delta)))parts.push(`Δ ${Number(row.delta).toFixed(2)}`);if(Number.isFinite(Number(row.iv)))parts.push(`IV ${(Number(row.iv)*100).toFixed(1)}%`);if(Number.isFinite(Number(row.bid))&&Number.isFinite(Number(row.ask)))parts.push(`Bid/Ask ${Number(row.bid).toFixed(2)}/${Number(row.ask).toFixed(2)}`);return parts.join(' · ')}
+  async function autoScreenOpportunity(symbol,{marketLevel='fear',stage='',hasThesis=false}={}){
+    const jwt=await token();if(!jwt)return[];
+    const rawExp=await api({action:'expirations',symbol});const exps=rawExp?.expirations||[];const out=[];
+    const putExp=bestExpiry(exps,30,45,37);
+    if(putExp){
+      const raw=await api({action:'chain',symbol,expiration:putExp.exp,side:'put'}),rows=normalizeColumnar(raw).filter(x=>Number.isFinite(Number(x.delta))&&Math.abs(Number(x.delta))>=.16&&Math.abs(Number(x.delta))<=.20&&Number(x.bid)>0&&Number(x.ask)>0);
+      rows.sort((a,b)=>(Math.abs(Math.abs(Number(a.delta))-.18)+spreadRatio(a))-(Math.abs(Math.abs(Number(b.delta))-.18)+spreadRatio(b)));
+      const x=rows[0];if(x)out.push({symbol,kind:'Sell Put 初筛',contract:`${putExp.exp} · $${Number(x.strike).toFixed(2)} Put`,reason:'符合既有30–45 DTE、|Delta| 0.16–0.20研究区间；仍需确认愿意接货、财报与Thesis。',metrics:rowMetrics(x)});
+    }
+    if(hasThesis&&!/退潮|恶化/.test(String(stage))){
+      const leapExp=bestExpiry(exps,365,760,540);
+      if(leapExp){
+        const raw=await api({action:'chain',symbol,expiration:leapExp.exp,side:'call'}),rows=normalizeColumnar(raw).filter(x=>Number(x.bid)>0&&Number(x.ask)>0&&Number.isFinite(Number(x.delta)));
+        rows.sort((a,b)=>(spreadRatio(a)+Math.abs(Number(a.delta)-.70)*.5)-(spreadRatio(b)+Math.abs(Number(b.delta)-.70)*.5));
+        const x=rows[0];if(x)out.push({symbol,kind:'LEAPS 比较候选',contract:`${leapExp.exp} · $${Number(x.strike).toFixed(2)} Call`,reason:'长期期限与报价质量初筛；Delta约0.70仅用于生成可比较样本，不是固定交易规则。',metrics:`DTE ${leapExp.dte} · ${rowMetrics(x)}`});
+      }
+    }
+    if(/二次启动|启动|重新/.test(String(stage))){
+      const callExp=bestExpiry(exps,45,90,60);
+      if(callExp){
+        const raw=await api({action:'chain',symbol,expiration:callExp.exp,side:'call'}),rows=normalizeColumnar(raw).filter(x=>Number(x.bid)>0&&Number(x.ask)>0&&Number.isFinite(Number(x.delta))&&Number(x.delta)>=.45&&Number(x.delta)<=.65);
+        rows.sort((a,b)=>(spreadRatio(a)+Math.abs(Number(a.delta)-.55))-(spreadRatio(b)+Math.abs(Number(b.delta)-.55)));
+        const x=rows[0];if(x)out.push({symbol,kind:'Buy Call 修复候选',contract:`${callExp.exp} · $${Number(x.strike).toFixed(2)} Call`,reason:'仅在趋势修复/二次启动后生成；45–90 DTE与Delta区间是比较层启发式，不是自动买入规则。',metrics:`DTE ${callExp.dte} · ${rowMetrics(x)}`});
+      }
+    }
+    return out;
+  }
+
+  global.OptionV2={bsPrice,evaluate,normalizeColumnar,renderDecisionAssistant,loadPrivatePositions,populateAccountSelect,refreshQuote,refreshPosition,refreshAllPositions,openPositionScenario,completeRocFields,occSymbol,positionMetrics,annualizedRoc,positionRisk,quoteFreshness,isUsRegularSession,setMarketEvents,realizedPnl,assignmentBasis,openLifecycle,closeLifecycle,savePositionAccount,updateLifecyclePreview,saveLifecycle,editPosition,deletePosition,deleteLifecycleRecord,restoreArchivedPosition,toggleHistory,autoScreenOpportunity,getPosition:id=>state.positions.get(String(id))};
   if(typeof document!=='undefined'){
     document.addEventListener('DOMContentLoaded',()=>{bind();$('refreshAllOptions')?.addEventListener('click',()=>refreshAllPositions({force:true,reason:'手动刷新'}))});
     document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&Date.now()-state.lastBulkAt>=POSITION_REFRESH_MS)refreshAllPositions({onlyNeeded:true,reason:'返回页面检查'})});

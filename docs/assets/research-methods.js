@@ -1,5 +1,5 @@
 window.MYALPHA_RESEARCH_METHODS = {
-  version: '5.0.0',
+  version: '5.1.0',
   updated_at: '2026-09-28',
   principle: '专业指标保留，但默认先给普通投资者一句话结论、原因、可执行方案和失效条件。博主方法只作为研究来源，不自动变成交易规则；作者明确披露的股票/期权价格、执行价、到期日、仓位或退出条件会单独记录为历史操作实例，供复盘参考。',
   authors: [{id:'brightline', name:'BrightLine'}],
@@ -158,7 +158,7 @@ window.MYALPHA_RESEARCH_METHODS = {
 };
 
 window.MYALPHA_STRATEGY_PLAYBOOK = {
-  version:'5.0.0',
+  version:'5.1.0',
   principle:'经验先作为研究候选，不把市场情绪或单一指标机械转换成买卖信号。每条提醒都说明适用条件、不适用条件和最大风险。',
   strategies:[
     {id:'fear-sell-put',scene:'恐慌 / 大跌',name:'Sell Put 研究候选',plain:'只针对你本来就愿意以更低价格接货的股票。恐慌期波动率通常较高，权利金可能更有吸引力，但继续暴跌会带来接货风险。',params:'初筛：30–45 DTE；Delta 0.16–0.20。参数来自既有实战经验，属于待验证区间，不是统一最优值。',use:'基本逻辑未失效；无临近重大跳空事件；能够承受被指派；趋势至少停止加速恶化。',avoid:'Thesis 已破坏、只因为“跌很多”、不愿接货、财报/监管结果临近。',risk:'最大风险来自正股继续大跌；权利金只能提供有限缓冲。'},
@@ -166,5 +166,27 @@ window.MYALPHA_STRATEGY_PLAYBOOK = {
     {id:'fear-leaps',scene:'深度回撤 / 中长期看多',name:'LEAPS Call 研究候选',plain:'适合 QQQ 或研究充分的个股：中长期逻辑仍在，但需要更长时间等待修复和催化剂兑现。',params:'研究 12–24个月以上期限；重点比较 Delta、IV、盈亏平衡、时间价值和最大损失，不写死单一 Delta。',use:'长期 Thesis 清楚；回撤后停止持续恶化；到期远晚于核心催化剂；愿意承担权利金全部损失。',avoid:'只因为价格跌很多、基本面未确认、短期赌博、IV异常高却不比较成本。',risk:'LEAPS 仍有到期日；若恢复太慢或判断错误，长期 Call 仍可能大幅亏损甚至归零。'},
     {id:'greed-covered-call',scene:'贪婪 / 强势高位',name:'Covered Call 研究候选',plain:'已有正股且认为短期继续大涨空间有限时，可研究用卖 Call 换取权利金；代价是上涨收益可能被封顶。',params:'先比较执行价、到期日、被行权后是否愿意卖出正股。',use:'已有正股；Trend Pulse 高位钝化或上涨明显放缓；愿意在执行价卖出。',avoid:'强烈看多且不愿失去股票、即将有重大上行催化剂。',risk:'正股下跌仍由持有人承担；上涨过快时可能错失额外收益。'},
     {id:'greed-protective-put',scene:'贪婪 / 高位风险',name:'Protective Put 研究候选',plain:'已有重要持仓又担心尾部风险时，可研究买 Put 作为保险；它的核心不是赚钱，而是限制极端损失。',params:'先算保护区间、保险成本、期限与持仓相关性。',use:'不愿卖出长期持仓、但短期风险明显升高。',avoid:'保险成本过高、买保险后反而增加更高风险仓位。',risk:'如果市场不跌，权利金会成为持有成本。'}
+  ]
+};
+
+
+window.MYALPHA_RULE_REGISTRY = {
+  version:'5.1.0',
+  principle:'规则中心只负责发现、解释和排序研究机会；不得自行修改核心阈值、不得自动下单。规则冲突时风险规则优先。',
+  rules:[
+    {id:'market-watch',agent:'Market Agent',module:'首页',status:'adopted',trigger:'NASDAQ≤-1.5% 或 S&P500≤-1.25% 或 VIX≥25',meaning:'市场波动明显升温，进入观察状态。',action:'开始检查关注股与期权环境，不直接交易。'},
+    {id:'market-fear',agent:'Market Agent',module:'首页',status:'adopted',trigger:'NASDAQ≤-2.5% 或 S&P500≤-2.0% 或 VIX≥28',meaning:'单日大跌/恐慌环境。',action:'启动 Sell Put、Buy Call、LEAPS 研究候选扫描。'},
+    {id:'market-panic',agent:'Market Agent',module:'首页',status:'adopted',trigger:'NASDAQ≤-4.0% 或 S&P500≤-3.5% 或 VIX≥35',meaning:'极端风险环境。',action:'风险优先；只保留能承受最坏结果的研究方案。'},
+    {id:'correction-10',agent:'Market Agent',module:'核心ETF',status:'adopted',trigger:'指数距近期/历史高点回撤≥10%',meaning:'进入通常所说的调整区。',action:'与单日跌幅分开显示，按既有核心ETF规则判断。'},
+    {id:'bear-20',agent:'Market Agent',module:'核心ETF',status:'adopted',trigger:'指数距高点回撤≥20%',meaning:'进入深度回撤/熊市级环境。',action:'强调分批与生存，不预测最低点。'},
+    {id:'trend-restart',agent:'Stock Agent',module:'个股观察池',status:'adopted',trigger:'Trend Pulse 回踩后重新上拐',meaning:'回踩后重新转强。',action:'作为第二层确认，不替代 Thesis。'},
+    {id:'trend-stall',agent:'Stock Agent',module:'个股观察池',status:'adopted',trigger:'高分区但斜率走平',meaning:'强势但上涨变慢。',action:'不因高分追涨，关注高位风险。'},
+    {id:'trend-retreat',agent:'Risk Agent',module:'个股观察池',status:'adopted',trigger:'高分区斜率转负/趋势退潮',meaning:'分数仍高但正在转弱。',action:'压低机会优先级；Long Call/LEAPS 先等待。'},
+    {id:'sell-put-fear',agent:'Options Agent',module:'期权',status:'research',trigger:'市场大跌 + 个股Thesis未失效 + 趋势未加速恶化',meaning:'恐慌环境中的低价接货研究。',action:'初筛30–45 DTE、|Delta| 0.16–0.20；必须愿意被指派。'},
+    {id:'buy-call-repair',agent:'Options Agent',module:'期权',status:'research',trigger:'恐慌后出现趋势修复/二次启动',meaning:'有限权利金表达修复观点。',action:'先检查IV、DTE、催化剂时间，不做“越跌越买Call”。'},
+    {id:'leaps-long-term',agent:'Options Agent',module:'期权',status:'research',trigger:'QQQ或研究充分个股深回撤后停止恶化，中长期Thesis仍成立',meaning:'给中长期判断更多兑现时间。',action:'优先研究12–24个月以上期限；比较Delta、IV、盈亏平衡和最大损失。'},
+    {id:'greed-hedge',agent:'Risk Agent',module:'期权',status:'research',trigger:'强势高位 + 动能钝化',meaning:'高位不等于继续追涨。',action:'已有持仓可研究Covered Call或Protective Put的代价。'},
+    {id:'thesis-required',agent:'Research Agent',module:'个股研究卡',status:'adopted',trigger:'个股进入高优先级候选',meaning:'没有Thesis就不能把技术信号升级为高优先级。',action:'至少写清论点、催化剂、风险、失效条件。'},
+    {id:'data-freshness',agent:'Risk Agent',module:'全站',status:'adopted',trigger:'关键数据过期/缺失/回退',meaning:'数据质量优先于聪明推理。',action:'降级为“证据不足”，不输出确定性策略。'}
   ]
 };

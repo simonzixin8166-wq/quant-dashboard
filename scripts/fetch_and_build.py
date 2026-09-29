@@ -1060,6 +1060,11 @@ def build_what_changed(current, previous):
         cur = _safe_float(cur); prev = _safe_float(prev)
         if cur is None or prev is None: return
         delta = cur - prev
+        # Normalize values that round to zero so the UI never renders "-0" or "-0.0%".
+        # Use the displayed precision as the threshold and also classify them as neutral.
+        zero_cutoff = 0.005 if kind == "number" else 0.0005
+        if abs(delta) < zero_cutoff:
+            delta = 0.0
         if kind == "number": current_text, delta_text = f"{cur:.2f}", f"{delta:+.2f}"
         else: current_text, delta_text = f"{cur:.1%}", f"{delta:+.1%}"
         tone = "neutral"

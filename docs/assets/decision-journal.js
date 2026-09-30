@@ -140,6 +140,33 @@ function errorMemory(rows){
   }
   return out.slice(-30).reverse();
 }
+function weeklySelfReview(rows){
+  const matured=[];
+  for(const e of rows)for(const c of(e.candidates||[])){
+    const r20=num(c.outcomes?.[20]?.return);if(r20===null)continue;
+    matured.push({date:e.date,symbol:c.symbol,decision:String(c.decision||''),stage:String(c.stage||''),return20:r20,mae20:num(c.outcomes?.mae20),transitions:(c.transitions||[]).length});
+  }
+  const recent=matured.slice(-40),errors=errorMemory(rows);
+  let effective=0,noisy=0,missed=0;
+  for(const x of recent){
+    if(/修复候选|大跌机会候选/.test(x.decision)&&x.return20>=0.05)effective++;
+    else if(/高位观察|等待修复|继续观察/.test(x.decision)&&x.return20<=0.03)effective++;
+    if(x.transitions>=3&&Math.abs(x.return20)<0.03)noisy++;
+    if(/高位观察|等待修复|继续观察/.test(x.decision)&&x.return20>=0.12)missed++;
+  }
+  const lessons=[];
+  if(noisy>=2)lessons.push('同一标的频繁切换但20日结果变化有限：降低无新证据时的重复提醒优先级。');
+  if(missed>=2)lessons.push('谨慎判断后仍出现明显上涨：加强“二次启动 / 成交量恢复 / 周趋势未破坏”的复核。');
+  const falsePos=errors.filter(x=>x.type==='false-positive').length;
+  if(falsePos>=2)lessons.push('候选升级后的无效样本偏多：后续提高支持证据门槛并增加反证检查。');
+  if(!lessons.length&&recent.length)lessons.push('当前成熟样本尚未形成稳定偏差，继续收集，不主动改权重。');
+  return{sample:recent.length,effective,noisy,missed,errorCount:errors.length,lessons,updatedAt:new Date().toISOString(),scope:'research-priority-only'};
+}
+function selfReviewHtml(rows){
+  const r=weeklySelfReview(rows);
+  if(!r.sample)return '<div class="journal-empty"><b>Weekly Self Review 等待成熟样本</b><p>至少需要20日结果成熟后，系统才会评价自己的判断，不会用未成熟结果提前“学习”。</p></div>';
+  return `<div class="learning-summary"><article><span>成熟样本</span><b>${r.sample}</b><small>最近40条20日样本</small></article><article><span>判断有效</span><b>${r.effective}</b><small>符合当时判断方向</small></article><article><span>噪音候选</span><b>${r.noisy}</b><small>频繁变化但结果有限</small></article><article><span>错过上涨</span><b>${r.missed}</b><small>谨慎后20日涨幅≥12%</small></article></div><div class="learning-grid">${r.lessons.map((x,i)=>`<article class="learning-card"><div><b>What I learned #${i+1}</b><span>自动复盘</span></div><p>${esc(x)}</p><small>只影响研究优先级与提醒权重；不会自动改变核心ETF规则或下单。</small></article>`).join('')}</div>`;
+}
 function marketLabel(e){return e.level==='panic'?'极端':e.level==='fear'?'大跌':e.level==='watch'?'观察':e.mode==='greed'?'强势高位':'正常'}
 function candidateRows(rows){const out=[];for(const e of[...rows].reverse())for(const c of(e.candidates||[]))out.push({e,c});return out.slice(0,40)}
 async function loadJson(url){try{const r=await fetch(`${url}?v=${Date.now()}`,{cache:'no-store'});if(!r.ok)return null;return await r.json()}catch{return null}}
@@ -173,11 +200,12 @@ async function render(error=''){
   <section class="journal-panel"><div class="journal-head"><div><h2>自主学习 · 历史回填</h2><p>使用你提供的 STOOQ OHLCV，本地因果重放 Trend Pulse；不重复下载多年历史，也不使用未来数据。</p></div></div>${stageProfileHtml(history)}${recentHistoryHtml(history)}</section>
   <section class="journal-panel"><div class="journal-head"><div><h2>实时决策日志</h2><p>保存系统当时真实看到的环境和候选，防止事后改写。20 / 60 / 120均按各自入档交易日起算。</p></div><small>当前可补齐 ${pending===0?0:'部分'} 条</small></div>${recent.length?`<div class="journal-table-wrap"><table class="journal-table"><thead><tr><th>日期</th><th>环境</th><th>标的 / 当时判断</th><th>入档价格</th><th>20日</th><th>60日</th><th>120日</th></tr></thead><tbody>${recent.map(({e,c})=>`<tr><td>${esc(e.date)}</td><td>${esc(marketLabel(e))}<small>VIX ${e.vix==null?'—':Number(e.vix).toFixed(1)}</small></td><td><b>${esc(c.symbol)}</b><small>${esc(c.decision)} · ${esc(c.stage||c.zone||'')}${(c.transitions||[]).length?` · 日内变化 ${(c.transitions||[]).length}次`:''}</small></td><td>${c.price==null?'—':'$'+Number(c.price).toFixed(2)}</td>${H.map(h=>`<td>${outcomeCell(c,e,h)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`:`<div class="journal-empty"><b>还没有实时记录</b><p>市场状态或候选发生有意义变化后会自动留下快照，不需要手工记录。</p></div>`}</section>
   <section class="journal-panel"><div class="journal-head"><div><h2>历史市场规则验证</h2><p>单独检查观察 / 大跌 / 极端市场触发，不与个股 Trend Pulse 样本混在一起。</p></div></div>${validationHtml(backtestCache)}</section>
+  <section class="journal-panel"><div class="journal-head"><div><h2>Weekly Self Review · 每周自主复盘</h2><p>系统评价自己的历史判断、重复提醒和漏掉的行情，并把结论用于后续研究优先级。</p></div></div>${selfReviewHtml(rows)}</section>
   <section class="journal-panel"><div class="journal-head"><div><h2>Agent Error Memory · 错误记忆</h2><p>只记录已经有成熟结果的误报、漏掉上涨和大幅不利波动；它只调整研究权重，不自动修改核心策略。</p></div></div>${(()=>{const errs=errorMemory(rows);return errs.length?`<div class="learning-grid">${errs.slice(0,8).map(x=>`<article class="learning-card"><div><b>${esc(x.symbol)} · ${esc(x.type)}</b><span>${esc(x.date)}</span></div><strong>20日 ${pct(x.return20)}</strong><p>${esc(x.note)}</p><small>当时判断：${esc(x.decision)}</small></article>`).join('')}</div>`:'<div class="journal-empty"><b>暂无成熟错误样本</b><p>待20日结果成熟后自动归类，不会用未成熟样本提前“学习”。</p></div>'})()}</section>
   <section class="journal-panel journal-boundary"><h2>AI Agent 学习边界</h2><div><b>自动完成</b><p>历史回填、每日增量、结果成熟、样本统计、研究优先级、异常提醒和 QA。</p></div><div><b>必须由投资者决定</b><p>买卖、仓位、核心ETF阈值变更、把博主经验升级成正式规则。AI不会自动下单。</p></div></section>`;
 }
 function learningForStage(stage){const p=state.history?.profiles?.[stage];if(!p)return null;return {...p.evidence,stats:p.horizons?.['60']||null}}
 async function init(){render();setTimeout(()=>refreshOutcomes({silent:true}),4500)}
-global.MAVDecisionJournal={recordAssistantEvent,refreshOutcomes,render,getJournal:read,getHistorical:()=>state.history,learningForStage,getErrorMemory:()=>errorMemory(read()),state};
+global.MAVDecisionJournal={recordAssistantEvent,refreshOutcomes,render,getJournal:read,getHistorical:()=>state.history,learningForStage,getErrorMemory:()=>errorMemory(read()),getSelfReview:()=>weeklySelfReview(read()),state};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })(window);

@@ -39,3 +39,15 @@ assert "什么情况会改变判断" in agent
 assert "research/evidence_attribution.json" in agent
 
 print("PASS V5.7 evidence attribution learning")
+
+
+ext=ea.external_outcome_learning({"events":[{
+    "event_id":"x","author":"BrightLine","symbol":"NBIS","published_at":"2026-08-18",
+    "title":"test","url":"https://example.com",
+    "attribution":"author_plan",
+    "outcomes":{"20":{"return":-0.12,"mae":-0.18,"mfe":0.04,"excess_vs_qqq":-0.11}},
+    "alignment":{"20":"not_aligned"}
+}]})
+assert ext["mature20"]==1
+assert ext["review_candidates"]==1
+assert "large_adverse_move" in ext["recent_reviews"][0]["review_tags"]

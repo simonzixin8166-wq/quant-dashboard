@@ -131,8 +131,15 @@ def normalize(row):
     excerpt = str(row.get("excerpt") or "")
     text = (title + "\n" + excerpt).strip()
     learned_ops = row.get("operations") or []
-    learned_rules = row.get("portfolio_rules") or []
-    learned_lessons = row.get("lessons") or []
+    def type_labels(values):
+        out = []
+        for value in values or []:
+            label = value.get("type") if isinstance(value, dict) else str(value)
+            if label and label not in out:
+                out.append(label)
+        return out
+    learned_rules = type_labels(row.get("portfolio_rules") or [])
+    learned_lessons = type_labels(row.get("lessons") or [])
     syms = list(dict.fromkeys((row.get("symbols") or []) + symbols(text)))
     tps = topics(text, row.get("themes_hint"))
     acts = actions(text)

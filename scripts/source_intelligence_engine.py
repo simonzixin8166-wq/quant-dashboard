@@ -184,6 +184,25 @@ def build(records):
                 "note": "按同一作者/标的时间线聚合；不能仅凭动作变化推断作者完整观点已经反转。",
             })
 
+    thesis_candidates = []
+    by_symbol = defaultdict(list)
+    for r in rows:
+        for sym in r["symbols"]:
+            by_symbol[sym].append(r)
+    for sym, items in by_symbol.items():
+        items = sorted(items, key=lambda x: x.get("published_at",""), reverse=True)
+        thesis_candidates.append({
+            "symbol": sym,
+            "source_records": len(items),
+            "authors": sorted(set(x["author"] for x in items)),
+            "latest_title": items[0].get("title"),
+            "latest_url": items[0].get("url"),
+            "topics": sorted(set(t for x in items[:8] for t in x["topics"])),
+            "candidate_hypothesis": "外部来源对该标的形成重复研究线索，值得与现有基本面、估值、趋势和事件证据交叉验证。",
+            "validation_state": "candidate_only",
+            "guardrail": "不是本站Thesis，也不是买卖信号；需MyAlpha独立验证后才能升级。",
+        })
+
     alerts = []
     for r in rows:
         if r["archive_only"]:
@@ -221,6 +240,7 @@ def build(records):
         "topic_groups": {k: v[:80] for k,v in sorted(by_topic.items(), key=lambda x: -len(x[1]))},
         "repeated_methods": [{"name":k,"records":v,"status":"research_candidate"} for k,v in method_counts.most_common()],
         "viewpoint_evolution": sorted(evolutions, key=lambda x: -x["count"])[:60],
+        "thesis_candidates": sorted(thesis_candidates, key=lambda x: -x["source_records"])[:60],
         "failure_review": [r for r in rows if r["failure_candidate"]][:60],
         "operation_cases": [r for r in rows if r["actions"]][:80],
         "research_alerts": sorted(alerts, key=lambda x: -x["priority"])[:24],

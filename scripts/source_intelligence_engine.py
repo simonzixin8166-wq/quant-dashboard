@@ -17,6 +17,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "docs" / "data" / "source_intelligence.json"
 ARCHIVES = [ROOT / "docs" / "data" / f"brightline_2026_q{i}.json" for i in (1,2,3)]
+FULLTEXT_INSIGHTS = ROOT / "docs" / "data" / "brightline_2026_fulltext_insights.json"
 FEED_URL = os.getenv(
     "WXC_RESEARCH_FEED_URL",
     "https://raw.githubusercontent.com/simonzixin8166-wq/wxc-bot/main/state/research_feed.json",
@@ -96,9 +97,13 @@ def actions(text: str):
 
 def seed_brightline():
     rows = []
+    insights = load(FULLTEXT_INSIGHTS, {"articles":[]})
+    insight_by_url = {re.sub(r"#.*$","",x.get("url","")): x for x in insights.get("articles", [])}
     for path in ARCHIVES:
         data = load(path, {"articles":[]})
         for a in data.get("articles", []):
+            canonical = re.sub(r"#.*$","",a.get("url",""))
+            learned = insight_by_url.get(canonical, {})
             rows.append({
                 "id": "brightline-" + re.sub(r"\W+","-",a.get("url",""))[-50:],
                 "source": "wenxuecity",
@@ -106,11 +111,16 @@ def seed_brightline():
                 "author": "BrightLine",
                 "published_at": a.get("date",""),
                 "title": a.get("title",""),
-                "url": a.get("url",""),
+                "url": canonical,
                 "excerpt": "",
                 "content_chars": a.get("chars",0),
-                "themes_hint": [a.get("topic")] if a.get("topic") else [],
-                "archive_only": True,
+                "themes_hint": list(dict.fromkeys(([a.get("topic")] if a.get("topic") else []) + (learned.get("method_tags") or []))),
+                "symbols": learned.get("symbols") or [],
+                "operations": learned.get("operations") or [],
+                "portfolio_rules": learned.get("portfolio_rules") or [],
+                "lessons": learned.get("lessons") or [],
+                "archive_only": not bool(learned),
+                "fulltext_learning": bool(learned),
                 "deep_analysis": bool(a.get("deep_analysis")),
                 "source_notice": "BrightLine 原文索引；全文不在公开站点转载。",
             })
@@ -120,10 +130,17 @@ def normalize(row):
     title = str(row.get("title") or "")
     excerpt = str(row.get("excerpt") or "")
     text = (title + "\n" + excerpt).strip()
-    syms = symbols(text)
+    learned_ops = row.get("operations") or []
+    learned_rules = row.get("portfolio_rules") or []
+    learned_lessons = row.get("lessons") or []
+    syms = list(dict.fromkeys((row.get("symbols") or []) + symbols(text)))
     tps = topics(text, row.get("themes_hint"))
     acts = actions(text)
-    failure = any(x in tps for x in ["失败复盘"]) or any(x in acts for x in ["卖出/退出"]) and bool(re.search(r"认错|看错|割肉|亏", text))
+    for op in learned_ops:
+        for a in op.get("actions") or []:
+            if a not in acts:
+                acts.append(a)
+    failure = bool(learned_lessons) or any(x in tps for x in ["失败复盘"]) or (any(x in acts for x in ["卖出/退出","clear"]) and bool(re.search(r"认错|看错|割肉|亏", text)))
     return {
         "id": row.get("id"),
         "source": row.get("source","wenxuecity"),
@@ -137,6 +154,9 @@ def normalize(row):
         "symbols": syms,
         "topics": tps,
         "actions": acts,
+        "operations": learned_ops,
+        "portfolio_rules": learned_rules,
+        "lessons": learned_lessons,
         "failure_candidate": bool(failure),
         "archive_only": bool(row.get("archive_only")),
         "deep_analysis": bool(row.get("deep_analysis")),
@@ -205,12 +225,26 @@ def build(records):
 
     alerts = []
     for r in rows:
-        if r["archive_only"]:
+        if r["archive_only"] and not r["operations"] and not r["portfolio_rules"] and not r["lessons"]:
             continue
-        if not r["actions"] and not r["failure_candidate"] and not r["symbols"]:
+        if not r["actions"] and not r["operations"] and not r["failure_candidate"] and not r["symbols"]:
             continue
         reason = []
         if r["actions"]: reason.append("出现明确操作：" + " / ".join(r["actions"]))
+        if r["operations"]:
+            price_ops = []
+            for op in r["operations"][:4]:
+                sym = "/".join(op.get("symbols") or [])
+                fields = []
+                if op.get("entry_1") is not None: fields.append(f"第一档 {op['entry_1']:g}")
+                if op.get("entry_2") is not None: fields.append(f"第二档 {op['entry_2']:g}")
+                if op.get("entry_below") is not None: fields.append(f"跌破 {op['entry_below']:g} 才考虑")
+                if op.get("sell_put_strike") is not None: fields.append(f"Sell Put K={op['sell_put_strike']:g}")
+                if op.get("exit_line") is not None: fields.append(f"卖出线 {op['exit_line']:g}")
+                if op.get("target_range"): fields.append("目标区 " + "-".join(f"{x:g}" for x in op["target_range"]))
+                if fields: price_ops.append((sym + " " + " / ".join(fields)).strip())
+            if price_ops: reason.append("具体条件：" + "；".join(price_ops))
+        if r["portfolio_rules"]: reason.append("组合规则：" + " / ".join(r["portfolio_rules"]))
         if r["symbols"]: reason.append("涉及：" + " / ".join(r["symbols"]))
         if r["failure_candidate"]: reason.append("可进入失败复盘")
         alerts.append({
@@ -235,14 +269,25 @@ def build(records):
             "records": len(rows),
             "deep_analysis": sum(1 for r in rows if r["deep_analysis"]),
             "failure_candidates": sum(1 for r in rows if r["failure_candidate"]),
-            "action_records": sum(1 for r in rows if r["actions"]),
+            "action_records": sum(1 for r in rows if r["operations"] or r["actions"]),
+            "structured_operations": sum(len(r["operations"]) for r in rows),
+            "portfolio_rule_records": sum(1 for r in rows if r["portfolio_rules"]),
+            "lesson_records": sum(1 for r in rows if r["lessons"]),
         },
         "topic_groups": {k: v[:80] for k,v in sorted(by_topic.items(), key=lambda x: -len(x[1]))},
         "repeated_methods": [{"name":k,"records":v,"status":"research_candidate"} for k,v in method_counts.most_common()],
         "viewpoint_evolution": sorted(evolutions, key=lambda x: -x["count"])[:60],
         "thesis_candidates": sorted(thesis_candidates, key=lambda x: -x["source_records"])[:60],
         "failure_review": [r for r in rows if r["failure_candidate"]][:60],
-        "operation_cases": [r for r in rows if r["actions"]][:80],
+        "operation_cases": [r for r in rows if r["operations"] or r["actions"]][:120],
+        "portfolio_rules": [
+            {"author": r["author"], "title": r["title"], "url": r["url"], "published_at": r["published_at"], "rules": r["portfolio_rules"]}
+            for r in rows if r["portfolio_rules"]
+        ][:80],
+        "learning_lessons": [
+            {"author": r["author"], "title": r["title"], "url": r["url"], "published_at": r["published_at"], "lessons": r["lessons"], "symbols": r["symbols"]}
+            for r in rows if r["lessons"]
+        ][:80],
         "research_alerts": sorted(alerts, key=lambda x: -x["priority"])[:24],
         "records": rows[:800],
         "guardrails": [

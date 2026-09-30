@@ -94,10 +94,10 @@
     return{strategy:state.strategy,spot:+$('manualSpot').value,strike:+$('manualStrike').value,premium:+$('manualPremium').value,qty:+$('optionQty').value,multiplier:+$('contractMultiplier').value,targetSpot:+$('targetSpot').value,iv:+$('manualIv').value/100,ivChange:+document.querySelector('[data-iv].active')?.dataset.iv||0,fee:+$('feePerContract').value,rate:+$('riskFreeRate').value/100,dividend:+$('dividendYield').value/100,dte:daysBetween(todayIso(),expiry),forwardDays:daysBetween(todayIso(),target),stockCost:+$('stockCost').value};
   }
   function decisionPurposeMeta(strategy,purpose){
-    const expected={SELL_PUT:'income',BUY_CALL:'bullish',BUY_PUT:'protect',COVERED_CALL:'covered'};
+    const expected={SELL_PUT:['premium_income','income'],BUY_CALL:['bullish'],BUY_PUT:['protect'],COVERED_CALL:['covered']};
     if(strategy==='NAKED_CALL')return{tone:'bad',label:'高风险结构',text:'裸卖 Call 的最大亏损理论上没有上限，不适合作为普通投资者的默认策略。'};
     if(!purpose||purpose==='other')return{tone:'warn',label:'用途待确认',text:'先写清这笔期权到底要解决什么问题，再比较股票、现金和期权哪种工具更合适。'};
-    if(expected[strategy]===purpose)return{tone:'good',label:'用途基本匹配',text:'所选策略与当前目的基本一致；下一步重点检查最坏结果、到期时间和报价质量。'};
+    if(expected[strategy]?.includes(purpose)){if(strategy==='SELL_PUT'&&purpose==='premium_income')return{tone:'good',label:'权利金优先',text:'当前核心目的是赚取权利金并尽量避免被指派；后续应更重视利润捕获、Delta、DTE、价差、事件风险，以及提前平仓或展期条件。'};return{tone:'good',label:'用途基本匹配',text:'所选策略与当前目的基本一致；下一步重点检查最坏结果、到期时间和报价质量。'};}
     return{tone:'warn',label:'用途需要复核',text:'当前策略和你选择的主要目的并不完全匹配，先确认是否有更直接、风险更容易理解的表达方式。'};
   }
   function decisionStrategyText(strategy,r){
@@ -117,7 +117,7 @@
     const iv=p.iv,ivLabel=iv>=.60?'绝对IV偏高':iv>=.35?'绝对IV中等':'绝对IV较低',ivText=iv>=.60?'Long期权对IV回落更敏感；不能只凭高IV判断“贵”，还要和该标的自身历史比较。':iv>=.35?'是否昂贵仍要与该股票自身历史IV比较。':'绝对IV不高，但是否“便宜”仍取决于该标的历史波动与事件风险。';
     const delta=quoteNumber(state.selected?.delta),deltaText=Number.isFinite(delta)?`当前 Delta ${delta.toFixed(2)}：正股每变化 $1，期权理论价格约变化 $${Math.abs(delta).toFixed(2)}；它不是胜率。`:'尚未取得真实 Delta；不要把缺失的 Greeks 当成已知。';
     const rt=state.strategy==='NAKED_CALL'?'bad':(p.dte<14?'warn':'neutral');
-    host.innerHTML=`<div class="option-decision-callout ${pm.tone}"><span>${pm.label}</span><strong>${pm.text}</strong></div><div class="option-decision-grid"><article><span>① 策略本质</span><h3>${st.title}</h3><p>${st.body}</p><small>${st.risk}</small></article><article class="${rt}"><span>② 最坏结果</span><h3>${Number.isFinite(r.maxLoss)?money(r.maxLoss):'理论上无限'}</h3><p>${state.strategy==='SELL_PUT'?`把接货资金当成真实义务，不要只看收到的 ${money(r.premiumCash)} 权利金。`:state.strategy==='NAKED_CALL'?'亏损没有理论上限，保证金也可能快速增加。':'按当前输入、到期口径估算。'}</p><small>先确认最坏结果，再讨论收益。</small></article><article class="${tt}"><span>③ 时间是否够</span><h3>${title}</h3><p>${txt}</p><small>DTE越短，对判断兑现时间要求越高。</small></article><article><span>④ IV / Delta怎么读</span><h3>${ivLabel} · IV ${pct(iv)}</h3><p>${ivText}</p><small>${deltaText}</small></article></div><div class="option-decision-bottom">普通投资者检查顺序：<b>投资逻辑 → 为什么不用股票 → 最坏结果 → 时间是否够 → IV/流动性 → 再看收益情景</b>。本卡是风险解释，不是自动买卖信号。</div>`;
+    const purposeNote=state.strategy==='SELL_PUT'&&purpose==='premium_income'?'<div class="option-decision-bottom"><b>权利金优先模式：</b>默认目标是赚取时间价值，而不是接货；当利润捕获较高、Delta上升、临近事件或DTE缩短时，应更早比较平仓/展期。</div>':'';host.innerHTML=`<div class="option-decision-callout ${pm.tone}"><span>${pm.label}</span><strong>${pm.text}</strong></div><div class="option-decision-grid"><article><span>① 策略本质</span><h3>${st.title}</h3><p>${st.body}</p><small>${st.risk}</small></article><article class="${rt}"><span>② 最坏结果</span><h3>${Number.isFinite(r.maxLoss)?money(r.maxLoss):'理论上无限'}</h3><p>${state.strategy==='SELL_PUT'?`把接货资金当成真实义务，不要只看收到的 ${money(r.premiumCash)} 权利金。`:state.strategy==='NAKED_CALL'?'亏损没有理论上限，保证金也可能快速增加。':'按当前输入、到期口径估算。'}</p><small>先确认最坏结果，再讨论收益。</small></article><article class="${tt}"><span>③ 时间是否够</span><h3>${title}</h3><p>${txt}</p><small>DTE越短，对判断兑现时间要求越高。</small></article><article><span>④ IV / Delta怎么读</span><h3>${ivLabel} · IV ${pct(iv)}</h3><p>${ivText}</p><small>${deltaText}</small></article></div>${purposeNote}<div class="option-decision-bottom">普通投资者检查顺序：<b>投资逻辑 → 为什么不用股票 → 最坏结果 → 时间是否够 → IV/流动性 → 再看收益情景</b>。本卡是风险解释，不是自动买卖信号。</div>`;
   }
   function render(){
     const p=inputs();if(!p.spot||!p.strike||!p.premium||!p.targetSpot)return;

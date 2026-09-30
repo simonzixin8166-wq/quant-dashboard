@@ -2,12 +2,17 @@
   'use strict';
   const $=id=>document.getElementById(id);
   const state={publicData:null,lastRender:0};
+  const MEMORY_KEY='mavAgentDecisionMemoryV56';
 
   function n(v){const x=Number(v);return Number.isFinite(x)?x:null}
   function pct(v,d=0){return Number.isFinite(Number(v))?(Number(v)*100).toFixed(d)+'%':'—'}
   function money(v){return Number.isFinite(Number(v))?'$'+Number(v).toFixed(2):'—'}
   function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
   function rank(level){return({quiet:0,watch:1,review:2,action:3})[level]??0}
+  function readMemory(){try{return JSON.parse(localStorage.getItem(MEMORY_KEY)||'{}')||{}}catch{return {}}}
+  function writeMemory(v){try{localStorage.setItem(MEMORY_KEY,JSON.stringify(v))}catch{}}
+  function decisionSignature(item){return [item.kind,item.symbol,item.decision||'',item.level||'',item.timing||''].join('|')}
+  function trackDecision(item){const mem=readMemory(),key=(item.kind==='option'?'option:':'stock:')+(item.id||item.symbol),prev=mem[key],sig=decisionSignature(item),changed=Boolean(prev&&prev.signature!==sig);mem[key]={signature:sig,decision:item.decision||'',level:item.level||'',timing:item.timing||'',at:new Date().toISOString()};writeMemory(mem);return{changed,previous:prev||null}}
   function levelLabel(level){return({quiet:'无需处理',watch:'观察',review:'需要复查',action:'需要处理'})[level]||level}
 
   async function loadPublic(){
@@ -36,6 +41,21 @@
     return{mark,pnl,pnlPct,spread,delta,iv,spot,dte};
   }
 
+  function remainingEdge(position,m,nearEvents=[],immediateEvents=[]){
+    const short=String(position.side||'').toLowerCase()==='short',type=String(position.opt_type||'').toLowerCase();
+    const absDelta=m.delta===null?null:Math.abs(m.delta),capture=m.pnlPct,remaining=capture===null?null:Math.max(0,1-capture);
+    const assignment=String(position.assignment_mode||'accept').toLowerCase();
+    let score=50;const positives=[],risks=[];
+    if(short&&remaining!==null){score+=Math.min(18,remaining*30);positives.push('剩余可赚约 '+pct(remaining,0)+' 原始权利金')}
+    if(absDelta!==null){if(absDelta<=0.15){score+=12;positives.push('|Delta| '+absDelta.toFixed(2)+' 较低')}else if(absDelta>=0.35){score-=18;risks.push('|Delta| '+absDelta.toFixed(2)+' 较高')}}
+    if(Number.isFinite(m.dte)){if(m.dte>=30){score+=8;positives.push('DTE '+m.dte+'，时间仍充足')}else if(m.dte<=7){score-=20;risks.push('仅剩 '+m.dte+' DTE')}else if(m.dte<=21){score-=8;risks.push('进入 '+m.dte+' DTE 临期区')}}
+    if(m.spread!==null){if(m.spread<=0.12){score+=8;positives.push('价差约 '+pct(m.spread,0)+'，执行成本可控')}else if(m.spread>0.20){score-=12;risks.push('价差约 '+pct(m.spread,0)+' 偏宽')}}
+    if(immediateEvents.length){score-=18;risks.push('未来2天存在事件风险')}else if(nearEvents.length){score-=10;risks.push('未来7天存在事件风险')}
+    if(short&&type==='put'&&assignment==='avoid'&&absDelta!==null&&absDelta>=0.30){score-=12;risks.push('不愿接货且行权风险上升')}
+    if(capture!==null&&capture>=0.80){score-=15;risks.push('主要权利金已兑现')}
+    score=Math.max(0,Math.min(100,Math.round(score)));
+    return{score,label:score>=75?'高':score>=55?'中高':score>=40?'中':score>=25?'偏低':'低',positives,risks,remainingPremiumRatio:remaining};
+  }
   function daysUntilEvent(event){
     const d=new Date(event?.datetime);
     if(Number.isNaN(d.getTime()))return null;
@@ -48,6 +68,7 @@
     const eventRows=events.map(e=>({event:e,days:daysUntilEvent(e)})).filter(x=>x.days!==null&&x.days>=0&&x.days<=Math.max(0,m.dte));
     const nearEvents=eventRows.filter(x=>x.days<=7);
     const immediateEvents=eventRows.filter(x=>x.days<=2);
+    const edgeScore=remainingEdge(position,m,nearEvents,immediateEvents);
     const assignment=String(position.assignment_mode||'accept').toLowerCase();
     const purpose=String(position.strategy_note||'').trim();
     const capture=m.pnlPct;
@@ -197,7 +218,7 @@
     }
     if(purpose)reasons.push(`策略备注：${purpose}`);
 
-    return{level,timing,decision,action,reasons,changeConditions,edge,metrics:m};
+    return{level,timing,decision,action,reasons,changeConditions,edge,remainingEdge:edgeScore,metrics:m};
   }
 
   function privateAttention(){
@@ -223,7 +244,8 @@
     const decision=item.decision||levelLabel(item.level);
     const change=item.changeConditions?.length?`<div class="agent-change"><b>改变判断的条件</b><span>${item.changeConditions.slice(0,4).map(esc).join(' · ')}</span></div>`:'';
     const edge=item.edge?`<div class="agent-edge"><b>剩余风险收益：</b>${esc(item.edge)}</div>`:'';
-    return `<article class="agent-card agent-${esc(item.level)}"><div class="agent-card-head"><div><span>${item.kind==='option'?'PRIVATE POSITION':'WATCHLIST'}</span><h3>${esc(item.symbol)} · ${esc(item.label)}</h3></div><b>${esc(levelLabel(item.level))} · ${esc(item.timing)}</b></div><div class="agent-decision">${esc(decision)}</div><div class="agent-metrics">${metrics.map(x=>`<span>${esc(x)}</span>`).join('')}</div><p><strong>当前方案：</strong>${esc(item.action)}</p>${edge}${item.reasons?.length?`<ul>${item.reasons.slice(0,5).map(r=>`<li>${esc(r)}</li>`).join('')}</ul>`:''}${change}${item.kind==='option'?'<small>系统不会自动下单；若执行，请以券商实时报价、保证金与公司事件为最终确认。</small>':''}</article>`;
+    const edgeScore=item.remainingEdge?'<div class="agent-edge"><b>Remaining Edge：</b>'+item.remainingEdge.score+'/100 · '+esc(item.remainingEdge.label)+(item.remainingEdge.positives?.length?'<br><span>支持：'+item.remainingEdge.positives.slice(0,3).map(esc).join(' · ')+'</span>':'')+(item.remainingEdge.risks?.length?'<br><span>风险：'+item.remainingEdge.risks.slice(0,3).map(esc).join(' · ')+'</span>':'')+'</div>':'';
+    return `<article class="agent-card agent-${esc(item.level)}"><div class="agent-card-head"><div><span>${item.kind==='option'?'PRIVATE POSITION':'WATCHLIST'}</span><h3>${esc(item.symbol)} · ${esc(item.label)}</h3></div><b>${esc(levelLabel(item.level))} · ${esc(item.timing)}</b></div><div class="agent-decision">${esc(decision)}</div><div class="agent-metrics">${metrics.map(x=>`<span>${esc(x)}</span>`).join('')}</div><p><strong>当前方案：</strong>${esc(item.action)}</p>${edgeScore}${edge}${item.reasons?.length?`<ul>${item.reasons.slice(0,5).map(r=>`<li>${esc(r)}</li>`).join('')}</ul>`:''}${change}${item.kind==='option'?'<small>系统不会自动下单；若执行，请以券商实时报价、保证金与公司事件为最终确认。</small>':''}</article>`;
   }
 
   function render(){
@@ -232,19 +254,21 @@
     const optionAttention=priv.filter(x=>x.level!=='quiet').sort((a,b)=>rank(b.level)-rank(a.level)||((a.metrics?.dte??999)-(b.metrics?.dte??999)));
     const stockAttention=pub.filter(x=>x.level!=='quiet').sort((a,b)=>rank(b.level)-rank(a.level));
     const all=[...optionAttention,...stockAttention];
-    const counts={action:all.filter(x=>x.level==='action').length,review:all.filter(x=>x.level==='review').length,watch:all.filter(x=>x.level==='watch').length};
+    const tracked=all.map(item=>({...item,_change:trackDecision(item)}));
+    const changed=tracked.filter(x=>x._change.changed);
+    const counts={action:tracked.filter(x=>x.level==='action').length,review:tracked.filter(x=>x.level==='review').length,watch:tracked.filter(x=>x.level==='watch').length};
     const discovery=state.publicData?.discovery_queue||[];
     const optionsHtml=optionAttention.length?`<div class="agent-section-title"><b>期权持仓决策</b><span>${optionAttention.length} 笔需要注意</span></div><div class="agent-grid">${optionAttention.map(card).join('')}</div>`:'<div class="agent-section-title"><b>期权持仓决策</b><span>当前无需要处理的异常</span></div>';
     const stocksHtml=stockAttention.length?`<div class="agent-section-title"><b>关注股与核心资产</b><span>${stockAttention.length} 项变化</span></div><div class="agent-grid">${stockAttention.map(card).join('')}</div>`:'<div class="agent-section-title"><b>关注股与核心资产</b><span>当前无重要变化</span></div>';
     host.innerHTML=`<div class="agent-attention-head"><div><span class="agent-kicker">MYALPHA AUTONOMOUS AGENT · V5.5</span><h2>自主研究助手</h2><p>不是只告诉你“需要复查”，而是明确说明今天做什么、为什么、什么条件会改变判断。</p></div><div class="agent-counts"><span class="action">需处理 <b>${counts.action}</b></span><span class="review">需复查 <b>${counts.review}</b></span><span>观察 <b>${counts.watch}</b></span></div></div>
-      ${all.length?optionsHtml+stocksHtml:'<div class="agent-empty">当前没有需要打扰你的重大变化；系统仍在后台记录和学习。</div>'}
+      ${tracked.length?`<div class="agent-section-title"><b>Changed Since Last Decision</b><span>${changed.length} 项变化</span></div>${changed.length?`<div class="agent-grid">${changed.slice(0,6).map(card).join('')}</div>`:'<div class="agent-empty">当前判断与上次一致，不重复打扰。</div>'}`+optionsHtml+stocksHtml:'<div class="agent-empty">当前没有需要打扰你的重大变化；系统仍在后台记录和学习。</div>'}
       ${discovery.length?`<details class="agent-discovery"><summary>自主发现 · 异常机会 ${discovery.length}</summary><div>${discovery.slice(0,8).map(x=>`<p><b>${esc(x.symbol)}</b> · ${pct(x.price_change,1)} · ${esc(x.event_strength)}<br><small>${esc(x.next_step)} ${esc(x.guardrail)}</small></p>`).join('')}</div></details>`:''}
       <div class="agent-foot">自主研究 ≠ 自动交易。系统负责主动发现、解释、排序和提出方案；最终交易仍由投资者确认。</div>`;
     state.lastRender=Date.now();
   }
 
   async function init(){await loadPublic();render();setTimeout(render,2500);setTimeout(render,7000)}
-  global.MAVAutonomousAgent={render,loadPublic,optionAdvice,privateAttention,state};
+  global.MAVAutonomousAgent={render,loadPublic,optionAdvice,privateAttention,remainingEdge,readMemory,state};
   if(typeof document!=='undefined'){
     window.addEventListener('mav:options-updated',()=>render());
     document.addEventListener('DOMContentLoaded',init);

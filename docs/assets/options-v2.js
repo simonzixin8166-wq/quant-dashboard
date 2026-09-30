@@ -380,6 +380,21 @@
   function schedulePositionRefresh(){
     clearInterval(state.positionsTimer);state.positionsTimer=setInterval(()=>{if(document.visibilityState==='visible'&&isUsRegularSession())refreshAllPositions({onlyNeeded:true,reason:'15分钟自动检查'})},POSITION_REFRESH_MS);
   }
+  function renderPositionDecisionLab(id){
+    const host=$('scenarioAnswer'),p=state.positions.get(String(id));if(!host||!p)return;
+    const cached=readCachedQuote(id),quote=cached?.quote||null,agent=global.MAVAutonomousAgent;
+    if(!agent?.optionAdvice)return;
+    const a=agent.optionAdvice(p,quote),e=a.remainingEdge;
+    const hold='继续持有并等待当前退出/风险条件';
+    const close='按当前买回/卖出报价评估锁定已实现的风险收益';
+    const roll=String(p.side).toLowerCase()==='short'?'若临期、Delta升高或不愿被指派，比较展期成本与新合约条件':'Long仓位仅在原始催化仍成立且期限不足时比较延长到期日';
+    const assign=String(p.side).toLowerCase()==='short'&&String(p.opt_type).toLowerCase()==='put'?(String(p.assignment_mode||'accept').toLowerCase()==='avoid'?'当前偏好是不接货，触发行权风险时优先比较平仓/展期':'如仍愿按有效成本接货，可把指派作为备选路径'):'不适用';
+    const block='<div class="option-decision-callout neutral"><span>POSITION DECISION LAB · V5.6</span><strong>'+String(a.decision||'继续评估')+'</strong><p>'+String(a.action||'')+'</p></div>'+
+      '<div class="option-decision-grid"><article><span>HOLD</span><h3>'+hold+'</h3><p>'+(a.edge||'等待更明确触发条件。')+'</p></article><article><span>CLOSE</span><h3>'+close+'</h3><p>重点比较已兑现收益、剩余权利金和当前Bid/Ask成本。</p></article><article><span>ROLL</span><h3>'+roll+'</h3><p>只有当展期后的风险收益更合理时才值得继续比较。</p></article><article><span>ASSIGN / EXIT PATH</span><h3>'+assign+'</h3><p>指派偏好会直接影响Sell Put临期处理逻辑。</p></article></div>'+
+      (e?'<div class="option-decision-bottom"><b>Remaining Edge '+e.score+'/100 · '+e.label+'</b>｜支持：'+(e.positives||[]).slice(0,3).join(' · ')+'｜风险：'+(e.risks||[]).slice(0,3).join(' · ')+'</div>':'')+
+      '<div class="option-decision-bottom"><b>改变判断：</b> '+(a.changeConditions||[]).join(' · ')+'。系统只做比较与提醒，不自动交易。</div>';
+    host.insertAdjacentHTML('afterbegin',block);
+  }
   async function openPositionScenario(id){
     const p=state.positions.get(String(id));if(!p)return;
     state.positionMode=true;state.strategy=`${String(p.side).toUpperCase()==='SHORT'?'SELL':'BUY'}_${String(p.opt_type).toUpperCase()}`;if(state.strategy==='SELL_CALL')state.strategy='NAKED_CALL';
@@ -387,7 +402,7 @@
     $('optionSymbol').value=p.symbol;$('manualStrike').value=Number(p.strike).toFixed(2);$('manualPremium').value=Number(p.cost).toFixed(2);$('manualExpiry').value=p.expiry;$('optionQty').value=p.qty||1;$('contractMultiplier').value=p.multiplier||100;
     strategyChanged(state.strategy);$('manualPanel').classList.add('active');$('selectedContract').textContent=`持仓推演模式：${p.symbol} ${p.side} ${p.opt_type}｜真实建仓成本 ${money(Number(p.cost))}/股｜${p.qty||1}张 × ${p.multiplier||100}`;
     const cached=readCachedQuote(id),freshness=quoteFreshness(cached);if(cached?.quote){const q=cached.quote;$('manualSpot').value=q.underlyingPrice||$('manualSpot').value;$('manualIv').value=Number.isFinite(q.iv)?(q.iv*100).toFixed(2):$('manualIv').value;if(!freshness.usable)global.MAV?.toast(`${p.symbol} 缓存报价已过期，推演前请刷新或手工确认`,'warn')}
-    $('targetSpot').value=$('manualSpot').value;render();
+    $('targetSpot').value=$('manualSpot').value;render();renderPositionDecisionLab(id);
   }
   function setMarketEvents(events,updatedAt){state.events=Array.isArray(events)?events:[];state.eventsUpdated=updatedAt||null;if(state.positions.size)renderPositionTable();renderRiskSummary()}
 
@@ -431,7 +446,7 @@
     if(typeof global.openDashboardTab==='function')global.openDashboardTab('tab-sandbox');
     setTimeout(()=>{const input=$('optionSymbol');if(input)input.value=symbol;try{strategyChanged(strategy)}catch{};const btn=$('loadExpirations');if(btn)btn.focus()},80);
   }
-  global.OptionV2={bsPrice,evaluate,normalizeColumnar,renderDecisionAssistant,loadPrivatePositions,populateAccountSelect,refreshQuote,refreshPosition,refreshAllPositions,openPositionScenario,completeRocFields,occSymbol,positionMetrics,annualizedRoc,positionRisk,quoteFreshness,isUsRegularSession,setMarketEvents,realizedPnl,assignmentBasis,openLifecycle,closeLifecycle,savePositionAccount,updateLifecyclePreview,saveLifecycle,editPosition,deletePosition,deleteLifecycleRecord,restoreArchivedPosition,toggleHistory,autoScreenOpportunity,openForSymbol,getPosition:id=>state.positions.get(String(id)),getPositions:()=>[...state.positions.values()],getCachedQuote:id=>readCachedQuote(id),getEvents:()=>state.events.slice()};
+  global.OptionV2={bsPrice,evaluate,normalizeColumnar,renderDecisionAssistant,loadPrivatePositions,populateAccountSelect,refreshQuote,refreshPosition,refreshAllPositions,openPositionScenario,renderPositionDecisionLab,completeRocFields,occSymbol,positionMetrics,annualizedRoc,positionRisk,quoteFreshness,isUsRegularSession,setMarketEvents,realizedPnl,assignmentBasis,openLifecycle,closeLifecycle,savePositionAccount,updateLifecyclePreview,saveLifecycle,editPosition,deletePosition,deleteLifecycleRecord,restoreArchivedPosition,toggleHistory,autoScreenOpportunity,openForSymbol,getPosition:id=>state.positions.get(String(id)),getPositions:()=>[...state.positions.values()],getCachedQuote:id=>readCachedQuote(id),getEvents:()=>state.events.slice()};
   if(typeof document!=='undefined'){
     document.addEventListener('DOMContentLoaded',()=>{bind();$('refreshAllOptions')?.addEventListener('click',()=>refreshAllPositions({force:true,reason:'手动刷新'}))});
     document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&Date.now()-state.lastBulkAt>=POSITION_REFRESH_MS)refreshAllPositions({onlyNeeded:true,reason:'返回页面检查'})});

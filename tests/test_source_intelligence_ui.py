@@ -19,3 +19,9 @@ print("PASS source intelligence UI")
 
 assert "research/source_outcome_validation.json" in js
 assert "5 / 20 / 60 交易日跟踪" in js
+
+assert "第一档买入价" in js
+assert "第二档买入价" in js
+assert "卖出线" in js
+assert "走势与当时方向不一致" in js
+assert "entry_1" not in js.split("function humanValidationField",1)[1].split("function outcomeCard",1)[1]

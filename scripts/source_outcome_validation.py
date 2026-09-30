@@ -145,6 +145,9 @@ def build(source: dict, store: dict[str,pd.DataFrame]):
     missing=Counter()
     for rec in source.get("operation_cases") or []:
         for idx,op in enumerate(rec.get("operations") or []):
+            attribution=op.get("attribution") or "unconfirmed_author_context"
+            if attribution=="third_party_example":
+                continue
             symbols=op.get("symbols") or rec.get("symbols") or []
             for symbol in symbols:
                 df=store.get(symbol)
@@ -167,7 +170,7 @@ def build(source: dict, store: dict[str,pd.DataFrame]):
                     "symbol":symbol,
                     "operation":op,
                     "actions":op.get("actions") or [],
-                    "attribution":op.get("attribution") or "unconfirmed_author_context",
+                    "attribution":attribution,
                     "attribution_confidence":op.get("attribution_confidence") or "needs_review",
                     "baseline_assumption":"next trading session open because source date has no reliable intraday timestamp",
                     "baseline_date":start.date().isoformat(),
@@ -216,6 +219,8 @@ def build(source: dict, store: dict[str,pd.DataFrame]):
         },
         "counts":{
             "events":len(events),
+            "author_owned":sum(1 for x in events if x["attribution"] in {"author_action","author_plan"}),
+            "unconfirmed":sum(1 for x in events if x["attribution"] not in {"author_action","author_plan"}),
             "mature60":sum(1 for x in events if x["outcomes"].get("60")),
             "developing":sum(1 for x in events if not x["outcomes"].get("60")),
             "symbols":len(set(x["symbol"] for x in events)),

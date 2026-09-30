@@ -42,3 +42,8 @@ assert "Sell Put K=150" in o2["research_alerts"][0]["source_view"]
 assert o2["operation_cases"][0]["portfolio_rules"] == ["cash_floor","one_tranche_at_a_time"]
 assert o2["operation_cases"][0]["lessons"] == ["cash_too_early","process_wrong"]
 assert "组合规则：cash_floor / one_tranche_at_a_time" in o2["research_alerts"][0]["source_view"]
+
+third=si.attribute_operation("段永平的93条语录，对不上他自己的13F",{"symbols":["NVDA"],"actions":["buy"]})
+assert third["attribution"]=="third_party_example"
+plan=si.attribute_operation("子弹与耐心：8·18 AI板块大跌手记。",{"symbols":["NBIS"],"entry_1":180,"entry_2":150})
+assert plan["attribution"]=="author_plan"

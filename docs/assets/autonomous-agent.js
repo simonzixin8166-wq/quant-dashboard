@@ -2,7 +2,7 @@
   'use strict';
   const $=id=>document.getElementById(id);
   const state={publicData:null,lastRender:0};
-  const MEMORY_KEY='mavAgentDecisionMemoryV562', LEGACY_MEMORY_KEY='mavAgentDecisionMemoryV56';
+  const MEMORY_KEY='mavAgentDecisionMemoryV562', LEGACY_MEMORY_KEY='mavAgentDecisionMemoryV56', POLICY_KEY='mavLearningPolicyV1';
 
   function n(v){const x=Number(v);return Number.isFinite(x)?x:null}
   function pct(v,d=0){return Number.isFinite(Number(v))?(Number(v)*100).toFixed(d)+'%':'—'}
@@ -35,9 +35,49 @@
     const history=Array.isArray(slot.history)?slot.history.slice():prev?.signature?[prev]:[];
     if(!prev?.signature||changed)history.push(record);
     mem[key]={current:record,history:history.slice(-60),kind:item.kind,symbol:item.symbol,id:item.id||null};
-    writeMemory(mem);return{changed,previous:prev?.signature?prev:null,history:mem[key].history};
+    writeMemory(mem);return{changed,isNew:!prev?.signature,previous:prev?.signature?prev:null,history:mem[key].history};
   }
   function decisionHistory(idOrSymbol,kind='option'){const mem=readMemory(),slot=mem[(kind==='option'?'option:':'stock:')+idOrSymbol];return Array.isArray(slot?.history)?slot.history:[]}
+
+  function readPolicyStore(){try{return JSON.parse(localStorage.getItem(POLICY_KEY)||'{}')||{}}catch{return {}}}
+  function writePolicyStore(v){try{localStorage.setItem(POLICY_KEY,JSON.stringify(v))}catch{}}
+  function buildLearningPolicy(){
+    const review=global.MAVDecisionJournal?.getSelfReview?.()||{};
+    const errors=global.MAVDecisionJournal?.getErrorMemory?.()||[];
+    const sample=Number(review.sample||0),missed=Number(review.missed||0),noisy=Number(review.noisy||0);
+    const falsePositive=errors.filter(x=>x.type==='false-positive').length;
+    const adjustments={
+      restart_bonus:missed>=2?Math.min(5,2+missed):0,
+      repeat_alert_penalty:noisy>=2?-Math.min(10,4+noisy*2):0,
+      weak_candidate_penalty:falsePositive>=2?-Math.min(6,2+falsePositive):0
+    };
+    const evidence={sample,missed,noisy,false_positive:falsePositive};
+    const signature=JSON.stringify({adjustments,evidence});
+    const store=readPolicyStore(),prev=store.current||null;
+    let version=Number(prev?.version||1);
+    if(prev?.signature&&prev.signature!==signature)version+=1;
+    const policy={version,signature,generatedAt:new Date().toISOString(),adjustments,evidence,scope:'research-priority-and-alert-weight-only',baseline:{restart_bonus:0,repeat_alert_penalty:0,weak_candidate_penalty:0}};
+    const history=Array.isArray(store.history)?store.history.slice():[];
+    if(!prev?.signature||prev.signature!==signature)history.push(policy);
+    writePolicyStore({current:policy,history:history.slice(-20)});
+    return policy;
+  }
+  function applyLearningPolicy(row,policy){
+    const base=n(row?.metrics?.research_priority),stage=String(row?.label||'');
+    let adjustment=0;const reasons=[];
+    if(base!==null&&/二次启动|趋势启动|修复/.test(stage)&&policy.adjustments.restart_bonus){
+      adjustment+=policy.adjustments.restart_bonus;reasons.push('历史漏掉上涨样本提高二次启动复核权重');
+    }
+    if(base!==null&&/修复|启动/.test(stage)&&policy.adjustments.weak_candidate_penalty){
+      adjustment+=policy.adjustments.weak_candidate_penalty;reasons.push('历史误报样本提高候选证据门槛');
+    }
+    const adjusted=base===null?null:Math.max(0,Math.min(100,Math.round((base+adjustment)*10)/10));
+    let adjustedLevel=row.level;
+    if(adjusted!==null&&adjustedLevel==='watch'&&adjusted<58)adjustedLevel='quiet';
+    if(adjusted!==null&&rank(adjustedLevel)<rank('review')&&adjusted>=70)adjustedLevel='review';
+    return {...row,level:adjustedLevel,metrics:{...(row.metrics||{}),base_research_priority:base,research_priority:adjusted,learning_adjustment:adjustment},learningPolicyReasons:reasons};
+  }
+  function resetLearningPolicy(){localStorage.removeItem(POLICY_KEY);render()}
   function levelLabel(level){return({quiet:'无需处理',watch:'观察',review:'需要复查',action:'需要处理'})[level]||level}
 
   async function loadPublic(){

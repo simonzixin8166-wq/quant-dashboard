@@ -28,8 +28,8 @@ fulltext_sample=[
     {"symbols":["NBIS"],"entry_1":180.0,"entry_2":150.0,"exit_line":250.0,"actions":["sell"]},
     {"symbols":["QCOM"],"sell_put_strike":150.0,"actions":["sell_put","no_direct_stock_buy"]}
   ],
-  "portfolio_rules":["cash_floor","one_tranche_at_a_time"],
-  "lessons":["cash_too_early","process_wrong"]}
+  "portfolio_rules":[{"type":"cash_floor","anchor_index":2},{"type":"one_tranche_at_a_time","anchor_index":3}],
+  "lessons":[{"type":"cash_too_early","anchor_index":4},{"type":"process_wrong","anchor_index":5}]}
 ]
 o2=si.build(fulltext_sample)
 assert o2["counts"]["structured_operations"]==2
@@ -38,3 +38,7 @@ assert o2["counts"]["lesson_records"]==1
 assert o2["operation_cases"][0]["operations"][0]["entry_1"]==180.0
 assert "具体条件" in o2["research_alerts"][0]["source_view"]
 assert "Sell Put K=150" in o2["research_alerts"][0]["source_view"]
+
+assert o2["operation_cases"][0]["portfolio_rules"] == ["cash_floor","one_tranche_at_a_time"]
+assert o2["operation_cases"][0]["lessons"] == ["cash_too_early","process_wrong"]
+assert "组合规则：cash_floor / one_tranche_at_a_time" in o2["research_alerts"][0]["source_view"]

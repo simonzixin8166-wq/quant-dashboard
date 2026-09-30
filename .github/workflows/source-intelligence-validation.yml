@@ -1,0 +1,58 @@
+name: Source Intelligence Validation
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "docs/data/brightline_2026_fulltext_insights.json"
+      - "scripts/source_intelligence_engine.py"
+      - "scripts/source_outcome_validation.py"
+      - "scripts/evidence_attribution_engine.py"
+      - "docs/assets/wenxuecity.js"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: source-intelligence-validation
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install pandas numpy
+
+      - name: Validate source-learning code
+        run: |
+          python -m py_compile scripts/source_intelligence_engine.py scripts/source_outcome_validation.py scripts/evidence_attribution_engine.py
+          python tests/test_source_intelligence_engine.py
+          python tests/test_source_outcome_validation.py
+          python tests/test_source_intelligence_ui.py
+          python tests/test_v570_evidence_attribution.py
+          node --check docs/assets/wenxuecity.js
+
+      - name: Build source intelligence
+        run: python scripts/source_intelligence_engine.py
+
+      - name: Build source outcome validation
+        run: python scripts/source_outcome_validation.py
+
+      - name: Rebuild evidence attribution
+        run: python scripts/evidence_attribution_engine.py
+
+      - name: Save generated learning outputs
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add docs/data/source_intelligence.json docs/research/source_outcome_validation.json docs/research/evidence_attribution.json
+          git diff --cached --quiet || (git commit -m "update source intelligence validation" && git pull --rebase origin main && git push origin HEAD:main)

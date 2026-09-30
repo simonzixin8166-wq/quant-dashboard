@@ -19,6 +19,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
+      - name: Install Python test dependencies
+        run: pip install "yfinance>=0.2.65,<0.3" pandas
       - name: JavaScript syntax
         run: |
           node --check docs/assets/options-v2.js

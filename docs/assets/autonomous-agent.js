@@ -2,17 +2,42 @@
   'use strict';
   const $=id=>document.getElementById(id);
   const state={publicData:null,lastRender:0};
-  const MEMORY_KEY='mavAgentDecisionMemoryV56';
+  const MEMORY_KEY='mavAgentDecisionMemoryV562', LEGACY_MEMORY_KEY='mavAgentDecisionMemoryV56';
 
   function n(v){const x=Number(v);return Number.isFinite(x)?x:null}
   function pct(v,d=0){return Number.isFinite(Number(v))?(Number(v)*100).toFixed(d)+'%':'—'}
   function money(v){return Number.isFinite(Number(v))?'$'+Number(v).toFixed(2):'—'}
   function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
   function rank(level){return({quiet:0,watch:1,review:2,action:3})[level]??0}
-  function readMemory(){try{return JSON.parse(localStorage.getItem(MEMORY_KEY)||'{}')||{}}catch{return {}}}
+  function readMemory(){
+    try{
+      let mem=JSON.parse(localStorage.getItem(MEMORY_KEY)||'null');
+      if(!mem||typeof mem!=='object'){
+        const old=JSON.parse(localStorage.getItem(LEGACY_MEMORY_KEY)||'{}')||{};
+        mem={};
+        for(const [key,value] of Object.entries(old))mem[key]={current:value,history:value?[value]:[]};
+        localStorage.setItem(MEMORY_KEY,JSON.stringify(mem));
+      }
+      return mem;
+    }catch{return {}}
+  }
   function writeMemory(v){try{localStorage.setItem(MEMORY_KEY,JSON.stringify(v))}catch{}}
-  function decisionSignature(item){return [item.kind,item.symbol,item.decision||'',item.level||'',item.timing||''].join('|')}
-  function trackDecision(item){const mem=readMemory(),key=(item.kind==='option'?'option:':'stock:')+(item.id||item.symbol),prev=mem[key],sig=decisionSignature(item),changed=Boolean(prev&&prev.signature!==sig);mem[key]={signature:sig,decision:item.decision||'',level:item.level||'',timing:item.timing||'',at:new Date().toISOString()};writeMemory(mem);return{changed,previous:prev||null}}
+  function decisionSignature(item){
+    const edge=item.remainingEdge?.label||'';
+    const delta=n(item.metrics?.delta),deltaBand=delta===null?'':Math.abs(delta)>=.35?'high':Math.abs(delta)>=.20?'mid':'low';
+    const dte=n(item.metrics?.dte),dteBand=dte===null?'':dte<=7?'7':dte<=21?'21':dte<=45?'45':'long';
+    return [item.kind,item.symbol,item.decision||'',item.level||'',item.timing||'',edge,deltaBand,dteBand].join('|');
+  }
+  function trackDecision(item){
+    const mem=readMemory(),key=(item.kind==='option'?'option:':'stock:')+(item.id||item.symbol),slot=mem[key]||{},prev=slot.current||slot;
+    const sig=decisionSignature(item),changed=Boolean(prev?.signature&&prev.signature!==sig),now=new Date().toISOString();
+    const record={signature:sig,decision:item.decision||'',level:item.level||'',timing:item.timing||'',edge:item.remainingEdge?.score??null,edgeLabel:item.remainingEdge?.label||'',dte:n(item.metrics?.dte),delta:n(item.metrics?.delta),iv:n(item.metrics?.iv),pnlPct:n(item.metrics?.pnlPct),at:now};
+    const history=Array.isArray(slot.history)?slot.history.slice():prev?.signature?[prev]:[];
+    if(!prev?.signature||changed)history.push(record);
+    mem[key]={current:record,history:history.slice(-60),kind:item.kind,symbol:item.symbol,id:item.id||null};
+    writeMemory(mem);return{changed,previous:prev?.signature?prev:null,history:mem[key].history};
+  }
+  function decisionHistory(idOrSymbol,kind='option'){const mem=readMemory(),slot=mem[(kind==='option'?'option:':'stock:')+idOrSymbol];return Array.isArray(slot?.history)?slot.history:[]}
   function levelLabel(level){return({quiet:'无需处理',watch:'观察',review:'需要复查',action:'需要处理'})[level]||level}
 
   async function loadPublic(){
@@ -44,17 +69,52 @@
   function remainingEdge(position,m,nearEvents=[],immediateEvents=[]){
     const short=String(position.side||'').toLowerCase()==='short',type=String(position.opt_type||'').toLowerCase();
     const absDelta=m.delta===null?null:Math.abs(m.delta),capture=m.pnlPct,remaining=capture===null?null:Math.max(0,1-capture);
-    const assignment=String(position.assignment_mode||'accept').toLowerCase();
-    let score=50;const positives=[],risks=[];
-    if(short&&remaining!==null){score+=Math.min(18,remaining*30);positives.push('剩余可赚约 '+pct(remaining,0)+' 原始权利金')}
-    if(absDelta!==null){if(absDelta<=0.15){score+=12;positives.push('|Delta| '+absDelta.toFixed(2)+' 较低')}else if(absDelta>=0.35){score-=18;risks.push('|Delta| '+absDelta.toFixed(2)+' 较高')}}
-    if(Number.isFinite(m.dte)){if(m.dte>=30){score+=8;positives.push('DTE '+m.dte+'，时间仍充足')}else if(m.dte<=7){score-=20;risks.push('仅剩 '+m.dte+' DTE')}else if(m.dte<=21){score-=8;risks.push('进入 '+m.dte+' DTE 临期区')}}
-    if(m.spread!==null){if(m.spread<=0.12){score+=8;positives.push('价差约 '+pct(m.spread,0)+'，执行成本可控')}else if(m.spread>0.20){score-=12;risks.push('价差约 '+pct(m.spread,0)+' 偏宽')}}
-    if(immediateEvents.length){score-=18;risks.push('未来2天存在事件风险')}else if(nearEvents.length){score-=10;risks.push('未来7天存在事件风险')}
-    if(short&&type==='put'&&assignment==='avoid'&&absDelta!==null&&absDelta>=0.30){score-=12;risks.push('不愿接货且行权风险上升')}
-    if(capture!==null&&capture>=0.80){score-=15;risks.push('主要权利金已兑现')}
+    const assignment=String(position.assignment_mode||'accept').toLowerCase(),note=String(position.strategy_note||'').toLowerCase();
+    const premiumPriority=/权利金|premium|income|收租|theta/.test(note),strike=n(position.strike);
+    let strikeBuffer=null;
+    if(m.spot!==null&&strike){
+      if(type==='put')strikeBuffer=(m.spot-strike)/m.spot;
+      else if(type==='call')strikeBuffer=(strike-m.spot)/m.spot;
+    }
+    let score=50;const positives=[],risks=[],components={};
+    if(short&&remaining!==null){
+      const v=Math.min(18,remaining*30);score+=v;components.remainingPremium=Math.round(v);
+      positives.push('剩余可赚约 '+pct(remaining,0)+' 原始权利金');
+    }
+    if(absDelta!==null){
+      if(absDelta<=0.15){score+=12;components.delta=12;positives.push('|Delta| '+absDelta.toFixed(2)+' 较低')}
+      else if(absDelta>=0.35){score-=18;components.delta=-18;risks.push('|Delta| '+absDelta.toFixed(2)+' 较高')}
+      else components.delta=0;
+    }
+    if(Number.isFinite(m.dte)){
+      if(m.dte>=30){score+=8;components.dte=8;positives.push('DTE '+m.dte+'，时间仍充足')}
+      else if(m.dte<=7){score-=20;components.dte=-20;risks.push('仅剩 '+m.dte+' DTE')}
+      else if(m.dte<=21){score-=8;components.dte=-8;risks.push('进入 '+m.dte+' DTE 临期区')}
+    }
+    if(m.spread!==null){
+      if(m.spread<=0.12){score+=8;components.spread=8;positives.push('价差约 '+pct(m.spread,0)+'，执行成本可控')}
+      else if(m.spread>0.20){score-=12;components.spread=-12;risks.push('价差约 '+pct(m.spread,0)+' 偏宽')}
+    }
+    if(strikeBuffer!==null&&short){
+      if(strikeBuffer>=0.10){score+=10;components.strikeBuffer=10;positives.push('距行权价缓冲约 '+pct(strikeBuffer,0))}
+      else if(strikeBuffer>=0.05){score+=4;components.strikeBuffer=4;positives.push('距行权价缓冲约 '+pct(strikeBuffer,0))}
+      else if(strikeBuffer<=0.03){score-=15;components.strikeBuffer=-15;risks.push('距行权价缓冲仅 '+pct(strikeBuffer,0))}
+    }
+    if(m.iv!==null){
+      if(short&&m.iv>=0.50&&!immediateEvents.length){score+=6;components.iv=6;positives.push('IV '+pct(m.iv,0)+'，权利金环境较高')}
+      else if(!short&&m.iv>=0.60){score-=6;components.iv=-6;risks.push('IV '+pct(m.iv,0)+' 较高，Long仓位波动率回落风险更大')}
+    }
+    if(immediateEvents.length){score-=18;components.event=-18;risks.push('未来2天存在事件风险')}
+    else if(nearEvents.length){score-=10;components.event=-10;risks.push('未来7天存在事件风险')}
+    if(short&&type==='put'&&assignment==='avoid'){
+      if(absDelta!==null&&absDelta>=0.30){score-=12;components.assignment=-12;risks.push('不愿接货且行权风险上升')}
+      else positives.push('已标记尽量避免被指派');
+    }
+    if(capture!==null&&capture>=0.80){score-=15;components.capture=-15;risks.push('主要权利金已兑现')}
+    else if(premiumPriority&&capture!==null&&capture>=0.70){score-=8;components.premiumGoal=-8;risks.push('权利金优先目标已大部分兑现')}
+    if(premiumPriority)positives.push('策略备注识别为权利金优先');
     score=Math.max(0,Math.min(100,Math.round(score)));
-    return{score,label:score>=75?'高':score>=55?'中高':score>=40?'中':score>=25?'偏低':'低',positives,risks,remainingPremiumRatio:remaining};
+    return{version:'v2',score,label:score>=75?'高':score>=55?'中高':score>=40?'中':score>=25?'偏低':'低',positives,risks,components,remainingPremiumRatio:remaining,strikeBuffer,premiumPriority};
   }
   function daysUntilEvent(event){
     const d=new Date(event?.datetime);
@@ -68,7 +128,6 @@
     const eventRows=events.map(e=>({event:e,days:daysUntilEvent(e)})).filter(x=>x.days!==null&&x.days>=0&&x.days<=Math.max(0,m.dte));
     const nearEvents=eventRows.filter(x=>x.days<=7);
     const immediateEvents=eventRows.filter(x=>x.days<=2);
-    const edgeScore=remainingEdge(position,m,nearEvents,immediateEvents);
     const assignment=String(position.assignment_mode||'accept').toLowerCase();
     const purpose=String(position.strategy_note||'').trim();
     const capture=m.pnlPct;
@@ -78,6 +137,7 @@
     const deltaLow=absDelta!==null&&absDelta<=0.15;
     const deltaHigh=absDelta!==null&&absDelta>=0.35;
     const nearStrike=m.spot!==null&&strike?m.spot/strike-1:null;
+    const edgeScore=remainingEdge(position,m,nearEvents,immediateEvents);
 
     let level='quiet',timing='无需处理',decision='继续持有',action='继续持有并自动监控。',reasons=[],changeConditions=[],edge='';
 
@@ -268,7 +328,7 @@
   }
 
   async function init(){await loadPublic();render();setTimeout(render,2500);setTimeout(render,7000)}
-  global.MAVAutonomousAgent={render,loadPublic,optionAdvice,privateAttention,remainingEdge,readMemory,state};
+  global.MAVAutonomousAgent={render,loadPublic,optionAdvice,privateAttention,remainingEdge,readMemory,decisionHistory,state};
   if(typeof document!=='undefined'){
     window.addEventListener('mav:options-updated',()=>render());
     document.addEventListener('DOMContentLoaded',init);

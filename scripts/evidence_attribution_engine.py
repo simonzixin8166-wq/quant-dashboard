@@ -12,6 +12,7 @@ LEARNING = ROOT / "docs" / "research" / "learning_engine.json"
 AUTONOMOUS = ROOT / "docs" / "research" / "autonomous_agent.json"
 HISTORY = ROOT / "docs" / "research" / "historical_journal.json"
 SOURCE_INTEL = ROOT / "docs" / "data" / "source_intelligence.json"
+SOURCE_OUTCOMES = ROOT / "docs" / "research" / "source_outcome_validation.json"
 OUT = ROOT / "docs" / "research" / "evidence_attribution.json"
 VERSION = "5.7.0"
 
@@ -333,12 +334,57 @@ def failure_attribution(history: dict) -> dict:
     }
 
 
-def build(data: dict, learning: dict, agent: dict, history: dict, source_intel: dict | None = None) -> dict:
+def external_outcome_learning(source_outcomes: dict) -> dict:
+    events = source_outcomes.get("events") or []
+    mature = []
+    for event in events:
+        row20 = (event.get("outcomes") or {}).get("20")
+        if not row20:
+            continue
+        alignment = (event.get("alignment") or {}).get("20")
+        mae = num(row20.get("mae"))
+        excess = num(row20.get("excess_vs_qqq"))
+        tags = []
+        if alignment == "not_aligned":
+            tags.append("direction_not_aligned")
+        if mae is not None and mae <= -0.15:
+            tags.append("large_adverse_move")
+        if excess is not None and excess <= -0.10:
+            tags.append("underperformed_qqq")
+        mature.append({
+            "event_id": event.get("event_id"),
+            "author": event.get("author"),
+            "symbol": event.get("symbol"),
+            "published_at": event.get("published_at"),
+            "title": event.get("title"),
+            "url": event.get("url"),
+            "attribution": event.get("attribution"),
+            "return_20": num(row20.get("return")),
+            "mae_20": mae,
+            "mfe_20": num(row20.get("mfe")),
+            "excess_vs_qqq_20": excess,
+            "alignment_20": alignment,
+            "review_tags": tags,
+            "maturity": "mature20",
+        })
+    reviews = [x for x in mature if x["review_tags"]]
+    return {
+        "events_scanned": len(events),
+        "mature20": len(mature),
+        "review_candidates": len(reviews),
+        "recent_reviews": reviews[:20],
+        "method": "external-source 20-session descriptive outcome review; no causal claim",
+    }
+
+
+def build(data: dict, learning: dict, agent: dict, history: dict, source_intel: dict | None = None, source_outcomes: dict | None = None) -> dict:
     breadcrumbs = build_breadcrumb_engine(learning, agent)
     failures = failure_attribution(history)
     source_intel = source_intel or {}
     external_thesis = source_intel.get("thesis_candidates") or []
     external_failures = source_intel.get("failure_review") or []
+    source_outcomes = source_outcomes or {}
+    outcome_learning = external_outcome_learning(source_outcomes)
     return {
         "version": VERSION,
         "generated_at": datetime.now(timezone.utc).isoformat(),
@@ -373,13 +419,20 @@ def build(data: dict, learning: dict, agent: dict, history: dict, source_intel: 
         "failure_attribution": {
             **failures,
             "external_failure_candidates": external_failures[:20],
-            "external_note": "外部失败案例只作为候选；需后续市场结果和独立证据才能进入成熟归因样本。",
+            "external_outcome_reviews": outcome_learning["recent_reviews"],
+            "external_outcome_review_count": outcome_learning["review_candidates"],
+            "external_note": "外部失败案例先作为候选；只有达到后续交易日成熟窗口并出现可复核结果，才进入结果归因层。",
         },
         "external_source_intelligence": {
             "thesis_candidates": external_thesis[:20],
             "research_alerts": (source_intel.get("research_alerts") or [])[:20],
             "authors": source_intel.get("authors") or [],
-            "note": "外部作者观点只增加研究线索，不改变技术证据分数、核心阈值或交易规则。",
+            "outcome_validation": {
+                "counts": source_outcomes.get("counts") or {},
+                "by_action": source_outcomes.get("by_action") or {},
+                "mature_learning": outcome_learning,
+            },
+            "note": "外部作者观点只增加研究线索；结果验证只影响研究排序和复盘，不改变技术证据分数、核心阈值或交易规则。",
         },
         "guardrails": [
             "Evidence Score 是研究优先级线索，不是买入概率。",
@@ -393,7 +446,7 @@ def build(data: dict, learning: dict, agent: dict, history: dict, source_intel: 
 
 
 def main() -> int:
-    result = build(load(DASHBOARD), load(LEARNING), load(AUTONOMOUS), load(HISTORY), load(SOURCE_INTEL))
+    result = build(load(DASHBOARD), load(LEARNING), load(AUTONOMOUS), load(HISTORY), load(SOURCE_INTEL), load(SOURCE_OUTCOMES))
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
     print(json.dumps({

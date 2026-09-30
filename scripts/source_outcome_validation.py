@@ -29,6 +29,7 @@ HORIZONS = (5, 20, 60)
 
 sys.path.insert(0, str(ROOT / "scripts"))
 from local_history_agent import read_archive  # noqa: E402
+from source_history_cache import read_cache  # noqa: E402
 
 BULLISH = {"buy", "add", "hold", "sell_put"}
 BEARISH = {"sell", "trim", "trim_half", "clear"}
@@ -239,8 +240,15 @@ def build(source: dict, store: dict[str,pd.DataFrame]):
 
 def main():
     source=load(SOURCE,{"operation_cases":[]})
-    store=read_archive()
+    core=read_archive()
+    fallback=read_cache()
+    store={**fallback, **core}  # Core STOOQ history always wins when both exist.
     result=build(source,store)
+    result["history_sources"]={
+        "core_stooq_symbols":len(core),
+        "source_validation_cache_symbols":len(fallback),
+        "principle":"STOOQ core wins; yfinance fallback is isolated to external-source validation only."
+    }
     OUT.parent.mkdir(parents=True,exist_ok=True)
     OUT.write_text(json.dumps(result,ensure_ascii=False,indent=2),encoding="utf-8")
     print(json.dumps(result["counts"],ensure_ascii=False))

@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BrightLine 2026 全年研究档案 · MyAlpha View</title>
+<style>
+body{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;margin:0;background:#f6f8fb;color:#18212f}
+main{max-width:1180px;margin:auto;padding:32px 18px 60px}
+.hero,.box{background:#fff;border:1px solid #e5e9f0;border-radius:18px;padding:22px;margin-bottom:18px}
+h1{margin:.2em 0}.meta{color:#667085}.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-top:18px}.stat{background:#f8fafc;padding:14px;border-radius:14px}.stat b{font-size:26px;display:block}
+.controls{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0}.controls input,.controls select{padding:11px 12px;border:1px solid #ccd3dd;border-radius:10px;background:#fff}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px}.card{background:#fff;border:1px solid #e3e8ef;border-radius:16px;padding:16px}.tag{display:inline-block;background:#eef2f6;border-radius:999px;padding:4px 8px;font-size:12px;margin-right:6px}.done{background:#e9f8ef}.card h3{font-size:17px;line-height:1.45}.card a{color:#1257b4;text-decoration:none}.card a:hover{text-decoration:underline}.note{background:#fff8df;border:1px solid #f0d57a;border-radius:14px;padding:12px}
+</style>
+</head>
+<body><main>
+<section class="hero"><div class="meta">MYALPHA VIEW / 文学城研究档案</div><h1>BrightLine 2026 全年研究档案</h1><p>一次性历史回填后的静态索引。全文用于研究底稿，网站只展示标题、日期、原文链接、基础分类与分析状态，不公开转载全文。</p><div class="stats"><div class="stat"><b id="total">—</b>唯一文章</div><div class="stat"><b id="deep">—</b>已有深度分析</div><div class="stat"><b id="new">—</b>新增索引</div><div class="stat"><b>10</b>重复锚点已剔除</div></div></section>
+<div class="note">对比结果：原网站 14 篇 2026 BrightLine 研究卡全部出现在本次回填中；其余 104 篇为新增档案。自动抓取暂不启用。</div>
+<div class="controls"><input id="q" placeholder="搜索标题 / 主题" size="28"><select id="topic"><option value="">全部主题</option></select><select id="status"><option value="">全部状态</option><option value="done">已深度分析</option><option value="todo">待分析</option></select></div>
+<div id="count" class="meta"></div><div id="grid" class="grid"></div>
+</main>
+<script>
+const esc=s=>String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let rows=[];
+function render(){const q=document.getElementById('q').value.toLowerCase(),t=document.getElementById('topic').value,s=document.getElementById('status').value;const list=rows.filter(x=>(!q||(x.title+' '+x.topic).toLowerCase().includes(q))&&(!t||x.topic===t)&&(!s||(s==='done')===!!x.deep_analysis));document.getElementById('count').textContent='显示 '+list.length+' / '+rows.length+' 篇';document.getElementById('grid').innerHTML=list.map(x=>'<article class="card"><div><span class="tag">'+esc(x.topic)+'</span><span class="tag '+(x.deep_analysis?'done':'')+'">'+(x.deep_analysis?'已深度分析':'待分析')+'</span></div><h3><a href="'+esc(x.url)+'" target="_blank" rel="noopener noreferrer">'+esc(x.title)+'</a></h3><p class="meta">'+esc(x.date)+' · 正文约 '+Number(x.chars||0).toLocaleString('zh-CN')+' 字'+(x.images?' · 图片 '+x.images+' 张':'')+'</p></article>').join('')}
+(async()=>{const files=['q1','q2','q3'];const rs=await Promise.all(files.map(x=>fetch('data/brightline_2026_'+x+'.json').then(r=>r.json())));rows=rs.flatMap(x=>x.articles||[]).sort((a,b)=>String(b.date).localeCompare(String(a.date)));document.getElementById('total').textContent=rows.length;document.getElementById('deep').textContent=rows.filter(x=>x.deep_analysis).length;document.getElementById('new').textContent=rows.filter(x=>!x.deep_analysis).length;[...new Set(rows.map(x=>x.topic))].sort().forEach(x=>{const o=document.createElement('option');o.value=x;o.textContent=x;document.getElementById('topic').appendChild(o)});['q','topic','status'].forEach(id=>document.getElementById(id).addEventListener(id==='q'?'input':'change',render));render()})().catch(e=>{document.getElementById('grid').innerHTML='<div class="note">档案读取失败，请稍后刷新。</div>'});
+</script></body></html>

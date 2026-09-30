@@ -58,9 +58,11 @@ def next_session(df: pd.DataFrame, published: str):
         return None
     return future.index[0]
 
-def horizon_stats(df: pd.DataFrame, start, benchmark: pd.DataFrame|None=None):
+def horizon_stats(df: pd.DataFrame, start, benchmark: pd.DataFrame|None=None, entry_price=None):
     pos=df.index.get_loc(start)
-    entry=float(df.loc[start,"open"])
+    entry=finite(entry_price)
+    if entry is None:
+        entry=float(df.loc[start,"open"])
     out={}
     for h in HORIZONS:
         if pos+h >= len(df):
@@ -101,12 +103,20 @@ def touched(df: pd.DataFrame, start, level: float, direction: str, horizon=60):
     idx=hits.index[0]
     return {"touched":True,"date":idx.date().isoformat(),"within_sessions":horizon}
 
-def directional_alignment(actions, outcomes):
+def directional_alignment(actions, outcomes, force_direction=None):
     acts=set(actions or [])
-    direction="neutral"
-    if acts & BULLISH and not acts & BEARISH: direction="bullish"
-    elif acts & BEARISH and not acts & BULLISH: direction="bearish"
-    elif acts & BULLISH and acts & BEARISH: direction="mixed"
+    if "sell_put" in acts:
+        direction="option_structure"
+    elif force_direction:
+        direction=force_direction
+    elif acts & BULLISH and not acts & BEARISH:
+        direction="bullish"
+    elif acts & BEARISH and not acts & BULLISH:
+        direction="bearish"
+    elif acts & BULLISH and acts & BEARISH:
+        direction="mixed"
+    else:
+        direction="neutral"
     result={"direction":direction}
     for h in HORIZONS:
         row=outcomes.get(str(h))
@@ -114,13 +124,66 @@ def directional_alignment(actions, outcomes):
             result[str(h)]=None
             continue
         ret=row.get("return")
-        if ret is None or direction in {"neutral","mixed"}:
+        if direction=="option_structure":
+            result[str(h)]="not_scored_missing_option_pnl"
+        elif ret is None or direction in {"neutral","mixed"}:
             result[str(h)]="not_scored"
         elif direction=="bullish":
             result[str(h)]="aligned" if ret>0 else "not_aligned"
         else:
             result[str(h)]="aligned" if ret<0 else "not_aligned"
     return result
+
+def first_touch_after(df: pd.DataFrame, published: str, level: float):
+    start=next_session(df,published)
+    if start is None:
+        return None
+    work=df[df.index>=start]
+    hits=work[work["low"]<=level]
+    return None if hits.empty else hits.index[0]
+
+def plan_entries(op: dict):
+    """Return distinct stock-entry tranches from an author's explicit plan.
+    Sell-put strikes are not treated as stock entry prices.
+    """
+    out=[]
+    seen=set()
+    for key in ("entry_1","entry_2","entry_below"):
+        value=finite(op.get(key))
+        if value is None or value in seen:
+            continue
+        seen.add(value)
+        out.append({"kind":key,"level":value})
+    return out
+
+def validation_baselines(op: dict, attribution: str, df: pd.DataFrame, published: str):
+    entries=plan_entries(op) if attribution=="author_plan" else []
+    if entries:
+        out=[]
+        for item in entries:
+            touch=first_touch_after(df,published,item["level"])
+            out.append({
+                "kind":item["kind"],
+                "planned_level":item["level"],
+                "triggered":touch is not None,
+                "start":touch,
+                "entry_price":item["level"],
+                "assumption":"explicit plan starts only when the stated stock-entry level is touched",
+                "force_direction":"bullish",
+            })
+        return out
+    start=next_session(df,published)
+    if start is None:
+        return []
+    return [{
+        "kind":"next_session",
+        "planned_level":None,
+        "triggered":True,
+        "start":start,
+        "entry_price":None,
+        "assumption":"next trading session open because source date has no reliable intraday timestamp",
+        "force_direction":None,
+    }]
 
 def level_checks(op, df, start):
     checks={}
@@ -155,38 +218,53 @@ def build(source: dict, store: dict[str,pd.DataFrame]):
                 if df is None or df.empty:
                     missing[symbol]+=1
                     continue
-                start=next_session(df,rec.get("published_at"))
-                if start is None:
+                pub_start=next_session(df,rec.get("published_at"))
+                if pub_start is None:
                     continue
-                bench=None
-                if qqq is not None and start in qqq.index:
-                    bench=qqq
-                entry,outcomes=horizon_stats(df,start,bench)
-                event={
-                    "event_id":f"{rec.get('id')}:{idx}:{symbol}",
-                    "author":rec.get("author"),
-                    "title":rec.get("title"),
-                    "url":rec.get("url"),
-                    "published_at":rec.get("published_at"),
-                    "symbol":symbol,
-                    "operation":op,
-                    "actions":op.get("actions") or [],
-                    "attribution":attribution,
-                    "attribution_confidence":op.get("attribution_confidence") or "needs_review",
-                    "baseline_assumption":"next trading session open because source date has no reliable intraday timestamp",
-                    "baseline_date":start.date().isoformat(),
-                    "baseline_price":entry,
-                    "outcomes":outcomes,
-                    "alignment":directional_alignment(op.get("actions"),outcomes),
-                    "level_checks":level_checks(op,df,start),
-                    "status":"mature" if outcomes.get("60") else "developing",
-                }
-                events.append(event)
+                for bidx,baseline in enumerate(validation_baselines(op,attribution,df,rec.get("published_at"))):
+                    triggered=bool(baseline["triggered"])
+                    start=baseline["start"]
+                    if triggered:
+                        bench=qqq if qqq is not None and start in qqq.index else None
+                        entry,outcomes=horizon_stats(df,start,bench,baseline.get("entry_price"))
+                        alignment=directional_alignment(op.get("actions"),outcomes,baseline.get("force_direction"))
+                        status="mature" if outcomes.get("60") else "developing"
+                    else:
+                        entry=baseline.get("entry_price")
+                        outcomes={str(h):None for h in HORIZONS}
+                        alignment={"direction":baseline.get("force_direction") or "neutral", **{str(h):None for h in HORIZONS}}
+                        status="not_triggered"
+                    event={
+                        "event_id":f"{rec.get('id')}:{idx}:{symbol}:{bidx}",
+                        "author":rec.get("author"),
+                        "title":rec.get("title"),
+                        "url":rec.get("url"),
+                        "published_at":rec.get("published_at"),
+                        "symbol":symbol,
+                        "operation":op,
+                        "actions":op.get("actions") or [],
+                        "attribution":attribution,
+                        "attribution_confidence":op.get("attribution_confidence") or "needs_review",
+                        "baseline_kind":baseline["kind"],
+                        "baseline_assumption":baseline["assumption"],
+                        "planned_level":baseline.get("planned_level"),
+                        "triggered":triggered,
+                        "baseline_date":start.date().isoformat() if start is not None else None,
+                        "baseline_price":entry,
+                        "outcomes":outcomes,
+                        "alignment":alignment,
+                        "level_checks":level_checks(op,df,pub_start),
+                        "status":status,
+                    }
+                    events.append(event)
+
+    owned=[e for e in events if e["attribution"] in {"author_action","author_plan"}]
+    scored=[e for e in owned if e["triggered"]]
 
     by_action=defaultdict(list)
     by_author=defaultdict(list)
-    for e in events:
-        for a in e["actions"] or ["unspecified"]:
+    for e in scored:
+        for a in e["actions"] or (["planned_entry"] if e["baseline_kind"]!="next_session" else ["unspecified"]):
             by_action[a].append(e)
         by_author[e["author"] or "unknown"].append(e)
 
@@ -197,44 +275,51 @@ def build(source: dict, store: dict[str,pd.DataFrame]):
             vals=[x for x in vals if x and x.get("return") is not None]
             aligns=[x["alignment"].get(str(h)) for x in rows]
             aligned=sum(1 for x in aligns if x=="aligned")
-            scored=sum(1 for x in aligns if x in {"aligned","not_aligned"})
+            scored_n=sum(1 for x in aligns if x in {"aligned","not_aligned"})
+            excess=[x.get("excess_vs_qqq") for x in vals if x.get("excess_vs_qqq") is not None]
             out[str(h)]={
                 "n":len(vals),
                 "avg_return":sum(x["return"] for x in vals)/len(vals) if vals else None,
                 "median_return":float(pd.Series([x["return"] for x in vals]).median()) if vals else None,
-                "avg_excess_vs_qqq":sum(x.get("excess_vs_qqq",0) for x in vals if x.get("excess_vs_qqq") is not None)/sum(1 for x in vals if x.get("excess_vs_qqq") is not None) if any(x.get("excess_vs_qqq") is not None for x in vals) else None,
-                "alignment_rate":aligned/scored if scored else None,
+                "avg_excess_vs_qqq":sum(excess)/len(excess) if excess else None,
+                "alignment_rate":aligned/scored_n if scored_n else None,
             }
         return out
 
     return {
-        "version":1,
+        "version":2,
         "generated_at":datetime.now(timezone.utc).isoformat(),
         "methodology":{
-            "baseline":"first trading session open strictly after source date",
+            "executed_action_baseline":"first trading session open strictly after source date when no reliable intraday timestamp exists",
+            "planned_entry_baseline":"explicit stock-entry plans begin only on the first later session whose low touches the stated level; each tranche is validated separately",
+            "untriggered_plan":"kept as not_triggered and excluded from return/alignment aggregates",
             "horizons":[5,20,60],
             "benchmark":"QQQ when the same baseline session exists",
-            "directional_alignment":"descriptive only; buy/add/hold/sell_put are treated bullish, sell/trim/clear bearish",
-            "sell_put_limit":"premium/IV/expiry are often unavailable; strike touch is tracked but P&L is not inferred",
-            "attribution_limit":"until quote-vs-author attribution is confirmed, operation results remain research candidates",
+            "directional_alignment":"descriptive only; explicit staged stock-entry plans are treated bullish after trigger; sell/trim/clear bearish",
+            "sell_put_limit":"without option premium/expiry/IV, Sell Put P&L and alignment are not scored; strike-touch remains descriptive",
+            "attribution_limit":"third-party examples are excluded; unconfirmed source context is visible but excluded from aggregate method memory",
         },
         "counts":{
             "events":len(events),
-            "author_owned":sum(1 for x in events if x["attribution"] in {"author_action","author_plan"}),
+            "author_owned":len(owned),
             "unconfirmed":sum(1 for x in events if x["attribution"] not in {"author_action","author_plan"}),
-            "mature60":sum(1 for x in events if x["outcomes"].get("60")),
-            "developing":sum(1 for x in events if not x["outcomes"].get("60")),
+            "triggered_author_owned":sum(1 for x in owned if x["triggered"]),
+            "untriggered_plans":sum(1 for x in owned if x["status"]=="not_triggered"),
+            "mature60":sum(1 for x in owned if x["outcomes"].get("60")),
+            "developing":sum(1 for x in owned if x["triggered"] and not x["outcomes"].get("60")),
             "symbols":len(set(x["symbol"] for x in events)),
         },
         "missing_history":dict(missing),
         "by_action":{k:summary(v) for k,v in sorted(by_action.items())},
         "by_author":{k:summary(v) for k,v in sorted(by_author.items())},
-        "events":sorted(events,key=lambda x:(x.get("published_at") or "",x["symbol"]),reverse=True),
+        "events":sorted(events,key=lambda x:(x.get("published_at") or "",x["symbol"],x["baseline_kind"]),reverse=True),
         "guardrails":[
             "External-source outcomes are descriptive evidence, not rankings or automatic trade rules.",
-            "Quoted third-party examples must not be learned as the source author's own trades.",
+            "Quoted third-party examples are excluded from author-level outcome aggregates.",
+            "Unconfirmed attribution is excluded from aggregate method memory.",
+            "Planned entries are scored only after the exact stated price level is actually touched.",
+            "Sell Put is not assigned a synthetic P&L when premium/expiry/IV are missing.",
             "No learning result changes production thresholds without separate validation.",
-            "Missing timestamps, option premiums, expiries or position size are never invented.",
         ],
     }
 

@@ -95,6 +95,32 @@ def actions(text: str):
             out.append(name)
     return out[:4]
 
+THIRD_PARTY_TITLE_HINTS = ("段永平","巴菲特","德鲁肯米勒","斯坦利","芒格","Burry","伯里")
+AUTHOR_TITLE_HINTS = ("我","我的","今天","为什么我","回顾","更新","手记","复盘")
+
+def attribute_operation(title: str, op: dict) -> dict:
+    """Conservative ownership classification using only source metadata.
+    Full-text live ingestion may already provide a stronger attribution tag.
+    """
+    if op.get("attribution"):
+        return op
+    t = title or ""
+    if any(x.lower() in t.lower() for x in THIRD_PARTY_TITLE_HINTS):
+        op["attribution"] = "third_party_example"
+        op["attribution_confidence"] = "high"
+        return op
+    has_plan_level = any(k in op for k in ("entry_1","entry_2","entry_below","exit_line","target_range","sell_put_strike"))
+    if has_plan_level:
+        op["attribution"] = "author_plan"
+        op["attribution_confidence"] = "medium"
+    elif any(x in t for x in AUTHOR_TITLE_HINTS):
+        op["attribution"] = "author_action"
+        op["attribution_confidence"] = "medium"
+    else:
+        op["attribution"] = "unconfirmed_author_context"
+        op["attribution_confidence"] = "needs_review"
+    return op
+
 def seed_brightline():
     rows = []
     insights = load(FULLTEXT_INSIGHTS, {"articles":[]})
@@ -130,7 +156,7 @@ def normalize(row):
     title = str(row.get("title") or "")
     excerpt = str(row.get("excerpt") or "")
     text = (title + "\n" + excerpt).strip()
-    learned_ops = row.get("operations") or []
+    learned_ops = [attribute_operation(title, dict(op)) for op in (row.get("operations") or [])]
     def type_labels(values):
         out = []
         for value in values or []:
@@ -287,6 +313,14 @@ def build(records):
         "thesis_candidates": sorted(thesis_candidates, key=lambda x: -x["source_records"])[:60],
         "failure_review": [r for r in rows if r["failure_candidate"]][:60],
         "operation_cases": [r for r in rows if r["operations"] or r["actions"]][:120],
+        "owned_operation_cases": [
+            r for r in rows
+            if any((op.get("attribution") in {"author_action","author_plan"}) for op in r["operations"])
+        ][:120],
+        "third_party_examples": [
+            r for r in rows
+            if any((op.get("attribution") == "third_party_example") for op in r["operations"])
+        ][:80],
         "portfolio_rules": [
             {"author": r["author"], "title": r["title"], "url": r["url"], "published_at": r["published_at"], "rules": r["portfolio_rules"]}
             for r in rows if r["portfolio_rules"]

@@ -1,134 +1,115 @@
 {
-  "version": 1,
-  "generated_at": "2026-09-30T13:58:37.215036+00:00",
+  "version": 2,
+  "generated_at": "2026-09-30T14:11:14.126286+00:00",
   "methodology": {
-    "baseline": "first trading session open strictly after source date",
+    "executed_action_baseline": "first trading session open strictly after source date when no reliable intraday timestamp exists",
+    "planned_entry_baseline": "explicit stock-entry plans begin only on the first later session whose low touches the stated level; each tranche is validated separately",
+    "untriggered_plan": "kept as not_triggered and excluded from return/alignment aggregates",
     "horizons": [
       5,
       20,
       60
     ],
     "benchmark": "QQQ when the same baseline session exists",
-    "directional_alignment": "descriptive only; buy/add/hold/sell_put are treated bullish, sell/trim/clear bearish",
-    "sell_put_limit": "premium/IV/expiry are often unavailable; strike touch is tracked but P&L is not inferred",
-    "attribution_limit": "until quote-vs-author attribution is confirmed, operation results remain research candidates"
+    "directional_alignment": "descriptive only; explicit staged stock-entry plans are treated bullish after trigger; sell/trim/clear bearish",
+    "sell_put_limit": "without option premium/expiry/IV, Sell Put P&L and alignment are not scored; strike-touch remains descriptive",
+    "attribution_limit": "third-party examples are excluded; unconfirmed source context is visible but excluded from aggregate method memory"
   },
   "counts": {
-    "events": 75,
-    "author_owned": 40,
+    "events": 81,
+    "author_owned": 46,
     "unconfirmed": 35,
-    "mature60": 57,
-    "developing": 18,
+    "triggered_author_owned": 35,
+    "untriggered_plans": 11,
+    "mature60": 26,
+    "developing": 9,
     "symbols": 18
   },
   "missing_history": {},
   "by_action": {
     "add": {
       "5": {
-        "n": 15,
-        "avg_return": 0.037117114386548876,
-        "median_return": 0.006194169290230089,
-        "avg_excess_vs_qqq": 0.01872884084929644,
-        "alignment_rate": 0.6666666666666666
+        "n": 7,
+        "avg_return": 0.017455130496060463,
+        "median_return": 0.003586733743245585,
+        "avg_excess_vs_qqq": -0.0112488524544592,
+        "alignment_rate": 0.7142857142857143
       },
       "20": {
-        "n": 15,
-        "avg_return": 0.05194072631351676,
-        "median_return": -0.016117336078036892,
-        "avg_excess_vs_qqq": 0.01061184181270863,
-        "alignment_rate": 0.4666666666666667
+        "n": 7,
+        "avg_return": 0.008806172717781724,
+        "median_return": -0.04201602384945036,
+        "avg_excess_vs_qqq": -0.04348617851506268,
+        "alignment_rate": 0.42857142857142855
       },
       "60": {
-        "n": 14,
-        "avg_return": 0.003003152330661951,
-        "median_return": -0.08663851816143187,
-        "avg_excess_vs_qqq": -0.0395589548229815,
-        "alignment_rate": 0.35714285714285715
+        "n": 6,
+        "avg_return": -0.09733704159001376,
+        "median_return": -0.10905858311024841,
+        "avg_excess_vs_qqq": -0.15141666003796952,
+        "alignment_rate": 0.16666666666666666
       }
     },
     "buy": {
       "5": {
-        "n": 19,
-        "avg_return": 0.02044498909705589,
-        "median_return": -0.014935712493633568,
-        "avg_excess_vs_qqq": 0.0001500616105856927,
-        "alignment_rate": 0.4375
+        "n": 12,
+        "avg_return": 0.012330918313826156,
+        "median_return": -0.021881822515530114,
+        "avg_excess_vs_qqq": -0.014502693733539768,
+        "alignment_rate": 0.4
       },
       "20": {
-        "n": 19,
-        "avg_return": 0.12588090504550817,
-        "median_return": 0.0882234318721149,
-        "avg_excess_vs_qqq": 0.07384668497749898,
-        "alignment_rate": 0.5625
+        "n": 12,
+        "avg_return": 0.0790567886075513,
+        "median_return": -0.01576170702508073,
+        "avg_excess_vs_qqq": 0.015470491640367715,
+        "alignment_rate": 0.4
       },
       "60": {
-        "n": 17,
-        "avg_return": -0.018288150676653,
-        "median_return": -0.11025948636752458,
-        "avg_excess_vs_qqq": -0.03975683262879342,
-        "alignment_rate": 0.35714285714285715
-      }
-    },
-    "clear": {
-      "5": {
-        "n": 6,
-        "avg_return": -0.02156861808681987,
-        "median_return": -0.06526603301901046,
-        "avg_excess_vs_qqq": -0.03499050186568251,
-        "alignment_rate": 0.6666666666666666
-      },
-      "20": {
-        "n": 6,
-        "avg_return": -0.013259458804229038,
-        "median_return": -0.010324496301930275,
-        "avg_excess_vs_qqq": -0.029078585494620817,
-        "alignment_rate": 0.5
-      },
-      "60": {
-        "n": 1,
-        "avg_return": -0.12356098160514561,
-        "median_return": -0.12356098160514561,
-        "avg_excess_vs_qqq": -0.08873247840314846,
-        "alignment_rate": 1.0
+        "n": 10,
+        "avg_return": -0.1207107563822369,
+        "median_return": -0.17537151795238892,
+        "avg_excess_vs_qqq": -0.14052914050162263,
+        "alignment_rate": 0.25
       }
     },
     "hold": {
       "5": {
-        "n": 18,
-        "avg_return": -0.01982613295580656,
-        "median_return": -0.0286397884764632,
-        "avg_excess_vs_qqq": -0.02021888038355071,
-        "alignment_rate": 0.3888888888888889
+        "n": 7,
+        "avg_return": -0.043680510938057075,
+        "median_return": -0.02882793253742666,
+        "avg_excess_vs_qqq": -0.034368631406680304,
+        "alignment_rate": 0.2857142857142857
       },
       "20": {
-        "n": 17,
-        "avg_return": 0.019349233140163596,
-        "median_return": 0.0410331699305746,
-        "avg_excess_vs_qqq": -0.006868498779451915,
-        "alignment_rate": 0.5882352941176471
+        "n": 6,
+        "avg_return": -0.05214173283565419,
+        "median_return": -0.03061230062298581,
+        "avg_excess_vs_qqq": -0.04889169071333919,
+        "alignment_rate": 0.3333333333333333
       },
       "60": {
-        "n": 15,
-        "avg_return": -0.06562379549555167,
-        "median_return": -0.03482850320199715,
-        "avg_excess_vs_qqq": -0.0874445306342148,
-        "alignment_rate": 0.4
+        "n": 5,
+        "avg_return": -0.19693961574376567,
+        "median_return": -0.23739307888961525,
+        "avg_excess_vs_qqq": -0.17900781932358037,
+        "alignment_rate": 0.0
       }
     },
-    "no_add": {
+    "planned_buy": {
       "5": {
-        "n": 1,
-        "avg_return": -0.09413823481773254,
-        "median_return": -0.09413823481773254,
-        "avg_excess_vs_qqq": -0.08161723924588948,
-        "alignment_rate": null
+        "n": 4,
+        "avg_return": 0.04005652818368363,
+        "median_return": -0.01859362899272715,
+        "avg_excess_vs_qqq": 0.04971820603215493,
+        "alignment_rate": 1.0
       },
       "20": {
-        "n": 1,
-        "avg_return": 0.11692843610967762,
-        "median_return": 0.11692843610967762,
-        "avg_excess_vs_qqq": 0.12174527143498759,
-        "alignment_rate": null
+        "n": 4,
+        "avg_return": 0.04911038264993797,
+        "median_return": 0.0651589187327824,
+        "avg_excess_vs_qqq": 0.04689104204469016,
+        "alignment_rate": 1.0
       },
       "60": {
         "n": 0,
@@ -138,19 +119,19 @@
         "alignment_rate": null
       }
     },
-    "no_direct_stock_buy": {
+    "planned_sell": {
       "5": {
-        "n": 1,
-        "avg_return": 0.004232364881142869,
-        "median_return": 0.004232364881142869,
-        "avg_excess_vs_qqq": 0.01675336045298592,
+        "n": 3,
+        "avg_return": -0.03878177194556465,
+        "median_return": -0.0660087127148069,
+        "avg_excess_vs_qqq": -0.026260776373721595,
         "alignment_rate": 1.0
       },
       "20": {
-        "n": 1,
-        "avg_return": 0.15751707125591552,
-        "median_return": 0.15751707125591552,
-        "avg_excess_vs_qqq": 0.16233390658122548,
+        "n": 3,
+        "avg_return": 0.0014805101999173138,
+        "median_return": -0.06168216253443515,
+        "avg_excess_vs_qqq": 0.0062973455252272785,
         "alignment_rate": 1.0
       },
       "60": {
@@ -163,148 +144,102 @@
     },
     "sell": {
       "5": {
-        "n": 11,
-        "avg_return": -0.01668706187673332,
-        "median_return": -0.05985812221200526,
-        "avg_excess_vs_qqq": -0.014728117008362457,
-        "alignment_rate": 0.625
+        "n": 3,
+        "avg_return": 0.07427016441553198,
+        "median_return": 0.11595174262734576,
+        "avg_excess_vs_qqq": 0.026822775616434757,
+        "alignment_rate": 0.0
       },
       "20": {
-        "n": 11,
-        "avg_return": 0.048750634644569614,
+        "n": 3,
+        "avg_return": 0.15059407982186876,
         "median_return": -0.01576170702508073,
-        "avg_excess_vs_qqq": 0.033469972716113225,
-        "alignment_rate": 0.625
+        "avg_excess_vs_qqq": 0.08698475469346763,
+        "alignment_rate": 1.0
       },
       "60": {
-        "n": 7,
-        "avg_return": -0.1449940020318055,
-        "median_return": -0.12356098160514561,
-        "avg_excess_vs_qqq": -0.1258991995337673,
+        "n": 3,
+        "avg_return": -0.16716530659750983,
+        "median_return": -0.28619302949061665,
+        "avg_excess_vs_qqq": -0.16904877170475016,
         "alignment_rate": 1.0
       }
     },
     "sell_put": {
       "5": {
-        "n": 2,
-        "avg_return": -0.012297783828141895,
-        "median_return": -0.012297783828141895,
-        "avg_excess_vs_qqq": -0.002883955336662636,
-        "alignment_rate": 0.5
+        "n": 1,
+        "avg_return": -0.02882793253742666,
+        "median_return": -0.02882793253742666,
+        "avg_excess_vs_qqq": -0.022521271126311193,
+        "alignment_rate": null
       },
       "20": {
-        "n": 2,
-        "avg_return": 0.04858040411383985,
-        "median_return": 0.04858040411383985,
-        "avg_excess_vs_qqq": 0.052769608982981664,
-        "alignment_rate": 0.5
+        "n": 1,
+        "avg_return": -0.060356263028235824,
+        "median_return": -0.060356263028235824,
+        "avg_excess_vs_qqq": -0.05679468861526216,
+        "alignment_rate": null
       },
       "60": {
         "n": 1,
         "avg_return": -0.24310687890847082,
         "median_return": -0.24310687890847082,
         "avg_excess_vs_qqq": -0.24914607030438274,
-        "alignment_rate": 0.0
+        "alignment_rate": null
       }
     },
     "trim": {
       "5": {
-        "n": 7,
-        "avg_return": -0.019713228343332334,
-        "median_return": -0.0660087127148069,
-        "avg_excess_vs_qqq": -0.02385751134193968,
-        "alignment_rate": 0.5714285714285714
+        "n": 3,
+        "avg_return": -0.014913929584597288,
+        "median_return": -0.0736475651422066,
+        "avg_excess_vs_qqq": -0.008607268173481822,
+        "alignment_rate": 0.6666666666666666
       },
       "20": {
-        "n": 7,
-        "avg_return": -0.019278804720734972,
+        "n": 3,
+        "avg_return": 0.028382470711604563,
         "median_return": -0.017282153902128394,
-        "avg_excess_vs_qqq": -0.01384068712936058,
-        "alignment_rate": 0.7142857142857143
+        "avg_excess_vs_qqq": 0.031944045124578234,
+        "alignment_rate": 0.6666666666666666
       },
       "60": {
-        "n": 5,
-        "avg_return": -0.09507715871106934,
-        "median_return": -0.011939092517518457,
-        "avg_excess_vs_qqq": -0.09392503654160911,
-        "alignment_rate": 0.6
-      }
-    },
-    "trim_half": {
-      "5": {
         "n": 3,
-        "avg_return": -0.05819187918704013,
-        "median_return": -0.0660087127148069,
-        "avg_excess_vs_qqq": -0.04398044503787165,
-        "alignment_rate": 1.0
-      },
-      "20": {
-        "n": 3,
-        "avg_return": -0.15973028473438525,
-        "median_return": -0.1522870167918733,
-        "avg_excess_vs_qqq": -0.12777390574400263,
-        "alignment_rate": 1.0
-      },
-      "60": {
-        "n": 1,
-        "avg_return": -0.06911330049261089,
-        "median_return": -0.06911330049261089,
-        "avg_excess_vs_qqq": -0.09247765742044656,
-        "alignment_rate": 1.0
-      }
-    },
-    "unspecified": {
-      "5": {
-        "n": 1,
-        "avg_return": -0.04430761801279737,
-        "median_return": -0.04430761801279737,
-        "avg_excess_vs_qqq": -0.031786622440954315,
-        "alignment_rate": null
-      },
-      "20": {
-        "n": 1,
-        "avg_return": 0.04986116141494623,
-        "median_return": 0.04986116141494623,
-        "avg_excess_vs_qqq": 0.054677996740256196,
-        "alignment_rate": null
-      },
-      "60": {
-        "n": 0,
-        "avg_return": null,
-        "median_return": null,
-        "avg_excess_vs_qqq": null,
-        "alignment_rate": null
+        "avg_return": -0.1642576624632448,
+        "median_return": -0.23826098564397447,
+        "avg_excess_vs_qqq": -0.17029685385915672,
+        "alignment_rate": 0.6666666666666666
       }
     }
   },
   "by_author": {
     "BrightLine": {
       "5": {
-        "n": 75,
-        "avg_return": 0.001999757154587557,
-        "median_return": -0.018285182634225072,
-        "avg_excess_vs_qqq": -0.0068329954826080435,
-        "alignment_rate": 0.5142857142857142
+        "n": 35,
+        "avg_return": 0.004771471164079982,
+        "median_return": -0.028048208720593437,
+        "avg_excess_vs_qqq": -0.00727709843575777,
+        "alignment_rate": 0.5
       },
       "20": {
-        "n": 74,
-        "avg_return": 0.042576654415336895,
-        "median_return": 0.002683963833077563,
-        "avg_excess_vs_qqq": 0.01589578557968403,
-        "alignment_rate": 0.5652173913043478
+        "n": 34,
+        "avg_return": 0.02239809921288398,
+        "median_return": -0.017120530118473976,
+        "avg_excess_vs_qqq": -0.009457259418429679,
+        "alignment_rate": 0.4827586206896552
       },
       "60": {
-        "n": 57,
-        "avg_return": -0.04859366783147479,
-        "median_return": -0.08607234718313661,
-        "avg_excess_vs_qqq": -0.06941124552013508,
-        "alignment_rate": 0.4444444444444444
+        "n": 26,
+        "avg_return": -0.14607310722577313,
+        "median_return": -0.2229683791290964,
+        "avg_excess_vs_qqq": -0.16285986550770207,
+        "alignment_rate": 0.2608695652173913
       }
     }
   },
   "events": [
     {
-      "event_id": "brightline--blog-wenxuecity-com-myblog-82458-202609-3770-html:0:INTC",
+      "event_id": "brightline--blog-wenxuecity-com-myblog-82458-202609-3770-html:0:INTC:0",
       "author": "BrightLine",
       "title": "英特尔：美国唯一的代工厂，值多少钱（兼更新我的INTC持仓）",
       "url": "https://blog.wenxuecity.com/myblog/82458/202609/3770.html",
@@ -326,7 +261,10 @@
       ],
       "attribution": "author_action",
       "attribution_confidence": "medium",
+      "baseline_kind": "next_session",
       "baseline_assumption": "next trading session open because source date has no reliable intraday timestamp",
+      "planned_level": null,
+      "triggered": true,
       "baseline_date": "2026-09-08",
       "baseline_price": 100.8000030517578,
       "outcomes": {
@@ -351,7 +289,7 @@
       "status": "developing"
     },
     {
-      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-22905-html:0:NOW",
+      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-22905-html:0:NOW:0",
       "author": "BrightLine",
       "title": "ServiceNow回来了，我在145卖掉一半",
       "url": "https://blog.wenxuecity.com/myblog/82458/202608/22905.html",
@@ -373,7 +311,10 @@
       ],
       "attribution": "author_action",
       "attribution_confidence": "medium",
+      "baseline_kind": "next_session",
       "baseline_assumption": "next trading session open because source date has no reliable intraday timestamp",
+      "planned_level": null,
+      "triggered": true,
       "baseline_date": "2026-08-31",
       "baseline_price": 142.0800018310547,
       "outcomes": {
@@ -405,7 +346,7 @@
       "status": "developing"
     },
     {
-      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html:6:QCOM",
+      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html:6:QCOM:0",
       "author": "BrightLine",
       "title": "子弹与耐心：8·18 AI板块大跌手记。",
       "url": "https://blog.wenxuecity.com/myblog/82458/202608/14095.html",
@@ -415,53 +356,56 @@
         "symbols": [
           "QCOM"
         ],
-        "sell_put_strike": 150.0,
+        "sell_put_strike": 150,
         "actions": [
           "sell_put",
-          "no_direct_stock_buy"
+          "no_direct_stock_buy",
+          "planned_buy"
         ],
         "conditions": [
           "accept_assignment_then_reassess"
         ],
         "anchor_index": 32,
+        "entry_2": 140,
         "attribution": "author_plan",
         "attribution_confidence": "medium"
       },
       "actions": [
         "sell_put",
-        "no_direct_stock_buy"
+        "no_direct_stock_buy",
+        "planned_buy"
       ],
       "attribution": "author_plan",
       "attribution_confidence": "medium",
-      "baseline_assumption": "next trading session open because source date has no reliable intraday timestamp",
-      "baseline_date": "2026-08-19",
-      "baseline_price": 163.02999877929688,
+      "baseline_kind": "entry_2",
+      "baseline_assumption": "explicit plan starts only when the stated stock-entry level is touched",
+      "planned_level": 140.0,
+      "triggered": false,
+      "baseline_date": null,
+      "baseline_price": 140.0,
       "outcomes": {
-        "5": {
-          "date": "2026-08-26",
-          "return": 0.004232364881142869,
-          "mae": -0.04171013373411947,
-          "mfe": 0.021284433826198157,
-          "benchmark_return": -0.012520995571843052,
-          "excess_vs_qqq": 0.01675336045298592
-        },
-        "20": {
-          "date": "2026-09-17",
-          "return": 0.15751707125591552,
-          "mae": -0.04171013373411947,
-          "mfe": 0.17714534195580156,
-          "benchmark_return": -0.004816835325309965,
-          "excess_vs_qqq": 0.16233390658122548
-        },
+        "5": null,
+        "20": null,
         "60": null
       },
       "alignment": {
         "direction": "bullish",
-        "5": "aligned",
-        "20": "aligned",
+        "5": null,
+        "20": null,
         "60": null
       },
       "level_checks": {
+        "entry_2": {
+          "level": 140.0,
+          "touch20": {
+            "touched": false,
+            "within_sessions": 20
+          },
+          "touch60": {
+            "touched": false,
+            "within_sessions": 60
+          }
+        },
         "sell_put_strike": {
           "level": 150.0,
           "touch20": {
@@ -474,10 +418,10 @@
           }
         }
       },
-      "status": "developing"
+      "status": "not_triggered"
     },
     {
-      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html:0:NBIS",
+      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html:0:NBIS:0",
       "author": "BrightLine",
       "title": "子弹与耐心：8·18 AI板块大跌手记。",
       "url": "https://blog.wenxuecity.com/myblog/82458/202608/14095.html",
@@ -489,22 +433,23 @@
           "NBIS"
         ],
         "actions": [
-          "clear",
-          "trim_half",
-          "trim"
+          "planned_buy",
+          "planned_sell"
         ],
         "anchor_index": 19,
         "attribution": "author_action",
         "attribution_confidence": "medium"
       },
       "actions": [
-        "clear",
-        "trim_half",
-        "trim"
+        "planned_buy",
+        "planned_sell"
       ],
       "attribution": "author_action",
       "attribution_confidence": "medium",
+      "baseline_kind": "next_session",
       "baseline_assumption": "next trading session open because source date has no reliable intraday timestamp",
+      "planned_level": null,
+      "triggered": true,
       "baseline_date": "2026-08-19",
       "baseline_price": 232.32,
       "outcomes": {
@@ -527,16 +472,16 @@
         "60": null
       },
       "alignment": {
-        "direction": "bearish",
-        "5": "aligned",
-        "20": "aligned",
+        "direction": "neutral",
+        "5": "not_scored",
+        "20": "not_scored",
         "60": null
       },
       "level_checks": {},
       "status": "developing"
     },
     {
-      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html:1:NBIS",
+      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html:1:NBIS:1",
       "author": "BrightLine",
       "title": "子弹与耐心：8·18 AI板块大跌手记。",
       "url": "https://blog.wenxuecity.com/myblog/82458/202608/14095.html",
@@ -546,47 +491,38 @@
         "symbols": [
           "NBIS"
         ],
-        "entry_1": 180.0,
-        "entry_2": 150.0,
-        "exit_line": 250.0,
+        "entry_1": 180,
+        "entry_2": 150,
+        "exit_line": 250,
         "actions": [
-          "sell"
+          "planned_buy",
+          "planned_sell"
         ],
         "anchor_index": 27,
         "attribution": "author_plan",
         "attribution_confidence": "medium"
       },
       "actions": [
-        "sell"
+        "planned_buy",
+        "planned_sell"
       ],
       "attribution": "author_plan",
       "attribution_confidence": "medium",
-      "baseline_assumption": "next trading session open because source date has no reliable intraday timestamp",
-      "baseline_date": "2026-08-19",
-      "baseline_price": 232.32,
+      "baseline_kind": "entry_2",
+      "baseline_assumption": "explicit plan starts only when the stated stock-entry level is touched",
+      "planned_level": 150.0,
+      "triggered": false,
+      "baseline_date": null,
+      "baseline_price": 150.0,
       "outcomes": {
-        "5": {
-          "date": "2026-08-26",
-          "return": -0.07915805785123964,
-          "mae": -0.13098054407713489,
-          "mfe": 0.016701101928374706,
-          "benchmark_return": -0.012520995571843052,
-          "excess_vs_qqq": -0.06663706227939659
-        },
-        "20": {
-          "date": "2026-09-17",
-          "return": -0.06168216253443515,
-          "mae": -0.16150137741046822,
-          "mfe": 0.09650482093663926,
-          "benchmark_return": -0.004816835325309965,
-          "excess_vs_qqq": -0.05686532720912518
-        },
+        "5": null,
+        "20": null,
         "60": null
       },
       "alignment": {
-        "direction": "bearish",
-        "5": "aligned",
-        "20": "aligned",
+        "direction": "bullish",
+        "5": null,
+        "20": null,
         "60": null
       },
       "level_checks": {
@@ -626,10 +562,94 @@
           }
         }
       },
-      "status": "developing"
+      "status": "not_triggered"
     },
     {
-      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html:7:MRVL",
+      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html:1:NBIS:0",
+      "author": "BrightLine",
+      "title": "子弹与耐心：8·18 AI板块大跌手记。",
+      "url": "https://blog.wenxuecity.com/myblog/82458/202608/14095.html",
+      "published_at": "2026-08-18",
+      "symbol": "NBIS",
+      "operation": {
+        "symbols": [
+          "NBIS"
+        ],
+        "entry_1": 180,
+        "entry_2": 150,
+        "exit_line": 250,
+        "actions": [
+          "planned_buy",
+          "planned_sell"
+        ],
+        "anchor_index": 27,
+        "attribution": "author_plan",
+        "attribution_confidence": "medium"
+      },
+      "actions": [
+        "planned_buy",
+        "planned_sell"
+      ],
+      "attribution": "author_plan",
+      "attribution_confidence": "medium",
+      "baseline_kind": "entry_1",
+      "baseline_assumption": "explicit plan starts only when the stated stock-entry level is touched",
+      "planned_level": 180.0,
+      "triggered": false,
+      "baseline_date": null,
+      "baseline_price": 180.0,
+      "outcomes": {
+        "5": null,
+        "20": null,
+        "60": null
+      },
+      "alignment": {
+        "direction": "bullish",
+        "5": null,
+        "20": null,
+        "60": null
+      },
+      "level_checks": {
+        "entry_1": {
+          "level": 180.0,
+          "touch20": {
+            "touched": false,
+            "within_sessions": 20
+          },
+          "touch60": {
+            "touched": false,
+            "within_sessions": 60
+          }
+        },
+        "entry_2": {
+          "level": 150.0,
+          "touch20": {
+            "touched": false,
+            "within_sessions": 20
+          },
+          "touch60": {
+            "touched": false,
+            "within_sessions": 60
+          }
+        },
+        "exit_line": {
+          "level": 250.0,
+          "touch20": {
+            "touched": true,
+            "date": "2026-09-08",
+            "within_sessions": 20
+          },
+          "touch60": {
+            "touched": true,
+            "date": "2026-09-08",
+            "within_sessions": 60
+          }
+        }
+      },
+      "status": "not_triggered"
+    },
+    {
+      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html:7:MRVL:1",
       "author": "BrightLine",
       "title": "子弹与耐心：8·18 AI板块大跌手记。",
       "url": "https://blog.wenxuecity.com/myblog/82458/202608/14095.html",
@@ -639,47 +659,36 @@
         "symbols": [
           "MRVL"
         ],
-        "entry_1": 180.0,
-        "entry_2": 160.0,
+        "entry_1": 180,
+        "entry_2": 160,
         "exit_line": null,
         "actions": [
-          "sell"
+          "planned_buy"
         ],
         "anchor_index": 33,
         "attribution": "author_plan",
         "attribution_confidence": "medium"
       },
       "actions": [
-        "sell"
+        "planned_buy"
       ],
       "attribution": "author_plan",
       "attribution_confidence": "medium",
-      "baseline_assumption": "next trading session open because source date has no reliable intraday timestamp",
-      "baseline_date": "2026-08-19",
-      "baseline_price": 240.13,
+      "baseline_kind": "entry_2",
+      "baseline_assumption": "explicit plan starts only when the stated stock-entry level is touched",
+      "planned_level": 160.0,
+      "triggered": false,
+      "baseline_date": null,
+      "baseline_price": 160.0,
       "outcomes": {
-        "5": {
-          "date": "2026-08-26",
-          "return": 0.020738766501478434,
-          "mae": -0.082080123266564,
-          "mfe": 0.051597051597051635,
-          "benchmark_return": -0.012520995571843052,
-          "excess_vs_qqq": 0.033259762073321486
-        },
-        "20": {
-          "date": "2026-09-17",
-          "return": 0.002623578894765277,
-          "mae": -0.1645358764002831,
-          "mfe": 0.060259026360721224,
-          "benchmark_return": -0.004816835325309965,
-          "excess_vs_qqq": 0.007440414220075242
-        },
+        "5": null,
+        "20": null,
         "60": null
       },
       "alignment": {
-        "direction": "bearish",
-        "5": "not_aligned",
-        "20": "not_aligned",
+        "direction": "bullish",
+        "5": null,
+        "20": null,
         "60": null
       },
       "level_checks": {
@@ -706,10 +715,79 @@
           }
         }
       },
-      "status": "developing"
+      "status": "not_triggered"
     },
     {
-      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html:5:META",
+      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html:7:MRVL:0",
+      "author": "BrightLine",
+      "title": "子弹与耐心：8·18 AI板块大跌手记。",
+      "url": "https://blog.wenxuecity.com/myblog/82458/202608/14095.html",
+      "published_at": "2026-08-18",
+      "symbol": "MRVL",
+      "operation": {
+        "symbols": [
+          "MRVL"
+        ],
+        "entry_1": 180,
+        "entry_2": 160,
+        "exit_line": null,
+        "actions": [
+          "planned_buy"
+        ],
+        "anchor_index": 33,
+        "attribution": "author_plan",
+        "attribution_confidence": "medium"
+      },
+      "actions": [
+        "planned_buy"
+      ],
+      "attribution": "author_plan",
+      "attribution_confidence": "medium",
+      "baseline_kind": "entry_1",
+      "baseline_assumption": "explicit plan starts only when the stated stock-entry level is touched",
+      "planned_level": 180.0,
+      "triggered": false,
+      "baseline_date": null,
+      "baseline_price": 180.0,
+      "outcomes": {
+        "5": null,
+        "20": null,
+        "60": null
+      },
+      "alignment": {
+        "direction": "bullish",
+        "5": null,
+        "20": null,
+        "60": null
+      },
+      "level_checks": {
+        "entry_1": {
+          "level": 180.0,
+          "touch20": {
+            "touched": false,
+            "within_sessions": 20
+          },
+          "touch60": {
+            "touched": false,
+            "within_sessions": 60
+          }
+        },
+        "entry_2": {
+          "level": 160.0,
+          "touch20": {
+            "touched": false,
+            "within_sessions": 20
+          },
+          "touch60": {
+            "touched": false,
+            "within_sessions": 60
+          }
+        }
+      },
+      "status": "not_triggered"
+    },
+    {
+      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html:5:META:1",
       "author": "BrightLine",
       "title": "子弹与耐心：8·18 AI板块大跌手记。",
       "url": "https://blog.wenxuecity.com/myblog/82458/202608/14095.html",
@@ -719,47 +797,136 @@
         "symbols": [
           "META"
         ],
-        "entry_1": 560.0,
-        "entry_2": 500.0,
-        "exit_line": 800.0,
+        "entry_1": 560,
+        "entry_2": 500,
+        "exit_line": 800,
         "actions": [
-          "sell"
+          "planned_buy",
+          "planned_sell"
         ],
         "anchor_index": 31,
         "attribution": "author_plan",
         "attribution_confidence": "medium"
       },
       "actions": [
-        "sell"
+        "planned_buy",
+        "planned_sell"
       ],
       "attribution": "author_plan",
       "attribution_confidence": "medium",
-      "baseline_assumption": "next trading session open because source date has no reliable intraday timestamp",
+      "baseline_kind": "entry_2",
+      "baseline_assumption": "explicit plan starts only when the stated stock-entry level is touched",
+      "planned_level": 500.0,
+      "triggered": false,
+      "baseline_date": null,
+      "baseline_price": 500.0,
+      "outcomes": {
+        "5": null,
+        "20": null,
+        "60": null
+      },
+      "alignment": {
+        "direction": "bullish",
+        "5": null,
+        "20": null,
+        "60": null
+      },
+      "level_checks": {
+        "entry_1": {
+          "level": 560.0,
+          "touch20": {
+            "touched": true,
+            "date": "2026-08-19",
+            "within_sessions": 20
+          },
+          "touch60": {
+            "touched": true,
+            "date": "2026-08-19",
+            "within_sessions": 60
+          }
+        },
+        "entry_2": {
+          "level": 500.0,
+          "touch20": {
+            "touched": false,
+            "within_sessions": 20
+          },
+          "touch60": {
+            "touched": false,
+            "within_sessions": 60
+          }
+        },
+        "exit_line": {
+          "level": 800.0,
+          "touch20": {
+            "touched": false,
+            "within_sessions": 20
+          },
+          "touch60": {
+            "touched": false,
+            "within_sessions": 60
+          }
+        }
+      },
+      "status": "not_triggered"
+    },
+    {
+      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html:5:META:0",
+      "author": "BrightLine",
+      "title": "子弹与耐心：8·18 AI板块大跌手记。",
+      "url": "https://blog.wenxuecity.com/myblog/82458/202608/14095.html",
+      "published_at": "2026-08-18",
+      "symbol": "META",
+      "operation": {
+        "symbols": [
+          "META"
+        ],
+        "entry_1": 560,
+        "entry_2": 500,
+        "exit_line": 800,
+        "actions": [
+          "planned_buy",
+          "planned_sell"
+        ],
+        "anchor_index": 31,
+        "attribution": "author_plan",
+        "attribution_confidence": "medium"
+      },
+      "actions": [
+        "planned_buy",
+        "planned_sell"
+      ],
+      "attribution": "author_plan",
+      "attribution_confidence": "medium",
+      "baseline_kind": "entry_1",
+      "baseline_assumption": "explicit plan starts only when the stated stock-entry level is touched",
+      "planned_level": 560.0,
+      "triggered": true,
       "baseline_date": "2026-08-19",
-      "baseline_price": 541.3400268554688,
+      "baseline_price": 560.0,
       "outcomes": {
         "5": {
           "date": "2026-08-26",
-          "return": 0.06428489686069327,
-          "mae": -0.007518393472325635,
-          "mfe": 0.09605792555569392,
+          "return": 0.028821454729352602,
+          "mae": -0.04058925083705356,
+          "mfe": 0.059535762241908374,
           "benchmark_return": -0.012520995571843052,
-          "excess_vs_qqq": 0.07680589243253633
+          "excess_vs_qqq": 0.041342450301195655
         },
         "20": {
           "date": "2026-09-17",
-          "return": 0.26040928752671433,
-          "mae": -0.007518393472325635,
-          "mfe": 0.26595109092415825,
+          "return": 0.21841070992606038,
+          "mae": -0.04058925083705356,
+          "mfe": 0.2237678527832032,
           "benchmark_return": -0.004816835325309965,
-          "excess_vs_qqq": 0.2652261228520243
+          "excess_vs_qqq": 0.22322754525137034
         },
         "60": null
       },
       "alignment": {
-        "direction": "bearish",
-        "5": "not_aligned",
-        "20": "not_aligned",
+        "direction": "bullish",
+        "5": "aligned",
+        "20": "aligned",
         "60": null
       },
       "level_checks": {
@@ -802,7 +969,7 @@
       "status": "developing"
     },
     {
-      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html:3:IREN",
+      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html:3:IREN:1",
       "author": "BrightLine",
       "title": "子弹与耐心：8·18 AI板块大跌手记。",
       "url": "https://blog.wenxuecity.com/myblog/82458/202608/14095.html",
@@ -812,45 +979,149 @@
         "symbols": [
           "IREN"
         ],
-        "entry_1": 35.0,
-        "entry_2": 30.0,
+        "entry_1": 35,
+        "entry_2": 30,
         "target_range": [
-          80.0,
-          100.0
+          80,
+          100
         ],
         "anchor_index": 29,
+        "actions": [
+          "planned_buy"
+        ],
         "attribution": "author_plan",
         "attribution_confidence": "medium"
       },
-      "actions": [],
+      "actions": [
+        "planned_buy"
+      ],
       "attribution": "author_plan",
       "attribution_confidence": "medium",
-      "baseline_assumption": "next trading session open because source date has no reliable intraday timestamp",
-      "baseline_date": "2026-08-19",
-      "baseline_price": 41.415,
+      "baseline_kind": "entry_2",
+      "baseline_assumption": "explicit plan starts only when the stated stock-entry level is touched",
+      "planned_level": 30.0,
+      "triggered": false,
+      "baseline_date": null,
+      "baseline_price": 30.0,
+      "outcomes": {
+        "5": null,
+        "20": null,
+        "60": null
+      },
+      "alignment": {
+        "direction": "bullish",
+        "5": null,
+        "20": null,
+        "60": null
+      },
+      "level_checks": {
+        "entry_1": {
+          "level": 35.0,
+          "touch20": {
+            "touched": true,
+            "date": "2026-08-28",
+            "within_sessions": 20
+          },
+          "touch60": {
+            "touched": true,
+            "date": "2026-08-28",
+            "within_sessions": 60
+          }
+        },
+        "entry_2": {
+          "level": 30.0,
+          "touch20": {
+            "touched": false,
+            "within_sessions": 20
+          },
+          "touch60": {
+            "touched": false,
+            "within_sessions": 60
+          }
+        },
+        "target_low": {
+          "level": 80.0,
+          "touch20": {
+            "touched": false,
+            "within_sessions": 20
+          },
+          "touch60": {
+            "touched": false,
+            "within_sessions": 60
+          }
+        },
+        "target_high": {
+          "level": 100.0,
+          "touch20": {
+            "touched": false,
+            "within_sessions": 20
+          },
+          "touch60": {
+            "touched": false,
+            "within_sessions": 60
+          }
+        }
+      },
+      "status": "not_triggered"
+    },
+    {
+      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html:3:IREN:0",
+      "author": "BrightLine",
+      "title": "子弹与耐心：8·18 AI板块大跌手记。",
+      "url": "https://blog.wenxuecity.com/myblog/82458/202608/14095.html",
+      "published_at": "2026-08-18",
+      "symbol": "IREN",
+      "operation": {
+        "symbols": [
+          "IREN"
+        ],
+        "entry_1": 35,
+        "entry_2": 30,
+        "target_range": [
+          80,
+          100
+        ],
+        "anchor_index": 29,
+        "actions": [
+          "planned_buy"
+        ],
+        "attribution": "author_plan",
+        "attribution_confidence": "medium"
+      },
+      "actions": [
+        "planned_buy"
+      ],
+      "attribution": "author_plan",
+      "attribution_confidence": "medium",
+      "baseline_kind": "entry_1",
+      "baseline_assumption": "explicit plan starts only when the stated stock-entry level is touched",
+      "planned_level": 35.0,
+      "triggered": true,
+      "baseline_date": "2026-08-28",
+      "baseline_price": 35.0,
       "outcomes": {
         "5": {
-          "date": "2026-08-26",
-          "return": -0.04430761801279737,
-          "mae": -0.049619703006157145,
-          "mfe": 0.10901847156827249,
-          "benchmark_return": -0.012520995571843052,
-          "excess_vs_qqq": -0.031786622440954315
+          "date": "2026-09-04",
+          "return": 0.27657142857142847,
+          "mae": -0.005428571428571338,
+          "mfe": 0.27842857142857125,
+          "benchmark_return": -0.0010837246783560461,
+          "excess_vs_qqq": 0.2776551532497845
         },
         "20": {
-          "date": "2026-09-17",
-          "return": 0.04986116141494623,
-          "mae": -0.15948327900519133,
-          "mfe": 0.19014849692140534,
-          "benchmark_return": -0.004816835325309965,
-          "excess_vs_qqq": 0.054677996740256196
+          "date": "2026-09-28",
+          "return": 0.19199999999999995,
+          "mae": -0.005428571428571338,
+          "mfe": 0.4105714285714286,
+          "benchmark_return": 0.023327868396921136,
+          "excess_vs_qqq": 0.1686721316030788
         },
         "60": null
       },
       "alignment": {
-        "direction": "neutral",
-        "5": "not_scored",
-        "20": "not_scored",
+        "direction": "bullish",
+        "5": "aligned",
+        "20": "aligned",
         "60": null
       },
       "level_checks": {
@@ -904,7 +1175,7 @@
       "status": "developing"
     },
     {
-      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html:4:INTC",
+      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html:4:INTC:1",
       "author": "BrightLine",
       "title": "子弹与耐心：8·18 AI板块大跌手记。",
       "url": "https://blog.wenxuecity.com/myblog/82458/202608/14095.html",
@@ -914,52 +1185,55 @@
         "symbols": [
           "INTC"
         ],
-        "entry_below": 85.0,
+        "entry_below": 85,
         "actions": [
-          "no_add"
+          "no_add",
+          "planned_buy"
         ],
         "conditions": [
           "no_active_add",
           "only_below_threshold"
         ],
         "anchor_index": 30,
+        "entry_2": 70,
         "attribution": "author_plan",
         "attribution_confidence": "medium"
       },
       "actions": [
-        "no_add"
+        "no_add",
+        "planned_buy"
       ],
       "attribution": "author_plan",
       "attribution_confidence": "medium",
-      "baseline_assumption": "next trading session open because source date has no reliable intraday timestamp",
-      "baseline_date": "2026-08-19",
-      "baseline_price": 97.41000366210938,
+      "baseline_kind": "entry_below",
+      "baseline_assumption": "explicit plan starts only when the stated stock-entry level is touched",
+      "planned_level": 85.0,
+      "triggered": false,
+      "baseline_date": null,
+      "baseline_price": 85.0,
       "outcomes": {
-        "5": {
-          "date": "2026-08-26",
-          "return": -0.09413823481773254,
-          "mae": -0.12596246598062422,
-          "mfe": 0.008109981074152506,
-          "benchmark_return": -0.012520995571843052,
-          "excess_vs_qqq": -0.08161723924588948
-        },
-        "20": {
-          "date": "2026-09-17",
-          "return": 0.11692843610967762,
-          "mae": -0.12596246598062422,
-          "mfe": 0.14331176018529246,
-          "benchmark_return": -0.004816835325309965,
-          "excess_vs_qqq": 0.12174527143498759
-        },
+        "5": null,
+        "20": null,
         "60": null
       },
       "alignment": {
-        "direction": "neutral",
-        "5": "not_scored",
-        "20": "not_scored",
+        "direction": "bullish",
+        "5": null,
+        "20": null,
         "60": null
       },
       "level_checks": {
+        "entry_2": {
+          "level": 70.0,
+          "touch20": {
+            "touched": false,
+            "within_sessions": 20
+          },
+          "touch60": {
+            "touched": false,
+            "within_sessions": 60
+          }
+        },
         "entry_below": {
           "level": 85.0,
           "touch20": {
@@ -972,10 +1246,84 @@
           }
         }
       },
-      "status": "developing"
+      "status": "not_triggered"
     },
     {
-      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html:0:CRWV",
+      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html:4:INTC:0",
+      "author": "BrightLine",
+      "title": "子弹与耐心：8·18 AI板块大跌手记。",
+      "url": "https://blog.wenxuecity.com/myblog/82458/202608/14095.html",
+      "published_at": "2026-08-18",
+      "symbol": "INTC",
+      "operation": {
+        "symbols": [
+          "INTC"
+        ],
+        "entry_below": 85,
+        "actions": [
+          "no_add",
+          "planned_buy"
+        ],
+        "conditions": [
+          "no_active_add",
+          "only_below_threshold"
+        ],
+        "anchor_index": 30,
+        "entry_2": 70,
+        "attribution": "author_plan",
+        "attribution_confidence": "medium"
+      },
+      "actions": [
+        "no_add",
+        "planned_buy"
+      ],
+      "attribution": "author_plan",
+      "attribution_confidence": "medium",
+      "baseline_kind": "entry_2",
+      "baseline_assumption": "explicit plan starts only when the stated stock-entry level is touched",
+      "planned_level": 70.0,
+      "triggered": false,
+      "baseline_date": null,
+      "baseline_price": 70.0,
+      "outcomes": {
+        "5": null,
+        "20": null,
+        "60": null
+      },
+      "alignment": {
+        "direction": "bullish",
+        "5": null,
+        "20": null,
+        "60": null
+      },
+      "level_checks": {
+        "entry_2": {
+          "level": 70.0,
+          "touch20": {
+            "touched": false,
+            "within_sessions": 20
+          },
+          "touch60": {
+            "touched": false,
+            "within_sessions": 60
+          }
+        },
+        "entry_below": {
+          "level": 85.0,
+          "touch20": {
+            "touched": false,
+            "within_sessions": 20
+          },
+          "touch60": {
+            "touched": false,
+            "within_sessions": 60
+          }
+        }
+      },
+      "status": "not_triggered"
+    },
+    {
+      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html:0:CRWV:0",
       "author": "BrightLine",
       "title": "子弹与耐心：8·18 AI板块大跌手记。",
       "url": "https://blog.wenxuecity.com/myblog/82458/202608/14095.html",
@@ -987,22 +1335,23 @@
           "NBIS"
         ],
         "actions": [
-          "clear",
-          "trim_half",
-          "trim"
+          "planned_buy",
+          "planned_sell"
         ],
         "anchor_index": 19,
         "attribution": "author_action",
         "attribution_confidence": "medium"
       },
       "actions": [
-        "clear",
-        "trim_half",
-        "trim"
+        "planned_buy",
+        "planned_sell"
       ],
       "attribution": "author_action",
       "attribution_confidence": "medium",
+      "baseline_kind": "next_session",
       "baseline_assumption": "next trading session open because source date has no reliable intraday timestamp",
+      "planned_level": null,
+      "triggered": true,
       "baseline_date": "2026-08-19",
       "baseline_price": 94.2300033569336,
       "outcomes": {
@@ -1025,16 +1374,16 @@
         "60": null
       },
       "alignment": {
-        "direction": "bearish",
-        "5": "aligned",
-        "20": "aligned",
+        "direction": "neutral",
+        "5": "not_scored",
+        "20": "not_scored",
         "60": null
       },
       "level_checks": {},
       "status": "developing"
     },
     {
-      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html:2:CRWV",
+      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html:2:CRWV:1",
       "author": "BrightLine",
       "title": "子弹与耐心：8·18 AI板块大跌手记。",
       "url": "https://blog.wenxuecity.com/myblog/82458/202608/14095.html",
@@ -1044,47 +1393,38 @@
         "symbols": [
           "CRWV"
         ],
-        "entry_1": 75.0,
-        "entry_2": 62.0,
-        "exit_line": 110.0,
+        "entry_1": 75,
+        "entry_2": 62,
+        "exit_line": 110,
         "actions": [
-          "sell"
+          "planned_buy",
+          "planned_sell"
         ],
         "anchor_index": 28,
         "attribution": "author_plan",
         "attribution_confidence": "medium"
       },
       "actions": [
-        "sell"
+        "planned_buy",
+        "planned_sell"
       ],
       "attribution": "author_plan",
       "attribution_confidence": "medium",
-      "baseline_assumption": "next trading session open because source date has no reliable intraday timestamp",
-      "baseline_date": "2026-08-19",
-      "baseline_price": 94.2300033569336,
+      "baseline_kind": "entry_2",
+      "baseline_assumption": "explicit plan starts only when the stated stock-entry level is touched",
+      "planned_level": 62.0,
+      "triggered": false,
+      "baseline_date": null,
+      "baseline_price": 62.0,
       "outcomes": {
-        "5": {
-          "date": "2026-08-26",
-          "return": -0.0660087127148069,
-          "mae": -0.11673564266291203,
-          "mfe": 0.0015917849001469975,
-          "benchmark_return": -0.012520995571843052,
-          "excess_vs_qqq": -0.05348771714296385
-        },
-        "20": {
-          "date": "2026-09-17",
-          "return": -0.1522870167918733,
-          "mae": -0.16937287642251608,
-          "mfe": 0.10994367623775236,
-          "benchmark_return": -0.004816835325309965,
-          "excess_vs_qqq": -0.14747018146656332
-        },
+        "5": null,
+        "20": null,
         "60": null
       },
       "alignment": {
-        "direction": "bearish",
-        "5": "aligned",
-        "20": "aligned",
+        "direction": "bullish",
+        "5": null,
+        "20": null,
         "60": null
       },
       "level_checks": {
@@ -1122,10 +1462,92 @@
           }
         }
       },
-      "status": "developing"
+      "status": "not_triggered"
     },
     {
-      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202607-22473-html:0:NBIS",
+      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html:2:CRWV:0",
+      "author": "BrightLine",
+      "title": "子弹与耐心：8·18 AI板块大跌手记。",
+      "url": "https://blog.wenxuecity.com/myblog/82458/202608/14095.html",
+      "published_at": "2026-08-18",
+      "symbol": "CRWV",
+      "operation": {
+        "symbols": [
+          "CRWV"
+        ],
+        "entry_1": 75,
+        "entry_2": 62,
+        "exit_line": 110,
+        "actions": [
+          "planned_buy",
+          "planned_sell"
+        ],
+        "anchor_index": 28,
+        "attribution": "author_plan",
+        "attribution_confidence": "medium"
+      },
+      "actions": [
+        "planned_buy",
+        "planned_sell"
+      ],
+      "attribution": "author_plan",
+      "attribution_confidence": "medium",
+      "baseline_kind": "entry_1",
+      "baseline_assumption": "explicit plan starts only when the stated stock-entry level is touched",
+      "planned_level": 75.0,
+      "triggered": false,
+      "baseline_date": null,
+      "baseline_price": 75.0,
+      "outcomes": {
+        "5": null,
+        "20": null,
+        "60": null
+      },
+      "alignment": {
+        "direction": "bullish",
+        "5": null,
+        "20": null,
+        "60": null
+      },
+      "level_checks": {
+        "entry_1": {
+          "level": 75.0,
+          "touch20": {
+            "touched": false,
+            "within_sessions": 20
+          },
+          "touch60": {
+            "touched": false,
+            "within_sessions": 60
+          }
+        },
+        "entry_2": {
+          "level": 62.0,
+          "touch20": {
+            "touched": false,
+            "within_sessions": 20
+          },
+          "touch60": {
+            "touched": false,
+            "within_sessions": 60
+          }
+        },
+        "exit_line": {
+          "level": 110.0,
+          "touch20": {
+            "touched": false,
+            "within_sessions": 20
+          },
+          "touch60": {
+            "touched": false,
+            "within_sessions": 60
+          }
+        }
+      },
+      "status": "not_triggered"
+    },
+    {
+      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202607-22473-html:0:NBIS:0",
       "author": "BrightLine",
       "title": "439%之后：AI神童爆仓有感",
       "url": "https://blog.wenxuecity.com/myblog/82458/202607/22473.html",
@@ -1149,7 +1571,10 @@
       ],
       "attribution": "unconfirmed_author_context",
       "attribution_confidence": "needs_review",
+      "baseline_kind": "next_session",
       "baseline_assumption": "next trading session open because source date has no reliable intraday timestamp",
+      "planned_level": null,
+      "triggered": true,
       "baseline_date": "2026-07-31",
       "baseline_price": 200.935,
       "outcomes": {
@@ -1181,7 +1606,7 @@
       "status": "developing"
     },
     {
-      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202607-22473-html:1:NBIS",
+      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202607-22473-html:1:NBIS:0",
       "author": "BrightLine",
       "title": "439%之后：AI神童爆仓有感",
       "url": "https://blog.wenxuecity.com/myblog/82458/202607/22473.html",
@@ -1203,7 +1628,10 @@
       ],
       "attribution": "unconfirmed_author_context",
       "attribution_confidence": "needs_review",
+      "baseline_kind": "next_session",
       "baseline_assumption": "next trading session open because source date has no reliable intraday timestamp",
+      "planned_level": null,
+      "triggered": true,
       "baseline_date": "2026-07-31",
       "baseline_price": 200.935,
       "outcomes": {
@@ -1235,7 +1663,7 @@
       "status": "developing"
     },
     {
-      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202607-22473-html:0:IREN",
+      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202607-22473-html:0:IREN:0",
       "author": "BrightLine",
       "title": "439%之后：AI神童爆仓有感",
       "url": "https://blog.wenxuecity.com/myblog/82458/202607/22473.html",
@@ -1259,7 +1687,10 @@
       ],
       "attribution": "unconfirmed_author_context",
       "attribution_confidence": "needs_review",
+      "baseline_kind": "next_session",
       "baseline_assumption": "next trading session open because source date has no reliable intraday timestamp",
+      "planned_level": null,
+      "triggered": true,
       "baseline_date": "2026-07-31",
       "baseline_price": 40.815,
       "outcomes": {
@@ -1291,7 +1722,7 @@
       "status": "developing"
     },
     {
-      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202607-22473-html:0:CRWV",
+      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202607-22473-html:0:CRWV:0",
       "author": "BrightLine",
       "title": "439%之后：AI神童爆仓有感",
       "url": "https://blog.wenxuecity.com/myblog/82458/202607/22473.html",
@@ -1315,7 +1746,10 @@
       ],
       "attribution": "unconfirmed_author_context",
       "attribution_confidence": "needs_review",
+      "baseline_kind": "next_session",
       "baseline_assumption": "next trading session open because source date has no reliable intraday timestamp",
+      "planned_level": null,
+      "triggered": true,
       "baseline_date": "2026-07-31",
       "baseline_price": 77.03500366210938,
       "outcomes": {
@@ -1347,7 +1781,7 @@
       "status": "developing"
     },
     {
-      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202607-18322-html:0:TSLA",
+      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202607-18322-html:0:TSLA:0",
       "author": "BrightLine",
       "title": "为什么我逢低买进特斯拉",
       "url": "https://blog.wenxuecity.com/myblog/82458/202607/18322.html",
@@ -1369,7 +1803,10 @@
       ],
       "attribution": "author_action",
       "attribution_confidence": "medium",
+      "baseline_kind": "next_session",
       "baseline_assumption": "next trading session open because source date has no reliable intraday timestamp",
+      "planned_level": null,
+      "triggered": true,
       "baseline_date": "2026-07-27",
       "baseline_price": 313.24,
       "outcomes": {
@@ -1401,7 +1838,7 @@
       "status": "developing"
     },
     {
-      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202607-18322-html:1:TSLA",
+      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202607-18322-html:1:TSLA:0",
       "author": "BrightLine",
       "title": "为什么我逢低买进特斯拉",
       "url": "https://blog.wenxuecity.com/myblog/82458/202607/18322.html",
@@ -1423,7 +1860,10 @@
       ],
       "attribution": "author_action",
       "attribution_confidence": "medium",
+      "baseline_kind": "next_session",
       "baseline_assumption": "next trading session open because source date has no reliable intraday timestamp",
+      "planned_level": null,
+      "triggered": true,
       "baseline_date": "2026-07-27",
       "baseline_price": 313.24,
       "outcomes": {
@@ -1455,7 +1895,7 @@
       "status": "developing"
     },
     {
-      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202607-18322-html:2:TSLA",
+      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202607-18322-html:2:TSLA:0",
       "author": "BrightLine",
       "title": "为什么我逢低买进特斯拉",
       "url": "https://blog.wenxuecity.com/myblog/82458/202607/18322.html",
@@ -1477,7 +1917,10 @@
       ],
       "attribution": "author_action",
       "attribution_confidence": "medium",
+      "baseline_kind": "next_session",
       "baseline_assumption": "next trading session open because source date has no reliable intraday timestamp",
+      "planned_level": null,
+      "triggered": true,
       "baseline_date": "2026-07-27",
       "baseline_price": 313.24,
       "outcomes": {
@@ -1509,7 +1952,7 @@
       "status": "developing"
     },
     {
-      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202606-22729-html:0:TSLA",
+      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202606-22729-html:0:TSLA:0",
       "author": "BrightLine",
       "title": "炒股有时候真的需要点运气，而且很多时候是先给你一巴掌，再给你一颗糖。",
       "url": "https://blog.wenxuecity.com/myblog/82458/202606/22729.html",
@@ -1531,7 +1974,10 @@
       ],
       "attribution": "unconfirmed_author_context",
       "attribution_confidence": "needs_review",
+      "baseline_kind": "next_session",
       "baseline_assumption": "next trading session open because source date has no reliable intraday timestamp",
+      "planned_level": null,
+      "triggered": true,
       "baseline_date": "2026-06-30",
       "baseline_price": 406.0,
       "outcomes": {
@@ -1570,7 +2016,7 @@
       "status": "mature"
     },
     {
-      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202606-22729-html:1:TSLA",
+      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202606-22729-html:1:TSLA:0",
       "author": "BrightLine",
       "title": "炒股有时候真的需要点运气，而且很多时候是先给你一巴掌，再给你一颗糖。",
       "url": "https://blog.wenxuecity.com/myblog/82458/202606/22729.html",
@@ -1592,7 +2038,10 @@
       ],
       "attribution": "unconfirmed_author_context",
       "attribution_confidence": "needs_review",
+      "baseline_kind": "next_session",
       "baseline_assumption": "next trading session open because source date has no reliable intraday timestamp",
+      "planned_level": null,
+      "triggered": true,
       "baseline_date": "2026-06-30",
       "baseline_price": 406.0,
       "outcomes": {
@@ -1631,7 +2080,7 @@
       "status": "mature"
     },
     {
-      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202606-16186-html:0:NVDA",
+      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202606-16186-html:0:NVDA:0",
       "author": "BrightLine",
       "title": "理性的悲观，天真的乐观 ——为什么算账的人，总是错过科技",
       "url": "https://blog.wenxuecity.com/myblog/82458/202606/16186.html",
@@ -1653,7 +2102,10 @@
       ],
       "attribution": "unconfirmed_author_context",
       "attribution_confidence": "needs_review",
+      "baseline_kind": "next_session",
       "baseline_assumption": "next trading session open because source date has no reliable intraday timestamp",
+      "planned_level": null,
+      "triggered": true,
       "baseline_date": "2026-06-22",
       "baseline_price": 211.44,
       "outcomes": {
@@ -1692,7 +2144,7 @@
       "status": "mature"
     },
     {
-      "event_id": "brightline--blog-wenxuecity-com-myblog-82458-202606-8509-html:0:TQQQ",
+      "event_id": "brightline--blog-wenxuecity-com-myblog-82458-202606-8509-html:0:TQQQ:0",
       "author": "BrightLine",
       "title": "最近越来越觉得，投资还是要回归 basic。",
       "url": "https://blog.wenxuecity.com/myblog/82458/202606/8509.html",
@@ -1714,7 +2166,10 @@
       ],
       "attribution": "unconfirmed_author_context",
       "attribution_confidence": "needs_review",
+      "baseline_kind": "next_session",
       "baseline_assumption": "next trading session open because source date has no reliable intraday timestamp",
+      "planned_level": null,
+      "triggered": true,
       "baseline_date": "2026-06-15",
       "baseline_price": 82.87999725341797,
       "outcomes": {
@@ -1753,7 +2208,7 @@
       "status": "mature"
     },
     {
-      "event_id": "brightline--blog-wenxuecity-com-myblog-82458-202606-5022-html:0:SPY",
+      "event_id": "brightline--blog-wenxuecity-com-myblog-82458-202606-5022-html:0:SPY:0",
       "author": "BrightLine",
       "title": "周五暴跌：就业报告只是借口，华尔街真正杀的是AI估值",
       "url": "https://blog.wenxuecity.com/myblog/82458/202606/5022.html",
@@ -1776,7 +2231,10 @@
       ],
       "attribution": "unconfirmed_author_context",
       "attribution_confidence": "needs_review",
+      "baseline_kind": "next_session",
       "baseline_assumption": "next trading session open because source date has no reliable intraday timestamp",
+      "planned_level": null,
+      "triggered": true,
       "baseline_date": "2026-06-08",
       "baseline_price": 743.3599853515625,
       "outcomes": {
@@ -1815,7 +2273,7 @@
       "status": "mature"
     },
     {
-      "event_id": "brightline--blog-wenxuecity-com-myblog-82458-202606-5022-html:0:QQQ",
+      "event_id": "brightline--blog-wenxuecity-com-myblog-82458-202606-5022-html:0:QQQ:0",
       "author": "BrightLine",
       "title": "周五暴跌：就业报告只是借口，华尔街真正杀的是AI估值",
       "url": "https://blog.wenxuecity.com/myblog/82458/202606/5022.html",
@@ -1838,7 +2296,10 @@
       ],
       "attribution": "unconfirmed_author_context",
       "attribution_confidence": "needs_review",
+      "baseline_kind": "next_session",
       "baseline_assumption": "next trading session open because source date has no reliable intraday timestamp",
+      "planned_level": null,
+      "triggered": true,
       "baseline_date": "2026-06-08",
       "baseline_price": 717.81,
       "outcomes": {
@@ -1877,7 +2338,7 @@
       "status": "mature"
     },
     {
-      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202605-19753-html:5:TSLA",
+      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202605-19753-html:5:TSLA:0",
       "author": "BrightLine",
       "title": "人生充满遗憾，投资尤其如此",
       "url": "https://blog.wenxuecity.com/myblog/82458/202605/19753.html",
@@ -1899,7 +2360,10 @@
       ],
       "attribution": "unconfirmed_author_context",
       "attribution_confidence": "needs_review",
+      "baseline_kind": "next_session",
       "baseline_assumption": "next trading session open because source date has no reliable intraday timestamp",
+      "planned_level": null,
+      "triggered": true,
       "baseline_date": "2026-06-01",
       "baseline_price": 427.49,
       "outcomes": {
@@ -1938,7 +2402,7 @@
       "status": "mature"
     },
     {
-      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202605-19753-html:6:TSLA",
+      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202605-19753-html:6:TSLA:0",
       "author": "BrightLine",
       "title": "人生充满遗憾，投资尤其如此",
       "url": "https://blog.wenxuecity.com/myblog/82458/202605/19753.html",
@@ -1960,7 +2424,10 @@
       ],
       "attribution": "unconfirmed_author_context",
       "attribution_confidence": "needs_review",
+      "baseline_kind": "next_session",
       "baseline_assumption": "next trading session open because source date has no reliable intraday timestamp",
+      "planned_level": null,
+      "triggered": true,
       "baseline_date": "2026-06-01",
       "baseline_price": 427.49,
       "outcomes": {
@@ -1999,7 +2466,7 @@
       "status": "mature"
     },
     {
-      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202605-19753-html:2:NBIS",
+      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202605-19753-html:2:NBIS:0",
       "author": "BrightLine",
       "title": "人生充满遗憾，投资尤其如此",
       "url": "https://blog.wenxuecity.com/myblog/82458/202605/19753.html",
@@ -2023,7 +2490,10 @@
       ],
       "attribution": "unconfirmed_author_context",
       "attribution_confidence": "needs_review",
+      "baseline_kind": "next_session",
       "baseline_assumption": "next trading session open because source date has no reliable intraday timestamp",
+      "planned_level": null,
+      "triggered": true,
       "baseline_date": "2026-06-01",
       "baseline_price": 244.09,
       "outcomes": {
@@ -2062,7 +2532,7 @@
       "status": "mature"
     },
     {
-      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202605-19753-html:0:MU",
+      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202605-19753-html:0:MU:0",
       "author": "BrightLine",
       "title": "人生充满遗憾，投资尤其如此",
       "url": "https://blog.wenxuecity.com/myblog/82458/202605/19753.html",
@@ -2086,7 +2556,10 @@
       ],
       "attribution": "unconfirmed_author_context",
       "attribution_confidence": "needs_review",
+      "baseline_kind": "next_session",
       "baseline_assumption": "next trading session open because source date has no reliable intraday timestamp",
+      "planned_level": null,
+      "triggered": true,
       "baseline_date": "2026-06-01",
       "baseline_price": 1009.719970703125,
       "outcomes": {
@@ -2125,7 +2598,7 @@
       "status": "mature"
     },
     {
-      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202605-19753-html:3:META",
+      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202605-19753-html:3:META:0",
       "author": "BrightLine",
       "title": "人生充满遗憾，投资尤其如此",
       "url": "https://blog.wenxuecity.com/myblog/82458/202605/19753.html",
@@ -2147,7 +2620,10 @@
       ],
       "attribution": "unconfirmed_author_context",
       "attribution_confidence": "needs_review",
+      "baseline_kind": "next_session",
       "baseline_assumption": "next trading session open because source date has no reliable intraday timestamp",
+      "planned_level": null,
+      "triggered": true,
       "baseline_date": "2026-06-01",
       "baseline_price": 630.4000244140625,
       "outcomes": {
@@ -2186,7 +2662,7 @@
       "status": "mature"
     },
     {
-      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202605-19753-html:4:META",
+      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202605-19753-html:4:META:0",
       "author": "BrightLine",
       "title": "人生充满遗憾，投资尤其如此",
       "url": "https://blog.wenxuecity.com/myblog/82458/202605/19753.html",
@@ -2208,7 +2684,10 @@
       ],
       "attribution": "unconfirmed_author_context",
       "attribution_confidence": "needs_review",
+      "baseline_kind": "next_session",
       "baseline_assumption": "next trading session open because source date has no reliable intraday timestamp",
+      "planned_level": null,
+      "triggered": true,
       "baseline_date": "2026-06-01",
       "baseline_price": 630.4000244140625,
       "outcomes": {
@@ -2247,7 +2726,7 @@
       "status": "mature"
     },
     {
-      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202605-19753-html:1:CRWV",
+      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202605-19753-html:1:CRWV:0",
       "author": "BrightLine",
       "title": "人生充满遗憾，投资尤其如此",
       "url": "https://blog.wenxuecity.com/myblog/82458/202605/19753.html",
@@ -2269,7 +2748,10 @@
       ],
       "attribution": "unconfirmed_author_context",
       "attribution_confidence": "needs_review",
+      "baseline_kind": "next_session",
       "baseline_assumption": "next trading session open because source date has no reliable intraday timestamp",
+      "planned_level": null,
+      "triggered": true,
       "baseline_date": "2026-06-01",
       "baseline_price": 114.7750015258789,
       "outcomes": {
@@ -2308,7 +2790,7 @@
       "status": "mature"
     },
     {
-      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202605-18645-html:0:SMH",
+      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202605-18645-html:0:SMH:0",
       "author": "BrightLine",
       "title": "AI还在早期,但大回撤一定会来:我的答案不是逃顶,而是摔不死",
       "url": "https://blog.wenxuecity.com/myblog/82458/202605/18645.html",
@@ -2331,7 +2813,10 @@
       ],
       "attribution": "author_action",
       "attribution_confidence": "medium",
+      "baseline_kind": "next_session",
       "baseline_assumption": "next trading session open because source date has no reliable intraday timestamp",
+      "planned_level": null,
+      "triggered": true,
       "baseline_date": "2026-06-01",
       "baseline_price": 596.0999755859375,
       "outcomes": {
@@ -2370,7 +2855,7 @@
       "status": "mature"
     },
     {
-      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202605-18645-html:0:QQQ",
+      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202605-18645-html:0:QQQ:0",
       "author": "BrightLine",
       "title": "AI还在早期,但大回撤一定会来:我的答案不是逃顶,而是摔不死",
       "url": "https://blog.wenxuecity.com/myblog/82458/202605/18645.html",
@@ -2393,7 +2878,10 @@
       ],
       "attribution": "author_action",
       "attribution_confidence": "medium",
+      "baseline_kind": "next_session",
       "baseline_assumption": "next trading session open because source date has no reliable intraday timestamp",
+      "planned_level": null,
+      "triggered": true,
       "baseline_date": "2026-06-01",
       "baseline_price": 737.04,
       "outcomes": {
@@ -2432,7 +2920,7 @@
       "status": "mature"
     },
     {
-      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202605-16902-html:0:IREN",
+      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202605-16902-html:0:IREN:0",
       "author": "BrightLine",
       "title": "IREN 最新更新：继续做 AI 基础设施产能的长期持有者",
       "url": "https://blog.wenxuecity.com/myblog/82458/202605/16902.html",
@@ -2454,7 +2942,10 @@
       ],
       "attribution": "author_action",
       "attribution_confidence": "medium",
+      "baseline_kind": "next_session",
       "baseline_assumption": "next trading session open because source date has no reliable intraday timestamp",
+      "planned_level": null,
+      "triggered": true,
       "baseline_date": "2026-05-28",
       "baseline_price": 66.54,
       "outcomes": {
@@ -2493,7 +2984,7 @@
       "status": "mature"
     },
     {
-      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202605-13819-html:0:IREN",
+      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202605-13819-html:0:IREN:0",
       "author": "BrightLine",
       "title": "IREN：重复 INTC 的 LEAPS 逻辑，我买的不是矿股，而是 NVIDIA AI Factory 产能",
       "url": "https://blog.wenxuecity.com/myblog/82458/202605/13819.html",
@@ -2515,7 +3006,10 @@
       ],
       "attribution": "author_action",
       "attribution_confidence": "medium",
+      "baseline_kind": "next_session",
       "baseline_assumption": "next trading session open because source date has no reliable intraday timestamp",
+      "planned_level": null,
+      "triggered": true,
       "baseline_date": "2026-05-26",
       "baseline_price": 59.68,
       "outcomes": {
@@ -2554,7 +3048,7 @@
       "status": "mature"
     },
     {
-      "event_id": "brightline--blog-wenxuecity-com-myblog-82458-202605-9470-html:0:IREN",
+      "event_id": "brightline--blog-wenxuecity-com-myblog-82458-202605-9470-html:0:IREN:0",
       "author": "BrightLine",
       "title": "IREN: 被低估的 AI 基础设施龙头",
       "url": "https://blog.wenxuecity.com/myblog/82458/202605/9470.html",
@@ -2576,7 +3070,10 @@
       ],
       "attribution": "unconfirmed_author_context",
       "attribution_confidence": "needs_review",
+      "baseline_kind": "next_session",
       "baseline_assumption": "next trading session open because source date has no reliable intraday timestamp",
+      "planned_level": null,
+      "triggered": true,
       "baseline_date": "2026-05-18",
       "baseline_price": 53.085,
       "outcomes": {
@@ -2615,7 +3112,7 @@
       "status": "mature"
     },
     {
-      "event_id": "brightline--blog-wenxuecity-com-myblog-82458-202605-9470-html:1:IREN",
+      "event_id": "brightline--blog-wenxuecity-com-myblog-82458-202605-9470-html:1:IREN:0",
       "author": "BrightLine",
       "title": "IREN: 被低估的 AI 基础设施龙头",
       "url": "https://blog.wenxuecity.com/myblog/82458/202605/9470.html",
@@ -2637,7 +3134,10 @@
       ],
       "attribution": "unconfirmed_author_context",
       "attribution_confidence": "needs_review",
+      "baseline_kind": "next_session",
       "baseline_assumption": "next trading session open because source date has no reliable intraday timestamp",
+      "planned_level": null,
+      "triggered": true,
       "baseline_date": "2026-05-18",
       "baseline_price": 53.085,
       "outcomes": {
@@ -2676,7 +3176,7 @@
       "status": "mature"
     },
     {
-      "event_id": "brightline--blog-wenxuecity-com-myblog-82458-202605-8868-html:0:QQQ",
+      "event_id": "brightline--blog-wenxuecity-com-myblog-82458-202605-8868-html:0:QQQ:0",
       "author": "BrightLine",
       "title": "账户越看越慌？该学着给持仓买保险了",
       "url": "https://blog.wenxuecity.com/myblog/82458/202605/8868.html",
@@ -2699,7 +3199,10 @@
       ],
       "attribution": "unconfirmed_author_context",
       "attribution_confidence": "needs_review",
+      "baseline_kind": "next_session",
       "baseline_assumption": "next trading session open because source date has no reliable intraday timestamp",
+      "planned_level": null,
+      "triggered": true,
       "baseline_date": "2026-05-15",
       "baseline_price": 710.14,
       "outcomes": {
@@ -2738,7 +3241,7 @@
       "status": "mature"
     },
     {
-      "event_id": "brightline--blog-wenxuecity-com-myblog-82458-202605-8868-html:0:NVDA",
+      "event_id": "brightline--blog-wenxuecity-com-myblog-82458-202605-8868-html:0:NVDA:0",
       "author": "BrightLine",
       "title": "账户越看越慌？该学着给持仓买保险了",
       "url": "https://blog.wenxuecity.com/myblog/82458/202605/8868.html",
@@ -2761,7 +3264,10 @@
       ],
       "attribution": "unconfirmed_author_context",
       "attribution_confidence": "needs_review",
+      "baseline_kind": "next_session",
       "baseline_assumption": "next trading session open because source date has no reliable intraday timestamp",
+      "planned_level": null,
+      "triggered": true,
       "baseline_date": "2026-05-15",
       "baseline_price": 229.76,
       "outcomes": {
@@ -2800,7 +3306,7 @@
       "status": "mature"
     },
     {
-      "event_id": "brightline--blog-wenxuecity-com-myblog-82458-202605-4789-html:3:TSLA",
+      "event_id": "brightline--blog-wenxuecity-com-myblog-82458-202605-4789-html:3:TSLA:0",
       "author": "BrightLine",
       "title": "财富的逻辑：从搏一搏到敢再搏，再到工程化的复利 — 我的投资哲学、方法论与实战案例",
       "url": "https://blog.wenxuecity.com/myblog/82458/202605/4789.html",
@@ -2823,7 +3329,10 @@
       ],
       "attribution": "author_action",
       "attribution_confidence": "medium",
+      "baseline_kind": "next_session",
       "baseline_assumption": "next trading session open because source date has no reliable intraday timestamp",
+      "planned_level": null,
+      "triggered": true,
       "baseline_date": "2026-05-11",
       "baseline_price": 422.16,
       "outcomes": {
@@ -2862,7 +3371,7 @@
       "status": "mature"
     },
     {
-      "event_id": "brightline--blog-wenxuecity-com-myblog-82458-202605-4789-html:4:TSLA",
+      "event_id": "brightline--blog-wenxuecity-com-myblog-82458-202605-4789-html:4:TSLA:0",
       "author": "BrightLine",
       "title": "财富的逻辑：从搏一搏到敢再搏，再到工程化的复利 — 我的投资哲学、方法论与实战案例",
       "url": "https://blog.wenxuecity.com/myblog/82458/202605/4789.html",
@@ -2884,7 +3393,10 @@
       ],
       "attribution": "author_action",
       "attribution_confidence": "medium",
+      "baseline_kind": "next_session",
       "baseline_assumption": "next trading session open because source date has no reliable intraday timestamp",
+      "planned_level": null,
+      "triggered": true,
       "baseline_date": "2026-05-11",
       "baseline_price": 422.16,
       "outcomes": {
@@ -2923,7 +3435,7 @@
       "status": "mature"
     },
     {
-      "event_id": "brightline--blog-wenxuecity-com-myblog-82458-202605-4789-html:5:TSLA",
+      "event_id": "brightline--blog-wenxuecity-com-myblog-82458-202605-4789-html:5:TSLA:0",
       "author": "BrightLine",
       "title": "财富的逻辑：从搏一搏到敢再搏，再到工程化的复利 — 我的投资哲学、方法论与实战案例",
       "url": "https://blog.wenxuecity.com/myblog/82458/202605/4789.html",
@@ -2945,7 +3457,10 @@
       ],
       "attribution": "author_action",
       "attribution_confidence": "medium",
+      "baseline_kind": "next_session",
       "baseline_assumption": "next trading session open because source date has no reliable intraday timestamp",
+      "planned_level": null,
+      "triggered": true,
       "baseline_date": "2026-05-11",
       "baseline_price": 422.16,
       "outcomes": {
@@ -2984,7 +3499,7 @@
       "status": "mature"
     },
     {
-      "event_id": "brightline--blog-wenxuecity-com-myblog-82458-202605-4789-html:6:TSLA",
+      "event_id": "brightline--blog-wenxuecity-com-myblog-82458-202605-4789-html:6:TSLA:0",
       "author": "BrightLine",
       "title": "财富的逻辑：从搏一搏到敢再搏，再到工程化的复利 — 我的投资哲学、方法论与实战案例",
       "url": "https://blog.wenxuecity.com/myblog/82458/202605/4789.html",
@@ -3006,7 +3521,10 @@
       ],
       "attribution": "author_action",
       "attribution_confidence": "medium",
+      "baseline_kind": "next_session",
       "baseline_assumption": "next trading session open because source date has no reliable intraday timestamp",
+      "planned_level": null,
+      "triggered": true,
       "baseline_date": "2026-05-11",
       "baseline_price": 422.16,
       "outcomes": {
@@ -3036,16 +3554,16 @@
         }
       },
       "alignment": {
-        "direction": "bullish",
-        "5": "not_aligned",
-        "20": "not_aligned",
-        "60": "not_aligned"
+        "direction": "option_structure",
+        "5": "not_scored_missing_option_pnl",
+        "20": "not_scored_missing_option_pnl",
+        "60": "not_scored_missing_option_pnl"
       },
       "level_checks": {},
       "status": "mature"
     },
     {
-      "event_id": "brightline--blog-wenxuecity-com-myblog-82458-202605-4789-html:7:NBIS",
+      "event_id": "brightline--blog-wenxuecity-com-myblog-82458-202605-4789-html:7:NBIS:0",
       "author": "BrightLine",
       "title": "财富的逻辑：从搏一搏到敢再搏，再到工程化的复利 — 我的投资哲学、方法论与实战案例",
       "url": "https://blog.wenxuecity.com/myblog/82458/202605/4789.html",
@@ -3069,7 +3587,10 @@
       ],
       "attribution": "author_action",
       "attribution_confidence": "medium",
+      "baseline_kind": "next_session",
       "baseline_assumption": "next trading session open because source date has no reliable intraday timestamp",
+      "planned_level": null,
+      "triggered": true,
       "baseline_date": "2026-05-11",
       "baseline_price": 179.9,
       "outcomes": {
@@ -3108,7 +3629,7 @@
       "status": "mature"
     },
     {
-      "event_id": "brightline--blog-wenxuecity-com-myblog-82458-202605-4789-html:7:IREN",
+      "event_id": "brightline--blog-wenxuecity-com-myblog-82458-202605-4789-html:7:IREN:0",
       "author": "BrightLine",
       "title": "财富的逻辑：从搏一搏到敢再搏，再到工程化的复利 — 我的投资哲学、方法论与实战案例",
       "url": "https://blog.wenxuecity.com/myblog/82458/202605/4789.html",
@@ -3132,7 +3653,10 @@
       ],
       "attribution": "author_action",
       "attribution_confidence": "medium",
+      "baseline_kind": "next_session",
       "baseline_assumption": "next trading session open because source date has no reliable intraday timestamp",
+      "planned_level": null,
+      "triggered": true,
       "baseline_date": "2026-05-11",
       "baseline_price": 54.97,
       "outcomes": {
@@ -3171,7 +3695,7 @@
       "status": "mature"
     },
     {
-      "event_id": "brightline--blog-wenxuecity-com-myblog-82458-202605-4789-html:0:INTC",
+      "event_id": "brightline--blog-wenxuecity-com-myblog-82458-202605-4789-html:0:INTC:0",
       "author": "BrightLine",
       "title": "财富的逻辑：从搏一搏到敢再搏，再到工程化的复利 — 我的投资哲学、方法论与实战案例",
       "url": "https://blog.wenxuecity.com/myblog/82458/202605/4789.html",
@@ -3193,7 +3717,10 @@
       ],
       "attribution": "author_action",
       "attribution_confidence": "medium",
+      "baseline_kind": "next_session",
       "baseline_assumption": "next trading session open because source date has no reliable intraday timestamp",
+      "planned_level": null,
+      "triggered": true,
       "baseline_date": "2026-05-11",
       "baseline_price": 130.8800048828125,
       "outcomes": {
@@ -3232,7 +3759,7 @@
       "status": "mature"
     },
     {
-      "event_id": "brightline--blog-wenxuecity-com-myblog-82458-202605-4789-html:1:INTC",
+      "event_id": "brightline--blog-wenxuecity-com-myblog-82458-202605-4789-html:1:INTC:0",
       "author": "BrightLine",
       "title": "财富的逻辑：从搏一搏到敢再搏，再到工程化的复利 — 我的投资哲学、方法论与实战案例",
       "url": "https://blog.wenxuecity.com/myblog/82458/202605/4789.html",
@@ -3254,7 +3781,10 @@
       ],
       "attribution": "author_action",
       "attribution_confidence": "medium",
+      "baseline_kind": "next_session",
       "baseline_assumption": "next trading session open because source date has no reliable intraday timestamp",
+      "planned_level": null,
+      "triggered": true,
       "baseline_date": "2026-05-11",
       "baseline_price": 130.8800048828125,
       "outcomes": {
@@ -3293,7 +3823,7 @@
       "status": "mature"
     },
     {
-      "event_id": "brightline--blog-wenxuecity-com-myblog-82458-202605-4789-html:3:INTC",
+      "event_id": "brightline--blog-wenxuecity-com-myblog-82458-202605-4789-html:3:INTC:0",
       "author": "BrightLine",
       "title": "财富的逻辑：从搏一搏到敢再搏，再到工程化的复利 — 我的投资哲学、方法论与实战案例",
       "url": "https://blog.wenxuecity.com/myblog/82458/202605/4789.html",
@@ -3316,7 +3846,10 @@
       ],
       "attribution": "author_action",
       "attribution_confidence": "medium",
+      "baseline_kind": "next_session",
       "baseline_assumption": "next trading session open because source date has no reliable intraday timestamp",
+      "planned_level": null,
+      "triggered": true,
       "baseline_date": "2026-05-11",
       "baseline_price": 130.8800048828125,
       "outcomes": {
@@ -3355,7 +3888,7 @@
       "status": "mature"
     },
     {
-      "event_id": "brightline--blog-wenxuecity-com-myblog-82458-202605-4789-html:2:GOOG",
+      "event_id": "brightline--blog-wenxuecity-com-myblog-82458-202605-4789-html:2:GOOG:0",
       "author": "BrightLine",
       "title": "财富的逻辑：从搏一搏到敢再搏，再到工程化的复利 — 我的投资哲学、方法论与实战案例",
       "url": "https://blog.wenxuecity.com/myblog/82458/202605/4789.html",
@@ -3377,7 +3910,10 @@
       ],
       "attribution": "author_action",
       "attribution_confidence": "medium",
+      "baseline_kind": "next_session",
       "baseline_assumption": "next trading session open because source date has no reliable intraday timestamp",
+      "planned_level": null,
+      "triggered": true,
       "baseline_date": "2026-05-11",
       "baseline_price": 390.69,
       "outcomes": {
@@ -3416,7 +3952,7 @@
       "status": "mature"
     },
     {
-      "event_id": "brightline--blog-wenxuecity-com-myblog-82458-202605-4789-html:7:CRWV",
+      "event_id": "brightline--blog-wenxuecity-com-myblog-82458-202605-4789-html:7:CRWV:0",
       "author": "BrightLine",
       "title": "财富的逻辑：从搏一搏到敢再搏，再到工程化的复利 — 我的投资哲学、方法论与实战案例",
       "url": "https://blog.wenxuecity.com/myblog/82458/202605/4789.html",
@@ -3440,7 +3976,10 @@
       ],
       "attribution": "author_action",
       "attribution_confidence": "medium",
+      "baseline_kind": "next_session",
       "baseline_assumption": "next trading session open because source date has no reliable intraday timestamp",
+      "planned_level": null,
+      "triggered": true,
       "baseline_date": "2026-05-11",
       "baseline_price": 112.0199966430664,
       "outcomes": {
@@ -3479,7 +4018,7 @@
       "status": "mature"
     },
     {
-      "event_id": "brightline-s-blog-wenxuecity-com-myblog-82458-202605-385-html:6:TSLA",
+      "event_id": "brightline-s-blog-wenxuecity-com-myblog-82458-202605-385-html:6:TSLA:0",
       "author": "BrightLine",
       "title": "这轮建仓和清仓复盘，开始大力减仓",
       "url": "https://blog.wenxuecity.com/myblog/82458/202605/385.html",
@@ -3501,7 +4040,10 @@
       ],
       "attribution": "author_action",
       "attribution_confidence": "medium",
+      "baseline_kind": "next_session",
       "baseline_assumption": "next trading session open because source date has no reliable intraday timestamp",
+      "planned_level": null,
+      "triggered": true,
       "baseline_date": "2026-05-04",
       "baseline_price": 390.23,
       "outcomes": {
@@ -3540,7 +4082,7 @@
       "status": "mature"
     },
     {
-      "event_id": "brightline-s-blog-wenxuecity-com-myblog-82458-202605-385-html:1:NBIS",
+      "event_id": "brightline-s-blog-wenxuecity-com-myblog-82458-202605-385-html:1:NBIS:0",
       "author": "BrightLine",
       "title": "这轮建仓和清仓复盘，开始大力减仓",
       "url": "https://blog.wenxuecity.com/myblog/82458/202605/385.html",
@@ -3564,7 +4106,10 @@
       ],
       "attribution": "author_action",
       "attribution_confidence": "medium",
+      "baseline_kind": "next_session",
       "baseline_assumption": "next trading session open because source date has no reliable intraday timestamp",
+      "planned_level": null,
+      "triggered": true,
       "baseline_date": "2026-05-04",
       "baseline_price": 160.385,
       "outcomes": {
@@ -3603,7 +4148,7 @@
       "status": "mature"
     },
     {
-      "event_id": "brightline-s-blog-wenxuecity-com-myblog-82458-202605-385-html:5:META",
+      "event_id": "brightline-s-blog-wenxuecity-com-myblog-82458-202605-385-html:5:META:0",
       "author": "BrightLine",
       "title": "这轮建仓和清仓复盘，开始大力减仓",
       "url": "https://blog.wenxuecity.com/myblog/82458/202605/385.html",
@@ -3625,7 +4170,10 @@
       ],
       "attribution": "author_action",
       "attribution_confidence": "medium",
+      "baseline_kind": "next_session",
       "baseline_assumption": "next trading session open because source date has no reliable intraday timestamp",
+      "planned_level": null,
+      "triggered": true,
       "baseline_date": "2026-05-04",
       "baseline_price": 607.9400024414062,
       "outcomes": {
@@ -3664,7 +4212,7 @@
       "status": "mature"
     },
     {
-      "event_id": "brightline-s-blog-wenxuecity-com-myblog-82458-202605-385-html:3:INTC",
+      "event_id": "brightline-s-blog-wenxuecity-com-myblog-82458-202605-385-html:3:INTC:0",
       "author": "BrightLine",
       "title": "这轮建仓和清仓复盘，开始大力减仓",
       "url": "https://blog.wenxuecity.com/myblog/82458/202605/385.html",
@@ -3686,7 +4234,10 @@
       ],
       "attribution": "author_action",
       "attribution_confidence": "medium",
+      "baseline_kind": "next_session",
       "baseline_assumption": "next trading session open because source date has no reliable intraday timestamp",
+      "planned_level": null,
+      "triggered": true,
       "baseline_date": "2026-05-04",
       "baseline_price": 99.18000030517578,
       "outcomes": {
@@ -3725,7 +4276,7 @@
       "status": "mature"
     },
     {
-      "event_id": "brightline-s-blog-wenxuecity-com-myblog-82458-202605-385-html:0:CRWV",
+      "event_id": "brightline-s-blog-wenxuecity-com-myblog-82458-202605-385-html:0:CRWV:0",
       "author": "BrightLine",
       "title": "这轮建仓和清仓复盘，开始大力减仓",
       "url": "https://blog.wenxuecity.com/myblog/82458/202605/385.html",
@@ -3747,7 +4298,10 @@
       ],
       "attribution": "author_action",
       "attribution_confidence": "medium",
+      "baseline_kind": "next_session",
       "baseline_assumption": "next trading session open because source date has no reliable intraday timestamp",
+      "planned_level": null,
+      "triggered": true,
       "baseline_date": "2026-05-04",
       "baseline_price": 121.18000030517578,
       "outcomes": {
@@ -3786,7 +4340,7 @@
       "status": "mature"
     },
     {
-      "event_id": "brightline-s-blog-wenxuecity-com-myblog-82458-202605-385-html:2:CRWV",
+      "event_id": "brightline-s-blog-wenxuecity-com-myblog-82458-202605-385-html:2:CRWV:0",
       "author": "BrightLine",
       "title": "这轮建仓和清仓复盘，开始大力减仓",
       "url": "https://blog.wenxuecity.com/myblog/82458/202605/385.html",
@@ -3810,7 +4364,10 @@
       ],
       "attribution": "author_action",
       "attribution_confidence": "medium",
+      "baseline_kind": "next_session",
       "baseline_assumption": "next trading session open because source date has no reliable intraday timestamp",
+      "planned_level": null,
+      "triggered": true,
       "baseline_date": "2026-05-04",
       "baseline_price": 121.18000030517578,
       "outcomes": {
@@ -3849,7 +4406,7 @@
       "status": "mature"
     },
     {
-      "event_id": "brightline-s-blog-wenxuecity-com-myblog-82458-202605-385-html:4:AMZN",
+      "event_id": "brightline-s-blog-wenxuecity-com-myblog-82458-202605-385-html:4:AMZN:0",
       "author": "BrightLine",
       "title": "这轮建仓和清仓复盘，开始大力减仓",
       "url": "https://blog.wenxuecity.com/myblog/82458/202605/385.html",
@@ -3871,7 +4428,10 @@
       ],
       "attribution": "author_action",
       "attribution_confidence": "medium",
+      "baseline_kind": "next_session",
       "baseline_assumption": "next trading session open because source date has no reliable intraday timestamp",
+      "planned_level": null,
+      "triggered": true,
       "baseline_date": "2026-05-04",
       "baseline_price": 268.79998779296875,
       "outcomes": {
@@ -3910,7 +4470,7 @@
       "status": "mature"
     },
     {
-      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202604-15958-html:0:INTC",
+      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202604-15958-html:0:INTC:0",
       "author": "BrightLine",
       "title": "我的 INTC  LEAPS 期权更新",
       "url": "https://blog.wenxuecity.com/myblog/82458/202604/15958.html",
@@ -3932,7 +4492,10 @@
       ],
       "attribution": "author_action",
       "attribution_confidence": "medium",
+      "baseline_kind": "next_session",
       "baseline_assumption": "next trading session open because source date has no reliable intraday timestamp",
+      "planned_level": null,
+      "triggered": true,
       "baseline_date": "2026-04-27",
       "baseline_price": 83.66999816894531,
       "outcomes": {
@@ -3971,7 +4534,7 @@
       "status": "mature"
     },
     {
-      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202604-15204-html:0:NOW",
+      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202604-15204-html:0:NOW:0",
       "author": "BrightLine",
       "title": "今天认错。ServiceNow 这笔交易，我看错了。",
       "url": "https://blog.wenxuecity.com/myblog/82458/202604/15204.html",
@@ -3993,7 +4556,10 @@
       ],
       "attribution": "author_action",
       "attribution_confidence": "medium",
+      "baseline_kind": "next_session",
       "baseline_assumption": "next trading session open because source date has no reliable intraday timestamp",
+      "planned_level": null,
+      "triggered": true,
       "baseline_date": "2026-04-24",
       "baseline_price": 85.77999877929688,
       "outcomes": {
@@ -4032,7 +4598,7 @@
       "status": "mature"
     },
     {
-      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202604-12703-html:0:SNDK",
+      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202604-12703-html:0:SNDK:0",
       "author": "BrightLine",
       "title": "三个月后再看 IREN、CRWV、NBIS：谁最可能是下一个 SNDK？",
       "url": "https://blog.wenxuecity.com/myblog/82458/202604/12703.html",
@@ -4054,7 +4620,10 @@
       ],
       "attribution": "unconfirmed_author_context",
       "attribution_confidence": "needs_review",
+      "baseline_kind": "next_session",
       "baseline_assumption": "next trading session open because source date has no reliable intraday timestamp",
+      "planned_level": null,
+      "triggered": true,
       "baseline_date": "2026-04-21",
       "baseline_price": 927.8499755859376,
       "outcomes": {
@@ -4093,7 +4662,7 @@
       "status": "mature"
     },
     {
-      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202604-12428-html:0:TQQQ",
+      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202604-12428-html:0:TQQQ:0",
       "author": "BrightLine",
       "title": "股市专治各种不服，越是聪明人亏得越厉害",
       "url": "https://blog.wenxuecity.com/myblog/82458/202604/12428.html",
@@ -4116,7 +4685,10 @@
       ],
       "attribution": "unconfirmed_author_context",
       "attribution_confidence": "needs_review",
+      "baseline_kind": "next_session",
       "baseline_assumption": "next trading session open because source date has no reliable intraday timestamp",
+      "planned_level": null,
+      "triggered": true,
       "baseline_date": "2026-04-20",
       "baseline_price": 58.400001525878906,
       "outcomes": {
@@ -4155,7 +4727,7 @@
       "status": "mature"
     },
     {
-      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202604-12428-html:0:QQQ",
+      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202604-12428-html:0:QQQ:0",
       "author": "BrightLine",
       "title": "股市专治各种不服，越是聪明人亏得越厉害",
       "url": "https://blog.wenxuecity.com/myblog/82458/202604/12428.html",
@@ -4178,7 +4750,10 @@
       ],
       "attribution": "unconfirmed_author_context",
       "attribution_confidence": "needs_review",
+      "baseline_kind": "next_session",
       "baseline_assumption": "next trading session open because source date has no reliable intraday timestamp",
+      "planned_level": null,
+      "triggered": true,
       "baseline_date": "2026-04-20",
       "baseline_price": 648.04,
       "outcomes": {
@@ -4217,7 +4792,7 @@
       "status": "mature"
     },
     {
-      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202604-12428-html:1:QQQ",
+      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202604-12428-html:1:QQQ:0",
       "author": "BrightLine",
       "title": "股市专治各种不服，越是聪明人亏得越厉害",
       "url": "https://blog.wenxuecity.com/myblog/82458/202604/12428.html",
@@ -4239,7 +4814,10 @@
       ],
       "attribution": "unconfirmed_author_context",
       "attribution_confidence": "needs_review",
+      "baseline_kind": "next_session",
       "baseline_assumption": "next trading session open because source date has no reliable intraday timestamp",
+      "planned_level": null,
+      "triggered": true,
       "baseline_date": "2026-04-20",
       "baseline_price": 648.04,
       "outcomes": {
@@ -4278,7 +4856,7 @@
       "status": "mature"
     },
     {
-      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202604-11114-html:0:TQQQ",
+      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202604-11114-html:0:TQQQ:0",
       "author": "BrightLine",
       "title": "炒股看似简单，其实很难，每次大跌大涨原因都不同",
       "url": "https://blog.wenxuecity.com/myblog/82458/202604/11114.html",
@@ -4301,7 +4879,10 @@
       ],
       "attribution": "unconfirmed_author_context",
       "attribution_confidence": "needs_review",
+      "baseline_kind": "next_session",
       "baseline_assumption": "next trading session open because source date has no reliable intraday timestamp",
+      "planned_level": null,
+      "triggered": true,
       "baseline_date": "2026-04-20",
       "baseline_price": 58.400001525878906,
       "outcomes": {
@@ -4340,7 +4921,7 @@
       "status": "mature"
     },
     {
-      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202604-11114-html:0:QQQ",
+      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202604-11114-html:0:QQQ:0",
       "author": "BrightLine",
       "title": "炒股看似简单，其实很难，每次大跌大涨原因都不同",
       "url": "https://blog.wenxuecity.com/myblog/82458/202604/11114.html",
@@ -4363,7 +4944,10 @@
       ],
       "attribution": "unconfirmed_author_context",
       "attribution_confidence": "needs_review",
+      "baseline_kind": "next_session",
       "baseline_assumption": "next trading session open because source date has no reliable intraday timestamp",
+      "planned_level": null,
+      "triggered": true,
       "baseline_date": "2026-04-20",
       "baseline_price": 648.04,
       "outcomes": {
@@ -4402,7 +4986,7 @@
       "status": "mature"
     },
     {
-      "event_id": "brightline-s-blog-wenxuecity-com-myblog-82458-202604-985-html:0:TSLA",
+      "event_id": "brightline-s-blog-wenxuecity-com-myblog-82458-202604-985-html:0:TSLA:0",
       "author": "BrightLine",
       "title": "为什么今天我加仓特斯拉",
       "url": "https://blog.wenxuecity.com/myblog/82458/202604/985.html",
@@ -4424,7 +5008,10 @@
       ],
       "attribution": "author_action",
       "attribution_confidence": "medium",
+      "baseline_kind": "next_session",
       "baseline_assumption": "next trading session open because source date has no reliable intraday timestamp",
+      "planned_level": null,
+      "triggered": true,
       "baseline_date": "2026-04-06",
       "baseline_price": 362.59,
       "outcomes": {
@@ -4463,7 +5050,7 @@
       "status": "mature"
     },
     {
-      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202603-24121-html:0:TQQQ",
+      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202603-24121-html:0:TQQQ:0",
       "author": "BrightLine",
       "title": "今年第一次买入 TQQQ",
       "url": "https://blog.wenxuecity.com/myblog/82458/202603/24121.html",
@@ -4485,7 +5072,10 @@
       ],
       "attribution": "unconfirmed_author_context",
       "attribution_confidence": "needs_review",
+      "baseline_kind": "next_session",
       "baseline_assumption": "next trading session open because source date has no reliable intraday timestamp",
+      "planned_level": null,
+      "triggered": true,
       "baseline_date": "2026-03-31",
       "baseline_price": 39.09000015258789,
       "outcomes": {
@@ -4524,7 +5114,7 @@
       "status": "mature"
     },
     {
-      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202603-24121-html:1:TQQQ",
+      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202603-24121-html:1:TQQQ:0",
       "author": "BrightLine",
       "title": "今年第一次买入 TQQQ",
       "url": "https://blog.wenxuecity.com/myblog/82458/202603/24121.html",
@@ -4546,7 +5136,10 @@
       ],
       "attribution": "unconfirmed_author_context",
       "attribution_confidence": "needs_review",
+      "baseline_kind": "next_session",
       "baseline_assumption": "next trading session open because source date has no reliable intraday timestamp",
+      "planned_level": null,
+      "triggered": true,
       "baseline_date": "2026-03-31",
       "baseline_price": 39.09000015258789,
       "outcomes": {
@@ -4585,7 +5178,7 @@
       "status": "mature"
     },
     {
-      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202603-16712-html:0:TSLA",
+      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202603-16712-html:0:TSLA:0",
       "author": "BrightLine",
       "title": "如果你只看股价，你会错过特斯拉最有意思的部分",
       "url": "https://blog.wenxuecity.com/myblog/82458/202603/16712.html",
@@ -4607,7 +5200,10 @@
       ],
       "attribution": "unconfirmed_author_context",
       "attribution_confidence": "needs_review",
+      "baseline_kind": "next_session",
       "baseline_assumption": "next trading session open because source date has no reliable intraday timestamp",
+      "planned_level": null,
+      "triggered": true,
       "baseline_date": "2026-03-23",
       "baseline_price": 373.09,
       "outcomes": {
@@ -4646,7 +5242,7 @@
       "status": "mature"
     },
     {
-      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202601-16824-html:0:TSLA",
+      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202601-16824-html:0:TSLA:0",
       "author": "BrightLine",
       "title": "把体力劳动交给机器人，这是我想要的未来",
       "url": "https://blog.wenxuecity.com/myblog/82458/202601/16824.html",
@@ -4668,7 +5264,10 @@
       ],
       "attribution": "author_action",
       "attribution_confidence": "medium",
+      "baseline_kind": "next_session",
       "baseline_assumption": "next trading session open because source date has no reliable intraday timestamp",
+      "planned_level": null,
+      "triggered": true,
       "baseline_date": "2026-01-20",
       "baseline_price": 429.36,
       "outcomes": {
@@ -4707,7 +5306,7 @@
       "status": "mature"
     },
     {
-      "event_id": "brightline--blog-wenxuecity-com-myblog-82458-202601-5705-html:0:MU",
+      "event_id": "brightline--blog-wenxuecity-com-myblog-82458-202601-5705-html:0:MU:0",
       "author": "BrightLine",
       "title": "用 Robinhood 之后，才发现时间有多重要",
       "url": "https://blog.wenxuecity.com/myblog/82458/202601/5705.html",
@@ -4729,7 +5328,10 @@
       ],
       "attribution": "unconfirmed_author_context",
       "attribution_confidence": "needs_review",
+      "baseline_kind": "next_session",
       "baseline_assumption": "next trading session open because source date has no reliable intraday timestamp",
+      "planned_level": null,
+      "triggered": true,
       "baseline_date": "2026-01-08",
       "baseline_price": 342.8999938964844,
       "outcomes": {
@@ -4768,7 +5370,7 @@
       "status": "mature"
     },
     {
-      "event_id": "brightline--blog-wenxuecity-com-myblog-82458-202601-2150-html:0:NBIS",
+      "event_id": "brightline--blog-wenxuecity-com-myblog-82458-202601-2150-html:0:NBIS:0",
       "author": "BrightLine",
       "title": "2026 年 NeoCloud AI 基础设施深度估值：NBIS, IREN and CRWV",
       "url": "https://blog.wenxuecity.com/myblog/82458/202601/2150.html",
@@ -4791,7 +5393,10 @@
       ],
       "attribution": "unconfirmed_author_context",
       "attribution_confidence": "needs_review",
+      "baseline_kind": "next_session",
       "baseline_assumption": "next trading session open because source date has no reliable intraday timestamp",
+      "planned_level": null,
+      "triggered": true,
       "baseline_date": "2026-01-05",
       "baseline_price": 95.0,
       "outcomes": {
@@ -4830,7 +5435,7 @@
       "status": "mature"
     },
     {
-      "event_id": "brightline--blog-wenxuecity-com-myblog-82458-202601-2187-html:0:META",
+      "event_id": "brightline--blog-wenxuecity-com-myblog-82458-202601-2187-html:0:META:0",
       "author": "BrightLine",
       "title": "Meta Platforms（META）股票深度分析 - done by ChatGPT",
       "url": "https://blog.wenxuecity.com/myblog/82458/202601/2187.html",
@@ -4852,7 +5457,10 @@
       ],
       "attribution": "unconfirmed_author_context",
       "attribution_confidence": "needs_review",
+      "baseline_kind": "next_session",
       "baseline_assumption": "next trading session open because source date has no reliable intraday timestamp",
+      "planned_level": null,
+      "triggered": true,
       "baseline_date": "2026-01-05",
       "baseline_price": 651.010009765625,
       "outcomes": {
@@ -4891,7 +5499,7 @@
       "status": "mature"
     },
     {
-      "event_id": "brightline--blog-wenxuecity-com-myblog-82458-202601-2187-html:1:META",
+      "event_id": "brightline--blog-wenxuecity-com-myblog-82458-202601-2187-html:1:META:0",
       "author": "BrightLine",
       "title": "Meta Platforms（META）股票深度分析 - done by ChatGPT",
       "url": "https://blog.wenxuecity.com/myblog/82458/202601/2187.html",
@@ -4913,7 +5521,10 @@
       ],
       "attribution": "unconfirmed_author_context",
       "attribution_confidence": "needs_review",
+      "baseline_kind": "next_session",
       "baseline_assumption": "next trading session open because source date has no reliable intraday timestamp",
+      "planned_level": null,
+      "triggered": true,
       "baseline_date": "2026-01-05",
       "baseline_price": 651.010009765625,
       "outcomes": {
@@ -4952,7 +5563,7 @@
       "status": "mature"
     },
     {
-      "event_id": "brightline--blog-wenxuecity-com-myblog-82458-202601-2150-html:0:IREN",
+      "event_id": "brightline--blog-wenxuecity-com-myblog-82458-202601-2150-html:0:IREN:0",
       "author": "BrightLine",
       "title": "2026 年 NeoCloud AI 基础设施深度估值：NBIS, IREN and CRWV",
       "url": "https://blog.wenxuecity.com/myblog/82458/202601/2150.html",
@@ -4975,7 +5586,10 @@
       ],
       "attribution": "unconfirmed_author_context",
       "attribution_confidence": "needs_review",
+      "baseline_kind": "next_session",
       "baseline_assumption": "next trading session open because source date has no reliable intraday timestamp",
+      "planned_level": null,
+      "triggered": true,
       "baseline_date": "2026-01-05",
       "baseline_price": 44.8,
       "outcomes": {
@@ -5016,9 +5630,11 @@
   ],
   "guardrails": [
     "External-source outcomes are descriptive evidence, not rankings or automatic trade rules.",
-    "Quoted third-party examples must not be learned as the source author's own trades.",
-    "No learning result changes production thresholds without separate validation.",
-    "Missing timestamps, option premiums, expiries or position size are never invented."
+    "Quoted third-party examples are excluded from author-level outcome aggregates.",
+    "Unconfirmed attribution is excluded from aggregate method memory.",
+    "Planned entries are scored only after the exact stated price level is actually touched.",
+    "Sell Put is not assigned a synthetic P&L when premium/expiry/IV are missing.",
+    "No learning result changes production thresholds without separate validation."
   ],
   "history_sources": {
     "core_stooq_symbols": 21,

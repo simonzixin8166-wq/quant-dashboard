@@ -1,6 +1,6 @@
 {
   "version": "5.7.0",
-  "generated_at": "2026-09-30T13:58:37.396180+00:00",
+  "generated_at": "2026-09-30T14:11:14.281110+00:00",
   "as_of": "2026-09-30",
   "architecture": [
     "plain_language_glossary",
@@ -1164,10 +1164,8 @@
           "仓位管理"
         ],
         "actions": [
-          "clear",
-          "trim_half",
-          "trim",
-          "sell",
+          "planned_buy",
+          "planned_sell",
           "no_add",
           "sell_put",
           "no_direct_stock_buy"
@@ -1179,9 +1177,8 @@
               "NBIS"
             ],
             "actions": [
-              "clear",
-              "trim_half",
-              "trim"
+              "planned_buy",
+              "planned_sell"
             ],
             "anchor_index": 19,
             "attribution": "author_action",
@@ -1191,11 +1188,12 @@
             "symbols": [
               "NBIS"
             ],
-            "entry_1": 180.0,
-            "entry_2": 150.0,
-            "exit_line": 250.0,
+            "entry_1": 180,
+            "entry_2": 150,
+            "exit_line": 250,
             "actions": [
-              "sell"
+              "planned_buy",
+              "planned_sell"
             ],
             "anchor_index": 27,
             "attribution": "author_plan",
@@ -1205,11 +1203,12 @@
             "symbols": [
               "CRWV"
             ],
-            "entry_1": 75.0,
-            "entry_2": 62.0,
-            "exit_line": 110.0,
+            "entry_1": 75,
+            "entry_2": 62,
+            "exit_line": 110,
             "actions": [
-              "sell"
+              "planned_buy",
+              "planned_sell"
             ],
             "anchor_index": 28,
             "attribution": "author_plan",
@@ -1219,13 +1218,16 @@
             "symbols": [
               "IREN"
             ],
-            "entry_1": 35.0,
-            "entry_2": 30.0,
+            "entry_1": 35,
+            "entry_2": 30,
             "target_range": [
-              80.0,
-              100.0
+              80,
+              100
             ],
             "anchor_index": 29,
+            "actions": [
+              "planned_buy"
+            ],
             "attribution": "author_plan",
             "attribution_confidence": "medium"
           },
@@ -1233,15 +1235,17 @@
             "symbols": [
               "INTC"
             ],
-            "entry_below": 85.0,
+            "entry_below": 85,
             "actions": [
-              "no_add"
+              "no_add",
+              "planned_buy"
             ],
             "conditions": [
               "no_active_add",
               "only_below_threshold"
             ],
             "anchor_index": 30,
+            "entry_2": 70,
             "attribution": "author_plan",
             "attribution_confidence": "medium"
           },
@@ -1249,11 +1253,12 @@
             "symbols": [
               "META"
             ],
-            "entry_1": 560.0,
-            "entry_2": 500.0,
-            "exit_line": 800.0,
+            "entry_1": 560,
+            "entry_2": 500,
+            "exit_line": 800,
             "actions": [
-              "sell"
+              "planned_buy",
+              "planned_sell"
             ],
             "anchor_index": 31,
             "attribution": "author_plan",
@@ -1263,15 +1268,17 @@
             "symbols": [
               "QCOM"
             ],
-            "sell_put_strike": 150.0,
+            "sell_put_strike": 150,
             "actions": [
               "sell_put",
-              "no_direct_stock_buy"
+              "no_direct_stock_buy",
+              "planned_buy"
             ],
             "conditions": [
               "accept_assignment_then_reassess"
             ],
             "anchor_index": 32,
+            "entry_2": 140,
             "attribution": "author_plan",
             "attribution_confidence": "medium"
           },
@@ -1279,11 +1286,11 @@
             "symbols": [
               "MRVL"
             ],
-            "entry_1": 180.0,
-            "entry_2": 160.0,
+            "entry_1": 180,
+            "entry_2": 160,
             "exit_line": null,
             "actions": [
-              "sell"
+              "planned_buy"
             ],
             "anchor_index": 33,
             "attribution": "author_plan",
@@ -2153,7 +2160,7 @@
     ],
     "external_outcome_reviews": [
       {
-        "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-22905-html:0:NOW",
+        "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-22905-html:0:NOW:0",
         "author": "BrightLine",
         "symbol": "NOW",
         "published_at": "2026-08-28",
@@ -2172,7 +2179,7 @@
         "maturity": "mature20"
       },
       {
-        "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html:0:NBIS",
+        "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html:0:NBIS:0",
         "author": "BrightLine",
         "symbol": "NBIS",
         "published_at": "2026-08-18",
@@ -2183,346 +2190,354 @@
         "mae_20": -0.16150137741046822,
         "mfe_20": 0.09650482093663926,
         "excess_vs_qqq_20": -0.05686532720912518,
-        "alignment_20": "aligned",
+        "alignment_20": "not_scored",
         "review_tags": [
           "large_adverse_move"
         ],
         "maturity": "mature20"
       },
       {
-        "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html:1:NBIS",
+        "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html:0:CRWV:0",
         "author": "BrightLine",
-        "symbol": "NBIS",
+        "symbol": "CRWV",
         "published_at": "2026-08-18",
         "title": "子弹与耐心：8·18 AI板块大跌手记。",
         "url": "https://blog.wenxuecity.com/myblog/82458/202608/14095.html",
-        "attribution": "author_plan",
-        "return_20": -0.06168216253443515,
-        "mae_20": -0.16150137741046822,
-        "mfe_20": 0.09650482093663926,
-        "excess_vs_qqq_20": -0.05686532720912518,
-        "alignment_20": "aligned",
+        "attribution": "author_action",
+        "return_20": -0.1522870167918733,
+        "mae_20": -0.16937287642251608,
+        "mfe_20": 0.10994367623775236,
+        "excess_vs_qqq_20": -0.14747018146656332,
+        "alignment_20": "not_scored",
         "review_tags": [
-          "large_adverse_move"
+          "large_adverse_move",
+          "underperformed_qqq"
         ],
         "maturity": "mature20"
       },
       {
-        "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html:7:MRVL",
+        "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202605-18645-html:0:QQQ:0",
         "author": "BrightLine",
-        "symbol": "MRVL",
-        "published_at": "2026-08-18",
-        "title": "子弹与耐心：8·18 AI板块大跌手记。",
-        "url": "https://blog.wenxuecity.com/myblog/82458/202608/14095.html",
-        "attribution": "author_plan",
-        "return_20": 0.002623578894765277,
-        "mae_20": -0.1645358764002831,
-        "mfe_20": 0.060259026360721224,
-        "excess_vs_qqq_20": 0.007440414220075242,
+        "symbol": "QQQ",
+        "published_at": "2026-05-30",
+        "title": "AI还在早期,但大回撤一定会来:我的答案不是逃顶,而是摔不死",
+        "url": "https://blog.wenxuecity.com/myblog/82458/202605/18645.html",
+        "attribution": "author_action",
+        "return_20": -0.0008683382177357979,
+        "mae_20": -0.06874796483230217,
+        "mfe_20": 0.015752197981113714,
+        "excess_vs_qqq_20": 0.0,
+        "alignment_20": "not_aligned",
+        "review_tags": [
+          "direction_not_aligned"
+        ],
+        "maturity": "mature20"
+      },
+      {
+        "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202605-16902-html:0:IREN:0",
+        "author": "BrightLine",
+        "symbol": "IREN",
+        "published_at": "2026-05-27",
+        "title": "IREN 最新更新：继续做 AI 基础设施产能的长期持有者",
+        "url": "https://blog.wenxuecity.com/myblog/82458/202605/16902.html",
+        "attribution": "author_action",
+        "return_20": -0.290501953712053,
+        "mae_20": -0.3229636308987076,
+        "mfe_20": 0.06261797415088655,
+        "excess_vs_qqq_20": -0.25869566919586207,
         "alignment_20": "not_aligned",
         "review_tags": [
           "direction_not_aligned",
+          "large_adverse_move",
+          "underperformed_qqq"
+        ],
+        "maturity": "mature20"
+      },
+      {
+        "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202605-13819-html:0:IREN:0",
+        "author": "BrightLine",
+        "symbol": "IREN",
+        "published_at": "2026-05-22",
+        "title": "IREN：重复 INTC 的 LEAPS 逻辑，我买的不是矿股，而是 NVIDIA AI Factory 产能",
+        "url": "https://blog.wenxuecity.com/myblog/82458/202605/13819.html",
+        "attribution": "author_action",
+        "return_20": -0.15717158176943702,
+        "mae_20": -0.18163371313672927,
+        "mfe_20": 0.18476206434316356,
+        "excess_vs_qqq_20": -0.13604094096278097,
+        "alignment_20": "aligned",
+        "review_tags": [
+          "large_adverse_move",
+          "underperformed_qqq"
+        ],
+        "maturity": "mature20"
+      },
+      {
+        "event_id": "brightline--blog-wenxuecity-com-myblog-82458-202605-4789-html:3:TSLA:0",
+        "author": "BrightLine",
+        "symbol": "TSLA",
+        "published_at": "2026-05-08",
+        "title": "财富的逻辑：从搏一搏到敢再搏，再到工程化的复利 — 我的投资哲学、方法论与实战案例",
+        "url": "https://blog.wenxuecity.com/myblog/82458/202605/4789.html",
+        "attribution": "author_action",
+        "return_20": -0.060356263028235824,
+        "mae_20": -0.08982376350198984,
+        "mfe_20": 0.07400037900322132,
+        "excess_vs_qqq_20": -0.05679468861526216,
+        "alignment_20": "not_aligned",
+        "review_tags": [
+          "direction_not_aligned"
+        ],
+        "maturity": "mature20"
+      },
+      {
+        "event_id": "brightline--blog-wenxuecity-com-myblog-82458-202605-4789-html:4:TSLA:0",
+        "author": "BrightLine",
+        "symbol": "TSLA",
+        "published_at": "2026-05-08",
+        "title": "财富的逻辑：从搏一搏到敢再搏，再到工程化的复利 — 我的投资哲学、方法论与实战案例",
+        "url": "https://blog.wenxuecity.com/myblog/82458/202605/4789.html",
+        "attribution": "author_action",
+        "return_20": -0.060356263028235824,
+        "mae_20": -0.08982376350198984,
+        "mfe_20": 0.07400037900322132,
+        "excess_vs_qqq_20": -0.05679468861526216,
+        "alignment_20": "not_aligned",
+        "review_tags": [
+          "direction_not_aligned"
+        ],
+        "maturity": "mature20"
+      },
+      {
+        "event_id": "brightline--blog-wenxuecity-com-myblog-82458-202605-4789-html:5:TSLA:0",
+        "author": "BrightLine",
+        "symbol": "TSLA",
+        "published_at": "2026-05-08",
+        "title": "财富的逻辑：从搏一搏到敢再搏，再到工程化的复利 — 我的投资哲学、方法论与实战案例",
+        "url": "https://blog.wenxuecity.com/myblog/82458/202605/4789.html",
+        "attribution": "author_action",
+        "return_20": -0.060356263028235824,
+        "mae_20": -0.08982376350198984,
+        "mfe_20": 0.07400037900322132,
+        "excess_vs_qqq_20": -0.05679468861526216,
+        "alignment_20": "not_aligned",
+        "review_tags": [
+          "direction_not_aligned"
+        ],
+        "maturity": "mature20"
+      },
+      {
+        "event_id": "brightline--blog-wenxuecity-com-myblog-82458-202605-4789-html:7:NBIS:0",
+        "author": "BrightLine",
+        "symbol": "NBIS",
+        "published_at": "2026-05-08",
+        "title": "财富的逻辑：从搏一搏到敢再搏，再到工程化的复利 — 我的投资哲学、方法论与实战案例",
+        "url": "https://blog.wenxuecity.com/myblog/82458/202605/4789.html",
+        "attribution": "author_action",
+        "return_20": 0.2235686492495832,
+        "mae_20": -0.04252362423568656,
+        "mfe_20": 0.5499716509171761,
+        "excess_vs_qqq_20": 0.22713022366255686,
+        "alignment_20": "not_aligned",
+        "review_tags": [
+          "direction_not_aligned"
+        ],
+        "maturity": "mature20"
+      },
+      {
+        "event_id": "brightline--blog-wenxuecity-com-myblog-82458-202605-4789-html:7:IREN:0",
+        "author": "BrightLine",
+        "symbol": "IREN",
+        "published_at": "2026-05-08",
+        "title": "财富的逻辑：从搏一搏到敢再搏，再到工程化的复利 — 我的投资哲学、方法论与实战案例",
+        "url": "https://blog.wenxuecity.com/myblog/82458/202605/4789.html",
+        "attribution": "author_action",
+        "return_20": -0.017282153902128394,
+        "mae_20": -0.16317991631799167,
+        "mfe_20": 0.286276150627615,
+        "excess_vs_qqq_20": -0.013720579489154727,
+        "alignment_20": "aligned",
+        "review_tags": [
           "large_adverse_move"
         ],
         "maturity": "mature20"
       },
       {
-        "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html:5:META",
+        "event_id": "brightline--blog-wenxuecity-com-myblog-82458-202605-4789-html:0:INTC:0",
+        "author": "BrightLine",
+        "symbol": "INTC",
+        "published_at": "2026-05-08",
+        "title": "财富的逻辑：从搏一搏到敢再搏，再到工程化的复利 — 我的投资哲学、方法论与实战案例",
+        "url": "https://blog.wenxuecity.com/myblog/82458/202605/4789.html",
+        "attribution": "author_action",
+        "return_20": -0.17542791761373433,
+        "mae_20": -0.24870111428328945,
+        "mfe_20": 0.01428785946991562,
+        "excess_vs_qqq_20": -0.17186634320076066,
+        "alignment_20": "not_aligned",
+        "review_tags": [
+          "direction_not_aligned",
+          "large_adverse_move",
+          "underperformed_qqq"
+        ],
+        "maturity": "mature20"
+      },
+      {
+        "event_id": "brightline--blog-wenxuecity-com-myblog-82458-202605-4789-html:1:INTC:0",
+        "author": "BrightLine",
+        "symbol": "INTC",
+        "published_at": "2026-05-08",
+        "title": "财富的逻辑：从搏一搏到敢再搏，再到工程化的复利 — 我的投资哲学、方法论与实战案例",
+        "url": "https://blog.wenxuecity.com/myblog/82458/202605/4789.html",
+        "attribution": "author_action",
+        "return_20": -0.17542791761373433,
+        "mae_20": -0.24870111428328945,
+        "mfe_20": 0.01428785946991562,
+        "excess_vs_qqq_20": -0.17186634320076066,
+        "alignment_20": "not_aligned",
+        "review_tags": [
+          "direction_not_aligned",
+          "large_adverse_move",
+          "underperformed_qqq"
+        ],
+        "maturity": "mature20"
+      },
+      {
+        "event_id": "brightline--blog-wenxuecity-com-myblog-82458-202605-4789-html:3:INTC:0",
+        "author": "BrightLine",
+        "symbol": "INTC",
+        "published_at": "2026-05-08",
+        "title": "财富的逻辑：从搏一搏到敢再搏，再到工程化的复利 — 我的投资哲学、方法论与实战案例",
+        "url": "https://blog.wenxuecity.com/myblog/82458/202605/4789.html",
+        "attribution": "author_action",
+        "return_20": -0.17542791761373433,
+        "mae_20": -0.24870111428328945,
+        "mfe_20": 0.01428785946991562,
+        "excess_vs_qqq_20": -0.17186634320076066,
+        "alignment_20": "not_aligned",
+        "review_tags": [
+          "direction_not_aligned",
+          "large_adverse_move",
+          "underperformed_qqq"
+        ],
+        "maturity": "mature20"
+      },
+      {
+        "event_id": "brightline--blog-wenxuecity-com-myblog-82458-202605-4789-html:2:GOOG:0",
+        "author": "BrightLine",
+        "symbol": "GOOG",
+        "published_at": "2026-05-08",
+        "title": "财富的逻辑：从搏一搏到敢再搏，再到工程化的复利 — 我的投资哲学、方法论与实战案例",
+        "url": "https://blog.wenxuecity.com/myblog/82458/202605/4789.html",
+        "attribution": "author_action",
+        "return_20": -0.0726919040671632,
+        "mae_20": -0.09293813509432036,
+        "mfe_20": 0.035270930917095544,
+        "excess_vs_qqq_20": -0.06913032965418953,
+        "alignment_20": "not_aligned",
+        "review_tags": [
+          "direction_not_aligned"
+        ],
+        "maturity": "mature20"
+      },
+      {
+        "event_id": "brightline--blog-wenxuecity-com-myblog-82458-202605-4789-html:7:CRWV:0",
+        "author": "BrightLine",
+        "symbol": "CRWV",
+        "published_at": "2026-05-08",
+        "title": "财富的逻辑：从搏一搏到敢再搏，再到工程化的复利 — 我的投资哲学、方法论与实战案例",
+        "url": "https://blog.wenxuecity.com/myblog/82458/202605/4789.html",
+        "attribution": "author_action",
+        "return_20": -0.12113908321264111,
+        "mae_20": -0.164434910917179,
+        "mfe_20": 0.17970003442830795,
+        "excess_vs_qqq_20": -0.11757750879966744,
+        "alignment_20": "aligned",
+        "review_tags": [
+          "large_adverse_move",
+          "underperformed_qqq"
+        ],
+        "maturity": "mature20"
+      },
+      {
+        "event_id": "brightline-s-blog-wenxuecity-com-myblog-82458-202605-385-html:5:META:0",
         "author": "BrightLine",
         "symbol": "META",
-        "published_at": "2026-08-18",
-        "title": "子弹与耐心：8·18 AI板块大跌手记。",
-        "url": "https://blog.wenxuecity.com/myblog/82458/202608/14095.html",
-        "attribution": "author_plan",
-        "return_20": 0.26040928752671433,
-        "mae_20": -0.007518393472325635,
-        "mfe_20": 0.26595109092415825,
-        "excess_vs_qqq_20": 0.2652261228520243,
-        "alignment_20": "not_aligned",
-        "review_tags": [
-          "direction_not_aligned"
-        ],
-        "maturity": "mature20"
-      },
-      {
-        "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html:3:IREN",
-        "author": "BrightLine",
-        "symbol": "IREN",
-        "published_at": "2026-08-18",
-        "title": "子弹与耐心：8·18 AI板块大跌手记。",
-        "url": "https://blog.wenxuecity.com/myblog/82458/202608/14095.html",
-        "attribution": "author_plan",
-        "return_20": 0.04986116141494623,
-        "mae_20": -0.15948327900519133,
-        "mfe_20": 0.19014849692140534,
-        "excess_vs_qqq_20": 0.054677996740256196,
-        "alignment_20": "not_scored",
-        "review_tags": [
-          "large_adverse_move"
-        ],
-        "maturity": "mature20"
-      },
-      {
-        "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html:0:CRWV",
-        "author": "BrightLine",
-        "symbol": "CRWV",
-        "published_at": "2026-08-18",
-        "title": "子弹与耐心：8·18 AI板块大跌手记。",
-        "url": "https://blog.wenxuecity.com/myblog/82458/202608/14095.html",
+        "published_at": "2026-05-01",
+        "title": "这轮建仓和清仓复盘，开始大力减仓",
+        "url": "https://blog.wenxuecity.com/myblog/82458/202605/385.html",
         "attribution": "author_action",
-        "return_20": -0.1522870167918733,
-        "mae_20": -0.16937287642251608,
-        "mfe_20": 0.10994367623775236,
-        "excess_vs_qqq_20": -0.14747018146656332,
-        "alignment_20": "aligned",
+        "return_20": -0.016958906334819557,
+        "mae_20": -0.025232797305433485,
+        "mfe_20": 0.057670160571433815,
+        "excess_vs_qqq_20": -0.12293821443074926,
+        "alignment_20": "not_aligned",
         "review_tags": [
-          "large_adverse_move",
+          "direction_not_aligned",
           "underperformed_qqq"
         ],
         "maturity": "mature20"
       },
       {
-        "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html:2:CRWV",
+        "event_id": "brightline-s-blog-wenxuecity-com-myblog-82458-202605-385-html:0:CRWV:0",
         "author": "BrightLine",
         "symbol": "CRWV",
-        "published_at": "2026-08-18",
-        "title": "子弹与耐心：8·18 AI板块大跌手记。",
-        "url": "https://blog.wenxuecity.com/myblog/82458/202608/14095.html",
-        "attribution": "author_plan",
-        "return_20": -0.1522870167918733,
-        "mae_20": -0.16937287642251608,
-        "mfe_20": 0.10994367623775236,
-        "excess_vs_qqq_20": -0.14747018146656332,
-        "alignment_20": "aligned",
+        "published_at": "2026-05-01",
+        "title": "这轮建仓和清仓复盘，开始大力减仓",
+        "url": "https://blog.wenxuecity.com/myblog/82458/202605/385.html",
+        "attribution": "author_action",
+        "return_20": -0.01576170702508073,
+        "mae_20": -0.2175276493147994,
+        "mfe_20": 0.14086482630661568,
+        "excess_vs_qqq_20": -0.12174101512101043,
+        "alignment_20": "not_aligned",
         "review_tags": [
+          "direction_not_aligned",
           "large_adverse_move",
           "underperformed_qqq"
         ],
         "maturity": "mature20"
       },
       {
-        "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202607-22473-html:0:NBIS",
-        "author": "BrightLine",
-        "symbol": "NBIS",
-        "published_at": "2026-07-30",
-        "title": "439%之后：AI神童爆仓有感",
-        "url": "https://blog.wenxuecity.com/myblog/82458/202607/22473.html",
-        "attribution": "unconfirmed_author_context",
-        "return_20": 0.0410331699305746,
-        "mae_20": -0.12285067310324238,
-        "mfe_20": 0.3976161445243487,
-        "excess_vs_qqq_20": 0.005894246927005797,
-        "alignment_20": "not_aligned",
-        "review_tags": [
-          "direction_not_aligned"
-        ],
-        "maturity": "mature20"
-      },
-      {
-        "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202607-22473-html:0:IREN",
-        "author": "BrightLine",
-        "symbol": "IREN",
-        "published_at": "2026-07-30",
-        "title": "439%之后：AI神童爆仓有感",
-        "url": "https://blog.wenxuecity.com/myblog/82458/202607/22473.html",
-        "attribution": "unconfirmed_author_context",
-        "return_20": -0.13144677202009059,
-        "mae_20": -0.14712728163665312,
-        "mfe_20": 0.2050716648291071,
-        "excess_vs_qqq_20": -0.16658569502365939,
-        "alignment_20": "aligned",
-        "review_tags": [
-          "underperformed_qqq"
-        ],
-        "maturity": "mature20"
-      },
-      {
-        "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202607-22473-html:0:CRWV",
+        "event_id": "brightline-s-blog-wenxuecity-com-myblog-82458-202605-385-html:2:CRWV:0",
         "author": "BrightLine",
         "symbol": "CRWV",
-        "published_at": "2026-07-30",
-        "title": "439%之后：AI神童爆仓有感",
-        "url": "https://blog.wenxuecity.com/myblog/82458/202607/22473.html",
-        "attribution": "unconfirmed_author_context",
-        "return_20": 0.09339909590168771,
-        "mae_20": -0.09275009973129,
-        "mfe_20": 0.5251508051989415,
-        "excess_vs_qqq_20": 0.05826017289811891,
-        "alignment_20": "not_aligned",
-        "review_tags": [
-          "direction_not_aligned"
-        ],
-        "maturity": "mature20"
-      },
-      {
-        "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202606-22729-html:0:TSLA",
-        "author": "BrightLine",
-        "symbol": "TSLA",
-        "published_at": "2026-06-29",
-        "title": "炒股有时候真的需要点运气，而且很多时候是先给你一巴掌，再给你一颗糖。",
-        "url": "https://blog.wenxuecity.com/myblog/82458/202606/22729.html",
-        "attribution": "unconfirmed_author_context",
-        "return_20": -0.26522167487684734,
-        "mae_20": -0.26753694581280785,
-        "mfe_20": 0.06615738916256153,
-        "excess_vs_qqq_20": -0.17898620855631941,
-        "alignment_20": "not_aligned",
-        "review_tags": [
-          "direction_not_aligned",
-          "large_adverse_move",
-          "underperformed_qqq"
-        ],
-        "maturity": "mature20"
-      },
-      {
-        "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202606-22729-html:1:TSLA",
-        "author": "BrightLine",
-        "symbol": "TSLA",
-        "published_at": "2026-06-29",
-        "title": "炒股有时候真的需要点运气，而且很多时候是先给你一巴掌，再给你一颗糖。",
-        "url": "https://blog.wenxuecity.com/myblog/82458/202606/22729.html",
-        "attribution": "unconfirmed_author_context",
-        "return_20": -0.26522167487684734,
-        "mae_20": -0.26753694581280785,
-        "mfe_20": 0.06615738916256153,
-        "excess_vs_qqq_20": -0.17898620855631941,
-        "alignment_20": "aligned",
-        "review_tags": [
-          "large_adverse_move",
-          "underperformed_qqq"
-        ],
-        "maturity": "mature20"
-      },
-      {
-        "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202606-16186-html:0:NVDA",
-        "author": "BrightLine",
-        "symbol": "NVDA",
-        "published_at": "2026-06-21",
-        "title": "理性的悲观，天真的乐观 ——为什么算账的人，总是错过科技",
-        "url": "https://blog.wenxuecity.com/myblog/82458/202606/16186.html",
-        "attribution": "unconfirmed_author_context",
-        "return_20": -0.019627317442300396,
-        "mae_20": -0.10234581914491103,
-        "mfe_20": 0.0120601589103293,
-        "excess_vs_qqq_20": 0.02491326097876634,
-        "alignment_20": "not_aligned",
-        "review_tags": [
-          "direction_not_aligned"
-        ],
-        "maturity": "mature20"
-      },
-      {
-        "event_id": "brightline--blog-wenxuecity-com-myblog-82458-202606-8509-html:0:TQQQ",
-        "author": "BrightLine",
-        "symbol": "TQQQ",
-        "published_at": "2026-06-12",
-        "title": "最近越来越觉得，投资还是要回归 basic。",
-        "url": "https://blog.wenxuecity.com/myblog/82458/202606/8509.html",
-        "attribution": "unconfirmed_author_context",
-        "return_20": -0.10183391761229399,
-        "mae_20": -0.1605936052084611,
-        "mfe_20": 0.026906412051571627,
-        "excess_vs_qqq_20": -0.07424957944673372,
-        "alignment_20": "not_aligned",
-        "review_tags": [
-          "direction_not_aligned",
-          "large_adverse_move"
-        ],
-        "maturity": "mature20"
-      },
-      {
-        "event_id": "brightline--blog-wenxuecity-com-myblog-82458-202606-5022-html:0:SPY",
-        "author": "BrightLine",
-        "symbol": "SPY",
-        "published_at": "2026-06-07",
-        "title": "周五暴跌：就业报告只是借口，华尔街真正杀的是AI估值",
-        "url": "https://blog.wenxuecity.com/myblog/82458/202606/5022.html",
-        "attribution": "unconfirmed_author_context",
-        "return_20": 0.0027443487713898485,
-        "mae_20": -0.036025571445110205,
-        "mfe_20": 0.01791864989601133,
-        "excess_vs_qqq_20": 0.011618563396429749,
-        "alignment_20": "not_aligned",
-        "review_tags": [
-          "direction_not_aligned"
-        ],
-        "maturity": "mature20"
-      },
-      {
-        "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202605-19753-html:5:TSLA",
-        "author": "BrightLine",
-        "symbol": "TSLA",
-        "published_at": "2026-05-31",
-        "title": "人生充满遗憾，投资尤其如此",
-        "url": "https://blog.wenxuecity.com/myblog/82458/202605/19753.html",
-        "attribution": "unconfirmed_author_context",
-        "return_20": -0.016117336078036892,
-        "mae_20": -0.13775760836510798,
-        "mfe_20": 0.014292731993730934,
-        "excess_vs_qqq_20": -0.015248997860301094,
-        "alignment_20": "not_aligned",
-        "review_tags": [
-          "direction_not_aligned"
-        ],
-        "maturity": "mature20"
-      },
-      {
-        "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202605-19753-html:6:TSLA",
-        "author": "BrightLine",
-        "symbol": "TSLA",
-        "published_at": "2026-05-31",
-        "title": "人生充满遗憾，投资尤其如此",
-        "url": "https://blog.wenxuecity.com/myblog/82458/202605/19753.html",
-        "attribution": "unconfirmed_author_context",
-        "return_20": -0.016117336078036892,
-        "mae_20": -0.13775760836510798,
-        "mfe_20": 0.014292731993730934,
-        "excess_vs_qqq_20": -0.015248997860301094,
-        "alignment_20": "not_aligned",
-        "review_tags": [
-          "direction_not_aligned"
-        ],
-        "maturity": "mature20"
-      },
-      {
-        "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202605-19753-html:2:NBIS",
-        "author": "BrightLine",
-        "symbol": "NBIS",
-        "published_at": "2026-05-31",
-        "title": "人生充满遗憾，投资尤其如此",
-        "url": "https://blog.wenxuecity.com/myblog/82458/202605/19753.html",
-        "attribution": "unconfirmed_author_context",
-        "return_20": 0.1314269326887625,
-        "mae_20": -0.17940104059977868,
-        "mfe_20": 0.22848129788192884,
-        "excess_vs_qqq_20": 0.13229527090649829,
-        "alignment_20": "not_aligned",
-        "review_tags": [
-          "direction_not_aligned",
-          "large_adverse_move"
-        ],
-        "maturity": "mature20"
-      },
-      {
-        "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202605-19753-html:0:MU",
-        "author": "BrightLine",
-        "symbol": "MU",
-        "published_at": "2026-05-31",
-        "title": "人生充满遗憾，投资尤其如此",
-        "url": "https://blog.wenxuecity.com/myblog/82458/202605/19753.html",
-        "attribution": "unconfirmed_author_context",
-        "return_20": 0.14317837871296413,
-        "mae_20": -0.1538743410304093,
-        "mfe_20": 0.24291886504539728,
-        "excess_vs_qqq_20": 0.14404671693069993,
+        "published_at": "2026-05-01",
+        "title": "这轮建仓和清仓复盘，开始大力减仓",
+        "url": "https://blog.wenxuecity.com/myblog/82458/202605/385.html",
+        "attribution": "author_action",
+        "return_20": -0.01576170702508073,
+        "mae_20": -0.2175276493147994,
+        "mfe_20": 0.14086482630661568,
+        "excess_vs_qqq_20": -0.12174101512101043,
         "alignment_20": "not_scored",
         "review_tags": [
-          "large_adverse_move"
+          "large_adverse_move",
+          "underperformed_qqq"
+        ],
+        "maturity": "mature20"
+      },
+      {
+        "event_id": "brightline-s-blog-wenxuecity-com-myblog-82458-202605-385-html:4:AMZN:0",
+        "author": "BrightLine",
+        "symbol": "AMZN",
+        "published_at": "2026-05-01",
+        "title": "这轮建仓和清仓复盘，开始大力减仓",
+        "url": "https://blog.wenxuecity.com/myblog/82458/202605/385.html",
+        "attribution": "author_action",
+        "return_20": -0.04568452134289158,
+        "mae_20": -0.05368301090435801,
+        "mfe_20": 0.03630956178890221,
+        "excess_vs_qqq_20": -0.15166382943882128,
+        "alignment_20": "not_aligned",
+        "review_tags": [
+          "direction_not_aligned",
+          "underperformed_qqq"
         ],
         "maturity": "mature20"
       }
     ],
-    "external_outcome_review_count": 44,
+    "external_outcome_review_count": 21,
     "external_note": "外部失败案例先作为候选；只有达到后续交易日成熟窗口并出现可复核结果，才进入结果归因层。"
   },
   "external_source_intelligence": {
@@ -3114,7 +3129,7 @@
           "失败复盘",
           "仓位管理"
         ],
-        "source_view": "出现明确操作：clear / trim_half / trim / sell / no_add / sell_put / no_direct_stock_buy；具体条件：NBIS 第一档 180 / 第二档 150 / 卖出线 250；CRWV 第一档 75 / 第二档 62 / 卖出线 110；IREN 第一档 35 / 第二档 30 / 目标区 80-100；组合规则：cash_floor / no_core_leverage / predefined_levels / one_tranche_at_a_time；涉及：CRWV / MRVL / NBIS / INTC / IREN / META / QCOM / NVDA / MU；可进入失败复盘",
+        "source_view": "出现明确操作：planned_buy / planned_sell / no_add / sell_put / no_direct_stock_buy；具体条件：NBIS 第一档 180 / 第二档 150 / 卖出线 250；CRWV 第一档 75 / 第二档 62 / 卖出线 110；IREN 第一档 35 / 第二档 30 / 目标区 80-100；组合规则：cash_floor / no_core_leverage / predefined_levels / one_tranche_at_a_time；涉及：CRWV / MRVL / NBIS / INTC / IREN / META / QCOM / NVDA / MU；可进入失败复盘",
         "myalpha_view": "先核对行情、估值、事件与现有 Thesis；外部作者观点不能单独触发买卖。",
         "what_changes_view": "只有独立证据与后续结果支持，才允许升级为 Breadcrumb / Thesis 样本。",
         "priority": 80
@@ -3403,120 +3418,99 @@
     ],
     "outcome_validation": {
       "counts": {
-        "events": 75,
-        "author_owned": 40,
+        "events": 81,
+        "author_owned": 46,
         "unconfirmed": 35,
-        "mature60": 57,
-        "developing": 18,
+        "triggered_author_owned": 35,
+        "untriggered_plans": 11,
+        "mature60": 26,
+        "developing": 9,
         "symbols": 18
       },
       "by_action": {
         "add": {
           "5": {
-            "n": 15,
-            "avg_return": 0.037117114386548876,
-            "median_return": 0.006194169290230089,
-            "avg_excess_vs_qqq": 0.01872884084929644,
-            "alignment_rate": 0.6666666666666666
+            "n": 7,
+            "avg_return": 0.017455130496060463,
+            "median_return": 0.003586733743245585,
+            "avg_excess_vs_qqq": -0.0112488524544592,
+            "alignment_rate": 0.7142857142857143
           },
           "20": {
-            "n": 15,
-            "avg_return": 0.05194072631351676,
-            "median_return": -0.016117336078036892,
-            "avg_excess_vs_qqq": 0.01061184181270863,
-            "alignment_rate": 0.4666666666666667
+            "n": 7,
+            "avg_return": 0.008806172717781724,
+            "median_return": -0.04201602384945036,
+            "avg_excess_vs_qqq": -0.04348617851506268,
+            "alignment_rate": 0.42857142857142855
           },
           "60": {
-            "n": 14,
-            "avg_return": 0.003003152330661951,
-            "median_return": -0.08663851816143187,
-            "avg_excess_vs_qqq": -0.0395589548229815,
-            "alignment_rate": 0.35714285714285715
+            "n": 6,
+            "avg_return": -0.09733704159001376,
+            "median_return": -0.10905858311024841,
+            "avg_excess_vs_qqq": -0.15141666003796952,
+            "alignment_rate": 0.16666666666666666
           }
         },
         "buy": {
           "5": {
-            "n": 19,
-            "avg_return": 0.02044498909705589,
-            "median_return": -0.014935712493633568,
-            "avg_excess_vs_qqq": 0.0001500616105856927,
-            "alignment_rate": 0.4375
+            "n": 12,
+            "avg_return": 0.012330918313826156,
+            "median_return": -0.021881822515530114,
+            "avg_excess_vs_qqq": -0.014502693733539768,
+            "alignment_rate": 0.4
           },
           "20": {
-            "n": 19,
-            "avg_return": 0.12588090504550817,
-            "median_return": 0.0882234318721149,
-            "avg_excess_vs_qqq": 0.07384668497749898,
-            "alignment_rate": 0.5625
+            "n": 12,
+            "avg_return": 0.0790567886075513,
+            "median_return": -0.01576170702508073,
+            "avg_excess_vs_qqq": 0.015470491640367715,
+            "alignment_rate": 0.4
           },
           "60": {
-            "n": 17,
-            "avg_return": -0.018288150676653,
-            "median_return": -0.11025948636752458,
-            "avg_excess_vs_qqq": -0.03975683262879342,
-            "alignment_rate": 0.35714285714285715
-          }
-        },
-        "clear": {
-          "5": {
-            "n": 6,
-            "avg_return": -0.02156861808681987,
-            "median_return": -0.06526603301901046,
-            "avg_excess_vs_qqq": -0.03499050186568251,
-            "alignment_rate": 0.6666666666666666
-          },
-          "20": {
-            "n": 6,
-            "avg_return": -0.013259458804229038,
-            "median_return": -0.010324496301930275,
-            "avg_excess_vs_qqq": -0.029078585494620817,
-            "alignment_rate": 0.5
-          },
-          "60": {
-            "n": 1,
-            "avg_return": -0.12356098160514561,
-            "median_return": -0.12356098160514561,
-            "avg_excess_vs_qqq": -0.08873247840314846,
-            "alignment_rate": 1.0
+            "n": 10,
+            "avg_return": -0.1207107563822369,
+            "median_return": -0.17537151795238892,
+            "avg_excess_vs_qqq": -0.14052914050162263,
+            "alignment_rate": 0.25
           }
         },
         "hold": {
           "5": {
-            "n": 18,
-            "avg_return": -0.01982613295580656,
-            "median_return": -0.0286397884764632,
-            "avg_excess_vs_qqq": -0.02021888038355071,
-            "alignment_rate": 0.3888888888888889
+            "n": 7,
+            "avg_return": -0.043680510938057075,
+            "median_return": -0.02882793253742666,
+            "avg_excess_vs_qqq": -0.034368631406680304,
+            "alignment_rate": 0.2857142857142857
           },
           "20": {
-            "n": 17,
-            "avg_return": 0.019349233140163596,
-            "median_return": 0.0410331699305746,
-            "avg_excess_vs_qqq": -0.006868498779451915,
-            "alignment_rate": 0.5882352941176471
+            "n": 6,
+            "avg_return": -0.05214173283565419,
+            "median_return": -0.03061230062298581,
+            "avg_excess_vs_qqq": -0.04889169071333919,
+            "alignment_rate": 0.3333333333333333
           },
           "60": {
-            "n": 15,
-            "avg_return": -0.06562379549555167,
-            "median_return": -0.03482850320199715,
-            "avg_excess_vs_qqq": -0.0874445306342148,
-            "alignment_rate": 0.4
+            "n": 5,
+            "avg_return": -0.19693961574376567,
+            "median_return": -0.23739307888961525,
+            "avg_excess_vs_qqq": -0.17900781932358037,
+            "alignment_rate": 0.0
           }
         },
-        "no_add": {
+        "planned_buy": {
           "5": {
-            "n": 1,
-            "avg_return": -0.09413823481773254,
-            "median_return": -0.09413823481773254,
-            "avg_excess_vs_qqq": -0.08161723924588948,
-            "alignment_rate": null
+            "n": 4,
+            "avg_return": 0.04005652818368363,
+            "median_return": -0.01859362899272715,
+            "avg_excess_vs_qqq": 0.04971820603215493,
+            "alignment_rate": 1.0
           },
           "20": {
-            "n": 1,
-            "avg_return": 0.11692843610967762,
-            "median_return": 0.11692843610967762,
-            "avg_excess_vs_qqq": 0.12174527143498759,
-            "alignment_rate": null
+            "n": 4,
+            "avg_return": 0.04911038264993797,
+            "median_return": 0.0651589187327824,
+            "avg_excess_vs_qqq": 0.04689104204469016,
+            "alignment_rate": 1.0
           },
           "60": {
             "n": 0,
@@ -3526,19 +3520,19 @@
             "alignment_rate": null
           }
         },
-        "no_direct_stock_buy": {
+        "planned_sell": {
           "5": {
-            "n": 1,
-            "avg_return": 0.004232364881142869,
-            "median_return": 0.004232364881142869,
-            "avg_excess_vs_qqq": 0.01675336045298592,
+            "n": 3,
+            "avg_return": -0.03878177194556465,
+            "median_return": -0.0660087127148069,
+            "avg_excess_vs_qqq": -0.026260776373721595,
             "alignment_rate": 1.0
           },
           "20": {
-            "n": 1,
-            "avg_return": 0.15751707125591552,
-            "median_return": 0.15751707125591552,
-            "avg_excess_vs_qqq": 0.16233390658122548,
+            "n": 3,
+            "avg_return": 0.0014805101999173138,
+            "median_return": -0.06168216253443515,
+            "avg_excess_vs_qqq": 0.0062973455252272785,
             "alignment_rate": 1.0
           },
           "60": {
@@ -3551,127 +3545,81 @@
         },
         "sell": {
           "5": {
-            "n": 11,
-            "avg_return": -0.01668706187673332,
-            "median_return": -0.05985812221200526,
-            "avg_excess_vs_qqq": -0.014728117008362457,
-            "alignment_rate": 0.625
+            "n": 3,
+            "avg_return": 0.07427016441553198,
+            "median_return": 0.11595174262734576,
+            "avg_excess_vs_qqq": 0.026822775616434757,
+            "alignment_rate": 0.0
           },
           "20": {
-            "n": 11,
-            "avg_return": 0.048750634644569614,
+            "n": 3,
+            "avg_return": 0.15059407982186876,
             "median_return": -0.01576170702508073,
-            "avg_excess_vs_qqq": 0.033469972716113225,
-            "alignment_rate": 0.625
+            "avg_excess_vs_qqq": 0.08698475469346763,
+            "alignment_rate": 1.0
           },
           "60": {
-            "n": 7,
-            "avg_return": -0.1449940020318055,
-            "median_return": -0.12356098160514561,
-            "avg_excess_vs_qqq": -0.1258991995337673,
+            "n": 3,
+            "avg_return": -0.16716530659750983,
+            "median_return": -0.28619302949061665,
+            "avg_excess_vs_qqq": -0.16904877170475016,
             "alignment_rate": 1.0
           }
         },
         "sell_put": {
           "5": {
-            "n": 2,
-            "avg_return": -0.012297783828141895,
-            "median_return": -0.012297783828141895,
-            "avg_excess_vs_qqq": -0.002883955336662636,
-            "alignment_rate": 0.5
+            "n": 1,
+            "avg_return": -0.02882793253742666,
+            "median_return": -0.02882793253742666,
+            "avg_excess_vs_qqq": -0.022521271126311193,
+            "alignment_rate": null
           },
           "20": {
-            "n": 2,
-            "avg_return": 0.04858040411383985,
-            "median_return": 0.04858040411383985,
-            "avg_excess_vs_qqq": 0.052769608982981664,
-            "alignment_rate": 0.5
+            "n": 1,
+            "avg_return": -0.060356263028235824,
+            "median_return": -0.060356263028235824,
+            "avg_excess_vs_qqq": -0.05679468861526216,
+            "alignment_rate": null
           },
           "60": {
             "n": 1,
             "avg_return": -0.24310687890847082,
             "median_return": -0.24310687890847082,
             "avg_excess_vs_qqq": -0.24914607030438274,
-            "alignment_rate": 0.0
+            "alignment_rate": null
           }
         },
         "trim": {
           "5": {
-            "n": 7,
-            "avg_return": -0.019713228343332334,
-            "median_return": -0.0660087127148069,
-            "avg_excess_vs_qqq": -0.02385751134193968,
-            "alignment_rate": 0.5714285714285714
+            "n": 3,
+            "avg_return": -0.014913929584597288,
+            "median_return": -0.0736475651422066,
+            "avg_excess_vs_qqq": -0.008607268173481822,
+            "alignment_rate": 0.6666666666666666
           },
           "20": {
-            "n": 7,
-            "avg_return": -0.019278804720734972,
+            "n": 3,
+            "avg_return": 0.028382470711604563,
             "median_return": -0.017282153902128394,
-            "avg_excess_vs_qqq": -0.01384068712936058,
-            "alignment_rate": 0.7142857142857143
+            "avg_excess_vs_qqq": 0.031944045124578234,
+            "alignment_rate": 0.6666666666666666
           },
           "60": {
-            "n": 5,
-            "avg_return": -0.09507715871106934,
-            "median_return": -0.011939092517518457,
-            "avg_excess_vs_qqq": -0.09392503654160911,
-            "alignment_rate": 0.6
-          }
-        },
-        "trim_half": {
-          "5": {
             "n": 3,
-            "avg_return": -0.05819187918704013,
-            "median_return": -0.0660087127148069,
-            "avg_excess_vs_qqq": -0.04398044503787165,
-            "alignment_rate": 1.0
-          },
-          "20": {
-            "n": 3,
-            "avg_return": -0.15973028473438525,
-            "median_return": -0.1522870167918733,
-            "avg_excess_vs_qqq": -0.12777390574400263,
-            "alignment_rate": 1.0
-          },
-          "60": {
-            "n": 1,
-            "avg_return": -0.06911330049261089,
-            "median_return": -0.06911330049261089,
-            "avg_excess_vs_qqq": -0.09247765742044656,
-            "alignment_rate": 1.0
-          }
-        },
-        "unspecified": {
-          "5": {
-            "n": 1,
-            "avg_return": -0.04430761801279737,
-            "median_return": -0.04430761801279737,
-            "avg_excess_vs_qqq": -0.031786622440954315,
-            "alignment_rate": null
-          },
-          "20": {
-            "n": 1,
-            "avg_return": 0.04986116141494623,
-            "median_return": 0.04986116141494623,
-            "avg_excess_vs_qqq": 0.054677996740256196,
-            "alignment_rate": null
-          },
-          "60": {
-            "n": 0,
-            "avg_return": null,
-            "median_return": null,
-            "avg_excess_vs_qqq": null,
-            "alignment_rate": null
+            "avg_return": -0.1642576624632448,
+            "median_return": -0.23826098564397447,
+            "avg_excess_vs_qqq": -0.17029685385915672,
+            "alignment_rate": 0.6666666666666666
           }
         }
       },
       "mature_learning": {
-        "events_scanned": 75,
-        "mature20": 74,
-        "review_candidates": 44,
+        "events_scanned": 81,
+        "mature20": 34,
+        "review_candidates": 21,
         "recent_reviews": [
           {
-            "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-22905-html:0:NOW",
+            "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-22905-html:0:NOW:0",
             "author": "BrightLine",
             "symbol": "NOW",
             "published_at": "2026-08-28",
@@ -3690,7 +3638,7 @@
             "maturity": "mature20"
           },
           {
-            "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html:0:NBIS",
+            "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html:0:NBIS:0",
             "author": "BrightLine",
             "symbol": "NBIS",
             "published_at": "2026-08-18",
@@ -3701,341 +3649,349 @@
             "mae_20": -0.16150137741046822,
             "mfe_20": 0.09650482093663926,
             "excess_vs_qqq_20": -0.05686532720912518,
-            "alignment_20": "aligned",
+            "alignment_20": "not_scored",
             "review_tags": [
               "large_adverse_move"
             ],
             "maturity": "mature20"
           },
           {
-            "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html:1:NBIS",
+            "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html:0:CRWV:0",
             "author": "BrightLine",
-            "symbol": "NBIS",
+            "symbol": "CRWV",
             "published_at": "2026-08-18",
             "title": "子弹与耐心：8·18 AI板块大跌手记。",
             "url": "https://blog.wenxuecity.com/myblog/82458/202608/14095.html",
-            "attribution": "author_plan",
-            "return_20": -0.06168216253443515,
-            "mae_20": -0.16150137741046822,
-            "mfe_20": 0.09650482093663926,
-            "excess_vs_qqq_20": -0.05686532720912518,
-            "alignment_20": "aligned",
+            "attribution": "author_action",
+            "return_20": -0.1522870167918733,
+            "mae_20": -0.16937287642251608,
+            "mfe_20": 0.10994367623775236,
+            "excess_vs_qqq_20": -0.14747018146656332,
+            "alignment_20": "not_scored",
             "review_tags": [
-              "large_adverse_move"
+              "large_adverse_move",
+              "underperformed_qqq"
             ],
             "maturity": "mature20"
           },
           {
-            "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html:7:MRVL",
+            "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202605-18645-html:0:QQQ:0",
             "author": "BrightLine",
-            "symbol": "MRVL",
-            "published_at": "2026-08-18",
-            "title": "子弹与耐心：8·18 AI板块大跌手记。",
-            "url": "https://blog.wenxuecity.com/myblog/82458/202608/14095.html",
-            "attribution": "author_plan",
-            "return_20": 0.002623578894765277,
-            "mae_20": -0.1645358764002831,
-            "mfe_20": 0.060259026360721224,
-            "excess_vs_qqq_20": 0.007440414220075242,
+            "symbol": "QQQ",
+            "published_at": "2026-05-30",
+            "title": "AI还在早期,但大回撤一定会来:我的答案不是逃顶,而是摔不死",
+            "url": "https://blog.wenxuecity.com/myblog/82458/202605/18645.html",
+            "attribution": "author_action",
+            "return_20": -0.0008683382177357979,
+            "mae_20": -0.06874796483230217,
+            "mfe_20": 0.015752197981113714,
+            "excess_vs_qqq_20": 0.0,
+            "alignment_20": "not_aligned",
+            "review_tags": [
+              "direction_not_aligned"
+            ],
+            "maturity": "mature20"
+          },
+          {
+            "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202605-16902-html:0:IREN:0",
+            "author": "BrightLine",
+            "symbol": "IREN",
+            "published_at": "2026-05-27",
+            "title": "IREN 最新更新：继续做 AI 基础设施产能的长期持有者",
+            "url": "https://blog.wenxuecity.com/myblog/82458/202605/16902.html",
+            "attribution": "author_action",
+            "return_20": -0.290501953712053,
+            "mae_20": -0.3229636308987076,
+            "mfe_20": 0.06261797415088655,
+            "excess_vs_qqq_20": -0.25869566919586207,
             "alignment_20": "not_aligned",
             "review_tags": [
               "direction_not_aligned",
+              "large_adverse_move",
+              "underperformed_qqq"
+            ],
+            "maturity": "mature20"
+          },
+          {
+            "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202605-13819-html:0:IREN:0",
+            "author": "BrightLine",
+            "symbol": "IREN",
+            "published_at": "2026-05-22",
+            "title": "IREN：重复 INTC 的 LEAPS 逻辑，我买的不是矿股，而是 NVIDIA AI Factory 产能",
+            "url": "https://blog.wenxuecity.com/myblog/82458/202605/13819.html",
+            "attribution": "author_action",
+            "return_20": -0.15717158176943702,
+            "mae_20": -0.18163371313672927,
+            "mfe_20": 0.18476206434316356,
+            "excess_vs_qqq_20": -0.13604094096278097,
+            "alignment_20": "aligned",
+            "review_tags": [
+              "large_adverse_move",
+              "underperformed_qqq"
+            ],
+            "maturity": "mature20"
+          },
+          {
+            "event_id": "brightline--blog-wenxuecity-com-myblog-82458-202605-4789-html:3:TSLA:0",
+            "author": "BrightLine",
+            "symbol": "TSLA",
+            "published_at": "2026-05-08",
+            "title": "财富的逻辑：从搏一搏到敢再搏，再到工程化的复利 — 我的投资哲学、方法论与实战案例",
+            "url": "https://blog.wenxuecity.com/myblog/82458/202605/4789.html",
+            "attribution": "author_action",
+            "return_20": -0.060356263028235824,
+            "mae_20": -0.08982376350198984,
+            "mfe_20": 0.07400037900322132,
+            "excess_vs_qqq_20": -0.05679468861526216,
+            "alignment_20": "not_aligned",
+            "review_tags": [
+              "direction_not_aligned"
+            ],
+            "maturity": "mature20"
+          },
+          {
+            "event_id": "brightline--blog-wenxuecity-com-myblog-82458-202605-4789-html:4:TSLA:0",
+            "author": "BrightLine",
+            "symbol": "TSLA",
+            "published_at": "2026-05-08",
+            "title": "财富的逻辑：从搏一搏到敢再搏，再到工程化的复利 — 我的投资哲学、方法论与实战案例",
+            "url": "https://blog.wenxuecity.com/myblog/82458/202605/4789.html",
+            "attribution": "author_action",
+            "return_20": -0.060356263028235824,
+            "mae_20": -0.08982376350198984,
+            "mfe_20": 0.07400037900322132,
+            "excess_vs_qqq_20": -0.05679468861526216,
+            "alignment_20": "not_aligned",
+            "review_tags": [
+              "direction_not_aligned"
+            ],
+            "maturity": "mature20"
+          },
+          {
+            "event_id": "brightline--blog-wenxuecity-com-myblog-82458-202605-4789-html:5:TSLA:0",
+            "author": "BrightLine",
+            "symbol": "TSLA",
+            "published_at": "2026-05-08",
+            "title": "财富的逻辑：从搏一搏到敢再搏，再到工程化的复利 — 我的投资哲学、方法论与实战案例",
+            "url": "https://blog.wenxuecity.com/myblog/82458/202605/4789.html",
+            "attribution": "author_action",
+            "return_20": -0.060356263028235824,
+            "mae_20": -0.08982376350198984,
+            "mfe_20": 0.07400037900322132,
+            "excess_vs_qqq_20": -0.05679468861526216,
+            "alignment_20": "not_aligned",
+            "review_tags": [
+              "direction_not_aligned"
+            ],
+            "maturity": "mature20"
+          },
+          {
+            "event_id": "brightline--blog-wenxuecity-com-myblog-82458-202605-4789-html:7:NBIS:0",
+            "author": "BrightLine",
+            "symbol": "NBIS",
+            "published_at": "2026-05-08",
+            "title": "财富的逻辑：从搏一搏到敢再搏，再到工程化的复利 — 我的投资哲学、方法论与实战案例",
+            "url": "https://blog.wenxuecity.com/myblog/82458/202605/4789.html",
+            "attribution": "author_action",
+            "return_20": 0.2235686492495832,
+            "mae_20": -0.04252362423568656,
+            "mfe_20": 0.5499716509171761,
+            "excess_vs_qqq_20": 0.22713022366255686,
+            "alignment_20": "not_aligned",
+            "review_tags": [
+              "direction_not_aligned"
+            ],
+            "maturity": "mature20"
+          },
+          {
+            "event_id": "brightline--blog-wenxuecity-com-myblog-82458-202605-4789-html:7:IREN:0",
+            "author": "BrightLine",
+            "symbol": "IREN",
+            "published_at": "2026-05-08",
+            "title": "财富的逻辑：从搏一搏到敢再搏，再到工程化的复利 — 我的投资哲学、方法论与实战案例",
+            "url": "https://blog.wenxuecity.com/myblog/82458/202605/4789.html",
+            "attribution": "author_action",
+            "return_20": -0.017282153902128394,
+            "mae_20": -0.16317991631799167,
+            "mfe_20": 0.286276150627615,
+            "excess_vs_qqq_20": -0.013720579489154727,
+            "alignment_20": "aligned",
+            "review_tags": [
               "large_adverse_move"
             ],
             "maturity": "mature20"
           },
           {
-            "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html:5:META",
+            "event_id": "brightline--blog-wenxuecity-com-myblog-82458-202605-4789-html:0:INTC:0",
+            "author": "BrightLine",
+            "symbol": "INTC",
+            "published_at": "2026-05-08",
+            "title": "财富的逻辑：从搏一搏到敢再搏，再到工程化的复利 — 我的投资哲学、方法论与实战案例",
+            "url": "https://blog.wenxuecity.com/myblog/82458/202605/4789.html",
+            "attribution": "author_action",
+            "return_20": -0.17542791761373433,
+            "mae_20": -0.24870111428328945,
+            "mfe_20": 0.01428785946991562,
+            "excess_vs_qqq_20": -0.17186634320076066,
+            "alignment_20": "not_aligned",
+            "review_tags": [
+              "direction_not_aligned",
+              "large_adverse_move",
+              "underperformed_qqq"
+            ],
+            "maturity": "mature20"
+          },
+          {
+            "event_id": "brightline--blog-wenxuecity-com-myblog-82458-202605-4789-html:1:INTC:0",
+            "author": "BrightLine",
+            "symbol": "INTC",
+            "published_at": "2026-05-08",
+            "title": "财富的逻辑：从搏一搏到敢再搏，再到工程化的复利 — 我的投资哲学、方法论与实战案例",
+            "url": "https://blog.wenxuecity.com/myblog/82458/202605/4789.html",
+            "attribution": "author_action",
+            "return_20": -0.17542791761373433,
+            "mae_20": -0.24870111428328945,
+            "mfe_20": 0.01428785946991562,
+            "excess_vs_qqq_20": -0.17186634320076066,
+            "alignment_20": "not_aligned",
+            "review_tags": [
+              "direction_not_aligned",
+              "large_adverse_move",
+              "underperformed_qqq"
+            ],
+            "maturity": "mature20"
+          },
+          {
+            "event_id": "brightline--blog-wenxuecity-com-myblog-82458-202605-4789-html:3:INTC:0",
+            "author": "BrightLine",
+            "symbol": "INTC",
+            "published_at": "2026-05-08",
+            "title": "财富的逻辑：从搏一搏到敢再搏，再到工程化的复利 — 我的投资哲学、方法论与实战案例",
+            "url": "https://blog.wenxuecity.com/myblog/82458/202605/4789.html",
+            "attribution": "author_action",
+            "return_20": -0.17542791761373433,
+            "mae_20": -0.24870111428328945,
+            "mfe_20": 0.01428785946991562,
+            "excess_vs_qqq_20": -0.17186634320076066,
+            "alignment_20": "not_aligned",
+            "review_tags": [
+              "direction_not_aligned",
+              "large_adverse_move",
+              "underperformed_qqq"
+            ],
+            "maturity": "mature20"
+          },
+          {
+            "event_id": "brightline--blog-wenxuecity-com-myblog-82458-202605-4789-html:2:GOOG:0",
+            "author": "BrightLine",
+            "symbol": "GOOG",
+            "published_at": "2026-05-08",
+            "title": "财富的逻辑：从搏一搏到敢再搏，再到工程化的复利 — 我的投资哲学、方法论与实战案例",
+            "url": "https://blog.wenxuecity.com/myblog/82458/202605/4789.html",
+            "attribution": "author_action",
+            "return_20": -0.0726919040671632,
+            "mae_20": -0.09293813509432036,
+            "mfe_20": 0.035270930917095544,
+            "excess_vs_qqq_20": -0.06913032965418953,
+            "alignment_20": "not_aligned",
+            "review_tags": [
+              "direction_not_aligned"
+            ],
+            "maturity": "mature20"
+          },
+          {
+            "event_id": "brightline--blog-wenxuecity-com-myblog-82458-202605-4789-html:7:CRWV:0",
+            "author": "BrightLine",
+            "symbol": "CRWV",
+            "published_at": "2026-05-08",
+            "title": "财富的逻辑：从搏一搏到敢再搏，再到工程化的复利 — 我的投资哲学、方法论与实战案例",
+            "url": "https://blog.wenxuecity.com/myblog/82458/202605/4789.html",
+            "attribution": "author_action",
+            "return_20": -0.12113908321264111,
+            "mae_20": -0.164434910917179,
+            "mfe_20": 0.17970003442830795,
+            "excess_vs_qqq_20": -0.11757750879966744,
+            "alignment_20": "aligned",
+            "review_tags": [
+              "large_adverse_move",
+              "underperformed_qqq"
+            ],
+            "maturity": "mature20"
+          },
+          {
+            "event_id": "brightline-s-blog-wenxuecity-com-myblog-82458-202605-385-html:5:META:0",
             "author": "BrightLine",
             "symbol": "META",
-            "published_at": "2026-08-18",
-            "title": "子弹与耐心：8·18 AI板块大跌手记。",
-            "url": "https://blog.wenxuecity.com/myblog/82458/202608/14095.html",
-            "attribution": "author_plan",
-            "return_20": 0.26040928752671433,
-            "mae_20": -0.007518393472325635,
-            "mfe_20": 0.26595109092415825,
-            "excess_vs_qqq_20": 0.2652261228520243,
-            "alignment_20": "not_aligned",
-            "review_tags": [
-              "direction_not_aligned"
-            ],
-            "maturity": "mature20"
-          },
-          {
-            "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html:3:IREN",
-            "author": "BrightLine",
-            "symbol": "IREN",
-            "published_at": "2026-08-18",
-            "title": "子弹与耐心：8·18 AI板块大跌手记。",
-            "url": "https://blog.wenxuecity.com/myblog/82458/202608/14095.html",
-            "attribution": "author_plan",
-            "return_20": 0.04986116141494623,
-            "mae_20": -0.15948327900519133,
-            "mfe_20": 0.19014849692140534,
-            "excess_vs_qqq_20": 0.054677996740256196,
-            "alignment_20": "not_scored",
-            "review_tags": [
-              "large_adverse_move"
-            ],
-            "maturity": "mature20"
-          },
-          {
-            "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html:0:CRWV",
-            "author": "BrightLine",
-            "symbol": "CRWV",
-            "published_at": "2026-08-18",
-            "title": "子弹与耐心：8·18 AI板块大跌手记。",
-            "url": "https://blog.wenxuecity.com/myblog/82458/202608/14095.html",
+            "published_at": "2026-05-01",
+            "title": "这轮建仓和清仓复盘，开始大力减仓",
+            "url": "https://blog.wenxuecity.com/myblog/82458/202605/385.html",
             "attribution": "author_action",
-            "return_20": -0.1522870167918733,
-            "mae_20": -0.16937287642251608,
-            "mfe_20": 0.10994367623775236,
-            "excess_vs_qqq_20": -0.14747018146656332,
-            "alignment_20": "aligned",
+            "return_20": -0.016958906334819557,
+            "mae_20": -0.025232797305433485,
+            "mfe_20": 0.057670160571433815,
+            "excess_vs_qqq_20": -0.12293821443074926,
+            "alignment_20": "not_aligned",
             "review_tags": [
-              "large_adverse_move",
+              "direction_not_aligned",
               "underperformed_qqq"
             ],
             "maturity": "mature20"
           },
           {
-            "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html:2:CRWV",
+            "event_id": "brightline-s-blog-wenxuecity-com-myblog-82458-202605-385-html:0:CRWV:0",
             "author": "BrightLine",
             "symbol": "CRWV",
-            "published_at": "2026-08-18",
-            "title": "子弹与耐心：8·18 AI板块大跌手记。",
-            "url": "https://blog.wenxuecity.com/myblog/82458/202608/14095.html",
-            "attribution": "author_plan",
-            "return_20": -0.1522870167918733,
-            "mae_20": -0.16937287642251608,
-            "mfe_20": 0.10994367623775236,
-            "excess_vs_qqq_20": -0.14747018146656332,
-            "alignment_20": "aligned",
+            "published_at": "2026-05-01",
+            "title": "这轮建仓和清仓复盘，开始大力减仓",
+            "url": "https://blog.wenxuecity.com/myblog/82458/202605/385.html",
+            "attribution": "author_action",
+            "return_20": -0.01576170702508073,
+            "mae_20": -0.2175276493147994,
+            "mfe_20": 0.14086482630661568,
+            "excess_vs_qqq_20": -0.12174101512101043,
+            "alignment_20": "not_aligned",
             "review_tags": [
+              "direction_not_aligned",
               "large_adverse_move",
               "underperformed_qqq"
             ],
             "maturity": "mature20"
           },
           {
-            "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202607-22473-html:0:NBIS",
-            "author": "BrightLine",
-            "symbol": "NBIS",
-            "published_at": "2026-07-30",
-            "title": "439%之后：AI神童爆仓有感",
-            "url": "https://blog.wenxuecity.com/myblog/82458/202607/22473.html",
-            "attribution": "unconfirmed_author_context",
-            "return_20": 0.0410331699305746,
-            "mae_20": -0.12285067310324238,
-            "mfe_20": 0.3976161445243487,
-            "excess_vs_qqq_20": 0.005894246927005797,
-            "alignment_20": "not_aligned",
-            "review_tags": [
-              "direction_not_aligned"
-            ],
-            "maturity": "mature20"
-          },
-          {
-            "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202607-22473-html:0:IREN",
-            "author": "BrightLine",
-            "symbol": "IREN",
-            "published_at": "2026-07-30",
-            "title": "439%之后：AI神童爆仓有感",
-            "url": "https://blog.wenxuecity.com/myblog/82458/202607/22473.html",
-            "attribution": "unconfirmed_author_context",
-            "return_20": -0.13144677202009059,
-            "mae_20": -0.14712728163665312,
-            "mfe_20": 0.2050716648291071,
-            "excess_vs_qqq_20": -0.16658569502365939,
-            "alignment_20": "aligned",
-            "review_tags": [
-              "underperformed_qqq"
-            ],
-            "maturity": "mature20"
-          },
-          {
-            "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202607-22473-html:0:CRWV",
+            "event_id": "brightline-s-blog-wenxuecity-com-myblog-82458-202605-385-html:2:CRWV:0",
             "author": "BrightLine",
             "symbol": "CRWV",
-            "published_at": "2026-07-30",
-            "title": "439%之后：AI神童爆仓有感",
-            "url": "https://blog.wenxuecity.com/myblog/82458/202607/22473.html",
-            "attribution": "unconfirmed_author_context",
-            "return_20": 0.09339909590168771,
-            "mae_20": -0.09275009973129,
-            "mfe_20": 0.5251508051989415,
-            "excess_vs_qqq_20": 0.05826017289811891,
-            "alignment_20": "not_aligned",
-            "review_tags": [
-              "direction_not_aligned"
-            ],
-            "maturity": "mature20"
-          },
-          {
-            "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202606-22729-html:0:TSLA",
-            "author": "BrightLine",
-            "symbol": "TSLA",
-            "published_at": "2026-06-29",
-            "title": "炒股有时候真的需要点运气，而且很多时候是先给你一巴掌，再给你一颗糖。",
-            "url": "https://blog.wenxuecity.com/myblog/82458/202606/22729.html",
-            "attribution": "unconfirmed_author_context",
-            "return_20": -0.26522167487684734,
-            "mae_20": -0.26753694581280785,
-            "mfe_20": 0.06615738916256153,
-            "excess_vs_qqq_20": -0.17898620855631941,
-            "alignment_20": "not_aligned",
-            "review_tags": [
-              "direction_not_aligned",
-              "large_adverse_move",
-              "underperformed_qqq"
-            ],
-            "maturity": "mature20"
-          },
-          {
-            "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202606-22729-html:1:TSLA",
-            "author": "BrightLine",
-            "symbol": "TSLA",
-            "published_at": "2026-06-29",
-            "title": "炒股有时候真的需要点运气，而且很多时候是先给你一巴掌，再给你一颗糖。",
-            "url": "https://blog.wenxuecity.com/myblog/82458/202606/22729.html",
-            "attribution": "unconfirmed_author_context",
-            "return_20": -0.26522167487684734,
-            "mae_20": -0.26753694581280785,
-            "mfe_20": 0.06615738916256153,
-            "excess_vs_qqq_20": -0.17898620855631941,
-            "alignment_20": "aligned",
-            "review_tags": [
-              "large_adverse_move",
-              "underperformed_qqq"
-            ],
-            "maturity": "mature20"
-          },
-          {
-            "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202606-16186-html:0:NVDA",
-            "author": "BrightLine",
-            "symbol": "NVDA",
-            "published_at": "2026-06-21",
-            "title": "理性的悲观，天真的乐观 ——为什么算账的人，总是错过科技",
-            "url": "https://blog.wenxuecity.com/myblog/82458/202606/16186.html",
-            "attribution": "unconfirmed_author_context",
-            "return_20": -0.019627317442300396,
-            "mae_20": -0.10234581914491103,
-            "mfe_20": 0.0120601589103293,
-            "excess_vs_qqq_20": 0.02491326097876634,
-            "alignment_20": "not_aligned",
-            "review_tags": [
-              "direction_not_aligned"
-            ],
-            "maturity": "mature20"
-          },
-          {
-            "event_id": "brightline--blog-wenxuecity-com-myblog-82458-202606-8509-html:0:TQQQ",
-            "author": "BrightLine",
-            "symbol": "TQQQ",
-            "published_at": "2026-06-12",
-            "title": "最近越来越觉得，投资还是要回归 basic。",
-            "url": "https://blog.wenxuecity.com/myblog/82458/202606/8509.html",
-            "attribution": "unconfirmed_author_context",
-            "return_20": -0.10183391761229399,
-            "mae_20": -0.1605936052084611,
-            "mfe_20": 0.026906412051571627,
-            "excess_vs_qqq_20": -0.07424957944673372,
-            "alignment_20": "not_aligned",
-            "review_tags": [
-              "direction_not_aligned",
-              "large_adverse_move"
-            ],
-            "maturity": "mature20"
-          },
-          {
-            "event_id": "brightline--blog-wenxuecity-com-myblog-82458-202606-5022-html:0:SPY",
-            "author": "BrightLine",
-            "symbol": "SPY",
-            "published_at": "2026-06-07",
-            "title": "周五暴跌：就业报告只是借口，华尔街真正杀的是AI估值",
-            "url": "https://blog.wenxuecity.com/myblog/82458/202606/5022.html",
-            "attribution": "unconfirmed_author_context",
-            "return_20": 0.0027443487713898485,
-            "mae_20": -0.036025571445110205,
-            "mfe_20": 0.01791864989601133,
-            "excess_vs_qqq_20": 0.011618563396429749,
-            "alignment_20": "not_aligned",
-            "review_tags": [
-              "direction_not_aligned"
-            ],
-            "maturity": "mature20"
-          },
-          {
-            "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202605-19753-html:5:TSLA",
-            "author": "BrightLine",
-            "symbol": "TSLA",
-            "published_at": "2026-05-31",
-            "title": "人生充满遗憾，投资尤其如此",
-            "url": "https://blog.wenxuecity.com/myblog/82458/202605/19753.html",
-            "attribution": "unconfirmed_author_context",
-            "return_20": -0.016117336078036892,
-            "mae_20": -0.13775760836510798,
-            "mfe_20": 0.014292731993730934,
-            "excess_vs_qqq_20": -0.015248997860301094,
-            "alignment_20": "not_aligned",
-            "review_tags": [
-              "direction_not_aligned"
-            ],
-            "maturity": "mature20"
-          },
-          {
-            "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202605-19753-html:6:TSLA",
-            "author": "BrightLine",
-            "symbol": "TSLA",
-            "published_at": "2026-05-31",
-            "title": "人生充满遗憾，投资尤其如此",
-            "url": "https://blog.wenxuecity.com/myblog/82458/202605/19753.html",
-            "attribution": "unconfirmed_author_context",
-            "return_20": -0.016117336078036892,
-            "mae_20": -0.13775760836510798,
-            "mfe_20": 0.014292731993730934,
-            "excess_vs_qqq_20": -0.015248997860301094,
-            "alignment_20": "not_aligned",
-            "review_tags": [
-              "direction_not_aligned"
-            ],
-            "maturity": "mature20"
-          },
-          {
-            "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202605-19753-html:2:NBIS",
-            "author": "BrightLine",
-            "symbol": "NBIS",
-            "published_at": "2026-05-31",
-            "title": "人生充满遗憾，投资尤其如此",
-            "url": "https://blog.wenxuecity.com/myblog/82458/202605/19753.html",
-            "attribution": "unconfirmed_author_context",
-            "return_20": 0.1314269326887625,
-            "mae_20": -0.17940104059977868,
-            "mfe_20": 0.22848129788192884,
-            "excess_vs_qqq_20": 0.13229527090649829,
-            "alignment_20": "not_aligned",
-            "review_tags": [
-              "direction_not_aligned",
-              "large_adverse_move"
-            ],
-            "maturity": "mature20"
-          },
-          {
-            "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202605-19753-html:0:MU",
-            "author": "BrightLine",
-            "symbol": "MU",
-            "published_at": "2026-05-31",
-            "title": "人生充满遗憾，投资尤其如此",
-            "url": "https://blog.wenxuecity.com/myblog/82458/202605/19753.html",
-            "attribution": "unconfirmed_author_context",
-            "return_20": 0.14317837871296413,
-            "mae_20": -0.1538743410304093,
-            "mfe_20": 0.24291886504539728,
-            "excess_vs_qqq_20": 0.14404671693069993,
+            "published_at": "2026-05-01",
+            "title": "这轮建仓和清仓复盘，开始大力减仓",
+            "url": "https://blog.wenxuecity.com/myblog/82458/202605/385.html",
+            "attribution": "author_action",
+            "return_20": -0.01576170702508073,
+            "mae_20": -0.2175276493147994,
+            "mfe_20": 0.14086482630661568,
+            "excess_vs_qqq_20": -0.12174101512101043,
             "alignment_20": "not_scored",
             "review_tags": [
-              "large_adverse_move"
+              "large_adverse_move",
+              "underperformed_qqq"
+            ],
+            "maturity": "mature20"
+          },
+          {
+            "event_id": "brightline-s-blog-wenxuecity-com-myblog-82458-202605-385-html:4:AMZN:0",
+            "author": "BrightLine",
+            "symbol": "AMZN",
+            "published_at": "2026-05-01",
+            "title": "这轮建仓和清仓复盘，开始大力减仓",
+            "url": "https://blog.wenxuecity.com/myblog/82458/202605/385.html",
+            "attribution": "author_action",
+            "return_20": -0.04568452134289158,
+            "mae_20": -0.05368301090435801,
+            "mfe_20": 0.03630956178890221,
+            "excess_vs_qqq_20": -0.15166382943882128,
+            "alignment_20": "not_aligned",
+            "review_tags": [
+              "direction_not_aligned",
+              "underperformed_qqq"
             ],
             "maturity": "mature20"
           }

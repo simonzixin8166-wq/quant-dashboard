@@ -318,10 +318,13 @@
     const changed=tracked.filter(x=>x._change.changed);
     const counts={action:tracked.filter(x=>x.level==='action').length,review:tracked.filter(x=>x.level==='review').length,watch:tracked.filter(x=>x.level==='watch').length};
     const discovery=state.publicData?.discovery_queue||[];
+    const selfReview=global.MAVDecisionJournal?.getSelfReview?.()||null;
+    const learned=selfReview?.lessons||[];
     const optionsHtml=optionAttention.length?`<div class="agent-section-title"><b>期权持仓决策</b><span>${optionAttention.length} 笔需要注意</span></div><div class="agent-grid">${optionAttention.map(card).join('')}</div>`:'<div class="agent-section-title"><b>期权持仓决策</b><span>当前无需要处理的异常</span></div>';
     const stocksHtml=stockAttention.length?`<div class="agent-section-title"><b>关注股与核心资产</b><span>${stockAttention.length} 项变化</span></div><div class="agent-grid">${stockAttention.map(card).join('')}</div>`:'<div class="agent-section-title"><b>关注股与核心资产</b><span>当前无重要变化</span></div>';
-    host.innerHTML=`<div class="agent-attention-head"><div><span class="agent-kicker">MYALPHA AUTONOMOUS AGENT · V5.5</span><h2>自主研究助手</h2><p>不是只告诉你“需要复查”，而是明确说明今天做什么、为什么、什么条件会改变判断。</p></div><div class="agent-counts"><span class="action">需处理 <b>${counts.action}</b></span><span class="review">需复查 <b>${counts.review}</b></span><span>观察 <b>${counts.watch}</b></span></div></div>
+    host.innerHTML=`<div class="agent-attention-head"><div><span class="agent-kicker">MYALPHA AUTONOMOUS AGENT · V5.6</span><h2>自主研究助手</h2><p>不是只告诉你“需要复查”，而是明确说明今天做什么、为什么、什么条件会改变判断。</p></div><div class="agent-counts"><span class="action">需处理 <b>${counts.action}</b></span><span class="review">需复查 <b>${counts.review}</b></span><span>观察 <b>${counts.watch}</b></span></div></div>
       ${tracked.length?`<div class="agent-section-title"><b>Changed Since Last Decision</b><span>${changed.length} 项变化</span></div>${changed.length?`<div class="agent-grid">${changed.slice(0,6).map(card).join('')}</div>`:'<div class="agent-empty">当前判断与上次一致，不重复打扰。</div>'}`+optionsHtml+stocksHtml:'<div class="agent-empty">当前没有需要打扰你的重大变化；系统仍在后台记录和学习。</div>'}
+      ${learned.length?`<div class="agent-section-title"><b>What I learned · 自主学习</b><span>${selfReview.sample||0} 个成熟样本</span></div><div class="agent-grid">${learned.slice(0,3).map((x,i)=>`<article class="agent-card agent-watch"><div class="agent-card-head"><div><span>SELF REVIEW</span><h3>学习结论 #${i+1}</h3></div><b>研究权重</b></div><p>${esc(x)}</p><small>只调整研究优先级和提醒权重，不自动改变核心ETF阈值，也不自动交易。</small></article>`).join('')}</div>`:''}
       ${discovery.length?`<details class="agent-discovery"><summary>自主发现 · 异常机会 ${discovery.length}</summary><div>${discovery.slice(0,8).map(x=>`<p><b>${esc(x.symbol)}</b> · ${pct(x.price_change,1)} · ${esc(x.event_strength)}<br><small>${esc(x.next_step)} ${esc(x.guardrail)}</small></p>`).join('')}</div></details>`:''}
       <div class="agent-foot">自主研究 ≠ 自动交易。系统负责主动发现、解释、排序和提出方案；最终交易仍由投资者确认。</div>`;
     state.lastRender=Date.now();

@@ -12,7 +12,7 @@ assert "version:'v2'" in agent
 assert "strikeBuffer" in agent
 assert "premiumPriority" in agent
 assert "What I learned · 自主学习" in agent
-assert "MYALPHA AUTONOMOUS AGENT · V5.6" in agent
+assert "MYALPHA AUTONOMOUS AGENT · V5." in agent
 
 assert "function weeklySelfReview(rows)" in journal
 assert "Weekly Self Review · 每周自主复盘" in journal

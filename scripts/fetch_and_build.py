@@ -367,7 +367,7 @@ def breadth_freshness(breadth, now=None):
     if gap == 0:
         return {"tone":"good", "label":f"已更新至 {market_date.isoformat()}", "meta":"503只成分股完整收盘扫描"}
     if gap == 1:
-        return {"tone":"warn", "label":f"最近有效收盘 {market_date.isoformat()}", "meta":breadth.get("message") or "等待下一次完整收盘扫描"}
+        return {"tone":"warn", "label":f"最近完整收盘 {market_date.isoformat()}", "meta":breadth.get("message") or f"下一交易日成分股数据尚未达到完整覆盖门槛；不使用残缺样本替代 {market_date.isoformat()}"}
     return {"tone":"bad", "label":f"数据陈旧 · {market_date.isoformat()}", "meta":breadth.get("message") or f"落后约 {gap} 个交易日，请检查每日任务"}
 
 def _breadth_date(breadth):

@@ -1,0 +1,4010 @@
+{
+  "version": "5.7.0",
+  "generated_at": "2026-09-30T13:51:12.711155+00:00",
+  "as_of": "2026-09-30",
+  "architecture": [
+    "plain_language_glossary",
+    "trend_state_machine",
+    "breadcrumb_engine",
+    "failure_attribution",
+    "learning_policy_feedback"
+  ],
+  "glossary": {
+    "Thesis": {
+      "cn": "投资逻辑",
+      "plain": "你为什么愿意研究或持有这家公司，以及哪些事实一旦改变就说明原来的理由可能失效。",
+      "why": "没有投资逻辑，股价波动时就很难区分正常回撤和真正看错。"
+    },
+    "Breadcrumb": {
+      "cn": "早期线索",
+      "plain": "重大行情或事件发生前，逐步出现但单独看并不足以下结论的小证据。",
+      "why": "多个独立线索持续累积，比单条新闻更有研究价值；但仍需要后续确认。"
+    },
+    "Early Bull Transition": {
+      "cn": "早期多头转换",
+      "plain": "短周期已经明显转强，但更高周期或价格确认还没有完全跟上。",
+      "why": "它代表值得观察的早期阶段，不等于已经进入稳定主升趋势。"
+    },
+    "Confirmation Pending": {
+      "cn": "等待确认",
+      "plain": "已经出现改善信号，但还需要连续收盘、关键价位或更高周期共同验证。",
+      "why": "避免只因为一天反弹或一次突破就过早把状态升级。"
+    },
+    "Confirmed Trend": {
+      "cn": "趋势已确认",
+      "plain": "价格结构、动量和较高周期大体同向，趋势证据比早期转换阶段更完整。",
+      "why": "确认提高趋势可信度，但仍不代表没有回撤风险。"
+    },
+    "False Break": {
+      "cn": "假突破 / 突破失败",
+      "plain": "价格或趋势指标刚转强，随后很快跌回关键区域，原来的突破没有得到持续确认。",
+      "why": "它提醒投资者重新检查原来的判断，而不是把第一次突破当成永久有效。"
+    },
+    "Weakening": {
+      "cn": "趋势转弱",
+      "plain": "原有上升结构还没有完全破坏，但动量、均线或多周期一致性正在变差。",
+      "why": "通常先进入复查阶段，而不是机械等到完全破位才关注。"
+    },
+    "Breakdown": {
+      "cn": "结构破坏",
+      "plain": "趋势和价格结构已经明显恶化，原来的多头假设需要重新验证。",
+      "why": "这不是自动卖出指令，而是要求重新检查投资逻辑、估值和风险暴露。"
+    },
+    "Expected Move": {
+      "cn": "市场隐含预期波动",
+      "plain": "期权价格反映的市场对某个时间窗口内大致可能波动幅度的估计。",
+      "why": "财报期权策略中，Strike 离预期波动区间多远，往往比机械选择 ATM 更重要。"
+    },
+    "Failure Attribution": {
+      "cn": "失败归因",
+      "plain": "结果出来以后，把错误拆成趋势判断、时间周期、事件、估值、策略结构或参数等不同来源。",
+      "why": "只有知道到底哪一部分错了，系统才应该调整对应权重，而不是整套策略一起改。"
+    },
+    "Research Priority": {
+      "cn": "研究优先级",
+      "plain": "系统决定先研究谁、先提醒谁的排序分数，不是买卖评分。",
+      "why": "高分只代表值得优先检查，不代表应该买入。"
+    }
+  },
+  "trend_state_machine": {
+    "states": [
+      "Early Bull Transition",
+      "Confirmation Pending",
+      "Confirmed Trend",
+      "Trend Mature",
+      "Weakening",
+      "False Break",
+      "Breakdown"
+    ],
+    "principle": "状态升级必须有后续确认；第一次转强不是自动买入信号。"
+  },
+  "breadcrumb_engine": {
+    "method": "evidence accumulation v1",
+    "top": [
+      {
+        "symbol": "MSFT",
+        "evidence_score": 48.8,
+        "status": "evidence-accumulating",
+        "trend_state": {
+          "state": "Confirmed Trend",
+          "label_cn": "趋势已确认",
+          "source_stage": "趋势延续",
+          "weekly": "多头",
+          "explanation": "当前处于趋势延续阶段，结构和动量仍支持原方向。",
+          "invalidation": "若进入趋势退潮或恶化，需要重新评估趋势持续性。",
+          "term_help": {
+            "cn": "趋势已确认",
+            "plain": "价格结构、动量和较高周期大体同向，趋势证据比早期转换阶段更完整。",
+            "why": "确认提高趋势可信度，但仍不代表没有回撤风险。"
+          }
+        },
+        "breadcrumbs": [
+          {
+            "type": "trend_state",
+            "strength": "medium",
+            "evidence": "Trend Pulse 当前阶段：趋势延续",
+            "meaning": "说明当前技术结构处于什么阶段；它是研究线索，不是单独买卖信号。"
+          },
+          {
+            "type": "timeframe",
+            "strength": "high",
+            "evidence": "周线方向：多头",
+            "meaning": "用更高周期检查日线信号是否得到确认，减少一次性反弹造成的误判。"
+          },
+          {
+            "type": "momentum",
+            "strength": "medium",
+            "evidence": "Trend Pulse 分数 68",
+            "meaning": "分数绝对值较高表示趋势证据较集中，但高分不等于未来一定继续上涨或下跌。"
+          }
+        ],
+        "next_confirmation": "若进入趋势退潮或恶化，需要重新评估趋势持续性。",
+        "source_scope": "当前仅使用已验证的行情、Trend Pulse、历史学习与覆盖池异动；尚未把论坛/SEC/FDA/公司新闻自动写入此评分。"
+      },
+      {
+        "symbol": "AMD",
+        "evidence_score": 40.0,
+        "status": "monitor",
+        "trend_state": {
+          "state": "Weakening",
+          "label_cn": "趋势转弱",
+          "source_stage": "趋势退潮",
+          "weekly": "多头",
+          "explanation": "原趋势仍有历史惯性，但当前动量和结构正在退潮，需要减少对旧趋势的依赖。",
+          "invalidation": "重新二次启动可恢复确认；进一步恶化则视为结构破坏。",
+          "term_help": {
+            "cn": "趋势转弱",
+            "plain": "原有上升结构还没有完全破坏，但动量、均线或多周期一致性正在变差。",
+            "why": "通常先进入复查阶段，而不是机械等到完全破位才关注。"
+          }
+        },
+        "breadcrumbs": [
+          {
+            "type": "trend_state",
+            "strength": "medium",
+            "evidence": "Trend Pulse 当前阶段：趋势退潮",
+            "meaning": "说明当前技术结构处于什么阶段；它是研究线索，不是单独买卖信号。"
+          },
+          {
+            "type": "timeframe",
+            "strength": "medium",
+            "evidence": "周线方向：多头",
+            "meaning": "用更高周期检查日线信号是否得到确认，减少一次性反弹造成的误判。"
+          },
+          {
+            "type": "momentum",
+            "strength": "medium",
+            "evidence": "Trend Pulse 分数 86",
+            "meaning": "分数绝对值较高表示趋势证据较集中，但高分不等于未来一定继续上涨或下跌。"
+          },
+          {
+            "type": "contradiction",
+            "strength": "medium",
+            "evidence": "存在 1 条反证或多周期冲突",
+            "meaning": "系统主动保留反证，避免只收集支持当前观点的信息。"
+          }
+        ],
+        "next_confirmation": "重新二次启动可恢复确认；进一步恶化则视为结构破坏。",
+        "source_scope": "当前仅使用已验证的行情、Trend Pulse、历史学习与覆盖池异动；尚未把论坛/SEC/FDA/公司新闻自动写入此评分。"
+      },
+      {
+        "symbol": "QQQM",
+        "evidence_score": 40.0,
+        "status": "monitor",
+        "trend_state": {
+          "state": "Weakening",
+          "label_cn": "趋势转弱",
+          "source_stage": "趋势退潮",
+          "weekly": "多头",
+          "explanation": "原趋势仍有历史惯性，但当前动量和结构正在退潮，需要减少对旧趋势的依赖。",
+          "invalidation": "重新二次启动可恢复确认；进一步恶化则视为结构破坏。",
+          "term_help": {
+            "cn": "趋势转弱",
+            "plain": "原有上升结构还没有完全破坏，但动量、均线或多周期一致性正在变差。",
+            "why": "通常先进入复查阶段，而不是机械等到完全破位才关注。"
+          }
+        },
+        "breadcrumbs": [
+          {
+            "type": "trend_state",
+            "strength": "medium",
+            "evidence": "Trend Pulse 当前阶段：趋势退潮",
+            "meaning": "说明当前技术结构处于什么阶段；它是研究线索，不是单独买卖信号。"
+          },
+          {
+            "type": "timeframe",
+            "strength": "medium",
+            "evidence": "周线方向：多头",
+            "meaning": "用更高周期检查日线信号是否得到确认，减少一次性反弹造成的误判。"
+          },
+          {
+            "type": "momentum",
+            "strength": "medium",
+            "evidence": "Trend Pulse 分数 75",
+            "meaning": "分数绝对值较高表示趋势证据较集中，但高分不等于未来一定继续上涨或下跌。"
+          },
+          {
+            "type": "contradiction",
+            "strength": "medium",
+            "evidence": "存在 1 条反证或多周期冲突",
+            "meaning": "系统主动保留反证，避免只收集支持当前观点的信息。"
+          }
+        ],
+        "next_confirmation": "重新二次启动可恢复确认；进一步恶化则视为结构破坏。",
+        "source_scope": "当前仅使用已验证的行情、Trend Pulse、历史学习与覆盖池异动；尚未把论坛/SEC/FDA/公司新闻自动写入此评分。"
+      },
+      {
+        "symbol": "QLD",
+        "evidence_score": 40.0,
+        "status": "monitor",
+        "trend_state": {
+          "state": "Weakening",
+          "label_cn": "趋势转弱",
+          "source_stage": "趋势退潮",
+          "weekly": "多头",
+          "explanation": "原趋势仍有历史惯性，但当前动量和结构正在退潮，需要减少对旧趋势的依赖。",
+          "invalidation": "重新二次启动可恢复确认；进一步恶化则视为结构破坏。",
+          "term_help": {
+            "cn": "趋势转弱",
+            "plain": "原有上升结构还没有完全破坏，但动量、均线或多周期一致性正在变差。",
+            "why": "通常先进入复查阶段，而不是机械等到完全破位才关注。"
+          }
+        },
+        "breadcrumbs": [
+          {
+            "type": "trend_state",
+            "strength": "medium",
+            "evidence": "Trend Pulse 当前阶段：趋势退潮",
+            "meaning": "说明当前技术结构处于什么阶段；它是研究线索，不是单独买卖信号。"
+          },
+          {
+            "type": "timeframe",
+            "strength": "medium",
+            "evidence": "周线方向：多头",
+            "meaning": "用更高周期检查日线信号是否得到确认，减少一次性反弹造成的误判。"
+          },
+          {
+            "type": "momentum",
+            "strength": "medium",
+            "evidence": "Trend Pulse 分数 74",
+            "meaning": "分数绝对值较高表示趋势证据较集中，但高分不等于未来一定继续上涨或下跌。"
+          },
+          {
+            "type": "contradiction",
+            "strength": "medium",
+            "evidence": "存在 1 条反证或多周期冲突",
+            "meaning": "系统主动保留反证，避免只收集支持当前观点的信息。"
+          }
+        ],
+        "next_confirmation": "重新二次启动可恢复确认；进一步恶化则视为结构破坏。",
+        "source_scope": "当前仅使用已验证的行情、Trend Pulse、历史学习与覆盖池异动；尚未把论坛/SEC/FDA/公司新闻自动写入此评分。"
+      },
+      {
+        "symbol": "QQQ",
+        "evidence_score": 40.0,
+        "status": "monitor",
+        "trend_state": {
+          "state": "Weakening",
+          "label_cn": "趋势转弱",
+          "source_stage": "趋势退潮",
+          "weekly": "多头",
+          "explanation": "原趋势仍有历史惯性，但当前动量和结构正在退潮，需要减少对旧趋势的依赖。",
+          "invalidation": "重新二次启动可恢复确认；进一步恶化则视为结构破坏。",
+          "term_help": {
+            "cn": "趋势转弱",
+            "plain": "原有上升结构还没有完全破坏，但动量、均线或多周期一致性正在变差。",
+            "why": "通常先进入复查阶段，而不是机械等到完全破位才关注。"
+          }
+        },
+        "breadcrumbs": [
+          {
+            "type": "trend_state",
+            "strength": "medium",
+            "evidence": "Trend Pulse 当前阶段：趋势退潮",
+            "meaning": "说明当前技术结构处于什么阶段；它是研究线索，不是单独买卖信号。"
+          },
+          {
+            "type": "timeframe",
+            "strength": "medium",
+            "evidence": "周线方向：多头",
+            "meaning": "用更高周期检查日线信号是否得到确认，减少一次性反弹造成的误判。"
+          },
+          {
+            "type": "momentum",
+            "strength": "medium",
+            "evidence": "Trend Pulse 分数 75",
+            "meaning": "分数绝对值较高表示趋势证据较集中，但高分不等于未来一定继续上涨或下跌。"
+          },
+          {
+            "type": "contradiction",
+            "strength": "medium",
+            "evidence": "存在 1 条反证或多周期冲突",
+            "meaning": "系统主动保留反证，避免只收集支持当前观点的信息。"
+          }
+        ],
+        "next_confirmation": "重新二次启动可恢复确认；进一步恶化则视为结构破坏。",
+        "source_scope": "当前仅使用已验证的行情、Trend Pulse、历史学习与覆盖池异动；尚未把论坛/SEC/FDA/公司新闻自动写入此评分。"
+      },
+      {
+        "symbol": "SMH",
+        "evidence_score": 40.0,
+        "status": "monitor",
+        "trend_state": {
+          "state": "Weakening",
+          "label_cn": "趋势转弱",
+          "source_stage": "趋势退潮",
+          "weekly": "多头",
+          "explanation": "原趋势仍有历史惯性，但当前动量和结构正在退潮，需要减少对旧趋势的依赖。",
+          "invalidation": "重新二次启动可恢复确认；进一步恶化则视为结构破坏。",
+          "term_help": {
+            "cn": "趋势转弱",
+            "plain": "原有上升结构还没有完全破坏，但动量、均线或多周期一致性正在变差。",
+            "why": "通常先进入复查阶段，而不是机械等到完全破位才关注。"
+          }
+        },
+        "breadcrumbs": [
+          {
+            "type": "trend_state",
+            "strength": "medium",
+            "evidence": "Trend Pulse 当前阶段：趋势退潮",
+            "meaning": "说明当前技术结构处于什么阶段；它是研究线索，不是单独买卖信号。"
+          },
+          {
+            "type": "timeframe",
+            "strength": "medium",
+            "evidence": "周线方向：多头",
+            "meaning": "用更高周期检查日线信号是否得到确认，减少一次性反弹造成的误判。"
+          },
+          {
+            "type": "momentum",
+            "strength": "medium",
+            "evidence": "Trend Pulse 分数 76",
+            "meaning": "分数绝对值较高表示趋势证据较集中，但高分不等于未来一定继续上涨或下跌。"
+          },
+          {
+            "type": "contradiction",
+            "strength": "medium",
+            "evidence": "存在 1 条反证或多周期冲突",
+            "meaning": "系统主动保留反证，避免只收集支持当前观点的信息。"
+          }
+        ],
+        "next_confirmation": "重新二次启动可恢复确认；进一步恶化则视为结构破坏。",
+        "source_scope": "当前仅使用已验证的行情、Trend Pulse、历史学习与覆盖池异动；尚未把论坛/SEC/FDA/公司新闻自动写入此评分。"
+      },
+      {
+        "symbol": "NVDA",
+        "evidence_score": 34.0,
+        "status": "monitor",
+        "trend_state": {
+          "state": "Trend Mature",
+          "label_cn": "趋势成熟 / 高位钝化",
+          "source_stage": "高位钝化",
+          "weekly": "多头",
+          "explanation": "趋势仍可能保持强势，但已经处于高位成熟阶段，新增追涨优势下降。",
+          "invalidation": "若高位整理后重新二次启动可恢复积极状态；若转为退潮则进入风险复查。",
+          "term_help": {
+            "cn": "趋势成熟 / 高位钝化",
+            "plain": "趋势仍可能保持强势，但已经处于高位成熟阶段，新增追涨优势下降。",
+            "why": "用于把复杂趋势指标转换成可执行的研究阶段。"
+          }
+        },
+        "breadcrumbs": [
+          {
+            "type": "trend_state",
+            "strength": "medium",
+            "evidence": "Trend Pulse 当前阶段：高位钝化",
+            "meaning": "说明当前技术结构处于什么阶段；它是研究线索，不是单独买卖信号。"
+          },
+          {
+            "type": "timeframe",
+            "strength": "medium",
+            "evidence": "周线方向：多头",
+            "meaning": "用更高周期检查日线信号是否得到确认，减少一次性反弹造成的误判。"
+          },
+          {
+            "type": "momentum",
+            "strength": "medium",
+            "evidence": "Trend Pulse 分数 83",
+            "meaning": "分数绝对值较高表示趋势证据较集中，但高分不等于未来一定继续上涨或下跌。"
+          }
+        ],
+        "next_confirmation": "若高位整理后重新二次启动可恢复积极状态；若转为退潮则进入风险复查。",
+        "source_scope": "当前仅使用已验证的行情、Trend Pulse、历史学习与覆盖池异动；尚未把论坛/SEC/FDA/公司新闻自动写入此评分。"
+      },
+      {
+        "symbol": "TSM",
+        "evidence_score": 34.0,
+        "status": "monitor",
+        "trend_state": {
+          "state": "Trend Mature",
+          "label_cn": "趋势成熟 / 高位钝化",
+          "source_stage": "高位钝化",
+          "weekly": "多头",
+          "explanation": "趋势仍可能保持强势，但已经处于高位成熟阶段，新增追涨优势下降。",
+          "invalidation": "若高位整理后重新二次启动可恢复积极状态；若转为退潮则进入风险复查。",
+          "term_help": {
+            "cn": "趋势成熟 / 高位钝化",
+            "plain": "趋势仍可能保持强势，但已经处于高位成熟阶段，新增追涨优势下降。",
+            "why": "用于把复杂趋势指标转换成可执行的研究阶段。"
+          }
+        },
+        "breadcrumbs": [
+          {
+            "type": "trend_state",
+            "strength": "medium",
+            "evidence": "Trend Pulse 当前阶段：高位钝化",
+            "meaning": "说明当前技术结构处于什么阶段；它是研究线索，不是单独买卖信号。"
+          },
+          {
+            "type": "timeframe",
+            "strength": "medium",
+            "evidence": "周线方向：多头",
+            "meaning": "用更高周期检查日线信号是否得到确认，减少一次性反弹造成的误判。"
+          },
+          {
+            "type": "momentum",
+            "strength": "medium",
+            "evidence": "Trend Pulse 分数 88",
+            "meaning": "分数绝对值较高表示趋势证据较集中，但高分不等于未来一定继续上涨或下跌。"
+          }
+        ],
+        "next_confirmation": "若高位整理后重新二次启动可恢复积极状态；若转为退潮则进入风险复查。",
+        "source_scope": "当前仅使用已验证的行情、Trend Pulse、历史学习与覆盖池异动；尚未把论坛/SEC/FDA/公司新闻自动写入此评分。"
+      },
+      {
+        "symbol": "VGT",
+        "evidence_score": 34.0,
+        "status": "monitor",
+        "trend_state": {
+          "state": "Trend Mature",
+          "label_cn": "趋势成熟 / 高位钝化",
+          "source_stage": "高位钝化",
+          "weekly": "多头",
+          "explanation": "趋势仍可能保持强势，但已经处于高位成熟阶段，新增追涨优势下降。",
+          "invalidation": "若高位整理后重新二次启动可恢复积极状态；若转为退潮则进入风险复查。",
+          "term_help": {
+            "cn": "趋势成熟 / 高位钝化",
+            "plain": "趋势仍可能保持强势，但已经处于高位成熟阶段，新增追涨优势下降。",
+            "why": "用于把复杂趋势指标转换成可执行的研究阶段。"
+          }
+        },
+        "breadcrumbs": [
+          {
+            "type": "trend_state",
+            "strength": "medium",
+            "evidence": "Trend Pulse 当前阶段：高位钝化",
+            "meaning": "说明当前技术结构处于什么阶段；它是研究线索，不是单独买卖信号。"
+          },
+          {
+            "type": "timeframe",
+            "strength": "medium",
+            "evidence": "周线方向：多头",
+            "meaning": "用更高周期检查日线信号是否得到确认，减少一次性反弹造成的误判。"
+          },
+          {
+            "type": "momentum",
+            "strength": "medium",
+            "evidence": "Trend Pulse 分数 85",
+            "meaning": "分数绝对值较高表示趋势证据较集中，但高分不等于未来一定继续上涨或下跌。"
+          }
+        ],
+        "next_confirmation": "若高位整理后重新二次启动可恢复积极状态；若转为退潮则进入风险复查。",
+        "source_scope": "当前仅使用已验证的行情、Trend Pulse、历史学习与覆盖池异动；尚未把论坛/SEC/FDA/公司新闻自动写入此评分。"
+      },
+      {
+        "symbol": "SOFI",
+        "evidence_score": 30.0,
+        "status": "monitor",
+        "trend_state": {
+          "state": "Breakdown",
+          "label_cn": "结构破坏",
+          "source_stage": "趋势恶化",
+          "weekly": "空头",
+          "explanation": "趋势结构已经明显恶化，原来的多头假设必须重新验证。",
+          "invalidation": "只有进入修复并完成新的确认流程，才考虑重新升级。",
+          "term_help": {
+            "cn": "结构破坏",
+            "plain": "趋势和价格结构已经明显恶化，原来的多头假设需要重新验证。",
+            "why": "这不是自动卖出指令，而是要求重新检查投资逻辑、估值和风险暴露。"
+          }
+        },
+        "breadcrumbs": [
+          {
+            "type": "trend_state",
+            "strength": "medium",
+            "evidence": "Trend Pulse 当前阶段：趋势恶化",
+            "meaning": "说明当前技术结构处于什么阶段；它是研究线索，不是单独买卖信号。"
+          },
+          {
+            "type": "timeframe",
+            "strength": "medium",
+            "evidence": "周线方向：空头",
+            "meaning": "用更高周期检查日线信号是否得到确认，减少一次性反弹造成的误判。"
+          },
+          {
+            "type": "momentum",
+            "strength": "medium",
+            "evidence": "Trend Pulse 分数 -87",
+            "meaning": "分数绝对值较高表示趋势证据较集中，但高分不等于未来一定继续上涨或下跌。"
+          }
+        ],
+        "next_confirmation": "只有进入修复并完成新的确认流程，才考虑重新升级。",
+        "source_scope": "当前仅使用已验证的行情、Trend Pulse、历史学习与覆盖池异动；尚未把论坛/SEC/FDA/公司新闻自动写入此评分。"
+      },
+      {
+        "symbol": "HOOD",
+        "evidence_score": 22.0,
+        "status": "monitor",
+        "trend_state": {
+          "state": "Confirmation Pending",
+          "label_cn": "等待确认",
+          "source_stage": "震荡观察",
+          "weekly": "多头",
+          "explanation": "当前属于修复或震荡阶段，已有改善但尚未形成稳定趋势。",
+          "invalidation": "若修复失败并重新恶化，则继续防守；若启动并获得确认，则升级。",
+          "term_help": {
+            "cn": "等待确认",
+            "plain": "已经出现改善信号，但还需要连续收盘、关键价位或更高周期共同验证。",
+            "why": "避免只因为一天反弹或一次突破就过早把状态升级。"
+          }
+        },
+        "breadcrumbs": [
+          {
+            "type": "trend_state",
+            "strength": "medium",
+            "evidence": "Trend Pulse 当前阶段：震荡观察",
+            "meaning": "说明当前技术结构处于什么阶段；它是研究线索，不是单独买卖信号。"
+          },
+          {
+            "type": "timeframe",
+            "strength": "medium",
+            "evidence": "周线方向：多头",
+            "meaning": "用更高周期检查日线信号是否得到确认，减少一次性反弹造成的误判。"
+          }
+        ],
+        "next_confirmation": "若修复失败并重新恶化，则继续防守；若启动并获得确认，则升级。",
+        "source_scope": "当前仅使用已验证的行情、Trend Pulse、历史学习与覆盖池异动；尚未把论坛/SEC/FDA/公司新闻自动写入此评分。"
+      },
+      {
+        "symbol": "VOO",
+        "evidence_score": 20.0,
+        "status": "monitor",
+        "trend_state": {
+          "state": "Breakdown",
+          "label_cn": "结构破坏",
+          "source_stage": "趋势恶化",
+          "weekly": "过渡",
+          "explanation": "趋势结构已经明显恶化，原来的多头假设必须重新验证。",
+          "invalidation": "只有进入修复并完成新的确认流程，才考虑重新升级。",
+          "term_help": {
+            "cn": "结构破坏",
+            "plain": "趋势和价格结构已经明显恶化，原来的多头假设需要重新验证。",
+            "why": "这不是自动卖出指令，而是要求重新检查投资逻辑、估值和风险暴露。"
+          }
+        },
+        "breadcrumbs": [
+          {
+            "type": "trend_state",
+            "strength": "medium",
+            "evidence": "Trend Pulse 当前阶段：趋势恶化",
+            "meaning": "说明当前技术结构处于什么阶段；它是研究线索，不是单独买卖信号。"
+          },
+          {
+            "type": "timeframe",
+            "strength": "medium",
+            "evidence": "周线方向：过渡",
+            "meaning": "用更高周期检查日线信号是否得到确认，减少一次性反弹造成的误判。"
+          }
+        ],
+        "next_confirmation": "只有进入修复并完成新的确认流程，才考虑重新升级。",
+        "source_scope": "当前仅使用已验证的行情、Trend Pulse、历史学习与覆盖池异动；尚未把论坛/SEC/FDA/公司新闻自动写入此评分。"
+      }
+    ],
+    "coverage": 15,
+    "external_event_feed_status": "not-yet-connected",
+    "note": "V5.7 首版只用已有可验证数据形成技术/市场 Breadcrumb；不会假装已经抓取到 SEC/FDA/论坛等外部事实。"
+  },
+  "failure_attribution": {
+    "mature_samples_scanned": 538,
+    "review_samples": 191,
+    "tag_counts": {
+      "missed_upside": 46,
+      "timeframe_confirmation_missing": 57,
+      "trend_false_positive": 44,
+      "large_adverse_move": 116
+    },
+    "recent": [
+      {
+        "symbol": "IREN",
+        "date": "2026-08-28",
+        "source_stage": "趋势恶化",
+        "weekly": "空头",
+        "score": -24.88,
+        "return_20": 0.17686882933709436,
+        "mae_20": 0.038645980253878554,
+        "mfe_20": 0.3695345557122707,
+        "severity": "review",
+        "tags": [
+          "missed_upside"
+        ],
+        "attribution_hypotheses": [
+          "当时状态偏谨慎，但随后20日明显上涨：检查是否漏掉二次启动或修复后的确认。"
+        ],
+        "guardrail": "这是可检验的归因假设，不是已经证明的因果关系；只有重复成熟样本才允许影响 Learning Policy。"
+      },
+      {
+        "symbol": "AMD",
+        "date": "2026-08-28",
+        "source_stage": "趋势恶化",
+        "weekly": "过渡",
+        "score": -50.58,
+        "return_20": 0.3056187980583358,
+        "mae_20": -0.02023282787061287,
+        "mfe_20": 0.35450405945272556,
+        "severity": "review",
+        "tags": [
+          "missed_upside"
+        ],
+        "attribution_hypotheses": [
+          "当时状态偏谨慎，但随后20日明显上涨：检查是否漏掉二次启动或修复后的确认。"
+        ],
+        "guardrail": "这是可检验的归因假设，不是已经证明的因果关系；只有重复成熟样本才允许影响 Learning Policy。"
+      },
+      {
+        "symbol": "ORCL",
+        "date": "2026-08-26",
+        "source_stage": "二次启动",
+        "weekly": "过渡",
+        "score": 49.62,
+        "return_20": -0.0626721300463492,
+        "mae_20": -0.0626721300463492,
+        "mfe_20": 0.09169073688453011,
+        "severity": "review",
+        "tags": [
+          "timeframe_confirmation_missing"
+        ],
+        "attribution_hypotheses": [
+          "日线偏强而周线未确认，多周期冲突可能是误判来源之一。"
+        ],
+        "guardrail": "这是可检验的归因假设，不是已经证明的因果关系；只有重复成熟样本才允许影响 Learning Policy。"
+      },
+      {
+        "symbol": "ORCL",
+        "date": "2026-08-25",
+        "source_stage": "趋势启动",
+        "weekly": "过渡",
+        "score": 44.77,
+        "return_20": -0.0013815971262779447,
+        "mae_20": -0.03046421663442933,
+        "mfe_20": 0.12268582481348456,
+        "severity": "review",
+        "tags": [
+          "timeframe_confirmation_missing"
+        ],
+        "attribution_hypotheses": [
+          "日线偏强而周线未确认，多周期冲突可能是误判来源之一。"
+        ],
+        "guardrail": "这是可检验的归因假设，不是已经证明的因果关系；只有重复成熟样本才允许影响 Learning Policy。"
+      },
+      {
+        "symbol": "SOFI",
+        "date": "2026-08-21",
+        "source_stage": "二次启动",
+        "weekly": "过渡",
+        "score": 56.09,
+        "return_20": -0.10259122157588585,
+        "mae_20": -0.11528291909042832,
+        "mfe_20": 0.014278159703860371,
+        "severity": "review",
+        "tags": [
+          "trend_false_positive",
+          "timeframe_confirmation_missing"
+        ],
+        "attribution_hypotheses": [
+          "当时趋势状态偏多，但20个交易日结果明显为负：优先检查趋势确认是否过早。",
+          "日线偏强而周线未确认，多周期冲突可能是误判来源之一。"
+        ],
+        "guardrail": "这是可检验的归因假设，不是已经证明的因果关系；只有重复成熟样本才允许影响 Learning Policy。"
+      },
+      {
+        "symbol": "IREN",
+        "date": "2026-08-21",
+        "source_stage": "二次启动",
+        "weekly": "过渡",
+        "score": 37.26,
+        "return_20": 0.12774594078319002,
+        "mae_20": -0.15353390639923592,
+        "mfe_20": 0.12774594078319002,
+        "severity": "review",
+        "tags": [
+          "large_adverse_move"
+        ],
+        "attribution_hypotheses": [
+          "入档后经历较大不利波动，风险识别和无效条件应被单独复盘。"
+        ],
+        "guardrail": "这是可检验的归因假设，不是已经证明的因果关系；只有重复成熟样本才允许影响 Learning Policy。"
+      },
+      {
+        "symbol": "SOFI",
+        "date": "2026-08-20",
+        "source_stage": "趋势延续",
+        "weekly": "过渡",
+        "score": 28.58,
+        "return_20": -0.0535714285714286,
+        "mae_20": -0.06640625000000011,
+        "mfe_20": 0.07031249999999978,
+        "severity": "review",
+        "tags": [
+          "timeframe_confirmation_missing"
+        ],
+        "attribution_hypotheses": [
+          "日线偏强而周线未确认，多周期冲突可能是误判来源之一。"
+        ],
+        "guardrail": "这是可检验的归因假设，不是已经证明的因果关系；只有重复成熟样本才允许影响 Learning Policy。"
+      },
+      {
+        "symbol": "HOOD",
+        "date": "2026-08-20",
+        "source_stage": "趋势恶化",
+        "weekly": "过渡",
+        "score": -28.63,
+        "return_20": 0.2599369085173502,
+        "mae_20": 0.08843322818086241,
+        "mfe_20": 0.31146161934805483,
+        "severity": "review",
+        "tags": [
+          "missed_upside"
+        ],
+        "attribution_hypotheses": [
+          "当时状态偏谨慎，但随后20日明显上涨：检查是否漏掉二次启动或修复后的确认。"
+        ],
+        "guardrail": "这是可检验的归因假设，不是已经证明的因果关系；只有重复成熟样本才允许影响 Learning Policy。"
+      },
+      {
+        "symbol": "ORCL",
+        "date": "2026-08-14",
+        "source_stage": "趋势延续",
+        "weekly": "过渡",
+        "score": 36.19,
+        "return_20": -0.03806803082646837,
+        "mae_20": -0.06112144565506261,
+        "mfe_20": 0.07972362476747286,
+        "severity": "review",
+        "tags": [
+          "timeframe_confirmation_missing"
+        ],
+        "attribution_hypotheses": [
+          "日线偏强而周线未确认，多周期冲突可能是误判来源之一。"
+        ],
+        "guardrail": "这是可检验的归因假设，不是已经证明的因果关系；只有重复成熟样本才允许影响 Learning Policy。"
+      },
+      {
+        "symbol": "IREN",
+        "date": "2026-08-14",
+        "source_stage": "趋势延续",
+        "weekly": "空头",
+        "score": 24.54,
+        "return_20": -0.0201997276441217,
+        "mae_20": -0.19541534271448024,
+        "mfe_20": 0.06513844757149334,
+        "severity": "review",
+        "tags": [
+          "timeframe_confirmation_missing",
+          "large_adverse_move"
+        ],
+        "attribution_hypotheses": [
+          "日线偏强而周线未确认，多周期冲突可能是误判来源之一。",
+          "入档后经历较大不利波动，风险识别和无效条件应被单独复盘。"
+        ],
+        "guardrail": "这是可检验的归因假设，不是已经证明的因果关系；只有重复成熟样本才允许影响 Learning Policy。"
+      },
+      {
+        "symbol": "AMD",
+        "date": "2026-08-14",
+        "source_stage": "趋势启动",
+        "weekly": "过渡",
+        "score": 13.87,
+        "return_20": -0.040786173914733936,
+        "mae_20": -0.11320204514084642,
+        "mfe_20": 0.01303485682070038,
+        "severity": "review",
+        "tags": [
+          "timeframe_confirmation_missing"
+        ],
+        "attribution_hypotheses": [
+          "日线偏强而周线未确认，多周期冲突可能是误判来源之一。"
+        ],
+        "guardrail": "这是可检验的归因假设，不是已经证明的因果关系；只有重复成熟样本才允许影响 Learning Policy。"
+      },
+      {
+        "symbol": "NBIS",
+        "date": "2026-08-13",
+        "source_stage": "二次启动",
+        "weekly": "过渡",
+        "score": 57.41,
+        "return_20": -0.11954987452948551,
+        "mae_20": -0.21761292346298622,
+        "mfe_20": 0.08877038895859468,
+        "severity": "review",
+        "tags": [
+          "trend_false_positive",
+          "timeframe_confirmation_missing",
+          "large_adverse_move"
+        ],
+        "attribution_hypotheses": [
+          "当时趋势状态偏多，但20个交易日结果明显为负：优先检查趋势确认是否过早。",
+          "日线偏强而周线未确认，多周期冲突可能是误判来源之一。",
+          "入档后经历较大不利波动，风险识别和无效条件应被单独复盘。"
+        ],
+        "guardrail": "这是可检验的归因假设，不是已经证明的因果关系；只有重复成熟样本才允许影响 Learning Policy。"
+      },
+      {
+        "symbol": "IREN",
+        "date": "2026-08-13",
+        "source_stage": "趋势启动",
+        "weekly": "空头",
+        "score": 25.24,
+        "return_20": -0.020777479892761352,
+        "mae_20": -0.2079982126899016,
+        "mfe_20": 0.04848078641644338,
+        "severity": "review",
+        "tags": [
+          "timeframe_confirmation_missing",
+          "large_adverse_move"
+        ],
+        "attribution_hypotheses": [
+          "日线偏强而周线未确认，多周期冲突可能是误判来源之一。",
+          "入档后经历较大不利波动，风险识别和无效条件应被单独复盘。"
+        ],
+        "guardrail": "这是可检验的归因假设，不是已经证明的因果关系；只有重复成熟样本才允许影响 Learning Policy。"
+      },
+      {
+        "symbol": "NBIS",
+        "date": "2026-08-12",
+        "source_stage": "趋势启动",
+        "weekly": "过渡",
+        "score": 45.98,
+        "return_20": -0.11994598765432085,
+        "mae_20": -0.23016975308641974,
+        "mfe_20": 0.07129629629629641,
+        "severity": "review",
+        "tags": [
+          "trend_false_positive",
+          "timeframe_confirmation_missing",
+          "large_adverse_move"
+        ],
+        "attribution_hypotheses": [
+          "当时趋势状态偏多，但20个交易日结果明显为负：优先检查趋势确认是否过早。",
+          "日线偏强而周线未确认，多周期冲突可能是误判来源之一。",
+          "入档后经历较大不利波动，风险识别和无效条件应被单独复盘。"
+        ],
+        "guardrail": "这是可检验的归因假设，不是已经证明的因果关系；只有重复成熟样本才允许影响 Learning Policy。"
+      },
+      {
+        "symbol": "NBIS",
+        "date": "2026-08-10",
+        "source_stage": "趋势恶化",
+        "weekly": "过渡",
+        "score": -40.57,
+        "return_20": 0.32464287654119817,
+        "mae_20": 0.049535603715170184,
+        "mfe_20": 0.5082287762750528,
+        "severity": "review",
+        "tags": [
+          "missed_upside"
+        ],
+        "attribution_hypotheses": [
+          "当时状态偏谨慎，但随后20日明显上涨：检查是否漏掉二次启动或修复后的确认。"
+        ],
+        "guardrail": "这是可检验的归因假设，不是已经证明的因果关系；只有重复成熟样本才允许影响 Learning Policy。"
+      },
+      {
+        "symbol": "GOOG",
+        "date": "2026-08-10",
+        "source_stage": "趋势延续",
+        "weekly": "过渡",
+        "score": 45.65,
+        "return_20": -0.05749775179856109,
+        "mae_20": -0.06691209532374098,
+        "mfe_20": -0.031615332733813006,
+        "severity": "review",
+        "tags": [
+          "timeframe_confirmation_missing"
+        ],
+        "attribution_hypotheses": [
+          "日线偏强而周线未确认，多周期冲突可能是误判来源之一。"
+        ],
+        "guardrail": "这是可检验的归因假设，不是已经证明的因果关系；只有重复成熟样本才允许影响 Learning Policy。"
+      },
+      {
+        "symbol": "LITE",
+        "date": "2026-08-07",
+        "source_stage": "二次启动",
+        "weekly": "过渡",
+        "score": 30.53,
+        "return_20": -0.010014940966332264,
+        "mae_20": -0.0861183818821124,
+        "mfe_20": 0.08844378040149636,
+        "severity": "review",
+        "tags": [
+          "timeframe_confirmation_missing"
+        ],
+        "attribution_hypotheses": [
+          "日线偏强而周线未确认，多周期冲突可能是误判来源之一。"
+        ],
+        "guardrail": "这是可检验的归因假设，不是已经证明的因果关系；只有重复成熟样本才允许影响 Learning Policy。"
+      },
+      {
+        "symbol": "VGT",
+        "date": "2026-08-05",
+        "source_stage": "二次启动",
+        "weekly": "过渡",
+        "score": 49.97,
+        "return_20": -0.004928165720013422,
+        "mae_20": -0.027564316739057793,
+        "mfe_20": 0.02731373204143006,
+        "severity": "review",
+        "tags": [
+          "timeframe_confirmation_missing"
+        ],
+        "attribution_hypotheses": [
+          "日线偏强而周线未确认，多周期冲突可能是误判来源之一。"
+        ],
+        "guardrail": "这是可检验的归因假设，不是已经证明的因果关系；只有重复成熟样本才允许影响 Learning Policy。"
+      },
+      {
+        "symbol": "SOFI",
+        "date": "2026-08-05",
+        "source_stage": "趋势延续",
+        "weekly": "空头",
+        "score": 21.93,
+        "return_20": -0.02246575342465751,
+        "mae_20": -0.0657534246575342,
+        "mfe_20": 0.05095890410958903,
+        "severity": "review",
+        "tags": [
+          "timeframe_confirmation_missing"
+        ],
+        "attribution_hypotheses": [
+          "日线偏强而周线未确认，多周期冲突可能是误判来源之一。"
+        ],
+        "guardrail": "这是可检验的归因假设，不是已经证明的因果关系；只有重复成熟样本才允许影响 Learning Policy。"
+      },
+      {
+        "symbol": "QQQM",
+        "date": "2026-08-05",
+        "source_stage": "二次启动",
+        "weekly": "过渡",
+        "score": 39.22,
+        "return_20": -0.011274758760792425,
+        "mae_20": -0.015371593025224395,
+        "mfe_20": 0.02051802945657699,
+        "severity": "review",
+        "tags": [
+          "timeframe_confirmation_missing"
+        ],
+        "attribution_hypotheses": [
+          "日线偏强而周线未确认，多周期冲突可能是误判来源之一。"
+        ],
+        "guardrail": "这是可检验的归因假设，不是已经证明的因果关系；只有重复成熟样本才允许影响 Learning Policy。"
+      }
+    ],
+    "method": "20-session outcome attribution hypotheses; no causal claim",
+    "external_failure_candidates": [
+      {
+        "id": "brightline-blog-wenxuecity-com-myblog-82458-202609-20217-html",
+        "source": "wenxuecity",
+        "source_kind": "blog",
+        "author": "BrightLine",
+        "published_at": "2026-09-26",
+        "title": "在座各位三十年后都是Billionaire？我算了一下，是真的",
+        "url": "https://blog.wenxuecity.com/myblog/82458/202609/20217.html",
+        "excerpt": "",
+        "content_chars": 1082,
+        "symbols": [
+          "QQQ",
+          "SPY",
+          "VGT"
+        ],
+        "topics": [
+          "人生与创业",
+          "风险管理",
+          "失败复盘",
+          "长期持有纪律"
+        ],
+        "actions": [],
+        "operations": [],
+        "portfolio_rules": [],
+        "lessons": [
+          "admit_wrong"
+        ],
+        "failure_candidate": true,
+        "archive_only": false,
+        "deep_analysis": false,
+        "source_notice": "BrightLine 原文索引；全文不在公开站点转载。",
+        "myalpha_validation": "needs_independent_validation"
+      },
+      {
+        "id": "brightline-blog-wenxuecity-com-myblog-82458-202609-19534-html",
+        "source": "wenxuecity",
+        "source_kind": "blog",
+        "author": "BrightLine",
+        "published_at": "2026-09-25",
+        "title": "错过最好的10天？那错过最差的10天呢",
+        "url": "https://blog.wenxuecity.com/myblog/82458/202609/19534.html",
+        "excerpt": "",
+        "content_chars": 7078,
+        "symbols": [],
+        "topics": [
+          "概率与复盘",
+          "风险管理",
+          "失败复盘",
+          "长期持有纪律",
+          "仓位管理"
+        ],
+        "actions": [],
+        "operations": [],
+        "portfolio_rules": [],
+        "lessons": [
+          "admit_wrong"
+        ],
+        "failure_candidate": true,
+        "archive_only": false,
+        "deep_analysis": true,
+        "source_notice": "BrightLine 原文索引；全文不在公开站点转载。",
+        "myalpha_validation": "needs_independent_validation"
+      },
+      {
+        "id": "brightline-blog-wenxuecity-com-myblog-82458-202609-12834-html",
+        "source": "wenxuecity",
+        "source_kind": "blog",
+        "author": "BrightLine",
+        "published_at": "2026-09-16",
+        "title": "聪明、勤奋、人缘好，为什么还是被甩在后面",
+        "url": "https://blog.wenxuecity.com/myblog/82458/202609/12834.html",
+        "excerpt": "",
+        "content_chars": 3661,
+        "symbols": [],
+        "topics": [
+          "人生与创业",
+          "风险管理",
+          "失败复盘",
+          "长期持有纪律",
+          "仓位管理"
+        ],
+        "actions": [],
+        "operations": [],
+        "portfolio_rules": [],
+        "lessons": [
+          "admit_wrong"
+        ],
+        "failure_candidate": true,
+        "archive_only": false,
+        "deep_analysis": false,
+        "source_notice": "BrightLine 原文索引；全文不在公开站点转载。",
+        "myalpha_validation": "needs_independent_validation"
+      },
+      {
+        "id": "brightline-blog-wenxuecity-com-myblog-82458-202608-22905-html",
+        "source": "wenxuecity",
+        "source_kind": "blog",
+        "author": "BrightLine",
+        "published_at": "2026-08-28",
+        "title": "ServiceNow回来了，我在145卖掉一半",
+        "url": "https://blog.wenxuecity.com/myblog/82458/202608/22905.html",
+        "excerpt": "",
+        "content_chars": 2298,
+        "symbols": [
+          "NOW"
+        ],
+        "topics": [
+          "个股与行业",
+          "风险管理",
+          "失败复盘",
+          "长期持有纪律"
+        ],
+        "actions": [
+          "减仓",
+          "buy"
+        ],
+        "operations": [
+          {
+            "symbols": [
+              "NOW"
+            ],
+            "actions": [
+              "buy"
+            ],
+            "anchor_index": 3,
+            "attribution": "author_action",
+            "attribution_confidence": "medium"
+          }
+        ],
+        "portfolio_rules": [],
+        "lessons": [
+          "admit_wrong"
+        ],
+        "failure_candidate": true,
+        "archive_only": false,
+        "deep_analysis": true,
+        "source_notice": "BrightLine 原文索引；全文不在公开站点转载。",
+        "myalpha_validation": "needs_independent_validation"
+      },
+      {
+        "id": "brightline-blog-wenxuecity-com-myblog-82458-202608-16852-html",
+        "source": "wenxuecity",
+        "source_kind": "blog",
+        "author": "BrightLine",
+        "published_at": "2026-08-21",
+        "title": "我在加密货币上亏得一塌糊涂。出水了，我还是不明白",
+        "url": "https://blog.wenxuecity.com/myblog/82458/202608/16852.html",
+        "excerpt": "",
+        "content_chars": 3216,
+        "symbols": [],
+        "topics": [
+          "失败复盘",
+          "概率与复盘"
+        ],
+        "actions": [],
+        "operations": [],
+        "portfolio_rules": [],
+        "lessons": [],
+        "failure_candidate": true,
+        "archive_only": true,
+        "deep_analysis": false,
+        "source_notice": "BrightLine 原文索引；全文不在公开站点转载。",
+        "myalpha_validation": "needs_independent_validation"
+      },
+      {
+        "id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html",
+        "source": "wenxuecity",
+        "source_kind": "blog",
+        "author": "BrightLine",
+        "published_at": "2026-08-18",
+        "title": "子弹与耐心：8·18 AI板块大跌手记。",
+        "url": "https://blog.wenxuecity.com/myblog/82458/202608/14095.html",
+        "excerpt": "",
+        "content_chars": 2780,
+        "symbols": [
+          "CRWV",
+          "MRVL",
+          "NBIS",
+          "INTC",
+          "IREN",
+          "META",
+          "QCOM",
+          "NVDA",
+          "MU"
+        ],
+        "topics": [
+          "研究工具",
+          "Sell Put",
+          "风险管理",
+          "失败复盘",
+          "仓位管理"
+        ],
+        "actions": [
+          "clear",
+          "trim_half",
+          "trim",
+          "sell",
+          "no_add",
+          "sell_put",
+          "no_direct_stock_buy"
+        ],
+        "operations": [
+          {
+            "symbols": [
+              "CRWV",
+              "NBIS"
+            ],
+            "actions": [
+              "clear",
+              "trim_half",
+              "trim"
+            ],
+            "anchor_index": 19,
+            "attribution": "author_action",
+            "attribution_confidence": "medium"
+          },
+          {
+            "symbols": [
+              "NBIS"
+            ],
+            "entry_1": 180.0,
+            "entry_2": 150.0,
+            "exit_line": 250.0,
+            "actions": [
+              "sell"
+            ],
+            "anchor_index": 27,
+            "attribution": "author_plan",
+            "attribution_confidence": "medium"
+          },
+          {
+            "symbols": [
+              "CRWV"
+            ],
+            "entry_1": 75.0,
+            "entry_2": 62.0,
+            "exit_line": 110.0,
+            "actions": [
+              "sell"
+            ],
+            "anchor_index": 28,
+            "attribution": "author_plan",
+            "attribution_confidence": "medium"
+          },
+          {
+            "symbols": [
+              "IREN"
+            ],
+            "entry_1": 35.0,
+            "entry_2": 30.0,
+            "target_range": [
+              80.0,
+              100.0
+            ],
+            "anchor_index": 29,
+            "attribution": "author_plan",
+            "attribution_confidence": "medium"
+          },
+          {
+            "symbols": [
+              "INTC"
+            ],
+            "entry_below": 85.0,
+            "actions": [
+              "no_add"
+            ],
+            "conditions": [
+              "no_active_add",
+              "only_below_threshold"
+            ],
+            "anchor_index": 30,
+            "attribution": "author_plan",
+            "attribution_confidence": "medium"
+          },
+          {
+            "symbols": [
+              "META"
+            ],
+            "entry_1": 560.0,
+            "entry_2": 500.0,
+            "exit_line": 800.0,
+            "actions": [
+              "sell"
+            ],
+            "anchor_index": 31,
+            "attribution": "author_plan",
+            "attribution_confidence": "medium"
+          },
+          {
+            "symbols": [
+              "QCOM"
+            ],
+            "sell_put_strike": 150.0,
+            "actions": [
+              "sell_put",
+              "no_direct_stock_buy"
+            ],
+            "conditions": [
+              "accept_assignment_then_reassess"
+            ],
+            "anchor_index": 32,
+            "attribution": "author_plan",
+            "attribution_confidence": "medium"
+          },
+          {
+            "symbols": [
+              "MRVL"
+            ],
+            "entry_1": 180.0,
+            "entry_2": 160.0,
+            "exit_line": null,
+            "actions": [
+              "sell"
+            ],
+            "anchor_index": 33,
+            "attribution": "author_plan",
+            "attribution_confidence": "medium"
+          }
+        ],
+        "portfolio_rules": [
+          "cash_floor",
+          "no_core_leverage",
+          "predefined_levels",
+          "one_tranche_at_a_time"
+        ],
+        "lessons": [
+          "luck_not_skill",
+          "cash_too_early",
+          "process_wrong"
+        ],
+        "failure_candidate": true,
+        "archive_only": false,
+        "deep_analysis": false,
+        "source_notice": "BrightLine 原文索引；全文不在公开站点转载。",
+        "myalpha_validation": "needs_independent_validation"
+      },
+      {
+        "id": "brightline-blog-wenxuecity-com-myblog-82458-202607-22473-html",
+        "source": "wenxuecity",
+        "source_kind": "blog",
+        "author": "BrightLine",
+        "published_at": "2026-07-30",
+        "title": "439%之后：AI神童爆仓有感",
+        "url": "https://blog.wenxuecity.com/myblog/82458/202607/22473.html",
+        "excerpt": "",
+        "content_chars": 1973,
+        "symbols": [
+          "CRWV",
+          "NBIS",
+          "IREN",
+          "MU"
+        ],
+        "topics": [
+          "风险管理",
+          "失败复盘",
+          "长期持有纪律",
+          "仓位管理"
+        ],
+        "actions": [
+          "clear",
+          "hold"
+        ],
+        "operations": [
+          {
+            "symbols": [
+              "CRWV",
+              "NBIS",
+              "IREN"
+            ],
+            "actions": [
+              "clear"
+            ],
+            "anchor_index": 4,
+            "attribution": "unconfirmed_author_context",
+            "attribution_confidence": "needs_review"
+          },
+          {
+            "symbols": [
+              "NBIS"
+            ],
+            "actions": [
+              "hold"
+            ],
+            "anchor_index": 9,
+            "attribution": "unconfirmed_author_context",
+            "attribution_confidence": "needs_review"
+          }
+        ],
+        "portfolio_rules": [],
+        "lessons": [
+          "admit_wrong"
+        ],
+        "failure_candidate": true,
+        "archive_only": false,
+        "deep_analysis": false,
+        "source_notice": "BrightLine 原文索引；全文不在公开站点转载。",
+        "myalpha_validation": "needs_independent_validation"
+      },
+      {
+        "id": "brightline-blog-wenxuecity-com-myblog-82458-202607-16769-html",
+        "source": "wenxuecity",
+        "source_kind": "blog",
+        "author": "BrightLine",
+        "published_at": "2026-07-23",
+        "title": "资本市场最大的毒瘤：华尔街制造恐慌，逼出杠杆，低位收割",
+        "url": "https://blog.wenxuecity.com/myblog/82458/202607/16769.html",
+        "excerpt": "",
+        "content_chars": 1004,
+        "symbols": [
+          "TSLA",
+          "GOOG"
+        ],
+        "topics": [
+          "风险管理",
+          "失败复盘",
+          "长期持有纪律"
+        ],
+        "actions": [],
+        "operations": [],
+        "portfolio_rules": [],
+        "lessons": [
+          "admit_wrong"
+        ],
+        "failure_candidate": true,
+        "archive_only": false,
+        "deep_analysis": false,
+        "source_notice": "BrightLine 原文索引；全文不在公开站点转载。",
+        "myalpha_validation": "needs_independent_validation"
+      },
+      {
+        "id": "brightline-blog-wenxuecity-com-myblog-82458-202606-10765-html",
+        "source": "wenxuecity",
+        "source_kind": "blog",
+        "author": "BrightLine",
+        "published_at": "2026-06-14",
+        "title": "Time in the Market, Not Timing the Market",
+        "url": "https://blog.wenxuecity.com/myblog/82458/202606/10765.html",
+        "excerpt": "",
+        "content_chars": 859,
+        "symbols": [
+          "INTC",
+          "IREN"
+        ],
+        "topics": [
+          "长期持有纪律",
+          "概率与复盘",
+          "风险管理",
+          "失败复盘",
+          "仓位管理"
+        ],
+        "actions": [],
+        "operations": [],
+        "portfolio_rules": [],
+        "lessons": [
+          "admit_wrong"
+        ],
+        "failure_candidate": true,
+        "archive_only": false,
+        "deep_analysis": false,
+        "source_notice": "BrightLine 原文索引；全文不在公开站点转载。",
+        "myalpha_validation": "needs_independent_validation"
+      },
+      {
+        "id": "brightline--blog-wenxuecity-com-myblog-82458-202606-4319-html",
+        "source": "wenxuecity",
+        "source_kind": "blog",
+        "author": "BrightLine",
+        "published_at": "2026-06-06",
+        "title": "昨天是我有生之年股票亏得最多的一天",
+        "url": "https://blog.wenxuecity.com/myblog/82458/202606/4319.html",
+        "excerpt": "",
+        "content_chars": 1432,
+        "symbols": [],
+        "topics": [
+          "失败复盘",
+          "概率与复盘"
+        ],
+        "actions": [],
+        "operations": [],
+        "portfolio_rules": [],
+        "lessons": [],
+        "failure_candidate": true,
+        "archive_only": true,
+        "deep_analysis": true,
+        "source_notice": "BrightLine 原文索引；全文不在公开站点转载。",
+        "myalpha_validation": "needs_independent_validation"
+      },
+      {
+        "id": "brightline-blog-wenxuecity-com-myblog-82458-202605-19753-html",
+        "source": "wenxuecity",
+        "source_kind": "blog",
+        "author": "BrightLine",
+        "published_at": "2026-05-31",
+        "title": "人生充满遗憾，投资尤其如此",
+        "url": "https://blog.wenxuecity.com/myblog/82458/202605/19753.html",
+        "excerpt": "",
+        "content_chars": 2864,
+        "symbols": [
+          "TSLA",
+          "NBIS",
+          "CRWV",
+          "META",
+          "MU"
+        ],
+        "topics": [
+          "个股与行业",
+          "风险管理",
+          "失败复盘",
+          "长期持有纪律",
+          "仓位管理"
+        ],
+        "actions": [
+          "buy",
+          "sell",
+          "clear",
+          "add",
+          "hold"
+        ],
+        "operations": [
+          {
+            "symbols": [
+              "MU"
+            ],
+            "actions": [
+              "buy",
+              "sell"
+            ],
+            "anchor_index": 12,
+            "attribution": "unconfirmed_author_context",
+            "attribution_confidence": "needs_review"
+          },
+          {
+            "symbols": [
+              "CRWV"
+            ],
+            "actions": [
+              "sell"
+            ],
+            "anchor_index": 20,
+            "attribution": "unconfirmed_author_context",
+            "attribution_confidence": "needs_review"
+          },
+          {
+            "symbols": [
+              "NBIS"
+            ],
+            "actions": [
+              "clear",
+              "sell"
+            ],
+            "anchor_index": 21,
+            "attribution": "unconfirmed_author_context",
+            "attribution_confidence": "needs_review"
+          },
+          {
+            "symbols": [
+              "META"
+            ],
+            "actions": [
+              "add"
+            ],
+            "anchor_index": 31,
+            "attribution": "unconfirmed_author_context",
+            "attribution_confidence": "needs_review"
+          },
+          {
+            "symbols": [
+              "META"
+            ],
+            "actions": [
+              "sell"
+            ],
+            "anchor_index": 32,
+            "attribution": "unconfirmed_author_context",
+            "attribution_confidence": "needs_review"
+          },
+          {
+            "symbols": [
+              "TSLA"
+            ],
+            "actions": [
+              "add"
+            ],
+            "anchor_index": 36,
+            "attribution": "unconfirmed_author_context",
+            "attribution_confidence": "needs_review"
+          },
+          {
+            "symbols": [
+              "TSLA"
+            ],
+            "actions": [
+              "hold"
+            ],
+            "anchor_index": 39,
+            "attribution": "unconfirmed_author_context",
+            "attribution_confidence": "needs_review"
+          }
+        ],
+        "portfolio_rules": [],
+        "lessons": [],
+        "failure_candidate": true,
+        "archive_only": false,
+        "deep_analysis": false,
+        "source_notice": "BrightLine 原文索引；全文不在公开站点转载。",
+        "myalpha_validation": "needs_independent_validation"
+      },
+      {
+        "id": "brightline-blog-wenxuecity-com-myblog-82458-202605-18645-html",
+        "source": "wenxuecity",
+        "source_kind": "blog",
+        "author": "BrightLine",
+        "published_at": "2026-05-30",
+        "title": "AI还在早期,但大回撤一定会来:我的答案不是逃顶,而是摔不死",
+        "url": "https://blog.wenxuecity.com/myblog/82458/202605/18645.html",
+        "excerpt": "",
+        "content_chars": 3866,
+        "symbols": [
+          "META",
+          "NVDA",
+          "QQQ",
+          "SMH"
+        ],
+        "topics": [
+          "风险管理",
+          "Sell Put",
+          "LEAPS",
+          "失败复盘",
+          "长期持有纪律",
+          "仓位管理"
+        ],
+        "actions": [
+          "hold"
+        ],
+        "operations": [
+          {
+            "symbols": [
+              "QQQ",
+              "SMH"
+            ],
+            "actions": [
+              "hold"
+            ],
+            "anchor_index": 28,
+            "attribution": "author_action",
+            "attribution_confidence": "medium"
+          }
+        ],
+        "portfolio_rules": [
+          "do_not_chase"
+        ],
+        "lessons": [
+          "admit_wrong"
+        ],
+        "failure_candidate": true,
+        "archive_only": false,
+        "deep_analysis": true,
+        "source_notice": "BrightLine 原文索引；全文不在公开站点转载。",
+        "myalpha_validation": "needs_independent_validation"
+      },
+      {
+        "id": "brightline--blog-wenxuecity-com-myblog-82458-202605-7698-html",
+        "source": "wenxuecity",
+        "source_kind": "blog",
+        "author": "BrightLine",
+        "published_at": "2026-05-12",
+        "title": "为什么我相信 AI 是一生难见的机会,  这次和 2000 年不一样, 哈哈",
+        "url": "https://blog.wenxuecity.com/myblog/82458/202605/7698.html",
+        "excerpt": "",
+        "content_chars": 7011,
+        "symbols": [
+          "TSLA",
+          "META"
+        ],
+        "topics": [
+          "研究工具",
+          "风险管理",
+          "长期持有纪律",
+          "仓位管理"
+        ],
+        "actions": [],
+        "operations": [],
+        "portfolio_rules": [],
+        "lessons": [
+          "thesis_vs_timing"
+        ],
+        "failure_candidate": true,
+        "archive_only": false,
+        "deep_analysis": false,
+        "source_notice": "BrightLine 原文索引；全文不在公开站点转载。",
+        "myalpha_validation": "needs_independent_validation"
+      },
+      {
+        "id": "brightline--blog-wenxuecity-com-myblog-82458-202605-4789-html",
+        "source": "wenxuecity",
+        "source_kind": "blog",
+        "author": "BrightLine",
+        "published_at": "2026-05-08",
+        "title": "财富的逻辑：从搏一搏到敢再搏，再到工程化的复利 — 我的投资哲学、方法论与实战案例",
+        "url": "https://blog.wenxuecity.com/myblog/82458/202605/4789.html",
+        "excerpt": "",
+        "content_chars": 11762,
+        "symbols": [
+          "INTC",
+          "IREN",
+          "TSLA",
+          "NBIS",
+          "CRWV",
+          "META",
+          "NVDA",
+          "AMZN",
+          "GOOG",
+          "TQQQ",
+          "NOW",
+          "QQQ",
+          "VOO"
+        ],
+        "topics": [
+          "个股与行业",
+          "Sell Put",
+          "LEAPS",
+          "风险管理",
+          "失败复盘",
+          "长期持有纪律",
+          "仓位管理"
+        ],
+        "actions": [
+          "buy",
+          "hold",
+          "add",
+          "sell_put",
+          "trim"
+        ],
+        "operations": [
+          {
+            "symbols": [
+              "INTC"
+            ],
+            "actions": [
+              "buy"
+            ],
+            "anchor_index": 188,
+            "attribution": "author_action",
+            "attribution_confidence": "medium"
+          },
+          {
+            "symbols": [
+              "INTC"
+            ],
+            "actions": [
+              "hold"
+            ],
+            "anchor_index": 208,
+            "attribution": "author_action",
+            "attribution_confidence": "medium"
+          },
+          {
+            "symbols": [
+              "GOOG"
+            ],
+            "actions": [
+              "add"
+            ],
+            "anchor_index": 232,
+            "attribution": "author_action",
+            "attribution_confidence": "medium"
+          },
+          {
+            "symbols": [
+              "INTC",
+              "TSLA"
+            ],
+            "actions": [
+              "buy"
+            ],
+            "anchor_index": 265,
+            "attribution": "author_action",
+            "attribution_confidence": "medium"
+          },
+          {
+            "symbols": [
+              "TSLA"
+            ],
+            "actions": [
+              "add"
+            ],
+            "anchor_index": 289,
+            "attribution": "author_action",
+            "attribution_confidence": "medium"
+          },
+          {
+            "symbols": [
+              "TSLA"
+            ],
+            "actions": [
+              "hold"
+            ],
+            "anchor_index": 291,
+            "attribution": "author_action",
+            "attribution_confidence": "medium"
+          },
+          {
+            "symbols": [
+              "TSLA"
+            ],
+            "actions": [
+              "sell_put"
+            ],
+            "anchor_index": 356,
+            "attribution": "author_action",
+            "attribution_confidence": "medium"
+          },
+          {
+            "symbols": [
+              "IREN",
+              "NBIS",
+              "CRWV"
+            ],
+            "actions": [
+              "trim"
+            ],
+            "anchor_index": 419,
+            "attribution": "author_action",
+            "attribution_confidence": "medium"
+          }
+        ],
+        "portfolio_rules": [],
+        "lessons": [],
+        "failure_candidate": true,
+        "archive_only": false,
+        "deep_analysis": true,
+        "source_notice": "BrightLine 原文索引；全文不在公开站点转载。",
+        "myalpha_validation": "needs_independent_validation"
+      },
+      {
+        "id": "brightline-s-blog-wenxuecity-com-myblog-82458-202605-385-html",
+        "source": "wenxuecity",
+        "source_kind": "blog",
+        "author": "BrightLine",
+        "published_at": "2026-05-01",
+        "title": "这轮建仓和清仓复盘，开始大力减仓",
+        "url": "https://blog.wenxuecity.com/myblog/82458/202605/385.html",
+        "excerpt": "",
+        "content_chars": 2138,
+        "symbols": [
+          "CRWV",
+          "NBIS",
+          "INTC",
+          "IREN",
+          "TSLA",
+          "META",
+          "NVDA",
+          "AMZN"
+        ],
+        "topics": [
+          "失败复盘",
+          "仓位与加减仓",
+          "个股与行业",
+          "LEAPS",
+          "风险管理",
+          "长期持有纪律",
+          "仓位管理"
+        ],
+        "actions": [
+          "买入/建仓",
+          "减仓",
+          "卖出/退出",
+          "buy",
+          "sell",
+          "add"
+        ],
+        "operations": [
+          {
+            "symbols": [
+              "CRWV"
+            ],
+            "actions": [
+              "buy"
+            ],
+            "anchor_index": 19,
+            "attribution": "author_action",
+            "attribution_confidence": "medium"
+          },
+          {
+            "symbols": [
+              "NBIS"
+            ],
+            "actions": [
+              "buy",
+              "sell"
+            ],
+            "anchor_index": 31,
+            "attribution": "author_action",
+            "attribution_confidence": "medium"
+          },
+          {
+            "symbols": [
+              "CRWV"
+            ],
+            "actions": [
+              "buy",
+              "sell"
+            ],
+            "anchor_index": 32,
+            "attribution": "author_action",
+            "attribution_confidence": "medium"
+          },
+          {
+            "symbols": [
+              "INTC"
+            ],
+            "actions": [
+              "buy"
+            ],
+            "anchor_index": 33,
+            "attribution": "author_action",
+            "attribution_confidence": "medium"
+          },
+          {
+            "symbols": [
+              "AMZN"
+            ],
+            "actions": [
+              "add"
+            ],
+            "anchor_index": 38,
+            "attribution": "author_action",
+            "attribution_confidence": "medium"
+          },
+          {
+            "symbols": [
+              "META"
+            ],
+            "actions": [
+              "buy"
+            ],
+            "anchor_index": 39,
+            "attribution": "author_action",
+            "attribution_confidence": "medium"
+          },
+          {
+            "symbols": [
+              "TSLA"
+            ],
+            "actions": [
+              "add"
+            ],
+            "anchor_index": 43,
+            "attribution": "author_action",
+            "attribution_confidence": "medium"
+          }
+        ],
+        "portfolio_rules": [],
+        "lessons": [],
+        "failure_candidate": true,
+        "archive_only": false,
+        "deep_analysis": false,
+        "source_notice": "BrightLine 原文索引；全文不在公开站点转载。",
+        "myalpha_validation": "needs_independent_validation"
+      },
+      {
+        "id": "brightline-blog-wenxuecity-com-myblog-82458-202604-31045-html",
+        "source": "wenxuecity",
+        "source_kind": "blog",
+        "author": "BrightLine",
+        "published_at": "2026-04-29",
+        "title": "斯坦利·德鲁肯米勒的投资智慧：九条语录与真实案例",
+        "url": "https://blog.wenxuecity.com/myblog/82458/202604/31045.html",
+        "excerpt": "",
+        "content_chars": 4425,
+        "symbols": [
+          "NVDA",
+          "TSLA"
+        ],
+        "topics": [
+          "概率与复盘",
+          "风险管理",
+          "失败复盘",
+          "长期持有纪律",
+          "仓位管理"
+        ],
+        "actions": [
+          "hold"
+        ],
+        "operations": [
+          {
+            "symbols": [
+              "NVDA"
+            ],
+            "actions": [
+              "hold"
+            ],
+            "anchor_index": 46,
+            "attribution": "third_party_example",
+            "attribution_confidence": "high"
+          }
+        ],
+        "portfolio_rules": [],
+        "lessons": [
+          "admit_wrong"
+        ],
+        "failure_candidate": true,
+        "archive_only": false,
+        "deep_analysis": false,
+        "source_notice": "BrightLine 原文索引；全文不在公开站点转载。",
+        "myalpha_validation": "needs_independent_validation"
+      },
+      {
+        "id": "brightline-blog-wenxuecity-com-myblog-82458-202604-15204-html",
+        "source": "wenxuecity",
+        "source_kind": "blog",
+        "author": "BrightLine",
+        "published_at": "2026-04-23",
+        "title": "今天认错。ServiceNow 这笔交易，我看错了。",
+        "url": "https://blog.wenxuecity.com/myblog/82458/202604/15204.html",
+        "excerpt": "",
+        "content_chars": 1023,
+        "symbols": [
+          "NOW",
+          "INTC"
+        ],
+        "topics": [
+          "失败复盘",
+          "个股与行业",
+          "LEAPS"
+        ],
+        "actions": [
+          "buy"
+        ],
+        "operations": [
+          {
+            "symbols": [
+              "NOW"
+            ],
+            "actions": [
+              "buy"
+            ],
+            "anchor_index": 1,
+            "attribution": "author_action",
+            "attribution_confidence": "medium"
+          }
+        ],
+        "portfolio_rules": [],
+        "lessons": [
+          "admit_wrong"
+        ],
+        "failure_candidate": true,
+        "archive_only": false,
+        "deep_analysis": false,
+        "source_notice": "BrightLine 原文索引；全文不在公开站点转载。",
+        "myalpha_validation": "needs_independent_validation"
+      },
+      {
+        "id": "brightline-blog-wenxuecity-com-myblog-82458-202604-12428-html",
+        "source": "wenxuecity",
+        "source_kind": "blog",
+        "author": "BrightLine",
+        "published_at": "2026-04-19",
+        "title": "股市专治各种不服，越是聪明人亏得越厉害",
+        "url": "https://blog.wenxuecity.com/myblog/82458/202604/12428.html",
+        "excerpt": "",
+        "content_chars": 444,
+        "symbols": [
+          "TQQQ",
+          "QQQ"
+        ],
+        "topics": [
+          "失败复盘",
+          "指数与纪律",
+          "Sell Put",
+          "风险管理",
+          "长期持有纪律",
+          "仓位管理"
+        ],
+        "actions": [
+          "add",
+          "hold"
+        ],
+        "operations": [
+          {
+            "symbols": [
+              "TQQQ",
+              "QQQ"
+            ],
+            "actions": [
+              "add"
+            ],
+            "anchor_index": 5,
+            "attribution": "unconfirmed_author_context",
+            "attribution_confidence": "needs_review"
+          },
+          {
+            "symbols": [
+              "QQQ"
+            ],
+            "actions": [
+              "hold"
+            ],
+            "anchor_index": 8,
+            "attribution": "unconfirmed_author_context",
+            "attribution_confidence": "needs_review"
+          }
+        ],
+        "portfolio_rules": [],
+        "lessons": [],
+        "failure_candidate": true,
+        "archive_only": false,
+        "deep_analysis": false,
+        "source_notice": "BrightLine 原文索引；全文不在公开站点转载。",
+        "myalpha_validation": "needs_independent_validation"
+      },
+      {
+        "id": "brightline-blog-wenxuecity-com-myblog-82458-202601-15311-html",
+        "source": "wenxuecity",
+        "source_kind": "blog",
+        "author": "BrightLine",
+        "published_at": "2026-01-18",
+        "title": "别被“3块5块买的苹果神价的长持党”带偏：你抄的是结论，不是方法",
+        "url": "https://blog.wenxuecity.com/myblog/82458/202601/15311.html",
+        "excerpt": "",
+        "content_chars": 1015,
+        "symbols": [
+          "META",
+          "TSLA"
+        ],
+        "topics": [
+          "长期持有纪律",
+          "概率与复盘",
+          "风险管理",
+          "失败复盘",
+          "仓位管理"
+        ],
+        "actions": [],
+        "operations": [],
+        "portfolio_rules": [],
+        "lessons": [
+          "admit_wrong"
+        ],
+        "failure_candidate": true,
+        "archive_only": false,
+        "deep_analysis": false,
+        "source_notice": "BrightLine 原文索引；全文不在公开站点转载。",
+        "myalpha_validation": "needs_independent_validation"
+      },
+      {
+        "id": "brightline-blog-wenxuecity-com-myblog-82458-202601-13768-html",
+        "source": "wenxuecity",
+        "source_kind": "blog",
+        "author": "BrightLine",
+        "published_at": "2026-01-16",
+        "title": "今天又割肉了",
+        "url": "https://blog.wenxuecity.com/myblog/82458/202601/13768.html",
+        "excerpt": "",
+        "content_chars": 383,
+        "symbols": [
+          "IREN",
+          "INTC",
+          "TSLA",
+          "NOW"
+        ],
+        "topics": [
+          "失败复盘",
+          "个股与行业",
+          "仓位管理"
+        ],
+        "actions": [
+          "卖出/退出"
+        ],
+        "operations": [],
+        "portfolio_rules": [],
+        "lessons": [
+          "admit_wrong"
+        ],
+        "failure_candidate": true,
+        "archive_only": false,
+        "deep_analysis": false,
+        "source_notice": "BrightLine 原文索引；全文不在公开站点转载。",
+        "myalpha_validation": "needs_independent_validation"
+      }
+    ],
+    "external_outcome_reviews": [
+      {
+        "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html:0:NBIS",
+        "author": "BrightLine",
+        "symbol": "NBIS",
+        "published_at": "2026-08-18",
+        "title": "子弹与耐心：8·18 AI板块大跌手记。",
+        "url": "https://blog.wenxuecity.com/myblog/82458/202608/14095.html",
+        "attribution": "author_action",
+        "return_20": -0.06168216253443515,
+        "mae_20": -0.16150137741046822,
+        "mfe_20": 0.09650482093663926,
+        "excess_vs_qqq_20": -0.05686532720912518,
+        "alignment_20": "aligned",
+        "review_tags": [
+          "large_adverse_move"
+        ],
+        "maturity": "mature20"
+      },
+      {
+        "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html:1:NBIS",
+        "author": "BrightLine",
+        "symbol": "NBIS",
+        "published_at": "2026-08-18",
+        "title": "子弹与耐心：8·18 AI板块大跌手记。",
+        "url": "https://blog.wenxuecity.com/myblog/82458/202608/14095.html",
+        "attribution": "author_plan",
+        "return_20": -0.06168216253443515,
+        "mae_20": -0.16150137741046822,
+        "mfe_20": 0.09650482093663926,
+        "excess_vs_qqq_20": -0.05686532720912518,
+        "alignment_20": "aligned",
+        "review_tags": [
+          "large_adverse_move"
+        ],
+        "maturity": "mature20"
+      },
+      {
+        "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html:7:MRVL",
+        "author": "BrightLine",
+        "symbol": "MRVL",
+        "published_at": "2026-08-18",
+        "title": "子弹与耐心：8·18 AI板块大跌手记。",
+        "url": "https://blog.wenxuecity.com/myblog/82458/202608/14095.html",
+        "attribution": "author_plan",
+        "return_20": 0.002623578894765277,
+        "mae_20": -0.1645358764002831,
+        "mfe_20": 0.060259026360721224,
+        "excess_vs_qqq_20": 0.007440414220075242,
+        "alignment_20": "not_aligned",
+        "review_tags": [
+          "direction_not_aligned",
+          "large_adverse_move"
+        ],
+        "maturity": "mature20"
+      },
+      {
+        "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html:3:IREN",
+        "author": "BrightLine",
+        "symbol": "IREN",
+        "published_at": "2026-08-18",
+        "title": "子弹与耐心：8·18 AI板块大跌手记。",
+        "url": "https://blog.wenxuecity.com/myblog/82458/202608/14095.html",
+        "attribution": "author_plan",
+        "return_20": 0.04986116141494623,
+        "mae_20": -0.15948327900519133,
+        "mfe_20": 0.19014849692140534,
+        "excess_vs_qqq_20": 0.054677996740256196,
+        "alignment_20": "not_scored",
+        "review_tags": [
+          "large_adverse_move"
+        ],
+        "maturity": "mature20"
+      },
+      {
+        "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202607-22473-html:0:NBIS",
+        "author": "BrightLine",
+        "symbol": "NBIS",
+        "published_at": "2026-07-30",
+        "title": "439%之后：AI神童爆仓有感",
+        "url": "https://blog.wenxuecity.com/myblog/82458/202607/22473.html",
+        "attribution": "unconfirmed_author_context",
+        "return_20": 0.0410331699305746,
+        "mae_20": -0.12285067310324238,
+        "mfe_20": 0.3976161445243487,
+        "excess_vs_qqq_20": 0.005894246927005797,
+        "alignment_20": "not_aligned",
+        "review_tags": [
+          "direction_not_aligned"
+        ],
+        "maturity": "mature20"
+      },
+      {
+        "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202607-22473-html:0:IREN",
+        "author": "BrightLine",
+        "symbol": "IREN",
+        "published_at": "2026-07-30",
+        "title": "439%之后：AI神童爆仓有感",
+        "url": "https://blog.wenxuecity.com/myblog/82458/202607/22473.html",
+        "attribution": "unconfirmed_author_context",
+        "return_20": -0.13144677202009059,
+        "mae_20": -0.14712728163665312,
+        "mfe_20": 0.2050716648291071,
+        "excess_vs_qqq_20": -0.16658569502365939,
+        "alignment_20": "aligned",
+        "review_tags": [
+          "underperformed_qqq"
+        ],
+        "maturity": "mature20"
+      },
+      {
+        "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202606-22729-html:0:TSLA",
+        "author": "BrightLine",
+        "symbol": "TSLA",
+        "published_at": "2026-06-29",
+        "title": "炒股有时候真的需要点运气，而且很多时候是先给你一巴掌，再给你一颗糖。",
+        "url": "https://blog.wenxuecity.com/myblog/82458/202606/22729.html",
+        "attribution": "unconfirmed_author_context",
+        "return_20": -0.26522167487684734,
+        "mae_20": -0.26753694581280785,
+        "mfe_20": 0.06615738916256153,
+        "excess_vs_qqq_20": -0.17898620855631941,
+        "alignment_20": "not_aligned",
+        "review_tags": [
+          "direction_not_aligned",
+          "large_adverse_move",
+          "underperformed_qqq"
+        ],
+        "maturity": "mature20"
+      },
+      {
+        "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202606-22729-html:1:TSLA",
+        "author": "BrightLine",
+        "symbol": "TSLA",
+        "published_at": "2026-06-29",
+        "title": "炒股有时候真的需要点运气，而且很多时候是先给你一巴掌，再给你一颗糖。",
+        "url": "https://blog.wenxuecity.com/myblog/82458/202606/22729.html",
+        "attribution": "unconfirmed_author_context",
+        "return_20": -0.26522167487684734,
+        "mae_20": -0.26753694581280785,
+        "mfe_20": 0.06615738916256153,
+        "excess_vs_qqq_20": -0.17898620855631941,
+        "alignment_20": "aligned",
+        "review_tags": [
+          "large_adverse_move",
+          "underperformed_qqq"
+        ],
+        "maturity": "mature20"
+      },
+      {
+        "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202606-16186-html:0:NVDA",
+        "author": "BrightLine",
+        "symbol": "NVDA",
+        "published_at": "2026-06-21",
+        "title": "理性的悲观，天真的乐观 ——为什么算账的人，总是错过科技",
+        "url": "https://blog.wenxuecity.com/myblog/82458/202606/16186.html",
+        "attribution": "unconfirmed_author_context",
+        "return_20": -0.019627317442300396,
+        "mae_20": -0.10234581914491103,
+        "mfe_20": 0.0120601589103293,
+        "excess_vs_qqq_20": 0.02491326097876634,
+        "alignment_20": "not_aligned",
+        "review_tags": [
+          "direction_not_aligned"
+        ],
+        "maturity": "mature20"
+      },
+      {
+        "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202605-19753-html:5:TSLA",
+        "author": "BrightLine",
+        "symbol": "TSLA",
+        "published_at": "2026-05-31",
+        "title": "人生充满遗憾，投资尤其如此",
+        "url": "https://blog.wenxuecity.com/myblog/82458/202605/19753.html",
+        "attribution": "unconfirmed_author_context",
+        "return_20": -0.016117336078036892,
+        "mae_20": -0.13775760836510798,
+        "mfe_20": 0.014292731993730934,
+        "excess_vs_qqq_20": -0.015248997860301094,
+        "alignment_20": "not_aligned",
+        "review_tags": [
+          "direction_not_aligned"
+        ],
+        "maturity": "mature20"
+      },
+      {
+        "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202605-19753-html:6:TSLA",
+        "author": "BrightLine",
+        "symbol": "TSLA",
+        "published_at": "2026-05-31",
+        "title": "人生充满遗憾，投资尤其如此",
+        "url": "https://blog.wenxuecity.com/myblog/82458/202605/19753.html",
+        "attribution": "unconfirmed_author_context",
+        "return_20": -0.016117336078036892,
+        "mae_20": -0.13775760836510798,
+        "mfe_20": 0.014292731993730934,
+        "excess_vs_qqq_20": -0.015248997860301094,
+        "alignment_20": "not_aligned",
+        "review_tags": [
+          "direction_not_aligned"
+        ],
+        "maturity": "mature20"
+      },
+      {
+        "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202605-19753-html:2:NBIS",
+        "author": "BrightLine",
+        "symbol": "NBIS",
+        "published_at": "2026-05-31",
+        "title": "人生充满遗憾，投资尤其如此",
+        "url": "https://blog.wenxuecity.com/myblog/82458/202605/19753.html",
+        "attribution": "unconfirmed_author_context",
+        "return_20": 0.1314269326887625,
+        "mae_20": -0.17940104059977868,
+        "mfe_20": 0.22848129788192884,
+        "excess_vs_qqq_20": 0.13229527090649829,
+        "alignment_20": "not_aligned",
+        "review_tags": [
+          "direction_not_aligned",
+          "large_adverse_move"
+        ],
+        "maturity": "mature20"
+      },
+      {
+        "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202605-18645-html:0:QQQ",
+        "author": "BrightLine",
+        "symbol": "QQQ",
+        "published_at": "2026-05-30",
+        "title": "AI还在早期,但大回撤一定会来:我的答案不是逃顶,而是摔不死",
+        "url": "https://blog.wenxuecity.com/myblog/82458/202605/18645.html",
+        "attribution": "author_action",
+        "return_20": -0.0008683382177357979,
+        "mae_20": -0.06874796483230217,
+        "mfe_20": 0.015752197981113714,
+        "excess_vs_qqq_20": 0.0,
+        "alignment_20": "not_aligned",
+        "review_tags": [
+          "direction_not_aligned"
+        ],
+        "maturity": "mature20"
+      },
+      {
+        "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202605-16902-html:0:IREN",
+        "author": "BrightLine",
+        "symbol": "IREN",
+        "published_at": "2026-05-27",
+        "title": "IREN 最新更新：继续做 AI 基础设施产能的长期持有者",
+        "url": "https://blog.wenxuecity.com/myblog/82458/202605/16902.html",
+        "attribution": "author_action",
+        "return_20": -0.290501953712053,
+        "mae_20": -0.3229636308987076,
+        "mfe_20": 0.06261797415088655,
+        "excess_vs_qqq_20": -0.25869566919586207,
+        "alignment_20": "not_aligned",
+        "review_tags": [
+          "direction_not_aligned",
+          "large_adverse_move",
+          "underperformed_qqq"
+        ],
+        "maturity": "mature20"
+      },
+      {
+        "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202605-13819-html:0:IREN",
+        "author": "BrightLine",
+        "symbol": "IREN",
+        "published_at": "2026-05-22",
+        "title": "IREN：重复 INTC 的 LEAPS 逻辑，我买的不是矿股，而是 NVIDIA AI Factory 产能",
+        "url": "https://blog.wenxuecity.com/myblog/82458/202605/13819.html",
+        "attribution": "author_action",
+        "return_20": -0.15717158176943702,
+        "mae_20": -0.18163371313672927,
+        "mfe_20": 0.18476206434316356,
+        "excess_vs_qqq_20": -0.13604094096278097,
+        "alignment_20": "aligned",
+        "review_tags": [
+          "large_adverse_move",
+          "underperformed_qqq"
+        ],
+        "maturity": "mature20"
+      },
+      {
+        "event_id": "brightline--blog-wenxuecity-com-myblog-82458-202605-8868-html:0:NVDA",
+        "author": "BrightLine",
+        "symbol": "NVDA",
+        "published_at": "2026-05-14",
+        "title": "账户越看越慌？该学着给持仓买保险了",
+        "url": "https://blog.wenxuecity.com/myblog/82458/202605/8868.html",
+        "attribution": "unconfirmed_author_context",
+        "return_20": -0.07533948467966578,
+        "mae_20": -0.13239902506963785,
+        "mfe_20": 0.010967966573816268,
+        "excess_vs_qqq_20": -0.12302022368887533,
+        "alignment_20": "not_aligned",
+        "review_tags": [
+          "direction_not_aligned",
+          "underperformed_qqq"
+        ],
+        "maturity": "mature20"
+      },
+      {
+        "event_id": "brightline--blog-wenxuecity-com-myblog-82458-202605-4789-html:3:TSLA",
+        "author": "BrightLine",
+        "symbol": "TSLA",
+        "published_at": "2026-05-08",
+        "title": "财富的逻辑：从搏一搏到敢再搏，再到工程化的复利 — 我的投资哲学、方法论与实战案例",
+        "url": "https://blog.wenxuecity.com/myblog/82458/202605/4789.html",
+        "attribution": "author_action",
+        "return_20": -0.060356263028235824,
+        "mae_20": -0.08982376350198984,
+        "mfe_20": 0.07400037900322132,
+        "excess_vs_qqq_20": -0.05679468861526216,
+        "alignment_20": "not_aligned",
+        "review_tags": [
+          "direction_not_aligned"
+        ],
+        "maturity": "mature20"
+      },
+      {
+        "event_id": "brightline--blog-wenxuecity-com-myblog-82458-202605-4789-html:4:TSLA",
+        "author": "BrightLine",
+        "symbol": "TSLA",
+        "published_at": "2026-05-08",
+        "title": "财富的逻辑：从搏一搏到敢再搏，再到工程化的复利 — 我的投资哲学、方法论与实战案例",
+        "url": "https://blog.wenxuecity.com/myblog/82458/202605/4789.html",
+        "attribution": "author_action",
+        "return_20": -0.060356263028235824,
+        "mae_20": -0.08982376350198984,
+        "mfe_20": 0.07400037900322132,
+        "excess_vs_qqq_20": -0.05679468861526216,
+        "alignment_20": "not_aligned",
+        "review_tags": [
+          "direction_not_aligned"
+        ],
+        "maturity": "mature20"
+      },
+      {
+        "event_id": "brightline--blog-wenxuecity-com-myblog-82458-202605-4789-html:5:TSLA",
+        "author": "BrightLine",
+        "symbol": "TSLA",
+        "published_at": "2026-05-08",
+        "title": "财富的逻辑：从搏一搏到敢再搏，再到工程化的复利 — 我的投资哲学、方法论与实战案例",
+        "url": "https://blog.wenxuecity.com/myblog/82458/202605/4789.html",
+        "attribution": "author_action",
+        "return_20": -0.060356263028235824,
+        "mae_20": -0.08982376350198984,
+        "mfe_20": 0.07400037900322132,
+        "excess_vs_qqq_20": -0.05679468861526216,
+        "alignment_20": "not_aligned",
+        "review_tags": [
+          "direction_not_aligned"
+        ],
+        "maturity": "mature20"
+      },
+      {
+        "event_id": "brightline--blog-wenxuecity-com-myblog-82458-202605-4789-html:6:TSLA",
+        "author": "BrightLine",
+        "symbol": "TSLA",
+        "published_at": "2026-05-08",
+        "title": "财富的逻辑：从搏一搏到敢再搏，再到工程化的复利 — 我的投资哲学、方法论与实战案例",
+        "url": "https://blog.wenxuecity.com/myblog/82458/202605/4789.html",
+        "attribution": "author_action",
+        "return_20": -0.060356263028235824,
+        "mae_20": -0.08982376350198984,
+        "mfe_20": 0.07400037900322132,
+        "excess_vs_qqq_20": -0.05679468861526216,
+        "alignment_20": "not_aligned",
+        "review_tags": [
+          "direction_not_aligned"
+        ],
+        "maturity": "mature20"
+      }
+    ],
+    "external_outcome_review_count": 25,
+    "external_note": "外部失败案例先作为候选；只有达到后续交易日成熟窗口并出现可复核结果，才进入结果归因层。"
+  },
+  "external_source_intelligence": {
+    "thesis_candidates": [
+      {
+        "symbol": "INTC",
+        "source_records": 20,
+        "authors": [
+          "BrightLine"
+        ],
+        "latest_title": "段永平的93条语录，对不上他自己的13F",
+        "latest_url": "https://blog.wenxuecity.com/myblog/82458/202609/20915.html",
+        "topics": [
+          "LEAPS",
+          "Sell Put",
+          "个股与行业",
+          "仓位管理",
+          "失败复盘",
+          "概率与复盘",
+          "研究工具",
+          "长期持有纪律",
+          "风险管理"
+        ],
+        "candidate_hypothesis": "外部来源对该标的形成重复研究线索，值得与现有基本面、估值、趋势和事件证据交叉验证。",
+        "validation_state": "candidate_only",
+        "guardrail": "不是本站Thesis，也不是买卖信号；需MyAlpha独立验证后才能升级。"
+      },
+      {
+        "symbol": "TSLA",
+        "source_records": 17,
+        "authors": [
+          "BrightLine"
+        ],
+        "latest_title": "段永平的93条语录，对不上他自己的13F",
+        "latest_url": "https://blog.wenxuecity.com/myblog/82458/202609/20915.html",
+        "topics": [
+          "LEAPS",
+          "Sell Put",
+          "个股与行业",
+          "仓位管理",
+          "失败复盘",
+          "概率与复盘",
+          "研究工具",
+          "长期持有纪律",
+          "风险管理"
+        ],
+        "candidate_hypothesis": "外部来源对该标的形成重复研究线索，值得与现有基本面、估值、趋势和事件证据交叉验证。",
+        "validation_state": "candidate_only",
+        "guardrail": "不是本站Thesis，也不是买卖信号；需MyAlpha独立验证后才能升级。"
+      },
+      {
+        "symbol": "META",
+        "source_records": 15,
+        "authors": [
+          "BrightLine"
+        ],
+        "latest_title": "段永平的93条语录，对不上他自己的13F",
+        "latest_url": "https://blog.wenxuecity.com/myblog/82458/202609/20915.html",
+        "topics": [
+          "LEAPS",
+          "Sell Put",
+          "个股与行业",
+          "仓位管理",
+          "失败复盘",
+          "研究工具",
+          "长期持有纪律",
+          "风险管理"
+        ],
+        "candidate_hypothesis": "外部来源对该标的形成重复研究线索，值得与现有基本面、估值、趋势和事件证据交叉验证。",
+        "validation_state": "candidate_only",
+        "guardrail": "不是本站Thesis，也不是买卖信号；需MyAlpha独立验证后才能升级。"
+      },
+      {
+        "symbol": "IREN",
+        "source_records": 12,
+        "authors": [
+          "BrightLine"
+        ],
+        "latest_title": "子弹与耐心：8·18 AI板块大跌手记。",
+        "latest_url": "https://blog.wenxuecity.com/myblog/82458/202608/14095.html",
+        "topics": [
+          "LEAPS",
+          "Sell Put",
+          "个股与行业",
+          "仓位管理",
+          "失败复盘",
+          "概率与复盘",
+          "研究工具",
+          "长期持有纪律",
+          "风险管理"
+        ],
+        "candidate_hypothesis": "外部来源对该标的形成重复研究线索，值得与现有基本面、估值、趋势和事件证据交叉验证。",
+        "validation_state": "candidate_only",
+        "guardrail": "不是本站Thesis，也不是买卖信号；需MyAlpha独立验证后才能升级。"
+      },
+      {
+        "symbol": "NVDA",
+        "source_records": 11,
+        "authors": [
+          "BrightLine"
+        ],
+        "latest_title": "段永平的93条语录，对不上他自己的13F",
+        "latest_url": "https://blog.wenxuecity.com/myblog/82458/202609/20915.html",
+        "topics": [
+          "LEAPS",
+          "Sell Put",
+          "个股与行业",
+          "仓位管理",
+          "失败复盘",
+          "期权与对冲",
+          "研究工具",
+          "长期持有纪律",
+          "风险管理"
+        ],
+        "candidate_hypothesis": "外部来源对该标的形成重复研究线索，值得与现有基本面、估值、趋势和事件证据交叉验证。",
+        "validation_state": "candidate_only",
+        "guardrail": "不是本站Thesis，也不是买卖信号；需MyAlpha独立验证后才能升级。"
+      },
+      {
+        "symbol": "NBIS",
+        "source_records": 10,
+        "authors": [
+          "BrightLine"
+        ],
+        "latest_title": "子弹与耐心：8·18 AI板块大跌手记。",
+        "latest_url": "https://blog.wenxuecity.com/myblog/82458/202608/14095.html",
+        "topics": [
+          "LEAPS",
+          "Sell Put",
+          "个股与行业",
+          "仓位与加减仓",
+          "仓位管理",
+          "失败复盘",
+          "指数与纪律",
+          "研究工具",
+          "长期持有纪律",
+          "风险管理"
+        ],
+        "candidate_hypothesis": "外部来源对该标的形成重复研究线索，值得与现有基本面、估值、趋势和事件证据交叉验证。",
+        "validation_state": "candidate_only",
+        "guardrail": "不是本站Thesis，也不是买卖信号；需MyAlpha独立验证后才能升级。"
+      },
+      {
+        "symbol": "CRWV",
+        "source_records": 9,
+        "authors": [
+          "BrightLine"
+        ],
+        "latest_title": "子弹与耐心：8·18 AI板块大跌手记。",
+        "latest_url": "https://blog.wenxuecity.com/myblog/82458/202608/14095.html",
+        "topics": [
+          "LEAPS",
+          "Sell Put",
+          "个股与行业",
+          "仓位与加减仓",
+          "仓位管理",
+          "失败复盘",
+          "指数与纪律",
+          "研究工具",
+          "长期持有纪律",
+          "风险管理"
+        ],
+        "candidate_hypothesis": "外部来源对该标的形成重复研究线索，值得与现有基本面、估值、趋势和事件证据交叉验证。",
+        "validation_state": "candidate_only",
+        "guardrail": "不是本站Thesis，也不是买卖信号；需MyAlpha独立验证后才能升级。"
+      },
+      {
+        "symbol": "QQQ",
+        "source_records": 7,
+        "authors": [
+          "BrightLine"
+        ],
+        "latest_title": "在座各位三十年后都是Billionaire？我算了一下，是真的",
+        "latest_url": "https://blog.wenxuecity.com/myblog/82458/202609/20217.html",
+        "topics": [
+          "LEAPS",
+          "Sell Put",
+          "个股与行业",
+          "人生与创业",
+          "仓位管理",
+          "估值与价格",
+          "失败复盘",
+          "指数与纪律",
+          "期权与对冲",
+          "长期持有纪律",
+          "风险管理"
+        ],
+        "candidate_hypothesis": "外部来源对该标的形成重复研究线索，值得与现有基本面、估值、趋势和事件证据交叉验证。",
+        "validation_state": "candidate_only",
+        "guardrail": "不是本站Thesis，也不是买卖信号；需MyAlpha独立验证后才能升级。"
+      },
+      {
+        "symbol": "MU",
+        "source_records": 7,
+        "authors": [
+          "BrightLine"
+        ],
+        "latest_title": "英特尔：美国唯一的代工厂，值多少钱（兼更新我的INTC持仓）",
+        "latest_url": "https://blog.wenxuecity.com/myblog/82458/202609/3770.html",
+        "topics": [
+          "LEAPS",
+          "Sell Put",
+          "个股与行业",
+          "仓位管理",
+          "失败复盘",
+          "概率与复盘",
+          "研究工具",
+          "长期持有纪律",
+          "风险管理"
+        ],
+        "candidate_hypothesis": "外部来源对该标的形成重复研究线索，值得与现有基本面、估值、趋势和事件证据交叉验证。",
+        "validation_state": "candidate_only",
+        "guardrail": "不是本站Thesis，也不是买卖信号；需MyAlpha独立验证后才能升级。"
+      },
+      {
+        "symbol": "TQQQ",
+        "source_records": 5,
+        "authors": [
+          "BrightLine"
+        ],
+        "latest_title": "最近越来越觉得，投资还是要回归 basic。",
+        "latest_url": "https://blog.wenxuecity.com/myblog/82458/202606/8509.html",
+        "topics": [
+          "LEAPS",
+          "Sell Put",
+          "个股与行业",
+          "仓位管理",
+          "失败复盘",
+          "指数与纪律",
+          "概率与复盘",
+          "长期持有纪律",
+          "风险管理"
+        ],
+        "candidate_hypothesis": "外部来源对该标的形成重复研究线索，值得与现有基本面、估值、趋势和事件证据交叉验证。",
+        "validation_state": "candidate_only",
+        "guardrail": "不是本站Thesis，也不是买卖信号；需MyAlpha独立验证后才能升级。"
+      },
+      {
+        "symbol": "NOW",
+        "source_records": 4,
+        "authors": [
+          "BrightLine"
+        ],
+        "latest_title": "ServiceNow回来了，我在145卖掉一半",
+        "latest_url": "https://blog.wenxuecity.com/myblog/82458/202608/22905.html",
+        "topics": [
+          "LEAPS",
+          "Sell Put",
+          "个股与行业",
+          "仓位管理",
+          "失败复盘",
+          "长期持有纪律",
+          "风险管理"
+        ],
+        "candidate_hypothesis": "外部来源对该标的形成重复研究线索，值得与现有基本面、估值、趋势和事件证据交叉验证。",
+        "validation_state": "candidate_only",
+        "guardrail": "不是本站Thesis，也不是买卖信号；需MyAlpha独立验证后才能升级。"
+      },
+      {
+        "symbol": "SPY",
+        "source_records": 3,
+        "authors": [
+          "BrightLine"
+        ],
+        "latest_title": "在座各位三十年后都是Billionaire？我算了一下，是真的",
+        "latest_url": "https://blog.wenxuecity.com/myblog/82458/202609/20217.html",
+        "topics": [
+          "个股与行业",
+          "人生与创业",
+          "仓位管理",
+          "估值与价格",
+          "失败复盘",
+          "期权与对冲",
+          "长期持有纪律",
+          "风险管理"
+        ],
+        "candidate_hypothesis": "外部来源对该标的形成重复研究线索，值得与现有基本面、估值、趋势和事件证据交叉验证。",
+        "validation_state": "candidate_only",
+        "guardrail": "不是本站Thesis，也不是买卖信号；需MyAlpha独立验证后才能升级。"
+      },
+      {
+        "symbol": "MRVL",
+        "source_records": 2,
+        "authors": [
+          "BrightLine"
+        ],
+        "latest_title": "英特尔：美国唯一的代工厂，值多少钱（兼更新我的INTC持仓）",
+        "latest_url": "https://blog.wenxuecity.com/myblog/82458/202609/3770.html",
+        "topics": [
+          "LEAPS",
+          "Sell Put",
+          "个股与行业",
+          "仓位管理",
+          "失败复盘",
+          "研究工具",
+          "长期持有纪律",
+          "风险管理"
+        ],
+        "candidate_hypothesis": "外部来源对该标的形成重复研究线索，值得与现有基本面、估值、趋势和事件证据交叉验证。",
+        "validation_state": "candidate_only",
+        "guardrail": "不是本站Thesis，也不是买卖信号；需MyAlpha独立验证后才能升级。"
+      },
+      {
+        "symbol": "GOOG",
+        "source_records": 2,
+        "authors": [
+          "BrightLine"
+        ],
+        "latest_title": "资本市场最大的毒瘤：华尔街制造恐慌，逼出杠杆，低位收割",
+        "latest_url": "https://blog.wenxuecity.com/myblog/82458/202607/16769.html",
+        "topics": [
+          "LEAPS",
+          "Sell Put",
+          "个股与行业",
+          "仓位管理",
+          "失败复盘",
+          "长期持有纪律",
+          "风险管理"
+        ],
+        "candidate_hypothesis": "外部来源对该标的形成重复研究线索，值得与现有基本面、估值、趋势和事件证据交叉验证。",
+        "validation_state": "candidate_only",
+        "guardrail": "不是本站Thesis，也不是买卖信号；需MyAlpha独立验证后才能升级。"
+      },
+      {
+        "symbol": "SMH",
+        "source_records": 2,
+        "authors": [
+          "BrightLine"
+        ],
+        "latest_title": "周五暴跌：就业报告只是借口，华尔街真正杀的是AI估值",
+        "latest_url": "https://blog.wenxuecity.com/myblog/82458/202606/5022.html",
+        "topics": [
+          "LEAPS",
+          "Sell Put",
+          "个股与行业",
+          "仓位管理",
+          "估值与价格",
+          "失败复盘",
+          "长期持有纪律",
+          "风险管理"
+        ],
+        "candidate_hypothesis": "外部来源对该标的形成重复研究线索，值得与现有基本面、估值、趋势和事件证据交叉验证。",
+        "validation_state": "candidate_only",
+        "guardrail": "不是本站Thesis，也不是买卖信号；需MyAlpha独立验证后才能升级。"
+      },
+      {
+        "symbol": "AMZN",
+        "source_records": 2,
+        "authors": [
+          "BrightLine"
+        ],
+        "latest_title": "财富的逻辑：从搏一搏到敢再搏，再到工程化的复利 — 我的投资哲学、方法论与实战案例",
+        "latest_url": "https://blog.wenxuecity.com/myblog/82458/202605/4789.html",
+        "topics": [
+          "LEAPS",
+          "Sell Put",
+          "个股与行业",
+          "仓位与加减仓",
+          "仓位管理",
+          "失败复盘",
+          "长期持有纪律",
+          "风险管理"
+        ],
+        "candidate_hypothesis": "外部来源对该标的形成重复研究线索，值得与现有基本面、估值、趋势和事件证据交叉验证。",
+        "validation_state": "candidate_only",
+        "guardrail": "不是本站Thesis，也不是买卖信号；需MyAlpha独立验证后才能升级。"
+      },
+      {
+        "symbol": "VGT",
+        "source_records": 1,
+        "authors": [
+          "BrightLine"
+        ],
+        "latest_title": "在座各位三十年后都是Billionaire？我算了一下，是真的",
+        "latest_url": "https://blog.wenxuecity.com/myblog/82458/202609/20217.html",
+        "topics": [
+          "人生与创业",
+          "失败复盘",
+          "长期持有纪律",
+          "风险管理"
+        ],
+        "candidate_hypothesis": "外部来源对该标的形成重复研究线索，值得与现有基本面、估值、趋势和事件证据交叉验证。",
+        "validation_state": "candidate_only",
+        "guardrail": "不是本站Thesis，也不是买卖信号；需MyAlpha独立验证后才能升级。"
+      },
+      {
+        "symbol": "QCOM",
+        "source_records": 1,
+        "authors": [
+          "BrightLine"
+        ],
+        "latest_title": "子弹与耐心：8·18 AI板块大跌手记。",
+        "latest_url": "https://blog.wenxuecity.com/myblog/82458/202608/14095.html",
+        "topics": [
+          "Sell Put",
+          "仓位管理",
+          "失败复盘",
+          "研究工具",
+          "风险管理"
+        ],
+        "candidate_hypothesis": "外部来源对该标的形成重复研究线索，值得与现有基本面、估值、趋势和事件证据交叉验证。",
+        "validation_state": "candidate_only",
+        "guardrail": "不是本站Thesis，也不是买卖信号；需MyAlpha独立验证后才能升级。"
+      },
+      {
+        "symbol": "VOO",
+        "source_records": 1,
+        "authors": [
+          "BrightLine"
+        ],
+        "latest_title": "财富的逻辑：从搏一搏到敢再搏，再到工程化的复利 — 我的投资哲学、方法论与实战案例",
+        "latest_url": "https://blog.wenxuecity.com/myblog/82458/202605/4789.html",
+        "topics": [
+          "LEAPS",
+          "Sell Put",
+          "个股与行业",
+          "仓位管理",
+          "失败复盘",
+          "长期持有纪律",
+          "风险管理"
+        ],
+        "candidate_hypothesis": "外部来源对该标的形成重复研究线索，值得与现有基本面、估值、趋势和事件证据交叉验证。",
+        "validation_state": "candidate_only",
+        "guardrail": "不是本站Thesis，也不是买卖信号；需MyAlpha独立验证后才能升级。"
+      },
+      {
+        "symbol": "SNDK",
+        "source_records": 1,
+        "authors": [
+          "BrightLine"
+        ],
+        "latest_title": "三个月后再看 IREN、CRWV、NBIS：谁最可能是下一个 SNDK？",
+        "latest_url": "https://blog.wenxuecity.com/myblog/82458/202604/12703.html",
+        "topics": [
+          "个股与行业",
+          "仓位管理",
+          "风险管理"
+        ],
+        "candidate_hypothesis": "外部来源对该标的形成重复研究线索，值得与现有基本面、估值、趋势和事件证据交叉验证。",
+        "validation_state": "candidate_only",
+        "guardrail": "不是本站Thesis，也不是买卖信号；需MyAlpha独立验证后才能升级。"
+      }
+    ],
+    "research_alerts": [
+      {
+        "author": "BrightLine",
+        "title": "段永平的93条语录，对不上他自己的13F",
+        "url": "https://blog.wenxuecity.com/myblog/82458/202609/20915.html",
+        "published_at": "2026-09-27",
+        "symbols": [
+          "META",
+          "NVDA",
+          "INTC",
+          "TSLA"
+        ],
+        "topics": [
+          "个股与行业",
+          "Sell Put",
+          "风险管理",
+          "长期持有纪律",
+          "仓位管理"
+        ],
+        "source_view": "出现明确操作：add / trim / buy / sell；涉及：META / NVDA / INTC / TSLA",
+        "myalpha_view": "先核对行情、估值、事件与现有 Thesis；外部作者观点不能单独触发买卖。",
+        "what_changes_view": "只有独立证据与后续结果支持，才允许升级为 Breadcrumb / Thesis 样本。",
+        "priority": 80
+      },
+      {
+        "author": "BrightLine",
+        "title": "在座各位三十年后都是Billionaire？我算了一下，是真的",
+        "url": "https://blog.wenxuecity.com/myblog/82458/202609/20217.html",
+        "published_at": "2026-09-26",
+        "symbols": [
+          "QQQ",
+          "SPY",
+          "VGT"
+        ],
+        "topics": [
+          "人生与创业",
+          "风险管理",
+          "失败复盘",
+          "长期持有纪律"
+        ],
+        "source_view": "涉及：QQQ / SPY / VGT；可进入失败复盘",
+        "myalpha_view": "先核对行情、估值、事件与现有 Thesis；外部作者观点不能单独触发买卖。",
+        "what_changes_view": "只有独立证据与后续结果支持，才允许升级为 Breadcrumb / Thesis 样本。",
+        "priority": 80
+      },
+      {
+        "author": "BrightLine",
+        "title": "错过最好的10天？那错过最差的10天呢",
+        "url": "https://blog.wenxuecity.com/myblog/82458/202609/19534.html",
+        "published_at": "2026-09-25",
+        "symbols": [],
+        "topics": [
+          "概率与复盘",
+          "风险管理",
+          "失败复盘",
+          "长期持有纪律",
+          "仓位管理"
+        ],
+        "source_view": "可进入失败复盘",
+        "myalpha_view": "先核对行情、估值、事件与现有 Thesis；外部作者观点不能单独触发买卖。",
+        "what_changes_view": "只有独立证据与后续结果支持，才允许升级为 Breadcrumb / Thesis 样本。",
+        "priority": 80
+      },
+      {
+        "author": "BrightLine",
+        "title": "聪明、勤奋、人缘好，为什么还是被甩在后面",
+        "url": "https://blog.wenxuecity.com/myblog/82458/202609/12834.html",
+        "published_at": "2026-09-16",
+        "symbols": [],
+        "topics": [
+          "人生与创业",
+          "风险管理",
+          "失败复盘",
+          "长期持有纪律",
+          "仓位管理"
+        ],
+        "source_view": "可进入失败复盘",
+        "myalpha_view": "先核对行情、估值、事件与现有 Thesis；外部作者观点不能单独触发买卖。",
+        "what_changes_view": "只有独立证据与后续结果支持，才允许升级为 Breadcrumb / Thesis 样本。",
+        "priority": 80
+      },
+      {
+        "author": "BrightLine",
+        "title": "英特尔：美国唯一的代工厂，值多少钱（兼更新我的INTC持仓）",
+        "url": "https://blog.wenxuecity.com/myblog/82458/202609/3770.html",
+        "published_at": "2026-09-06",
+        "symbols": [
+          "MRVL",
+          "TSLA",
+          "INTC",
+          "META",
+          "NVDA",
+          "MU"
+        ],
+        "topics": [
+          "个股与行业",
+          "LEAPS",
+          "风险管理",
+          "长期持有纪律",
+          "仓位管理"
+        ],
+        "source_view": "出现明确操作：hold；涉及：MRVL / TSLA / INTC / META / NVDA / MU",
+        "myalpha_view": "先核对行情、估值、事件与现有 Thesis；外部作者观点不能单独触发买卖。",
+        "what_changes_view": "只有独立证据与后续结果支持，才允许升级为 Breadcrumb / Thesis 样本。",
+        "priority": 80
+      },
+      {
+        "author": "BrightLine",
+        "title": "ServiceNow回来了，我在145卖掉一半",
+        "url": "https://blog.wenxuecity.com/myblog/82458/202608/22905.html",
+        "published_at": "2026-08-28",
+        "symbols": [
+          "NOW"
+        ],
+        "topics": [
+          "个股与行业",
+          "风险管理",
+          "失败复盘",
+          "长期持有纪律"
+        ],
+        "source_view": "出现明确操作：减仓 / buy；涉及：NOW；可进入失败复盘",
+        "myalpha_view": "先核对行情、估值、事件与现有 Thesis；外部作者观点不能单独触发买卖。",
+        "what_changes_view": "只有独立证据与后续结果支持，才允许升级为 Breadcrumb / Thesis 样本。",
+        "priority": 80
+      },
+      {
+        "author": "BrightLine",
+        "title": "子弹与耐心：8·18 AI板块大跌手记。",
+        "url": "https://blog.wenxuecity.com/myblog/82458/202608/14095.html",
+        "published_at": "2026-08-18",
+        "symbols": [
+          "CRWV",
+          "MRVL",
+          "NBIS",
+          "INTC",
+          "IREN",
+          "META",
+          "QCOM",
+          "NVDA",
+          "MU"
+        ],
+        "topics": [
+          "研究工具",
+          "Sell Put",
+          "风险管理",
+          "失败复盘",
+          "仓位管理"
+        ],
+        "source_view": "出现明确操作：clear / trim_half / trim / sell / no_add / sell_put / no_direct_stock_buy；具体条件：NBIS 第一档 180 / 第二档 150 / 卖出线 250；CRWV 第一档 75 / 第二档 62 / 卖出线 110；IREN 第一档 35 / 第二档 30 / 目标区 80-100；组合规则：cash_floor / no_core_leverage / predefined_levels / one_tranche_at_a_time；涉及：CRWV / MRVL / NBIS / INTC / IREN / META / QCOM / NVDA / MU；可进入失败复盘",
+        "myalpha_view": "先核对行情、估值、事件与现有 Thesis；外部作者观点不能单独触发买卖。",
+        "what_changes_view": "只有独立证据与后续结果支持，才允许升级为 Breadcrumb / Thesis 样本。",
+        "priority": 80
+      },
+      {
+        "author": "BrightLine",
+        "title": "439%之后：AI神童爆仓有感",
+        "url": "https://blog.wenxuecity.com/myblog/82458/202607/22473.html",
+        "published_at": "2026-07-30",
+        "symbols": [
+          "CRWV",
+          "NBIS",
+          "IREN",
+          "MU"
+        ],
+        "topics": [
+          "风险管理",
+          "失败复盘",
+          "长期持有纪律",
+          "仓位管理"
+        ],
+        "source_view": "出现明确操作：clear / hold；涉及：CRWV / NBIS / IREN / MU；可进入失败复盘",
+        "myalpha_view": "先核对行情、估值、事件与现有 Thesis；外部作者观点不能单独触发买卖。",
+        "what_changes_view": "只有独立证据与后续结果支持，才允许升级为 Breadcrumb / Thesis 样本。",
+        "priority": 80
+      },
+      {
+        "author": "BrightLine",
+        "title": "为什么我逢低买进特斯拉",
+        "url": "https://blog.wenxuecity.com/myblog/82458/202607/18322.html",
+        "published_at": "2026-07-25",
+        "symbols": [
+          "META",
+          "INTC",
+          "TSLA",
+          "NVDA"
+        ],
+        "topics": [
+          "个股与行业",
+          "风险管理",
+          "长期持有纪律",
+          "仓位管理"
+        ],
+        "source_view": "出现明确操作：add / buy / hold；涉及：META / INTC / TSLA / NVDA",
+        "myalpha_view": "先核对行情、估值、事件与现有 Thesis；外部作者观点不能单独触发买卖。",
+        "what_changes_view": "只有独立证据与后续结果支持，才允许升级为 Breadcrumb / Thesis 样本。",
+        "priority": 80
+      },
+      {
+        "author": "BrightLine",
+        "title": "资本市场最大的毒瘤：华尔街制造恐慌，逼出杠杆，低位收割",
+        "url": "https://blog.wenxuecity.com/myblog/82458/202607/16769.html",
+        "published_at": "2026-07-23",
+        "symbols": [
+          "TSLA",
+          "GOOG"
+        ],
+        "topics": [
+          "风险管理",
+          "失败复盘",
+          "长期持有纪律"
+        ],
+        "source_view": "涉及：TSLA / GOOG；可进入失败复盘",
+        "myalpha_view": "先核对行情、估值、事件与现有 Thesis；外部作者观点不能单独触发买卖。",
+        "what_changes_view": "只有独立证据与后续结果支持，才允许升级为 Breadcrumb / Thesis 样本。",
+        "priority": 80
+      },
+      {
+        "author": "BrightLine",
+        "title": "炒股有时候真的需要点运气，而且很多时候是先给你一巴掌，再给你一颗糖。",
+        "url": "https://blog.wenxuecity.com/myblog/82458/202606/22729.html",
+        "published_at": "2026-06-29",
+        "symbols": [
+          "TSLA"
+        ],
+        "topics": [
+          "概率与复盘",
+          "风险管理",
+          "仓位管理"
+        ],
+        "source_view": "出现明确操作：add / trim_half；涉及：TSLA",
+        "myalpha_view": "先核对行情、估值、事件与现有 Thesis；外部作者观点不能单独触发买卖。",
+        "what_changes_view": "只有独立证据与后续结果支持，才允许升级为 Breadcrumb / Thesis 样本。",
+        "priority": 80
+      },
+      {
+        "author": "BrightLine",
+        "title": "理性的悲观，天真的乐观 ——为什么算账的人，总是错过科技",
+        "url": "https://blog.wenxuecity.com/myblog/82458/202606/16186.html",
+        "published_at": "2026-06-21",
+        "symbols": [
+          "INTC",
+          "IREN",
+          "NVDA"
+        ],
+        "topics": [
+          "个股与行业",
+          "风险管理",
+          "长期持有纪律",
+          "仓位管理"
+        ],
+        "source_view": "出现明确操作：hold；涉及：INTC / IREN / NVDA",
+        "myalpha_view": "先核对行情、估值、事件与现有 Thesis；外部作者观点不能单独触发买卖。",
+        "what_changes_view": "只有独立证据与后续结果支持，才允许升级为 Breadcrumb / Thesis 样本。",
+        "priority": 80
+      },
+      {
+        "author": "BrightLine",
+        "title": "Time in the Market, Not Timing the Market",
+        "url": "https://blog.wenxuecity.com/myblog/82458/202606/10765.html",
+        "published_at": "2026-06-14",
+        "symbols": [
+          "INTC",
+          "IREN"
+        ],
+        "topics": [
+          "长期持有纪律",
+          "概率与复盘",
+          "风险管理",
+          "失败复盘",
+          "仓位管理"
+        ],
+        "source_view": "涉及：INTC / IREN；可进入失败复盘",
+        "myalpha_view": "先核对行情、估值、事件与现有 Thesis；外部作者观点不能单独触发买卖。",
+        "what_changes_view": "只有独立证据与后续结果支持，才允许升级为 Breadcrumb / Thesis 样本。",
+        "priority": 80
+      },
+      {
+        "author": "BrightLine",
+        "title": "最近越来越觉得，投资还是要回归 basic。",
+        "url": "https://blog.wenxuecity.com/myblog/82458/202606/8509.html",
+        "published_at": "2026-06-12",
+        "symbols": [
+          "TQQQ"
+        ],
+        "topics": [
+          "概率与复盘",
+          "Sell Put",
+          "风险管理",
+          "仓位管理"
+        ],
+        "source_view": "出现明确操作：buy；组合规则：do_not_chase；涉及：TQQQ",
+        "myalpha_view": "先核对行情、估值、事件与现有 Thesis；外部作者观点不能单独触发买卖。",
+        "what_changes_view": "只有独立证据与后续结果支持，才允许升级为 Breadcrumb / Thesis 样本。",
+        "priority": 80
+      },
+      {
+        "author": "BrightLine",
+        "title": "周五暴跌：就业报告只是借口，华尔街真正杀的是AI估值",
+        "url": "https://blog.wenxuecity.com/myblog/82458/202606/5022.html",
+        "published_at": "2026-06-07",
+        "symbols": [
+          "QQQ",
+          "SMH",
+          "SPY"
+        ],
+        "topics": [
+          "估值与价格",
+          "个股与行业",
+          "风险管理",
+          "长期持有纪律",
+          "仓位管理"
+        ],
+        "source_view": "出现明确操作：trim；涉及：QQQ / SMH / SPY",
+        "myalpha_view": "先核对行情、估值、事件与现有 Thesis；外部作者观点不能单独触发买卖。",
+        "what_changes_view": "只有独立证据与后续结果支持，才允许升级为 Breadcrumb / Thesis 样本。",
+        "priority": 80
+      },
+      {
+        "author": "BrightLine",
+        "title": "人生充满遗憾，投资尤其如此",
+        "url": "https://blog.wenxuecity.com/myblog/82458/202605/19753.html",
+        "published_at": "2026-05-31",
+        "symbols": [
+          "TSLA",
+          "NBIS",
+          "CRWV",
+          "META",
+          "MU"
+        ],
+        "topics": [
+          "个股与行业",
+          "风险管理",
+          "失败复盘",
+          "长期持有纪律",
+          "仓位管理"
+        ],
+        "source_view": "出现明确操作：buy / sell / clear / add / hold；涉及：TSLA / NBIS / CRWV / META / MU；可进入失败复盘",
+        "myalpha_view": "先核对行情、估值、事件与现有 Thesis；外部作者观点不能单独触发买卖。",
+        "what_changes_view": "只有独立证据与后续结果支持，才允许升级为 Breadcrumb / Thesis 样本。",
+        "priority": 80
+      },
+      {
+        "author": "BrightLine",
+        "title": "AI还在早期,但大回撤一定会来:我的答案不是逃顶,而是摔不死",
+        "url": "https://blog.wenxuecity.com/myblog/82458/202605/18645.html",
+        "published_at": "2026-05-30",
+        "symbols": [
+          "META",
+          "NVDA",
+          "QQQ",
+          "SMH"
+        ],
+        "topics": [
+          "风险管理",
+          "Sell Put",
+          "LEAPS",
+          "失败复盘",
+          "长期持有纪律",
+          "仓位管理"
+        ],
+        "source_view": "出现明确操作：hold；组合规则：do_not_chase；涉及：META / NVDA / QQQ / SMH；可进入失败复盘",
+        "myalpha_view": "先核对行情、估值、事件与现有 Thesis；外部作者观点不能单独触发买卖。",
+        "what_changes_view": "只有独立证据与后续结果支持，才允许升级为 Breadcrumb / Thesis 样本。",
+        "priority": 80
+      },
+      {
+        "author": "BrightLine",
+        "title": "IREN 最新更新：继续做 AI 基础设施产能的长期持有者",
+        "url": "https://blog.wenxuecity.com/myblog/82458/202605/16902.html",
+        "published_at": "2026-05-27",
+        "symbols": [
+          "IREN"
+        ],
+        "topics": [
+          "长期持有纪律",
+          "个股与行业",
+          "Sell Put",
+          "LEAPS",
+          "风险管理",
+          "仓位管理"
+        ],
+        "source_view": "出现明确操作：hold；涉及：IREN",
+        "myalpha_view": "先核对行情、估值、事件与现有 Thesis；外部作者观点不能单独触发买卖。",
+        "what_changes_view": "只有独立证据与后续结果支持，才允许升级为 Breadcrumb / Thesis 样本。",
+        "priority": 80
+      },
+      {
+        "author": "BrightLine",
+        "title": "IREN：重复 INTC 的 LEAPS 逻辑，我买的不是矿股，而是 NVIDIA AI Factory 产能",
+        "url": "https://blog.wenxuecity.com/myblog/82458/202605/13819.html",
+        "published_at": "2026-05-22",
+        "symbols": [
+          "INTC",
+          "IREN"
+        ],
+        "topics": [
+          "LEAPS",
+          "个股与行业",
+          "Sell Put",
+          "风险管理",
+          "长期持有纪律",
+          "仓位管理"
+        ],
+        "source_view": "出现明确操作：LEAPS / sell；涉及：INTC / IREN",
+        "myalpha_view": "先核对行情、估值、事件与现有 Thesis；外部作者观点不能单独触发买卖。",
+        "what_changes_view": "只有独立证据与后续结果支持，才允许升级为 Breadcrumb / Thesis 样本。",
+        "priority": 80
+      },
+      {
+        "author": "BrightLine",
+        "title": "IREN: 被低估的 AI 基础设施龙头",
+        "url": "https://blog.wenxuecity.com/myblog/82458/202605/9470.html",
+        "published_at": "2026-05-15",
+        "symbols": [
+          "INTC",
+          "IREN",
+          "NBIS",
+          "CRWV",
+          "META",
+          "NVDA"
+        ],
+        "topics": [
+          "个股与行业",
+          "风险管理",
+          "长期持有纪律"
+        ],
+        "source_view": "出现明确操作：buy / hold；涉及：INTC / IREN / NBIS / CRWV / META / NVDA",
+        "myalpha_view": "先核对行情、估值、事件与现有 Thesis；外部作者观点不能单独触发买卖。",
+        "what_changes_view": "只有独立证据与后续结果支持，才允许升级为 Breadcrumb / Thesis 样本。",
+        "priority": 80
+      }
+    ],
+    "authors": [
+      "BrightLine"
+    ],
+    "outcome_validation": {
+      "counts": {
+        "events": 41,
+        "author_owned": 21,
+        "unconfirmed": 20,
+        "mature60": 31,
+        "developing": 10,
+        "symbols": 7
+      },
+      "by_action": {
+        "add": {
+          "5": {
+            "n": 11,
+            "avg_return": 0.02971915963686834,
+            "median_return": 0.006194169290230089,
+            "avg_excess_vs_qqq": 0.01626835381573993,
+            "alignment_rate": 0.6363636363636364
+          },
+          "20": {
+            "n": 11,
+            "avg_return": 0.006922461313106385,
+            "median_return": -0.016117336078036892,
+            "avg_excess_vs_qqq": -0.01609344054827756,
+            "alignment_rate": 0.45454545454545453
+          },
+          "60": {
+            "n": 10,
+            "avg_return": -0.07968553344365195,
+            "median_return": -0.09071898328795563,
+            "avg_excess_vs_qqq": -0.10729787432220284,
+            "alignment_rate": 0.3
+          }
+        },
+        "buy": {
+          "5": {
+            "n": 4,
+            "avg_return": 0.07146116944597761,
+            "median_return": 0.07716983073974393,
+            "avg_excess_vs_qqq": 0.049106435314204555,
+            "alignment_rate": 0.6666666666666666
+          },
+          "20": {
+            "n": 4,
+            "avg_return": 0.1982942924370281,
+            "median_return": 0.1144089522581121,
+            "avg_excess_vs_qqq": 0.16096165191588413,
+            "alignment_rate": 0.6666666666666666
+          },
+          "60": {
+            "n": 3,
+            "avg_return": -0.0750234495127566,
+            "median_return": -0.15682396157106537,
+            "avg_excess_vs_qqq": -0.09104648606680821,
+            "alignment_rate": 0.0
+          }
+        },
+        "clear": {
+          "5": {
+            "n": 4,
+            "avg_return": -0.06010009619191284,
+            "median_return": -0.07184070558722683,
+            "avg_excess_vs_qqq": -0.07219442590047076,
+            "alignment_rate": 0.75
+          },
+          "20": {
+            "n": 4,
+            "avg_return": -0.005167207983797162,
+            "median_return": -0.010324496301930275,
+            "avg_excess_vs_qqq": -0.02131537609982012,
+            "alignment_rate": 0.5
+          },
+          "60": {
+            "n": 1,
+            "avg_return": -0.12356098160514561,
+            "median_return": -0.12356098160514561,
+            "avg_excess_vs_qqq": -0.08873247840314846,
+            "alignment_rate": 1.0
+          }
+        },
+        "hold": {
+          "5": {
+            "n": 13,
+            "avg_return": -0.016093490866606584,
+            "median_return": -0.02882793253742666,
+            "avg_excess_vs_qqq": -0.01816084451794307,
+            "alignment_rate": 0.38461538461538464
+          },
+          "20": {
+            "n": 13,
+            "avg_return": 0.005304404953693878,
+            "median_return": 0.03572864456297409,
+            "avg_excess_vs_qqq": -0.022803186826317948,
+            "alignment_rate": 0.5384615384615384
+          },
+          "60": {
+            "n": 11,
+            "avg_return": -0.07094084602518262,
+            "median_return": -0.024677924791086325,
+            "avg_excess_vs_qqq": -0.10033027734683266,
+            "alignment_rate": 0.45454545454545453
+          }
+        },
+        "sell": {
+          "5": {
+            "n": 5,
+            "avg_return": 0.022195719214349284,
+            "median_return": 0.020738766501478434,
+            "avg_excess_vs_qqq": 0.015877707233429583,
+            "alignment_rate": 0.5
+          },
+          "20": {
+            "n": 5,
+            "avg_return": 0.10798245910795592,
+            "median_return": 0.002623578894765277,
+            "avg_excess_vs_qqq": 0.09311312742377234,
+            "alignment_rate": 0.5
+          },
+          "60": {
+            "n": 3,
+            "avg_return": -0.07829783971816529,
+            "median_return": -0.12356098160514561,
+            "avg_excess_vs_qqq": -0.0641794678654261,
+            "alignment_rate": 1.0
+          }
+        },
+        "sell_put": {
+          "5": {
+            "n": 1,
+            "avg_return": -0.02882793253742666,
+            "median_return": -0.02882793253742666,
+            "avg_excess_vs_qqq": -0.022521271126311193,
+            "alignment_rate": 0.0
+          },
+          "20": {
+            "n": 1,
+            "avg_return": -0.060356263028235824,
+            "median_return": -0.060356263028235824,
+            "avg_excess_vs_qqq": -0.05679468861526216,
+            "alignment_rate": 0.0
+          },
+          "60": {
+            "n": 1,
+            "avg_return": -0.24310687890847082,
+            "median_return": -0.24310687890847082,
+            "avg_excess_vs_qqq": -0.24914607030438274,
+            "alignment_rate": 0.0
+          }
+        },
+        "trim": {
+          "5": {
+            "n": 4,
+            "avg_return": -0.0034415758197957336,
+            "median_return": -0.021336039833798837,
+            "avg_excess_vs_qqq": -0.006279490767187729,
+            "alignment_rate": 0.5
+          },
+          "20": {
+            "n": 4,
+            "avg_return": 0.03393252954699494,
+            "median_return": -0.013078184263584147,
+            "avg_excess_vs_qqq": 0.03913607924106924,
+            "alignment_rate": 0.75
+          },
+          "60": {
+            "n": 3,
+            "avg_return": -0.0888170314210928,
+            "median_return": -0.011939092517518457,
+            "avg_excess_vs_qqq": -0.08886346151252793,
+            "alignment_rate": 0.6666666666666666
+          }
+        },
+        "trim_half": {
+          "5": {
+            "n": 2,
+            "avg_return": -0.054283462423156736,
+            "median_return": -0.054283462423156736,
+            "avg_excess_vs_qqq": -0.039226808985325545,
+            "alignment_rate": 1.0
+          },
+          "20": {
+            "n": 2,
+            "avg_return": -0.16345191870564124,
+            "median_return": -0.16345191870564124,
+            "avg_excess_vs_qqq": -0.1179257678827223,
+            "alignment_rate": 1.0
+          },
+          "60": {
+            "n": 1,
+            "avg_return": -0.06911330049261089,
+            "median_return": -0.06911330049261089,
+            "avg_excess_vs_qqq": -0.09247765742044656,
+            "alignment_rate": 1.0
+          }
+        },
+        "unspecified": {
+          "5": {
+            "n": 1,
+            "avg_return": -0.04430761801279737,
+            "median_return": -0.04430761801279737,
+            "avg_excess_vs_qqq": -0.031786622440954315,
+            "alignment_rate": null
+          },
+          "20": {
+            "n": 1,
+            "avg_return": 0.04986116141494623,
+            "median_return": 0.04986116141494623,
+            "avg_excess_vs_qqq": 0.054677996740256196,
+            "alignment_rate": null
+          },
+          "60": {
+            "n": 0,
+            "avg_return": null,
+            "median_return": null,
+            "avg_excess_vs_qqq": null,
+            "alignment_rate": null
+          }
+        }
+      },
+      "mature_learning": {
+        "events_scanned": 41,
+        "mature20": 41,
+        "review_candidates": 25,
+        "recent_reviews": [
+          {
+            "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html:0:NBIS",
+            "author": "BrightLine",
+            "symbol": "NBIS",
+            "published_at": "2026-08-18",
+            "title": "子弹与耐心：8·18 AI板块大跌手记。",
+            "url": "https://blog.wenxuecity.com/myblog/82458/202608/14095.html",
+            "attribution": "author_action",
+            "return_20": -0.06168216253443515,
+            "mae_20": -0.16150137741046822,
+            "mfe_20": 0.09650482093663926,
+            "excess_vs_qqq_20": -0.05686532720912518,
+            "alignment_20": "aligned",
+            "review_tags": [
+              "large_adverse_move"
+            ],
+            "maturity": "mature20"
+          },
+          {
+            "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html:1:NBIS",
+            "author": "BrightLine",
+            "symbol": "NBIS",
+            "published_at": "2026-08-18",
+            "title": "子弹与耐心：8·18 AI板块大跌手记。",
+            "url": "https://blog.wenxuecity.com/myblog/82458/202608/14095.html",
+            "attribution": "author_plan",
+            "return_20": -0.06168216253443515,
+            "mae_20": -0.16150137741046822,
+            "mfe_20": 0.09650482093663926,
+            "excess_vs_qqq_20": -0.05686532720912518,
+            "alignment_20": "aligned",
+            "review_tags": [
+              "large_adverse_move"
+            ],
+            "maturity": "mature20"
+          },
+          {
+            "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html:7:MRVL",
+            "author": "BrightLine",
+            "symbol": "MRVL",
+            "published_at": "2026-08-18",
+            "title": "子弹与耐心：8·18 AI板块大跌手记。",
+            "url": "https://blog.wenxuecity.com/myblog/82458/202608/14095.html",
+            "attribution": "author_plan",
+            "return_20": 0.002623578894765277,
+            "mae_20": -0.1645358764002831,
+            "mfe_20": 0.060259026360721224,
+            "excess_vs_qqq_20": 0.007440414220075242,
+            "alignment_20": "not_aligned",
+            "review_tags": [
+              "direction_not_aligned",
+              "large_adverse_move"
+            ],
+            "maturity": "mature20"
+          },
+          {
+            "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html:3:IREN",
+            "author": "BrightLine",
+            "symbol": "IREN",
+            "published_at": "2026-08-18",
+            "title": "子弹与耐心：8·18 AI板块大跌手记。",
+            "url": "https://blog.wenxuecity.com/myblog/82458/202608/14095.html",
+            "attribution": "author_plan",
+            "return_20": 0.04986116141494623,
+            "mae_20": -0.15948327900519133,
+            "mfe_20": 0.19014849692140534,
+            "excess_vs_qqq_20": 0.054677996740256196,
+            "alignment_20": "not_scored",
+            "review_tags": [
+              "large_adverse_move"
+            ],
+            "maturity": "mature20"
+          },
+          {
+            "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202607-22473-html:0:NBIS",
+            "author": "BrightLine",
+            "symbol": "NBIS",
+            "published_at": "2026-07-30",
+            "title": "439%之后：AI神童爆仓有感",
+            "url": "https://blog.wenxuecity.com/myblog/82458/202607/22473.html",
+            "attribution": "unconfirmed_author_context",
+            "return_20": 0.0410331699305746,
+            "mae_20": -0.12285067310324238,
+            "mfe_20": 0.3976161445243487,
+            "excess_vs_qqq_20": 0.005894246927005797,
+            "alignment_20": "not_aligned",
+            "review_tags": [
+              "direction_not_aligned"
+            ],
+            "maturity": "mature20"
+          },
+          {
+            "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202607-22473-html:0:IREN",
+            "author": "BrightLine",
+            "symbol": "IREN",
+            "published_at": "2026-07-30",
+            "title": "439%之后：AI神童爆仓有感",
+            "url": "https://blog.wenxuecity.com/myblog/82458/202607/22473.html",
+            "attribution": "unconfirmed_author_context",
+            "return_20": -0.13144677202009059,
+            "mae_20": -0.14712728163665312,
+            "mfe_20": 0.2050716648291071,
+            "excess_vs_qqq_20": -0.16658569502365939,
+            "alignment_20": "aligned",
+            "review_tags": [
+              "underperformed_qqq"
+            ],
+            "maturity": "mature20"
+          },
+          {
+            "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202606-22729-html:0:TSLA",
+            "author": "BrightLine",
+            "symbol": "TSLA",
+            "published_at": "2026-06-29",
+            "title": "炒股有时候真的需要点运气，而且很多时候是先给你一巴掌，再给你一颗糖。",
+            "url": "https://blog.wenxuecity.com/myblog/82458/202606/22729.html",
+            "attribution": "unconfirmed_author_context",
+            "return_20": -0.26522167487684734,
+            "mae_20": -0.26753694581280785,
+            "mfe_20": 0.06615738916256153,
+            "excess_vs_qqq_20": -0.17898620855631941,
+            "alignment_20": "not_aligned",
+            "review_tags": [
+              "direction_not_aligned",
+              "large_adverse_move",
+              "underperformed_qqq"
+            ],
+            "maturity": "mature20"
+          },
+          {
+            "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202606-22729-html:1:TSLA",
+            "author": "BrightLine",
+            "symbol": "TSLA",
+            "published_at": "2026-06-29",
+            "title": "炒股有时候真的需要点运气，而且很多时候是先给你一巴掌，再给你一颗糖。",
+            "url": "https://blog.wenxuecity.com/myblog/82458/202606/22729.html",
+            "attribution": "unconfirmed_author_context",
+            "return_20": -0.26522167487684734,
+            "mae_20": -0.26753694581280785,
+            "mfe_20": 0.06615738916256153,
+            "excess_vs_qqq_20": -0.17898620855631941,
+            "alignment_20": "aligned",
+            "review_tags": [
+              "large_adverse_move",
+              "underperformed_qqq"
+            ],
+            "maturity": "mature20"
+          },
+          {
+            "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202606-16186-html:0:NVDA",
+            "author": "BrightLine",
+            "symbol": "NVDA",
+            "published_at": "2026-06-21",
+            "title": "理性的悲观，天真的乐观 ——为什么算账的人，总是错过科技",
+            "url": "https://blog.wenxuecity.com/myblog/82458/202606/16186.html",
+            "attribution": "unconfirmed_author_context",
+            "return_20": -0.019627317442300396,
+            "mae_20": -0.10234581914491103,
+            "mfe_20": 0.0120601589103293,
+            "excess_vs_qqq_20": 0.02491326097876634,
+            "alignment_20": "not_aligned",
+            "review_tags": [
+              "direction_not_aligned"
+            ],
+            "maturity": "mature20"
+          },
+          {
+            "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202605-19753-html:5:TSLA",
+            "author": "BrightLine",
+            "symbol": "TSLA",
+            "published_at": "2026-05-31",
+            "title": "人生充满遗憾，投资尤其如此",
+            "url": "https://blog.wenxuecity.com/myblog/82458/202605/19753.html",
+            "attribution": "unconfirmed_author_context",
+            "return_20": -0.016117336078036892,
+            "mae_20": -0.13775760836510798,
+            "mfe_20": 0.014292731993730934,
+            "excess_vs_qqq_20": -0.015248997860301094,
+            "alignment_20": "not_aligned",
+            "review_tags": [
+              "direction_not_aligned"
+            ],
+            "maturity": "mature20"
+          },
+          {
+            "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202605-19753-html:6:TSLA",
+            "author": "BrightLine",
+            "symbol": "TSLA",
+            "published_at": "2026-05-31",
+            "title": "人生充满遗憾，投资尤其如此",
+            "url": "https://blog.wenxuecity.com/myblog/82458/202605/19753.html",
+            "attribution": "unconfirmed_author_context",
+            "return_20": -0.016117336078036892,
+            "mae_20": -0.13775760836510798,
+            "mfe_20": 0.014292731993730934,
+            "excess_vs_qqq_20": -0.015248997860301094,
+            "alignment_20": "not_aligned",
+            "review_tags": [
+              "direction_not_aligned"
+            ],
+            "maturity": "mature20"
+          },
+          {
+            "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202605-19753-html:2:NBIS",
+            "author": "BrightLine",
+            "symbol": "NBIS",
+            "published_at": "2026-05-31",
+            "title": "人生充满遗憾，投资尤其如此",
+            "url": "https://blog.wenxuecity.com/myblog/82458/202605/19753.html",
+            "attribution": "unconfirmed_author_context",
+            "return_20": 0.1314269326887625,
+            "mae_20": -0.17940104059977868,
+            "mfe_20": 0.22848129788192884,
+            "excess_vs_qqq_20": 0.13229527090649829,
+            "alignment_20": "not_aligned",
+            "review_tags": [
+              "direction_not_aligned",
+              "large_adverse_move"
+            ],
+            "maturity": "mature20"
+          },
+          {
+            "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202605-18645-html:0:QQQ",
+            "author": "BrightLine",
+            "symbol": "QQQ",
+            "published_at": "2026-05-30",
+            "title": "AI还在早期,但大回撤一定会来:我的答案不是逃顶,而是摔不死",
+            "url": "https://blog.wenxuecity.com/myblog/82458/202605/18645.html",
+            "attribution": "author_action",
+            "return_20": -0.0008683382177357979,
+            "mae_20": -0.06874796483230217,
+            "mfe_20": 0.015752197981113714,
+            "excess_vs_qqq_20": 0.0,
+            "alignment_20": "not_aligned",
+            "review_tags": [
+              "direction_not_aligned"
+            ],
+            "maturity": "mature20"
+          },
+          {
+            "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202605-16902-html:0:IREN",
+            "author": "BrightLine",
+            "symbol": "IREN",
+            "published_at": "2026-05-27",
+            "title": "IREN 最新更新：继续做 AI 基础设施产能的长期持有者",
+            "url": "https://blog.wenxuecity.com/myblog/82458/202605/16902.html",
+            "attribution": "author_action",
+            "return_20": -0.290501953712053,
+            "mae_20": -0.3229636308987076,
+            "mfe_20": 0.06261797415088655,
+            "excess_vs_qqq_20": -0.25869566919586207,
+            "alignment_20": "not_aligned",
+            "review_tags": [
+              "direction_not_aligned",
+              "large_adverse_move",
+              "underperformed_qqq"
+            ],
+            "maturity": "mature20"
+          },
+          {
+            "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202605-13819-html:0:IREN",
+            "author": "BrightLine",
+            "symbol": "IREN",
+            "published_at": "2026-05-22",
+            "title": "IREN：重复 INTC 的 LEAPS 逻辑，我买的不是矿股，而是 NVIDIA AI Factory 产能",
+            "url": "https://blog.wenxuecity.com/myblog/82458/202605/13819.html",
+            "attribution": "author_action",
+            "return_20": -0.15717158176943702,
+            "mae_20": -0.18163371313672927,
+            "mfe_20": 0.18476206434316356,
+            "excess_vs_qqq_20": -0.13604094096278097,
+            "alignment_20": "aligned",
+            "review_tags": [
+              "large_adverse_move",
+              "underperformed_qqq"
+            ],
+            "maturity": "mature20"
+          },
+          {
+            "event_id": "brightline--blog-wenxuecity-com-myblog-82458-202605-8868-html:0:NVDA",
+            "author": "BrightLine",
+            "symbol": "NVDA",
+            "published_at": "2026-05-14",
+            "title": "账户越看越慌？该学着给持仓买保险了",
+            "url": "https://blog.wenxuecity.com/myblog/82458/202605/8868.html",
+            "attribution": "unconfirmed_author_context",
+            "return_20": -0.07533948467966578,
+            "mae_20": -0.13239902506963785,
+            "mfe_20": 0.010967966573816268,
+            "excess_vs_qqq_20": -0.12302022368887533,
+            "alignment_20": "not_aligned",
+            "review_tags": [
+              "direction_not_aligned",
+              "underperformed_qqq"
+            ],
+            "maturity": "mature20"
+          },
+          {
+            "event_id": "brightline--blog-wenxuecity-com-myblog-82458-202605-4789-html:3:TSLA",
+            "author": "BrightLine",
+            "symbol": "TSLA",
+            "published_at": "2026-05-08",
+            "title": "财富的逻辑：从搏一搏到敢再搏，再到工程化的复利 — 我的投资哲学、方法论与实战案例",
+            "url": "https://blog.wenxuecity.com/myblog/82458/202605/4789.html",
+            "attribution": "author_action",
+            "return_20": -0.060356263028235824,
+            "mae_20": -0.08982376350198984,
+            "mfe_20": 0.07400037900322132,
+            "excess_vs_qqq_20": -0.05679468861526216,
+            "alignment_20": "not_aligned",
+            "review_tags": [
+              "direction_not_aligned"
+            ],
+            "maturity": "mature20"
+          },
+          {
+            "event_id": "brightline--blog-wenxuecity-com-myblog-82458-202605-4789-html:4:TSLA",
+            "author": "BrightLine",
+            "symbol": "TSLA",
+            "published_at": "2026-05-08",
+            "title": "财富的逻辑：从搏一搏到敢再搏，再到工程化的复利 — 我的投资哲学、方法论与实战案例",
+            "url": "https://blog.wenxuecity.com/myblog/82458/202605/4789.html",
+            "attribution": "author_action",
+            "return_20": -0.060356263028235824,
+            "mae_20": -0.08982376350198984,
+            "mfe_20": 0.07400037900322132,
+            "excess_vs_qqq_20": -0.05679468861526216,
+            "alignment_20": "not_aligned",
+            "review_tags": [
+              "direction_not_aligned"
+            ],
+            "maturity": "mature20"
+          },
+          {
+            "event_id": "brightline--blog-wenxuecity-com-myblog-82458-202605-4789-html:5:TSLA",
+            "author": "BrightLine",
+            "symbol": "TSLA",
+            "published_at": "2026-05-08",
+            "title": "财富的逻辑：从搏一搏到敢再搏，再到工程化的复利 — 我的投资哲学、方法论与实战案例",
+            "url": "https://blog.wenxuecity.com/myblog/82458/202605/4789.html",
+            "attribution": "author_action",
+            "return_20": -0.060356263028235824,
+            "mae_20": -0.08982376350198984,
+            "mfe_20": 0.07400037900322132,
+            "excess_vs_qqq_20": -0.05679468861526216,
+            "alignment_20": "not_aligned",
+            "review_tags": [
+              "direction_not_aligned"
+            ],
+            "maturity": "mature20"
+          },
+          {
+            "event_id": "brightline--blog-wenxuecity-com-myblog-82458-202605-4789-html:6:TSLA",
+            "author": "BrightLine",
+            "symbol": "TSLA",
+            "published_at": "2026-05-08",
+            "title": "财富的逻辑：从搏一搏到敢再搏，再到工程化的复利 — 我的投资哲学、方法论与实战案例",
+            "url": "https://blog.wenxuecity.com/myblog/82458/202605/4789.html",
+            "attribution": "author_action",
+            "return_20": -0.060356263028235824,
+            "mae_20": -0.08982376350198984,
+            "mfe_20": 0.07400037900322132,
+            "excess_vs_qqq_20": -0.05679468861526216,
+            "alignment_20": "not_aligned",
+            "review_tags": [
+              "direction_not_aligned"
+            ],
+            "maturity": "mature20"
+          }
+        ],
+        "method": "external-source 20-session descriptive outcome review; no causal claim"
+      }
+    },
+    "note": "外部作者观点只增加研究线索；结果验证只影响研究排序和复盘，不改变技术证据分数、核心阈值或交易规则。"
+  },
+  "guardrails": [
+    "Evidence Score 是研究优先级线索，不是买入概率。",
+    "Failure Attribution 是归因假设，不是因果证明。",
+    "任何自主学习只允许调整研究排序与提醒权重。",
+    "QQQM/VGT/QLD 核心阈值不由本引擎修改。",
+    "系统不会自动下单或修改持仓。",
+    "真实期权持仓不得写入公开静态 JSON。"
+  ]
+}

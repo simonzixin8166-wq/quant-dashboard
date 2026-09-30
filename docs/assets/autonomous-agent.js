@@ -1,7 +1,7 @@
 (function(global){
   'use strict';
   const $=id=>document.getElementById(id);
-  const state={publicData:null,lastRender:0};
+  const state={publicData:null,evidenceData:null,lastRender:0};
   const MEMORY_KEY='mavAgentDecisionMemoryV562', LEGACY_MEMORY_KEY='mavAgentDecisionMemoryV56', POLICY_KEY='mavLearningPolicyV1';
 
   function n(v){const x=Number(v);return Number.isFinite(x)?x:null}
@@ -85,11 +85,46 @@
 
   async function loadPublic(){
     try{
-      const r=await fetch('research/autonomous_agent.json?v='+Date.now(),{cache:'no-store'});
-      state.publicData=r.ok?await r.json():null;
-    }catch{state.publicData=null}
+      const [a,e]=await Promise.all([
+        fetch('research/autonomous_agent.json?v='+Date.now(),{cache:'no-store'}),
+        fetch('research/evidence_attribution.json?v='+Date.now(),{cache:'no-store'})
+      ]);
+      state.publicData=a.ok?await a.json():null;
+      state.evidenceData=e.ok?await e.json():null;
+    }catch{state.publicData=null;state.evidenceData=null}
   }
 
+
+  function termHelp(term){
+    const g=state.evidenceData?.glossary?.[term];
+    if(!g)return'';
+    return `<details class="agent-term-help"><summary>${esc(term)} · ${esc(g.cn||'术语解释')}</summary><p><b>这是什么意思：</b>${esc(g.plain||'')}</p><p><b>为什么重要：</b>${esc(g.why||'')}</p></details>`;
+  }
+  function evidenceHtml(){
+    const top=state.evidenceData?.breadcrumb_engine?.top||[];
+    if(!top.length)return'';
+    return `<div class="agent-section-title"><b>Evidence Map · 证据地图</b><span>先解释，再判断</span></div>
+      <div class="agent-grid">${top.slice(0,6).map(x=>`<article class="agent-card agent-watch">
+        <div class="agent-card-head"><div><span>BREADCRUMB ENGINE</span><h3>${esc(x.symbol)} · ${esc(x.trend_state?.label_cn||'观察')}</h3></div><b>证据 ${x.evidence_score}/100</b></div>
+        <p><strong>现在是什么意思：</strong>${esc(x.trend_state?.explanation||'')}</p>
+        ${termHelp(x.trend_state?.state)}
+        <ul>${(x.breadcrumbs||[]).slice(0,4).map(b=>`<li><b>${esc(b.evidence)}</b><br><small>${esc(b.meaning)}</small></li>`).join('')}</ul>
+        <div class="agent-change"><b>什么情况会改变判断</b><span>${esc(x.next_confirmation||'继续等待新证据')}</span></div>
+        <small>${esc(x.source_scope||'')}</small>
+      </article>`).join('')}</div>`;
+  }
+  function attributionHtml(){
+    const f=state.evidenceData?.failure_attribution;
+    if(!f)return'';
+    const rows=f.recent||[];
+    return `<div class="agent-section-title"><b>Failure Attribution · 错误归因</b><span>${f.review_samples||0} 个需要复盘的成熟样本</span></div>
+      ${termHelp('Failure Attribution')}
+      ${rows.length?`<div class="agent-grid">${rows.slice(0,4).map(x=>`<article class="agent-card agent-review">
+        <div class="agent-card-head"><div><span>OUTCOME REVIEW</span><h3>${esc(x.symbol)} · ${esc(x.date||'')}</h3></div><b>20日 ${pct(x.return_20,1)}</b></div>
+        <p>${(x.attribution_hypotheses||[]).map(esc).join(' ')}</p>
+        <small>${esc(x.guardrail||'')}</small>
+      </article>`).join('')}</div>`:'<div class="agent-empty">暂无新的成熟失败样本需要归因。</div>'}`;
+  }
   function optionMark(position,quote){
     const short=String(position.side||'').toLowerCase()==='short';
     const bid=n(quote?.bid),ask=n(quote?.ask),mid=n(quote?.mid),last=n(quote?.last);
@@ -386,11 +421,14 @@
     const visibleStocks=visibleTracked.filter(x=>x.kind==='stock');
     const optionsHtml=visibleOptions.length?`<div class="agent-section-title"><b>期权持仓决策</b><span>${visibleOptions.length} 笔需要注意</span></div><div class="agent-grid">${visibleOptions.map(card).join('')}</div>`:'<div class="agent-section-title"><b>期权持仓决策</b><span>当前无需要处理的异常</span></div>';
     const stocksHtml=visibleStocks.length?`<div class="agent-section-title"><b>关注股与核心资产</b><span>${visibleStocks.length} 项需要显示${quietSuppressed?` · 已降噪 ${quietSuppressed}`:''}</span></div><div class="agent-grid">${visibleStocks.map(card).join('')}</div>`:'<div class="agent-section-title"><b>关注股与核心资产</b><span>当前无重要变化</span></div>';
-    host.innerHTML=`<div class="agent-attention-head"><div><span class="agent-kicker">MYALPHA AUTONOMOUS AGENT · V5.6</span><h2>自主研究助手</h2><p>不是只告诉你“需要复查”，而是明确说明今天做什么、为什么、什么条件会改变判断。</p></div><div class="agent-counts"><span class="action">需处理 <b>${counts.action}</b></span><span class="review">需复查 <b>${counts.review}</b></span><span>观察 <b>${counts.watch}</b></span></div></div>
+    host.innerHTML=`<div class="agent-attention-head"><div><span class="agent-kicker">MYALPHA AUTONOMOUS AGENT · V5.7</span><h2>自主研究助手</h2><p>不是只告诉你“需要复查”，而是明确说明今天做什么、为什么、什么条件会改变判断。</p></div><div class="agent-counts"><span class="action">需处理 <b>${counts.action}</b></span><span class="review">需复查 <b>${counts.review}</b></span><span>观察 <b>${counts.watch}</b></span></div></div>
       ${tracked.length?`<div class="agent-section-title"><b>Changed Since Last Decision</b><span>${changed.length} 项变化</span></div>${changed.length?`<div class="agent-grid">${changed.slice(0,6).map(card).join('')}</div>`:'<div class="agent-empty">当前判断与上次一致，不重复打扰。</div>'}`+optionsHtml+stocksHtml:'<div class="agent-empty">当前没有需要打扰你的重大变化；系统仍在后台记录和学习。</div>'}
       <div class="agent-section-title"><b>Learning Policy · 学习策略</b><span>v${policy.version} · ${policy.baselineMode?'基线模式':'自主学习生效'} · 可审计</span></div>
       <div class="agent-grid"><article class="agent-card agent-watch"><div class="agent-card-head"><div><span>AUDITABLE POLICY</span><h3>研究权重调整</h3></div><b>成熟样本 ${policy.evidence.sample}</b></div><div class="agent-metrics"><span>二次启动 ${policy.adjustments.restart_bonus>=0?'+':''}${policy.adjustments.restart_bonus}</span><span>重复提醒 ${policy.adjustments.repeat_alert_penalty}</span><span>弱候选 ${policy.adjustments.weak_candidate_penalty}</span></div><p>证据：错过上涨 ${policy.evidence.missed} · 噪音 ${policy.evidence.noisy} · 误报 ${policy.evidence.false_positive}</p><small>仅影响研究优先级与提醒显示；不改变核心ETF阈值、仓位或交易规则。</small><div><button type="button" onclick="MAVAutonomousAgent.resetLearningPolicy()">回到学习基线</button> <button type="button" onclick="MAVAutonomousAgent.resumeLearningPolicy()">恢复自主学习</button></div></article></div>
       ${learned.length?`<div class="agent-section-title"><b>What I learned · 自主学习</b><span>${selfReview.sample||0} 个成熟样本</span></div><div class="agent-grid">${learned.slice(0,3).map((x,i)=>`<article class="agent-card agent-watch"><div class="agent-card-head"><div><span>SELF REVIEW</span><h3>学习结论 #${i+1}</h3></div><b>研究权重</b></div><p>${esc(x)}</p><small>只调整研究优先级和提醒权重，不自动改变核心ETF阈值，也不自动交易。</small></article>`).join('')}</div>`:''}
+      ${evidenceHtml()}
+      ${attributionHtml()}
+      ${termHelp('Research Priority')}
       ${discovery.length?`<details class="agent-discovery"><summary>自主发现 · 异常机会 ${discovery.length}</summary><div>${discovery.slice(0,8).map(x=>`<p><b>${esc(x.symbol)}</b> · ${pct(x.price_change,1)} · ${esc(x.event_strength)}<br><small>${esc(x.next_step)} ${esc(x.guardrail)}</small></p>`).join('')}</div></details>`:''}
       <div class="agent-foot">自主研究 ≠ 自动交易。系统负责主动发现、解释、排序和提出方案；最终交易仍由投资者确认。</div>`;
     state.lastRender=Date.now();

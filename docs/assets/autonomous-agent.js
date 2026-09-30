@@ -123,7 +123,7 @@
     if(premiumPriority)positives.push('策略备注识别为权利金优先');
     score=Math.max(0,Math.min(100,Math.round(score)));
     return{
-      version:'v2.1',score,label:score>=75?'高':score>=55?'中高':score>=40?'中':score>=25?'偏低':'低',
+      version:'v2',calculationVersion:'2.1',score,label:score>=75?'高':score>=55?'中高':score>=40?'中':score>=25?'偏低':'低',
       positives,risks,components,
       remainingPremiumRatio:uncapturedOriginalRatio,
       currentCloseCostRatio:rawCloseCostRatio,

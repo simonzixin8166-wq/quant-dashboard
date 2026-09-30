@@ -35,6 +35,7 @@ jobs:
           python tests/test_v561_premium_income_purpose.py
           python tests/test_v562_autonomous_learning_loop.py
           python tests/test_v563_data_integrity_edge_ui.py
+          python tests/test_v564_learning_policy.py
       - name: Public static privacy guard
         run: |
           if grep -R -n -E '"(option_positions|private_positions|broker_account_id)"' docs/research docs/data.json 2>/dev/null; then

@@ -1,13 +1,9 @@
 name: Wenxuecity Research Update
 on:
-  schedule:
-    - cron: '20 22 * * *'
-    # Both summer/winter regular closes and early closes; NYSE calendar gates actual work.
-    - cron: '40 17,18,20,21 * * 1-5'
   workflow_dispatch:
     inputs:
       mode:
-        description: 'blog: 每日博客/研究入口检查；close: 收盘归纳（仍受交易日限制）'
+        description: '手动研究维护：blog / close；默认不自动抓取'
         required: true
         default: blog
         type: choice

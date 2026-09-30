@@ -85,15 +85,30 @@
 
   async function loadPublic(){
     try{
-      const [a,e]=await Promise.all([
+      const [a,e,s]=await Promise.all([
         fetch('research/autonomous_agent.json?v='+Date.now(),{cache:'no-store'}),
-        fetch('research/evidence_attribution.json?v='+Date.now(),{cache:'no-store'})
+        fetch('research/evidence_attribution.json?v='+Date.now(),{cache:'no-store'}),
+        fetch('data/source_intelligence.json?v='+Date.now(),{cache:'no-store'})
       ]);
       state.publicData=a.ok?await a.json():null;
       state.evidenceData=e.ok?await e.json():null;
-    }catch{state.publicData=null;state.evidenceData=null}
+      state.sourceIntel=s.ok?await s.json():null;
+    }catch{state.publicData=null;state.evidenceData=null;state.sourceIntel=null}
   }
 
+
+  function sourceIntelHtml(){
+    const rows=state.sourceIntel?.research_alerts||[];
+    if(!rows.length)return'';
+    return `<div class="agent-section-title"><b>Source Intelligence · 外部研究线索</b><span>${rows.length} 条待独立核验</span></div>
+      <div class="agent-grid">${rows.slice(0,6).map(x=>`<article class="agent-card agent-review">
+        <div class="agent-card-head"><div><span>EXTERNAL SOURCE · ${esc(x.author||'未知作者')}</span><h3>${esc((x.symbols||[]).join(' / ')||x.title||'研究线索')}</h3></div><b>研究优先级 ${x.priority||60}</b></div>
+        <p><strong>来源观点：</strong>${esc(x.source_view||x.title||'')}</p>
+        <p><strong>MyAlpha判断：</strong>${esc(x.myalpha_view||'先独立验证')}</p>
+        <div class="agent-change"><b>什么情况会升级判断</b><span>${esc(x.what_changes_view||'需要独立证据与后续结果')}</span></div>
+        <small>${esc(x.published_at||'')} · <a href="${esc(x.url||'#')}" target="_blank" rel="noopener noreferrer">查看作者原文</a> · 作者观点仅作研究来源</small>
+      </article>`).join('')}</div>`;
+  }
 
   function termHelp(term){
     const g=state.evidenceData?.glossary?.[term];
@@ -426,6 +441,7 @@
       <div class="agent-section-title"><b>Learning Policy · 学习策略</b><span>v${policy.version} · ${policy.baselineMode?'基线模式':'自主学习生效'} · 可审计</span></div>
       <div class="agent-grid"><article class="agent-card agent-watch"><div class="agent-card-head"><div><span>AUDITABLE POLICY</span><h3>研究权重调整</h3></div><b>成熟样本 ${policy.evidence.sample}</b></div><div class="agent-metrics"><span>二次启动 ${policy.adjustments.restart_bonus>=0?'+':''}${policy.adjustments.restart_bonus}</span><span>重复提醒 ${policy.adjustments.repeat_alert_penalty}</span><span>弱候选 ${policy.adjustments.weak_candidate_penalty}</span></div><p>证据：错过上涨 ${policy.evidence.missed} · 噪音 ${policy.evidence.noisy} · 误报 ${policy.evidence.false_positive}</p><small>仅影响研究优先级与提醒显示；不改变核心ETF阈值、仓位或交易规则。</small><div><button type="button" onclick="MAVAutonomousAgent.resetLearningPolicy()">回到学习基线</button> <button type="button" onclick="MAVAutonomousAgent.resumeLearningPolicy()">恢复自主学习</button></div></article></div>
       ${learned.length?`<div class="agent-section-title"><b>What I learned · 自主学习</b><span>${selfReview.sample||0} 个成熟样本</span></div><div class="agent-grid">${learned.slice(0,3).map((x,i)=>`<article class="agent-card agent-watch"><div class="agent-card-head"><div><span>SELF REVIEW</span><h3>学习结论 #${i+1}</h3></div><b>研究权重</b></div><p>${esc(x)}</p><small>只调整研究优先级和提醒权重，不自动改变核心ETF阈值，也不自动交易。</small></article>`).join('')}</div>`:''}
+      ${sourceIntelHtml()}
       ${evidenceHtml()}
       ${attributionHtml()}
       ${termHelp('Research Priority')}

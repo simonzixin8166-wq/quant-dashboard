@@ -11,6 +11,7 @@ DASHBOARD = ROOT / "docs" / "data.json"
 LEARNING = ROOT / "docs" / "research" / "learning_engine.json"
 AUTONOMOUS = ROOT / "docs" / "research" / "autonomous_agent.json"
 HISTORY = ROOT / "docs" / "research" / "historical_journal.json"
+SOURCE_INTEL = ROOT / "docs" / "data" / "source_intelligence.json"
 OUT = ROOT / "docs" / "research" / "evidence_attribution.json"
 VERSION = "5.7.0"
 
@@ -332,9 +333,12 @@ def failure_attribution(history: dict) -> dict:
     }
 
 
-def build(data: dict, learning: dict, agent: dict, history: dict) -> dict:
+def build(data: dict, learning: dict, agent: dict, history: dict, source_intel: dict | None = None) -> dict:
     breadcrumbs = build_breadcrumb_engine(learning, agent)
     failures = failure_attribution(history)
+    source_intel = source_intel or {}
+    external_thesis = source_intel.get("thesis_candidates") or []
+    external_failures = source_intel.get("failure_review") or []
     return {
         "version": VERSION,
         "generated_at": datetime.now(timezone.utc).isoformat(),
@@ -366,7 +370,17 @@ def build(data: dict, learning: dict, agent: dict, history: dict) -> dict:
             "external_event_feed_status": "not-yet-connected",
             "note": "V5.7 首版只用已有可验证数据形成技术/市场 Breadcrumb；不会假装已经抓取到 SEC/FDA/论坛等外部事实。",
         },
-        "failure_attribution": failures,
+        "failure_attribution": {
+            **failures,
+            "external_failure_candidates": external_failures[:20],
+            "external_note": "外部失败案例只作为候选；需后续市场结果和独立证据才能进入成熟归因样本。",
+        },
+        "external_source_intelligence": {
+            "thesis_candidates": external_thesis[:20],
+            "research_alerts": (source_intel.get("research_alerts") or [])[:20],
+            "authors": source_intel.get("authors") or [],
+            "note": "外部作者观点只增加研究线索，不改变技术证据分数、核心阈值或交易规则。",
+        },
         "guardrails": [
             "Evidence Score 是研究优先级线索，不是买入概率。",
             "Failure Attribution 是归因假设，不是因果证明。",
@@ -379,7 +393,7 @@ def build(data: dict, learning: dict, agent: dict, history: dict) -> dict:
 
 
 def main() -> int:
-    result = build(load(DASHBOARD), load(LEARNING), load(AUTONOMOUS), load(HISTORY))
+    result = build(load(DASHBOARD), load(LEARNING), load(AUTONOMOUS), load(HISTORY), load(SOURCE_INTEL))
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
     print(json.dumps({

@@ -338,6 +338,10 @@ def external_outcome_learning(source_outcomes: dict) -> dict:
     events = source_outcomes.get("events") or []
     mature = []
     for event in events:
+        if event.get("attribution") not in {"author_action","author_plan"}:
+            continue
+        if event.get("status") == "not_triggered":
+            continue
         row20 = (event.get("outcomes") or {}).get("20")
         if not row20:
             continue

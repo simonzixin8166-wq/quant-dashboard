@@ -346,16 +346,16 @@
     }).sort((a,b)=>rank(b.level)-rank(a.level)||((a.metrics?.dte??999)-(b.metrics?.dte??999)));
   }
 
-  function publicAttention(){
+  function publicAttention(policy){
     const rows=state.publicData?.attention_summary?.top_attention||[];
-    return rows.map(x=>({kind:'stock',symbol:x.symbol,label:x.stage||'Watchlist',level:x.level,timing:x.timing,action:x.action,reasons:x.reasons||[],metrics:{day_change:x.day_change,research_priority:x.research_priority}}));
+    return rows.map(x=>applyLearningPolicy({kind:'stock',symbol:x.symbol,label:x.stage||'Watchlist',level:x.level,timing:x.timing,action:x.action,reasons:x.reasons||[],metrics:{day_change:x.day_change,research_priority:x.research_priority}},policy));
   }
 
   function card(item){
     const m=item.metrics||{};
     const metrics=item.kind==='option'
       ?[`P/L ${m.pnlPct===null?'—':pct(m.pnlPct,0)}`,`DTE ${m.dte??'—'}`,`Δ ${m.delta===null?'—':Number(m.delta).toFixed(2)}`,`IV ${m.iv===null?'—':pct(m.iv,0)}`,`价差 ${m.spread===null?'—':pct(m.spread,0)}`]
-      :[`当日 ${m.day_change===null||m.day_change===undefined?'—':pct(m.day_change,1)}`,`研究优先级 ${m.research_priority??'—'}`];
+      :[`当日 ${m.day_change===null||m.day_change===undefined?'—':pct(m.day_change,1)}`,`研究优先级 ${m.research_priority??'—'}`,`学习调整 ${m.learning_adjustment>0?'+':''}${m.learning_adjustment||0}`];
     const decision=item.decision||levelLabel(item.level);
     const change=item.changeConditions?.length?`<div class="agent-change"><b>改变判断的条件</b><span>${item.changeConditions.slice(0,4).map(esc).join(' · ')}</span></div>`:'';
     const edge=item.edge?`<div class="agent-edge"><b>剩余风险收益：</b>${esc(item.edge)}</div>`:'';
@@ -365,18 +365,24 @@
 
   function render(){
     const host=$('agentAttentionRoot');if(!host)return;
-    const pub=publicAttention(),priv=privateAttention();
+    const policy=buildLearningPolicy();
+    const pub=publicAttention(policy),priv=privateAttention();
     const optionAttention=priv.filter(x=>x.level!=='quiet').sort((a,b)=>rank(b.level)-rank(a.level)||((a.metrics?.dte??999)-(b.metrics?.dte??999)));
     const stockAttention=pub.filter(x=>x.level!=='quiet').sort((a,b)=>rank(b.level)-rank(a.level));
     const all=[...optionAttention,...stockAttention];
     const tracked=all.map(item=>({...item,_change:trackDecision(item)}));
     const changed=tracked.filter(x=>x._change.changed);
-    const counts={action:tracked.filter(x=>x.level==='action').length,review:tracked.filter(x=>x.level==='review').length,watch:tracked.filter(x=>x.level==='watch').length};
+    const repeatPenalty=policy.adjustments.repeat_alert_penalty||0;
+    const visibleTracked=tracked.filter(x=>!(repeatPenalty<0&&x.kind==='stock'&&x.level==='watch'&&!x._change.changed&&!x._change.isNew));
+    const quietSuppressed=tracked.length-visibleTracked.length;
+    const counts={action:visibleTracked.filter(x=>x.level==='action').length,review:visibleTracked.filter(x=>x.level==='review').length,watch:visibleTracked.filter(x=>x.level==='watch').length};
     const discovery=state.publicData?.discovery_queue||[];
     const selfReview=global.MAVDecisionJournal?.getSelfReview?.()||null;
     const learned=selfReview?.lessons||[];
-    const optionsHtml=optionAttention.length?`<div class="agent-section-title"><b>期权持仓决策</b><span>${optionAttention.length} 笔需要注意</span></div><div class="agent-grid">${optionAttention.map(card).join('')}</div>`:'<div class="agent-section-title"><b>期权持仓决策</b><span>当前无需要处理的异常</span></div>';
-    const stocksHtml=stockAttention.length?`<div class="agent-section-title"><b>关注股与核心资产</b><span>${stockAttention.length} 项变化</span></div><div class="agent-grid">${stockAttention.map(card).join('')}</div>`:'<div class="agent-section-title"><b>关注股与核心资产</b><span>当前无重要变化</span></div>';
+    const visibleOptions=visibleTracked.filter(x=>x.kind==='option');
+    const visibleStocks=visibleTracked.filter(x=>x.kind==='stock');
+    const optionsHtml=visibleOptions.length?`<div class="agent-section-title"><b>期权持仓决策</b><span>${visibleOptions.length} 笔需要注意</span></div><div class="agent-grid">${visibleOptions.map(card).join('')}</div>`:'<div class="agent-section-title"><b>期权持仓决策</b><span>当前无需要处理的异常</span></div>';
+    const stocksHtml=visibleStocks.length?`<div class="agent-section-title"><b>关注股与核心资产</b><span>${visibleStocks.length} 项需要显示${quietSuppressed?` · 已降噪 ${quietSuppressed}`:''}</span></div><div class="agent-grid">${visibleStocks.map(card).join('')}</div>`:'<div class="agent-section-title"><b>关注股与核心资产</b><span>当前无重要变化</span></div>';
     host.innerHTML=`<div class="agent-attention-head"><div><span class="agent-kicker">MYALPHA AUTONOMOUS AGENT · V5.6</span><h2>自主研究助手</h2><p>不是只告诉你“需要复查”，而是明确说明今天做什么、为什么、什么条件会改变判断。</p></div><div class="agent-counts"><span class="action">需处理 <b>${counts.action}</b></span><span class="review">需复查 <b>${counts.review}</b></span><span>观察 <b>${counts.watch}</b></span></div></div>
       ${tracked.length?`<div class="agent-section-title"><b>Changed Since Last Decision</b><span>${changed.length} 项变化</span></div>${changed.length?`<div class="agent-grid">${changed.slice(0,6).map(card).join('')}</div>`:'<div class="agent-empty">当前判断与上次一致，不重复打扰。</div>'}`+optionsHtml+stocksHtml:'<div class="agent-empty">当前没有需要打扰你的重大变化；系统仍在后台记录和学习。</div>'}
       ${learned.length?`<div class="agent-section-title"><b>What I learned · 自主学习</b><span>${selfReview.sample||0} 个成熟样本</span></div><div class="agent-grid">${learned.slice(0,3).map((x,i)=>`<article class="agent-card agent-watch"><div class="agent-card-head"><div><span>SELF REVIEW</span><h3>学习结论 #${i+1}</h3></div><b>研究权重</b></div><p>${esc(x)}</p><small>只调整研究优先级和提醒权重，不自动改变核心ETF阈值，也不自动交易。</small></article>`).join('')}</div>`:''}

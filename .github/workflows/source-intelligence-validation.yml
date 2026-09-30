@@ -31,11 +31,11 @@ jobs:
           python-version: "3.11"
 
       - name: Install dependencies
-        run: pip install pandas numpy
+        run: pip install pandas numpy "yfinance>=0.2.65,<0.3"
 
       - name: Validate source-learning code
         run: |
-          python -m py_compile scripts/source_intelligence_engine.py scripts/source_outcome_validation.py scripts/evidence_attribution_engine.py
+          python -m py_compile scripts/source_intelligence_engine.py scripts/source_history_cache.py scripts/source_outcome_validation.py scripts/evidence_attribution_engine.py
           python tests/test_source_intelligence_engine.py
           python tests/test_source_outcome_validation.py
           python tests/test_source_intelligence_ui.py
@@ -44,6 +44,9 @@ jobs:
 
       - name: Build source intelligence
         run: python scripts/source_intelligence_engine.py
+
+      - name: Autofill missing source-validation history
+        run: python scripts/source_history_cache.py
 
       - name: Build source outcome validation
         run: python scripts/source_outcome_validation.py
@@ -56,6 +59,7 @@ jobs:
           git config user.name "github-actions"
           git config user.email "actions@github.com"
           git add docs/data/source_intelligence.json docs/research/source_outcome_validation.json docs/research/evidence_attribution.json
+          if [ -f data/history/source_validation_history.zip ]; then git add data/history/source_validation_history.zip; fi
           if ! git diff --cached --quiet; then
             git commit -m "update source intelligence validation"
             git push origin HEAD:main

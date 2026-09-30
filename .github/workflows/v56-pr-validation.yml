@@ -29,7 +29,9 @@ jobs:
           python tests/test_v540_learning_engine_core.py
           python tests/test_v550_autonomous_agent.py
       - name: V5.6 deterministic contract
-        run: python tests/test_v560_autonomous_decision_intelligence.py
+        run: |
+          python tests/test_v560_autonomous_decision_intelligence.py
+          python tests/test_v561_premium_income_purpose.py
       - name: Private-position static export guard
         run: |
           if grep -R -n -E '"(option_positions|private_positions|broker_account_id)"' docs/research docs/data.json 2>/dev/null; then

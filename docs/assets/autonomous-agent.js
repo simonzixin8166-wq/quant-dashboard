@@ -385,6 +385,8 @@
     const stocksHtml=visibleStocks.length?`<div class="agent-section-title"><b>关注股与核心资产</b><span>${visibleStocks.length} 项需要显示${quietSuppressed?` · 已降噪 ${quietSuppressed}`:''}</span></div><div class="agent-grid">${visibleStocks.map(card).join('')}</div>`:'<div class="agent-section-title"><b>关注股与核心资产</b><span>当前无重要变化</span></div>';
     host.innerHTML=`<div class="agent-attention-head"><div><span class="agent-kicker">MYALPHA AUTONOMOUS AGENT · V5.6</span><h2>自主研究助手</h2><p>不是只告诉你“需要复查”，而是明确说明今天做什么、为什么、什么条件会改变判断。</p></div><div class="agent-counts"><span class="action">需处理 <b>${counts.action}</b></span><span class="review">需复查 <b>${counts.review}</b></span><span>观察 <b>${counts.watch}</b></span></div></div>
       ${tracked.length?`<div class="agent-section-title"><b>Changed Since Last Decision</b><span>${changed.length} 项变化</span></div>${changed.length?`<div class="agent-grid">${changed.slice(0,6).map(card).join('')}</div>`:'<div class="agent-empty">当前判断与上次一致，不重复打扰。</div>'}`+optionsHtml+stocksHtml:'<div class="agent-empty">当前没有需要打扰你的重大变化；系统仍在后台记录和学习。</div>'}
+      <div class="agent-section-title"><b>Learning Policy · 学习策略</b><span>v${policy.version} · 可审计 / 可回基线</span></div>
+      <div class="agent-grid"><article class="agent-card agent-watch"><div class="agent-card-head"><div><span>AUDITABLE POLICY</span><h3>研究权重调整</h3></div><b>成熟样本 ${policy.evidence.sample}</b></div><div class="agent-metrics"><span>二次启动 ${policy.adjustments.restart_bonus>=0?'+':''}${policy.adjustments.restart_bonus}</span><span>重复提醒 ${policy.adjustments.repeat_alert_penalty}</span><span>弱候选 ${policy.adjustments.weak_candidate_penalty}</span></div><p>证据：错过上涨 ${policy.evidence.missed} · 噪音 ${policy.evidence.noisy} · 误报 ${policy.evidence.false_positive}</p><small>仅影响研究优先级与提醒显示；不改变核心ETF阈值、仓位或交易规则。</small><div><button type="button" onclick="MAVAutonomousAgent.resetLearningPolicy()">回到学习基线</button></div></article></div>
       ${learned.length?`<div class="agent-section-title"><b>What I learned · 自主学习</b><span>${selfReview.sample||0} 个成熟样本</span></div><div class="agent-grid">${learned.slice(0,3).map((x,i)=>`<article class="agent-card agent-watch"><div class="agent-card-head"><div><span>SELF REVIEW</span><h3>学习结论 #${i+1}</h3></div><b>研究权重</b></div><p>${esc(x)}</p><small>只调整研究优先级和提醒权重，不自动改变核心ETF阈值，也不自动交易。</small></article>`).join('')}</div>`:''}
       ${discovery.length?`<details class="agent-discovery"><summary>自主发现 · 异常机会 ${discovery.length}</summary><div>${discovery.slice(0,8).map(x=>`<p><b>${esc(x.symbol)}</b> · ${pct(x.price_change,1)} · ${esc(x.event_strength)}<br><small>${esc(x.next_step)} ${esc(x.guardrail)}</small></p>`).join('')}</div></details>`:''}
       <div class="agent-foot">自主研究 ≠ 自动交易。系统负责主动发现、解释、排序和提出方案；最终交易仍由投资者确认。</div>`;
@@ -392,7 +394,7 @@
   }
 
   async function init(){await loadPublic();render();setTimeout(render,2500);setTimeout(render,7000)}
-  global.MAVAutonomousAgent={render,loadPublic,optionAdvice,privateAttention,remainingEdge,readMemory,decisionHistory,state};
+  global.MAVAutonomousAgent={render,loadPublic,optionAdvice,privateAttention,remainingEdge,readMemory,decisionHistory,buildLearningPolicy,resetLearningPolicy,state};
   if(typeof document!=='undefined'){
     window.addEventListener('mav:options-updated',()=>render());
     document.addEventListener('DOMContentLoaded',init);

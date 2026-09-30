@@ -1,6 +1,6 @@
 (function(global){
 'use strict';
-const KEY='mavDecisionJournalV53', OLD_KEYS=['mavDecisionJournalV52','mavDecisionJournalV51'];
+const KEY='mavDecisionJournalV56', OLD_KEYS=['mavDecisionJournalV53','mavDecisionJournalV52','mavDecisionJournalV51'];
 const endpoint='https://rhielbkvhgqbthcgztci.supabase.co/functions/v1/stock-market';
 const H=[20,60,120];
 const state={history:null,historyLoaded:false,lastAuthError:'',refreshing:false};
@@ -8,6 +8,32 @@ const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 const num=v=>Number.isFinite(Number(v))?Number(v):null;
 const pct=v=>num(v)===null?'—':`${Number(v)>=0?'+':''}${(Number(v)*100).toFixed(1)}%`;
 const dateOnly=s=>String(s||'').slice(0,10);
+function mergeCandidate(dst,src){
+  const out={...(dst||{}),...(src||{})};
+  out.price=num(dst?.price)!==null?num(dst.price):num(src?.price);
+  out.firstSeenAt=dst?.firstSeenAt||src?.firstSeenAt||src?.at||null;
+  out.lastSeenAt=src?.lastSeenAt||src?.at||dst?.lastSeenAt||null;
+  out.outcomes={...(dst?.outcomes||{}),...(src?.outcomes||{})};
+  const transitions=[...(dst?.transitions||[]),...(src?.transitions||[])];
+  const seen=new Set();out.transitions=transitions.filter(t=>{const k=`${t.at||''}|${t.fromDecision||''}|${t.toDecision||''}|${t.fromStage||''}|${t.toStage||''}`;if(seen.has(k))return false;seen.add(k);return true}).slice(-40);
+  return out;
+}
+function consolidate(rows){
+  const byDay=new Map();
+  for(const row of Array.isArray(rows)?rows:[]){
+    const day=dateOnly(row.date||row.at);if(!day)continue;
+    let d=byDay.get(day);
+    if(!d){d={...row,key:`${day}|daily`,date:day,candidates:[],scanCount:0};byDay.set(day,d)}
+    d.scanCount=(d.scanCount||0)+Math.max(1,Number(row.scanCount)||1);
+    d.at=row.at||d.at;d.level=row.level||d.level;d.mode=row.mode||d.mode;d.title=row.title||d.title;
+    d.spx=num(row.spx)??d.spx;d.ixic=num(row.ixic)??d.ixic;d.vix=num(row.vix)??d.vix;
+    const map=new Map((d.candidates||[]).map(x=>[x.symbol,x]));
+    for(const cand of row.candidates||[])if(cand?.symbol)map.set(cand.symbol,mergeCandidate(map.get(cand.symbol),cand));
+    d.candidates=[...map.values()];
+    d.optionIdeas=[...(d.optionIdeas||[]),...(row.optionIdeas||[])].slice(-16);
+  }
+  return [...byDay.values()].sort((a,b)=>String(a.date).localeCompare(String(b.date)));
+}
 function read(){
   try{
     let rows=JSON.parse(localStorage.getItem(KEY)||'null');
@@ -19,7 +45,7 @@ function read(){
     return rows;
   }catch{return []}
 }
-function write(rows){try{localStorage.setItem(KEY,JSON.stringify(rows.slice(-300)))}catch{}}
+function write(rows){try{localStorage.setItem(KEY,JSON.stringify(consolidate(rows).slice(-300)))}catch{}}
 function candidateDecision(c,classification){
   const stage=String(c.stage||'');
   if(/退潮|恶化/.test(stage))return '等待修复';
@@ -29,12 +55,25 @@ function candidateDecision(c,classification){
   return '继续观察';
 }
 function recordAssistantEvent({snapshot,classification,candidates=[],optionIdeas=[]}){
-  const day=new Date().toISOString().slice(0,10);
-  const signature=(candidates||[]).slice(0,6).map(x=>`${x.symbol}:${x.stage||''}`).join(',');
-  const key=`${day}|${classification.level}|${signature}`;
-  const rows=read();if(rows.some(x=>x.key===key))return;
-  const items=(candidates||[]).slice(0,6).map(c=>({symbol:c.symbol,name:c.name||c.symbol,price:num(c.price),score:num(c.score),stage:c.stage||'',zone:c.zone||'',hasThesis:Boolean(c.hasThesis),decision:candidateDecision(c,classification),outcomes:{}}));
-  rows.push({key,at:new Date().toISOString(),date:day,level:classification.level,mode:classification.mode,title:classification.title||'常态监测',spx:num(snapshot.spx),ixic:num(snapshot.ixic),vix:num(snapshot.vix),candidates:items,optionIdeas:(optionIdeas||[]).slice(0,8),source:'automatic-scan-v5.3',version:'5.3'});
+  const now=new Date().toISOString(),day=now.slice(0,10),rows=read();
+  let daily=rows.find(x=>x.date===day);
+  if(!daily){daily={key:`${day}|daily`,at:now,date:day,level:classification.level,mode:classification.mode,title:classification.title||'常态监测',spx:num(snapshot.spx),ixic:num(snapshot.ixic),vix:num(snapshot.vix),candidates:[],optionIdeas:[],source:'automatic-scan-v5.6',version:'5.6',scanCount:0};rows.push(daily)}
+  daily.scanCount=(daily.scanCount||0)+1;daily.at=now;daily.level=classification.level;daily.mode=classification.mode;daily.title=classification.title||daily.title;daily.spx=num(snapshot.spx);daily.ixic=num(snapshot.ixic);daily.vix=num(snapshot.vix);
+  const map=new Map((daily.candidates||[]).map(x=>[x.symbol,x]));
+  for(const c of (candidates||[]).slice(0,8)){
+    if(!c?.symbol)continue;
+    const decision=candidateDecision(c,classification),prev=map.get(c.symbol);
+    if(!prev){
+      map.set(c.symbol,{symbol:c.symbol,name:c.name||c.symbol,price:num(c.price),latestPrice:num(c.price),score:num(c.score),stage:c.stage||'',zone:c.zone||'',hasThesis:Boolean(c.hasThesis),decision,outcomes:{},firstSeenAt:now,lastSeenAt:now,transitions:[]});
+      continue;
+    }
+    const changed=prev.decision!==decision||String(prev.stage||'')!==String(c.stage||'');
+    const transitions=[...(prev.transitions||[])];
+    if(changed)transitions.push({at:now,fromDecision:prev.decision||'',toDecision:decision,fromStage:prev.stage||'',toStage:c.stage||''});
+    map.set(c.symbol,{...prev,name:c.name||prev.name||c.symbol,latestPrice:num(c.price),score:num(c.score),stage:c.stage||'',zone:c.zone||'',hasThesis:Boolean(c.hasThesis),decision,lastSeenAt:now,transitions:transitions.slice(-40)});
+  }
+  daily.candidates=[...map.values()];
+  daily.optionIdeas=(optionIdeas||[]).slice(0,8);
   write(rows);render();
 }
 function supabase(){return global.mavSupabase||global.supabaseClient||null}
@@ -90,6 +129,17 @@ function matureStats(rows,h=20){
   const vals=[];for(const e of rows)for(const c of(e.candidates||[])){const r=c.outcomes?.[h]?.return;if(num(r)!==null)vals.push(num(r));}
   if(!vals.length)return {n:0,avg:null,positive:null};return {n:vals.length,avg:vals.reduce((a,b)=>a+b,0)/vals.length,positive:vals.filter(x=>x>0).length/vals.length};
 }
+function errorMemory(rows){
+  const out=[];
+  for(const e of rows)for(const c of(e.candidates||[])){
+    const r20=num(c.outcomes?.[20]?.return),mae=num(c.outcomes?.mae20);if(r20===null)continue;
+    const d=String(c.decision||'');
+    if(/修复候选|大跌机会候选/.test(d)&&r20<=-0.08)out.push({type:'false-positive',symbol:c.symbol,date:e.date,decision:d,return20:r20,note:'候选升级后20日表现明显为负，后续应检查当时支持证据是否过弱。'});
+    else if(/高位观察|等待修复|继续观察/.test(d)&&r20>=0.12)out.push({type:'missed-upside',symbol:c.symbol,date:e.date,decision:d,return20:r20,note:'谨慎判断后出现明显上涨，后续应检查是否缺少二次启动识别。'});
+    else if(mae!==null&&mae<=-0.12)out.push({type:'large-adverse-move',symbol:c.symbol,date:e.date,decision:d,return20:r20,note:'入档后出现较大不利波动，作为风险识别样本保留。'});
+  }
+  return out.slice(-30).reverse();
+}
 function marketLabel(e){return e.level==='panic'?'极端':e.level==='fear'?'大跌':e.level==='watch'?'观察':e.mode==='greed'?'强势高位':'正常'}
 function candidateRows(rows){const out=[];for(const e of[...rows].reverse())for(const c of(e.candidates||[]))out.push({e,c});return out.slice(0,40)}
 async function loadJson(url){try{const r=await fetch(`${url}?v=${Date.now()}`,{cache:'no-store'});if(!r.ok)return null;return await r.json()}catch{return null}}
@@ -118,15 +168,16 @@ async function render(error=''){
   if(backtestCache===null)backtestCache=await loadJson('research/assistant_rule_validation.json');
   const history=await ensureHistory();
   root.innerHTML=`<section class="hero compact-hero"><div><h1>Decision Journal · 决策复盘</h1><p>两条证据链：历史回填立即学习 + 从今天起实时留痕。系统负责记录、验证和排序；投资者负责最终操作。</p></div><div class="journal-actions"><button type="button" onclick="MAVDecisionJournal.refreshOutcomes()">↻ 补齐实时成熟结果</button></div></section>
-  <section class="journal-summary"><article><span>实时扫描快照</span><b>${rows.length}</b><small>${candidateCount} 条候选记录</small></article><article><span>等待成熟</span><b>${pending}</b><small>每条从入档日独立计算</small></article><article><span>实时20日成熟</span><b>${s20.n}</b><small>平均 ${pct(s20.avg)}</small></article><article><span>实时60日成熟</span><b>${s60.n}</b><small>平均 ${pct(s60.avg)}</small></article></section>
+  <section class="journal-summary"><article><span>决策日</span><b>${rows.length}</b><small>同日同标的只保留一条主记录</small></article><article><span>等待成熟</span><b>${pending}</b><small>每条从首次入档日起算</small></article><article><span>实时20日成熟</span><b>${s20.n}</b><small>平均 ${pct(s20.avg)}</small></article><article><span>实时60日成熟</span><b>${s60.n}</b><small>平均 ${pct(s60.avg)}</small></article></section>
   ${error||state.lastAuthError?`<div class="journal-warning">${esc(error||state.lastAuthError)}。历史学习不依赖登录，仍可正常使用。</div>`:''}
   <section class="journal-panel"><div class="journal-head"><div><h2>自主学习 · 历史回填</h2><p>使用你提供的 STOOQ OHLCV，本地因果重放 Trend Pulse；不重复下载多年历史，也不使用未来数据。</p></div></div>${stageProfileHtml(history)}${recentHistoryHtml(history)}</section>
-  <section class="journal-panel"><div class="journal-head"><div><h2>实时决策日志</h2><p>保存系统当时真实看到的环境和候选，防止事后改写。20 / 60 / 120均按各自入档交易日起算。</p></div><small>当前可补齐 ${pending===0?0:'部分'} 条</small></div>${recent.length?`<div class="journal-table-wrap"><table class="journal-table"><thead><tr><th>日期</th><th>环境</th><th>标的 / 当时判断</th><th>入档价格</th><th>20日</th><th>60日</th><th>120日</th></tr></thead><tbody>${recent.map(({e,c})=>`<tr><td>${esc(e.date)}</td><td>${esc(marketLabel(e))}<small>VIX ${e.vix==null?'—':Number(e.vix).toFixed(1)}</small></td><td><b>${esc(c.symbol)}</b><small>${esc(c.decision)} · ${esc(c.stage||c.zone||'')}</small></td><td>${c.price==null?'—':'$'+Number(c.price).toFixed(2)}</td>${H.map(h=>`<td>${outcomeCell(c,e,h)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`:`<div class="journal-empty"><b>还没有实时记录</b><p>市场状态或候选发生有意义变化后会自动留下快照，不需要手工记录。</p></div>`}</section>
+  <section class="journal-panel"><div class="journal-head"><div><h2>实时决策日志</h2><p>保存系统当时真实看到的环境和候选，防止事后改写。20 / 60 / 120均按各自入档交易日起算。</p></div><small>当前可补齐 ${pending===0?0:'部分'} 条</small></div>${recent.length?`<div class="journal-table-wrap"><table class="journal-table"><thead><tr><th>日期</th><th>环境</th><th>标的 / 当时判断</th><th>入档价格</th><th>20日</th><th>60日</th><th>120日</th></tr></thead><tbody>${recent.map(({e,c})=>`<tr><td>${esc(e.date)}</td><td>${esc(marketLabel(e))}<small>VIX ${e.vix==null?'—':Number(e.vix).toFixed(1)}</small></td><td><b>${esc(c.symbol)}</b><small>${esc(c.decision)} · ${esc(c.stage||c.zone||'')}${(c.transitions||[]).length?` · 日内变化 ${(c.transitions||[]).length}次`:''}</small></td><td>${c.price==null?'—':'$'+Number(c.price).toFixed(2)}</td>${H.map(h=>`<td>${outcomeCell(c,e,h)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`:`<div class="journal-empty"><b>还没有实时记录</b><p>市场状态或候选发生有意义变化后会自动留下快照，不需要手工记录。</p></div>`}</section>
   <section class="journal-panel"><div class="journal-head"><div><h2>历史市场规则验证</h2><p>单独检查观察 / 大跌 / 极端市场触发，不与个股 Trend Pulse 样本混在一起。</p></div></div>${validationHtml(backtestCache)}</section>
+  <section class="journal-panel"><div class="journal-head"><div><h2>Agent Error Memory · 错误记忆</h2><p>只记录已经有成熟结果的误报、漏掉上涨和大幅不利波动；它只调整研究权重，不自动修改核心策略。</p></div></div>${(()=>{const errs=errorMemory(rows);return errs.length?`<div class="learning-grid">${errs.slice(0,8).map(x=>`<article class="learning-card"><div><b>${esc(x.symbol)} · ${esc(x.type)}</b><span>${esc(x.date)}</span></div><strong>20日 ${pct(x.return20)}</strong><p>${esc(x.note)}</p><small>当时判断：${esc(x.decision)}</small></article>`).join('')}</div>`:'<div class="journal-empty"><b>暂无成熟错误样本</b><p>待20日结果成熟后自动归类，不会用未成熟样本提前“学习”。</p></div>'})()}</section>
   <section class="journal-panel journal-boundary"><h2>AI Agent 学习边界</h2><div><b>自动完成</b><p>历史回填、每日增量、结果成熟、样本统计、研究优先级、异常提醒和 QA。</p></div><div><b>必须由投资者决定</b><p>买卖、仓位、核心ETF阈值变更、把博主经验升级成正式规则。AI不会自动下单。</p></div></section>`;
 }
 function learningForStage(stage){const p=state.history?.profiles?.[stage];if(!p)return null;return {...p.evidence,stats:p.horizons?.['60']||null}}
 async function init(){render();setTimeout(()=>refreshOutcomes({silent:true}),4500)}
-global.MAVDecisionJournal={recordAssistantEvent,refreshOutcomes,render,getJournal:read,getHistorical:()=>state.history,learningForStage,state};
+global.MAVDecisionJournal={recordAssistantEvent,refreshOutcomes,render,getJournal:read,getHistorical:()=>state.history,learningForStage,getErrorMemory:()=>errorMemory(read()),state};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })(window);

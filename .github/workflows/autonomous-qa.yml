@@ -1,5 +1,7 @@
 name: Autonomous QA & Security
 on:
+  pull_request:
+    branches: [main]
   workflow_run:
     workflows: ["Daily Dashboard Update"]
     types: [completed]
@@ -11,8 +13,32 @@ concurrency:
   group: autonomous-qa-${{ github.ref }}
   cancel-in-progress: true
 jobs:
+  pr-contract:
+    if: ${{ github.event_name == 'pull_request' }}
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - uses: actions/setup-node@v4
+        with: {node-version: '20'}
+      - name: V5.6 deterministic validation
+        run: |
+          node --check docs/assets/options-v2.js
+          node --check docs/assets/autonomous-agent.js
+          node --check docs/assets/decision-journal.js
+          python tests/test_v540_learning_engine_core.py
+          python tests/test_v550_autonomous_agent.py
+          python tests/test_v560_autonomous_decision_intelligence.py
+      - name: Public static privacy guard
+        run: |
+          if grep -R -n -E '"(option_positions|private_positions|broker_account_id)"' docs/research docs/data.json 2>/dev/null; then
+            echo 'Private option position material detected in public static output'; exit 1;
+          fi
+          echo 'Private static export guard PASS'
+
   deployment-qa:
-    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
+    if: ${{ github.event_name != 'pull_request' && (github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success') }}
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
@@ -48,7 +74,7 @@ jobs:
           retention-days: 14
 
   codeql:
-    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
+    if: ${{ github.event_name != 'pull_request' && (github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success') }}
     runs-on: ubuntu-24.04
     permissions:
       contents: read

@@ -9,6 +9,7 @@ on:
       - "scripts/source_outcome_validation.py"
       - "scripts/evidence_attribution_engine.py"
       - "docs/assets/wenxuecity.js"
+      - ".github/workflows/source-intelligence-validation.yml"
   workflow_dispatch:
 
 permissions:
@@ -55,4 +56,7 @@ jobs:
           git config user.name "github-actions"
           git config user.email "actions@github.com"
           git add docs/data/source_intelligence.json docs/research/source_outcome_validation.json docs/research/evidence_attribution.json
-          git diff --cached --quiet || (git commit -m "update source intelligence validation" && git pull --rebase origin main && git push origin HEAD:main)
+          if ! git diff --cached --quiet; then
+            git commit -m "update source intelligence validation"
+            git push origin HEAD:main
+          fi

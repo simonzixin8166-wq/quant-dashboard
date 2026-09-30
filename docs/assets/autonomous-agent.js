@@ -146,7 +146,7 @@
     const assignment=String(position.assignment_mode||'accept').toLowerCase();
     const purpose=String(position.strategy_note||'').trim();
     const capture=m.pnlPct;
-    const remaining=capture===null?null:Math.max(0,1-capture);
+    const remaining=capture===null?null:Math.max(0,Math.min(1,1-capture));
     const spreadGood=m.spread!==null&&m.spread<=0.12;
     const spreadWide=m.spread!==null&&m.spread>0.20;
     const deltaLow=absDelta!==null&&absDelta<=0.15;

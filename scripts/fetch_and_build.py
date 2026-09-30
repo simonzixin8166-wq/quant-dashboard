@@ -367,7 +367,7 @@ def breadth_freshness(breadth, now=None):
     if gap == 0:
         return {"tone":"good", "label":f"已更新至 {market_date.isoformat()}", "meta":"503只成分股完整收盘扫描"}
     if gap == 1:
-        return {"tone":"warn", "label":f"最近有效收盘 {market_date.isoformat()}", "meta":breadth.get("message") or "等待下一次完整收盘扫描"}
+        return {"tone":"warn", "label":f"最近完整收盘 {market_date.isoformat()}", "meta":breadth.get("message") or f"下一交易日成分股数据尚未达到完整覆盖门槛；不使用残缺样本替代 {market_date.isoformat()}"}
     return {"tone":"bad", "label":f"数据陈旧 · {market_date.isoformat()}", "meta":breadth.get("message") or f"落后约 {gap} 个交易日，请检查每日任务"}
 
 def _breadth_date(breadth):
@@ -676,16 +676,28 @@ def validate_trend_input(symbol, rows, secondary=None, today=None):
     secondary_close = None
     if secondary and secondary.get("close"):
         secondary_close = float(secondary["close"]); secondary_date = secondary.get("date")
-        mismatch = abs(primary_close-secondary_close)/secondary_close if secondary_close else None
         try:
-            date_gap = abs((latest_date - datetime.date.fromisoformat(str(secondary_date))).days)
+            secondary_dt = datetime.date.fromisoformat(str(secondary_date))
+            date_gap = abs((latest_date - secondary_dt).days)
         except Exception:
+            secondary_dt = None
             date_gap = 99
-        if date_gap <= 3 and mismatch is not None and mismatch <= 0.015:
-            dual_source = True
+
+        # 只有同一交易日才能比较两源价格。上一交易日的 Yahoo 收盘不能拿来
+        # 与 Twelve Data 的最新交易日直接计算价差，否则正常的单日涨跌会被误判为数据错误。
+        if secondary_dt == latest_date:
+            mismatch = abs(primary_close-secondary_close)/secondary_close if secondary_close else None
+            if mismatch is not None and mismatch <= 0.015:
+                dual_source = True
+            elif mismatch is not None:
+                hard_fail = True
+                issues.append(f"同交易日 Twelve/Yahoo 收盘价差{mismatch:.2%}，超过1.5%阈值")
+        elif date_gap <= 3:
+            mismatch = None
+            issues.append(f"Yahoo二次源最新为{secondary_date}，落后主源{latest_date.isoformat()}；保留Trend Pulse但降级为有限校验")
         else:
             hard_fail = True
-            issues.append(f"Twelve/Yahoo最新价或日期不一致（价差{(mismatch or 0):.2%}）")
+            issues.append(f"Yahoo二次源日期{secondary_date}与主源{latest_date.isoformat()}相差过大")
     else:
         issues.append("Yahoo二次行情暂不可用，未完成双源校验")
     status = "FAIL" if hard_fail else ("PASS" if dual_source and len(df)>=220 else "CHECK")
@@ -700,10 +712,10 @@ def validate_trend_input(symbol, rows, secondary=None, today=None):
 
 def build_trend_interpretation(tp):
     integrity = tp.get("data_integrity") or {}
-    if integrity.get("status") != "PASS":
+    if integrity.get("status") == "FAIL":
         return {
-            "analysis":"趋势指标仅作数据展示，当前未满足双源完整校验条件。",
-            "risk_watch":"请先确认最新交易日、OHLC完整性以及Twelve Data与Yahoo最新价一致。",
+            "analysis":"趋势指标仅作数据展示，当前数据完整性校验失败。",
+            "risk_watch":"请先确认最新交易日、OHLC完整性以及同交易日的双源价格一致性。",
             "guidance":"暂停生成研究提示，避免在数据未充分验证时形成误导。",
             "confidence":"未验证"
         }
@@ -793,6 +805,9 @@ def calculate_trend_pulse(rows, symbol=None, secondary=None, today=None):
         "method":"Trend Pulse V1 · 价格结构 + EMA + Supertrend + ADX/DI + MACD + RSI + OBV/MFI + 周线共振"
     }
     result.update(build_trend_interpretation(result))
+    if integrity.get("status") == "CHECK":
+        result["confidence"] = "中（主源完整，二次源日期落后一交易日）"
+        result["validation_note"] = "Trend Pulse按主源最新完整日线计算；二次源未与主源处于同一交易日，因此不做跨日价差比较。"
     return result
 
 # ================= 6.5 研究简报 / IREN Daily Brief =================

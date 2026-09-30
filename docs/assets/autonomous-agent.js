@@ -68,7 +68,10 @@
 
   function remainingEdge(position,m,nearEvents=[],immediateEvents=[]){
     const short=String(position.side||'').toLowerCase()==='short',type=String(position.opt_type||'').toLowerCase();
-    const absDelta=m.delta===null?null:Math.abs(m.delta),capture=m.pnlPct,remaining=capture===null?null:Math.max(0,1-capture);
+    const absDelta=m.delta===null?null:Math.abs(m.delta),capture=m.pnlPct;
+    const rawCloseCostRatio=capture===null?null:Math.max(0,1-capture);
+    const uncapturedOriginalRatio=rawCloseCostRatio===null?null:Math.max(0,Math.min(1,rawCloseCostRatio));
+    const lossOverhang=rawCloseCostRatio===null?0:Math.max(0,rawCloseCostRatio-1);
     const assignment=String(position.assignment_mode||'accept').toLowerCase(),note=String(position.strategy_note||'').toLowerCase();
     const premiumPriority=/权利金|premium|income|收租|theta/.test(note),strike=n(position.strike);
     let strikeBuffer=null;
@@ -77,9 +80,14 @@
       else if(type==='call')strikeBuffer=(strike-m.spot)/m.spot;
     }
     let score=50;const positives=[],risks=[],components={};
-    if(short&&remaining!==null){
-      const v=Math.min(18,remaining*30);score+=v;components.remainingPremium=Math.round(v);
-      positives.push('剩余可赚约 '+pct(remaining,0)+' 原始权利金');
+    if(short&&capture!==null){
+      if(capture>=0){
+        const v=Math.min(18,uncapturedOriginalRatio*18);score+=v;components.remainingPremium=Math.round(v);
+        positives.push('尚未兑现的原始权利金约 '+pct(uncapturedOriginalRatio,0));
+      }else{
+        const penalty=Math.min(22,8+lossOverhang*20);score-=penalty;components.lossOverhang=-Math.round(penalty);
+        risks.push('当前买回成本约为原始权利金的 '+pct(rawCloseCostRatio,0)+'（浮亏 '+pct(Math.abs(capture),0)+'）');
+      }
     }
     if(absDelta!==null){
       if(absDelta<=0.15){score+=12;components.delta=12;positives.push('|Delta| '+absDelta.toFixed(2)+' 较低')}
@@ -101,7 +109,7 @@
       else if(strikeBuffer<=0.03){score-=15;components.strikeBuffer=-15;risks.push('距行权价缓冲仅 '+pct(strikeBuffer,0))}
     }
     if(m.iv!==null){
-      if(short&&m.iv>=0.50&&!immediateEvents.length){score+=6;components.iv=6;positives.push('IV '+pct(m.iv,0)+'，权利金环境较高')}
+      if(short&&m.iv>=0.50&&!immediateEvents.length){score+=4;components.iv=4;positives.push('IV '+pct(m.iv,0)+'，权利金环境较高')}
       else if(!short&&m.iv>=0.60){score-=6;components.iv=-6;risks.push('IV '+pct(m.iv,0)+' 较高，Long仓位波动率回落风险更大')}
     }
     if(immediateEvents.length){score-=18;components.event=-18;risks.push('未来2天存在事件风险')}
@@ -114,7 +122,14 @@
     else if(premiumPriority&&capture!==null&&capture>=0.70){score-=8;components.premiumGoal=-8;risks.push('权利金优先目标已大部分兑现')}
     if(premiumPriority)positives.push('策略备注识别为权利金优先');
     score=Math.max(0,Math.min(100,Math.round(score)));
-    return{version:'v2',score,label:score>=75?'高':score>=55?'中高':score>=40?'中':score>=25?'偏低':'低',positives,risks,components,remainingPremiumRatio:remaining,strikeBuffer,premiumPriority};
+    return{
+      version:'v2',calculationVersion:'2.1',score,label:score>=75?'高':score>=55?'中高':score>=40?'中':score>=25?'偏低':'低',
+      positives,risks,components,
+      remainingPremiumRatio:uncapturedOriginalRatio,
+      currentCloseCostRatio:rawCloseCostRatio,
+      lossOverhangRatio:lossOverhang,
+      strikeBuffer,premiumPriority
+    };
   }
   function daysUntilEvent(event){
     const d=new Date(event?.datetime);
@@ -131,7 +146,7 @@
     const assignment=String(position.assignment_mode||'accept').toLowerCase();
     const purpose=String(position.strategy_note||'').trim();
     const capture=m.pnlPct;
-    const remaining=capture===null?null:Math.max(0,1-capture);
+    const remaining=capture===null?null:Math.max(0,Math.min(1,1-capture));
     const spreadGood=m.spread!==null&&m.spread<=0.12;
     const spreadWide=m.spread!==null&&m.spread>0.20;
     const deltaLow=absDelta!==null&&absDelta<=0.15;

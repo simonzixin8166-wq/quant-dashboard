@@ -19,6 +19,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
+      - name: Install Python test dependencies
+        run: pip install "yfinance>=0.2.65,<0.3" pandas
       - name: JavaScript syntax
         run: |
           node --check docs/assets/options-v2.js
@@ -33,6 +35,7 @@ jobs:
           python tests/test_v560_autonomous_decision_intelligence.py
           python tests/test_v561_premium_income_purpose.py
           python tests/test_v562_autonomous_learning_loop.py
+          python tests/test_v563_data_integrity_edge_ui.py
       - name: Private-position static export guard
         run: |
           if grep -R -n -E '"(option_positions|private_positions|broker_account_id)"' docs/research docs/data.json 2>/dev/null; then

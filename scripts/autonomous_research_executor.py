@@ -255,7 +255,7 @@ def build(planner,artifacts,previous):
 
 def main():
     d={k:load(v) for k,v in PATHS.items()}
-    artifacts={k:d[k] for k in ("learning","evidence","method","source","modules","official","events","data")}
+    artifacts={k:d[k] for k in ("learning","evidence","method","source","modules","official","event_windows","events","data")}
     out=build(d["planner"],artifacts,d["previous"])
     OUT.parent.mkdir(parents=True,exist_ok=True)
     OUT.write_text(json.dumps(out,ensure_ascii=False,indent=2),encoding="utf-8")

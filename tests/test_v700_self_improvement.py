@@ -12,7 +12,7 @@ method={"methods":[
 evidence={"failure_attribution":{"external_outcome_reviews":[{} for _ in range(12)]}}
 planner={"version":"6.0.0","counts":{"open":7}}
 out=s.build(evidence,method,planner,{})
-assert out["version"]=="7.0.0"
+assert out["version"]=="7.1.0"
 assert out["production_brain"]["mode"]=="locked"
 assert out["promotion_gate"]["automatic_production_promotion"] is False
 assert len(out["candidates"])==3
@@ -31,3 +31,10 @@ assert guard["shadow_runs"]==5
 assert guard["promotion_eligible"] is True
 assert guard["state"]=="eligible_for_review"
 print("PASS V7 self-improvement shadow engine")
+
+module_graph={"modules":[{"id":"tab-cn-hk","name":"A股港股","learning":"candidate"}]}
+out3=s.build(evidence,method,planner,{},module_graph)
+cand=next(x for x in out3["candidates"] if x["kind"]=="module_learning_design")
+assert cand["scope"]=="tab-cn-hk"
+assert cand["state"]=="shadow"
+assert cand["promotion_eligible"] is False

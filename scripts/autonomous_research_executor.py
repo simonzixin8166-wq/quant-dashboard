@@ -84,6 +84,8 @@ def market_brief(task,learning,evidence,source,data,official=None):
             add_unique(support,"SEC文档已抓取官方原文证据片段，可用于下一步事件核验")
         else:
             add_unique(unknowns,"SEC申报元数据已取得，但最新文档正文证据片段暂不可用")
+    elif sym in {"QQQ","QQQM","VOO","SPY","VGT","QLD","TQQQ","SMH","IBIT","GLD","RSP"}:
+        add_unique(support,"该标的是ETF/基金工具，单一公司SEC披露不适用；应使用成分股、基金文件和行业证据。")
     elif sec.get("status") in {"unmapped","error"}:
         add_unique(unknowns,f"SEC官方证据暂不可用：{sec.get('status')}")
     else:
@@ -91,15 +93,16 @@ def market_brief(task,learning,evidence,source,data,official=None):
     integ=tp.get("data_integrity") or {}
     if integ.get("status") and integ.get("status")!="OK":
         add_unique(counter,f"Trend Pulse 数据校验状态：{integ.get('label') or integ.get('status')}")
-    if not filings:add_unique(unknowns,"尚未完成本任务对应的最新SEC官方披露核验")
+    if not filings and sym not in {"QQQ","QQQM","VOO","SPY","VGT","QLD","TQQQ","SMH","IBIT","GLD","RSP"}:add_unique(unknowns,"尚未完成本任务对应的最新SEC官方披露核验")
     add_unique(unknowns,"公司IR与可靠新闻全文自动核验仍待下一层连接")
     add_unique(unknowns,"行业同业联动需要在外部事件执行器接入后补充")
     return support,counter,unknowns
 
-def failure_brief(task,evidence,method):
+def failure_brief(task,evidence,method,official=None):
     sym=task.get("key")
     rows=failure_rows(evidence,sym)
     support=[];counter=[];unknowns=[]
+    official=official or {}
     tags={}
     for r in rows:
         for t in r.get("review_tags") or r.get("tags") or []:tags[t]=tags.get(t,0)+1
@@ -112,7 +115,16 @@ def failure_brief(task,evidence,method):
         for x in m.get("failure_examples") or []:
             if x.get("symbol")==sym:mfail.append((m.get("method"),x))
     if mfail:add_unique(counter,f"Method Memory 中还有 {len(mfail)} 个跨方法反例，需要避免把单一原因解释成全部失败")
-    add_unique(unknowns,"尚未完成每个失败样本的公司事件/财报/宏观时间线对齐")
+    sec=(official.get("symbols") or {}).get(sym) or {}
+    filings=sec.get("filings") or []
+    if filings:
+        dates=", ".join(f"{f.get('form')} {f.get('filing_date')}" for f in filings[:3])
+        add_unique(support,f"SEC官方时间线可用于失败归因对齐：{dates}")
+        if any(f.get("excerpts") for f in filings):
+            add_unique(support,"SEC官方正文片段已缓存，可继续检查失败窗口内是否存在公司事件或风险披露")
+        add_unique(unknowns,"尚未把每个失败样本日期与SEC申报日期自动计算事件窗口距离")
+    else:
+        add_unique(unknowns,"尚未完成每个失败样本的公司事件/财报/宏观时间线对齐")
     add_unique(unknowns,"若存在期权策略，当前公开结果不能替代真实期权P&L")
     return support,counter,unknowns
 
@@ -147,7 +159,7 @@ def execute_task(task,artifacts):
     if kind in {"market_anomaly","discovery"}:
         support,counter,unknowns=market_brief(task,artifacts["learning"],artifacts["evidence"],artifacts["source"],artifacts["data"],artifacts.get("official"))
     elif kind=="failure_review":
-        support,counter,unknowns=failure_brief(task,artifacts["evidence"],artifacts["method"])
+        support,counter,unknowns=failure_brief(task,artifacts["evidence"],artifacts["method"],artifacts.get("official"))
     elif kind=="method_evidence_gap":
         support,counter,unknowns=method_gap_brief(task,artifacts["method"])
     elif kind in {"module_learning_review","architecture_gap"}:
@@ -195,7 +207,7 @@ def build(planner,artifacts,previous):
         x["first_analyzed_at"]=prior.get("first_analyzed_at") or now
         x["last_analyzed_at"]=now
     return {
-      "version":"6.3.0","generated_at":now,"planner_version":planner.get("version"),
+      "version":"6.3.1","generated_at":now,"planner_version":planner.get("version"),
       "results":rows,
       "summary":{
         "analyzed":len(rows),

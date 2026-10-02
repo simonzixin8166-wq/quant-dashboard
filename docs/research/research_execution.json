@@ -1,6 +1,6 @@
 {
   "version": "6.5.0",
-  "generated_at": "2026-10-02T13:25:12.509839+00:00",
+  "generated_at": "2026-10-02T13:27:49.740595+00:00",
   "planner_version": "6.1.0",
   "results": [
     {
@@ -43,9 +43,9 @@
         "industry_peers"
       ],
       "guardrail": "该研究结果不能自动下单；未知项不得由模型猜测补全。",
-      "analysis_runs": 6,
+      "analysis_runs": 7,
       "first_analyzed_at": "2026-10-02T12:56:22.515063+00:00",
-      "last_analyzed_at": "2026-10-02T13:25:12.509839+00:00"
+      "last_analyzed_at": "2026-10-02T13:27:49.740595+00:00"
     },
     {
       "task_id": "df209aa723b495",
@@ -65,7 +65,7 @@
         "Trend Pulse 数据校验状态：有限校验"
       ],
       "unknowns": [
-        "已读取 5 条相关一般媒体线索，但暂无 Reuters/AP/新闻稿等高优先级事件源确认",
+        "最近媒体事件证据暂不可用",
         "行业同业联动样本暂不足",
         "公司IR官网全文仍待专用连接；当前已使用SEC官方披露与分级媒体事件线索"
       ],
@@ -86,9 +86,9 @@
         "industry_peers"
       ],
       "guardrail": "该研究结果不能自动下单；未知项不得由模型猜测补全。",
-      "analysis_runs": 6,
+      "analysis_runs": 7,
       "first_analyzed_at": "2026-10-02T12:56:22.515063+00:00",
-      "last_analyzed_at": "2026-10-02T13:25:12.509839+00:00"
+      "last_analyzed_at": "2026-10-02T13:27:49.740595+00:00"
     },
     {
       "task_id": "b528aa82a03ae2",
@@ -130,9 +130,9 @@
         "industry_peers"
       ],
       "guardrail": "该研究结果不能自动下单；未知项不得由模型猜测补全。",
-      "analysis_runs": 6,
+      "analysis_runs": 7,
       "first_analyzed_at": "2026-10-02T12:56:22.515063+00:00",
-      "last_analyzed_at": "2026-10-02T13:25:12.509839+00:00"
+      "last_analyzed_at": "2026-10-02T13:27:49.740595+00:00"
     },
     {
       "task_id": "dd80a50c241fb6",
@@ -173,9 +173,9 @@
         "industry_peers"
       ],
       "guardrail": "该研究结果不能自动下单；未知项不得由模型猜测补全。",
-      "analysis_runs": 6,
+      "analysis_runs": 7,
       "first_analyzed_at": "2026-10-02T12:56:22.515063+00:00",
-      "last_analyzed_at": "2026-10-02T13:25:12.509839+00:00"
+      "last_analyzed_at": "2026-10-02T13:27:49.740595+00:00"
     },
     {
       "task_id": "7cb6373aaddb29",
@@ -217,9 +217,9 @@
         "industry_peers"
       ],
       "guardrail": "该研究结果不能自动下单；未知项不得由模型猜测补全。",
-      "analysis_runs": 6,
+      "analysis_runs": 7,
       "first_analyzed_at": "2026-10-02T12:56:22.515063+00:00",
-      "last_analyzed_at": "2026-10-02T13:25:12.509839+00:00"
+      "last_analyzed_at": "2026-10-02T13:27:49.740595+00:00"
     },
     {
       "task_id": "e27477c12d7f36",
@@ -232,93 +232,17 @@
         "已聚合 1 个 NOW 失败/反例样本",
         "高频失败标签：direction_not_aligned×1、underperformed_qqq×1",
         "SEC官方时间线可用于失败归因对齐：10-Q 2026-07-23, 8-K 2026-07-22, 8-K 2026-05-22",
-        "SEC官方正文片段已缓存，可继续检查失败窗口内是否存在公司事件或风险披露"
-      ],
-      "counter_evidence": [],
-      "unknowns": [
-        "尚未完成每个失败样本的公司事件/财报/宏观时间线对齐",
-        "若存在期权策略，当前公开结果不能替代真实期权P&L"
-      ],
-      "evidence_score": 48,
-      "confidence": "medium",
-      "provisional_conclusion": "已有初步支持证据，但关键外部事实仍缺失，暂不升级为结论。",
-      "next_validation": [
-        "这些失败是否共享同一市场环境？",
-        "主要来自趋势、事件、估值、宏观还是数据问题？",
-        "是否存在重复的反证线索？",
-        "应调整研究权重还是仅记录反例？"
-      ],
-      "source_requirements": [
-        "source_outcomes",
-        "evidence_attribution",
-        "method_memory",
-        "market_history"
-      ],
-      "guardrail": "该研究结果不能自动下单；未知项不得由模型猜测补全。",
-      "analysis_runs": 6,
-      "first_analyzed_at": "2026-10-02T12:56:22.515063+00:00",
-      "last_analyzed_at": "2026-10-02T13:25:12.509839+00:00"
-    },
-    {
-      "task_id": "022a1760e7ebb2",
-      "kind": "failure_review",
-      "key": "NBIS",
-      "title": "NBIS · 失败归因复盘（2样本）",
-      "priority": 68.0,
-      "research_status": "analyzed",
-      "supporting_evidence": [
-        "已聚合 2 个 NBIS 失败/反例样本",
-        "高频失败标签：large_adverse_move×1、direction_not_aligned×1",
-        "SEC官方时间线可用于失败归因对齐：6-K 2026-10-01, 6-K 2026-09-08, 6-K 2026-08-26",
-        "SEC官方正文片段已缓存，可继续检查失败窗口内是否存在公司事件或风险披露"
-      ],
-      "counter_evidence": [],
-      "unknowns": [
-        "尚未完成每个失败样本的公司事件/财报/宏观时间线对齐",
-        "若存在期权策略，当前公开结果不能替代真实期权P&L"
-      ],
-      "evidence_score": 48,
-      "confidence": "medium",
-      "provisional_conclusion": "已有初步支持证据，但关键外部事实仍缺失，暂不升级为结论。",
-      "next_validation": [
-        "这些失败是否共享同一市场环境？",
-        "主要来自趋势、事件、估值、宏观还是数据问题？",
-        "是否存在重复的反证线索？",
-        "应调整研究权重还是仅记录反例？"
-      ],
-      "source_requirements": [
-        "source_outcomes",
-        "evidence_attribution",
-        "method_memory",
-        "market_history"
-      ],
-      "guardrail": "该研究结果不能自动下单；未知项不得由模型猜测补全。",
-      "analysis_runs": 6,
-      "first_analyzed_at": "2026-10-02T12:56:22.515063+00:00",
-      "last_analyzed_at": "2026-10-02T13:25:12.509839+00:00"
-    },
-    {
-      "task_id": "e3102a2d9894f8",
-      "kind": "failure_review",
-      "key": "CRWV",
-      "title": "CRWV · 失败归因复盘（4样本）",
-      "priority": 68.0,
-      "research_status": "analyzed",
-      "supporting_evidence": [
-        "已聚合 4 个 CRWV 失败/反例样本",
-        "高频失败标签：large_adverse_move×4、underperformed_qqq×4、direction_not_aligned×1",
-        "SEC官方时间线可用于失败归因对齐：8-K 2026-09-22, 8-K 2026-09-17, 10-Q 2026-08-12",
-        "SEC官方正文片段已缓存，可继续检查失败窗口内是否存在公司事件或风险披露"
+        "SEC官方正文片段已缓存，可继续检查失败窗口内是否存在公司事件或风险披露",
+        "事件窗口已自动对齐 1 个失败样本；7日内SEC 0，7日内分级事件 0"
       ],
       "counter_evidence": [
-        "Method Memory 中还有 2 个跨方法反例，需要避免把单一原因解释成全部失败"
+        "事件时间接近仅生成复盘假设，不代表事件造成失败"
       ],
       "unknowns": [
-        "尚未完成每个失败样本的公司事件/财报/宏观时间线对齐",
         "若存在期权策略，当前公开结果不能替代真实期权P&L"
       ],
-      "evidence_score": 56,
-      "confidence": "medium",
+      "evidence_score": 78,
+      "confidence": "high",
       "provisional_conclusion": "证据存在分歧，保持研究状态并优先验证反证。",
       "next_validation": [
         "这些失败是否共享同一市场环境？",
@@ -333,17 +257,98 @@
         "market_history"
       ],
       "guardrail": "该研究结果不能自动下单；未知项不得由模型猜测补全。",
-      "analysis_runs": 6,
+      "analysis_runs": 7,
       "first_analyzed_at": "2026-10-02T12:56:22.515063+00:00",
-      "last_analyzed_at": "2026-10-02T13:25:12.509839+00:00"
+      "last_analyzed_at": "2026-10-02T13:27:49.740595+00:00"
+    },
+    {
+      "task_id": "022a1760e7ebb2",
+      "kind": "failure_review",
+      "key": "NBIS",
+      "title": "NBIS · 失败归因复盘（2样本）",
+      "priority": 68.0,
+      "research_status": "analyzed",
+      "supporting_evidence": [
+        "已聚合 2 个 NBIS 失败/反例样本",
+        "高频失败标签：large_adverse_move×1、direction_not_aligned×1",
+        "SEC官方时间线可用于失败归因对齐：6-K 2026-10-01, 6-K 2026-09-08, 6-K 2026-08-26",
+        "SEC官方正文片段已缓存，可继续检查失败窗口内是否存在公司事件或风险披露",
+        "事件窗口已自动对齐 2 个失败样本；7日内SEC 0，7日内分级事件 0"
+      ],
+      "counter_evidence": [
+        "事件时间接近仅生成复盘假设，不代表事件造成失败"
+      ],
+      "unknowns": [
+        "若存在期权策略，当前公开结果不能替代真实期权P&L"
+      ],
+      "evidence_score": 78,
+      "confidence": "high",
+      "provisional_conclusion": "证据存在分歧，保持研究状态并优先验证反证。",
+      "next_validation": [
+        "这些失败是否共享同一市场环境？",
+        "主要来自趋势、事件、估值、宏观还是数据问题？",
+        "是否存在重复的反证线索？",
+        "应调整研究权重还是仅记录反例？"
+      ],
+      "source_requirements": [
+        "source_outcomes",
+        "evidence_attribution",
+        "method_memory",
+        "market_history"
+      ],
+      "guardrail": "该研究结果不能自动下单；未知项不得由模型猜测补全。",
+      "analysis_runs": 7,
+      "first_analyzed_at": "2026-10-02T12:56:22.515063+00:00",
+      "last_analyzed_at": "2026-10-02T13:27:49.740595+00:00"
+    },
+    {
+      "task_id": "e3102a2d9894f8",
+      "kind": "failure_review",
+      "key": "CRWV",
+      "title": "CRWV · 失败归因复盘（4样本）",
+      "priority": 68.0,
+      "research_status": "analyzed",
+      "supporting_evidence": [
+        "已聚合 4 个 CRWV 失败/反例样本",
+        "高频失败标签：large_adverse_move×4、underperformed_qqq×4、direction_not_aligned×1",
+        "SEC官方时间线可用于失败归因对齐：8-K 2026-09-22, 8-K 2026-09-17, 10-Q 2026-08-12",
+        "SEC官方正文片段已缓存，可继续检查失败窗口内是否存在公司事件或风险披露",
+        "事件窗口已自动对齐 4 个失败样本；7日内SEC 1，7日内分级事件 0"
+      ],
+      "counter_evidence": [
+        "Method Memory 中还有 2 个跨方法反例，需要避免把单一原因解释成全部失败",
+        "事件时间接近仅生成复盘假设，不代表事件造成失败"
+      ],
+      "unknowns": [
+        "若存在期权策略，当前公开结果不能替代真实期权P&L"
+      ],
+      "evidence_score": 86,
+      "confidence": "high",
+      "provisional_conclusion": "证据存在分歧，保持研究状态并优先验证反证。",
+      "next_validation": [
+        "这些失败是否共享同一市场环境？",
+        "主要来自趋势、事件、估值、宏观还是数据问题？",
+        "是否存在重复的反证线索？",
+        "应调整研究权重还是仅记录反例？"
+      ],
+      "source_requirements": [
+        "source_outcomes",
+        "evidence_attribution",
+        "method_memory",
+        "market_history"
+      ],
+      "guardrail": "该研究结果不能自动下单；未知项不得由模型猜测补全。",
+      "analysis_runs": 7,
+      "first_analyzed_at": "2026-10-02T12:56:22.515063+00:00",
+      "last_analyzed_at": "2026-10-02T13:27:49.740595+00:00"
     }
   ],
   "summary": {
     "analyzed": 8,
-    "high_confidence": 2,
-    "medium_confidence": 6,
+    "high_confidence": 5,
+    "medium_confidence": 3,
     "low_confidence": 0,
-    "with_counter_evidence": 6,
+    "with_counter_evidence": 8,
     "with_unknowns": 8
   },
   "policy": {

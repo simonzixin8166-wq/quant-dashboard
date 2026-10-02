@@ -25,6 +25,7 @@ PATHS={
     "source":ROOT/"docs/data/source_intelligence.json",
     "modules":ROOT/"docs/research/module_intelligence.json",
     "official":ROOT/"docs/research/official_evidence.json",
+    "event_windows":ROOT/"docs/research/event_window_attribution.json",
     "events":ROOT/"docs/research/event_evidence.json",
     "data":ROOT/"docs/data.json",
     "previous":ROOT/"docs/research/research_execution.json",
@@ -145,6 +146,14 @@ def failure_brief(task,evidence,method,official=None):
             add_unique(support,"SEC官方正文片段已缓存，可继续检查失败窗口内是否存在公司事件或风险披露")
         add_unique(unknowns,"尚未把每个失败样本日期与SEC申报日期自动计算事件窗口距离")
     else:
+        event_windows=event_windows or {}
+    aligned=[x for x in (event_windows.get("rows") or []) if x.get("symbol")==sym]
+    if aligned:
+        near_sec=sum(1 for x in aligned if (x.get("nearest_sec") or {}).get("distance_band") in {"very_near","near","week"})
+        near_evt=sum(1 for x in aligned if (x.get("nearest_event") or {}).get("distance_band") in {"very_near","near","week"})
+        add_unique(support,f"事件窗口已自动对齐 {len(aligned)} 个失败样本；7日内SEC {near_sec}，7日内分级事件 {near_evt}")
+        add_unique(counter,"事件时间接近仅生成复盘假设，不代表事件造成失败")
+    else:
         add_unique(unknowns,"尚未完成每个失败样本的公司事件/财报/宏观时间线对齐")
     add_unique(unknowns,"若存在期权策略，当前公开结果不能替代真实期权P&L")
     return support,counter,unknowns
@@ -228,7 +237,7 @@ def build(planner,artifacts,previous):
         x["first_analyzed_at"]=prior.get("first_analyzed_at") or now
         x["last_analyzed_at"]=now
     return {
-      "version":"6.4.1","generated_at":now,"planner_version":planner.get("version"),
+      "version":"6.5.0","generated_at":now,"planner_version":planner.get("version"),
       "results":rows,
       "summary":{
         "analyzed":len(rows),

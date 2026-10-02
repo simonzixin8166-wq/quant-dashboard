@@ -26,7 +26,15 @@ FEED_URL = os.getenv(
 SYMBOLS = {
     "INTC","IREN","TSLA","QQQ","QQQM","VGT","QLD","TQQQ","NVDA","MU","AMZN",
     "NOW","META","SMH","SPY","VOO","ORCL","IBIT","BTC","COIN","NBIS","CRWV","SNDK",
-    "PYPL","GOOG","GOOGL","AAPL","MSFT",
+    "PYPL","GOOG","GOOGL","AAPL","MSFT","JPM","AMAT","LITE","BE","MRVL","RSP","QCOM",
+}
+# Uppercase tokens from forum titles are useful ticker candidates, but a conservative
+# blocklist prevents common English abbreviations from becoming symbols.
+TICKER_BLOCKLIST = {
+    "AI","CEO","CFO","CTO","COO","SEC","FED","FOMC","CPI","PPI","GDP","EPS","PE",
+    "DCF","ATH","ATL","LOL","IMO","IMHO","FYI","MM","SP","CC","DTE","IV","OI","RSI",
+    "MA","USD","US","ETF","ETFS","THE","AND","BUT","FOR","WITH","THIS","THAT","YOU",
+    "YOUR","FROM","HOLD","BUY","SELL","PUT","CALL","LONG","SHORT","STOP","LOSS",
 }
 TOPICS = {
     "Sell Put": ["sell put","卖put","卖 put","sp "],
@@ -36,14 +44,16 @@ TOPICS = {
     "长期持有纪律": ["长期持有","长持","定投","time in the market","纪律","核心仓"],
     "仓位与加减仓": ["加仓","减仓","重仓","建仓","仓位","卖出一半"],
     "估值与价格": ["估值","价值","价格","margin of safety","安全边际"],
-    "趋势确认": ["趋势","突破","false break","ma21","ma50","supertrend","tcds"],
+    "趋势确认": ["趋势","突破","false break","ma21","ma50","supertrend","tcds",
+             "breakout","break out","strong close","hold above","new high","higher high",
+             "consolidation","sideway","range bound","support","resistance","pullback"],
     "AI研究方法": ["chatgpt","claude","gemini","ai 炒股","ai研究","人工智能"],
 }
 ACTION_PATTERNS = [
-    ("买入/建仓", r"买入|建仓|开始买|重仓"),
-    ("加仓", r"加仓|补仓|继续买"),
+    ("买入/建仓", r"买入|建仓|开始买|重仓|\benter(?:ed|ing)?\b|\bbought\b"),
+    ("加仓", r"加仓|补仓|继续买|\badd(?:ed|ing)?\b"),
     ("减仓", r"减仓|卖掉一半|trim"),
-    ("卖出/退出", r"卖出|清仓|割肉|退出"),
+    ("卖出/退出", r"卖出|清仓|割肉|退出|\bclosed?\b|take\s+profit|took\s+profit"),
     ("Sell Put", r"sell put|卖\s*put|\bsp\b"),
     ("LEAPS", r"leaps?|长期看涨期权"),
     ("对冲", r"对冲|买保险|protective put|hedge"),
@@ -66,16 +76,26 @@ def fetch_feed():
         return {"records":[]}
 
 def symbols(text: str):
-    up = (text or "").upper()
+    raw = text or ""
+    up = raw.upper()
     found = []
     for s in sorted(SYMBOLS, key=len, reverse=True):
         if re.search(rf"(?<![A-Z0-9]){re.escape(s)}(?![A-Z0-9])", up):
             found.append(s)
-    aliases = {"英特尔":"INTC","特斯拉":"TSLA","英伟达":"NVDA","谷歌":"GOOGL"}
+
+    # Historical reparse: forum posts often mention symbols that were not in the
+    # original static universe. Infer only explicit uppercase ticker-like tokens.
+    for token in re.findall(r"(?<![A-Za-z0-9])\$?([A-Z]{2,5})(?![A-Za-z0-9])", raw):
+        if token in TICKER_BLOCKLIST:
+            continue
+        if token not in found:
+            found.append(token)
+
+    aliases = {"英特尔":"INTC","特斯拉":"TSLA","英伟达":"NVDA","谷歌":"GOOGL","摩根大通":"JPM"}
     for name, sym in aliases.items():
-        if name in (text or "") and sym not in found:
+        if name in raw and sym not in found:
             found.append(sym)
-    return found[:8]
+    return found[:12]
 
 def topics(text: str, hints=None):
     low = (text or "").lower()
@@ -294,7 +314,8 @@ def build(records):
         })
 
     return {
-        "version": 1,
+        "version": 2,
+        "parser_version": "5.9.1",
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "principle": "收纳优先，来源明确；学习方法，不复制结论；外部操作先独立验证，再进入MyAlpha学习。",
         "authors": sorted(set(r["author"] for r in rows)),
@@ -306,6 +327,7 @@ def build(records):
             "structured_operations": sum(len(r["operations"]) for r in rows),
             "portfolio_rule_records": sum(1 for r in rows if r["portfolio_rules"]),
             "lesson_records": sum(1 for r in rows if r["lessons"]),
+            "historically_reparsed": len(rows),
         },
         "topic_groups": {k: v[:80] for k,v in sorted(by_topic.items(), key=lambda x: -len(x[1]))},
         "repeated_methods": [{"name":k,"records":v,"status":"research_candidate"} for k,v in method_counts.most_common()],

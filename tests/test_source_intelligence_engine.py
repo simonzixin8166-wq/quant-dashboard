@@ -47,3 +47,18 @@ third=si.attribute_operation("段永平的93条语录，对不上他自己的13F
 assert third["attribution"]=="third_party_example"
 plan=si.attribute_operation("子弹与耐心：8·18 AI板块大跌手记。",{"symbols":["NBIS"],"entry_1":180,"entry_2":150})
 assert plan["attribution"]=="author_plan"
+
+# V5.9.1 historical reparse: explicit forum tickers + English method language
+reparsed=si.build([
+ {"id":"r1","source":"wenxuecity","source_kind":"forum","author":"三心三意","published_at":"2026-10-01",
+  "title":"JPM must hold above April high or larger pullback","url":"https://example/r1","excerpt":"Tech stocks need a strong close and breakout."},
+ {"id":"r2","source":"wenxuecity","source_kind":"forum","author":"三心三意","published_at":"2026-10-01",
+  "title":"MM shaking both longs and shorts","url":"https://example/r2","excerpt":""},
+])
+rr=reparsed["records"]
+assert "JPM" in rr[0]["symbols"]
+assert "趋势确认" in rr[0]["topics"]
+assert "MM" not in rr[1]["symbols"]
+assert reparsed["parser_version"]=="5.9.1"
+assert reparsed["counts"]["historically_reparsed"]==2
+print("PASS V5.9.1 historical reparse")

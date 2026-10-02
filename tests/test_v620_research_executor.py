@@ -29,11 +29,12 @@ method={"methods":[
 source={"records":[{"symbols":["LITE"],"published_at":"2026-10-01","title":"LITE"}]}
 modules={"modules":[]}
 official={"symbols":{"LITE":{"status":"ok","filings":[{"form":"8-K","filing_date":"2026-10-01","excerpts":["Item 8.01 official event"]}]}}}
+event_windows={"rows":[{"symbol":"LITE","nearest_sec":{"distance_band":"near"},"nearest_event":{"distance_band":"week"}}]}
 events={"symbols":{"LITE":{"status":"ok","news":[{"title":"Lumentum update","publisher":"Reuters","source_type":"newswire","source_priority":1}],"peer_context":{"peer_count":3,"direction":"broad_positive","avg_day_change":0.025}}}}
 data={"trend_pulse":{"LITE":{"state":"二次启动","data_integrity":{"status":"CHECK","label":"有限校验"}}}}
-artifacts={"learning":learning,"evidence":evidence,"method":method,"source":source,"modules":modules,"official":official,"events":events,"data":data}
+artifacts={"learning":learning,"evidence":evidence,"method":method,"source":source,"modules":modules,"official":official,"event_windows":event_windows,"events":events,"data":data}
 out=rx.build(planner,artifacts,{})
-assert out["version"]=="6.4.1"
+assert out["version"]=="6.5.0"
 assert out["summary"]["analyzed"]==2
 lite=next(x for x in out["results"] if x["key"]=="LITE")
 assert lite["supporting_evidence"]
@@ -75,3 +76,10 @@ generic=rx.build({"version":"6.1.0","today":[planner["today"][0]],"queue":[]},ar
 assert not any("已读取 1 条最近媒体事件线索" in x for x in generic["supporting_evidence"])
 assert any("一般媒体线索" in x for x in generic["unknowns"])
 assert any("未形成一致共振" in x for x in generic["unknowns"])
+
+failure_artifacts={**artifacts}
+planner2={"version":"6.1.0","today":[{"task_id":"f1","kind":"failure_review","key":"LITE","title":"LITE失败复盘","priority":68,"questions":[],"evidence_sources":[]}],"queue":[]}
+out3=rx.build(planner2,failure_artifacts,{})
+fr=out3["results"][0]
+assert any("事件窗口已自动对齐" in x for x in fr["supporting_evidence"])
+assert any("不代表事件造成失败" in x for x in fr["counter_evidence"])

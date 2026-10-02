@@ -25,6 +25,7 @@ PATHS={
     "source":ROOT/"docs/data/source_intelligence.json",
     "modules":ROOT/"docs/research/module_intelligence.json",
     "official":ROOT/"docs/research/official_evidence.json",
+    "event_windows":ROOT/"docs/research/event_window_attribution.json",
     "events":ROOT/"docs/research/event_evidence.json",
     "data":ROOT/"docs/data.json",
     "previous":ROOT/"docs/research/research_execution.json",
@@ -119,7 +120,7 @@ def market_brief(task,learning,evidence,source,data,official=None,events=None):
     add_unique(unknowns,"公司IR官网全文仍待专用连接；当前已使用SEC官方披露与分级媒体事件线索")
     return support,counter,unknowns
 
-def failure_brief(task,evidence,method,official=None):
+def failure_brief(task,evidence,method,official=None,event_windows=None):
     sym=task.get("key")
     rows=failure_rows(evidence,sym)
     support=[];counter=[];unknowns=[]
@@ -143,7 +144,13 @@ def failure_brief(task,evidence,method,official=None):
         add_unique(support,f"SEC官方时间线可用于失败归因对齐：{dates}")
         if any(f.get("excerpts") for f in filings):
             add_unique(support,"SEC官方正文片段已缓存，可继续检查失败窗口内是否存在公司事件或风险披露")
-        add_unique(unknowns,"尚未把每个失败样本日期与SEC申报日期自动计算事件窗口距离")
+    event_windows=event_windows or {}
+    aligned=[x for x in (event_windows.get("rows") or []) if x.get("symbol")==sym]
+    if aligned:
+        near_sec=sum(1 for x in aligned if (x.get("nearest_sec") or {}).get("distance_band") in {"very_near","near","week"})
+        near_evt=sum(1 for x in aligned if (x.get("nearest_event") or {}).get("distance_band") in {"very_near","near","week"})
+        add_unique(support,f"事件窗口已自动对齐 {len(aligned)} 个失败样本；7日内SEC {near_sec}，7日内分级事件 {near_evt}")
+        add_unique(counter,"事件时间接近仅生成复盘假设，不代表事件造成失败")
     else:
         add_unique(unknowns,"尚未完成每个失败样本的公司事件/财报/宏观时间线对齐")
     add_unique(unknowns,"若存在期权策略，当前公开结果不能替代真实期权P&L")
@@ -180,7 +187,7 @@ def execute_task(task,artifacts):
     if kind in {"market_anomaly","discovery"}:
         support,counter,unknowns=market_brief(task,artifacts["learning"],artifacts["evidence"],artifacts["source"],artifacts["data"],artifacts.get("official"),artifacts.get("events"))
     elif kind=="failure_review":
-        support,counter,unknowns=failure_brief(task,artifacts["evidence"],artifacts["method"],artifacts.get("official"))
+        support,counter,unknowns=failure_brief(task,artifacts["evidence"],artifacts["method"],artifacts.get("official"),artifacts.get("event_windows"))
     elif kind=="method_evidence_gap":
         support,counter,unknowns=method_gap_brief(task,artifacts["method"])
     elif kind in {"module_learning_review","architecture_gap"}:
@@ -228,7 +235,7 @@ def build(planner,artifacts,previous):
         x["first_analyzed_at"]=prior.get("first_analyzed_at") or now
         x["last_analyzed_at"]=now
     return {
-      "version":"6.4.1","generated_at":now,"planner_version":planner.get("version"),
+      "version":"6.5.0","generated_at":now,"planner_version":planner.get("version"),
       "results":rows,
       "summary":{
         "analyzed":len(rows),

@@ -80,3 +80,11 @@ assert "到期前存在" not in agent_js
 assert "Build V5.5 Autonomous Research Agent" in workflow
 
 print("PASS V5.5 Autonomous Research Agent")
+
+assert "V6 Research Planner · 自主研究计划" in agent_js
+assert "V7 Shadow Brain · 自我优化" in agent_js
+assert "research/research_planner.json" in agent_js
+assert "research/self_improvement.json" in agent_js
+assert "MYALPHA AUTONOMOUS AGENT · V6 + V7" in agent_js
+assert "Build V6 Autonomous Research Planner" in workflow
+assert "Build V7 Self-Improvement Shadow Engine" in workflow

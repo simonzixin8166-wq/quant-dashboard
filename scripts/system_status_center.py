@@ -38,7 +38,7 @@ def iso_from_file(path:Path):
     return datetime.fromtimestamp(path.stat().st_mtime,timezone.utc).isoformat()
 
 def github_runs(repo:str):
-    url=f"https://api.github.com/repos/simonzixin8166-wq/{repo}/actions/runs?per_page=40"
+    url=f"https://api.github.com/repos/simonzixin8166-wq/{repo}/actions/runs?per_page=100"
     req=urllib.request.Request(url,headers={"User-Agent":"MyAlpha-Status-Center","Accept":"application/vnd.github+json"})
     token=os.getenv("GITHUB_TOKEN")
     if token:req.add_header("Authorization",f"Bearer {token}")
@@ -84,8 +84,9 @@ def build(fetch_runs=True):
     ]
     if "bad" in critical:overall="attention"
     elif "running" in critical:overall="running"
+    elif any(x in {"unknown",None} for x in critical):overall="attention"
     result={
-        "version":1,
+        "version":2,
         "generated_at":datetime.now(timezone.utc).isoformat(),
         "overall":overall,
         "workflows":repos,

@@ -1,18 +1,43 @@
 {
-  "version": "6.1.0",
-  "generated_at": "2026-10-02T13:27:40.774039+00:00",
-  "mission": "每个模块必须有存在目的、证据输入、学习策略和下游关系；没有这些字段的模块视为架构债务。",
+  "version": "6.6.0",
+  "generated_at": "2026-10-02T13:53:53.791465+00:00",
+  "mission": "每个能力模块必须有存在目的、证据输入、学习策略和下游关系；导航只暴露少数核心工作台，其余能力作为二级或辅助入口。",
   "audit": {
-    "actual_tabs": 14,
-    "declared_tabs": 14,
+    "actual_tabs": 15,
+    "declared_tabs": 15,
     "coverage_ok": true,
     "missing_registry_entries": [],
     "stale_registry_entries": [],
+    "primary_tabs": [
+      "tab-overview",
+      "tab-agent-center",
+      "tab-index",
+      "tab-stocks",
+      "tab-options",
+      "tab-engine",
+      "tab-wenxuecity",
+      "tab-journal"
+    ],
+    "auxiliary_tabs": [
+      "tab-finance-tools",
+      "tab-system-health"
+    ],
+    "secondary_tabs": [
+      "tab-cn-hk",
+      "tab-trend-pulse",
+      "tab-sandbox",
+      "tab-archive",
+      "tab-knowledge"
+    ],
+    "primary_count": 8,
+    "auxiliary_count": 2,
+    "secondary_count": 5,
+    "navigation_model_ok": true,
     "learning_modes": {
       "derived_learning": 1,
+      "continuous": 6,
       "shadow_only": 1,
       "operational_learning": 1,
-      "continuous": 5,
       "curated_learning": 1,
       "candidate": 1,
       "private_only": 1,
@@ -47,6 +72,33 @@
       ],
       "why_it_exists": "减少用户在多个页面之间寻找今日重点；作为全站研究结论的汇合层。",
       "guardrail": "展示研究优先级，不把高优先级直接解释为买卖信号。"
+    },
+    {
+      "id": "tab-agent-center",
+      "name": "Agent Center",
+      "role": "agent_brain",
+      "purpose": "集中展示V6研究队列、Research Executor、V7 Candidate/Shadow Brain与Promotion Gate。",
+      "inputs": [
+        "research_planner",
+        "research_execution",
+        "self_improvement",
+        "system_status",
+        "evidence_attribution"
+      ],
+      "outputs": [
+        "decision_journal",
+        "research_planner",
+        "operator_attention"
+      ],
+      "learning": "continuous",
+      "learns_from": [
+        "research execution outcomes",
+        "evidence gaps",
+        "shadow candidates",
+        "promotion eligibility"
+      ],
+      "why_it_exists": "把分散的自主研究、自我学习和自我优化统一成一个大脑页面；首页只保留摘要。",
+      "guardrail": "只展示和组织Agent研究过程；不允许从页面直接触发自动交易或绕过Promotion Gate。"
     },
     {
       "id": "tab-engine",
@@ -612,6 +664,21 @@
     {
       "from": "tab-overview",
       "to": "decision_journal",
+      "type": "feeds"
+    },
+    {
+      "from": "tab-agent-center",
+      "to": "decision_journal",
+      "type": "feeds"
+    },
+    {
+      "from": "tab-agent-center",
+      "to": "research_planner",
+      "type": "feeds"
+    },
+    {
+      "from": "tab-agent-center",
+      "to": "operator_attention",
       "type": "feeds"
     },
     {

@@ -93,3 +93,7 @@ assert "V6.2 Research Executor · 自主研究结果" in agent_js
 assert "research/research_execution.json" in agent_js
 assert "支持证据" in agent_js and "反证" in agent_js and "未知项" in agent_js
 assert "Build V6.2 Autonomous Research Executor" in workflow
+
+assert 'id="agentCenterRoot"' in generator
+assert "今日 Agent 摘要" in agent_js
+assert "打开 Agent Center · 查看完整研究与自我优化" in agent_js

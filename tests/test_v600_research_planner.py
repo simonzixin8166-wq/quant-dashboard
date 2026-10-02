@@ -1,0 +1,30 @@
+import importlib.util
+from pathlib import Path
+
+ROOT=Path(__file__).resolve().parents[1]
+spec=importlib.util.spec_from_file_location("p",ROOT/"scripts"/"autonomous_research_planner.py")
+p=importlib.util.module_from_spec(spec);spec.loader.exec_module(p)
+
+agent={
+ "watchlist_attention":[
+  {"symbol":"LITE","level":"action","research_priority":88,"reasons":["单日大涨"],"run_count":1},
+  {"symbol":"QQQ","level":"quiet","research_priority":40,"reasons":[]}
+ ],
+ "discovery_queue":[{"symbol":"XYZ","event_strength":"high","next_step":"核对官方事件"}]
+}
+evidence={"failure_attribution":{"external_outcome_reviews":[{"event_id":"e1","symbol":"IREN","title":"failure"}]}}
+method={"methods":[{"method":"趋势确认","direct_validated_events":1,"context_validated_events":10}]}
+out=p.build(agent,{},evidence,method,{}, {})
+assert out["version"]=="6.0.0"
+assert out["counts"]["open"]>=4
+assert any(x["kind"]=="market_anomaly" and x["key"]=="LITE" for x in out["queue"])
+assert any(x["kind"]=="failure_review" for x in out["queue"])
+assert any(x["kind"]=="method_evidence_gap" for x in out["queue"])
+assert any(x["kind"]=="discovery" and x["key"]=="XYZ" for x in out["queue"])
+assert "automatic_order" in out["planner_policy"]["forbidden"]
+
+prev={"queue":[out["queue"][0]]}
+out2=p.build(agent,{},evidence,method,{},prev)
+same=next(x for x in out2["queue"] if x["task_id"]==out["queue"][0]["task_id"])
+assert same["run_count"]==2
+print("PASS V6 autonomous research planner")

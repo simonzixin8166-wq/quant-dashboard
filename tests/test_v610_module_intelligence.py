@@ -6,11 +6,16 @@ spec=importlib.util.spec_from_file_location("mi",ROOT/"scripts"/"module_intellig
 mi=importlib.util.module_from_spec(spec);spec.loader.exec_module(mi)
 
 out=mi.build()
-assert out["version"]=="6.1.0"
+assert out["version"]=="6.6.0"
 assert out["audit"]["coverage_ok"] is True
-assert out["audit"]["actual_tabs"]==14
-assert out["audit"]["declared_tabs"]==14
+assert out["audit"]["actual_tabs"]==15
+assert out["audit"]["declared_tabs"]==15
 assert out["audit"]["orphan_modules"]==[]
+assert out["audit"]["navigation_model_ok"] is True
+assert out["audit"]["primary_count"]==8
+assert out["audit"]["auxiliary_count"]==2
+assert out["audit"]["secondary_count"]==5
+assert "tab-agent-center" in out["audit"]["primary_tabs"]
 
 mods={m["id"]:m for m in out["modules"]}
 assert mods["tab-finance-tools"]["learning"]=="intentionally_static"
@@ -18,6 +23,7 @@ assert mods["tab-options"]["learning"]=="private_only"
 assert mods["tab-engine"]["learning"]=="shadow_only"
 assert mods["tab-wenxuecity"]["learning"]=="continuous"
 assert mods["tab-journal"]["role"]=="outcome_memory"
+assert mods["tab-agent-center"]["role"]=="agent_brain"
 
 for m in out["modules"]:
     assert m["purpose"]
@@ -30,7 +36,7 @@ for m in out["modules"]:
 assert any(e["from"]=="tab-wenxuecity" and e["to"]=="method_memory" for e in out["edges"])
 assert "V6 Research Planner" in out["agent_loop"]
 assert "V7 Candidate + Shadow Brain" in out["agent_loop"]
-print("PASS V6.1 whole-site module intelligence")
+print("PASS V6.6 whole-site module intelligence and IA tiers")
 
 services={s["id"]:s for s in out["services"]}
 assert services["research-executor"]["role"]=="evidence_synthesis"

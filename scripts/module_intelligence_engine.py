@@ -17,6 +17,7 @@ from pathlib import Path
 
 ROOT=Path(__file__).resolve().parents[1]
 INDEX=ROOT/"docs"/"index.html"
+GENERATOR=ROOT/"scripts"/"fetch_and_build.py"
 OUT=ROOT/"docs"/"research"/"module_intelligence.json"
 
 def artifact(path:str):
@@ -33,6 +34,16 @@ MODULES=[
       "learns_from":["Situation Memory","Agent attention changes","Decision outcomes"],
       "why_it_exists":"减少用户在多个页面之间寻找今日重点；作为全站研究结论的汇合层。",
       "guardrail":"展示研究优先级，不把高优先级直接解释为买卖信号。"
+    },
+    {
+      "id":"tab-agent-center","name":"Agent Center","role":"agent_brain",
+      "purpose":"集中展示V6研究队列、Research Executor、V7 Candidate/Shadow Brain与Promotion Gate。",
+      "inputs":["research_planner","research_execution","self_improvement","system_status","evidence_attribution"],
+      "outputs":["decision_journal","research_planner","operator_attention"],
+      "learning":"continuous",
+      "learns_from":["research execution outcomes","evidence gaps","shadow candidates","promotion eligibility"],
+      "why_it_exists":"把分散的自主研究、自我学习和自我优化统一成一个大脑页面；首页只保留摘要。",
+      "guardrail":"只展示和组织Agent研究过程；不允许从页面直接触发自动交易或绕过Promotion Gate。"
     },
     {
       "id":"tab-engine","name":"核心策略信号","role":"policy_monitor",
@@ -200,16 +211,32 @@ ARTIFACTS={
  "assistant_rule_validation":"docs/research/assistant_rule_validation.json",
 }
 
+PRIMARY_TABS=[
+    "tab-overview","tab-agent-center","tab-index","tab-stocks",
+    "tab-options","tab-engine","tab-wenxuecity","tab-journal",
+]
+AUXILIARY_TABS=["tab-finance-tools","tab-system-health"]
+SECONDARY_TABS=["tab-cn-hk","tab-trend-pulse","tab-sandbox","tab-archive","tab-knowledge"]
+
 def page_tabs():
-    if not INDEX.exists(): return []
-    text=INDEX.read_text(encoding="utf-8",errors="ignore")
-    return sorted(set(re.findall(r'<div id="(tab-[^"]+)" class="tab-pane',text)))
+    # Generator source is authoritative so Source Validation can verify the new
+    # information architecture before the next generated docs/index.html lands.
+    texts=[]
+    for p in (GENERATOR,INDEX):
+        if p.exists():
+            texts.append(p.read_text(encoding="utf-8",errors="ignore"))
+    found=set()
+    for text in texts:
+        found.update(re.findall(r'<div id="(tab-[^"]+)" class="tab-pane',text))
+    return sorted(found)
 
 def build():
     declared={m["id"] for m in MODULES}
     actual=set(page_tabs())
+    expected_nav=set(PRIMARY_TABS)|set(AUXILIARY_TABS)|set(SECONDARY_TABS)
     missing=sorted(actual-declared)
     stale=sorted(declared-actual)
+    nav_coverage=(declared==expected_nav and actual==expected_nav)
     edges=[]
     for m in MODULES:
         for target in m.get("outputs",[]):
@@ -221,13 +248,16 @@ def build():
     for m in MODULES:
         learn_counts[m["learning"]]=learn_counts.get(m["learning"],0)+1
     return {
-      "version":"6.1.0",
+      "version":"6.6.0",
       "generated_at":datetime.now(timezone.utc).isoformat(),
-      "mission":"每个模块必须有存在目的、证据输入、学习策略和下游关系；没有这些字段的模块视为架构债务。",
+      "mission":"每个能力模块必须有存在目的、证据输入、学习策略和下游关系；导航只暴露少数核心工作台，其余能力作为二级或辅助入口。",
       "audit":{
         "actual_tabs":len(actual),"declared_tabs":len(declared),
-        "coverage_ok":not missing and not stale,
+        "coverage_ok":not missing and not stale and nav_coverage,
         "missing_registry_entries":missing,"stale_registry_entries":stale,
+        "primary_tabs":PRIMARY_TABS,"auxiliary_tabs":AUXILIARY_TABS,"secondary_tabs":SECONDARY_TABS,
+        "primary_count":len(PRIMARY_TABS),"auxiliary_count":len(AUXILIARY_TABS),"secondary_count":len(SECONDARY_TABS),
+        "navigation_model_ok":nav_coverage,
         "learning_modes":learn_counts,
         "orphan_modules":[m["id"] for m in MODULES if not m.get("inputs") or not m.get("outputs")],
       },

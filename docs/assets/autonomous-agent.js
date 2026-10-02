@@ -459,7 +459,7 @@
   }
 
   function render(){
-    const host=$('agentAttentionRoot');if(!host)return;
+    const center=$('agentCenterRoot'),home=$('agentAttentionRoot');const host=center||home;if(!host)return;
     const policy=buildLearningPolicy();
     const pub=publicAttention(policy),priv=privateAttention();
     const optionAttention=priv.filter(x=>x.level!=='quiet').sort((a,b)=>rank(b.level)-rank(a.level)||((a.metrics?.dte??999)-(b.metrics?.dte??999)));
@@ -490,6 +490,10 @@
       ${termHelp('Research Priority')}
       ${discovery.length?`<details class="agent-discovery"><summary>自主发现 · 异常机会 ${discovery.length}</summary><div>${discovery.slice(0,8).map(x=>`<p><b>${esc(x.symbol)}</b> · ${pct(x.price_change,1)} · ${esc(x.event_strength)}<br><small>${esc(x.next_step)} ${esc(x.guardrail)}</small></p>`).join('')}</div></details>`:''}
       <div class="agent-foot">自主研究 ≠ 自动交易。系统负责主动发现、解释、排序和提出方案；最终交易仍由投资者确认。</div>`;
+    if(home&&center){
+      const top=[...optionAttention,...stockAttention].slice(0,3);
+      home.innerHTML=`<div class="agent-attention-head"><div><span class="agent-kicker">MYALPHA AUTONOMOUS AGENT · V6 + V7</span><h2>今日 Agent 摘要</h2><p>完整研究过程已集中到 Agent Center；首页只保留真正需要你注意的事项。</p></div><div class="agent-counts"><span class="action">需处理 <b>${counts.action}</b></span><span class="review">需复查 <b>${counts.review}</b></span><span>观察 <b>${counts.watch}</b></span></div></div>${top.length?`<div class="agent-grid">${top.map(card).join('')}</div>`:'<div class="agent-empty">当前没有需要打扰你的重大变化；Agent 仍在后台学习。</div>'}<div class="agent-foot"><button type="button" onclick="openDashboardTab('tab-agent-center')">打开 Agent Center · 查看完整研究与自我优化</button></div>`;
+    }
     state.lastRender=Date.now();
   }
 

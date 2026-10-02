@@ -1,15 +1,16 @@
 (function(global){
   'use strict';
   const PRIMARY=[
-    {id:'tab-overview',label:'总览',icon:'◆'},
-    {id:'tab-stocks',label:'观察',icon:'⌁'},
-    {id:'tab-options',label:'期权',icon:'⚑'}
+    {id:'tab-overview',label:'首页',icon:'◆'},
+    {id:'tab-agent-center',label:'Agent',icon:'✦'},
+    {id:'tab-stocks',label:'Stocks',icon:'⌁'},
+    {id:'tab-options',label:'Options',icon:'⚑'}
   ];
   const state={current:'tab-overview'};
   const byId=id=>document.getElementById(id);
   const originalItem=id=>[...document.querySelectorAll('.sidebar .nav-menu li')].find(item=>(item.getAttribute('onclick')||'').includes(`'${id}'`));
   const tabId=item=>((item.getAttribute('onclick')||'').match(/switchTab\('([^']+)'/)||[])[1];
-  const labelFor=item=>item.textContent.replace('NEW','').replace(/^[◆◒◫◇⌁⚑◎🧮📜]/u,'').trim();
+  const labelFor=item=>item.textContent.replace('NEW','').replace(/^[◆✦◒◫◇⌁∿⚑◎🧮📜✓◷]/u,'').trim();
   function allowed(id){return id==='tab-overview'||document.body.classList.contains('private-mode');}
   function close(){byId('mobileNavSheet')?.classList.remove('open');byId('mobileNavBackdrop')?.classList.remove('open');document.body.classList.remove('mobile-drawer-open');byId('mobileNavSheet')?.setAttribute('aria-hidden','true');}
   function open(){byId('mobileNavSheet')?.classList.add('open');byId('mobileNavBackdrop')?.classList.add('open');document.body.classList.add('mobile-drawer-open');byId('mobileNavSheet')?.setAttribute('aria-hidden','false');}

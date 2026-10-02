@@ -40,3 +40,7 @@ assert "V6.2 Research Executor" in out["agent_loop"]
 assert services["official-evidence"]["role"]=="primary_source"
 assert "official_evidence" in out["artifacts"]
 assert "V6.3 Official Evidence Layer" in out["agent_loop"]
+
+assert services["event-window-attribution"]["role"]=="failure_context"
+assert "event_window_attribution" in out["artifacts"]
+assert "V6.5 Event Window Attribution" in out["agent_loop"]

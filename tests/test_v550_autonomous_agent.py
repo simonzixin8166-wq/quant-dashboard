@@ -81,7 +81,7 @@ assert "Build V5.5 Autonomous Research Agent" in workflow
 
 print("PASS V5.5 Autonomous Research Agent")
 
-assert "V6 Research Planner · 自主研究计划" in agent_js
+assert "V6 自主研究规划 · 研究计划" in agent_js
 assert "V7 Shadow Brain · 自我优化" in agent_js
 assert "research/research_planner.json" in agent_js
 assert "research/self_improvement.json" in agent_js
@@ -89,11 +89,11 @@ assert "MYALPHA AUTONOMOUS AGENT · V6 + V7" in agent_js
 assert "Build V6 Autonomous Research Planner" in workflow
 assert "Build V7 Self-Improvement Shadow Engine" in workflow
 
-assert "V6.2 Research Executor · 自主研究结果" in agent_js
+assert "V6.5 自主研究执行 · 研究结果" in agent_js
 assert "research/research_execution.json" in agent_js
 assert "支持证据" in agent_js and "反证" in agent_js and "未知项" in agent_js
 assert "Build V6.2 Autonomous Research Executor" in workflow
 
 assert 'id="agentCenterRoot"' in generator
-assert "今日 Agent 摘要" in agent_js
-assert "打开 Agent Center · 查看完整研究与自我优化" in agent_js
+assert "今日 AI 摘要" in agent_js
+assert "打开 AI智能中心 · 查看完整研究与自我优化" in agent_js

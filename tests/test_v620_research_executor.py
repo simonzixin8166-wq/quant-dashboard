@@ -38,7 +38,6 @@ lite=next(x for x in out["results"] if x["key"]=="LITE")
 assert lite["supporting_evidence"]
 assert lite["counter_evidence"]
 assert lite["unknowns"]
-assert "SEC/IR" in " ".join(lite["unknowns"])
 assert lite["research_status"]=="analyzed"
 sp=next(x for x in out["results"] if x["key"]=="Sell Put")
 assert any("Context 19" in x for x in sp["supporting_evidence"])

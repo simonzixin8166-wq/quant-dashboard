@@ -1,0 +1,33 @@
+import importlib.util
+from pathlib import Path
+
+ROOT=Path(__file__).resolve().parents[1]
+spec=importlib.util.spec_from_file_location("mi",ROOT/"scripts"/"module_intelligence_engine.py")
+mi=importlib.util.module_from_spec(spec);spec.loader.exec_module(mi)
+
+out=mi.build()
+assert out["version"]=="6.1.0"
+assert out["audit"]["coverage_ok"] is True
+assert out["audit"]["actual_tabs"]==14
+assert out["audit"]["declared_tabs"]==14
+assert out["audit"]["orphan_modules"]==[]
+
+mods={m["id"]:m for m in out["modules"]}
+assert mods["tab-finance-tools"]["learning"]=="intentionally_static"
+assert mods["tab-options"]["learning"]=="private_only"
+assert mods["tab-engine"]["learning"]=="shadow_only"
+assert mods["tab-wenxuecity"]["learning"]=="continuous"
+assert mods["tab-journal"]["role"]=="outcome_memory"
+
+for m in out["modules"]:
+    assert m["purpose"]
+    assert m["inputs"]
+    assert m["outputs"]
+    assert m["learning"]
+    assert m["why_it_exists"]
+    assert m["guardrail"]
+
+assert any(e["from"]=="tab-wenxuecity" and e["to"]=="method_memory" for e in out["edges"])
+assert "V6 Research Planner" in out["agent_loop"]
+assert "V7 Candidate + Shadow Brain" in out["agent_loop"]
+print("PASS V6.1 whole-site module intelligence")

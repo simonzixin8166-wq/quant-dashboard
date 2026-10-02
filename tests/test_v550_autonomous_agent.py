@@ -88,3 +88,8 @@ assert "research/self_improvement.json" in agent_js
 assert "MYALPHA AUTONOMOUS AGENT · V6 + V7" in agent_js
 assert "Build V6 Autonomous Research Planner" in workflow
 assert "Build V7 Self-Improvement Shadow Engine" in workflow
+
+assert "V6.2 Research Executor · 自主研究结果" in agent_js
+assert "research/research_execution.json" in agent_js
+assert "支持证据" in agent_js and "反证" in agent_js and "未知项" in agent_js
+assert "Build V6.2 Autonomous Research Executor" in workflow

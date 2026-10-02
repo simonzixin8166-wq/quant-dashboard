@@ -1,7 +1,7 @@
 (function(global){
   'use strict';
   const $=id=>document.getElementById(id);
-  const state={publicData:null,evidenceData:null,systemStatus:null,plannerData:null,selfImproveData:null,lastRender:0};
+  const state={publicData:null,evidenceData:null,systemStatus:null,plannerData:null,researchData:null,selfImproveData:null,lastRender:0};
   const MEMORY_KEY='mavAgentDecisionMemoryV562', LEGACY_MEMORY_KEY='mavAgentDecisionMemoryV56', POLICY_KEY='mavLearningPolicyV1';
 
   function n(v){const x=Number(v);return Number.isFinite(x)?x:null}
@@ -85,12 +85,13 @@
 
   async function loadPublic(){
     try{
-      const [a,e,s,h,p,v7]=await Promise.all([
+      const [a,e,s,h,p,x,v7]=await Promise.all([
         fetch('research/autonomous_agent.json?v='+Date.now(),{cache:'no-store'}),
         fetch('research/evidence_attribution.json?v='+Date.now(),{cache:'no-store'}),
         fetch('data/source_intelligence.json?v='+Date.now(),{cache:'no-store'}),
         fetch('research/system_status.json?v='+Date.now(),{cache:'no-store'}).catch(()=>null),
         fetch('research/research_planner.json?v='+Date.now(),{cache:'no-store'}).catch(()=>null),
+        fetch('research/research_execution.json?v='+Date.now(),{cache:'no-store'}).catch(()=>null),
         fetch('research/self_improvement.json?v='+Date.now(),{cache:'no-store'}).catch(()=>null)
       ]);
       state.publicData=a.ok?await a.json():null;
@@ -98,20 +99,23 @@
       state.sourceIntel=s.ok?await s.json():null;
       state.systemStatus=h&&h.ok?await h.json():null;
       state.plannerData=p&&p.ok?await p.json():null;
+      state.researchData=x&&x.ok?await x.json():null;
       state.selfImproveData=v7&&v7.ok?await v7.json():null;
-    }catch{state.publicData=null;state.evidenceData=null;state.sourceIntel=null;state.systemStatus=null;state.plannerData=null;state.selfImproveData=null}
+    }catch{state.publicData=null;state.evidenceData=null;state.sourceIntel=null;state.systemStatus=null;state.plannerData=null;state.researchData=null;state.selfImproveData=null}
   }
 
 
   function brainHtml(){
-    const p=state.plannerData||{},v=state.selfImproveData||{};
-    const today=p.today||[],cands=v.candidates||[];
-    if(!today.length&&!cands.length)return'';
+    const p=state.plannerData||{},x=state.researchData||{},v=state.selfImproveData||{};
+    const today=p.today||[],results=x.results||[],cands=v.candidates||[];
+    if(!today.length&&!results.length&&!cands.length)return'';
     const planner=`<div class="agent-section-title"><b>V6 Research Planner · 自主研究计划</b><span>${today.length} 项今日重点 · ${p.counts?.persistent||0} 项持续跟踪</span></div>
       <div class="agent-grid">${today.slice(0,6).map(x=>`<article class="agent-card agent-review"><div class="agent-card-head"><div><span>${esc(x.kind||'RESEARCH')}</span><h3>${esc(x.title||x.key||'研究任务')}</h3></div><b>优先级 ${esc(x.priority??'—')}</b></div><p><strong>为什么现在研究：</strong>${esc(x.why_now||'')}</p><ul>${(x.questions||[]).slice(0,4).map(q=>`<li>${esc(q)}</li>`).join('')}</ul><small>连续运行 ${x.run_count||1} 次 · 需要同时记录支持证据、反证、未知项和下一验证条件。</small></article>`).join('')||'<div class="agent-empty">当前没有高优先级自主研究任务。</div>'}</div>`;
     const shadow=`<div class="agent-section-title"><b>V7 Shadow Brain · 自我优化</b><span>${cands.length} 个候选 · ${v.shadow_brain?.eligible_for_review?.length||0} 个达到复核门槛</span></div>
       <div class="agent-grid">${cands.slice(0,6).map(x=>`<article class="agent-card agent-watch"><div class="agent-card-head"><div><span>SHADOW · ${esc(x.kind||'candidate')}</span><h3>${esc(x.scope||'研究策略')}</h3></div><b>${esc(x.state==='eligible_for_review'?'可复核':'影子测试')}</b></div><p><strong>候选改进：</strong>${esc(JSON.stringify(x.proposed_change||{}))}</p><p><strong>依据：</strong>${esc(x.reason||'')}</p><div class="agent-metrics"><span>证据 ${x.evidence_n||0}</span><span>Shadow ${x.shadow_runs||0}/${v.promotion_gate?.minimum_shadow_runs||5}</span></div><small>达到门槛也不会自动修改正式交易规则；Promotion Gate 要求人工复核。</small></article>`).join('')||'<div class="agent-empty">目前没有新的策略候选。</div>'}</div>`;
-    return planner+shadow;
+    const executed=`<div class="agent-section-title"><b>V6.2 Research Executor · 自主研究结果</b><span>${results.length} 项已分析 · 反证 ${x.summary?.with_counter_evidence||0} · 未知项 ${x.summary?.with_unknowns||0}</span></div>
+      <div class="agent-grid">${results.slice(0,6).map(r=>`<article class="agent-card agent-${r.confidence==='high'?'watch':'review'}"><div class="agent-card-head"><div><span>ANALYZED · ${esc(r.kind||'research')}</span><h3>${esc(r.title||r.key||'自主研究')}</h3></div><b>${esc(r.confidence||'low')} · ${r.evidence_score??'—'}</b></div><p><strong>暂时结论：</strong>${esc(r.provisional_conclusion||'')}</p><details open><summary>支持证据（${(r.supporting_evidence||[]).length}）</summary><ul>${(r.supporting_evidence||[]).slice(0,5).map(z=>`<li>${esc(z)}</li>`).join('')||'<li>暂无</li>'}</ul></details><details><summary>反证（${(r.counter_evidence||[]).length}）</summary><ul>${(r.counter_evidence||[]).slice(0,5).map(z=>`<li>${esc(z)}</li>`).join('')||'<li>暂无</li>'}</ul></details><details><summary>未知项（${(r.unknowns||[]).length}）</summary><ul>${(r.unknowns||[]).slice(0,5).map(z=>`<li>${esc(z)}</li>`).join('')||'<li>暂无</li>'}</ul></details><small>已自动分析 ${r.analysis_runs||1} 次 · 不补猜缺失事实 · 不自动交易。</small></article>`).join('')||'<div class="agent-empty">等待V6.2执行第一批自主研究任务。</div>'}</div>`;
+    return planner+executed+shadow;
   }
 
   function systemStatusHtml(){

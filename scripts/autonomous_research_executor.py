@@ -1,0 +1,207 @@
+#!/usr/bin/env python3
+"""MyAlpha V6.2 Autonomous Research Executor.
+
+Executes the highest-priority V6 research tasks using already-validated internal
+artifacts. It produces a structured research brief with supporting evidence,
+counter-evidence, unknowns and next validation. It never places orders and does
+not invent missing external facts.
+
+The executor is intentionally evidence-first. External live web/SEC/news
+connectors can attach later; until then, missing official/company evidence is
+explicitly marked unknown rather than guessed.
+"""
+from __future__ import annotations
+
+import json
+from datetime import datetime, timezone
+from pathlib import Path
+
+ROOT=Path(__file__).resolve().parents[1]
+PATHS={
+    "planner":ROOT/"docs/research/research_planner.json",
+    "learning":ROOT/"docs/research/learning_engine.json",
+    "evidence":ROOT/"docs/research/evidence_attribution.json",
+    "method":ROOT/"docs/research/method_memory.json",
+    "source":ROOT/"docs/data/source_intelligence.json",
+    "modules":ROOT/"docs/research/module_intelligence.json",
+    "data":ROOT/"docs/data.json",
+    "previous":ROOT/"docs/research/research_execution.json",
+}
+OUT=ROOT/"docs/research/research_execution.json"
+
+def load(path):
+    try:return json.loads(path.read_text(encoding="utf-8"))
+    except Exception:return {}
+
+def add_unique(rows,item):
+    if item and item not in rows: rows.append(item)
+
+def situation_map(learning):
+    return {x.get("symbol"):x for x in (learning.get("situation_memory") or []) if x.get("symbol")}
+
+def source_rows(source,symbol):
+    if not symbol:return []
+    return [r for r in (source.get("records") or []) if symbol in (r.get("symbols") or [])]
+
+def failure_rows(evidence,symbol):
+    rows=(evidence.get("failure_attribution") or {}).get("external_outcome_reviews") or []
+    return [x for x in rows if x.get("symbol")==symbol]
+
+def module_map(modules):
+    return {m.get("id"):m for m in (modules.get("modules") or []) if m.get("id")}
+
+def method_map(method):
+    return {m.get("method"):m for m in (method.get("methods") or []) if m.get("method")}
+
+def market_brief(task,learning,evidence,source,data):
+    sym=task.get("key")
+    sit=situation_map(learning).get(sym) or {}
+    tp=(data.get("trend_pulse") or {}).get(sym) or {}
+    support=[];counter=[];unknowns=[]
+    priority=sit.get("research_priority")
+    stage=sit.get("stage") or tp.get("state")
+    if stage:add_unique(support,f"Trend Pulse / Situation 当前阶段：{stage}")
+    if priority is not None:add_unique(support,f"Learning Engine 研究优先级：{priority}/100")
+    hist=sit.get("historical_stage_evidence") or {}
+    if hist.get("n60"):add_unique(support,f"相同阶段60日历史样本：{hist.get('n60')}，中位收益 {hist.get('median60')}")
+    for c in sit.get("contradictions") or []:
+        add_unique(counter,str(c.get("message") or c.get("evidence") or c))
+    fr=failure_rows(evidence,sym)
+    if fr:add_unique(counter,f"Failure Attribution 中存在 {len(fr)} 个该标的外部研究反例/失效样本")
+    sr=source_rows(source,sym)
+    if sr:
+        latest=sorted(sr,key=lambda x:str(x.get("published_at") or ""),reverse=True)[:3]
+        add_unique(support,f"Source Intelligence 有 {len(sr)} 条与 {sym} 相关研究记录；最近 {len(latest)} 条已进入独立验证层")
+    else:add_unique(unknowns,"暂无可用外部研究记录")
+    integ=tp.get("data_integrity") or {}
+    if integ.get("status") and integ.get("status")!="OK":
+        add_unique(counter,f"Trend Pulse 数据校验状态：{integ.get('label') or integ.get('status')}")
+    add_unique(unknowns,"尚未自动接入本任务对应的最新SEC/IR与可靠新闻全文核验")
+    add_unique(unknowns,"行业同业联动需要在外部事件执行器接入后补充")
+    return support,counter,unknowns
+
+def failure_brief(task,evidence,method):
+    sym=task.get("key")
+    rows=failure_rows(evidence,sym)
+    support=[];counter=[];unknowns=[]
+    tags={}
+    for r in rows:
+        for t in r.get("review_tags") or r.get("tags") or []:tags[t]=tags.get(t,0)+1
+    if rows:add_unique(support,f"已聚合 {len(rows)} 个 {sym} 失败/反例样本")
+    if tags:
+        ranked=sorted(tags.items(),key=lambda x:x[1],reverse=True)[:5]
+        add_unique(support,"高频失败标签："+ "、".join(f"{k}×{v}" for k,v in ranked))
+    mfail=[]
+    for m in method.get("methods") or []:
+        for x in m.get("failure_examples") or []:
+            if x.get("symbol")==sym:mfail.append((m.get("method"),x))
+    if mfail:add_unique(counter,f"Method Memory 中还有 {len(mfail)} 个跨方法反例，需要避免把单一原因解释成全部失败")
+    add_unique(unknowns,"尚未完成每个失败样本的公司事件/财报/宏观时间线对齐")
+    add_unique(unknowns,"若存在期权策略，当前公开结果不能替代真实期权P&L")
+    return support,counter,unknowns
+
+def method_gap_brief(task,method):
+    name=task.get("key")
+    m=method_map(method).get(name) or {}
+    support=[];counter=[];unknowns=[]
+    direct=m.get("direct_validated_events") or 0
+    context=m.get("context_validated_events") or 0
+    add_unique(support,f"{name}：Context {context}，Direct {direct}")
+    if context>direct:add_unique(counter,f"仍有 {context-direct} 个上下文事件不能直接归因到该方法")
+    if m.get("performance") is None:add_unique(counter,"当前不展示方法绩效，避免把上下文相关性误当方法有效性")
+    add_unique(unknowns,"需要更多明确触发条件、动作字段和后续结果才能扩大Direct样本")
+    return support,counter,unknowns
+
+def module_brief(task,modules):
+    m=module_map(modules).get(task.get("key")) or {}
+    support=[];counter=[];unknowns=[]
+    if m:
+        add_unique(support,f"模块存在目的：{m.get('why_it_exists')}")
+        add_unique(support,f"当前学习模式：{m.get('learning')}")
+        add_unique(support,"输入："+"、".join(m.get("inputs") or []))
+        add_unique(support,"输出："+"、".join(m.get("outputs") or []))
+        add_unique(counter,f"学习边界：{m.get('guardrail')}")
+        if m.get("learning") in {"candidate","shadow_only","private_shadow"}:
+            add_unique(unknowns,"仍需用可验证结果标签证明该模块值得扩大自学习范围")
+    else:add_unique(unknowns,"模块注册表中未找到该模块")
+    return support,counter,unknowns
+
+def execute_task(task,artifacts):
+    kind=task.get("kind")
+    if kind in {"market_anomaly","discovery"}:
+        support,counter,unknowns=market_brief(task,artifacts["learning"],artifacts["evidence"],artifacts["source"],artifacts["data"])
+    elif kind=="failure_review":
+        support,counter,unknowns=failure_brief(task,artifacts["evidence"],artifacts["method"])
+    elif kind=="method_evidence_gap":
+        support,counter,unknowns=method_gap_brief(task,artifacts["method"])
+    elif kind in {"module_learning_review","architecture_gap"}:
+        support,counter,unknowns=module_brief(task,artifacts["modules"])
+    else:
+        support,counter,unknowns=[],[],["当前执行器尚未定义此任务类型的证据适配器"]
+
+    score=min(100,20+12*len(support)+8*len(counter)-10*len(unknowns))
+    if not support:score=min(score,30)
+    confidence="low" if score<40 else "medium" if score<70 else "high"
+    if counter:
+        conclusion="证据存在分歧，保持研究状态并优先验证反证。"
+    elif support and unknowns:
+        conclusion="已有初步支持证据，但关键外部事实仍缺失，暂不升级为结论。"
+    elif support:
+        conclusion="内部证据较一致，但仍只作为研究结论，不产生自动交易动作。"
+    else:
+        conclusion="证据不足，维持观察并等待更多可验证信息。"
+
+    return {
+      "task_id":task.get("task_id"),"kind":kind,"key":task.get("key"),"title":task.get("title"),
+      "priority":task.get("priority"),"research_status":"analyzed",
+      "supporting_evidence":support[:8],"counter_evidence":counter[:8],"unknowns":unknowns[:8],
+      "evidence_score":max(0,score),"confidence":confidence,"provisional_conclusion":conclusion,
+      "next_validation":(task.get("questions") or [])[:4],
+      "source_requirements":task.get("evidence_sources") or [],
+      "guardrail":"该研究结果不能自动下单；未知项不得由模型猜测补全。"
+    }
+
+def build(planner,artifacts,previous):
+    tasks=(planner.get("today") or [])[:8]
+    # If the live queue is short, include the highest-value non-live research tasks.
+    if len(tasks)<8:
+        existing={x.get("task_id") for x in tasks}
+        for t in planner.get("queue") or []:
+            if t.get("task_id") in existing:continue
+            tasks.append(t)
+            if len(tasks)>=8:break
+    rows=[execute_task(t,artifacts) for t in tasks]
+    old={x.get("task_id"):x for x in (previous.get("results") or [])}
+    now=datetime.now(timezone.utc).isoformat()
+    for x in rows:
+        prior=old.get(x["task_id"]) or {}
+        x["analysis_runs"]=(prior.get("analysis_runs") or 0)+1
+        x["first_analyzed_at"]=prior.get("first_analyzed_at") or now
+        x["last_analyzed_at"]=now
+    return {
+      "version":"6.2.0","generated_at":now,"planner_version":planner.get("version"),
+      "results":rows,
+      "summary":{
+        "analyzed":len(rows),
+        "high_confidence":sum(x["confidence"]=="high" for x in rows),
+        "medium_confidence":sum(x["confidence"]=="medium" for x in rows),
+        "low_confidence":sum(x["confidence"]=="low" for x in rows),
+        "with_counter_evidence":sum(bool(x["counter_evidence"]) for x in rows),
+        "with_unknowns":sum(bool(x["unknowns"]) for x in rows),
+      },
+      "policy":{
+        "required_fields":["supporting_evidence","counter_evidence","unknowns","next_validation"],
+        "no_hallucinated_fill":True,
+        "automatic_orders":False,
+        "production_rule_mutation":False
+      }
+    }
+
+def main():
+    d={k:load(v) for k,v in PATHS.items()}
+    artifacts={k:d[k] for k in ("learning","evidence","method","source","modules","data")}
+    out=build(d["planner"],artifacts,d["previous"])
+    OUT.parent.mkdir(parents=True,exist_ok=True)
+    OUT.write_text(json.dumps(out,ensure_ascii=False,indent=2),encoding="utf-8")
+    print(json.dumps(out["summary"],ensure_ascii=False))
+if __name__=="__main__":main()

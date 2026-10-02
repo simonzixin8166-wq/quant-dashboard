@@ -33,9 +33,10 @@ SYMBOLS = {
 TICKER_BLOCKLIST = {
     "AI","CEO","CFO","CTO","COO","SEC","FED","FOMC","CPI","PPI","GDP","EPS","PE",
     "DCF","ATH","ATL","LOL","IMO","IMHO","FYI","MM","SP","CC","DTE","IV","OI","RSI",
-    "MA","USD","US","ETF","ETFS","THE","AND","BUT","FOR","WITH","THIS","THAT","YOU",
+    "MA","TA","USD","US","ETF","ETFS","THE","AND","BUT","FOR","WITH","THIS","THAT","YOU",
     "YOUR","FROM","HOLD","BUY","SELL","PUT","CALL","LONG","SHORT","STOP","LOSS",
 }
+AMBIGUOUS_WORD_TICKERS = {"NOW","BE"}
 TOPICS = {
     "Sell Put": ["sell put","卖put","卖 put","sp "],
     "LEAPS": ["leap","leaps","长期期权"],
@@ -53,7 +54,7 @@ ACTION_PATTERNS = [
     ("买入/建仓", r"买入|建仓|开始买|重仓|\benter(?:ed|ing)?\b|\bbought\b"),
     ("加仓", r"加仓|补仓|继续买|\badd(?:ed|ing)?\b"),
     ("减仓", r"减仓|卖掉一半|trim"),
-    ("卖出/退出", r"卖出|清仓|割肉|退出|\bclosed?\b|take\s+profit|took\s+profit"),
+    ("卖出/退出", r"卖出|清仓|割肉|退出|\bclose(?:d)?\s+(?:sp|put|call|position|trade)\b|take\s+profit|took\s+profit"),
     ("Sell Put", r"sell put|卖\s*put|\bsp\b"),
     ("LEAPS", r"leaps?|长期看涨期权"),
     ("对冲", r"对冲|买保险|protective put|hedge"),
@@ -80,7 +81,10 @@ def symbols(text: str):
     up = raw.upper()
     found = []
     for s in sorted(SYMBOLS, key=len, reverse=True):
-        if re.search(rf"(?<![A-Z0-9]){re.escape(s)}(?![A-Z0-9])", up):
+        # Some valid tickers are common English words. Require explicit uppercase
+        # spelling for those so prose such as "620 now" or "should be" is not tagged.
+        haystack = raw if s in AMBIGUOUS_WORD_TICKERS else up
+        if re.search(rf"(?<![A-Z0-9]){re.escape(s)}(?![A-Z0-9])", haystack):
             found.append(s)
 
     # Historical reparse: forum posts often mention symbols that were not in the

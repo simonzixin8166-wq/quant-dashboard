@@ -78,3 +78,18 @@ assert "卖出/退出" not in gm["g2"]["actions"], gm["g2"]["actions"]
 assert "趋势确认" in gm["g2"]["topics"]
 assert "TA" not in gm["g3"]["symbols"], gm["g3"]["symbols"]
 print("PASS V5.9.1 false-positive guards")
+
+# V5.9.1 upstream-feed symbol sanitization: do not preserve collector false positives.
+feed_clean=si.build([
+ {"id":"f1","source":"wenxuecity","source_kind":"forum","author":"三心三意","published_at":"2026-10-01",
+  "title":"SMH also flying, 620 now!","url":"https://example/f1","excerpt":"","symbols":["NOW","SMH"]},
+ {"id":"f2","source":"wenxuecity","source_kind":"forum","author":"三心三意","published_at":"2026-10-01",
+  "title":"No, TA never looked good","url":"https://example/f2","excerpt":"","symbols":["TA"]},
+ {"id":"f3","source":"wenxuecity","source_kind":"forum","author":"三心三意","published_at":"2026-10-01",
+  "title":"NOW breaks out","url":"https://example/f3","excerpt":"","symbols":["NOW"]},
+])
+fm={x["id"]:x for x in feed_clean["records"]}
+assert fm["f1"]["symbols"]==["SMH"], fm["f1"]["symbols"]
+assert fm["f2"]["symbols"]==[], fm["f2"]["symbols"]
+assert fm["f3"]["symbols"]==["NOW"], fm["f3"]["symbols"]
+print("PASS V5.9.1 upstream symbol sanitization")

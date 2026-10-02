@@ -62,3 +62,19 @@ assert "MM" not in rr[1]["symbols"]
 assert reparsed["parser_version"]=="5.9.1"
 assert reparsed["counts"]["historically_reparsed"]==2
 print("PASS V5.9.1 historical reparse")
+
+# V5.9.1 false-positive guards
+guarded=si.build([
+ {"id":"g1","source":"wenxuecity","source_kind":"forum","author":"三心三意","published_at":"2026-10-01",
+  "title":"SMH also flying, 620 now!","url":"https://example/g1","excerpt":""},
+ {"id":"g2","source":"wenxuecity","source_kind":"forum","author":"三心三意","published_at":"2026-10-01",
+  "title":"Yeap. But still need a strong close tomorrow though","url":"https://example/g2","excerpt":""},
+ {"id":"g3","source":"wenxuecity","source_kind":"forum","author":"三心三意","published_at":"2026-10-01",
+  "title":"No, TA never looked good","url":"https://example/g3","excerpt":""},
+])
+gm={x["id"]:x for x in guarded["records"]}
+assert gm["g1"]["symbols"]==["SMH"], gm["g1"]["symbols"]
+assert "卖出/退出" not in gm["g2"]["actions"], gm["g2"]["actions"]
+assert "趋势确认" in gm["g2"]["topics"]
+assert "TA" not in gm["g3"]["symbols"], gm["g3"]["symbols"]
+print("PASS V5.9.1 false-positive guards")

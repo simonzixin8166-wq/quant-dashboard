@@ -82,7 +82,7 @@ assert "Build V5.5 Autonomous Research Agent" in workflow
 print("PASS V5.5 Autonomous Research Agent")
 
 assert "V6 自主研究规划 · 研究计划" in agent_js
-assert "V7 Shadow Brain · 自我优化" in agent_js
+assert "V7 影子大脑 · 自我优化" in agent_js
 assert "research/research_planner.json" in agent_js
 assert "research/self_improvement.json" in agent_js
 assert "MYALPHA AUTONOMOUS AGENT · V6 + V7" in agent_js

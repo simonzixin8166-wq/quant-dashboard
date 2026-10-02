@@ -3,6 +3,7 @@ import urllib.request, urllib.parse
 import yfinance as yf
 import pandas as pd
 import warnings
+from zoneinfo import ZoneInfo
 try:
     from opportunity_strategy import build_tqqq_x2_strategy, build_leaps_radar, merge_alert_history
 except ModuleNotFoundError:
@@ -13,9 +14,9 @@ except ModuleNotFoundError:
 warnings.filterwarnings("ignore")
 
 # 单一版本源：每日 Action 生成 HTML 时，页面标题和静态资源缓存版本都从这里读取。
-APP_VERSION = "6.6.1"
+APP_VERSION = "6.6.3"
 OPTIONS_VERSION = "4.1.0"  # 网站优先；APP/PWA 功能已移除，仅保留响应式手机网页
-ASSET_VERSION = "6.6.1"
+ASSET_VERSION = "6.6.3"
 
 API_KEY = os.environ.get("TWELVE_DATA_KEY", "demo")
 BASE = "https://api.twelvedata.com"
@@ -216,6 +217,28 @@ def fetch_supabase_watchlist():
 def http_get_json(url):
     with urllib.request.urlopen(url, timeout=20) as resp: return json.loads(resp.read().decode("utf-8"))
 
+
+def filter_completed_us_daily_rows(rows, now_utc=None):
+    """Drop the still-forming US daily candle while regular session is open.
+
+    Daily strategy/Trend Pulse inputs must only use completed sessions. Twelve
+    Data and Yahoo may expose today's 1d candle intraday, so treat the New York
+    trading date as incomplete until 16:10 ET.
+    """
+    if not rows:
+        return rows
+    now_utc = now_utc or datetime.datetime.now(datetime.timezone.utc)
+    if now_utc.tzinfo is None:
+        now_utc = now_utc.replace(tzinfo=datetime.timezone.utc)
+    ny = now_utc.astimezone(ZoneInfo("America/New_York"))
+    if ny.weekday() >= 5 or (ny.hour, ny.minute) >= (16, 10):
+        return rows
+    today_ny = ny.date().isoformat()
+    filtered = [r for r in rows if str(r.get("datetime",""))[:10] != today_ny]
+    if len(filtered) != len(rows):
+        print(f"INFO: dropped incomplete US daily candle {today_ny}")
+    return filtered
+
 def fetch_yahoo_index(y_symbol, range_="1y"):
     url = f"https://query1.finance.yahoo.com/v8/finance/chart/{y_symbol}?interval=1d&range={range_}&events=splits"
     req = urllib.request.Request(url, headers=HEADERS)
@@ -247,7 +270,8 @@ def fetch_yahoo_index(y_symbol, range_="1y"):
         open_ = float(q["open"][i] if q["open"][i] is not None else q["close"][i]) * factor
         rows.append({"datetime": d, "close": str(close), "high": str(high), "low": str(low), "open": str(open_)})
     rows.reverse()
-    if not rows: raise RuntimeError("Yahoo returned no rows")
+    rows = filter_completed_us_daily_rows(rows)
+    if not rows: raise RuntimeError("Yahoo returned no completed daily rows")
     return rows
 
 def fetch_real_index_or_proxy(y_symbol, proxy_symbol, today, proxy_rows_cache=None):
@@ -266,7 +290,9 @@ def fetch_time_series(symbol, outputsize=260, retries=3):
             if payload.get("status") == "error":
                 if payload.get("code") == 429: time.sleep(15); continue
                 raise RuntimeError(payload.get("message", "error"))
-            return payload["values"]
+            rows = filter_completed_us_daily_rows(payload["values"])
+            if not rows: raise RuntimeError("Twelve Data returned no completed daily rows")
+            return rows
         except Exception as e:
             if attempt == retries - 1: raise e
             time.sleep(10)

@@ -21,6 +21,7 @@ ARTIFACTS={
     "research_execution": ROOT/"docs"/"research"/"research_execution.json",
     "official_evidence": ROOT/"docs"/"research"/"official_evidence.json",
     "event_evidence": ROOT/"docs"/"research"/"event_evidence.json",
+    "event_window_attribution": ROOT/"docs"/"research"/"event_window_attribution.json",
     "self_improvement": ROOT/"docs"/"research"/"self_improvement.json",
     "module_intelligence": ROOT/"docs"/"research"/"module_intelligence.json",
 }

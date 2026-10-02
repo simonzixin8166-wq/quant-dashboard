@@ -33,3 +33,5 @@ for html in (gen,idx):
 assert "tab-agent-center" in mobile
 assert "label:'智能'" in mobile
 print("PASS V6.6 consolidated information architecture")
+
+# V6.6.1 Chinese mobile navigation contract

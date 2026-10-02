@@ -23,9 +23,9 @@ assert any(x["proposed_change"].get("priority_weight_delta")==-3 for x in out["c
 prev={"candidates":[]}
 for c in out["candidates"]:
     cc=dict(c);cc["shadow_runs"]=4
-    if cc["kind"]=="process_guardrail":cc["evidence_n"]=25
     prev["candidates"].append(cc)
-out2=s.build(evidence,method,planner,prev)
+evidence2={"failure_attribution":{"external_outcome_reviews":[{} for _ in range(25)]}}
+out2=s.build(evidence2,method,planner,prev)
 guard=next(x for x in out2["candidates"] if x["kind"]=="process_guardrail")
 assert guard["shadow_runs"]==5
 assert guard["promotion_eligible"] is True

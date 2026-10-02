@@ -30,7 +30,7 @@ assert "timeframe_confirmation_missing" in attr["tags"]
 assert "large_adverse_move" in attr["tags"]
 
 agent=(ROOT/'docs/assets/autonomous-agent.js').read_text(encoding='utf-8')
-assert "MYALPHA AUTONOMOUS AGENT · V5.7" in agent
+assert "MYALPHA AUTONOMOUS AGENT · V6 + V7" in agent
 assert "Evidence Map · 证据地图" in agent
 assert "Failure Attribution · 错误归因" in agent
 assert "这是什么意思：" in agent

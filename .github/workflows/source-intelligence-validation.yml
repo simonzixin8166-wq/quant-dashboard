@@ -12,6 +12,7 @@ on:
       - "scripts/autonomous_research_planner.py"
       - "scripts/official_evidence_engine.py"
       - "scripts/event_evidence_engine.py"
+      - "scripts/event_window_attribution.py"
       - "scripts/autonomous_research_executor.py"
       - "scripts/self_improvement_engine.py"
       - "scripts/evidence_attribution_engine.py"
@@ -42,7 +43,7 @@ jobs:
 
       - name: Validate source-learning code
         run: |
-          python -m py_compile scripts/source_intelligence_engine.py scripts/source_history_cache.py scripts/source_outcome_validation.py scripts/evidence_attribution_engine.py scripts/method_memory_engine.py scripts/module_intelligence_engine.py scripts/autonomous_research_planner.py scripts/official_evidence_engine.py scripts/event_evidence_engine.py scripts/autonomous_research_executor.py scripts/self_improvement_engine.py scripts/system_status_center.py
+          python -m py_compile scripts/source_intelligence_engine.py scripts/source_history_cache.py scripts/source_outcome_validation.py scripts/evidence_attribution_engine.py scripts/method_memory_engine.py scripts/module_intelligence_engine.py scripts/autonomous_research_planner.py scripts/official_evidence_engine.py scripts/event_evidence_engine.py scripts/event_window_attribution.py scripts/autonomous_research_executor.py scripts/self_improvement_engine.py scripts/system_status_center.py
           python tests/test_source_intelligence_engine.py
           python tests/test_source_outcome_validation.py
           python tests/test_source_intelligence_ui.py
@@ -52,6 +53,7 @@ jobs:
           python tests/test_v600_research_planner.py
           python tests/test_v630_official_evidence.py
           python tests/test_v640_event_evidence.py
+          python tests/test_v650_event_window_attribution.py
           python tests/test_v620_research_executor.py
           python tests/test_v700_self_improvement.py
           node --check docs/assets/wenxuecity.js
@@ -83,6 +85,9 @@ jobs:
       - name: Build V6.4 Event & Peer Evidence Layer
         run: python scripts/event_evidence_engine.py
 
+      - name: Build V6.5 Event Window Attribution
+        run: python scripts/event_window_attribution.py
+
       - name: Build V6.2 Autonomous Research Executor
         run: python scripts/autonomous_research_executor.py
 
@@ -98,7 +103,7 @@ jobs:
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
-          git add docs/data/source_intelligence.json docs/research/source_outcome_validation.json docs/research/evidence_attribution.json docs/research/method_memory.json docs/research/module_intelligence.json docs/research/research_planner.json docs/research/official_evidence.json docs/research/event_evidence.json docs/research/research_execution.json docs/research/self_improvement.json docs/research/system_status.json
+          git add docs/data/source_intelligence.json docs/research/source_outcome_validation.json docs/research/evidence_attribution.json docs/research/method_memory.json docs/research/module_intelligence.json docs/research/research_planner.json docs/research/official_evidence.json docs/research/event_evidence.json docs/research/event_window_attribution.json docs/research/research_execution.json docs/research/self_improvement.json docs/research/system_status.json
           if [ -f data/history/source_validation_history.zip ]; then git add data/history/source_validation_history.zip; fi
           if ! git diff --cached --quiet; then
             git commit -m "update source intelligence validation"

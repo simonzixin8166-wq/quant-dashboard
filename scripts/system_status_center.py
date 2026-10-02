@@ -19,6 +19,7 @@ ARTIFACTS={
     "method_memory": ROOT/"docs"/"research"/"method_memory.json",
     "research_planner": ROOT/"docs"/"research"/"research_planner.json",
     "research_execution": ROOT/"docs"/"research"/"research_execution.json",
+    "official_evidence": ROOT/"docs"/"research"/"official_evidence.json",
     "self_improvement": ROOT/"docs"/"research"/"self_improvement.json",
     "module_intelligence": ROOT/"docs"/"research"/"module_intelligence.json",
 }

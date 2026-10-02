@@ -29,10 +29,11 @@ method={"methods":[
 source={"records":[{"symbols":["LITE"],"published_at":"2026-10-01","title":"LITE"}]}
 modules={"modules":[]}
 official={"symbols":{"LITE":{"status":"ok","filings":[{"form":"8-K","filing_date":"2026-10-01","excerpts":["Item 8.01 official event"]}]}}}
+events={"symbols":{"LITE":{"status":"ok","news":[{"title":"Lumentum update","publisher":"Reuters","source_type":"newswire","source_priority":1}],"peer_context":{"peer_count":3,"direction":"broad_positive","avg_day_change":0.025}}}}
 data={"trend_pulse":{"LITE":{"state":"二次启动","data_integrity":{"status":"CHECK","label":"有限校验"}}}}
-artifacts={"learning":learning,"evidence":evidence,"method":method,"source":source,"modules":modules,"official":official,"data":data}
+artifacts={"learning":learning,"evidence":evidence,"method":method,"source":source,"modules":modules,"official":official,"events":events,"data":data}
 out=rx.build(planner,artifacts,{})
-assert out["version"]=="6.3.1"
+assert out["version"]=="6.4.0"
 assert out["summary"]["analyzed"]==2
 lite=next(x for x in out["results"] if x["key"]=="LITE")
 assert lite["supporting_evidence"]
@@ -64,3 +65,6 @@ assert not any("SEC官方披露核验" in x for x in etf["unknowns"])
 planner_fail={"version":"6.1.0","today":[{"task_id":"tf","kind":"failure_review","key":"LITE","title":"LITE失败","priority":68,"questions":[],"evidence_sources":[]}],"queue":[]}
 fail=rx.build(planner_fail,artifacts,{})["results"][0]
 assert any("SEC官方时间线" in x for x in fail["supporting_evidence"])
+
+assert any("高优先级事件源" in x for x in lite["supporting_evidence"])
+assert any("同业联动" in x for x in lite["supporting_evidence"])

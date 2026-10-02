@@ -18,7 +18,7 @@ evidence={"failure_attribution":{"external_outcome_reviews":[
 ]}}
 method={"methods":[{"method":"趋势确认","direct_validated_events":1,"context_validated_events":10}]}
 out=p.build(agent,{},evidence,method,{}, {})
-assert out["version"]=="6.0.1"
+assert out["version"]=="6.1.0"
 assert out["counts"]["open"]>=4
 assert any(x["kind"]=="market_anomaly" and x["key"]=="LITE" for x in out["queue"])
 assert any(x["kind"]=="failure_review" for x in out["queue"])
@@ -39,3 +39,8 @@ assert failure["priority"]==68
 live=next(x for x in out["queue"] if x["kind"]=="market_anomaly")
 assert live["priority"]>=88
 assert out["today"][0]["kind"]=="market_anomaly"
+
+modules={"audit":{"coverage_ok":False},"modules":[{"id":"tab-engine","name":"核心策略信号","learning":"shadow_only"}]}
+out3=p.build(agent,{},evidence,method,{}, {},modules)
+assert any(x["kind"]=="architecture_gap" for x in out3["queue"])
+assert any(x["kind"]=="module_learning_review" and x["key"]=="tab-engine" for x in out3["queue"])

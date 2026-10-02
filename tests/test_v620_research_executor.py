@@ -33,7 +33,7 @@ events={"symbols":{"LITE":{"status":"ok","news":[{"title":"Lumentum update","pub
 data={"trend_pulse":{"LITE":{"state":"二次启动","data_integrity":{"status":"CHECK","label":"有限校验"}}}}
 artifacts={"learning":learning,"evidence":evidence,"method":method,"source":source,"modules":modules,"official":official,"events":events,"data":data}
 out=rx.build(planner,artifacts,{})
-assert out["version"]=="6.4.0"
+assert out["version"]=="6.4.1"
 assert out["summary"]["analyzed"]==2
 lite=next(x for x in out["results"] if x["key"]=="LITE")
 assert lite["supporting_evidence"]
@@ -68,3 +68,10 @@ assert any("SEC官方时间线" in x for x in fail["supporting_evidence"])
 
 assert any("高优先级事件源" in x for x in lite["supporting_evidence"])
 assert any("同业联动" in x for x in lite["supporting_evidence"])
+
+events_generic={"symbols":{"LITE":{"status":"ok","news":[{"title":"Lumentum context","publisher":"Media","source_type":"media","source_priority":2}],"peer_context":{"peer_count":1,"direction":"mixed","avg_day_change":0.01}}}}
+artifacts_generic={**artifacts,"events":events_generic}
+generic=rx.build({"version":"6.1.0","today":[planner["today"][0]],"queue":[]},artifacts_generic,{})["results"][0]
+assert not any("已读取 1 条最近媒体事件线索" in x for x in generic["supporting_evidence"])
+assert any("一般媒体线索" in x for x in generic["unknowns"])
+assert any("未形成一致共振" in x for x in generic["unknowns"])

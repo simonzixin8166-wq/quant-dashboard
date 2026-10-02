@@ -101,6 +101,29 @@ def symbols(text: str):
             found.append(sym)
     return found[:12]
 
+def sanitize_declared_symbols(values, text: str):
+    """Revalidate upstream ticker metadata against source text.
+
+    The collector can provide useful symbols even when an excerpt is short, so
+    non-ambiguous known tickers remain trusted. Common-English tickers (NOW/BE)
+    and blocked abbreviations must have explicit source-text evidence.
+    """
+    raw = text or ""
+    out = []
+    for value in values or []:
+        sym = str(value or "").upper().strip().lstrip("$")
+        if not re.fullmatch(r"[A-Z][A-Z0-9.\-]{0,5}", sym):
+            continue
+        if sym in TICKER_BLOCKLIST:
+            continue
+        if sym in AMBIGUOUS_WORD_TICKERS:
+            if not re.search(rf"(?<![A-Za-z0-9])\$?{re.escape(sym)}(?![A-Za-z0-9])", raw):
+                continue
+        if sym not in out:
+            out.append(sym)
+    return out[:12]
+
+
 def topics(text: str, hints=None):
     low = (text or "").lower()
     out = []
@@ -190,7 +213,7 @@ def normalize(row):
         return out
     learned_rules = type_labels(row.get("portfolio_rules") or [])
     learned_lessons = type_labels(row.get("lessons") or [])
-    syms = list(dict.fromkeys((row.get("symbols") or []) + symbols(text)))
+    syms = list(dict.fromkeys(sanitize_declared_symbols(row.get("symbols"), text) + symbols(text)))
     tps = topics(text, row.get("themes_hint"))
     acts = actions(text)
     for op in learned_ops:

@@ -12,7 +12,7 @@ method={"methods":[
 evidence={"failure_attribution":{"external_outcome_reviews":[{} for _ in range(12)]}}
 planner={"version":"6.0.0","counts":{"open":7}}
 out=s.build(evidence,method,planner,{})
-assert out["version"]=="7.1.0"
+assert out["version"]=="7.2.0"
 assert out["production_brain"]["mode"]=="locked"
 assert out["promotion_gate"]["automatic_production_promotion"] is False
 assert len(out["candidates"])==3
@@ -38,3 +38,10 @@ cand=next(x for x in out3["candidates"] if x["kind"]=="module_learning_design")
 assert cand["scope"]=="tab-cn-hk"
 assert cand["state"]=="shadow"
 assert cand["promotion_eligible"] is False
+
+execution={"results":[{"unknowns":["a","b"]} for _ in range(5)]}
+out4=s.build(evidence,method,planner,{},None,execution)
+gap=next(x for x in out4["candidates"] if x["kind"]=="research_process")
+assert gap["scope"]=="evidence_coverage"
+assert gap["proposed_change"]["require_explicit_unknowns"] is True
+assert gap["state"]=="shadow"

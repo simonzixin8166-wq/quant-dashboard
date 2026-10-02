@@ -7,7 +7,7 @@ assert "BrightLine" in data["authors"]
 assert "风险管理" in data["topic_groups"]
 assert data["thesis_candidates"]
 js=(ROOT/"docs"/"assets"/"wenxuecity.js").read_text(encoding="utf-8")
-for label in ["主题研究","具体操作","验证结果","失败复盘","观点演变","来源档案"]:
+for label in ["主题研究","方法记忆","具体操作","验证结果","失败复盘","观点演变","来源档案"]:
     assert label in js
 nav=js.split('aria-label="文学城栏目"',1)[1].split('</nav>',1)[0]
 for old in ["投资助手","方法地图","博客文章","论坛与收盘复盘","方法沉淀","作者与数据状态"]:
@@ -26,3 +26,8 @@ assert "第二档买入价" in js
 assert "卖出线" in js
 assert "走势与当时方向不一致" in js
 assert "entry_1" not in js.split("function humanValidationField",1)[1].split("function outcomeCard",1)[1]
+
+assert "research/method_memory.json" in js
+assert "Method Memory · 方法记忆" in js
+assert "Direct" in js and "Context only" in js
+assert "60日成熟 Direct" in js

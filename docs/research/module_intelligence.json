@@ -1,6 +1,6 @@
 {
   "version": "6.1.0",
-  "generated_at": "2026-10-02T12:56:22.428557+00:00",
+  "generated_at": "2026-10-02T13:03:33.235874+00:00",
   "mission": "每个模块必须有存在目的、证据输入、学习策略和下游关系；没有这些字段的模块视为架构债务。",
   "audit": {
     "actual_tabs": 14,
@@ -388,6 +388,20 @@
       "learning": "continuous"
     },
     {
+      "id": "official-evidence",
+      "name": "Official Evidence Layer",
+      "role": "primary_source",
+      "inputs": [
+        "research_planner",
+        "SEC EDGAR"
+      ],
+      "outputs": [
+        "research-executor",
+        "decision_journal"
+      ],
+      "learning": "source_memory"
+    },
+    {
       "id": "research-executor",
       "name": "Autonomous Research Executor",
       "role": "evidence_synthesis",
@@ -397,6 +411,7 @@
         "evidence_attribution",
         "method_memory",
         "source_intelligence",
+        "official_evidence",
         "module_intelligence"
       ],
       "outputs": [
@@ -504,6 +519,10 @@
     },
     "research_execution": {
       "path": "docs/research/research_execution.json",
+      "available": true
+    },
+    "official_evidence": {
+      "path": "docs/research/official_evidence.json",
       "available": false
     },
     "self_improvement": {
@@ -755,6 +774,16 @@
       "type": "feeds"
     },
     {
+      "from": "official-evidence",
+      "to": "research-executor",
+      "type": "feeds"
+    },
+    {
+      "from": "official-evidence",
+      "to": "decision_journal",
+      "type": "feeds"
+    },
+    {
       "from": "research-executor",
       "to": "self_improvement",
       "type": "feeds"
@@ -825,6 +854,7 @@
     "Trend Pulse / Market Context / Company & Options Context",
     "Learning Engine / Situation Memory",
     "V6 Research Planner",
+    "V6.3 Official Evidence Layer",
     "V6.2 Research Executor",
     "research execution + Decision Journal",
     "Outcome Validation / Failure Attribution / Method Memory",

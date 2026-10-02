@@ -17,6 +17,8 @@ ARTIFACTS={
     "source_outcomes": ROOT/"docs"/"research"/"source_outcome_validation.json",
     "evidence_attribution": ROOT/"docs"/"research"/"evidence_attribution.json",
     "method_memory": ROOT/"docs"/"research"/"method_memory.json",
+    "research_planner": ROOT/"docs"/"research"/"research_planner.json",
+    "self_improvement": ROOT/"docs"/"research"/"self_improvement.json",
 }
 
 WATCH_WORKFLOWS={

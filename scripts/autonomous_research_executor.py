@@ -24,6 +24,7 @@ PATHS={
     "method":ROOT/"docs/research/method_memory.json",
     "source":ROOT/"docs/data/source_intelligence.json",
     "modules":ROOT/"docs/research/module_intelligence.json",
+    "official":ROOT/"docs/research/official_evidence.json",
     "data":ROOT/"docs/data.json",
     "previous":ROOT/"docs/research/research_execution.json",
 }
@@ -53,7 +54,7 @@ def module_map(modules):
 def method_map(method):
     return {m.get("method"):m for m in (method.get("methods") or []) if m.get("method")}
 
-def market_brief(task,learning,evidence,source,data):
+def market_brief(task,learning,evidence,source,data,official=None):
     sym=task.get("key")
     sit=situation_map(learning).get(sym) or {}
     tp=(data.get("trend_pulse") or {}).get(sym) or {}
@@ -73,10 +74,25 @@ def market_brief(task,learning,evidence,source,data):
         latest=sorted(sr,key=lambda x:str(x.get("published_at") or ""),reverse=True)[:3]
         add_unique(support,f"Source Intelligence 有 {len(sr)} 条与 {sym} 相关研究记录；最近 {len(latest)} 条已进入独立验证层")
     else:add_unique(unknowns,"暂无可用外部研究记录")
+    official=official or {}
+    sec=(official.get("symbols") or {}).get(sym) or {}
+    filings=sec.get("filings") or []
+    if filings:
+        latest_f=filings[0]
+        add_unique(support,f"SEC官方披露：最近 {latest_f.get('form')}，提交日 {latest_f.get('filing_date')}")
+        if latest_f.get("excerpts"):
+            add_unique(support,"SEC文档已抓取官方原文证据片段，可用于下一步事件核验")
+        else:
+            add_unique(unknowns,"SEC申报元数据已取得，但最新文档正文证据片段暂不可用")
+    elif sec.get("status") in {"unmapped","error"}:
+        add_unique(unknowns,f"SEC官方证据暂不可用：{sec.get('status')}")
+    else:
+        add_unique(unknowns,"尚未生成该标的SEC官方证据缓存")
     integ=tp.get("data_integrity") or {}
     if integ.get("status") and integ.get("status")!="OK":
         add_unique(counter,f"Trend Pulse 数据校验状态：{integ.get('label') or integ.get('status')}")
-    add_unique(unknowns,"尚未自动接入本任务对应的最新SEC/IR与可靠新闻全文核验")
+    if not filings:add_unique(unknowns,"尚未完成本任务对应的最新SEC官方披露核验")
+    add_unique(unknowns,"公司IR与可靠新闻全文自动核验仍待下一层连接")
     add_unique(unknowns,"行业同业联动需要在外部事件执行器接入后补充")
     return support,counter,unknowns
 
@@ -129,7 +145,7 @@ def module_brief(task,modules):
 def execute_task(task,artifacts):
     kind=task.get("kind")
     if kind in {"market_anomaly","discovery"}:
-        support,counter,unknowns=market_brief(task,artifacts["learning"],artifacts["evidence"],artifacts["source"],artifacts["data"])
+        support,counter,unknowns=market_brief(task,artifacts["learning"],artifacts["evidence"],artifacts["source"],artifacts["data"],artifacts.get("official"))
     elif kind=="failure_review":
         support,counter,unknowns=failure_brief(task,artifacts["evidence"],artifacts["method"])
     elif kind=="method_evidence_gap":
@@ -179,7 +195,7 @@ def build(planner,artifacts,previous):
         x["first_analyzed_at"]=prior.get("first_analyzed_at") or now
         x["last_analyzed_at"]=now
     return {
-      "version":"6.2.0","generated_at":now,"planner_version":planner.get("version"),
+      "version":"6.3.0","generated_at":now,"planner_version":planner.get("version"),
       "results":rows,
       "summary":{
         "analyzed":len(rows),
@@ -199,7 +215,7 @@ def build(planner,artifacts,previous):
 
 def main():
     d={k:load(v) for k,v in PATHS.items()}
-    artifacts={k:d[k] for k in ("learning","evidence","method","source","modules","data")}
+    artifacts={k:d[k] for k in ("learning","evidence","method","source","modules","official","data")}
     out=build(d["planner"],artifacts,d["previous"])
     OUT.parent.mkdir(parents=True,exist_ok=True)
     OUT.write_text(json.dumps(out,ensure_ascii=False,indent=2),encoding="utf-8")

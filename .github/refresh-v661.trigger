@@ -1,4 +1,3 @@
-V6.6.1 full refresh trigger
-Created: 2026-10-02
-Purpose: refresh latest completed US daily data after UI/version consistency patch.
-This file is intentionally static; subsequent generated-data commits do not touch it.
+V6.6.2 market-only refresh trigger
+Updated: 2026-10-02
+Purpose: refresh latest completed US daily prices and generated dashboard without touching concurrent learning artifacts.

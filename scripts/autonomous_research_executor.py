@@ -120,7 +120,7 @@ def market_brief(task,learning,evidence,source,data,official=None,events=None):
     add_unique(unknowns,"公司IR官网全文仍待专用连接；当前已使用SEC官方披露与分级媒体事件线索")
     return support,counter,unknowns
 
-def failure_brief(task,evidence,method,official=None):
+def failure_brief(task,evidence,method,official=None,event_windows=None):
     sym=task.get("key")
     rows=failure_rows(evidence,sym)
     support=[];counter=[];unknowns=[]
@@ -144,9 +144,7 @@ def failure_brief(task,evidence,method,official=None):
         add_unique(support,f"SEC官方时间线可用于失败归因对齐：{dates}")
         if any(f.get("excerpts") for f in filings):
             add_unique(support,"SEC官方正文片段已缓存，可继续检查失败窗口内是否存在公司事件或风险披露")
-        add_unique(unknowns,"尚未把每个失败样本日期与SEC申报日期自动计算事件窗口距离")
-    else:
-        event_windows=event_windows or {}
+    event_windows=event_windows or {}
     aligned=[x for x in (event_windows.get("rows") or []) if x.get("symbol")==sym]
     if aligned:
         near_sec=sum(1 for x in aligned if (x.get("nearest_sec") or {}).get("distance_band") in {"very_near","near","week"})
@@ -189,7 +187,7 @@ def execute_task(task,artifacts):
     if kind in {"market_anomaly","discovery"}:
         support,counter,unknowns=market_brief(task,artifacts["learning"],artifacts["evidence"],artifacts["source"],artifacts["data"],artifacts.get("official"),artifacts.get("events"))
     elif kind=="failure_review":
-        support,counter,unknowns=failure_brief(task,artifacts["evidence"],artifacts["method"],artifacts.get("official"))
+        support,counter,unknowns=failure_brief(task,artifacts["evidence"],artifacts["method"],artifacts.get("official"),artifacts.get("event_windows"))
     elif kind=="method_evidence_gap":
         support,counter,unknowns=method_gap_brief(task,artifacts["method"])
     elif kind in {"module_learning_review","architecture_gap"}:

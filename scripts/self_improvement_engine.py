@@ -15,6 +15,7 @@ EVIDENCE=ROOT/"docs/research/evidence_attribution.json"
 METHOD=ROOT/"docs/research/method_memory.json"
 PLANNER=ROOT/"docs/research/research_planner.json"
 MODULES=ROOT/"docs/research/module_intelligence.json"
+EXECUTION=ROOT/"docs/research/research_execution.json"
 PREV=ROOT/"docs/research/self_improvement.json"
 OUT=PREV
 
@@ -30,7 +31,7 @@ def candidate(kind,scope,change,reason,n):
     return {"candidate_id":cid(kind,payload),"kind":kind,"scope":scope,"proposed_change":change,
             "reason":reason,"evidence_n":n,"state":"shadow","created_at":datetime.now(timezone.utc).isoformat()}
 
-def build(evidence,method,planner,previous,modules=None):
+def build(evidence,method,planner,previous,modules=None,execution=None):
     candidates=[]
     for m in method.get("methods") or []:
         n=m.get("direct_validated_events") or 0
@@ -56,6 +57,13 @@ def build(evidence,method,planner,previous,modules=None):
             candidates.append(candidate("module_learning_design",m.get("id"),
               {"target_mode":"shadow_only","require_outcome_labels":True},
               f"{m.get('name')} 当前仅为 candidate 学习模式；先建立结果标签，再考虑Shadow化。",0))
+    execution=execution or {}
+    exrows=execution.get("results") or []
+    unknown_heavy=sum(1 for x in exrows if len(x.get("unknowns") or [])>=2)
+    if unknown_heavy>=4:
+        candidates.append(candidate("research_process","evidence_coverage",
+          {"require_explicit_unknowns":True,"prioritize_missing_official_evidence":True},
+          f"本轮 {unknown_heavy}/{len(exrows)} 个自主研究结果存在两项以上未知信息；建议优先补齐官方证据连接。",len(exrows)))
     old={x.get("candidate_id"):x for x in previous.get("candidates") or []}
     promoted=[];shadow=[]
     for c in candidates:
@@ -72,7 +80,7 @@ def build(evidence,method,planner,previous,modules=None):
         if eligible: promoted.append(c["candidate_id"])
 
     return {
-      "version":"7.1.0","generated_at":datetime.now(timezone.utc).isoformat(),
+      "version":"7.2.0","generated_at":datetime.now(timezone.utc).isoformat(),
       "production_brain":{"mode":"locked","rule":"正式交易阈值与仓位规则不由本引擎自动修改。"},
       "learning_brain":{"planner_version":planner.get("version"),"open_tasks":(planner.get("counts") or {}).get("open",0)},
       "candidate_brain":{"count":len(shadow)},
@@ -93,7 +101,7 @@ def build(evidence,method,planner,previous,modules=None):
     }
 
 def main():
-    out=build(load(EVIDENCE),load(METHOD),load(PLANNER),load(PREV),load(MODULES))
+    out=build(load(EVIDENCE),load(METHOD),load(PLANNER),load(PREV),load(MODULES),load(EXECUTION))
     OUT.parent.mkdir(parents=True,exist_ok=True)
     OUT.write_text(json.dumps(out,ensure_ascii=False,indent=2),encoding="utf-8")
     print(json.dumps({"version":out["version"],"candidates":len(out["candidates"]),"eligible":len(out["shadow_brain"]["eligible_for_review"])},ensure_ascii=False))

@@ -1,6 +1,6 @@
 {
   "version": "6.1.0",
-  "generated_at": "2026-10-02T13:07:24.958921+00:00",
+  "generated_at": "2026-10-02T13:11:14.922966+00:00",
   "mission": "每个模块必须有存在目的、证据输入、学习策略和下游关系；没有这些字段的模块视为架构债务。",
   "audit": {
     "actual_tabs": 14,
@@ -402,6 +402,21 @@
       "learning": "source_memory"
     },
     {
+      "id": "event-evidence",
+      "name": "Event & Peer Evidence Layer",
+      "role": "event_context",
+      "inputs": [
+        "research_planner",
+        "Yahoo Finance Search",
+        "market quotes"
+      ],
+      "outputs": [
+        "research-executor",
+        "decision_journal"
+      ],
+      "learning": "source_memory"
+    },
+    {
       "id": "research-executor",
       "name": "Autonomous Research Executor",
       "role": "evidence_synthesis",
@@ -412,6 +427,7 @@
         "method_memory",
         "source_intelligence",
         "official_evidence",
+        "event_evidence",
         "module_intelligence"
       ],
       "outputs": [
@@ -524,6 +540,10 @@
     "official_evidence": {
       "path": "docs/research/official_evidence.json",
       "available": true
+    },
+    "event_evidence": {
+      "path": "docs/research/event_evidence.json",
+      "available": false
     },
     "self_improvement": {
       "path": "docs/research/self_improvement.json",
@@ -784,6 +804,16 @@
       "type": "feeds"
     },
     {
+      "from": "event-evidence",
+      "to": "research-executor",
+      "type": "feeds"
+    },
+    {
+      "from": "event-evidence",
+      "to": "decision_journal",
+      "type": "feeds"
+    },
+    {
       "from": "research-executor",
       "to": "self_improvement",
       "type": "feeds"
@@ -855,6 +885,7 @@
     "Learning Engine / Situation Memory",
     "V6 Research Planner",
     "V6.3 Official Evidence Layer",
+    "V6.4 Event & Peer Evidence Layer",
     "V6.2 Research Executor",
     "research execution + Decision Journal",
     "Outcome Validation / Failure Attribution / Method Memory",

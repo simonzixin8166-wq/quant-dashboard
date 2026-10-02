@@ -83,3 +83,6 @@ out3=rx.build(planner2,failure_artifacts,{})
 fr=out3["results"][0]
 assert any("事件窗口已自动对齐" in x for x in fr["supporting_evidence"])
 assert any("不代表事件造成失败" in x for x in fr["counter_evidence"])
+
+src=(ROOT/"scripts"/"autonomous_research_executor.py").read_text(encoding="utf-8")
+assert '"event_windows","events","data"' in src

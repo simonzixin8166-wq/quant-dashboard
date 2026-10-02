@@ -31,3 +31,8 @@ assert any(e["from"]=="tab-wenxuecity" and e["to"]=="method_memory" for e in out
 assert "V6 Research Planner" in out["agent_loop"]
 assert "V7 Candidate + Shadow Brain" in out["agent_loop"]
 print("PASS V6.1 whole-site module intelligence")
+
+services={s["id"]:s for s in out["services"]}
+assert services["research-executor"]["role"]=="evidence_synthesis"
+assert "research_execution" in out["artifacts"]
+assert "V6.2 Research Executor" in out["agent_loop"]

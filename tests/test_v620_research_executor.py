@@ -28,16 +28,16 @@ method={"methods":[
 ]}
 source={"records":[{"symbols":["LITE"],"published_at":"2026-10-01","title":"LITE"}]}
 modules={"modules":[]}
+official={"symbols":{"LITE":{"status":"ok","filings":[{"form":"8-K","filing_date":"2026-10-01","excerpts":["Item 8.01 official event"]}]}}}
 data={"trend_pulse":{"LITE":{"state":"二次启动","data_integrity":{"status":"CHECK","label":"有限校验"}}}}
-artifacts={"learning":learning,"evidence":evidence,"method":method,"source":source,"modules":modules,"data":data}
+artifacts={"learning":learning,"evidence":evidence,"method":method,"source":source,"modules":modules,"official":official,"data":data}
 out=rx.build(planner,artifacts,{})
-assert out["version"]=="6.2.0"
+assert out["version"]=="6.3.0"
 assert out["summary"]["analyzed"]==2
 lite=next(x for x in out["results"] if x["key"]=="LITE")
 assert lite["supporting_evidence"]
 assert lite["counter_evidence"]
 assert lite["unknowns"]
-assert "SEC/IR" in " ".join(lite["unknowns"])
 assert lite["research_status"]=="analyzed"
 sp=next(x for x in out["results"] if x["key"]=="Sell Put")
 assert any("Context 19" in x for x in sp["supporting_evidence"])
@@ -49,3 +49,6 @@ lite2=next(x for x in out2["results"] if x["key"]=="LITE")
 assert lite2["analysis_runs"]==2
 assert lite2["first_analyzed_at"]==lite["first_analyzed_at"]
 print("PASS V6.2 autonomous research executor")
+
+assert any("SEC官方披露" in x for x in lite["supporting_evidence"])
+assert not any("尚未完成本任务对应的最新SEC官方披露核验" in x for x in lite["unknowns"])

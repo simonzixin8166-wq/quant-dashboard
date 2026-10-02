@@ -36,3 +36,7 @@ services={s["id"]:s for s in out["services"]}
 assert services["research-executor"]["role"]=="evidence_synthesis"
 assert "research_execution" in out["artifacts"]
 assert "V6.2 Research Executor" in out["agent_loop"]
+
+assert services["official-evidence"]["role"]=="primary_source"
+assert "official_evidence" in out["artifacts"]
+assert "V6.3 Official Evidence Layer" in out["agent_loop"]

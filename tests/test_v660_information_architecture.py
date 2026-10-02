@@ -31,5 +31,7 @@ for html in (gen,idx):
     assert "知识与方法库" in html
 
 assert "tab-agent-center" in mobile
-assert "label:'Agent'" in mobile
+assert "label:'智能'" in mobile
 print("PASS V6.6 consolidated information architecture")
+
+# V6.6.1 Chinese mobile navigation contract

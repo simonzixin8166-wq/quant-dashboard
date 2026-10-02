@@ -36,7 +36,7 @@ MODULES=[
       "guardrail":"展示研究优先级，不把高优先级直接解释为买卖信号。"
     },
     {
-      "id":"tab-agent-center","name":"Agent Center","role":"agent_brain",
+      "id":"tab-agent-center","name":"AI智能中心","role":"agent_brain",
       "purpose":"集中展示V6研究队列、Research Executor、V7 Candidate/Shadow Brain与Promotion Gate。",
       "inputs":["research_planner","research_execution","self_improvement","system_status","evidence_attribution"],
       "outputs":["decision_journal","research_planner","operator_attention"],
@@ -179,17 +179,17 @@ MODULES=[
 
 SERVICES=[
  {"id":"investment-assistant","name":"AI投资助手","role":"attention_router","inputs":["market regime","events","positions"],"outputs":["overview","options","research_planner"],"learning":"continuous"},
- {"id":"autonomous-agent","name":"Autonomous Agent Brain","role":"orchestrator","inputs":["learning_engine","evidence","research_planner","research_execution","self_improvement"],"outputs":["overview","research_planner","decision_journal"],"learning":"continuous"},
- {"id":"official-evidence","name":"Official Evidence Layer","role":"primary_source","inputs":["research_planner","SEC EDGAR"],"outputs":["research-executor","event-window-attribution","decision_journal"],"learning":"source_memory"},
- {"id":"event-window-attribution","name":"Event Window Attribution","role":"failure_context","inputs":["evidence_attribution","official_evidence","event_evidence"],"outputs":["research-executor","self_improvement","decision_journal"],"learning":"continuous"},
+ {"id":"autonomous-agent","name":"自主研究大脑","role":"orchestrator","inputs":["learning_engine","evidence","research_planner","research_execution","self_improvement"],"outputs":["overview","research_planner","decision_journal"],"learning":"continuous"},
+ {"id":"official-evidence","name":"官方证据层","role":"primary_source","inputs":["research_planner","SEC EDGAR"],"outputs":["research-executor","event-window-attribution","decision_journal"],"learning":"source_memory"},
+ {"id":"event-window-attribution","name":"事件窗口归因","role":"failure_context","inputs":["evidence_attribution","official_evidence","event_evidence"],"outputs":["research-executor","self_improvement","decision_journal"],"learning":"continuous"},
  {"id":"event-evidence","name":"Event & Peer Evidence Layer","role":"event_context","inputs":["research_planner","Yahoo Finance Search","market quotes"],"outputs":["research-executor","decision_journal"],"learning":"source_memory"},
- {"id":"research-executor","name":"Autonomous Research Executor","role":"evidence_synthesis","inputs":["research_planner","learning_engine","evidence_attribution","method_memory","source_intelligence","official_evidence","event_evidence","module_intelligence"],"outputs":["self_improvement","overview","decision_journal"],"learning":"continuous"},
- {"id":"opportunity-radar","name":"Opportunity Radar","role":"discovery","inputs":["market data","strategy distances","trend states"],"outputs":["research_planner"],"learning":"shadow_only"},
+ {"id":"research-executor","name":"自主研究执行器","role":"evidence_synthesis","inputs":["research_planner","learning_engine","evidence_attribution","method_memory","source_intelligence","official_evidence","event_evidence","module_intelligence"],"outputs":["self_improvement","overview","decision_journal"],"learning":"continuous"},
+ {"id":"opportunity-radar","name":"机会雷达","role":"discovery","inputs":["market data","strategy distances","trend states"],"outputs":["research_planner"],"learning":"shadow_only"},
  {"id":"roll-manager","name":"Roll Manager","role":"private_execution_support","inputs":["private option positions","Delta/IV/DTE","events"],"outputs":["private_decision_memory","decision_journal"],"learning":"private_only"},
  {"id":"core-execution","name":"Core Execution","role":"policy_execution_support","inputs":["core strategy states"],"outputs":["decision_journal"],"learning":"shadow_only"},
- {"id":"research-methods","name":"Research Methods","role":"method_reference","inputs":["curated knowledge","method memory"],"outputs":["knowledge","research_planner"],"learning":"curated_learning"},
- {"id":"market-live","name":"Market Live","role":"freshness_layer","inputs":["live/near-live quotes"],"outputs":["overview","stocks","options"],"learning":"none"},
- {"id":"autonomous-qa","name":"Autonomous QA","role":"safety_reliability","inputs":["site build","browser checks"],"outputs":["system_health"],"learning":"operational_learning"},
+ {"id":"research-methods","name":"研究方法库","role":"method_reference","inputs":["curated knowledge","method memory"],"outputs":["knowledge","research_planner"],"learning":"curated_learning"},
+ {"id":"market-live","name":"实时行情层","role":"freshness_layer","inputs":["live/near-live quotes"],"outputs":["overview","stocks","options"],"learning":"none"},
+ {"id":"autonomous-qa","name":"自主系统自检","role":"safety_reliability","inputs":["site build","browser checks"],"outputs":["system_health"],"learning":"operational_learning"},
 ]
 
 ARTIFACTS={

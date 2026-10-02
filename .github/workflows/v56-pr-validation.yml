@@ -43,6 +43,7 @@ jobs:
           python tests/test_source_history_cache.py
           python tests/test_source_outcome_validation.py
           python tests/test_v570_evidence_attribution.py
+          python tests/test_system_status_center.py
       - name: Private-position static export guard
         run: |
           if grep -R -n -E '"(option_positions|private_positions|broker_account_id)"' docs/research docs/data.json 2>/dev/null; then

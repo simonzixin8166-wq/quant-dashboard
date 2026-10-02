@@ -120,6 +120,47 @@ def market_context(histories: dict, baseline_date: str):
     }
 
 
+def direct_methods(record: dict, event: dict):
+    """Conservative event-level method attribution.
+
+    Article topics describe context. Only action-anchored evidence is treated as
+    direct method performance; broader themes remain contextual evidence.
+    """
+    topics=set(record.get("topics") or [])
+    op=event.get("operation") or {}
+    actions=set(event.get("actions") or op.get("actions") or [])
+    title=(record.get("title") or "").lower()
+    excerpt=(record.get("excerpt") or "").lower()
+    text=title+"\n"+excerpt
+    out=set()
+
+    if "Sell Put" in topics and ("sell_put" in actions or op.get("sell_put_strike") is not None):
+        out.add("Sell Put")
+
+    sizing_actions={"buy","add","trim","trim_half","sell","clear","planned_buy","planned_sell"}
+    has_plan_level=any(op.get(k) is not None for k in ("entry_1","entry_2","entry_below","exit_line","target_range"))
+    if "仓位与加减仓" in topics and (actions & sizing_actions or has_plan_level):
+        out.add("仓位与加减仓")
+
+    if "LEAPS" in topics:
+        explicit_leaps = (
+            "leap" in text
+            or any("leap" in str(x).lower() for x in actions)
+            or "leap" in str(op.get("strategy") or "").lower()
+            or "leap" in str(op.get("option_type") or "").lower()
+        )
+        if explicit_leaps:
+            out.add("LEAPS")
+
+    # Trend confirmation requires an event-level trigger/condition rather than
+    # merely sharing an article with a trend discussion.
+    if "趋势确认" in topics:
+        cond=" ".join(str(x).lower() for x in (op.get("conditions") or []))
+        if any(k in cond for k in ("trend","breakout","ma20","ma21","ma50","tcds","supertrend")):
+            out.add("趋势确认")
+    return out
+
+
 def summarize_events(events):
     out={}
     for h in HORIZONS:
@@ -143,8 +184,10 @@ def build(source: dict, validation: dict, histories: dict|None=None, evidence: d
     histories=histories or {}
     evidence=evidence or {}
     by_url=record_index(source)
-    buckets=defaultdict(list)
-    contexts=defaultdict(Counter)
+    context_buckets=defaultdict(list)
+    direct_buckets=defaultdict(list)
+    context_states=defaultdict(Counter)
+    direct_states=defaultdict(Counter)
     source_occurrences=Counter()
     source_authors=defaultdict(set)
 
@@ -162,24 +205,30 @@ def build(source: dict, validation: dict, histories: dict|None=None, evidence: d
         r=by_url.get(str(e.get("url") or ""))
         if not r:
             continue
-        methods=sorted(set(r.get("topics") or []) & METHOD_TOPICS)
-        if not methods:
+        context_methods=sorted(set(r.get("topics") or []) & METHOD_TOPICS)
+        if not context_methods:
             continue
+        direct=sorted(direct_methods(r,e))
         ctx=market_context(histories,e.get("baseline_date"))
         item=dict(e)
-        item["_methods"]=methods
+        item["_context_methods"]=context_methods
+        item["_direct_methods"]=direct
         item["_context"]=ctx
         joined.append(item)
-        for method in methods:
-            buckets[method].append(item)
-            contexts[method][ctx.get("state") or "unknown"]+=1
+        for method in context_methods:
+            context_buckets[method].append(item)
+            context_states[method][ctx.get("state") or "unknown"]+=1
+        for method in direct:
+            direct_buckets[method].append(item)
+            direct_states[method][ctx.get("state") or "unknown"]+=1
 
     methods=[]
-    for method in sorted(set(source_occurrences)|set(buckets)):
-        evs=buckets.get(method,[])
-        mature60=sum(1 for e in evs if e.get("outcomes",{}).get("60"))
+    for method in sorted(set(source_occurrences)|set(context_buckets)|set(direct_buckets)):
+        context_evs=context_buckets.get(method,[])
+        direct_evs=direct_buckets.get(method,[])
+        mature60=sum(1 for e in direct_evs if e.get("outcomes",{}).get("60"))
         failures=[]
-        for e in evs:
+        for e in direct_evs:
             h="60" if e.get("outcomes",{}).get("60") else ("20" if e.get("outcomes",{}).get("20") else "5")
             outcome=e.get("outcomes",{}).get(h)
             align=e.get("alignment",{}).get(h)
@@ -194,26 +243,32 @@ def build(source: dict, validation: dict, histories: dict|None=None, evidence: d
             "method":method,
             "source_occurrences":source_occurrences.get(method,0),
             "authors":sorted(source_authors.get(method,set())),
-            "validated_triggered_events":len(evs),
-            "mature60":mature60,
-            "performance":summarize_events(evs),
-            "market_context_counts":dict(contexts.get(method,{})),
+            "direct_validated_events":len(direct_evs),
+            "context_validated_events":len(context_evs),
+            "mature60_direct":mature60,
+            "performance_basis":"direct_event_attribution" if direct_evs else "context_only_no_method_performance",
+            "performance":summarize_events(direct_evs) if direct_evs else None,
+            "context_performance":summarize_events(context_evs),
+            "market_context_counts":dict(direct_states.get(method,{})),
+            "context_market_counts":dict(context_states.get(method,{})),
             "failure_examples":failures[:12],
-            "status":"evidence_building" if len(evs)<8 else "research_memory",
-            "interpretation_guardrail":"描述历史样本，不构成方法有效性证明或交易信号；样本选择、作者行为和市场环境可能存在偏差。",
+            "status":"evidence_building" if len(direct_evs)<8 else "research_memory",
+            "interpretation_guardrail":"performance 仅统计可直接归因到该方法的事件；context_performance 只描述同篇文章中的同期结果，不能视为方法有效性证明。",
         })
 
     return {
-        "version":"5.9.1",
+        "version":"5.9.2",
         "generated_at":datetime.now(timezone.utc).isoformat(),
         "counts":{
             "methods":len(methods),
             "source_records":source.get("counts",{}).get("records",0),
-            "validated_triggered_events":len(joined),
-            "mature60_events":sum(1 for e in joined if e.get("outcomes",{}).get("60")),
+            "eligible_triggered_events":len(joined),
+            "direct_method_links":sum(len(e.get("_direct_methods") or []) for e in joined),
+            "mature60_eligible_events":sum(1 for e in joined if e.get("outcomes",{}).get("60")),
         },
         "methodology":{
             "eligible_events":"author_action / author_plan + triggered only",
+            "attribution_layers":"article topics are context; performance requires conservative event-level direct method attribution",
             "excluded":"third-party examples, unconfirmed attribution, untriggered plans",
             "horizons":[5,20,60],
             "risk_metrics":"MAE/MFE measured from validated baseline price",
@@ -224,7 +279,8 @@ def build(source: dict, validation: dict, histories: dict|None=None, evidence: d
         "methods":methods,
         "guardrails":[
             "Method Memory learns from outcomes; it does not copy an author's conclusion into MyAlpha.",
-            "Small samples are displayed as evidence_building rather than treated as stable edge.",
+            "Article-level method tags never automatically convert every operation in that article into method performance.",
+            "Small direct samples are displayed as evidence_building rather than treated as stable edge.",
             "Failure examples are counterexamples for review, not labels that an author or method is generally wrong.",
             "No Method Memory statistic may directly change production trading thresholds without a separate validated policy step.",
         ],

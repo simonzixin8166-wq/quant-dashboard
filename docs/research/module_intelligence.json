@@ -1,6 +1,6 @@
 {
   "version": "6.1.0",
-  "generated_at": "2026-10-02T13:15:21.390816+00:00",
+  "generated_at": "2026-10-02T13:25:03.808755+00:00",
   "mission": "每个模块必须有存在目的、证据输入、学习策略和下游关系；没有这些字段的模块视为架构债务。",
   "audit": {
     "actual_tabs": 14,
@@ -397,9 +397,26 @@
       ],
       "outputs": [
         "research-executor",
+        "event-window-attribution",
         "decision_journal"
       ],
       "learning": "source_memory"
+    },
+    {
+      "id": "event-window-attribution",
+      "name": "Event Window Attribution",
+      "role": "failure_context",
+      "inputs": [
+        "evidence_attribution",
+        "official_evidence",
+        "event_evidence"
+      ],
+      "outputs": [
+        "research-executor",
+        "self_improvement",
+        "decision_journal"
+      ],
+      "learning": "continuous"
     },
     {
       "id": "event-evidence",
@@ -540,6 +557,10 @@
     "official_evidence": {
       "path": "docs/research/official_evidence.json",
       "available": true
+    },
+    "event_window_attribution": {
+      "path": "docs/research/event_window_attribution.json",
+      "available": false
     },
     "event_evidence": {
       "path": "docs/research/event_evidence.json",
@@ -800,6 +821,26 @@
     },
     {
       "from": "official-evidence",
+      "to": "event-window-attribution",
+      "type": "feeds"
+    },
+    {
+      "from": "official-evidence",
+      "to": "decision_journal",
+      "type": "feeds"
+    },
+    {
+      "from": "event-window-attribution",
+      "to": "research-executor",
+      "type": "feeds"
+    },
+    {
+      "from": "event-window-attribution",
+      "to": "self_improvement",
+      "type": "feeds"
+    },
+    {
+      "from": "event-window-attribution",
       "to": "decision_journal",
       "type": "feeds"
     },
@@ -885,6 +926,7 @@
     "Learning Engine / Situation Memory",
     "V6 Research Planner",
     "V6.3 Official Evidence Layer",
+    "V6.5 Event Window Attribution",
     "V6.4 Event & Peer Evidence Layer",
     "V6.2 Research Executor",
     "research execution + Decision Journal",

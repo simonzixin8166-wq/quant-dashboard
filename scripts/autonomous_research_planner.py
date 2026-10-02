@@ -43,18 +43,24 @@ def build(agent,learning,evidence,method,source,previous):
     for row in agent.get("watchlist_attention") or []:
         if row.get("level") not in {"review","action"}:continue
         sym=row.get("symbol")
-        p=row.get("research_priority") or (88 if row.get("level")=="action" else 72)
+        floor=88 if row.get("level")=="action" else 72
+        p=max(float(row.get("research_priority") or 0),floor)
         t=task("market_anomaly",sym,f"{sym} · 异动/趋势专项研究",p,
           "；".join(row.get("reasons") or ["市场状态变化"]),
           ["这次变化由公司事件、行业共振还是市场因素驱动？","支持原 Thesis 的证据是什么？","最强反证是什么？","明日需要验证什么？"],
           ["market_data","trend_pulse","SEC/IR","company_news","industry_peers"])
         tasks.append(t);seen.add(t["task_id"])
+    failure_groups={}
     for row in (evidence.get("failure_attribution") or {}).get("external_outcome_reviews") or []:
-        key=str(row.get("event_id") or row.get("symbol") or row.get("title"))
-        t=task("failure_review",key,f"{row.get('symbol','')} · 失败归因复盘",78,
-          "外部研究结果出现失效/反例，需要识别失败机制。",
-          ["当时主要假设是什么？","失败来自趋势、事件、估值、宏观还是数据问题？","相似环境是否重复出现？","应调整研究权重还是仅记录反例？"],
+        key=str(row.get("symbol") or "UNKNOWN")
+        failure_groups.setdefault(key,[]).append(row)
+    for sym,rows in failure_groups.items():
+        t=task("failure_review",sym,f"{sym} · 失败归因复盘（{len(rows)}样本）",68,
+          f"该标的累计 {len(rows)} 个外部研究失效/反例样本，需要归纳共同失败机制。",
+          ["这些失败是否共享同一市场环境？","主要来自趋势、事件、估值、宏观还是数据问题？","是否存在重复的反证线索？","应调整研究权重还是仅记录反例？"],
           ["source_outcomes","evidence_attribution","method_memory","market_history"],5)
+        t["sample_count"]=len(rows)
+        t["example_event_ids"]=[str(x.get("event_id") or "") for x in rows[:5]]
         if t["task_id"] not in seen:tasks.append(t);seen.add(t["task_id"])
     for m in method.get("methods") or []:
         direct=m.get("direct_validated_events") or 0
@@ -84,7 +90,7 @@ def build(agent,learning,evidence,method,source,previous):
     tasks.sort(key=lambda x:(x["priority"],x["run_count"]),reverse=True)
     now=datetime.now(timezone.utc).isoformat()
     return {
-      "version":"6.0.0","generated_at":now,"mode":"autonomous_research_planner",
+      "version":"6.0.1","generated_at":now,"mode":"autonomous_research_planner",
       "queue":tasks[:30],
       "today":[x for x in tasks if x["priority"]>=70][:10],
       "counts":{"open":len(tasks),"high_priority":sum(x["priority"]>=70 for x in tasks),"persistent":sum(x["run_count"]>1 for x in tasks)},

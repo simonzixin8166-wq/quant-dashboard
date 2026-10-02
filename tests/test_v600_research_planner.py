@@ -12,10 +12,13 @@ agent={
  ],
  "discovery_queue":[{"symbol":"XYZ","event_strength":"high","next_step":"核对官方事件"}]
 }
-evidence={"failure_attribution":{"external_outcome_reviews":[{"event_id":"e1","symbol":"IREN","title":"failure"}]}}
+evidence={"failure_attribution":{"external_outcome_reviews":[
+ {"event_id":"e1","symbol":"IREN","title":"failure"},
+ {"event_id":"e2","symbol":"IREN","title":"failure2"},
+]}}
 method={"methods":[{"method":"趋势确认","direct_validated_events":1,"context_validated_events":10}]}
 out=p.build(agent,{},evidence,method,{}, {})
-assert out["version"]=="6.0.0"
+assert out["version"]=="6.0.1"
 assert out["counts"]["open"]>=4
 assert any(x["kind"]=="market_anomaly" and x["key"]=="LITE" for x in out["queue"])
 assert any(x["kind"]=="failure_review" for x in out["queue"])
@@ -28,3 +31,11 @@ out2=p.build(agent,{},evidence,method,{},prev)
 same=next(x for x in out2["queue"] if x["task_id"]==out["queue"][0]["task_id"])
 assert same["run_count"]==2
 print("PASS V6 autonomous research planner")
+
+failure=next(x for x in out["queue"] if x["kind"]=="failure_review")
+assert failure["key"]=="IREN"
+assert failure["sample_count"]==2
+assert failure["priority"]==68
+live=next(x for x in out["queue"] if x["kind"]=="market_anomaly")
+assert live["priority"]>=88
+assert out["today"][0]["kind"]=="market_anomaly"

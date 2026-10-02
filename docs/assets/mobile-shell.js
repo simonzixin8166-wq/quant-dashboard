@@ -2,9 +2,9 @@
   'use strict';
   const PRIMARY=[
     {id:'tab-overview',label:'首页',icon:'◆'},
-    {id:'tab-agent-center',label:'Agent',icon:'✦'},
-    {id:'tab-stocks',label:'Stocks',icon:'⌁'},
-    {id:'tab-options',label:'Options',icon:'⚑'}
+    {id:'tab-agent-center',label:'智能',icon:'✦'},
+    {id:'tab-stocks',label:'个股',icon:'⌁'},
+    {id:'tab-options',label:'期权',icon:'⚑'}
   ];
   const state={current:'tab-overview'};
   const byId=id=>document.getElementById(id);

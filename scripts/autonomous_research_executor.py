@@ -25,6 +25,7 @@ PATHS={
     "source":ROOT/"docs/data/source_intelligence.json",
     "modules":ROOT/"docs/research/module_intelligence.json",
     "official":ROOT/"docs/research/official_evidence.json",
+    "events":ROOT/"docs/research/event_evidence.json",
     "data":ROOT/"docs/data.json",
     "previous":ROOT/"docs/research/research_execution.json",
 }
@@ -54,7 +55,7 @@ def module_map(modules):
 def method_map(method):
     return {m.get("method"):m for m in (method.get("methods") or []) if m.get("method")}
 
-def market_brief(task,learning,evidence,source,data,official=None):
+def market_brief(task,learning,evidence,source,data,official=None,events=None):
     sym=task.get("key")
     sit=situation_map(learning).get(sym) or {}
     tp=(data.get("trend_pulse") or {}).get(sym) or {}
@@ -94,8 +95,25 @@ def market_brief(task,learning,evidence,source,data,official=None):
     if integ.get("status") and integ.get("status")!="OK":
         add_unique(counter,f"Trend Pulse 数据校验状态：{integ.get('label') or integ.get('status')}")
     if not filings and sym not in {"QQQ","QQQM","VOO","SPY","VGT","QLD","TQQQ","SMH","IBIT","GLD","RSP"}:add_unique(unknowns,"尚未完成本任务对应的最新SEC官方披露核验")
-    add_unique(unknowns,"公司IR与可靠新闻全文自动核验仍待下一层连接")
-    add_unique(unknowns,"行业同业联动需要在外部事件执行器接入后补充")
+    events=events or {}
+    ev=(events.get("symbols") or {}).get(sym) or {}
+    news=ev.get("news") or []
+    peer=ev.get("peer_context") or {}
+    tier1=[n for n in news if n.get("source_priority")==1]
+    if tier1:
+        latest=tier1[0]
+        add_unique(support,f"高优先级事件源：{latest.get('publisher') or latest.get('source_type')} · {latest.get('title')}")
+    elif news:
+        add_unique(support,f"已读取 {len(news)} 条最近媒体事件线索；暂无一级新闻线")
+    else:
+        add_unique(unknowns,"最近媒体事件证据暂不可用")
+    if peer.get("peer_count"):
+        direction=peer.get("direction")
+        avg=peer.get("avg_day_change")
+        add_unique(support,f"同业联动：{peer.get('peer_count')} 个可比标的，方向 {direction}，平均日变动 {avg if avg is not None else '—'}")
+    else:
+        add_unique(unknowns,"行业同业联动样本暂不足")
+    add_unique(unknowns,"公司IR官网全文仍待专用连接；当前已使用SEC官方披露与分级媒体事件线索")
     return support,counter,unknowns
 
 def failure_brief(task,evidence,method,official=None):
@@ -157,7 +175,7 @@ def module_brief(task,modules):
 def execute_task(task,artifacts):
     kind=task.get("kind")
     if kind in {"market_anomaly","discovery"}:
-        support,counter,unknowns=market_brief(task,artifacts["learning"],artifacts["evidence"],artifacts["source"],artifacts["data"],artifacts.get("official"))
+        support,counter,unknowns=market_brief(task,artifacts["learning"],artifacts["evidence"],artifacts["source"],artifacts["data"],artifacts.get("official"),artifacts.get("events"))
     elif kind=="failure_review":
         support,counter,unknowns=failure_brief(task,artifacts["evidence"],artifacts["method"],artifacts.get("official"))
     elif kind=="method_evidence_gap":
@@ -207,7 +225,7 @@ def build(planner,artifacts,previous):
         x["first_analyzed_at"]=prior.get("first_analyzed_at") or now
         x["last_analyzed_at"]=now
     return {
-      "version":"6.3.1","generated_at":now,"planner_version":planner.get("version"),
+      "version":"6.4.0","generated_at":now,"planner_version":planner.get("version"),
       "results":rows,
       "summary":{
         "analyzed":len(rows),
@@ -227,7 +245,7 @@ def build(planner,artifacts,previous):
 
 def main():
     d={k:load(v) for k,v in PATHS.items()}
-    artifacts={k:d[k] for k in ("learning","evidence","method","source","modules","official","data")}
+    artifacts={k:d[k] for k in ("learning","evidence","method","source","modules","official","events","data")}
     out=build(d["planner"],artifacts,d["previous"])
     OUT.parent.mkdir(parents=True,exist_ok=True)
     OUT.write_text(json.dumps(out,ensure_ascii=False,indent=2),encoding="utf-8")

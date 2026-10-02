@@ -1,6 +1,6 @@
 {
   "version": "6.1.0",
-  "generated_at": "2026-10-02T12:50:25.022353+00:00",
+  "generated_at": "2026-10-02T12:56:22.428557+00:00",
   "mission": "每个模块必须有存在目的、证据输入、学习策略和下游关系；没有这些字段的模块视为架构债务。",
   "audit": {
     "actual_tabs": 14,
@@ -377,11 +377,31 @@
         "learning_engine",
         "evidence",
         "research_planner",
+        "research_execution",
         "self_improvement"
       ],
       "outputs": [
         "overview",
         "research_planner",
+        "decision_journal"
+      ],
+      "learning": "continuous"
+    },
+    {
+      "id": "research-executor",
+      "name": "Autonomous Research Executor",
+      "role": "evidence_synthesis",
+      "inputs": [
+        "research_planner",
+        "learning_engine",
+        "evidence_attribution",
+        "method_memory",
+        "source_intelligence",
+        "module_intelligence"
+      ],
+      "outputs": [
+        "self_improvement",
+        "overview",
         "decision_journal"
       ],
       "learning": "continuous"
@@ -481,6 +501,10 @@
     "research_planner": {
       "path": "docs/research/research_planner.json",
       "available": true
+    },
+    "research_execution": {
+      "path": "docs/research/research_execution.json",
+      "available": false
     },
     "self_improvement": {
       "path": "docs/research/self_improvement.json",
@@ -731,6 +755,21 @@
       "type": "feeds"
     },
     {
+      "from": "research-executor",
+      "to": "self_improvement",
+      "type": "feeds"
+    },
+    {
+      "from": "research-executor",
+      "to": "overview",
+      "type": "feeds"
+    },
+    {
+      "from": "research-executor",
+      "to": "decision_journal",
+      "type": "feeds"
+    },
+    {
       "from": "opportunity-radar",
       "to": "research_planner",
       "type": "feeds"
@@ -786,6 +825,7 @@
     "Trend Pulse / Market Context / Company & Options Context",
     "Learning Engine / Situation Memory",
     "V6 Research Planner",
+    "V6.2 Research Executor",
     "research execution + Decision Journal",
     "Outcome Validation / Failure Attribution / Method Memory",
     "V7 Candidate + Shadow Brain",

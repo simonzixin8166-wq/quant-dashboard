@@ -104,13 +104,16 @@ def market_brief(task,learning,evidence,source,data,official=None,events=None):
         latest=tier1[0]
         add_unique(support,f"高优先级事件源：{latest.get('publisher') or latest.get('source_type')} · {latest.get('title')}")
     elif news:
-        add_unique(support,f"已读取 {len(news)} 条最近媒体事件线索；暂无一级新闻线")
+        add_unique(unknowns,f"已读取 {len(news)} 条相关一般媒体线索，但暂无 Reuters/AP/新闻稿等高优先级事件源确认")
     else:
         add_unique(unknowns,"最近媒体事件证据暂不可用")
     if peer.get("peer_count"):
         direction=peer.get("direction")
         avg=peer.get("avg_day_change")
-        add_unique(support,f"同业联动：{peer.get('peer_count')} 个可比标的，方向 {direction}，平均日变动 {avg if avg is not None else '—'}")
+        if direction in {"broad_positive","broad_negative"} and peer.get("peer_count",0)>=2:
+            add_unique(support,f"同业联动：{peer.get('peer_count')} 个可比标的，方向 {direction}，平均日变动 {avg if avg is not None else '—'}")
+        else:
+            add_unique(unknowns,f"同业样本已读取但未形成一致共振：{peer.get('peer_count')} 个，方向 {direction}")
     else:
         add_unique(unknowns,"行业同业联动样本暂不足")
     add_unique(unknowns,"公司IR官网全文仍待专用连接；当前已使用SEC官方披露与分级媒体事件线索")
@@ -225,7 +228,7 @@ def build(planner,artifacts,previous):
         x["first_analyzed_at"]=prior.get("first_analyzed_at") or now
         x["last_analyzed_at"]=now
     return {
-      "version":"6.4.0","generated_at":now,"planner_version":planner.get("version"),
+      "version":"6.4.1","generated_at":now,"planner_version":planner.get("version"),
       "results":rows,
       "summary":{
         "analyzed":len(rows),

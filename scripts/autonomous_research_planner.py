@@ -18,6 +18,7 @@ PATHS={
  "method":ROOT/"docs/research/method_memory.json",
  "source":ROOT/"docs/data/source_intelligence.json",
  "previous":ROOT/"docs/research/research_planner.json",
+ "modules":ROOT/"docs/research/module_intelligence.json",
 }
 OUT=ROOT/"docs/research/research_planner.json"
 
@@ -37,7 +38,7 @@ def task(kind,key,title,priority,why,questions,sources,expires=2):
       "guardrail":"研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。"
     }
 
-def build(agent,learning,evidence,method,source,previous):
+def build(agent,learning,evidence,method,source,previous,modules=None):
     tasks=[]
     seen=set()
     for row in agent.get("watchlist_attention") or []:
@@ -79,6 +80,22 @@ def build(agent,learning,evidence,method,source,previous):
           ["SEC/IR","reliable_news","market_data","industry_peers"],2)
         if t["task_id"] not in seen:tasks.append(t);seen.add(t["task_id"])
 
+    modules=modules or {}
+    audit=modules.get("audit") or {}
+    if not audit.get("coverage_ok",True):
+        t=task("architecture_gap","module_registry","网站模块关系审计异常",90,
+          "存在未登记或已失效的一级模块，可能形成数据或学习孤岛。",
+          ["哪些页面未声明存在目的？","哪些模块没有输入或输出？","是否有私有数据越界？","需要合并、淘汰还是接入Agent Loop？"],
+          ["module_intelligence","system_status","autonomous_qa"],1)
+        tasks.append(t);seen.add(t["task_id"])
+    for m in modules.get("modules") or []:
+        mode=m.get("learning")
+        if mode in {"candidate","shadow_only","private_shadow"}:
+            t=task("module_learning_review",m.get("id"),f"{m.get('name')} · 学习闭环审核",58,
+              f"该模块当前学习模式为 {mode}，需要持续判断是否具备可靠结果标签与升级条件。",
+              ["该模块的输出是否可被后续结果验证？","是否存在重复证据或数据泄漏？","哪些结果可以进入Shadow学习？","什么时候应保持静态而不是学习？"],
+              ["module_intelligence","decision_journal","failure_attribution","self_improvement"],30)
+            if t["task_id"] not in seen:tasks.append(t);seen.add(t["task_id"])
     old={x.get("task_id"):x for x in previous.get("queue") or []}
     for t in tasks:
         if t["task_id"] in old:
@@ -90,7 +107,7 @@ def build(agent,learning,evidence,method,source,previous):
     tasks.sort(key=lambda x:(x["priority"],x["run_count"]),reverse=True)
     now=datetime.now(timezone.utc).isoformat()
     return {
-      "version":"6.0.1","generated_at":now,"mode":"autonomous_research_planner",
+      "version":"6.1.0","generated_at":now,"mode":"autonomous_research_planner",
       "queue":tasks[:30],
       "today":[x for x in tasks if x["priority"]>=70][:10],
       "counts":{"open":len(tasks),"high_priority":sum(x["priority"]>=70 for x in tasks),"persistent":sum(x["run_count"]>1 for x in tasks)},
@@ -103,7 +120,7 @@ def build(agent,learning,evidence,method,source,previous):
 
 def main():
     d={k:load(v) for k,v in PATHS.items()}
-    out=build(d["agent"],d["learning"],d["evidence"],d["method"],d["source"],d["previous"])
+    out=build(d["agent"],d["learning"],d["evidence"],d["method"],d["source"],d["previous"],d["modules"])
     OUT.parent.mkdir(parents=True,exist_ok=True)
     OUT.write_text(json.dumps(out,ensure_ascii=False,indent=2),encoding="utf-8")
     print(json.dumps(out["counts"],ensure_ascii=False))

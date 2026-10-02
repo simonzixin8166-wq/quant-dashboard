@@ -8,6 +8,7 @@ on:
       - "scripts/source_intelligence_engine.py"
       - "scripts/source_outcome_validation.py"
       - "scripts/method_memory_engine.py"
+      - "scripts/module_intelligence_engine.py"
       - "scripts/autonomous_research_planner.py"
       - "scripts/self_improvement_engine.py"
       - "scripts/evidence_attribution_engine.py"
@@ -38,12 +39,13 @@ jobs:
 
       - name: Validate source-learning code
         run: |
-          python -m py_compile scripts/source_intelligence_engine.py scripts/source_history_cache.py scripts/source_outcome_validation.py scripts/evidence_attribution_engine.py scripts/method_memory_engine.py scripts/autonomous_research_planner.py scripts/self_improvement_engine.py scripts/system_status_center.py
+          python -m py_compile scripts/source_intelligence_engine.py scripts/source_history_cache.py scripts/source_outcome_validation.py scripts/evidence_attribution_engine.py scripts/method_memory_engine.py scripts/module_intelligence_engine.py scripts/autonomous_research_planner.py scripts/self_improvement_engine.py scripts/system_status_center.py
           python tests/test_source_intelligence_engine.py
           python tests/test_source_outcome_validation.py
           python tests/test_source_intelligence_ui.py
           python tests/test_v570_evidence_attribution.py
           python tests/test_method_memory_engine.py
+          python tests/test_v610_module_intelligence.py
           python tests/test_v600_research_planner.py
           python tests/test_v700_self_improvement.py
           node --check docs/assets/wenxuecity.js
@@ -63,6 +65,9 @@ jobs:
       - name: Build Method Memory
         run: python scripts/method_memory_engine.py
 
+      - name: Audit V6.1 Module Intelligence Graph
+        run: python scripts/module_intelligence_engine.py
+
       - name: Build V6 Autonomous Research Planner
         run: python scripts/autonomous_research_planner.py
 
@@ -78,7 +83,7 @@ jobs:
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
-          git add docs/data/source_intelligence.json docs/research/source_outcome_validation.json docs/research/evidence_attribution.json docs/research/method_memory.json docs/research/research_planner.json docs/research/self_improvement.json docs/research/system_status.json
+          git add docs/data/source_intelligence.json docs/research/source_outcome_validation.json docs/research/evidence_attribution.json docs/research/method_memory.json docs/research/module_intelligence.json docs/research/research_planner.json docs/research/self_improvement.json docs/research/system_status.json
           if [ -f data/history/source_validation_history.zip ]; then git add data/history/source_validation_history.zip; fi
           if ! git diff --cached --quiet; then
             git commit -m "update source intelligence validation"

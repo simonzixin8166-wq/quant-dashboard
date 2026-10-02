@@ -35,6 +35,12 @@ PEERS={
 }
 HIGH_QUALITY={"Reuters","Associated Press","AP Finance","Bloomberg","The Wall Street Journal","Barrons.com"}
 PRESS_WIRE={"Business Wire","GlobeNewswire","PR Newswire"}
+COMPANY_TERMS={
+ "MSFT":["microsoft"],"LITE":["lumentum"],"AVGO":["broadcom"],"NOW":["servicenow"],
+ "NBIS":["nebius"],"CRWV":["coreweave"],"IREN":["iren","iris energy"],
+ "NVDA":["nvidia"],"ORCL":["oracle"],"TSLA":["tesla"],
+ "VGT":["vgt","vanguard information technology"],"VOO":["voo","vanguard s&p 500"],
+}
 
 def load(path):
     try:return json.loads(path.read_text(encoding="utf-8"))
@@ -66,11 +72,20 @@ def source_class(publisher,title):
         return "opinion",4
     return "media",2
 
-def normalize_news(payload,limit=5):
+def relevant_to_symbol(row,symbol):
+    if not symbol:return True
+    sym=str(symbol).upper()
+    related={str(x).upper() for x in (row.get("relatedTickers") or [])}
+    if related:return sym in related
+    title=str(row.get("title") or "").lower()
+    if re.search(rf"(?<![A-Z0-9]){re.escape(sym)}(?![A-Z0-9])", title.upper()):return True
+    return any(term in title for term in COMPANY_TERMS.get(sym,[]))
+
+def normalize_news(payload,limit=5,symbol=None):
     rows=[]
     for x in payload.get("news") or []:
         title=str(x.get("title") or "").strip()
-        if not title:continue
+        if not title or not relevant_to_symbol(x,symbol):continue
         publisher=str(x.get("publisher") or "").strip()
         st,priority=source_class(publisher,title)
         ts=x.get("providerPublishTime")
@@ -88,7 +103,7 @@ def normalize_news(payload,limit=5):
 
 def fetch_news(symbol,limit=5):
     q=urllib.parse.urlencode({"q":symbol,"quotesCount":1,"newsCount":max(limit*2,10)})
-    return normalize_news(request_json(SEARCH.format(query=q)),limit)
+    return normalize_news(request_json(SEARCH.format(query=q)),limit,symbol)
 
 def num(v):
     try:
@@ -137,12 +152,13 @@ def build(planner,data,previous):
         if status=="error":row["error"]=err
         symbols[sym]=row
     return {
-      "version":"6.4.0","generated_at":datetime.now(timezone.utc).isoformat(),
+      "version":"6.4.1","generated_at":datetime.now(timezone.utc).isoformat(),
       "source":"Yahoo Finance Search + internal peer quotes","selected_symbols":syms,"symbols":symbols,
       "counts":{
         "selected":len(syms),
         "ok":sum(x.get("status")=="ok" for x in symbols.values()),
         "news_items":sum(len(x.get("news") or []) for x in symbols.values()),
+        "relevance_filtered":True,
         "newswire_or_press":sum(1 for x in symbols.values() for n in x.get("news") or [] if n.get("source_priority")==1),
         "with_peer_context":sum((x.get("peer_context") or {}).get("peer_count",0)>0 for x in symbols.values()),
       },

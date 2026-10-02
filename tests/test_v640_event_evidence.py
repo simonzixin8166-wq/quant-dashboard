@@ -37,10 +37,21 @@ try:
     out=ee.build(planner,data,{})
 finally:
     ee.fetch_news=old
-assert out["version"]=="6.4.0"
+assert out["version"]=="6.4.1"
 assert out["counts"]["selected"]==3
 assert out["counts"]["ok"]==3
 assert out["counts"]["news_items"]==3
 assert out["policy"]["full_market_crawl"] is False
 assert out["policy"]["automatic_orders"] is False
 print("PASS V6.4 event and peer evidence layer")
+
+payload_mixed={"news":[
+ {"title":"Palantir growth story","publisher":"Media","relatedTickers":["PLTR"]},
+ {"title":"Why ServiceNow (NOW) Stock Is Up Today","publisher":"StockStory","relatedTickers":["NOW"]},
+ {"title":"Unrelated article without tickers","publisher":"Media","relatedTickers":[]},
+]}
+filtered=ee.normalize_news(payload_mixed,5,"NOW")
+assert len(filtered)==1
+assert "ServiceNow" in filtered[0]["title"]
+assert ee.relevant_to_symbol({"title":"Microsoft launches product","relatedTickers":[]},"MSFT") is True
+assert ee.relevant_to_symbol({"title":"Amazon launches product","relatedTickers":[]},"MSFT") is False

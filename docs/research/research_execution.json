@@ -1,8 +1,58 @@
 {
-  "version": "6.5.0",
-  "generated_at": "2026-10-02T14:41:00.306465+00:00",
-  "planner_version": "6.1.0",
+  "version": "6.7.0",
+  "generated_at": "2026-10-03T02:34:39.186035+00:00",
+  "planner_version": "6.7.0",
   "results": [
+    {
+      "task_id": "dc139bb52a1e29",
+      "kind": "cross_asset_divergence",
+      "key": "US_MARKET",
+      "title": "美股 · 高位跨资产背离",
+      "priority": 86.0,
+      "research_status": "analyzed",
+      "supporting_evidence": [
+        "指数接近高位：距52周高点 -1.9%",
+        "VIX未同步确认风险：VIX=16.04：股票波动仍低，不足以否定债券/信用压力",
+        "金融条件仍有缓冲：NFCI=-0.548，尚未进入系统性紧缩",
+        "股指价格趋势仍强，但折现率上升会压缩估值容忍度。",
+        "若信用利差与债券波动继续上升，而指数仍由少数大盘股支撑，脆弱性会增加。",
+        "若收益率回落、信用利差重新收窄且市场宽度改善，当前背离可通过基本面/流动性消化。"
+      ],
+      "counter_evidence": [
+        "10年期美债收益率压力：10Y=5.26，20日变化=0.5099999999999998",
+        "实际利率压力：10Y real=2.91，20日变化=0.4700000000000002",
+        "高收益信用利差走阔：HY OAS=3.08，20日变化=0.43000000000000016",
+        "市场宽度弱于指数：20/50/200日宽度=0.24750499001996007,0.22554890219560877,0.43313373253493015",
+        "当前状态：高位跨资产背离；风险信号 4 项，其中高等级 3 项"
+      ],
+      "unknowns": [
+        "跨资产背离 5 日成熟样本仍不足",
+        "跨资产背离 20 日成熟样本仍不足",
+        "跨资产背离 60 日成熟样本仍不足",
+        "MOVE 尚未进入免费官方/稳定内部数据源，当前不把外部单点数值写入 Production Brain。",
+        "ERP 暂不使用非稳定网页估算；后续接入可审计盈利收益率来源后再计算。"
+      ],
+      "evidence_score": 82,
+      "confidence": "high",
+      "provisional_conclusion": "证据存在分歧，保持研究状态并优先验证反证。",
+      "next_validation": [
+        "10年期与实际利率是否继续上行？",
+        "信用利差是否继续走阔？",
+        "20/50/200日宽度是否修复？",
+        "VIX/MOVE是否开始与债券压力共振？"
+      ],
+      "source_requirements": [
+        "cross_asset_divergence",
+        "macro_context",
+        "market_breadth",
+        "SPY/QQQ",
+        "credit"
+      ],
+      "guardrail": "该研究结果不能自动下单；未知项不得由模型猜测补全。",
+      "analysis_runs": 1,
+      "first_analyzed_at": "2026-10-03T02:34:39.186035+00:00",
+      "last_analyzed_at": "2026-10-03T02:34:39.186035+00:00"
+    },
     {
       "task_id": "320b47e4133735",
       "kind": "market_anomaly",
@@ -15,103 +65,18 @@
         "Learning Engine 研究优先级：67.0/100",
         "相同阶段60日历史样本：522，中位收益 0.04392540060643202",
         "SEC官方披露：最近 8-K，提交日 2026-09-02",
-        "SEC文档已抓取官方原文证据片段，可用于下一步事件核验"
+        "SEC文档已抓取官方原文证据片段，可用于下一步事件核验",
+        "高优先级事件源：Bloomberg · Nscale Hires Meta’s Justin Osofsky to Be COO Ahead of IPO"
       ],
       "counter_evidence": [
-        "Trend Pulse 数据校验状态：双源校验通过"
+        "Trend Pulse 数据校验状态：有限校验"
       ],
       "unknowns": [
         "暂无可用外部研究记录",
-        "已读取 5 条相关一般媒体线索，但暂无 Reuters/AP/新闻稿等高优先级事件源确认",
         "同业样本已读取但未形成一致共振：2 个，方向 mixed",
         "公司IR官网全文仍待专用连接；当前已使用SEC官方披露与分级媒体事件线索"
       ],
-      "evidence_score": 48,
-      "confidence": "medium",
-      "provisional_conclusion": "证据存在分歧，保持研究状态并优先验证反证。",
-      "next_validation": [
-        "这次变化由公司事件、行业共振还是市场因素驱动？",
-        "支持原 Thesis 的证据是什么？",
-        "最强反证是什么？",
-        "明日需要验证什么？"
-      ],
-      "source_requirements": [
-        "market_data",
-        "trend_pulse",
-        "SEC/IR",
-        "company_news",
-        "industry_peers"
-      ],
-      "guardrail": "该研究结果不能自动下单；未知项不得由模型猜测补全。",
-      "analysis_runs": 10,
-      "first_analyzed_at": "2026-10-02T12:56:22.515063+00:00",
-      "last_analyzed_at": "2026-10-02T14:41:00.306465+00:00"
-    },
-    {
-      "task_id": "df209aa723b495",
-      "kind": "market_anomaly",
-      "key": "VGT",
-      "title": "VGT · 异动/趋势专项研究",
-      "priority": 72.0,
-      "research_status": "analyzed",
-      "supporting_evidence": [
-        "Trend Pulse / Situation 当前阶段：高位钝化",
-        "Learning Engine 研究优先级：60.0/100",
-        "相同阶段60日历史样本：421，中位收益 0.04484594351007454",
-        "Source Intelligence 有 2 条与 VGT 相关研究记录；最近 2 条已进入独立验证层",
-        "该标的是ETF/基金工具，单一公司SEC披露不适用；应使用成分股、基金文件和行业证据。"
-      ],
-      "counter_evidence": [],
-      "unknowns": [
-        "已读取 5 条相关一般媒体线索，但暂无 Reuters/AP/新闻稿等高优先级事件源确认",
-        "行业同业联动样本暂不足",
-        "公司IR官网全文仍待专用连接；当前已使用SEC官方披露与分级媒体事件线索"
-      ],
-      "evidence_score": 50,
-      "confidence": "medium",
-      "provisional_conclusion": "已有初步支持证据，但关键外部事实仍缺失，暂不升级为结论。",
-      "next_validation": [
-        "这次变化由公司事件、行业共振还是市场因素驱动？",
-        "支持原 Thesis 的证据是什么？",
-        "最强反证是什么？",
-        "明日需要验证什么？"
-      ],
-      "source_requirements": [
-        "market_data",
-        "trend_pulse",
-        "SEC/IR",
-        "company_news",
-        "industry_peers"
-      ],
-      "guardrail": "该研究结果不能自动下单；未知项不得由模型猜测补全。",
-      "analysis_runs": 10,
-      "first_analyzed_at": "2026-10-02T12:56:22.515063+00:00",
-      "last_analyzed_at": "2026-10-02T14:41:00.306465+00:00"
-    },
-    {
-      "task_id": "b528aa82a03ae2",
-      "kind": "market_anomaly",
-      "key": "LITE",
-      "title": "LITE · 异动/趋势专项研究",
-      "priority": 72.0,
-      "research_status": "analyzed",
-      "supporting_evidence": [
-        "Trend Pulse / Situation 当前阶段：高位钝化",
-        "Learning Engine 研究优先级：60.0/100",
-        "相同阶段60日历史样本：421，中位收益 0.04484594351007454",
-        "Source Intelligence 有 3 条与 LITE 相关研究记录；最近 3 条已进入独立验证层",
-        "SEC官方披露：最近 10-K，提交日 2026-08-17",
-        "SEC文档已抓取官方原文证据片段，可用于下一步事件核验",
-        "同业联动：2 个可比标的，方向 broad_positive，平均日变动 0.032814642830673674"
-      ],
-      "counter_evidence": [
-        "Trend Pulse 数据校验状态：双源校验通过"
-      ],
-      "unknowns": [
-        "已读取 5 条相关一般媒体线索，但暂无 Reuters/AP/新闻稿等高优先级事件源确认",
-        "公司IR官网全文仍待专用连接；当前已使用SEC官方披露与分级媒体事件线索"
-      ],
-      "evidence_score": 92,
+      "evidence_score": 70,
       "confidence": "high",
       "provisional_conclusion": "证据存在分歧，保持研究状态并优先验证反证。",
       "next_validation": [
@@ -128,9 +93,96 @@
         "industry_peers"
       ],
       "guardrail": "该研究结果不能自动下单；未知项不得由模型猜测补全。",
-      "analysis_runs": 10,
+      "analysis_runs": 11,
       "first_analyzed_at": "2026-10-02T12:56:22.515063+00:00",
-      "last_analyzed_at": "2026-10-02T14:41:00.306465+00:00"
+      "last_analyzed_at": "2026-10-03T02:34:39.186035+00:00"
+    },
+    {
+      "task_id": "df209aa723b495",
+      "kind": "market_anomaly",
+      "key": "VGT",
+      "title": "VGT · 异动/趋势专项研究",
+      "priority": 72.0,
+      "research_status": "analyzed",
+      "supporting_evidence": [
+        "Trend Pulse / Situation 当前阶段：高位钝化",
+        "Learning Engine 研究优先级：60.0/100",
+        "相同阶段60日历史样本：421，中位收益 0.04484594351007454",
+        "Source Intelligence 有 2 条与 VGT 相关研究记录；最近 2 条已进入独立验证层",
+        "该标的是ETF/基金工具，单一公司SEC披露不适用；应使用成分股、基金文件和行业证据。"
+      ],
+      "counter_evidence": [
+        "Trend Pulse 数据校验状态：有限校验"
+      ],
+      "unknowns": [
+        "最近媒体事件证据暂不可用",
+        "行业同业联动样本暂不足",
+        "公司IR官网全文仍待专用连接；当前已使用SEC官方披露与分级媒体事件线索"
+      ],
+      "evidence_score": 58,
+      "confidence": "medium",
+      "provisional_conclusion": "证据存在分歧，保持研究状态并优先验证反证。",
+      "next_validation": [
+        "这次变化由公司事件、行业共振还是市场因素驱动？",
+        "支持原 Thesis 的证据是什么？",
+        "最强反证是什么？",
+        "明日需要验证什么？"
+      ],
+      "source_requirements": [
+        "market_data",
+        "trend_pulse",
+        "SEC/IR",
+        "company_news",
+        "industry_peers"
+      ],
+      "guardrail": "该研究结果不能自动下单；未知项不得由模型猜测补全。",
+      "analysis_runs": 11,
+      "first_analyzed_at": "2026-10-02T12:56:22.515063+00:00",
+      "last_analyzed_at": "2026-10-03T02:34:39.186035+00:00"
+    },
+    {
+      "task_id": "b528aa82a03ae2",
+      "kind": "market_anomaly",
+      "key": "LITE",
+      "title": "LITE · 异动/趋势专项研究",
+      "priority": 72.0,
+      "research_status": "analyzed",
+      "supporting_evidence": [
+        "Trend Pulse / Situation 当前阶段：高位钝化",
+        "Learning Engine 研究优先级：60.0/100",
+        "相同阶段60日历史样本：421，中位收益 0.04484594351007454",
+        "Source Intelligence 有 3 条与 LITE 相关研究记录；最近 3 条已进入独立验证层",
+        "SEC官方披露：最近 10-K，提交日 2026-08-17",
+        "SEC文档已抓取官方原文证据片段，可用于下一步事件核验"
+      ],
+      "counter_evidence": [
+        "Trend Pulse 数据校验状态：有限校验"
+      ],
+      "unknowns": [
+        "已读取 5 条相关一般媒体线索，但暂无 Reuters/AP/新闻稿等高优先级事件源确认",
+        "同业样本已读取但未形成一致共振：2 个，方向 mixed",
+        "公司IR官网全文仍待专用连接；当前已使用SEC官方披露与分级媒体事件线索"
+      ],
+      "evidence_score": 70,
+      "confidence": "high",
+      "provisional_conclusion": "证据存在分歧，保持研究状态并优先验证反证。",
+      "next_validation": [
+        "这次变化由公司事件、行业共振还是市场因素驱动？",
+        "支持原 Thesis 的证据是什么？",
+        "最强反证是什么？",
+        "明日需要验证什么？"
+      ],
+      "source_requirements": [
+        "market_data",
+        "trend_pulse",
+        "SEC/IR",
+        "company_news",
+        "industry_peers"
+      ],
+      "guardrail": "该研究结果不能自动下单；未知项不得由模型猜测补全。",
+      "analysis_runs": 11,
+      "first_analyzed_at": "2026-10-02T12:56:22.515063+00:00",
+      "last_analyzed_at": "2026-10-03T02:34:39.186035+00:00"
     },
     {
       "task_id": "dd80a50c241fb6",
@@ -147,7 +199,7 @@
         "该标的是ETF/基金工具，单一公司SEC披露不适用；应使用成分股、基金文件和行业证据。"
       ],
       "counter_evidence": [
-        "Trend Pulse 数据校验状态：双源校验通过"
+        "Trend Pulse 数据校验状态：有限校验"
       ],
       "unknowns": [
         "已读取 5 条相关一般媒体线索，但暂无 Reuters/AP/新闻稿等高优先级事件源确认",
@@ -171,9 +223,9 @@
         "industry_peers"
       ],
       "guardrail": "该研究结果不能自动下单；未知项不得由模型猜测补全。",
-      "analysis_runs": 10,
+      "analysis_runs": 11,
       "first_analyzed_at": "2026-10-02T12:56:22.515063+00:00",
-      "last_analyzed_at": "2026-10-02T14:41:00.306465+00:00"
+      "last_analyzed_at": "2026-10-03T02:34:39.186035+00:00"
     },
     {
       "task_id": "7cb6373aaddb29",
@@ -188,10 +240,10 @@
         "相同阶段60日历史样本：744，中位收益 0.023649124576453517",
         "SEC官方披露：最近 10-Q，提交日 2026-09-10",
         "SEC文档已抓取官方原文证据片段，可用于下一步事件核验",
-        "同业联动：3 个可比标的，方向 broad_positive，平均日变动 0.032073276877966454"
+        "同业联动：3 个可比标的，方向 broad_positive，平均日变动 0.010665315693059998"
       ],
       "counter_evidence": [
-        "Trend Pulse 数据校验状态：双源校验通过"
+        "Trend Pulse 数据校验状态：有限校验"
       ],
       "unknowns": [
         "暂无可用外部研究记录",
@@ -215,9 +267,9 @@
         "industry_peers"
       ],
       "guardrail": "该研究结果不能自动下单；未知项不得由模型猜测补全。",
-      "analysis_runs": 10,
+      "analysis_runs": 11,
       "first_analyzed_at": "2026-10-02T12:56:22.515063+00:00",
-      "last_analyzed_at": "2026-10-02T14:41:00.306465+00:00"
+      "last_analyzed_at": "2026-10-03T02:34:39.186035+00:00"
     },
     {
       "task_id": "e27477c12d7f36",
@@ -255,9 +307,9 @@
         "market_history"
       ],
       "guardrail": "该研究结果不能自动下单；未知项不得由模型猜测补全。",
-      "analysis_runs": 10,
+      "analysis_runs": 11,
       "first_analyzed_at": "2026-10-02T12:56:22.515063+00:00",
-      "last_analyzed_at": "2026-10-02T14:41:00.306465+00:00"
+      "last_analyzed_at": "2026-10-03T02:34:39.186035+00:00"
     },
     {
       "task_id": "022a1760e7ebb2",
@@ -295,58 +347,17 @@
         "market_history"
       ],
       "guardrail": "该研究结果不能自动下单；未知项不得由模型猜测补全。",
-      "analysis_runs": 10,
+      "analysis_runs": 11,
       "first_analyzed_at": "2026-10-02T12:56:22.515063+00:00",
-      "last_analyzed_at": "2026-10-02T14:41:00.306465+00:00"
-    },
-    {
-      "task_id": "e3102a2d9894f8",
-      "kind": "failure_review",
-      "key": "CRWV",
-      "title": "CRWV · 失败归因复盘（4样本）",
-      "priority": 68.0,
-      "research_status": "analyzed",
-      "supporting_evidence": [
-        "已聚合 4 个 CRWV 失败/反例样本",
-        "高频失败标签：large_adverse_move×4、underperformed_qqq×4、direction_not_aligned×1",
-        "SEC官方时间线可用于失败归因对齐：8-K 2026-09-22, 8-K 2026-09-17, 10-Q 2026-08-12",
-        "SEC官方正文片段已缓存，可继续检查失败窗口内是否存在公司事件或风险披露",
-        "事件窗口已自动对齐 4 个失败样本；7日内SEC 1，7日内分级事件 0"
-      ],
-      "counter_evidence": [
-        "Method Memory 中还有 2 个跨方法反例，需要避免把单一原因解释成全部失败",
-        "事件时间接近仅生成复盘假设，不代表事件造成失败"
-      ],
-      "unknowns": [
-        "若存在期权策略，当前公开结果不能替代真实期权P&L"
-      ],
-      "evidence_score": 86,
-      "confidence": "high",
-      "provisional_conclusion": "证据存在分歧，保持研究状态并优先验证反证。",
-      "next_validation": [
-        "这些失败是否共享同一市场环境？",
-        "主要来自趋势、事件、估值、宏观还是数据问题？",
-        "是否存在重复的反证线索？",
-        "应调整研究权重还是仅记录反例？"
-      ],
-      "source_requirements": [
-        "source_outcomes",
-        "evidence_attribution",
-        "method_memory",
-        "market_history"
-      ],
-      "guardrail": "该研究结果不能自动下单；未知项不得由模型猜测补全。",
-      "analysis_runs": 10,
-      "first_analyzed_at": "2026-10-02T12:56:22.515063+00:00",
-      "last_analyzed_at": "2026-10-02T14:41:00.306465+00:00"
+      "last_analyzed_at": "2026-10-03T02:34:39.186035+00:00"
     }
   ],
   "summary": {
     "analyzed": 8,
-    "high_confidence": 5,
-    "medium_confidence": 3,
+    "high_confidence": 6,
+    "medium_confidence": 2,
     "low_confidence": 0,
-    "with_counter_evidence": 7,
+    "with_counter_evidence": 8,
     "with_unknowns": 8
   },
   "policy": {

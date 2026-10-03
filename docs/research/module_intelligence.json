@@ -1,6 +1,6 @@
 {
-  "version": "6.6.0",
-  "generated_at": "2026-10-02T14:40:51.942053+00:00",
+  "version": "6.7.0",
+  "generated_at": "2026-10-03T02:34:31.216339+00:00",
   "mission": "每个能力模块必须有存在目的、证据输入、学习策略和下游关系；导航只暴露少数核心工作台，其余能力作为二级或辅助入口。",
   "audit": {
     "actual_tabs": 15,
@@ -228,11 +228,13 @@
       "purpose": "提供核心指数、行业卫星和另类资产的统一市场背景与策略距离。",
       "inputs": [
         "docs/data.json",
-        "trend_pulse"
+        "trend_pulse",
+        "cross_asset_divergence"
       ],
       "outputs": [
         "learning_engine",
-        "research_planner"
+        "research_planner",
+        "cross_asset_divergence"
       ],
       "learning": "continuous",
       "learns_from": [
@@ -471,6 +473,23 @@
       "learning": "continuous"
     },
     {
+      "id": "cross-asset-divergence",
+      "name": "跨资产背离引擎",
+      "role": "macro_market_divergence",
+      "inputs": [
+        "market data",
+        "macro_context",
+        "market breadth"
+      ],
+      "outputs": [
+        "research-planner",
+        "research-executor",
+        "decision-journal",
+        "self-improvement"
+      ],
+      "learning": "continuous"
+    },
+    {
       "id": "event-evidence",
       "name": "Event & Peer Evidence Layer",
       "role": "event_context",
@@ -618,6 +637,14 @@
       "path": "docs/research/event_evidence.json",
       "available": true
     },
+    "cross_asset_divergence": {
+      "path": "docs/research/cross_asset_divergence.json",
+      "available": true
+    },
+    "cross_asset_divergence_history": {
+      "path": "docs/research/cross_asset_divergence_history.json",
+      "available": true
+    },
     "self_improvement": {
       "path": "docs/research/self_improvement.json",
       "available": true
@@ -759,6 +786,11 @@
     {
       "from": "tab-index",
       "to": "research_planner",
+      "type": "feeds"
+    },
+    {
+      "from": "tab-index",
+      "to": "cross_asset_divergence",
       "type": "feeds"
     },
     {
@@ -912,6 +944,26 @@
       "type": "feeds"
     },
     {
+      "from": "cross-asset-divergence",
+      "to": "research-planner",
+      "type": "feeds"
+    },
+    {
+      "from": "cross-asset-divergence",
+      "to": "research-executor",
+      "type": "feeds"
+    },
+    {
+      "from": "cross-asset-divergence",
+      "to": "decision-journal",
+      "type": "feeds"
+    },
+    {
+      "from": "cross-asset-divergence",
+      "to": "self-improvement",
+      "type": "feeds"
+    },
+    {
       "from": "event-evidence",
       "to": "research-executor",
       "type": "feeds"
@@ -989,7 +1041,7 @@
   ],
   "agent_loop": [
     "market/live + macro + external sources",
-    "Trend Pulse / Market Context / Company & Options Context",
+    "Trend Pulse / Market Context / Cross-Asset Divergence / Company & Options Context",
     "Learning Engine / Situation Memory",
     "V6 Research Planner",
     "V6.3 Official Evidence Layer",

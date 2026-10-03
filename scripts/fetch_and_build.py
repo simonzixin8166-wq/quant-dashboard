@@ -48,6 +48,7 @@ CORE_TIERS = {
 INDEX = ["QQQ", "SPY", "VOO", "SMH", "TQQQ", "GCMAIN", "BTC/USD"]
 DISPLAYED_INDEX = ["QQQ", "VOO", "SMH", "TQQQ", "GCMAIN", "BTC/USD"]
 VOL_PROXY_SYM = "VIXY"
+BREADTH_EQUAL_WEIGHT_PROXIES = ["RSP", "QQQE"]
 
 STOCK_META = {
     "SOFI": {"name": "SoFi Technologies"}, "IREN": {"name": "Iris Energy"}, "ORCL": {"name": "甲骨文"},
@@ -401,6 +402,29 @@ def _breadth_date(breadth):
         return datetime.date.fromisoformat(str((breadth or {}).get("date")))
     except (TypeError, ValueError):
         return None
+
+def _breadth_proxy_metrics(rows):
+    """Compact completed-session return snapshot for cap-weight/equal-weight comparisons."""
+    if not rows:
+        return {"status":"error","message":"no rows"}
+    closes=[]
+    for r in rows:
+        try: closes.append(float(r["close"]))
+        except Exception: continue
+    if not closes:
+        return {"status":"error","message":"no closes"}
+    out={"status":"ok","date":str(rows[0].get("datetime",""))[:10],"close":closes[0],"returns":{}}
+    for h in (5,20,60):
+        if len(closes)>h and closes[h]:
+            out["returns"][str(h)]=closes[0]/closes[h]-1
+    return out
+
+def _cached_breadth_proxy(old_proxy, reason):
+    if not isinstance(old_proxy,dict) or old_proxy.get("status")!="ok":
+        return None
+    out=dict(old_proxy)
+    out.update({"is_cached":True,"message":reason})
+    return out
 
 def calculate_daily_breadth(old_breadth=None, today_str=None):
     # 亚洲白天只有在缓存已经覆盖最近完成的美股交易日时才跳过重算。
@@ -1205,14 +1229,30 @@ def build():
         except Exception as e: core[name] = {"error": str(e)}
 
     spy_rows_for_regime = None
+    qqq_rows_for_regime = None
     for name in INDEX:
         try:
             rows = fetch_yahoo_index("GC=F", range_="2y") if name == "GCMAIN" else (fetch_yahoo_index("BTC-USD", range_="2y") if name == "BTC/USD" else fetch_time_series(name))
             index[name] = analyze(name, rows, today, tiers=CORE_TIERS.get(name), ath_metric=core_ath_metrics.get(name, {"valid": False}))
             if name in ("QQQ", "SMH", "TQQQ"): strategy_rows[name] = rows
             if name in ("QQQ", "SPY"): overview_charts[name] = [{"d": r["datetime"][:10], "c": float(r["close"])} for r in rows[:30][::-1]]
-            if name == "SPY": spy_rows_for_regime = rows 
+            if name == "SPY": spy_rows_for_regime = rows
+            if name == "QQQ": qqq_rows_for_regime = rows
         except Exception as e: index[name] = {"error": str(e)}
+
+    breadth_proxies = {}
+    for sym, rows in (("SPY", spy_rows_for_regime), ("QQQ", qqq_rows_for_regime)):
+        if rows:
+            breadth_proxies[sym] = _breadth_proxy_metrics(rows)
+    old_proxies = old_data.get("breadth_proxies") or {}
+    for sym in BREADTH_EQUAL_WEIGHT_PROXIES:
+        try:
+            rows = fetch_yahoo_index(sym, range_="1y")
+            breadth_proxies[sym] = _breadth_proxy_metrics(rows)
+        except Exception as e:
+            cached = _cached_breadth_proxy(old_proxies.get(sym), f"本次刷新失败，沿用缓存：{e}")
+            breadth_proxies[sym] = cached or {"status":"error","message":str(e)}
+    data_status["Breadth Proxies"] = "🟢 SPY/RSP + QQQ/QQQE" if all((breadth_proxies.get(x) or {}).get("status")=="ok" for x in ("SPY","RSP","QQQ","QQQE")) else "🟡 部分等权代理待补齐"
 
     spx_data, spx_src, _ = fetch_real_index_or_proxy("%5EGSPC", "SPY", today)
     ixic_data, ixic_src, _ = fetch_real_index_or_proxy("%5EIXIC", "QQQ", today)
@@ -1304,7 +1344,7 @@ def build():
     iren_brief = build_iren_brief(stocks, iren_news)
     current_snapshot = {
         "market_indicators": {"spx": spx_data, "ixic": ixic_data, "vix": vix_data},
-        "market_regime": market_regime, "raw_breadth": breadth_data, "core": core, "stocks": stocks,
+        "market_regime": market_regime, "raw_breadth": breadth_data, "breadth_proxies": breadth_proxies, "core": core, "stocks": stocks,
     }
     research_brief = build_market_brief(market_regime, current_snapshot["market_indicators"], core, breadth_data)
     what_changed = build_what_changed(current_snapshot, old_data)
@@ -1315,7 +1355,7 @@ def build():
             # 登录用户改由浏览器在 Supabase RLS 保护下按需读取。
             "overview_charts": overview_charts, "options": [],
             "cn_hk": cn_hk_data, "market_regime": market_regime, "historical_signals": historical_signals, "data_status": data_status,
-            "raw_breadth": breadth_data, "market_indicators": {"spx": spx_data, "spx_source": spx_src, "ixic": ixic_data, "ixic_source": ixic_src, "vix": vix_data, "vix_source": vix_src},
+            "raw_breadth": breadth_data, "breadth_proxies": breadth_proxies, "market_indicators": {"spx": spx_data, "spx_source": spx_src, "ixic": ixic_data, "ixic_source": ixic_src, "vix": vix_data, "vix_source": vix_src},
             "research_brief": research_brief, "what_changed": what_changed, "iren_brief": iren_brief, "trend_pulse": trend_pulse, "fx_usdcny": fx_usdcny,
             "tqqq_x2": tqqq_x2, "leaps_radar": leaps_radar, "opportunity_history": opportunity_history}
 

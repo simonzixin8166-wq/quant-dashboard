@@ -1,3 +1,3 @@
-V6.8 atomic refresh after production-writer lock
-Updated: 2026-10-03 03:56 UTC
-Purpose: verify refreshed market data, V6.8.1 breadth depth, joint regime memory, Planner/Executor/V7, manifest and final push under the shared production-writer lock.
+V6.8.1 final breadth-depth refresh
+Updated: 2026-10-03 04:04 UTC
+Purpose: after cache schema upgrade, force a full completed-session breadth recompute so A/D and 52-week participation fields are populated, then rebuild Cross-Asset/Breadth/Regime/Planner/Executor/V7/status/manifest atomically.

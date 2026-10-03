@@ -18,7 +18,7 @@ evidence={"failure_attribution":{"external_outcome_reviews":[
 ]}}
 method={"methods":[{"method":"趋势确认","direct_validated_events":1,"context_validated_events":10}]}
 out=p.build(agent,{},evidence,method,{}, {})
-assert out["version"]=="6.7.0"
+assert out["version"]=="6.8.0"
 assert out["counts"]["open"]>=4
 assert any(x["kind"]=="market_anomaly" and x["key"]=="LITE" for x in out["queue"])
 assert any(x["kind"]=="failure_review" for x in out["queue"])
@@ -51,3 +51,12 @@ ca=next(x for x in out4["queue"] if x["kind"]=="cross_asset_divergence")
 assert ca["priority"]==86
 assert ca["key"]=="US_MARKET"
 assert ca["divergence_level"]=="high"
+
+breadth={"level":"fragile","label":"参与度脆弱 · 权重股主导","participation_score":31.5,"risk_hits":5,"combination_key":"B20_LOW|B50_LOW|SPY_RSP_GAP"}
+regime={"level":"high","label":"跨资产压力 + 宽度脆弱共振","state_id":"CROSS_HIGH|BREADTH_FRAGILE|VIX_LOW"}
+out5=p.build(agent,{},evidence,method,{}, {},{},cross,breadth,regime)
+bi=next(x for x in out5["queue"] if x["kind"]=="breadth_intelligence")
+rg=next(x for x in out5["queue"] if x["kind"]=="regime_combination")
+assert bi["priority"]==88 and bi["key"]=="US_BREADTH"
+assert rg["priority"]==92 and rg["key"]=="US_REGIME"
+assert out5["today"][0]["kind"]=="regime_combination"

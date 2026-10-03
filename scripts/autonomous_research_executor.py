@@ -263,6 +263,23 @@ def regime_brief(task,regime,history):
     if regime.get("level")=="high":add_unique(counter,"跨资产压力与脆弱宽度当前同时出现，应优先验证是否继续共振")
     return support,counter,unknowns
 
+def leverage_rebound_brief(task,data):
+    row=(data or {}).get("leverage_rebound") or {}
+    support=[];counter=[];unknowns=[]
+    for x in row.get("supporting_evidence") or []: add_unique(support,x)
+    for x in row.get("counter_evidence") or []: add_unique(counter,x)
+    for x in row.get("unknowns") or []: add_unique(unknowns,x)
+    if row.get("drawdown252") is not None:
+        add_unique(support,f"QQQ 252日回撤：{row.get('drawdown252'):+.1%}")
+    if row.get("status"):
+        add_unique(support,f"回调情境状态：{row.get('label') or row.get('status')}")
+    src=row.get("source_method") or {}
+    if src.get("title"):
+        add_unique(support,f"Source Hypothesis：{src.get('author')} · {src.get('title')}，仅作待验证方法来源")
+    if row.get("status")=="risk":
+        add_unique(counter,"深熊/二次下探风险优先，现有TQQQ正式降险规则不得被外部方法覆盖")
+    return support,counter,unknowns
+
 def execute_task(task,artifacts):
     kind=task.get("kind")
     if kind in {"market_anomaly","discovery"}:
@@ -273,6 +290,8 @@ def execute_task(task,artifacts):
         support,counter,unknowns=breadth_brief(task,artifacts.get("breadth_intelligence"),artifacts.get("breadth_history"))
     elif kind=="regime_combination":
         support,counter,unknowns=regime_brief(task,artifacts.get("regime_memory"),artifacts.get("regime_history"))
+    elif kind=="leverage_rebound":
+        support,counter,unknowns=leverage_rebound_brief(task,artifacts.get("data"))
     elif kind=="failure_review":
         support,counter,unknowns=failure_brief(task,artifacts["evidence"],artifacts["method"],artifacts.get("official"),artifacts.get("event_windows"))
     elif kind=="method_evidence_gap":
@@ -322,7 +341,7 @@ def build(planner,artifacts,previous):
         x["first_analyzed_at"]=prior.get("first_analyzed_at") or now
         x["last_analyzed_at"]=now
     return {
-      "version":"6.8.0","generated_at":now,"planner_version":planner.get("version"),
+      "version":"6.8.2","generated_at":now,"planner_version":planner.get("version"),
       "results":rows,
       "summary":{
         "analyzed":len(rows),

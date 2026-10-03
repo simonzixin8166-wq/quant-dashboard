@@ -2,7 +2,7 @@
 import hashlib,json,datetime,pathlib,re
 ROOT=pathlib.Path(__file__).resolve().parents[1]
 DOCS=ROOT/'docs'
-FILES=['index.html','data.json','assets/investment-assistant.js','assets/autonomous-agent.js','assets/decision-journal.js','assets/autonomous-qa.js','assets/market-live.js','assets/stock-watchlist.js','assets/options-v2.js','research/historical_journal.json','research/autonomous_agent.json','research/research_planner.json','research/official_evidence.json','research/event_evidence.json','research/event_window_attribution.json','research/research_execution.json','research/self_improvement.json','research/module_intelligence.json','research/cross_asset_divergence.json','research/cross_asset_divergence_history.json']
+FILES=['index.html','data.json','assets/investment-assistant.js','assets/autonomous-agent.js','assets/decision-journal.js','assets/autonomous-qa.js','assets/market-live.js','assets/stock-watchlist.js','assets/options-v2.js','research/historical_journal.json','research/autonomous_agent.json','research/research_planner.json','research/official_evidence.json','research/event_evidence.json','research/event_window_attribution.json','research/research_execution.json','research/self_improvement.json','research/module_intelligence.json','research/cross_asset_divergence.json','research/cross_asset_divergence_history.json','research/breadth_intelligence.json','research/breadth_intelligence_history.json','research/regime_combination_memory.json','research/regime_combination_history.json']
 def sha(p): return hashlib.sha256(p.read_bytes()).hexdigest()
 meta=(DOCS/'index.html').read_text(encoding='utf-8',errors='ignore')
 m=re.search(r'<meta name="application-version" content="([^"]+)"',meta)

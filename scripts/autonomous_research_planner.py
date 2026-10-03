@@ -20,6 +20,7 @@ PATHS={
  "previous":ROOT/"docs/research/research_planner.json",
  "modules":ROOT/"docs/research/module_intelligence.json",
  "cross_asset":ROOT/"docs/research/cross_asset_divergence.json",
+ "breadth":ROOT/"docs/research/breadth_intelligence.json",
 }
 OUT=ROOT/"docs/research/research_planner.json"
 
@@ -39,7 +40,7 @@ def task(kind,key,title,priority,why,questions,sources,expires=2):
       "guardrail":"研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。"
     }
 
-def build(agent,learning,evidence,method,source,previous,modules=None,cross_asset=None):
+def build(agent,learning,evidence,method,source,previous,modules=None,cross_asset=None,breadth=None):
     tasks=[]
     seen=set()
     for row in agent.get("watchlist_attention") or []:
@@ -93,6 +94,19 @@ def build(agent,learning,evidence,method,source,previous,modules=None,cross_asse
         t["risk_hits"]=cross_asset.get("risk_hits")
         tasks.append(t);seen.add(t["task_id"])
 
+    breadth=breadth or {}
+    if breadth.get("level") in {"medium","high"}:
+        priority=84 if breadth.get("level")=="high" else 78
+        t=task("breadth_divergence","US_PARTICIPATION",
+          f"美股 · {breadth.get('label') or '市场参与度背离'}",priority,
+          f"市场参与度出现 {breadth.get('participation_risks',0)} 项收缩证据；需判断是短期噪音还是指数内部脆弱性。",
+          ["RSP/SPY与QQQE/QQQ是否继续走弱？","A/D累计线是否修复？","52周新高参与率是否扩散？","当前组合5/20/60日收益、MAE/MFE如何？"],
+          ["breadth_intelligence","equal_weight_relative_strength","advance_decline","52w_participation","regime_combination_memory"],5)
+        t["breadth_level"]=breadth.get("level")
+        t["fingerprint"]=breadth.get("fingerprint")
+        t["participation_risks"]=breadth.get("participation_risks")
+        tasks.append(t);seen.add(t["task_id"])
+
     modules=modules or {}
     audit=modules.get("audit") or {}
     if not audit.get("coverage_ok",True):
@@ -120,7 +134,7 @@ def build(agent,learning,evidence,method,source,previous,modules=None,cross_asse
     tasks.sort(key=lambda x:(x["priority"],x["run_count"]),reverse=True)
     now=datetime.now(timezone.utc).isoformat()
     return {
-      "version":"6.7.0","generated_at":now,"mode":"autonomous_research_planner",
+      "version":"6.8.0","generated_at":now,"mode":"autonomous_research_planner",
       "queue":tasks[:30],
       "today":[x for x in tasks if x["priority"]>=70][:10],
       "counts":{"open":len(tasks),"high_priority":sum(x["priority"]>=70 for x in tasks),"persistent":sum(x["run_count"]>1 for x in tasks)},
@@ -133,7 +147,7 @@ def build(agent,learning,evidence,method,source,previous,modules=None,cross_asse
 
 def main():
     d={k:load(v) for k,v in PATHS.items()}
-    out=build(d["agent"],d["learning"],d["evidence"],d["method"],d["source"],d["previous"],d["modules"],d["cross_asset"])
+    out=build(d["agent"],d["learning"],d["evidence"],d["method"],d["source"],d["previous"],d["modules"],d["cross_asset"],d["breadth"])
     OUT.parent.mkdir(parents=True,exist_ok=True)
     OUT.write_text(json.dumps(out,ensure_ascii=False,indent=2),encoding="utf-8")
     print(json.dumps(out["counts"],ensure_ascii=False))

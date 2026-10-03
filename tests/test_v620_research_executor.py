@@ -85,7 +85,8 @@ assert any("事件窗口已自动对齐" in x for x in fr["supporting_evidence"]
 assert any("不代表事件造成失败" in x for x in fr["counter_evidence"])
 
 src=(ROOT/"scripts"/"autonomous_research_executor.py").read_text(encoding="utf-8")
-assert '"event_windows","events","data"' in src
+for required_key in ['"event_windows"','"events"','"cross_asset"','"cross_asset_history"','"data"']:
+    assert required_key in src
 
 planner_ca={"version":"6.7.0","today":[{"task_id":"ca1","kind":"cross_asset_divergence","key":"US_MARKET","title":"美股跨资产背离","priority":86,"questions":[],"evidence_sources":[]}],"queue":[]}
 art_ca={**artifacts,

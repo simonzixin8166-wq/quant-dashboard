@@ -34,7 +34,7 @@ events={"symbols":{"LITE":{"status":"ok","news":[{"title":"Lumentum update","pub
 data={"trend_pulse":{"LITE":{"state":"二次启动","data_integrity":{"status":"CHECK","label":"有限校验"}}}}
 artifacts={"learning":learning,"evidence":evidence,"method":method,"source":source,"modules":modules,"official":official,"event_windows":event_windows,"events":events,"data":data}
 out=rx.build(planner,artifacts,{})
-assert out["version"]=="6.5.0"
+assert out["version"]=="6.7.0"
 assert out["summary"]["analyzed"]==2
 lite=next(x for x in out["results"] if x["key"]=="LITE")
 assert lite["supporting_evidence"]
@@ -85,4 +85,20 @@ assert any("事件窗口已自动对齐" in x for x in fr["supporting_evidence"]
 assert any("不代表事件造成失败" in x for x in fr["counter_evidence"])
 
 src=(ROOT/"scripts"/"autonomous_research_executor.py").read_text(encoding="utf-8")
-assert '"event_windows","events","data"' in src
+for required_key in ['"event_windows"','"events"','"cross_asset"','"cross_asset_history"','"data"']:
+    assert required_key in src
+
+planner_ca={"version":"6.7.0","today":[{"task_id":"ca1","kind":"cross_asset_divergence","key":"US_MARKET","title":"美股跨资产背离","priority":86,"questions":[],"evidence_sources":[]}],"queue":[]}
+art_ca={**artifacts,
+ "cross_asset":{"level":"high","label":"高位跨资产背离","risk_hits":4,"high_hits":3,
+  "signals":[
+   {"label":"10年期美债收益率压力","hit":True,"severity":"high","reason":"10Y上行"},
+   {"label":"金融条件仍有缓冲","hit":True,"severity":"offset","reason":"NFCI仍宽松"}],
+  "thesis":["价格趋势仍强，但折现率压力上升。"],"unknowns":["MOVE待接入"]},
+ "cross_asset_history":{"records":[]}}
+out_ca=rx.build(planner_ca,art_ca,{})
+row=out_ca["results"][0]
+assert row["kind"]=="cross_asset_divergence"
+assert any("10年期" in x for x in row["counter_evidence"])
+assert any("NFCI" in x for x in row["supporting_evidence"])
+assert any("MOVE" in x for x in row["unknowns"])

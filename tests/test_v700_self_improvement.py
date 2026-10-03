@@ -45,3 +45,11 @@ gap=next(x for x in out4["candidates"] if x["kind"]=="research_process")
 assert gap["scope"]=="evidence_coverage"
 assert gap["proposed_change"]["require_explicit_unknowns"] is True
 assert gap["state"]=="shadow"
+
+cross_hist={"records":[{"level":"high","outcomes":{"20":{"return":-0.03}}} for _ in range(20)]}
+out5=s.build(evidence,method,planner,{},None,None,cross_hist)
+ca_cand=next(x for x in out5["candidates"] if x["scope"]=="cross_asset_divergence")
+assert ca_cand["kind"]=="research_weight"
+assert ca_cand["evidence_n"]==20
+assert ca_cand["state"]=="shadow"
+assert ca_cand["proposed_change"]["priority_weight_delta"]==3

@@ -19,6 +19,7 @@ PATHS={
  "source":ROOT/"docs/data/source_intelligence.json",
  "previous":ROOT/"docs/research/research_planner.json",
  "modules":ROOT/"docs/research/module_intelligence.json",
+ "cross_asset":ROOT/"docs/research/cross_asset_divergence.json",
 }
 OUT=ROOT/"docs/research/research_planner.json"
 
@@ -38,7 +39,7 @@ def task(kind,key,title,priority,why,questions,sources,expires=2):
       "guardrail":"研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。"
     }
 
-def build(agent,learning,evidence,method,source,previous,modules=None):
+def build(agent,learning,evidence,method,source,previous,modules=None,cross_asset=None):
     tasks=[]
     seen=set()
     for row in agent.get("watchlist_attention") or []:
@@ -80,6 +81,18 @@ def build(agent,learning,evidence,method,source,previous,modules=None):
           ["SEC/IR","reliable_news","market_data","industry_peers"],2)
         if t["task_id"] not in seen:tasks.append(t);seen.add(t["task_id"])
 
+    cross_asset=cross_asset or {}
+    if cross_asset.get("level") in {"medium","high"}:
+        priority=86 if cross_asset.get("level")=="high" else 76
+        t=task("cross_asset_divergence","US_MARKET",
+          f"美股 · {cross_asset.get('label') or '跨资产背离'}",priority,
+          f"指数仍强，但跨资产风险信号已触发 {cross_asset.get('risk_hits',0)} 项。",
+          ["10年期与实际利率是否继续上行？","信用利差是否继续走阔？","20/50/200日宽度是否修复？","VIX/MOVE是否开始与债券压力共振？","这种组合历史5/20/60日结果如何？"],
+          ["cross_asset_divergence","macro_context","market_breadth","SPY/QQQ","credit"],5)
+        t["divergence_level"]=cross_asset.get("level")
+        t["risk_hits"]=cross_asset.get("risk_hits")
+        tasks.append(t);seen.add(t["task_id"])
+
     modules=modules or {}
     audit=modules.get("audit") or {}
     if not audit.get("coverage_ok",True):
@@ -107,7 +120,7 @@ def build(agent,learning,evidence,method,source,previous,modules=None):
     tasks.sort(key=lambda x:(x["priority"],x["run_count"]),reverse=True)
     now=datetime.now(timezone.utc).isoformat()
     return {
-      "version":"6.1.0","generated_at":now,"mode":"autonomous_research_planner",
+      "version":"6.7.0","generated_at":now,"mode":"autonomous_research_planner",
       "queue":tasks[:30],
       "today":[x for x in tasks if x["priority"]>=70][:10],
       "counts":{"open":len(tasks),"high_priority":sum(x["priority"]>=70 for x in tasks),"persistent":sum(x["run_count"]>1 for x in tasks)},
@@ -120,7 +133,7 @@ def build(agent,learning,evidence,method,source,previous,modules=None):
 
 def main():
     d={k:load(v) for k,v in PATHS.items()}
-    out=build(d["agent"],d["learning"],d["evidence"],d["method"],d["source"],d["previous"],d["modules"])
+    out=build(d["agent"],d["learning"],d["evidence"],d["method"],d["source"],d["previous"],d["modules"],d["cross_asset"])
     OUT.parent.mkdir(parents=True,exist_ok=True)
     OUT.write_text(json.dumps(out,ensure_ascii=False,indent=2),encoding="utf-8")
     print(json.dumps(out["counts"],ensure_ascii=False))

@@ -97,3 +97,7 @@ assert "Build V6.2 Autonomous Research Executor" in workflow
 assert 'id="agentCenterRoot"' in generator
 assert "今日 AI 摘要" in agent_js
 assert "打开 AI智能中心 · 查看完整研究与自我优化" in agent_js
+
+assert "research/cross_asset_divergence.json" in agent_js
+assert "跨资产背离 · 市场风险环境" in agent_js
+assert "crossAssetMarketRoot" in generator

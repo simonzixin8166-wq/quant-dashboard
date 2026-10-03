@@ -18,7 +18,7 @@ evidence={"failure_attribution":{"external_outcome_reviews":[
 ]}}
 method={"methods":[{"method":"趋势确认","direct_validated_events":1,"context_validated_events":10}]}
 out=p.build(agent,{},evidence,method,{}, {})
-assert out["version"]=="6.1.0"
+assert out["version"]=="6.7.0"
 assert out["counts"]["open"]>=4
 assert any(x["kind"]=="market_anomaly" and x["key"]=="LITE" for x in out["queue"])
 assert any(x["kind"]=="failure_review" for x in out["queue"])
@@ -44,3 +44,10 @@ modules={"audit":{"coverage_ok":False},"modules":[{"id":"tab-engine","name":"核
 out3=p.build(agent,{},evidence,method,{}, {},modules)
 assert any(x["kind"]=="architecture_gap" for x in out3["queue"])
 assert any(x["kind"]=="module_learning_review" and x["key"]=="tab-engine" for x in out3["queue"])
+
+cross={"level":"high","label":"高位跨资产背离","risk_hits":4}
+out4=p.build(agent,{},evidence,method,{}, {},{},cross)
+ca=next(x for x in out4["queue"] if x["kind"]=="cross_asset_divergence")
+assert ca["priority"]==86
+assert ca["key"]=="US_MARKET"
+assert ca["divergence_level"]=="high"

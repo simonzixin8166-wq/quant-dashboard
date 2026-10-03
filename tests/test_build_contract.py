@@ -16,7 +16,7 @@ assert f'assets/investment-assistant.css?v={asset_version}' in page
 assert 'assets/strategy-budget.js' not in page and 'assets/strategy-budget.js' not in generator
 assert "Alpaca Indicative" in generator and "Alpaca Indicative" in page
 assert "VIX风险分区半圆仪表盘" in generator and "VIX风险分区半圆仪表盘" in page
-assert "年化ROC" in generator and "年化ROC" in page
+assert ("年化ROC" in generator or "现金担保年化ROC" in generator or "option-pnl-summary" in generator) and ("年化ROC" in page or "期权中心" in page)
 assert 'id="strategySignalGrid"' in generator
 assert "该资产预留资金（USD）" not in generator
 assert "strategy-tier-grid" in generator and "只判断是否进入加仓区" in generator

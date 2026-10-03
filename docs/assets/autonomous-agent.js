@@ -1,7 +1,7 @@
 (function(global){
   'use strict';
   const $=id=>document.getElementById(id);
-  const state={publicData:null,evidenceData:null,systemStatus:null,plannerData:null,researchData:null,selfImproveData:null,lastRender:0};
+  const state={publicData:null,evidenceData:null,systemStatus:null,plannerData:null,researchData:null,selfImproveData:null,crossAssetData:null,lastRender:0};
   const MEMORY_KEY='mavAgentDecisionMemoryV562', LEGACY_MEMORY_KEY='mavAgentDecisionMemoryV56', POLICY_KEY='mavLearningPolicyV1';
 
   function n(v){const x=Number(v);return Number.isFinite(x)?x:null}
@@ -85,14 +85,15 @@
 
   async function loadPublic(){
     try{
-      const [a,e,s,h,p,x,v7]=await Promise.all([
+      const [a,e,s,h,p,x,v7,ca]=await Promise.all([
         fetch('research/autonomous_agent.json?v='+Date.now(),{cache:'no-store'}),
         fetch('research/evidence_attribution.json?v='+Date.now(),{cache:'no-store'}),
         fetch('data/source_intelligence.json?v='+Date.now(),{cache:'no-store'}),
         fetch('research/system_status.json?v='+Date.now(),{cache:'no-store'}).catch(()=>null),
         fetch('research/research_planner.json?v='+Date.now(),{cache:'no-store'}).catch(()=>null),
         fetch('research/research_execution.json?v='+Date.now(),{cache:'no-store'}).catch(()=>null),
-        fetch('research/self_improvement.json?v='+Date.now(),{cache:'no-store'}).catch(()=>null)
+        fetch('research/self_improvement.json?v='+Date.now(),{cache:'no-store'}).catch(()=>null),
+        fetch('research/cross_asset_divergence.json?v='+Date.now(),{cache:'no-store'}).catch(()=>null)
       ]);
       state.publicData=a.ok?await a.json():null;
       state.evidenceData=e.ok?await e.json():null;
@@ -101,7 +102,8 @@
       state.plannerData=p&&p.ok?await p.json():null;
       state.researchData=x&&x.ok?await x.json():null;
       state.selfImproveData=v7&&v7.ok?await v7.json():null;
-    }catch{state.publicData=null;state.evidenceData=null;state.sourceIntel=null;state.systemStatus=null;state.plannerData=null;state.researchData=null;state.selfImproveData=null}
+      state.crossAssetData=ca&&ca.ok?await ca.json():null;
+    }catch{state.publicData=null;state.evidenceData=null;state.sourceIntel=null;state.systemStatus=null;state.plannerData=null;state.researchData=null;state.selfImproveData=null;state.crossAssetData=null}
   }
 
 
@@ -116,6 +118,32 @@
     const executed=`<div class="agent-section-title"><b>V6.5 自主研究执行 · 研究结果</b><span>${results.length} 项已分析 · 反证 ${x.summary?.with_counter_evidence||0} · 未知项 ${x.summary?.with_unknowns||0}</span></div>
       <div class="agent-grid">${results.slice(0,6).map(r=>`<article class="agent-card agent-${r.confidence==='high'?'watch':'review'}"><div class="agent-card-head"><div><span>ANALYZED · ${esc(r.kind||'research')}</span><h3>${esc(r.title||r.key||'自主研究')}</h3></div><b>${esc(r.confidence||'low')} · ${r.evidence_score??'—'}</b></div><p><strong>暂时结论：</strong>${esc(r.provisional_conclusion||'')}</p><details open><summary>支持证据（${(r.supporting_evidence||[]).length}）</summary><ul>${(r.supporting_evidence||[]).slice(0,5).map(z=>`<li>${esc(z)}</li>`).join('')||'<li>暂无</li>'}</ul></details><details><summary>反证（${(r.counter_evidence||[]).length}）</summary><ul>${(r.counter_evidence||[]).slice(0,5).map(z=>`<li>${esc(z)}</li>`).join('')||'<li>暂无</li>'}</ul></details><details><summary>未知项（${(r.unknowns||[]).length}）</summary><ul>${(r.unknowns||[]).slice(0,5).map(z=>`<li>${esc(z)}</li>`).join('')||'<li>暂无</li>'}</ul></details><small>已自动分析 ${r.analysis_runs||1} 次 · 不补猜缺失事实 · 不自动交易。</small></article>`).join('')||'<div class="agent-empty">等待V6.2执行第一批自主研究任务。</div>'}</div>`;
     return planner+executed+shadow;
+  }
+
+  function crossAssetHtml(){
+    const d=state.crossAssetData||{};if(!d.level)return'';
+    const cls=d.level==='high'?'negative':d.level==='medium'?'review':'watch';
+    const hits=(d.signals||[]).filter(x=>x.hit);
+    return `<div class="agent-section-title"><b>跨资产背离 · 市场风险环境</b><span>${esc(d.label||'')}</span></div>
+      <div class="agent-grid"><article class="agent-card agent-${cls==='negative'?'action':cls}">
+      <div class="agent-card-head"><div><span>CROSS-ASSET DIVERGENCE · V6.7</span><h3>${esc(d.label||'跨资产观察')}</h3></div><b>风险信号 ${d.risk_hits||0}</b></div>
+      <p><strong>含义：</strong>指数价格趋势与利率、信用、波动或市场宽度出现不同步。该标签用于提高研究优先级，不是卖出或做空指令。</p>
+      <ul>${hits.slice(0,6).map(x=>`<li><b>${esc(x.label)}</b> · ${esc(x.reason)}</li>`).join('')}</ul>
+      ${(d.unknowns||[]).length?`<details><summary>仍待补齐的数据</summary><ul>${d.unknowns.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></details>`:''}
+      <small>${esc(d.guardrail||'')}</small></article></div>`;
+  }
+  function renderCrossAssetMarket(){
+    const root=$('crossAssetMarketRoot');if(!root)return;
+    const d=state.crossAssetData||{};
+    if(!d.level){root.innerHTML='<div class="agent-empty">等待跨资产背离数据。</div>';return}
+    const hits=(d.signals||[]).filter(x=>x.hit);
+    root.innerHTML=`<div class="section-head"><div><h2>跨资产背离监控</h2><p>股指强弱与利率、实际利率、信用、波动、市场宽度联动</p></div><span>${esc(d.label||'')}</span></div>
+      <div class="agent-grid"><article class="agent-card agent-${d.level==='high'?'action':d.level==='medium'?'review':'watch'}">
+      <div class="agent-card-head"><div><span>V6.7 CROSS-ASSET</span><h3>${esc(d.label||'跨资产观察')}</h3></div><b>${d.risk_hits||0} 项风险信号</b></div>
+      <div class="agent-metrics">${hits.slice(0,6).map(x=>`<span>${esc(x.label)}</span>`).join('')}</div>
+      <p>${esc((d.thesis||[])[0]||'跨资产状态正在评估。')}</p>
+      <details><summary>查看触发条件与反证</summary><ul>${(d.signals||[]).map(x=>`<li>${x.hit?'●':'○'} ${esc(x.label)} · ${esc(x.reason)}</li>`).join('')}</ul></details>
+      <small>${esc(d.guardrail||'')}</small></article></div>`;
   }
 
   function systemStatusHtml(){
@@ -483,6 +511,7 @@
       <div class="agent-section-title"><b>Learning Policy · 学习策略</b><span>v${policy.version} · ${policy.baselineMode?'基线模式':'自主学习生效'} · 可审计</span></div>
       <div class="agent-grid"><article class="agent-card agent-watch"><div class="agent-card-head"><div><span>AUDITABLE POLICY</span><h3>研究权重调整</h3></div><b>成熟样本 ${policy.evidence.sample}</b></div><div class="agent-metrics"><span>二次启动 ${policy.adjustments.restart_bonus>=0?'+':''}${policy.adjustments.restart_bonus}</span><span>重复提醒 ${policy.adjustments.repeat_alert_penalty}</span><span>弱候选 ${policy.adjustments.weak_candidate_penalty}</span></div><p>证据：错过上涨 ${policy.evidence.missed} · 噪音 ${policy.evidence.noisy} · 误报 ${policy.evidence.false_positive}</p><small>仅影响研究优先级与提醒显示；不改变核心ETF阈值、仓位或交易规则。</small><div><button type="button" onclick="MAVAutonomousAgent.resetLearningPolicy()">回到学习基线</button> <button type="button" onclick="MAVAutonomousAgent.resumeLearningPolicy()">恢复自主学习</button></div></article></div>
       ${learned.length?`<div class="agent-section-title"><b>What I learned · 自主学习</b><span>${selfReview.sample||0} 个成熟样本</span></div><div class="agent-grid">${learned.slice(0,3).map((x,i)=>`<article class="agent-card agent-watch"><div class="agent-card-head"><div><span>SELF REVIEW</span><h3>学习结论 #${i+1}</h3></div><b>研究权重</b></div><p>${esc(x)}</p><small>只调整研究优先级和提醒权重，不自动改变核心ETF阈值，也不自动交易。</small></article>`).join('')}</div>`:''}
+      ${crossAssetHtml()}
       ${brainHtml()}
       ${systemStatusHtml()}\n      ${sourceIntelHtml()}
       ${evidenceHtml()}
@@ -494,6 +523,7 @@
       const top=[...optionAttention,...stockAttention].slice(0,3);
       home.innerHTML=`<div class="agent-attention-head"><div><span class="agent-kicker">MYALPHA AUTONOMOUS AGENT · V6 + V7</span><h2>今日 AI 摘要</h2><p>完整研究过程已集中到 AI智能中心；首页只保留真正需要你注意的事项。</p></div><div class="agent-counts"><span class="action">需处理 <b>${counts.action}</b></span><span class="review">需复查 <b>${counts.review}</b></span><span>观察 <b>${counts.watch}</b></span></div></div>${top.length?`<div class="agent-grid">${top.map(card).join('')}</div>`:'<div class="agent-empty">当前没有需要打扰你的重大变化；Agent 仍在后台学习。</div>'}<div class="agent-foot"><button type="button" onclick="openDashboardTab('tab-agent-center')">打开 AI智能中心 · 查看完整研究与自我优化</button></div>`;
     }
+    renderCrossAssetMarket();
     state.lastRender=Date.now();
   }
 

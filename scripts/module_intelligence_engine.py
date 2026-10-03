@@ -98,8 +98,8 @@ MODULES=[
     {
       "id":"tab-index","name":"指数、行业与另类资产","role":"market_context",
       "purpose":"提供核心指数、行业卫星和另类资产的统一市场背景与策略距离。",
-      "inputs":["docs/data.json","trend_pulse"],
-      "outputs":["learning_engine","research_planner"],
+      "inputs":["docs/data.json","trend_pulse","cross_asset_divergence"],
+      "outputs":["learning_engine","research_planner","cross_asset_divergence"],
       "learning":"continuous",
       "learns_from":["trend regimes","drawdowns","cross-asset confirmation"],
       "why_it_exists":"个股与期权判断需要先知道宽基、行业和风险资产处于什么环境。",
@@ -182,6 +182,7 @@ SERVICES=[
  {"id":"autonomous-agent","name":"自主研究大脑","role":"orchestrator","inputs":["learning_engine","evidence","research_planner","research_execution","self_improvement"],"outputs":["overview","research_planner","decision_journal"],"learning":"continuous"},
  {"id":"official-evidence","name":"官方证据层","role":"primary_source","inputs":["research_planner","SEC EDGAR"],"outputs":["research-executor","event-window-attribution","decision_journal"],"learning":"source_memory"},
  {"id":"event-window-attribution","name":"事件窗口归因","role":"failure_context","inputs":["evidence_attribution","official_evidence","event_evidence"],"outputs":["research-executor","self_improvement","decision_journal"],"learning":"continuous"},
+ {"id":"cross-asset-divergence","name":"跨资产背离引擎","role":"macro_market_divergence","inputs":["market data","macro_context","market breadth"],"outputs":["research-planner","research-executor","decision-journal","self-improvement"],"learning":"continuous"},
  {"id":"event-evidence","name":"Event & Peer Evidence Layer","role":"event_context","inputs":["research_planner","Yahoo Finance Search","market quotes"],"outputs":["research-executor","decision_journal"],"learning":"source_memory"},
  {"id":"research-executor","name":"自主研究执行器","role":"evidence_synthesis","inputs":["research_planner","learning_engine","evidence_attribution","method_memory","source_intelligence","official_evidence","event_evidence","module_intelligence"],"outputs":["self_improvement","overview","decision_journal"],"learning":"continuous"},
  {"id":"opportunity-radar","name":"机会雷达","role":"discovery","inputs":["market data","strategy distances","trend states"],"outputs":["research_planner"],"learning":"shadow_only"},
@@ -200,6 +201,8 @@ ARTIFACTS={
  "official_evidence":"docs/research/official_evidence.json",
  "event_window_attribution":"docs/research/event_window_attribution.json",
  "event_evidence":"docs/research/event_evidence.json",
+ "cross_asset_divergence":"docs/research/cross_asset_divergence.json",
+ "cross_asset_divergence_history":"docs/research/cross_asset_divergence_history.json",
  "self_improvement":"docs/research/self_improvement.json",
  "method_memory":"docs/research/method_memory.json",
  "failure_attribution":"docs/research/evidence_attribution.json",
@@ -248,7 +251,7 @@ def build():
     for m in MODULES:
         learn_counts[m["learning"]]=learn_counts.get(m["learning"],0)+1
     return {
-      "version":"6.6.0",
+      "version":"6.7.0",
       "generated_at":datetime.now(timezone.utc).isoformat(),
       "mission":"每个能力模块必须有存在目的、证据输入、学习策略和下游关系；导航只暴露少数核心工作台，其余能力作为二级或辅助入口。",
       "audit":{
@@ -267,7 +270,7 @@ def build():
       "edges":edges,
       "agent_loop":[
         "market/live + macro + external sources",
-        "Trend Pulse / Market Context / Company & Options Context",
+        "Trend Pulse / Market Context / Cross-Asset Divergence / Company & Options Context",
         "Learning Engine / Situation Memory",
         "V6 Research Planner",
         "V6.3 Official Evidence Layer",

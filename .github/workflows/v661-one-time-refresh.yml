@@ -37,6 +37,23 @@ jobs:
           SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
         run: python scripts/fetch_and_build.py
 
+      - name: Rebuild V6.7/V6.8 market intelligence from refreshed data
+        run: |
+          python scripts/cross_asset_divergence_engine.py
+          python scripts/breadth_intelligence_engine.py
+          python scripts/regime_combination_memory.py
+          python scripts/module_intelligence_engine.py
+          python scripts/autonomous_research_planner.py
+          python scripts/autonomous_research_executor.py
+          python scripts/self_improvement_engine.py
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
+      - name: Rebuild autonomous system status
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python scripts/system_status_center.py
+
       - name: Generate immutable build manifest
         run: python scripts/generate_build_manifest.py
 
@@ -47,12 +64,25 @@ jobs:
           python tests/test_v660_information_architecture.py
           python tests/test_v661_ui_consistency.py
           python tests/test_v663_completed_daily_guard.py
+          python tests/test_breadth.py
+          python tests/test_v670_cross_asset_divergence.py
+          python tests/test_v680_breadth_intelligence.py
+          python tests/test_v681_regime_combination_memory.py
+          python tests/test_v680_breadth_ui.py
+          python tests/test_v600_research_planner.py
+          python tests/test_v620_research_executor.py
+          python tests/test_v700_self_improvement.py
 
       - name: Commit only market-page outputs
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
-          git add docs/data.json docs/index.html docs/data/market_events.json docs/build-manifest.json
-          git commit -m "V6.6.2 refresh latest market page" || echo "No changes"
+          git add docs/data.json docs/index.html docs/data/market_events.json docs/build-manifest.json \
+            docs/research/cross_asset_divergence.json docs/research/cross_asset_divergence_history.json \
+            docs/research/breadth_intelligence.json docs/research/breadth_intelligence_history.json \
+            docs/research/regime_combination_memory.json docs/research/regime_combination_history.json \
+            docs/research/module_intelligence.json docs/research/research_planner.json \
+            docs/research/research_execution.json docs/research/self_improvement.json docs/research/system_status.json
+          git commit -m "V6.8 refresh market and learning state" || echo "No changes"
           git pull --rebase origin main
           git push origin HEAD:main

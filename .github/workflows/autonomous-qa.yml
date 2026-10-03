@@ -24,6 +24,14 @@ jobs:
         with: {node-version: '20'}
       - name: Install PR Python dependencies
         run: pip install "yfinance>=0.2.65,<0.3" pandas
+      - name: V6.8 breadth and regime-memory contracts
+        run: |
+          python tests/test_breadth.py
+          python tests/test_v680_breadth_intelligence.py
+          python tests/test_v600_research_planner.py
+          python tests/test_v620_research_executor.py
+          python tests/test_v610_module_intelligence.py
+          python tests/test_v700_self_improvement.py
       - name: V5.6 deterministic validation
         run: |
           node --check docs/assets/options-v2.js

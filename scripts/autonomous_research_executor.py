@@ -15,6 +15,7 @@ from __future__ import annotations
 import json
 from datetime import datetime, timezone
 from pathlib import Path
+from app_version import APP_VERSION
 
 ROOT=Path(__file__).resolve().parents[1]
 PATHS={
@@ -45,6 +46,24 @@ def load(path):
 def add_unique(rows,item):
     if item and item not in rows: rows.append(item)
 
+def fmt_num(v,d=2):
+    try:
+        return f"{float(v):.{d}f}"
+    except Exception:
+        return "—"
+
+def fmt_pct(v,d=1):
+    try:
+        return f"{float(v)*100:.{d}f}%"
+    except Exception:
+        return "—"
+
+def fmt_bp(v,d=2):
+    try:
+        return f"{float(v):.{d}f}"
+    except Exception:
+        return "—"
+
 def situation_map(learning):
     return {x.get("symbol"):x for x in (learning.get("situation_memory") or []) if x.get("symbol")}
 
@@ -70,9 +89,9 @@ def market_brief(task,learning,evidence,source,data,official=None,events=None):
     priority=sit.get("research_priority")
     stage=sit.get("stage") or tp.get("state")
     if stage:add_unique(support,f"Trend Pulse / Situation 当前阶段：{stage}")
-    if priority is not None:add_unique(support,f"Learning Engine 研究优先级：{priority}/100")
+    if priority is not None:add_unique(support,f"Learning Engine 研究优先级：{fmt_num(priority,0)}/100")
     hist=sit.get("historical_stage_evidence") or {}
-    if hist.get("n60"):add_unique(support,f"相同阶段60日历史样本：{hist.get('n60')}，中位收益 {hist.get('median60')}")
+    if hist.get("n60"):add_unique(support,f"相同阶段60日历史样本：{hist.get('n60')}，中位收益 {fmt_pct(hist.get('median60'))}")
     for c in sit.get("contradictions") or []:
         add_unique(counter,str(c.get("message") or c.get("evidence") or c))
     fr=failure_rows(evidence,sym)
@@ -118,7 +137,7 @@ def market_brief(task,learning,evidence,source,data,official=None,events=None):
         direction=peer.get("direction")
         avg=peer.get("avg_day_change")
         if direction in {"broad_positive","broad_negative"} and peer.get("peer_count",0)>=2:
-            add_unique(support,f"同业联动：{peer.get('peer_count')} 个可比标的，方向 {direction}，平均日变动 {avg if avg is not None else '—'}")
+            add_unique(support,f"同业联动：{peer.get('peer_count')} 个可比标的，方向 {direction}，平均日变动 {fmt_pct(avg)}")
         else:
             add_unique(unknowns,f"同业样本已读取但未形成一致共振：{peer.get('peer_count')} 个，方向 {direction}")
     else:
@@ -194,14 +213,16 @@ def cross_asset_brief(task,cross_asset,history):
     support=[];counter=[];unknowns=[]
     for s in cross_asset.get("signals") or []:
         if not s.get("hit"): continue
-        sev=s.get("severity")
         msg=f"{s.get('label')}：{s.get('reason')}"
-        if sev in {"high","medium"}: add_unique(counter,msg)
-        else: add_unique(support,msg)
+        add_unique(support,msg)
     if cross_asset.get("level") in {"medium","high"}:
-        add_unique(counter,f"当前状态：{cross_asset.get('label')}；风险信号 {cross_asset.get('risk_hits',0)} 项，其中高等级 {cross_asset.get('high_hits',0)} 项")
+        add_unique(support,f"当前状态：{cross_asset.get('label')}；风险信号 {cross_asset.get('risk_hits',0)} 项，其中高等级 {cross_asset.get('high_hits',0)} 项")
     for x in cross_asset.get("thesis") or []:
-        add_unique(support,x)
+        text=str(x)
+        if any(k in text for k in ("缓冲","否定","消化","回落","收窄","改善")):
+            add_unique(counter,text)
+        else:
+            add_unique(support,text)
     mature={"5":[],"20":[],"60":[]}
     for row in history.get("records") or []:
         if row.get("level") not in {"medium","high"}: continue
@@ -226,8 +247,7 @@ def breadth_brief(task,breadth,history):
     for sig in breadth.get("signals") or []:
         if not sig.get("hit"): continue
         msg=f"{sig.get('label')}：{sig.get('reason')}"
-        if sig.get("severity") in {"high","medium"}: add_unique(counter,msg)
-        else:add_unique(support,msg)
+        add_unique(support,msg)
     score=breadth.get("participation_score")
     if score is not None:add_unique(support,f"市场参与度评分：{score}/100")
     if breadth.get("combination_key"):add_unique(support,f"宽度组合状态：{breadth.get('combination_key')}")
@@ -250,9 +270,12 @@ def regime_brief(task,regime,history):
     state=regime.get("state_id")
     if state:add_unique(support,f"当前组合状态：{state}")
     b=regime.get("breadth") or {}; c=regime.get("cross_asset") or {}; v=regime.get("vix") or {}
-    add_unique(counter,f"跨资产层：{c.get('label') or c.get('level')}；风险信号 {c.get('risk_hits','—')}")
-    add_unique(counter,f"宽度层：{b.get('label') or b.get('level')}；参与度评分 {b.get('participation_score','—')}")
-    if v.get("value") is not None:add_unique(support,f"VIX={v.get('value')}，分区 {v.get('zone')}")
+    add_unique(support,f"跨资产层：{c.get('label') or c.get('level')}；风险信号 {c.get('risk_hits','—')}")
+    add_unique(support,f"宽度层：{b.get('label') or b.get('level')}；参与度评分 {fmt_num(b.get('participation_score'),1)}")
+    if v.get("value") is not None:
+        msg=f"VIX={fmt_num(v.get('value'),2)}，分区 {v.get('zone')}"
+        if str(v.get("zone")).lower() in {"low","normal"}: add_unique(counter,msg+"；波动率尚未确认风险升级")
+        else: add_unique(support,msg)
     matched=[x for x in history.get("records") or [] if x.get("state_id")==state]
     for h in ("5","20","60"):
         vals=[((x.get("outcomes") or {}).get(h) or {}).get("return") for x in matched]
@@ -260,7 +283,7 @@ def regime_brief(task,regime,history):
         if vals:
             add_unique(support,f"同组合 {h} 日成熟样本 {len(vals)}：平均收益 {sum(vals)/len(vals):+.1%}，最差 {min(vals):+.1%}")
         else:add_unique(unknowns,f"同组合 {h} 日成熟样本仍不足")
-    if regime.get("level")=="high":add_unique(counter,"跨资产压力与脆弱宽度当前同时出现，应优先验证是否继续共振")
+    if regime.get("level")=="high":add_unique(support,"跨资产压力与脆弱宽度当前同时出现，应优先验证是否继续共振")
     return support,counter,unknowns
 
 def leverage_rebound_brief(task,data):
@@ -341,7 +364,7 @@ def build(planner,artifacts,previous):
         x["first_analyzed_at"]=prior.get("first_analyzed_at") or now
         x["last_analyzed_at"]=now
     return {
-      "version":"6.8.2","generated_at":now,"planner_version":planner.get("version"),
+      "version":APP_VERSION,"generated_at":now,"planner_version":planner.get("version"),
       "results":rows,
       "summary":{
         "analyzed":len(rows),

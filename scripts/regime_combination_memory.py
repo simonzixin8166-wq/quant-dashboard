@@ -84,10 +84,16 @@ def build(dash,cross,breadth,history=None):
         vals=[((r.get("outcomes") or {}).get(h) or {}).get("return") for r in matched]
         vals=[v for v in vals if isinstance(v,(int,float))]
         if vals:
+            rows_h=[((r.get("outcomes") or {}).get(h) or {}) for r in matched]
+            rows_h=[x for x in rows_h if isinstance(x.get("return"),(int,float))]
+            maes=[x.get("mae") for x in rows_h if isinstance(x.get("mae"),(int,float))]
+            mfes=[x.get("mfe") for x in rows_h if isinstance(x.get("mfe"),(int,float))]
             mature[h]={
               "n":len(vals),"avg_return":sum(vals)/len(vals),
               "positive_rate":sum(1 for v in vals if v>0)/len(vals),
-              "worst_return":min(vals),"best_return":max(vals)
+              "worst_return":min(vals),"best_return":max(vals),
+              "avg_mae":sum(maes)/len(maes) if maes else None,
+              "avg_mfe":sum(mfes)/len(mfes) if mfes else None
             }
         else:mature[h]={"n":0}
 

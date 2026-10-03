@@ -112,6 +112,7 @@
 
 
   function brainHtml(){
+    if(decisionDataBlock().blocked)return '<div class="agent-empty">当前研究计划与研究结果因关键数据新鲜度不足暂停作为当前结论展示；待数据恢复后自动恢复。</div>';
     const p=state.plannerData||{},x=state.researchData||{},v=state.selfImproveData||{};
     const today=p.today||[],results=x.results||[],cands=v.candidates||[];
     if(!today.length&&!results.length&&!cands.length)return'';
@@ -125,6 +126,7 @@
   }
 
   function crossAssetHtml(){
+    if(decisionDataBlock().blocked)return'';
     const d=state.crossAssetData||{};if(!d.level)return'';
     const cls=d.level==='high'?'negative':d.level==='medium'?'review':'watch';
     const hits=(d.signals||[]).filter(x=>x.hit);
@@ -137,6 +139,7 @@
       <small>${esc(d.guardrail||'')}</small></article></div>`;
   }
   function breadthIntelligenceHtml(){
+    if(decisionDataBlock().blocked)return'';
     const d=state.breadthData||{};if(!d.level)return'';
     const m=d.metrics||{},hits=(d.signals||[]).filter(x=>x.hit);
     return `<div class="agent-section-title"><b>Breadth Intelligence · 市场参与度</b><span>${esc(d.label||'')}</span></div>
@@ -148,6 +151,7 @@
       <small>${esc(d.guardrail||'')}</small></article></div>`;
   }
   function regimeMemoryHtml(){
+    if(decisionDataBlock().blocked)return'';
     const d=state.regimeData||{};if(!d.level)return'';
     const h=d.historical_matches?.mature||{};
     return `<div class="agent-section-title"><b>Regime Combination Memory · 组合情境记忆</b><span>${esc(d.label||'')}</span></div>
@@ -160,6 +164,7 @@
 
   function renderCrossAssetMarket(){
     const root=$('crossAssetMarketRoot');if(!root)return;
+    if(decisionDataBlock().blocked){root.innerHTML='<div class="agent-empty">关键市场数据已超过新鲜度阈值；当前市场环境结论暂停展示，避免把缓存数据误认为当前状态。</div>';return}
     const d=state.crossAssetData||{},b=state.breadthData||{},r=state.regimeData||{};
     if(!d.level&&!b.level&&!r.level){root.innerHTML='<div class="agent-empty">等待市场环境智能数据。</div>';return}
     const hits=(d.signals||[]).filter(x=>x.hit),bm=b.metrics||{};

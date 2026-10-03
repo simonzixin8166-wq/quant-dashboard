@@ -14,7 +14,8 @@ from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
 DASH=ROOT/"docs/data.json"
 MACRO=ROOT/"docs/research/macro_context.json"
-OUT=ROOT/"docs/research/cross_asset_divergence.json"\nHISTORY=ROOT/"docs/research/cross_asset_divergence_history.json"
+OUT=ROOT/"docs/research/cross_asset_divergence.json"
+HISTORY=ROOT/"docs/research/cross_asset_divergence_history.json"
 
 def load(p):
     try:return json.loads(p.read_text(encoding="utf-8"))

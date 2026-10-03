@@ -426,6 +426,17 @@ def _breadth_date(breadth):
     except (TypeError, ValueError):
         return None
 
+def _breadth_cache_schema_current(breadth):
+    """Only reuse a same-session cache if it contains the current V6.8.1 depth fields."""
+    if not isinstance(breadth, dict) or breadth.get("status") != "ok":
+        return False
+    required = (
+        "b20","b50","b200","slope_10d",
+        "advance_pct","decline_pct","ad_net_pct","ad_line_20d","ad_line_60d",
+        "new_high_52w_pct","near_high_52w_pct","new_low_52w_pct",
+    )
+    return all(breadth.get(k) is not None for k in required)
+
 def _breadth_proxy_metrics(rows):
     """Compact completed-session return snapshot for cap-weight/equal-weight comparisons."""
     if not rows:
@@ -455,7 +466,7 @@ def calculate_daily_breadth(old_breadth=None, today_str=None):
     now_utc = datetime.datetime.utcnow()
     expected_session = _previous_completed_us_session(now_utc)
     old_date = _breadth_date(old_breadth)
-    if now_utc.hour < 12 and old_date and old_date >= expected_session:
+    if now_utc.hour < 12 and old_date and old_date >= expected_session and _breadth_cache_schema_current(old_breadth):
         cached = _cached_breadth(old_breadth, "已是最近完整美股交易日，亚洲时段沿用缓存")
         return cached or {"status":"skip", "message":"等待首次美股收盘宽度数据"}
 

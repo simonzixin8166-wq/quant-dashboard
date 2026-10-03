@@ -1,3 +1,3 @@
-V6.8.1 participation-depth production refresh trigger
+V6.8 atomic market + learning refresh trigger
 Updated: 2026-10-03
-Purpose: rebuild completed-session market data with A/D, 52-week participation, equal-weight proxies and 90-session outcome history.
+Purpose: run the post-V6.8.1 completed-session rebuild with market data, breadth proxies, participation depth, joint regime memory, Planner/Executor/V7, status and manifest committed atomically.

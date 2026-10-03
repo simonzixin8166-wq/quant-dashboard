@@ -37,7 +37,7 @@ MODULES=[
     },
     {
       "id":"tab-agent-center","name":"AI智能中心","role":"agent_brain",
-      "purpose":"集中展示V6研究队列、Research Executor、V7 Candidate/Shadow Brain与Promotion Gate。",
+      "purpose":"集中展示研究队列、Research Executor、Candidate/Shadow Brain与Promotion Gate。",
       "inputs":["research_planner","research_execution","self_improvement","system_status","evidence_attribution"],
       "outputs":["decision_journal","research_planner","operator_attention"],
       "learning":"continuous",
@@ -53,7 +53,7 @@ MODULES=[
       "learning":"shadow_only",
       "learns_from":["historical rule outcomes","false triggers","missed opportunities","leverage rebound context outcomes"],
       "why_it_exists":"把长期核心配置和战术策略从主观判断中分离出来，并提供可回测规则。",
-      "guardrail":"Production阈值锁定；V7只能提出Shadow候选，不能静默修改正式规则。"
+      "guardrail":"Production阈值锁定；自我改进引擎只能提出Shadow候选，不能静默修改正式规则。"
     },
     {
       "id":"tab-system-health","name":"系统自检","role":"reliability",

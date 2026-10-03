@@ -27,6 +27,8 @@ PATHS={
     "official":ROOT/"docs/research/official_evidence.json",
     "event_windows":ROOT/"docs/research/event_window_attribution.json",
     "events":ROOT/"docs/research/event_evidence.json",
+    "cross_asset":ROOT/"docs/research/cross_asset_divergence.json",
+    "cross_asset_history":ROOT/"docs/research/cross_asset_divergence_history.json",
     "data":ROOT/"docs/data.json",
     "previous":ROOT/"docs/research/research_execution.json",
 }
@@ -182,10 +184,42 @@ def module_brief(task,modules):
     else:add_unique(unknowns,"模块注册表中未找到该模块")
     return support,counter,unknowns
 
+def cross_asset_brief(task,cross_asset,history):
+    cross_asset=cross_asset or {}
+    history=history or {}
+    support=[];counter=[];unknowns=[]
+    for s in cross_asset.get("signals") or []:
+        if not s.get("hit"): continue
+        sev=s.get("severity")
+        msg=f"{s.get('label')}：{s.get('reason')}"
+        if sev in {"high","medium"}: add_unique(counter,msg)
+        else: add_unique(support,msg)
+    if cross_asset.get("level") in {"medium","high"}:
+        add_unique(counter,f"当前状态：{cross_asset.get('label')}；风险信号 {cross_asset.get('risk_hits',0)} 项，其中高等级 {cross_asset.get('high_hits',0)} 项")
+    for x in cross_asset.get("thesis") or []:
+        add_unique(support,x)
+    mature={"5":[],"20":[],"60":[]}
+    for row in history.get("records") or []:
+        if row.get("level") not in {"medium","high"}: continue
+        for h in mature:
+            v=((row.get("outcomes") or {}).get(h) or {}).get("return")
+            if isinstance(v,(int,float)): mature[h].append(v)
+    for h,vals in mature.items():
+        if vals:
+            avg=sum(vals)/len(vals)
+            pos=sum(1 for v in vals if v>0)/len(vals)
+            add_unique(support,f"历史同类背离 {h} 日成熟样本 {len(vals)}：平均收益 {avg:+.1%}，正收益比例 {pos:.0%}")
+        else:
+            add_unique(unknowns,f"跨资产背离 {h} 日成熟样本仍不足")
+    for x in cross_asset.get("unknowns") or []: add_unique(unknowns,x)
+    return support,counter,unknowns
+
 def execute_task(task,artifacts):
     kind=task.get("kind")
     if kind in {"market_anomaly","discovery"}:
         support,counter,unknowns=market_brief(task,artifacts["learning"],artifacts["evidence"],artifacts["source"],artifacts["data"],artifacts.get("official"),artifacts.get("events"))
+    elif kind=="cross_asset_divergence":
+        support,counter,unknowns=cross_asset_brief(task,artifacts.get("cross_asset"),artifacts.get("cross_asset_history"))
     elif kind=="failure_review":
         support,counter,unknowns=failure_brief(task,artifacts["evidence"],artifacts["method"],artifacts.get("official"),artifacts.get("event_windows"))
     elif kind=="method_evidence_gap":
@@ -235,7 +269,7 @@ def build(planner,artifacts,previous):
         x["first_analyzed_at"]=prior.get("first_analyzed_at") or now
         x["last_analyzed_at"]=now
     return {
-      "version":"6.5.0","generated_at":now,"planner_version":planner.get("version"),
+      "version":"6.7.0","generated_at":now,"planner_version":planner.get("version"),
       "results":rows,
       "summary":{
         "analyzed":len(rows),
@@ -255,7 +289,7 @@ def build(planner,artifacts,previous):
 
 def main():
     d={k:load(v) for k,v in PATHS.items()}
-    artifacts={k:d[k] for k in ("learning","evidence","method","source","modules","official","event_windows","events","data")}
+    artifacts={k:d[k] for k in ("learning","evidence","method","source","modules","official","event_windows","events","cross_asset","cross_asset_history","data")}
     out=build(d["planner"],artifacts,d["previous"])
     OUT.parent.mkdir(parents=True,exist_ok=True)
     OUT.write_text(json.dumps(out,ensure_ascii=False,indent=2),encoding="utf-8")

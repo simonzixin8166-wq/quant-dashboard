@@ -45,8 +45,13 @@ def mature_history(history,dash):
             j=i+h
             if str(h) not in outcomes and j<len(dates):
                 px=prices.get(dates[j])
-                if px is not None:
-                    outcomes[str(h)]={"date":dates[j],"return":px/anchor-1}
+                path_px=[prices.get(dates[k]) for k in range(i+1,j+1)]
+                path_px=[v for v in path_px if v is not None]
+                if px is not None and path_px:
+                    outcomes[str(h)]={
+                      "date":dates[j],"return":px/anchor-1,
+                      "mae":min(path_px)/anchor-1,"mfe":max(path_px)/anchor-1
+                    }
     return {"version":"6.8.0","records":rows[-360:]}
 
 def build(dash,cross,breadth,history=None):
@@ -79,10 +84,16 @@ def build(dash,cross,breadth,history=None):
         vals=[((r.get("outcomes") or {}).get(h) or {}).get("return") for r in matched]
         vals=[v for v in vals if isinstance(v,(int,float))]
         if vals:
+            rows_h=[((r.get("outcomes") or {}).get(h) or {}) for r in matched]
+            rows_h=[x for x in rows_h if isinstance(x.get("return"),(int,float))]
+            maes=[x.get("mae") for x in rows_h if isinstance(x.get("mae"),(int,float))]
+            mfes=[x.get("mfe") for x in rows_h if isinstance(x.get("mfe"),(int,float))]
             mature[h]={
               "n":len(vals),"avg_return":sum(vals)/len(vals),
               "positive_rate":sum(1 for v in vals if v>0)/len(vals),
-              "worst_return":min(vals),"best_return":max(vals)
+              "worst_return":min(vals),"best_return":max(vals),
+              "avg_mae":sum(maes)/len(maes) if maes else None,
+              "avg_mfe":sum(mfes)/len(mfes) if mfes else None
             }
         else:mature[h]={"n":0}
 

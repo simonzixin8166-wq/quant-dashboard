@@ -16,3 +16,7 @@ assert "regime_combination_memory.json" in manifest
 assert "breadth_intelligence" in status
 assert "regime_combination_memory" in status
 print("PASS V6.8 breadth/regime UI wiring")
+
+assert "A/D20" in js
+assert "52周新高" in js
+assert "20日MAE" in js and "20日MFE" in js

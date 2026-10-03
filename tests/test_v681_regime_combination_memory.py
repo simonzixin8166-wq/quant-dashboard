@@ -26,6 +26,8 @@ assert out["state_id"]=="CROSS_HIGH|BREADTH_FRAGILE|VIX_LOW"
 assert out["historical_matches"]["total"]==1
 assert out["historical_matches"]["mature"]["5"]["n"]==1
 assert out["historical_matches"]["mature"]["20"]["n"]==1
+assert "avg_mae" in out["historical_matches"]["mature"]["20"]
+assert "avg_mfe" in out["historical_matches"]["mature"]["20"]
 
 out2=rm.build(dash,{"level":"low"},{"level":"healthy","participation_score":70},{})
 assert out2["level"]=="low"

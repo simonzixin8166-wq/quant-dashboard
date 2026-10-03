@@ -142,7 +142,7 @@
     return `<div class="agent-section-title"><b>Breadth Intelligence · 市场参与度</b><span>${esc(d.label||'')}</span></div>
       <div class="agent-grid"><article class="agent-card agent-${d.level==='fragile'?'action':d.level==='weakening'?'review':'watch'}">
       <div class="agent-card-head"><div><span>V6.8 BREADTH INTELLIGENCE</span><h3>${esc(d.label||'市场参与度')}</h3></div><b>参与度 ${esc(d.participation_score??'—')}/100</b></div>
-      <div class="agent-metrics"><span>20日 ${pct(m.b20)}</span><span>50日 ${pct(m.b50)}</span><span>200日 ${pct(m.b200)}</span><span>10日斜率 ${pct(m.slope_10d,1)}</span><span>SPY-RSP ${pct(m.spy_minus_rsp_20d,1)}</span><span>QQQ-QQQE ${pct(m.qqq_minus_qqqe_20d,1)}</span></div>
+      <div class="agent-metrics"><span>20日 ${pct(m.b20)}</span><span>50日 ${pct(m.b50)}</span><span>200日 ${pct(m.b200)}</span><span>10日斜率 ${pct(m.slope_10d,1)}</span><span>SPY-RSP ${pct(m.spy_minus_rsp_20d,1)}</span><span>QQQ-QQQE ${pct(m.qqq_minus_qqqe_20d,1)}</span><span>A/D20 ${n(m.ad_line_20d)!==null?n(m.ad_line_20d).toFixed(2):'—'}</span><span>52周新高 ${pct(m.new_high_52w_pct,1)}</span></div>
       <p><strong>组合状态：</strong>${esc(d.combination_key||'—')}</p>
       <ul>${hits.slice(0,6).map(x=>`<li><b>${esc(x.label)}</b> · ${esc(x.reason)}</li>`).join('')}</ul>
       <small>${esc(d.guardrail||'')}</small></article></div>`;
@@ -154,7 +154,7 @@
       <div class="agent-grid"><article class="agent-card agent-${d.level==='high'?'action':d.level==='medium'?'review':'watch'}">
       <div class="agent-card-head"><div><span>V6.8 JOINT SITUATION MEMORY</span><h3>${esc(d.state_id||'组合环境')}</h3></div><b>${esc(d.level||'')}</b></div>
       <p>${esc((d.interpretation||[])[0]||'等待组合情境积累。')}</p>
-      <div class="agent-metrics"><span>历史同类 ${d.historical_matches?.total||0}</span><span>5日成熟 ${h['5']?.n||0}</span><span>20日成熟 ${h['20']?.n||0}</span><span>60日成熟 ${h['60']?.n||0}</span></div>
+      <div class="agent-metrics"><span>历史同类 ${d.historical_matches?.total||0}</span><span>5日成熟 ${h['5']?.n||0}</span><span>20日成熟 ${h['20']?.n||0}</span><span>60日成熟 ${h['60']?.n||0}</span>${h['20']?.n?`<span>20日MAE ${pct(h['20']?.avg_mae,1)}</span><span>20日MFE ${pct(h['20']?.avg_mfe,1)}</span>`:''}</div>
       <small>${esc(d.guardrail||'')}</small></article></div>`;
   }
 
@@ -166,7 +166,7 @@
     root.innerHTML=`<div class="section-head"><div><h2>市场参与度与跨资产环境</h2><p>指数强弱、利率信用、20/50/200日宽度与等权/市值权重集中度联动</p></div><span>${esc(r.label||d.label||b.label||'')}</span></div>
       <div class="agent-grid">
       ${d.level?`<article class="agent-card agent-${d.level==='high'?'action':d.level==='medium'?'review':'watch'}"><div class="agent-card-head"><div><span>V6.7 CROSS-ASSET</span><h3>${esc(d.label||'跨资产观察')}</h3></div><b>${d.risk_hits||0} 项风险信号</b></div><div class="agent-metrics">${hits.slice(0,5).map(x=>`<span>${esc(x.label)}</span>`).join('')}</div><p>${esc((d.thesis||[])[0]||'跨资产状态正在评估。')}</p><small>${esc(d.guardrail||'')}</small></article>`:''}
-      ${b.level?`<article class="agent-card agent-${b.level==='fragile'?'action':b.level==='weakening'?'review':'watch'}"><div class="agent-card-head"><div><span>V6.8 BREADTH</span><h3>${esc(b.label||'市场参与度')}</h3></div><b>${esc(b.participation_score??'—')}/100</b></div><div class="agent-metrics"><span>20日 ${pct(bm.b20)}</span><span>50日 ${pct(bm.b50)}</span><span>200日 ${pct(bm.b200)}</span><span>SPY-RSP ${pct(bm.spy_minus_rsp_20d,1)}</span><span>QQQ-QQQE ${pct(bm.qqq_minus_qqqe_20d,1)}</span></div><p>${esc((b.interpretation||[])[0]||'市场参与度正在评估。')}</p><small>${esc(b.guardrail||'')}</small></article>`:''}
+      ${b.level?`<article class="agent-card agent-${b.level==='fragile'?'action':b.level==='weakening'?'review':'watch'}"><div class="agent-card-head"><div><span>V6.8 BREADTH</span><h3>${esc(b.label||'市场参与度')}</h3></div><b>${esc(b.participation_score??'—')}/100</b></div><div class="agent-metrics"><span>20日 ${pct(bm.b20)}</span><span>50日 ${pct(bm.b50)}</span><span>200日 ${pct(bm.b200)}</span><span>SPY-RSP ${pct(bm.spy_minus_rsp_20d,1)}</span><span>QQQ-QQQE ${pct(bm.qqq_minus_qqqe_20d,1)}</span><span>A/D20 ${n(bm.ad_line_20d)!==null?n(bm.ad_line_20d).toFixed(2):'—'}</span><span>52周新高 ${pct(bm.new_high_52w_pct,1)}</span></div><p>${esc((b.interpretation||[])[0]||'市场参与度正在评估。')}</p><small>${esc(b.guardrail||'')}</small></article>`:''}
       ${r.level?`<article class="agent-card agent-${r.level==='high'?'action':r.level==='medium'?'review':'watch'}"><div class="agent-card-head"><div><span>V6.8 REGIME MEMORY</span><h3>${esc(r.label||'组合情境')}</h3></div><b>${esc(r.state_id||'')}</b></div><p>${esc((r.interpretation||[])[0]||'')}</p><div class="agent-metrics"><span>同类历史 ${r.historical_matches?.total||0}</span><span>20日成熟 ${r.historical_matches?.mature?.['20']?.n||0}</span></div><small>${esc(r.guardrail||'')}</small></article>`:''}
       </div>`;
   }

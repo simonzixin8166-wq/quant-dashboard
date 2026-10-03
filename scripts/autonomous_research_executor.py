@@ -29,6 +29,8 @@ PATHS={
     "events":ROOT/"docs/research/event_evidence.json",
     "cross_asset":ROOT/"docs/research/cross_asset_divergence.json",
     "cross_asset_history":ROOT/"docs/research/cross_asset_divergence_history.json",
+    "breadth":ROOT/"docs/research/breadth_intelligence.json",
+    "breadth_history":ROOT/"docs/research/breadth_intelligence_history.json",
     "data":ROOT/"docs/data.json",
     "previous":ROOT/"docs/research/research_execution.json",
 }
@@ -214,12 +216,65 @@ def cross_asset_brief(task,cross_asset,history):
     for x in cross_asset.get("unknowns") or []: add_unique(unknowns,x)
     return support,counter,unknowns
 
+def breadth_brief(task,breadth,history):
+    breadth=breadth or {}
+    history=history or {}
+    support=[];counter=[];unknowns=[]
+    b=breadth.get("breadth") or {}
+    eq=breadth.get("equal_weight") or {}
+    flags=breadth.get("flags") or {}
+
+    for key,label in [
+        ("BREADTH_WEAK","20/50/200日宽度偏弱"),
+        ("AD_NEGATIVE","A/D累计线偏弱"),
+        ("NEW_HIGHS_THIN","52周新高参与率偏薄"),
+        ("EQUAL_WEIGHT_WEAK","等权指数相对强度偏弱"),
+    ]:
+        if flags.get(key): add_unique(counter,label)
+
+    for key,label in [
+        ("EQUITY_NEAR_HIGH","指数仍接近高位"),
+        ("VIX_LOW","VIX仍处低波动环境"),
+    ]:
+        if flags.get(key): add_unique(support,label)
+
+    for pair_key in ("rsp_spy","qqqe_qqq"):
+        row=eq.get(pair_key) or {}
+        if row.get("available"):
+            chg=row.get("chg20")
+            add_unique(support if row.get("signal")!="weak" else counter,
+                       f"{row.get('pair')} 20日相对变化 {chg:+.1%}" if isinstance(chg,(int,float)) else f"{row.get('pair')} 已取得")
+        else:
+            add_unique(unknowns,f"{row.get('pair') or pair_key} 暂不可用")
+
+    if isinstance(b.get("ad_line_20d"),(int,float)):
+        target=counter if b["ad_line_20d"]<0 else support
+        add_unique(target,f"A/D 20日累计 {b['ad_line_20d']:+.2f}")
+    if isinstance(b.get("new_high_52w_pct"),(int,float)):
+        target=counter if b["new_high_52w_pct"]<.10 else support
+        add_unique(target,f"52周新高参与率 {b['new_high_52w_pct']:.1%}")
+
+    stats=breadth.get("current_combination_history") or {}
+    for h in ("5","20","60"):
+        row=stats.get(h) or {}
+        if row.get("n"):
+            add_unique(support,f"当前组合 {h}日成熟样本 {row['n']}：平均收益 {row.get('avg_return',0):+.1%}，胜率 {row.get('win_rate',0):.0%}，平均MAE {row.get('avg_mae') if row.get('avg_mae') is not None else '—'}，平均MFE {row.get('avg_mfe') if row.get('avg_mfe') is not None else '—'}")
+        else:
+            add_unique(unknowns,f"当前Regime组合 {h} 日成熟样本不足")
+
+    add_unique(counter if breadth.get("level") in {"medium","high"} else support,
+               f"当前参与度状态：{breadth.get('label') or '待评估'}；组合指纹 {breadth.get('fingerprint') or '—'}")
+    for x in breadth.get("unknowns") or []: add_unique(unknowns,x)
+    return support,counter,unknowns
+
 def execute_task(task,artifacts):
     kind=task.get("kind")
     if kind in {"market_anomaly","discovery"}:
         support,counter,unknowns=market_brief(task,artifacts["learning"],artifacts["evidence"],artifacts["source"],artifacts["data"],artifacts.get("official"),artifacts.get("events"))
     elif kind=="cross_asset_divergence":
         support,counter,unknowns=cross_asset_brief(task,artifacts.get("cross_asset"),artifacts.get("cross_asset_history"))
+    elif kind=="breadth_divergence":
+        support,counter,unknowns=breadth_brief(task,artifacts.get("breadth"),artifacts.get("breadth_history"))
     elif kind=="failure_review":
         support,counter,unknowns=failure_brief(task,artifacts["evidence"],artifacts["method"],artifacts.get("official"),artifacts.get("event_windows"))
     elif kind=="method_evidence_gap":
@@ -269,7 +324,7 @@ def build(planner,artifacts,previous):
         x["first_analyzed_at"]=prior.get("first_analyzed_at") or now
         x["last_analyzed_at"]=now
     return {
-      "version":"6.7.0","generated_at":now,"planner_version":planner.get("version"),
+      "version":"6.8.0","generated_at":now,"planner_version":planner.get("version"),
       "results":rows,
       "summary":{
         "analyzed":len(rows),

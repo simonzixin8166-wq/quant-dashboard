@@ -91,6 +91,24 @@ def quality_gate(data,history,now=None):
         "checked_at":now_iso(now),
     }
 
+def _split_ratio_candidate(close,prev):
+    """Conservative corporate-action gate for common split/reverse-split ratios.
+
+    A candidate is quarantined for review rather than treated as a market signal.
+    This intentionally favors false-positive quarantine over contaminating an
+    append-only Forward ledger with an unadjusted price discontinuity.
+    """
+    try:
+        close=float(close);prev=float(prev)
+        if close<=0 or prev<=0:return False
+        ratio=close/prev
+    except Exception:
+        return False
+    common=(0.5,1/3,0.25,0.2,2.0,3.0,4.0,5.0,10.0)
+    if any(abs(ratio-target)/target<=0.08 for target in common):
+        return True
+    return abs(ratio-1.0)>0.60
+
 def symbol_quality(symbol,data,history,gate,require_ath=False):
     row=_asset_row(data,symbol)
     reasons=[]
@@ -101,9 +119,8 @@ def symbol_quality(symbol,data,history,gate,require_ath=False):
     close=row.get("close");prev=row.get("prev_close")
     try:
         if float(close)<=0:reasons.append("invalid_close")
-        if prev is not None and float(prev)>0:
-            jump=float(close)/float(prev)-1
-            if abs(jump)>0.60:reasons.append("split_or_adjustment_candidate")
+        if prev is not None and float(prev)>0 and _split_ratio_candidate(close,prev):
+            reasons.append("split_or_adjustment_candidate")
     except Exception:
         reasons.append("invalid_price")
     if require_ath and row.get("ath_validation")!="PASS":

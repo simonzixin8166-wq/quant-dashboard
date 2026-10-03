@@ -147,4 +147,9 @@ with tempfile.TemporaryDirectory() as td:
     finally:
         pe.DATA,pe.HISTORY,pe.STATUS_OUT,pe.ANCHOR_OUT=old
 
+workflow=(ROOT/".github/workflows/daily.yml").read_text(encoding="utf-8")
+assert "MYALPHA_LEDGER_REPO: simonzixin8166-wq/myalpha-ledger-private" in workflow
+assert "secrets.MYALPHA_LEDGER_TOKEN" in workflow
+assert "secrets.MYALPHA_LEDGER_REPO" not in workflow
+
 print("PASS V6.10a Playbook engine / data gate / silent ledger contract")

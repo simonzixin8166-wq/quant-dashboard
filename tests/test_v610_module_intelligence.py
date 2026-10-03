@@ -6,7 +6,7 @@ spec=importlib.util.spec_from_file_location("mi",ROOT/"scripts"/"module_intellig
 mi=importlib.util.module_from_spec(spec);spec.loader.exec_module(mi)
 
 out=mi.build()
-assert out["version"]=="6.8.0"
+assert out["version"]=="6.8.2"
 assert out["audit"]["coverage_ok"] is True
 assert out["audit"]["actual_tabs"]==15
 assert out["audit"]["declared_tabs"]==15
@@ -59,3 +59,8 @@ assert services["breadth-intelligence"]["role"]=="market_participation"
 assert services["regime-combination-memory"]["role"]=="joint_situation_memory"
 for key in ["breadth_intelligence","breadth_intelligence_history","regime_combination_memory","regime_combination_history"]:
     assert key in out["artifacts"]
+
+assert services["leverage-rebound-intelligence"]["role"]=="leverage_context"
+assert services["leverage-rebound-intelligence"]["learning"]=="shadow_only"
+assert "research_planner" in services["leverage-rebound-intelligence"]["outputs"]
+assert "research_executor" in services["leverage-rebound-intelligence"]["outputs"]

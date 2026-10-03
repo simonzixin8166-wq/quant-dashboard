@@ -73,6 +73,7 @@ Active 仅表示正在使用，不代表统计上已验证。
 ## 5. Trigger State Machine
 
 状态：
+- IDLE：正常/未触发基线状态。
 - NEAR_TRIGGER：接近触发。
 - TRIGGERED：正式条件成立。
 - INVALIDATED：失效或超过有效期。
@@ -80,7 +81,7 @@ Active 仅表示正在使用，不代表统计上已验证。
 - UNDETERMINED：数据过期、缺失、接口失败或价格序列完整性失败。
 
 记录分层：
-- 所有状态变化可进入 Trigger Event stream。
+- 所有状态变化（含回到 IDLE）可进入 Trigger Event stream，用于生命周期审计。
 - 只有 TRIGGERED 进入 Opportunity Scorecard 的可评分机会样本。
 - NO_CHASE 进入独立 Discipline Ledger / Discipline Scorecard。
 - NEAR_TRIGGER 与 INVALIDATED 保留为状态生命周期证据，不与 TRIGGERED 收益成绩混算。
@@ -94,6 +95,8 @@ Active 仅表示正在使用，不代表统计上已验证。
 不得伪装为准时识别。
 
 所有有效期、冷却期、Outcome horizon 使用美股交易所交易日历，不使用自然日或简单周一至周五。
+
+审计日志 V1 默认长期保留；在 V7.0 Review 前不自动清理。
 
 ## 6. 规则变更与稳定期
 

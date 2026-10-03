@@ -33,8 +33,38 @@ ARTIFACTS={
 }
 
 WATCH_WORKFLOWS={
-    "quant-dashboard":["Daily Dashboard Update","Source Intelligence Validation","Trend Pulse 5Y Backtest","pages build and deployment"],
+    "quant-dashboard":["Daily Dashboard Update","Autonomous QA & Security","Source Intelligence Validation","Trend Pulse 5Y Backtest","pages build and deployment"],
     "wxc-bot":["research-close","tg-bot"],
+}
+
+# Maximum expected age before an artifact is excluded from decision/research inputs.
+# Thresholds intentionally allow weekends/holidays while preventing silently stale data
+# from being presented as current evidence.
+FRESHNESS_HOURS={
+    "market_dashboard": 72,
+    "learning_engine": 96,
+    "autonomous_agent": 96,
+    "source_intelligence": 120,
+    "source_outcomes": 168,
+    "evidence_attribution": 168,
+    "method_memory": 168,
+    "research_planner": 96,
+    "research_execution": 96,
+    "official_evidence": 168,
+    "event_evidence": 96,
+    "event_window_attribution": 168,
+    "self_improvement": 168,
+    "module_intelligence": 336,
+    "cross_asset_divergence": 96,
+    "cross_asset_divergence_history": 336,
+    "breadth_intelligence": 96,
+    "breadth_intelligence_history": 336,
+    "regime_combination_memory": 96,
+    "regime_combination_history": 336,
+}
+CRITICAL_DECISION_ARTIFACTS={
+    "market_dashboard","learning_engine","autonomous_agent",
+    "cross_asset_divergence","breadth_intelligence","regime_combination_memory",
 }
 
 def load(path:Path):
@@ -96,27 +126,75 @@ def health(conclusion,status):
     if conclusion=="skipped":return "neutral"
     return "unknown"
 
+def parse_iso(value):
+    if not value:return None
+    try:
+        text=str(value).replace("Z","+00:00")
+        dt=datetime.fromisoformat(text)
+        return dt if dt.tzinfo else dt.replace(tzinfo=timezone.utc)
+    except Exception:
+        return None
+
+def artifact_health(name,path,now=None):
+    now=now or datetime.now(timezone.utc)
+    updated=iso_from_file(path)
+    dt=parse_iso(updated)
+    max_age=FRESHNESS_HOURS.get(name,168)
+    age_hours=None if dt is None else round(max(0.0,(now-dt.astimezone(timezone.utc)).total_seconds()/3600),1)
+    available=path.exists()
+    if not available:
+        freshness="missing"
+    elif age_hours is None:
+        freshness="unknown"
+    elif age_hours <= max_age:
+        freshness="fresh"
+    elif age_hours <= max_age*2:
+        freshness="stale"
+    else:
+        freshness="expired"
+    decision_eligible=available and freshness=="fresh"
+    return {
+        "updated_at":updated,
+        "available":available,
+        "age_hours":age_hours,
+        "max_age_hours":max_age,
+        "freshness":freshness,
+        "decision_eligible":decision_eligible,
+        "participation":"eligible" if decision_eligible else "excluded",
+    }
+
 def build(fetch_runs=True):
     repos={}
     for repo,names in WATCH_WORKFLOWS.items():
         rows=latest_by_name(github_runs(repo,names) if fetch_runs else [],names)
         for v in rows.values():v["health"]=health(v.get("conclusion"),v.get("status"))
         repos[repo]=rows
-    artifacts={k:{"updated_at":iso_from_file(v),"available":v.exists()} for k,v in ARTIFACTS.items()}
+    now=datetime.now(timezone.utc)
+    artifacts={k:artifact_health(k,v,now) for k,v in ARTIFACTS.items()}
     overall="ok"
     critical=[
         repos["quant-dashboard"].get("Daily Dashboard Update",{}).get("health"),
         repos["wxc-bot"].get("research-close",{}).get("health"),
     ]
+    artifact_failures=[
+        name for name in CRITICAL_DECISION_ARTIFACTS
+        if not artifacts.get(name,{}).get("decision_eligible")
+    ]
     if "bad" in critical:overall="attention"
     elif "running" in critical:overall="running"
     elif any(x in {"unknown",None} for x in critical):overall="attention"
+    elif artifact_failures:overall="attention"
     result={
-        "version":3,
+        "version":4,
         "generated_at":datetime.now(timezone.utc).isoformat(),
         "overall":overall,
         "workflows":repos,
         "artifacts":artifacts,
+        "decision_data_contract":{
+            "critical_artifacts":sorted(CRITICAL_DECISION_ARTIFACTS),
+            "excluded_artifacts":artifact_failures,
+            "rule":"只有 freshness=fresh 且 decision_eligible=true 的关键产物才允许进入当前研究/决策摘要；缓存或过期数据只能作为历史上下文。",
+        },
         "principle":"状态中心只报告自动化健康度与数据新鲜度；不会修改交易规则。",
     }
     return result

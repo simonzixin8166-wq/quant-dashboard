@@ -214,7 +214,10 @@ def cross_asset_brief(task,cross_asset,history):
     for s in cross_asset.get("signals") or []:
         if not s.get("hit"): continue
         msg=f"{s.get('label')}：{s.get('reason')}"
-        add_unique(support,msg)
+        if s.get("severity")=="offset" or any(k in msg for k in ("缓冲","宽松","改善","回落","收窄")):
+            add_unique(counter,msg)
+        else:
+            add_unique(support,msg)
     if cross_asset.get("level") in {"medium","high"}:
         add_unique(support,f"当前状态：{cross_asset.get('label')}；风险信号 {cross_asset.get('risk_hits',0)} 项，其中高等级 {cross_asset.get('high_hits',0)} 项")
     for x in cross_asset.get("thesis") or []:

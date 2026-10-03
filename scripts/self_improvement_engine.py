@@ -17,6 +17,8 @@ PLANNER=ROOT/"docs/research/research_planner.json"
 MODULES=ROOT/"docs/research/module_intelligence.json"
 EXECUTION=ROOT/"docs/research/research_execution.json"
 CROSS_HISTORY=ROOT/"docs/research/cross_asset_divergence_history.json"
+BREADTH_HISTORY=ROOT/"docs/research/breadth_intelligence_history.json"
+REGIME_HISTORY=ROOT/"docs/research/regime_combination_history.json"
 PREV=ROOT/"docs/research/self_improvement.json"
 OUT=PREV
 
@@ -32,7 +34,7 @@ def candidate(kind,scope,change,reason,n):
     return {"candidate_id":cid(kind,payload),"kind":kind,"scope":scope,"proposed_change":change,
             "reason":reason,"evidence_n":n,"state":"shadow","created_at":datetime.now(timezone.utc).isoformat()}
 
-def build(evidence,method,planner,previous,modules=None,execution=None,cross_history=None):
+def build(evidence,method,planner,previous,modules=None,execution=None,cross_history=None,breadth_history=None,regime_history=None):
     candidates=[]
     for m in method.get("methods") or []:
         n=m.get("direct_validated_events") or 0
@@ -77,6 +79,32 @@ def build(evidence,method,planner,previous,modules=None,execution=None,cross_his
             candidates.append(candidate("research_weight","cross_asset_divergence",
               {"priority_weight_delta":3,"when":"medium_or_high_divergence"},
               f"跨资产背离20日成熟样本 {len(mature20)}，平均SPY收益 {avg20:+.2%}；仅建议提高研究优先级，不改变仓位。",len(mature20)))
+    breadth_history=breadth_history or {}
+    breadth20=[]
+    for row in breadth_history.get("records") or []:
+        if row.get("level") not in {"fragile","weakening"}: continue
+        v=((row.get("outcomes") or {}).get("20") or {}).get("return")
+        if isinstance(v,(int,float)): breadth20.append(v)
+    if len(breadth20)>=20:
+        avg20=sum(breadth20)/len(breadth20)
+        if avg20<=-0.015:
+            candidates.append(candidate("research_weight","breadth_intelligence",
+              {"priority_weight_delta":2,"when":"fragile_or_weakening_breadth"},
+              f"弱宽度20日成熟样本 {len(breadth20)}，平均SPY收益 {avg20:+.2%}；仅建议提高研究优先级，不改变仓位。",len(breadth20)))
+
+    regime_history=regime_history or {}
+    regime20=[]
+    for row in regime_history.get("records") or []:
+        if row.get("level")!="high": continue
+        v=((row.get("outcomes") or {}).get("20") or {}).get("return")
+        if isinstance(v,(int,float)): regime20.append(v)
+    if len(regime20)>=20:
+        avg20=sum(regime20)/len(regime20)
+        if avg20<=-0.02:
+            candidates.append(candidate("research_weight","regime_combination",
+              {"priority_weight_delta":3,"when":"high_joint_regime"},
+              f"高风险组合环境20日成熟样本 {len(regime20)}，平均SPY收益 {avg20:+.2%}；仅建议提高组合研究优先级。",len(regime20)))
+
     old={x.get("candidate_id"):x for x in previous.get("candidates") or []}
     promoted=[];shadow=[]
     for c in candidates:
@@ -114,7 +142,7 @@ def build(evidence,method,planner,previous,modules=None,execution=None,cross_his
     }
 
 def main():
-    out=build(load(EVIDENCE),load(METHOD),load(PLANNER),load(PREV),load(MODULES),load(EXECUTION),load(CROSS_HISTORY))
+    out=build(load(EVIDENCE),load(METHOD),load(PLANNER),load(PREV),load(MODULES),load(EXECUTION),load(CROSS_HISTORY),load(BREADTH_HISTORY),load(REGIME_HISTORY))
     OUT.parent.mkdir(parents=True,exist_ok=True)
     OUT.write_text(json.dumps(out,ensure_ascii=False,indent=2),encoding="utf-8")
     print(json.dumps({"version":out["version"],"candidates":len(out["candidates"]),"eligible":len(out["shadow_brain"]["eligible_for_review"])},ensure_ascii=False))

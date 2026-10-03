@@ -1,6 +1,6 @@
 {
   "updated": "2026-10-03",
-  "gen_time": "2026-10-03 13:27:53",
+  "gen_time": "2026-10-03 14:09:19",
   "spy_date": "2026-10-02",
   "core": {
     "QQQM": {
@@ -247,17 +247,17 @@
     },
     "BTC/USD": {
       "date": "2026-10-03",
-      "close": 84599.4296875,
+      "close": 84638.140625,
       "prev_close": 84853.1015625,
-      "day_chg": -0.002989541576310604,
+      "day_chg": -0.002533330350236719,
       "ytd_high": 97860.6015625,
-      "rsi": 63.42477106675108,
-      "dist_200ma": 0.18533498266344237,
+      "rsi": 63.618442742477676,
+      "dist_200ma": 0.18587415127109677,
       "ath_is_true": false,
       "ath_validation": "UNAVAILABLE",
       "strategy_drawdown": null,
-      "window_drawdown": -0.3296297678878187,
-      "drawdown": -0.3296297678878187,
+      "window_drawdown": -0.32932302042801886,
+      "drawdown": -0.32932302042801886,
       "tiers": null,
       "level": 0,
       "level_label": null
@@ -19951,25 +19951,28 @@
         }
       ],
       "data_integrity": {
-        "status": "PASS",
-        "label": "双源校验通过",
-        "issues": [],
+        "status": "CHECK",
+        "label": "有限校验",
+        "issues": [
+          "Yahoo二次行情暂不可用，未完成双源校验"
+        ],
         "rows": 260,
-        "dual_source": true,
+        "dual_source": false,
         "primary_source": "Twelve Data",
-        "secondary_source": "Yahoo Finance",
+        "secondary_source": null,
         "as_of": "2026-10-02",
         "age_days": 1,
         "primary_close": 630.75,
-        "secondary_close": 630.6,
-        "secondary_date": "2026-10-02",
-        "price_mismatch_pct": 0.000238
+        "secondary_close": null,
+        "secondary_date": null,
+        "price_mismatch_pct": null
       },
       "method": "Trend Pulse V1 · 价格结构 + EMA + Supertrend + ADX/DI + MACD + RSI + OBV/MFI + 周线共振",
       "analysis": "震荡观察：趋势证据尚未形成一致方向，5日斜率-5.0，周线为多头。",
       "risk_watch": "ADX 18.0，趋势强度仍有限；+DI/-DI 39.3/18.9；RSI 69；结构 HH/LL。",
       "guidance": "减少对单一指标的依赖，等待日线、周线及趋势强度形成更清晰共振。",
-      "confidence": "高（双源校验）"
+      "confidence": "中（主源完整，二次源日期落后一交易日）",
+      "validation_note": "Trend Pulse按主源最新完整日线计算；二次源未与主源处于同一交易日，因此不做跨日价差比较。"
     },
     "AMZN": {
       "available": true,

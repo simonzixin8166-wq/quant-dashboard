@@ -1,0 +1,268 @@
+{
+  "schema_version": "1.0",
+  "generated_from": "existing_public_production_rules",
+  "note": "These V6.10a bootstrap thresholds were already public in production code. Future private-only playbooks must not be added here.",
+  "core_tiers": {
+    "QQQM": {
+      "t1": 0.12,
+      "t2": 0.18,
+      "t3": 0.25
+    },
+    "QQQ": {
+      "t1": 0.12,
+      "t2": 0.18,
+      "t3": 0.25
+    },
+    "VGT": {
+      "t1": 0.15,
+      "t2": 0.2,
+      "t3": 0.3
+    },
+    "QLD": {
+      "t1": 0.25,
+      "t2": 0.35,
+      "t3": 0.5
+    },
+    "TQQQ": {
+      "t1": 0.4,
+      "t2": 0.5,
+      "t3": 0.7
+    },
+    "VOO": {
+      "t1": 0.075,
+      "t2": 0.1,
+      "t3": 0.15
+    }
+  },
+  "playbooks": [
+    {
+      "playbook_id": "CP-01",
+      "name": "核心 ETF 回撤分档",
+      "class": "cloud",
+      "assets": [
+        "QQQM",
+        "VGT",
+        "QLD"
+      ],
+      "lifecycle": "active",
+      "evidence": "unverified",
+      "rule_version": "1.0.0",
+      "enabled": true,
+      "notifications_enabled": false,
+      "ledger_enabled": true,
+      "near_trigger": {
+        "enabled": false,
+        "reason": "尚未冻结接近阈值；V6.10a 不新增阈值"
+      },
+      "trigger": {
+        "source": "core.level",
+        "condition": "level >= 1",
+        "tiers_ref": "core_tiers"
+      },
+      "entry_zone": {
+        "source": "validated_adjusted_ath_drawdown"
+      },
+      "valid_sessions": null,
+      "no_chase": {
+        "enabled": false,
+        "reason": "回撤分档不是追价型剧本"
+      },
+      "invalidation": {
+        "condition": "level returns to 0"
+      },
+      "cooldown_sessions": 0,
+      "reentry_condition": "state must leave triggered tier before a new same-tier event",
+      "risk_band_per_event": null,
+      "exposure_cap_total": null,
+      "event_blackout": [],
+      "conflicts_with": [
+        "CP-02"
+      ],
+      "source_contract": "docs/data.json::core"
+    },
+    {
+      "playbook_id": "CP-02",
+      "name": "TQQQ / QQQ 回调杠杆情境",
+      "class": "cloud",
+      "assets": [
+        "QQQ",
+        "TQQQ",
+        "VIX"
+      ],
+      "lifecycle": "active",
+      "evidence": "unverified",
+      "rule_version": "1.0.0",
+      "enabled": true,
+      "notifications_enabled": false,
+      "ledger_enabled": true,
+      "near_trigger": {
+        "enabled": false,
+        "reason": "现有生产规则未定义 Near Trigger，不在 V6.10a 新增"
+      },
+      "trigger": {
+        "source": "tqqq_x2.rule",
+        "action_rules": [
+          "hard_exit",
+          "tier2",
+          "tier1",
+          "partial_restore",
+          "full_restore"
+        ]
+      },
+      "entry_zone": {
+        "source": "tqqq_x2 target state"
+      },
+      "valid_sessions": 1,
+      "no_chase": {
+        "enabled": false,
+        "reason": "风险敞口状态机不是追价型剧本"
+      },
+      "invalidation": {
+        "condition": "next session returns to hold or another action state"
+      },
+      "cooldown_sessions": 0,
+      "reentry_condition": "new action rule/state transition",
+      "risk_band_per_event": null,
+      "exposure_cap_total": null,
+      "event_blackout": [],
+      "conflicts_with": [
+        "CP-01"
+      ],
+      "source_contract": "docs/data.json::tqqq_x2",
+      "rules": {
+        "targets": {
+          "defensive": 0,
+          "partial": 33,
+          "x2": 67
+        },
+        "hard_exit": {
+          "vix_ma50_gt": 26,
+          "vix_ma200_gt": 24
+        },
+        "tier2": {
+          "vix_3d_change_gt": 0.2,
+          "vix_min": 20,
+          "ma50_buffer": 0.995,
+          "two_close_confirmation": true
+        },
+        "tier1": {
+          "vix_3d_change_gt": 0.2,
+          "vix_min": 18,
+          "below_ma20": true
+        },
+        "oversold_restore": {
+          "rsi_lte": 30,
+          "vix_lte": 26
+        },
+        "trend_restore": {
+          "two_closes_above_ma20": true,
+          "ma20_rising": true,
+          "vix_3d_change_lte": 0.2
+        },
+        "full_restore": {
+          "above_ma50": true,
+          "vix_lt": 20
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-03",
+      "name": "LEAPS Opportunity",
+      "class": "cloud",
+      "assets": [
+        "QQQ",
+        "SMH",
+        "VGT"
+      ],
+      "lifecycle": "active",
+      "evidence": "unverified",
+      "rule_version": "1.0.0",
+      "enabled": true,
+      "notifications_enabled": false,
+      "ledger_enabled": true,
+      "near_trigger": {
+        "source": "leaps_radar.status",
+        "condition": "watch"
+      },
+      "trigger": {
+        "source": "leaps_radar.status",
+        "conditions": [
+          "candidate",
+          "strong"
+        ]
+      },
+      "entry_zone": {
+        "source": "market_condition_only"
+      },
+      "valid_sessions": 1,
+      "no_chase": {
+        "enabled": false,
+        "reason": "V6.10a 只判断市场条件；不冻结合约追价规则"
+      },
+      "invalidation": {
+        "condition": "status returns to normal"
+      },
+      "cooldown_sessions": 0,
+      "reentry_condition": "leave candidate/strong and later re-enter",
+      "risk_band_per_event": {
+        "single_pct": 0.01
+      },
+      "exposure_cap_total": 0.03,
+      "event_blackout": [],
+      "conflicts_with": [
+        "CP-02"
+      ],
+      "source_contract": "docs/data.json::leaps_radar",
+      "rules": {
+        "watch": {
+          "rsi_lte": 40,
+          "drawdown63_lte": -0.05,
+          "logic": "OR"
+        },
+        "candidate": {
+          "rsi_lte": 35,
+          "drawdown63_lte": -0.08,
+          "logic": "AND"
+        },
+        "strong": {
+          "rsi_two_sessions_lte": 30,
+          "drawdown63_lte": -0.1,
+          "logic": "AND"
+        },
+        "risk_flags": {
+          "trend_risk": "close < falling MA200",
+          "vix_gte": 30
+        },
+        "growth_filter": {
+          "dte_min": 365,
+          "dte_max": 900,
+          "delta_min": 0.5,
+          "delta_max": 0.6
+        },
+        "replacement_filter": {
+          "dte_min": 540,
+          "dte_max": 900,
+          "delta_min": 0.7,
+          "delta_max": 0.85
+        },
+        "relative_spread_preferred_lte": 0.1,
+        "relative_spread_reject_gt": 0.15
+      }
+    },
+    {
+      "playbook_id": "PP-01",
+      "name": "期权管理 / Roll",
+      "class": "private",
+      "assets": [
+        "PRIVATE_POSITIONS"
+      ],
+      "lifecycle": "active",
+      "evidence": "unverified",
+      "rule_version": "1.0.0",
+      "enabled": true,
+      "notifications_enabled": true,
+      "ledger_enabled": false,
+      "note": "Only evaluated in browser/private account context. Never enters public Cloud Trigger Ledger."
+    }
+  ]
+}

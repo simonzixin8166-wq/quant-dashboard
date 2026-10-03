@@ -1,3 +1,3 @@
-V6.6.3 completed-session market refresh trigger
-Updated: 2026-10-02
-Purpose: rebuild market pages using completed US daily candles only; intraday current-day 1d candles must be excluded before strategy and Trend Pulse calculations.
+V6.7 post-close production refresh trigger
+Updated: 2026-10-03
+Purpose: rebuild market pages after the V6.7 merge, regenerate build manifest, and load the latest completed US daily session.

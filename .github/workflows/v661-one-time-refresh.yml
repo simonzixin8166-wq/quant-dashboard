@@ -37,6 +37,9 @@ jobs:
           SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
         run: python scripts/fetch_and_build.py
 
+      - name: Generate immutable build manifest
+        run: python scripts/generate_build_manifest.py
+
       - name: Validate generated market site
         run: |
           node --check docs/assets/mobile-shell.js
@@ -49,7 +52,7 @@ jobs:
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
-          git add docs/data.json docs/index.html docs/data/market_events.json
+          git add docs/data.json docs/index.html docs/data/market_events.json docs/build-manifest.json
           git commit -m "V6.6.2 refresh latest market page" || echo "No changes"
           git pull --rebase origin main
           git push origin HEAD:main

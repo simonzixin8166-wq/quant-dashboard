@@ -24,11 +24,14 @@ if(pm&&session){
   const controlChecks=[];
   for(const [id,fn] of safeControls){try{controlChecks.push({id,ok:Boolean(await fn())})}catch(e){controlChecks.push({id,ok:false,error:String(e.message).slice(0,120)})}}
   const moduleEnglishLeak=await page.locator('#systemHealthRoot').evaluate(el=>/(research_planner|learning_engine|self_improvement|system_status|decision_journal|failure_attribution)/.test(el.innerText||'')).catch(()=>false);
+  const fontSpecs=[['nav','.nav-menu li',12],['stock_name','#stocksTableBody .stock-name',14],['stock_table_header','.stock-table th',12],['system_module_copy','#tab-system-health .qa-note .qa-grid article p',12]];
+  const fontChecks=[];
+  for(const [name,selector,minPx] of fontSpecs){const loc=page.locator(selector);if(await loc.count()){const px=await loc.first().evaluate(el=>parseFloat(getComputedStyle(el).fontSize));fontChecks.push({name,selector,font_px:px,min_px:minPx,ok:px>=minPx})}}
   const stockNames=await page.locator('#stocksTableBody .stock-name').allInnerTexts().catch(()=>[]);
   const canonicalChecks={AVGO:'博通',ORCL:'甲骨文',TSM:'台积电',MRVL:'迈威尔科技',AMD:'美国超微公司'};
   const badCanonical=[];
   for(const [symbol,name] of Object.entries(canonicalChecks)){const row=page.locator(`#stocksTableBody tr[data-symbol="${symbol}"] .stock-name`);if(await row.count()){const txt=(await row.first().innerText()).trim();if(txt!==name)badCanonical.push({symbol,expected:name,actual:txt})}}
-  report.interaction={status:tabChecks.every(x=>x.exists&&x.active&&Math.abs(x.body_overflow_px||0)<=4)&&controlChecks.every(x=>x.ok)&&!moduleEnglishLeak&&!badCanonical.length?'PASS':'FAIL',tabs:tabChecks,controls:controlChecks,module_english_leak:moduleEnglishLeak,bad_canonical_names:badCanonical,stock_name_sample:stockNames.slice(0,12)};
+  report.interaction={status:tabChecks.every(x=>x.exists&&x.active&&Math.abs(x.body_overflow_px||0)<=4)&&controlChecks.every(x=>x.ok)&&fontChecks.every(x=>x.ok)&&!moduleEnglishLeak&&!badCanonical.length?'PASS':'FAIL',tabs:tabChecks,controls:controlChecks,font_checks:fontChecks,module_english_leak:moduleEnglishLeak,bad_canonical_names:badCanonical,stock_name_sample:stockNames.slice(0,12)};
 }
 await page.close();}catch(e){report.private={status:'WARNING',error:String(e.message).slice(0,250)}}}
 await browser.close();

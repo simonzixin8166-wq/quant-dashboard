@@ -24,6 +24,8 @@ ARTIFACTS={
     "event_window_attribution": ROOT/"docs"/"research"/"event_window_attribution.json",
     "self_improvement": ROOT/"docs"/"research"/"self_improvement.json",
     "module_intelligence": ROOT/"docs"/"research"/"module_intelligence.json",
+    "cross_asset_divergence": ROOT/"docs"/"research"/"cross_asset_divergence.json",
+    "cross_asset_divergence_history": ROOT/"docs"/"research"/"cross_asset_divergence_history.json",
 }
 
 WATCH_WORKFLOWS={

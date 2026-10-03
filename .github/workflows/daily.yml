@@ -1,6 +1,10 @@
 name: Daily Dashboard Update
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/daily.trigger"
   schedule:
     # 🕒 任务 1：美股收盘后全面更新 (含全市场宽度计算)
     # 对应北京时间：周二到周六 早上 05:30 (UTC 时间 21:30)

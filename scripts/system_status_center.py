@@ -54,6 +54,7 @@ FRESHNESS_HOURS={
     "event_evidence": 96,
     "event_window_attribution": 168,
     "self_improvement": 168,
+    "learning_evaluation": 96,
     "module_intelligence": 336,
     "cross_asset_divergence": 96,
     "cross_asset_divergence_history": 336,

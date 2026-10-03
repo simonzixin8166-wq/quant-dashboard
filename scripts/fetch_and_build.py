@@ -13,10 +13,8 @@ except ModuleNotFoundError:
 
 warnings.filterwarnings("ignore")
 
-# 单一版本源：每日 Action 生成 HTML 时，页面标题和静态资源缓存版本都从这里读取。
-APP_VERSION = "6.8.2"
-OPTIONS_VERSION = "4.1.0"  # 网站优先；APP/PWA 功能已移除，仅保留响应式手机网页
-ASSET_VERSION = "6.8.2"
+# 单一版本源：每日 Action、静态资源缓存版本与测试均从 app_version.py 读取。
+from app_version import APP_VERSION, OPTIONS_VERSION, ASSET_VERSION
 
 API_KEY = os.environ.get("TWELVE_DATA_KEY", "demo")
 BASE = "https://api.twelvedata.com"

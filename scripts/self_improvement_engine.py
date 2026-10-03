@@ -17,6 +17,7 @@ PLANNER=ROOT/"docs/research/research_planner.json"
 MODULES=ROOT/"docs/research/module_intelligence.json"
 EXECUTION=ROOT/"docs/research/research_execution.json"
 CROSS_HISTORY=ROOT/"docs/research/cross_asset_divergence_history.json"
+BREADTH_HISTORY=ROOT/"docs/research/breadth_intelligence_history.json"
 PREV=ROOT/"docs/research/self_improvement.json"
 OUT=PREV
 
@@ -32,7 +33,7 @@ def candidate(kind,scope,change,reason,n):
     return {"candidate_id":cid(kind,payload),"kind":kind,"scope":scope,"proposed_change":change,
             "reason":reason,"evidence_n":n,"state":"shadow","created_at":datetime.now(timezone.utc).isoformat()}
 
-def build(evidence,method,planner,previous,modules=None,execution=None,cross_history=None):
+def build(evidence,method,planner,previous,modules=None,execution=None,cross_history=None,breadth_history=None):
     candidates=[]
     for m in method.get("methods") or []:
         n=m.get("direct_validated_events") or 0
@@ -77,6 +78,25 @@ def build(evidence,method,planner,previous,modules=None,execution=None,cross_his
             candidates.append(candidate("research_weight","cross_asset_divergence",
               {"priority_weight_delta":3,"when":"medium_or_high_divergence"},
               f"跨资产背离20日成熟样本 {len(mature20)}，平均SPY收益 {avg20:+.2%}；仅建议提高研究优先级，不改变仓位。",len(mature20)))
+    breadth_history=breadth_history or {}
+    groups={}
+    for row in breadth_history.get("records") or []:
+        if row.get("level") not in {"medium","high"}: continue
+        fp=row.get("fingerprint")
+        out20=((row.get("outcomes") or {}).get("20") or {})
+        if not fp or not isinstance(out20.get("return"),(int,float)): continue
+        groups.setdefault(fp,[]).append(out20)
+    for fp,vals in groups.items():
+        if len(vals)<20: continue
+        avg20=sum(x["return"] for x in vals)/len(vals)
+        maes=[x.get("mae") for x in vals if isinstance(x.get("mae"),(int,float))]
+        avg_mae=sum(maes)/len(maes) if maes else None
+        if avg20<=-0.02 or (avg_mae is not None and avg_mae<=-0.05):
+            candidates.append(candidate("research_weight","breadth_regime_combination",
+              {"priority_weight_delta":3,"fingerprint":fp,"when":"same_regime_fingerprint"},
+              f"V6.8组合状态已有 {len(vals)} 个20日成熟样本，平均SPY收益 {avg20:+.2%}"
+              + (f"，平均MAE {avg_mae:+.2%}" if avg_mae is not None else "")
+              + "；仅建议提高研究优先级，不修改仓位或交易阈值。",len(vals)))
     old={x.get("candidate_id"):x for x in previous.get("candidates") or []}
     promoted=[];shadow=[]
     for c in candidates:
@@ -114,7 +134,7 @@ def build(evidence,method,planner,previous,modules=None,execution=None,cross_his
     }
 
 def main():
-    out=build(load(EVIDENCE),load(METHOD),load(PLANNER),load(PREV),load(MODULES),load(EXECUTION),load(CROSS_HISTORY))
+    out=build(load(EVIDENCE),load(METHOD),load(PLANNER),load(PREV),load(MODULES),load(EXECUTION),load(CROSS_HISTORY),load(BREADTH_HISTORY))
     OUT.parent.mkdir(parents=True,exist_ok=True)
     OUT.write_text(json.dumps(out,ensure_ascii=False,indent=2),encoding="utf-8")
     print(json.dumps({"version":out["version"],"candidates":len(out["candidates"]),"eligible":len(out["shadow_brain"]["eligible_for_review"])},ensure_ascii=False))

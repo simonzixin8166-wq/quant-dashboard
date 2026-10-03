@@ -6,7 +6,7 @@ spec=importlib.util.spec_from_file_location("mi",ROOT/"scripts"/"module_intellig
 mi=importlib.util.module_from_spec(spec);spec.loader.exec_module(mi)
 
 out=mi.build()
-assert out["version"]=="6.7.0"
+assert out["version"]=="6.8.0"
 assert out["audit"]["coverage_ok"] is True
 assert out["audit"]["actual_tabs"]==15
 assert out["audit"]["declared_tabs"]==15
@@ -54,3 +54,8 @@ assert "V6.5 Event Window Attribution" in out["agent_loop"]
 assert services["cross-asset-divergence"]["role"]=="macro_market_divergence"
 assert "cross_asset_divergence" in out["artifacts"]
 assert "cross_asset_divergence_history" in out["artifacts"]
+
+assert services["breadth-intelligence"]["role"]=="market_participation"
+assert services["regime-combination-memory"]["role"]=="joint_situation_memory"
+for key in ["breadth_intelligence","breadth_intelligence_history","regime_combination_memory","regime_combination_history"]:
+    assert key in out["artifacts"]

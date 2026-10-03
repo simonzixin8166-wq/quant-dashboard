@@ -48,6 +48,15 @@ tampered=copy.deepcopy([r1,r2]);tampered[0]["playbook_id"]="CP-X"
 ok,_=pl.verify_records(tampered)
 assert not ok
 
+# A monthly shard must verify from the previous month's head, not ZERO_HASH.
+prior_head="a"*64
+m1=pl.make_record({**base,"record_id":"oct-1"},prior_head)
+m2=pl.make_record({**base,"record_id":"oct-2"},m1["record_hash"])
+ok,meta=pl.verify_records([m1,m2],prior_head)
+assert ok and meta["head_hash"]==m2["record_hash"]
+ok,_=pl.verify_records([m1,m2],pl.ZERO_HASH)
+assert not ok
+
 # --- Synthetic Playbook state mapping and data-quality gate ---
 def asset(close=100,prev=99,date="2026-10-02",**extra):
     row={"date":date,"close":close,"prev_close":prev,"ath_validation":"PASS","strategy_drawdown":-0.01,"level":0}
@@ -87,13 +96,15 @@ assert mapped[("CP-03","QQQ")]==("NEAR_TRIGGER","watch")
 assert mapped[("CP-03","SMH")]==("TRIGGERED","candidate")
 assert mapped[("CP-03","VGT")]==("IDLE","normal")
 
-split_data=copy.deepcopy(data)
-split_data["index"]["QQQ"]["close"]=200
-split_data["index"]["QQQ"]["prev_close"]=100
-_,split_rows=pe.evaluate(split_data,history,now)
-cp02=next(r for r in split_rows if r["playbook_id"]=="CP-02")
-assert cp02["state"]=="UNDETERMINED"
-assert "split_or_adjustment_candidate" in cp02["quality"]["reasons"]
+# Common split/reverse-split ratios must be quarantined before Forward logging.
+for close,prev in ((50,100),(100/3,100),(25,100),(200,100),(300,100),(400,100)):
+    split_data=copy.deepcopy(data)
+    split_data["index"]["QQQ"]["close"]=close
+    split_data["index"]["QQQ"]["prev_close"]=prev
+    _,split_rows=pe.evaluate(split_data,history,now)
+    cp02=next(r for r in split_rows if r["playbook_id"]=="CP-02")
+    assert cp02["state"]=="UNDETERMINED", (close,prev,cp02)
+    assert "split_or_adjustment_candidate" in cp02["quality"]["reasons"]
 
 # --- First Forward run establishes baseline, never backfills an existing state ---
 class FakeWriter:

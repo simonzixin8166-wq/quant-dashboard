@@ -8,7 +8,7 @@
 Trigger Ledger 记录预注册 Playbook 的状态变化，不记录自由文本研究观点。
 
 事件类型：
-- trigger_state_event：NEAR_TRIGGER / TRIGGERED / INVALIDATED 的状态变化。
+- trigger_state_event：IDLE / NEAR_TRIGGER / TRIGGERED / INVALIDATED 的状态变化。
 - discipline_event：NO_CHASE，进入独立 Discipline Ledger。
 - outcome：成熟的 5/20/60/120 交易日结果。
 - correction：对历史记录的追加更正/注释，不覆盖原记录。

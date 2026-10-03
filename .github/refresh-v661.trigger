@@ -1,3 +1,3 @@
-V6.8.1 final breadth-depth refresh
-Updated: 2026-10-03 04:04 UTC
-Purpose: after cache schema upgrade, force a full completed-session breadth recompute so A/D and 52-week participation fields are populated, then rebuild Cross-Asset/Breadth/Regime/Planner/Executor/V7/status/manifest atomically.
+V6.8.1 release finalization refresh
+Updated: 2026-10-03 04:18 UTC
+Purpose: regenerate market outputs and immutable build manifest after the visible app/asset version bump to 6.8.1, preserving the completed V6.8.1 breadth-depth and source-intelligence state.

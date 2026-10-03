@@ -10,6 +10,13 @@ from __future__ import annotations
 import datetime as _dt
 import math
 
+try:
+    from playbook_config import TQQQ_RULES, LEAPS_RULES, PLAYBOOKS
+except ModuleNotFoundError:
+    import os, sys
+    sys.path.insert(0, os.path.dirname(__file__))
+    from playbook_config import TQQQ_RULES, LEAPS_RULES, PLAYBOOKS
+
 
 def _number(value):
     try:
@@ -54,17 +61,19 @@ def _rsi(values, index, length=14):
 
 def decide_tqqq_state(previous_target, snapshot):
     """Return the next 0/33/67 target with explicit rule precedence."""
-    previous = previous_target if previous_target in (0, 33, 67) else 67
+    targets=TQQQ_RULES["targets"]
+    defensive,partial,x2=targets["defensive"],targets["partial"],targets["x2"]
+    previous = previous_target if previous_target in (defensive, partial, x2) else x2
     if snapshot.get("hard_exit"):
-        return 0, "hard_exit", "硬退出：目标降至0%"
+        return defensive, "hard_exit", "硬退出：目标降至0%"
     if snapshot.get("tier2"):
-        return 0, "tier2", "二级降险：目标降至0%"
+        return defensive, "tier2", "二级降险：目标降至0%"
     if snapshot.get("tier1"):
-        return min(previous, 33), "tier1", "一级降险：目标不高于33%"
+        return min(previous, partial), "tier1", "一级降险：目标不高于33%"
     if snapshot.get("full_restore"):
-        return 67, "full_restore", "趋势确认：恢复X2目标敞口"
+        return x2, "full_restore", "趋势确认：恢复X2目标敞口"
     if snapshot.get("oversold_restore") or snapshot.get("trend_restore"):
-        return max(previous, 33), "partial_restore", "恢复部分敞口至33%"
+        return max(previous, partial), "partial_restore", "恢复部分敞口至33%"
     return previous, "hold", "保持上一收盘目标"
 
 
@@ -77,7 +86,7 @@ def build_tqqq_x2_strategy(qqq_rows, vix_rows, recorded_position=0):
 
     closes = [row["close"] for row in qqq]
     states = []
-    previous_target = 67
+    previous_target = TQQQ_RULES["targets"]["x2"]
     for index, row in enumerate(qqq):
         ma20 = _sma(closes, index, 20)
         ma50 = _sma(closes, index, 50)
@@ -95,12 +104,18 @@ def build_tqqq_x2_strategy(qqq_rows, vix_rows, recorded_position=0):
         ma20_rising = bool(previous_ma20 and ma20 > previous_ma20)
         two_below_ma50 = bool(previous_day_ma50 and closes[index - 1] < previous_day_ma50 and row["close"] < ma50)
         two_above_ma20 = bool(previous_day_ma20 and closes[index - 1] > previous_day_ma20 and row["close"] > ma20)
-        hard_exit = (vix > 26 and row["close"] < ma50) or (row["close"] < ma200 and vix > 24)
-        tier2 = bool(vix_3d is not None and vix_3d > .20 and vix >= 20 and (row["close"] <= ma50 * .995 or two_below_ma50))
-        tier1 = bool(vix_3d is not None and vix_3d > .20 and vix >= 18 and row["close"] < ma20)
-        oversold_restore = bool(rsi <= 30 and not hard_exit and vix <= 26)
-        trend_restore = bool(vix_3d is not None and two_above_ma20 and ma20_rising and vix_3d <= .20)
-        full_restore = bool(trend_restore and row["close"] > ma50 and vix < 20)
+        hard=TQQQ_RULES["hard_exit"]
+        hard_exit = (vix > hard["vix_ma50_gt"] and row["close"] < ma50) or (row["close"] < ma200 and vix > hard["vix_ma200_gt"])
+        r2=TQQQ_RULES["tier2"]
+        tier2 = bool(vix_3d is not None and vix_3d > r2["vix_3d_change_gt"] and vix >= r2["vix_min"] and (row["close"] <= ma50 * r2["ma50_buffer"] or two_below_ma50))
+        r1=TQQQ_RULES["tier1"]
+        tier1 = bool(vix_3d is not None and vix_3d > r1["vix_3d_change_gt"] and vix >= r1["vix_min"] and row["close"] < ma20)
+        rr=TQQQ_RULES["oversold_restore"]
+        oversold_restore = bool(rsi <= rr["rsi_lte"] and not hard_exit and vix <= rr["vix_lte"])
+        tr=TQQQ_RULES["trend_restore"]
+        trend_restore = bool(vix_3d is not None and two_above_ma20 and ma20_rising and vix_3d <= tr["vix_3d_change_lte"])
+        fr=TQQQ_RULES["full_restore"]
+        full_restore = bool(trend_restore and row["close"] > ma50 and vix < fr["vix_lt"])
         flags = {
             "hard_exit": hard_exit, "tier2": tier2, "tier1": tier1,
             "oversold_restore": oversold_restore, "trend_restore": trend_restore,
@@ -139,6 +154,9 @@ def build_tqqq_x2_strategy(qqq_rows, vix_rows, recorded_position=0):
     }
 
 
+PLAYBOOK_RISK_SINGLE=PLAYBOOKS["CP-03"]["risk_band_per_event"]["single_pct"]
+PLAYBOOK_RISK_TOTAL=PLAYBOOKS["CP-03"]["exposure_cap_total"]
+
 def build_leaps_radar(asset_rows, vix_value=None):
     results = []
     for symbol in ("QQQ", "SMH", "VGT"):
@@ -154,11 +172,14 @@ def build_leaps_radar(asset_rows, vix_value=None):
         prior_ma200 = _sma(closes, index - 20, 200) if index >= 219 else None
         high63 = max(closes[-63:])
         drawdown = closes[-1] / high63 - 1.0
-        strong = bool(rsi is not None and previous_rsi is not None and rsi <= 30 and previous_rsi <= 30 and drawdown <= -.10)
-        candidate = bool(rsi is not None and rsi <= 35 and drawdown <= -.08)
-        watch = bool(rsi is not None and (rsi <= 40 or drawdown <= -.05))
+        strong_rule=LEAPS_RULES["strong"]
+        strong = bool(rsi is not None and previous_rsi is not None and rsi <= strong_rule["rsi_two_sessions_lte"] and previous_rsi <= strong_rule["rsi_two_sessions_lte"] and drawdown <= strong_rule["drawdown63_lte"])
+        candidate_rule=LEAPS_RULES["candidate"]
+        candidate = bool(rsi is not None and rsi <= candidate_rule["rsi_lte"] and drawdown <= candidate_rule["drawdown63_lte"])
+        watch_rule=LEAPS_RULES["watch"]
+        watch = bool(rsi is not None and (rsi <= watch_rule["rsi_lte"] or drawdown <= watch_rule["drawdown63_lte"]))
         trend_risk = bool(ma200 and prior_ma200 and closes[-1] < ma200 and ma200 < prior_ma200)
-        vix_risk = bool(_number(vix_value) and float(vix_value) >= 30)
+        vix_risk = bool(_number(vix_value) and float(vix_value) >= LEAPS_RULES["risk_flags"]["vix_gte"])
         if strong:
             key, label, level = "strong", "强候选", "l3"
         elif candidate:
@@ -181,9 +202,9 @@ def build_leaps_radar(asset_rows, vix_value=None):
     return {
         "date": max((row.get("date", "") for row in results), default=""),
         "vix": _number(vix_value), "assets": results,
-        "growth_filter": {"dte_min": 365, "dte_max": 900, "delta_min": .50, "delta_max": .60},
-        "replacement_filter": {"dte_min": 540, "dte_max": 900, "delta_min": .70, "delta_max": .85},
-        "risk_limits": {"single_pct": .01, "total_pct": .03},
+        "growth_filter": dict(LEAPS_RULES["growth_filter"]),
+        "replacement_filter": dict(LEAPS_RULES["replacement_filter"]),
+        "risk_limits": {"single_pct": PLAYBOOK_RISK_SINGLE, "total_pct": PLAYBOOK_RISK_TOTAL},
         "note": "只提示机会与合约筛选条件；不计算投入金额、合约数量或自动下单。",
     }
 

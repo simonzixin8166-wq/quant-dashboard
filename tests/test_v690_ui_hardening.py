@@ -33,3 +33,6 @@ assert "body_overflow_px" in browser
 assert "themeToggle" in browser
 
 print("PASS V6.9 full UI hardening")
+
+assert "V6.9 UI contract: readable system/module cards" in css
+assert "font_checks" in browser and "system_module_copy" in browser

@@ -26,6 +26,10 @@ ARTIFACTS={
     "module_intelligence": ROOT/"docs"/"research"/"module_intelligence.json",
     "cross_asset_divergence": ROOT/"docs"/"research"/"cross_asset_divergence.json",
     "cross_asset_divergence_history": ROOT/"docs"/"research"/"cross_asset_divergence_history.json",
+    "breadth_intelligence": ROOT/"docs"/"research"/"breadth_intelligence.json",
+    "breadth_intelligence_history": ROOT/"docs"/"research"/"breadth_intelligence_history.json",
+    "regime_combination_memory": ROOT/"docs"/"research"/"regime_combination_memory.json",
+    "regime_combination_history": ROOT/"docs"/"research"/"regime_combination_history.json",
 }
 
 WATCH_WORKFLOWS={

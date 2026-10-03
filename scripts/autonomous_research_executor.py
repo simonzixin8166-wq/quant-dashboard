@@ -29,6 +29,10 @@ PATHS={
     "events":ROOT/"docs/research/event_evidence.json",
     "cross_asset":ROOT/"docs/research/cross_asset_divergence.json",
     "cross_asset_history":ROOT/"docs/research/cross_asset_divergence_history.json",
+    "breadth_intelligence":ROOT/"docs/research/breadth_intelligence.json",
+    "breadth_history":ROOT/"docs/research/breadth_intelligence_history.json",
+    "regime_memory":ROOT/"docs/research/regime_combination_memory.json",
+    "regime_history":ROOT/"docs/research/regime_combination_history.json",
     "data":ROOT/"docs/data.json",
     "previous":ROOT/"docs/research/research_execution.json",
 }
@@ -214,12 +218,61 @@ def cross_asset_brief(task,cross_asset,history):
     for x in cross_asset.get("unknowns") or []: add_unique(unknowns,x)
     return support,counter,unknowns
 
+
+def breadth_brief(task,breadth,history):
+    breadth=breadth or {}; history=history or {}
+    support=[];counter=[];unknowns=[]
+    metrics=breadth.get("metrics") or {}
+    for sig in breadth.get("signals") or []:
+        if not sig.get("hit"): continue
+        msg=f"{sig.get('label')}：{sig.get('reason')}"
+        if sig.get("severity") in {"high","medium"}: add_unique(counter,msg)
+        else:add_unique(support,msg)
+    score=breadth.get("participation_score")
+    if score is not None:add_unique(support,f"市场参与度评分：{score}/100")
+    if breadth.get("combination_key"):add_unique(support,f"宽度组合状态：{breadth.get('combination_key')}")
+    mature={"5":[],"20":[],"60":[]}
+    for row in history.get("records") or []:
+        if row.get("level") not in {"fragile","weakening"}: continue
+        for h in mature:
+            v=((row.get("outcomes") or {}).get(h) or {}).get("return")
+            if isinstance(v,(int,float)): mature[h].append(v)
+    for h,vals in mature.items():
+        if vals:
+            add_unique(support,f"历史弱宽度 {h} 日成熟样本 {len(vals)}：平均SPY收益 {sum(vals)/len(vals):+.1%}")
+        else:add_unique(unknowns,f"弱宽度 {h} 日成熟样本仍不足")
+    for x in breadth.get("unknowns") or []:add_unique(unknowns,x)
+    return support,counter,unknowns
+
+def regime_brief(task,regime,history):
+    regime=regime or {}; history=history or {}
+    support=[];counter=[];unknowns=[]
+    state=regime.get("state_id")
+    if state:add_unique(support,f"当前组合状态：{state}")
+    b=regime.get("breadth") or {}; c=regime.get("cross_asset") or {}; v=regime.get("vix") or {}
+    add_unique(counter,f"跨资产层：{c.get('label') or c.get('level')}；风险信号 {c.get('risk_hits','—')}")
+    add_unique(counter,f"宽度层：{b.get('label') or b.get('level')}；参与度评分 {b.get('participation_score','—')}")
+    if v.get("value") is not None:add_unique(support,f"VIX={v.get('value')}，分区 {v.get('zone')}")
+    matched=[x for x in history.get("records") or [] if x.get("state_id")==state]
+    for h in ("5","20","60"):
+        vals=[((x.get("outcomes") or {}).get(h) or {}).get("return") for x in matched]
+        vals=[x for x in vals if isinstance(x,(int,float))]
+        if vals:
+            add_unique(support,f"同组合 {h} 日成熟样本 {len(vals)}：平均收益 {sum(vals)/len(vals):+.1%}，最差 {min(vals):+.1%}")
+        else:add_unique(unknowns,f"同组合 {h} 日成熟样本仍不足")
+    if regime.get("level")=="high":add_unique(counter,"跨资产压力与脆弱宽度当前同时出现，应优先验证是否继续共振")
+    return support,counter,unknowns
+
 def execute_task(task,artifacts):
     kind=task.get("kind")
     if kind in {"market_anomaly","discovery"}:
         support,counter,unknowns=market_brief(task,artifacts["learning"],artifacts["evidence"],artifacts["source"],artifacts["data"],artifacts.get("official"),artifacts.get("events"))
     elif kind=="cross_asset_divergence":
         support,counter,unknowns=cross_asset_brief(task,artifacts.get("cross_asset"),artifacts.get("cross_asset_history"))
+    elif kind=="breadth_intelligence":
+        support,counter,unknowns=breadth_brief(task,artifacts.get("breadth_intelligence"),artifacts.get("breadth_history"))
+    elif kind=="regime_combination":
+        support,counter,unknowns=regime_brief(task,artifacts.get("regime_memory"),artifacts.get("regime_history"))
     elif kind=="failure_review":
         support,counter,unknowns=failure_brief(task,artifacts["evidence"],artifacts["method"],artifacts.get("official"),artifacts.get("event_windows"))
     elif kind=="method_evidence_gap":
@@ -269,7 +322,7 @@ def build(planner,artifacts,previous):
         x["first_analyzed_at"]=prior.get("first_analyzed_at") or now
         x["last_analyzed_at"]=now
     return {
-      "version":"6.7.0","generated_at":now,"planner_version":planner.get("version"),
+      "version":"6.8.0","generated_at":now,"planner_version":planner.get("version"),
       "results":rows,
       "summary":{
         "analyzed":len(rows),
@@ -289,7 +342,7 @@ def build(planner,artifacts,previous):
 
 def main():
     d={k:load(v) for k,v in PATHS.items()}
-    artifacts={k:d[k] for k in ("learning","evidence","method","source","modules","official","event_windows","events","cross_asset","cross_asset_history","data")}
+    artifacts={k:d[k] for k in ("learning","evidence","method","source","modules","official","event_windows","events","cross_asset","cross_asset_history","breadth_intelligence","breadth_history","regime_memory","regime_history","data")}
     out=build(d["planner"],artifacts,d["previous"])
     OUT.parent.mkdir(parents=True,exist_ok=True)
     OUT.write_text(json.dumps(out,ensure_ascii=False,indent=2),encoding="utf-8")

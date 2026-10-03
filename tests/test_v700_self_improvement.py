@@ -53,3 +53,15 @@ assert ca_cand["kind"]=="research_weight"
 assert ca_cand["evidence_n"]==20
 assert ca_cand["state"]=="shadow"
 assert ca_cand["proposed_change"]["priority_weight_delta"]==3
+
+breadth_hist={"records":[{"level":"fragile","outcomes":{"20":{"return":-0.02}}} for _ in range(20)]}
+out6=s.build(evidence,method,planner,{},None,None,None,breadth_hist,{})
+b_cand=next(x for x in out6["candidates"] if x["scope"]=="breadth_intelligence")
+assert b_cand["evidence_n"]==20
+assert b_cand["proposed_change"]["priority_weight_delta"]==2
+
+regime_hist={"records":[{"level":"high","outcomes":{"20":{"return":-0.025}}} for _ in range(20)]}
+out7=s.build(evidence,method,planner,{},None,None,None,{},regime_hist)
+r_cand=next(x for x in out7["candidates"] if x["scope"]=="regime_combination")
+assert r_cand["evidence_n"]==20
+assert r_cand["proposed_change"]["priority_weight_delta"]==3

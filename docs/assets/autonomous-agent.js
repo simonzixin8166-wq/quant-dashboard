@@ -537,6 +537,8 @@
       <div class="agent-grid"><article class="agent-card agent-watch"><div class="agent-card-head"><div><span>AUDITABLE POLICY</span><h3>研究权重调整</h3></div><b>成熟样本 ${policy.evidence.sample}</b></div><div class="agent-metrics"><span>二次启动 ${policy.adjustments.restart_bonus>=0?'+':''}${policy.adjustments.restart_bonus}</span><span>重复提醒 ${policy.adjustments.repeat_alert_penalty}</span><span>弱候选 ${policy.adjustments.weak_candidate_penalty}</span></div><p>证据：错过上涨 ${policy.evidence.missed} · 噪音 ${policy.evidence.noisy} · 误报 ${policy.evidence.false_positive}</p><small>仅影响研究优先级与提醒显示；不改变核心ETF阈值、仓位或交易规则。</small><div><button type="button" onclick="MAVAutonomousAgent.resetLearningPolicy()">回到学习基线</button> <button type="button" onclick="MAVAutonomousAgent.resumeLearningPolicy()">恢复自主学习</button></div></article></div>
       ${learned.length?`<div class="agent-section-title"><b>What I learned · 自主学习</b><span>${selfReview.sample||0} 个成熟样本</span></div><div class="agent-grid">${learned.slice(0,3).map((x,i)=>`<article class="agent-card agent-watch"><div class="agent-card-head"><div><span>SELF REVIEW</span><h3>学习结论 #${i+1}</h3></div><b>研究权重</b></div><p>${esc(x)}</p><small>只调整研究优先级和提醒权重，不自动改变核心ETF阈值，也不自动交易。</small></article>`).join('')}</div>`:''}
       ${crossAssetHtml()}
+      ${breadthIntelligenceHtml()}
+      ${regimeMemoryHtml()}
       ${brainHtml()}
       ${systemStatusHtml()}\n      ${sourceIntelHtml()}
       ${evidenceHtml()}

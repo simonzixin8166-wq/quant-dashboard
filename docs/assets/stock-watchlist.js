@@ -10,6 +10,32 @@
   const pulseText=value=>{const x=num(value);if(x===null)return '—';const r=Math.round(x);return r===0?'0':`${r>0?'+':''}${r}`};
   const trendZone=score=>{score=num(score);if(score===null)return '数据不足';if(score>=75)return '强势高位';if(score>=50)return '上升确认';if(score>=20)return '转强区';if(score>-20)return '震荡区';if(score>-60)return '弱势区';return '风险区'};
   const trendStage=state=>({二次启动:'↗ 回踩后重新转强',高位钝化:'→ 强势但上涨变慢',趋势退潮:'↘ 分数仍高但正在转弱',趋势启动:'↗ 趋势刚转强',趋势延续:'↗ 趋势继续增强',修复中:'↗ 弱势开始修复',趋势恶化:'↘ 弱势继续恶化',震荡观察:'→ 方向仍不清晰'})[state]||state||'等待数据';
+  const CANONICAL_DISPLAY_NAMES={
+    AVGO:'博通',
+    SOFI:'SoFi Technologies',
+    ORCL:'甲骨文',
+    TSM:'台积电',
+    MRVL:'迈威尔科技',
+    AMD:'美国超微公司',
+    LITE:'Lumentum',
+    NBIS:'NEBIUS',
+    TSLA:'特斯拉',
+    NVDA:'英伟达',
+    MSFT:'微软',
+    AMZN:'亚马逊',
+    GOOG:'谷歌-C',
+    HOOD:'Robinhood',
+    IREN:'IREN',
+    QQQM:'纳斯达克100ETF-Invesco',
+    QQQ:'纳斯达克100ETF-Invesco QQQ',
+    QLD:'纳斯达克100两倍做多ETF-ProShares',
+    VGT:'Vanguard信息科技ETF',
+    VOO:'标普500ETF-Vanguard',
+    SMH:'VanEck半导体ETF',
+    DRAM:'DRAM',
+    SPCX:'SpaceX'
+  };
+  const canonicalDisplayName=(symbol,fallback='')=>CANONICAL_DISPLAY_NAMES[String(symbol||'').toUpperCase()]||fallback||String(symbol||'').toUpperCase();
 
   function nyParts(){
     const parts=new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',year:'numeric',month:'2-digit',day:'2-digit',weekday:'short',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts(new Date());
@@ -97,7 +123,7 @@
     const pulseHtml=tpScore===null?'<b>—</b><small>数据不足</small>':`<b class="trend-score ${tpTone}">${pulseText(tpScore)}</b><small class="trend-zone-mini">${esc(trendZone(tpScore))}</small><small class="trend-stage-mini">${esc(trendStage(tp.state))}</small>`;
     const detailId=`stock-detail-${symbol}`;
     const detailPulse=tpScore===null?'数据不足':`${pulseText(tpScore)} · ${esc(trendZone(tpScore))} · ${esc(trendStage(tp.state))}`;
-    return `<tr data-stock-row data-symbol="${esc(symbol)}" data-detail-id="${detailId}" data-status="${status}" data-target-distance="999" data-drawdown="${dd===null?0:Math.abs(dd)}" data-rsi="${rsi===null?999:rsi}" data-dist200="${dist===null?0:dist}" data-pulse="${tpScore===null?-999:tpScore}" data-default-order="${index}"><td class="stock-identity"><div class="stock-name-line"><span class="stock-name">${esc(item.display_name||symbol)}</span><span class="stock-symbol">${esc(symbol)}</span><button type="button" class="stock-mobile-menu" aria-label="${esc(symbol)} 操作菜单" onclick="StockDecision.openContextMenuForSymbol('${esc(symbol)}', this)">⋯</button></div></td><td data-label="最新价 / 涨跌"><b id="close-${esc(symbol)}">${money(price)}</b><small id="chg-${esc(symbol)}" class="${chg!==null&&chg>=0?'pos-text':'neg-text'}">${pct(chg)}</small></td><td data-label="Trend Pulse">${pulseHtml}</td><td data-label="YTD回撤" class="neg-text fw-bold">${pct(dd)}</td><td data-label="RSI">${rsi===null?'—':rsi.toFixed(2)}</td><td data-label="距200MA" class="${dist!==null&&dist<0?'neg-text':''}">${pct(dist)}</td><td data-label="策略价 / 距离" id="target-cell-${esc(symbol)}"><b id="target-${esc(symbol)}">—</b><small id="target-gap-${esc(symbol)}">等待策略数据</small></td><td data-label="状态"><span id="stock-status-${esc(symbol)}" class="stock-status ${status}">${label}</span><span id="action-${esc(symbol)}"></span></td></tr><tr id="${detailId}" class="stock-detail-row" data-detail-for="${esc(symbol)}" hidden><td colspan="8"><div class="stock-detail-panel"><div><span>当日区间</span><b>开 ${money(q.open)} · 高 ${money(q.high)} · 低 ${money(q.low)}</b></div><div><span>YTD高点</span><b>${money(q.ytdHigh)}</b></div><div><span>完整日线</span><b>${esc(q.dailyAsOf||'等待数据')}</b></div><div><span>Trend Pulse</span><b>${detailPulse}</b></div>${researchHtml(symbol,q,tp)}</div></td></tr>`;
+    return `<tr data-stock-row data-symbol="${esc(symbol)}" data-detail-id="${detailId}" data-status="${status}" data-target-distance="999" data-drawdown="${dd===null?0:Math.abs(dd)}" data-rsi="${rsi===null?999:rsi}" data-dist200="${dist===null?0:dist}" data-pulse="${tpScore===null?-999:tpScore}" data-default-order="${index}"><td class="stock-identity"><div class="stock-name-line"><span class="stock-name">${esc(canonicalDisplayName(symbol,item.display_name))}</span><span class="stock-symbol">${esc(symbol)}</span><button type="button" class="stock-mobile-menu" aria-label="${esc(symbol)} 操作菜单" onclick="StockDecision.openContextMenuForSymbol('${esc(symbol)}', this)">⋯</button></div></td><td data-label="最新价 / 涨跌"><b id="close-${esc(symbol)}">${money(price)}</b><small id="chg-${esc(symbol)}" class="${chg!==null&&chg>=0?'pos-text':'neg-text'}">${pct(chg)}</small></td><td data-label="Trend Pulse">${pulseHtml}</td><td data-label="YTD回撤" class="neg-text fw-bold">${pct(dd)}</td><td data-label="RSI">${rsi===null?'—':rsi.toFixed(2)}</td><td data-label="距200MA" class="${dist!==null&&dist<0?'neg-text':''}">${pct(dist)}</td><td data-label="策略价 / 距离" id="target-cell-${esc(symbol)}"><b id="target-${esc(symbol)}">—</b><small id="target-gap-${esc(symbol)}">等待策略数据</small></td><td data-label="状态"><span id="stock-status-${esc(symbol)}" class="stock-status ${status}">${label}</span><span id="action-${esc(symbol)}"></span></td></tr><tr id="${detailId}" class="stock-detail-row" data-detail-for="${esc(symbol)}" hidden><td colspan="8"><div class="stock-detail-panel"><div><span>当日区间</span><b>开 ${money(q.open)} · 高 ${money(q.high)} · 低 ${money(q.low)}</b></div><div><span>YTD高点</span><b>${money(q.ytdHigh)}</b></div><div><span>完整日线</span><b>${esc(q.dailyAsOf||'等待数据')}</b></div><div><span>Trend Pulse</span><b>${detailPulse}</b></div>${researchHtml(symbol,q,tp)}</div></td></tr>`;
   }
 
   function render(){
@@ -141,7 +167,7 @@
   }
   function openEdit(symbol){
     if(!isAdmin)return;const item=state.items.find(x=>x.symbol===symbol);if(!item)return;
-    document.getElementById('watchOriginalSymbol').value=symbol;document.getElementById('watchSymbol').value=symbol;document.getElementById('watchSymbol').disabled=true;document.getElementById('watchName').value=item.display_name||symbol;document.getElementById('watchTarget').value='';document.getElementById('stockWatchModalTitle').textContent='修改观察标的';document.getElementById('stockWatchModal').style.display='grid';
+    document.getElementById('watchOriginalSymbol').value=symbol;document.getElementById('watchSymbol').value=symbol;document.getElementById('watchSymbol').disabled=true;document.getElementById('watchName').value=canonicalDisplayName(symbol,item.display_name);document.getElementById('watchTarget').value='';document.getElementById('stockWatchModalTitle').textContent='修改观察标的';document.getElementById('stockWatchModal').style.display='grid';
   }
   function close(){document.getElementById('stockWatchModal').style.display='none';document.getElementById('watchSymbol').disabled=false}
   async function save(){
@@ -153,7 +179,7 @@
         if(!quote[symbol]||num(quote[symbol].price)===null)throw new Error('行情源未识别该代码，请核对后重试');
         state.quotes[symbol]=quote[symbol];state.daily[symbol]=daily[symbol]||{};state.dailyPhase=dailyPhase();saveDailyCache();
       }
-      const payload={symbol,display_name:name,sort_order:original?(state.items.find(x=>x.symbol===symbol)?.sort_order||100):Math.max(0,...state.items.map(x=>Number(x.sort_order)||0))+10};
+      const payload={symbol,display_name:canonicalDisplayName(symbol,name),sort_order:original?(state.items.find(x=>x.symbol===symbol)?.sort_order||100):Math.max(0,...state.items.map(x=>Number(x.sort_order)||0))+10};
       const {error}=await supabaseClient.from('stock_watchlist').upsert(payload);if(error)throw error;
       if(target!==null&&target>0){const {error:targetError}=await supabaseClient.from('stock_targets').upsert({symbol,target_price:target});if(targetError)throw targetError}
       close();await load();global.MAV?.toast(original?'观察标的已修改':'个股已加入观察池，行情和收盘指标已载入','good');

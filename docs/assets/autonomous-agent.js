@@ -1,7 +1,7 @@
 (function(global){
   'use strict';
   const $=id=>document.getElementById(id);
-  const state={publicData:null,evidenceData:null,systemStatus:null,plannerData:null,researchData:null,selfImproveData:null,crossAssetData:null,lastRender:0};
+  const state={publicData:null,evidenceData:null,systemStatus:null,plannerData:null,researchData:null,selfImproveData:null,crossAssetData:null,breadthData:null,lastRender:0};
   const MEMORY_KEY='mavAgentDecisionMemoryV562', LEGACY_MEMORY_KEY='mavAgentDecisionMemoryV56', POLICY_KEY='mavLearningPolicyV1';
 
   function n(v){const x=Number(v);return Number.isFinite(x)?x:null}
@@ -85,7 +85,7 @@
 
   async function loadPublic(){
     try{
-      const [a,e,s,h,p,x,v7,ca]=await Promise.all([
+      const [a,e,s,h,p,x,v7,ca,br]=await Promise.all([
         fetch('research/autonomous_agent.json?v='+Date.now(),{cache:'no-store'}),
         fetch('research/evidence_attribution.json?v='+Date.now(),{cache:'no-store'}),
         fetch('data/source_intelligence.json?v='+Date.now(),{cache:'no-store'}),
@@ -93,7 +93,8 @@
         fetch('research/research_planner.json?v='+Date.now(),{cache:'no-store'}).catch(()=>null),
         fetch('research/research_execution.json?v='+Date.now(),{cache:'no-store'}).catch(()=>null),
         fetch('research/self_improvement.json?v='+Date.now(),{cache:'no-store'}).catch(()=>null),
-        fetch('research/cross_asset_divergence.json?v='+Date.now(),{cache:'no-store'}).catch(()=>null)
+        fetch('research/cross_asset_divergence.json?v='+Date.now(),{cache:'no-store'}).catch(()=>null),
+        fetch('research/breadth_intelligence.json?v='+Date.now(),{cache:'no-store'}).catch(()=>null)
       ]);
       state.publicData=a.ok?await a.json():null;
       state.evidenceData=e.ok?await e.json():null;
@@ -103,7 +104,8 @@
       state.researchData=x&&x.ok?await x.json():null;
       state.selfImproveData=v7&&v7.ok?await v7.json():null;
       state.crossAssetData=ca&&ca.ok?await ca.json():null;
-    }catch{state.publicData=null;state.evidenceData=null;state.sourceIntel=null;state.systemStatus=null;state.plannerData=null;state.researchData=null;state.selfImproveData=null;state.crossAssetData=null}
+      state.breadthData=br&&br.ok?await br.json():null;
+    }catch{state.publicData=null;state.evidenceData=null;state.sourceIntel=null;state.systemStatus=null;state.plannerData=null;state.researchData=null;state.selfImproveData=null;state.crossAssetData=null;state.breadthData=null}
   }
 
 
@@ -144,6 +146,30 @@
       <p>${esc((d.thesis||[])[0]||'跨资产状态正在评估。')}</p>
       <details><summary>查看触发条件与反证</summary><ul>${(d.signals||[]).map(x=>`<li>${x.hit?'●':'○'} ${esc(x.label)} · ${esc(x.reason)}</li>`).join('')}</ul></details>
       <small>${esc(d.guardrail||'')}</small></article></div>`;
+  }
+
+  function breadthHtml(){
+    const d=state.breadthData||{};if(!d.level)return'';
+    const b=d.breadth||{},eq=d.equal_weight||{},stats=d.current_combination_history||{};
+    const fmt=v=>Number.isFinite(Number(v))?(Number(v)*100).toFixed(1)+'%':'—';
+    return `<div class="agent-section-title"><b>Breadth Intelligence · 市场参与度</b><span>${esc(d.label||'')}</span></div>
+      <div class="agent-grid"><article class="agent-card agent-${d.level==='high'?'action':d.level==='medium'?'review':'watch'}">
+      <div class="agent-card-head"><div><span>V6.8 BREADTH + REGIME MEMORY</span><h3>${esc(d.label||'市场参与度')}</h3></div><b>${d.participation_risks||0} 项收缩证据</b></div>
+      <div class="agent-metrics"><span>20日宽度 ${fmt(b.b20)}</span><span>50日宽度 ${fmt(b.b50)}</span><span>200日宽度 ${fmt(b.b200)}</span><span>52周新高 ${fmt(b.new_high_52w_pct)}</span><span>A/D20 ${Number.isFinite(Number(b.ad_line_20d))?Number(b.ad_line_20d).toFixed(2):'—'}</span></div>
+      <p><strong>组合状态：</strong>${esc(d.fingerprint||'等待组合记忆')}</p>
+      <p><strong>等权相对强度：</strong>RSP/SPY ${fmt(eq.rsp_spy?.chg20)} · QQQE/QQQ ${fmt(eq.qqqe_qqq?.chg20)}</p>
+      <p><strong>20日同类历史：</strong>${stats['20']?.n||0} 个成熟样本${stats['20']?.n?' · 平均收益 '+fmt(stats['20'].avg_return)+' · 胜率 '+fmt(stats['20'].win_rate):' · 尚在积累'}</p>
+      <small>${esc(d.guardrail||'')}</small></article></div>`;
+  }
+  function renderBreadthMarket(){
+    const root=$('breadthMarketRoot');if(!root)return;
+    const d=state.breadthData||{};if(!d.level){root.innerHTML='<div class="agent-empty">等待 V6.8 市场宽度智能数据。</div>';return}
+    const b=d.breadth||{},eq=d.equal_weight||{};
+    const fmt=v=>Number.isFinite(Number(v))?(Number(v)*100).toFixed(1)+'%':'—';
+    root.innerHTML=`<div class="section-head"><div><h2>V6.8 市场参与度与组合环境</h2><p>等权相对强度 + A/D + 52周新高参与率 + Regime Combination Memory</p></div><span>${esc(d.label||'')}</span></div>
+      <div class="agent-grid"><article class="agent-card agent-${d.level==='high'?'action':d.level==='medium'?'review':'watch'}">
+      <div class="agent-metrics"><span>RSP/SPY 20日 ${fmt(eq.rsp_spy?.chg20)}</span><span>QQQE/QQQ 20日 ${fmt(eq.qqqe_qqq?.chg20)}</span><span>A/D20 ${Number.isFinite(Number(b.ad_line_20d))?Number(b.ad_line_20d).toFixed(2):'—'}</span><span>52周新高 ${fmt(b.new_high_52w_pct)}</span></div>
+      <p>${esc(d.fingerprint||'组合状态正在形成')}</p><small>${esc(d.guardrail||'')}</small></article></div>`;
   }
 
   function systemStatusHtml(){
@@ -524,6 +550,7 @@
       home.innerHTML=`<div class="agent-attention-head"><div><span class="agent-kicker">MYALPHA AUTONOMOUS AGENT · V6 + V7</span><h2>今日 AI 摘要</h2><p>完整研究过程已集中到 AI智能中心；首页只保留真正需要你注意的事项。</p></div><div class="agent-counts"><span class="action">需处理 <b>${counts.action}</b></span><span class="review">需复查 <b>${counts.review}</b></span><span>观察 <b>${counts.watch}</b></span></div></div>${top.length?`<div class="agent-grid">${top.map(card).join('')}</div>`:'<div class="agent-empty">当前没有需要打扰你的重大变化；Agent 仍在后台学习。</div>'}<div class="agent-foot"><button type="button" onclick="openDashboardTab('tab-agent-center')">打开 AI智能中心 · 查看完整研究与自我优化</button></div>`;
     }
     renderCrossAssetMarket();
+    renderBreadthMarket();
     state.lastRender=Date.now();
   }
 

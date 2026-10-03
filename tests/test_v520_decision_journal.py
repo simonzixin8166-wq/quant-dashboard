@@ -1,4 +1,5 @@
 from pathlib import Path
+import re
 
 ROOT=Path(__file__).resolve().parents[1]
 g=(ROOT/'scripts/fetch_and_build.py').read_text()
@@ -9,10 +10,12 @@ sw=(ROOT/'docs/assets/stock-watchlist.js').read_text()
 edge=(ROOT/'supabase/functions/stock-market/index.ts').read_text()
 wf=(ROOT/'.github/workflows/daily.yml').read_text()
 
-assert 'APP_VERSION = "5.3.0"' in g and 'ASSET_VERSION = "5.3.0"' in g
+app_version=re.search(r'^APP_VERSION = "([^"]+)"',g,re.M).group(1)
+asset_version=re.search(r'^ASSET_VERSION = "([^"]+)"',g,re.M).group(1)
 assert 'tab-journal' in g and 'decisionJournalRoot' in g
 assert 'decision-journal.js' in g and 'decision-journal.css' in g
-assert 'Decision Journal' in idx and 'data-app-version="5.3.0"' in idx
+assert 'Decision Journal' in idx and f'data-app-version="{app_version}"' in idx
+assert f'decision-journal.js?v={asset_version}' in idx
 assert "mavDecisionJournalV52" in ja
 assert '20 / 60 / 120' in ja and 'refreshOutcomes' in ja
 assert 'recordAssistantEvent' in ia and 'MAVDecisionJournal' in ia

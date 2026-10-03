@@ -19,6 +19,7 @@ EXECUTION=ROOT/"docs/research/research_execution.json"
 CROSS_HISTORY=ROOT/"docs/research/cross_asset_divergence_history.json"
 BREADTH_HISTORY=ROOT/"docs/research/breadth_intelligence_history.json"
 REGIME_HISTORY=ROOT/"docs/research/regime_combination_history.json"
+MARKET=ROOT/"docs/data.json"
 PREV=ROOT/"docs/research/self_improvement.json"
 OUT=PREV
 
@@ -34,8 +35,15 @@ def candidate(kind,scope,change,reason,n):
     return {"candidate_id":cid(kind,payload),"kind":kind,"scope":scope,"proposed_change":change,
             "reason":reason,"evidence_n":n,"state":"shadow","created_at":datetime.now(timezone.utc).isoformat()}
 
-def build(evidence,method,planner,previous,modules=None,execution=None,cross_history=None,breadth_history=None,regime_history=None):
+def _market_day(market, planner):
+    day=(market or {}).get("spy_date") or (market or {}).get("updated")
+    if day:return str(day)[:10]
+    ts=(planner or {}).get("generated_at") or datetime.now(timezone.utc).isoformat()
+    return str(ts)[:10]
+
+def build(evidence,method,planner,previous,modules=None,execution=None,cross_history=None,breadth_history=None,regime_history=None,market=None):
     candidates=[]
+    market_day=_market_day(market,planner)
     for m in method.get("methods") or []:
         n=m.get("direct_validated_events") or 0
         perf=m.get("performance") or {}
@@ -109,40 +117,52 @@ def build(evidence,method,planner,previous,modules=None,execution=None,cross_his
     promoted=[];shadow=[]
     for c in candidates:
         prior=old.get(c["candidate_id"],{})
-        runs=(prior.get("shadow_runs") or 0)+1
-        c["shadow_runs"]=runs
+        workflow_runs=(prior.get("workflow_runs") or prior.get("shadow_runs") or 0)+1
+        prior_days=list(prior.get("shadow_days") or [])
+        if not prior_days:
+            first=(prior.get("first_seen_at") or c["created_at"])[:10]
+            if first: prior_days=[first]
+        if market_day and market_day not in prior_days:
+            prior_days.append(market_day)
+        prior_days=sorted(set(prior_days))
+        market_days=len(prior_days)
+        c["workflow_runs"]=workflow_runs
+        c["shadow_runs"]=market_days
+        c["shadow_market_days"]=market_days
+        c["shadow_days"]=prior_days
+        c["market_day"]=market_day
         c["first_seen_at"]=prior.get("first_seen_at") or c["created_at"]
         # Conservative automatic gate: research-process changes only, >=20 evidence,
-        # >=5 independent shadow runs; never production trading thresholds.
-        eligible=(c["evidence_n"]>=20 and runs>=5 and c["kind"] in {"research_weight","process_guardrail"})
+        # >=5 distinct market days; repeated workflows on the same market day are not independent evidence.
+        eligible=(c["evidence_n"]>=20 and market_days>=5 and c["kind"] in {"research_weight","process_guardrail"})
         c["promotion_eligible"]=eligible
         c["state"]="eligible_for_review" if eligible else "shadow"
         shadow.append(c)
         if eligible: promoted.append(c["candidate_id"])
 
     return {
-      "version":"7.2.0","generated_at":datetime.now(timezone.utc).isoformat(),
+      "version":"7.2.1","generated_at":datetime.now(timezone.utc).isoformat(),
       "production_brain":{"mode":"locked","rule":"正式交易阈值与仓位规则不由本引擎自动修改。"},
       "learning_brain":{"planner_version":planner.get("version"),"open_tasks":(planner.get("counts") or {}).get("open",0)},
       "candidate_brain":{"count":len(shadow)},
       "shadow_brain":{"candidates":shadow,"eligible_for_review":promoted},
       "promotion_gate":{
         "automatic_production_promotion":False,
-        "minimum_evidence_n":20,"minimum_shadow_runs":5,
+        "minimum_evidence_n":20,"minimum_shadow_market_days":5,"minimum_shadow_runs":5,
         "allowed_scope":["research_priority","research_process"],
         "forbidden_scope":["orders","position_size","core_allocation","hard_exit_thresholds"],
         "decision":"human_review_required"
       },
       "candidates":shadow,
       "guardrails":[
-        "候选策略只能在 Shadow 模式积累证据。",
+        "候选策略只能在 Shadow 模式积累证据；同一交易日重复 workflow 不重复计为独立 Shadow 样本。",
         "达到门槛仅代表可复核，不自动晋级正式交易规则。",
         "任何涉及仓位、下单、核心配置或硬退出阈值的修改必须人工批准。"
       ]
     }
 
 def main():
-    out=build(load(EVIDENCE),load(METHOD),load(PLANNER),load(PREV),load(MODULES),load(EXECUTION),load(CROSS_HISTORY),load(BREADTH_HISTORY),load(REGIME_HISTORY))
+    out=build(load(EVIDENCE),load(METHOD),load(PLANNER),load(PREV),load(MODULES),load(EXECUTION),load(CROSS_HISTORY),load(BREADTH_HISTORY),load(REGIME_HISTORY),load(MARKET))
     OUT.parent.mkdir(parents=True,exist_ok=True)
     OUT.write_text(json.dumps(out,ensure_ascii=False,indent=2),encoding="utf-8")
     print(json.dumps({"version":out["version"],"candidates":len(out["candidates"]),"eligible":len(out["shadow_brain"]["eligible_for_review"])},ensure_ascii=False))

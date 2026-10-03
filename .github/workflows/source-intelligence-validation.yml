@@ -22,6 +22,9 @@ on:
       - "scripts/evidence_attribution_engine.py"
       - "docs/assets/wenxuecity.js"
       - ".github/workflows/source-intelligence-validation.yml"
+  schedule:
+    # Runs after wxc-bot research-close (22:30 UTC) so new author research reaches MyAlpha the same cycle.
+    - cron: "10 23 * * 1-5"
   workflow_dispatch:
 
 permissions:

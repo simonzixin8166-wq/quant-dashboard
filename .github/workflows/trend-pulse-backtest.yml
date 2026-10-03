@@ -11,7 +11,9 @@ permissions:
   contents: write
 
 concurrency:
-  group: trend-pulse-backtest-${{ github.ref }}
+  # Every workflow that writes generated production artifacts to main shares
+  # one lock. This prevents successful builds from failing only at git push.
+  group: myalpha-production-writer
   cancel-in-progress: false
 
 jobs:

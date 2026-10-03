@@ -20,6 +20,8 @@ PATHS={
  "previous":ROOT/"docs/research/research_planner.json",
  "modules":ROOT/"docs/research/module_intelligence.json",
  "cross_asset":ROOT/"docs/research/cross_asset_divergence.json",
+ "breadth_intelligence":ROOT/"docs/research/breadth_intelligence.json",
+ "regime_memory":ROOT/"docs/research/regime_combination_memory.json",
 }
 OUT=ROOT/"docs/research/research_planner.json"
 
@@ -39,7 +41,7 @@ def task(kind,key,title,priority,why,questions,sources,expires=2):
       "guardrail":"研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。"
     }
 
-def build(agent,learning,evidence,method,source,previous,modules=None,cross_asset=None):
+def build(agent,learning,evidence,method,source,previous,modules=None,cross_asset=None,breadth_intelligence=None,regime_memory=None):
     tasks=[]
     seen=set()
     for row in agent.get("watchlist_attention") or []:
@@ -93,6 +95,31 @@ def build(agent,learning,evidence,method,source,previous,modules=None,cross_asse
         t["risk_hits"]=cross_asset.get("risk_hits")
         tasks.append(t);seen.add(t["task_id"])
 
+    breadth_intelligence=breadth_intelligence or {}
+    if breadth_intelligence.get("level") in {"fragile","weakening"}:
+        priority=88 if breadth_intelligence.get("level")=="fragile" else 78
+        t=task("breadth_intelligence","US_BREADTH",
+          f"美股 · {breadth_intelligence.get('label') or '市场宽度异常'}",priority,
+          f"市场参与度评分 {breadth_intelligence.get('participation_score','—')}，风险信号 {breadth_intelligence.get('risk_hits',0)} 项。",
+          ["20/50日宽度是否连续修复？","RSP是否开始追上SPY？","QQQE是否开始追上QQQ？","长期200日宽度是否重回50%以上？","宽度恶化是否与利率/信用压力共振？"],
+          ["breadth_intelligence","market_breadth","SPY/RSP","QQQ/QQQE","cross_asset_divergence"],5)
+        t["breadth_level"]=breadth_intelligence.get("level")
+        t["participation_score"]=breadth_intelligence.get("participation_score")
+        t["combination_key"]=breadth_intelligence.get("combination_key")
+        tasks.append(t);seen.add(t["task_id"])
+
+    regime_memory=regime_memory or {}
+    if regime_memory.get("level") in {"high","medium"}:
+        priority=92 if regime_memory.get("level")=="high" else 82
+        t=task("regime_combination","US_REGIME",
+          f"美股 · {regime_memory.get('label') or '组合环境研究'}",priority,
+          f"当前组合状态 {regime_memory.get('state_id','—')}；需要验证跨资产压力与宽度收窄是否持续共振。",
+          ["同类组合状态历史5/20/60日结果如何？","宽度还是利率/信用哪一侧先修复？","VIX是否从低波动补涨确认风险？","什么变化足以让组合状态降级？"],
+          ["regime_combination_memory","breadth_intelligence","cross_asset_divergence","SPY","VIX"],5)
+        t["state_id"]=regime_memory.get("state_id")
+        t["regime_level"]=regime_memory.get("level")
+        tasks.append(t);seen.add(t["task_id"])
+
     modules=modules or {}
     audit=modules.get("audit") or {}
     if not audit.get("coverage_ok",True):
@@ -120,7 +147,7 @@ def build(agent,learning,evidence,method,source,previous,modules=None,cross_asse
     tasks.sort(key=lambda x:(x["priority"],x["run_count"]),reverse=True)
     now=datetime.now(timezone.utc).isoformat()
     return {
-      "version":"6.7.0","generated_at":now,"mode":"autonomous_research_planner",
+      "version":"6.8.0","generated_at":now,"mode":"autonomous_research_planner",
       "queue":tasks[:30],
       "today":[x for x in tasks if x["priority"]>=70][:10],
       "counts":{"open":len(tasks),"high_priority":sum(x["priority"]>=70 for x in tasks),"persistent":sum(x["run_count"]>1 for x in tasks)},
@@ -133,7 +160,7 @@ def build(agent,learning,evidence,method,source,previous,modules=None,cross_asse
 
 def main():
     d={k:load(v) for k,v in PATHS.items()}
-    out=build(d["agent"],d["learning"],d["evidence"],d["method"],d["source"],d["previous"],d["modules"],d["cross_asset"])
+    out=build(d["agent"],d["learning"],d["evidence"],d["method"],d["source"],d["previous"],d["modules"],d["cross_asset"],d["breadth_intelligence"],d["regime_memory"])
     OUT.parent.mkdir(parents=True,exist_ok=True)
     OUT.write_text(json.dumps(out,ensure_ascii=False,indent=2),encoding="utf-8")
     print(json.dumps(out["counts"],ensure_ascii=False))

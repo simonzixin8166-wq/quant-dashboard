@@ -1,3 +1,3 @@
-V6.9.x learning foundation production verification
-Triggered: 2026-10-03 11:18 UTC
-Purpose: verify distinct-market-day Shadow counting, cache cleanup, and Prediction Ledger V1 design freeze after PR #65.
+V6.10a production verification
+Triggered: 2026-10-03 12:48 UTC
+Purpose: verify Playbook config, minimum data-quality gate, heartbeat, trigger engine, observe-only ledger bridge, system status, and full regression after PR #67.

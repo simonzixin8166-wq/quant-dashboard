@@ -10,7 +10,7 @@ ROOT=Path(__file__).resolve().parents[1]
 OUT=ROOT/"docs"/"research"/"system_status.json"
 
 ARTIFACTS={
-    "market_dashboard": ROOT/"docs"/"data"/"dashboard.json",
+    "market_dashboard": ROOT/"docs"/"data.json",
     "learning_engine": ROOT/"docs"/"research"/"learning_engine.json",
     "autonomous_agent": ROOT/"docs"/"research"/"autonomous_agent.json",
     "source_intelligence": ROOT/"docs"/"data"/"source_intelligence.json",
@@ -48,16 +48,31 @@ def iso_from_file(path:Path):
         if data.get(k):return str(data[k])
     return datetime.fromtimestamp(path.stat().st_mtime,timezone.utc).isoformat()
 
-def github_runs(repo:str):
-    url=f"https://api.github.com/repos/simonzixin8166-wq/{repo}/actions/runs?per_page=100"
-    req=urllib.request.Request(url,headers={"User-Agent":"MyAlpha-Status-Center","Accept":"application/vnd.github+json"})
+def github_runs(repo:str,names=None,max_pages=5):
+    """Fetch enough Actions pages to resolve all watched workflow names.
+
+    Busy repositories can exceed 100 runs quickly because Pages/QA workflows
+    create many entries. Stop as soon as every requested workflow has been seen.
+    """
+    wanted=set(names or [])
+    rows=[]
     token=os.getenv("GITHUB_TOKEN")
-    if token:req.add_header("Authorization",f"Bearer {token}")
     try:
-        with urllib.request.urlopen(req,timeout=12) as r:
-            return json.loads(r.read().decode("utf-8")).get("workflow_runs",[])
+        for page in range(1,max_pages+1):
+            url=f"https://api.github.com/repos/simonzixin8166-wq/{repo}/actions/runs?per_page=100&page={page}"
+            req=urllib.request.Request(url,headers={"User-Agent":"MyAlpha-Status-Center","Accept":"application/vnd.github+json"})
+            if token:req.add_header("Authorization",f"Bearer {token}")
+            with urllib.request.urlopen(req,timeout=12) as r:
+                batch=json.loads(r.read().decode("utf-8")).get("workflow_runs",[])
+            rows.extend(batch)
+            if wanted and wanted.issubset({x.get("name") for x in rows}):
+                break
+            if len(batch)<100:
+                break
+        return rows
     except Exception as exc:
-        return [{"_error":str(exc)[:180]}]
+        rows.append({"_error":str(exc)[:180]})
+        return rows
 
 def latest_by_name(runs,names):
     out={}
@@ -84,7 +99,7 @@ def health(conclusion,status):
 def build(fetch_runs=True):
     repos={}
     for repo,names in WATCH_WORKFLOWS.items():
-        rows=latest_by_name(github_runs(repo) if fetch_runs else [],names)
+        rows=latest_by_name(github_runs(repo,names) if fetch_runs else [],names)
         for v in rows.values():v["health"]=health(v.get("conclusion"),v.get("status"))
         repos[repo]=rows
     artifacts={k:{"updated_at":iso_from_file(v),"available":v.exists()} for k,v in ARTIFACTS.items()}
@@ -97,7 +112,7 @@ def build(fetch_runs=True):
     elif "running" in critical:overall="running"
     elif any(x in {"unknown",None} for x in critical):overall="attention"
     result={
-        "version":2,
+        "version":3,
         "generated_at":datetime.now(timezone.utc).isoformat(),
         "overall":overall,
         "workflows":repos,

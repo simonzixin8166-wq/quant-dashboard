@@ -34,7 +34,7 @@ events={"symbols":{"LITE":{"status":"ok","news":[{"title":"Lumentum update","pub
 data={"trend_pulse":{"LITE":{"state":"二次启动","data_integrity":{"status":"CHECK","label":"有限校验"}}}}
 artifacts={"learning":learning,"evidence":evidence,"method":method,"source":source,"modules":modules,"official":official,"event_windows":event_windows,"events":events,"data":data}
 out=rx.build(planner,artifacts,{})
-assert out["version"]=="6.8.2"
+assert out["version"]=="6.9.0"
 assert out["summary"]["analyzed"]==2
 lite=next(x for x in out["results"] if x["key"]=="LITE")
 assert lite["supporting_evidence"]
@@ -99,8 +99,8 @@ art_ca={**artifacts,
 out_ca=rx.build(planner_ca,art_ca,{})
 row=out_ca["results"][0]
 assert row["kind"]=="cross_asset_divergence"
-assert any("10年期" in x for x in row["counter_evidence"])
-assert any("NFCI" in x for x in row["supporting_evidence"])
+assert any("10年期" in x for x in row["supporting_evidence"])
+assert any("NFCI" in x for x in row["counter_evidence"])
 assert any("MOVE" in x for x in row["unknowns"])
 
 planner_bi={"version":"6.8.2","today":[{"task_id":"bi1","kind":"breadth_intelligence","key":"US_BREADTH","title":"宽度研究","priority":88,"questions":[],"evidence_sources":[]}],"queue":[]}
@@ -111,7 +111,7 @@ art_bi={**artifacts,
  "breadth_history":{"records":[]}}
 birow=rx.build(planner_bi,art_bi,{})["results"][0]
 assert birow["kind"]=="breadth_intelligence"
-assert any("SPY领先RSP" in x for x in birow["counter_evidence"])
+assert any("SPY领先RSP" in x for x in birow["supporting_evidence"])
 assert any("QQQE" in x for x in birow["unknowns"])
 
 planner_rg={"version":"6.8.2","today":[{"task_id":"rg1","kind":"regime_combination","key":"US_REGIME","title":"组合环境","priority":92,"questions":[],"evidence_sources":[]}],"queue":[]}
@@ -124,7 +124,8 @@ art_rg={**artifacts,
 rgrow=rx.build(planner_rg,art_rg,{})["results"][0]
 assert rgrow["kind"]=="regime_combination"
 assert any("组合状态" in x for x in rgrow["supporting_evidence"])
-assert any("同时出现" in x for x in rgrow["counter_evidence"])
+assert any("同时出现" in x for x in rgrow["supporting_evidence"])
+assert any("VIX=" in x and "尚未确认" in x for x in rgrow["counter_evidence"])
 
 planner_lr={"version":"6.8.2","today":[{"task_id":"lr1","kind":"leverage_rebound","key":"QQQ","title":"TQQQ vs QQQ LEAPS","priority":84,"questions":[],"evidence_sources":[]}],"queue":[]}
 art_lr={**artifacts,"data":{"leverage_rebound":{"status":"candidate","label":"10%+回调后修复确认","drawdown252":-0.12,
@@ -136,3 +137,6 @@ assert any("MA20" in x for x in lrrow["supporting_evidence"])
 assert any("宽度" in x for x in lrrow["counter_evidence"])
 assert any("IV" in x for x in lrrow["unknowns"])
 assert any("Source Hypothesis" in x for x in lrrow["supporting_evidence"])
+
+assert any("中位收益 8.0%" in x for x in lite["supporting_evidence"])
+assert any("平均日变动 2.5%" in x for x in lite["supporting_evidence"])

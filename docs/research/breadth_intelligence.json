@@ -1,20 +1,20 @@
 {
   "version": "6.8.0",
-  "generated_at": "2026-10-03T03:21:52.856060+00:00",
+  "generated_at": "2026-10-03T03:29:05.344140+00:00",
   "as_of": "2026-10-02",
-  "level": "weakening",
-  "label": "市场宽度走弱",
-  "participation_score": 34.3,
-  "risk_hits": 3,
-  "high_hits": 2,
-  "known_inputs": 4,
+  "level": "fragile",
+  "label": "参与度脆弱 · 权重股主导",
+  "participation_score": 25.9,
+  "risk_hits": 5,
+  "high_hits": 3,
+  "known_inputs": 6,
   "metrics": {
     "b20": 0.25948103792415167,
     "b50": 0.24151696606786427,
     "b200": 0.45109780439121755,
     "slope_10d": 0.06387225548902192,
-    "spy_minus_rsp_20d": null,
-    "qqq_minus_qqqe_20d": null,
+    "spy_minus_rsp_20d": 0.04233288402890123,
+    "qqq_minus_qqqe_20d": 0.04058988784397122,
     "ad_net_pct": null,
     "ad_line_20d": null,
     "ad_line_60d": null,
@@ -60,18 +60,18 @@
     {
       "key": "sp500_concentration",
       "label": "SPY领先RSP",
-      "hit": false,
+      "hit": true,
       "severity": "high",
-      "value": null,
-      "reason": "RSP对比待补齐"
+      "value": 0.04233288402890123,
+      "reason": "20日SPY相对RSP领先 +4.2%"
     },
     {
       "key": "nasdaq_concentration",
       "label": "QQQ领先QQQE",
-      "hit": false,
+      "hit": true,
       "severity": "medium",
-      "value": null,
-      "reason": "QQQE对比待补齐"
+      "value": 0.04058988784397122,
+      "reason": "20日QQQ相对QQQE领先 +4.1%"
     },
     {
       "key": "ad_pressure",
@@ -90,15 +90,13 @@
       "reason": "52周新高参与率待补齐"
     }
   ],
-  "combination_key": "B20_LOW|B50_LOW|B200_LOW|SLOPE_UP",
+  "combination_key": "B20_LOW|B50_LOW|B200_LOW|SLOPE_UP|SPY_RSP_GAP|QQQ_QQQE_GAP",
   "interpretation": [
     "指数上涨若伴随等权指数落后和成分股宽度下降，说明上涨参与度收窄。",
     "宽度恶化可提高风险研究优先级，但不能单独等同于顶部或卖出信号。",
     "若等权指数追上、20/50日宽度回升且斜率转正，集中度风险可被逐步消化。"
   ],
   "unknowns": [
-    "SPY/RSP 20日等权差尚未取得稳定数据。",
-    "QQQ/QQQE 20日等权差尚未取得稳定数据。",
     "A/D累计参与度尚未取得稳定数据。",
     "52周新高参与率尚未取得稳定数据。"
   ],

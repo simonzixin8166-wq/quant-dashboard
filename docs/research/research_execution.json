@@ -1,8 +1,96 @@
 {
   "version": "6.8.0",
-  "generated_at": "2026-10-03T03:22:03.771938+00:00",
+  "generated_at": "2026-10-03T03:29:16.030513+00:00",
   "planner_version": "6.8.0",
   "results": [
+    {
+      "task_id": "9dd02d7dc13f4e",
+      "kind": "regime_combination",
+      "key": "US_REGIME",
+      "title": "美股 · 跨资产压力 + 宽度脆弱共振",
+      "priority": 92.0,
+      "research_status": "analyzed",
+      "supporting_evidence": [
+        "当前组合状态：CROSS_HIGH|BREADTH_FRAGILE|VIX_LOW",
+        "VIX=15.3100004196167，分区 low"
+      ],
+      "counter_evidence": [
+        "跨资产层：高位跨资产背离；风险信号 4",
+        "宽度层：参与度脆弱 · 权重股主导；参与度评分 25.9",
+        "跨资产压力与脆弱宽度当前同时出现，应优先验证是否继续共振"
+      ],
+      "unknowns": [
+        "同组合 5 日成熟样本仍不足",
+        "同组合 20 日成熟样本仍不足",
+        "同组合 60 日成熟样本仍不足"
+      ],
+      "evidence_score": 38,
+      "confidence": "low",
+      "provisional_conclusion": "证据存在分歧，保持研究状态并优先验证反证。",
+      "next_validation": [
+        "同类组合状态历史5/20/60日结果如何？",
+        "宽度还是利率/信用哪一侧先修复？",
+        "VIX是否从低波动补涨确认风险？",
+        "什么变化足以让组合状态降级？"
+      ],
+      "source_requirements": [
+        "regime_combination_memory",
+        "breadth_intelligence",
+        "cross_asset_divergence",
+        "SPY",
+        "VIX"
+      ],
+      "guardrail": "该研究结果不能自动下单；未知项不得由模型猜测补全。",
+      "analysis_runs": 4,
+      "first_analyzed_at": "2026-10-03T03:17:04.415215+00:00",
+      "last_analyzed_at": "2026-10-03T03:29:16.030513+00:00"
+    },
+    {
+      "task_id": "ff2fe8dce9c4c9",
+      "kind": "breadth_intelligence",
+      "key": "US_BREADTH",
+      "title": "美股 · 参与度脆弱 · 权重股主导",
+      "priority": 88.0,
+      "research_status": "analyzed",
+      "supporting_evidence": [
+        "市场参与度评分：25.9/100",
+        "宽度组合状态：B20_LOW|B50_LOW|B200_LOW|SLOPE_UP|SPY_RSP_GAP|QQQ_QQQE_GAP"
+      ],
+      "counter_evidence": [
+        "20日参与度偏弱：仅 26% 成分股站上20日线",
+        "50日参与度偏弱：仅 24% 成分股站上50日线",
+        "长期参与度不足：45% 成分股站上200日线",
+        "SPY领先RSP：20日SPY相对RSP领先 +4.2%",
+        "QQQ领先QQQE：20日QQQ相对QQQE领先 +4.1%"
+      ],
+      "unknowns": [
+        "弱宽度 5 日成熟样本仍不足",
+        "弱宽度 20 日成熟样本仍不足",
+        "弱宽度 60 日成熟样本仍不足",
+        "A/D累计参与度尚未取得稳定数据。",
+        "52周新高参与率尚未取得稳定数据。"
+      ],
+      "evidence_score": 34,
+      "confidence": "low",
+      "provisional_conclusion": "证据存在分歧，保持研究状态并优先验证反证。",
+      "next_validation": [
+        "20/50日宽度是否连续修复？",
+        "RSP是否开始追上SPY？",
+        "QQQE是否开始追上QQQ？",
+        "长期200日宽度是否重回50%以上？"
+      ],
+      "source_requirements": [
+        "breadth_intelligence",
+        "market_breadth",
+        "SPY/RSP",
+        "QQQ/QQQE",
+        "cross_asset_divergence"
+      ],
+      "guardrail": "该研究结果不能自动下单；未知项不得由模型猜测补全。",
+      "analysis_runs": 4,
+      "first_analyzed_at": "2026-10-03T03:17:04.415215+00:00",
+      "last_analyzed_at": "2026-10-03T03:29:16.030513+00:00"
+    },
     {
       "task_id": "dc139bb52a1e29",
       "kind": "cross_asset_divergence",
@@ -49,96 +137,9 @@
         "credit"
       ],
       "guardrail": "该研究结果不能自动下单；未知项不得由模型猜测补全。",
-      "analysis_runs": 4,
+      "analysis_runs": 5,
       "first_analyzed_at": "2026-10-03T02:34:39.186035+00:00",
-      "last_analyzed_at": "2026-10-03T03:22:03.771938+00:00"
-    },
-    {
-      "task_id": "9dd02d7dc13f4e",
-      "kind": "regime_combination",
-      "key": "US_REGIME",
-      "title": "美股 · 风险环境存在组合分化",
-      "priority": 82.0,
-      "research_status": "analyzed",
-      "supporting_evidence": [
-        "当前组合状态：CROSS_HIGH|BREADTH_WEAKENING|VIX_LOW",
-        "VIX=15.3100004196167，分区 low"
-      ],
-      "counter_evidence": [
-        "跨资产层：高位跨资产背离；风险信号 4",
-        "宽度层：市场宽度走弱；参与度评分 34.3"
-      ],
-      "unknowns": [
-        "同组合 5 日成熟样本仍不足",
-        "同组合 20 日成熟样本仍不足",
-        "同组合 60 日成熟样本仍不足"
-      ],
-      "evidence_score": 30,
-      "confidence": "low",
-      "provisional_conclusion": "证据存在分歧，保持研究状态并优先验证反证。",
-      "next_validation": [
-        "同类组合状态历史5/20/60日结果如何？",
-        "宽度还是利率/信用哪一侧先修复？",
-        "VIX是否从低波动补涨确认风险？",
-        "什么变化足以让组合状态降级？"
-      ],
-      "source_requirements": [
-        "regime_combination_memory",
-        "breadth_intelligence",
-        "cross_asset_divergence",
-        "SPY",
-        "VIX"
-      ],
-      "guardrail": "该研究结果不能自动下单；未知项不得由模型猜测补全。",
-      "analysis_runs": 3,
-      "first_analyzed_at": "2026-10-03T03:17:04.415215+00:00",
-      "last_analyzed_at": "2026-10-03T03:22:03.771938+00:00"
-    },
-    {
-      "task_id": "ff2fe8dce9c4c9",
-      "kind": "breadth_intelligence",
-      "key": "US_BREADTH",
-      "title": "美股 · 市场宽度走弱",
-      "priority": 78.0,
-      "research_status": "analyzed",
-      "supporting_evidence": [
-        "市场参与度评分：34.3/100",
-        "宽度组合状态：B20_LOW|B50_LOW|B200_LOW|SLOPE_UP"
-      ],
-      "counter_evidence": [
-        "20日参与度偏弱：仅 26% 成分股站上20日线",
-        "50日参与度偏弱：仅 24% 成分股站上50日线",
-        "长期参与度不足：45% 成分股站上200日线"
-      ],
-      "unknowns": [
-        "弱宽度 5 日成熟样本仍不足",
-        "弱宽度 20 日成熟样本仍不足",
-        "弱宽度 60 日成熟样本仍不足",
-        "SPY/RSP 20日等权差尚未取得稳定数据。",
-        "QQQ/QQQE 20日等权差尚未取得稳定数据。",
-        "A/D累计参与度尚未取得稳定数据。",
-        "52周新高参与率尚未取得稳定数据。"
-      ],
-      "evidence_score": 0,
-      "confidence": "low",
-      "provisional_conclusion": "证据存在分歧，保持研究状态并优先验证反证。",
-      "next_validation": [
-        "20/50日宽度是否连续修复？",
-        "RSP是否开始追上SPY？",
-        "QQQE是否开始追上QQQ？",
-        "长期200日宽度是否重回50%以上？"
-      ],
-      "source_requirements": [
-        "breadth_intelligence",
-        "market_breadth",
-        "SPY/RSP",
-        "QQQ/QQQE",
-        "cross_asset_divergence"
-      ],
-      "guardrail": "该研究结果不能自动下单；未知项不得由模型猜测补全。",
-      "analysis_runs": 3,
-      "first_analyzed_at": "2026-10-03T03:17:04.415215+00:00",
-      "last_analyzed_at": "2026-10-03T03:22:03.771938+00:00"
+      "last_analyzed_at": "2026-10-03T03:29:16.030513+00:00"
     },
     {
       "task_id": "320b47e4133735",
@@ -180,9 +181,9 @@
         "industry_peers"
       ],
       "guardrail": "该研究结果不能自动下单；未知项不得由模型猜测补全。",
-      "analysis_runs": 14,
+      "analysis_runs": 15,
       "first_analyzed_at": "2026-10-02T12:56:22.515063+00:00",
-      "last_analyzed_at": "2026-10-03T03:22:03.771938+00:00"
+      "last_analyzed_at": "2026-10-03T03:29:16.030513+00:00"
     },
     {
       "task_id": "df209aa723b495",
@@ -223,9 +224,9 @@
         "industry_peers"
       ],
       "guardrail": "该研究结果不能自动下单；未知项不得由模型猜测补全。",
-      "analysis_runs": 14,
+      "analysis_runs": 15,
       "first_analyzed_at": "2026-10-02T12:56:22.515063+00:00",
-      "last_analyzed_at": "2026-10-03T03:22:03.771938+00:00"
+      "last_analyzed_at": "2026-10-03T03:29:16.030513+00:00"
     },
     {
       "task_id": "b528aa82a03ae2",
@@ -267,9 +268,9 @@
         "industry_peers"
       ],
       "guardrail": "该研究结果不能自动下单；未知项不得由模型猜测补全。",
-      "analysis_runs": 14,
+      "analysis_runs": 15,
       "first_analyzed_at": "2026-10-02T12:56:22.515063+00:00",
-      "last_analyzed_at": "2026-10-03T03:22:03.771938+00:00"
+      "last_analyzed_at": "2026-10-03T03:29:16.030513+00:00"
     },
     {
       "task_id": "dd80a50c241fb6",
@@ -310,9 +311,9 @@
         "industry_peers"
       ],
       "guardrail": "该研究结果不能自动下单；未知项不得由模型猜测补全。",
-      "analysis_runs": 14,
+      "analysis_runs": 15,
       "first_analyzed_at": "2026-10-02T12:56:22.515063+00:00",
-      "last_analyzed_at": "2026-10-03T03:22:03.771938+00:00"
+      "last_analyzed_at": "2026-10-03T03:29:16.030513+00:00"
     },
     {
       "task_id": "7cb6373aaddb29",
@@ -354,9 +355,9 @@
         "industry_peers"
       ],
       "guardrail": "该研究结果不能自动下单；未知项不得由模型猜测补全。",
-      "analysis_runs": 14,
+      "analysis_runs": 15,
       "first_analyzed_at": "2026-10-02T12:56:22.515063+00:00",
-      "last_analyzed_at": "2026-10-03T03:22:03.771938+00:00"
+      "last_analyzed_at": "2026-10-03T03:29:16.030513+00:00"
     }
   ],
   "summary": {

@@ -47,8 +47,13 @@ def mature_history(history,dash):
             j=i+h
             if str(h) not in outcomes and j<len(dates):
                 px=prices.get(dates[j])
-                if px is not None:
-                    outcomes[str(h)]={"date":dates[j],"return":px/anchor-1}
+                path_px=[prices.get(dates[k]) for k in range(i+1,j+1)]
+                path_px=[v for v in path_px if v is not None]
+                if px is not None and path_px:
+                    outcomes[str(h)]={
+                      "date":dates[j],"return":px/anchor-1,
+                      "mae":min(path_px)/anchor-1,"mfe":max(path_px)/anchor-1
+                    }
     return {"version":"6.8.0","records":rows[-300:]}
 
 def proxy_gap(proxies,a,b,h="20"):

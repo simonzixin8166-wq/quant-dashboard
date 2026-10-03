@@ -77,7 +77,7 @@ assert "改变判断的条件" in agent_js
 assert "今天优先平仓" in agent_js
 assert "未来7天内存在" in agent_js
 assert "到期前存在" not in agent_js
-assert "Build V5.5 Autonomous Research Agent" in workflow
+assert "Build Autonomous Research Agent" in workflow
 
 print("PASS V5.5 Autonomous Research Agent")
 
@@ -86,13 +86,13 @@ assert "V7 影子大脑 · 自我优化" in agent_js
 assert "research/research_planner.json" in agent_js
 assert "research/self_improvement.json" in agent_js
 assert "MYALPHA AUTONOMOUS AGENT · V6 + V7" in agent_js
-assert "Build V6 Autonomous Research Planner" in workflow
-assert "Build V7 Self-Improvement Shadow Engine" in workflow
+assert "Build Autonomous Research Planner" in workflow
+assert "Build Self-Improvement Shadow Engine" in workflow
 
 assert "V6.5 自主研究执行 · 研究结果" in agent_js
 assert "research/research_execution.json" in agent_js
 assert "支持证据" in agent_js and "反证" in agent_js and "未知项" in agent_js
-assert "Build V6.2 Autonomous Research Executor" in workflow
+assert "Build Autonomous Research Executor" in workflow
 
 assert 'id="agentCenterRoot"' in generator
 assert "今日 AI 摘要" in agent_js
@@ -101,3 +101,10 @@ assert "打开 AI智能中心 · 查看完整研究与自我优化" in agent_js
 assert "research/cross_asset_divergence.json" in agent_js
 assert "跨资产背离 · 市场风险环境" in agent_js
 assert "crossAssetMarketRoot" in generator
+
+
+# Current public research must be withheld when critical artifacts are stale/expired.
+assert "function decisionDataBlock()" in agent_js
+assert "当前公开研究判断已暂停" in agent_js
+assert "缓存或过期关键产物只保留为历史上下文" in agent_js
+assert "Autonomous QA" in agent_js

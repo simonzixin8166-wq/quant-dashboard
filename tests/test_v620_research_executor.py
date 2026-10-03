@@ -34,7 +34,7 @@ events={"symbols":{"LITE":{"status":"ok","news":[{"title":"Lumentum update","pub
 data={"trend_pulse":{"LITE":{"state":"二次启动","data_integrity":{"status":"CHECK","label":"有限校验"}}}}
 artifacts={"learning":learning,"evidence":evidence,"method":method,"source":source,"modules":modules,"official":official,"event_windows":event_windows,"events":events,"data":data}
 out=rx.build(planner,artifacts,{})
-assert out["version"]=="6.7.0"
+assert out["version"]=="6.8.0"
 assert out["summary"]["analyzed"]==2
 lite=next(x for x in out["results"] if x["key"]=="LITE")
 assert lite["supporting_evidence"]
@@ -85,7 +85,7 @@ assert any("事件窗口已自动对齐" in x for x in fr["supporting_evidence"]
 assert any("不代表事件造成失败" in x for x in fr["counter_evidence"])
 
 src=(ROOT/"scripts"/"autonomous_research_executor.py").read_text(encoding="utf-8")
-for required_key in ['"event_windows"','"events"','"cross_asset"','"cross_asset_history"','"data"']:
+for required_key in ['"event_windows"','"events"','"cross_asset"','"cross_asset_history"','"breadth_intelligence"','"breadth_history"','"regime_memory"','"regime_history"','"data"']:
     assert required_key in src
 
 planner_ca={"version":"6.7.0","today":[{"task_id":"ca1","kind":"cross_asset_divergence","key":"US_MARKET","title":"美股跨资产背离","priority":86,"questions":[],"evidence_sources":[]}],"queue":[]}
@@ -102,3 +102,26 @@ assert row["kind"]=="cross_asset_divergence"
 assert any("10年期" in x for x in row["counter_evidence"])
 assert any("NFCI" in x for x in row["supporting_evidence"])
 assert any("MOVE" in x for x in row["unknowns"])
+
+planner_bi={"version":"6.8.0","today":[{"task_id":"bi1","kind":"breadth_intelligence","key":"US_BREADTH","title":"宽度研究","priority":88,"questions":[],"evidence_sources":[]}],"queue":[]}
+art_bi={**artifacts,
+ "breadth_intelligence":{"level":"fragile","participation_score":31.5,"combination_key":"B20_LOW|SPY_RSP_GAP",
+  "signals":[{"label":"SPY领先RSP","hit":True,"severity":"high","reason":"20日领先6%"}],
+  "unknowns":["QQQE待补齐"]},
+ "breadth_history":{"records":[]}}
+birow=rx.build(planner_bi,art_bi,{})["results"][0]
+assert birow["kind"]=="breadth_intelligence"
+assert any("SPY领先RSP" in x for x in birow["counter_evidence"])
+assert any("QQQE" in x for x in birow["unknowns"])
+
+planner_rg={"version":"6.8.0","today":[{"task_id":"rg1","kind":"regime_combination","key":"US_REGIME","title":"组合环境","priority":92,"questions":[],"evidence_sources":[]}],"queue":[]}
+art_rg={**artifacts,
+ "regime_memory":{"level":"high","state_id":"CROSS_HIGH|BREADTH_FRAGILE|VIX_LOW",
+  "cross_asset":{"label":"高位跨资产背离","risk_hits":4},
+  "breadth":{"label":"参与度脆弱","participation_score":31.5},
+  "vix":{"value":16.5,"zone":"low"}},
+ "regime_history":{"records":[]}}
+rgrow=rx.build(planner_rg,art_rg,{})["results"][0]
+assert rgrow["kind"]=="regime_combination"
+assert any("组合状态" in x for x in rgrow["supporting_evidence"])
+assert any("同时出现" in x for x in rgrow["counter_evidence"])

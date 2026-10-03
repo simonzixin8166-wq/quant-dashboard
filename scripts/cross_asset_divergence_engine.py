@@ -14,7 +14,7 @@ from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
 DASH=ROOT/"docs/data.json"
 MACRO=ROOT/"docs/research/macro_context.json"
-OUT=ROOT/"docs/research/cross_asset_divergence.json"
+OUT=ROOT/"docs/research/cross_asset_divergence.json"\nHISTORY=ROOT/"docs/research/cross_asset_divergence_history.json"
 
 def load(p):
     try:return json.loads(p.read_text(encoding="utf-8"))
@@ -35,6 +35,26 @@ def series(macro,key):
       "chg20": num((x.get("changes") or {}).get("20")),
       "chg60": num((x.get("changes") or {}).get("60")),
     }
+
+def mature_history(history,dash):
+    rows=list(history.get("records") or [])
+    chart=((dash.get("overview_charts") or {}).get("SPY") or [])
+    prices={str(x.get("d")):num(x.get("c")) for x in chart if x.get("d")}
+    dates=[str(x.get("d")) for x in chart if x.get("d") and num(x.get("c")) is not None]
+    idx={d:i for i,d in enumerate(dates)}
+    for row in rows:
+        d=str(row.get("as_of") or "")
+        if d not in idx: continue
+        i=idx[d]; anchor=num(row.get("anchor_spy"))
+        if anchor is None: continue
+        outcomes=row.setdefault("outcomes",{})
+        for h in (5,20,60):
+            j=i+h
+            if str(h) not in outcomes and j<len(dates):
+                px=prices.get(dates[j])
+                if px is not None:
+                    outcomes[str(h)]={"date":dates[j],"return":px/anchor-1}
+    return {"version":"6.7.0","records":rows[-240:]}
 
 def build(dash,macro):
     mkt=dash.get("market_regime") or {}
@@ -126,9 +146,27 @@ def build(dash,macro):
     }
 
 def main():
-    out=build(load(DASH),load(MACRO))
+    dash=load(DASH); out=build(dash,load(MACRO))
+    history=mature_history(load(HISTORY),dash)
+    as_of=str((dash.get("index") or {}).get("SPY",{}).get("date") or dash.get("spy_date") or "")[:10]
+    anchor=num(((dash.get("index") or {}).get("SPY") or {}).get("close"))
+    if as_of and anchor is not None:
+        records=history.get("records") or []
+        snap={
+          "as_of":as_of,"anchor_spy":anchor,"level":out["level"],"label":out["label"],
+          "risk_hits":out["risk_hits"],"high_hits":out["high_hits"],
+          "signals":out["signals"],"outcomes":{}
+        }
+        existing=next((x for x in records if x.get("as_of")==as_of),None)
+        if existing:
+            snap["outcomes"]=existing.get("outcomes") or {}
+            records[records.index(existing)]=snap
+        else:
+            records.append(snap)
+        history["records"]=records[-240:]
     OUT.parent.mkdir(parents=True,exist_ok=True)
     OUT.write_text(json.dumps(out,ensure_ascii=False,indent=2),encoding="utf-8")
-    print(json.dumps({"level":out["level"],"risk_hits":out["risk_hits"],"high_hits":out["high_hits"]},ensure_ascii=False))
+    HISTORY.write_text(json.dumps(history,ensure_ascii=False,indent=2),encoding="utf-8")
+    print(json.dumps({"level":out["level"],"risk_hits":out["risk_hits"],"high_hits":out["high_hits"],"history":len(history.get("records") or [])},ensure_ascii=False))
 
 if __name__=="__main__":main()

@@ -8,7 +8,7 @@ const item=(name,status,detail='')=>({name,status,detail});
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 async function jfetch(url,timeout=12000){const c=new AbortController();const id=setTimeout(()=>c.abort(),timeout);try{const r=await fetch(`${url}${url.includes('?')?'&':'?'}qa=${Date.now()}`,{cache:'no-store',signal:c.signal});if(!r.ok)throw new Error(`HTTP ${r.status}`);return await r.json()}finally{clearTimeout(id)}}
 function noNegativeZero(){const txt=document.body?.innerText||'';return !/(^|[^\d])-0(?:\.0+)?(?=\s|%|$|｜|·)/m.test(txt)}
-function versionAligned(){const meta=document.querySelector('meta[name="application-version"]')?.content;return meta===APP_VERSION&&String(APP_VERSION).startsWith('5.3.0')}
+function versionAligned(manifest){const meta=document.querySelector('meta[name="application-version"]')?.content;const body=document.body?.dataset?.appVersion;const built=manifest?.app_version;return Boolean(meta)&&meta===APP_VERSION&&body===APP_VERSION&&(!built||built===APP_VERSION)}
 async function assistantHealth(){
   // The real assistant root is marketOptionAlert.  Give async market/auth scripts
   // time to initialize before deciding anything is broken.
@@ -42,7 +42,7 @@ async function run({silent=false}={}){
   const checks=[];let manifest=null,data=null;
   try{manifest=await jfetch('build-manifest.json');checks.push(item('线上构建指纹','pass',`${manifest.app_version||'—'} · ${manifest.build_id||'—'}`))}catch(e){checks.push(item('线上构建指纹','warn',e.message))}
   try{data=await jfetch('data.json');checks.push(item('核心数据文件','pass',`生成 ${data.gen_time||data.updated||'—'} · 美股日线 ${data.spy_date||'—'}`))}catch(e){checks.push(item('核心数据文件','fail',e.message))}
-  checks.push(item('版本一致性',versionAligned()?'pass':'fail',`页面 ${APP_VERSION}${manifest?.app_version?` · 构建 ${manifest.app_version}`:''}`));
+  checks.push(item('版本一致性',versionAligned(manifest)?'pass':'fail',`页面 ${APP_VERSION}${manifest?.app_version?` · 构建 ${manifest.app_version}`:''}`));
   checks.push(item('Trend Pulse -0',noNegativeZero()?'pass':'warn',noNegativeZero()?'未发现 -0 展示':'发现疑似 -0，请检查显示口径'));
   checks.push(await assistantHealth());
   checks.push(item('Decision Journal',document.getElementById('decisionJournalRoot')&&global.MAVDecisionJournal?'pass':'fail','实时日志 + STOOQ历史学习 + 20/60/120交易日验证'));

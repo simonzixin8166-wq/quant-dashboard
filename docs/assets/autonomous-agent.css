@@ -49,3 +49,27 @@
 .agent-term-help summary{cursor:pointer;font-weight:700;line-height:1.45}
 .agent-term-help p{margin:8px 0 0;line-height:1.6;color:var(--muted,#667085)}
 .agent-term-help p b{color:var(--text,#172033)}
+
+
+/* V6.9 research readability + overflow guard */
+.agent-attention-root,.agent-grid,.agent-card,.agent-card-head,.agent-card-head>div{min-width:0}
+.agent-card{overflow:hidden}
+.agent-card p,.agent-card li,.agent-card small,.agent-card h3,.agent-card summary,.agent-section-title,.agent-metrics span{
+  overflow-wrap:anywhere;
+  word-break:break-word;
+}
+.agent-card ul{padding-right:4px}
+.agent-card details{max-width:100%;overflow:hidden}
+.agent-card-head h3{line-height:1.35}
+.agent-section-title b{font-size:14px}
+.agent-section-title span{white-space:normal;text-align:right}
+.agent-card-head>div{flex:1}
+.agent-card-head>b{flex:0 0 auto}
+@media(max-width:1180px){.agent-grid{grid-template-columns:1fr}}
+@media(max-width:680px){
+  .agent-card{padding:12px}
+  .agent-card-head{display:block}
+  .agent-card-head>b{display:block;margin-top:6px}
+  .agent-section-title{align-items:flex-start;display:block}
+  .agent-section-title span{display:block;text-align:left;margin-top:4px}
+}

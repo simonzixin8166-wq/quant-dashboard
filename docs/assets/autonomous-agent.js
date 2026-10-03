@@ -7,6 +7,11 @@
   function n(v){const x=Number(v);return Number.isFinite(x)?x:null}
   function pct(v,d=0){return Number.isFinite(Number(v))?(Number(v)*100).toFixed(d)+'%':'—'}
   function money(v){return Number.isFinite(Number(v))?'$'+Number(v).toFixed(2):'—'}
+  function num(v,d=2){return Number.isFinite(Number(v))?Number(v).toFixed(d):'—'}
+  function humanTime(v){if(!v)return'—';try{return new Intl.DateTimeFormat('zh-CN',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false}).format(new Date(v))}catch{return String(v)}}
+  function kindLabel(v){return({regime_combination:'组合环境',breadth_intelligence:'市场宽度',cross_asset_divergence:'跨资产背离',market_anomaly:'个股异动',failure_review:'失败复盘',method_evidence_gap:'方法验证',module_learning_review:'模块学习',architecture_gap:'架构检查',leverage_rebound:'杠杆回调',module_learning_design:'模块学习设计',research_process:'研究流程'})[v]||v||'研究'}
+  function confidenceLabel(v){return({high:'高',medium:'中',low:'低'})[v]||v||'—'}
+  function shadowChange(x){const p=x?.proposed_change||{};if(p.target_mode==='shadow_only')return '先建立结果标签，再进入影子学习';if(p.require_explicit_unknowns&&p.prioritize_missing_official_evidence)return '强制记录未知项，并优先补齐官方证据';if(Number.isFinite(Number(p.priority_weight_delta)))return '研究优先级权重 '+(Number(p.priority_weight_delta)>0?'+':'')+Number(p.priority_weight_delta);return Object.entries(p).map(([k,v])=>k+'='+String(v)).join(' · ')||'等待候选说明'}
   function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
   function rank(level){return({quiet:0,watch:1,review:2,action:3})[level]??0}
   function readMemory(){
@@ -126,12 +131,12 @@
     const p=state.plannerData||{},x=state.researchData||{},v=state.selfImproveData||{};
     const today=p.today||[],results=x.results||[],cands=v.candidates||[];
     if(!today.length&&!results.length&&!cands.length)return'';
-    const planner=`<div class="agent-section-title"><b>V6 自主研究规划 · 研究计划</b><span>${today.length} 项今日重点 · ${p.counts?.persistent||0} 项持续跟踪</span></div>
-      <div class="agent-grid">${today.slice(0,6).map(x=>`<article class="agent-card agent-review"><div class="agent-card-head"><div><span>${esc(x.kind||'RESEARCH')}</span><h3>${esc(x.title||x.key||'研究任务')}</h3></div><b>优先级 ${esc(x.priority??'—')}</b></div><p><strong>为什么现在研究：</strong>${esc(x.why_now||'')}</p><ul>${(x.questions||[]).slice(0,4).map(q=>`<li>${esc(q)}</li>`).join('')}</ul><small>连续运行 ${x.run_count||1} 次 · 需要同时记录支持证据、反证、未知项和下一验证条件。</small></article>`).join('')||'<div class="agent-empty">当前没有高优先级自主研究任务。</div>'}</div>`;
+    const planner=`<div class="agent-section-title"><b>自主研究规划 · 研究计划</b><span>${today.length} 项今日重点 · ${p.counts?.persistent||0} 项持续跟踪</span></div>
+      <div class="agent-grid">${today.slice(0,6).map(x=>`<article class="agent-card agent-review"><div class="agent-card-head"><div><span>${esc(kindLabel(x.kind))}</span><h3>${esc(x.title||x.key||'研究任务')}</h3></div><b>优先级 ${esc(x.priority??'—')}</b></div><p><strong>为什么现在研究：</strong>${esc(x.why_now||'')}</p><ul>${(x.questions||[]).slice(0,4).map(q=>`<li>${esc(q)}</li>`).join('')}</ul><small>连续运行 ${x.run_count||1} 次 · 需要同时记录支持证据、反证、未知项和下一验证条件。</small></article>`).join('')||'<div class="agent-empty">当前没有高优先级自主研究任务。</div>'}</div>`;
     const shadow=`<div class="agent-section-title"><b>Shadow Brain · 自我优化</b><span>${cands.length} 个候选 · ${v.shadow_brain?.eligible_for_review?.length||0} 个达到复核门槛</span></div>
-      <div class="agent-grid">${cands.slice(0,6).map(x=>`<article class="agent-card agent-watch"><div class="agent-card-head"><div><span>SHADOW · ${esc(x.kind||'candidate')}</span><h3>${esc(x.scope||'研究策略')}</h3></div><b>${esc(x.state==='eligible_for_review'?'可复核':'影子测试')}</b></div><p><strong>候选改进：</strong>${esc(JSON.stringify(x.proposed_change||{}))}</p><p><strong>依据：</strong>${esc(x.reason||'')}</p><div class="agent-metrics"><span>证据 ${x.evidence_n||0}</span><span>Shadow ${x.shadow_runs||0}/${v.promotion_gate?.minimum_shadow_runs||5}</span></div><small>达到门槛也不会自动修改正式交易规则；Promotion Gate 要求人工复核。</small></article>`).join('')||'<div class="agent-empty">目前没有新的策略候选。</div>'}</div>`;
-    const executed=`<div class="agent-section-title"><b>V6.5 自主研究执行 · 研究结果</b><span>${results.length} 项已分析 · 反证 ${x.summary?.with_counter_evidence||0} · 未知项 ${x.summary?.with_unknowns||0}</span></div>
-      <div class="agent-grid">${results.slice(0,6).map(r=>`<article class="agent-card agent-${r.confidence==='high'?'watch':'review'}"><div class="agent-card-head"><div><span>ANALYZED · ${esc(r.kind||'research')}</span><h3>${esc(r.title||r.key||'自主研究')}</h3></div><b>${esc(r.confidence||'low')} · ${r.evidence_score??'—'}</b></div><p><strong>暂时结论：</strong>${esc(r.provisional_conclusion||'')}</p><details open><summary>支持证据（${(r.supporting_evidence||[]).length}）</summary><ul>${(r.supporting_evidence||[]).slice(0,5).map(z=>`<li>${esc(z)}</li>`).join('')||'<li>暂无</li>'}</ul></details><details><summary>反证（${(r.counter_evidence||[]).length}）</summary><ul>${(r.counter_evidence||[]).slice(0,5).map(z=>`<li>${esc(z)}</li>`).join('')||'<li>暂无</li>'}</ul></details><details><summary>未知项（${(r.unknowns||[]).length}）</summary><ul>${(r.unknowns||[]).slice(0,5).map(z=>`<li>${esc(z)}</li>`).join('')||'<li>暂无</li>'}</ul></details><small>已自动分析 ${r.analysis_runs||1} 次 · 不补猜缺失事实 · 不自动交易。</small></article>`).join('')||'<div class="agent-empty">等待V6.2执行第一批自主研究任务。</div>'}</div>`;
+      <div class="agent-grid">${cands.slice(0,6).map(x=>`<article class="agent-card agent-watch"><div class="agent-card-head"><div><span>影子测试 · ${esc(kindLabel(x.kind))}</span><h3>${esc(x.scope==='tab-cn-hk'?'A股港股学习模式':x.scope==='evidence_coverage'?'证据完整度':x.scope||'研究策略')}</h3></div><b>${esc(x.state==='eligible_for_review'?'可复核':'影子测试')}</b></div><p><strong>候选改进：</strong>${esc(shadowChange(x))}</p><p><strong>依据：</strong>${esc(x.reason||'')}</p><div class="agent-metrics"><span>证据 ${x.evidence_n||0}</span><span>影子运行 ${x.shadow_runs||0} 次</span><span>最低门槛 ${v.promotion_gate?.minimum_shadow_runs||5} 次</span></div><small>达到门槛也不会自动修改正式交易规则；Promotion Gate 要求人工复核。</small></article>`).join('')||'<div class="agent-empty">目前没有新的策略候选。</div>'}</div>`;
+    const executed=`<div class="agent-section-title"><b>自主研究执行 · 研究结果</b><span>${results.length} 项已分析 · 反证 ${x.summary?.with_counter_evidence||0} · 未知项 ${x.summary?.with_unknowns||0}</span></div>
+      <div class="agent-grid">${results.slice(0,6).map(r=>`<article class="agent-card agent-${r.confidence==='high'?'watch':'review'}"><div class="agent-card-head"><div><span>已分析 · ${esc(kindLabel(r.kind))}</span><h3>${esc(r.title||r.key||'自主研究')}</h3></div><b>${esc(confidenceLabel(r.confidence))}置信 · ${r.evidence_score??'—'}</b></div><p><strong>暂时结论：</strong>${esc(r.provisional_conclusion||'')}</p><details open><summary>支持证据（${(r.supporting_evidence||[]).length}）</summary><ul>${(r.supporting_evidence||[]).slice(0,5).map(z=>`<li>${esc(z)}</li>`).join('')||'<li>暂无</li>'}</ul></details><details><summary>反证（${(r.counter_evidence||[]).length}）</summary><ul>${(r.counter_evidence||[]).slice(0,5).map(z=>`<li>${esc(z)}</li>`).join('')||'<li>暂无</li>'}</ul></details><details><summary>未知项（${(r.unknowns||[]).length}）</summary><ul>${(r.unknowns||[]).slice(0,5).map(z=>`<li>${esc(z)}</li>`).join('')||'<li>暂无</li>'}</ul></details><small>已自动分析 ${r.analysis_runs||1} 次 · 不补猜缺失事实 · 不自动交易。</small></article>`).join('')||'<div class="agent-empty">等待执行第一批自主研究任务。</div>'}</div>`;
     return planner+executed+shadow;
   }
 
@@ -192,23 +197,26 @@
     const rows=[
       ['Daily Dashboard',q['Daily Dashboard Update']],
       ['Autonomous QA',q['Autonomous QA & Security']],
-      ['Source Intelligence',q['Source Intelligence Validation']],
+      ['Source Intelligence',sourceRecovered?{...q['Source Intelligence Validation'],health:'ok',_recovered:true}:q['Source Intelligence Validation']],
       ['Trend Pulse 5Y',q['Trend Pulse 5Y Backtest']],
       ['Pages',q['pages build and deployment']],
       ['收盘研究采集',w['research-close']],
       ['TG采集',w['tg-bot']]
     ];
     const cn=x=>x==='ok'?'正常':x==='running'?'运行中':x==='bad'?'异常':x==='neutral'?'跳过':'未知';
+    const sourceArtifact=(s.artifacts||{}).source_intelligence||{};
+    const sourceRun=q['Source Intelligence Validation']||{};
+    const sourceRecovered=sourceRun.health==='bad'&&sourceArtifact.freshness==='fresh'&&sourceArtifact.updated_at&&sourceRun.updated_at&&new Date(sourceArtifact.updated_at)>new Date(sourceRun.updated_at);
     const cls=x=>x==='ok'?'positive':x==='bad'?'negative':'';
     const latest=state.sourceIntel?.generated_at||'—';
     const artifacts=s.artifacts||{},contract=s.decision_data_contract||{};
     const critical=contract.critical_artifacts||[];
-    const freshness=critical.map(name=>{const a=artifacts[name]||{};const label=a.freshness==='fresh'?'新鲜':a.freshness==='stale'?'陈旧':a.freshness==='expired'?'过期':a.freshness==='missing'?'缺失':'未知';return `${name} · ${label}${a.age_hours!==null&&a.age_hours!==undefined?` ${a.age_hours}h`:''}`;});
+    const freshnessNames={autonomous_agent:'自主研究',breadth_intelligence:'市场宽度',cross_asset_divergence:'跨资产',learning_engine:'学习引擎',market_dashboard:'市场数据',regime_combination_memory:'组合情境'};const freshness=critical.map(name=>{const a=artifacts[name]||{};const label=a.freshness==='fresh'?'新鲜':a.freshness==='stale'?'陈旧':a.freshness==='expired'?'过期':a.freshness==='missing'?'缺失':'未知';return `${freshnessNames[name]||name} · ${label}${a.age_hours!==null&&a.age_hours!==undefined?` ${a.age_hours}h`:''}`;});
     const excluded=contract.excluded_artifacts||[];
     return `<div class="agent-section-title"><b>System Status · 自主系统状态</b><span>${s.overall==='ok'?'运行正常':s.overall==='running'?'正在运行':'需要关注'}</span></div>
-      <div class="agent-grid"><article class="agent-card agent-watch"><div class="agent-card-head"><div><span>PIPELINE HEALTH</span><h3>采集 → 学习 → 验证 → 部署</h3></div><b>${esc(s.generated_at||'')}</b></div>
-      <div class="agent-metrics">${rows.map(([name,x])=>`<span class="${cls(x?.health)}">${esc(name)} · ${esc(cn(x?.health))}</span>`).join('')}</div>
-      <p><strong>最近 Source Intelligence：</strong>${esc(latest)}</p>
+      <div class="agent-grid"><article class="agent-card agent-watch"><div class="agent-card-head"><div><span>PIPELINE HEALTH</span><h3>采集 → 学习 → 验证 → 部署</h3></div><b>${esc(humanTime(s.generated_at))}</b></div>
+      <div class="agent-metrics">${rows.map(([name,x])=>`<span class="${cls(x?.health)}">${esc(name)} · ${esc(x?._recovered?'已由后续更新恢复':cn(x?.health))}</span>`).join('')}</div>
+      <p><strong>最近 Source Intelligence：</strong>${esc(humanTime(latest))}</p>
       <p><strong>关键数据新鲜度：</strong>${freshness.map(esc).join(' · ')||'等待状态数据'}</p>
       ${excluded.length?`<p class="negative"><strong>已暂停参与当前判断：</strong>${excluded.map(esc).join(' · ')}</p>`:''}
       <small>缓存或过期关键产物只保留为历史上下文，不继续参与当前研究结论；Daily Dashboard、Autonomous QA 或收盘研究采集失败也会直接标记异常。</small></article></div>`;
@@ -563,7 +571,7 @@
     const visibleStocks=visibleTracked.filter(x=>x.kind==='stock');
     const optionsHtml=visibleOptions.length?`<div class="agent-section-title"><b>期权持仓决策</b><span>${visibleOptions.length} 笔需要注意</span></div><div class="agent-grid">${visibleOptions.map(card).join('')}</div>`:'<div class="agent-section-title"><b>期权持仓决策</b><span>当前无需要处理的异常</span></div>';
     const stocksHtml=visibleStocks.length?`<div class="agent-section-title"><b>关注股与核心资产</b><span>${visibleStocks.length} 项需要显示${quietSuppressed?` · 已降噪 ${quietSuppressed}`:''}</span></div><div class="agent-grid">${visibleStocks.map(card).join('')}</div>`:'<div class="agent-section-title"><b>关注股与核心资产</b><span>当前无重要变化</span></div>';
-    host.innerHTML=`<div class="agent-attention-head"><div><span class="agent-kicker">MYALPHA AUTONOMOUS AGENT · V6 + V7</span><h2>自主研究助手</h2><p>不是只告诉你“需要复查”，而是明确说明今天做什么、为什么、什么条件会改变判断。</p></div><div class="agent-counts"><span class="action">需处理 <b>${counts.action}</b></span><span class="review">需复查 <b>${counts.review}</b></span><span>观察 <b>${counts.watch}</b></span></div></div>
+    host.innerHTML=`<div class="agent-attention-head"><div><span class="agent-kicker">MYALPHA AUTONOMOUS AGENT · V6.9</span><h2>自主研究助手</h2><p>不是只告诉你“需要复查”，而是明确说明今天做什么、为什么、什么条件会改变判断。</p></div><div class="agent-counts"><span class="action">需处理 <b>${counts.action}</b></span><span class="review">需复查 <b>${counts.review}</b></span><span>观察 <b>${counts.watch}</b></span></div></div>
       ${dataBlock.blocked?`<div class="agent-empty"><strong>当前公开研究判断已暂停：</strong>关键数据 ${dataBlock.excluded.map(esc).join('、')} 已超过新鲜度阈值。系统仍可显示历史上下文与私有期权实时检查，但不会把陈旧缓存当成当前市场结论。</div>`:''}
       ${tracked.length?`<div class="agent-section-title"><b>Changed Since Last Decision</b><span>${changed.length} 项变化</span></div>${changed.length?`<div class="agent-grid">${changed.slice(0,6).map(card).join('')}</div>`:'<div class="agent-empty">当前判断与上次一致，不重复打扰。</div>'}`+optionsHtml+stocksHtml:'<div class="agent-empty">当前没有需要打扰你的重大变化；系统仍在后台记录和学习。</div>'}
       <div class="agent-section-title"><b>Learning Policy · 学习策略</b><span>v${policy.version} · ${policy.baselineMode?'基线模式':'自主学习生效'} · 可审计</span></div>

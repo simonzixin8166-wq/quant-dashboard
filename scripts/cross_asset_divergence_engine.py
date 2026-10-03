@@ -79,19 +79,19 @@ def build(dash,macro):
     add("rates_pressure","10年期美债收益率压力",
         d10["latest"] is not None and d10["latest"]>=4.75 and (d10["chg20"] or 0)>0,
         "high",d10,
-        f"10Y={d10['latest']}，20日变化={d10['chg20']}" if d10["latest"] is not None else "缺失")
+        f"10Y={d10['latest']:.2f}，20日变化={d10['chg20']:+.2f}" if d10["latest"] is not None else "缺失")
     add("real_yield_pressure","实际利率压力",
         real10["latest"] is not None and real10["latest"]>=2.25 and (real10["chg20"] or 0)>0,
         "high",real10,
-        f"10Y real={real10['latest']}，20日变化={real10['chg20']}" if real10["latest"] is not None else "缺失")
+        f"10Y real={real10['latest']:.2f}，20日变化={real10['chg20']:+.2f}" if real10["latest"] is not None else "缺失")
     add("credit_widening","高收益信用利差走阔",
         hy["latest"] is not None and (hy["chg20"] or 0)>=0.25,
         "medium",hy,
-        f"HY OAS={hy['latest']}，20日变化={hy['chg20']}" if hy["latest"] is not None else "缺失")
+        f"HY OAS={hy['latest']:.2f}，20日变化={hy['chg20']:+.2f}" if hy["latest"] is not None else "缺失")
     add("vix_disconnect","VIX未同步确认风险",
         vix["latest"] is not None and vix["latest"]<20,
         "context",vix,
-        f"VIX={vix['latest']}：股票波动仍低，不足以否定债券/信用压力" if vix["latest"] is not None else "缺失")
+        f"VIX={vix['latest']:.2f}：股票波动仍低，不足以否定债券/信用压力" if vix["latest"] is not None else "缺失")
 
     w20=num((b.get("20天宽度") or {}).get("val"))
     w50=num((b.get("50天宽度") or {}).get("val"))
@@ -100,12 +100,12 @@ def build(dash,macro):
     add("breadth_divergence","市场宽度弱于指数",
         equity_near_high and breadth_weak,
         "high",{"w20":w20,"w50":w50,"w200":w200},
-        f"20/50/200日宽度={w20},{w50},{w200}")
+        f"20/50/200日宽度={w20:.0%}/{w50:.0%}/{w200:.0%}" if None not in (w20,w50,w200) else "宽度数据部分缺失")
 
     add("financial_conditions_cushion","金融条件仍有缓冲",
         nfci["latest"] is not None and nfci["latest"]<=-0.25,
         "offset",nfci,
-        f"NFCI={nfci['latest']}，尚未进入系统性紧缩")
+        f"NFCI={nfci['latest']:.3f}，尚未进入系统性紧缩")
 
     risk_hits=sum(1 for x in signals if x["hit"] and x["severity"] in {"high","medium"})
     high_hits=sum(1 for x in signals if x["hit"] and x["severity"]=="high")

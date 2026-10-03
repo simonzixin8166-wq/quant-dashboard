@@ -118,7 +118,10 @@ def market_brief(task,learning,evidence,source,data,official=None,events=None):
     else:
         add_unique(unknowns,"尚未生成该标的SEC官方证据缓存")
     integ=tp.get("data_integrity") or {}
-    if integ.get("status") and integ.get("status")!="OK":
+    integ_status=str(integ.get("status") or "").upper()
+    if integ_status in {"OK","PASS","VALID","VERIFIED"}:
+        add_unique(support,f"Trend Pulse 数据校验状态：{integ.get('label') or integ.get('status')}")
+    elif integ_status:
         add_unique(counter,f"Trend Pulse 数据校验状态：{integ.get('label') or integ.get('status')}")
     if not filings and sym not in {"QQQ","QQQM","VOO","SPY","VGT","QLD","TQQQ","SMH","IBIT","GLD","RSP"}:add_unique(unknowns,"尚未完成本任务对应的最新SEC官方披露核验")
     events=events or {}

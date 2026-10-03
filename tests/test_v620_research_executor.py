@@ -142,3 +142,11 @@ assert any("Source Hypothesis" in x for x in lrrow["supporting_evidence"])
 
 assert any("中位收益 8.0%" in x for x in lite["supporting_evidence"])
 assert any("平均日变动 2.5%" in x for x in lite["supporting_evidence"])
+
+
+# Passed dual-source integrity is supporting evidence, not counter-evidence.
+planner_pass={"version":"6.9.0","today":[{"task_id":"pass1","kind":"market_anomaly","key":"LITE","title":"LITE通过校验","priority":70,"questions":[],"evidence_sources":[]}],"queue":[]}
+art_pass={**artifacts,"data":{"trend_pulse":{"LITE":{"state":"二次启动","data_integrity":{"status":"PASS","label":"双源校验通过"}}}}}
+passrow=rx.build(planner_pass,art_pass,{})["results"][0]
+assert any("双源校验通过" in x for x in passrow["supporting_evidence"])
+assert not any("双源校验通过" in x for x in passrow["counter_evidence"])

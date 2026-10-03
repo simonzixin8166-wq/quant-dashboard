@@ -7,7 +7,7 @@ bi=importlib.util.module_from_spec(spec);spec.loader.exec_module(bi)
 
 dash={
  "spy_date":"2026-10-02",
- "raw_breadth":{"status":"ok","date":"2026-10-02","b20":0.25,"b50":0.30,"b200":0.43,"slope_10d":-0.12,"coverage":500,"universe":503},
+ "raw_breadth":{"status":"ok","date":"2026-10-02","b20":0.25,"b50":0.30,"b200":0.43,"slope_10d":-0.12,"coverage":500,"universe":503,"ad_net_pct":-0.2,"ad_line_20d":-2.0,"ad_line_60d":-3.5,"new_high_52w_pct":0.05,"near_high_52w_pct":0.18,"new_low_52w_pct":0.03},
  "breadth_proxies":{
    "SPY":{"status":"ok","returns":{"20":0.08}},
    "RSP":{"status":"ok","returns":{"20":0.02}},
@@ -28,11 +28,15 @@ assert out["metrics"]["qqq_minus_qqqe_20d"]>0.05
 assert "SPY_RSP_GAP" in out["combination_key"]
 assert "QQQ_QQQE_GAP" in out["combination_key"]
 assert any(x["key"]=="sp500_concentration" and x["hit"] for x in out["signals"])
+assert any(x["key"]=="ad_pressure" and x["hit"] for x in out["signals"])
+assert any(x["key"]=="new_highs_thin" and x["hit"] for x in out["signals"])
+assert "AD_NEG" in out["combination_key"] and "NH52_THIN" in out["combination_key"]
 
 hist={"records":[{"as_of":"2026-09-01","anchor_spy":701.0,"level":"fragile","outcomes":{}}]}
 m=bi.mature_history(hist,dash)
 assert "5" in m["records"][0]["outcomes"]
 assert "20" in m["records"][0]["outcomes"]
+assert "mae" in m["records"][0]["outcomes"]["20"] and "mfe" in m["records"][0]["outcomes"]["20"]
 
 healthy={
  "raw_breadth":{"status":"ok","date":"2026-10-02","b20":0.70,"b50":0.68,"b200":0.62,"slope_10d":0.10},

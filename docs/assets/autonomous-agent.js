@@ -6,7 +6,13 @@
 
   function n(v){const x=Number(v);return Number.isFinite(x)?x:null}
   function pct(v,d=0){return Number.isFinite(Number(v))?(Number(v)*100).toFixed(d)+'%':'—'}
-  function money(v){return Number.isFinite(Number(v))?'  function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+  function money(v){return Number.isFinite(Number(v))?'$'+Number(v).toFixed(2):'—'}
+  function num(v,d=2){return Number.isFinite(Number(v))?Number(v).toFixed(d):'—'}
+  function humanTime(v){if(!v)return'—';try{return new Intl.DateTimeFormat('zh-CN',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false}).format(new Date(v))}catch{return String(v)}}
+  function kindLabel(v){return({regime_combination:'组合环境',breadth_intelligence:'市场宽度',cross_asset_divergence:'跨资产背离',market_anomaly:'个股异动',failure_review:'失败复盘',method_evidence_gap:'方法验证',module_learning_review:'模块学习',architecture_gap:'架构检查',leverage_rebound:'杠杆回调',module_learning_design:'模块学习设计',research_process:'研究流程'})[v]||v||'研究'}
+  function confidenceLabel(v){return({high:'高',medium:'中',low:'低'})[v]||v||'—'}
+  function shadowChange(x){const p=x?.proposed_change||{};if(p.target_mode==='shadow_only')return '先建立结果标签，再进入影子学习';if(p.require_explicit_unknowns&&p.prioritize_missing_official_evidence)return '强制记录未知项，并优先补齐官方证据';if(Number.isFinite(Number(p.priority_weight_delta)))return '研究优先级权重 '+(Number(p.priority_weight_delta)>0?'+':'')+Number(p.priority_weight_delta);return Object.entries(p).map(([k,v])=>k+'='+String(v)).join(' · ')||'等待候选说明'}
+  function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
   function rank(level){return({quiet:0,watch:1,review:2,action:3})[level]??0}
   function readMemory(){
     try{

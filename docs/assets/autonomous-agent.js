@@ -194,19 +194,19 @@
   function systemStatusHtml(){
     const s=state.systemStatus;if(!s)return'';
     const q=s.workflows?.['quant-dashboard']||{},w=s.workflows?.['wxc-bot']||{};
+    const sourceArtifact=(s.artifacts||{}).source_intelligence||{};
+    const sourceRun=q['Source Intelligence Validation']||{};
+    const sourceRecovered=sourceRun.health==='bad'&&sourceArtifact.freshness==='fresh'&&sourceArtifact.updated_at&&sourceRun.updated_at&&new Date(sourceArtifact.updated_at)>new Date(sourceRun.updated_at);
     const rows=[
       ['Daily Dashboard',q['Daily Dashboard Update']],
       ['Autonomous QA',q['Autonomous QA & Security']],
-      ['Source Intelligence',sourceRecovered?{...q['Source Intelligence Validation'],health:'ok',_recovered:true}:q['Source Intelligence Validation']],
+      ['Source Intelligence',sourceRecovered?{...sourceRun,health:'ok',_recovered:true}:sourceRun],
       ['Trend Pulse 5Y',q['Trend Pulse 5Y Backtest']],
       ['Pages',q['pages build and deployment']],
       ['收盘研究采集',w['research-close']],
       ['TG采集',w['tg-bot']]
     ];
     const cn=x=>x==='ok'?'正常':x==='running'?'运行中':x==='bad'?'异常':x==='neutral'?'跳过':'未知';
-    const sourceArtifact=(s.artifacts||{}).source_intelligence||{};
-    const sourceRun=q['Source Intelligence Validation']||{};
-    const sourceRecovered=sourceRun.health==='bad'&&sourceArtifact.freshness==='fresh'&&sourceArtifact.updated_at&&sourceRun.updated_at&&new Date(sourceArtifact.updated_at)>new Date(sourceRun.updated_at);
     const cls=x=>x==='ok'?'positive':x==='bad'?'negative':'';
     const latest=state.sourceIntel?.generated_at||'—';
     const artifacts=s.artifacts||{},contract=s.decision_data_contract||{};

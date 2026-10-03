@@ -1,9 +1,12 @@
-import pathlib, unittest
+import pathlib, unittest, sys
 ROOT=pathlib.Path(__file__).resolve().parents[1]
+sys.path.insert(0,str(ROOT/'scripts'))
+from app_version import APP_VERSION
 class Tests(unittest.TestCase):
     def test_generator_contract(self):
         s=(ROOT/'scripts/fetch_and_build.py').read_text(encoding='utf-8')
-        self.assertIn('APP_VERSION = "5.3.0"',s)
+        self.assertEqual(APP_VERSION,"6.8.2")
+        self.assertIn("from app_version import APP_VERSION, OPTIONS_VERSION, ASSET_VERSION",s)
         self.assertIn('id="stockCountChip"',s)
         self.assertIn('AI 投资助手 · 正在值守',s)
         self.assertIn('Myalpha View V{APP_VERSION}',s)

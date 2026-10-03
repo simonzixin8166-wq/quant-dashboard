@@ -1,12 +1,16 @@
 from pathlib import Path
 import re
+import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 generator = (ROOT / "scripts" / "fetch_and_build.py").read_text(encoding="utf-8")
 page = (ROOT / "docs" / "index.html").read_text(encoding="utf-8")
+sys.path.insert(0, str(ROOT / "scripts"))
+from app_version import APP_VERSION, ASSET_VERSION
 
-version = re.search(r'^APP_VERSION = "([^"]+)"', generator, re.M).group(1)
-asset_version = re.search(r'^ASSET_VERSION = "([^"]+)"', generator, re.M).group(1)
+version = APP_VERSION
+asset_version = ASSET_VERSION
+assert "from app_version import APP_VERSION, OPTIONS_VERSION, ASSET_VERSION" in generator
 
 assert f'data-app-version="{version}"' in page
 assert f'assets/options-v2.js?v={asset_version}' in page

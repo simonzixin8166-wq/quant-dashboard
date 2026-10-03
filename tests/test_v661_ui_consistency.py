@@ -1,14 +1,18 @@
 from pathlib import Path
 import re
+import sys
 
 ROOT=Path(__file__).resolve().parents[1]
+sys.path.insert(0,str(ROOT/'scripts'))
+from app_version import APP_VERSION,ASSET_VERSION
 gen=(ROOT/"scripts"/"fetch_and_build.py").read_text(encoding="utf-8")
 idx=(ROOT/"docs"/"index.html").read_text(encoding="utf-8")
 mobile=(ROOT/"docs"/"assets"/"mobile-shell.js").read_text(encoding="utf-8")
 agent=(ROOT/"docs"/"assets"/"autonomous-agent.js").read_text(encoding="utf-8")
 
-assert 'APP_VERSION = "6.8.2"' in gen
-assert 'ASSET_VERSION = "6.8.2"' in gen
+assert APP_VERSION == "6.8.2"
+assert ASSET_VERSION == APP_VERSION
+assert "from app_version import APP_VERSION, OPTIONS_VERSION, ASSET_VERSION" in gen
 assert 'application-version" content="6.8.2"' in idx
 assert 'data-app-version="6.8.2"' in idx
 assert '?v=5.3.0' not in idx

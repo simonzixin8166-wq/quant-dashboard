@@ -1,5 +1,6 @@
 from pathlib import Path
 import re
+import sys
 
 ROOT=Path(__file__).resolve().parents[1]
 g=(ROOT/'scripts/fetch_and_build.py').read_text()
@@ -10,8 +11,11 @@ sw=(ROOT/'docs/assets/stock-watchlist.js').read_text()
 edge=(ROOT/'supabase/functions/stock-market/index.ts').read_text()
 wf=(ROOT/'.github/workflows/daily.yml').read_text()
 
-app_version=re.search(r'^APP_VERSION = "([^"]+)"',g,re.M).group(1)
-asset_version=re.search(r'^ASSET_VERSION = "([^"]+)"',g,re.M).group(1)
+sys.path.insert(0,str(ROOT/'scripts'))
+from app_version import APP_VERSION,ASSET_VERSION
+app_version=APP_VERSION
+asset_version=ASSET_VERSION
+assert "from app_version import APP_VERSION, OPTIONS_VERSION, ASSET_VERSION" in g
 assert 'tab-journal' in g and 'decisionJournalRoot' in g
 assert 'decision-journal.js' in g and 'decision-journal.css' in g
 assert 'Decision Journal' in idx and f'data-app-version="{app_version}"' in idx

@@ -6,7 +6,7 @@ spec=importlib.util.spec_from_file_location("mi",ROOT/"scripts"/"module_intellig
 mi=importlib.util.module_from_spec(spec);spec.loader.exec_module(mi)
 
 out=mi.build()
-assert out["version"]=="6.6.0"
+assert out["version"]=="6.7.0"
 assert out["audit"]["coverage_ok"] is True
 assert out["audit"]["actual_tabs"]==15
 assert out["audit"]["declared_tabs"]==15
@@ -50,3 +50,7 @@ assert "V6.3 Official Evidence Layer" in out["agent_loop"]
 assert services["event-window-attribution"]["role"]=="failure_context"
 assert "event_window_attribution" in out["artifacts"]
 assert "V6.5 Event Window Attribution" in out["agent_loop"]
+
+assert services["cross-asset-divergence"]["role"]=="macro_market_divergence"
+assert "cross_asset_divergence" in out["artifacts"]
+assert "cross_asset_divergence_history" in out["artifacts"]

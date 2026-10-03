@@ -18,7 +18,7 @@ evidence={"failure_attribution":{"external_outcome_reviews":[
 ]}}
 method={"methods":[{"method":"趋势确认","direct_validated_events":1,"context_validated_events":10}]}
 out=p.build(agent,{},evidence,method,{}, {})
-assert out["version"]=="6.7.0"
+assert out["version"]=="6.8.0"
 assert out["counts"]["open"]>=4
 assert any(x["kind"]=="market_anomaly" and x["key"]=="LITE" for x in out["queue"])
 assert any(x["kind"]=="failure_review" for x in out["queue"])
@@ -51,3 +51,11 @@ ca=next(x for x in out4["queue"] if x["kind"]=="cross_asset_divergence")
 assert ca["priority"]==86
 assert ca["key"]=="US_MARKET"
 assert ca["divergence_level"]=="high"
+
+
+breadth={"level":"high","label":"高位参与度收缩","participation_risks":4,"fingerprint":"EQUITY_NEAR_HIGH+BREADTH_WEAK+AD_NEGATIVE"}
+out5=p.build(agent,{},evidence,method,{}, {},{},cross,breadth)
+br=next(x for x in out5["queue"] if x["kind"]=="breadth_divergence")
+assert br["priority"]==84
+assert br["key"]=="US_PARTICIPATION"
+assert br["fingerprint"]==breadth["fingerprint"]

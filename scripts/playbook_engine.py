@@ -278,6 +278,16 @@ def build(now=None,writer=None):
     alerts_enabled=truthy_env("MYALPHA_PLAYBOOK_ALERTS_ENABLED",False)
     writer=writer if writer is not None else PrivateGitHubLedger.from_env()
     storage_configured=bool(writer)
+    configured_repo=os.getenv("MYALPHA_LEDGER_REPO","").strip() or None
+    token_present=bool(os.getenv("MYALPHA_LEDGER_TOKEN","").strip())
+    if storage_configured:
+        storage_reason="ready"
+    elif configured_repo and not token_present:
+        storage_reason="missing_token"
+    elif token_present and not configured_repo:
+        storage_reason="missing_repo"
+    else:
+        storage_reason="not_configured"
     forward_active=bool(storage_configured and global_enabled and global_ledger)
     previous_forward=bool((previous.get("storage") or {}).get("forward_clock_active"))
     starting_forward=forward_active and not previous_forward
@@ -373,6 +383,9 @@ def build(now=None,writer=None):
         },
         "storage":{
             "configured":storage_configured,
+            "configured_repo":configured_repo,
+            "token_present":token_present,
+            "reason":storage_reason,
             "forward_clock_active":forward_active,
             "health":anchor["status"],
             "raw_private":True,

@@ -34,7 +34,7 @@ events={"symbols":{"LITE":{"status":"ok","news":[{"title":"Lumentum update","pub
 data={"trend_pulse":{"LITE":{"state":"二次启动","data_integrity":{"status":"CHECK","label":"有限校验"}}}}
 artifacts={"learning":learning,"evidence":evidence,"method":method,"source":source,"modules":modules,"official":official,"event_windows":event_windows,"events":events,"data":data}
 out=rx.build(planner,artifacts,{})
-assert out["version"]=="6.5.0"
+assert out["version"]=="6.7.0"
 assert out["summary"]["analyzed"]==2
 lite=next(x for x in out["results"] if x["key"]=="LITE")
 assert lite["supporting_evidence"]

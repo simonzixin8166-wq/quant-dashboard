@@ -29,9 +29,12 @@ assert result["symbols"] == 503
 assert result["coverage"] == 503
 assert result["coverage_pct"] == 1
 assert result["quality_gate"] == "pass"
-for key in ("b20", "b50", "b200"):
+for key in ("b20", "b50", "b200", "advance_pct", "decline_pct", "unchanged_pct", "new_high_52w_pct", "near_high_52w_pct", "new_low_52w_pct"):
     assert 0 <= result[key] <= 1
 assert -1 <= result["slope_10d"] <= 1
+assert -1 <= result["ad_net_pct"] <= 1
+assert -20 <= result["ad_line_20d"] <= 20
+assert -60 <= result["ad_line_60d"] <= 60
 
 cached = dashboard._cached_breadth(result, "test fallback")
 assert cached["status"] == "ok" and cached["is_cached"] is True

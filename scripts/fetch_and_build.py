@@ -354,9 +354,51 @@ def _compute_breadth_from_closes(data):
     b50 = ((data > ma50).sum(axis=1) / data.notna().sum(axis=1)).iloc[199:]
     b200 = ((data > ma200).sum(axis=1) / data.notna().sum(axis=1)).iloc[199:]
     if len(b20) < 11: raise ValueError(f"宽度序列不足: {len(b20)}")
+
+    # V6.8 participation breadth: advance/decline pressure and 52-week participation.
+    # These are derived from the same quality-gated S&P 500 close matrix, so they
+    # cannot silently use a smaller or different universe than 20/50/200DMA breadth.
+    prev = data.shift(1)
+    valid_pair = data.notna() & prev.notna()
+    advances = ((data > prev) & valid_pair).sum(axis=1)
+    declines = ((data < prev) & valid_pair).sum(axis=1)
+    unchanged = ((data == prev) & valid_pair).sum(axis=1)
+    pair_count = valid_pair.sum(axis=1).replace(0, float("nan"))
+    advance_pct_series = advances / pair_count
+    decline_pct_series = declines / pair_count
+    unchanged_pct_series = unchanged / pair_count
+    ad_net_series = (advances - declines) / pair_count
+
+    high252 = data.rolling(252, min_periods=220).max()
+    low252 = data.rolling(252, min_periods=220).min()
+    latest = data.iloc[-1]
+    latest_high = high252.iloc[-1]
+    latest_low = low252.iloc[-1]
+    high_valid = latest.notna() & latest_high.notna()
+    low_valid = latest.notna() & latest_low.notna()
+    new_high_pct = float((latest[high_valid] >= latest_high[high_valid] * 0.999).mean()) if high_valid.any() else None
+    near_high_pct = float((latest[high_valid] >= latest_high[high_valid] * 0.98).mean()) if high_valid.any() else None
+    new_low_pct = float((latest[low_valid] <= latest_low[low_valid] * 1.001).mean()) if low_valid.any() else None
+
     market_date = data.index[-1].date().isoformat() if hasattr(data.index[-1], "date") else str(data.index[-1])[:10]
     latest_coverage = int(data.iloc[-1].notna().sum())
-    return {"status":"ok", "date":market_date, "b20":float(b20.iloc[-1]), "b50":float(b50.iloc[-1]), "b200":float(b200.iloc[-1]), "slope_10d":float(b20.iloc[-1]-b20.iloc[-11]), "symbols":int(data.shape[1]), "universe":expected_symbols, "coverage":latest_coverage, "coverage_pct":latest_coverage/expected_symbols, "quality_gate":"pass"}
+    return {
+        "status":"ok", "date":market_date,
+        "b20":float(b20.iloc[-1]), "b50":float(b50.iloc[-1]), "b200":float(b200.iloc[-1]),
+        "slope_10d":float(b20.iloc[-1]-b20.iloc[-11]),
+        "advance_pct":float(advance_pct_series.iloc[-1]),
+        "decline_pct":float(decline_pct_series.iloc[-1]),
+        "unchanged_pct":float(unchanged_pct_series.iloc[-1]),
+        "ad_net_pct":float(ad_net_series.iloc[-1]),
+        "ad_line_20d":float(ad_net_series.tail(20).sum()),
+        "ad_line_60d":float(ad_net_series.tail(60).sum()),
+        "new_high_52w_pct":new_high_pct,
+        "near_high_52w_pct":near_high_pct,
+        "new_low_52w_pct":new_low_pct,
+        "symbols":int(data.shape[1]), "universe":expected_symbols,
+        "coverage":latest_coverage, "coverage_pct":latest_coverage/expected_symbols,
+        "quality_gate":"pass"
+    }
 
 def _cached_breadth(old_breadth, reason):
     if not old_breadth or old_breadth.get("status") != "ok": return None

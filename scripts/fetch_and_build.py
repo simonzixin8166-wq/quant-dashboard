@@ -357,7 +357,30 @@ def _compute_breadth_from_closes(data):
     if len(b20) < 11: raise ValueError(f"宽度序列不足: {len(b20)}")
     market_date = data.index[-1].date().isoformat() if hasattr(data.index[-1], "date") else str(data.index[-1])[:10]
     latest_coverage = int(data.iloc[-1].notna().sum())
-    return {"status":"ok", "date":market_date, "b20":float(b20.iloc[-1]), "b50":float(b50.iloc[-1]), "b200":float(b200.iloc[-1]), "slope_10d":float(b20.iloc[-1]-b20.iloc[-11]), "symbols":int(data.shape[1]), "universe":expected_symbols, "coverage":latest_coverage, "coverage_pct":latest_coverage/expected_symbols, "quality_gate":"pass"}
+    prev=data.shift(1)
+    valid_pair=data.notna() & prev.notna()
+    adv=((data>prev)&valid_pair).sum(axis=1)
+    dec=((data<prev)&valid_pair).sum(axis=1)
+    pair_count=valid_pair.sum(axis=1).replace(0,float("nan"))
+    ad_net=(adv-dec)/pair_count
+
+    high252=data.rolling(252,min_periods=220).max()
+    low252=data.rolling(252,min_periods=220).min()
+    latest=data.iloc[-1]; hi=high252.iloc[-1]; lo=low252.iloc[-1]
+    hv=latest.notna() & hi.notna(); lv=latest.notna() & lo.notna()
+    new_high=float((latest[hv]>=hi[hv]*0.999).mean()) if hv.any() else None
+    near_high=float((latest[hv]>=hi[hv]*0.98).mean()) if hv.any() else None
+    new_low=float((latest[lv]<=lo[lv]*1.001).mean()) if lv.any() else None
+    return {
+      "status":"ok","date":market_date,
+      "b20":float(b20.iloc[-1]),"b50":float(b50.iloc[-1]),"b200":float(b200.iloc[-1]),
+      "slope_10d":float(b20.iloc[-1]-b20.iloc[-11]),
+      "advance_pct":float((adv/pair_count).iloc[-1]),"decline_pct":float((dec/pair_count).iloc[-1]),
+      "ad_net_pct":float(ad_net.iloc[-1]),"ad_line_20d":float(ad_net.tail(20).sum()),"ad_line_60d":float(ad_net.tail(60).sum()),
+      "new_high_52w_pct":new_high,"near_high_52w_pct":near_high,"new_low_52w_pct":new_low,
+      "symbols":int(data.shape[1]),"universe":expected_symbols,"coverage":latest_coverage,
+      "coverage_pct":latest_coverage/expected_symbols,"quality_gate":"pass"
+    }
 
 def _cached_breadth(old_breadth, reason):
     if not old_breadth or old_breadth.get("status") != "ok": return None
@@ -1235,7 +1258,7 @@ def build():
             rows = fetch_yahoo_index("GC=F", range_="2y") if name == "GCMAIN" else (fetch_yahoo_index("BTC-USD", range_="2y") if name == "BTC/USD" else fetch_time_series(name))
             index[name] = analyze(name, rows, today, tiers=CORE_TIERS.get(name), ath_metric=core_ath_metrics.get(name, {"valid": False}))
             if name in ("QQQ", "SMH", "TQQQ"): strategy_rows[name] = rows
-            if name in ("QQQ", "SPY"): overview_charts[name] = [{"d": r["datetime"][:10], "c": float(r["close"])} for r in rows[:30][::-1]]
+            if name in ("QQQ", "SPY"): overview_charts[name] = [{"d": r["datetime"][:10], "c": float(r["close"])} for r in rows[:90][::-1]]
             if name == "SPY": spy_rows_for_regime = rows
             if name == "QQQ": qqq_rows_for_regime = rows
         except Exception as e: index[name] = {"error": str(e)}

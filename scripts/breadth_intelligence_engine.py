@@ -64,6 +64,8 @@ def build(dash):
     slope=num(raw.get("slope_10d"))
     spy_rsp=proxy_gap(proxies,"SPY","RSP","20")
     qqq_qqqe=proxy_gap(proxies,"QQQ","QQQE","20")
+    ad20=num(raw.get("ad_line_20d")); ad60=num(raw.get("ad_line_60d"))
+    nh52=num(raw.get("new_high_52w_pct")); near52=num(raw.get("near_high_52w_pct")); nl52=num(raw.get("new_low_52w_pct"))
 
     signals=[]
     def add(key,label,hit,severity,value,reason):
@@ -81,10 +83,14 @@ def build(dash):
         f"20日SPY相对RSP领先 {spy_rsp:+.1%}" if spy_rsp is not None else "RSP对比待补齐")
     add("nasdaq_concentration","QQQ领先QQQE",qqq_qqqe is not None and qqq_qqqe>=0.025,"medium",qqq_qqqe,
         f"20日QQQ相对QQQE领先 {qqq_qqqe:+.1%}" if qqq_qqqe is not None else "QQQE对比待补齐")
+    add("ad_pressure","A/D累计线偏弱",ad20 is not None and ad20<0,"medium",ad20,
+        f"20日标准化A/D累计 {ad20:+.2f}" if ad20 is not None else "A/D待补齐")
+    add("new_highs_thin","52周新高参与不足",nh52 is not None and nh52<0.10,"medium",nh52,
+        f"仅 {nh52:.1%} 成分股处于52周新高" if nh52 is not None else "52周新高参与率待补齐")
 
     risk_hits=sum(1 for x in signals if x["hit"] and x["severity"] in {"high","medium"})
     high_hits=sum(1 for x in signals if x["hit"] and x["severity"]=="high")
-    known=sum(v is not None for v in (b20,b50,b200,slope,spy_rsp,qqq_qqqe))
+    known=sum(v is not None for v in (b20,b50,b200,slope,spy_rsp,qqq_qqqe,ad20,nh52))
     score=50
     if b20 is not None: score += (b20-.50)*45
     if b50 is not None: score += (b50-.50)*30
@@ -92,6 +98,8 @@ def build(dash):
     if slope is not None: score += max(-12,min(12,slope*60))
     if spy_rsp is not None: score -= max(0,spy_rsp)*120
     if qqq_qqqe is not None: score -= max(0,qqq_qqqe)*80
+    if ad20 is not None: score += max(-10,min(10,ad20*3))
+    if nh52 is not None: score += max(-8,min(8,(nh52-.10)*40))
     participation_score=round(max(0,min(100,score)),1)
 
     if high_hits>=3 or (risk_hits>=4 and participation_score<40):
@@ -110,11 +118,15 @@ def build(dash):
     if slope is not None: tags.append("SLOPE_DOWN" if slope<0 else "SLOPE_UP")
     if spy_rsp is not None: tags.append("SPY_RSP_GAP" if spy_rsp>=.025 else "SPY_RSP_OK")
     if qqq_qqqe is not None: tags.append("QQQ_QQQE_GAP" if qqq_qqqe>=.025 else "QQQ_QQQE_OK")
+    if ad20 is not None: tags.append("AD_NEG" if ad20<0 else "AD_POS")
+    if nh52 is not None: tags.append("NH52_THIN" if nh52<.10 else "NH52_OK")
 
     unknowns=[]
     if raw.get("status")!="ok": unknowns.append("标普500成分股宽度当前未通过完整数据质量门。")
     if spy_rsp is None: unknowns.append("SPY/RSP 20日等权差尚未取得稳定数据。")
     if qqq_qqqe is None: unknowns.append("QQQ/QQQE 20日等权差尚未取得稳定数据。")
+    if ad20 is None: unknowns.append("A/D累计参与度尚未取得稳定数据。")
+    if nh52 is None: unknowns.append("52周新高参与率尚未取得稳定数据。")
     return {
       "version":"6.8.0",
       "generated_at":datetime.now(timezone.utc).isoformat(),
@@ -125,6 +137,8 @@ def build(dash):
       "metrics":{
         "b20":b20,"b50":b50,"b200":b200,"slope_10d":slope,
         "spy_minus_rsp_20d":spy_rsp,"qqq_minus_qqqe_20d":qqq_qqqe,
+        "ad_net_pct":num(raw.get("ad_net_pct")),"ad_line_20d":ad20,"ad_line_60d":ad60,
+        "new_high_52w_pct":nh52,"near_high_52w_pct":near52,"new_low_52w_pct":nl52,
         "coverage":raw.get("coverage"),"universe":raw.get("universe"),
       },
       "signals":signals,

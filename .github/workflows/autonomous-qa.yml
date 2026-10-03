@@ -68,10 +68,14 @@ jobs:
           python tests/test_v690_ui_hardening.py
           python tests/test_ui_controls.py
           python tests/test_system_status_center.py
+          python tests/test_v610a_playbook_engine.py
       - name: Public static privacy guard
         run: |
           if grep -R -n -E '"(option_positions|private_positions|broker_account_id)"' docs/research docs/data.json 2>/dev/null; then
             echo 'Private option position material detected in public static output'; exit 1;
+          fi
+          if find docs -type f \( -name '*.jsonl' -o -path '*/ledger/*' \) -print | grep -q .; then
+            echo 'Raw ledger material detected in public docs'; exit 1;
           fi
           echo 'Private static export guard PASS'
 

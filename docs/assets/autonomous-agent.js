@@ -176,6 +176,7 @@
     const q=s.workflows?.['quant-dashboard']||{},w=s.workflows?.['wxc-bot']||{};
     const rows=[
       ['Daily Dashboard',q['Daily Dashboard Update']],
+      ['Autonomous QA',q['Autonomous QA & Security']],
       ['Source Intelligence',q['Source Intelligence Validation']],
       ['Trend Pulse 5Y',q['Trend Pulse 5Y Backtest']],
       ['Pages',q['pages build and deployment']],
@@ -185,11 +186,17 @@
     const cn=x=>x==='ok'?'正常':x==='running'?'运行中':x==='bad'?'异常':x==='neutral'?'跳过':'未知';
     const cls=x=>x==='ok'?'positive':x==='bad'?'negative':'';
     const latest=state.sourceIntel?.generated_at||'—';
+    const artifacts=s.artifacts||{},contract=s.decision_data_contract||{};
+    const critical=contract.critical_artifacts||[];
+    const freshness=critical.map(name=>{const a=artifacts[name]||{};const label=a.freshness==='fresh'?'新鲜':a.freshness==='stale'?'陈旧':a.freshness==='expired'?'过期':a.freshness==='missing'?'缺失':'未知';return `${name} · ${label}${a.age_hours!==null&&a.age_hours!==undefined?` ${a.age_hours}h`:''}`;});
+    const excluded=contract.excluded_artifacts||[];
     return `<div class="agent-section-title"><b>System Status · 自主系统状态</b><span>${s.overall==='ok'?'运行正常':s.overall==='running'?'正在运行':'需要关注'}</span></div>
       <div class="agent-grid"><article class="agent-card agent-watch"><div class="agent-card-head"><div><span>PIPELINE HEALTH</span><h3>采集 → 学习 → 验证 → 部署</h3></div><b>${esc(s.generated_at||'')}</b></div>
       <div class="agent-metrics">${rows.map(([name,x])=>`<span class="${cls(x?.health)}">${esc(name)} · ${esc(cn(x?.health))}</span>`).join('')}</div>
       <p><strong>最近 Source Intelligence：</strong>${esc(latest)}</p>
-      <small>这里直接显示自动化是否真正运行。若 Daily Dashboard 或收盘研究采集失败，会标记“异常”，而不是继续显示成正常。</small></article></div>`;
+      <p><strong>关键数据新鲜度：</strong>${freshness.map(esc).join(' · ')||'等待状态数据'}</p>
+      ${excluded.length?`<p class="negative"><strong>已暂停参与当前判断：</strong>${excluded.map(esc).join(' · ')}</p>`:''}
+      <small>缓存或过期关键产物只保留为历史上下文，不继续参与当前研究结论；Daily Dashboard、Autonomous QA 或收盘研究采集失败也会直接标记异常。</small></article></div>`;
   }
 
   function sourceIntelHtml(){
@@ -494,7 +501,16 @@
     }).sort((a,b)=>rank(b.level)-rank(a.level)||((a.metrics?.dte??999)-(b.metrics?.dte??999)));
   }
 
+  function decisionDataBlock(){
+    const contract=state.systemStatus?.decision_data_contract||{};
+    const excluded=Array.isArray(contract.excluded_artifacts)?contract.excluded_artifacts:[];
+    const critical=new Set(['market_dashboard','learning_engine','autonomous_agent','cross_asset_divergence','breadth_intelligence','regime_combination_memory']);
+    const blocked=excluded.filter(x=>critical.has(x));
+    return{blocked:blocked.length>0,excluded:blocked,rule:contract.rule||''};
+  }
+
   function publicAttention(policy){
+    if(decisionDataBlock().blocked)return[];
     const rows=state.publicData?.attention_summary?.top_attention||[];
     return rows.map(x=>applyLearningPolicy({kind:'stock',symbol:x.symbol,label:x.stage||'Watchlist',level:x.level,timing:x.timing,action:x.action,reasons:x.reasons||[],metrics:{day_change:x.day_change,research_priority:x.research_priority}},policy));
   }
@@ -514,6 +530,7 @@
   function render(){
     const center=$('agentCenterRoot'),home=$('agentAttentionRoot');const host=center||home;if(!host)return;
     const policy=buildLearningPolicy();
+    const dataBlock=decisionDataBlock();
     const pub=publicAttention(policy),priv=privateAttention();
     const optionAttention=priv.filter(x=>x.level!=='quiet').sort((a,b)=>rank(b.level)-rank(a.level)||((a.metrics?.dte??999)-(b.metrics?.dte??999)));
     const stockAttention=pub.filter(x=>x.level!=='quiet').sort((a,b)=>rank(b.level)-rank(a.level));
@@ -532,6 +549,7 @@
     const optionsHtml=visibleOptions.length?`<div class="agent-section-title"><b>期权持仓决策</b><span>${visibleOptions.length} 笔需要注意</span></div><div class="agent-grid">${visibleOptions.map(card).join('')}</div>`:'<div class="agent-section-title"><b>期权持仓决策</b><span>当前无需要处理的异常</span></div>';
     const stocksHtml=visibleStocks.length?`<div class="agent-section-title"><b>关注股与核心资产</b><span>${visibleStocks.length} 项需要显示${quietSuppressed?` · 已降噪 ${quietSuppressed}`:''}</span></div><div class="agent-grid">${visibleStocks.map(card).join('')}</div>`:'<div class="agent-section-title"><b>关注股与核心资产</b><span>当前无重要变化</span></div>';
     host.innerHTML=`<div class="agent-attention-head"><div><span class="agent-kicker">MYALPHA AUTONOMOUS AGENT · V6 + V7</span><h2>自主研究助手</h2><p>不是只告诉你“需要复查”，而是明确说明今天做什么、为什么、什么条件会改变判断。</p></div><div class="agent-counts"><span class="action">需处理 <b>${counts.action}</b></span><span class="review">需复查 <b>${counts.review}</b></span><span>观察 <b>${counts.watch}</b></span></div></div>
+      ${dataBlock.blocked?`<div class="agent-empty"><strong>当前公开研究判断已暂停：</strong>关键数据 ${dataBlock.excluded.map(esc).join('、')} 已超过新鲜度阈值。系统仍可显示历史上下文与私有期权实时检查，但不会把陈旧缓存当成当前市场结论。</div>`:''}
       ${tracked.length?`<div class="agent-section-title"><b>Changed Since Last Decision</b><span>${changed.length} 项变化</span></div>${changed.length?`<div class="agent-grid">${changed.slice(0,6).map(card).join('')}</div>`:'<div class="agent-empty">当前判断与上次一致，不重复打扰。</div>'}`+optionsHtml+stocksHtml:'<div class="agent-empty">当前没有需要打扰你的重大变化；系统仍在后台记录和学习。</div>'}
       <div class="agent-section-title"><b>Learning Policy · 学习策略</b><span>v${policy.version} · ${policy.baselineMode?'基线模式':'自主学习生效'} · 可审计</span></div>
       <div class="agent-grid"><article class="agent-card agent-watch"><div class="agent-card-head"><div><span>AUDITABLE POLICY</span><h3>研究权重调整</h3></div><b>成熟样本 ${policy.evidence.sample}</b></div><div class="agent-metrics"><span>二次启动 ${policy.adjustments.restart_bonus>=0?'+':''}${policy.adjustments.restart_bonus}</span><span>重复提醒 ${policy.adjustments.repeat_alert_penalty}</span><span>弱候选 ${policy.adjustments.weak_candidate_penalty}</span></div><p>证据：错过上涨 ${policy.evidence.missed} · 噪音 ${policy.evidence.noisy} · 误报 ${policy.evidence.false_positive}</p><small>仅影响研究优先级与提醒显示；不改变核心ETF阈值、仓位或交易规则。</small><div><button type="button" onclick="MAVAutonomousAgent.resetLearningPolicy()">回到学习基线</button> <button type="button" onclick="MAVAutonomousAgent.resumeLearningPolicy()">恢复自主学习</button></div></article></div>
@@ -555,7 +573,7 @@
   }
 
   async function init(){await loadPublic();render();setTimeout(render,2500);setTimeout(render,7000)}
-  global.MAVAutonomousAgent={render,loadPublic,optionAdvice,privateAttention,remainingEdge,readMemory,decisionHistory,buildLearningPolicy,resetLearningPolicy,resumeLearningPolicy,state};
+  global.MAVAutonomousAgent={render,loadPublic,optionAdvice,privateAttention,remainingEdge,readMemory,decisionHistory,buildLearningPolicy,resetLearningPolicy,resumeLearningPolicy,decisionDataBlock,state};
   if(typeof document!=='undefined'){
     window.addEventListener('mav:options-updated',()=>render());
     document.addEventListener('DOMContentLoaded',init);

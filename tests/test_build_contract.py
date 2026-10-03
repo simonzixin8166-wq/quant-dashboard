@@ -21,7 +21,9 @@ assert 'id="strategySignalGrid"' in generator
 assert "该资产预留资金（USD）" not in generator
 assert "strategy-tier-grid" in generator and "只判断是否进入加仓区" in generator
 assert "1级回撤" in page and "7.5%" in page
-assert "指数、行业与另类资产" in generator and "指数、行业与另类资产" in page
+assert "市场中心 · 指数、行业与跨市场环境" in generator and "市场中心 · 指数、行业与跨市场环境" in page
+for label in ("核心指数","卫星及杠杆","另类资产"):
+    assert label in generator and label in page
 assert "data-stock-row" in generator and "data-stock-row" in page
 assert version == "6.8.2"
 assert ".qa-empty{{padding:28px" in generator

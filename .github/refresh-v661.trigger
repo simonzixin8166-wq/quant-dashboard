@@ -1,3 +1,3 @@
-V6.8 Breadth Intelligence production refresh trigger
+V6.8.1 participation-depth production refresh trigger
 Updated: 2026-10-03
-Purpose: rebuild the latest completed-session market page after V6.8 merge, generate equal-weight breadth proxies, and refresh the immutable build manifest.
+Purpose: rebuild completed-session market data with A/D, 52-week participation, equal-weight proxies and 90-session outcome history.

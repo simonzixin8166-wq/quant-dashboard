@@ -1,5 +1,6 @@
 from pathlib import Path
 import re
+import sys
 ROOT=Path(__file__).resolve().parents[1]
 g=(ROOT/'scripts/fetch_and_build.py').read_text(encoding='utf-8')
 p=(ROOT/'docs/index.html').read_text(encoding='utf-8')
@@ -7,8 +8,11 @@ a=(ROOT/'docs/assets/investment-assistant.js').read_text(encoding='utf-8')
 o=(ROOT/'docs/assets/options-v2.js').read_text(encoding='utf-8')
 r=(ROOT/'docs/assets/research-methods.js').read_text(encoding='utf-8')
 s=(ROOT/'docs/assets/stock-watchlist.js').read_text(encoding='utf-8')
-app_version=re.search(r'^APP_VERSION = "([^"]+)"',g,re.M).group(1)
-asset_version=re.search(r'^ASSET_VERSION = "([^"]+)"',g,re.M).group(1)
+sys.path.insert(0,str(ROOT/'scripts'))
+from app_version import APP_VERSION,ASSET_VERSION
+app_version=APP_VERSION
+asset_version=ASSET_VERSION
+assert "from app_version import APP_VERSION, OPTIONS_VERSION, ASSET_VERSION" in g
 assert f'application-version" content="{app_version}"' in p
 assert f'?v={asset_version}' in p
 assert 'MYALPHA_RULE_REGISTRY' in r

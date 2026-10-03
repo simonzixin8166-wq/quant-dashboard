@@ -1,6 +1,6 @@
 {
-  "version": "6.7.0",
-  "generated_at": "2026-10-03T02:34:31.268004+00:00",
+  "version": "6.8.0",
+  "generated_at": "2026-10-03T03:16:56.812683+00:00",
   "mode": "autonomous_research_planner",
   "queue": [
     {
@@ -30,6 +30,64 @@
       "divergence_level": "high",
       "risk_hits": 4,
       "first_seen_at": "2026-10-03T02:34:31.267989+00:00",
+      "run_count": 2
+    },
+    {
+      "task_id": "9dd02d7dc13f4e",
+      "kind": "regime_combination",
+      "key": "US_REGIME",
+      "title": "美股 · 风险环境存在组合分化",
+      "priority": 82.0,
+      "why_now": "当前组合状态 CROSS_HIGH|BREADTH_WEAKENING|VIX_LOW；需要验证跨资产压力与宽度收窄是否持续共振。",
+      "questions": [
+        "同类组合状态历史5/20/60日结果如何？",
+        "宽度还是利率/信用哪一侧先修复？",
+        "VIX是否从低波动补涨确认风险？",
+        "什么变化足以让组合状态降级？"
+      ],
+      "evidence_sources": [
+        "regime_combination_memory",
+        "breadth_intelligence",
+        "cross_asset_divergence",
+        "SPY",
+        "VIX"
+      ],
+      "status": "open",
+      "review_window_days": 5,
+      "guardrail": "研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。",
+      "state_id": "CROSS_HIGH|BREADTH_WEAKENING|VIX_LOW",
+      "regime_level": "medium",
+      "first_seen_at": "2026-10-03T03:16:56.812673+00:00",
+      "run_count": 1
+    },
+    {
+      "task_id": "ff2fe8dce9c4c9",
+      "kind": "breadth_intelligence",
+      "key": "US_BREADTH",
+      "title": "美股 · 市场宽度走弱",
+      "priority": 78.0,
+      "why_now": "市场参与度评分 34.3，风险信号 3 项。",
+      "questions": [
+        "20/50日宽度是否连续修复？",
+        "RSP是否开始追上SPY？",
+        "QQQE是否开始追上QQQ？",
+        "长期200日宽度是否重回50%以上？",
+        "宽度恶化是否与利率/信用压力共振？"
+      ],
+      "evidence_sources": [
+        "breadth_intelligence",
+        "market_breadth",
+        "SPY/RSP",
+        "QQQ/QQQE",
+        "cross_asset_divergence"
+      ],
+      "status": "open",
+      "review_window_days": 5,
+      "guardrail": "研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。",
+      "breadth_level": "weakening",
+      "participation_score": 34.3,
+      "combination_key": "B20_LOW|B50_LOW|B200_LOW|SLOPE_UP",
+      "first_seen_at": "2026-10-03T03:16:56.812664+00:00",
       "run_count": 1
     },
     {
@@ -56,7 +114,7 @@
       "review_window_days": 2,
       "guardrail": "研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。",
       "first_seen_at": "2026-10-02T12:28:47.907809+00:00",
-      "run_count": 14
+      "run_count": 15
     },
     {
       "task_id": "df209aa723b495",
@@ -82,7 +140,7 @@
       "review_window_days": 2,
       "guardrail": "研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。",
       "first_seen_at": "2026-10-02T12:28:47.907825+00:00",
-      "run_count": 14
+      "run_count": 15
     },
     {
       "task_id": "b528aa82a03ae2",
@@ -108,7 +166,7 @@
       "review_window_days": 2,
       "guardrail": "研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。",
       "first_seen_at": "2026-10-02T12:28:47.907827+00:00",
-      "run_count": 14
+      "run_count": 15
     },
     {
       "task_id": "dd80a50c241fb6",
@@ -134,7 +192,7 @@
       "review_window_days": 2,
       "guardrail": "研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。",
       "first_seen_at": "2026-10-02T12:28:47.907829+00:00",
-      "run_count": 14
+      "run_count": 15
     },
     {
       "task_id": "7cb6373aaddb29",
@@ -160,7 +218,7 @@
       "review_window_days": 2,
       "guardrail": "研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。",
       "first_seen_at": "2026-10-02T12:28:47.907830+00:00",
-      "run_count": 14
+      "run_count": 15
     },
     {
       "task_id": "e27477c12d7f36",
@@ -189,7 +247,7 @@
         "brightline-blog-wenxuecity-com-myblog-82458-202608-22905-html:0:NOW:0"
       ],
       "first_seen_at": "2026-10-02T12:31:57.622540+00:00",
-      "run_count": 13
+      "run_count": 14
     },
     {
       "task_id": "022a1760e7ebb2",
@@ -219,7 +277,7 @@
         "brightline--blog-wenxuecity-com-myblog-82458-202605-4789-html:7:NBIS:0"
       ],
       "first_seen_at": "2026-10-02T12:31:57.622556+00:00",
-      "run_count": 13
+      "run_count": 14
     },
     {
       "task_id": "e3102a2d9894f8",
@@ -251,7 +309,7 @@
         "brightline-s-blog-wenxuecity-com-myblog-82458-202605-385-html:2:CRWV:0"
       ],
       "first_seen_at": "2026-10-02T12:31:57.622558+00:00",
-      "run_count": 13
+      "run_count": 14
     },
     {
       "task_id": "2fccd991c55ae7",
@@ -280,7 +338,7 @@
         "brightline-blog-wenxuecity-com-myblog-82458-202605-18645-html:0:QQQ:0"
       ],
       "first_seen_at": "2026-10-02T12:31:57.622560+00:00",
-      "run_count": 13
+      "run_count": 14
     },
     {
       "task_id": "86846a2043019c",
@@ -311,7 +369,7 @@
         "brightline--blog-wenxuecity-com-myblog-82458-202605-4789-html:7:IREN:0"
       ],
       "first_seen_at": "2026-10-02T12:31:57.622562+00:00",
-      "run_count": 13
+      "run_count": 14
     },
     {
       "task_id": "c8b097263bda24",
@@ -342,7 +400,7 @@
         "brightline--blog-wenxuecity-com-myblog-82458-202605-4789-html:5:TSLA:0"
       ],
       "first_seen_at": "2026-10-02T12:31:57.622563+00:00",
-      "run_count": 13
+      "run_count": 14
     },
     {
       "task_id": "e9256578e3c8c2",
@@ -373,7 +431,7 @@
         "brightline--blog-wenxuecity-com-myblog-82458-202605-4789-html:3:INTC:0"
       ],
       "first_seen_at": "2026-10-02T12:31:57.622565+00:00",
-      "run_count": 13
+      "run_count": 14
     },
     {
       "task_id": "015aef7f0635d8",
@@ -402,7 +460,7 @@
         "brightline--blog-wenxuecity-com-myblog-82458-202605-4789-html:2:GOOG:0"
       ],
       "first_seen_at": "2026-10-02T12:31:57.622566+00:00",
-      "run_count": 13
+      "run_count": 14
     },
     {
       "task_id": "ee8a9bc43aadc8",
@@ -431,7 +489,7 @@
         "brightline-s-blog-wenxuecity-com-myblog-82458-202605-385-html:5:META:0"
       ],
       "first_seen_at": "2026-10-02T12:31:57.622570+00:00",
-      "run_count": 13
+      "run_count": 14
     },
     {
       "task_id": "4daa84a71fe14a",
@@ -460,7 +518,7 @@
         "brightline-s-blog-wenxuecity-com-myblog-82458-202605-385-html:4:AMZN:0"
       ],
       "first_seen_at": "2026-10-02T12:31:57.622572+00:00",
-      "run_count": 13
+      "run_count": 14
     },
     {
       "task_id": "8360529f04283a",
@@ -483,7 +541,7 @@
       "review_window_days": 14,
       "guardrail": "研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。",
       "first_seen_at": "2026-10-02T12:28:47.907861+00:00",
-      "run_count": 14
+      "run_count": 15
     },
     {
       "task_id": "aeab38bf202a44",
@@ -506,7 +564,7 @@
       "review_window_days": 14,
       "guardrail": "研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。",
       "first_seen_at": "2026-10-02T12:28:47.907862+00:00",
-      "run_count": 14
+      "run_count": 15
     },
     {
       "task_id": "840500fdced1c0",
@@ -529,7 +587,7 @@
       "review_window_days": 14,
       "guardrail": "研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。",
       "first_seen_at": "2026-10-02T12:28:47.907864+00:00",
-      "run_count": 14
+      "run_count": 15
     },
     {
       "task_id": "e8c73ea1b64089",
@@ -552,7 +610,7 @@
       "review_window_days": 14,
       "guardrail": "研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。",
       "first_seen_at": "2026-10-02T12:28:47.907865+00:00",
-      "run_count": 14
+      "run_count": 15
     },
     {
       "task_id": "c5da8f54a27fdc",
@@ -575,7 +633,7 @@
       "review_window_days": 14,
       "guardrail": "研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。",
       "first_seen_at": "2026-10-02T12:28:47.907867+00:00",
-      "run_count": 14
+      "run_count": 15
     },
     {
       "task_id": "43f70509fc8dfb",
@@ -600,7 +658,7 @@
       "review_window_days": 30,
       "guardrail": "研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。",
       "first_seen_at": "2026-10-02T12:50:25.083840+00:00",
-      "run_count": 12
+      "run_count": 13
     },
     {
       "task_id": "2b928f4ea4de7b",
@@ -625,7 +683,7 @@
       "review_window_days": 30,
       "guardrail": "研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。",
       "first_seen_at": "2026-10-02T12:50:25.083849+00:00",
-      "run_count": 12
+      "run_count": 13
     },
     {
       "task_id": "b8bb1fc9e9fd51",
@@ -650,7 +708,7 @@
       "review_window_days": 30,
       "guardrail": "研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。",
       "first_seen_at": "2026-10-02T12:50:25.083852+00:00",
-      "run_count": 12
+      "run_count": 13
     }
   ],
   "today": [
@@ -681,6 +739,64 @@
       "divergence_level": "high",
       "risk_hits": 4,
       "first_seen_at": "2026-10-03T02:34:31.267989+00:00",
+      "run_count": 2
+    },
+    {
+      "task_id": "9dd02d7dc13f4e",
+      "kind": "regime_combination",
+      "key": "US_REGIME",
+      "title": "美股 · 风险环境存在组合分化",
+      "priority": 82.0,
+      "why_now": "当前组合状态 CROSS_HIGH|BREADTH_WEAKENING|VIX_LOW；需要验证跨资产压力与宽度收窄是否持续共振。",
+      "questions": [
+        "同类组合状态历史5/20/60日结果如何？",
+        "宽度还是利率/信用哪一侧先修复？",
+        "VIX是否从低波动补涨确认风险？",
+        "什么变化足以让组合状态降级？"
+      ],
+      "evidence_sources": [
+        "regime_combination_memory",
+        "breadth_intelligence",
+        "cross_asset_divergence",
+        "SPY",
+        "VIX"
+      ],
+      "status": "open",
+      "review_window_days": 5,
+      "guardrail": "研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。",
+      "state_id": "CROSS_HIGH|BREADTH_WEAKENING|VIX_LOW",
+      "regime_level": "medium",
+      "first_seen_at": "2026-10-03T03:16:56.812673+00:00",
+      "run_count": 1
+    },
+    {
+      "task_id": "ff2fe8dce9c4c9",
+      "kind": "breadth_intelligence",
+      "key": "US_BREADTH",
+      "title": "美股 · 市场宽度走弱",
+      "priority": 78.0,
+      "why_now": "市场参与度评分 34.3，风险信号 3 项。",
+      "questions": [
+        "20/50日宽度是否连续修复？",
+        "RSP是否开始追上SPY？",
+        "QQQE是否开始追上QQQ？",
+        "长期200日宽度是否重回50%以上？",
+        "宽度恶化是否与利率/信用压力共振？"
+      ],
+      "evidence_sources": [
+        "breadth_intelligence",
+        "market_breadth",
+        "SPY/RSP",
+        "QQQ/QQQE",
+        "cross_asset_divergence"
+      ],
+      "status": "open",
+      "review_window_days": 5,
+      "guardrail": "研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。",
+      "breadth_level": "weakening",
+      "participation_score": 34.3,
+      "combination_key": "B20_LOW|B50_LOW|B200_LOW|SLOPE_UP",
+      "first_seen_at": "2026-10-03T03:16:56.812664+00:00",
       "run_count": 1
     },
     {
@@ -707,7 +823,7 @@
       "review_window_days": 2,
       "guardrail": "研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。",
       "first_seen_at": "2026-10-02T12:28:47.907809+00:00",
-      "run_count": 14
+      "run_count": 15
     },
     {
       "task_id": "df209aa723b495",
@@ -733,7 +849,7 @@
       "review_window_days": 2,
       "guardrail": "研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。",
       "first_seen_at": "2026-10-02T12:28:47.907825+00:00",
-      "run_count": 14
+      "run_count": 15
     },
     {
       "task_id": "b528aa82a03ae2",
@@ -759,7 +875,7 @@
       "review_window_days": 2,
       "guardrail": "研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。",
       "first_seen_at": "2026-10-02T12:28:47.907827+00:00",
-      "run_count": 14
+      "run_count": 15
     },
     {
       "task_id": "dd80a50c241fb6",
@@ -785,7 +901,7 @@
       "review_window_days": 2,
       "guardrail": "研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。",
       "first_seen_at": "2026-10-02T12:28:47.907829+00:00",
-      "run_count": 14
+      "run_count": 15
     },
     {
       "task_id": "7cb6373aaddb29",
@@ -811,13 +927,13 @@
       "review_window_days": 2,
       "guardrail": "研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。",
       "first_seen_at": "2026-10-02T12:28:47.907830+00:00",
-      "run_count": 14
+      "run_count": 15
     }
   ],
   "counts": {
-    "open": 24,
-    "high_priority": 6,
-    "persistent": 23
+    "open": 26,
+    "high_priority": 8,
+    "persistent": 24
   },
   "planner_policy": {
     "objective": "优先研究可能改变 Thesis、风险暴露或方法可信度的问题。",

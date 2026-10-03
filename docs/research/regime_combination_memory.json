@@ -1,0 +1,49 @@
+{
+  "version": "6.8.0",
+  "generated_at": "2026-10-03T03:16:56.697888+00:00",
+  "as_of": "2026-10-02",
+  "level": "medium",
+  "label": "风险环境存在组合分化",
+  "state_id": "CROSS_HIGH|BREADTH_WEAKENING|VIX_LOW",
+  "cross_asset": {
+    "level": "high",
+    "label": "高位跨资产背离",
+    "risk_hits": 4
+  },
+  "breadth": {
+    "level": "weakening",
+    "label": "市场宽度走弱",
+    "participation_score": 34.3,
+    "combination_key": "B20_LOW|B50_LOW|B200_LOW|SLOPE_UP"
+  },
+  "vix": {
+    "value": 15.3100004196167,
+    "zone": "low"
+  },
+  "historical_matches": {
+    "total": 0,
+    "mature": {
+      "5": {
+        "n": 0
+      },
+      "20": {
+        "n": 0
+      },
+      "60": {
+        "n": 0
+      }
+    }
+  },
+  "interpretation": [
+    "组合记忆只比较同类环境，不把单一指标历史结果外推成确定预测。",
+    "高跨资产压力与脆弱宽度同时出现时，提高验证优先级，重点观察信用、利率与参与度是否继续共振。",
+    "如果宽度快速修复或利率/信用压力消退，组合状态可降级而不需要价格先大跌。"
+  ],
+  "next_validation": [
+    "Breadth Intelligence 是否从 fragile/weakening 向 mixed/healthy 修复",
+    "Cross-Asset Divergence 是否从 high/medium 降级",
+    "VIX 是否由低波动补涨进入风险确认，或继续保持背离",
+    "相同组合状态的20/60日成熟样本是否形成稳定模式"
+  ],
+  "guardrail": "Regime Combination Memory 只影响研究优先级与情境解释，不自动调整仓位、杠杆或下单。"
+}

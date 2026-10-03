@@ -1,0 +1,89 @@
+{
+  "version": "6.8.0",
+  "generated_at": "2026-10-03T03:16:56.643344+00:00",
+  "as_of": "2026-10-02",
+  "level": "weakening",
+  "label": "市场宽度走弱",
+  "participation_score": 34.3,
+  "risk_hits": 3,
+  "high_hits": 2,
+  "known_inputs": 4,
+  "metrics": {
+    "b20": 0.25948103792415167,
+    "b50": 0.24151696606786427,
+    "b200": 0.45109780439121755,
+    "slope_10d": 0.06387225548902192,
+    "spy_minus_rsp_20d": null,
+    "qqq_minus_qqqe_20d": null,
+    "coverage": 501,
+    "universe": 503
+  },
+  "signals": [
+    {
+      "key": "b20_weak",
+      "label": "20日参与度偏弱",
+      "hit": true,
+      "severity": "high",
+      "value": 0.25948103792415167,
+      "reason": "仅 26% 成分股站上20日线"
+    },
+    {
+      "key": "b50_weak",
+      "label": "50日参与度偏弱",
+      "hit": true,
+      "severity": "high",
+      "value": 0.24151696606786427,
+      "reason": "仅 24% 成分股站上50日线"
+    },
+    {
+      "key": "b200_weak",
+      "label": "长期参与度不足",
+      "hit": true,
+      "severity": "medium",
+      "value": 0.45109780439121755,
+      "reason": "45% 成分股站上200日线"
+    },
+    {
+      "key": "breadth_falling",
+      "label": "短期宽度继续恶化",
+      "hit": false,
+      "severity": "medium",
+      "value": 0.06387225548902192,
+      "reason": "20日宽度10日斜率 +6.4%"
+    },
+    {
+      "key": "sp500_concentration",
+      "label": "SPY领先RSP",
+      "hit": false,
+      "severity": "high",
+      "value": null,
+      "reason": "RSP对比待补齐"
+    },
+    {
+      "key": "nasdaq_concentration",
+      "label": "QQQ领先QQQE",
+      "hit": false,
+      "severity": "medium",
+      "value": null,
+      "reason": "QQQE对比待补齐"
+    }
+  ],
+  "combination_key": "B20_LOW|B50_LOW|B200_LOW|SLOPE_UP",
+  "interpretation": [
+    "指数上涨若伴随等权指数落后和成分股宽度下降，说明上涨参与度收窄。",
+    "宽度恶化可提高风险研究优先级，但不能单独等同于顶部或卖出信号。",
+    "若等权指数追上、20/50日宽度回升且斜率转正，集中度风险可被逐步消化。"
+  ],
+  "unknowns": [
+    "SPY/RSP 20日等权差尚未取得稳定数据。",
+    "QQQ/QQQE 20日等权差尚未取得稳定数据。"
+  ],
+  "next_validation": [
+    "20/50日宽度是否连续修复",
+    "RSP能否缩小对SPY的20日相对落后",
+    "QQQE能否缩小对QQQ的20日相对落后",
+    "200日宽度是否重新站上50%",
+    "跨资产利率/信用压力是否与宽度恶化共振"
+  ],
+  "guardrail": "Breadth Intelligence 是市场参与度研究层，不是自动减仓、卖出或做空指令。"
+}

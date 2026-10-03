@@ -1,6 +1,6 @@
 {
-  "version": "6.7.0",
-  "generated_at": "2026-10-03T02:34:31.216339+00:00",
+  "version": "6.8.0",
+  "generated_at": "2026-10-03T03:16:56.748791+00:00",
   "mission": "每个能力模块必须有存在目的、证据输入、学习策略和下游关系；导航只暴露少数核心工作台，其余能力作为二级或辅助入口。",
   "audit": {
     "actual_tabs": 15,
@@ -229,18 +229,24 @@
       "inputs": [
         "docs/data.json",
         "trend_pulse",
-        "cross_asset_divergence"
+        "cross_asset_divergence",
+        "breadth_intelligence",
+        "regime_combination_memory"
       ],
       "outputs": [
         "learning_engine",
         "research_planner",
-        "cross_asset_divergence"
+        "cross_asset_divergence",
+        "breadth_intelligence",
+        "regime_combination_memory"
       ],
       "learning": "continuous",
       "learns_from": [
         "trend regimes",
         "drawdowns",
-        "cross-asset confirmation"
+        "cross-asset confirmation",
+        "market participation",
+        "cap-weight vs equal-weight concentration"
       ],
       "why_it_exists": "个股与期权判断需要先知道宽基、行业和风险资产处于什么环境。",
       "guardrail": "跨资产相关性用于环境判断，不自动推导个股方向。"
@@ -485,6 +491,43 @@
         "research-planner",
         "research-executor",
         "decision-journal",
+        "self-improvement",
+        "regime-combination-memory"
+      ],
+      "learning": "continuous"
+    },
+    {
+      "id": "breadth-intelligence",
+      "name": "Breadth Intelligence",
+      "role": "market_participation",
+      "inputs": [
+        "S&P500 constituent breadth",
+        "SPY/RSP",
+        "QQQ/QQQE"
+      ],
+      "outputs": [
+        "research-planner",
+        "research-executor",
+        "decision-journal",
+        "regime-combination-memory",
+        "self-improvement"
+      ],
+      "learning": "continuous"
+    },
+    {
+      "id": "regime-combination-memory",
+      "name": "Regime Combination Memory",
+      "role": "joint_situation_memory",
+      "inputs": [
+        "cross_asset_divergence",
+        "breadth_intelligence",
+        "VIX",
+        "SPY outcomes"
+      ],
+      "outputs": [
+        "research-planner",
+        "research-executor",
+        "decision-journal",
         "self-improvement"
       ],
       "learning": "continuous"
@@ -645,6 +688,22 @@
       "path": "docs/research/cross_asset_divergence_history.json",
       "available": true
     },
+    "breadth_intelligence": {
+      "path": "docs/research/breadth_intelligence.json",
+      "available": true
+    },
+    "breadth_intelligence_history": {
+      "path": "docs/research/breadth_intelligence_history.json",
+      "available": true
+    },
+    "regime_combination_memory": {
+      "path": "docs/research/regime_combination_memory.json",
+      "available": true
+    },
+    "regime_combination_history": {
+      "path": "docs/research/regime_combination_history.json",
+      "available": true
+    },
     "self_improvement": {
       "path": "docs/research/self_improvement.json",
       "available": true
@@ -791,6 +850,16 @@
     {
       "from": "tab-index",
       "to": "cross_asset_divergence",
+      "type": "feeds"
+    },
+    {
+      "from": "tab-index",
+      "to": "breadth_intelligence",
+      "type": "feeds"
+    },
+    {
+      "from": "tab-index",
+      "to": "regime_combination_memory",
       "type": "feeds"
     },
     {
@@ -964,6 +1033,56 @@
       "type": "feeds"
     },
     {
+      "from": "cross-asset-divergence",
+      "to": "regime-combination-memory",
+      "type": "feeds"
+    },
+    {
+      "from": "breadth-intelligence",
+      "to": "research-planner",
+      "type": "feeds"
+    },
+    {
+      "from": "breadth-intelligence",
+      "to": "research-executor",
+      "type": "feeds"
+    },
+    {
+      "from": "breadth-intelligence",
+      "to": "decision-journal",
+      "type": "feeds"
+    },
+    {
+      "from": "breadth-intelligence",
+      "to": "regime-combination-memory",
+      "type": "feeds"
+    },
+    {
+      "from": "breadth-intelligence",
+      "to": "self-improvement",
+      "type": "feeds"
+    },
+    {
+      "from": "regime-combination-memory",
+      "to": "research-planner",
+      "type": "feeds"
+    },
+    {
+      "from": "regime-combination-memory",
+      "to": "research-executor",
+      "type": "feeds"
+    },
+    {
+      "from": "regime-combination-memory",
+      "to": "decision-journal",
+      "type": "feeds"
+    },
+    {
+      "from": "regime-combination-memory",
+      "to": "self-improvement",
+      "type": "feeds"
+    },
+    {
       "from": "event-evidence",
       "to": "research-executor",
       "type": "feeds"
@@ -1041,7 +1160,7 @@
   ],
   "agent_loop": [
     "market/live + macro + external sources",
-    "Trend Pulse / Market Context / Cross-Asset Divergence / Company & Options Context",
+    "Trend Pulse / Market Context / Breadth Intelligence / Cross-Asset Divergence / Regime Combination Memory / Company & Options Context",
     "Learning Engine / Situation Memory",
     "V6 Research Planner",
     "V6.3 Official Evidence Layer",

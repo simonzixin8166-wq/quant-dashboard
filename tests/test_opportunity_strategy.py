@@ -54,12 +54,13 @@ assert inactive["trigger_8"] is False
 reb=[]
 for i in range(240):
     if i<220: close=100+i*.25
-    elif i<232: close=155-(i-220)*2.2
-    else: close=130+(i-232)*2.4
+    elif i<232: close=155-(i-220)*2.7
+    else: close=122+(i-232)*2.0
     reb.append({"datetime":f"2026-{1+i//28:02d}-{1+i%28:02d}","close":close})
 reb_vix=[{"datetime":x["datetime"],"close":18 if i>231 else 24} for i,x in enumerate(reb)]
 sig=build_leverage_rebound_signal(reb,reb_vix,{"available":True,"status_label":"部分敞口","action":"恢复部分敞口"},radar,{"b20":.45,"b50":.44,"slope_10d":.08})
 assert sig["available"] is True
+assert sig["trigger_10"] is True
 assert sig["status"] in {"watch","candidate","risk"}
 assert "不修改TQQQ X2" in sig["guardrail"]
 assert sig["source_method"]["author"].startswith("lionhill")

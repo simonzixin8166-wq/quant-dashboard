@@ -73,3 +73,27 @@ assert 'id="tab-options"' in HTML
 # Regression: fake private-mode button was converted to a status element.
 assert '<span id="privateModeShield"' in HTML
 print(f'test_ui_controls.py: audited {len(buttons)} generated buttons; all have an interaction binding')
+
+
+# 3) Dynamic HTML templates in JS must not emit dead onclick handlers.
+dynamic_handlers=[]
+for path in JS_FILES:
+    src=path.read_text(encoding='utf-8')
+    for m in re.finditer(r'onclick=["\']\s*([A-Za-z_$][\w.$]*)\s*\(', src):
+        dynamic_handlers.append((path.name,m.group(1)))
+assert dynamic_handlers, 'No dynamic onclick handlers discovered'
+for filename,name in dynamic_handlers:
+    leaf=name.split('.')[-1]
+    assert (re.search(rf'function\s+{re.escape(leaf)}\s*\(', ALL_JS)
+            or re.search(rf'\b{re.escape(name)}\b', ALL_JS)
+            or re.search(rf'\b{re.escape(leaf)}\s*[:=]', ALL_JS)), f"Missing dynamic onclick target {name} emitted by {filename}"
+
+# 4) Every sidebar tab target must exist exactly once and switchTab/openDashboardTab must be present.
+nav_targets=re.findall(r"switchTab\('([^']+)'", HTML)
+assert nav_targets, 'No sidebar tab targets found'
+for target in sorted(set(nav_targets)):
+    assert len(re.findall(rf'id=["\']{re.escape(target)}["\']', HTML))==1, f"Tab target #{target} missing or duplicated"
+assert 'function switchTab(' in HTML
+assert 'function openDashboardTab(id)' in HTML
+
+print(f'dynamic controls audited: {len(dynamic_handlers)} JS onclick handlers · {len(set(nav_targets))} tab targets')

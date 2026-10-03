@@ -15,6 +15,7 @@ warnings.filterwarnings("ignore")
 
 # 单一版本源：每日 Action、静态资源缓存版本与测试均从 app_version.py 读取。
 from app_version import APP_VERSION, OPTIONS_VERSION, ASSET_VERSION
+from playbook_config import CORE_TIERS
 
 API_KEY = os.environ.get("TWELVE_DATA_KEY", "demo")
 BASE = "https://api.twelvedata.com"
@@ -34,15 +35,7 @@ def throttle():
     LAST_TD_REQUEST_TIME = time.time()
 
 # ================= 2. 资产池配置 =================
-CORE_TIERS = {
-    "QQQM": {"t1": 0.12, "t2": 0.18, "t3": 0.25},
-    "QQQ":  {"t1": 0.12, "t2": 0.18, "t3": 0.25},
-    "VGT":  {"t1": 0.15, "t2": 0.20, "t3": 0.30},
-    "QLD":  {"t1": 0.25, "t2": 0.35, "t3": 0.50},
-    "TQQQ": {"t1": 0.40, "t2": 0.50, "t3": 0.70},
-    "VOO":  {"t1": 0.075, "t2": 0.10, "t3": 0.15},
-}
-
+# CORE_TIERS comes from the version-controlled Playbook registry.
 INDEX = ["QQQ", "SPY", "VOO", "SMH", "TQQQ", "GCMAIN", "BTC/USD"]
 DISPLAYED_INDEX = ["QQQ", "VOO", "SMH", "TQQQ", "GCMAIN", "BTC/USD"]
 VOL_PROXY_SYM = "VIXY"

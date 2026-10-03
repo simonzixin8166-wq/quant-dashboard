@@ -19,4 +19,6 @@ COMPONENT_VERSIONS = {
     "self_improvement": "7.2.1",
     "learning_evaluation": "6.9.0",
     "system_status": "4",
+    "playbook_engine": "6.10a.0",
+    "trigger_ledger_schema": "1.0",
 }

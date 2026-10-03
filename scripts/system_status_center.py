@@ -30,6 +30,8 @@ ARTIFACTS={
     "breadth_intelligence_history": ROOT/"docs"/"research"/"breadth_intelligence_history.json",
     "regime_combination_memory": ROOT/"docs"/"research"/"regime_combination_memory.json",
     "regime_combination_history": ROOT/"docs"/"research"/"regime_combination_history.json",
+    "playbook_status": ROOT/"docs"/"research"/"playbook_status.json",
+    "ledger_anchor": ROOT/"docs"/"research"/"ledger_anchor.json",
 }
 
 WATCH_WORKFLOWS={
@@ -62,6 +64,8 @@ FRESHNESS_HOURS={
     "breadth_intelligence_history": 336,
     "regime_combination_memory": 96,
     "regime_combination_history": 336,
+    "playbook_status": 96,
+    "ledger_anchor": 96,
 }
 CRITICAL_DECISION_ARTIFACTS={
     "market_dashboard","learning_engine","autonomous_agent",
@@ -181,16 +185,28 @@ def build(fetch_runs=True):
         name for name in CRITICAL_DECISION_ARTIFACTS
         if not artifacts.get(name,{}).get("decision_eligible")
     ]
+    playbook=load(ARTIFACTS["playbook_status"])
+    ledger=load(ARTIFACTS["ledger_anchor"])
+    ledger_fault=bool((playbook.get("storage") or {}).get("forward_clock_active") and ledger.get("status")!="ok")
     if "bad" in critical:overall="attention"
     elif "running" in critical:overall="running"
     elif any(x in {"unknown",None} for x in critical):overall="attention"
     elif artifact_failures:overall="attention"
+    elif ledger_fault:overall="attention"
     result={
         "version":4,
         "generated_at":datetime.now(timezone.utc).isoformat(),
         "overall":overall,
         "workflows":repos,
         "artifacts":artifacts,
+        "playbook_runtime":{
+            "mode":playbook.get("mode","unknown"),
+            "heartbeat":playbook.get("heartbeat") or {},
+            "data_quality":playbook.get("data_quality") or {},
+            "kill_switch":playbook.get("kill_switch") or {},
+            "storage":playbook.get("storage") or {},
+            "ledger_anchor_status":ledger.get("status","unknown"),
+        },
         "decision_data_contract":{
             "critical_artifacts":sorted(CRITICAL_DECISION_ARTIFACTS),
             "excluded_artifacts":artifact_failures,

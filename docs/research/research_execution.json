@@ -1,6 +1,6 @@
 {
-  "version": "6.8.2",
-  "generated_at": "2026-10-03T09:28:24.335945+00:00",
+  "version": "6.9.0",
+  "generated_at": "2026-10-03T09:48:29.265114+00:00",
   "planner_version": "6.8.2",
   "results": [
     {
@@ -12,20 +12,20 @@
       "research_status": "analyzed",
       "supporting_evidence": [
         "当前组合状态：CROSS_HIGH|BREADTH_FRAGILE|VIX_LOW",
-        "VIX=15.3100004196167，分区 low"
-      ],
-      "counter_evidence": [
         "跨资产层：高位跨资产背离；风险信号 4",
         "宽度层：参与度脆弱 · 权重股主导；参与度评分 13.9",
         "跨资产压力与脆弱宽度当前同时出现，应优先验证是否继续共振"
+      ],
+      "counter_evidence": [
+        "VIX=15.31，分区 low；波动率尚未确认风险升级"
       ],
       "unknowns": [
         "同组合 5 日成熟样本仍不足",
         "同组合 20 日成熟样本仍不足",
         "同组合 60 日成熟样本仍不足"
       ],
-      "evidence_score": 38,
-      "confidence": "low",
+      "evidence_score": 46,
+      "confidence": "medium",
       "provisional_conclusion": "证据存在分歧，保持研究状态并优先验证反证。",
       "next_validation": [
         "同类组合状态历史5/20/60日结果如何？",
@@ -41,9 +41,9 @@
         "VIX"
       ],
       "guardrail": "该研究结果不能自动下单；未知项不得由模型猜测补全。",
-      "analysis_runs": 13,
+      "analysis_runs": 14,
       "first_analyzed_at": "2026-10-03T03:17:04.415215+00:00",
-      "last_analyzed_at": "2026-10-03T09:28:24.335945+00:00"
+      "last_analyzed_at": "2026-10-03T09:48:29.265114+00:00"
     },
     {
       "task_id": "ff2fe8dce9c4c9",
@@ -53,26 +53,24 @@
       "priority": 88.0,
       "research_status": "analyzed",
       "supporting_evidence": [
-        "市场参与度评分：13.9/100",
-        "宽度组合状态：B20_LOW|B50_LOW|B200_LOW|SLOPE_UP|SPY_RSP_GAP|QQQ_QQQE_GAP|AD_NEG|NH52_THIN"
-      ],
-      "counter_evidence": [
         "20日参与度偏弱：仅 26% 成分股站上20日线",
         "50日参与度偏弱：仅 24% 成分股站上50日线",
         "长期参与度不足：45% 成分股站上200日线",
         "SPY领先RSP：20日SPY相对RSP领先 +4.2%",
         "QQQ领先QQQE：20日QQQ相对QQQE领先 +4.1%",
         "A/D累计线偏弱：20日标准化A/D累计 -2.99",
-        "52周新高参与不足：仅 2.2% 成分股处于52周新高"
+        "52周新高参与不足：仅 2.2% 成分股处于52周新高",
+        "市场参与度评分：13.9/100"
       ],
+      "counter_evidence": [],
       "unknowns": [
         "弱宽度 5 日成熟样本仍不足",
         "弱宽度 20 日成熟样本仍不足",
         "弱宽度 60 日成熟样本仍不足"
       ],
-      "evidence_score": 70,
+      "evidence_score": 98,
       "confidence": "high",
-      "provisional_conclusion": "证据存在分歧，保持研究状态并优先验证反证。",
+      "provisional_conclusion": "已有初步支持证据，但关键外部事实仍缺失，暂不升级为结论。",
       "next_validation": [
         "20/50日宽度是否连续修复？",
         "RSP是否开始追上SPY？",
@@ -87,9 +85,9 @@
         "cross_asset_divergence"
       ],
       "guardrail": "该研究结果不能自动下单；未知项不得由模型猜测补全。",
-      "analysis_runs": 13,
+      "analysis_runs": 14,
       "first_analyzed_at": "2026-10-03T03:17:04.415215+00:00",
-      "last_analyzed_at": "2026-10-03T09:28:24.335945+00:00"
+      "last_analyzed_at": "2026-10-03T09:48:29.265114+00:00"
     },
     {
       "task_id": "dc139bb52a1e29",
@@ -100,18 +98,17 @@
       "research_status": "analyzed",
       "supporting_evidence": [
         "指数接近高位：距52周高点 -1.2%",
-        "VIX未同步确认风险：VIX=16.39：股票波动仍低，不足以否定债券/信用压力",
-        "金融条件仍有缓冲：NFCI=-0.548，尚未进入系统性紧缩",
-        "股指价格趋势仍强，但折现率上升会压缩估值容忍度。",
-        "若信用利差与债券波动继续上升，而指数仍由少数大盘股支撑，脆弱性会增加。",
-        "若收益率回落、信用利差重新收窄且市场宽度改善，当前背离可通过基本面/流动性消化。"
-      ],
-      "counter_evidence": [
         "10年期美债收益率压力：10Y=5.24，20日变化=0.4500000000000002",
         "实际利率压力：10Y real=2.88，20日变化=0.4299999999999997",
         "高收益信用利差走阔：HY OAS=3.24，20日变化=0.5900000000000003",
+        "VIX未同步确认风险：VIX=16.39：股票波动仍低，不足以否定债券/信用压力",
         "市场宽度弱于指数：20/50/200日宽度=0.25948103792415167,0.24151696606786427,0.45109780439121755",
-        "当前状态：高位跨资产背离；风险信号 4 项，其中高等级 3 项"
+        "当前状态：高位跨资产背离；风险信号 4 项，其中高等级 3 项",
+        "股指价格趋势仍强，但折现率上升会压缩估值容忍度。"
+      ],
+      "counter_evidence": [
+        "金融条件仍有缓冲：NFCI=-0.548，尚未进入系统性紧缩",
+        "若收益率回落、信用利差重新收窄且市场宽度改善，当前背离可通过基本面/流动性消化。"
       ],
       "unknowns": [
         "跨资产背离 5 日成熟样本仍不足",
@@ -120,7 +117,7 @@
         "MOVE 尚未进入免费官方/稳定内部数据源，当前不把外部单点数值写入 Production Brain。",
         "ERP 暂不使用非稳定网页估算；后续接入可审计盈利收益率来源后再计算。"
       ],
-      "evidence_score": 82,
+      "evidence_score": 94,
       "confidence": "high",
       "provisional_conclusion": "证据存在分歧，保持研究状态并优先验证反证。",
       "next_validation": [
@@ -137,9 +134,9 @@
         "credit"
       ],
       "guardrail": "该研究结果不能自动下单；未知项不得由模型猜测补全。",
-      "analysis_runs": 14,
+      "analysis_runs": 15,
       "first_analyzed_at": "2026-10-03T02:34:39.186035+00:00",
-      "last_analyzed_at": "2026-10-03T09:28:24.335945+00:00"
+      "last_analyzed_at": "2026-10-03T09:48:29.265114+00:00"
     },
     {
       "task_id": "b528aa82a03ae2",
@@ -150,12 +147,12 @@
       "research_status": "analyzed",
       "supporting_evidence": [
         "Trend Pulse / Situation 当前阶段：二次启动",
-        "Learning Engine 研究优先级：78.0/100",
-        "相同阶段60日历史样本：754，中位收益 0.050741157759946365",
+        "Learning Engine 研究优先级：78/100",
+        "相同阶段60日历史样本：754，中位收益 5.1%",
         "Source Intelligence 有 7 条与 LITE 相关研究记录；最近 3 条已进入独立验证层",
         "SEC官方披露：最近 10-K，提交日 2026-08-17",
         "SEC文档已抓取官方原文证据片段，可用于下一步事件核验",
-        "同业联动：2 个可比标的，方向 broad_positive，平均日变动 0.024584803650896703"
+        "同业联动：2 个可比标的，方向 broad_positive，平均日变动 2.5%"
       ],
       "counter_evidence": [
         "Trend Pulse 数据校验状态：双源校验通过"
@@ -181,9 +178,9 @@
         "industry_peers"
       ],
       "guardrail": "该研究结果不能自动下单；未知项不得由模型猜测补全。",
-      "analysis_runs": 24,
+      "analysis_runs": 25,
       "first_analyzed_at": "2026-10-02T12:56:22.515063+00:00",
-      "last_analyzed_at": "2026-10-03T09:28:24.335945+00:00"
+      "last_analyzed_at": "2026-10-03T09:48:29.265114+00:00"
     },
     {
       "task_id": "320b47e4133735",
@@ -194,12 +191,12 @@
       "research_status": "analyzed",
       "supporting_evidence": [
         "Trend Pulse / Situation 当前阶段：二次启动",
-        "Learning Engine 研究优先级：78.0/100",
-        "相同阶段60日历史样本：754，中位收益 0.050741157759946365",
+        "Learning Engine 研究优先级：78/100",
+        "相同阶段60日历史样本：754，中位收益 5.1%",
         "Source Intelligence 有 10 条与 MSFT 相关研究记录；最近 3 条已进入独立验证层",
         "SEC官方披露：最近 8-K，提交日 2026-09-02",
         "SEC文档已抓取官方原文证据片段，可用于下一步事件核验",
-        "同业联动：2 个可比标的，方向 broad_positive，平均日变动 0.021945209253318734"
+        "同业联动：2 个可比标的，方向 broad_positive，平均日变动 2.2%"
       ],
       "counter_evidence": [
         "Trend Pulse 数据校验状态：双源校验通过"
@@ -225,9 +222,9 @@
         "industry_peers"
       ],
       "guardrail": "该研究结果不能自动下单；未知项不得由模型猜测补全。",
-      "analysis_runs": 24,
+      "analysis_runs": 25,
       "first_analyzed_at": "2026-10-02T12:56:22.515063+00:00",
-      "last_analyzed_at": "2026-10-03T09:28:24.335945+00:00"
+      "last_analyzed_at": "2026-10-03T09:48:29.265114+00:00"
     },
     {
       "task_id": "970cd03ca29c6a",
@@ -238,8 +235,8 @@
       "research_status": "analyzed",
       "supporting_evidence": [
         "Trend Pulse / Situation 当前阶段：二次启动",
-        "Learning Engine 研究优先级：78.0/100",
-        "相同阶段60日历史样本：754，中位收益 0.050741157759946365",
+        "Learning Engine 研究优先级：78/100",
+        "相同阶段60日历史样本：754，中位收益 5.1%",
         "Source Intelligence 有 17 条与 AMD 相关研究记录；最近 3 条已进入独立验证层",
         "SEC官方披露：最近 8-K，提交日 2026-09-28",
         "SEC文档已抓取官方原文证据片段，可用于下一步事件核验"
@@ -269,9 +266,9 @@
         "industry_peers"
       ],
       "guardrail": "该研究结果不能自动下单；未知项不得由模型猜测补全。",
-      "analysis_runs": 3,
+      "analysis_runs": 4,
       "first_analyzed_at": "2026-10-03T05:28:23.488384+00:00",
-      "last_analyzed_at": "2026-10-03T09:28:24.335945+00:00"
+      "last_analyzed_at": "2026-10-03T09:48:29.265114+00:00"
     },
     {
       "task_id": "18388d1182a7d7",
@@ -310,9 +307,9 @@
         "industry_peers"
       ],
       "guardrail": "该研究结果不能自动下单；未知项不得由模型猜测补全。",
-      "analysis_runs": 2,
+      "analysis_runs": 3,
       "first_analyzed_at": "2026-10-03T06:09:53.166307+00:00",
-      "last_analyzed_at": "2026-10-03T09:28:24.335945+00:00"
+      "last_analyzed_at": "2026-10-03T09:48:29.265114+00:00"
     },
     {
       "task_id": "e27477c12d7f36",
@@ -350,17 +347,17 @@
         "market_history"
       ],
       "guardrail": "该研究结果不能自动下单；未知项不得由模型猜测补全。",
-      "analysis_runs": 2,
+      "analysis_runs": 3,
       "first_analyzed_at": "2026-10-03T06:09:53.166307+00:00",
-      "last_analyzed_at": "2026-10-03T09:28:24.335945+00:00"
+      "last_analyzed_at": "2026-10-03T09:48:29.265114+00:00"
     }
   ],
   "summary": {
     "analyzed": 8,
     "high_confidence": 6,
-    "medium_confidence": 0,
-    "low_confidence": 2,
-    "with_counter_evidence": 8,
+    "medium_confidence": 1,
+    "low_confidence": 1,
+    "with_counter_evidence": 7,
     "with_unknowns": 8
   },
   "policy": {

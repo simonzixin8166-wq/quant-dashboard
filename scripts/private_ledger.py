@@ -18,8 +18,8 @@ def hash_record(record,prev_hash):
     body={k:v for k,v in record.items() if k not in {"record_hash","prev_hash"}}
     return hashlib.sha256((prev_hash+"|"+canonical_json(body)).encode("utf-8")).hexdigest()
 
-def verify_records(records):
-    prev=ZERO_HASH
+def verify_records(records,initial_prev=ZERO_HASH):
+    prev=initial_prev
     seen=set()
     for index,row in enumerate(records):
         rid=str(row.get("record_id") or "")
@@ -95,28 +95,66 @@ class PrivateGitHubLedger:
         if status not in {200,201}:raise RuntimeError(f"Unexpected ledger write status {status}")
         return data
 
+    def _heads(self):
+        text,sha=self.read_text("ledger/_heads.json")
+        data=json.loads(text) if text.strip() else {"version":1,"streams":{}}
+        data.setdefault("version",1);data.setdefault("streams",{})
+        return data,sha
+
     def append_many(self,stream,records,market_date):
         month=str(market_date)[:7]
         path=f"ledger/{stream}/{month}.jsonl"
+        heads,heads_sha=self._heads()
+        meta=dict((heads.get("streams") or {}).get(stream) or {})
+        previous_global_head=meta.get("head_hash",ZERO_HASH)
+        same_month=meta.get("last_month")==month
+        month_start_hash=meta.get("month_start_hash",ZERO_HASH) if same_month else previous_global_head
+
         text,sha=self.read_text(path)
         lines=[line for line in text.splitlines() if line.strip()]
-        parsed=[]
-        for line in lines:
-            parsed.append(json.loads(line))
-        ok,verify=verify_records(parsed)
-        if not ok: raise RuntimeError(f"Existing private ledger verification failed: {verify}")
+        parsed=[json.loads(line) for line in lines]
+        ok,verify=verify_records(parsed,month_start_hash)
+        if not ok:
+            raise RuntimeError(f"Existing private ledger verification failed: {verify}")
+
+        # Detect stale/tampered head metadata. A partially completed prior write
+        # can be reconciled only when the file itself verifies from the frozen
+        # month_start_hash.
+        current_file_head=verify["head_hash"]
+        if same_month and parsed and meta.get("head_hash") not in {None,current_file_head}:
+            raise RuntimeError("Private ledger head metadata does not match current month file")
+
         known={str(r.get("record_id")) for r in parsed}
-        prev=verify["head_hash"]
+        prev=current_file_head
         added=[]
         for raw in records:
             if str(raw.get("record_id")) in known:continue
             row=make_record(raw,prev)
             prev=row["record_hash"];known.add(str(row.get("record_id")));added.append(row)
-        if not added:
-            return AppendResult(stream,path,False,0,len(parsed),prev)
-        body="\n".join(lines+[canonical_json(r) for r in added])+"\n"
-        self.write_text(path,body,sha=sha,message=f"Append MyAlpha {stream} ledger {market_date}")
-        return AppendResult(stream,path,True,len(added),len(parsed)+len(added),prev)
+
+        if added:
+            body="\n".join(lines+[canonical_json(r) for r in added])+"\n"
+            self.write_text(path,body,sha=sha,message=f"Append MyAlpha {stream} ledger {market_date}")
+
+        total_before=int(meta.get("record_count") or 0)
+        month_before=int(meta.get("month_record_count") or 0) if same_month else 0
+        new_meta={
+            "head_hash":prev,
+            "record_count":total_before+len(added),
+            "last_month":month,
+            "month_start_hash":month_start_hash,
+            "month_record_count":len(parsed)+len(added),
+            "last_path":path,
+        }
+        if new_meta!=meta:
+            heads["streams"][stream]=new_meta
+            self.write_text(
+                "ledger/_heads.json",
+                json.dumps(heads,ensure_ascii=False,indent=2)+"\n",
+                sha=heads_sha,
+                message=f"Update MyAlpha {stream} ledger head {market_date}",
+            )
+        return AppendResult(stream,path,bool(added),len(added),new_meta["record_count"],prev)
 
 def aggregate_anchor(results):
     heads={r.stream:{"path":r.path,"count":r.record_count,"head_hash":r.head_hash} for r in results}

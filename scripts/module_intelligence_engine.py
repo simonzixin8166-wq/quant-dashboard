@@ -47,11 +47,11 @@ MODULES=[
     },
     {
       "id":"tab-engine","name":"核心策略信号","role":"policy_monitor",
-      "purpose":"监控核心ETF回撤档位、TQQQ X2与LEAPS候选条件，保持正式规则可审计。",
+      "purpose":"监控核心ETF回撤档位、TQQQ X2、LEAPS候选与TQQQ vs QQQ LEAPS回调情境，保持正式规则可审计。",
       "inputs":["docs/data.json","trend_pulse_backtest","assistant_rule_validation"],
       "outputs":["research_planner","decision_journal","failure_attribution"],
       "learning":"shadow_only",
-      "learns_from":["historical rule outcomes","false triggers","missed opportunities"],
+      "learns_from":["historical rule outcomes","false triggers","missed opportunities","leverage rebound context outcomes"],
       "why_it_exists":"把长期核心配置和战术策略从主观判断中分离出来，并提供可回测规则。",
       "guardrail":"Production阈值锁定；V7只能提出Shadow候选，不能静默修改正式规则。"
     },
@@ -188,6 +188,7 @@ SERVICES=[
  {"id":"event-evidence","name":"Event & Peer Evidence Layer","role":"event_context","inputs":["research_planner","Yahoo Finance Search","market quotes"],"outputs":["research-executor","decision_journal"],"learning":"source_memory"},
  {"id":"research-executor","name":"自主研究执行器","role":"evidence_synthesis","inputs":["research_planner","learning_engine","evidence_attribution","method_memory","source_intelligence","official_evidence","event_evidence","module_intelligence"],"outputs":["self_improvement","overview","decision_journal"],"learning":"continuous"},
  {"id":"opportunity-radar","name":"机会雷达","role":"discovery","inputs":["market data","strategy distances","trend states"],"outputs":["research_planner"],"learning":"shadow_only"},
+ {"id":"leverage-rebound-intelligence","name":"TQQQ vs QQQ LEAPS 回调情境智能","role":"leverage_context","inputs":["QQQ drawdown","TQQQ X2","LEAPS Radar","VIX","market breadth","source method"],"outputs":["research_planner","research_executor","decision_journal"],"learning":"shadow_only"},
  {"id":"roll-manager","name":"Roll Manager","role":"private_execution_support","inputs":["private option positions","Delta/IV/DTE","events"],"outputs":["private_decision_memory","decision_journal"],"learning":"private_only"},
  {"id":"core-execution","name":"Core Execution","role":"policy_execution_support","inputs":["core strategy states"],"outputs":["decision_journal"],"learning":"shadow_only"},
  {"id":"research-methods","name":"研究方法库","role":"method_reference","inputs":["curated knowledge","method memory"],"outputs":["knowledge","research_planner"],"learning":"curated_learning"},
@@ -257,7 +258,7 @@ def build():
     for m in MODULES:
         learn_counts[m["learning"]]=learn_counts.get(m["learning"],0)+1
     return {
-      "version":"6.8.0",
+      "version":"6.8.2",
       "generated_at":datetime.now(timezone.utc).isoformat(),
       "mission":"每个能力模块必须有存在目的、证据输入、学习策略和下游关系；导航只暴露少数核心工作台，其余能力作为二级或辅助入口。",
       "audit":{

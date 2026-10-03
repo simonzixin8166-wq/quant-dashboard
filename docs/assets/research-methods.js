@@ -1,5 +1,5 @@
 window.MYALPHA_RESEARCH_METHODS = {
-  version: '5.1.0',
+  version: '5.1.1',
   updated_at: '2026-09-28',
   principle: '专业指标保留，但默认先给普通投资者一句话结论、原因、可执行方案和失效条件。博主方法只作为研究来源，不自动变成交易规则；作者明确披露的股票/期权价格、执行价、到期日、仓位或退出条件会单独记录为历史操作实例，供复盘参考。',
   authors: [{id:'brightline', name:'BrightLine'}],
@@ -158,7 +158,7 @@ window.MYALPHA_RESEARCH_METHODS = {
 };
 
 window.MYALPHA_STRATEGY_PLAYBOOK = {
-  version:'5.1.0',
+  version:'5.1.1',
   principle:'经验先作为研究候选，不把市场情绪或单一指标机械转换成买卖信号。每条提醒都说明适用条件、不适用条件和最大风险。',
   strategies:[
     {id:'fear-sell-put',scene:'恐慌 / 大跌',name:'Sell Put 研究候选',plain:'只针对你本来就愿意以更低价格接货的股票。恐慌期波动率通常较高，权利金可能更有吸引力，但继续暴跌会带来接货风险。',params:'初筛：30–45 DTE；Delta 0.16–0.20。参数来自既有实战经验，属于待验证区间，不是统一最优值。',use:'基本逻辑未失效；无临近重大跳空事件；能够承受被指派；趋势至少停止加速恶化。',avoid:'Thesis 已破坏、只因为“跌很多”、不愿接货、财报/监管结果临近。',risk:'最大风险来自正股继续大跌；权利金只能提供有限缓冲。'},
@@ -190,3 +190,42 @@ window.MYALPHA_RULE_REGISTRY = {
     {id:'data-freshness',agent:'Risk Agent',module:'全站',status:'adopted',trigger:'关键数据过期/缺失/回退',meaning:'数据质量优先于聪明推理。',action:'降级为“证据不足”，不输出确定性策略。'}
   ]
 };
+
+
+/* V6.8.2 · Source Hypothesis: lionhill / 狮山巡礼
+   External method is preserved as research evidence and never overrides Production rules. */
+if (!window.MYALPHA_RESEARCH_METHODS.authors.some(x=>x.id==='lionhill')) {
+  window.MYALPHA_RESEARCH_METHODS.authors.push({id:'lionhill', name:'lionhill / 狮山巡礼'});
+}
+window.MYALPHA_RESEARCH_METHODS.methods.push({
+  id:'tqqq-vs-leaps-rebound', author:'lionhill / 狮山巡礼', category:'杠杆与LEAPS',
+  name:'QQQ大回调后的 TQQQ vs QQQ LEAPS 情境框架',
+  plain:'QQQ出现约10%–15%回调后，不机械二选一。快速V型修复、长时间震荡、继续深跌，对TQQQ和LEAPS的风险来源不同。',
+  action:'MyAlpha只在回调进入研究区后启动对比：同时检查MA20/50/200、VIX、市场宽度、TQQQ X2正式状态、LEAPS IV/Delta/DTE与流动性。',
+  invalid:'如果QQQ尚未出现显著回调，或深熊仍在扩散，不把“跌很多”直接解释成加杠杆机会。外部作者的收益数字与情境结论必须由本站后续样本独立验证。',
+  metrics:[
+    {name:'TQQQ波动率拖累', simple:'TQQQ每日重置3倍杠杆，震荡路径本身会消耗净值。', read:'横盘反复时，即使QQQ最终回到原位，TQQQ也可能仍落后。'},
+    {name:'LEAPS IV / Theta', simple:'长期Call也会受隐波回落和时间流逝影响。', read:'方向看对但IV下降、修复太慢，期权收益仍可能不理想。'},
+    {name:'反弹速度', simple:'V型快速反弹与4–5个月震荡，对两类工具的影响不同。', read:'把“市场路径”作为工具选择的重要条件，而不是只看最终方向。'},
+    {name:'Delta', simple:'ATM LEAPS约0.50；Deep ITM可更接近0.80–0.90。', read:'这里只保留为来源假设与合约筛选参考，不能替代实时IV/报价与风险预算。'}
+  ],
+  site:'策略中心新增“TQQQ vs QQQ LEAPS · 回调情境智能”；未来QQQ进入约8%–15%回调区时自动触发Agent研究任务，并在5/20/60日后验证情境判断。',
+  sources:['https://blog.wenxuecity.com/myblog/82610/202610/1012.html']
+});
+
+window.MYALPHA_STRATEGY_PLAYBOOK.strategies.push({
+  id:'qqq-rebound-leverage-choice', scene:'QQQ约10%–15%回调后的修复阶段',
+  name:'TQQQ vs QQQ LEAPS · 情境研究候选',
+  plain:'先判断市场路径，再比较工具。V型修复、震荡筑底、深熊延续分别面对Gamma/IV、Theta、每日重置和二次下探等不同风险。',
+  params:'触发层只负责研究：QQQ约-8%开始观察，约-10%进入正式比较；-15%及以下提高研究优先级。LEAPS仍遵守本站单次≤1%、总LEAPS≤3%的既有约束。',
+  use:'QQQ出现显著回调，并且开始出现MA20/MA50修复、VIX回落或市场宽度改善时。',
+  avoid:'QQQ仍在MA200下方且VIX高压、宽度继续恶化、只因价格便宜而增加杠杆。',
+  risk:'TQQQ有路径与波动率拖累；LEAPS有IV Crush、Theta与到期风险。两者都不是“回调越深越安全”。'
+});
+
+window.MYALPHA_RULE_REGISTRY.rules.push({
+  id:'qqq-rebound-compare', agent:'Strategy Agent', module:'核心策略信号', status:'research',
+  trigger:'QQQ距近252日高点回撤约8%开始观察；≥10%进入TQQQ vs QQQ LEAPS情境比较',
+  meaning:'回调幅度只负责唤醒研究，不直接决定使用哪种杠杆工具。',
+  action:'联合TQQQ X2、LEAPS Radar、VIX、MA20/50/200、Breadth与Cross-Asset；若深熊扩散，风险规则优先。'
+});

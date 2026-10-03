@@ -208,3 +208,98 @@ def merge_alert_history(previous, tqqq, leaps, limit=240):
         key = (item.get("date"), item.get("kind"), item.get("symbol"))
         deduped[key] = item
     return sorted(deduped.values(), key=lambda row: (row.get("date", ""), row.get("kind", ""), row.get("symbol", "")), reverse=True)[:limit]
+
+
+def build_leverage_rebound_signal(qqq_rows, vix_rows=None, tqqq_x2=None, leaps_radar=None, breadth=None):
+    """Research-only TQQQ vs QQQ LEAPS rebound context.
+
+    The source hypothesis is only activated after a material QQQ drawdown.
+    It does not select a trade, size a position, or override TQQQ/LEAPS production rules.
+    """
+    qqq=_ascending(qqq_rows)
+    if len(qqq)<205:
+        return {"available":False,"error":"QQQ完整日线不足205天"}
+    closes=[x["close"] for x in qqq]
+    i=len(closes)-1
+    high252=max(closes[-252:])
+    drawdown=closes[-1]/high252-1.0 if high252 else None
+    ma20=_sma(closes,i,20); ma50=_sma(closes,i,50); ma200=_sma(closes,i,200); rsi=_rsi(closes,i,14)
+    prev_ma20=_sma(closes,i-5,20) if i>=5 else None
+    ma20_rising=bool(ma20 and prev_ma20 and ma20>prev_ma20)
+    vix_map={x["date"]:x["close"] for x in _ascending(vix_rows or [])}
+    vix=vix_map.get(qqq[-1]["date"])
+    if vix is None and vix_map:
+        vix=list(vix_map.values())[-1]
+
+    magnitude=abs(drawdown or 0)
+    trigger_8=magnitude>=.08
+    trigger_10=magnitude>=.10
+    trigger_15=magnitude>=.15
+    deep_bear=magnitude>=.20 or bool(ma200 and closes[-1]<ma200 and (vix or 0)>=24)
+    repair=bool(ma20 and closes[-1]>ma20 and ma20_rising)
+    strong_repair=bool(repair and ma50 and closes[-1]>ma50 and (vix is None or vix<22))
+    volatile_sideways=bool(trigger_10 and ma20 and ma50 and closes[-1]<=max(ma20,ma50) and not deep_bear)
+    breadth=breadth or {}
+    b20=_number(breadth.get("b20")); b50=_number(breadth.get("b50")); slope=_number(breadth.get("slope_10d"))
+    breadth_repair=bool(b20 is not None and b50 is not None and slope is not None and b20>=.40 and b50>=.40 and slope>0)
+    breadth_fragile=bool((b20 is not None and b20<.30) or (b50 is not None and b50<.30))
+
+    if not trigger_8:
+        status,label,priority="inactive","未到回调研究区",30
+    elif deep_bear:
+        status,label,priority="risk","深熊/二次下探风险优先",92
+    elif trigger_15 and strong_repair:
+        status,label,priority="candidate","深回调后修复确认 · TQQQ/LEAPS对比",88
+    elif trigger_10 and strong_repair:
+        status,label,priority="candidate","10%+回调后修复确认 · TQQQ/LEAPS对比",84
+    elif trigger_10 and volatile_sideways:
+        status,label,priority="watch","10%+回调但仍震荡 · 等待形态选择",78
+    else:
+        status,label,priority="watch","接近/进入回调研究区",68
+
+    support=[]; counter=[]; unknowns=[]
+    support.append(f"QQQ距近252日高点 {drawdown:+.1%}" if drawdown is not None else "QQQ回撤待确认")
+    if repair: support.append("QQQ已重新站上上行MA20，出现初步修复")
+    if strong_repair: support.append("QQQ同时站上MA50且VIX未处高压区，修复确认更完整")
+    if breadth_repair: support.append("市场宽度同步修复，反弹并非仅少数权重股推动")
+    if tqqq_x2 and tqqq_x2.get("available"):
+        support.append(f"TQQQ X2现有正式规则：{tqqq_x2.get('status_label')} / {tqqq_x2.get('action')}")
+    qqq_leaps=next((x for x in ((leaps_radar or {}).get("assets") or []) if x.get("symbol")=="QQQ"),None)
+    if qqq_leaps and qqq_leaps.get("available"):
+        support.append(f"QQQ LEAPS Radar：{qqq_leaps.get('status_label')}")
+
+    if breadth_fragile: counter.append("市场宽度仍脆弱，指数修复可能缺乏广度确认")
+    if volatile_sideways: counter.append("价格仍位于MA20/MA50附近震荡，TQQQ存在波动率拖累，LEAPS也承受Theta/IV回落")
+    if deep_bear: counter.append("回调已进入深熊/二次下探区，优先控制总杠杆而不是比较哪种工具收益更高")
+    if vix is not None and vix>=28: counter.append(f"VIX={vix:.1f}，LEAPS可能含较高恐慌IV溢价")
+    if trigger_10 and not repair: counter.append("QQQ尚未形成MA20修复确认，不把单纯跌幅视作进场条件")
+
+    if vix is None: unknowns.append("VIX完整收盘数据缺失")
+    if b20 is None or b50 is None: unknowns.append("市场宽度数据不完整")
+    unknowns.append("LEAPS具体IV、Bid/Ask、期限结构需在期权链中单独核验")
+    unknowns.append("博主关于不同情境下相对收益的判断属于待验证Source Hypothesis，需用MyAlpha历史样本继续验证")
+
+    if status=="risk":
+        prompt="优先确认是否仍在深熊扩散；TQQQ正式降险规则优先，LEAPS仅做有限风险研究，不因跌幅加杠杆。"
+    elif status=="candidate":
+        prompt="已进入TQQQ vs QQQ LEAPS比较窗口：结合修复速度、IV、宽度与TQQQ正式X2状态做情境研究。"
+    elif status=="watch":
+        prompt="进入回调观察区，但尚不足以选择工具；继续观察MA20/50、VIX与市场宽度。"
+    else:
+        prompt="当前QQQ未进入约8%–15%回调研究区，不提示新增TQQQ/LEAPS反弹策略。"
+
+    return {
+      "available":True,"version":"6.8.2","date":qqq[-1]["date"],"status":status,"label":label,"priority":priority,
+      "qqq_close":closes[-1],"high252":high252,"drawdown252":drawdown,"rsi14":rsi,
+      "ma20":ma20,"ma50":ma50,"ma200":ma200,"ma20_rising":ma20_rising,"vix":vix,
+      "trigger_8":trigger_8,"trigger_10":trigger_10,"trigger_15":trigger_15,"deep_bear":deep_bear,
+      "repair":repair,"strong_repair":strong_repair,"volatile_sideways":volatile_sideways,
+      "breadth_repair":breadth_repair,"breadth_fragile":breadth_fragile,
+      "supporting_evidence":support,"counter_evidence":counter,"unknowns":unknowns,
+      "prompt":prompt,
+      "source_method":{
+        "author":"lionhill / 狮山巡礼","title":"市场大调整时：TQQQ还是QQQ LEAPS","url":"https://blog.wenxuecity.com/myblog/82610/202610/1012.html",
+        "hypothesis":"QQQ约10%–15%回调后，根据反弹速度、震荡时间、IV与二次下探风险比较TQQQ和QQQ LEAPS；不作为生产交易规则。"
+      },
+      "guardrail":"研究提示层：不修改TQQQ X2、LEAPS单次1%/总3%等现有规则，不计算下单数量，不自动交易。"
+    }

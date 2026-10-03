@@ -22,6 +22,7 @@ PATHS={
  "cross_asset":ROOT/"docs/research/cross_asset_divergence.json",
  "breadth_intelligence":ROOT/"docs/research/breadth_intelligence.json",
  "regime_memory":ROOT/"docs/research/regime_combination_memory.json",
+ "data":ROOT/"docs/data.json",
 }
 OUT=ROOT/"docs/research/research_planner.json"
 
@@ -41,7 +42,7 @@ def task(kind,key,title,priority,why,questions,sources,expires=2):
       "guardrail":"研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。"
     }
 
-def build(agent,learning,evidence,method,source,previous,modules=None,cross_asset=None,breadth_intelligence=None,regime_memory=None):
+def build(agent,learning,evidence,method,source,previous,modules=None,cross_asset=None,breadth_intelligence=None,regime_memory=None,data=None):
     tasks=[]
     seen=set()
     for row in agent.get("watchlist_attention") or []:
@@ -120,6 +121,20 @@ def build(agent,learning,evidence,method,source,previous,modules=None,cross_asse
         t["regime_level"]=regime_memory.get("level")
         tasks.append(t);seen.add(t["task_id"])
 
+    data=data or {}
+    rebound=data.get("leverage_rebound") or {}
+    if rebound.get("available") and rebound.get("status") in {"watch","candidate","risk"}:
+        priority=float(rebound.get("priority") or (90 if rebound.get("status")=="risk" else 82))
+        t=task("leverage_rebound","QQQ",
+          f"QQQ · {rebound.get('label') or 'TQQQ vs LEAPS 回调情境'}",priority,
+          rebound.get("prompt") or "QQQ进入回调研究区，需要比较TQQQ与QQQ LEAPS的风险收益结构。",
+          ["当前更接近V型修复、震荡筑底还是深熊延续？","TQQQ现有X2规则是否允许恢复敞口？","QQQ LEAPS的IV/Theta/流动性是否合理？","市场宽度是否确认修复？","5/20/60日后哪种情境判断更接近事实？"],
+          ["leverage_rebound","TQQQ_X2","LEAPS_Radar","market_breadth","VIX","source_method_lionhill"],5)
+        t["rebound_status"]=rebound.get("status")
+        t["qqq_drawdown"]=rebound.get("drawdown252")
+        t["source_method"]=rebound.get("source_method")
+        tasks.append(t);seen.add(t["task_id"])
+
     modules=modules or {}
     audit=modules.get("audit") or {}
     if not audit.get("coverage_ok",True):
@@ -147,7 +162,7 @@ def build(agent,learning,evidence,method,source,previous,modules=None,cross_asse
     tasks.sort(key=lambda x:(x["priority"],x["run_count"]),reverse=True)
     now=datetime.now(timezone.utc).isoformat()
     return {
-      "version":"6.8.0","generated_at":now,"mode":"autonomous_research_planner",
+      "version":"6.8.2","generated_at":now,"mode":"autonomous_research_planner",
       "queue":tasks[:30],
       "today":[x for x in tasks if x["priority"]>=70][:10],
       "counts":{"open":len(tasks),"high_priority":sum(x["priority"]>=70 for x in tasks),"persistent":sum(x["run_count"]>1 for x in tasks)},
@@ -160,7 +175,7 @@ def build(agent,learning,evidence,method,source,previous,modules=None,cross_asse
 
 def main():
     d={k:load(v) for k,v in PATHS.items()}
-    out=build(d["agent"],d["learning"],d["evidence"],d["method"],d["source"],d["previous"],d["modules"],d["cross_asset"],d["breadth_intelligence"],d["regime_memory"])
+    out=build(d["agent"],d["learning"],d["evidence"],d["method"],d["source"],d["previous"],d["modules"],d["cross_asset"],d["breadth_intelligence"],d["regime_memory"],d["data"])
     OUT.parent.mkdir(parents=True,exist_ok=True)
     OUT.write_text(json.dumps(out,ensure_ascii=False,indent=2),encoding="utf-8")
     print(json.dumps(out["counts"],ensure_ascii=False))

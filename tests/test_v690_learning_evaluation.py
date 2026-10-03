@@ -29,7 +29,8 @@ assert out["method_validation"]["methods_with_direct_validation"]==1
 assert out["evidence_gaps"][0]["count"]>=1
 assert out["shadow_status"]["production_brain"]=="locked"
 assert out["learning_health"]["score"] <= 100
-assert any("正式策略" in x for x in out["lessons"]) or any("外部方法" in x for x in out["lessons"])
+assert out["lessons"]
+assert any("证据缺口" in x or "直接验证" in x or "历史库" in x for x in out["lessons"])
 
 agent=(ROOT/"docs/assets/autonomous-agent.js").read_text(encoding="utf-8")
 assert "V6.9 Learning Evaluation · 自我评估中心" in agent

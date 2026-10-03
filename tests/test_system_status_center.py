@@ -23,6 +23,9 @@ assert "max_pages=5" in src
 assert '"market_dashboard": ROOT/"docs"/"data.json"' in src
 assert "research_planner" in result["artifacts"]
 assert "self_improvement" in result["artifacts"]
+assert "playbook_status" in result["artifacts"]
+assert "ledger_anchor" in result["artifacts"]
+assert "playbook_runtime" in result
 
 # Busy repositories may push watched workflows beyond the first 100 runs.
 assert ssc.latest_by_name(

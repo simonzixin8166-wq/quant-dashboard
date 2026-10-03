@@ -29,7 +29,7 @@ assert "市场中心 · 指数、行业与跨市场环境" in generator and "市
 for label in ("核心指数","卫星及杠杆","另类资产"):
     assert label in generator and label in page
 assert "data-stock-row" in generator and "data-stock-row" in page
-assert version == "6.8.2"
+assert version == "6.9.0"
 assert ".qa-empty{{padding:28px" in generator
 assert ".qa-empty{padding:28px" not in generator
 assert "市场与风险驾驶舱" in generator and "市场与风险驾驶舱" in page

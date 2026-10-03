@@ -34,7 +34,7 @@ jobs:
         run: pip install "yfinance>=0.2.65,<0.3" pandas
 
       - name: Validate scripts before execution
-        run: python -m py_compile scripts/fetch_and_build.py scripts/opportunity_strategy.py scripts/update_market_events.py scripts/backtest_assistant_rules.py scripts/local_history_agent.py scripts/fred_client.py scripts/update_fred_macro.py scripts/cross_asset_divergence_engine.py scripts/learning_engine_core.py scripts/autonomous_research_agent.py scripts/source_intelligence_engine.py scripts/source_history_cache.py scripts/source_outcome_validation.py scripts/evidence_attribution_engine.py scripts/method_memory_engine.py scripts/module_intelligence_engine.py scripts/autonomous_research_planner.py scripts/official_evidence_engine.py scripts/event_evidence_engine.py scripts/event_window_attribution.py scripts/autonomous_research_executor.py scripts/self_improvement_engine.py scripts/system_status_center.py
+        run: python -m py_compile scripts/fetch_and_build.py scripts/opportunity_strategy.py scripts/update_market_events.py scripts/backtest_assistant_rules.py scripts/local_history_agent.py scripts/fred_client.py scripts/update_fred_macro.py scripts/cross_asset_divergence_engine.py scripts/breadth_intelligence_engine.py scripts/regime_combination_memory.py scripts/learning_engine_core.py scripts/autonomous_research_agent.py scripts/source_intelligence_engine.py scripts/source_history_cache.py scripts/source_outcome_validation.py scripts/evidence_attribution_engine.py scripts/method_memory_engine.py scripts/module_intelligence_engine.py scripts/autonomous_research_planner.py scripts/official_evidence_engine.py scripts/event_evidence_engine.py scripts/event_window_attribution.py scripts/autonomous_research_executor.py scripts/self_improvement_engine.py scripts/system_status_center.py
 
       - name: Update official FOMC and CPI calendar
         continue-on-error: true
@@ -58,6 +58,12 @@ jobs:
 
       - name: Build V6.7 Cross-Asset Divergence
         run: python scripts/cross_asset_divergence_engine.py
+
+      - name: Build V6.8 Breadth Intelligence
+        run: python scripts/breadth_intelligence_engine.py
+
+      - name: Build V6.8 Regime Combination Memory
+        run: python scripts/regime_combination_memory.py
 
       - name: Build V5.4 Learning Engine Core
         run: python scripts/learning_engine_core.py
@@ -157,6 +163,8 @@ jobs:
           python tests/test_v661_ui_consistency.py
           python tests/test_v663_completed_daily_guard.py
           python tests/test_v670_cross_asset_divergence.py
+          python tests/test_v680_breadth_intelligence.py
+          python tests/test_v681_regime_combination_memory.py
           python tests/test_v600_research_planner.py
           python tests/test_v630_official_evidence.py
           python tests/test_v640_event_evidence.py

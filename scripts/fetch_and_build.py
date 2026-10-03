@@ -5,7 +5,7 @@ import pandas as pd
 import warnings
 from zoneinfo import ZoneInfo
 try:
-    from opportunity_strategy import build_tqqq_x2_strategy, build_leaps_radar, merge_alert_history
+    from opportunity_strategy import build_tqqq_x2_strategy, build_leaps_radar, build_leverage_rebound_signal, merge_alert_history
 except ModuleNotFoundError:
     import sys
     sys.path.insert(0, os.path.dirname(__file__))
@@ -14,9 +14,9 @@ except ModuleNotFoundError:
 warnings.filterwarnings("ignore")
 
 # 单一版本源：每日 Action 生成 HTML 时，页面标题和静态资源缓存版本都从这里读取。
-APP_VERSION = "6.8.1"
+APP_VERSION = "6.8.2"
 OPTIONS_VERSION = "4.1.0"  # 网站优先；APP/PWA 功能已移除，仅保留响应式手机网页
-ASSET_VERSION = "6.8.1"
+ASSET_VERSION = "6.8.2"
 
 API_KEY = os.environ.get("TWELVE_DATA_KEY", "demo")
 BASE = "https://api.twelvedata.com"
@@ -1301,6 +1301,10 @@ def build():
     except Exception: vix_strategy_rows = []
     tqqq_x2 = build_tqqq_x2_strategy(qqq_strategy_rows, vix_strategy_rows, recorded_position=0)
     leaps_radar = build_leaps_radar(strategy_rows, vix_data.get("close") if "error" not in vix_data else None)
+    leverage_rebound = build_leverage_rebound_signal(
+        qqq_strategy_rows, vix_strategy_rows, tqqq_x2, leaps_radar,
+        old_data.get("raw_breadth") or {}
+    )
     opportunity_history = merge_alert_history(old_data.get("opportunity_history"), tqqq_x2, leaps_radar)
 
     try: gspc_long_rows = fetch_yahoo_index("%5EGSPC", range_="max")
@@ -1391,7 +1395,7 @@ def build():
             "cn_hk": cn_hk_data, "market_regime": market_regime, "historical_signals": historical_signals, "data_status": data_status,
             "raw_breadth": breadth_data, "breadth_proxies": breadth_proxies, "market_indicators": {"spx": spx_data, "spx_source": spx_src, "ixic": ixic_data, "ixic_source": ixic_src, "vix": vix_data, "vix_source": vix_src},
             "research_brief": research_brief, "what_changed": what_changed, "iren_brief": iren_brief, "trend_pulse": trend_pulse, "fx_usdcny": fx_usdcny,
-            "tqqq_x2": tqqq_x2, "leaps_radar": leaps_radar, "opportunity_history": opportunity_history}
+            "tqqq_x2": tqqq_x2, "leaps_radar": leaps_radar, "leverage_rebound": leverage_rebound, "opportunity_history": opportunity_history}
 
 # ================= 8. 前端 HTML 组件独立渲染函数 =================
 def fmt_pct(x, digits=2): return f"{x*100:.{digits}f}%" if isinstance(x, (int, float)) and not math.isnan(x) else "-"
@@ -1712,6 +1716,23 @@ def render_leaps_radar(radar):
       <details class="leaps-method"><summary>查看合约筛选与风险纪律</summary><div><p><b>成长型：</b>DTE 365–900天，Delta 0.50–0.60。</p><p><b>替代正股：</b>DTE 540–900天，Delta 0.70–0.85。</p><p>优先有效Bid/Ask且相对价差≤10%；超过15%不进入候选。低于下降中的200MA、VIX≥30或报价陈旧时保留“高风险”提示。</p></div></details>
     </section>'''
 
+def render_leverage_rebound(row):
+    if not row or not row.get("available"):
+        return '<section class="opportunity-block"><div class="agent-empty">TQQQ / QQQ LEAPS 情境分析暂不可用。</div></section>'
+    dd=row.get("drawdown252")
+    support="".join(f"<li>{html.escape(str(x))}</li>" for x in (row.get("supporting_evidence") or [])[:5])
+    counter="".join(f"<li>{html.escape(str(x))}</li>" for x in (row.get("counter_evidence") or [])[:5])
+    unknown="".join(f"<li>{html.escape(str(x))}</li>" for x in (row.get("unknowns") or [])[:4])
+    tone={"candidate":"good","watch":"warn","risk":"bad","inactive":"neutral"}.get(row.get("status"),"neutral")
+    src=row.get("source_method") or {}
+    return f'''<section class="opportunity-block leverage-rebound-card {tone}">
+      <div class="section-head"><div><h2>TQQQ vs QQQ LEAPS · 回调情境智能</h2><p>将外部研究方法与 MyAlpha 的 TQQQ X2、LEAPS Radar、VIX 与市场宽度交叉验证。</p></div><span>{html.escape(row.get("label",""))}</span></div>
+      <div class="agent-metrics"><span>QQQ 252日回撤 {fmt_pct(dd)}</span><span>RSI {fmt_num(row.get("rsi14"),1)}</span><span>VIX {fmt_num(row.get("vix"),1)}</span><span>优先级 {row.get("priority","—")}</span></div>
+      <p><strong>MyAlpha 当前判断：</strong>{html.escape(row.get("prompt",""))}</p>
+      <div class="dashboard-grid"><div class="panel"><strong>支持证据</strong><ul>{support or "<li>暂无</li>"}</ul></div><div class="panel"><strong>反证 / 风险</strong><ul>{counter or "<li>暂无</li>"}</ul></div></div>
+      <details><summary>未知项与来源方法</summary><ul>{unknown or "<li>暂无</li>"}</ul><p>来源：{html.escape(src.get("author",""))} · <a href="{html.escape(src.get("url",""))}" target="_blank" rel="noopener">{html.escape(src.get("title","原文"))}</a></p><p>{html.escape(row.get("guardrail",""))}</p></details>
+    </section>'''
+
 def render_opportunity_history(history):
     labels = {"TQQQ_X2": "TQQQ X2", "LEAPS": "LEAPS机会"}
     rows = "".join(f'''<tr><td>{item.get("date","-")}</td><td>{labels.get(item.get("kind"),item.get("kind","-"))}</td><td>{item.get("symbol","-")}</td><td><span class="opportunity-history-level {item.get("level","l1")}">{item.get("level","l1").upper()}</span></td><td>{item.get("label","-")}</td></tr>''' for item in (history or [])[:40])
@@ -1727,6 +1748,7 @@ def render_html(data):
     engine_badge_cls = "normal" if max_level == 0 else "t2"
     tqqq_x2_html = render_tqqq_x2(data.get("tqqq_x2") or {})
     leaps_radar_html = render_leaps_radar(data.get("leaps_radar") or {})
+    leverage_rebound_html = render_leverage_rebound(data.get("leverage_rebound") or {})
     opportunity_history_html = render_opportunity_history(data.get("opportunity_history") or [])
     
     def asset_group(title, subtitle, symbols):
@@ -2035,6 +2057,7 @@ body{{font-size:15px;background:linear-gradient(180deg,#f7f9fc 0,#f3f6fa 100%);l
 <section class="section core-status-v47"><div class="section-head"><div><h2>核心ETF状态中心</h2><p>不记录资金，只回答“现在处于什么位置、当前该做什么”。</p></div></div><div class="core-status-grid-v47">{core_status_cards_html}</div></section>
 <section class="section"><div class="engine"><div class="engine-top"><div><div class="engine-label">核心ETF三档加仓线</div><div class="engine-title">当前状态：{level_names[max_level]}</div><div class="engine-asof">策略数据截至 {data.get('spy_date','-')} 美股收盘 · 盘中价格仅供距离参考</div></div><div class="engine-badge {engine_badge_cls}">{level_names[max_level]}</div></div><div id="strategySignalGrid" class="engine-grid">{engine_html}</div><div class="engine-foot">规则：严格使用经复权验证的历史全期最高点（ATH）和各资产独立阈值；到达点位只提示进入对应加仓区，不自动下单。QQQ与QQQM属于同一指数敞口。</div></div></section>
 <section class="section">{tqqq_x2_html}</section>
+<section class="section">{leverage_rebound_html}</section>
 <section class="section">{leaps_radar_html}</section>
 <section class="section">{opportunity_history_html}</section>
 </div>

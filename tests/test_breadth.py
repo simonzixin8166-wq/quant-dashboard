@@ -64,3 +64,10 @@ assert expected == datetime.date(2026, 9, 28)
 assert datetime.date(2026, 9, 24) < expected
 
 print("test_breadth.py: all assertions passed")
+
+
+# V6.8.1 schema-upgrade guard: a same-date V6.8.0 cache must not suppress
+# the one-time recomputation needed to populate A/D and 52-week participation.
+legacy_cache={"status":"ok","date":"2026-10-02","b20":0.3,"b50":0.4,"b200":0.5,"slope_10d":0.1}
+assert dashboard._breadth_cache_schema_current(legacy_cache) is False
+assert dashboard._breadth_cache_schema_current(result) is True

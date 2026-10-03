@@ -1,3 +1,3 @@
-V6.8.1 release finalization refresh
-Updated: 2026-10-03 04:18 UTC
-Purpose: regenerate market outputs and immutable build manifest after the visible app/asset version bump to 6.8.1, preserving the completed V6.8.1 breadth-depth and source-intelligence state.
+V6.8.2 leverage rebound intelligence production refresh
+Updated: 2026-10-03 04:44 UTC
+Purpose: publish lionhill TQQQ-vs-QQQ-LEAPS Source Hypothesis, generate current leverage_rebound context, rebuild Planner/Executor/module graph/status/manifest, and deploy V6.8.2.

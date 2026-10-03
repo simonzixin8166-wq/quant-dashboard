@@ -18,5 +18,6 @@ qa=(ROOT/'docs/assets/autonomous-qa.js').read_text()
 assert 'historical_journal.json' in js
 assert 'global.mavSupabase' in js
 assert "getElementById('marketOptionAlert')" in qa
-assert "startsWith('5.3.0')" in qa
+assert "function versionAligned" in qa
+assert "APP_VERSION" in qa and "application-version" in qa
 print('PASS V5.3 local history + autonomous learning contract')

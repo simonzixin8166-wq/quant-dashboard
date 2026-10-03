@@ -34,6 +34,9 @@ jobs:
           python tests/test_build_contract.py
       - name: V5.4/V5.5 regression contracts
         run: |
+          python tests/test_v510_autonomous_assistant.py
+          python tests/test_v520_decision_journal.py
+          python tests/test_v530_local_history_agent.py
           python tests/test_v540_learning_engine_core.py
           python tests/test_v550_autonomous_agent.py
       - name: V5.6 deterministic contract

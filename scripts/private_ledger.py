@@ -18,6 +18,18 @@ def hash_record(record,prev_hash):
     body={k:v for k,v in record.items() if k not in {"record_hash","prev_hash"}}
     return hashlib.sha256((prev_hash+"|"+canonical_json(body)).encode("utf-8")).hexdigest()
 
+def verify_records(records):
+    prev=ZERO_HASH
+    seen=set()
+    for index,row in enumerate(records):
+        rid=str(row.get("record_id") or "")
+        if not rid or rid in seen:return False,{"index":index,"reason":"duplicate_or_missing_record_id"}
+        if row.get("prev_hash")!=prev:return False,{"index":index,"reason":"prev_hash_mismatch"}
+        expected=hash_record(row,prev)
+        if row.get("record_hash")!=expected:return False,{"index":index,"reason":"record_hash_mismatch"}
+        seen.add(rid);prev=expected
+    return True,{"records":len(records),"head_hash":prev}
+
 def make_record(payload,prev_hash):
     row=dict(payload)
     row["prev_hash"]=prev_hash
@@ -91,8 +103,10 @@ class PrivateGitHubLedger:
         parsed=[]
         for line in lines:
             parsed.append(json.loads(line))
+        ok,verify=verify_records(parsed)
+        if not ok: raise RuntimeError(f"Existing private ledger verification failed: {verify}")
         known={str(r.get("record_id")) for r in parsed}
-        prev=parsed[-1].get("record_hash",ZERO_HASH) if parsed else ZERO_HASH
+        prev=verify["head_hash"]
         added=[]
         for raw in records:
             if str(raw.get("record_id")) in known:continue

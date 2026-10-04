@@ -25,7 +25,7 @@ from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
 SRC=ROOT/"docs"/"data"/"source_intelligence.json"
 OUT=ROOT/"docs"/"research"/"source_reading_memory.json"
-VERSION="6.14.6"
+VERSION="6.15.8d"
 
 VIEW_HINTS=(
     "认为","觉得","看好","看坏","可能","应该","预计","预期","判断","猜","倾向",
@@ -51,6 +51,28 @@ def clean_text(value,limit=260):
 def prop_id(source_id,kind,text):
     raw=f"{source_id}|{kind}|{text}".encode("utf-8")
     return hashlib.sha1(raw).hexdigest()[:18]
+def extractor_input_payload(row):
+    """Exact normalized fields consumed by record_memory()."""
+    return {
+        "id":row.get("id"),
+        "url":row.get("url"),
+        "title":row.get("title"),
+        "excerpt":row.get("excerpt"),
+        "source":row.get("source"),
+        "source_kind":row.get("source_kind"),
+        "author":row.get("author"),
+        "published_at":row.get("published_at"),
+        "symbols":row.get("symbols") or [],
+        "topics":row.get("topics") or [],
+        "operations":row.get("operations") or [],
+        "portfolio_rules":row.get("portfolio_rules") or [],
+        "lessons":row.get("lessons") or [],
+    }
+
+def extractor_input_hash(row):
+    raw=json.dumps(extractor_input_payload(row),ensure_ascii=False,sort_keys=True,separators=(",",":"))
+    return hashlib.sha256(raw.encode("utf-8")).hexdigest()
+
 
 def add(props,source_id,kind,text,confidence="medium",testable=False,evidence=None):
     text=clean_text(text)
@@ -186,6 +208,8 @@ def record_memory(row):
     testable=[x for x in props if x["kind"]=="testable_rule"]
     return {
         "source_id":sid,
+        "extractor_input_hash":extractor_input_hash(row),
+        "extractor_input_scope":"exact_fields_consumed_by_source_reading_memory",
         "source":row.get("source"),
         "source_kind":row.get("source_kind"),
         "author":row.get("author"),
@@ -243,6 +267,7 @@ def build(source):
             "Only explicit structured operations owned by the author can create testable_rule records.",
             "Prose triggers, invalidations and views remain context until later structured validation.",
             "Unclassified source prose is preserved as non_testable_view instead of being discarded or promoted.",
+            "Every source record carries a hash of the exact normalized fields consumed by this extractor.",
             "No proposition can change production rules, positions, allocations or orders.",
         ],
     }

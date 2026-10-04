@@ -106,4 +106,10 @@ assert "module_failure_marker.py source_rule_lifecycle" in workflow
 manifest=(ROOT/"scripts/generate_build_manifest.py").read_text(encoding="utf-8")
 assert "research/source_rule_lifecycle.json" in manifest
 
-print("PASS V6.14.5 exact operation mapping / stock maturity / Sell Put option-P&L boundary")
+ui=(ROOT/"docs/assets/knowledge.js").read_text(encoding="utf-8")
+assert "research/source_rule_lifecycle.json" in ui
+assert "规则生命周期" in ui
+assert "期权不可评分" in ui
+assert "Sell Put 触及行权价只算基础标的上下文，不等于期权盈利。" in ui
+
+print("PASS V6.14.5 exact operation mapping / stock maturity / Sell Put option-P&L boundary / UI")

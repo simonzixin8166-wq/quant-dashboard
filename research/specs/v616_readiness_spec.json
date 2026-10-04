@@ -1,0 +1,45 @@
+{
+  "readiness_spec_version": "1.0",
+  "status": "frozen_before_first_20d_maturity",
+  "frozen_at": "2026-10-04",
+  "purpose": "Operational readiness gate for starting V6.16 Situation Learning. This gate does not validate investment effectiveness and does not require any Promotion Gate pass.",
+  "requirements": {
+    "eventscore_conservation_required": true,
+    "source_store_full_coverage_required": true,
+    "statistical_controls_required": ["positive_control", "repeated_negative_control", "leakage_canary"],
+    "production_boundary_clean_workflow_runs_min": 5,
+    "point_in_time_mature_20_events_min": 12,
+    "point_in_time_mature_60_events_min": 6,
+    "families_with_mature_20_min": 2,
+    "families_with_mature_60_min": 1,
+    "unresolved_integrity_blockers_max": 0,
+    "promotion_pass_required": false
+  },
+  "rationale": {
+    "operational_not_effectiveness_gate": true,
+    "why_20d_12": "Enough distinct forward observations to prove repeated 20-day maturation across the real point-in-time pipeline without claiming statistical efficacy.",
+    "why_60d_6": "Enough real 60-day observations to prove that at least one complete long-horizon path can mature; this is intentionally below Promotion evidence requirements.",
+    "why_multiple_families": "Avoid declaring readiness from a single narrow rule family implementation path.",
+    "expected_first_20d_window": "approximately early November 2026",
+    "expected_first_60d_window": "approximately late December 2026 to early January 2027"
+  },
+  "power_reference": {
+    "standardized_effect_d": 0.5,
+    "one_sided_alpha": 0.05,
+    "target_power": 0.8,
+    "normal_approx_independent_blocks": 25,
+    "note": "This reference is for Promotion evidence planning only. Readiness minima do not imply power to validate alpha; multiplicity and dependence generally require more evidence."
+  },
+  "review_policy": {
+    "first_scheduled_review_not_before": "2027-01-15",
+    "future_change_requires_new_readiness_spec_version": true,
+    "review_may_use_event_generation_rate_and_data_quality": true,
+    "review_must_not_use_method_returns_or_pass_rates_to_relax_requirements": true
+  },
+  "guardrails": [
+    "Readiness and Promotion are independent gates.",
+    "A V6.16 start decision cannot require any method or family to pass Promotion.",
+    "Requirements cannot be relaxed after observing favorable investment results.",
+    "Passing this gate authorizes architecture work only, never automatic trading or production-rule mutation."
+  ]
+}

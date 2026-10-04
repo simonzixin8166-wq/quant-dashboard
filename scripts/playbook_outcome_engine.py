@@ -25,6 +25,7 @@ from private_ledger import PrivateGitHubLedger, verify_records, ZERO_HASH
 ROOT=Path(__file__).resolve().parents[1]
 CONFIG=ROOT/"config"/"playbook_outcomes.json"
 OUT=ROOT/"docs"/"research"/"playbook_outcome_shadow.json"
+PLAYBOOK_STATUS=ROOT/"docs"/"research"/"playbook_status.json"
 VERSION="6.11.0-shadow"
 
 def load(path, default=None):
@@ -189,7 +190,9 @@ def build(writer=None, store=None, market_date=None, now=None):
     horizons=[int(x) for x in config.get("horizons") or [5,20,60]]
     tolerance=float(config.get("baseline_revalidation_tolerance") or 0.03)
     defs=config.get("definitions") or {}
-    market_date=market_date or now.date().isoformat()
+    if not market_date:
+        status=load(PLAYBOOK_STATUS,{})
+        market_date=status.get("market_date") or now.date().isoformat()
     writer=writer if writer is not None else PrivateGitHubLedger.from_env()
     store=read_archive() if store is None else store
 

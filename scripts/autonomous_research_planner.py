@@ -77,6 +77,23 @@ def build(agent,learning,evidence,method,source,previous,modules=None,cross_asse
               ["哪些事件可以直接归因到该方法？","需要补充哪些触发条件字段？","哪些 Context 样本应保持排除？"],
               ["method_memory","source_intelligence","source_outcomes"],14)
             if t["task_id"] not in seen:tasks.append(t);seen.add(t["task_id"])
+    # Structured source-rule candidates: explicit author-owned rules discovered
+    # by Source Reading, but not yet promoted to direct performance evidence.
+    for m in method.get("methods") or []:
+        name=m.get("method")
+        reading=m.get("source_reading") or {}
+        candidates=int(reading.get("testable_rule_candidates") or 0)
+        direct=int(m.get("direct_validated_events") or 0)
+        if candidates<=0 or direct>0:
+            continue
+        t=task("method_rule_candidate",name,f"{name} · 结构规则候选验证",68,
+          f"Source Reading 已提取 {candidates} 条明确结构规则候选，但 Direct 仍为 0；需要先核对作者归属、触发/失效条件与后续结果，不能直接视为方法有效。",
+          ["候选规则的作者归属是否明确？","触发条件和失效条件是否足够结构化？","是否已经触发并可建立真实 baseline？","需要等待哪些5/20/60日结果？"],
+          ["source_reading_memory","method_memory","source_outcomes","market_history"],14)
+        t["testable_rule_candidates"]=candidates
+        t["direct_validated_events"]=direct
+        if t["task_id"] not in seen:tasks.append(t);seen.add(t["task_id"])
+
     # Method-evidence follow-up loop. Method Memory owns the state taxonomy;
     # Planner only converts that state into research work, never into trading.
     method_priority={
@@ -222,7 +239,7 @@ def build(agent,learning,evidence,method,source,previous,modules=None,cross_asse
     tasks.sort(key=lambda x:(x["priority"],x["run_count"]),reverse=True)
     now=datetime.now(timezone.utc).isoformat()
     return {
-      "version":"6.13.3","generated_at":now,"mode":"autonomous_research_planner",
+      "version":"6.14.3","generated_at":now,"mode":"autonomous_research_planner",
       "queue":tasks[:30],
       "today":[x for x in tasks if x["priority"]>=70][:10],
       "counts":{"open":len(tasks),"high_priority":sum(x["priority"]>=70 for x in tasks),"persistent":sum(x["run_count"]>1 for x in tasks)},

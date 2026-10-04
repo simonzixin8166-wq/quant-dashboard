@@ -13,8 +13,8 @@ OPTIONS_VERSION = "4.1.0"
 COMPONENT_VERSIONS = {
     "learning_engine": "5.4.0",
     "autonomous_agent": "5.5.0",
-    "research_planner": "6.13.3",
-    "research_execution": "6.13.3",
+    "research_planner": "6.14.3",
+    "research_execution": "6.14.3",
     "method_memory": "6.14.2",
     "method_evidence_ui": "6.13.4",
     "source_reading_memory": "6.14.2",

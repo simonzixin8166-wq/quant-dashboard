@@ -18,7 +18,7 @@ evidence={"failure_attribution":{"external_outcome_reviews":[
 ]}}
 method={"methods":[{"method":"趋势确认","direct_validated_events":1,"context_validated_events":10}]}
 out=p.build(agent,{},evidence,method,{}, {})
-assert out["version"]=="6.13.3"
+assert out["version"]=="6.14.3"
 assert out["counts"]["open"]>=4
 assert any(x["kind"]=="market_anomaly" and x["key"]=="LITE" for x in out["queue"])
 assert any(x["kind"]=="failure_review" for x in out["queue"])

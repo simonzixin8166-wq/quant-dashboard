@@ -1,6 +1,7 @@
 {
-  "definition_version": "1.0",
-  "definition_hash": "92950167b926829b081ba7a870eed18d06684b4ad1b9da8d655b905ac82ac455",
+  "definition_version": "1.1",
+  "normalizer_version": "v615_rule_registry.normalize_rule@6.15.1",
+  "extractor_version": "source_reading_memory@6.14.6",
   "immutable_dimensions": [
     "primary_method",
     "operation_type",
@@ -10,20 +11,81 @@
     "rule_template"
   ],
   "rule_template": {
-    "include": ["sorted_field_names", "sorted_actions", "condition_classes"],
-    "exclude": ["numeric_levels", "source_id", "author", "published_at", "url", "realized_returns", "outcomes", "scorecard_results"]
+    "include": [
+      "sorted_field_names",
+      "sorted_actions",
+      "condition_classes"
+    ],
+    "exclude": [
+      "numeric_levels",
+      "source_id",
+      "author",
+      "published_at",
+      "url",
+      "realized_returns",
+      "outcomes",
+      "scorecard_results"
+    ]
   },
   "condition_classes": {
-    "breakout": ["breakout", "突破", "站上", "above resistance", "break above", "new high"],
-    "pullback": ["pullback", "回调", "回踩", "跌到", "below", "limit", "support"],
-    "invalidation": ["sell if", "clear if", "失效", "跌破", "breakdown"],
-    "trend": ["trend", "趋势", "ma20", "ma21", "ma50", "supertrend", "tcds"],
-    "event": ["earnings", "财报", "event", "事件"],
+    "breakout": [
+      "breakout",
+      "突破",
+      "站上",
+      "above resistance",
+      "break above",
+      "new high"
+    ],
+    "pullback": [
+      "pullback",
+      "回调",
+      "回踩",
+      "跌到",
+      "below",
+      "limit",
+      "support"
+    ],
+    "invalidation": [
+      "sell if",
+      "clear if",
+      "失效",
+      "跌破",
+      "breakdown"
+    ],
+    "trend": [
+      "trend",
+      "趋势",
+      "ma20",
+      "ma21",
+      "ma50",
+      "supertrend",
+      "tcds"
+    ],
+    "event": [
+      "earnings",
+      "财报",
+      "event",
+      "事件"
+    ],
     "other": []
   },
   "instrument_type_rules": {
-    "option_structure_methods": ["Sell Put", "LEAPS"],
-    "etf_symbols": ["QQQ", "QQQM", "VGT", "QLD", "TQQQ", "SPY", "VOO", "SMH", "RSP", "IBIT"],
+    "option_structure_methods": [
+      "Sell Put",
+      "LEAPS"
+    ],
+    "etf_symbols": [
+      "QQQ",
+      "QQQM",
+      "VGT",
+      "QLD",
+      "TQQQ",
+      "SPY",
+      "VOO",
+      "SMH",
+      "RSP",
+      "IBIT"
+    ],
     "fallback": "equity"
   },
   "assignment_policy": {
@@ -34,8 +96,10 @@
     "definition_change_creates_new_family_version": true,
     "never_reassign_old_membership_in_place": true
   },
+  "definition_hash": "9dfcae0df0481ffd2d09c464abc07df241ddc9cce7eecd63565da418c2d92a96",
   "guardrails": [
     "Family membership is determined only by frozen structural features.",
+    "Normalizer and extractor versions are part of the frozen definition identity.",
     "Author identity, publication time, realized outcomes and scorecard results are excluded from family assignment.",
     "Changing this definition requires a new definition_version and a new evaluation spec version."
   ]

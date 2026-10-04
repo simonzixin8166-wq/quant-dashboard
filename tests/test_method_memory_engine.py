@@ -35,10 +35,11 @@ out=mm.build(source,validation,{"QQQ":qqq},{})
 trend=next(x for x in out["methods"] if x["method"]=="趋势确认")
 risk=next(x for x in out["methods"] if x["method"]=="风险管理")
 sp=next(x for x in out["methods"] if x["method"]=="Sell Put")
+position=next(x for x in out["methods"] if x["method"]=="仓位与加减仓")
 
-assert out["version"]=="5.9.2"
+assert out["version"]=="6.13.1"
 assert out["counts"]["eligible_triggered_events"]==2
-assert out["counts"]["direct_method_links"]==2
+assert out["counts"]["direct_method_links"]==3
 
 # Trend has one directly attributable event.
 assert trend["source_occurrences"]==1
@@ -46,6 +47,13 @@ assert trend["direct_validated_events"]==1
 assert trend["context_validated_events"]==1
 assert trend["performance"]["5"]["n"]==1
 assert trend["performance"]["5"]["avg_mae"] is not None
+
+# Explicit buy is also direct position-management evidence even without an article topic.
+assert position["source_occurrences"]==0
+assert position["direct_validated_events"]==1
+assert position["context_validated_events"]==0
+assert position["performance_basis"]=="direct_event_attribution"
+assert position["status"]=="direct_early"
 
 # Risk management is only an article-level context here, so no method-performance claim.
 assert risk["direct_validated_events"]==0

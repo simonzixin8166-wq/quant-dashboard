@@ -123,42 +123,75 @@ def market_context(histories: dict, baseline_date: str):
 def direct_methods(record: dict, event: dict):
     """Conservative event-level method attribution.
 
-    Article topics describe context. Only action-anchored evidence is treated as
-    direct method performance; broader themes remain contextual evidence.
+    Article topics are context only. Direct method attribution may also come
+    from explicit operation semantics when the method is unambiguous from the
+    event itself. This prevents article-topic misses from permanently blocking
+    valid method learning, while avoiding inference for broad concepts such as
+    valuation, risk management or long-term discipline.
     """
-    topics=set(record.get("topics") or [])
     op=event.get("operation") or {}
     actions=set(event.get("actions") or op.get("actions") or [])
-    title=(record.get("title") or "").lower()
+    title=(record.get("title") or event.get("title") or "").lower()
     excerpt=(record.get("excerpt") or "").lower()
     text=title+"\n"+excerpt
     out=set()
 
-    if "Sell Put" in topics and ("sell_put" in actions or op.get("sell_put_strike") is not None):
+    # Explicit option structure.
+    if "sell_put" in actions or op.get("sell_put_strike") is not None:
         out.add("Sell Put")
 
+    # Explicit position-size / add-reduce actions are themselves direct evidence
+    # of the position-management method category.
     sizing_actions={"buy","add","trim","trim_half","sell","clear","planned_buy","planned_sell"}
     has_plan_level=any(op.get(k) is not None for k in ("entry_1","entry_2","entry_below","exit_line","target_range"))
-    if "仓位与加减仓" in topics and (actions & sizing_actions or has_plan_level):
+    if actions & sizing_actions or has_plan_level:
         out.add("仓位与加减仓")
 
-    if "LEAPS" in topics:
-        explicit_leaps = (
-            "leap" in text
-            or any("leap" in str(x).lower() for x in actions)
-            or "leap" in str(op.get("strategy") or "").lower()
-            or "leap" in str(op.get("option_type") or "").lower()
-        )
-        if explicit_leaps:
-            out.add("LEAPS")
+    # LEAPS requires explicit structure text/field, never article topic alone.
+    explicit_leaps = (
+        "leap" in text
+        or any("leap" in str(x).lower() for x in actions)
+        or "leap" in str(op.get("strategy") or "").lower()
+        or "leap" in str(op.get("option_type") or "").lower()
+    )
+    if explicit_leaps:
+        out.add("LEAPS")
 
-    # Trend confirmation requires an event-level trigger/condition rather than
-    # merely sharing an article with a trend discussion.
-    if "趋势确认" in topics:
-        cond=" ".join(str(x).lower() for x in (op.get("conditions") or []))
-        if any(k in cond for k in ("trend","breakout","ma20","ma21","ma50","tcds","supertrend")):
-            out.add("趋势确认")
+    # Trend confirmation requires an event-level trigger/condition.
+    cond=" ".join(str(x).lower() for x in (op.get("conditions") or []))
+    if any(k in cond for k in ("trend","breakout","ma20","ma21","ma50","tcds","supertrend")):
+        out.add("趋势确认")
     return out
+
+
+def evidence_state(direct_events):
+    """Automatic method evidence maturity, research-only.
+
+    Uses only direct-attribution outcomes. Small samples stay early/developing.
+    Support/challenge labels require >=8 mature 20-session direct events.
+    """
+    n=len(direct_events)
+    mature20=[e for e in direct_events if (e.get("outcomes") or {}).get("20")]
+    mature60=[e for e in direct_events if (e.get("outcomes") or {}).get("60")]
+    if n==0:
+        return {"state":"context_only","basis_horizon":None,"mature_n":0,"alignment_rate":None}
+    if len(mature20)<3:
+        return {"state":"direct_early","basis_horizon":5 if any((e.get("outcomes") or {}).get("5") for e in direct_events) else None,"mature_n":len(mature20),"alignment_rate":None}
+    if len(mature20)<8:
+        return {"state":"direct_developing","basis_horizon":20,"mature_n":len(mature20),"alignment_rate":None}
+    basis="60" if len(mature60)>=5 else "20"
+    rows=mature60 if basis=="60" else mature20
+    aligns=[e.get("alignment",{}).get(basis) for e in rows if e.get("alignment",{}).get(basis) in {"aligned","not_aligned"}]
+    rate=(sum(1 for x in aligns if x=="aligned")/len(aligns)) if aligns else None
+    if rate is None:
+        state="direct_developing"
+    elif rate>=0.60:
+        state="outcome_supportive"
+    elif rate<=0.40:
+        state="outcome_challenging"
+    else:
+        state="outcome_mixed"
+    return {"state":state,"basis_horizon":int(basis),"mature_n":len(rows),"alignment_rate":rate}
 
 
 def summarize_events(events):
@@ -206,9 +239,9 @@ def build(source: dict, validation: dict, histories: dict|None=None, evidence: d
         if not r:
             continue
         context_methods=sorted(set(r.get("topics") or []) & METHOD_TOPICS)
-        if not context_methods:
-            continue
         direct=sorted(direct_methods(r,e))
+        if not context_methods and not direct:
+            continue
         ctx=market_context(histories,e.get("baseline_date"))
         item=dict(e)
         item["_context_methods"]=context_methods
@@ -239,6 +272,7 @@ def build(source: dict, validation: dict, histories: dict|None=None, evidence: d
                     "horizon":int(h),"return":outcome.get("return"),"mae":outcome.get("mae"),
                     "mfe":outcome.get("mfe"),"alignment":align,"market_context":e.get("_context"),
                 })
+        maturity=evidence_state(direct_evs)
         methods.append({
             "method":method,
             "source_occurrences":source_occurrences.get(method,0),
@@ -252,12 +286,13 @@ def build(source: dict, validation: dict, histories: dict|None=None, evidence: d
             "market_context_counts":dict(direct_states.get(method,{})),
             "context_market_counts":dict(context_states.get(method,{})),
             "failure_examples":failures[:12],
-            "status":"evidence_building" if len(direct_evs)<8 else "research_memory",
+            "status":maturity["state"],
+            "evidence_maturity":maturity,
             "interpretation_guardrail":"performance 仅统计可直接归因到该方法的事件；context_performance 只描述同篇文章中的同期结果，不能视为方法有效性证明。",
         })
 
     return {
-        "version":"5.9.2",
+        "version":"6.13.1",
         "generated_at":datetime.now(timezone.utc).isoformat(),
         "counts":{
             "methods":len(methods),
@@ -268,18 +303,20 @@ def build(source: dict, validation: dict, histories: dict|None=None, evidence: d
         },
         "methodology":{
             "eligible_events":"author_action / author_plan + triggered only",
-            "attribution_layers":"article topics are context; performance requires conservative event-level direct method attribution",
+            "attribution_layers":"article topics are context; direct performance may also come from explicit unambiguous operation semantics",
             "excluded":"third-party examples, unconfirmed attribution, untriggered plans",
             "horizons":[5,20,60],
             "risk_metrics":"MAE/MFE measured from validated baseline price",
             "benchmark":"QQQ excess return when available",
             "market_context":"QQQ position vs 20/50-day moving averages plus 60-day drawdown and 20-day realized volatility",
             "causality":"none claimed",
+            "evidence_state_policy":"context_only -> direct_early -> direct_developing -> outcome_supportive/mixed/challenging; supportive/challenging requires >=8 mature 20-session direct events",
         },
         "methods":methods,
         "guardrails":[
             "Method Memory learns from outcomes; it does not copy an author's conclusion into MyAlpha.",
             "Article-level method tags never automatically convert every operation in that article into method performance.",
+            "Explicit sell-put, LEAPS, position-adjustment and technical-condition semantics may create direct method links even when article topics miss the category.",
             "Small direct samples are displayed as evidence_building rather than treated as stable edge.",
             "Failure examples are counterexamples for review, not labels that an author or method is generally wrong.",
             "No Method Memory statistic may directly change production trading thresholds without a separate validated policy step.",

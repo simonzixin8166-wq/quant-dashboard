@@ -15,7 +15,7 @@ COMPONENT_VERSIONS = {
     "autonomous_agent": "5.5.0",
     "research_planner": "6.8.2",
     "research_execution": "6.9.0",
-    "method_memory": "5.9.2",
+    "method_memory": "6.13.1",
     "self_improvement": "7.2.1",
     "learning_evaluation": "6.9.0",
     "system_status": "4",

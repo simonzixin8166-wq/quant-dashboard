@@ -18,7 +18,7 @@ FAMILIES=ROOT/"research"/"registry"/"rule_families.json"
 EVENTS=ROOT/"research"/"events"/"event_scores_v1.json"
 SPEC=ROOT/"research"/"specs"/"evaluation_spec.json"
 OUT=ROOT/"research"/"reports"/"promotion_gate.json"
-VERSION="6.15.8b"
+VERSION="6.15.8d"
 
 def load(p,d):
     try:return json.loads(p.read_text(encoding="utf-8"))
@@ -76,7 +76,7 @@ def build(scorecards,contradictions,registry,families,events,spec):
             for rid in members
         )
         conditions={
-            "independent_authors":c.get("independent_authors",0)>=int(th.get("independent_authors_min",3)),
+            "independent_authors":h60.get("independent_authors",0)>=int(th.get("independent_authors_min",3)),
             "independent_time_clusters":h60.get("independent_time_clusters",0)>=int(th.get("independent_time_clusters_min",6)),
             "mature_60_effective_samples":h60.get("effective_n",0)>=int(th.get("mature_60_effective_samples_min",20)),
             "lift_ci95_lower_bound_gt_zero":ci.get("lower") is not None and ci.get("lower")>float(th.get("lift_ci95_lower_bound_gt",0)),

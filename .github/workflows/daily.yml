@@ -40,7 +40,7 @@ jobs:
         run: pip install "yfinance>=0.2.65,<0.3" pandas
 
       - name: Validate scripts before execution
-        run: python -m py_compile scripts/app_version.py scripts/fetch_and_build.py scripts/opportunity_strategy.py scripts/update_market_events.py scripts/backtest_assistant_rules.py scripts/local_history_agent.py scripts/fred_client.py scripts/update_fred_macro.py scripts/cross_asset_divergence_engine.py scripts/breadth_intelligence_engine.py scripts/regime_combination_memory.py scripts/learning_engine_core.py scripts/autonomous_research_agent.py scripts/source_intelligence_engine.py scripts/source_history_cache.py scripts/source_outcome_validation.py scripts/evidence_attribution_engine.py scripts/method_memory_engine.py scripts/module_intelligence_engine.py scripts/autonomous_research_planner.py scripts/official_evidence_engine.py scripts/event_evidence_engine.py scripts/event_window_attribution.py scripts/autonomous_research_executor.py scripts/self_improvement_engine.py scripts/learning_evaluation_engine.py scripts/system_status_center.py scripts/playbook_config.py scripts/trading_calendar.py scripts/private_ledger.py scripts/playbook_engine.py scripts/range_intelligence.py scripts/private_guardrail.py scripts/module_failure_marker.py scripts/playbook_watchdog.py scripts/playbook_outcome_engine.py scripts/walk_forward_replay.py
+        run: python -m py_compile scripts/app_version.py scripts/fetch_and_build.py scripts/opportunity_strategy.py scripts/update_market_events.py scripts/backtest_assistant_rules.py scripts/local_history_agent.py scripts/fred_client.py scripts/update_fred_macro.py scripts/cross_asset_divergence_engine.py scripts/breadth_intelligence_engine.py scripts/regime_combination_memory.py scripts/learning_engine_core.py scripts/autonomous_research_agent.py scripts/source_intelligence_engine.py scripts/source_history_cache.py scripts/source_outcome_validation.py scripts/evidence_attribution_engine.py scripts/method_memory_engine.py scripts/module_intelligence_engine.py scripts/autonomous_research_planner.py scripts/official_evidence_engine.py scripts/event_evidence_engine.py scripts/event_window_attribution.py scripts/autonomous_research_executor.py scripts/self_improvement_engine.py scripts/learning_evaluation_engine.py scripts/system_status_center.py scripts/playbook_config.py scripts/trading_calendar.py scripts/private_ledger.py scripts/playbook_engine.py scripts/range_intelligence.py scripts/private_guardrail.py scripts/module_failure_marker.py scripts/playbook_watchdog.py scripts/playbook_outcome_engine.py scripts/walk_forward_replay.py scripts/bootstrap_replay_history.py
 
       - name: Update official FOMC and CPI calendar
         continue-on-error: true
@@ -52,6 +52,15 @@ jobs:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
         run: python scripts/fetch_and_build.py
+
+      - name: Bootstrap / refresh Replay history dependencies
+        id: replay_history_bootstrap
+        continue-on-error: true
+        run: python scripts/bootstrap_replay_history.py
+
+      - name: Record Replay history bootstrap failure
+        if: steps.replay_history_bootstrap.outcome == 'failure'
+        run: python scripts/module_failure_marker.py replay_history_bootstrap
 
       - name: Update local STOOQ history and autonomous learning
         run: python scripts/local_history_agent.py

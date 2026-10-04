@@ -1,1 +1,1 @@
-Verify serialized writers and V6.12 production state after stale-checkout fix
+Verify V6.12.1 Forward Learning Feedback production loop

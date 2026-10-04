@@ -14,7 +14,7 @@ SOURCE=ROOT/"docs"/"data"/"source_intelligence.json"
 EVENTS=ROOT/"research"/"events"/"event_scores_v1.json"
 SOURCE_STORE=ROOT/"research"/"store"/"source_store.json"
 EVENT_HISTORY=ROOT/"research"/"history"/"event_score_history.json"
-VERSION="6.15.8a"
+VERSION="6.15.8c"
 
 sys.path.insert(0,str(ROOT/"scripts"))
 from source_intelligence_engine import collect_full_records
@@ -70,7 +70,13 @@ def migrate_sources(source,prior=None,now=None,full_records=None):
             "author":r.get("author"),"published_at":r.get("published_at"),"title":r.get("title"),
             "url":r.get("url"),"symbols":r.get("symbols") or [],"topics":r.get("topics") or [],
             "operations":r.get("operations") or [],
+            "content_chars":r.get("content_chars"),
         }
+        normalized_text_payload={"title":r.get("title") or "","excerpt":r.get("excerpt") or ""}
+        operation_anchors=[
+            op.get("anchor_index") for op in (r.get("operations") or [])
+            if isinstance(op,dict) and op.get("anchor_index") is not None
+        ]
         prev=old.get(k)
         ts=timestamp_metadata(r)
         if prev:
@@ -87,6 +93,10 @@ def migrate_sources(source,prior=None,now=None,full_records=None):
             "published_at":r.get("published_at"),
             **ts,
             "snapshot_hash":digest(snap),
+            "normalized_available_text_hash":digest(normalized_text_payload),
+            "content_hash_scope":"normalized_title_excerpt_only",
+            "raw_fulltext_hash_status":"unavailable_unless_preserved_by_upstream_source",
+            "operation_anchor_indexes":operation_anchors,
             "source_still_online":None,
             "record":snap,
         })

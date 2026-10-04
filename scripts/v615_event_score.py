@@ -18,7 +18,6 @@ REGISTRY=ROOT/"research"/"registry"/"rules.json"
 OUT=ROOT/"research"/"events"/"event_scores_v1.json"
 COMPARE=ROOT/"research"/"audit"/"v615_eventscore_comparison.json"
 SOURCE_STORE=ROOT/"research"/"store"/"source_store.json"
-CACHE_AUDIT=ROOT/"research"/"audit"/"v615_cache_only_stooq_coverage.json"
 
 sys.path.insert(0,str(ROOT/"scripts"))
 from evaluation_spec import load_spec,direction_adjusted_return
@@ -295,35 +294,6 @@ def adapt(validation,registry,histories=None,spec=None,source_store=None):
         ]
     }
 
-def build_cache_coverage_audit(result,histories):
-    rows=[]
-    for ev in result.get("events") or []:
-        if not ev.get("rule_id"):continue
-        if (ev.get("data_quality") or {}).get("status")!="cache_only_unscored":continue
-        sym=ev.get("symbol")
-        meta=(histories.get(sym) or {}).get("meta") or {}
-        rows.append({
-            "event_id":ev.get("event_id"),
-            "rule_id":ev.get("rule_id"),
-            "symbol":sym,
-            "author":ev.get("author"),
-            "entry_type":ev.get("entry_type"),
-            "local_stooq_archive_present":False,
-            "cache_present":True,
-            "classification":"local_archive_not_provisioned_or_mapping_unknown",
-            "note":"This proves absence from the local STOOQ watchlist archive, not absence from the STOOQ service. Upstream STOOQ service coverage must be audited separately before any fallback policy is chosen.",
-            "price_series_hash":meta.get("price_series_hash"),
-        })
-    return {
-        "version":VERSION,
-        "generated_at":datetime.now(timezone.utc).isoformat(),
-        "events":rows,
-        "counts":{
-            "events":len(rows),
-            "symbols":len({x["symbol"] for x in rows}),
-        },
-    }
-
 def build_histories():
     stooq=read_archive();cache=read_cache()
     syms=set(stooq)|set(cache)
@@ -352,9 +322,6 @@ def main():
     }
     COMPARE.parent.mkdir(parents=True,exist_ok=True)
     COMPARE.write_text(json.dumps(comparison,ensure_ascii=False,indent=2),encoding="utf-8")
-    audit=build_cache_coverage_audit(result,histories)
-    CACHE_AUDIT.parent.mkdir(parents=True,exist_ok=True)
-    CACHE_AUDIT.write_text(json.dumps(audit,ensure_ascii=False,indent=2),encoding="utf-8")
-    print(json.dumps({"counts":result["counts"],"cache_audit":audit["counts"]},ensure_ascii=False))
+    print(json.dumps(result["counts"],ensure_ascii=False))
 
 if __name__=="__main__":main()

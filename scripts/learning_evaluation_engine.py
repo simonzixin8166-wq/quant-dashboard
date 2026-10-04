@@ -61,8 +61,9 @@ def method_rows(method: dict) -> list[dict]:
     machine from raw sample counts.
     """
     rows = []
+    legacy=method.get("evidence_role")=="legacy_descriptive_only"
     for m in method.get("methods") or []:
-        perf = m.get("performance") or {}
+        perf = {} if legacy else (m.get("performance") or {})
         horizons = {}
         for h in ("5", "20", "60", "120"):
             x = perf.get(h) or {}
@@ -73,9 +74,9 @@ def method_rows(method: dict) -> list[dict]:
                     "avg_return": x.get("avg_return"),
                     "median_return": x.get("median_return"),
                 }
-        direct = int(m.get("direct_validated_events") or 0)
-        evidence = m.get("evidence_maturity") or {}
-        maturity = evidence.get("state") or m.get("status") or ("context_only" if direct==0 else "direct_early")
+        direct = 0 if legacy else int(m.get("direct_validated_events") or 0)
+        evidence = {} if legacy else (m.get("evidence_maturity") or {})
+        maturity = "legacy_descriptive_only" if legacy else (evidence.get("state") or m.get("status") or ("context_only" if direct==0 else "direct_early"))
         rows.append({
             "method": m.get("method"),
             "direct_validated_events": direct,

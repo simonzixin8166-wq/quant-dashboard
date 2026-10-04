@@ -1,0 +1,36 @@
+name: Research Boundary QA
+
+on:
+  pull_request:
+    paths:
+      - "research/**"
+      - "scripts/v615_*.py"
+      - "scripts/evaluation_spec.py"
+      - "scripts/research_boundary_guard.py"
+      - ".github/workflows/research-*.yml"
+      - "tests/test_v615*.py"
+  workflow_dispatch: {}
+
+jobs:
+  boundary:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install research dependencies
+        run: pip install "yfinance>=0.2.65,<0.3" pandas
+      - name: Boundary guard
+        run: python scripts/research_boundary_guard.py
+      - name: V6.15 tests
+        run: |
+          python tests/test_v615_step0_audit.py
+          python tests/test_v6150_evaluation_boundary.py
+          python tests/test_v6151_rule_registry.py
+          python tests/test_v6152_event_score.py
+          python tests/test_v6153_method_attribution.py
+          python tests/test_v6154_persistence.py
+          python tests/test_v6155_scorecard.py
+          python tests/test_v6156_contradictions.py
+          python tests/test_v6157_promotion_gate.py

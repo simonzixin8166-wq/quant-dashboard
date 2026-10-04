@@ -1,0 +1,71 @@
+name: Research Evidence Update
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "scripts/v615_*.py"
+      - "scripts/evaluation_spec.py"
+      - "scripts/research_boundary_guard.py"
+      - "research/specs/evaluation_spec.json"
+      - ".github/workflows/research-evidence-update.yml"
+  workflow_dispatch: {}
+  schedule:
+    - cron: '10 22 * * 1-5'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: myalpha-production-writer
+  cancel-in-progress: false
+
+jobs:
+  research:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install research dependencies
+        run: pip install "yfinance>=0.2.65,<0.3" pandas
+      - name: Boundary precheck
+        run: python scripts/research_boundary_guard.py
+      - name: Snapshot production boundary before research
+        run: python scripts/research_boundary_guard.py --snapshot > /tmp/prod-before.json
+      - name: Build V6.15 research evidence
+        run: |
+          python scripts/v615_rule_registry.py
+          python scripts/v615_event_score.py
+          python scripts/v615_method_attribution.py
+          python scripts/v615_persistent_source_store.py
+          python scripts/v615_rule_scorecard.py
+          python scripts/v615_contradiction_memory.py
+          python scripts/v615_promotion_gate.py
+      - name: Snapshot production boundary after research
+        run: |
+          python scripts/research_boundary_guard.py --snapshot > /tmp/prod-after.json
+          diff -u /tmp/prod-before.json /tmp/prod-after.json
+      - name: Research regression tests
+        run: |
+          python tests/test_v6150_evaluation_boundary.py
+          python tests/test_v6151_rule_registry.py
+          python tests/test_v6152_event_score.py
+          python tests/test_v6153_method_attribution.py
+          python tests/test_v6154_persistence.py
+          python tests/test_v6155_scorecard.py
+          python tests/test_v6156_contradictions.py
+          python tests/test_v6157_promotion_gate.py
+      - name: Commit research artifacts only
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add research/
+          git diff --cached --name-only | grep -Ev '^(config/|data/ledger/|docs/data/|docs/assets/)' >/dev/null || true
+          git commit -m "Research evidence update $(date -u +%Y-%m-%d)" || echo "No research changes"
+          git pull --rebase origin main
+          git push origin HEAD:main

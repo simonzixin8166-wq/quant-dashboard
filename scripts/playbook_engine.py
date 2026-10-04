@@ -354,17 +354,30 @@ def build(now=None,writer=None):
         old_key=old.get("committed_state_key") or old.get("state_key")
         same_rule=old.get("rule_hash")==row["rule_hash"] if old else False
         baseline_only=(not old) or (not same_rule) or starting_forward
+        switches=per_playbook.get(row["playbook_id"]) or {"enabled":True,"ledger_enabled":True,"notifications_enabled":False}
+        runtime_active=bool(switches.get("enabled") and switches.get("ledger_enabled"))
+        row["runtime"]={**switches,"ledger_active":bool(forward_active and runtime_active)}
         row["previous_state_key"]=old_key
         row["transition_detected"]=False
+        row["suppressed_by_kill_switch"]=False
         row["bootstrap"]=baseline_only
         if baseline_only:
-            if forward_active:
+            if forward_active and runtime_active:
                 audit_events.append(_audit_event("state_baseline",f'{row["entity_key"]} baseline {row["state_key"]}',gate["market_date"],now,commit_sha,{"entity_key":row["entity_key"],"rule_hash":row["rule_hash"]}))
             continue
         if row["state_key"]==old_key:
             continue
         row["transition_detected"]=True
         if not forward_active:
+            continue
+        if not runtime_active:
+            row["suppressed_by_kill_switch"]=True
+            audit_events.append(_audit_event(
+                "transition_suppressed_by_kill_switch",
+                f'{row["entity_key"]} transition {old_key} -> {row["state_key"]} suppressed while playbook runtime/ledger is paused.',
+                gate["market_date"],now,commit_sha,
+                {"entity_key":row["entity_key"],"playbook_id":row["playbook_id"],"rule_hash":row["rule_hash"],"scoreable":False}
+            ))
             continue
         if row["state"]=="UNDETERMINED":
             ev=_audit_event("undetermined",f'{row["entity_key"]}: {row["detail"]}',gate["market_date"],now,commit_sha,{"entity_key":row["entity_key"],"rule_hash":row["rule_hash"]})
@@ -375,7 +388,6 @@ def build(now=None,writer=None):
         else:
             ev=_event(row,old_key,now,commit_sha,"trigger_state_event")
             trigger_events.append(ev);pending_by_entity[row["entity_key"]]=ev["record_id"]
-
     ledger_health="not_configured" if not storage_configured else ("disabled" if not forward_active else "ok")
     anchor={
         "version":ENGINE_VERSION,"generated_at":now_iso(now),"market_date":gate["market_date"],

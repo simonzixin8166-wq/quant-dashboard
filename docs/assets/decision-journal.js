@@ -121,6 +121,13 @@ function outcomeFor(bars,eventDate,entryPrice){
   if(first20.length)res.mae20=Math.min(...first20)/Number(entryPrice)-1;
   return res;
 }
+function tradingProgress(bars,eventDate){
+  if(!Array.isArray(bars)||!bars.length)return null;
+  const start=bars.findIndex(x=>String(x.d)>=eventDate);if(start<0)return null;
+  const last=bars.length-1;
+  const elapsed=Math.max(0,last-start);
+  return {elapsed,lastMarketDate:String(bars[last]?.d||'')};
+}
 function pendingCount(rows){let n=0;for(const e of rows)for(const c of(e.candidates||[]))if(num(c.price)!==null&&(!c.outcomes||!c.outcomes[120]))n++;return n}
 async function refreshOutcomes({silent=false}={}){
   if(state.refreshing)return;state.refreshing=true;
@@ -130,7 +137,7 @@ async function refreshOutcomes({silent=false}={}){
   if(!symbols.length){state.refreshing=false;if(!silent)global.MAV?.toast?.('当前没有等待补齐的实时结果','good');render();return}
   try{
     const history=await fetchHistory(symbols);state.lastAuthError='';
-    for(const e of rows)for(const c of(e.candidates||[])){const bars=history[c.symbol]?.bars;if(!bars)continue;c.outcomes={...(c.outcomes||{}),...outcomeFor(bars,e.date,c.price)};c.lastValidatedAt=new Date().toISOString();}
+    for(const e of rows)for(const c of(e.candidates||[])){const bars=history[c.symbol]?.bars;if(!bars)continue;c.outcomes={...(c.outcomes||{}),...outcomeFor(bars,e.date,c.price)};c.maturityProgress=tradingProgress(bars,e.date);c.lastValidatedAt=new Date().toISOString();}
     write(rows);if(!silent)global.MAV?.toast?.('实时 Journal 已补齐当前已成熟的结果','good');
   }catch(err){state.lastAuthError=String(err.message||err);if(!silent)global.MAV?.toast?.(`实时结果补齐暂不可用：${state.lastAuthError}`,'warn')}
   finally{state.refreshing=false;render()}
@@ -181,10 +188,14 @@ function marketLabel(e){return e.level==='panic'?'极端':e.level==='fear'?'大�
 function candidateRows(rows){const out=[];for(const e of[...rows].reverse())for(const c of(e.candidates||[]))out.push({e,c});return out.slice(0,40)}
 async function loadJson(url){try{const r=await fetch(`${url}?v=${Date.now()}`,{cache:'no-store'});if(!r.ok)return null;return await r.json()}catch{return null}}
 async function ensureHistory(){if(state.historyLoaded)return state.history;state.historyLoaded=true;state.history=await loadJson('research/historical_journal.json');setTimeout(()=>global.MAVInvestmentAssistant?.rescan?.(),0);return state.history}
-function maturityHint(date,h){
-  return `等待第${h}个交易日收盘`;
+function maturityHint(c,h){
+  const elapsed=Math.max(0,Number(c?.maturityProgress?.elapsed)||0);
+  const remaining=Math.max(0,h-elapsed);
+  if(remaining===0)return `等待最新收盘结果入库`;
+  const asOf=c?.maturityProgress?.lastMarketDate;
+  return `还剩${remaining}个交易日${asOf?` · 已计至 ${asOf}`:''}`;
 }
-function outcomeCell(c,e,h){const r=c.outcomes?.[h];if(r)return `<span class="${num(r.return)>0?'pos-text':num(r.return)<0?'neg-text':''}">${pct(r.return)}</span><small>${esc(r.date||'')}</small>`;return `<span class="journal-pending">未成熟</span><small>${esc(maturityHint(e.date,h))}</small>`}
+function outcomeCell(c,e,h){const r=c.outcomes?.[h];if(r)return `<span class="${num(r.return)>0?'pos-text':num(r.return)<0?'neg-text':''}">${pct(r.return)}</span><small>${esc(r.date||'')}</small>`;return `<span class="journal-pending">未成熟</span><small>${esc(maturityHint(c,h))}</small>`}
 function validationHtml(data){
   if(!data)return `<div class="journal-empty"><b>历史市场规则验证等待生成</b><p>Daily Dashboard Update 会尝试运行市场提醒规则事件研究。期权 Delta/DTE 的真实历史收益不会用正股走势替代。</p></div>`;
   const groups=data.groups||[];

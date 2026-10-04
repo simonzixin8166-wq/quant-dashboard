@@ -24,7 +24,7 @@ jobs:
         with:
           python-version: '3.11'
       - name: Install research dependencies
-        run: pip install pandas
+        run: pip install "yfinance>=0.2.65,<0.3" pandas
       - name: Boundary precheck
         run: python scripts/research_boundary_guard.py
       - name: Snapshot production boundary before research

@@ -29,7 +29,7 @@ legacy_evidence={
 # Planner may keep structural rule-candidate work, but must not create legacy
 # failure-review / outcome-maturity tasks.
 planner=planner_build({}, {}, legacy_evidence, legacy_method, {}, {}, {}, {}, {}, {}, {}, {})
-kinds={x.get("kind") for x in planner.get("tasks") or []}
+kinds={x.get("kind") for x in planner.get("queue") or []}
 assert "failure_review" not in kinds
 assert "method_evidence_gap" not in kinds
 assert "method_validation" not in kinds
@@ -60,7 +60,7 @@ m=ablated_method["methods"][0]
 m["direct_validated_events"]=0;m["context_validated_events"]=0;m["performance"]={};m["evidence_maturity"]={}
 ablated_evidence={"external_outcome_evidence_role":"legacy_descriptive_only","failure_attribution":{"external_outcome_reviews":[]}}
 planner2=planner_build({}, {}, ablated_evidence, ablated_method, {}, {}, {}, {}, {}, {}, {}, {})
-assert [(x.get("kind"),x.get("key"),x.get("priority")) for x in planner.get("tasks") or []] == [(x.get("kind"),x.get("key"),x.get("priority")) for x in planner2.get("tasks") or []]
+assert [(x.get("kind"),x.get("key"),x.get("priority")) for x in planner.get("tasks") or []] == [(x.get("kind"),x.get("key"),x.get("priority")) for x in planner2.get("queue") or []]
 assert method_states(legacy_method)==method_states(ablated_method)
 assert method_rows(legacy_method)==method_rows(ablated_method)
 print("PASS V6.15.8d-2 legacy Outcome bypass ablation")

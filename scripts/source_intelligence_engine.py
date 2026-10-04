@@ -244,14 +244,27 @@ def normalize(row):
         "myalpha_validation": "needs_independent_validation",
     }
 
-def build(records):
+def normalize_records(records):
+    """Return the complete normalized/deduplicated source stream.
+
+    This is the canonical pre-window stream. Callers that need persistent
+    research ingestion must use this function rather than the public rows[:800]
+    presentation window.
+    """
     rows = [normalize(x) for x in records if x.get("url") or x.get("title")]
     dedup = {}
     for r in rows:
         key = re.sub(r"#.*$","",r.get("url") or "") or r.get("id")
         if key not in dedup or (r.get("excerpt") and not dedup[key].get("excerpt")):
             dedup[key] = r
-    rows = sorted(dedup.values(), key=lambda x: x.get("published_at",""), reverse=True)
+    return sorted(dedup.values(), key=lambda x: x.get("published_at",""), reverse=True)
+
+def collect_full_records():
+    feed = fetch_feed()
+    return normalize_records(seed_brightline() + list(feed.get("records") or []))
+
+def build(records):
+    rows = normalize_records(records)
 
     by_topic = defaultdict(list)
     for r in rows:

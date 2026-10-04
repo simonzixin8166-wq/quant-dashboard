@@ -5,7 +5,7 @@ sys.path.insert(0,str(ROOT/"scripts"))
 
 from autonomous_research_planner import build as planner_build
 from self_improvement_engine import build as self_build
-from controlled_learning_policy import method_states
+from controlled_learning_policy import method_states,candidate_adjustments
 from learning_evaluation_engine import method_rows
 
 legacy_method={
@@ -63,4 +63,15 @@ planner2=planner_build({}, {}, ablated_evidence, ablated_method, {}, {}, {}, {},
 assert [(x.get("kind"),x.get("key"),x.get("priority")) for x in planner.get("queue") or []] == [(x.get("kind"),x.get("key"),x.get("priority")) for x in planner2.get("queue") or []]
 assert method_states(legacy_method)==method_states(ablated_method)
 assert method_rows(legacy_method)==method_rows(ablated_method)
-print("PASS V6.15.8d-2 legacy Outcome bypass ablation")
+
+# Cross-run stale-candidate canary: a previous self_improvement artifact may still
+# contain a method-based research_weight candidate. Current legacy demotion must
+# suppress it, while unrelated research-weight candidates remain eligible.
+stale_self={"candidates":[
+ {"candidate_id":"old-method","kind":"research_weight","scope":"趋势确认","proposed_change":{"priority_weight_delta":3},"evidence_n":99,"shadow_market_days":99,"reason":"stale legacy method"},
+ {"candidate_id":"cross-asset","kind":"research_weight","scope":"cross_asset_divergence","proposed_change":{"priority_weight_delta":3},"evidence_n":99,"shadow_market_days":99,"reason":"non-method signal"}
+]}
+adj=candidate_adjustments(stale_self,legacy_method)
+assert all(x["scope"]!="趋势确认" for x in adj)
+assert any(x["scope"]=="cross_asset_divergence" for x in adj)
+print("PASS V6.15.8d-3 legacy Outcome + stale-candidate isolation")

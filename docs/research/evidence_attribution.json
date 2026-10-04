@@ -1,6 +1,6 @@
 {
   "version": "5.7.0",
-  "generated_at": "2026-10-04T03:40:20.843949+00:00",
+  "generated_at": "2026-10-04T04:41:18.715994+00:00",
   "as_of": "2026-10-04",
   "architecture": [
     "plain_language_glossary",
@@ -615,15 +615,33 @@
     "note": "V5.7 首版只用已有可验证数据形成技术/市场 Breadcrumb；不会假装已经抓取到 SEC/FDA/论坛等外部事实。"
   },
   "failure_attribution": {
-    "mature_samples_scanned": 538,
-    "review_samples": 187,
+    "mature_samples_scanned": 525,
+    "review_samples": 203,
     "tag_counts": {
-      "missed_upside": 46,
-      "timeframe_confirmation_missing": 55,
-      "trend_false_positive": 42,
-      "large_adverse_move": 112
+      "large_adverse_move": 122,
+      "missed_upside": 52,
+      "timeframe_confirmation_missing": 60,
+      "trend_false_positive": 48
     },
     "recent": [
+      {
+        "symbol": "VIX",
+        "date": "2026-09-01",
+        "source_stage": "修复中",
+        "weekly": "空头",
+        "score": -20.88,
+        "return_20": -0.018359806258204547,
+        "mae_20": -0.13035496294677662,
+        "mfe_20": 0.09179926474862565,
+        "severity": "review",
+        "tags": [
+          "large_adverse_move"
+        ],
+        "attribution_hypotheses": [
+          "入档后经历较大不利波动，风险识别和无效条件应被单独复盘。"
+        ],
+        "guardrail": "这是可检验的归因假设，不是已经证明的因果关系；只有重复成熟样本才允许影响 Learning Policy。"
+      },
       {
         "symbol": "IREN",
         "date": "2026-08-28",
@@ -693,6 +711,24 @@
         ],
         "attribution_hypotheses": [
           "日线偏强而周线未确认，多周期冲突可能是误判来源之一。"
+        ],
+        "guardrail": "这是可检验的归因假设，不是已经证明的因果关系；只有重复成熟样本才允许影响 Learning Policy。"
+      },
+      {
+        "symbol": "TQQQ",
+        "date": "2026-08-24",
+        "source_stage": "趋势恶化",
+        "weekly": "多头",
+        "score": -1.24,
+        "return_20": 0.17127951498234606,
+        "mae_20": -0.016084633763093437,
+        "mfe_20": 0.17127951498234606,
+        "severity": "review",
+        "tags": [
+          "missed_upside"
+        ],
+        "attribution_hypotheses": [
+          "当时状态偏谨慎，但随后20日明显上涨：检查是否漏掉二次启动或修复后的确认。"
         ],
         "guardrail": "这是可检验的归因假设，不是已经证明的因果关系；只有重复成熟样本才允许影响 Learning Policy。"
       },
@@ -827,6 +863,24 @@
         "guardrail": "这是可检验的归因假设，不是已经证明的因果关系；只有重复成熟样本才允许影响 Learning Policy。"
       },
       {
+        "symbol": "SMH",
+        "date": "2026-08-13",
+        "source_stage": "趋势启动",
+        "weekly": "过渡",
+        "score": 15.81,
+        "return_20": -0.034950376817912576,
+        "mae_20": -0.07451796709994529,
+        "mfe_20": 0.008402383636709754,
+        "severity": "review",
+        "tags": [
+          "timeframe_confirmation_missing"
+        ],
+        "attribution_hypotheses": [
+          "日线偏强而周线未确认，多周期冲突可能是误判来源之一。"
+        ],
+        "guardrail": "这是可检验的归因假设，不是已经证明的因果关系；只有重复成熟样本才允许影响 Learning Policy。"
+      },
+      {
         "symbol": "NBIS",
         "date": "2026-08-13",
         "source_stage": "二次启动",
@@ -935,60 +989,6 @@
         "return_20": -0.010014940966332264,
         "mae_20": -0.0861183818821124,
         "mfe_20": 0.08844378040149636,
-        "severity": "review",
-        "tags": [
-          "timeframe_confirmation_missing"
-        ],
-        "attribution_hypotheses": [
-          "日线偏强而周线未确认，多周期冲突可能是误判来源之一。"
-        ],
-        "guardrail": "这是可检验的归因假设，不是已经证明的因果关系；只有重复成熟样本才允许影响 Learning Policy。"
-      },
-      {
-        "symbol": "VGT",
-        "date": "2026-08-05",
-        "source_stage": "二次启动",
-        "weekly": "过渡",
-        "score": 49.97,
-        "return_20": -0.004928165720013422,
-        "mae_20": -0.027564316739057793,
-        "mfe_20": 0.02731373204143006,
-        "severity": "review",
-        "tags": [
-          "timeframe_confirmation_missing"
-        ],
-        "attribution_hypotheses": [
-          "日线偏强而周线未确认，多周期冲突可能是误判来源之一。"
-        ],
-        "guardrail": "这是可检验的归因假设，不是已经证明的因果关系；只有重复成熟样本才允许影响 Learning Policy。"
-      },
-      {
-        "symbol": "SOFI",
-        "date": "2026-08-05",
-        "source_stage": "趋势延续",
-        "weekly": "空头",
-        "score": 21.93,
-        "return_20": -0.02246575342465751,
-        "mae_20": -0.0657534246575342,
-        "mfe_20": 0.05095890410958903,
-        "severity": "review",
-        "tags": [
-          "timeframe_confirmation_missing"
-        ],
-        "attribution_hypotheses": [
-          "日线偏强而周线未确认，多周期冲突可能是误判来源之一。"
-        ],
-        "guardrail": "这是可检验的归因假设，不是已经证明的因果关系；只有重复成熟样本才允许影响 Learning Policy。"
-      },
-      {
-        "symbol": "QQQM",
-        "date": "2026-08-05",
-        "source_stage": "二次启动",
-        "weekly": "过渡",
-        "score": 39.22,
-        "return_20": -0.011274758760792425,
-        "mae_20": -0.015371593025224395,
-        "mfe_20": 0.02051802945657699,
         "severity": "review",
         "tags": [
           "timeframe_confirmation_missing"

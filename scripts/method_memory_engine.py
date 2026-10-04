@@ -25,6 +25,7 @@ ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / "docs" / "data" / "source_intelligence.json"
 VALIDATION = ROOT / "docs" / "research" / "source_outcome_validation.json"
 EVIDENCE = ROOT / "docs" / "research" / "evidence_attribution.json"
+READING = ROOT / "docs" / "research" / "source_reading_memory.json"
 OUT = ROOT / "docs" / "research" / "method_memory.json"
 HORIZONS = ("5","20","60")
 METHOD_TOPICS = {
@@ -213,9 +214,11 @@ def summarize_events(events):
     return out
 
 
-def build(source: dict, validation: dict, histories: dict|None=None, evidence: dict|None=None):
+def build(source: dict, validation: dict, histories: dict|None=None, evidence: dict|None=None, reading: dict|None=None):
     histories=histories or {}
     evidence=evidence or {}
+    reading=reading or {}
+    reading_by_topic=reading.get("testable_by_topic") or {}
     by_url=record_index(source)
     context_buckets=defaultdict(list)
     direct_buckets=defaultdict(list)
@@ -288,11 +291,16 @@ def build(source: dict, validation: dict, histories: dict|None=None, evidence: d
             "failure_examples":failures[:12],
             "status":maturity["state"],
             "evidence_maturity":maturity,
+            "source_reading":{
+                "testable_rule_candidates":int(reading_by_topic.get(method) or 0),
+                "state":"candidate_rules_available" if int(reading_by_topic.get(method) or 0)>0 else "no_structured_rule_candidate",
+                "guardrail":"这里只统计来源阅读层的结构化规则候选；在触发并成熟之前不能计入 direct performance。",
+            },
             "interpretation_guardrail":"performance 仅统计可直接归因到该方法的事件；context_performance 只描述同篇文章中的同期结果，不能视为方法有效性证明。",
         })
 
     return {
-        "version":"6.13.1",
+        "version":"6.14.0",
         "generated_at":datetime.now(timezone.utc).isoformat(),
         "counts":{
             "methods":len(methods),
@@ -300,6 +308,7 @@ def build(source: dict, validation: dict, histories: dict|None=None, evidence: d
             "eligible_triggered_events":len(joined),
             "direct_method_links":sum(len(e.get("_direct_methods") or []) for e in joined),
             "mature60_eligible_events":sum(1 for e in joined if e.get("outcomes",{}).get("60")),
+            "source_reading_testable_rules":int((reading.get("counts") or {}).get("testable_rules") or 0),
         },
         "methodology":{
             "eligible_events":"author_action / author_plan + triggered only",
@@ -328,7 +337,8 @@ def main():
     source=load(SOURCE,{})
     validation=load(VALIDATION,{})
     evidence=load(EVIDENCE,{})
-    result=build(source,validation,merge_history(),evidence)
+    reading=load(READING,{})
+    result=build(source,validation,merge_history(),evidence,reading)
     OUT.parent.mkdir(parents=True,exist_ok=True)
     OUT.write_text(json.dumps(result,ensure_ascii=False,indent=2),encoding="utf-8")
     print(json.dumps(result["counts"],ensure_ascii=False))

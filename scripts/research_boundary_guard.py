@@ -12,43 +12,61 @@ RESEARCH_READ_MARKERS=(
     "source_rule_lifecycle.json","self_improvement",
 )
 PRODUCTION_MODULES=("scripts/playbook_engine.py","scripts/fetch_and_build.py","scripts/private_ledger.py")
-HASH_TARGETS=(
-    "config/playbooks.public.json",
-    "scripts/playbook_config.py",
-    "docs/research/ledger_anchor.json",
-)
-RULE_HASH_FILES=(
-    "docs/data.json",
-)
+MANIFEST=ROOT/"research"/"specs"/"production_boundary_manifest.json"
 
 def sha(path):
     p=ROOT/path
     if not p.exists():return None
     return hashlib.sha256(p.read_bytes()).hexdigest()
 
+def load_manifest():
+    try:
+        data=json.loads(MANIFEST.read_text(encoding="utf-8"))
+    except Exception as exc:
+        raise RuntimeError(f"cannot load production boundary manifest: {exc}")
+    if not data.get("protected_prefixes") and not data.get("protected_files"):
+        raise RuntimeError("production boundary manifest is empty")
+    return data
+
+def _tree_files(prefix):
+    base=ROOT/prefix
+    if base.is_file():
+        return [base]
+    if not base.exists():
+        return []
+    return sorted(p for p in base.rglob("*") if p.is_file())
+
 def snapshot():
-    out={"targets":{p:sha(p) for p in HASH_TARGETS},"rule_hashes":{}}
-    for p in RULE_HASH_FILES:
-        q=ROOT/p
-        if q.exists():
-            try:
-                d=json.loads(q.read_text(encoding="utf-8"))
-                if isinstance(d,dict):
-                    vals={}
-                    def walk(x,prefix=""):
-                        if isinstance(x,dict):
-                            for k,v in x.items():
-                                key=f"{prefix}.{k}" if prefix else k
-                                if "rule_hash" in str(k).lower():
-                                    vals[key]=v
-                                else: walk(v,key)
-                        elif isinstance(x,list):
-                            for i,v in enumerate(x): walk(v,f"{prefix}[{i}]")
-                    walk(d)
-                    out["rule_hashes"][p]=vals
-            except Exception:
-                out["rule_hashes"][p]={"parse_error":True}
-    return out
+    manifest=load_manifest()
+    files={}
+    for rel in manifest.get("protected_files") or []:
+        files[rel]=sha(rel)
+    for prefix in manifest.get("protected_prefixes") or []:
+        for p in _tree_files(prefix):
+            rel=p.relative_to(ROOT).as_posix()
+            files[rel]=hashlib.sha256(p.read_bytes()).hexdigest()
+    return {
+        "manifest_version":manifest.get("manifest_version"),
+        "files":dict(sorted(files.items())),
+    }
+
+def check_manifest_completeness():
+    manifest=load_manifest()
+    protected=set(manifest.get("protected_files") or [])
+    prefixes=tuple(manifest.get("protected_prefixes") or [])
+    required=[
+        "config/playbooks.public.json",
+        "scripts/playbook_config.py",
+        "scripts/fetch_and_build.py",
+        "scripts/autonomous_research_planner.py",
+        "docs/research/ledger_anchor.json",
+    ]
+    missing=[]
+    for rel in required:
+        if rel in protected or any(rel.startswith(p) for p in prefixes):
+            continue
+        missing.append(rel)
+    return missing
 
 def check_production_reads():
     violations=[]
@@ -127,6 +145,10 @@ def main():
         return assert_allowed(git_worktree_paths(),label="worktree_research_only")
     if "--assert-staged-research-only" in sys.argv:
         return assert_allowed(git_staged_paths(),label="staged_research_only")
+    missing=check_manifest_completeness()
+    if missing:
+        print(json.dumps({"ok":False,"manifest_missing_required_coverage":missing},ensure_ascii=False,indent=2))
+        return 5
     violations=check_production_reads()
     if violations:
         print(json.dumps({"ok":False,"production_read_violations":violations},ensure_ascii=False,indent=2))

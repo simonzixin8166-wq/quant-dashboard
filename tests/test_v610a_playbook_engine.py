@@ -28,6 +28,13 @@ assert pc.TQQQ_RULES["hard_exit"]["vix_ma50_gt"]==26
 assert pc.TQQQ_RULES["tier1"]["vix_3d_change_gt"]==0.20
 assert pc.LEAPS_RULES["candidate"]=={"rsi_lte":35,"drawdown63_lte":-0.08,"logic":"AND"}
 assert len(pc.rule_hash("CP-01"))==64
+legacy_cp01_hash="ad5eab7a409996693a01eea24dfeb9a2f070a27f535092a7cd079acee14972b9"
+assert pc.rule_hash("CP-01")!=legacy_cp01_hash  # canonicalization correction, not a threshold change
+original_t1=pc.CORE_TIERS["QQQM"]["t1"]
+hash_before=pc.rule_hash("CP-01")
+pc.CORE_TIERS["QQQM"]["t1"]=original_t1+0.001
+assert pc.rule_hash("CP-01")!=hash_before
+pc.CORE_TIERS["QQQM"]["t1"]=original_t1
 assert pc.PLAYBOOKS["PP-01"]["class"]=="private"
 assert pc.PLAYBOOKS["PP-01"]["ledger_enabled"] is False
 
@@ -37,6 +44,9 @@ assert not tc.is_session(datetime(2026,4,3).date())  # Good Friday
 assert tc.is_session(datetime(2026,10,2).date())
 assert tc.expected_latest_completed_session(datetime(2026,10,3,12,0,tzinfo=timezone.utc)).isoformat()=="2026-10-02"
 assert tc.add_sessions("2026-10-02",1).isoformat()=="2026-10-05"
+assert tc.is_session(datetime(2021,12,31).date())  # NYSE was open; New Year Saturday is not observed on prior Friday
+assert tc.is_session(datetime(2027,12,31).date())
+assert not tc.is_session(datetime(2018,12,5).date())  # one-off national day of mourning
 
 # --- Ledger hash-chain tamper detection ---
 base={"schema_version":"1.0","record_type":"trigger_state_event","record_id":"a","playbook_id":"CP-01"}
@@ -56,6 +66,48 @@ ok,meta=pl.verify_records([m1,m2],prior_head)
 assert ok and meta["head_hash"]==m2["record_hash"]
 ok,_=pl.verify_records([m1,m2],pl.ZERO_HASH)
 assert not ok
+
+
+
+# --- Partial-write reconciliation: verified monthly file may repair stale _heads metadata ---
+class MemoryLedger(pl.PrivateGitHubLedger):
+    def __init__(self,files):
+        super().__init__("owner/private","token","main")
+        self.files=dict(files)
+    def read_text(self,path):
+        return self.files.get(path,""), ("sha-"+path if path in self.files else None)
+    def write_text(self,path,text,sha=None,message=""):
+        self.files[path]=text
+        return {"content":{"sha":"new-"+path}}
+
+rr1=pl.make_record({**base,"record_id":"recover-1"},pl.ZERO_HASH)
+rr2=pl.make_record({**base,"record_id":"recover-2"},rr1["record_hash"])
+recover_path="ledger/trigger/2026-10.jsonl"
+recover_heads={"version":1,"streams":{"trigger":{
+    "head_hash":rr1["record_hash"],"record_count":1,"last_month":"2026-10",
+    "month_start_hash":pl.ZERO_HASH,"month_record_count":1,"last_path":recover_path
+}}}
+mem=MemoryLedger({
+    recover_path:pl.canonical_json(rr1)+"\n"+pl.canonical_json(rr2)+"\n",
+    "ledger/_heads.json":json.dumps(recover_heads),
+})
+res=mem.append_many("trigger",[],"2026-10-02")
+assert res.reconciled is True and res.recovered_records==1 and res.record_count==2
+heads_after=json.loads(mem.files["ledger/_heads.json"])
+assert heads_after["streams"]["trigger"]["head_hash"]==rr2["record_hash"]
+assert heads_after["streams"]["trigger"]["record_count"]==2
+
+bad_heads=copy.deepcopy(recover_heads)
+bad_heads["streams"]["trigger"]["head_hash"]="b"*64
+bad=MemoryLedger({
+    recover_path:pl.canonical_json(rr1)+"\n"+pl.canonical_json(rr2)+"\n",
+    "ledger/_heads.json":json.dumps(bad_heads),
+})
+try:
+    bad.append_many("trigger",[],"2026-10-02")
+    raise AssertionError("unrelated stale head must fail closed")
+except RuntimeError as exc:
+    assert "does not match verified month chain" in str(exc)
 
 # --- Synthetic Playbook state mapping and data-quality gate ---
 def asset(close=100,prev=99,date="2026-10-02",**extra):

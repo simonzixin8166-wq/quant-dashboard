@@ -83,7 +83,7 @@ assert "module_failure_marker.py controlled_learning_policy" in workflow
 manifest=(ROOT/"scripts/generate_build_manifest.py").read_text(encoding="utf-8")
 assert "research/controlled_learning_policy.json" in manifest
 ui=(ROOT/"docs"/"assets"/"autonomous-agent.js").read_text(encoding="utf-8")
-assert "V6.12 Controlled Learning · 受控自学习" in ui
+assert "V6.12.1 Controlled Learning · 受控自学习" in ui
 assert "正式交易规则锁定" in ui
 
 # Hard red-line strings must never appear as mutation targets in policy output.

@@ -1,7 +1,7 @@
 (function(global){
   'use strict';
   const $=id=>document.getElementById(id);
-  const state={publicData:null,evidenceData:null,systemStatus:null,plannerData:null,researchData:null,selfImproveData:null,learningEvalData:null,crossAssetData:null,breadthData:null,regimeData:null,rangeData:null,playbookData:null,ledgerAnchor:null,outcomeData:null,replayData:null,controlledPolicy:null,lastRender:0};
+  const state={publicData:null,evidenceData:null,systemStatus:null,plannerData:null,researchData:null,selfImproveData:null,learningEvalData:null,crossAssetData:null,breadthData:null,regimeData:null,rangeData:null,playbookData:null,ledgerAnchor:null,outcomeData:null,replayData:null,controlledPolicy:null,forwardFeedback:null,lastRender:0};
   const MEMORY_KEY='mavAgentDecisionMemoryV562', LEGACY_MEMORY_KEY='mavAgentDecisionMemoryV56', POLICY_KEY='mavLearningPolicyV1';
 
   function n(v){const x=Number(v);return Number.isFinite(x)?x:null}
@@ -90,7 +90,7 @@
 
   async function loadPublic(){
     try{
-      const [a,e,s,h,p,x,v7,le,ca,bi,rg,range,pb,la,po,rp,cl]=await Promise.all([
+      const [a,e,s,h,p,x,v7,le,ca,bi,rg,range,pb,la,po,rp,cl,ff]=await Promise.all([
         fetch('research/autonomous_agent.json?v='+Date.now(),{cache:'no-store'}),
         fetch('research/evidence_attribution.json?v='+Date.now(),{cache:'no-store'}),
         fetch('data/source_intelligence.json?v='+Date.now(),{cache:'no-store'}),
@@ -107,7 +107,8 @@
         fetch('research/ledger_anchor.json?v='+Date.now(),{cache:'no-store'}).catch(()=>null),
         fetch('research/playbook_outcome_shadow.json?v='+Date.now(),{cache:'no-store'}).catch(()=>null),
         fetch('research/walk_forward_replay.json?v='+Date.now(),{cache:'no-store'}).catch(()=>null),
-        fetch('research/controlled_learning_policy.json?v='+Date.now(),{cache:'no-store'}).catch(()=>null)
+        fetch('research/controlled_learning_policy.json?v='+Date.now(),{cache:'no-store'}).catch(()=>null),
+        fetch('research/forward_learning_feedback.json?v='+Date.now(),{cache:'no-store'}).catch(()=>null)
       ]);
       state.publicData=a.ok?await a.json():null;
       state.evidenceData=e.ok?await e.json():null;
@@ -126,7 +127,8 @@
       state.outcomeData=po&&po.ok?await po.json():null;
       state.replayData=rp&&rp.ok?await rp.json():null;
       state.controlledPolicy=cl&&cl.ok?await cl.json():null;
-    }catch{state.publicData=null;state.evidenceData=null;state.sourceIntel=null;state.systemStatus=null;state.plannerData=null;state.researchData=null;state.selfImproveData=null;state.learningEvalData=null;state.crossAssetData=null;state.breadthData=null;state.regimeData=null;state.rangeData=null;state.playbookData=null;state.ledgerAnchor=null;state.outcomeData=null;state.replayData=null;state.controlledPolicy=null}
+      state.forwardFeedback=ff&&ff.ok?await ff.json():null;
+    }catch{state.publicData=null;state.evidenceData=null;state.sourceIntel=null;state.systemStatus=null;state.plannerData=null;state.researchData=null;state.selfImproveData=null;state.learningEvalData=null;state.crossAssetData=null;state.breadthData=null;state.regimeData=null;state.rangeData=null;state.playbookData=null;state.ledgerAnchor=null;state.outcomeData=null;state.replayData=null;state.controlledPolicy=null;state.forwardFeedback=null}
   }
 
 
@@ -152,11 +154,16 @@
     const d=state.controlledPolicy||{};if(!d.version)return'';
     const adj=d.candidate_adjustments||[],active=adj.filter(x=>x.active),pb=d.playbook_validation_priority_bonus||{};
     const applied=Object.entries(d.task_kind_priority_delta||{});
-    return `<div class="agent-section-title"><b>V6.12 Controlled Learning · 受控自学习</b><span>Research Only · 正式交易规则锁定</span></div>
+    const ff=state.forwardFeedback||{},fc=ff.counts||{},fps=ff.playbooks||{},chall=ff.challengers||[];
+    const stateLabel={forward_unproven:'前瞻未成熟',forward_early:'前瞻早期',forward_supportive:'前瞻支持',forward_mixed:'前瞻混合',forward_challenging:'前瞻挑战',data_quality_review:'先查数据质量'};
+    const forwardLine=['CP-01','CP-02','CP-03'].map(pid=>`${pid} ${stateLabel[fps[pid]?.state]||fps[pid]?.state||'未成熟'}`).join(' · ');
+    return `<div class="agent-section-title"><b>V6.12.1 Controlled Learning · 受控自学习</b><span>Research Only · 正式交易规则锁定</span></div>
       <article class="agent-card agent-watch"><div class="agent-card-head"><div><span>CONTROLLED LEARNING ZONE</span><h3>系统可自动改变研究行为，不自动改变交易规则</h3></div><b>${esc(d.mode||'')}</b></div>
       <div class="agent-metrics"><span>已激活调整 ${active.length}</span><span>研究权重调整 ${applied.length}</span><span>单项上限 ±${esc(d.max_abs_priority_delta??5)}</span><span>CP-01验证 +${esc(pb['CP-01']??0)}</span><span>CP-02验证 +${esc(pb['CP-02']??0)}</span><span>CP-03验证 +${esc(pb['CP-03']??0)}</span></div>
+      <p><strong>Forward Learning：</strong>${esc(forwardLine)}</p>
+      <div class="agent-metrics"><span>20日成熟 ${esc(fc.forward_mature20??0)}</span><span>60日成熟 ${esc(fc.forward_mature60??0)}</span><span>归因复盘 ${esc(fc.attribution_reviews??0)}</span><span>Challenger ${esc(fc.challenger_candidates??chall.length)}</span></div>
       <p><strong>当前自动范围：</strong>研究任务优先级、证据状态、提醒排序。重复 Workflow 不累计学习；Replay 与 Forward 分开。</p>
-      <small>仓位、下单、核心配置、CP阈值与 TQQQ Hard Exit 均不受本层自动修改。</small></article>`;
+      <small>Challenger 仅做影子诊断，不能自动晋级；仓位、下单、核心配置、CP阈值与 TQQQ Hard Exit 均不受本层自动修改。</small></article>`;
   }
 
   function brainHtml(){

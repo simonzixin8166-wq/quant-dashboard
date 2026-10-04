@@ -21,10 +21,11 @@ REPLAY=RESEARCH/"walk_forward_replay.json"
 OUTCOME=RESEARCH/"playbook_outcome_shadow.json"
 SELF=RESEARCH/"self_improvement.json"
 METHOD=RESEARCH/"method_memory.json"
+FEEDBACK=RESEARCH/"forward_learning_feedback.json"
 PREV=RESEARCH/"controlled_learning_policy.json"
 OUT=PREV
 
-VERSION="6.12.0"
+VERSION="6.12.1"
 MAX_ABS_PRIORITY_DELTA=5.0
 
 def load(path):
@@ -142,12 +143,16 @@ def method_states(method):
         }
     return out
 
-def build(replay,outcome,self_improvement,method,previous=None,now=None):
+def build(replay,outcome,self_improvement,method,feedback=None,previous=None,now=None):
     now=now or datetime.now(timezone.utc)
     replay_ev=replay_playbook_evidence(replay)
     forward_ev=forward_evidence(outcome)
     adjustments=candidate_adjustments(self_improvement)
     methods=method_states(method)
+
+    feedback=feedback or {}
+    feedback_playbooks=feedback.get("playbooks") or {}
+    feedback_challengers=feedback.get("challengers") or []
 
     # Controlled task-kind priority modifiers. Only explicitly mapped research
     # scopes can move; all unlisted kinds receive zero adjustment.
@@ -170,7 +175,10 @@ def build(replay,outcome,self_improvement,method,previous=None,now=None):
         f5=int(f.get("mature5") or 0)
         uncertainty_bonus=5 if f5==0 else 3 if f5<5 else 0
         replay_bonus=2 if eff>=50 else 1 if eff>=20 else 0
-        playbook_validation_priority[pid]=min(10,uncertainty_bonus+replay_bonus)
+        feedback_state=(feedback_playbooks.get(pid) or {}).get("state")
+        feedback_bonus=3 if feedback_state in {"forward_challenging","data_quality_review"} else 2 if feedback_state=="forward_mixed" else 0
+        challenger_bonus=2 if any(x.get("playbook_id")==pid and x.get("state")=="shadow_candidate" for x in feedback_challengers) else 0
+        playbook_validation_priority[pid]=min(10,uncertainty_bonus+replay_bonus+feedback_bonus+challenger_bonus)
 
     prev=previous or {}
     prev_gen=prev.get("generated_at")
@@ -187,6 +195,13 @@ def build(replay,outcome,self_improvement,method,previous=None,now=None):
         "forward_evidence":forward_ev,
         "method_evidence_state":methods,
         "candidate_adjustments":adjustments,
+        "forward_learning_feedback":{
+            "mode":feedback.get("mode"),
+            "counts":feedback.get("counts") or {},
+            "playbook_states":{pid:(row or {}).get("state") for pid,row in feedback_playbooks.items()},
+            "challenger_candidates":[{"challenger_id":x.get("challenger_id"),"playbook_id":x.get("playbook_id"),"state":x.get("state")} for x in feedback_challengers],
+            "automatic_promotion":False,
+        },
         "change_log":{
             "previous_generated_at":prev_gen,
             "recomputed_from_current_evidence":True,
@@ -204,7 +219,7 @@ def build(replay,outcome,self_improvement,method,previous=None,now=None):
     }
 
 def main():
-    out=build(load(REPLAY),load(OUTCOME),load(SELF),load(METHOD),load(PREV))
+    out=build(load(REPLAY),load(OUTCOME),load(SELF),load(METHOD),load(FEEDBACK),load(PREV))
     OUT.parent.mkdir(parents=True,exist_ok=True)
     OUT.write_text(json.dumps(out,ensure_ascii=False,indent=2),encoding="utf-8")
     print(json.dumps({

@@ -40,7 +40,7 @@ def build(data,now=None):
         "source_store_full_coverage":len(source.get("records") or [])>=int(source.get("source_window_reported_total") or 0),
         "boundary_no_failures":len(boundary_failures)==0,
         "statistical_controls_pass":bool(controls.get("all_pass")),
-        "component_manifest_complete":(components.get("counts") or {}).get("missing_code_hashes",1)==0 and (components.get("counts") or {}).get("missing_artifact_hashes",1)==0,
+        "component_manifest_complete":(components.get("counts") or {}).get("missing_code_hashes",1)==0 and (components.get("counts") or {}).get("missing_required_artifact_hashes",1)==0,
     }
     return {
         "version":VERSION,

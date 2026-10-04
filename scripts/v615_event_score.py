@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
-"""V6.15.2 EventScore compatibility layer.
+"""V6.15.8a EventScore integrity adapter.
 
 This module adapts existing Source Outcome events to one versioned score format.
 It does not replace the legacy engines yet.
 """
 from __future__ import annotations
 import hashlib, json, math, sys
+from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -16,13 +17,14 @@ VALIDATION=ROOT/"docs"/"research"/"source_outcome_validation.json"
 REGISTRY=ROOT/"research"/"registry"/"rules.json"
 OUT=ROOT/"research"/"events"/"event_scores_v1.json"
 COMPARE=ROOT/"research"/"audit"/"v615_eventscore_comparison.json"
+SOURCE_STORE=ROOT/"research"/"store"/"source_store.json"
 
 sys.path.insert(0,str(ROOT/"scripts"))
 from evaluation_spec import load_spec,direction_adjusted_return
 from local_history_agent import read_archive
 from source_history_cache import read_cache
 
-VERSION="6.15.2"
+VERSION="6.15.8a"
 HORIZONS=(5,20,60)
 
 def load(path,default):
@@ -138,26 +140,84 @@ def registry_map(registry):
         out[(str(m.get("source_id")),m.get("operation_index"))]=m.get("rule_id")
     return out
 
-def adapt(validation,registry,histories=None,spec=None):
+def source_provenance_map(store):
+    out={}
+    for row in store.get("records") or []:
+        rec=row.get("record") or {}
+        sid=rec.get("id") or row.get("source_key")
+        if sid is None:continue
+        out[str(sid)]={
+            "first_fetched_at":row.get("first_fetched_at"),
+            "ingest_type":row.get("ingest_type"),
+            "published_at_semantics":row.get("published_at_semantics"),
+            "timestamp_confidence":row.get("timestamp_confidence"),
+            "snapshot_hash":row.get("snapshot_hash"),
+        }
+    return out
+
+def point_in_time_status(prov,baseline_date):
+    first=(prov or {}).get("first_fetched_at")
+    if not first or not baseline_date:
+        return "unknown"
+    try:
+        first_day=pd.Timestamp(str(first)[:10])
+        baseline=pd.Timestamp(str(baseline_date)[:10])
+        return "eligible" if baseline>=first_day else "historical_pre_ingest"
+    except Exception:
+        return "unknown"
+
+def exclusion_reasons(rid,triggered,direction,entry_type,data_status,point_status):
+    reasons=[]
+    if not rid:reasons.append("missing_rule_id")
+    if not triggered:reasons.append("not_triggered")
+    if direction=="option_structure":reasons.append("missing_real_option_pnl")
+    elif direction not in {"bullish","bearish"}:reasons.append("unsupported_direction")
+    if entry_type=="unknown":reasons.append("unknown_entry_semantics")
+    if data_status=="conflict":reasons.append("price_source_conflict")
+    elif data_status=="cache_only_unscored":reasons.append("cache_only_unscored")
+    elif data_status!="ok":reasons.append("missing_price_data")
+    if point_status=="historical_pre_ingest":reasons.append("non_point_in_time_source")
+    elif point_status=="unknown":reasons.append("timestamp_provenance_unknown")
+    return reasons
+
+PRIMARY_PRECEDENCE=(
+    "missing_rule_id",
+    "missing_real_option_pnl",
+    "unsupported_direction",
+    "unknown_entry_semantics",
+    "not_triggered",
+    "price_source_conflict",
+    "cache_only_unscored",
+    "missing_price_data",
+    "non_point_in_time_source",
+    "timestamp_provenance_unknown",
+)
+
+def choose_primary(reasons):
+    for key in PRIMARY_PRECEDENCE:
+        if key in reasons:return key
+    return None
+
+def adapt(validation,registry,histories=None,spec=None,source_store=None):
     spec=spec or load_spec()
     mapping=registry_map(registry)
     histories=histories or {}
+    provenance=source_provenance_map(source_store or {})
     rows=[]
-    excluded={"unknown_entry_semantics":0,"option_unscored":0,"missing_rule":0,"price_conflict":0}
+    primary_counts=Counter()
     for ev in validation.get("events") or []:
         sid,op_idx,symbol,_=parse_event_identity(ev)
         rid=mapping.get((str(sid),op_idx))
         et=entry_type(ev)
         direction=direction_from_event(ev)
         hmeta=histories.get(symbol,{}).get("meta") or {}
-        price_ok=hmeta.get("status")=="ok"
-        scoreable=bool(rid and ev.get("triggered") and direction in {"bullish","bearish"} and et!="unknown" and price_ok)
-        reasons=[]
-        if not rid:reasons.append("missing_rule_id");excluded["missing_rule"]+=1
-        if direction=="option_structure":reasons.append("missing_real_option_pnl");excluded["option_unscored"]+=1
-        if et=="unknown":reasons.append("unknown_entry_semantics");excluded["unknown_entry_semantics"]+=1
-        if hmeta.get("status")=="conflict":reasons.append("price_source_conflict");excluded["price_conflict"]+=1
-        if not ev.get("triggered"):reasons.append("not_triggered")
+        prov=provenance.get(str(sid)) or {}
+        pit=point_in_time_status(prov,ev.get("baseline_date"))
+        reasons=exclusion_reasons(rid,bool(ev.get("triggered")),direction,et,hmeta.get("status"),pit)
+        primary=choose_primary(reasons)
+        secondary=[x for x in reasons if x!=primary]
+        scoreable=primary is None
+        if primary:primary_counts[primary]+=1
         scores={}
         for h in HORIZONS:
             old=(ev.get("outcomes") or {}).get(str(h))
@@ -200,24 +260,37 @@ def adapt(validation,registry,histories=None,spec=None):
             "direction":direction,
             "triggered":bool(ev.get("triggered")),
             "scoreable":scoreable,
-            "exclusion_reasons":sorted(set(reasons)),
+            "primary_exclusion_reason":primary,
+            "secondary_exclusion_reasons":secondary,
+            "exclusion_reasons":reasons,
             "maturity":{str(h):bool((ev.get("outcomes") or {}).get(str(h))) for h in HORIZONS},
             "scores":scores,
             "data_quality":hmeta,
+            "source_provenance":prov,
+            "point_in_time_status":pit,
             "market_timestamp_cutoff":"strictly_before_baseline_date",
         })
+    scoreable_n=sum(1 for x in rows if x["scoreable"])
+    if len(rows) != scoreable_n + sum(primary_counts.values()):
+        raise AssertionError("EventScore conservation failed: total != scoreable + primary exclusions")
     return {
         "version":VERSION,
         "generated_at":datetime.now(timezone.utc).isoformat(),
         "spec_version":spec.get("spec_version"),
         "mode":"research_only_adapter",
-        "counts":{"events":len(rows),"scoreable":sum(1 for x in rows if x["scoreable"]),"excluded":excluded},
+        "counts":{
+            "events":len(rows),
+            "scoreable":scoreable_n,
+            "primary_exclusion":dict(primary_counts),
+            "conservation_ok":len(rows)==scoreable_n+sum(primary_counts.values()),
+        },
         "events":rows,
         "guardrails":[
             "Legacy outcomes remain available; EventScore is an adapter, not an in-place rewrite.",
             "Unknown entry semantics never enter method performance.",
             "STOOQ archive is canonical; cache only fills gaps after overlap consistency checks.",
-            "Price conflicts and option structures stay unscored."
+            "Every non-scoreable event has exactly one primary exclusion reason; the conservation equation is enforced.",
+            "Price conflicts, cache-only histories, pre-ingest historical evidence and option structures stay unscored."
         ]
     }
 
@@ -233,7 +306,8 @@ def build_histories():
 def main():
     validation=load(VALIDATION,{})
     registry=load(REGISTRY,{})
-    result=adapt(validation,registry,build_histories(),load_spec())
+    histories=build_histories()
+    result=adapt(validation,registry,histories,load_spec(),load(SOURCE_STORE,{}))
     OUT.parent.mkdir(parents=True,exist_ok=True)
     OUT.write_text(json.dumps(result,ensure_ascii=False,indent=2),encoding="utf-8")
     comparison={
@@ -242,7 +316,8 @@ def main():
         "legacy_events":len(validation.get("events") or []),
         "eventscore_events":result["counts"]["events"],
         "eventscore_scoreable":result["counts"]["scoreable"],
-        "excluded":result["counts"]["excluded"],
+        "primary_exclusion":result["counts"]["primary_exclusion"],
+        "conservation_ok":result["counts"]["conservation_ok"],
         "note":"Old outcomes are retained; differences reflect stricter entry/data-quality/spec eligibility, not overwritten history."
     }
     COMPARE.parent.mkdir(parents=True,exist_ok=True)

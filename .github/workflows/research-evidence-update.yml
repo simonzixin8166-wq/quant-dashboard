@@ -40,9 +40,11 @@ jobs:
       - name: Build V6.15 research evidence
         run: |
           python scripts/v615_rule_registry.py
+          python scripts/v615_persistent_source_store.py --sources-only
           python scripts/v615_event_score.py
+          python scripts/v615_cache_coverage_audit.py
           python scripts/v615_method_attribution.py
-          python scripts/v615_persistent_source_store.py
+          python scripts/v615_persistent_source_store.py --events-only
           python scripts/v615_rule_scorecard.py
           python scripts/v615_contradiction_memory.py
           python scripts/v615_promotion_gate.py

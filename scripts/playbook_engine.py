@@ -564,6 +564,7 @@ def build(now=None,writer=None):
             "undetermined":sum(1 for x in rows if x["state"]=="UNDETERMINED"),
             "transitions":sum(1 for x in rows if x["transition_detected"]),
             "private_trigger_events_pending":len(trigger_events),
+            "late_detected_entities":sum(1 for x in rows if x.get("late_detected")),
         },
         "playbooks":rows,
         "private_playbooks":[{"playbook_id":"PP-01","class":"private","cloud_evaluated":False,"ledger":"private_decision_journal_only"}],

@@ -21,7 +21,7 @@ PATHS={
 }
 OUT=ROOT/"research"/"reports"/"monthly_evidence_audit.json"
 HIST=ROOT/"research"/"reports"/"monthly"
-VERSION="6.15.8c"
+VERSION="6.15.8d"
 
 def load(p,d):
     try:return json.loads(p.read_text(encoding="utf-8"))
@@ -33,7 +33,7 @@ def build(data,now=None):
     score=data["scorecards"];promotion=data["promotion"];controls=data["controls"]
     readiness=data["readiness"];boundary=data["boundary"];cache=data["cache"];components=data["components"]
     exclusions=(events.get("counts") or {}).get("primary_exclusion") or {}
-    boundary_failures=[r for r in boundary.get("records") or [] if r.get("production_boundary_unchanged") is False or r.get("research_only_worktree") is False]
+    boundary_failures=[r for r in boundary.get("records") or [] if r.get("production_boundary_unchanged") is False or r.get("research_only_worktree") is False or r.get("evidence_lock_unchanged") is False]
     checks={
         "event_conservation":bool((events.get("counts") or {}).get("conservation_ok")),
         "no_reasonless_rejections":all(e.get("scoreable") or e.get("primary_exclusion_reason") for e in events.get("events") or []),

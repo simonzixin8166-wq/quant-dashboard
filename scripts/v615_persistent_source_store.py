@@ -75,8 +75,10 @@ def migrate_sources(source,prior=None,now=None,full_records=None):
         ts=timestamp_metadata(r)
         if prev:
             ingest_type=prev.get("ingest_type") or "initial_migration"
+        elif not old:
+            ingest_type="initial_migration" if k in visible_keys else "backfill_ingest"
         else:
-            ingest_type="initial_migration" if k in visible_keys and not old else "backfill_ingest"
+            ingest_type="live_ingest" if k in visible_keys else "backfill_ingest"
         rows.append({
             "source_key":k,
             "first_fetched_at":(prev or {}).get("first_fetched_at") or now,

@@ -196,6 +196,52 @@ def method_gap_brief(task,method):
     add_unique(unknowns,"需要更多明确触发条件、动作字段和后续结果才能扩大Direct样本")
     return support,counter,unknowns
 
+def method_validation_brief(task,method):
+    name=task.get("key")
+    m=method_map(method).get(name) or {}
+    support=[];counter=[];unknowns=[]
+    if not m:
+        return support,counter,["Method Memory 中未找到该方法"]
+
+    direct=int(m.get("direct_validated_events") or 0)
+    context=int(m.get("context_validated_events") or 0)
+    evidence=m.get("evidence_maturity") or {}
+    state=evidence.get("state") or m.get("status") or "context_only"
+    add_unique(support,f"{name}：证据状态 {state}；Direct {direct}，Context {context}")
+
+    perf=m.get("performance") or {}
+    for h in ("5","20","60"):
+        row=perf.get(h) or {}
+        n=int(row.get("n") or 0)
+        if not n:
+            add_unique(unknowns,f"{h}日直接结果尚无成熟样本")
+            continue
+        rate=row.get("alignment_rate")
+        ret=row.get("avg_return")
+        excess=row.get("avg_excess_vs_qqq")
+        msg=f"{h}日直接样本 {n}"
+        if isinstance(rate,(int,float)):msg+=f"，方向一致率 {rate:.0%}"
+        if isinstance(ret,(int,float)):msg+=f"，平均收益 {ret:+.1%}"
+        if isinstance(excess,(int,float)):msg+=f"，相对QQQ {excess:+.1%}"
+        add_unique(support,msg)
+
+    failures=m.get("failure_examples") or []
+    if failures:
+        add_unique(counter,f"已保留 {len(failures)} 个直接反例/不利结果用于复盘")
+        for x in failures[:2]:
+            add_unique(counter,f"{x.get('symbol') or '—'} · {x.get('horizon') or '—'}日 · return {fmt_pct(x.get('return'))} · {x.get('alignment') or '未评分'}")
+
+    if state=="outcome_challenging":
+        add_unique(counter,"当前直接结果偏挑战；优先检查环境、时点和归因，不自动修改正式规则")
+    elif state=="outcome_mixed":
+        add_unique(counter,"当前结果混合；需要按市场环境/动作类型分层，不能用单一平均值下结论")
+    elif state=="outcome_supportive":
+        add_unique(unknowns,"当前为支持状态，仍需主动寻找跨环境反例，避免确认偏误")
+    elif state in {"direct_early","direct_developing"}:
+        add_unique(unknowns,"证据仍在积累期；样本不足时不得晋级为稳定方法")
+
+    return support,counter,unknowns
+
 def module_brief(task,modules):
     m=module_map(modules).get(task.get("key")) or {}
     support=[];counter=[];unknowns=[]
@@ -325,6 +371,8 @@ def execute_task(task,artifacts):
         support,counter,unknowns=failure_brief(task,artifacts["evidence"],artifacts["method"],artifacts.get("official"),artifacts.get("event_windows"))
     elif kind=="method_evidence_gap":
         support,counter,unknowns=method_gap_brief(task,artifacts["method"])
+    elif kind=="method_validation":
+        support,counter,unknowns=method_validation_brief(task,artifacts["method"])
     elif kind in {"module_learning_review","architecture_gap"}:
         support,counter,unknowns=module_brief(task,artifacts["modules"])
     else:

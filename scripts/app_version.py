@@ -13,8 +13,8 @@ OPTIONS_VERSION = "4.1.0"
 COMPONENT_VERSIONS = {
     "learning_engine": "5.4.0",
     "autonomous_agent": "5.5.0",
-    "research_planner": "6.8.2",
-    "research_execution": "6.9.0",
+    "research_planner": "6.13.3",
+    "research_execution": "6.13.3",
     "method_memory": "6.13.1",
     "self_improvement": "7.2.1",
     "learning_evaluation": "6.13.2",

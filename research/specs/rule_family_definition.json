@@ -1,0 +1,42 @@
+{
+  "definition_version": "1.0",
+  "definition_hash": "92950167b926829b081ba7a870eed18d06684b4ad1b9da8d655b905ac82ac455",
+  "immutable_dimensions": [
+    "primary_method",
+    "operation_type",
+    "entry_semantic",
+    "direction",
+    "instrument_type",
+    "rule_template"
+  ],
+  "rule_template": {
+    "include": ["sorted_field_names", "sorted_actions", "condition_classes"],
+    "exclude": ["numeric_levels", "source_id", "author", "published_at", "url", "realized_returns", "outcomes", "scorecard_results"]
+  },
+  "condition_classes": {
+    "breakout": ["breakout", "突破", "站上", "above resistance", "break above", "new high"],
+    "pullback": ["pullback", "回调", "回踩", "跌到", "below", "limit", "support"],
+    "invalidation": ["sell if", "clear if", "失效", "跌破", "breakdown"],
+    "trend": ["trend", "趋势", "ma20", "ma21", "ma50", "supertrend", "tcds"],
+    "event": ["earnings", "财报", "event", "事件"],
+    "other": []
+  },
+  "instrument_type_rules": {
+    "option_structure_methods": ["Sell Put", "LEAPS"],
+    "etf_symbols": ["QQQ", "QQQM", "VGT", "QLD", "TQQQ", "SPY", "VOO", "SMH", "RSP", "IBIT"],
+    "fallback": "equity"
+  },
+  "assignment_policy": {
+    "result_blind": true,
+    "author_blind": true,
+    "time_blind": true,
+    "immutable_once_assigned_under_same_definition_hash": true,
+    "definition_change_creates_new_family_version": true,
+    "never_reassign_old_membership_in_place": true
+  },
+  "guardrails": [
+    "Family membership is determined only by frozen structural features.",
+    "Author identity, publication time, realized outcomes and scorecard results are excluded from family assignment.",
+    "Changing this definition requires a new definition_version and a new evaluation spec version."
+  ]
+}

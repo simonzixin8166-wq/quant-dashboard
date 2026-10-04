@@ -37,7 +37,7 @@ risk=next(x for x in out["methods"] if x["method"]=="风险管理")
 sp=next(x for x in out["methods"] if x["method"]=="Sell Put")
 position=next(x for x in out["methods"] if x["method"]=="仓位与加减仓")
 
-assert out["version"]=="6.14.2"
+assert out["version"]=="6.14.0"
 assert out["counts"]["eligible_triggered_events"]==2
 assert out["counts"]["direct_method_links"]==3
 

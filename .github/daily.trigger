@@ -1,1 +1,1 @@
-Verify V6.12.1 Forward Learning Feedback production loop
+Verify V6.13 Challenger preregistration production loop

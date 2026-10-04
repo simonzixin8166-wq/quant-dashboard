@@ -456,6 +456,8 @@ def build(now=None,writer=None):
             "global_enabled":global_enabled,
             "ledger_enabled":global_ledger,
             "alerts_enabled":alerts_enabled,
+            "per_playbook":per_playbook,
+            "operator_controls":"repository_variables",
         },
         "storage":{
             "configured":storage_configured,

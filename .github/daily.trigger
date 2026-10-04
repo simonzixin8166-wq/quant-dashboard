@@ -1,1 +1,1 @@
-Run V6.11.1 replay dependency production verification after journal count fix
+Run V6.12 Controlled Learning production verification

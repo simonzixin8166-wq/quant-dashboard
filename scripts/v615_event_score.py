@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
-"""V6.15.2 EventScore compatibility layer.
+"""V6.15.8a EventScore integrity adapter.
 
 This module adapts existing Source Outcome events to one versioned score format.
 It does not replace the legacy engines yet.
 """
 from __future__ import annotations
 import hashlib, json, math, sys
+from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
 

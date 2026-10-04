@@ -46,6 +46,10 @@ with tempfile.TemporaryDirectory() as td:
     p.write_text(json.dumps({"generated_at":now.isoformat()}),encoding="utf-8")
     fresh=ssc.artifact_health("market_dashboard",p,now)
     assert fresh["freshness"]=="fresh" and fresh["decision_eligible"] is True
+    research=ssc.artifact_health("range_intelligence",p,now)
+    assert research["freshness"]=="fresh"
+    assert research["decision_eligible"] is False
+    assert research["participation"]=="research_only"
     p.write_text(json.dumps({"generated_at":(now-timedelta(hours=80)).isoformat()}),encoding="utf-8")
     stale=ssc.artifact_health("market_dashboard",p,now)
     assert stale["freshness"]=="stale" and stale["decision_eligible"] is False

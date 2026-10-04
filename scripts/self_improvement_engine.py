@@ -44,7 +44,9 @@ def _market_day(market, planner):
 def build(evidence,method,planner,previous,modules=None,execution=None,cross_history=None,breadth_history=None,regime_history=None,market=None):
     candidates=[]
     market_day=_market_day(market,planner)
-    for m in method.get("methods") or []:
+    legacy_method=method.get("evidence_role")=="legacy_descriptive_only"
+    legacy_external_outcomes=evidence.get("external_outcome_evidence_role")=="legacy_descriptive_only"
+    for m in ([] if legacy_method else (method.get("methods") or [])):
         n=m.get("direct_validated_events") or 0
         perf=m.get("performance") or {}
         x20=perf.get("20") or {}
@@ -56,7 +58,7 @@ def build(evidence,method,planner,previous,modules=None,execution=None,cross_his
                   {"priority_weight_delta":delta},
                   f"20日直接样本 alignment_rate={rate:.2f}，样本={n}；仅建议研究排序权重。",n))
     f=(evidence.get("failure_attribution") or {})
-    failn=len(f.get("external_outcome_reviews") or [])
+    failn=0 if legacy_external_outcomes else len(f.get("external_outcome_reviews") or [])
     if failn>=10:
         candidates.append(candidate("process_guardrail","failure_review",
           {"require_counter_evidence":True,"minimum_counter_items":1},

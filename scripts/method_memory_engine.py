@@ -218,7 +218,7 @@ def build(source: dict, validation: dict, histories: dict|None=None, evidence: d
     histories=histories or {}
     evidence=evidence or {}
     reading=reading or {}
-    reading_by_topic=reading.get("testable_by_topic") or {}
+    reading_by_method=reading.get("testable_by_method") or {}
     by_url=record_index(source)
     context_buckets=defaultdict(list)
     direct_buckets=defaultdict(list)
@@ -292,15 +292,15 @@ def build(source: dict, validation: dict, histories: dict|None=None, evidence: d
             "status":maturity["state"],
             "evidence_maturity":maturity,
             "source_reading":{
-                "testable_rule_candidates":int(reading_by_topic.get(method) or 0),
-                "state":"candidate_rules_available" if int(reading_by_topic.get(method) or 0)>0 else "no_structured_rule_candidate",
+                "testable_rule_candidates":int(reading_by_method.get(method) or 0),
+                "state":"candidate_rules_available" if int(reading_by_method.get(method) or 0)>0 else "no_structured_rule_candidate",
                 "guardrail":"这里只统计来源阅读层的结构化规则候选；在触发并成熟之前不能计入 direct performance。",
             },
             "interpretation_guardrail":"performance 仅统计可直接归因到该方法的事件；context_performance 只描述同篇文章中的同期结果，不能视为方法有效性证明。",
         })
 
     return {
-        "version":"6.14.0",
+        "version":"6.14.2",
         "generated_at":datetime.now(timezone.utc).isoformat(),
         "counts":{
             "methods":len(methods),

@@ -1,1 +1,1 @@
-Run V6.11 walk-forward replay production verification
+Run V6.11.1 replay dependency expansion production verification

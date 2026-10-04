@@ -38,6 +38,7 @@ good={"cards":[{
  "horizons":{"60":{
    "effective_n":20,
    "independent_time_clusters":6,
+   "independent_authors":3,
    "lift_ci95":{"lower":0.01},
    "fdr":{"reject":True},
    "direction_adjusted_mae_mean":-0.05,
@@ -60,7 +61,7 @@ bad={"cards":[{
  "family_id":"f1","family_key":{"instrument_type":"equity"},
  "member_rule_ids":["r1"],"independent_authors":1,
  "horizons":{"60":{
-   "effective_n":0,"independent_time_clusters":0,"lift_ci95":{"lower":None},
+   "effective_n":0,"independent_time_clusters":0,"independent_authors":1,"lift_ci95":{"lower":None},
    "fdr":None,"direction_adjusted_mae_mean":None,"benchmark_direction_adjusted_mae_mean":None
  }}
 }]}

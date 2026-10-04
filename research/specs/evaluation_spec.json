@@ -1,9 +1,9 @@
 {
-  "spec_version": "1.2",
-  "previous_spec_version": "1.1",
+  "spec_version": "1.3",
+  "previous_spec_version": "1.2",
   "status": "provisional_frozen",
   "frozen_at": "2026-10-04",
-  "change_reason": "Fix effective-sample dependence, freeze full hypothesis family, freeze exclusion precedence, and bind family identity to normalizer/extractor versions before any real 20-day point-in-time evidence matures.",
+  "change_reason": "Replace fixed calendar horizon buckets with overlap-connected realized evaluation intervals so no two independent time clusters can share any evaluation dates.",
   "definitions": {
     "direction_adjusted_return": "direction_sign * raw_return",
     "primary_metric": "unconditional_lift_vs_same_symbol_same_horizon",
@@ -34,20 +34,17 @@
     ],
     "clustering": {
       "author_independence": "unique author count within each rule family, reported separately from effective sample size",
-      "event_effective_unit": "symbol x non-overlapping horizon block",
+      "event_effective_unit": "symbol x overlap-connected realized-horizon cluster",
       "effective_unit_author_free": true,
-      "horizon_block_weeks": {
-        "5": 1,
-        "20": 4,
-        "60": 12
-      },
-      "bootstrap_block": "resample complete non-overlapping horizon blocks; all symbols in a block move together",
+      "time_cluster_definition": "For a declared horizon, each mature event contributes [baseline_date, horizon_end_date]. Any directly or transitively overlapping intervals form one cluster. Distinct clusters must be pairwise non-overlapping.",
+      "horizon_end_source": "exact realized horizon_end_date carried by EventScore from the source outcome; missing/invalid end dates are not counted as independent evidence",
+      "bootstrap_block": "resample complete overlap-connected time clusters; all symbols/events in a cluster move together",
       "same_author_repeats_do_not_create_new_independent_authors": true
     },
     "multiple_testing": {
       "hypothesis_family": "all active rule_family x all declared horizons under the frozen family definition, whether currently testable or not",
       "untestable_hypothesis_pvalue_for_fdr": 1,
-      "pvalue_method": "cluster sign-flip null on non-overlapping horizon-block means",
+      "pvalue_method": "cluster sign-flip null on overlap-connected time-cluster means",
       "fdr_method": "Benjamini-Hochberg",
       "fdr_q": 0.05,
       "bootstrap_resamples": 2000,
@@ -56,9 +53,9 @@
       "below_minimum": "not_testable"
     },
     "mae_noninferiority": {
-      "v1_2_method": "point_estimate",
       "pass_rule": "observed mean direction-adjusted MAE >= unconditional benchmark mean direction-adjusted MAE",
-      "future_change_requires_new_spec_version": true
+      "future_change_requires_new_spec_version": true,
+      "v1_3_method": "point_estimate"
     },
     "price_source_policy": {
       "tier_1": "STOOQ archive",
@@ -87,8 +84,8 @@
     "spec_lock_must_be_updated_by_reviewed_pr": true
   },
   "promotion_activation": {
-    "state": "shadow_until_statistical_controls_revalidated_under_spec_1_2",
-    "reason": "Dependence and multiplicity definitions changed in v1.2; controls must be rerun before any activation."
+    "state": "shadow_until_statistical_controls_revalidated_under_spec_1_3",
+    "reason": "Dependence clustering changed in v1.3 from fixed calendar buckets to overlap-connected realized windows; controls must pass under the new frozen definition before any activation."
   },
   "guardrails": {
     "research_only": true,

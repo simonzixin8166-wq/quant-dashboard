@@ -25,7 +25,7 @@ FEEDBACK=RESEARCH/"forward_learning_feedback.json"
 PREV=RESEARCH/"controlled_learning_policy.json"
 OUT=PREV
 
-VERSION="6.13.2"
+VERSION="6.15.8d"
 MAX_ABS_PRIORITY_DELTA=5.0
 
 def load(path):
@@ -99,10 +99,19 @@ def forward_evidence(outcome):
         out[pid]={"mature5":mature,"aligned5_rate":rate,"state":label,"provenance":"forward_out_of_sample"}
     return out
 
-def candidate_adjustments(self_improvement):
+def candidate_adjustments(self_improvement,method=None):
     rows=[]
+    method=method or {}
+    legacy_method_names=set()
+    if method.get("evidence_role")=="legacy_descriptive_only":
+        legacy_method_names={str(m.get("method")) for m in method.get("methods") or [] if m.get("method")}
     for c in self_improvement.get("candidates") or []:
         if c.get("kind")!="research_weight":continue
+        scope=str(c.get("scope") or "")
+        if scope in legacy_method_names:
+            # Fail closed across runs: stale method-derived candidates from an
+            # older self_improvement artifact cannot survive current legacy demotion.
+            continue
         proposed=((c.get("proposed_change") or {}).get("priority_weight_delta"))
         if proposed is None:continue
         raw=clip(proposed,-MAX_ABS_PRIORITY_DELTA,MAX_ABS_PRIORITY_DELTA)
@@ -146,7 +155,7 @@ def build(replay,outcome,self_improvement,method,feedback=None,previous=None,now
     now=now or datetime.now(timezone.utc)
     replay_ev=replay_playbook_evidence(replay)
     forward_ev=forward_evidence(outcome)
-    adjustments=candidate_adjustments(self_improvement)
+    adjustments=candidate_adjustments(self_improvement,method)
     methods=method_states(method)
 
     feedback=feedback or {}

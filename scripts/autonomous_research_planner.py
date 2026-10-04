@@ -46,6 +46,8 @@ def task(kind,key,title,priority,why,questions,sources,expires=2):
 def build(agent,learning,evidence,method,source,previous,modules=None,cross_asset=None,breadth_intelligence=None,regime_memory=None,data=None,controlled_policy=None):
     tasks=[]
     seen=set()
+    legacy_method=method.get("evidence_role")=="legacy_descriptive_only"
+    legacy_external_outcomes=evidence.get("external_outcome_evidence_role")=="legacy_descriptive_only"
     for row in agent.get("watchlist_attention") or []:
         if row.get("level") not in {"review","action"}:continue
         sym=row.get("symbol")
@@ -57,7 +59,8 @@ def build(agent,learning,evidence,method,source,previous,modules=None,cross_asse
           ["market_data","trend_pulse","SEC/IR","company_news","industry_peers"])
         tasks.append(t);seen.add(t["task_id"])
     failure_groups={}
-    for row in (evidence.get("failure_attribution") or {}).get("external_outcome_reviews") or []:
+    legacy_reviews=[] if legacy_external_outcomes else ((evidence.get("failure_attribution") or {}).get("external_outcome_reviews") or [])
+    for row in legacy_reviews:
         key=str(row.get("symbol") or "UNKNOWN")
         failure_groups.setdefault(key,[]).append(row)
     for sym,rows in failure_groups.items():
@@ -69,9 +72,9 @@ def build(agent,learning,evidence,method,source,previous,modules=None,cross_asse
         t["example_event_ids"]=[str(x.get("event_id") or "") for x in rows[:5]]
         if t["task_id"] not in seen:tasks.append(t);seen.add(t["task_id"])
     for m in method.get("methods") or []:
-        direct=m.get("direct_validated_events") or 0
-        context=m.get("context_validated_events") or 0
-        if context>=8 and direct<3:
+        direct=0 if legacy_method else (m.get("direct_validated_events") or 0)
+        context=0 if legacy_method else (m.get("context_validated_events") or 0)
+        if (not legacy_method) and context>=8 and direct<3:
             t=task("method_evidence_gap",m.get("method"),f"{m.get('method')} · 补足直接证据",62,
               f"已有 {context} 个上下文验证，但只有 {direct} 个可直接归因样本。",
               ["哪些事件可以直接归因到该方法？","需要补充哪些触发条件字段？","哪些 Context 样本应保持排除？"],
@@ -83,7 +86,7 @@ def build(agent,learning,evidence,method,source,previous,modules=None,cross_asse
         name=m.get("method")
         reading=m.get("source_reading") or {}
         candidates=int(reading.get("testable_rule_candidates") or 0)
-        direct=int(m.get("direct_validated_events") or 0)
+        direct=0 if legacy_method else int(m.get("direct_validated_events") or 0)
         if candidates<=0 or direct>0:
             continue
         t=task("method_rule_candidate",name,f"{name} · 结构规则候选验证",68,
@@ -112,7 +115,7 @@ def build(agent,learning,evidence,method,source,previous,modules=None,cross_asse
     }
     for m in method.get("methods") or []:
         name=m.get("method")
-        evidence_state=((m.get("evidence_maturity") or {}).get("state") or m.get("status"))
+        evidence_state=None if legacy_method else ((m.get("evidence_maturity") or {}).get("state") or m.get("status"))
         if evidence_state not in method_priority:
             continue
         direct=int(m.get("direct_validated_events") or 0)

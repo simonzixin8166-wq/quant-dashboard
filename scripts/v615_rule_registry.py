@@ -14,7 +14,7 @@ ROOT=Path(__file__).resolve().parents[1]
 READING=ROOT/"docs"/"research"/"source_reading_memory.json"
 SOURCE=ROOT/"docs"/"data"/"source_intelligence.json"
 OUT=ROOT/"research"/"registry"/"rules.json"
-VERSION="6.15.1"
+VERSION="6.15.8d"
 
 def load(path,default):
     try:return json.loads(path.read_text(encoding="utf-8"))
@@ -80,6 +80,8 @@ def build(reading,source,prior=None,now=None):
                 "_old_operation_index":ev.get("operation_index"),
                 "source_id":sid,
                 "source_snapshot_hash":sha(snap),
+                "extractor_input_hash":rec.get("extractor_input_hash"),
+                "extractor_input_scope":rec.get("extractor_input_scope"),
                 "normalized_rule_hash":sha(rule),
                 "normalized_rule":rule,
                 "symbols":sorted(rec.get("symbols") or []),
@@ -101,11 +103,22 @@ def build(reading,source,prior=None,now=None):
             rid="rule_"+hashlib.sha256(f"{sid}|{semhash}|dup:{duplicate_rank}".encode()).hexdigest()[:24]
             old=prior_by_id.get(rid)
             out={k:v for k,v in row.items() if not k.startswith("_")}
+            current_extractor_hash=row.get("extractor_input_hash")
+            revisions=list((old or {}).get("extractor_input_revisions") or [])
+            if old and old.get("extractor_input_hash") and old.get("extractor_input_hash")!=current_extractor_hash:
+                prior_hash=old.get("extractor_input_hash")
+                if not any(x.get("extractor_input_hash")==prior_hash for x in revisions):
+                    revisions.append({
+                        "extractor_input_hash":prior_hash,
+                        "extractor_version":old.get("extractor_version"),
+                        "recorded_at":old.get("last_seen_at") or old.get("first_seen_at"),
+                    })
             out.update({
                 "rule_id":rid,
                 "semantic_hash":semhash,
                 "duplicate_rank":duplicate_rank,
                 "extractor_version":reading.get("version"),
+                "extractor_input_revisions":revisions,
                 "first_seen_at":(old or {}).get("first_seen_at") or now,
                 "last_seen_at":now,
                 "supersedes":(old or {}).get("supersedes"),
@@ -139,6 +152,7 @@ def build(reading,source,prior=None,now=None):
             "Rule identity is semantic and independent of operation ordering.",
             "Exact duplicate semantic rules remain separate via deterministic duplicate_rank.",
             "Prior registry rows are never deleted; absent rules become inactive.",
+            "Exact extractor-input hashes are retained, and changed inputs append their prior hash to revision history.",
             "Registry cannot modify production rules or orders."
         ]
     }

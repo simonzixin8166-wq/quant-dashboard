@@ -132,6 +132,10 @@ def repeated_negative_control(spec,seeds=500,max_false_rate_upper=0.10):
         "expected":"under zero alpha, the Wilson 95% upper bound of false promotion stays below the predeclared ceiling",
     }
 
+def _iid_null(seed,n,scale=0.02):
+    rng=random.Random(400000+int(seed))
+    return [rng.gauss(0.0,float(scale)) for _ in range(int(n))]
+
 def _student_t3(rng,scale=0.02):
     z=rng.gauss(0.0,1.0)
     chi=sum(rng.gauss(0.0,1.0)**2 for _ in range(3))
@@ -181,7 +185,7 @@ def realism_negative_controls(spec,seeds=500,max_false_rate_upper=0.10):
     scenarios=[
         scenario_negative_control(
             spec,"minimum_6_clusters_iid",
-            lambda seed,n:[random.Random(400000+seed).gauss(0.0,0.02) for _ in range(n)],
+            lambda seed,n:_iid_null(seed,n,scale=0.02),
             seeds,max_false_rate_upper,min_dates,four_symbols,
         ),
         scenario_negative_control(

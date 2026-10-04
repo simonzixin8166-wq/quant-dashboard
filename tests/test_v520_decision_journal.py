@@ -22,6 +22,12 @@ assert 'Decision Journal' in idx and f'data-app-version="{app_version}"' in idx
 assert f'decision-journal.js?v={asset_version}' in idx
 assert "mavDecisionJournalV52" in ja
 assert '20 / 60 / 120' in ja and 'refreshOutcomes' in ja
+assert 'latestCompleteMarketDate' in ja
+assert "marketDateSource:'complete_daily_close'" in ja
+assert "priceSource:'complete_daily_close'" in ja
+assert "filter(x=>!isWeekendDate" in ja
+assert '等待第${h}个交易日收盘' in ja
+assert '<th>交易日</th>' in ja and '<th>收盘入档价</th>' in ja
 assert 'recordAssistantEvent' in ia and 'MAVDecisionJournal' in ia
 assert 'assistant-inline-actions' in ia and 'StockWatchlist.focus' in ia and 'OptionV2.openForSymbol' in ia
 assert 'pulseText' in sw and "r===0?'0'" in sw

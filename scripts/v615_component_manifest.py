@@ -26,6 +26,7 @@ def build(registry,spec):
         row=dict(c)
         row["code_sha256"]=sha_file(c.get("script"))
         row["artifact_sha256"]=sha_file(c.get("artifact"))
+        row["artifact_required"]=bool(c.get("artifact_required",True))
         rows.append(row)
     return {
         "version":VERSION,
@@ -38,6 +39,7 @@ def build(registry,spec):
             "components":len(rows),
             "missing_code_hashes":sum(1 for x in rows if not x.get("code_sha256")),
             "missing_artifact_hashes":sum(1 for x in rows if not x.get("artifact_sha256")),
+            "missing_required_artifact_hashes":sum(1 for x in rows if x.get("artifact_required") and not x.get("artifact_sha256")),
         },
         "guardrails":registry.get("guardrails") or [],
     }

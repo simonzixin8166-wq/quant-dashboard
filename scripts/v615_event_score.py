@@ -25,7 +25,7 @@ from entry_semantics import classify_event
 from local_history_agent import read_archive
 from source_history_cache import read_cache
 
-VERSION="6.15.8d"
+VERSION="6.15.8e"
 HORIZONS=(5,20,60)
 
 def load(path,default):
@@ -223,6 +223,7 @@ def adapt(validation,registry,histories=None,spec=None,source_store=None):
             uncond_adj=(baseline or {}).get("direction_adjusted_return")
             lift=None if adj is None or uncond_adj is None else adj-uncond_adj
             scores[str(h)]={
+                "horizon_end_date":old.get("date"),
                 "raw_return":raw,
                 "direction_adjusted_return":adj,
                 "benchmark_return":old.get("benchmark_return"),
@@ -285,6 +286,7 @@ def adapt(validation,registry,histories=None,spec=None,source_store=None):
             "Legacy outcomes remain available; EventScore is an adapter, not an in-place rewrite.",
             "Unknown entry semantics never enter method performance.",
             "STOOQ archive is canonical; cache only fills gaps after overlap consistency checks.",
+            "Every mature horizon carries the exact realized horizon_end_date from the source outcome record for dependence clustering.",
             "Every non-scoreable event has exactly one primary exclusion reason; the conservation equation is enforced.",
             "Price conflicts, cache-only histories, pre-ingest historical evidence and option structures stay unscored."
         ]

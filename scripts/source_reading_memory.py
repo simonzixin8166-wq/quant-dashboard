@@ -25,7 +25,7 @@ from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
 SRC=ROOT/"docs"/"data"/"source_intelligence.json"
 OUT=ROOT/"docs"/"research"/"source_reading_memory.json"
-VERSION="6.14.2"
+VERSION="6.14.6"
 
 VIEW_HINTS=(
     "认为","觉得","看好","看坏","可能","应该","预计","预期","判断","猜","倾向",
@@ -33,7 +33,7 @@ VIEW_HINTS=(
 )
 INVALID_HINTS=(
     "止损","失效","跌破","卖出线","退出","清仓","砍掉","break below","invalidate",
-    "stop loss","exit if","close if",
+    "stop loss","exit if","close if","sell if","clear if","market breakdown",
 )
 TRIGGER_HINTS=(
     "突破","站上","跌破","回踩","如果","若","当","才考虑","触发","breakout","hold above",
@@ -167,15 +167,21 @@ def record_memory(row):
     prose="\n".join([str(row.get("title") or ""),str(row.get("excerpt") or "")])
     for sent in sentence_candidates(prose):
         low=sent.lower()
+        classified=False
         if any(k in low for k in INVALID_HINTS):
-            add(props,sid,"invalidation",sent,"medium",False,{"source_field":"prose"})
+            add(props,sid,"invalidation",sent,"medium",False,{"source_field":"prose","classification":"explicit_invalidation_language"})
+            classified=True
         elif any(k in low for k in TRIGGER_HINTS) and re.search(r"\b(?:ma\d+|rsi|supertrend|breakout|support|resistance)\b|均线|突破|跌破|站上|回踩",low,re.I):
-            add(props,sid,"trigger",sent,"medium",False,{"source_field":"prose"})
+            add(props,sid,"trigger",sent,"medium",False,{"source_field":"prose","classification":"explicit_trigger_language"})
+            classified=True
         elif any(k in low for k in VIEW_HINTS):
-            add(props,sid,"author_view",sent,"medium",False,{"source_field":"prose"})
-
-    if not props and (row.get("title") or row.get("excerpt")):
-        add(props,sid,"non_testable_view",row.get("title") or row.get("excerpt"),"low",False,{"source_field":"title_or_excerpt"})
+            add(props,sid,"author_view",sent,"medium",False,{"source_field":"prose","classification":"author_judgment_language"})
+            classified=True
+        if not classified:
+            # Preserve residual source meaning without pretending it is objective
+            # evidence. This is intentionally not a testable_rule and never
+            # receives invented thresholds or hidden intent.
+            add(props,sid,"non_testable_view",sent,"low",False,{"source_field":"prose","classification":"residual_context"})
 
     testable=[x for x in props if x["kind"]=="testable_rule"]
     return {
@@ -235,7 +241,8 @@ def build(source):
             "Only source text and existing structured fields are transformed.",
             "Article topic alone never becomes a testable rule.",
             "Only explicit structured operations owned by the author can create testable_rule records.",
-            "Prose triggers/views remain context until later structured validation.",
+            "Prose triggers, invalidations and views remain context until later structured validation.",
+            "Unclassified source prose is preserved as non_testable_view instead of being discarded or promoted.",
             "No proposition can change production rules, positions, allocations or orders.",
         ],
     }

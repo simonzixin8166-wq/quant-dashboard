@@ -18,6 +18,7 @@ COMPONENT_VERSIONS = {
     "method_memory": "6.14.2",
     "method_evidence_ui": "6.13.4",
     "source_reading_memory": "6.14.6",
+    "source_reading_ui": "6.14.7",
     "source_rule_lifecycle": "6.14.5",
     "self_improvement": "7.2.1",
     "learning_evaluation": "6.13.2",

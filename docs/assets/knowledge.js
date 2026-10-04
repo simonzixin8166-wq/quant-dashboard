@@ -25,17 +25,32 @@ async function loadMethodMemory(){
   }catch{methodMemory=null}
   if(section==='methods')render();
 }
+function sourceReadingRecordHtml(r){
+  const props=Array.isArray(r?.propositions)?r.propositions:[];
+  const order={testable_rule:0,trigger:1,invalidation:2,fact:3,author_view:4,non_testable_view:5};
+  const selected=[...props].sort((a,b)=>(order[a.kind]??9)-(order[b.kind]??9)).slice(0,6);
+  const labels={fact:'Fact',author_view:'Author View',trigger:'Trigger',invalidation:'Invalidation',testable_rule:'Testable Rule',non_testable_view:'Non-testable View'};
+  const chips=selected.map(p=>`<p><span class="kh-tag">${esc(labels[p.kind]||p.kind||'Context')}</span> ${esc(p.text||'')}</p>`).join('');
+  const meta=[r.author,r.source,r.published_at].filter(Boolean).map(esc).join(' · ');
+  const state=r.testable_rule_count>0?'含可验证规则':'上下文记忆';
+  return `<article class="kh-box"><p class="kh-muted">${meta||'来源信息不足'} · ${esc(state)}</p><h3>${r.url?link(r.url,r.title||'未命名来源'):esc(r.title||'未命名来源')}</h3>${chips||'<p class="kh-muted">暂无可展示命题。</p>'}</article>`;
+}
 function sourceReadingHtml(){
   const d=sourceReading||{},c=d.counts||{},k=c.by_kind||{};
   const lc=sourceRuleLifecycle||{},ls=lc.counts?.by_state||{};
   if(!d.version)return '<div class="kh-box"><h3>来源阅读记忆</h3><p class="kh-muted">等待 Source Reading Memory 数据。</p></div>';
   const lifecycle=lc.version?`<p><strong>规则生命周期：</strong>等待触发 ${esc(ls.awaiting_trigger??0)} · 已触发待成熟 ${esc(ls.triggered_pending??0)} · 5/20/60日成熟 ${esc((ls.mature_5??0)+(ls.mature_20??0)+(ls.mature_60??0))} · 期权不可评分 ${esc(ls.option_outcome_unscored??0)} · 映射异常 ${esc(ls.mapping_missing??0)}</p>`:'<p class="kh-muted">规则生命周期等待生成。</p>';
+  const records=Array.isArray(d.records)?[...d.records]:[];
+  records.sort((a,b)=>(b.testable_rule_count||0)-(a.testable_rule_count||0)||String(b.published_at||'').localeCompare(String(a.published_at||'')));
+  const preview=records.slice(0,6).map(sourceReadingRecordHtml).join('');
   return `<div class="kh-box"><h2>来源阅读记忆 · V${esc(d.version)}</h2>
-    <p>系统把已采集来源拆成事实、作者观点、触发条件、失效条件与可验证规则；只有结构足够明确的规则才进入后续结果验证。</p>
+    <p>系统把已采集来源拆成事实、作者观点、触发条件、失效条件、可验证规则与不可验证观点；只有结构足够明确的规则才进入后续结果验证。</p>
     <p><strong>来源 ${esc(c.source_records??0)}</strong> · 命题 ${esc(c.propositions??0)} · 可验证规则 ${esc(c.testable_rules??0)} · 含规则来源 ${esc(c.records_with_testable_rules??0)}</p>
     ${lifecycle}
     <p class="kh-muted">Fact ${esc(k.fact??0)} · Author View ${esc(k.author_view??0)} · Trigger ${esc(k.trigger??0)} · Invalidation ${esc(k.invalidation??0)} · Testable Rule ${esc(k.testable_rule??0)} · Non-testable View ${esc(k.non_testable_view??0)}。Sell Put 触及行权价只算基础标的上下文，不等于期权盈利。Research Only，不自动改变交易规则。</p>
-  </div>`;
+  </div>
+  <div class="kh-box"><h3>来源拆解预览</h3><p class="kh-muted">优先展示含可验证规则的来源，其次按发布日期；每条来源最多展示6个命题，原文链接保留用于人工复核。</p></div>
+  ${preview||'<div class="kh-box"><p class="kh-muted">暂无来源阅读记录。</p></div>'}`;
 }
 async function loadSourceReading(){
   try{

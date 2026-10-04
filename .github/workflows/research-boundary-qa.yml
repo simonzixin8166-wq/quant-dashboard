@@ -19,6 +19,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+      - name: Install research dependencies
+        run: pip install pandas
       - name: Boundary guard
         run: python scripts/research_boundary_guard.py
       - name: V6.15 tests

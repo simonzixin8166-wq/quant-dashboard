@@ -3,7 +3,7 @@
 const root=document.getElementById('knowledgeRoot');if(!root)return;
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const link=(url,title)=>{try{const u=new URL(url);return /^https?:$/.test(u.protocol)?`<a href="${esc(u.href)}" target="_blank" rel="noopener noreferrer">${esc(title)}</a>`:esc(title)}catch{return esc(title)}};
-let learning=false,section='etf',notes=[],methodMemory=null,sourceReading=null;
+let learning=false,section='etf',notes=[],methodMemory=null,sourceReading=null,sourceRuleLifecycle=null;
 const tabs={etf:'核心ETF',process:'决策流程',methods:'方法库',research:'研究卡',events:'事件学习',review:'历史复盘',entry:'入仓检查'};
 const etfs=[['QQQM','核心指数研究','跟踪纳斯达克100；不是全市场分散组合。','长期投入须接受成长股波动。回撤档位仅提示价格条件，还需核对投入期限和现金预算。','与VGT可能重叠，不能用“持有两只”推断已分散；精确重叠需同日持仓权重。','https://www.invesco.com/us/en/financial-products/etfs/invesco-nasdaq-100-etf.html'],['VGT','行业配置研究','美国信息技术行业ETF，行业集中度值得单独管理。','长期持有的前提是认可行业集中风险；并非科技相关公司都会纳入信息技术行业。','持有QQQM、VGT及科技个股时，应穿透检查同一公司的合计暴露。','https://investor.vanguard.com/investment-products/etfs/profile/vgt'],['QLD','杠杆卫星研究','目标是纳指100每日收益的2倍，长期收益并非固定2倍。','每日重置产生路径依赖；震荡与持续下跌可能放大损失，年度再平衡不能替代期间风险监控。','教学示例：指数先涨10%再跌9.09%，约回到原点；忽略费用的每日2倍组合约亏1.82%。','https://www.proshares.com/our-etfs/leveraged-and-inverse/qld']];
 function detail(text){return `<details ${learning?'open':''}><summary>为什么 · 进一步学习</summary><p>${text}</p></details>`}
@@ -27,11 +27,14 @@ async function loadMethodMemory(){
 }
 function sourceReadingHtml(){
   const d=sourceReading||{},c=d.counts||{},k=c.by_kind||{};
+  const lc=sourceRuleLifecycle||{},ls=lc.counts?.by_state||{};
   if(!d.version)return '<div class="kh-box"><h3>来源阅读记忆</h3><p class="kh-muted">等待 Source Reading Memory 数据。</p></div>';
+  const lifecycle=lc.version?`<p><strong>规则生命周期：</strong>等待触发 ${esc(ls.awaiting_trigger??0)} · 已触发待成熟 ${esc(ls.triggered_pending??0)} · 5/20/60日成熟 ${esc((ls.mature_5??0)+(ls.mature_20??0)+(ls.mature_60??0))} · 期权不可评分 ${esc(ls.option_outcome_unscored??0)} · 映射异常 ${esc(ls.mapping_missing??0)}</p>`:'<p class="kh-muted">规则生命周期等待生成。</p>';
   return `<div class="kh-box"><h2>来源阅读记忆 · V${esc(d.version)}</h2>
     <p>系统把已采集来源拆成事实、作者观点、触发条件、失效条件与可验证规则；只有结构足够明确的规则才进入后续结果验证。</p>
     <p><strong>来源 ${esc(c.source_records??0)}</strong> · 命题 ${esc(c.propositions??0)} · 可验证规则 ${esc(c.testable_rules??0)} · 含规则来源 ${esc(c.records_with_testable_rules??0)}</p>
-    <p class="kh-muted">Fact ${esc(k.fact??0)} · Trigger ${esc(k.trigger??0)} · Invalidation ${esc(k.invalidation??0)} · Author View ${esc(k.author_view??0)}。Research Only，不自动改变交易规则。</p>
+    ${lifecycle}
+    <p class="kh-muted">Fact ${esc(k.fact??0)} · Trigger ${esc(k.trigger??0)} · Invalidation ${esc(k.invalidation??0)} · Author View ${esc(k.author_view??0)}。Sell Put 触及行权价只算基础标的上下文，不等于期权盈利。Research Only，不自动改变交易规则。</p>
   </div>`;
 }
 async function loadSourceReading(){
@@ -40,6 +43,14 @@ async function loadSourceReading(){
     if(!r.ok)throw Error();
     sourceReading=await r.json();
   }catch{sourceReading=null}
+  if(section==='methods')render();
+}
+async function loadSourceRuleLifecycle(){
+  try{
+    const r=await fetch('research/source_rule_lifecycle.json?v='+Date.now(),{cache:'no-store',signal:AbortSignal.timeout(10000)});
+    if(!r.ok)throw Error();
+    sourceRuleLifecycle=await r.json();
+  }catch{sourceRuleLifecycle=null}
   if(section==='methods')render();
 }
 function render(){const appVersion=document.body?.dataset?.appVersion||'5.1.1';root.innerHTML=`<header class="kh-head"><div><span class="kh-tag">MYALPHA VIEW / KNOWLEDGE / V${appVersion}</span><h1>先理解，再寻找机会</h1><p>指数为核心，个股与期权为辅助。每个判断都要有来源、条件与复盘。</p></div><button id="khMode" aria-pressed="${learning}">${learning?'知识模式':'简洁模式'} · 切换</button></header><nav class="kh-tabs" aria-label="学习栏目">${Object.entries(tabs).map(([k,v])=>`<button data-kh-tab="${k}" aria-selected="${k===section}">${v}</button>`).join('')}</nav><div id="khContent"></div>`;
@@ -58,5 +69,5 @@ function form(kind){return `<div class="kh-box"><h3>${kind==='method'?'新增待
 function wireForm(body,kind){const show=()=>{body.querySelector('#khNotes').innerHTML=notes.filter(n=>n.kind===kind).map(n=>`<article><span class="kh-tag">用户研究记录 · 未经网站验证 / 未自动采用</span><h3>${esc(n.name)}</h3>${fields[kind].filter(([k])=>k!=='name').map(([k,t])=>`<p><b>${t}：</b>${k==='source'?link(n[k],n[k]):esc(n[k])}</p>`).join('')}</article>`).join('')};show();body.querySelector('#khForm').onsubmit=e=>{e.preventDefault();notes.push({kind,...Object.fromEntries(new FormData(e.target))});e.target.reset();show()};body.querySelector('#khExport').onclick=()=>{const url=URL.createObjectURL(new Blob([JSON.stringify({version:1,notes},null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='myalpha-research.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)};body.querySelector('#khImport').onchange=async e=>{try{const file=e.target.files[0];if(!file)return;if(file.size>2000000)throw Error('文件超过2MB');const data=JSON.parse(await file.text());if(data.version!==1||!Array.isArray(data.notes)||data.notes.length>500)throw Error('格式或条目数量不符合要求');const clean=data.notes.map(n=>{if(!fields[n.kind])throw Error('未知记录类型');const out={kind:n.kind};for(const[k]of fields[n.kind]){if(typeof n[k]!=='string'||n[k].length>3000)throw Error('记录字段不合法');out[k]=n[k]}return out});notes=notes.concat(clean);show();body.querySelector('#khNotice').textContent=`已导入 ${clean.length} 条记录`}catch(err){body.querySelector('#khNotice').textContent='未导入：'+err.message}}}
 async function loadEvents(body){const target=body.querySelector('#khEvents');try{const r=await fetch('data/market_events.json',{signal:AbortSignal.timeout(10000)});if(!r.ok)throw Error();const data=await r.json();const now=Date.now(),end=now+30*86400000;const rows=(data.events||[]).filter(e=>{const t=Date.parse(e.datetime);return t>=now&&t<=end}).sort((a,b)=>Date.parse(a.datetime)-Date.parse(b.datetime));target.innerHTML=`<p class="kh-muted">数据更新时间：${esc(data.updated_at||'未知')} · 来源状态：${esc(JSON.stringify(data.source_status||{}))}。日期请再次核对官方公告。</p>`+(rows.length?rows.map(e=>`<p><b>${esc(new Date(e.datetime).toLocaleString('zh-CN',{timeZone:'Asia/Shanghai'}))}</b> · ${link(e.source_url,e.title)}</p>`).join(''):'未来30天没有可用记录，不代表没有事件。')}catch{target.textContent='事件数据读取失败，请到官方日历核对。'}}
 new MutationObserver(()=>{if(!document.body.classList.contains('private-mode')){notes=[];render()}}).observe(document.body,{attributes:true,attributeFilter:['class']});
-render();loadMethodMemory();loadSourceReading();
+render();loadMethodMemory();loadSourceReading();loadSourceRuleLifecycle();
 })();

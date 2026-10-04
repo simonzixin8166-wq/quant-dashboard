@@ -1,14 +1,14 @@
 {
   "version": "6.10a.0",
   "schema_version": "1.0",
-  "generated_at": "2026-10-04T01:20:52.818522+00:00",
+  "generated_at": "2026-10-04T03:40:03.333041+00:00",
   "market_date": "2026-10-02",
   "expected_market_date": "2026-10-02",
   "mode": "silent_forward",
   "heartbeat": {
     "status": "pass",
     "scan_completed": true,
-    "scan_completed_at": "2026-10-04T01:20:52.818522+00:00",
+    "scan_completed_at": "2026-10-04T03:40:03.333041+00:00",
     "observed_market_date": "2026-10-02",
     "expected_market_date": "2026-10-02",
     "missing_sessions": []
@@ -24,7 +24,28 @@
   "kill_switch": {
     "global_enabled": true,
     "ledger_enabled": true,
-    "alerts_enabled": false
+    "alerts_enabled": false,
+    "per_playbook": {
+      "CP-01": {
+        "enabled": true,
+        "ledger_enabled": true,
+        "notifications_enabled": false,
+        "source": "repository_variable_or_registry_default"
+      },
+      "CP-02": {
+        "enabled": true,
+        "ledger_enabled": true,
+        "notifications_enabled": false,
+        "source": "repository_variable_or_registry_default"
+      },
+      "CP-03": {
+        "enabled": true,
+        "ledger_enabled": true,
+        "notifications_enabled": false,
+        "source": "repository_variable_or_registry_default"
+      }
+    },
+    "operator_controls": "repository_variables"
   },
   "storage": {
     "configured": true,
@@ -36,13 +57,20 @@
     "raw_private": true,
     "public_output": "sanitized status + anchor only"
   },
+  "stabilization": {
+    "start_market_date": "2026-10-02",
+    "completed_sessions": 1,
+    "target_sessions": 10,
+    "complete": false
+  },
   "counts": {
     "entities": 7,
     "triggered": 1,
     "near_trigger": 0,
     "undetermined": 0,
     "transitions": 0,
-    "private_trigger_events_pending": 0
+    "private_trigger_events_pending": 0,
+    "late_detected_entities": 0
   },
   "playbooks": [
     {
@@ -54,7 +82,9 @@
       "state_key": "IDLE:normal",
       "market_date": "2026-10-02",
       "rule_version": "1.0.0",
-      "rule_hash": "ad5eab7a409996693a01eea24dfeb9a2f070a27f535092a7cd079acee14972b9",
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "lifecycle": "active",
+      "evidence": "unverified",
       "quality": {
         "eligible": true,
         "reasons": [],
@@ -70,9 +100,36 @@
         "level": 0,
         "drawdown": -0.006373357262524193
       },
+      "runtime": {
+        "enabled": true,
+        "ledger_enabled": true,
+        "notifications_enabled": false,
+        "source": "repository_variable_or_registry_default",
+        "ledger_active": true
+      },
+      "continuity": {
+        "last_valid_state_key": "IDLE:normal",
+        "last_valid_market_date": "2026-10-02",
+        "unknown_since_market_date": null,
+        "detection_delay_sessions": 0,
+        "late_detected": false,
+        "timing_uncertain": false,
+        "detection_window_start": null,
+        "detection_window_end": null,
+        "previous_valid_state_key": "IDLE:normal",
+        "previous_valid_market_date": "2026-10-02",
+        "prior_unknown_since_market_date": null
+      },
+      "last_valid_state_key": "IDLE:normal",
+      "last_valid_market_date": "2026-10-02",
+      "unknown_since_market_date": null,
+      "late_detected": false,
+      "detection_delay_sessions": 0,
+      "timing_uncertain": false,
       "previous_state_key": "IDLE:normal",
       "transition_detected": false,
-      "bootstrap": false,
+      "suppressed_by_kill_switch": false,
+      "bootstrap": true,
       "committed_state_key": "IDLE:normal",
       "pending_transition": false
     },
@@ -85,7 +142,9 @@
       "state_key": "IDLE:normal",
       "market_date": "2026-10-02",
       "rule_version": "1.0.0",
-      "rule_hash": "ad5eab7a409996693a01eea24dfeb9a2f070a27f535092a7cd079acee14972b9",
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "lifecycle": "active",
+      "evidence": "unverified",
       "quality": {
         "eligible": true,
         "reasons": [],
@@ -101,9 +160,36 @@
         "level": 0,
         "drawdown": -0.007962881567029734
       },
+      "runtime": {
+        "enabled": true,
+        "ledger_enabled": true,
+        "notifications_enabled": false,
+        "source": "repository_variable_or_registry_default",
+        "ledger_active": true
+      },
+      "continuity": {
+        "last_valid_state_key": "IDLE:normal",
+        "last_valid_market_date": "2026-10-02",
+        "unknown_since_market_date": null,
+        "detection_delay_sessions": 0,
+        "late_detected": false,
+        "timing_uncertain": false,
+        "detection_window_start": null,
+        "detection_window_end": null,
+        "previous_valid_state_key": "IDLE:normal",
+        "previous_valid_market_date": "2026-10-02",
+        "prior_unknown_since_market_date": null
+      },
+      "last_valid_state_key": "IDLE:normal",
+      "last_valid_market_date": "2026-10-02",
+      "unknown_since_market_date": null,
+      "late_detected": false,
+      "detection_delay_sessions": 0,
+      "timing_uncertain": false,
       "previous_state_key": "IDLE:normal",
       "transition_detected": false,
-      "bootstrap": false,
+      "suppressed_by_kill_switch": false,
+      "bootstrap": true,
       "committed_state_key": "IDLE:normal",
       "pending_transition": false
     },
@@ -116,7 +202,9 @@
       "state_key": "IDLE:normal",
       "market_date": "2026-10-02",
       "rule_version": "1.0.0",
-      "rule_hash": "ad5eab7a409996693a01eea24dfeb9a2f070a27f535092a7cd079acee14972b9",
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "lifecycle": "active",
+      "evidence": "unverified",
       "quality": {
         "eligible": true,
         "reasons": [],
@@ -132,9 +220,36 @@
         "level": 0,
         "drawdown": -0.03024019284672086
       },
+      "runtime": {
+        "enabled": true,
+        "ledger_enabled": true,
+        "notifications_enabled": false,
+        "source": "repository_variable_or_registry_default",
+        "ledger_active": true
+      },
+      "continuity": {
+        "last_valid_state_key": "IDLE:normal",
+        "last_valid_market_date": "2026-10-02",
+        "unknown_since_market_date": null,
+        "detection_delay_sessions": 0,
+        "late_detected": false,
+        "timing_uncertain": false,
+        "detection_window_start": null,
+        "detection_window_end": null,
+        "previous_valid_state_key": "IDLE:normal",
+        "previous_valid_market_date": "2026-10-02",
+        "prior_unknown_since_market_date": null
+      },
+      "last_valid_state_key": "IDLE:normal",
+      "last_valid_market_date": "2026-10-02",
+      "unknown_since_market_date": null,
+      "late_detected": false,
+      "detection_delay_sessions": 0,
+      "timing_uncertain": false,
       "previous_state_key": "IDLE:normal",
       "transition_detected": false,
-      "bootstrap": false,
+      "suppressed_by_kill_switch": false,
+      "bootstrap": true,
       "committed_state_key": "IDLE:normal",
       "pending_transition": false
     },
@@ -148,6 +263,8 @@
       "market_date": "2026-10-02",
       "rule_version": "1.0.0",
       "rule_hash": "f89277cd0b6f80aa2682799ee45d3c02a0cd76633d855cb0621557bc18db8fb5",
+      "lifecycle": "active",
+      "evidence": "unverified",
       "quality": {
         "eligible": true,
         "reasons": [],
@@ -164,8 +281,35 @@
         "target_daily_exposure": 2.01,
         "vix": 15.3100004196167
       },
+      "runtime": {
+        "enabled": true,
+        "ledger_enabled": true,
+        "notifications_enabled": false,
+        "source": "repository_variable_or_registry_default",
+        "ledger_active": true
+      },
+      "continuity": {
+        "last_valid_state_key": "TRIGGERED:full_restore",
+        "last_valid_market_date": "2026-10-02",
+        "unknown_since_market_date": null,
+        "detection_delay_sessions": 0,
+        "late_detected": false,
+        "timing_uncertain": false,
+        "detection_window_start": null,
+        "detection_window_end": null,
+        "previous_valid_state_key": "TRIGGERED:full_restore",
+        "previous_valid_market_date": "2026-10-02",
+        "prior_unknown_since_market_date": null
+      },
+      "last_valid_state_key": "TRIGGERED:full_restore",
+      "last_valid_market_date": "2026-10-02",
+      "unknown_since_market_date": null,
+      "late_detected": false,
+      "detection_delay_sessions": 0,
+      "timing_uncertain": false,
       "previous_state_key": "TRIGGERED:full_restore",
       "transition_detected": false,
+      "suppressed_by_kill_switch": false,
       "bootstrap": false,
       "committed_state_key": "TRIGGERED:full_restore",
       "pending_transition": false
@@ -180,6 +324,8 @@
       "market_date": "2026-10-02",
       "rule_version": "1.0.0",
       "rule_hash": "20aaf8cf9b5c9dfcc137305750b16ccd04a08f873a4a2ddb83d6ef6ffd99220d",
+      "lifecycle": "active",
+      "evidence": "unverified",
       "quality": {
         "eligible": true,
         "reasons": [],
@@ -197,8 +343,35 @@
         "trend_risk": false,
         "vix_risk": false
       },
+      "runtime": {
+        "enabled": true,
+        "ledger_enabled": true,
+        "notifications_enabled": false,
+        "source": "repository_variable_or_registry_default",
+        "ledger_active": true
+      },
+      "continuity": {
+        "last_valid_state_key": "IDLE:normal",
+        "last_valid_market_date": "2026-10-02",
+        "unknown_since_market_date": null,
+        "detection_delay_sessions": 0,
+        "late_detected": false,
+        "timing_uncertain": false,
+        "detection_window_start": null,
+        "detection_window_end": null,
+        "previous_valid_state_key": "IDLE:normal",
+        "previous_valid_market_date": "2026-10-02",
+        "prior_unknown_since_market_date": null
+      },
+      "last_valid_state_key": "IDLE:normal",
+      "last_valid_market_date": "2026-10-02",
+      "unknown_since_market_date": null,
+      "late_detected": false,
+      "detection_delay_sessions": 0,
+      "timing_uncertain": false,
       "previous_state_key": "IDLE:normal",
       "transition_detected": false,
+      "suppressed_by_kill_switch": false,
       "bootstrap": false,
       "committed_state_key": "IDLE:normal",
       "pending_transition": false
@@ -213,6 +386,8 @@
       "market_date": "2026-10-02",
       "rule_version": "1.0.0",
       "rule_hash": "20aaf8cf9b5c9dfcc137305750b16ccd04a08f873a4a2ddb83d6ef6ffd99220d",
+      "lifecycle": "active",
+      "evidence": "unverified",
       "quality": {
         "eligible": true,
         "reasons": [],
@@ -230,8 +405,35 @@
         "trend_risk": false,
         "vix_risk": false
       },
+      "runtime": {
+        "enabled": true,
+        "ledger_enabled": true,
+        "notifications_enabled": false,
+        "source": "repository_variable_or_registry_default",
+        "ledger_active": true
+      },
+      "continuity": {
+        "last_valid_state_key": "IDLE:normal",
+        "last_valid_market_date": "2026-10-02",
+        "unknown_since_market_date": null,
+        "detection_delay_sessions": 0,
+        "late_detected": false,
+        "timing_uncertain": false,
+        "detection_window_start": null,
+        "detection_window_end": null,
+        "previous_valid_state_key": "IDLE:normal",
+        "previous_valid_market_date": "2026-10-02",
+        "prior_unknown_since_market_date": null
+      },
+      "last_valid_state_key": "IDLE:normal",
+      "last_valid_market_date": "2026-10-02",
+      "unknown_since_market_date": null,
+      "late_detected": false,
+      "detection_delay_sessions": 0,
+      "timing_uncertain": false,
       "previous_state_key": "IDLE:normal",
       "transition_detected": false,
+      "suppressed_by_kill_switch": false,
       "bootstrap": false,
       "committed_state_key": "IDLE:normal",
       "pending_transition": false
@@ -246,6 +448,8 @@
       "market_date": "2026-10-02",
       "rule_version": "1.0.0",
       "rule_hash": "20aaf8cf9b5c9dfcc137305750b16ccd04a08f873a4a2ddb83d6ef6ffd99220d",
+      "lifecycle": "active",
+      "evidence": "unverified",
       "quality": {
         "eligible": true,
         "reasons": [],
@@ -263,8 +467,35 @@
         "trend_risk": false,
         "vix_risk": false
       },
+      "runtime": {
+        "enabled": true,
+        "ledger_enabled": true,
+        "notifications_enabled": false,
+        "source": "repository_variable_or_registry_default",
+        "ledger_active": true
+      },
+      "continuity": {
+        "last_valid_state_key": "IDLE:normal",
+        "last_valid_market_date": "2026-10-02",
+        "unknown_since_market_date": null,
+        "detection_delay_sessions": 0,
+        "late_detected": false,
+        "timing_uncertain": false,
+        "detection_window_start": null,
+        "detection_window_end": null,
+        "previous_valid_state_key": "IDLE:normal",
+        "previous_valid_market_date": "2026-10-02",
+        "prior_unknown_since_market_date": null
+      },
+      "last_valid_state_key": "IDLE:normal",
+      "last_valid_market_date": "2026-10-02",
+      "unknown_since_market_date": null,
+      "late_detected": false,
+      "detection_delay_sessions": 0,
+      "timing_uncertain": false,
       "previous_state_key": "IDLE:normal",
       "transition_detected": false,
+      "suppressed_by_kill_switch": false,
       "bootstrap": false,
       "committed_state_key": "IDLE:normal",
       "pending_transition": false

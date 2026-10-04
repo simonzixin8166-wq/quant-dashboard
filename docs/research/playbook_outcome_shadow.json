@@ -1,0 +1,51 @@
+{
+  "version": "6.11.0-shadow",
+  "generated_at": "2026-10-04T03:40:06.790236+00:00",
+  "mode": "shadow_no_forward_ledger_write",
+  "market_date": "2026-10-02",
+  "storage_configured": true,
+  "private_trigger_records": 0,
+  "eligible_forward_triggers": 0,
+  "ledger_read_problems": [],
+  "mature_total": {
+    "5": 0,
+    "20": 0,
+    "60": 0
+  },
+  "pending_total": {
+    "5": 0,
+    "20": 0,
+    "60": 0
+  },
+  "by_playbook": {},
+  "outcome_definitions": {
+    "CP-01": {
+      "evaluation_asset": "event_symbol",
+      "benchmark": "QQQ",
+      "success_basis": "directional_alignment",
+      "interpretation": "评价回撤分档触发后对应 ETF 的前瞻表现；只做研究验证，不改变分档阈值。"
+    },
+    "CP-02": {
+      "evaluation_asset": "QQQ",
+      "benchmark": null,
+      "success_basis": "directional_alignment_proxy",
+      "interpretation": "CP-02 的降低风险与恢复风险必须分开评价；使用 QQQ 作为状态机评价序列，不把 TQQQ 杠杆收益混进同一成绩。"
+    },
+    "CP-03": {
+      "evaluation_asset": "event_symbol",
+      "benchmark": "QQQ",
+      "success_basis": "underlying_directional_proxy",
+      "interpretation": "只评价标的走势，不伪造 LEAPS 合约 P&L；真实期权收益必须等合约级数据。"
+    }
+  },
+  "guardrails": [
+    "Forward Trigger records remain the source of truth.",
+    "This foundation does not write an Outcome stream during the 10-session stabilization window.",
+    "Historical replay and Forward outcomes must remain separately labeled.",
+    "Baseline price is revalidated against local point-in-time history before scoring.",
+    "A baseline mismatch is quarantined rather than silently rescored.",
+    "No outcome result may automatically change production thresholds, position sizing, Hard Exit rules, or place orders."
+  ],
+  "private_ledger_write": false,
+  "automatic_rule_mutation": false
+}

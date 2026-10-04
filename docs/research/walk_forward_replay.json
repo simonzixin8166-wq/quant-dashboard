@@ -1,0 +1,5301 @@
+{
+  "version": "6.11.0",
+  "generated_at": "2026-10-04T03:40:07.980510+00:00",
+  "mode": "research_only",
+  "evidence_provenance": "historical_replay_post_rule_design",
+  "forward_evidence_mixed": false,
+  "automatic_promotion": false,
+  "production_rule_mutation": false,
+  "coverage": {
+    "CP-01": {
+      "status": "complete",
+      "required_history": [
+        "QQQM",
+        "VGT",
+        "QLD",
+        "QQQ"
+      ],
+      "missing": [],
+      "replay_rule": "validated drawdown tiers reconstructed causally from cumulative adjusted close ATH"
+    },
+    "CP-02": {
+      "status": "blocked",
+      "required_history": [
+        "QQQ",
+        "VIX"
+      ],
+      "missing": [
+        "VIX"
+      ],
+      "reason": "VIX history is required by production hard-exit/tier/restore semantics. QQQ-only approximation is rejected."
+    },
+    "CP-03": {
+      "status": "blocked",
+      "required_history": [
+        "QQQ",
+        "SMH",
+        "VGT",
+        "VIX"
+      ],
+      "missing": [
+        "SMH",
+        "VIX"
+      ],
+      "reason": "Full production LEAPS market-condition replay needs SMH plus risk-context dependency. Partial reconstruction is not promoted into aggregate evidence."
+    }
+  },
+  "summary": {
+    "raw_events": 351,
+    "effective_clusters": 149,
+    "replayable_playbooks": 1,
+    "blocked_playbooks": 2,
+    "history_symbols": 21
+  },
+  "statistics": {
+    "CP-01:tier1": {
+      "playbook_id": "CP-01",
+      "state_detail": "tier1",
+      "raw_events": 185,
+      "effective_clusters": 73,
+      "independent_dates": [
+        "2006-06-13",
+        "2006-07-12",
+        "2006-08-01",
+        "2008-01-07",
+        "2008-01-24",
+        "2008-02-13",
+        "2008-02-26",
+        "2008-03-24",
+        "2008-04-01",
+        "2008-04-10",
+        "2008-04-25",
+        "2008-06-06",
+        "2008-06-23",
+        "2008-07-16",
+        "2009-11-09",
+        "2009-12-31",
+        "2010-01-12",
+        "2010-02-03",
+        "2010-02-16",
+        "2010-05-06",
+        "2010-05-14",
+        "2010-06-10",
+        "2010-07-09",
+        "2010-08-18",
+        "2010-09-03",
+        "2010-10-04",
+        "2010-11-02",
+        "2010-11-22",
+        "2011-01-20",
+        "2011-01-28",
+        "2011-03-10",
+        "2011-03-28",
+        "2011-04-12",
+        "2011-05-24",
+        "2011-06-03",
+        "2011-08-02",
+        "2011-08-29",
+        "2011-09-30",
+        "2011-10-17",
+        "2011-11-09",
+        "2011-11-28",
+        "2015-08-24",
+        "2016-02-05",
+        "2018-11-19",
+        "2018-12-07",
+        "2018-12-26",
+        "2019-01-22",
+        "2020-02-27",
+        "2020-03-09",
+        "2020-04-06",
+        "2022-01-21",
+        "2022-02-11",
+        "2022-04-06",
+        "2022-04-28",
+        "2022-08-03",
+        "2022-08-12",
+        "2022-08-25",
+        "2023-02-15",
+        "2023-03-21",
+        "2023-04-26",
+        "2023-05-17",
+        "2023-06-07",
+        "2023-07-20",
+        "2023-08-21",
+        "2023-10-02",
+        "2023-10-25",
+        "2023-11-02",
+        "2023-11-21",
+        "2024-08-05",
+        "2025-03-10",
+        "2025-03-28",
+        "2025-04-22",
+        "2026-03-30"
+      ],
+      "horizons": {
+        "5": {
+          "raw_n": 185,
+          "effective_n": 73,
+          "aligned_rate": 0.6162162162162163,
+          "aligned_rate_ci95": {
+            "low": 0.5444518072082913,
+            "high": 0.6832524282309653
+          },
+          "avg_return": 0.006250090967733707,
+          "median_return": 0.011224195432222084,
+          "avg_mae": -0.03860211112782889,
+          "avg_mfe": 0.0415053789513769,
+          "avg_excess_vs_qqq": 0.0018583185394837635
+        },
+        "20": {
+          "raw_n": 185,
+          "effective_n": 73,
+          "aligned_rate": 0.6270270270270271,
+          "aligned_rate_ci95": {
+            "low": 0.5554212900564256,
+            "high": 0.6934647347260178
+          },
+          "avg_return": 0.022869769849656215,
+          "median_return": 0.027311917965888943,
+          "avg_mae": -0.07238273651253706,
+          "avg_mfe": 0.0849603639017978,
+          "avg_excess_vs_qqq": 0.005175493724076102
+        },
+        "60": {
+          "raw_n": 185,
+          "effective_n": 73,
+          "aligned_rate": 0.654054054054054,
+          "aligned_rate_ci95": {
+            "low": 0.5830040794881064,
+            "high": 0.7188364186523033
+          },
+          "avg_return": 0.07278332892526992,
+          "median_return": 0.09724625919516061,
+          "avg_mae": -0.11967851870526312,
+          "avg_mfe": 0.17101916448098517,
+          "avg_excess_vs_qqq": 0.02502990687879908
+        }
+      }
+    },
+    "CP-01:tier2": {
+      "playbook_id": "CP-01",
+      "state_detail": "tier2",
+      "raw_events": 120,
+      "effective_clusters": 54,
+      "independent_dates": [
+        "2008-01-22",
+        "2008-02-14",
+        "2008-02-29",
+        "2008-03-27",
+        "2008-04-09",
+        "2008-06-26",
+        "2008-07-09",
+        "2008-07-21",
+        "2008-08-29",
+        "2008-09-18",
+        "2009-07-20",
+        "2009-12-23",
+        "2010-01-28",
+        "2010-03-02",
+        "2010-05-10",
+        "2010-05-20",
+        "2010-06-15",
+        "2010-06-29",
+        "2010-07-23",
+        "2010-08-02",
+        "2010-08-12",
+        "2010-09-03",
+        "2010-11-12",
+        "2010-11-23",
+        "2011-08-08",
+        "2011-08-18",
+        "2011-09-02",
+        "2011-09-30",
+        "2011-11-23",
+        "2018-12-20",
+        "2019-01-03",
+        "2020-03-09",
+        "2022-02-23",
+        "2022-03-07",
+        "2022-04-22",
+        "2022-05-13",
+        "2022-05-26",
+        "2022-06-15",
+        "2022-07-19",
+        "2022-08-17",
+        "2022-09-07",
+        "2022-10-04",
+        "2022-10-25",
+        "2022-11-10",
+        "2022-12-21",
+        "2023-01-09",
+        "2023-02-01",
+        "2023-03-16",
+        "2023-04-25",
+        "2023-08-18",
+        "2023-09-21",
+        "2023-10-03",
+        "2023-10-19",
+        "2025-04-03"
+      ],
+      "horizons": {
+        "5": {
+          "raw_n": 120,
+          "effective_n": 54,
+          "aligned_rate": 0.575,
+          "aligned_rate_ci95": {
+            "low": 0.4855775172299302,
+            "high": 0.6597696078072643
+          },
+          "avg_return": 0.009496774919998686,
+          "median_return": 0.011479217209014014,
+          "avg_mae": -0.042177653066307864,
+          "avg_mfe": 0.05016986450099385,
+          "avg_excess_vs_qqq": 0.002942119449207304
+        },
+        "20": {
+          "raw_n": 120,
+          "effective_n": 54,
+          "aligned_rate": 0.65,
+          "aligned_rate_ci95": {
+            "low": 0.561213245977243,
+            "high": 0.729481004097146
+          },
+          "avg_return": 0.030850202638312375,
+          "median_return": 0.03662440592034932,
+          "avg_mae": -0.07682176487599503,
+          "avg_mfe": 0.10250106462746214,
+          "avg_excess_vs_qqq": 0.007011429786885974
+        },
+        "60": {
+          "raw_n": 120,
+          "effective_n": 54,
+          "aligned_rate": 0.6666666666666666,
+          "aligned_rate_ci95": {
+            "low": 0.5783110162063498,
+            "high": 0.7446825949874156
+          },
+          "avg_return": 0.08791766672286419,
+          "median_return": 0.08104471129015112,
+          "avg_mae": -0.12680372154127856,
+          "avg_mfe": 0.20090912475064798,
+          "avg_excess_vs_qqq": 0.029367575304723077
+        }
+      }
+    },
+    "CP-01:tier3": {
+      "playbook_id": "CP-01",
+      "state_detail": "tier3",
+      "raw_events": 46,
+      "effective_clusters": 22,
+      "independent_dates": [
+        "2008-09-17",
+        "2010-01-22",
+        "2010-05-07",
+        "2010-05-20",
+        "2010-05-28",
+        "2010-06-24",
+        "2010-07-29",
+        "2010-08-11",
+        "2010-09-07",
+        "2020-03-16",
+        "2022-05-09",
+        "2022-06-09",
+        "2022-07-25",
+        "2022-08-30",
+        "2022-09-13",
+        "2022-09-22",
+        "2022-10-07",
+        "2022-10-27",
+        "2022-12-19",
+        "2023-02-03",
+        "2023-03-22",
+        "2023-04-25"
+      ],
+      "horizons": {
+        "5": {
+          "raw_n": 46,
+          "effective_n": 22,
+          "aligned_rate": 0.4782608695652174,
+          "aligned_rate_ci95": {
+            "low": 0.34124689434045685,
+            "high": 0.6186258692719597
+          },
+          "avg_return": -0.0009180147631732308,
+          "median_return": -0.001197933890191627,
+          "avg_mae": -0.054048172431462836,
+          "avg_mfe": 0.05799052617394839,
+          "avg_excess_vs_qqq": 0.0010634566945016313
+        },
+        "20": {
+          "raw_n": 46,
+          "effective_n": 22,
+          "aligned_rate": 0.5217391304347826,
+          "aligned_rate_ci95": {
+            "low": 0.3813741307280403,
+            "high": 0.6587531056595433
+          },
+          "avg_return": -0.004229420119147374,
+          "median_return": 0.0032255474875256818,
+          "avg_mae": -0.10964675242824262,
+          "avg_mfe": 0.11160570817984813,
+          "avg_excess_vs_qqq": -0.005928833781082552
+        },
+        "60": {
+          "raw_n": 46,
+          "effective_n": 22,
+          "aligned_rate": 0.6956521739130435,
+          "aligned_rate_ci95": {
+            "low": 0.5519435355159235,
+            "high": 0.8092015919723277
+          },
+          "avg_return": 0.10163716356475971,
+          "median_return": 0.0821767214880943,
+          "avg_mae": -0.1454404962029329,
+          "avg_mfe": 0.22842187359475868,
+          "avg_excess_vs_qqq": 0.03711608586252984
+        }
+      }
+    }
+  },
+  "recent_replay_events": [
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:VGT",
+      "symbol": "VGT",
+      "event_date": "2026-03-30",
+      "state_detail": "tier1",
+      "previous_level": 0,
+      "baseline_close": 83.5875,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2026-04-07",
+          "return": 0.07439748766262899,
+          "mae": 0.01172424106475245,
+          "mfe": 0.07474203678779712,
+          "benchmark_return": 0.05429175324210078,
+          "excess_vs_benchmark": 0.02010573442052821,
+          "aligned": true
+        },
+        "20": {
+          "maturity_date": "2026-04-28",
+          "return": 0.2282937042021833,
+          "mae": 0.01172424106475245,
+          "mfe": 0.24815313294451902,
+          "benchmark_return": 0.1778140001432973,
+          "excess_vs_benchmark": 0.05047970405888602,
+          "aligned": true
+        },
+        "60": {
+          "maturity_date": "2026-06-25",
+          "return": 0.38142664872139953,
+          "mae": 0.01172424106475245,
+          "mfe": 0.5074024226110363,
+          "benchmark_return": 0.2831912302070647,
+          "excess_vs_benchmark": 0.09823541851433482,
+          "aligned": true
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:QQQM",
+      "symbol": "QQQM",
+      "event_date": "2026-03-30",
+      "state_detail": "tier1",
+      "previous_level": 0,
+      "baseline_close": 229.87,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2026-04-07",
+          "return": 0.05442206464523425,
+          "mae": 0.010571192413103114,
+          "mfe": 0.05781528690129201,
+          "benchmark_return": 0.05429175324210078,
+          "excess_vs_benchmark": 0.00013031140313346512,
+          "aligned": true
+        },
+        "20": {
+          "maturity_date": "2026-04-28",
+          "return": 0.1778831513464132,
+          "mae": 0.010571192413103114,
+          "mfe": 0.19006394918867175,
+          "benchmark_return": 0.1778140001432973,
+          "excess_vs_benchmark": 6.91512031159025e-05,
+          "aligned": true
+        },
+        "60": {
+          "maturity_date": "2026-06-25",
+          "return": 0.2828120241875842,
+          "mae": 0.010571192413103114,
+          "mfe": 0.34080132248662265,
+          "benchmark_return": 0.2831912302070647,
+          "excess_vs_benchmark": -0.0003792060194804936,
+          "aligned": true
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:QLD",
+      "symbol": "QLD",
+      "event_date": "2026-03-30",
+      "state_detail": "tier1",
+      "previous_level": 0,
+      "baseline_close": 57.16,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2026-04-07",
+          "return": 0.10899230230930734,
+          "mae": 0.020818754373687964,
+          "mfe": 0.11634009797060885,
+          "benchmark_return": 0.05429175324210078,
+          "excess_vs_benchmark": 0.05470054906720656,
+          "aligned": true
+        },
+        "20": {
+          "maturity_date": "2026-04-28",
+          "return": 0.37631210636808965,
+          "mae": 0.020818754373687964,
+          "mfe": 0.40605318404478674,
+          "benchmark_return": 0.1778140001432973,
+          "excess_vs_benchmark": 0.19849810622479236,
+          "aligned": true
+        },
+        "60": {
+          "maturity_date": "2026-06-25",
+          "return": 0.6054933519944017,
+          "mae": 0.020818754373687964,
+          "mfe": 0.7702939118264522,
+          "benchmark_return": 0.2831912302070647,
+          "excess_vs_benchmark": 0.32230212178733697,
+          "aligned": true
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:VGT",
+      "symbol": "VGT",
+      "event_date": "2025-04-23",
+      "state_detail": "tier1",
+      "previous_level": 2,
+      "baseline_close": 64.5828,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2025-04-30",
+          "return": 0.05891351876970341,
+          "mae": 0.007971162600568515,
+          "mfe": 0.06218993292331687,
+          "benchmark_return": 0.04600052798310461,
+          "excess_vs_benchmark": 0.0129129907865988,
+          "aligned": true
+        },
+        "20": {
+          "maturity_date": "2025-05-21",
+          "return": 0.1586087936726186,
+          "mae": 0.007971162600568515,
+          "mfe": 0.1923515239351652,
+          "benchmark_return": 0.1286518831397394,
+          "excess_vs_benchmark": 0.02995691053287919,
+          "aligned": true
+        },
+        "60": {
+          "maturity_date": "2025-07-21",
+          "return": 0.32444861480146425,
+          "mae": 0.007971162600568515,
+          "mfe": 0.3343738580550857,
+          "benchmark_return": 0.24113428370292134,
+          "excess_vs_benchmark": 0.08331433109854292,
+          "aligned": true
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:QLD",
+      "symbol": "QLD",
+      "event_date": "2025-04-23",
+      "state_detail": "tier1",
+      "previous_level": 2,
+      "baseline_close": 40.4733,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2025-04-30",
+          "return": 0.0927722720904891,
+          "mae": 0.006661181569083796,
+          "mfe": 0.10091344170107197,
+          "benchmark_return": 0.04600052798310461,
+          "excess_vs_benchmark": 0.046771744107384494,
+          "aligned": true
+        },
+        "20": {
+          "maturity_date": "2025-05-21",
+          "return": 0.2647424351362502,
+          "mae": 0.006661181569083796,
+          "mfe": 0.3148297766675807,
+          "benchmark_return": 0.1286518831397394,
+          "excess_vs_benchmark": 0.13609055199651077,
+          "aligned": true
+        },
+        "60": {
+          "maturity_date": "2025-07-24",
+          "return": 0.5185739734590458,
+          "mae": 0.006661181569083796,
+          "mfe": 0.5247484143867684,
+          "benchmark_return": 0.24113428370292134,
+          "excess_vs_benchmark": 0.27743968975612443,
+          "aligned": true
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:QQQM",
+      "symbol": "QQQM",
+      "event_date": "2025-04-22",
+      "state_detail": "tier1",
+      "previous_level": 2,
+      "baseline_close": 183.0,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2025-04-29",
+          "return": 0.07000000000000006,
+          "mae": 0.018907103825136717,
+          "mfe": 0.07196229508196716,
+          "benchmark_return": 0.06985691144708417,
+          "excess_vs_benchmark": 0.00014308855291589317,
+          "aligned": true
+        },
+        "20": {
+          "maturity_date": "2025-05-20",
+          "return": 0.1704918032786884,
+          "mae": 0.018907103825136717,
+          "mfe": 0.1754644808743171,
+          "benchmark_return": 0.17051385889128867,
+          "excess_vs_benchmark": -2.2055612600269114e-05,
+          "aligned": true
+        },
+        "60": {
+          "maturity_date": "2025-07-18",
+          "return": 0.26256830601092895,
+          "mae": 0.018907103825136717,
+          "mfe": 0.2669398907103824,
+          "benchmark_return": 0.2627339812814975,
+          "excess_vs_benchmark": -0.0001656752705685438,
+          "aligned": true
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:QQQM",
+      "symbol": "QQQM",
+      "event_date": "2025-04-21",
+      "state_detail": "tier2",
+      "previous_level": 1,
+      "baseline_close": 178.4,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2025-04-28",
+          "return": 0.09030269058295959,
+          "mae": 0.009977578475336424,
+          "mfe": 0.09579596412556057,
+          "benchmark_return": 0.0907390732146569,
+          "excess_vs_benchmark": -0.0004363826316973185,
+          "aligned": true
+        },
+        "20": {
+          "maturity_date": "2025-05-19",
+          "return": 0.2048206278026905,
+          "mae": 0.009977578475336424,
+          "mfe": 0.20577354260089686,
+          "benchmark_return": 0.205259633811272,
+          "excess_vs_benchmark": -0.0004390060085814884,
+          "aligned": true
+        },
+        "60": {
+          "maturity_date": "2025-07-17",
+          "return": 0.296244394618834,
+          "mae": 0.009977578475336424,
+          "mfe": 0.2973654708520179,
+          "benchmark_return": 0.2971300593382742,
+          "excess_vs_benchmark": -0.0008856647194401823,
+          "aligned": true
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:VGT",
+      "symbol": "VGT",
+      "event_date": "2025-04-16",
+      "state_detail": "tier2",
+      "previous_level": 1,
+      "baseline_close": 63.1975,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2025-04-24",
+          "return": 0.06034257684243838,
+          "mae": -0.04508247952846234,
+          "mfe": 0.06150559753154794,
+          "benchmark_return": 0.05216353730469625,
+          "excess_vs_benchmark": 0.008179039537742128,
+          "aligned": true
+        },
+        "20": {
+          "maturity_date": "2025-05-15",
+          "return": 0.21230903121167777,
+          "mae": -0.04508247952846234,
+          "mfe": 0.21848807310415763,
+          "benchmark_return": 0.1690080597955783,
+          "excess_vs_benchmark": 0.043300971416099454,
+          "aligned": true
+        },
+        "60": {
+          "maturity_date": "2025-07-15",
+          "return": 0.33289766209106375,
+          "mae": -0.04508247952846234,
+          "mfe": 0.34100083072906373,
+          "benchmark_return": 0.2533657526228106,
+          "excess_vs_benchmark": 0.07953190946825317,
+          "aligned": true
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:QLD",
+      "symbol": "QLD",
+      "event_date": "2025-04-16",
+      "state_detail": "tier2",
+      "previous_level": 1,
+      "baseline_close": 38.8256,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2025-04-24",
+          "return": 0.10172412016813648,
+          "mae": -0.07445860463199538,
+          "mfe": 0.10339569768400225,
+          "benchmark_return": 0.05216353730469625,
+          "excess_vs_benchmark": 0.04956058286344023,
+          "aligned": true
+        },
+        "20": {
+          "maturity_date": "2025-05-15",
+          "return": 0.35236802522047306,
+          "mae": -0.07445860463199538,
+          "mfe": 0.36587200197807634,
+          "benchmark_return": 0.1690080597955783,
+          "excess_vs_benchmark": 0.18335996542489474,
+          "aligned": true
+        },
+        "60": {
+          "maturity_date": "2025-07-18",
+          "return": 0.5625489367839775,
+          "mae": -0.07445860463199538,
+          "mfe": 0.5742654331162944,
+          "benchmark_return": 0.2533657526228106,
+          "excess_vs_benchmark": 0.30918318416116697,
+          "aligned": true
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:VGT",
+      "symbol": "VGT",
+      "event_date": "2025-04-11",
+      "state_detail": "tier1",
+      "previous_level": 2,
+      "baseline_close": 64.7395,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2025-04-21",
+          "return": -0.05458027942755206,
+          "mae": -0.06782721522409052,
+          "mfe": 0.03331968890708148,
+          "benchmark_return": -0.046852992957746364,
+          "excess_vs_benchmark": -0.007727286469805694,
+          "aligned": false
+        },
+        "20": {
+          "maturity_date": "2025-05-12",
+          "return": 0.15005676596204776,
+          "mae": -0.06782721522409052,
+          "mfe": 0.15065454629708275,
+          "benchmark_return": 0.11762764084507049,
+          "excess_vs_benchmark": 0.032429125116977264,
+          "aligned": true
+        },
+        "60": {
+          "maturity_date": "2025-07-10",
+          "return": 0.29832019091899054,
+          "mae": -0.06782721522409052,
+          "mfe": 0.30680805381567633,
+          "benchmark_return": 0.22238116197183122,
+          "excess_vs_benchmark": 0.07593902894715931,
+          "aligned": true
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:VGT",
+      "symbol": "VGT",
+      "event_date": "2025-04-10",
+      "state_detail": "tier2",
+      "previous_level": 1,
+      "baseline_close": 63.4488,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2025-04-17",
+          "return": -0.008316942164390717,
+          "mae": -0.021648951595617194,
+          "mfe": 0.05433987719231892,
+          "benchmark_return": -0.004661795687838977,
+          "excess_vs_benchmark": -0.0036551464765517405,
+          "aligned": false
+        },
+        "20": {
+          "maturity_date": "2025-05-09",
+          "return": 0.1205066132062389,
+          "mae": -0.04886459633594331,
+          "mfe": 0.1313626104827832,
+          "benchmark_return": 0.09366175086288053,
+          "excess_vs_benchmark": 0.026844862343358367,
+          "aligned": true
+        },
+        "60": {
+          "maturity_date": "2025-07-09",
+          "return": 0.3291898349535374,
+          "mae": -0.04886459633594331,
+          "mfe": 0.332379808601581,
+          "benchmark_return": 0.24669415930790262,
+          "excess_vs_benchmark": 0.08249567564563476,
+          "aligned": true
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:VGT",
+      "symbol": "VGT",
+      "event_date": "2025-04-09",
+      "state_detail": "tier1",
+      "previous_level": 2,
+      "baseline_close": 66.4374,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2025-04-16",
+          "return": -0.048766206985824234,
+          "mae": -0.0777860060748915,
+          "mfe": 0.006911769575570492,
+          "benchmark_return": -0.0468240343347639,
+          "excess_vs_benchmark": -0.0019421726510603365,
+          "aligned": false
+        },
+        "20": {
+          "maturity_date": "2025-05-08",
+          "return": 0.0700644516492217,
+          "mae": -0.0916501849861674,
+          "mfe": 0.08046973542010982,
+          "benchmark_return": 0.04783261802575112,
+          "excess_vs_benchmark": 0.022231833623470587,
+          "aligned": true
+        },
+        "60": {
+          "maturity_date": "2025-07-08",
+          "return": 0.25885720994500083,
+          "mae": -0.0916501849861674,
+          "mfe": 0.2674306941572069,
+          "benchmark_return": 0.1852789699570816,
+          "excess_vs_benchmark": 0.07357823998791924,
+          "aligned": true
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:QQQM",
+      "symbol": "QQQM",
+      "event_date": "2025-04-09",
+      "state_detail": "tier1",
+      "previous_level": 2,
+      "baseline_close": 191.52,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2025-04-16",
+          "return": -0.04500835421888061,
+          "mae": -0.06986215538847129,
+          "mfe": -0.00046992481203012026,
+          "benchmark_return": -0.0468240343347639,
+          "excess_vs_benchmark": 0.0018156801158832891,
+          "aligned": false
+        },
+        "20": {
+          "maturity_date": "2025-05-08",
+          "return": 0.0496553884711779,
+          "mae": -0.08004385964912286,
+          "mfe": 0.05910609857978266,
+          "benchmark_return": 0.04783261802575112,
+          "excess_vs_benchmark": 0.0018227704454267801,
+          "aligned": true
+        },
+        "60": {
+          "maturity_date": "2025-07-08",
+          "return": 0.18708228905597313,
+          "mae": -0.08004385964912286,
+          "mfe": 0.1975250626566416,
+          "benchmark_return": 0.1852789699570816,
+          "excess_vs_benchmark": 0.0018033190988915315,
+          "aligned": true
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:QLD",
+      "symbol": "QLD",
+      "event_date": "2025-04-09",
+      "state_detail": "tier1",
+      "previous_level": 2,
+      "baseline_close": 42.7551,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2025-04-16",
+          "return": -0.09190716429151136,
+          "mae": -0.14013766778700076,
+          "mfe": -0.004436897586486799,
+          "benchmark_return": -0.0468240343347639,
+          "excess_vs_benchmark": -0.04508312995674746,
+          "aligned": false
+        },
+        "20": {
+          "maturity_date": "2025-05-08",
+          "return": 0.08887126915853316,
+          "mae": -0.1595224897146773,
+          "mfe": 0.10849232021443056,
+          "benchmark_return": 0.04783261802575112,
+          "excess_vs_benchmark": 0.041038651132782045,
+          "aligned": true
+        },
+        "60": {
+          "maturity_date": "2025-07-11",
+          "return": 0.3853856031210312,
+          "mae": -0.1595224897146773,
+          "mfe": 0.4032735276025552,
+          "benchmark_return": 0.1852789699570816,
+          "excess_vs_benchmark": 0.2001066331639496,
+          "aligned": true
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:QQQM",
+      "symbol": "QQQM",
+      "event_date": "2025-04-04",
+      "state_detail": "tier2",
+      "previous_level": 1,
+      "baseline_close": 174.28,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2025-04-11",
+          "return": 0.07310075740188204,
+          "mae": -0.049116364470966234,
+          "mfe": 0.10506082166628405,
+          "benchmark_return": 0.07507038588023751,
+          "excess_vs_benchmark": -0.0019696284783554674,
+          "aligned": true
+        },
+        "20": {
+          "maturity_date": "2025-05-05",
+          "return": 0.14826715630020648,
+          "mae": -0.049116364470966234,
+          "mfe": 0.15974294239155373,
+          "benchmark_return": 0.1496675893723236,
+          "excess_vs_benchmark": -0.0014004330721171243,
+          "aligned": true
+        },
+        "60": {
+          "maturity_date": "2025-07-02",
+          "return": 0.3008377323846685,
+          "mae": -0.049116364470966234,
+          "mfe": 0.30560018361257746,
+          "benchmark_return": 0.3031442969692666,
+          "excess_vs_benchmark": -0.002306564584598103,
+          "aligned": true
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:QLD",
+      "symbol": "QLD",
+      "event_date": "2025-04-04",
+      "state_detail": "tier2",
+      "previous_level": 1,
+      "baseline_close": 35.8548,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2025-04-11",
+          "return": 0.13368642413289167,
+          "mae": -0.09873155058736904,
+          "mfe": 0.20456675256869383,
+          "benchmark_return": 0.07507038588023751,
+          "excess_vs_benchmark": 0.05861603825265416,
+          "aligned": true
+        },
+        "20": {
+          "maturity_date": "2025-05-05",
+          "return": 0.287286499994422,
+          "mae": -0.09873155058736904,
+          "mfe": 0.3137432087196137,
+          "benchmark_return": 0.1496675893723236,
+          "excess_vs_benchmark": 0.1376189106220984,
+          "aligned": true
+        },
+        "60": {
+          "maturity_date": "2025-07-08",
+          "return": 0.6421064962013456,
+          "mae": -0.09873155058736904,
+          "mfe": 0.6718709907738993,
+          "benchmark_return": 0.3031442969692666,
+          "excess_vs_benchmark": 0.33896219923207904,
+          "aligned": true
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:VGT",
+      "symbol": "VGT",
+      "event_date": "2025-04-03",
+      "state_detail": "tier2",
+      "previous_level": 0,
+      "baseline_close": 63.6642,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2025-04-10",
+          "return": -0.0033833771570207505,
+          "mae": -0.11827997524511424,
+          "mfe": 0.05159257479085588,
+          "benchmark_return": -0.009940975458216927,
+          "excess_vs_benchmark": 0.006557598301196177,
+          "aligned": false
+        },
+        "20": {
+          "maturity_date": "2025-05-02",
+          "return": 0.10955921852469674,
+          "mae": -0.11827997524511424,
+          "mfe": 0.11473638245670248,
+          "benchmark_return": 0.08469799849110182,
+          "excess_vs_benchmark": 0.024861220033594922,
+          "aligned": true
+        },
+        "60": {
+          "maturity_date": "2025-07-01",
+          "return": 0.2847471577432843,
+          "mae": -0.11827997524511424,
+          "mfe": 0.30102946396876096,
+          "benchmark_return": 0.21375316202902406,
+          "excess_vs_benchmark": 0.07099399571426024,
+          "aligned": true
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:QQQM",
+      "symbol": "QQQM",
+      "event_date": "2025-04-03",
+      "state_detail": "tier1",
+      "previous_level": 0,
+      "baseline_close": 185.63,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2025-04-10",
+          "return": -0.010127673328664488,
+          "mae": -0.10725637019878254,
+          "mfe": 0.03749393955718361,
+          "benchmark_return": -0.009940975458216927,
+          "excess_vs_benchmark": -0.0001866978704475608,
+          "aligned": false
+        },
+        "20": {
+          "maturity_date": "2025-05-02",
+          "return": 0.08409201098960306,
+          "mae": -0.10725637019878254,
+          "mfe": 0.08883262403706293,
+          "benchmark_return": 0.08469799849110182,
+          "excess_vs_benchmark": -0.0006059875014987615,
+          "aligned": true
+        },
+        "60": {
+          "maturity_date": "2025-07-01",
+          "return": 0.2126811399019557,
+          "mae": -0.10725637019878254,
+          "mfe": 0.2257716963852825,
+          "benchmark_return": 0.21375316202902406,
+          "excess_vs_benchmark": -0.0010720221270683616,
+          "aligned": true
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:QLD",
+      "symbol": "QLD",
+      "event_date": "2025-04-03",
+      "state_detail": "tier1",
+      "previous_level": 0,
+      "baseline_close": 40.8428,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2025-04-10",
+          "return": -0.03875101609096332,
+          "mae": -0.2088005719490338,
+          "mfe": 0.05745688346538458,
+          "benchmark_return": -0.009940975458216927,
+          "excess_vs_benchmark": -0.028810040632746392,
+          "aligned": false
+        },
+        "20": {
+          "maturity_date": "2025-05-02",
+          "return": 0.14352346068340083,
+          "mae": -0.2088005719490338,
+          "mfe": 0.15329996963969172,
+          "benchmark_return": 0.08469799849110182,
+          "excess_vs_benchmark": 0.058825462192299005,
+          "aligned": true
+        },
+        "60": {
+          "maturity_date": "2025-07-07",
+          "return": 0.4404595179566535,
+          "mae": -0.2088005719490338,
+          "mfe": 0.4676907557758039,
+          "benchmark_return": 0.21375316202902406,
+          "excess_vs_benchmark": 0.22670635592762944,
+          "aligned": true
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:VGT",
+      "symbol": "VGT",
+      "event_date": "2025-03-28",
+      "state_detail": "tier1",
+      "previous_level": 0,
+      "baseline_close": 67.6146,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2025-04-04",
+          "return": -0.11898909407139868,
+          "mae": -0.12320416004827361,
+          "mfe": 0.0239179112203578,
+          "benchmark_return": -0.09866933936111222,
+          "excess_vs_benchmark": -0.020319754710286464,
+          "aligned": false
+        },
+        "20": {
+          "maturity_date": "2025-04-28",
+          "return": 0.004178091713919807,
+          "mae": -0.16979468931266317,
+          "mfe": 0.0239179112203578,
+          "benchmark_return": 0.007399667334840432,
+          "excess_vs_benchmark": -0.0032215756209206248,
+          "aligned": true
+        },
+        "60": {
+          "maturity_date": "2025-06-25",
+          "return": 0.20024373434139964,
+          "mae": -0.16979468931266317,
+          "mfe": 0.20245331629559304,
+          "benchmark_return": 0.15400690919947113,
+          "excess_vs_benchmark": 0.046236825141928506,
+          "aligned": true
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:QQQM",
+      "symbol": "QQQM",
+      "event_date": "2025-03-28",
+      "state_detail": "tier1",
+      "previous_level": 0,
+      "baseline_close": 193.08,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2025-04-04",
+          "return": -0.09736896623161384,
+          "mae": -0.09757613424487255,
+          "mfe": 0.022451833436917257,
+          "benchmark_return": -0.09866933936111222,
+          "excess_vs_benchmark": 0.0013003731294983778,
+          "aligned": false
+        },
+        "20": {
+          "maturity_date": "2025-04-28",
+          "return": 0.007406256474000283,
+          "mae": -0.14170292106898696,
+          "mfe": 0.022451833436917257,
+          "benchmark_return": 0.007399667334840432,
+          "excess_vs_benchmark": 6.589139159851598e-06,
+          "aligned": true
+        },
+        "60": {
+          "maturity_date": "2025-06-25",
+          "return": 0.15356328982805034,
+          "mae": -0.14170292106898696,
+          "mfe": 0.158120986119743,
+          "benchmark_return": 0.15400690919947113,
+          "excess_vs_benchmark": -0.0004436193714207892,
+          "aligned": true
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:QLD",
+      "symbol": "QLD",
+      "event_date": "2025-03-28",
+      "state_detail": "tier1",
+      "previous_level": 0,
+      "baseline_close": 44.4078,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2025-04-04",
+          "return": -0.19260129977166185,
+          "mae": -0.19327460491174975,
+          "mfe": 0.044525961655384805,
+          "benchmark_return": -0.09866933936111222,
+          "excess_vs_benchmark": -0.09393196041054963,
+          "aligned": false
+        },
+        "20": {
+          "maturity_date": "2025-04-28",
+          "return": -0.015963411833056385,
+          "mae": -0.27231702538743197,
+          "mfe": 0.044525961655384805,
+          "benchmark_return": 0.007399667334840432,
+          "excess_vs_benchmark": -0.023363079167896816,
+          "aligned": false
+        },
+        "60": {
+          "maturity_date": "2025-06-30",
+          "return": 0.32493390800715183,
+          "mae": -0.27231702538743197,
+          "mfe": 0.33022577114831186,
+          "benchmark_return": 0.15400690919947113,
+          "excess_vs_benchmark": 0.1709269988076807,
+          "aligned": true
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:VGT",
+      "symbol": "VGT",
+      "event_date": "2025-03-13",
+      "state_detail": "tier1",
+      "previous_level": 0,
+      "baseline_close": 67.9268,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2025-03-20",
+          "return": 0.02977175430021739,
+          "mae": 0.013140616074951206,
+          "mfe": 0.04756149266563425,
+          "benchmark_return": 0.023316931933120122,
+          "excess_vs_benchmark": 0.006454822367097268,
+          "aligned": true
+        },
+        "20": {
+          "maturity_date": "2025-04-10",
+          "return": -0.06592390632268852,
+          "mae": -0.17361041591831206,
+          "mfe": 0.059097440185611694,
+          "benchmark_return": -0.04589612161413725,
+          "excess_vs_benchmark": -0.020027784708551266,
+          "aligned": false
+        },
+        "60": {
+          "maturity_date": "2025-06-09",
+          "return": 0.15280566727712763,
+          "mae": -0.17361041591831206,
+          "mfe": 0.16058904585524414,
+          "benchmark_return": 0.13484003823429425,
+          "excess_vs_benchmark": 0.017965629042833386,
+          "aligned": true
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:QQQM",
+      "symbol": "QQQM",
+      "event_date": "2025-03-13",
+      "state_detail": "tier1",
+      "previous_level": 0,
+      "baseline_close": 192.82,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2025-03-20",
+          "return": 0.023234104346022244,
+          "mae": 0.008660927289700249,
+          "mfe": 0.03734052484182149,
+          "benchmark_return": 0.023316931933120122,
+          "excess_vs_benchmark": -8.282758709787785e-05,
+          "aligned": true
+        },
+        "20": {
+          "maturity_date": "2025-04-10",
+          "return": -0.04703868893268326,
+          "mae": -0.140545586557411,
+          "mfe": 0.05378072814023449,
+          "benchmark_return": -0.04589612161413725,
+          "excess_vs_benchmark": -0.0011425673185460061,
+          "aligned": false
+        },
+        "60": {
+          "maturity_date": "2025-06-09",
+          "return": 0.13328492894927924,
+          "mae": -0.140545586557411,
+          "mfe": 0.13815994191473924,
+          "benchmark_return": 0.13484003823429425,
+          "excess_vs_benchmark": -0.0015551092850150106,
+          "aligned": true
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:QLD",
+      "symbol": "QLD",
+      "event_date": "2025-03-13",
+      "state_detail": "tier1",
+      "previous_level": 0,
+      "baseline_close": 44.4012,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2025-03-20",
+          "return": 0.04440870967451316,
+          "mae": 0.01517976991612846,
+          "mfe": 0.07521193120906622,
+          "benchmark_return": 0.023316931933120122,
+          "excess_vs_benchmark": 0.021091777741393036,
+          "aligned": true
+        },
+        "20": {
+          "maturity_date": "2025-04-10",
+          "return": -0.11578741115104996,
+          "mae": -0.27220885922002114,
+          "mfe": 0.10961415457239898,
+          "benchmark_return": -0.04589612161413725,
+          "excess_vs_benchmark": -0.0698912895369127,
+          "aligned": false
+        },
+        "60": {
+          "maturity_date": "2025-06-12",
+          "return": 0.24192138951199516,
+          "mae": -0.27220885922002114,
+          "mfe": 0.2566529733430627,
+          "benchmark_return": 0.13484003823429425,
+          "excess_vs_benchmark": 0.10708135127770091,
+          "aligned": true
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:VGT",
+      "symbol": "VGT",
+      "event_date": "2025-03-10",
+      "state_detail": "tier1",
+      "previous_level": 0,
+      "baseline_close": 68.378,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2025-03-17",
+          "return": 0.029597238878001697,
+          "mae": -0.013907982099505611,
+          "mfe": 0.03767586065693651,
+          "benchmark_return": 0.021238236876782057,
+          "excess_vs_benchmark": 0.00835900200121964,
+          "aligned": true
+        },
+        "20": {
+          "maturity_date": "2025-04-07",
+          "return": -0.12634911813741256,
+          "mae": -0.17906344145777886,
+          "mfe": 0.05210886542455184,
+          "benchmark_return": -0.10240113892031377,
+          "excess_vs_benchmark": -0.02394797921709879,
+          "aligned": false
+        },
+        "60": {
+          "maturity_date": "2025-06-04",
+          "return": 0.1345842229957004,
+          "mae": -0.17906344145777886,
+          "mfe": 0.1381160607212848,
+          "benchmark_return": 0.12021371704101047,
+          "excess_vs_benchmark": 0.014370505954689916,
+          "aligned": true
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:QQQM",
+      "symbol": "QQQM",
+      "event_date": "2025-03-10",
+      "state_detail": "tier1",
+      "previous_level": 0,
+      "baseline_close": 194.87,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2025-03-17",
+          "return": 0.019962025966028474,
+          "mae": -0.014573818443064601,
+          "mfe": 0.026427874993585565,
+          "benchmark_return": 0.021238236876782057,
+          "excess_vs_benchmark": -0.0012762109107535835,
+          "aligned": true
+        },
+        "20": {
+          "maturity_date": "2025-04-07",
+          "return": -0.10447990968337872,
+          "mae": -0.14958690408990616,
+          "mfe": 0.04269513008672443,
+          "benchmark_return": -0.10240113892031377,
+          "excess_vs_benchmark": -0.002078770763064952,
+          "aligned": false
+        },
+        "60": {
+          "maturity_date": "2025-06-04",
+          "return": 0.1170523939036281,
+          "mae": -0.14958690408990616,
+          "mfe": 0.1194642582234311,
+          "benchmark_return": 0.12021371704101047,
+          "excess_vs_benchmark": -0.003161323137382377,
+          "aligned": true
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:VGT",
+      "symbol": "VGT",
+      "event_date": "2024-08-07",
+      "state_detail": "tier1",
+      "previous_level": 0,
+      "baseline_close": 63.7715,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2024-08-14",
+          "return": 0.08161953223618701,
+          "mae": 0.003134629105478126,
+          "mfe": 0.08691029691947039,
+          "benchmark_return": 0.06430908284351777,
+          "excess_vs_benchmark": 0.017310449392669236,
+          "aligned": true
+        },
+        "20": {
+          "maturity_date": "2024-09-05",
+          "return": 0.06193048618897157,
+          "mae": 0.003134629105478126,
+          "mfe": 0.13945100867942584,
+          "benchmark_return": 0.060422904883368656,
+          "excess_vs_benchmark": 0.001507581305602912,
+          "aligned": true
+        },
+        "60": {
+          "maturity_date": "2024-10-31",
+          "return": 0.1336913825141326,
+          "mae": 0.003134629105478126,
+          "mfe": 0.19161067247908536,
+          "benchmark_return": 0.11445048242209155,
+          "excess_vs_benchmark": 0.019240900092041047,
+          "aligned": true
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:QLD",
+      "symbol": "QLD",
+      "event_date": "2024-08-07",
+      "state_detail": "tier1",
+      "previous_level": 0,
+      "baseline_close": 40.4197,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2024-08-14",
+          "return": 0.13002817932839683,
+          "mae": 0.010611162378741046,
+          "mfe": 0.1411267278084698,
+          "benchmark_return": 0.06430908284351777,
+          "excess_vs_benchmark": 0.06571909648487906,
+          "aligned": true
+        },
+        "20": {
+          "maturity_date": "2024-09-05",
+          "return": 0.11423637483702254,
+          "mae": 0.010611162378741046,
+          "mfe": 0.2406846166596981,
+          "benchmark_return": 0.060422904883368656,
+          "excess_vs_benchmark": 0.05381346995365388,
+          "aligned": true
+        },
+        "60": {
+          "maturity_date": "2024-10-31",
+          "return": 0.2130594734745681,
+          "mae": 0.010611162378741046,
+          "mfe": 0.30328775324903456,
+          "benchmark_return": 0.11445048242209155,
+          "excess_vs_benchmark": 0.09860899105247656,
+          "aligned": true
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:VGT",
+      "symbol": "VGT",
+      "event_date": "2024-08-05",
+      "state_detail": "tier1",
+      "previous_level": 0,
+      "baseline_close": 63.8865,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2024-08-12",
+          "return": 0.044746542696813885,
+          "mae": -0.003996149421239159,
+          "mfe": 0.053188075728048956,
+          "benchmark_return": 0.03677554664950056,
+          "excess_vs_benchmark": 0.007970996047313328,
+          "aligned": true
+        },
+        "20": {
+          "maturity_date": "2024-09-03",
+          "return": 0.06467093986992567,
+          "mae": -0.003996149421239159,
+          "mfe": 0.13739992017092817,
+          "benchmark_return": 0.06073191159471447,
+          "excess_vs_benchmark": 0.003939028275211198,
+          "aligned": true
+        },
+        "60": {
+          "maturity_date": "2024-10-29",
+          "return": 0.186103480391006,
+          "mae": -0.003996149421239159,
+          "mfe": 0.1894656930650449,
+          "benchmark_return": 0.1504315745028415,
+          "excess_vs_benchmark": 0.03567190588816449,
+          "aligned": true
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:QQQM",
+      "symbol": "QQQM",
+      "event_date": "2024-08-05",
+      "state_detail": "tier1",
+      "previous_level": 0,
+      "baseline_close": 179.36,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2024-08-12",
+          "return": 0.03596119536128439,
+          "mae": -0.0033446699375558886,
+          "mfe": 0.04254014272970563,
+          "benchmark_return": 0.03677554664950056,
+          "excess_vs_benchmark": -0.0008143512882161641,
+          "aligned": true
+        },
+        "20": {
+          "maturity_date": "2024-09-03",
+          "return": 0.05976806422836756,
+          "mae": -0.0033446699375558886,
+          "mfe": 0.11401650312221223,
+          "benchmark_return": 0.06073191159471447,
+          "excess_vs_benchmark": -0.0009638473663469149,
+          "aligned": true
+        },
+        "60": {
+          "maturity_date": "2024-10-29",
+          "return": 0.1474687778768955,
+          "mae": -0.0033446699375558886,
+          "mfe": 0.15036797502230148,
+          "benchmark_return": 0.1504315745028415,
+          "excess_vs_benchmark": -0.002962796625946007,
+          "aligned": true
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:QLD",
+      "symbol": "QLD",
+      "event_date": "2024-08-05",
+      "state_detail": "tier1",
+      "previous_level": 0,
+      "baseline_close": 40.6342,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2024-08-12",
+          "return": 0.07043574132134989,
+          "mae": -0.007242667506681566,
+          "mfe": 0.08430090908643462,
+          "benchmark_return": 0.03677554664950056,
+          "excess_vs_benchmark": 0.03366019467184933,
+          "aligned": true
+        },
+        "20": {
+          "maturity_date": "2024-09-03",
+          "return": 0.11203370559774761,
+          "mae": -0.007242667506681566,
+          "mfe": 0.2341352850554459,
+          "benchmark_return": 0.06073191159471447,
+          "excess_vs_benchmark": 0.05130179400303314,
+          "aligned": true
+        },
+        "60": {
+          "maturity_date": "2024-10-29",
+          "return": 0.2902702649492299,
+          "mae": -0.007242667506681566,
+          "mfe": 0.29640795192227243,
+          "benchmark_return": 0.1504315745028415,
+          "excess_vs_benchmark": 0.13983869044638841,
+          "aligned": true
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:QLD",
+      "symbol": "QLD",
+      "event_date": "2023-12-04",
+      "state_detail": "tier1",
+      "previous_level": 0,
+      "baseline_close": 33.7055,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2023-12-11",
+          "return": 0.04676388126566877,
+          "mae": -0.01092106629481826,
+          "mfe": 0.048096008069899554,
+          "benchmark_return": 0.02381487423635087,
+          "excess_vs_benchmark": 0.022949007029317903,
+          "aligned": true
+        },
+        "20": {
+          "maturity_date": "2024-01-03",
+          "return": 0.061432110486419056,
+          "mae": -0.01092106629481826,
+          "mfe": 0.14147839373396032,
+          "benchmark_return": 0.033151120192734806,
+          "excess_vs_benchmark": 0.02828099029368425,
+          "aligned": true
+        },
+        "60": {
+          "maturity_date": "2024-03-01",
+          "return": 0.30866179110234215,
+          "mae": -0.01092106629481826,
+          "mfe": 0.31353636646838057,
+          "benchmark_return": 0.15577917021599053,
+          "excess_vs_benchmark": 0.15288262088635163,
+          "aligned": true
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:QLD",
+      "symbol": "QLD",
+      "event_date": "2023-11-29",
+      "state_detail": "tier1",
+      "previous_level": 0,
+      "baseline_close": 34.3518,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2023-12-06",
+          "return": -0.025474647616718693,
+          "mae": -0.037488574106742556,
+          "mfe": 0.003190516945254629,
+          "benchmark_return": -0.012217733581935009,
+          "excess_vs_benchmark": -0.013256914034783684,
+          "aligned": false
+        },
+        "20": {
+          "maturity_date": "2023-12-28",
+          "return": 0.1108762859588146,
+          "mae": -0.037488574106742556,
+          "mfe": 0.12000244528670989,
+          "benchmark_return": 0.05723534286306187,
+          "excess_vs_benchmark": 0.053640943095752736,
+          "aligned": true
+        },
+        "60": {
+          "maturity_date": "2024-02-27",
+          "return": 0.2396992297346865,
+          "mae": -0.037488574106742556,
+          "mfe": 0.2568016814257188,
+          "benchmark_return": 0.12483944478972431,
+          "excess_vs_benchmark": 0.11485978494496218,
+          "aligned": true
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:QLD",
+      "symbol": "QLD",
+      "event_date": "2023-11-24",
+      "state_detail": "tier1",
+      "previous_level": 0,
+      "baseline_close": 34.3223,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2023-12-01",
+          "return": 0.0012965331577428074,
+          "mae": -0.020001573321135058,
+          "mfe": 0.023317201935767695,
+          "benchmark_return": 0.0011066161130564023,
+          "excess_vs_benchmark": 0.00018991704468640513,
+          "aligned": true
+        },
+        "20": {
+          "maturity_date": "2023-12-22",
+          "return": 0.09688744635411961,
+          "mae": -0.03666129600871737,
+          "mfe": 0.10921762236213794,
+          "benchmark_return": 0.05054410785230945,
+          "excess_vs_benchmark": 0.04634333850181016,
+          "aligned": true
+        },
+        "60": {
+          "maturity_date": "2024-02-22",
+          "return": 0.24424645201516215,
+          "mae": -0.03666129600871737,
+          "mfe": 0.2543943733374512,
+          "benchmark_return": 0.12691876090094634,
+          "excess_vs_benchmark": 0.11732769111421582,
+          "aligned": true
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:QLD",
+      "symbol": "QLD",
+      "event_date": "2023-11-21",
+      "state_detail": "tier1",
+      "previous_level": 0,
+      "baseline_close": 34.148,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2023-11-29",
+          "return": 0.005968138690406244,
+          "mae": -0.002752723439147231,
+          "mfe": 0.02854047089141365,
+          "benchmark_return": 0.0034508564776318806,
+          "excess_vs_benchmark": 0.0025172822127743633,
+          "aligned": true
+        },
+        "20": {
+          "maturity_date": "2023-12-20",
+          "return": 0.07449338175002929,
+          "mae": -0.03174417242591088,
+          "mfe": 0.11487934871734806,
+          "benchmark_return": 0.039682250956261544,
+          "excess_vs_benchmark": 0.03481113079376774,
+          "aligned": true
+        },
+        "60": {
+          "maturity_date": "2024-02-20",
+          "return": 0.19155733864355162,
+          "mae": -0.03174417242591088,
+          "mfe": 0.2607971184256763,
+          "benchmark_return": 0.10220303924829532,
+          "excess_vs_benchmark": 0.0893542993952563,
+          "aligned": true
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:QLD",
+      "symbol": "QLD",
+      "event_date": "2023-11-02",
+      "state_detail": "tier1",
+      "previous_level": 2,
+      "baseline_close": 30.0604,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2023-11-09",
+          "return": 0.03523572540618214,
+          "mae": 0.005459009194821007,
+          "mfe": 0.06149951431118672,
+          "benchmark_return": 0.01823979202137571,
+          "excess_vs_benchmark": 0.016995933384806428,
+          "aligned": true
+        },
+        "20": {
+          "maturity_date": "2023-12-01",
+          "return": 0.14325824007664556,
+          "mae": 0.005459009194821007,
+          "mfe": 0.16840095274846623,
+          "benchmark_return": 0.0729119507161764,
+          "excess_vs_benchmark": 0.07034628936046916,
+          "aligned": true
+        },
+        "60": {
+          "maturity_date": "2024-01-31",
+          "return": 0.29496613484850487,
+          "mae": 0.005459009194821007,
+          "mfe": 0.37858777660975895,
+          "benchmark_return": 0.14957907103992096,
+          "excess_vs_benchmark": 0.1453870638085839,
+          "aligned": true
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:QQQM",
+      "symbol": "QQQM",
+      "event_date": "2023-10-25",
+      "state_detail": "tier1",
+      "previous_level": 0,
+      "baseline_close": 144.13,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2023-11-01",
+          "return": 0.01942690626517729,
+          "mae": -0.022826614861583217,
+          "mfe": 0.020537015194616037,
+          "benchmark_return": 0.0188959225952936,
+          "excess_vs_benchmark": 0.000530983669883689,
+          "aligned": true
+        },
+        "20": {
+          "maturity_date": "2023-11-22",
+          "return": 0.11350863803510736,
+          "mae": -0.022826614861583217,
+          "mfe": 0.12197321862207744,
+          "benchmark_return": 0.11337265421729437,
+          "excess_vs_benchmark": 0.00013598381781299018,
+          "aligned": true
+        },
+        "60": {
+          "maturity_date": "2024-01-23",
+          "return": 0.2098105876639147,
+          "mae": -0.022826614861583217,
+          "mfe": 0.21286338721987108,
+          "benchmark_return": 0.21118023160327204,
+          "excess_vs_benchmark": -0.0013696439393573456,
+          "aligned": true
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:QLD",
+      "symbol": "QLD",
+      "event_date": "2023-10-19",
+      "state_detail": "tier2",
+      "previous_level": 1,
+      "baseline_close": 29.6179,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2023-10-26",
+          "return": -0.09083358374496497,
+          "mae": -0.09805556774788216,
+          "mfe": 0.00016544049375566416,
+          "benchmark_return": -0.04530324147426923,
+          "excess_vs_benchmark": -0.045530342270695745,
+          "aligned": false
+        },
+        "20": {
+          "maturity_date": "2023-11-16",
+          "return": 0.14018887226980992,
+          "mae": -0.09805556774788216,
+          "mfe": 0.1509391280273078,
+          "benchmark_return": 0.0721767148910395,
+          "excess_vs_benchmark": 0.06801215737877042,
+          "aligned": true
+        },
+        "60": {
+          "maturity_date": "2024-01-17",
+          "return": 0.25817495501031473,
+          "mae": -0.09805556774788216,
+          "mfe": 0.29901512261166396,
+          "benchmark_return": 0.13349803840189356,
+          "excess_vs_benchmark": 0.12467691660842117,
+          "aligned": true
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:QLD",
+      "symbol": "QLD",
+      "event_date": "2023-10-06",
+      "state_detail": "tier1",
+      "previous_level": 2,
+      "baseline_close": 30.4881,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2023-10-13",
+          "return": 0.0019548610769448693,
+          "mae": -0.021286993941898702,
+          "mfe": 0.048120414194390726,
+          "benchmark_return": 0.0015915413039566673,
+          "excess_vs_benchmark": 0.00036331977298820206,
+          "aligned": true
+        },
+        "20": {
+          "maturity_date": "2023-11-03",
+          "return": 0.008803434782751252,
+          "mae": -0.12379912162450268,
+          "mfe": 0.048120414194390726,
+          "benchmark_return": 0.008253871597215356,
+          "excess_vs_benchmark": 0.0005495631855358951,
+          "aligned": true
+        },
+        "60": {
+          "maturity_date": "2024-01-03",
+          "return": 0.17344472105510023,
+          "mae": -0.12379912162450268,
+          "mfe": 0.26193826443760027,
+          "benchmark_return": 0.09439639066111227,
+          "excess_vs_benchmark": 0.07904833039398795,
+          "aligned": true
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:QLD",
+      "symbol": "QLD",
+      "event_date": "2023-10-03",
+      "state_detail": "tier2",
+      "previous_level": 1,
+      "baseline_close": 28.9266,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2023-10-10",
+          "return": 0.0759785111281659,
+          "mae": -0.0018875360394930984,
+          "mfe": 0.0919741691038698,
+          "benchmark_return": 0.03851875026664198,
+          "excess_vs_benchmark": 0.037459760861523916,
+          "aligned": true
+        },
+        "20": {
+          "maturity_date": "2023-10-31",
+          "return": -0.03008649478334824,
+          "mae": -0.07650052201088275,
+          "mfe": 0.1046994807547379,
+          "benchmark_return": -0.011410856240845257,
+          "excess_vs_benchmark": -0.01867563854250298,
+          "aligned": false
+        },
+        "60": {
+          "maturity_date": "2023-12-28",
+          "return": 0.3192217543714091,
+          "mae": -0.07650052201088275,
+          "mfe": 0.330059529982784,
+          "benchmark_return": 0.16117123394815058,
+          "excess_vs_benchmark": 0.1580505204232585,
+          "aligned": true
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:QLD",
+      "symbol": "QLD",
+      "event_date": "2023-10-02",
+      "state_detail": "tier1",
+      "previous_level": 2,
+      "baseline_close": 29.9858,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2023-10-09",
+          "return": 0.02736962162090051,
+          "mae": -0.04444437033529214,
+          "mfe": 0.03035103282220253,
+          "benchmark_return": 0.014669803676113036,
+          "excess_vs_benchmark": 0.012699817944787473,
+          "aligned": true
+        },
+        "20": {
+          "maturity_date": "2023-10-30",
+          "return": -0.073798264511869,
+          "mae": -0.10912165091476633,
+          "mfe": 0.0656777541369582,
+          "benchmark_return": -0.033388473166833466,
+          "excess_vs_benchmark": -0.04040979134503553,
+          "aligned": false
+        },
+        "60": {
+          "maturity_date": "2023-12-27",
+          "return": 0.2749401383321439,
+          "mae": -0.10912165091476633,
+          "mfe": 0.27701778841985214,
+          "benchmark_return": 0.14133866848479082,
+          "excess_vs_benchmark": 0.1336014698473531,
+          "aligned": true
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:QLD",
+      "symbol": "QLD",
+      "event_date": "2023-09-21",
+      "state_detail": "tier2",
+      "previous_level": 1,
+      "baseline_close": 29.4735,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2023-09-28",
+          "return": -0.00016964391741747242,
+          "mae": -0.036615943135358875,
+          "mfe": 0.02210799531782781,
+          "benchmark_return": 0.0004174800004514978,
+          "excess_vs_benchmark": -0.0005871239178689702,
+          "aligned": false
+        },
+        "20": {
+          "maturity_date": "2023-10-19",
+          "return": 0.004899316335012616,
+          "mae": -0.036615943135358875,
+          "mfe": 0.08420106197092303,
+          "benchmark_return": 0.005892673790154346,
+          "excess_vs_benchmark": -0.0009933574551417301,
+          "aligned": true
+        },
+        "60": {
+          "maturity_date": "2023-12-15",
+          "return": 0.25291533072081696,
+          "mae": -0.09363665665767562,
+          "mfe": 0.26287342867321484,
+          "benchmark_return": 0.1326768366299209,
+          "excess_vs_benchmark": 0.12023849409089604,
+          "aligned": true
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:QLD",
+      "symbol": "QLD",
+      "event_date": "2023-08-21",
+      "state_detail": "tier1",
+      "previous_level": 2,
+      "baseline_close": 30.6819,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2023-08-28",
+          "return": 0.01393981467901284,
+          "mae": -0.030949843393010212,
+          "mfe": 0.04765676180419076,
+          "benchmark_return": 0.007858966416739221,
+          "excess_vs_benchmark": 0.006080848262273619,
+          "aligned": true
+        },
+        "20": {
+          "maturity_date": "2023-09-19",
+          "return": 0.028208813665385746,
+          "mae": -0.030949843393010212,
+          "mfe": 0.09060390653773065,
+          "benchmark_return": 0.017876440046559416,
+          "excess_vs_benchmark": 0.01033237361882633,
+          "aligned": true
+        },
+        "60": {
+          "maturity_date": "2023-11-14",
+          "return": 0.09724625919516061,
+          "mae": -0.1293335810363765,
+          "mfe": 0.10272505939984167,
+          "benchmark_return": 0.06042431195846332,
+          "excess_vs_benchmark": 0.036821947236697294,
+          "aligned": true
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:QLD",
+      "symbol": "QLD",
+      "event_date": "2023-08-18",
+      "state_detail": "tier2",
+      "previous_level": 1,
+      "baseline_close": 29.7173,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2023-08-25",
+          "return": 0.03129826733922658,
+          "mae": 0.0005047564886444533,
+          "mfe": 0.08166286977619097,
+          "benchmark_return": 0.0164453627802994,
+          "excess_vs_benchmark": 0.014852904558927182,
+          "aligned": true
+        },
+        "20": {
+          "maturity_date": "2023-09-18",
+          "return": 0.06626443182927111,
+          "mae": 0.0005047564886444533,
+          "mfe": 0.12600404478199545,
+          "benchmark_return": 0.03648409096041383,
+          "excess_vs_benchmark": 0.02978034086885728,
+          "aligned": true
+        },
+        "60": {
+          "maturity_date": "2023-11-13",
+          "return": 0.0865118971104375,
+          "mae": -0.10107243928620713,
+          "mfe": 0.12600404478199545,
+          "benchmark_return": 0.054798116658762996,
+          "excess_vs_benchmark": 0.0317137804516745,
+          "aligned": true
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:QLD",
+      "symbol": "QLD",
+      "event_date": "2023-07-20",
+      "state_detail": "tier1",
+      "previous_level": 0,
+      "baseline_close": 33.1286,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2023-07-27",
+          "return": -0.0018020683035202545,
+          "mae": -0.012759368038492425,
+          "mfe": 0.04097969730082163,
+          "benchmark_return": -0.0003675957627209403,
+          "excess_vs_benchmark": -0.0014344725407993142,
+          "aligned": false
+        },
+        "20": {
+          "maturity_date": "2023-08-17",
+          "return": -0.10056869291186465,
+          "mae": -0.10236774267551296,
+          "mfe": 0.0415803867353286,
+          "benchmark_return": -0.04825432260418783,
+          "excess_vs_benchmark": -0.05231437030767683,
+          "aligned": false
+        },
+        "60": {
+          "maturity_date": "2023-10-13",
+          "return": -0.07790549555369075,
+          "mae": -0.1429067331550382,
+          "mfe": 0.0415803867353286,
+          "benchmark_return": -0.029064213881703882,
+          "excess_vs_benchmark": -0.04884128167198687,
+          "aligned": false
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:QLD",
+      "symbol": "QLD",
+      "event_date": "2023-06-12",
+      "state_detail": "tier1",
+      "previous_level": 2,
+      "baseline_close": 30.5577,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2023-06-20",
+          "return": 0.03710030532402642,
+          "mae": -0.0027685329720497087,
+          "mfe": 0.067861782791244,
+          "benchmark_return": 0.019179520877034895,
+          "excess_vs_benchmark": 0.017920784446991522,
+          "aligned": true
+        },
+        "20": {
+          "maturity_date": "2023-07-12",
+          "return": 0.06525360220173626,
+          "mae": -0.01660138033948888,
+          "mfe": 0.07258072433461926,
+          "benchmark_return": 0.03562673226455959,
+          "excess_vs_benchmark": 0.02962686993717667,
+          "aligned": true
+        },
+        "60": {
+          "maturity_date": "2023-09-07",
+          "return": 0.04410017769661989,
+          "mae": -0.045729881502861836,
+          "mfe": 0.15117629926336096,
+          "benchmark_return": 0.03351221114883374,
+          "excess_vs_benchmark": 0.010587966547786154,
+          "aligned": true
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:QQQM",
+      "symbol": "QQQM",
+      "event_date": "2023-06-07",
+      "state_detail": "tier1",
+      "previous_level": 0,
+      "baseline_close": 143.49,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2023-06-14",
+          "return": 0.049062652449648025,
+          "mae": 0.0004878388737890038,
+          "mfe": 0.04969335842218969,
+          "benchmark_return": 0.04896976028788669,
+          "excess_vs_benchmark": 9.289216176133763e-05,
+          "aligned": true
+        },
+        "20": {
+          "maturity_date": "2023-07-07",
+          "return": 0.05031709526796302,
+          "mae": 0.0004878388737890038,
+          "mfe": 0.06878528120426508,
+          "benchmark_return": 0.051384293923036894,
+          "excess_vs_benchmark": -0.0010671986550738755,
+          "aligned": true
+        },
+        "60": {
+          "maturity_date": "2023-09-01",
+          "return": 0.08279322600878114,
+          "mae": 0.0004878388737890038,
+          "mfe": 0.11206355843612781,
+          "benchmark_return": 0.08396888966277793,
+          "excess_vs_benchmark": -0.0011756636539967946,
+          "aligned": true
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:QQQM",
+      "symbol": "QQQM",
+      "event_date": "2023-05-17",
+      "state_detail": "tier1",
+      "previous_level": 2,
+      "baseline_close": 136.15,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2023-05-24",
+          "return": 0.0020565552699229883,
+          "mae": -0.004333455747337567,
+          "mfe": 0.022915901579140696,
+          "benchmark_return": 0.001605033384694421,
+          "excess_vs_benchmark": 0.0004515218852285674,
+          "aligned": true
+        },
+        "20": {
+          "maturity_date": "2023-06-15",
+          "return": 0.11854572163055432,
+          "mae": -0.004333455747337567,
+          "mfe": 0.12324641939037817,
+          "benchmark_return": 0.11820994448113087,
+          "excess_vs_benchmark": 0.00033577714942345516,
+          "aligned": true
+        },
+        "60": {
+          "maturity_date": "2023-08-14",
+          "return": 0.11935365405802423,
+          "mae": -0.004333455747337567,
+          "mfe": 0.17201615864854936,
+          "benchmark_return": 0.12001369628488257,
+          "excess_vs_benchmark": -0.0006600422268583372,
+          "aligned": true
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:VGT",
+      "symbol": "VGT",
+      "event_date": "2023-04-26",
+      "state_detail": "tier1",
+      "previous_level": 2,
+      "baseline_close": 45.8591,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2023-05-03",
+          "return": 0.01194310398590459,
+          "mae": 0.0032665272541327894,
+          "mfe": 0.0355240290367671,
+          "benchmark_return": 0.017375300651452097,
+          "excess_vs_benchmark": -0.005432196665547506,
+          "aligned": true
+        },
+        "20": {
+          "maturity_date": "2023-05-24",
+          "return": 0.0546194757420011,
+          "mae": 0.0032665272541327894,
+          "mfe": 0.08079312502862024,
+          "benchmark_return": 0.06342487852220668,
+          "excess_vs_benchmark": -0.008805402780205585,
+          "aligned": true
+        },
+        "60": {
+          "maturity_date": "2023-07-24",
+          "return": 0.20307201842164369,
+          "mae": 0.0032665272541327894,
+          "mfe": 0.24213514874910325,
+          "benchmark_return": 0.2080167228748282,
+          "excess_vs_benchmark": -0.004944704453184512,
+          "aligned": true
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:QLD",
+      "symbol": "QLD",
+      "event_date": "2023-04-26",
+      "state_detail": "tier2",
+      "previous_level": 3,
+      "baseline_close": 23.1432,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2023-05-03",
+          "return": 0.033953817968128686,
+          "mae": 0.020416364202011872,
+          "mfe": 0.07520999688893504,
+          "benchmark_return": 0.017375300651452097,
+          "excess_vs_benchmark": 0.01657851731667659,
+          "aligned": true
+        },
+        "20": {
+          "maturity_date": "2023-05-24",
+          "return": 0.12312471913996337,
+          "mae": 0.018700957516678773,
+          "mfe": 0.1718993051954787,
+          "benchmark_return": 0.06342487852220668,
+          "excess_vs_benchmark": 0.05969984061775668,
+          "aligned": true
+        },
+        "60": {
+          "maturity_date": "2023-07-24",
+          "return": 0.42716219018977486,
+          "mae": 0.018700957516678773,
+          "mfe": 0.5199842718379482,
+          "benchmark_return": 0.2080167228748282,
+          "excess_vs_benchmark": 0.21914546731494666,
+          "aligned": true
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:VGT",
+      "symbol": "VGT",
+      "event_date": "2023-04-25",
+      "state_detail": "tier2",
+      "previous_level": 1,
+      "baseline_close": 45.257,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2023-05-02",
+          "return": 0.032710961840157315,
+          "mae": 0.01080716795191905,
+          "mfe": 0.04930066067127736,
+          "benchmark_return": 0.030294915796657884,
+          "excess_vs_benchmark": 0.0024160460434994313,
+          "aligned": true
+        },
+        "20": {
+          "maturity_date": "2023-05-23",
+          "return": 0.07530105839980572,
+          "mae": 0.01080716795191905,
+          "mfe": 0.0951720175884394,
+          "benchmark_return": 0.07538950372767572,
+          "excess_vs_benchmark": -8.844532787000148e-05,
+          "aligned": true
+        },
+        "60": {
+          "maturity_date": "2023-07-21",
+          "return": 0.217692290695362,
+          "mae": 0.01080716795191905,
+          "mfe": 0.25866053870119554,
+          "benchmark_return": 0.21340656972206506,
+          "excess_vs_benchmark": 0.004285720973296936,
+          "aligned": true
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:QLD",
+      "symbol": "QLD",
+      "event_date": "2023-04-25",
+      "state_detail": "tier3",
+      "previous_level": 2,
+      "baseline_close": 22.8847,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2023-05-02",
+          "return": 0.05867238810209452,
+          "mae": 0.008368036286252378,
+          "mfe": 0.08735530725768759,
+          "benchmark_return": 0.030294915796657884,
+          "excess_vs_benchmark": 0.028377472305436635,
+          "aligned": true
+        },
+        "20": {
+          "maturity_date": "2023-05-23",
+          "return": 0.14798096544853112,
+          "mae": 0.008368036286252378,
+          "mfe": 0.18513679445218867,
+          "benchmark_return": 0.07538950372767572,
+          "excess_vs_benchmark": 0.0725914617208554,
+          "aligned": true
+        },
+        "60": {
+          "maturity_date": "2023-07-21",
+          "return": 0.4387210669137023,
+          "mae": 0.008368036286252378,
+          "mfe": 0.5371536441377867,
+          "benchmark_return": 0.21340656972206506,
+          "excess_vs_benchmark": 0.2253144971916372,
+          "aligned": true
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:VGT",
+      "symbol": "VGT",
+      "event_date": "2023-03-29",
+      "state_detail": "tier1",
+      "previous_level": 2,
+      "baseline_close": 46.1319,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2023-04-05",
+          "return": 0.006392539652604778,
+          "mae": -0.0009646253460187104,
+          "mfe": 0.028700313665814825,
+          "benchmark_return": 0.010229185549656794,
+          "excess_vs_benchmark": -0.0038366458970520156,
+          "aligned": true
+        },
+        "20": {
+          "maturity_date": "2023-04-27",
+          "return": 0.012908638057396393,
+          "mae": -0.018989029283424386,
+          "mfe": 0.028700313665814825,
+          "benchmark_return": 0.024397902369545532,
+          "excess_vs_benchmark": -0.011489264312149139,
+          "aligned": true
+        },
+        "60": {
+          "maturity_date": "2023-06-26",
+          "return": 0.1326132242547997,
+          "mae": -0.018989029283424386,
+          "mfe": 0.19277766578007838,
+          "benchmark_return": 0.14533859899002977,
+          "excess_vs_benchmark": -0.012725374735230055,
+          "aligned": true
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:QLD",
+      "symbol": "QLD",
+      "event_date": "2023-03-29",
+      "state_detail": "tier2",
+      "previous_level": 3,
+      "baseline_close": 23.4467,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2023-04-05",
+          "return": 0.01738837448340269,
+          "mae": 0.005301385696068195,
+          "mfe": 0.05535107285886709,
+          "benchmark_return": 0.010229185549656794,
+          "excess_vs_benchmark": 0.007159188933745897,
+          "aligned": true
+        },
+        "20": {
+          "maturity_date": "2023-04-27",
+          "return": 0.04071361854759936,
+          "mae": -0.02481799144442509,
+          "mfe": 0.05535107285886709,
+          "benchmark_return": 0.024397902369545532,
+          "excess_vs_benchmark": 0.01631571617805383,
+          "aligned": true
+        },
+        "60": {
+          "maturity_date": "2023-06-26",
+          "return": 0.2824960442194424,
+          "mae": -0.02481799144442509,
+          "mfe": 0.39172676751952307,
+          "benchmark_return": 0.14533859899002977,
+          "excess_vs_benchmark": 0.13715744522941264,
+          "aligned": true
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:VGT",
+      "symbol": "VGT",
+      "event_date": "2023-03-28",
+      "state_detail": "tier2",
+      "previous_level": 1,
+      "baseline_close": 45.2078,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2023-04-04",
+          "return": 0.03946221669711858,
+          "mae": 0.010573396626246012,
+          "mfe": 0.04972814425829175,
+          "benchmark_return": 0.03891399433726561,
+          "excess_vs_benchmark": 0.0005482223598529679,
+          "aligned": true
+        },
+        "20": {
+          "maturity_date": "2023-04-26",
+          "return": 0.014406805905175624,
+          "mae": 0.0010639756856116733,
+          "mfe": 0.04972814425829175,
+          "benchmark_return": 0.01547198792301585,
+          "excess_vs_benchmark": -0.0010651820178402271,
+          "aligned": true
+        },
+        "60": {
+          "maturity_date": "2023-06-23",
+          "return": 0.1652214883272356,
+          "mae": 0.0010639756856116733,
+          "mfe": 0.21715942824025958,
+          "benchmark_return": 0.18207438024701106,
+          "excess_vs_benchmark": -0.01685289191977546,
+          "aligned": true
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:QLD",
+      "symbol": "QLD",
+      "event_date": "2023-03-27",
+      "state_detail": "tier3",
+      "previous_level": 2,
+      "baseline_close": 22.8449,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2023-04-03",
+          "return": 0.07357440829244166,
+          "mae": -0.02546301362667369,
+          "mfe": 0.08031989634447956,
+          "benchmark_return": 0.036884278445155516,
+          "excess_vs_benchmark": 0.036690129847286146,
+          "aligned": true
+        },
+        "20": {
+          "maturity_date": "2023-04-25",
+          "return": 0.0017421831568533719,
+          "mae": -0.02546301362667369,
+          "mfe": 0.08315203831051998,
+          "benchmark_return": 0.003983502072076872,
+          "excess_vs_benchmark": -0.0022413189152235002,
+          "aligned": true
+        },
+        "60": {
+          "maturity_date": "2023-06-22",
+          "return": 0.38050068067708787,
+          "mae": -0.02546301362667369,
+          "mfe": 0.4283888307674799,
+          "benchmark_return": 0.18756557205056912,
+          "excess_vs_benchmark": 0.19293510862651875,
+          "aligned": true
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:VGT",
+      "symbol": "VGT",
+      "event_date": "2023-03-23",
+      "state_detail": "tier1",
+      "previous_level": 2,
+      "baseline_close": 45.6069,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2023-03-30",
+          "return": 0.021718204920746498,
+          "mae": -0.017148720917229632,
+          "mfe": 0.02373982884168835,
+          "benchmark_return": 0.019144604182530722,
+          "excess_vs_benchmark": 0.0025736007382157755,
+          "aligned": true
+        },
+        "20": {
+          "maturity_date": "2023-04-21",
+          "return": 0.01865287927923176,
+          "mae": -0.017148720917229632,
+          "mfe": 0.04054211095250926,
+          "benchmark_return": 0.022141463526228256,
+          "excess_vs_benchmark": -0.0034885842469964956,
+          "aligned": true
+        },
+        "60": {
+          "maturity_date": "2023-06-20",
+          "return": 0.1771157434511006,
+          "mae": -0.017148720917229632,
+          "mfe": 0.2065082257290014,
+          "benchmark_return": 0.18612555435361622,
+          "excess_vs_benchmark": -0.009009810902515625,
+          "aligned": true
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:QLD",
+      "symbol": "QLD",
+      "event_date": "2023-03-23",
+      "state_detail": "tier2",
+      "previous_level": 3,
+      "baseline_close": 23.0239,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2023-03-30",
+          "return": 0.0362883785978918,
+          "mae": -0.033039580609714236,
+          "mfe": 0.04038846589847944,
+          "benchmark_return": 0.019144604182530722,
+          "excess_vs_benchmark": 0.01714377441536108,
+          "aligned": true
+        },
+        "20": {
+          "maturity_date": "2023-04-21",
+          "return": 0.03715269784875708,
+          "mae": -0.033039580609714236,
+          "mfe": 0.07473104035371936,
+          "benchmark_return": 0.022141463526228256,
+          "excess_vs_benchmark": 0.015011234322528821,
+          "aligned": true
+        },
+        "60": {
+          "maturity_date": "2023-06-20",
+          "return": 0.3764566385364774,
+          "mae": -0.033039580609714236,
+          "mfe": 0.4172837790296169,
+          "benchmark_return": 0.18612555435361622,
+          "excess_vs_benchmark": 0.19033108418286115,
+          "aligned": true
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:VGT",
+      "symbol": "VGT",
+      "event_date": "2023-03-22",
+      "state_detail": "tier2",
+      "previous_level": 1,
+      "baseline_close": 44.9716,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2023-03-29",
+          "return": 0.02580072757028873,
+          "mae": -0.0032642823470812043,
+          "mfe": 0.02912504780794989,
+          "benchmark_return": 0.02156084656084678,
+          "excess_vs_benchmark": 0.004239881009441948,
+          "aligned": true
+        },
+        "20": {
+          "maturity_date": "2023-04-20",
+          "return": 0.03609611399194157,
+          "mae": -0.0032642823470812043,
+          "mfe": 0.05524153021017697,
+          "benchmark_return": 0.033191137566137785,
+          "excess_vs_benchmark": 0.0029049764258037847,
+          "aligned": true
+        },
+        "60": {
+          "maturity_date": "2023-06-16",
+          "return": 0.2007311280897277,
+          "mae": -0.0032642823470812043,
+          "mfe": 0.2235521973867951,
+          "benchmark_return": 0.20191137566137574,
+          "excess_vs_benchmark": -0.0011802475716480298,
+          "aligned": true
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:QLD",
+      "symbol": "QLD",
+      "event_date": "2023-03-22",
+      "state_detail": "tier3",
+      "previous_level": 2,
+      "baseline_close": 22.4769,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2023-03-29",
+          "return": 0.043146519315385934,
+          "mae": -0.009507538850998087,
+          "mfe": 0.05243160756154097,
+          "benchmark_return": 0.02156084656084678,
+          "excess_vs_benchmark": 0.021585672754539154,
+          "aligned": true
+        },
+        "20": {
+          "maturity_date": "2023-04-20",
+          "return": 0.06106269102945694,
+          "mae": -0.009507538850998087,
+          "mfe": 0.10088579830848543,
+          "benchmark_return": 0.033191137566137785,
+          "excess_vs_benchmark": 0.027871553463319154,
+          "aligned": true
+        },
+        "60": {
+          "maturity_date": "2023-06-16",
+          "return": 0.4132776317018807,
+          "mae": -0.009507538850998087,
+          "mfe": 0.4517749333760437,
+          "benchmark_return": 0.20191137566137574,
+          "excess_vs_benchmark": 0.21136625604050496,
+          "aligned": true
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:VGT",
+      "symbol": "VGT",
+      "event_date": "2023-03-21",
+      "state_detail": "tier1",
+      "previous_level": 2,
+      "baseline_close": 45.5249,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2023-03-28",
+          "return": -0.006965418924588573,
+          "mae": -0.015378397316633263,
+          "mfe": 0.018231780849600865,
+          "benchmark_return": -0.01037939256741549,
+          "excess_vs_benchmark": 0.0034139736428269174,
+          "aligned": false
+        },
+        "20": {
+          "maturity_date": "2023-04-19",
+          "return": 0.03089957363992024,
+          "mae": -0.015378397316633263,
+          "mfe": 0.042416347976601765,
+          "benchmark_return": 0.026969458751537,
+          "excess_vs_benchmark": 0.00393011488838324,
+          "aligned": true
+        },
+        "60": {
+          "maturity_date": "2023-06-15",
+          "return": 0.1964748961557301,
+          "mae": -0.015378397316633263,
+          "mfe": 0.2011997829759098,
+          "benchmark_return": 0.19308214463954276,
+          "excess_vs_benchmark": 0.0033927515161873423,
+          "aligned": true
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:QLD",
+      "symbol": "QLD",
+      "event_date": "2023-03-21",
+      "state_detail": "tier2",
+      "previous_level": 3,
+      "baseline_close": 23.1085,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2023-03-28",
+          "return": -0.021308176644957433,
+          "mae": -0.03657961356210915,
+          "mfe": 0.032061795443235175,
+          "benchmark_return": -0.01037939256741549,
+          "excess_vs_benchmark": -0.010928784077541942,
+          "aligned": false
+        },
+        "20": {
+          "maturity_date": "2023-04-19",
+          "return": 0.04820304217062987,
+          "mae": -0.03657961356210915,
+          "mfe": 0.07079646017699104,
+          "benchmark_return": 0.026969458751537,
+          "excess_vs_benchmark": 0.021233583419092872,
+          "aligned": true
+        },
+        "60": {
+          "maturity_date": "2023-06-15",
+          "return": 0.3927256204426941,
+          "mae": -0.03657961356210915,
+          "mfe": 0.40432741199125877,
+          "benchmark_return": 0.19308214463954276,
+          "excess_vs_benchmark": 0.19964347580315134,
+          "aligned": true
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:QQQM",
+      "symbol": "QQQM",
+      "event_date": "2023-03-16",
+      "state_detail": "tier2",
+      "previous_level": 3,
+      "baseline_close": 126.2,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2023-03-23",
+          "return": 0.009587955625990352,
+          "mae": -0.01568938193343905,
+          "mfe": 0.027179080824088597,
+          "benchmark_return": 0.011146212666961919,
+          "excess_vs_benchmark": -0.0015582570409715668,
+          "aligned": true
+        },
+        "20": {
+          "maturity_date": "2023-04-14",
+          "return": 0.03835182250396185,
+          "mae": -0.01568938193343905,
+          "mfe": 0.04770206022187007,
+          "benchmark_return": 0.039938667741743705,
+          "excess_vs_benchmark": -0.0015868452377818532,
+          "aligned": true
+        },
+        "60": {
+          "maturity_date": "2023-06-12",
+          "return": 0.17488114104595875,
+          "mae": -0.01568938193343905,
+          "mfe": 0.17511885895404133,
+          "benchmark_return": 0.17677635535698943,
+          "excess_vs_benchmark": -0.0018952143110306796,
+          "aligned": true
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:QQQM",
+      "symbol": "QQQM",
+      "event_date": "2023-02-21",
+      "state_detail": "tier3",
+      "previous_level": 2,
+      "baseline_close": 121.01,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2023-02-28",
+          "return": -0.0018180315676390446,
+          "mae": -0.01388397653086526,
+          "mfe": 0.01346996116023469,
+          "benchmark_return": -0.0015965076825465996,
+          "excess_vs_benchmark": -0.00022152388509244503,
+          "aligned": false
+        },
+        "20": {
+          "maturity_date": "2023-03-21",
+          "return": 0.054540947029171116,
+          "mae": -0.0302454342616314,
+          "mfe": 0.056193702999752126,
+          "benchmark_return": 0.05710532123251788,
+          "excess_vs_benchmark": -0.0025643742033467642,
+          "aligned": true
+        },
+        "60": {
+          "maturity_date": "2023-05-17",
+          "return": 0.12511362697297734,
+          "mae": -0.0302454342616314,
+          "mfe": 0.12735559044707045,
+          "benchmark_return": 0.12788612727924753,
+          "excess_vs_benchmark": -0.002772500306270187,
+          "aligned": true
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:VGT",
+      "symbol": "VGT",
+      "event_date": "2023-02-16",
+      "state_detail": "tier2",
+      "previous_level": 1,
+      "baseline_close": 44.745,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2023-02-24",
+          "return": -0.0385495586099005,
+          "mae": -0.04459492680746446,
+          "mfe": -0.005833053972510771,
+          "benchmark_return": -0.03774682351053493,
+          "excess_vs_benchmark": -0.0008027350993655702,
+          "aligned": false
+        },
+        "20": {
+          "maturity_date": "2023-03-17",
+          "return": 0.0030170968823333144,
+          "mae": -0.05918203151190071,
+          "mfe": 0.014748016538160602,
+          "benchmark_return": 0.006792556267570582,
+          "excess_vs_benchmark": -0.0037754593852372675,
+          "aligned": true
+        },
+        "60": {
+          "maturity_date": "2023-05-15",
+          "return": 0.06745111185607344,
+          "mae": -0.05918203151190071,
+          "mfe": 0.06745111185607344,
+          "benchmark_return": 0.07911723510869084,
+          "excess_vs_benchmark": -0.0116661232526174,
+          "aligned": true
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:QLD",
+      "symbol": "QLD",
+      "event_date": "2023-02-16",
+      "state_detail": "tier3",
+      "previous_level": 2,
+      "baseline_close": 22.2132,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2023-02-24",
+          "return": -0.07632398753894076,
+          "mae": -0.08774062269281335,
+          "mfe": -0.009170223110582909,
+          "benchmark_return": -0.03774682351053493,
+          "excess_vs_benchmark": -0.03857716402840583,
+          "aligned": false
+        },
+        "20": {
+          "maturity_date": "2023-03-17",
+          "return": 0.004708911818197992,
+          "mae": -0.1215538508634505,
+          "mfe": 0.030229773287954842,
+          "benchmark_return": 0.006792556267570582,
+          "excess_vs_benchmark": -0.0020836444493725903,
+          "aligned": true
+        },
+        "60": {
+          "maturity_date": "2023-05-15",
+          "return": 0.13924153206201728,
+          "mae": -0.1215538508634505,
+          "mfe": 0.1418300830137036,
+          "benchmark_return": 0.07911723510869084,
+          "excess_vs_benchmark": 0.06012429695332644,
+          "aligned": true
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:VGT",
+      "symbol": "VGT",
+      "event_date": "2023-02-15",
+      "state_detail": "tier1",
+      "previous_level": 2,
+      "baseline_close": 45.5764,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2023-02-23",
+          "return": -0.039382224133542754,
+          "mae": -0.058881350874575356,
+          "mfe": -0.003411853503128781,
+          "benchmark_return": -0.039728148206460534,
+          "excess_vs_benchmark": 0.0003459240729177804,
+          "aligned": false
+        },
+        "20": {
+          "maturity_date": "2023-03-16",
+          "return": -0.012589849132445763,
+          "mae": -0.076344336103773,
+          "mfe": -0.003411853503128781,
+          "benchmark_return": -0.007406386942717114,
+          "excess_vs_benchmark": -0.005183462189728649,
+          "aligned": false
+        },
+        "60": {
+          "maturity_date": "2023-05-12",
+          "return": 0.0392198594009181,
+          "mae": -0.076344336103773,
+          "mfe": 0.047818607876006114,
+          "benchmark_return": 0.05316657482484444,
+          "excess_vs_benchmark": -0.013946715423926337,
+          "aligned": true
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:QLD",
+      "symbol": "QLD",
+      "event_date": "2023-02-15",
+      "state_detail": "tier2",
+      "previous_level": 3,
+      "baseline_close": 23.1184,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2023-02-23",
+          "return": -0.0808749740466469,
+          "mae": -0.10755069554986507,
+          "mfe": -0.005640528756315377,
+          "benchmark_return": -0.039728148206460534,
+          "excess_vs_benchmark": -0.04114682584018636,
+          "aligned": false
+        },
+        "20": {
+          "maturity_date": "2023-03-16",
+          "return": -0.024949823517198544,
+          "mae": -0.15594937365907668,
+          "mfe": -0.005640528756315377,
+          "benchmark_return": -0.007406386942717114,
+          "excess_vs_benchmark": -0.01754343657448143,
+          "aligned": false
+        },
+        "60": {
+          "maturity_date": "2023-05-12",
+          "return": 0.08302910236002492,
+          "mae": -0.15594937365907668,
+          "mfe": 0.0971217731330889,
+          "benchmark_return": 0.05316657482484444,
+          "excess_vs_benchmark": 0.029862527535180483,
+          "aligned": true
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:QQQM",
+      "symbol": "QQQM",
+      "event_date": "2023-02-13",
+      "state_detail": "tier2",
+      "previous_level": 3,
+      "baseline_close": 125.31,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2023-02-21",
+          "return": -0.03431489905035512,
+          "mae": -0.03519272204931767,
+          "mfe": 0.015322001436437693,
+          "benchmark_return": -0.03438493682055033,
+          "excess_vs_benchmark": 7.003777019520818e-05,
+          "aligned": false
+        },
+        "20": {
+          "maturity_date": "2023-03-14",
+          "return": -0.02425983560769296,
+          "mae": -0.06352246428856445,
+          "mfe": 0.015322001436437693,
+          "benchmark_return": -0.023413854529109157,
+          "excess_vs_benchmark": -0.0008459810785838018,
+          "aligned": false
+        },
+        "60": {
+          "maturity_date": "2023-05-10",
+          "return": 0.06711355837522937,
+          "mae": -0.06352246428856445,
+          "mfe": 0.06998643364456147,
+          "benchmark_return": 0.06943579669369226,
+          "excess_vs_benchmark": -0.002322238318462899,
+          "aligned": true
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:QQQM",
+      "symbol": "QQQM",
+      "event_date": "2023-02-10",
+      "state_detail": "tier3",
+      "previous_level": 2,
+      "baseline_close": 123.32,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2023-02-17",
+          "return": 0.0047032111579630165,
+          "mae": -0.005433019785922699,
+          "mfe": 0.03170613039247505,
+          "benchmark_return": 0.004874847343868005,
+          "excess_vs_benchmark": -0.00017163618590498864,
+          "aligned": true
+        },
+        "20": {
+          "maturity_date": "2023-03-13",
+          "return": -0.030570872526759607,
+          "mae": -0.04841063898799869,
+          "mfe": 0.03170613039247505,
+          "benchmark_return": -0.030060994793622342,
+          "excess_vs_benchmark": -0.000509877733137265,
+          "aligned": false
+        },
+        "60": {
+          "maturity_date": "2023-05-09",
+          "return": 0.07298086279597804,
+          "mae": -0.04841063898799869,
+          "mfe": 0.08064385338955549,
+          "benchmark_return": 0.07486831822841089,
+          "excess_vs_benchmark": -0.0018874554324328496,
+          "aligned": true
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:QLD",
+      "symbol": "QLD",
+      "event_date": "2023-02-08",
+      "state_detail": "tier3",
+      "previous_level": 2,
+      "baseline_close": 22.4372,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2023-02-15",
+          "return": 0.03036029451090161,
+          "mae": -0.047211773305047,
+          "mfe": 0.030578681831957555,
+          "benchmark_return": 0.015542660706314937,
+          "excess_vs_benchmark": 0.014817633804586672,
+          "aligned": true
+        },
+        "20": {
+          "maturity_date": "2023-03-09",
+          "return": -0.08421282512969541,
+          "mae": -0.10793681921095333,
+          "mfe": 0.030578681831957555,
+          "benchmark_return": -0.03847025042803953,
+          "excess_vs_benchmark": -0.04574257470165588,
+          "aligned": false
+        },
+        "60": {
+          "maturity_date": "2023-05-05",
+          "return": 0.1026108427076462,
+          "mae": -0.13032374806125535,
+          "mfe": 0.10904212646854328,
+          "benchmark_return": 0.062490423242706594,
+          "excess_vs_benchmark": 0.040120419464939605,
+          "aligned": true
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:QLD",
+      "symbol": "QLD",
+      "event_date": "2023-02-07",
+      "state_detail": "tier2",
+      "previous_level": 3,
+      "baseline_close": 23.2874,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2023-02-14",
+          "return": -0.023063974509820895,
+          "mae": -0.08199713149600218,
+          "mfe": -0.003383804117248035,
+          "benchmark_return": -0.010100084739940174,
+          "excess_vs_benchmark": -0.012963889769880721,
+          "aligned": false
+        },
+        "20": {
+          "maturity_date": "2023-03-08",
+          "return": -0.08413133282375884,
+          "mae": -0.14050516588369688,
+          "mfe": -0.003383804117248035,
+          "benchmark_return": -0.03891820796293699,
+          "excess_vs_benchmark": -0.04521312486082185,
+          "aligned": false
+        },
+        "60": {
+          "maturity_date": "2023-05-04",
+          "return": 0.0196544053866039,
+          "mae": -0.16207477004732174,
+          "mfe": 0.06855209254790129,
+          "benchmark_return": 0.021878609218003886,
+          "excess_vs_benchmark": -0.0022242038313999846,
+          "aligned": true
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:QLD",
+      "symbol": "QLD",
+      "event_date": "2023-02-03",
+      "state_detail": "tier3",
+      "previous_level": 2,
+      "baseline_close": 22.7356,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2023-02-10",
+          "return": -0.04352645190802107,
+          "mae": -0.059716919720614436,
+          "mfe": 0.031057020707612626,
+          "benchmark_return": -0.021169434951919364,
+          "excess_vs_benchmark": -0.022357016956101705,
+          "aligned": false
+        },
+        "20": {
+          "maturity_date": "2023-03-06",
+          "return": -0.048122767817871615,
+          "mae": -0.11964496208589182,
+          "mfe": 0.031057020707612626,
+          "benchmark_return": -0.020119738271212606,
+          "excess_vs_benchmark": -0.02800302954665901,
+          "aligned": false
+        },
+        "60": {
+          "maturity_date": "2023-05-02",
+          "return": 0.06561515860588663,
+          "mae": -0.14173806717218806,
+          "mfe": 0.09448618026355149,
+          "benchmark_return": 0.04472966171289294,
+          "excess_vs_benchmark": 0.020885496892993682,
+          "aligned": true
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:QLD",
+      "symbol": "QLD",
+      "event_date": "2023-02-02",
+      "state_detail": "tier2",
+      "previous_level": 3,
+      "baseline_close": 23.586,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2023-02-09",
+          "return": -0.0662130077164419,
+          "mae": -0.07506571695073339,
+          "mfe": 0.0039981344865598345,
+          "benchmark_return": -0.03221263461231971,
+          "excess_vs_benchmark": -0.034000373104122183,
+          "aligned": false
+        },
+        "20": {
+          "maturity_date": "2023-03-03",
+          "return": -0.08370643602136862,
+          "mae": -0.15138641567031286,
+          "mfe": 0.0039981344865598345,
+          "benchmark_return": -0.0386330446208738,
+          "excess_vs_benchmark": -0.04507339140049482,
+          "aligned": false
+        },
+        "60": {
+          "maturity_date": "2023-05-01",
+          "return": 0.04595098787416263,
+          "mae": -0.17268294751123536,
+          "mfe": 0.055024166878656855,
+          "benchmark_return": 0.03518215555345949,
+          "excess_vs_benchmark": 0.010768832320703137,
+          "aligned": true
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:QQQM",
+      "symbol": "QQQM",
+      "event_date": "2023-02-01",
+      "state_detail": "tier2",
+      "previous_level": 3,
+      "baseline_close": 123.82,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2023-02-08",
+          "return": 0.011306735583912264,
+          "mae": 0.004522694233564772,
+          "mfe": 0.0422387336456147,
+          "benchmark_return": 0.011458701841276397,
+          "excess_vs_benchmark": -0.00015196625736413338,
+          "aligned": true
+        },
+        "20": {
+          "maturity_date": "2023-03-02",
+          "return": -0.023824907123243366,
+          "mae": -0.04175415926344683,
+          "mfe": 0.0422387336456147,
+          "benchmark_return": -0.024298782028604582,
+          "excess_vs_benchmark": 0.0004738749053612157,
+          "aligned": false
+        },
+        "60": {
+          "maturity_date": "2023-04-28",
+          "return": 0.07155548376675824,
+          "mae": -0.05225327087707965,
+          "mfe": 0.07155548376675824,
+          "benchmark_return": 0.07357355839692725,
+          "excess_vs_benchmark": -0.002018074630169009,
+          "aligned": true
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:VGT",
+      "symbol": "VGT",
+      "event_date": "2023-01-09",
+      "state_detail": "tier2",
+      "previous_level": 3,
+      "baseline_close": 39.7262,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2023-01-17",
+          "return": 0.040985546062799916,
+          "mae": -0.008543480121431135,
+          "mfe": 0.04602504140844088,
+          "benchmark_return": 0.04066497026296756,
+          "excess_vs_benchmark": 0.0003205757998323566,
+          "aligned": true
+        },
+        "20": {
+          "maturity_date": "2023-02-07",
+          "return": 0.14059738912858522,
+          "mae": -0.008543480121431135,
+          "mfe": 0.14760535868016578,
+          "benchmark_return": 0.14541352650849393,
+          "excess_vs_benchmark": -0.004816137379908714,
+          "aligned": true
+        },
+        "60": {
+          "maturity_date": "2023-04-05",
+          "return": 0.16866954302198556,
+          "mae": -0.008543480121431135,
+          "mfe": 0.19457436150449836,
+          "benchmark_return": 0.1695441820723358,
+          "excess_vs_benchmark": -0.0008746390503502344,
+          "aligned": true
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:VGT",
+      "symbol": "VGT",
+      "event_date": "2022-12-22",
+      "state_detail": "tier3",
+      "previous_level": 2,
+      "baseline_close": 39.1156,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2022-12-30",
+          "return": 0.0010711838754868808,
+          "mae": -0.026079109102250753,
+          "mfe": 0.005205084416447736,
+          "benchmark_return": -0.0017977271863479638,
+          "excess_vs_benchmark": 0.0028689110618348446,
+          "aligned": true
+        },
+        "20": {
+          "maturity_date": "2023-01-24",
+          "return": 0.08330947243554987,
+          "mae": -0.0284208857846997,
+          "mfe": 0.0898618454018345,
+          "benchmark_return": 0.08101174413743295,
+          "excess_vs_benchmark": 0.002297728298116919,
+          "aligned": true
+        },
+        "60": {
+          "maturity_date": "2023-03-22",
+          "return": 0.1497100900919326,
+          "mae": -0.0284208857846997,
+          "mfe": 0.1850744971315792,
+          "benchmark_return": 0.14932917791037958,
+          "excess_vs_benchmark": 0.0003809121815530059,
+          "aligned": true
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:VGT",
+      "symbol": "VGT",
+      "event_date": "2022-12-21",
+      "state_detail": "tier2",
+      "previous_level": 3,
+      "baseline_close": 40.1098,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2022-12-29",
+          "return": -0.023221257647756843,
+          "mae": -0.050219647068796114,
+          "mfe": -0.011822547108188086,
+          "benchmark_return": -0.025634941233176334,
+          "excess_vs_benchmark": 0.0024136835854194905,
+          "aligned": false
+        },
+        "20": {
+          "maturity_date": "2023-01-23",
+          "return": 0.05823015821569788,
+          "mae": -0.05250337822676743,
+          "mfe": 0.06284748365736048,
+          "benchmark_return": 0.056716473249045274,
+          "excess_vs_benchmark": 0.0015136849666526064,
+          "aligned": true
+        },
+        "60": {
+          "maturity_date": "2023-03-21",
+          "return": 0.1350069060429122,
+          "mae": -0.05250337822676743,
+          "mfe": 0.13763219961206485,
+          "benchmark_return": 0.13666159949575474,
+          "excess_vs_benchmark": -0.0016546934528425261,
+          "aligned": true
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:VGT",
+      "symbol": "VGT",
+      "event_date": "2022-12-19",
+      "state_detail": "tier3",
+      "previous_level": 2,
+      "baseline_close": 39.3976,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2022-12-27",
+          "return": -0.01649085223465374,
+          "mae": -0.02372733364468893,
+          "mfe": 0.022932869007249224,
+          "benchmark_return": -0.022874539577538933,
+          "excess_vs_benchmark": 0.0063836873428851915,
+          "aligned": false
+        },
+        "20": {
+          "maturity_date": "2023-01-19",
+          "return": 0.023712104290616765,
+          "mae": -0.035375251284342046,
+          "mfe": 0.06261295104270337,
+          "benchmark_return": 0.020021799594076573,
+          "excess_vs_benchmark": 0.003690304696540192,
+          "aligned": true
+        },
+        "60": {
+          "maturity_date": "2023-03-17",
+          "return": 0.1391556846102302,
+          "mae": -0.035375251284342046,
+          "mfe": 0.15819745365199922,
+          "benchmark_return": 0.13201157633616467,
+          "excess_vs_benchmark": 0.00714410827406553,
+          "aligned": true
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:VGT",
+      "symbol": "VGT",
+      "event_date": "2022-11-10",
+      "state_detail": "tier2",
+      "previous_level": 3,
+      "baseline_close": 41.0646,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2022-11-17",
+          "return": 0.007215460518305461,
+          "mae": -0.010327630124243203,
+          "mfe": 0.03848083263930491,
+          "benchmark_return": 0.0072857060701037035,
+          "excess_vs_benchmark": -7.024555179824254e-05,
+          "aligned": true
+        },
+        "20": {
+          "maturity_date": "2022-12-09",
+          "return": -0.0012102881800870602,
+          "mae": -0.0194668887557653,
+          "mfe": 0.04493407947477879,
+          "benchmark_return": -0.0025124363803663563,
+          "excess_vs_benchmark": 0.0013021482002792961,
+          "aligned": false
+        },
+        "60": {
+          "maturity_date": "2023-02-08",
+          "return": 0.08944443632715293,
+          "mae": -0.07453378335598049,
+          "mfe": 0.11118091981901701,
+          "benchmark_return": 0.07903930758834865,
+          "excess_vs_benchmark": 0.010405128738804281,
+          "aligned": true
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:VGT",
+      "symbol": "VGT",
+      "event_date": "2022-11-02",
+      "state_detail": "tier3",
+      "previous_level": 2,
+      "baseline_close": 38.5838,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2022-11-09",
+          "return": -0.018831737672287296,
+          "mae": -0.037875999771924906,
+          "mfe": 0.021677491589734643,
+          "benchmark_return": -0.00887843317267245,
+          "excess_vs_benchmark": -0.009953304499614846,
+          "aligned": false
+        },
+        "20": {
+          "maturity_date": "2022-12-01",
+          "return": 0.10661728497452305,
+          "mae": -0.037875999771924906,
+          "mfe": 0.11211959423384954,
+          "benchmark_return": 0.10553515415805981,
+          "excess_vs_benchmark": 0.0010821308164632448,
+          "aligned": true
+        },
+        "60": {
+          "maturity_date": "2023-01-31",
+          "return": 0.1132703362551124,
+          "mae": -0.037875999771924906,
+          "mfe": 0.13291329521716366,
+          "benchmark_return": 0.11157906816616925,
+          "excess_vs_benchmark": 0.0016912680889431542,
+          "aligned": true
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:VGT",
+      "symbol": "VGT",
+      "event_date": "2022-10-28",
+      "state_detail": "tier2",
+      "previous_level": 3,
+      "baseline_close": 40.8642,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2022-11-04",
+          "return": -0.07076609844313597,
+          "mae": -0.09156670141590928,
+          "mfe": 0.002921872935234493,
+          "benchmark_return": -0.05881247515449384,
+          "excess_vs_benchmark": -0.011953623288642135,
+          "aligned": false
+        },
+        "20": {
+          "maturity_date": "2022-11-28",
+          "return": 0.001943021030633263,
+          "mae": -0.09156670141590928,
+          "mfe": 0.04357359253331761,
+          "benchmark_return": 0.005297965378916691,
+          "excess_vs_benchmark": -0.0033549443482834285,
+          "aligned": true
+        },
+        "60": {
+          "maturity_date": "2023-01-26",
+          "return": 0.051238002946344174,
+          "mae": -0.09156670141590928,
+          "mfe": 0.0696918084778364,
+          "benchmark_return": 0.04560008673340321,
+          "excess_vs_benchmark": 0.005637916212940963,
+          "aligned": true
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:VGT",
+      "symbol": "VGT",
+      "event_date": "2022-10-27",
+      "state_detail": "tier3",
+      "previous_level": 2,
+      "baseline_close": 39.2831,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2022-11-03",
+          "return": -0.04576013603814355,
+          "mae": -0.04646272824700681,
+          "mfe": 0.043288335187396276,
+          "benchmark_return": -0.04537853309347972,
+          "excess_vs_benchmark": -0.00038160294466382805,
+          "aligned": false
+        },
+        "20": {
+          "maturity_date": "2022-11-25",
+          "return": 0.06477849253241241,
+          "mae": -0.055003296583008954,
+          "mfe": 0.0855762401643454,
+          "benchmark_return": 0.05147915991612573,
+          "excess_vs_benchmark": 0.013299332616286685,
+          "aligned": true
+        },
+        "60": {
+          "maturity_date": "2023-01-25",
+          "return": 0.07640690271388961,
+          "mae": -0.055003296583008954,
+          "mfe": 0.11274568453100708,
+          "benchmark_return": 0.05697642804202663,
+          "excess_vs_benchmark": 0.019430474671862985,
+          "aligned": true
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:VGT",
+      "symbol": "VGT",
+      "event_date": "2022-10-25",
+      "state_detail": "tier2",
+      "previous_level": 3,
+      "baseline_close": 40.5086,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2022-11-01",
+          "return": -0.010931012180129596,
+          "mae": -0.03224994198762743,
+          "mfe": 0.011725905116444446,
+          "benchmark_return": -0.03202171254478747,
+          "excess_vs_benchmark": 0.021090700364657877,
+          "aligned": false
+        },
+        "20": {
+          "maturity_date": "2022-11-22",
+          "return": 0.02809773727060416,
+          "mae": -0.08359212611642963,
+          "mfe": 0.052734481073154704,
+          "benchmark_return": 0.0061182747251962155,
+          "excess_vs_benchmark": 0.021979462545407946,
+          "aligned": true
+        },
+        "60": {
+          "maturity_date": "2023-01-23",
+          "return": 0.04781206953585149,
+          "mae": -0.08359212611642963,
+          "mfe": 0.07908197271690454,
+          "benchmark_return": 0.019141510580932275,
+          "excess_vs_benchmark": 0.028670558954919212,
+          "aligned": true
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:VGT",
+      "symbol": "VGT",
+      "event_date": "2022-10-07",
+      "state_detail": "tier3",
+      "previous_level": 2,
+      "baseline_close": 38.2451,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2022-10-14",
+          "return": -0.0381120718732596,
+          "mae": -0.06761389040687571,
+          "mfe": 0.0016315815620824292,
+          "benchmark_return": -0.031066714504220383,
+          "excess_vs_benchmark": -0.007045357369039218,
+          "aligned": false
+        },
+        "20": {
+          "maturity_date": "2022-11-04",
+          "return": -0.0071303251919854205,
+          "mae": -0.06761389040687571,
+          "mfe": 0.07160394403466075,
+          "benchmark_return": -0.01642464641123953,
+          "excess_vs_benchmark": 0.00929432121925411,
+          "aligned": false
+        },
+        "60": {
+          "maturity_date": "2023-01-04",
+          "return": 0.01844419285084875,
+          "mae": -0.06761389040687571,
+          "mfe": 0.1429464166651413,
+          "benchmark_return": -0.01012141926468646,
+          "excess_vs_benchmark": 0.02856561211553521,
+          "aligned": true
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:VGT",
+      "symbol": "VGT",
+      "event_date": "2022-10-04",
+      "state_detail": "tier2",
+      "previous_level": 3,
+      "baseline_close": 40.0831,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2022-10-11",
+          "return": -0.07834723362215001,
+          "mae": -0.08536515389278776,
+          "mfe": 0.01213728479084697,
+          "benchmark_return": -0.06868367398399178,
+          "excess_vs_benchmark": -0.009663559638158237,
+          "aligned": false
+        },
+        "20": {
+          "maturity_date": "2022-11-01",
+          "return": -0.00043160334405267786,
+          "mae": -0.1103682100436344,
+          "mfe": 0.022465827243900893,
+          "benchmark_return": -0.024880586154477857,
+          "excess_vs_benchmark": 0.02444898281042518,
+          "aligned": false
+        },
+        "60": {
+          "maturity_date": "2022-12-29",
+          "return": -0.022570609558641874,
+          "mae": -0.1103682100436344,
+          "mfe": 0.09053690957036742,
+          "benchmark_return": -0.05334899101604429,
+          "excess_vs_benchmark": 0.030778381457402415,
+          "aligned": false
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:VGT",
+      "symbol": "VGT",
+      "event_date": "2022-09-22",
+      "state_detail": "tier3",
+      "previous_level": 2,
+      "baseline_close": 39.5135,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2022-09-29",
+          "return": -0.03120452503574722,
+          "mae": -0.04268414592481051,
+          "mfe": 0.002530780619282025,
+          "benchmark_return": -0.029280170114558857,
+          "excess_vs_benchmark": -0.0019243549211883648,
+          "aligned": false
+        },
+        "20": {
+          "maturity_date": "2022-10-20",
+          "return": -0.03392764498209477,
+          "mae": -0.09754387740898685,
+          "mfe": 0.026727574120237296,
+          "benchmark_return": -0.03913215448201779,
+          "excess_vs_benchmark": 0.005204509499923016,
+          "aligned": false
+        },
+        "60": {
+          "maturity_date": "2022-12-16",
+          "return": 0.011654244751793552,
+          "mae": -0.09754387740898685,
+          "mfe": 0.10625735508117473,
+          "benchmark_return": -0.02077807089800021,
+          "excess_vs_benchmark": 0.032432315649793764,
+          "aligned": true
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:QQQM",
+      "symbol": "QQQM",
+      "event_date": "2022-09-13",
+      "state_detail": "tier3",
+      "previous_level": 2,
+      "baseline_close": 120.586,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2022-09-20",
+          "return": -0.015142719718706954,
+          "mae": -0.027474167813842376,
+          "mfe": 0.0108387374985488,
+          "benchmark_return": -0.015148888965923701,
+          "excess_vs_benchmark": 6.169247216747387e-06,
+          "aligned": false
+        },
+        "20": {
+          "maturity_date": "2022-10-11",
+          "return": -0.10304678818436641,
+          "mae": -0.10951520076957522,
+          "mfe": 0.0108387374985488,
+          "benchmark_return": -0.10375775643914453,
+          "excess_vs_benchmark": 0.0007109682547781215,
+          "aligned": false
+        },
+        "60": {
+          "maturity_date": "2022-12-07",
+          "return": -0.0430895792214685,
+          "mae": -0.13240342991723741,
+          "mfe": 0.0108387374985488,
+          "benchmark_return": -0.04312060179568078,
+          "excess_vs_benchmark": 3.1022574212280496e-05,
+          "aligned": false
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:QLD",
+      "symbol": "QLD",
+      "event_date": "2022-09-13",
+      "state_detail": "tier3",
+      "previous_level": 2,
+      "baseline_close": 21.9895,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2022-09-20",
+          "return": -0.03156506514472812,
+          "mae": -0.05524454853452787,
+          "mfe": 0.022101457513813427,
+          "benchmark_return": -0.015148888965923701,
+          "excess_vs_benchmark": -0.01641617617880442,
+          "aligned": false
+        },
+        "20": {
+          "maturity_date": "2022-10-11",
+          "return": -0.2036108142522568,
+          "mae": -0.21532549625957842,
+          "mfe": 0.022101457513813427,
+          "benchmark_return": -0.10375775643914453,
+          "excess_vs_benchmark": -0.09985305781311227,
+          "aligned": false
+        },
+        "60": {
+          "maturity_date": "2022-12-07",
+          "return": -0.11792446394870282,
+          "mae": -0.2564860501603038,
+          "mfe": 0.022101457513813427,
+          "benchmark_return": -0.04312060179568078,
+          "excess_vs_benchmark": -0.07480386215302204,
+          "aligned": false
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:QQQM",
+      "symbol": "QQQM",
+      "event_date": "2022-09-09",
+      "state_detail": "tier2",
+      "previous_level": 3,
+      "baseline_close": 125.985,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2022-09-16",
+          "return": -0.057983093225383864,
+          "mae": -0.0691510894154066,
+          "mfe": 0.013541294598563347,
+          "benchmark_return": -0.05786381629987214,
+          "excess_vs_benchmark": -0.00011927692551172431,
+          "aligned": false
+        },
+        "20": {
+          "maturity_date": "2022-10-07",
+          "return": -0.12156209072508628,
+          "mae": -0.12799142755089887,
+          "mfe": 0.013541294598563347,
+          "benchmark_return": -0.12212968550039449,
+          "excess_vs_benchmark": 0.0005675947753082111,
+          "aligned": false
+        },
+        "60": {
+          "maturity_date": "2022-12-05",
+          "return": -0.06028495455808225,
+          "mae": -0.16958368059689644,
+          "mfe": 0.013541294598563347,
+          "benchmark_return": -0.061650012267009835,
+          "excess_vs_benchmark": 0.0013650577089275862,
+          "aligned": false
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:QLD",
+      "symbol": "QLD",
+      "event_date": "2022-09-07",
+      "state_detail": "tier2",
+      "previous_level": 3,
+      "baseline_close": 22.9069,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2022-09-14",
+          "return": -0.02424160405816589,
+          "mae": -0.045676193635978635,
+          "mfe": 0.08138159244594423,
+          "benchmark_return": -0.009831532418175581,
+          "excess_vs_benchmark": -0.014410071639990307,
+          "aligned": false
+        },
+        "20": {
+          "maturity_date": "2022-10-05",
+          "return": -0.11839227481675829,
+          "mae": -0.20714282596073674,
+          "mfe": 0.08138159244594423,
+          "benchmark_return": -0.055130820338705866,
+          "excess_vs_benchmark": -0.06326145447805243,
+          "aligned": false
+        },
+        "60": {
+          "maturity_date": "2022-12-01",
+          "return": -0.0696995228511933,
+          "mae": -0.28626309103370606,
+          "mfe": 0.08138159244594423,
+          "benchmark_return": -0.01579447431780323,
+          "excess_vs_benchmark": -0.053905048533390065,
+          "aligned": false
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:QLD",
+      "symbol": "QLD",
+      "event_date": "2022-09-02",
+      "state_detail": "tier3",
+      "previous_level": 2,
+      "baseline_close": 22.3466,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2022-09-12",
+          "return": 0.10583712958570879,
+          "mae": -0.029288571863281154,
+          "mfe": 0.10849525207414112,
+          "benchmark_return": 0.052757206472286544,
+          "excess_vs_benchmark": 0.053079923113422245,
+          "aligned": true
+        },
+        "20": {
+          "maturity_date": "2022-10-03",
+          "return": -0.14821941592904497,
+          "mae": -0.1872633868239464,
+          "mfe": 0.10849525207414112,
+          "benchmark_return": -0.07163528368855498,
+          "excess_vs_benchmark": -0.07658413224048999,
+          "aligned": false
+        },
+        "60": {
+          "maturity_date": "2022-11-29",
+          "return": -0.1278091521752749,
+          "mae": -0.2683674473969194,
+          "mfe": 0.10849525207414112,
+          "benchmark_return": -0.04775225671149619,
+          "excess_vs_benchmark": -0.0800568954637787,
+          "aligned": false
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:QQQM",
+      "symbol": "QQQM",
+      "event_date": "2022-08-30",
+      "state_detail": "tier3",
+      "previous_level": 2,
+      "baseline_close": 123.59,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2022-09-07",
+          "return": -0.006788575127437468,
+          "mae": -0.0337163200906222,
+          "mfe": 0.01234727728780638,
+          "benchmark_return": -0.006805136999042838,
+          "excess_vs_benchmark": 1.6561871605369483e-05,
+          "aligned": false
+        },
+        "20": {
+          "maturity_date": "2022-09-28",
+          "return": -0.06780483857917319,
+          "mae": -0.09466785338619632,
+          "mfe": 0.03318229630228986,
+          "benchmark_return": -0.06834901017726491,
+          "excess_vs_benchmark": 0.000544171598091725,
+          "aligned": false
+        },
+        "60": {
+          "maturity_date": "2022-11-23",
+          "return": -0.03794805404968038,
+          "mae": -0.15349138279796104,
+          "mfe": 0.03318229630228986,
+          "benchmark_return": -0.0387980748091552,
+          "excess_vs_benchmark": 0.0008500207594748233,
+          "aligned": false
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:VGT",
+      "symbol": "VGT",
+      "event_date": "2022-08-26",
+      "state_detail": "tier2",
+      "previous_level": 1,
+      "baseline_close": 44.0344,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2022-09-02",
+          "return": -0.052138782406482065,
+          "mae": -0.06093417873299056,
+          "mfe": -0.0027455807277946276,
+          "benchmark_return": -0.03991508977831937,
+          "excess_vs_benchmark": -0.012223692628162697,
+          "aligned": false
+        },
+        "20": {
+          "maturity_date": "2022-09-26",
+          "return": -0.12115073669676435,
+          "mae": -0.1264420543938375,
+          "mfe": -0.0017486328870155443,
+          "benchmark_return": -0.1059523257585292,
+          "excess_vs_benchmark": -0.015198410938235152,
+          "aligned": false
+        },
+        "60": {
+          "maturity_date": "2022-11-21",
+          "return": -0.07084915429754912,
+          "mae": -0.19019675526406632,
+          "mfe": -0.0017486328870155443,
+          "benchmark_return": -0.08145619043203534,
+          "excess_vs_benchmark": 0.010607036134486214,
+          "aligned": false
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:VGT",
+      "symbol": "VGT",
+      "event_date": "2022-08-25",
+      "state_detail": "tier1",
+      "previous_level": 2,
+      "baseline_close": 45.9815,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2022-09-01",
+          "return": -0.08147624588149571,
+          "mae": -0.10069919424116214,
+          "mfe": 0.001805073779672428,
+          "benchmark_return": -0.0660649406743058,
+          "excess_vs_benchmark": -0.015411305207189918,
+          "aligned": false
+        },
+        "20": {
+          "maturity_date": "2022-09-23",
+          "return": -0.15283755423376788,
+          "mae": -0.1634331198416754,
+          "mfe": 0.001805073779672428,
+          "benchmark_return": -0.13904380192586197,
+          "excess_vs_benchmark": -0.013793752307905915,
+          "aligned": false
+        },
+        "60": {
+          "maturity_date": "2022-11-18",
+          "return": -0.09948348792449135,
+          "mae": -0.22448810934832486,
+          "mfe": 0.001805073779672428,
+          "benchmark_return": -0.10994626387865558,
+          "excess_vs_benchmark": 0.010462775954164227,
+          "aligned": false
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:VGT",
+      "symbol": "VGT",
+      "event_date": "2022-08-22",
+      "state_detail": "tier2",
+      "previous_level": 1,
+      "baseline_close": 45.1946,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2022-08-29",
+          "return": -0.0382457196213708,
+          "mae": -0.04189659826616465,
+          "mfe": 0.019247874746098015,
+          "benchmark_return": -0.03165534730521469,
+          "excess_vs_benchmark": -0.006590372316156112,
+          "aligned": false
+        },
+        "20": {
+          "maturity_date": "2022-09-20",
+          "return": -0.10041465130789973,
+          "mae": -0.11415080562722091,
+          "mfe": 0.019247874746098015,
+          "benchmark_return": -0.07987679870968978,
+          "excess_vs_benchmark": -0.02053785259820995,
+          "aligned": false
+        },
+        "60": {
+          "maturity_date": "2022-11-15",
+          "return": -0.06842852907205743,
+          "mae": -0.21098538320949856,
+          "mfe": 0.019247874746098015,
+          "benchmark_return": -0.07777162419072225,
+          "excess_vs_benchmark": 0.009343095118664824,
+          "aligned": false
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:QQQM",
+      "symbol": "QQQM",
+      "event_date": "2022-08-17",
+      "state_detail": "tier2",
+      "previous_level": 1,
+      "baseline_close": 134.876,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2022-08-24",
+          "return": -0.04150478958450732,
+          "mae": -0.047206322844687065,
+          "mfe": 0.005768261217711013,
+          "benchmark_return": -0.041033222684035864,
+          "excess_vs_benchmark": -0.000471566900471454,
+          "aligned": false
+        },
+        "20": {
+          "maturity_date": "2022-09-15",
+          "return": -0.1140158367685874,
+          "mae": -0.11874610753581072,
+          "mfe": 0.005768261217711013,
+          "benchmark_return": -0.11382000427719974,
+          "excess_vs_benchmark": -0.00019583249138765968,
+          "aligned": false
+        },
+        "60": {
+          "maturity_date": "2022-11-10",
+          "return": -0.13817135739494057,
+          "mae": -0.2243245647854325,
+          "mfe": 0.005768261217711013,
+          "benchmark_return": -0.13769173787584343,
+          "excess_vs_benchmark": -0.00047961951909714085,
+          "aligned": false
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:QQQM",
+      "symbol": "QQQM",
+      "event_date": "2022-08-12",
+      "state_detail": "tier1",
+      "previous_level": 2,
+      "baseline_close": 135.674,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2022-08-19",
+          "return": -0.023092117870778583,
+          "mae": -0.025377006648289346,
+          "mfe": 0.011697156419063326,
+          "benchmark_return": -0.022788414425574777,
+          "excess_vs_benchmark": -0.00030370344520380677,
+          "aligned": false
+        },
+        "20": {
+          "maturity_date": "2022-09-12",
+          "return": -0.0599451626693398,
+          "mae": -0.11977976620428388,
+          "mfe": 0.011697156419063326,
+          "benchmark_return": -0.05947175253538439,
+          "excess_vs_benchmark": -0.00047341013395540976,
+          "aligned": false
+        },
+        "60": {
+          "maturity_date": "2022-11-07",
+          "return": -0.18879077789406962,
+          "mae": -0.2288868906349043,
+          "mfe": 0.011697156419063326,
+          "benchmark_return": -0.1886153457398454,
+          "excess_vs_benchmark": -0.00017543215422421987,
+          "aligned": false
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:VGT",
+      "symbol": "VGT",
+      "event_date": "2022-08-03",
+      "state_detail": "tier1",
+      "previous_level": 2,
+      "baseline_close": 46.1471,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2022-08-10",
+          "return": 0.012425482858077652,
+          "mae": -0.022809667346377238,
+          "mfe": 0.013192594984300143,
+          "benchmark_return": 0.009412187600507105,
+          "excess_vs_benchmark": 0.0030132952575705474,
+          "aligned": true
+        },
+        "20": {
+          "maturity_date": "2022-08-31",
+          "return": -0.07668737580476359,
+          "mae": -0.07692141001276354,
+          "mfe": 0.03518747656949173,
+          "benchmark_return": -0.07315335086491226,
+          "excess_vs_benchmark": -0.0035340249398513324,
+          "aligned": false
+        },
+        "60": {
+          "maturity_date": "2022-10-27",
+          "return": -0.14874174108448857,
+          "mae": -0.22727105278554893,
+          "mfe": 0.03518747656949173,
+          "benchmark_return": -0.15338554969067475,
+          "excess_vs_benchmark": 0.004643808606186184,
+          "aligned": false
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:QQQM",
+      "symbol": "QQQM",
+      "event_date": "2022-07-27",
+      "state_detail": "tier2",
+      "previous_level": 3,
+      "baseline_close": 125.985,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2022-08-03",
+          "return": 0.05132357026630152,
+          "mae": -0.013192046672222957,
+          "mfe": 0.05472873754812069,
+          "benchmark_return": 0.052411165828211814,
+          "excess_vs_benchmark": -0.0010875955619102928,
+          "aligned": true
+        },
+        "20": {
+          "maturity_date": "2022-08-24",
+          "return": 0.026138032305433212,
+          "mae": -0.013192046672222957,
+          "mfe": 0.0895027185776085,
+          "benchmark_return": 0.026726575255186624,
+          "excess_vs_benchmark": -0.0005885429497534123,
+          "aligned": true
+        },
+        "60": {
+          "maturity_date": "2022-10-20",
+          "return": -0.12156209072508628,
+          "mae": -0.16958368059689644,
+          "mfe": 0.0895027185776085,
+          "benchmark_return": -0.12129829964028294,
+          "excess_vs_benchmark": -0.00026379108480334423,
+          "aligned": false
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:QLD",
+      "symbol": "QLD",
+      "event_date": "2022-07-27",
+      "state_detail": "tier2",
+      "previous_level": 3,
+      "baseline_close": 24.4091,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2022-08-03",
+          "return": 0.10541970002990686,
+          "mae": -0.0266130254700091,
+          "mfe": 0.11131913917350511,
+          "benchmark_return": 0.052411165828211814,
+          "excess_vs_benchmark": 0.053008534201695046,
+          "aligned": true
+        },
+        "20": {
+          "maturity_date": "2022-08-24",
+          "return": 0.047134060657705534,
+          "mae": -0.0266130254700091,
+          "mfe": 0.18261631932353106,
+          "benchmark_return": 0.026726575255186624,
+          "excess_vs_benchmark": 0.02040748540251891,
+          "aligned": true
+        },
+        "60": {
+          "maturity_date": "2022-10-20",
+          "return": -0.2522870568763288,
+          "mae": -0.3301883314009939,
+          "mfe": 0.18261631932353106,
+          "benchmark_return": -0.12129829964028294,
+          "excess_vs_benchmark": -0.13098875723604586,
+          "aligned": false
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:QLD",
+      "symbol": "QLD",
+      "event_date": "2022-07-26",
+      "state_detail": "tier3",
+      "previous_level": 2,
+      "baseline_close": 22.5052,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2022-08-02",
+          "return": 0.1370349963563977,
+          "mae": 0.028193484172546857,
+          "mfe": 0.16985852158612236,
+          "benchmark_return": 0.06780341023069192,
+          "excess_vs_benchmark": 0.06923158612570579,
+          "aligned": true
+        },
+        "20": {
+          "maturity_date": "2022-08-23",
+          "return": 0.12932566695697,
+          "mae": 0.028193484172546857,
+          "mfe": 0.2826635621989584,
+          "benchmark_return": 0.06701829626811473,
+          "excess_vs_benchmark": 0.06230737068885528,
+          "aligned": true
+        },
+        "60": {
+          "maturity_date": "2022-10-19",
+          "return": -0.1797717860761069,
+          "mae": -0.2735234523576774,
+          "mfe": 0.2826635621989584,
+          "benchmark_return": -0.07947290146300978,
+          "excess_vs_benchmark": -0.1002988846130971,
+          "aligned": false
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:QQQM",
+      "symbol": "QQQM",
+      "event_date": "2022-07-25",
+      "state_detail": "tier3",
+      "previous_level": 2,
+      "baseline_close": 123.32,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2022-08-01",
+          "return": 0.04976483944210175,
+          "mae": -0.022737593253324584,
+          "mfe": 0.061174180992539906,
+          "benchmark_return": 0.04996236292985934,
+          "excess_vs_benchmark": -0.00019752348775758932,
+          "aligned": true
+        },
+        "20": {
+          "maturity_date": "2022-08-22",
+          "return": 0.04693480376256898,
+          "mae": -0.022737593253324584,
+          "mfe": 0.11304735647096975,
+          "benchmark_return": 0.046931052956374675,
+          "excess_vs_benchmark": 3.7508061943025695e-06,
+          "aligned": true
+        },
+        "60": {
+          "maturity_date": "2022-10-18",
+          "return": -0.09406422315926044,
+          "mae": -0.15163801492053186,
+          "mfe": 0.11304735647096975,
+          "benchmark_return": -0.09424525806823503,
+          "excess_vs_benchmark": 0.00018103490897458663,
+          "aligned": false
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:QQQM",
+      "symbol": "QQQM",
+      "event_date": "2022-07-20",
+      "state_detail": "tier2",
+      "previous_level": 3,
+      "baseline_close": 124.398,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2022-07-27",
+          "return": 0.012757439830222372,
+          "mae": -0.03120628949018467,
+          "mfe": 0.018046913937523223,
+          "benchmark_return": 0.012478413084526574,
+          "excess_vs_benchmark": 0.00027902674569579844,
+          "aligned": true
+        },
+        "20": {
+          "maturity_date": "2022-08-17",
+          "return": 0.08422964999437288,
+          "mae": -0.03120628949018467,
+          "mfe": 0.103401983954726,
+          "benchmark_return": 0.0840192988704247,
+          "excess_vs_benchmark": 0.00021035112394818256,
+          "aligned": true
+        },
+        "60": {
+          "maturity_date": "2022-10-13",
+          "return": -0.11123973054229164,
+          "mae": -0.15898969436807664,
+          "mfe": 0.103401983954726,
+          "benchmark_return": -0.11129104873771145,
+          "excess_vs_benchmark": 5.131819541981386e-05,
+          "aligned": false
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:QLD",
+      "symbol": "QLD",
+      "event_date": "2022-07-19",
+      "state_detail": "tier2",
+      "previous_level": 3,
+      "baseline_close": 23.1497,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2022-07-26",
+          "return": -0.027840533570629433,
+          "mae": -0.033196974474831165,
+          "mfe": 0.06982379901251434,
+          "benchmark_return": -0.013171142943932956,
+          "excess_vs_benchmark": -0.014669390626696477,
+          "aligned": false
+        },
+        "20": {
+          "maturity_date": "2022-08-16",
+          "return": 0.2311045067538673,
+          "mae": -0.033196974474831165,
+          "mfe": 0.24695352423573524,
+          "benchmark_return": 0.11390530019898382,
+          "excess_vs_benchmark": 0.11719920655488347,
+          "aligned": true
+        },
+        "60": {
+          "maturity_date": "2022-10-12",
+          "return": -0.24480662816364784,
+          "mae": -0.2546512481803219,
+          "mfe": 0.24695352423573524,
+          "benchmark_return": -0.11788497179074975,
+          "excess_vs_benchmark": -0.1269216563728981,
+          "aligned": false
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:VGT",
+      "symbol": "VGT",
+      "event_date": "2022-06-21",
+      "state_detail": "tier2",
+      "previous_level": 3,
+      "baseline_close": 39.9261,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2022-06-28",
+          "return": 0.011268318217907636,
+          "mae": -0.0146696020898609,
+          "mfe": 0.05796959883384556,
+          "benchmark_return": 0.008754899048805553,
+          "excess_vs_benchmark": 0.0025134191691020824,
+          "aligned": true
+        },
+        "20": {
+          "maturity_date": "2022-07-20",
+          "return": 0.08034593912252896,
+          "mae": -0.018737116823331124,
+          "mfe": 0.08468645823158294,
+          "benchmark_return": 0.07809500351355081,
+          "excess_vs_benchmark": 0.002250935608978155,
+          "aligned": true
+        },
+        "60": {
+          "maturity_date": "2022-09-15",
+          "return": 0.024344977345646113,
+          "mae": -0.018737116823331124,
+          "mfe": 0.1964830023468358,
+          "benchmark_return": 0.035657106427986696,
+          "excess_vs_benchmark": -0.011312129082340583,
+          "aligned": true
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:VGT",
+      "symbol": "VGT",
+      "event_date": "2022-06-16",
+      "state_detail": "tier3",
+      "previous_level": 2,
+      "baseline_close": 38.4748,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2022-06-24",
+          "return": 0.09078929585079054,
+          "mae": -0.004462661274392654,
+          "mfe": 0.09097643132647848,
+          "benchmark_return": 0.08764616778238432,
+          "excess_vs_benchmark": 0.00314312806840622,
+          "aligned": true
+        },
+        "20": {
+          "maturity_date": "2022-07-18",
+          "return": 0.06837462442949671,
+          "mae": -0.004462661274392654,
+          "mfe": 0.09787705199247299,
+          "benchmark_return": 0.06840896533319296,
+          "excess_vs_benchmark": -3.4340903696250535e-05,
+          "aligned": true
+        },
+        "60": {
+          "maturity_date": "2022-09-13",
+          "return": 0.08247476270182053,
+          "mae": -0.004462661274392654,
+          "mfe": 0.24161529104764656,
+          "benchmark_return": 0.08428210053110918,
+          "excess_vs_benchmark": -0.0018073378292886577,
+          "aligned": true
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:VGT",
+      "symbol": "VGT",
+      "event_date": "2022-06-15",
+      "state_detail": "tier2",
+      "previous_level": 3,
+      "baseline_close": 40.233,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2022-06-23",
+          "return": 0.0060373325379665665,
+          "mae": -0.0506847612656276,
+          "mfe": 0.008162453707155848,
+          "benchmark_return": 0.00918725111098273,
+          "excess_vs_benchmark": -0.003149918573016164,
+          "aligned": true
+        },
+        "20": {
+          "maturity_date": "2022-07-15",
+          "return": 0.03099445728630723,
+          "mae": -0.0506847612656276,
+          "mfe": 0.04989933636567012,
+          "benchmark_return": 0.03405811738904574,
+          "excess_vs_benchmark": -0.003063660102738508,
+          "aligned": true
+        },
+        "60": {
+          "maturity_date": "2022-09-12",
+          "return": 0.09238933214028289,
+          "mae": -0.0506847612656276,
+          "mfe": 0.1873561504237815,
+          "benchmark_return": 0.10091187164540893,
+          "excess_vs_benchmark": -0.008522539505126048,
+          "aligned": true
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:VGT",
+      "symbol": "VGT",
+      "event_date": "2022-06-13",
+      "state_detail": "tier3",
+      "previous_level": 2,
+      "baseline_close": 39.1445,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2022-06-21",
+          "return": 0.01996704517876058,
+          "mae": -0.024286936862138897,
+          "mfe": 0.04305330250737649,
+          "benchmark_return": 0.022537955250028885,
+          "excess_vs_benchmark": -0.0025709100712683064,
+          "aligned": true
+        },
+        "20": {
+          "maturity_date": "2022-07-13",
+          "return": 0.03360880838942881,
+          "mae": -0.024286936862138897,
+          "mfe": 0.0790941256115163,
+          "benchmark_return": 0.039168262410691046,
+          "excess_vs_benchmark": -0.005559454021262233,
+          "aligned": true
+        },
+        "60": {
+          "maturity_date": "2022-09-08",
+          "return": 0.08187868027436807,
+          "mae": -0.024286936862138897,
+          "mfe": 0.22037323251031427,
+          "benchmark_return": 0.09326676271996281,
+          "excess_vs_benchmark": -0.01138808244559475,
+          "aligned": true
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:QLD",
+      "symbol": "QLD",
+      "event_date": "2022-06-10",
+      "state_detail": "tier3",
+      "previous_level": 2,
+      "baseline_close": 21.9251,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2022-06-17",
+          "return": -0.09949783581374771,
+          "mae": -0.13534715919197637,
+          "mfe": -0.016957733374078132,
+          "benchmark_return": -0.048991181446073395,
+          "excess_vs_benchmark": -0.05050665436767432,
+          "aligned": false
+        },
+        "20": {
+          "maturity_date": "2022-07-12",
+          "return": -0.02555518560918768,
+          "mae": -0.13534715919197637,
+          "mfe": 0.05076373653940003,
+          "benchmark_return": -0.007095104060349078,
+          "excess_vs_benchmark": -0.018460081548838603,
+          "aligned": false
+        },
+        "60": {
+          "maturity_date": "2022-09-07",
+          "return": 0.04477972734445901,
+          "mae": -0.13534715919197637,
+          "mfe": 0.3166006084350812,
+          "benchmark_return": 0.03706123544514783,
+          "excess_vs_benchmark": 0.007718491899311175,
+          "aligned": true
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:QQQM",
+      "symbol": "QQQM",
+      "event_date": "2022-06-09",
+      "state_detail": "tier3",
+      "previous_level": 2,
+      "baseline_close": 122.727,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2022-06-16",
+          "return": -0.09324761462432885,
+          "mae": -0.10087429823918137,
+          "mfe": -0.015978554026416347,
+          "benchmark_return": -0.09354898059310945,
+          "excess_vs_benchmark": 0.00030136596878060917,
+          "aligned": false
+        },
+        "20": {
+          "maturity_date": "2022-07-11",
+          "return": -0.033464518810041755,
+          "mae": -0.10087429823918137,
+          "mfe": -0.007447423957238408,
+          "benchmark_return": -0.032738906454426675,
+          "excess_vs_benchmark": -0.0007256123556150795,
+          "aligned": false
+        },
+        "60": {
+          "maturity_date": "2022-09-06",
+          "return": -0.019319302191041943,
+          "mae": -0.10087429823918137,
+          "mfe": 0.11842544835284818,
+          "benchmark_return": -0.019321712821630976,
+          "excess_vs_benchmark": 2.41063058903368e-06,
+          "aligned": false
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:QQQM",
+      "symbol": "QQQM",
+      "event_date": "2022-05-27",
+      "state_detail": "tier2",
+      "previous_level": 3,
+      "baseline_close": 126.692,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2022-06-06",
+          "return": -0.005414706532377633,
+          "mae": -0.018627853376693038,
+          "mfe": 0.017065008051021513,
+          "benchmark_return": -0.0060854872349974665,
+          "excess_vs_benchmark": 0.0006707807026198331,
+          "aligned": false
+        },
+        "20": {
+          "maturity_date": "2022-06-28",
+          "return": -0.08103905534682532,
+          "mae": -0.12901367095002048,
+          "mfe": 0.017065008051021513,
+          "benchmark_return": -0.0809363201943133,
+          "excess_vs_benchmark": -0.00010273515251202348,
+          "aligned": false
+        },
+        "60": {
+          "maturity_date": "2022-08-24",
+          "return": 0.020411707132257817,
+          "mae": -0.12901367095002048,
+          "mfe": 0.08342278912638523,
+          "benchmark_return": 0.021074794730311153,
+          "excess_vs_benchmark": -0.0006630875980533357,
+          "aligned": true
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:QLD",
+      "symbol": "QLD",
+      "event_date": "2022-05-26",
+      "state_detail": "tier2",
+      "previous_level": 3,
+      "baseline_close": 23.7149,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2022-06-03",
+          "return": 0.04244588844987751,
+          "mae": 0.020704282961344855,
+          "mfe": 0.10182627799400379,
+          "benchmark_return": 0.022955601902970413,
+          "excess_vs_benchmark": 0.0194902865469071,
+          "aligned": true
+        },
+        "20": {
+          "maturity_date": "2022-06-27",
+          "return": -0.05561904119351124,
+          "mae": -0.20060383978005392,
+          "mfe": 0.10182627799400379,
+          "benchmark_return": -0.021101705312231434,
+          "excess_vs_benchmark": -0.03451733588127981,
+          "aligned": false
+        },
+        "60": {
+          "maturity_date": "2022-08-23",
+          "return": 0.0717186241561214,
+          "mae": -0.20060383978005392,
+          "mfe": 0.21723473428097928,
+          "benchmark_return": 0.05136043293938042,
+          "excess_vs_benchmark": 0.020358191216740984,
+          "aligned": true
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:QQQM",
+      "symbol": "QQQM",
+      "event_date": "2022-05-18",
+      "state_detail": "tier3",
+      "previous_level": 2,
+      "baseline_close": 119.411,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2022-05-25",
+          "return": -0.0005778362127442094,
+          "mae": -0.03837167430136257,
+          "mfe": 0.009923708871041992,
+          "benchmark_return": 0.0004064342750227379,
+          "excess_vs_benchmark": -0.0009842704877669473,
+          "aligned": false
+        },
+        "20": {
+          "maturity_date": "2022-06-16",
+          "return": -0.06806743097369594,
+          "mae": -0.07590590481613924,
+          "mfe": 0.0790798167672997,
+          "benchmark_return": -0.06783948649131588,
+          "excess_vs_benchmark": -0.00022794448238006026,
+          "aligned": false
+        },
+        "60": {
+          "maturity_date": "2022-08-15",
+          "return": 0.14505363827453088,
+          "mae": -0.07590590481613924,
+          "mfe": 0.14672852584770246,
+          "benchmark_return": 0.14617268551447227,
+          "excess_vs_benchmark": -0.0011190472399413842,
+          "aligned": true
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:QLD",
+      "symbol": "QLD",
+      "event_date": "2022-05-18",
+      "state_detail": "tier3",
+      "previous_level": 2,
+      "baseline_close": 22.4706,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2022-05-25",
+          "return": 0.000436125426112266,
+          "mae": -0.07414132243909821,
+          "mfe": 0.022936637205949184,
+          "benchmark_return": 0.0004064342750227379,
+          "excess_vs_benchmark": 2.9691151089528134e-05,
+          "aligned": true
+        },
+        "20": {
+          "maturity_date": "2022-06-16",
+          "return": -0.14122453339029672,
+          "mae": -0.15633761448292438,
+          "mfe": 0.16283944353955837,
+          "benchmark_return": -0.06783948649131588,
+          "excess_vs_benchmark": -0.07338504689898084,
+          "aligned": false
+        },
+        "60": {
+          "maturity_date": "2022-08-15",
+          "return": 0.2742694899112619,
+          "mae": -0.15633761448292438,
+          "mfe": 0.2782302208218739,
+          "benchmark_return": 0.14617268551447227,
+          "excess_vs_benchmark": 0.1280968043967896,
+          "aligned": true
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:QQQM",
+      "symbol": "QQQM",
+      "event_date": "2022-05-17",
+      "state_detail": "tier2",
+      "previous_level": 3,
+      "baseline_close": 125.497,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2022-05-24",
+          "return": -0.06206522865088415,
+          "mae": -0.08500601608006575,
+          "mfe": -0.01372941185845078,
+          "benchmark_return": -0.0618307334528323,
+          "excess_vs_benchmark": -0.00023449519805185393,
+          "aligned": false
+        },
+        "20": {
+          "maturity_date": "2022-06-15",
+          "return": -0.07611337322804534,
+          "mae": -0.10762807079053682,
+          "mfe": 0.026749643417770974,
+          "benchmark_return": -0.07633053687921043,
+          "excess_vs_benchmark": 0.0002171636511650865,
+          "aligned": false
+        },
+        "60": {
+          "maturity_date": "2022-08-12",
+          "return": 0.08109357195789557,
+          "mae": -0.12072001721156689,
+          "mfe": 0.08141230467660576,
+          "benchmark_return": 0.08117824229864534,
+          "excess_vs_benchmark": -8.467034074977065e-05,
+          "aligned": true
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:QLD",
+      "symbol": "QLD",
+      "event_date": "2022-05-13",
+      "state_detail": "tier2",
+      "previous_level": 3,
+      "baseline_close": 24.2703,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2022-05-20",
+          "return": -0.08968574760097736,
+          "mae": -0.1427959275328281,
+          "mfe": 0.030333370415693173,
+          "benchmark_return": -0.04392289084987622,
+          "excess_vs_benchmark": -0.045762856751101144,
+          "aligned": false
+        },
+        "20": {
+          "maturity_date": "2022-06-13",
+          "return": -0.1797752808988764,
+          "mae": -0.18549420485119672,
+          "mfe": 0.07661215559758228,
+          "benchmark_return": -0.08786267381991653,
+          "excess_vs_benchmark": -0.09191260707895987,
+          "aligned": false
+        },
+        "60": {
+          "maturity_date": "2022-08-10",
+          "return": 0.13095017366905237,
+          "mae": -0.21889717061593794,
+          "mfe": 0.13584916544088865,
+          "benchmark_return": 0.08152475033446405,
+          "excess_vs_benchmark": 0.049425423334588325,
+          "aligned": true
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:QLD",
+      "symbol": "QLD",
+      "event_date": "2022-05-11",
+      "state_detail": "tier3",
+      "previous_level": 2,
+      "baseline_close": 22.7185,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2022-05-18",
+          "return": -0.010911811959416262,
+          "mae": -0.0471421968879987,
+          "mfe": 0.10071087439751736,
+          "benchmark_return": -0.002390830953571177,
+          "excess_vs_benchmark": -0.008520981005845085,
+          "aligned": false
+        },
+        "20": {
+          "maturity_date": "2022-06-09",
+          "return": 0.03906507912054069,
+          "mae": -0.08424411822963651,
+          "mfe": 0.15015075819266244,
+          "benchmark_return": 0.025904164030577492,
+          "excess_vs_benchmark": 0.013160915089963199,
+          "aligned": true
+        },
+        "60": {
+          "maturity_date": "2022-08-08",
+          "return": 0.1713185289521757,
+          "mae": -0.1655434997909193,
+          "mfe": 0.2134339855184102,
+          "benchmark_return": 0.10104057072350603,
+          "excess_vs_benchmark": 0.07027795822866967,
+          "aligned": true
+        }
+      }
+    },
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:QQQM",
+      "symbol": "QQQM",
+      "event_date": "2022-05-09",
+      "state_detail": "tier3",
+      "previous_level": 2,
+      "baseline_close": 121.901,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": {
+          "maturity_date": "2022-05-16",
+          "return": 0.003921214756236635,
+          "mae": -0.04208332991525909,
+          "mfe": 0.026964503982740196,
+          "benchmark_return": 0.004339184137261087,
+          "excess_vs_benchmark": -0.00041796938102445225,
+          "aligned": true
+        },
+        "20": {
+          "maturity_date": "2022-06-07",
+          "return": 0.041599330604342954,
+          "mae": -0.058014290284739256,
+          "mfe": 0.05703808828475587,
+          "benchmark_return": 0.04281168146818226,
+          "excess_vs_benchmark": -0.0012123508638393066,
+          "aligned": true
+        },
+        "60": {
+          "maturity_date": "2022-08-04",
+          "return": 0.09284583391440604,
+          "mae": -0.09478183115807093,
+          "mfe": 0.09333803660347328,
+          "benchmark_return": 0.09380739377752767,
+          "excess_vs_benchmark": -0.0009615598631216304,
+          "aligned": true
+        }
+      }
+    }
+  ],
+  "methodology": {
+    "horizons": [
+      5,
+      20,
+      60
+    ],
+    "cluster_sessions": 5,
+    "effective_n": "signals with the same playbook/detail within <=5 QQQ trading sessions are collapsed into one cluster",
+    "confidence_interval": "Wilson 95% interval on raw directional alignment rate; effective_n is displayed separately to prevent clustered events looking independent",
+    "benchmark": "QQQ where available"
+  },
+  "guardrails": [
+    "Historical replay is post-rule-design research evidence, never Forward evidence.",
+    "Replay cannot write the private Forward Ledger.",
+    "Blocked dependencies are not approximated to inflate sample size.",
+    "No replay statistic may automatically promote a rule or change production thresholds.",
+    "No option P&L is inferred from underlying returns."
+  ]
+}

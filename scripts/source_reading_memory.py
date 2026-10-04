@@ -25,7 +25,7 @@ from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
 SRC=ROOT/"docs"/"data"/"source_intelligence.json"
 OUT=ROOT/"docs"/"research"/"source_reading_memory.json"
-VERSION="6.14.2"
+VERSION="6.14.0"
 
 VIEW_HINTS=(
     "认为","觉得","看好","看坏","可能","应该","预计","预期","判断","猜","倾向",
@@ -70,33 +70,6 @@ def sentence_candidates(text):
     if not text:return []
     parts=re.split(r"(?<=[。！？!?;；])\s*|\n+",str(text))
     return [clean_text(x,300) for x in parts if clean_text(x,300)]
-
-def explicit_method_candidates(op,row=None):
-    """Map a structured operation to method categories using operation semantics.
-
-    Article topics are intentionally ignored here. One structured operation may
-    map to multiple methods only when its own fields/actions/conditions prove it.
-    """
-    row=row or {}
-    actions={str(x).lower() for x in (op.get("actions") or [])}
-    conditions=" ".join(str(x).lower() for x in (op.get("conditions") or []))
-    text=" ".join([
-        str(op.get("strategy") or "").lower(),
-        str(op.get("option_type") or "").lower(),
-        str(row.get("title") or "").lower(),
-    ])
-    out=[]
-    if "sell_put" in actions or op.get("sell_put_strike") is not None:
-        out.append("Sell Put")
-    sizing={"buy","add","trim","trim_half","sell","clear","planned_buy","planned_sell"}
-    has_plan_level=any(op.get(k) is not None for k in ("entry_1","entry_2","entry_below","exit_line","target_range"))
-    if actions & sizing or has_plan_level:
-        out.append("仓位与加减仓")
-    if "leap" in text or any("leap" in x for x in actions):
-        out.append("LEAPS")
-    if any(k in conditions for k in ("trend","breakout","ma20","ma21","ma50","tcds","supertrend")):
-        out.append("趋势确认")
-    return out
 
 def explicit_rule_from_operation(op):
     fields={}
@@ -146,14 +119,8 @@ def record_memory(row):
 
         rule=explicit_rule_from_operation(op)
         if rule and owner in {"author_action","author_plan"}:
-            method_candidates=explicit_method_candidates(op,row)
             add(props,sid,"testable_rule",f"{sym}：结构化操作规则 {json.dumps(rule,ensure_ascii=False,sort_keys=True)}",
-                "high",True,{
-                    "operation_index":i,
-                    "attribution":owner,
-                    "rule":rule,
-                    "method_candidates":method_candidates,
-                })
+                "high",True,{"operation_index":i,"attribution":owner,"rule":rule})
 
     # Portfolio rules / lessons are preserved as source claims, not automatically
     # converted into performance evidence.
@@ -198,19 +165,12 @@ def build(source):
     kind_counts=Counter()
     author_counts=Counter()
     topic_counts=Counter()
-    testable_by_topic=defaultdict(int)
     testable_by_method=defaultdict(int)
     for m in memories:
-        for p in m["propositions"]:
-            kind_counts[p["kind"]]+=1
-            if p.get("kind")=="testable_rule":
-                for method in ((p.get("evidence") or {}).get("method_candidates") or []):
-                    testable_by_method[method]+=1
+        for p in m["propositions"]:kind_counts[p["kind"]]+=1
         if m["testable_rule_count"]:
             author_counts[m.get("author") or "unknown"]+=m["testable_rule_count"]
-            # Topic association is descriptive context only; downstream Method
-            # Memory must never treat this as method attribution.
-            for t in m.get("topics") or []:testable_by_topic[t]+=m["testable_rule_count"]
+            for t in m.get("topics") or []:testable_by_method[t]+=m["testable_rule_count"]
         for t in m.get("topics") or []:topic_counts[t]+=1
 
     return {
@@ -226,8 +186,7 @@ def build(source):
             "by_kind":dict(kind_counts),
         },
         "testable_by_author":dict(author_counts),
-        "testable_by_topic":dict(testable_by_topic),
-        "testable_by_method":dict(testable_by_method),
+        "testable_by_topic":dict(testable_by_method),
         "topic_record_counts":dict(topic_counts),
         "records":memories[:800],
         "guardrails":[

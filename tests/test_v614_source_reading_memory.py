@@ -66,6 +66,12 @@ assert rule["testable"] is True
 assert rule["evidence"]["attribution"]=="author_plan"
 assert rule["evidence"]["rule"]["fields"]["entry_1"]==700
 assert rule["evidence"]["rule"]["fields"]["exit_line"]==650
+assert set(rule["evidence"]["method_candidates"])=={"仓位与加减仓","趋势确认"}
+assert out["testable_by_method"]["仓位与加减仓"]==1
+assert out["testable_by_method"]["趋势确认"]==1
+assert out["testable_by_method"].get("Sell Put",0)==0
+# Topic association is retained only as descriptive context.
+assert out["testable_by_topic"]["仓位与加减仓"]==1
 
 # Topic alone never creates a direct/testable rule.
 r2=next(x for x in out["records"] if x["source_id"]=="r2")
@@ -97,6 +103,8 @@ position=next(x for x in method["methods"] if x["method"]=="仓位与加减仓")
 assert method["version"]=="6.14.2"
 assert method["counts"]["source_reading_testable_rules"]==1
 assert position["source_reading"]["testable_rule_candidates"]==1
+trend=next(x for x in method["methods"] if x["method"]=="趋势确认")
+assert trend["source_reading"]["testable_rule_candidates"]==1
 assert position["source_reading"]["state"]=="candidate_rules_available"
 assert position["direct_validated_events"]==0
 assert position["performance"] is None
@@ -131,4 +139,4 @@ assert "module_failure_marker.py source_reading_memory" in workflow
 manifest=(ROOT/"scripts/generate_build_manifest.py").read_text(encoding="utf-8")
 assert "research/source_reading_memory.json" in manifest
 
-print("PASS V6.14 source reading propositions / author ownership / no topic promotion / research-only")
+print("PASS V6.14.2 source reading propositions / explicit method attribution / no topic promotion / research-only")

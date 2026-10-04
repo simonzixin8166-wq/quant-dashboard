@@ -446,15 +446,44 @@ def execute_task(task,artifacts):
       "guardrail":"该研究结果不能自动下单；未知项不得由模型猜测补全。"
     }
 
-def build(planner,artifacts,previous):
-    tasks=(planner.get("today") or [])[:8]
-    # If the live queue is short, include the highest-value non-live research tasks.
-    if len(tasks)<8:
-        existing={x.get("task_id") for x in tasks}
-        for t in planner.get("queue") or []:
+def select_tasks(planner,limit=8):
+    """Select bounded research work without starving learning-validation tasks.
+
+    High-priority live tasks remain first. If a structured method-rule candidate
+    exists, reserve at most one slot for the highest-priority candidate so it
+    cannot be postponed forever by a permanently busy market queue.
+    """
+    today=list(planner.get("today") or [])
+    queue=list(planner.get("queue") or [])
+    selected=today[:limit]
+    existing={x.get("task_id") for x in selected}
+
+    candidates=[x for x in queue if x.get("kind")=="method_rule_candidate"]
+    candidates.sort(key=lambda x:(float(x.get("priority") or 0),int(x.get("run_count") or 0)),reverse=True)
+    candidate=next((x for x in candidates if x.get("task_id") not in existing),None)
+    if candidate:
+        if len(selected)<limit:
+            selected.append(candidate)
+            existing.add(candidate.get("task_id"))
+        elif selected:
+            # Preserve the top live/risk tasks; replace only the lowest selected
+            # task and only with one research-learning slot.
+            lowest_i=min(range(len(selected)),key=lambda i:float(selected[i].get("priority") or 0))
+            selected[lowest_i]=candidate
+            existing={x.get("task_id") for x in selected}
+
+    # Fill any remaining capacity by global queue priority.
+    if len(selected)<limit:
+        for t in queue:
             if t.get("task_id") in existing:continue
-            tasks.append(t)
-            if len(tasks)>=8:break
+            selected.append(t);existing.add(t.get("task_id"))
+            if len(selected)>=limit:break
+
+    selected.sort(key=lambda x:float(x.get("priority") or 0),reverse=True)
+    return selected[:limit]
+
+def build(planner,artifacts,previous):
+    tasks=select_tasks(planner,8)
     rows=[execute_task(t,artifacts) for t in tasks]
     old={x.get("task_id"):x for x in (previous.get("results") or [])}
     now=datetime.now(timezone.utc).isoformat()

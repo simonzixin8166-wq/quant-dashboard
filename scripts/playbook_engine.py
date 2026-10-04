@@ -49,6 +49,22 @@ def truthy_env(name,default=True):
     if raw is None:return default
     return str(raw).strip().lower() not in {"0","false","no","off",""}
 
+def _pb_env(playbook_id, suffix):
+    token=str(playbook_id).replace("-","_")
+    return f"MYALPHA_{token}_{suffix}"
+
+def runtime_switches():
+    out={}
+    for pid,pb in PLAYBOOKS.items():
+        if pb.get("class")!="cloud":continue
+        out[pid]={
+            "enabled":truthy_env(_pb_env(pid,"ENABLED"),bool(pb.get("enabled",True))),
+            "ledger_enabled":truthy_env(_pb_env(pid,"LEDGER_ENABLED"),bool(pb.get("ledger_enabled",True))),
+            "notifications_enabled":truthy_env(_pb_env(pid,"NOTIFICATIONS_ENABLED"),bool(pb.get("notifications_enabled",False))),
+            "source":"repository_variable_or_registry_default",
+        }
+    return out
+
 def record_id(*parts):
     raw="|".join("" if x is None else str(x) for x in parts)
     return hashlib.sha256(raw.encode("utf-8")).hexdigest()[:28]

@@ -142,7 +142,7 @@ def build(events,families,spec):
         h60=c["horizons"]["60"]
         c["status"]="statistically_reviewable" if (
             h60["effective_n"]>=int((spec.get("thresholds") or {}).get("mature_60_effective_samples_min") or 20)
-            and c["independent_authors"]>=int((spec.get("thresholds") or {}).get("independent_authors_min") or 3)
+            and h60["independent_authors"]>=int((spec.get("thresholds") or {}).get("independent_authors_min") or 3)
             and h60["independent_time_clusters"]>=int((spec.get("thresholds") or {}).get("independent_time_clusters_min") or 6)
             and h60["test_status"]=="testable"
         ) else "sample_insufficient_research_only"

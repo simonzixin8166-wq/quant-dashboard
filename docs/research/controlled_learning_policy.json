@@ -1,6 +1,6 @@
 {
-  "version": "6.12.1",
-  "generated_at": "2026-10-04T06:13:28.926236+00:00",
+  "version": "6.13.2",
+  "generated_at": "2026-10-04T07:20:47.612101+00:00",
   "mode": "controlled_research_only",
   "production_mutation": false,
   "automatic_orders": false,
@@ -36,55 +36,109 @@
     "AI研究方法": {
       "direct_n": 0,
       "alignment20": null,
-      "state": "unproven",
+      "state": "context_only",
+      "evidence_maturity": {
+        "state": "context_only",
+        "basis_horizon": null,
+        "mature_n": 0,
+        "alignment_rate": null
+      },
       "auto_weight_delta": 0.0
     },
     "LEAPS": {
       "direct_n": 0,
       "alignment20": null,
-      "state": "unproven",
+      "state": "context_only",
+      "evidence_maturity": {
+        "state": "context_only",
+        "basis_horizon": null,
+        "mature_n": 0,
+        "alignment_rate": null
+      },
       "auto_weight_delta": 0.0
     },
     "Sell Put": {
       "direct_n": 0,
       "alignment20": null,
-      "state": "unproven",
+      "state": "context_only",
+      "evidence_maturity": {
+        "state": "context_only",
+        "basis_horizon": null,
+        "mature_n": 0,
+        "alignment_rate": null
+      },
       "auto_weight_delta": 0.0
     },
     "仓位与加减仓": {
       "direct_n": 6,
       "alignment20": 0.6666666666666666,
-      "state": "early",
+      "state": "direct_developing",
+      "evidence_maturity": {
+        "state": "direct_developing",
+        "basis_horizon": 20,
+        "mature_n": 5,
+        "alignment_rate": null
+      },
       "auto_weight_delta": 0.0
     },
     "估值与价格": {
       "direct_n": 0,
       "alignment20": null,
-      "state": "unproven",
+      "state": "context_only",
+      "evidence_maturity": {
+        "state": "context_only",
+        "basis_horizon": null,
+        "mature_n": 0,
+        "alignment_rate": null
+      },
       "auto_weight_delta": 0.0
     },
     "失败复盘": {
       "direct_n": 0,
       "alignment20": null,
-      "state": "unproven",
+      "state": "context_only",
+      "evidence_maturity": {
+        "state": "context_only",
+        "basis_horizon": null,
+        "mature_n": 0,
+        "alignment_rate": null
+      },
       "auto_weight_delta": 0.0
     },
     "趋势确认": {
       "direct_n": 0,
       "alignment20": null,
-      "state": "unproven",
+      "state": "context_only",
+      "evidence_maturity": {
+        "state": "context_only",
+        "basis_horizon": null,
+        "mature_n": 0,
+        "alignment_rate": null
+      },
       "auto_weight_delta": 0.0
     },
     "长期持有纪律": {
       "direct_n": 0,
       "alignment20": null,
-      "state": "unproven",
+      "state": "context_only",
+      "evidence_maturity": {
+        "state": "context_only",
+        "basis_horizon": null,
+        "mature_n": 0,
+        "alignment_rate": null
+      },
       "auto_weight_delta": 0.0
     },
     "风险管理": {
       "direct_n": 0,
       "alignment20": null,
-      "state": "unproven",
+      "state": "context_only",
+      "evidence_maturity": {
+        "state": "context_only",
+        "basis_horizon": null,
+        "mature_n": 0,
+        "alignment_rate": null
+      },
       "auto_weight_delta": 0.0
     }
   },
@@ -103,7 +157,7 @@
     "automatic_promotion": false
   },
   "change_log": {
-    "previous_generated_at": "2026-10-04T05:56:22.090142+00:00",
+    "previous_generated_at": "2026-10-04T06:13:28.926236+00:00",
     "recomputed_from_current_evidence": true,
     "cumulative_same_day_learning": false,
     "rollback": "delete/ignore controlled_learning_policy.json to return all controlled deltas to zero"
@@ -113,7 +167,7 @@
     "All research-priority deltas are bounded to +/-5 points.",
     "Repeated workflows on the same market day do not accumulate deltas.",
     "Historical replay and Forward evidence remain separately labeled.",
-    "Method/source weights remain frozen until direct evidence maturity gates are met.",
+    "Method/source weights remain frozen even after maturity labels change; a separate approved policy gate is required.",
     "Production thresholds, Hard Exit, position sizing, portfolio allocation and order logic are immutable here."
   ]
 }

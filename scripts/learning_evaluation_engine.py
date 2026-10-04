@@ -54,6 +54,12 @@ def classify_gap(text: str) -> str:
     return "其他待验证项"
 
 def method_rows(method: dict) -> list[dict]:
+    """Expose Method Memory's evidence state without reclassifying it.
+
+    Method Memory is the single source of truth for method-evidence maturity.
+    Downstream modules may summarize it, but must not invent a second state
+    machine from raw sample counts.
+    """
     rows = []
     for m in method.get("methods") or []:
         perf = m.get("performance") or {}
@@ -68,18 +74,13 @@ def method_rows(method: dict) -> list[dict]:
                     "median_return": x.get("median_return"),
                 }
         direct = int(m.get("direct_validated_events") or 0)
-        if direct >= 20:
-            maturity = "validated"
-        elif direct >= 8:
-            maturity = "developing"
-        elif direct > 0:
-            maturity = "early"
-        else:
-            maturity = "unproven"
+        evidence = m.get("evidence_maturity") or {}
+        maturity = evidence.get("state") or m.get("status") or ("context_only" if direct==0 else "direct_early")
         rows.append({
             "method": m.get("method"),
             "direct_validated_events": direct,
             "maturity": maturity,
+            "evidence_maturity": evidence,
             "horizons": horizons,
         })
     return rows
@@ -136,7 +137,7 @@ def build(execution, planner, learning, method, evidence, history, self_improvem
     methods = method_rows(method)
     method_counts = method.get("counts") or {}
     direct_methods = sum(x["direct_validated_events"] > 0 for x in methods)
-    validated_methods = sum(x["maturity"] == "validated" for x in methods)
+    validated_methods = sum(x["maturity"] in {"outcome_supportive","outcome_mixed","outcome_challenging"} for x in methods)
 
     history_summary = historical_summary(history)
     situation_count = ((learning.get("quality") or {}).get("situations")
@@ -183,7 +184,7 @@ def build(execution, planner, learning, method, evidence, history, self_improvem
         })
 
     return {
-        "version": "6.9.0",
+        "version": "6.13.2",
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "title": "Learning Evaluation · 自我评估中心",
         "learning_health": {

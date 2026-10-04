@@ -1,1 +1,1 @@
-Run V6.12 Controlled Learning production verification
+Verify serialized writers and V6.12 production state after stale-checkout fix

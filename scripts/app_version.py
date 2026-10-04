@@ -16,6 +16,7 @@ COMPONENT_VERSIONS = {
     "research_planner": "6.13.3",
     "research_execution": "6.13.3",
     "method_memory": "6.13.1",
+    "method_evidence_ui": "6.13.4",
     "self_improvement": "7.2.1",
     "learning_evaluation": "6.13.2",
     "system_status": "4",

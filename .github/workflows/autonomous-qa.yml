@@ -31,6 +31,7 @@ jobs:
           node --check docs/assets/decision-journal.js
           node --check docs/assets/wenxuecity.js
           node --check docs/assets/research-methods.js
+          node --check docs/assets/knowledge.js
           python tests/test_opportunity_strategy.py
           python tests/test_build_contract.py
           python tests/test_v510_autonomous_assistant.py
@@ -81,6 +82,7 @@ jobs:
           python tests/test_v6131_method_memory_attribution.py
           python tests/test_v6132_method_evidence_state_unification.py
           python tests/test_v6133_method_learning_followup.py
+          python tests/test_v6134_method_evidence_ui.py
       - name: Public static privacy guard
         run: |
           if grep -R -n -E '"(option_positions|private_positions|broker_account_id)"' docs/research docs/data.json 2>/dev/null; then

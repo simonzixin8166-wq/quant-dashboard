@@ -1,1 +1,1 @@
-Verify V6.14.4 research fairness slot executes structured Sell Put candidate
+Verify V6.14.5 structured source rule lifecycle in production

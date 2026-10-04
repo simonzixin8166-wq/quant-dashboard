@@ -33,10 +33,11 @@ ARTIFACTS={
     "playbook_status": ROOT/"docs"/"research"/"playbook_status.json",
     "ledger_anchor": ROOT/"docs"/"research"/"ledger_anchor.json",
     "range_intelligence": ROOT/"docs"/"research"/"range_intelligence.json",
+    "module_failures": ROOT/"docs"/"research"/"module_failures.json",
 }
 
 WATCH_WORKFLOWS={
-    "quant-dashboard":["Daily Dashboard Update","Autonomous QA & Security","Source Intelligence Validation","Trend Pulse 5Y Backtest","pages build and deployment"],
+    "quant-dashboard":["Daily Dashboard Update","Autonomous QA & Security","Source Intelligence Validation","Trend Pulse 5Y Backtest","pages build and deployment","Playbook Independent Watchdog"],
     "wxc-bot":["research-close","tg-bot"],
 }
 
@@ -68,6 +69,7 @@ FRESHNESS_HOURS={
     "playbook_status": 96,
     "ledger_anchor": 96,
     "range_intelligence": 96,
+    "module_failures": 720,
 }
 CRITICAL_DECISION_ARTIFACTS={
     "market_dashboard","learning_engine","autonomous_agent",
@@ -191,12 +193,17 @@ def build(fetch_runs=True):
     ]
     playbook=load(ARTIFACTS["playbook_status"])
     ledger=load(ARTIFACTS["ledger_anchor"])
+    failures=load(ARTIFACTS["module_failures"])
     ledger_fault=bool((playbook.get("storage") or {}).get("forward_clock_active") and ledger.get("status")!="ok")
+    playbook_generated=parse_iso(playbook.get("generated_at"))
+    playbook_failure=parse_iso((((failures.get("modules") or {}).get("playbook_engine") or {}).get("failed_at")))
+    unresolved_playbook_failure=bool(playbook_failure and (not playbook_generated or playbook_failure>playbook_generated))
     if "bad" in critical:overall="attention"
     elif "running" in critical:overall="running"
     elif any(x in {"unknown",None} for x in critical):overall="attention"
     elif artifact_failures:overall="attention"
     elif ledger_fault:overall="attention"
+    elif unresolved_playbook_failure:overall="attention"
     result={
         "version":4,
         "generated_at":datetime.now(timezone.utc).isoformat(),
@@ -215,6 +222,8 @@ def build(fetch_runs=True):
             "kill_switch":playbook.get("kill_switch") or {},
             "storage":playbook.get("storage") or {},
             "ledger_anchor_status":ledger.get("status","unknown"),
+            "unresolved_failure":unresolved_playbook_failure,
+            "failure_marker":((failures.get("modules") or {}).get("playbook_engine") or {}),
         },
         "decision_data_contract":{
             "critical_artifacts":sorted(CRITICAL_DECISION_ARTIFACTS),

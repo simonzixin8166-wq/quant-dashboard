@@ -77,6 +77,38 @@ def build(agent,learning,evidence,method,source,previous,modules=None,cross_asse
               ["哪些事件可以直接归因到该方法？","需要补充哪些触发条件字段？","哪些 Context 样本应保持排除？"],
               ["method_memory","source_intelligence","source_outcomes"],14)
             if t["task_id"] not in seen:tasks.append(t);seen.add(t["task_id"])
+    # Method-evidence follow-up loop. Method Memory owns the state taxonomy;
+    # Planner only converts that state into research work, never into trading.
+    method_priority={
+        "direct_early":64,
+        "direct_developing":70,
+        "outcome_supportive":66,
+        "outcome_mixed":76,
+        "outcome_challenging":82,
+    }
+    method_questions={
+        "direct_early":["哪些新增事件能扩大直接样本？","5/20/60日结果是否开始成熟？","当前样本是否集中在单一作者或单一市场环境？","有什么明确反例？"],
+        "direct_developing":["20日成熟样本在不同市场环境下是否一致？","失败样本集中在哪些动作或环境？","60日样本成熟后结论是否改变？","是否存在作者/标的集中导致的伪优势？"],
+        "outcome_supportive":["支持结果是否跨作者、跨标的、跨市场环境？","有哪些反例能推翻当前支持状态？","相对QQQ是否仍有增量价值？","样本增加后状态是否稳定？"],
+        "outcome_mixed":["哪些环境下表现支持、哪些环境下失效？","能否按动作/市场环境解释混合结果？","是否存在时间周期错配？","需要补什么直接证据才能缩小不确定性？"],
+        "outcome_challenging":["失败是否由方法本身、执行时点、环境或数据质量造成？","哪些反例最有代表性？","是否应降低研究提醒优先级而不是改交易规则？","有没有可预注册的替代研究假设？"],
+    }
+    for m in method.get("methods") or []:
+        name=m.get("method")
+        evidence_state=((m.get("evidence_maturity") or {}).get("state") or m.get("status"))
+        if evidence_state not in method_priority:
+            continue
+        direct=int(m.get("direct_validated_events") or 0)
+        mature=((m.get("evidence_maturity") or {}).get("mature_n") or 0)
+        t=task("method_validation",name,f"{name} · 方法证据跟踪",method_priority[evidence_state],
+          f"Method Memory 当前为 {evidence_state}；Direct {direct}，成熟基准样本 {mature}。系统只继续研究和找反证，不自动改变方法权重。",
+          method_questions[evidence_state],
+          ["method_memory","source_outcomes","source_intelligence","market_history"],14)
+        t["method_evidence_state"]=evidence_state
+        t["direct_validated_events"]=direct
+        t["mature_basis_n"]=mature
+        if t["task_id"] not in seen:tasks.append(t);seen.add(t["task_id"])
+
     for d in agent.get("discovery_queue") or []:
         sym=d.get("symbol")
         t=task("discovery",sym,f"{sym} · 新机会核验",70 if d.get("event_strength")=="high" else 60,
@@ -190,7 +222,7 @@ def build(agent,learning,evidence,method,source,previous,modules=None,cross_asse
     tasks.sort(key=lambda x:(x["priority"],x["run_count"]),reverse=True)
     now=datetime.now(timezone.utc).isoformat()
     return {
-      "version":"6.8.2","generated_at":now,"mode":"autonomous_research_planner",
+      "version":"6.13.3","generated_at":now,"mode":"autonomous_research_planner",
       "queue":tasks[:30],
       "today":[x for x in tasks if x["priority"]>=70][:10],
       "counts":{"open":len(tasks),"high_priority":sum(x["priority"]>=70 for x in tasks),"persistent":sum(x["run_count"]>1 for x in tasks)},

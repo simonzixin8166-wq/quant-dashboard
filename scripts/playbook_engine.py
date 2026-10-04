@@ -49,6 +49,22 @@ def truthy_env(name,default=True):
     if raw is None:return default
     return str(raw).strip().lower() not in {"0","false","no","off",""}
 
+def _pb_env(playbook_id, suffix):
+    token=str(playbook_id).replace("-","_")
+    return f"MYALPHA_{token}_{suffix}"
+
+def runtime_switches():
+    out={}
+    for pid,pb in PLAYBOOKS.items():
+        if pb.get("class")!="cloud":continue
+        out[pid]={
+            "enabled":truthy_env(_pb_env(pid,"ENABLED"),bool(pb.get("enabled",True))),
+            "ledger_enabled":truthy_env(_pb_env(pid,"LEDGER_ENABLED"),bool(pb.get("ledger_enabled",True))),
+            "notifications_enabled":truthy_env(_pb_env(pid,"NOTIFICATIONS_ENABLED"),bool(pb.get("notifications_enabled",False))),
+            "source":"repository_variable_or_registry_default",
+        }
+    return out
+
 def record_id(*parts):
     raw="|".join("" if x is None else str(x) for x in parts)
     return hashlib.sha256(raw.encode("utf-8")).hexdigest()[:28]
@@ -281,6 +297,8 @@ def build(now=None,writer=None):
     global_enabled=truthy_env("MYALPHA_PLAYBOOK_ENABLED",True)
     global_ledger=truthy_env("MYALPHA_PLAYBOOK_LEDGER_ENABLED",True)
     alerts_enabled=truthy_env("MYALPHA_PLAYBOOK_ALERTS_ENABLED",False)
+    per_playbook=runtime_switches()
+    previous_switches=((previous.get("kill_switch") or {}).get("per_playbook") or {})
     writer=writer if writer is not None else PrivateGitHubLedger.from_env()
     storage_configured=bool(writer)
     configured_repo=os.getenv("MYALPHA_LEDGER_REPO","").strip() or None
@@ -305,6 +323,17 @@ def build(now=None,writer=None):
         audit_events.append(_audit_event("heartbeat_or_freshness_failed",";".join(gate["global_reasons"]),gate["market_date"],now,commit_sha,{"expected_market_date":gate["expected_market_date"]}))
     if starting_forward:
         audit_events.append(_audit_event("forward_clock_started","Forward clock baseline established; current states are not backfilled as triggers.",gate["market_date"],now,commit_sha))
+    for pid,current in per_playbook.items():
+        prior=previous_switches.get(pid) or {}
+        current_view={k:current[k] for k in ("enabled","ledger_enabled","notifications_enabled")}
+        prior_view={k:prior.get(k) for k in ("enabled","ledger_enabled","notifications_enabled")}
+        if prior and current_view!=prior_view:
+            audit_events.append(_audit_event(
+                "playbook_kill_switch_changed",
+                f"{pid} runtime switch changed by operator/repository variable.",
+                gate["market_date"],now,commit_sha,
+                {"playbook_id":pid,"previous":prior_view,"current":current_view,"human_controlled":True}
+            ))
 
     legacy_cp01=any(
         x.get("playbook_id")=="CP-01" and x.get("rule_hash")==LEGACY_CP01_HASH
@@ -325,17 +354,30 @@ def build(now=None,writer=None):
         old_key=old.get("committed_state_key") or old.get("state_key")
         same_rule=old.get("rule_hash")==row["rule_hash"] if old else False
         baseline_only=(not old) or (not same_rule) or starting_forward
+        switches=per_playbook.get(row["playbook_id"]) or {"enabled":True,"ledger_enabled":True,"notifications_enabled":False}
+        runtime_active=bool(switches.get("enabled") and switches.get("ledger_enabled"))
+        row["runtime"]={**switches,"ledger_active":bool(forward_active and runtime_active)}
         row["previous_state_key"]=old_key
         row["transition_detected"]=False
+        row["suppressed_by_kill_switch"]=False
         row["bootstrap"]=baseline_only
         if baseline_only:
-            if forward_active:
+            if forward_active and runtime_active:
                 audit_events.append(_audit_event("state_baseline",f'{row["entity_key"]} baseline {row["state_key"]}',gate["market_date"],now,commit_sha,{"entity_key":row["entity_key"],"rule_hash":row["rule_hash"]}))
             continue
         if row["state_key"]==old_key:
             continue
         row["transition_detected"]=True
         if not forward_active:
+            continue
+        if not runtime_active:
+            row["suppressed_by_kill_switch"]=True
+            audit_events.append(_audit_event(
+                "transition_suppressed_by_kill_switch",
+                f'{row["entity_key"]} transition {old_key} -> {row["state_key"]} suppressed while playbook runtime/ledger is paused.',
+                gate["market_date"],now,commit_sha,
+                {"entity_key":row["entity_key"],"playbook_id":row["playbook_id"],"rule_hash":row["rule_hash"],"scoreable":False}
+            ))
             continue
         if row["state"]=="UNDETERMINED":
             ev=_audit_event("undetermined",f'{row["entity_key"]}: {row["detail"]}',gate["market_date"],now,commit_sha,{"entity_key":row["entity_key"],"rule_hash":row["rule_hash"]})
@@ -346,7 +388,6 @@ def build(now=None,writer=None):
         else:
             ev=_event(row,old_key,now,commit_sha,"trigger_state_event")
             trigger_events.append(ev);pending_by_entity[row["entity_key"]]=ev["record_id"]
-
     ledger_health="not_configured" if not storage_configured else ("disabled" if not forward_active else "ok")
     anchor={
         "version":ENGINE_VERSION,"generated_at":now_iso(now),"market_date":gate["market_date"],
@@ -415,6 +456,8 @@ def build(now=None,writer=None):
             "global_enabled":global_enabled,
             "ledger_enabled":global_ledger,
             "alerts_enabled":alerts_enabled,
+            "per_playbook":per_playbook,
+            "operator_controls":"repository_variables",
         },
         "storage":{
             "configured":storage_configured,

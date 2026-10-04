@@ -24,6 +24,7 @@ PATHS={
     "evidence":ROOT/"docs/research/evidence_attribution.json",
     "method":ROOT/"docs/research/method_memory.json",
     "source":ROOT/"docs/data/source_intelligence.json",
+    "source_reading":ROOT/"docs/research/source_reading_memory.json",
     "modules":ROOT/"docs/research/module_intelligence.json",
     "official":ROOT/"docs/research/official_evidence.json",
     "event_windows":ROOT/"docs/research/event_window_attribution.json",
@@ -194,6 +195,49 @@ def method_gap_brief(task,method):
     if context>direct:add_unique(counter,f"仍有 {context-direct} 个上下文事件不能直接归因到该方法")
     if m.get("performance") is None:add_unique(counter,"当前不展示方法绩效，避免把上下文相关性误当方法有效性")
     add_unique(unknowns,"需要更多明确触发条件、动作字段和后续结果才能扩大Direct样本")
+    return support,counter,unknowns
+
+def method_rule_candidate_brief(task,source_reading,method):
+    name=task.get("key")
+    support=[];counter=[];unknowns=[]
+    method_row=method_map(method).get(name) or {}
+    reading_meta=method_row.get("source_reading") or {}
+    expected=int(reading_meta.get("testable_rule_candidates") or task.get("testable_rule_candidates") or 0)
+
+    matches=[]
+    for record in source_reading.get("records") or []:
+        for p in record.get("propositions") or []:
+            if p.get("kind")!="testable_rule":
+                continue
+            methods=((p.get("evidence") or {}).get("method_candidates") or [])
+            if name in methods:
+                matches.append((record,p))
+
+    add_unique(support,f"{name}：Source Reading 结构规则候选 {expected} 条；当前可展开 {len(matches)} 条")
+    authors=sorted({str(r.get("author") or "未知作者") for r,_ in matches})
+    if authors:add_unique(support,"候选作者："+" / ".join(authors[:6]))
+
+    for record,p in matches[:4]:
+        ev=p.get("evidence") or {}
+        rule=ev.get("rule") or {}
+        fields=rule.get("fields") or {}
+        conditions=rule.get("conditions") or []
+        actions=rule.get("actions") or []
+        detail=[]
+        if actions:detail.append("动作 "+"/".join(map(str,actions)))
+        if fields:detail.append("结构字段 "+", ".join(f"{k}={v}" for k,v in fields.items()))
+        if conditions:detail.append("条件 "+" / ".join(map(str,conditions[:3])))
+        add_unique(support,f"{record.get('author') or '未知作者'} · {record.get('title') or '未命名'}："+("；".join(detail) if detail else "结构规则已记录"))
+
+    direct=int(method_row.get("direct_validated_events") or 0)
+    if direct==0:
+        add_unique(unknowns,"当前 Direct=0：候选规则尚不能计入方法绩效，需先形成可验证触发并等待结果成熟")
+    else:
+        add_unique(counter,f"Method Memory 已有 Direct {direct}；本任务只核对新增结构候选，不能重复计入已有绩效")
+
+    if not matches:
+        add_unique(unknowns,"Source Reading 当前未找到可展开的匹配规则；需要检查 artifact 新鲜度或方法归因")
+    add_unique(counter,"文章主题与作者观点不能替代结构化规则归属；只有明确 author_action / author_plan 才可进入后续验证")
     return support,counter,unknowns
 
 def method_validation_brief(task,method):
@@ -373,6 +417,8 @@ def execute_task(task,artifacts):
         support,counter,unknowns=method_gap_brief(task,artifacts["method"])
     elif kind=="method_validation":
         support,counter,unknowns=method_validation_brief(task,artifacts["method"])
+    elif kind=="method_rule_candidate":
+        support,counter,unknowns=method_rule_candidate_brief(task,artifacts["source_reading"],artifacts["method"])
     elif kind in {"module_learning_review","architecture_gap"}:
         support,counter,unknowns=module_brief(task,artifacts["modules"])
     else:
@@ -438,7 +484,7 @@ def build(planner,artifacts,previous):
 
 def main():
     d={k:load(v) for k,v in PATHS.items()}
-    artifacts={k:d[k] for k in ("learning","evidence","method","source","modules","official","event_windows","events","cross_asset","cross_asset_history","breadth_intelligence","breadth_history","regime_memory","regime_history","data")}
+    artifacts={k:d[k] for k in ("learning","evidence","method","source","source_reading","modules","official","event_windows","events","cross_asset","cross_asset_history","breadth_intelligence","breadth_history","regime_memory","regime_history","data")}
     out=build(d["planner"],artifacts,d["previous"])
     OUT.parent.mkdir(parents=True,exist_ok=True)
     OUT.write_text(json.dumps(out,ensure_ascii=False,indent=2),encoding="utf-8")

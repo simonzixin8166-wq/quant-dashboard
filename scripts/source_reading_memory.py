@@ -25,7 +25,7 @@ from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
 SRC=ROOT/"docs"/"data"/"source_intelligence.json"
 OUT=ROOT/"docs"/"research"/"source_reading_memory.json"
-VERSION="6.15.8d"
+VERSION="6.14.6"
 
 VIEW_HINTS=(
     "认为","觉得","看好","看坏","可能","应该","预计","预期","判断","猜","倾向",

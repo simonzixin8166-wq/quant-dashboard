@@ -1,8 +1,12 @@
 import sys
 from pathlib import Path
+import pandas as pd
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/"scripts"))
 from v616_readiness_gate import build
+
+def score(day,h,val):
+    return {"raw_return":val,"horizon_end_date":(pd.Timestamp(day)+pd.tseries.offsets.BDay(h)).date().isoformat()}
 
 spec={"readiness_spec_version":"1.1","requirements":{
  "statistical_controls_required":["positive_control","repeated_negative_control","leakage_canary"],
@@ -21,18 +25,18 @@ families={"definition_hash":"h","assignments":[
 ]}
 events=[]
 symbols=["AAA","BBB","CCC"]
-# f1: two non-overlapping 60d blocks; all also mature at 20d.
-for day in ["2026-01-05","2026-03-30"]:
+# f1: two pairwise non-overlapping 60-session clusters.
+for day in ["2026-01-05","2026-04-13"]:
     for sym in symbols:
         events.append({"event_id":f"r1-{day}-{sym}","rule_id":"r1","symbol":sym,"baseline_date":day,
           "scoreable":True,"point_in_time_status":"eligible",
-          "scores":{"20":{"raw_return":0.01},"60":{"raw_return":0.02}}})
-# f2: two additional non-overlapping 20d blocks.
-for day in ["2026-02-02","2026-03-02"]:
+          "scores":{"20":score(day,20,0.01),"60":score(day,60,0.02)}})
+# f2: two extra non-overlapping 20-session clusters, separated from f1's 20d windows.
+for day in ["2026-03-02","2026-06-15"]:
     for sym in symbols:
         events.append({"event_id":f"r2-{day}-{sym}","rule_id":"r2","symbol":sym,"baseline_date":day,
           "scoreable":True,"point_in_time_status":"eligible",
-          "scores":{"20":{"raw_return":0.01},"60":None}})
+          "scores":{"20":score(day,20,0.01),"60":None}})
 event_doc={"counts":{"conservation_ok":True},"events":events}
 source={"source_window_reported_total":3,"records":[1,2,3]}
 controls={"all_pass":True,"controls":{
@@ -53,6 +57,15 @@ assert out["observed"]["mature_20_effective_units"]==12
 assert out["observed"]["mature_60_effective_units"]==6
 assert out["observed"]["clean_boundary_span_days"]>=14
 
+# Overlapping 60d events cannot inflate readiness merely by crossing calendar buckets.
+overlap=list(events)
+for sym in symbols:
+    overlap.append({"event_id":f"overlap-{sym}","rule_id":"r1","symbol":sym,"baseline_date":"2026-01-12",
+      "scoreable":True,"point_in_time_status":"eligible",
+      "scores":{"20":score("2026-01-12",20,0.01),"60":score("2026-01-12",60,0.02)}})
+out_overlap=build(spec,{"counts":{"conservation_ok":True},"events":overlap},families,source,controls,boundary,components)
+assert out_overlap["observed"]["mature_60_effective_units"]==6
+
 event_doc2={"counts":{"conservation_ok":True},"events":events[:5]}
 out2=build(spec,event_doc2,families,source,controls,boundary,components)
 assert out2["ready_for_v616"] is False
@@ -62,4 +75,4 @@ short_boundary={"records":[dict(x,completed_at="2026-10-01T12:00:00+00:00") for 
 out3=build(spec,event_doc,families,source,controls,short_boundary,components)
 assert out3["ready_for_v616"] is False
 assert "production_boundary_clean_span" in out3["blockers"]
-print("PASS V6.15.8d Readiness effective units / minimum run span / Promotion independence")
+print("PASS V6.15.8e Readiness overlap-connected units / minimum run span")

@@ -37,3 +37,15 @@ for step in [
 ]:
     assert f"--name {step}" in workflow
 print("PASS V6.15.8a per-step production invariant / split workflow permissions")
+
+# Runtime Python bytecode/cache must not be treated as production source mutation.
+import tempfile
+from research_boundary_guard import _tree_files
+tmp_cache=ROOT/"scripts"/"__pycache__"/"_boundary_test_temp.pyc"
+tmp_cache.parent.mkdir(exist_ok=True)
+tmp_cache.write_bytes(b"ephemeral")
+try:
+    rels={p.relative_to(ROOT).as_posix() for p in _tree_files("scripts/")}
+    assert "scripts/__pycache__/_boundary_test_temp.pyc" not in rels
+finally:
+    tmp_cache.unlink(missing_ok=True)

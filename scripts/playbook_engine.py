@@ -241,6 +241,55 @@ def evaluate(data,history,now=None):
     if PLAYBOOKS["CP-03"].get("enabled"):rows+=evaluate_cp03(data,history,gate)
     return gate,rows
 
+def _continuity_meta(old,row):
+    current_date=parse_date(row.get("market_date"))
+    last_valid_date=parse_date(old.get("last_valid_market_date"))
+    if old and old.get("state")!="UNDETERMINED" and not last_valid_date:
+        last_valid_date=parse_date(old.get("market_date"))
+    prior_valid_key=old.get("last_valid_state_key")
+    if old and old.get("state")!="UNDETERMINED" and not prior_valid_key:
+        prior_valid_key=old.get("committed_state_key") or old.get("state_key")
+
+    if row.get("state")=="UNDETERMINED":
+        return {
+            "last_valid_state_key":prior_valid_key,
+            "last_valid_market_date":last_valid_date.isoformat() if last_valid_date else None,
+            "unknown_since_market_date":old.get("unknown_since_market_date") or row.get("market_date"),
+            "detection_delay_sessions":0,
+            "late_detected":False,
+            "timing_uncertain":False,
+            "detection_window_start":None,
+            "detection_window_end":None,
+        }
+
+    unknown_since=old.get("unknown_since_market_date")
+    gap_sessions=0
+    late=False
+    timing_uncertain=False
+    window_start=None
+    if old.get("state")=="UNDETERMINED" and last_valid_date and current_date:
+        observed_gap=sessions_between(last_valid_date,current_date)
+        # Current session is the actual detection session. Any earlier session
+        # in this gap was unobserved/invalid and therefore contributes to delay.
+        gap_sessions=max(0,len(observed_gap)-1)
+        late=gap_sessions>0
+        timing_uncertain=late
+        if observed_gap:
+            window_start=observed_gap[0].isoformat()
+    return {
+        "last_valid_state_key":row.get("state_key"),
+        "last_valid_market_date":row.get("market_date"),
+        "unknown_since_market_date":None,
+        "detection_delay_sessions":gap_sessions,
+        "late_detected":late,
+        "timing_uncertain":timing_uncertain,
+        "detection_window_start":window_start,
+        "detection_window_end":row.get("market_date") if late else None,
+        "previous_valid_state_key":prior_valid_key,
+        "previous_valid_market_date":last_valid_date.isoformat() if last_valid_date else None,
+        "prior_unknown_since_market_date":unknown_since,
+    }
+
 def _event(row,previous_key,now,commit_sha,record_type):
     pb=PLAYBOOKS[row["playbook_id"]]
     market_date=row["market_date"]
@@ -272,8 +321,13 @@ def _event(row,previous_key,now,commit_sha,record_type):
             "split_adjustment_check":row["quality"].get("split_adjustment_check"),
         }],
         "detected_at":now_iso(now),
-        "detection_delay_sessions":0,
-        "late_detected":False,
+        "detection_delay_sessions":int((row.get("continuity") or {}).get("detection_delay_sessions") or 0),
+        "late_detected":bool((row.get("continuity") or {}).get("late_detected")),
+        "timing_uncertain":bool((row.get("continuity") or {}).get("timing_uncertain")),
+        "detection_window_start":(row.get("continuity") or {}).get("detection_window_start"),
+        "detection_window_end":(row.get("continuity") or {}).get("detection_window_end"),
+        "previous_valid_state_key":(row.get("continuity") or {}).get("previous_valid_state_key"),
+        "previous_valid_market_date":(row.get("continuity") or {}).get("previous_valid_market_date"),
         "scoreable":row["state"]=="TRIGGERED",
         "evidence_provenance":"forward_out_of_sample",
     }
@@ -357,6 +411,15 @@ def build(now=None,writer=None):
         switches=per_playbook.get(row["playbook_id"]) or {"enabled":True,"ledger_enabled":True,"notifications_enabled":False}
         runtime_active=bool(switches.get("enabled") and switches.get("ledger_enabled"))
         row["runtime"]={**switches,"ledger_active":bool(forward_active and runtime_active)}
+        row["continuity"]=_continuity_meta(old,row)
+        row.update({
+            "last_valid_state_key":row["continuity"].get("last_valid_state_key"),
+            "last_valid_market_date":row["continuity"].get("last_valid_market_date"),
+            "unknown_since_market_date":row["continuity"].get("unknown_since_market_date"),
+            "late_detected":row["continuity"].get("late_detected",False),
+            "detection_delay_sessions":row["continuity"].get("detection_delay_sessions",0),
+            "timing_uncertain":row["continuity"].get("timing_uncertain",False),
+        })
         row["previous_state_key"]=old_key
         row["transition_detected"]=False
         row["suppressed_by_kill_switch"]=False
@@ -380,7 +443,12 @@ def build(now=None,writer=None):
             ))
             continue
         if row["state"]=="UNDETERMINED":
-            ev=_audit_event("undetermined",f'{row["entity_key"]}: {row["detail"]}',gate["market_date"],now,commit_sha,{"entity_key":row["entity_key"],"rule_hash":row["rule_hash"]})
+            ev=_audit_event("undetermined",f'{row["entity_key"]}: {row["detail"]}',gate["market_date"],now,commit_sha,{
+                "entity_key":row["entity_key"],"rule_hash":row["rule_hash"],
+                "last_valid_market_date":row["continuity"].get("last_valid_market_date"),
+                "unknown_since_market_date":row["continuity"].get("unknown_since_market_date"),
+                "scoreable":False,
+            })
             audit_events.append(ev);pending_by_entity[row["entity_key"]]=ev["record_id"]
         elif row["state"]=="NO_CHASE":
             ev=_event(row,old_key,now,commit_sha,"discipline_event")
@@ -388,6 +456,20 @@ def build(now=None,writer=None):
         else:
             ev=_event(row,old_key,now,commit_sha,"trigger_state_event")
             trigger_events.append(ev);pending_by_entity[row["entity_key"]]=ev["record_id"]
+            if row["continuity"].get("late_detected"):
+                audit_events.append(_audit_event(
+                    "late_detection_window",
+                    f'{row["entity_key"]} was detected after one or more unobserved/invalid sessions; exact transition date is unknown.',
+                    gate["market_date"],now,commit_sha,{
+                        "entity_key":row["entity_key"],
+                        "playbook_id":row["playbook_id"],
+                        "detection_delay_sessions":row["continuity"].get("detection_delay_sessions"),
+                        "detection_window_start":row["continuity"].get("detection_window_start"),
+                        "detection_window_end":row["continuity"].get("detection_window_end"),
+                        "timing_uncertain":True,
+                        "scoreable":False,
+                    }
+                ))
     ledger_health="not_configured" if not storage_configured else ("disabled" if not forward_active else "ok")
     anchor={
         "version":ENGINE_VERSION,"generated_at":now_iso(now),"market_date":gate["market_date"],

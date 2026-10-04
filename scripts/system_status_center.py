@@ -39,6 +39,7 @@ ARTIFACTS={
     "controlled_learning_policy": ROOT/"docs"/"research"/"controlled_learning_policy.json",
     "forward_learning_feedback": ROOT/"docs"/"research"/"forward_learning_feedback.json",
     "challenger_experiments": ROOT/"docs"/"research"/"challenger_experiments.json",
+    "source_reading_memory": ROOT/"docs"/"research"/"source_reading_memory.json",
 }
 
 WATCH_WORKFLOWS={
@@ -80,6 +81,7 @@ FRESHNESS_HOURS={
     "controlled_learning_policy": 168,
     "forward_learning_feedback": 168,
     "challenger_experiments": 168,
+    "source_reading_memory": 168,
 }
 CRITICAL_DECISION_ARTIFACTS={
     "market_dashboard","learning_engine","autonomous_agent",
@@ -172,7 +174,7 @@ def artifact_health(name,path,now=None):
     else:
         freshness="expired"
     freshness_eligible=available and freshness=="fresh"
-    research_only=name in {"range_intelligence","playbook_outcome_shadow","walk_forward_replay","controlled_learning_policy","forward_learning_feedback","challenger_experiments"}
+    research_only=name in {"range_intelligence","playbook_outcome_shadow","walk_forward_replay","controlled_learning_policy","forward_learning_feedback","challenger_experiments","source_reading_memory"}
     decision_eligible=freshness_eligible and not research_only
     return {
         "updated_at":updated,

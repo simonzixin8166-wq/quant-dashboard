@@ -32,6 +32,7 @@ ARTIFACTS={
     "regime_combination_history": ROOT/"docs"/"research"/"regime_combination_history.json",
     "playbook_status": ROOT/"docs"/"research"/"playbook_status.json",
     "ledger_anchor": ROOT/"docs"/"research"/"ledger_anchor.json",
+    "range_intelligence": ROOT/"docs"/"research"/"range_intelligence.json",
 }
 
 WATCH_WORKFLOWS={
@@ -66,6 +67,7 @@ FRESHNESS_HOURS={
     "regime_combination_history": 336,
     "playbook_status": 96,
     "ledger_anchor": 96,
+    "range_intelligence": 96,
 }
 CRITICAL_DECISION_ARTIFACTS={
     "market_dashboard","learning_engine","autonomous_agent",
@@ -199,6 +201,11 @@ def build(fetch_runs=True):
         "overall":overall,
         "workflows":repos,
         "artifacts":artifacts,
+        "range_research":{
+            "artifact":artifacts.get("range_intelligence",{}),
+            "mode":load(ARTIFACTS["range_intelligence"]).get("mode","unknown"),
+            "production_semantics_frozen":load(ARTIFACTS["range_intelligence"]).get("production_semantics_frozen"),
+        },
         "playbook_runtime":{
             "mode":playbook.get("mode","unknown"),
             "heartbeat":playbook.get("heartbeat") or {},

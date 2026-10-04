@@ -25,6 +25,8 @@ assert "research_planner" in result["artifacts"]
 assert "self_improvement" in result["artifacts"]
 assert "playbook_status" in result["artifacts"]
 assert "ledger_anchor" in result["artifacts"]
+assert "range_intelligence" in result["artifacts"]
+assert "range_research" in result
 assert "playbook_runtime" in result
 
 # Busy repositories may push watched workflows beyond the first 100 runs.

@@ -34,6 +34,8 @@ assert COMPONENT_VERSIONS["learning_engine"]
 assert COMPONENT_VERSIONS["self_improvement"]
 assert COMPONENT_VERSIONS["playbook_engine"]=="6.10a.0"
 assert COMPONENT_VERSIONS["trigger_ledger_schema"]=="1.0"
+assert COMPONENT_VERSIONS["range_intelligence"]=="6.10b.0"
+assert COMPONENT_VERSIONS["private_guardrail"]=="6.10b.0"
 playbook_config=(ROOT/"scripts"/"playbook_config.py").read_text(encoding="utf-8")
 assert "CORE_TIERS" in playbook_config and "rule_hash" in playbook_config
 assert "from playbook_config import CORE_TIERS" in generator

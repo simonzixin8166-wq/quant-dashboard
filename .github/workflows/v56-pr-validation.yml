@@ -56,12 +56,9 @@ jobs:
           python tests/test_ui_controls.py
           python tests/test_system_status_center.py
           python tests/test_v610a_playbook_engine.py
-      - name: Private-position static export guard
+      - name: V6.10b stabilization / research-only contract
         run: |
-          if grep -R -n -E '"(option_positions|private_positions|broker_account_id)"' docs/research docs/data.json 2>/dev/null; then
-            echo "Private option position material detected in public static output"; exit 1;
-          fi
-          if find docs -type f \( -name '*.jsonl' -o -path '*/ledger/*' \) -print | grep -q .; then
-            echo "Raw ledger material detected in public docs"; exit 1;
-          fi
-          echo "Private static export guard PASS"
+          python -m py_compile scripts/range_intelligence.py scripts/private_guardrail.py
+          python tests/test_v610b_parallel_safety.py
+      - name: Private-position static export guard
+        run: python scripts/private_guardrail.py

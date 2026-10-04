@@ -25,7 +25,7 @@ from entry_semantics import classify_event
 from local_history_agent import read_archive
 from source_history_cache import read_cache
 
-VERSION="6.15.8b"
+VERSION="6.15.8d"
 HORIZONS=(5,20,60)
 
 def load(path,default):
@@ -169,7 +169,9 @@ def exclusion_reasons(rid,triggered,direction,entry_type,data_status,point_statu
     elif point_status=="unknown":reasons.append("timestamp_provenance_unknown")
     return reasons
 
-PRIMARY_PRECEDENCE=(
+DEFAULT_PRIMARY_PRECEDENCE=(
+    "non_point_in_time_source",
+    "timestamp_provenance_unknown",
     "missing_rule_id",
     "missing_real_option_pnl",
     "unsupported_direction",
@@ -178,12 +180,11 @@ PRIMARY_PRECEDENCE=(
     "price_source_conflict",
     "cache_only_unscored",
     "missing_price_data",
-    "non_point_in_time_source",
-    "timestamp_provenance_unknown",
 )
 
-def choose_primary(reasons):
-    for key in PRIMARY_PRECEDENCE:
+def choose_primary(reasons,spec=None):
+    precedence=((spec or {}).get("definitions") or {}).get("primary_exclusion_precedence") or DEFAULT_PRIMARY_PRECEDENCE
+    for key in precedence:
         if key in reasons:return key
     return None
 
@@ -204,7 +205,7 @@ def adapt(validation,registry,histories=None,spec=None,source_store=None):
         prov=provenance.get(str(sid)) or {}
         pit=point_in_time_status(prov,ev.get("baseline_date"))
         reasons=exclusion_reasons(rid,bool(ev.get("triggered")),direction,et,hmeta.get("status"),pit)
-        primary=choose_primary(reasons)
+        primary=choose_primary(reasons,spec)
         secondary=[x for x in reasons if x!=primary]
         scoreable=primary is None
         if primary:primary_counts[primary]+=1

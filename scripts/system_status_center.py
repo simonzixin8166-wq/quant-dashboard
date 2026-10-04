@@ -35,6 +35,7 @@ ARTIFACTS={
     "range_intelligence": ROOT/"docs"/"research"/"range_intelligence.json",
     "module_failures": ROOT/"docs"/"research"/"module_failures.json",
     "playbook_outcome_shadow": ROOT/"docs"/"research"/"playbook_outcome_shadow.json",
+    "walk_forward_replay": ROOT/"docs"/"research"/"walk_forward_replay.json",
 }
 
 WATCH_WORKFLOWS={
@@ -72,6 +73,7 @@ FRESHNESS_HOURS={
     "range_intelligence": 96,
     "module_failures": 720,
     "playbook_outcome_shadow": 96,
+    "walk_forward_replay": 168,
 }
 CRITICAL_DECISION_ARTIFACTS={
     "market_dashboard","learning_engine","autonomous_agent",
@@ -164,7 +166,7 @@ def artifact_health(name,path,now=None):
     else:
         freshness="expired"
     freshness_eligible=available and freshness=="fresh"
-    research_only=name in {"range_intelligence","playbook_outcome_shadow"}
+    research_only=name in {"range_intelligence","playbook_outcome_shadow","walk_forward_replay"}
     decision_eligible=freshness_eligible and not research_only
     return {
         "updated_at":updated,

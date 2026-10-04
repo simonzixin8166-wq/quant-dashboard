@@ -300,7 +300,7 @@ def build(source: dict, validation: dict, histories: dict|None=None, evidence: d
         })
 
     return {
-        "version":"6.15.8d-legacy",
+        "version":"6.14.2",
         "generated_at":datetime.now(timezone.utc).isoformat(),
         "evidence_role":"legacy_descriptive_only",
         "evidence_role_reason":"This artifact is derived from legacy source_outcome_validation and is retained for display/context only. It cannot establish method maturity, weights or promotion under Evidence Foundation.",

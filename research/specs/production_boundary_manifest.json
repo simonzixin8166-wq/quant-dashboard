@@ -1,0 +1,35 @@
+{
+  "manifest_version": "1.0",
+  "status": "frozen_v6158a",
+  "purpose": "Files and trees that V6.15 research steps are forbidden to mutate.",
+  "protected_prefixes": [
+    "config/",
+    "docs/data/",
+    "docs/research/",
+    "data/ledger/",
+    "data/history/"
+  ],
+  "protected_files": [
+    "scripts/playbook_config.py",
+    "scripts/fetch_and_build.py",
+    "scripts/private_ledger.py",
+    "scripts/autonomous_research_planner.py"
+  ],
+  "allowed_research_write_prefixes": [
+    "research/"
+  ],
+  "semantic_coverage": {
+    "playbook_and_cp_rules": "config/ and scripts/playbook_config.py",
+    "tqqq_hard_exit_and_dashboard_rules": "docs/data/ plus scripts/fetch_and_build.py",
+    "forward_and_public_ledger_anchor": "docs/research/ including ledger_anchor.json",
+    "allocation_and_production_configuration": "config/",
+    "planner_code_boundary": "scripts/autonomous_research_planner.py",
+    "market_history_inputs": "data/history/"
+  },
+  "guardrails": [
+    "Every research compute step compares this production boundary before and after execution.",
+    "Any mutation to a protected file/tree fails immediately, even if a later step would restore it.",
+    "Research artifacts may only be written below research/.",
+    "Changing this manifest requires code review and must not be driven by research performance."
+  ]
+}

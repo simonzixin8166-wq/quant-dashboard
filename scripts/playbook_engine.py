@@ -24,6 +24,7 @@ ANCHOR_OUT=ROOT/"docs"/"research"/"ledger_anchor.json"
 
 ENGINE_VERSION="6.10a.0"
 SCHEMA_VERSION="1.0"
+LEGACY_CP01_HASH="ad5eab7a409996693a01eea24dfeb9a2f070a27f535092a7cd079acee14972b9"
 
 def load(path,default=None):
     try:return json.loads(path.read_text(encoding="utf-8"))
@@ -300,6 +301,18 @@ def build(now=None,writer=None):
         audit_events.append(_audit_event("heartbeat_or_freshness_failed",";".join(gate["global_reasons"]),gate["market_date"],now,commit_sha,{"expected_market_date":gate["expected_market_date"]}))
     if starting_forward:
         audit_events.append(_audit_event("forward_clock_started","Forward clock baseline established; current states are not backfilled as triggers.",gate["market_date"],now,commit_sha))
+
+    legacy_cp01=any(
+        x.get("playbook_id")=="CP-01" and x.get("rule_hash")==LEGACY_CP01_HASH
+        for x in (previous.get("playbooks") or [])
+    )
+    if legacy_cp01 and any(x.get("playbook_id")=="CP-01" and x.get("rule_hash")!=LEGACY_CP01_HASH for x in rows):
+        audit_events.append(_audit_event(
+            "rule_hash_canonicalization_correction",
+            "CP-01 rule_hash now includes its existing core_tiers dependencies; trading thresholds and semantics are unchanged.",
+            gate["market_date"],now,commit_sha,
+            {"playbook_id":"CP-01","old_rule_hash":LEGACY_CP01_HASH,"new_rule_hash":rule_hash("CP-01"),"semantic_change":False}
+        ))
 
     for row in rows:
         old=prev_rows.get(row["entity_key"]) or {}

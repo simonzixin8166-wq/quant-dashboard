@@ -11,5 +11,5 @@ assert out["counts"]["components"]>=10
 assert out["counts"]["missing_code_hashes"]==0
 names={x["name"] for x in out["components"]}
 assert {"event_score","rule_family","family_scorecard","statistical_controls","v616_readiness_gate"}<=names
-assert out["evaluation_spec_version"]=="1.1"
+assert out["evaluation_spec_version"]=="1.2"
 print("PASS V6.15.8c component code/artifact manifest")

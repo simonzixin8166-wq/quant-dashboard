@@ -15,7 +15,7 @@ CONTROLS=ROOT/"research"/"reports"/"statistical_controls.json"
 BOUNDARY=ROOT/"research"/"audit"/"step_boundary_log.json"
 COMPONENTS=ROOT/"research"/"component_manifest.json"
 OUT=ROOT/"research"/"reports"/"v616_readiness_gate.json"
-VERSION="6.15.8c"
+VERSION="6.15.8d"
 
 def load(p,d):
     try:return json.loads(p.read_text(encoding="utf-8"))
@@ -35,29 +35,52 @@ def clean_boundary_runs(boundary):
         run=str(r.get("workflow_run_id") or "")
         if not run or run=="local":continue
         grouped[run].append(r)
-    clean=0
-    for rows in grouped.values():
-        if rows and all(x.get("production_boundary_unchanged") and x.get("research_only_worktree") for x in rows):
-            clean+=1
-    return clean
+    clean_rows=[]
+    for run,rows in grouped.items():
+        if rows and all(x.get("production_boundary_unchanged") and x.get("research_only_worktree") and x.get("evidence_lock_unchanged",True) for x in rows):
+            dates=[]
+            for x in rows:
+                try:dates.append(datetime.fromisoformat(str(x.get("completed_at")).replace("Z","+00:00")))
+                except Exception:pass
+            clean_rows.append({"run":run,"when":min(dates) if dates else None})
+    dated=[x["when"] for x in clean_rows if x["when"] is not None]
+    span=(max(dated)-min(dated)).days if len(dated)>=2 else 0
+    return {"count":len(clean_rows),"span_days":span}
+
+def _week_index(day):
+    try:
+        import pandas as pd
+        ts=pd.Timestamp(str(day)[:10])
+        monday=ts-pd.Timedelta(days=int(ts.weekday()))
+        return int(monday.toordinal()//7)
+    except Exception:return None
+
+def _horizon_block(day,weeks):
+    wi=_week_index(day)
+    return None if wi is None else wi//max(1,int(weeks))
 
 def mature_counts(events,families):
     r2f=family_map(families)
-    out={"20":0,"60":0,"families20":set(),"families60":set()}
+    block_weeks={"20":4,"60":12}
+    units={"20":set(),"60":set()}
+    fams={"20":set(),"60":set()}
     for e in events.get("events") or []:
         if not e.get("scoreable") or e.get("point_in_time_status")!="eligible":
             continue
         fid=r2f.get(e.get("rule_id"))
         if not fid:continue
+        sym=str(e.get("symbol") or "unknown")
         for h in ("20","60"):
             if (e.get("scores") or {}).get(h):
-                out[h]+=1
-                out["families"+h].add(fid)
+                blk=_horizon_block(e.get("baseline_date"),block_weeks[h])
+                if blk is not None:
+                    units[h].add((sym,blk))
+                    fams[h].add(fid)
     return {
-        "mature_20":out["20"],
-        "mature_60":out["60"],
-        "families_with_20":len(out["families20"]),
-        "families_with_60":len(out["families60"]),
+        "mature_20_effective_units":len(units["20"]),
+        "mature_60_effective_units":len(units["60"]),
+        "families_with_20":len(fams["20"]),
+        "families_with_60":len(fams["60"]),
     }
 
 def build(spec,events,families,source,controls,boundary,components):
@@ -75,9 +98,10 @@ def build(spec,events,families,source,controls,boundary,components):
         "eventscore_conservation":conservation,
         "source_store_full_coverage":source_ok,
         "statistical_controls":control_ok,
-        "production_boundary_clean_runs":clean_runs>=int(req.get("production_boundary_clean_workflow_runs_min") or 0),
-        "point_in_time_mature_20_events":maturity["mature_20"]>=int(req.get("point_in_time_mature_20_events_min") or 0),
-        "point_in_time_mature_60_events":maturity["mature_60"]>=int(req.get("point_in_time_mature_60_events_min") or 0),
+        "production_boundary_clean_runs":clean_runs["count"]>=int(req.get("production_boundary_clean_workflow_runs_min") or 0),
+        "production_boundary_clean_span":clean_runs["span_days"]>=int(req.get("production_boundary_clean_span_days_min") or 0),
+        "point_in_time_mature_20_effective_units":maturity["mature_20_effective_units"]>=int(req.get("point_in_time_mature_20_effective_units_min") or 0),
+        "point_in_time_mature_60_effective_units":maturity["mature_60_effective_units"]>=int(req.get("point_in_time_mature_60_effective_units_min") or 0),
         "families_with_mature_20":maturity["families_with_20"]>=int(req.get("families_with_mature_20_min") or 0),
         "families_with_mature_60":maturity["families_with_60"]>=int(req.get("families_with_mature_60_min") or 0),
         "component_manifest_complete":component_ok,
@@ -92,7 +116,8 @@ def build(spec,events,families,source,controls,boundary,components):
         "ready_for_v616":ready,
         "promotion_pass_required":False,
         "observed":{
-            "clean_boundary_workflow_runs":clean_runs,
+            "clean_boundary_workflow_runs":clean_runs["count"],
+            "clean_boundary_span_days":clean_runs["span_days"],
             **maturity,
             "source_store_records":len(source.get("records") or []),
             "source_store_reported_total":source.get("source_window_reported_total"),

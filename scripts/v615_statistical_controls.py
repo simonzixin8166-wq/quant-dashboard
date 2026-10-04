@@ -10,14 +10,14 @@ import pandas as pd
 ROOT=Path(__file__).resolve().parents[1]
 SPEC=ROOT/"research"/"specs"/"evaluation_spec.json"
 OUT=ROOT/"research"/"reports"/"statistical_controls.json"
-VERSION="6.15.8d"
+VERSION="6.15.8e"
 
 sys.path.insert(0,str(ROOT/"scripts"))
 from v615_family_scorecard import build as build_family_scorecard
 from v615_promotion_gate import build as build_promotion
 from v615_event_score import adapt,historical_unconditional_metrics
 
-BLOCK_DATES=["2026-01-05","2026-03-30","2026-06-22","2026-09-14","2026-12-07","2027-03-01","2027-05-24","2027-08-16"]
+BLOCK_DATES=["2026-01-05","2026-04-13","2026-07-20","2026-10-26","2027-02-01","2027-05-10","2027-08-16","2027-11-22"]
 RULES=["r1","r2","r3"]
 AUTHORS=["author-a","author-b","author-c"]
 SYMBOLS=["AAA","BBB","CCC"]
@@ -52,6 +52,7 @@ def synthetic_events(lifts):
                 "baseline_date":day,"triggered":True,"scoreable":True,"direction":"bullish",
                 "data_quality":{"status":"ok"},
                 "scores":{"5":None,"20":None,"60":{
+                    "horizon_end_date":(pd.Timestamp(day)+pd.tseries.offsets.BDay(60)).date().isoformat(),
                     "unconditional_lift":lift,
                     "direction_adjusted_return":lift+0.01,
                     "direction_adjusted_mae":-0.04,
@@ -84,7 +85,7 @@ def positive_control(spec):
         "fdr":h60.get("fdr"),
         "promotion_state":gate["results"][0].get("state"),
         "hypotheses_declared":score.get("multiple_testing",{}).get("hypotheses_declared"),
-        "expected":"known positive alpha is statistically detectable using non-overlapping 60-day blocks under an active test-only gate",
+        "expected":"known positive alpha is statistically detectable using pairwise non-overlapping realized 60-session windows under an active test-only gate",
     }
 
 def wilson_interval(successes,n,z=1.959963984540054):
@@ -100,8 +101,8 @@ def repeated_negative_control(spec,seeds=500,max_false_rate_upper=0.10):
     details=[]
     for seed in range(seeds):
         rng=random.Random(100000+seed)
-        # One zero-mean shock per non-overlapping 60-day block. All symbols in
-        # that block share the shock, preserving cross-sectional market dependence.
+        # One zero-mean shock per pairwise non-overlapping 60-session cluster.
+        # All symbols in that cluster share the shock, preserving cross-sectional dependence.
         lifts=[rng.gauss(0.0,0.02) for _ in BLOCK_DATES]
         passed,score,_=full_pipeline_pass(synthetic_events(lifts),spec)
         if passed:false_promotions+=1

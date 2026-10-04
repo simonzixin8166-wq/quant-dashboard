@@ -14,7 +14,7 @@ SOURCE=ROOT/"docs"/"data"/"source_intelligence.json"
 EVENTS=ROOT/"research"/"events"/"event_scores_v1.json"
 SOURCE_STORE=ROOT/"research"/"store"/"source_store.json"
 EVENT_HISTORY=ROOT/"research"/"history"/"event_score_history.json"
-VERSION="6.15.8c"
+VERSION="6.15.8d"
 
 sys.path.insert(0,str(ROOT/"scripts"))
 from source_intelligence_engine import collect_full_records
@@ -85,6 +85,11 @@ def migrate_sources(source,prior=None,now=None,full_records=None):
             ingest_type="initial_migration" if k in visible_keys else "backfill_ingest"
         else:
             ingest_type="live_ingest" if k in visible_keys else "backfill_ingest"
+        current_snapshot_hash=digest(snap)
+        snapshot_history=list((prev or {}).get("snapshot_history") or [])
+        if prev and prev.get("snapshot_hash") and prev.get("snapshot_hash")!=current_snapshot_hash:
+            old_hash=prev.get("snapshot_hash")
+            if old_hash not in snapshot_history:snapshot_history.append(old_hash)
         rows.append({
             "source_key":k,
             "first_fetched_at":(prev or {}).get("first_fetched_at") or now,
@@ -92,7 +97,8 @@ def migrate_sources(source,prior=None,now=None,full_records=None):
             "ingest_type":ingest_type,
             "published_at":r.get("published_at"),
             **ts,
-            "snapshot_hash":digest(snap),
+            "snapshot_hash":current_snapshot_hash,
+            "snapshot_history":snapshot_history,
             "normalized_available_text_hash":digest(normalized_text_payload),
             "content_hash_scope":"normalized_title_excerpt_only",
             "raw_fulltext_hash_status":"unavailable_unless_preserved_by_upstream_source",

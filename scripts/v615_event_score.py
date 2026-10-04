@@ -21,10 +21,11 @@ SOURCE_STORE=ROOT/"research"/"store"/"source_store.json"
 
 sys.path.insert(0,str(ROOT/"scripts"))
 from evaluation_spec import load_spec,direction_adjusted_return
+from entry_semantics import classify_event
 from local_history_agent import read_archive
 from source_history_cache import read_cache
 
-VERSION="6.15.8a"
+VERSION="6.15.8b"
 HORIZONS=(5,20,60)
 
 def load(path,default):
@@ -78,19 +79,7 @@ def parse_event_identity(event):
     return None,None,event.get("symbol"),None
 
 def entry_type(event):
-    kind=str(event.get("baseline_kind") or "")
-    op=event.get("operation") or {}
-    conditions=" ".join(str(x).lower() for x in (op.get("conditions") or []))
-    if kind=="next_session":return "next_session"
-    if any(k in conditions for k in ("breakout","突破","站上","above resistance","break above")):
-        return "breakout"
-    if kind=="entry_below":
-        return "conditional"
-    if kind in {"entry_1","entry_2"}:
-        if any(k in conditions for k in ("pullback","回调","回踩","跌到","below","limit")):
-            return "pullback_limit"
-        return "unknown"
-    return "unknown"
+    return classify_event(event).get("entry_type") or "unknown"
 
 def direction_from_event(event):
     d=(event.get("alignment") or {}).get("direction")
@@ -208,7 +197,8 @@ def adapt(validation,registry,histories=None,spec=None,source_store=None):
     for ev in validation.get("events") or []:
         sid,op_idx,symbol,_=parse_event_identity(ev)
         rid=mapping.get((str(sid),op_idx))
-        et=entry_type(ev)
+        entry_meta=classify_event(ev)
+        et=entry_meta.get("entry_type") or "unknown"
         direction=direction_from_event(ev)
         hmeta=histories.get(symbol,{}).get("meta") or {}
         prov=provenance.get(str(sid)) or {}
@@ -257,6 +247,11 @@ def adapt(validation,registry,histories=None,spec=None,source_store=None):
             "published_at":ev.get("published_at"),
             "baseline_date":ev.get("baseline_date"),
             "entry_type":et,
+            "fill_status":entry_meta.get("fill_status"),
+            "fill_confidence":entry_meta.get("fill_confidence"),
+            "fill_model":entry_meta.get("fill_model"),
+            "entry_inference_source":entry_meta.get("inference_source"),
+            "entry_registry_version":entry_meta.get("registry_version"),
             "direction":direction,
             "triggered":bool(ev.get("triggered")),
             "scoreable":scoreable,

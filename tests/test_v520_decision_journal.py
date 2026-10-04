@@ -26,7 +26,9 @@ assert 'latestCompleteMarketDate' in ja
 assert "marketDateSource:'complete_daily_close'" in ja
 assert "priceSource:'complete_daily_close'" in ja
 assert "filter(x=>!isWeekendDate" in ja
-assert '等待第${h}个交易日收盘' in ja
+assert 'tradingProgress' in ja
+assert 'maturityProgress=tradingProgress' in ja
+assert '还剩${remaining}个交易日' in ja
 assert '<th>交易日</th>' in ja and '<th>收盘入档价</th>' in ja
 assert 'recordAssistantEvent' in ia and 'MAVDecisionJournal' in ia
 assert 'assistant-inline-actions' in ia and 'StockWatchlist.focus' in ia and 'OptionV2.openForSymbol' in ia

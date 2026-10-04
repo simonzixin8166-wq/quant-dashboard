@@ -1,0 +1,144 @@
+{
+  "version": "6.15.8c",
+  "generated_at": "2026-10-04T12:44:41.591561+00:00",
+  "spec_version": "1.1",
+  "all_pass": true,
+  "controls": {
+    "positive_control": {
+      "pass": true,
+      "effective_n": 24,
+      "time_clusters": 8,
+      "ci_lower": 0.02,
+      "fdr": {
+        "p_value": 0.004497751124437781,
+        "q_value": 0.004497751124437781,
+        "reject": true
+      },
+      "promotion_state": "evaluated_evidence",
+      "expected": "known positive alpha is statistically detectable under an active test-only gate"
+    },
+    "repeated_negative_control": {
+      "pass": true,
+      "seeds": 60,
+      "false_promotions": 4,
+      "false_promotion_rate": 0.06666666666666667,
+      "maximum_allowed_rate": 0.1,
+      "sample": [
+        {
+          "seed": 0,
+          "passed": false,
+          "mean": -0.000863094468979384,
+          "fdr": {
+            "p_value": 0.5377311344327836,
+            "q_value": 0.5377311344327836,
+            "reject": false
+          }
+        },
+        {
+          "seed": 1,
+          "passed": false,
+          "mean": 0.006292861295991066,
+          "fdr": {
+            "p_value": 0.13793103448275862,
+            "q_value": 0.13793103448275862,
+            "reject": false
+          }
+        },
+        {
+          "seed": 2,
+          "passed": false,
+          "mean": -0.0010299468725606619,
+          "fdr": {
+            "p_value": 0.5792103948025987,
+            "q_value": 0.5792103948025987,
+            "reject": false
+          }
+        },
+        {
+          "seed": 3,
+          "passed": false,
+          "mean": 0.009366680188427772,
+          "fdr": {
+            "p_value": 0.10944527736131934,
+            "q_value": 0.10944527736131934,
+            "reject": false
+          }
+        },
+        {
+          "seed": 4,
+          "passed": false,
+          "mean": -0.0009728106671278641,
+          "fdr": {
+            "p_value": 0.5762118940529735,
+            "q_value": 0.5762118940529735,
+            "reject": false
+          }
+        },
+        {
+          "seed": 5,
+          "passed": false,
+          "mean": -0.0029120156594242,
+          "fdr": {
+            "p_value": 0.657671164417791,
+            "q_value": 0.657671164417791,
+            "reject": false
+          }
+        },
+        {
+          "seed": 6,
+          "passed": false,
+          "mean": 0.0021299997615585593,
+          "fdr": {
+            "p_value": 0.3633183408295852,
+            "q_value": 0.3633183408295852,
+            "reject": false
+          }
+        },
+        {
+          "seed": 7,
+          "passed": true,
+          "mean": 0.010990518152995782,
+          "fdr": {
+            "p_value": 0.046476761619190406,
+            "q_value": 0.046476761619190406,
+            "reject": true
+          }
+        },
+        {
+          "seed": 8,
+          "passed": false,
+          "mean": -0.008137315383700992,
+          "fdr": {
+            "p_value": 0.9710144927536232,
+            "q_value": 0.9710144927536232,
+            "reject": false
+          }
+        },
+        {
+          "seed": 9,
+          "passed": false,
+          "mean": -0.0023320647413384793,
+          "fdr": {
+            "p_value": 0.6996501749125438,
+            "q_value": 0.6996501749125438,
+            "reject": false
+          }
+        }
+      ],
+      "expected": "repeated zero-alpha simulations remain below the predeclared false-promotion ceiling"
+    },
+    "leakage_canary": {
+      "pass": true,
+      "pre_ingest_event_rejected": true,
+      "primary_exclusion_reason": "non_point_in_time_source",
+      "future_price_mutation_does_not_change_prior_baseline": true,
+      "expected": "future or post-ingest information cannot silently enter scoreable evidence"
+    }
+  },
+  "guardrails": [
+    "Synthetic controls never alter production rules or real evidence.",
+    "The positive control tests detectability, not investment validity.",
+    "The repeated negative control is deterministic across fixed seeds.",
+    "The leakage canary must fail closed on post-decision or pre-ingest information."
+  ]
+}

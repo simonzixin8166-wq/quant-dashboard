@@ -1,0 +1,39 @@
+{
+  "version": "6.15.8c",
+  "generated_at": "2026-10-04T12:44:42.010720+00:00",
+  "readiness_spec_version": "1.0",
+  "ready_for_v616": false,
+  "promotion_pass_required": false,
+  "observed": {
+    "clean_boundary_workflow_runs": 1,
+    "mature_20": 0,
+    "mature_60": 0,
+    "families_with_20": 0,
+    "families_with_60": 0,
+    "source_store_records": 1215,
+    "source_store_reported_total": 1215
+  },
+  "conditions": {
+    "eventscore_conservation": true,
+    "source_store_full_coverage": true,
+    "statistical_controls": true,
+    "production_boundary_clean_runs": false,
+    "point_in_time_mature_20_events": false,
+    "point_in_time_mature_60_events": false,
+    "families_with_mature_20": false,
+    "families_with_mature_60": false,
+    "component_manifest_complete": true
+  },
+  "blockers": [
+    "production_boundary_clean_runs",
+    "point_in_time_mature_20_events",
+    "point_in_time_mature_60_events",
+    "families_with_mature_20",
+    "families_with_mature_60"
+  ],
+  "guardrails": [
+    "This gate measures pipeline readiness only; it does not validate investment effectiveness.",
+    "No Promotion Gate pass is required.",
+    "Passing this gate authorizes only a review of whether to begin V6.16."
+  ]
+}

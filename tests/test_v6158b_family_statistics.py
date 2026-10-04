@@ -29,12 +29,12 @@ families={"assignments":[
 events=[]
 authors=["a","b","c"]
 # 8 independent ISO-week blocks x 3 authors = 24 effective units, all known-positive lift.
-for w in range(8):
-    day=3+w*7
+week_dates=["2026-01-05","2026-01-12","2026-01-19","2026-01-26","2026-02-02","2026-02-09","2026-02-16","2026-02-23"]
+for w,day in enumerate(week_dates):
     for i,(rid,a) in enumerate(zip(["r1","r2","r3"],authors)):
         events.append({
           "event_id":f"e{w}-{i}","rule_id":rid,"author":a,"symbol":"ABC",
-          "baseline_date":f"2026-01-{day:02d}","scoreable":True,
+          "baseline_date":day,"scoreable":True,
           "scores":{"5":None,"20":None,"60":{
              "unconditional_lift":0.02,
              "direction_adjusted_return":0.03,

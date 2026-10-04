@@ -15,13 +15,14 @@ assert check_allowed_paths(["research/state/x.json"])==[]
 assert check_allowed_paths(["config/injected.json"])==["config/injected.json"]
 assert check_allowed_paths(["docs/data/injected.json"])==["docs/data/injected.json"]
 spec=json.loads((ROOT/"research/specs/evaluation_spec.json").read_text())
-assert spec["spec_version"]=="1.2"
+assert spec["spec_version"]=="1.3"
 assert spec["thresholds"]["provisional"] is True
 assert spec["change_policy"]["forbid_tuning_to_pass_named_methods"] is True
 assert spec["definitions"]["promotion_unit"]=="rule_family"
 assert spec["definitions"]["multiple_testing"]["fdr_method"]=="Benjamini-Hochberg"
-assert spec["promotion_activation"]["state"]=="shadow_until_statistical_controls_revalidated_under_spec_1_2"
-assert spec["definitions"]["clustering"]["event_effective_unit"]=="symbol x non-overlapping horizon block"
+assert spec["promotion_activation"]["state"]=="shadow_until_statistical_controls_revalidated_under_spec_1_3"
+assert spec["definitions"]["clustering"]["event_effective_unit"]=="symbol x overlap-connected realized-horizon cluster"
+assert "transitively overlapping" in spec["definitions"]["clustering"]["time_cluster_definition"]
 assert spec["definitions"]["multiple_testing"]["untestable_hypothesis_pvalue_for_fdr"]==1.0
 assert spec["definitions"]["primary_exclusion_precedence"][0]=="non_point_in_time_source"
 assert check_evidence_lock()==[]

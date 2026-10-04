@@ -14,6 +14,9 @@ assert len(a["records"])==2
 assert all(x["first_fetched_at"]=="2026-10-04T00:00:00Z" for x in a["records"])
 assert all(x["first_fetched_at"]!=x.get("published_at") for x in a["records"])
 assert a["records"][0]["timestamp_confidence"] in {"high","unverified","missing"}
+assert a["records"][0]["content_hash_scope"]=="normalized_title_excerpt_only"
+assert a["records"][0]["raw_fulltext_hash_status"]=="unavailable_unless_preserved_by_upstream_source"
+assert a["records"][0]["normalized_available_text_hash"]
 
 # Recover one row that was outside the original visible window.
 full=visible+[{"id":"s3","source":"feed","source_kind":"post","published_at":"2019-01-01","title":"old","url":"u3","operations":[]}]

@@ -5,11 +5,13 @@ on:
     paths:
       - "research/**"
       - "scripts/v615_*.py"
+      - "scripts/v616_*.py"
       - "scripts/evaluation_spec.py"
       - "scripts/entry_semantics.py"
       - "scripts/run_research_step.py"
       - "scripts/research_boundary_guard.py"
       - ".github/workflows/research-*.yml"
+      - ".github/workflows/monthly-evidence-audit.yml"
       - "tests/test_v615*.py"
   workflow_dispatch: {}
 
@@ -41,3 +43,8 @@ jobs:
           python tests/test_v6158b_rule_family.py
           python tests/test_v6158b_entry_observational.py
           python tests/test_v6158b_family_statistics.py
+          python tests/test_v6158c_statistical_controls.py
+          python tests/test_v6158c_readiness_gate.py
+          python tests/test_v6158c_spec_coexistence.py
+          python tests/test_v6158c_component_manifest.py
+          python tests/test_v6158c_monthly_audit.py

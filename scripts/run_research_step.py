@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Run one V6.15 research step under a per-step production hash invariant."""
 from __future__ import annotations
-import argparse, json, subprocess, sys
+import argparse, json, os, subprocess, sys
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -31,6 +31,8 @@ def main():
     same=before==after
     allowed_rc=assert_allowed(git_worktree_paths(),label=f"step:{args.name}:worktree")
     record={
+        "workflow_run_id":os.getenv("GITHUB_RUN_ID") or "local",
+        "workflow_run_attempt":os.getenv("GITHUB_RUN_ATTEMPT") or "local",
         "step":args.name,
         "started_at":started,
         "completed_at":datetime.now(timezone.utc).isoformat(),

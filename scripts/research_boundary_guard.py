@@ -61,7 +61,16 @@ def _tree_files(prefix):
         return [base]
     if not base.exists():
         return []
-    return sorted(p for p in base.rglob("*") if p.is_file())
+    out=[]
+    for p in base.rglob("*"):
+        if not p.is_file():
+            continue
+        rel=p.relative_to(ROOT).as_posix()
+        # Runtime-only Python bytecode/cache is not repository source state.
+        if "__pycache__/" in rel or rel.endswith(".pyc") or rel.endswith(".pyo"):
+            continue
+        out.append(p)
+    return sorted(out)
 
 def snapshot():
     manifest=load_manifest()

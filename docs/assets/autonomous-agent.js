@@ -168,7 +168,7 @@
     const ff=state.forwardFeedback||{},fc=ff.counts||{},fps=ff.playbooks||{},chall=ff.challengers||[];
     const stateLabel={forward_unproven:'前瞻未成熟',forward_early:'前瞻早期',forward_supportive:'前瞻支持',forward_mixed:'前瞻混合',forward_challenging:'前瞻挑战',data_quality_review:'先查数据质量'};
     const forwardLine=['CP-01','CP-02','CP-03'].map(pid=>`${pid} ${stateLabel[fps[pid]?.state]||fps[pid]?.state||'未成熟'}`).join(' · ');
-    return `<div class="agent-section-title"><b>V6.12.1 Controlled Learning · 受控自学习</b><span>Research Only · 正式交易规则锁定</span></div>
+    return `<div class="agent-section-title"><b>V6.13.2 Controlled Learning · 受控自学习</b><span>Research Only · 正式交易规则锁定</span></div>
       <article class="agent-card agent-watch"><div class="agent-card-head"><div><span>CONTROLLED LEARNING ZONE</span><h3>系统可自动改变研究行为，不自动改变交易规则</h3></div><b>${esc(d.mode||'')}</b></div>
       <div class="agent-metrics"><span>已激活调整 ${active.length}</span><span>研究权重调整 ${applied.length}</span><span>单项上限 ±${esc(d.max_abs_priority_delta??5)}</span><span>CP-01验证 +${esc(pb['CP-01']??0)}</span><span>CP-02验证 +${esc(pb['CP-02']??0)}</span><span>CP-03验证 +${esc(pb['CP-03']??0)}</span></div>
       <p><strong>Forward Learning：</strong>${esc(forwardLine)}</p>

@@ -20,7 +20,7 @@ history={"summary":{"symbols":21,"events":3890,"mature_20":2000,"mature_60":1800
 self_improvement={"candidate_brain":{"count":2},"shadow_brain":{"eligible_for_review":[]},"production_brain":{"mode":"locked"}}
 
 out=le.build(execution,planner,learning,method,evidence,history,self_improvement)
-assert out["version"]=="6.9.0"
+assert out["version"]=="6.13.2"
 assert out["research_scorecard"]["analyzed"]==2
 assert out["research_scorecard"]["situation_memory"]==12
 assert out["outcome_memory"]["mature_60"]==1800

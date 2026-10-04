@@ -83,7 +83,7 @@ policy=cl.build(
  previous={},
  now=now,
 )
-assert policy["version"]=="6.12.1"
+assert policy["version"]=="6.13.2"
 assert policy["production_mutation"] is False
 assert policy["automatic_orders"] is False
 assert policy["forward_learning_feedback"]["automatic_promotion"] is False
@@ -104,12 +104,12 @@ with TemporaryDirectory() as td:
 
 workflow=(ROOT/".github/workflows/daily.yml").read_text(encoding="utf-8")
 assert "Build V6.12.1 Forward Learning Feedback + Challenger Shadow" in workflow
-assert workflow.index("Build V6.12.1 Forward Learning Feedback + Challenger Shadow") < workflow.index("Build V6.12 Controlled Learning Policy")
+assert workflow.index("Build V6.12.1 Forward Learning Feedback + Challenger Shadow") < workflow.index("Build V6.13.2 Controlled Learning Policy")
 assert "module_failure_marker.py forward_learning_feedback" in workflow
 manifest=(ROOT/"scripts/generate_build_manifest.py").read_text(encoding="utf-8")
 assert "research/forward_learning_feedback.json" in manifest
 ui=(ROOT/"docs"/"assets"/"autonomous-agent.js").read_text(encoding="utf-8")
-assert "V6.12.1 Controlled Learning · 受控自学习" in ui
+assert "V6.13.2 Controlled Learning · 受控自学习" in ui
 assert "Challenger 仅做影子诊断" in ui
 assert "research/forward_learning_feedback.json" in ui
 

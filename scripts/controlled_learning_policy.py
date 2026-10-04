@@ -25,7 +25,7 @@ FEEDBACK=RESEARCH/"forward_learning_feedback.json"
 PREV=RESEARCH/"controlled_learning_policy.json"
 OUT=PREV
 
-VERSION="6.12.1"
+VERSION="6.13.2"
 MAX_ABS_PRIORITY_DELTA=5.0
 
 def load(path):
@@ -124,22 +124,20 @@ def candidate_adjustments(self_improvement):
     return rows
 
 def method_states(method):
+    """Mirror Method Memory evidence states; never maintain a parallel taxonomy."""
     out={}
     for m in method.get("methods") or []:
         direct=int(m.get("direct_validated_events") or 0)
         perf=(m.get("performance") or {}).get("20") or {}
         rate=finite(perf.get("alignment_rate"))
-        if direct==0:state="unproven"
-        elif direct<8:state="early"
-        elif direct<20:state="developing"
-        elif rate is not None and rate>=0.60:state="validated_supportive"
-        elif rate is not None and rate<=0.40:state="validated_challenging"
-        else:state="validated_mixed"
+        evidence=m.get("evidence_maturity") or {}
+        state=evidence.get("state") or m.get("status") or ("context_only" if direct==0 else "direct_early")
         out[m.get("method")]={
             "direct_n":direct,
             "alignment20":rate,
             "state":state,
-            "auto_weight_delta":0.0,  # source/method weights remain frozen until direct evidence matures
+            "evidence_maturity":evidence,
+            "auto_weight_delta":0.0,  # source/method weights remain frozen until a separate policy gate is approved
         }
     return out
 
@@ -213,7 +211,7 @@ def build(replay,outcome,self_improvement,method,feedback=None,previous=None,now
             "All research-priority deltas are bounded to +/-5 points.",
             "Repeated workflows on the same market day do not accumulate deltas.",
             "Historical replay and Forward evidence remain separately labeled.",
-            "Method/source weights remain frozen until direct evidence maturity gates are met.",
+            "Method/source weights remain frozen even after maturity labels change; a separate approved policy gate is required.",
             "Production thresholds, Hard Exit, position sizing, portfolio allocation and order logic are immutable here.",
         ],
     }

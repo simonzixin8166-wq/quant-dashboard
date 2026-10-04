@@ -85,7 +85,7 @@ with TemporaryDirectory() as td:
 workflow=(ROOT/".github/workflows/daily.yml").read_text(encoding="utf-8")
 assert "Build V6.13 Challenger Experiment Runner (preregistered shadow)" in workflow
 assert workflow.index("Build V6.12.1 Forward Learning Feedback + Challenger Shadow") < workflow.index("Build V6.13 Challenger Experiment Runner")
-assert workflow.index("Build V6.13 Challenger Experiment Runner") < workflow.index("Build V6.12 Controlled Learning Policy")
+assert workflow.index("Build V6.13 Challenger Experiment Runner") < workflow.index("Build V6.13.2 Controlled Learning Policy")
 assert "module_failure_marker.py challenger_experiments" in workflow
 
 manifest=(ROOT/"scripts/generate_build_manifest.py").read_text(encoding="utf-8")

@@ -176,7 +176,7 @@ jobs:
       - name: Audit Module Intelligence Graph
         run: python scripts/module_intelligence_engine.py
 
-      - name: Build V6.12 Controlled Learning Policy
+      - name: Build V6.13.2 Controlled Learning Policy
         id: controlled_learning
         continue-on-error: true
         run: python scripts/controlled_learning_policy.py
@@ -287,6 +287,7 @@ jobs:
           python tests/test_v6121_forward_learning_feedback.py
           python tests/test_v613_challenger_experiments.py
           python tests/test_v6131_method_memory_attribution.py
+          python tests/test_v6132_method_evidence_state_unification.py
           python scripts/private_guardrail.py  # Public Leak Guard
           python -m py_compile scripts/generate_build_manifest.py scripts/verify_deployment.py
         

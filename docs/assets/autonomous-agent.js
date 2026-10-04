@@ -215,12 +215,12 @@
     const stateCn={IDLE:'等待条件',NEAR_TRIGGER:'接近条件',TRIGGERED:'当前状态触发',UNDETERMINED:'数据不足'};
     const evidenceCn={unverified:'未验证',verified:'已验证',research_only:'仅研究'};
     const lifecycleCn={active:'运行中',paused:'暂停',retired:'停用'};
-    const rows=d.playbooks.map(x=>`<tr><td><b>${esc(x.playbook_id)}</b><small>${esc(names[x.playbook_id]||'')}</small></td><td>${esc(x.symbol)}</td><td>${esc(stateCn[x.state]||x.state)}<small>${esc(x.detail||'')}</small></td><td>${esc(lifecycleCn[x.lifecycle]||x.lifecycle||'运行中')}</td><td>${esc(evidenceCn[x.evidence]||x.evidence||'未验证')}</td><td>v${esc(x.rule_version||'—')}</td></tr>`).join('');
+    const rows=d.playbooks.map(x=>`<tr><td><b>${esc(x.playbook_id)}</b><small>${esc(names[x.playbook_id]||'')}</small></td><td>${esc(x.symbol)}</td><td>${esc(stateCn[x.state]||x.state)}<small>${esc(x.detail||'')}</small></td><td>${x.runtime?.ledger_active===false?'人为暂停':'运行中'}</td><td>${esc(evidenceCn[x.evidence]||x.evidence||'未验证')}</td><td>v${esc(x.rule_version||'—')}</td></tr>`).join('');
     const s=d.stabilization||{},streams=a.streams||{},root=String(a.root_hash||'');
     const counts=['trigger','audit','discipline','correction'].map(k=>`${k} ${streams[k]?.count??0}`).join(' · ');
     return `<div class="agent-section-title"><b>Playbook · 剧本运行摘要</b><span>只读 · 不展示私有账本内容</span></div>
       <details class="agent-card agent-watch" open><summary><b>前瞻时钟与 7 个剧本对象</b> · 稳定期 ${s.completed_sessions??'—'}/${s.target_sessions??10} 个交易日</summary>
-      <div class="journal-table-wrap"><table class="journal-table"><thead><tr><th>剧本</th><th>标的</th><th>当前状态</th><th>生命周期</th><th>证据</th><th>规则</th></tr></thead><tbody>${rows}</tbody></table></div>
+      <div class="journal-table-wrap"><table class="journal-table"><thead><tr><th>剧本</th><th>标的</th><th>当前状态</th><th>运行</th><th>证据</th><th>规则</th></tr></thead><tbody>${rows}</tbody></table></div>
       <div class="agent-metrics"><span>Heartbeat ${esc(d.heartbeat?.status||'—')}</span><span>Data Quality ${esc(d.data_quality?.status||'—')}</span><span>Kill Switch ${d.kill_switch?.global_enabled===false?'已暂停':'正常'}</span><span>Ledger ${esc(a.status||d.storage?.health||'—')}</span></div>
       <p><strong>Forward 起始：</strong>${esc(s.start_market_date||'2026-10-02')} · <strong>账本摘要：</strong>${esc(counts)} · <strong>Root：</strong>${esc(root?root.slice(0,10)+'…':'—')}</p>
       <small>CP-02 的 full_restore 若是启动基线，只表示当前允许恢复目标敞口，不代表新的 Forward Trigger；Raw Ledger 始终留在私有仓库。</small></details>`;
@@ -238,6 +238,7 @@
       ['Source Intelligence',sourceRecovered?{...sourceRun,health:'ok',_recovered:true}:sourceRun],
       ['Trend Pulse 5Y',q['Trend Pulse 5Y Backtest']],
       ['Pages',q['pages build and deployment']],
+      ['Playbook巡检',q['Playbook Independent Watchdog']],
       ['收盘研究采集',w['research-close']],
       ['TG采集',w['tg-bot']]
     ];
@@ -258,7 +259,7 @@
       <div class="agent-metrics">${rows.map(([name,x])=>`<span class="${cls(x?.health)}">${esc(name)} · ${esc(x?._recovered?'已由后续更新恢复':cn(x?.health))}</span>`).join('')}</div>
       <p><strong>最近 Source Intelligence：</strong>${esc(humanTime(latest))}</p>
       <p><strong>关键数据新鲜度：</strong>${freshness.map(esc).join(' · ')||'等待状态数据'}</p>
-      <p><strong>Playbook：</strong>${esc(playbookText)} · ${esc(killText)}</p>
+      <p><strong>Playbook：</strong>${esc(playbookText)} · ${esc(killText)}${pr.unresolved_failure?' · 存在未恢复的隔离故障':''}</p>
       ${excluded.length?`<p class="negative"><strong>已暂停参与当前判断：</strong>${excluded.map(esc).join(' · ')}</p>`:''}
       <small>缓存或过期关键产物只保留为历史上下文，不继续参与当前研究结论；Daily Dashboard、Autonomous QA 或收盘研究采集失败也会直接标记异常。</small></article></div>`;
   }

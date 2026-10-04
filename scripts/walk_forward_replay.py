@@ -27,11 +27,12 @@ import numpy as np
 import pandas as pd
 
 from local_history_agent import read_archive
-from playbook_config import CORE_TIERS, rule_hash
+from playbook_config import CORE_TIERS, PLAYBOOKS, TQQQ_RULES, LEAPS_RULES, rule_hash
+from opportunity_strategy import _sma, _rsi, decide_tqqq_state
 
 ROOT=Path(__file__).resolve().parents[1]
 OUT=ROOT/"docs"/"research"/"walk_forward_replay.json"
-VERSION="6.11.0"
+VERSION="6.11.1"
 HORIZONS=(5,20,60)
 CLUSTER_SESSIONS=5
 PROVENANCE="historical_replay_post_rule_design"
@@ -59,7 +60,7 @@ def qqq_return(qqq,event_date,h):
     a=finite(qqq.iloc[pos]["close"]);b=finite(qqq.iloc[pos+h]["close"])
     return None if not a or b is None else b/a-1.0
 
-def fwd_outcomes(df,pos,entry,qqq,event_date):
+def fwd_outcomes(df,pos,entry,qqq,event_date,direction="bullish"):
     out={}
     for h in HORIZONS:
         if pos+h>=len(df):
@@ -81,7 +82,7 @@ def fwd_outcomes(df,pos,entry,qqq,event_date):
             "mfe":max(highs)/entry-1.0 if highs else None,
             "benchmark_return":bench,
             "excess_vs_benchmark":ret-bench if bench is not None else None,
-            "aligned":ret>0,
+            "aligned":ret>0 if direction=="bullish" else ret<0,
         }
     return out
 
@@ -125,6 +126,109 @@ def cp01_events(symbol,df,qqq):
                     "outcomes":fwd_outcomes(x,i,entry,qqq,day),
                 })
         prev=level
+    return events
+
+def _rows_from_df(df):
+    x=df.copy().sort_index()
+    x=x[~x.index.duplicated(keep="last")]
+    return [{"date":idx.date().isoformat(),"close":float(row["close"])} for idx,row in x.iterrows() if finite(row.get("close"))]
+
+def cp02_events(qqq_df,vix_df):
+    qqq_rows=_rows_from_df(qqq_df)
+    vix_map={x["date"]:x["close"] for x in _rows_from_df(vix_df)}
+    qqq_rows=[x for x in qqq_rows if x["date"] in vix_map]
+    if len(qqq_rows)<205:return []
+    closes=[x["close"] for x in qqq_rows]
+    previous_target=TQQQ_RULES["targets"]["x2"]
+    previous_rule=None
+    events=[]
+    action_rules=set((PLAYBOOKS["CP-02"].get("trigger") or {}).get("action_rules") or [])
+    direction_map={"hard_exit":"bearish","tier2":"bearish","tier1":"bearish","partial_restore":"bullish","full_restore":"bullish"}
+    objective_map={"hard_exit":"risk_reduction","tier2":"risk_reduction","tier1":"risk_reduction","partial_restore":"risk_restore","full_restore":"risk_restore"}
+    qqq_indexed=qqq_df.sort_index()
+    for i,row in enumerate(qqq_rows):
+        ma20=_sma(closes,i,20); ma50=_sma(closes,i,50); ma200=_sma(closes,i,200); rsi=_rsi(closes,i,14)
+        if None in (ma20,ma50,ma200,rsi) or i<5:continue
+        vix=vix_map[row["date"]]
+        old_vix=vix_map.get(qqq_rows[i-3]["date"]) if i>=3 else None
+        vix_3d=vix/old_vix-1.0 if old_vix else None
+        previous_ma20=_sma(closes,i-5,20)
+        previous_day_ma20=_sma(closes,i-1,20)
+        previous_day_ma50=_sma(closes,i-1,50)
+        ma20_rising=bool(previous_ma20 and ma20>previous_ma20)
+        two_below_ma50=bool(previous_day_ma50 and closes[i-1]<previous_day_ma50 and row["close"]<ma50)
+        two_above_ma20=bool(previous_day_ma20 and closes[i-1]>previous_day_ma20 and row["close"]>ma20)
+        hard=TQQQ_RULES["hard_exit"]
+        hard_exit=(vix>hard["vix_ma50_gt"] and row["close"]<ma50) or (row["close"]<ma200 and vix>hard["vix_ma200_gt"])
+        r2=TQQQ_RULES["tier2"]
+        tier2=bool(vix_3d is not None and vix_3d>r2["vix_3d_change_gt"] and vix>=r2["vix_min"] and (row["close"]<=ma50*r2["ma50_buffer"] or two_below_ma50))
+        r1=TQQQ_RULES["tier1"]
+        tier1=bool(vix_3d is not None and vix_3d>r1["vix_3d_change_gt"] and vix>=r1["vix_min"] and row["close"]<ma20)
+        rr=TQQQ_RULES["oversold_restore"]
+        oversold_restore=bool(rsi<=rr["rsi_lte"] and not hard_exit and vix<=rr["vix_lte"])
+        tr=TQQQ_RULES["trend_restore"]
+        trend_restore=bool(vix_3d is not None and two_above_ma20 and ma20_rising and vix_3d<=tr["vix_3d_change_lte"])
+        fr=TQQQ_RULES["full_restore"]
+        full_restore=bool(trend_restore and row["close"]>ma50 and vix<fr["vix_lt"])
+        flags={"hard_exit":hard_exit,"tier2":tier2,"tier1":tier1,"oversold_restore":oversold_restore,"trend_restore":trend_restore,"full_restore":full_restore}
+        target,rule,_=decide_tqqq_state(previous_target,flags)
+        # Production Playbook records state-key transitions, not every day that
+        # remains in the same action state.
+        if rule!=previous_rule and rule in action_rules:
+            ts=pd.Timestamp(row["date"])
+            if ts in qqq_indexed.index:
+                pos=qqq_indexed.index.get_loc(ts)
+                if isinstance(pos,int):
+                    events.append({
+                        "playbook_id":"CP-02","entity_key":"CP-02:TQQQ","symbol":"TQQQ",
+                        "evaluation_asset":"QQQ","event_date":row["date"],"state_detail":rule,
+                        "objective_group":objective_map.get(rule),"expected_direction":direction_map.get(rule),
+                        "baseline_close":row["close"],"rule_hash":rule_hash("CP-02"),
+                        "evidence_provenance":PROVENANCE,"scoreable":True,
+                        "outcomes":fwd_outcomes(qqq_indexed,pos,row["close"],qqq_indexed,row["date"],direction_map.get(rule,"bullish")),
+                    })
+        previous_target=target
+        previous_rule=rule
+    return events
+
+def cp03_events(symbol,df,qqq,vix_df=None):
+    x=df.copy().sort_index()
+    x=x[~x.index.duplicated(keep="last")]
+    if len(x)<220:return []
+    closes=x["close"].astype(float).tolist()
+    vix_map={}
+    if vix_df is not None and not vix_df.empty:
+        vix_map={idx.date().isoformat():float(row["close"]) for idx,row in vix_df.sort_index().iterrows() if finite(row.get("close"))}
+    previous_status=None
+    events=[]
+    for i in range(len(x)):
+        if i<219:continue
+        rsi=_rsi(closes,i,14); previous_rsi=_rsi(closes,i-1,14)
+        ma200=_sma(closes,i,200); prior_ma200=_sma(closes,i-20,200)
+        if None in (rsi,previous_rsi,ma200,prior_ma200):continue
+        high63=max(closes[i-62:i+1])
+        drawdown=closes[i]/high63-1.0
+        sr=LEAPS_RULES["strong"]
+        strong=bool(rsi<=sr["rsi_two_sessions_lte"] and previous_rsi<=sr["rsi_two_sessions_lte"] and drawdown<=sr["drawdown63_lte"])
+        cr=LEAPS_RULES["candidate"]
+        candidate=bool(rsi<=cr["rsi_lte"] and drawdown<=cr["drawdown63_lte"])
+        wr=LEAPS_RULES["watch"]
+        watch=bool(rsi<=wr["rsi_lte"] or drawdown<=wr["drawdown63_lte"])
+        status="strong" if strong else ("candidate" if candidate else ("watch" if watch else "normal"))
+        if status!=previous_status and status in {"candidate","strong"}:
+            day=x.index[i].date().isoformat()
+            vix=vix_map.get(day)
+            trend_risk=bool(closes[i]<ma200 and ma200<prior_ma200)
+            vix_risk=bool(vix is not None and vix>=LEAPS_RULES["risk_flags"]["vix_gte"])
+            events.append({
+                "playbook_id":"CP-03","entity_key":f"CP-03:{symbol}","symbol":symbol,
+                "evaluation_asset":symbol,"event_date":day,"state_detail":status,
+                "expected_direction":"bullish","baseline_close":closes[i],
+                "rule_hash":rule_hash("CP-03"),"evidence_provenance":PROVENANCE,"scoreable":True,
+                "risk_context":{"trend_risk":trend_risk,"vix_risk":vix_risk,"vix_available":vix is not None},
+                "outcomes":fwd_outcomes(x,i,closes[i],qqq,day,"bullish"),
+            })
+        previous_status=status
     return events
 
 def session_distance(index,a,b):
@@ -212,22 +316,30 @@ def build(store=None,now=None):
             "replay_rule":"validated drawdown tiers reconstructed causally from cumulative adjusted close ATH",
         },
         "CP-02":{
-            "status":"blocked",
+            "status":"complete" if all(x in store for x in ("QQQ","VIX")) else "blocked",
             "required_history":["QQQ","VIX"],
             "missing":[x for x in ("QQQ","VIX") if x not in store],
-            "reason":"VIX history is required by production hard-exit/tier/restore semantics. QQQ-only approximation is rejected.",
+            "reason":None if all(x in store for x in ("QQQ","VIX")) else "VIX history is required by production hard-exit/tier/restore semantics. QQQ-only approximation is rejected.",
+            "replay_rule":"same TQQQ_RULES precedence and state machine used by opportunity_strategy.py",
         },
         "CP-03":{
-            "status":"blocked",
-            "required_history":["QQQ","SMH","VGT","VIX"],
-            "missing":[x for x in ("QQQ","SMH","VGT","VIX") if x not in store],
-            "reason":"Full production LEAPS market-condition replay needs SMH plus risk-context dependency. Partial reconstruction is not promoted into aggregate evidence.",
+            "status":"complete" if all(x in store for x in ("QQQ","SMH","VGT")) else "blocked",
+            "required_history":["QQQ","SMH","VGT"],
+            "optional_context":["VIX"],
+            "missing":[x for x in ("QQQ","SMH","VGT") if x not in store],
+            "reason":None if all(x in store for x in ("QQQ","SMH","VGT")) else "QQQ/SMH/VGT daily history is required to reconstruct production candidate/strong states.",
+            "replay_rule":"same RSI14, two-session RSI, 63-session drawdown and MA200 risk context thresholds used by opportunity_strategy.py",
         },
     }
     events=[]
     if coverage["CP-01"]["status"]=="complete":
         for symbol in ("QQQM","VGT","QLD"):
             events.extend(cp01_events(symbol,store[symbol],qqq))
+    if coverage["CP-02"]["status"]=="complete":
+        events.extend(cp02_events(store["QQQ"],store["VIX"]))
+    if coverage["CP-03"]["status"]=="complete":
+        for symbol in ("QQQ","SMH","VGT"):
+            events.extend(cp03_events(symbol,store[symbol],qqq,store.get("VIX")))
     ref=qqq.index if qqq is not None and not qqq.empty else next(iter(store.values())).index if store else pd.DatetimeIndex([])
     stats,effective_total=summarize(events,ref)
     recent=sorted(events,key=lambda x:(x["event_date"],x["symbol"]),reverse=True)[:120]

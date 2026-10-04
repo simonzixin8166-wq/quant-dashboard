@@ -22,6 +22,7 @@ COMPONENT_VERSIONS = {
     "playbook_engine": "6.10a.0",
     "playbook_outcome_foundation": "6.12.1-shadow",
     "forward_learning_feedback": "6.12.1",
+    "challenger_experiment_runner": "6.13.0",
     "walk_forward_replay": "6.11.1",
     "controlled_learning_policy": "6.12.1",
     "trigger_ledger_schema": "1.0",

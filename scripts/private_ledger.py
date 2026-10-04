@@ -44,6 +44,8 @@ class AppendResult:
     appended:int
     record_count:int
     head_hash:str
+    reconciled:bool=False
+    recovered_records:int=0
 
 class PrivateGitHubLedger:
     def __init__(self,repo,token,branch="main"):
@@ -117,12 +119,24 @@ class PrivateGitHubLedger:
         if not ok:
             raise RuntimeError(f"Existing private ledger verification failed: {verify}")
 
-        # Detect stale/tampered head metadata. A partially completed prior write
-        # can be reconciled only when the file itself verifies from the frozen
-        # month_start_hash.
+        # Reconcile the safe partial-write case: the monthly file was committed
+        # but ledger/_heads.json failed afterwards. The file is authoritative
+        # only when the full chain verifies from the frozen month_start_hash and
+        # the stale metadata head is either the month start or an earlier record
+        # in that same verified chain. Any unrelated head remains fail-closed.
         current_file_head=verify["head_hash"]
-        if same_month and parsed and meta.get("head_hash") not in {None,current_file_head}:
-            raise RuntimeError("Private ledger head metadata does not match current month file")
+        head_before=meta.get("head_hash",month_start_hash)
+        chain_heads={month_start_hash}|{str(r.get("record_hash")) for r in parsed}
+        reconciled=False
+        recovered_records=0
+        if parsed and head_before!=current_file_head:
+            if head_before not in chain_heads:
+                raise RuntimeError("Private ledger head metadata does not match verified month chain")
+            prior_month_count=int(meta.get("month_record_count") or 0) if same_month else 0
+            if prior_month_count>len(parsed):
+                raise RuntimeError("Private ledger month count exceeds verified file length")
+            recovered_records=len(parsed)-prior_month_count
+            reconciled=True
 
         known={str(r.get("record_id")) for r in parsed}
         prev=current_file_head
@@ -138,9 +152,10 @@ class PrivateGitHubLedger:
 
         total_before=int(meta.get("record_count") or 0)
         month_before=int(meta.get("month_record_count") or 0) if same_month else 0
+        recovered_for_total=recovered_records if reconciled else 0
         new_meta={
             "head_hash":prev,
-            "record_count":total_before+len(added),
+            "record_count":total_before+recovered_for_total+len(added),
             "last_month":month,
             "month_start_hash":month_start_hash,
             "month_record_count":len(parsed)+len(added),
@@ -154,10 +169,10 @@ class PrivateGitHubLedger:
                 sha=heads_sha,
                 message=f"Update MyAlpha {stream} ledger head {market_date}",
             )
-        return AppendResult(stream,path,bool(added),len(added),new_meta["record_count"],prev)
+        return AppendResult(stream,path,bool(added),len(added),new_meta["record_count"],prev,reconciled,recovered_records)
 
 def aggregate_anchor(results):
-    heads={r.stream:{"path":r.path,"count":r.record_count,"head_hash":r.head_hash} for r in results}
+    heads={r.stream:{"path":r.path,"count":r.record_count,"head_hash":r.head_hash,"reconciled":bool(r.reconciled),"recovered_records":int(r.recovered_records)} for r in results}
     root=hashlib.sha256(canonical_json(heads).encode("utf-8")).hexdigest()
     return {"root_hash":root,"streams":heads,"generated_at":datetime.now(timezone.utc).isoformat()}
 

@@ -12,6 +12,13 @@ from zoneinfo import ZoneInfo
 
 ET=ZoneInfo("America/New_York")
 
+# Full-day exceptional NYSE/Nasdaq closures that are not expressible by the
+# regular holiday rules above. Add future one-off closures here only after an
+# official exchange notice.
+SPECIAL_CLOSURES={
+    date(2018,12,5),  # National Day of Mourning for President George H.W. Bush
+}
+
 def _nth_weekday(year,month,weekday,n):
     count=0
     for day in range(1,calendar.monthrange(year,month)[1]+1):
@@ -52,9 +59,7 @@ def holidays(year):
     rows.add(_nth_weekday(year,9,0,1))   # Labor
     rows.add(_nth_weekday(year,11,3,4))  # Thanksgiving
     rows.add(_observed(date(year,12,25)))
-    # If next New Year's Day is Saturday, Dec 31 of current year is observed.
-    next_new_year=date(year+1,1,1)
-    if next_new_year.weekday()==5: rows.add(date(year,12,31))
+    rows.update(d for d in SPECIAL_CLOSURES if d.year==year)
     return rows
 
 def is_session(value):

@@ -1,1 +1,1 @@
-Verify V6.14.5 structured source rule lifecycle in production
+Verify V6.14.6 Source Reading six-way semantics in production

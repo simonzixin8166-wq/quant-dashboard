@@ -11,56 +11,45 @@ EVENTS=ROOT/"research"/"events"/"event_scores_v1.json"
 FAMILIES=ROOT/"research"/"registry"/"rule_families.json"
 SPEC=ROOT/"research"/"specs"/"evaluation_spec.json"
 OUT=ROOT/"research"/"reports"/"family_scorecards.json"
-VERSION="6.15.8d"
+VERSION="6.15.8e"
 
 sys.path.insert(0,str(ROOT/"scripts"))
 from evaluation_spec import block_bootstrap_ci,block_signflip_pvalue,benjamini_hochberg
+from v615_dependence_clusters import overlap_connected_clusters,assert_non_overlapping
 
 def load(p,d):
     try:return json.loads(p.read_text(encoding="utf-8"))
     except Exception:return d
 
-def week_index(day):
-    try:
-        import pandas as pd
-        ts=pd.Timestamp(str(day)[:10])
-        # Monday-based absolute week index, stable across years.
-        monday=ts-pd.Timedelta(days=int(ts.weekday()))
-        return int(monday.toordinal()//7)
-    except Exception:
-        return None
-
-def horizon_block_id(day,horizon_weeks):
-    wi=week_index(day)
-    if wi is None:return "unknown"
-    return f"block-{wi//max(1,int(horizon_weeks))}"
-
 def mean(vals):
     vals=[float(x) for x in vals if x is not None]
     return sum(vals)/len(vals) if vals else None
 
-def _unit_rows(rows,h,horizon_weeks):
-    """Collapse author duplicates into one symbol x non-overlapping horizon block unit."""
+def _unit_rows(rows,h,cluster_map):
+    """Collapse author duplicates into one symbol x overlap-connected time cluster unit."""
     grouped=defaultdict(list)
     for e in rows:
         score=(e.get("scores") or {}).get(str(h))
         if not score or score.get("unconditional_lift") is None:
             continue
-        block=horizon_block_id(e.get("baseline_date"),horizon_weeks)
-        key=(str(e.get("symbol") or "unknown"),block)
+        eid=str(e.get("event_id") or "")
+        cluster=cluster_map.get(eid)
+        if cluster is None:
+            continue
+        key=(str(e.get("symbol") or "unknown"),cluster)
         grouped[key].append(e)
     units=[]
-    for (symbol,block),evs in sorted(grouped.items()):
+    for (symbol,cluster),evs in sorted(grouped.items()):
         scores=[(x.get("scores") or {}).get(str(h)) or {} for x in evs]
         authors=sorted({str(x.get("author") or "unknown") for x in evs})
         units.append({
-            "symbol":symbol,"block":block,"authors":authors,
+            "symbol":symbol,"cluster":cluster,"authors":authors,
             "events":len(evs),
-            "lift":mean([s.get("unconditional_lift") for s in scores]),
-            "return":mean([s.get("direction_adjusted_return") for s in scores]),
-            "mae":mean([s.get("direction_adjusted_mae") for s in scores]),
-            "benchmark_mae":mean([s.get("unconditional_baseline_direction_adjusted_mae") for s in scores]),
-            "excess_vs_qqq":mean([s.get("excess_vs_qqq") for s in scores]),
+            "lift":mean([x.get("unconditional_lift") for x in scores]),
+            "return":mean([x.get("direction_adjusted_return") for x in scores]),
+            "mae":mean([x.get("direction_adjusted_mae") for x in scores]),
+            "benchmark_mae":mean([x.get("unconditional_baseline_direction_adjusted_mae") for x in scores]),
+            "excess_vs_qqq":mean([x.get("excess_vs_qqq") for x in scores]),
         })
     return units
 
@@ -84,7 +73,6 @@ def build(events,families,spec):
     defs=spec.get("definitions") or {}
     mt=(defs.get("multiple_testing") or {})
     clustering=(defs.get("clustering") or {})
-    block_weeks={str(k):int(v) for k,v in (clustering.get("horizon_block_weeks") or {"5":1,"20":4,"60":12}).items()}
     min_clusters=int(mt.get("minimum_time_clusters_for_testing") or 6)
     resamples=int(mt.get("bootstrap_resamples") or 2000)
     seed=int(mt.get("bootstrap_seed") or 6158)
@@ -98,11 +86,14 @@ def build(events,families,spec):
         horizons={}
         for h in horizons_declared:
             matured=[x for x in scoreable if (x.get("scores") or {}).get(str(h))]
-            units=_unit_rows(scoreable,h,block_weeks.get(str(h),1))
+            cluster_map,cluster_meta=overlap_connected_clusters(scoreable,h,require_lift=True)
+            if not assert_non_overlapping(cluster_meta):
+                raise AssertionError(f"overlap-connected clusters are not independent for {fid}|{h}")
+            units=_unit_rows(scoreable,h,cluster_map)
             blocks=defaultdict(list)
             for u in units:
                 if u.get("lift") is not None:
-                    blocks[u["block"]].append(u["lift"])
+                    blocks[u["cluster"]].append(u["lift"])
             block_values=[vals for _,vals in sorted(blocks.items())]
             block_means=[mean(vals) for vals in block_values]
             testable=len(block_values)>=min_clusters
@@ -118,6 +109,7 @@ def build(events,families,spec):
                 "raw_mature_events":len(matured),
                 "effective_n":len(units),
                 "independent_time_clusters":len(block_values),
+                "cluster_definition":"overlap_connected_realized_horizon_intervals",
                 "independent_authors":len({a for u in units for a in (u.get("authors") or [])}),
                 "direction_adjusted_return_mean":mean([u.get("return") for u in units]),
                 "unconditional_lift_mean":mean([u.get("lift") for u in units]),
@@ -150,7 +142,7 @@ def build(events,families,spec):
         h60=c["horizons"]["60"]
         c["status"]="statistically_reviewable" if (
             h60["effective_n"]>=int((spec.get("thresholds") or {}).get("mature_60_effective_samples_min") or 20)
-            and c["independent_authors"]>=int((spec.get("thresholds") or {}).get("independent_authors_min") or 3)
+            and h60["independent_authors"]>=int((spec.get("thresholds") or {}).get("independent_authors_min") or 3)
             and h60["independent_time_clusters"]>=int((spec.get("thresholds") or {}).get("independent_time_clusters_min") or 6)
             and h60["test_status"]=="testable"
         ) else "sample_insufficient_research_only"
@@ -165,8 +157,9 @@ def build(events,families,spec):
         "cards":cards,
         "guardrails":[
             "Family membership is frozen before reading outcomes.",
-            "Effective sample size is symbol x non-overlapping horizon block; author count is reported separately.",
-            "Bootstrap resamples complete non-overlapping horizon blocks; all symbols in a block stay together.",
+            "Effective sample size is symbol x overlap-connected realized-horizon cluster; author count is reported separately.",
+            "Any directly or transitively overlapping realized evaluation windows are one time cluster; distinct clusters share no dates.",
+            "Bootstrap resamples complete overlap-connected time clusters; all symbols in a cluster stay together.",
             "FDR is applied to the full frozen active-family x declared-horizon hypothesis set; untestable hypotheses enter as p=1.",
             "Below the minimum cluster count, inference is marked not_testable."
         ],

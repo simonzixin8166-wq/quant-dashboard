@@ -9,7 +9,7 @@ definition=json.loads((ROOT/"research/specs/rule_family_definition.json").read_t
 assert verify_definition(definition)==definition["definition_hash"]
 assert definition["normalizer_version"]=="v615_rule_registry.normalize_rule@6.15.1"
 assert definition["extractor_version"]=="source_reading_memory@6.14.6"
-assert spec["spec_version"]=="1.2"
+assert spec["spec_version"]=="1.3"
 assert spec["thresholds"]["independent_authors_min"]==3
 assert spec["thresholds"]["independent_time_clusters_min"]==6
 assert spec["thresholds"]["mature_60_effective_samples_min"]==20

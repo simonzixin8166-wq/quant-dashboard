@@ -1,5 +1,5 @@
 {
-  "readiness_spec_version": "1.1",
+  "readiness_spec_version": "1.2",
   "status": "frozen_before_first_20d_maturity",
   "frozen_at": "2026-10-04",
   "purpose": "Operational readiness gate for starting V6.16 Situation Learning. This gate does not validate investment effectiveness and does not require any Promotion Gate pass.",
@@ -22,12 +22,13 @@
   },
   "rationale": {
     "operational_not_effectiveness_gate": true,
-    "why_20d_12": "12 effective symbol×non-overlapping-20d-block units prove repeated medium-horizon maturation without claiming alpha efficacy.",
-    "why_60d_6": "6 effective symbol×non-overlapping-60d-block units prove repeated long-horizon maturation without claiming alpha efficacy.",
+    "why_20d_12": "12 effective symbol×overlap-connected realized-20-session-cluster units demonstrate repeated medium-horizon maturation without claiming alpha efficacy.",
+    "why_60d_6": "6 effective symbol×overlap-connected realized-60-session-cluster units demonstrate repeated long-horizon maturation without claiming alpha efficacy.",
     "why_multiple_families": "Avoid declaring readiness from a single narrow rule family implementation path.",
     "expected_first_20d_window": "approximately early November 2026",
     "expected_first_60d_window": "approximately late December 2026 to early January 2027",
-    "effective_unit": "symbol x non-overlapping horizon block; author count is separate"
+    "effective_unit": "symbol x overlap-connected realized-horizon cluster; author count is separate",
+    "cluster_definition": "Any directly or transitively overlapping realized evaluation intervals are one time cluster; distinct clusters must be pairwise non-overlapping."
   },
   "power_reference": {
     "standardized_effect_d": 0.5,
@@ -47,5 +48,6 @@
     "A V6.16 start decision cannot require any method or family to pass Promotion.",
     "Requirements cannot be relaxed after observing favorable investment results.",
     "Passing this gate authorizes architecture work only, never automatic trading or production-rule mutation."
-  ]
+  ],
+  "previous_readiness_spec_version": "1.1"
 }

@@ -25,10 +25,14 @@ def git_blob_sha1(path):
 def check_evidence_lock():
     lock=json.loads(EVIDENCE_LOCK.read_text(encoding="utf-8"))
     problems=[]
-    if git_blob_sha1(EVALUATION_SPEC)!=lock.get("evaluation_spec_git_blob_sha1"):
-        problems.append("evaluation_spec_hash_mismatch")
-    if git_blob_sha1(FAMILY_DEF)!=lock.get("rule_family_definition_git_blob_sha1"):
-        problems.append("rule_family_definition_hash_mismatch")
+    locked_specs=lock.get("locked_research_specs") or {}
+    for rel,expected in sorted(locked_specs.items()):
+        path=ROOT/rel
+        if not path.exists():
+            problems.append(f"locked_spec_missing:{rel}")
+            continue
+        if git_blob_sha1(path)!=expected:
+            problems.append(f"locked_spec_hash_mismatch:{rel}")
     spec=json.loads(EVALUATION_SPEC.read_text(encoding="utf-8"))
     fam=json.loads(FAMILY_DEF.read_text(encoding="utf-8"))
     if spec.get("spec_version")!=lock.get("evaluation_spec_version"):
@@ -37,8 +41,10 @@ def check_evidence_lock():
         problems.append("rule_family_definition_version_mismatch")
     if fam.get("definition_hash")!=lock.get("rule_family_semantic_definition_hash"):
         problems.append("rule_family_semantic_hash_mismatch")
-    if git_blob_sha1(MANIFEST)!=lock.get("production_boundary_manifest_git_blob_sha1"):
-        problems.append("production_boundary_manifest_hash_mismatch")
+    readiness_path=ROOT/"research"/"specs"/"v616_readiness_spec.json"
+    readiness=json.loads(readiness_path.read_text(encoding="utf-8"))
+    if readiness.get("readiness_spec_version")!=lock.get("readiness_spec_version"):
+        problems.append("readiness_spec_version_mismatch")
     return problems
 
 def sha(path):

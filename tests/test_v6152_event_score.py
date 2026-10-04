@@ -22,7 +22,7 @@ validation={"events":[{
  "event_id":"s1:0:ABC:0","author":"a","symbol":"ABC","published_at":"2026-01-01",
  "baseline_date":"2026-01-02","baseline_kind":"entry_1","triggered":True,
  "operation":{"conditions":[],"actions":["buy"]},"alignment":{"direction":"bullish","5":"aligned"},
- "outcomes":{"5":{"return":0.1,"benchmark_return":0.1,"excess_vs_qqq":0.0,"mae":-0.02,"mfe":0.12}}
+ "outcomes":{"5":{"date":"2026-01-09","return":0.1,"benchmark_return":0.1,"excess_vs_qqq":0.0,"mae":-0.02,"mfe":0.12}}
 }]}
 registry={"legacy_mapping":[{"source_id":"s1","operation_index":0,"rule_id":"r1"}]}
 hist={"ABC":{"df":stooq,"meta":{"status":"ok","source":"stooq_archive","price_series_hash":"x"}}}
@@ -30,6 +30,7 @@ source_store={"records":[{"source_key":"s1","first_fetched_at":"2025-12-01T00:00
 out=adapt(validation,registry,hist,{"spec_version":"1.0"},source_store)
 assert out["events"][0]["scoreable"] is False
 assert "unknown_entry_semantics" in out["events"][0]["exclusion_reasons"]
+assert out["events"][0]["scores"]["5"]["horizon_end_date"]=="2026-01-09"
 
 # Negative test: source conflict must keep event unscored.
 validation["events"][0]["baseline_kind"]="entry_below"

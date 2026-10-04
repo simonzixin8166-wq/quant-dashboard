@@ -41,7 +41,7 @@ assert all(x["research_only"] and not x["scoreable"] and not x["ledger_write"] f
 assert pg.scan()==[], pg.scan()
 
 workflow=(ROOT/".github/workflows/daily.yml").read_text(encoding="utf-8")
-assert "Build V6.10b Range Intelligence (research-only)" in workflow
+assert "Build V6.10b Market Location Research (research-only)" in workflow
 assert "python scripts/range_intelligence.py" in workflow
 assert "python scripts/private_guardrail.py" in workflow
 
@@ -52,8 +52,12 @@ manifest=(ROOT/"scripts/generate_build_manifest.py").read_text(encoding="utf-8")
 assert "research/range_intelligence.json" in manifest
 
 ui=(ROOT/"docs"/"assets"/"autonomous-agent.js").read_text(encoding="utf-8")
-assert "V6.10b Range Intelligence · 区间研究" in ui
-assert "Research Only · 不写 Forward Ledger" in ui
+assert "V6.10b Market Location Research · 市场位置研究" in ui
+assert "Research Only · 不是完整 Range Engine" in ui
 assert "state.rangeData" in ui
+assert "Playbook · 剧本运行摘要" in ui
+assert "不展示私有账本内容" in ui
+assert "research/playbook_status.json" in ui
+assert "research/ledger_anchor.json" in ui
 
-print("PASS V6.10b parallel safety / Range Intelligence / Private Guardrail / production wiring")
+print("PASS V6.10b parallel safety / Market Location Research / Public Leak Guard / Playbook summary")

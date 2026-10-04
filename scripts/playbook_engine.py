@@ -297,6 +297,8 @@ def build(now=None,writer=None):
     global_enabled=truthy_env("MYALPHA_PLAYBOOK_ENABLED",True)
     global_ledger=truthy_env("MYALPHA_PLAYBOOK_LEDGER_ENABLED",True)
     alerts_enabled=truthy_env("MYALPHA_PLAYBOOK_ALERTS_ENABLED",False)
+    per_playbook=runtime_switches()
+    previous_switches=((previous.get("kill_switch") or {}).get("per_playbook") or {})
     writer=writer if writer is not None else PrivateGitHubLedger.from_env()
     storage_configured=bool(writer)
     configured_repo=os.getenv("MYALPHA_LEDGER_REPO","").strip() or None
@@ -321,6 +323,17 @@ def build(now=None,writer=None):
         audit_events.append(_audit_event("heartbeat_or_freshness_failed",";".join(gate["global_reasons"]),gate["market_date"],now,commit_sha,{"expected_market_date":gate["expected_market_date"]}))
     if starting_forward:
         audit_events.append(_audit_event("forward_clock_started","Forward clock baseline established; current states are not backfilled as triggers.",gate["market_date"],now,commit_sha))
+    for pid,current in per_playbook.items():
+        prior=previous_switches.get(pid) or {}
+        current_view={k:current[k] for k in ("enabled","ledger_enabled","notifications_enabled")}
+        prior_view={k:prior.get(k) for k in ("enabled","ledger_enabled","notifications_enabled")}
+        if prior and current_view!=prior_view:
+            audit_events.append(_audit_event(
+                "playbook_kill_switch_changed",
+                f"{pid} runtime switch changed by operator/repository variable.",
+                gate["market_date"],now,commit_sha,
+                {"playbook_id":pid,"previous":prior_view,"current":current_view,"human_controlled":True}
+            ))
 
     legacy_cp01=any(
         x.get("playbook_id")=="CP-01" and x.get("rule_hash")==LEGACY_CP01_HASH

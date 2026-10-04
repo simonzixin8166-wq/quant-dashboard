@@ -23,6 +23,7 @@ PATHS={
  "breadth_intelligence":ROOT/"docs/research/breadth_intelligence.json",
  "regime_memory":ROOT/"docs/research/regime_combination_memory.json",
  "data":ROOT/"docs/data.json",
+ "controlled_policy":ROOT/"docs/research/controlled_learning_policy.json",
 }
 OUT=ROOT/"docs/research/research_planner.json"
 
@@ -42,7 +43,7 @@ def task(kind,key,title,priority,why,questions,sources,expires=2):
       "guardrail":"研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。"
     }
 
-def build(agent,learning,evidence,method,source,previous,modules=None,cross_asset=None,breadth_intelligence=None,regime_memory=None,data=None):
+def build(agent,learning,evidence,method,source,previous,modules=None,cross_asset=None,breadth_intelligence=None,regime_memory=None,data=None,controlled_policy=None):
     tasks=[]
     seen=set()
     for row in agent.get("watchlist_attention") or []:
@@ -135,6 +136,24 @@ def build(agent,learning,evidence,method,source,previous,modules=None,cross_asse
         t["source_method"]=rebound.get("source_method")
         tasks.append(t);seen.add(t["task_id"])
 
+    controlled_policy=controlled_policy or {}
+    replay_ev=controlled_policy.get("replay_evidence") or {}
+    forward_ev=controlled_policy.get("forward_evidence") or {}
+    bonus_map=controlled_policy.get("playbook_validation_priority_bonus") or {}
+    for pid in ("CP-01","CP-02","CP-03"):
+        r=replay_ev.get(pid) or {}
+        f=forward_ev.get(pid) or {}
+        bonus=float(bonus_map.get(pid) or 0)
+        if not r and not f:continue
+        t=task("playbook_validation",pid,f"{pid} · Replay/Forward 证据验证",60+bonus,
+          f"Replay有效样本 {r.get('effective_n',0)}；Forward 5日成熟样本 {f.get('mature5',0)}。历史回放与真实前瞻必须继续分开验证。",
+          ["Replay 与 Forward 的方向一致性是否一致？","失败样本集中在哪些市场环境？","有效样本是否存在聚类或样本不足？","下一批 Forward 样本成熟后证据状态是否变化？"],
+          ["walk_forward_replay","playbook_outcome_shadow","playbook_status","decision_journal"],20)
+        t["replay_evidence_state"]=r.get("state")
+        t["forward_evidence_state"]=f.get("state")
+        t["controlled_priority_bonus"]=bonus
+        if t["task_id"] not in seen:tasks.append(t);seen.add(t["task_id"])
+
     modules=modules or {}
     audit=modules.get("audit") or {}
     if not audit.get("coverage_ok",True):
@@ -151,6 +170,15 @@ def build(agent,learning,evidence,method,source,previous,modules=None,cross_asse
               ["该模块的输出是否可被后续结果验证？","是否存在重复证据或数据泄漏？","哪些结果可以进入Shadow学习？","什么时候应保持静态而不是学习？"],
               ["module_intelligence","decision_journal","failure_attribution","self_improvement"],30)
             if t["task_id"] not in seen:tasks.append(t);seen.add(t["task_id"])
+    policy_delta=controlled_policy.get("task_kind_priority_delta") or {}
+    for t in tasks:
+        base=float(t.get("priority") or 0)
+        delta=float(policy_delta.get(t.get("kind")) or 0)
+        delta=max(-5.0,min(5.0,delta))
+        t["base_priority"]=round(base,1)
+        t["controlled_learning_delta"]=round(delta,2)
+        t["priority"]=max(0,min(100,round(base+delta,1)))
+
     old={x.get("task_id"):x for x in previous.get("queue") or []}
     for t in tasks:
         if t["task_id"] in old:
@@ -169,13 +197,14 @@ def build(agent,learning,evidence,method,source,previous,modules=None,cross_asse
       "planner_policy":{
         "objective":"优先研究可能改变 Thesis、风险暴露或方法可信度的问题。",
         "required_output":["supporting_evidence","counter_evidence","unknowns","next_validation"],
+        "controlled_learning":"bounded research-only priority/evidence adjustments; max +/-5 points; no production-rule mutation",
         "forbidden":["automatic_order","silent_production_rule_change","single-source conclusion"]
       }
     }
 
 def main():
     d={k:load(v) for k,v in PATHS.items()}
-    out=build(d["agent"],d["learning"],d["evidence"],d["method"],d["source"],d["previous"],d["modules"],d["cross_asset"],d["breadth_intelligence"],d["regime_memory"],d["data"])
+    out=build(d["agent"],d["learning"],d["evidence"],d["method"],d["source"],d["previous"],d["modules"],d["cross_asset"],d["breadth_intelligence"],d["regime_memory"],d["data"],d["controlled_policy"])
     OUT.parent.mkdir(parents=True,exist_ok=True)
     OUT.write_text(json.dumps(out,ensure_ascii=False,indent=2),encoding="utf-8")
     print(json.dumps(out["counts"],ensure_ascii=False))

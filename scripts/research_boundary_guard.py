@@ -17,17 +17,17 @@ EVIDENCE_LOCK=ROOT/"config"/"research_evidence_lock.json"
 EVALUATION_SPEC=ROOT/"research"/"specs"/"evaluation_spec.json"
 FAMILY_DEF=ROOT/"research"/"specs"/"rule_family_definition.json"
 
-def canonical_hash(path):
-    data=json.loads(path.read_text(encoding="utf-8"))
-    raw=json.dumps(data,ensure_ascii=False,sort_keys=True,separators=(",",":"))
-    return hashlib.sha256(raw.encode("utf-8")).hexdigest()
+def git_blob_sha1(path):
+    raw=path.read_bytes()
+    header=f"blob {len(raw)}\0".encode("utf-8")
+    return hashlib.sha1(header+raw).hexdigest()
 
 def check_evidence_lock():
     lock=json.loads(EVIDENCE_LOCK.read_text(encoding="utf-8"))
     problems=[]
-    if canonical_hash(EVALUATION_SPEC)!=lock.get("evaluation_spec_canonical_sha256"):
+    if git_blob_sha1(EVALUATION_SPEC)!=lock.get("evaluation_spec_git_blob_sha1"):
         problems.append("evaluation_spec_hash_mismatch")
-    if canonical_hash(FAMILY_DEF)!=lock.get("rule_family_definition_canonical_sha256"):
+    if git_blob_sha1(FAMILY_DEF)!=lock.get("rule_family_definition_git_blob_sha1"):
         problems.append("rule_family_definition_hash_mismatch")
     spec=json.loads(EVALUATION_SPEC.read_text(encoding="utf-8"))
     fam=json.loads(FAMILY_DEF.read_text(encoding="utf-8"))

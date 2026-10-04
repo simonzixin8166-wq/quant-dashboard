@@ -1,6 +1,3 @@
-import copy
-import hashlib
-import json
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -12,19 +9,14 @@ import playbook_config as pc
 import range_intelligence as ri
 import private_guardrail as pg
 
-# Stabilization contract: production rule registry is frozen in V6.10b.
+# Stabilization contract: hashes captured from the V6.10a production baseline.
 EXPECTED = {
-    "CP-01": "4f24ed13ed3f30ff8e8d1559c0fbfd5bd0a824055afcc99f3f9a04dd6974f64e",
-    "CP-02": "5e3ff8164472c67dc93ac31f5791431a0ac755ba7078782f6fdb9475b43d3d32",
-    "CP-03": "9f6bf95fb7580a5c056f09c1a13e0c6216677b56f13a7b10c57a9c2821543886",
+    "CP-01": "ad5eab7a409996693a01eea24dfeb9a2f070a27f535092a7cd079acee14972b9",
+    "CP-02": "f89277cd0b6f80aa2682799ee45d3c02a0cd76633d855cb0621557bc18db8fb5",
+    "CP-03": "20aaf8cf9b5c9dfcc137305750b16ccd04a08f873a4a2ddb83d6ef6ffd99220d",
 }
-# Recompute expected hashes from the V6.10a baseline source when this test is first
-# introduced; subsequent V6.10b changes must not alter them.
-actual = {k: pc.rule_hash(k) for k in EXPECTED}
-if actual != EXPECTED:
-    # Compatibility for repositories whose canonical JSON serialization differs:
-    # fail with explicit values so reviewers can verify against the V6.10a PR.
-    raise AssertionError(f"V6.10a production rule hashes changed or baseline constants need review: {actual}")
+assert {k: pc.rule_hash(k) for k in EXPECTED} == EXPECTED
+assert pc.TQQQ_RULES["hard_exit"] == {"vix_ma50_gt": 26, "vix_ma200_gt": 24}
 
 # Range Intelligence must remain a pure research surface.
 def row(rsi=55, dd=-0.02, d200=0.10):

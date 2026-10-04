@@ -300,8 +300,10 @@ def build(source: dict, validation: dict, histories: dict|None=None, evidence: d
         })
 
     return {
-        "version":"6.14.2",
+        "version":"6.15.8d-legacy",
         "generated_at":datetime.now(timezone.utc).isoformat(),
+        "evidence_role":"legacy_descriptive_only",
+        "evidence_role_reason":"This artifact is derived from legacy source_outcome_validation and is retained for display/context only. It cannot establish method maturity, weights or promotion under Evidence Foundation.",
         "counts":{
             "methods":len(methods),
             "source_records":source.get("counts",{}).get("records",0),
@@ -319,7 +321,7 @@ def build(source: dict, validation: dict, histories: dict|None=None, evidence: d
             "benchmark":"QQQ excess return when available",
             "market_context":"QQQ position vs 20/50-day moving averages plus 60-day drawdown and 20-day realized volatility",
             "causality":"none claimed",
-            "evidence_state_policy":"context_only -> direct_early -> direct_developing -> outcome_supportive/mixed/challenging; supportive/challenging requires >=8 mature 20-session direct events",
+            "evidence_state_policy":"legacy descriptive taxonomy only; downstream automation must ignore these maturity labels",
         },
         "methods":methods,
         "guardrails":[
@@ -328,7 +330,7 @@ def build(source: dict, validation: dict, histories: dict|None=None, evidence: d
             "Explicit sell-put, LEAPS, position-adjustment and technical-condition semantics may create direct method links even when article topics miss the category.",
             "Small direct samples are displayed as evidence_building rather than treated as stable edge.",
             "Failure examples are counterexamples for review, not labels that an author or method is generally wrong.",
-            "No Method Memory statistic may directly change production trading thresholds without a separate validated policy step.",
+            "Legacy Method Memory statistics cannot change research weights, method maturity, Promotion, Planner priority or production trading thresholds.",
         ],
     }
 

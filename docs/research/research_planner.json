@@ -1,6 +1,6 @@
 {
   "version": "6.8.2",
-  "generated_at": "2026-10-04T05:12:15.345696+00:00",
+  "generated_at": "2026-10-04T05:19:17.255257+00:00",
   "mode": "autonomous_research_planner",
   "queue": [
     {
@@ -31,7 +31,7 @@
       "base_priority": 92.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-10-03T03:16:56.812673+00:00",
-      "run_count": 27
+      "run_count": 28
     },
     {
       "task_id": "ff2fe8dce9c4c9",
@@ -63,7 +63,7 @@
       "base_priority": 88.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-10-03T03:16:56.812664+00:00",
-      "run_count": 27
+      "run_count": 28
     },
     {
       "task_id": "dc139bb52a1e29",
@@ -94,7 +94,7 @@
       "base_priority": 86.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-10-03T02:34:31.267989+00:00",
-      "run_count": 28
+      "run_count": 29
     },
     {
       "task_id": "b528aa82a03ae2",
@@ -122,7 +122,7 @@
       "base_priority": 78.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-10-02T12:28:47.907827+00:00",
-      "run_count": 41
+      "run_count": 42
     },
     {
       "task_id": "320b47e4133735",
@@ -150,7 +150,7 @@
       "base_priority": 78.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-10-02T12:28:47.907809+00:00",
-      "run_count": 41
+      "run_count": 42
     },
     {
       "task_id": "970cd03ca29c6a",
@@ -178,7 +178,7 @@
       "base_priority": 78.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-10-03T05:28:16.004181+00:00",
-      "run_count": 17
+      "run_count": 18
     },
     {
       "task_id": "18388d1182a7d7",
@@ -206,7 +206,7 @@
       "base_priority": 72.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-10-03T05:28:16.004209+00:00",
-      "run_count": 17
+      "run_count": 18
     },
     {
       "task_id": "e27477c12d7f36",
@@ -237,7 +237,7 @@
       "base_priority": 68.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-10-02T12:31:57.622540+00:00",
-      "run_count": 40
+      "run_count": 41
     },
     {
       "task_id": "022a1760e7ebb2",
@@ -269,7 +269,7 @@
       "base_priority": 68.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-10-02T12:31:57.622556+00:00",
-      "run_count": 40
+      "run_count": 41
     },
     {
       "task_id": "e3102a2d9894f8",
@@ -300,7 +300,7 @@
       "base_priority": 68.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-10-02T12:31:57.622558+00:00",
-      "run_count": 40
+      "run_count": 41
     },
     {
       "task_id": "0900349389a0a4",
@@ -331,7 +331,97 @@
       "base_priority": 68.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-10-03T04:14:12.150028+00:00",
-      "run_count": 21
+      "run_count": 22
+    },
+    {
+      "task_id": "49259b11ae2b29",
+      "kind": "playbook_validation",
+      "key": "CP-01",
+      "title": "CP-01 · Replay/Forward 证据验证",
+      "priority": 67.0,
+      "why_now": "Replay有效样本 149；Forward 5日成熟样本 0。历史回放与真实前瞻必须继续分开验证。",
+      "questions": [
+        "Replay 与 Forward 的方向一致性是否一致？",
+        "失败样本集中在哪些市场环境？",
+        "有效样本是否存在聚类或样本不足？",
+        "下一批 Forward 样本成熟后证据状态是否变化？"
+      ],
+      "evidence_sources": [
+        "walk_forward_replay",
+        "playbook_outcome_shadow",
+        "playbook_status",
+        "decision_journal"
+      ],
+      "status": "open",
+      "review_window_days": 20,
+      "guardrail": "研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。",
+      "replay_evidence_state": "replay_supportive",
+      "forward_evidence_state": null,
+      "controlled_priority_bonus": 7.0,
+      "base_priority": 67.0,
+      "controlled_learning_delta": 0.0,
+      "first_seen_at": "2026-10-04T05:19:17.255231+00:00",
+      "run_count": 1
+    },
+    {
+      "task_id": "de7fd5d61b2cae",
+      "kind": "playbook_validation",
+      "key": "CP-02",
+      "title": "CP-02 · Replay/Forward 证据验证",
+      "priority": 67.0,
+      "why_now": "Replay有效样本 560；Forward 5日成熟样本 0。历史回放与真实前瞻必须继续分开验证。",
+      "questions": [
+        "Replay 与 Forward 的方向一致性是否一致？",
+        "失败样本集中在哪些市场环境？",
+        "有效样本是否存在聚类或样本不足？",
+        "下一批 Forward 样本成熟后证据状态是否变化？"
+      ],
+      "evidence_sources": [
+        "walk_forward_replay",
+        "playbook_outcome_shadow",
+        "playbook_status",
+        "decision_journal"
+      ],
+      "status": "open",
+      "review_window_days": 20,
+      "guardrail": "研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。",
+      "replay_evidence_state": "replay_mixed",
+      "forward_evidence_state": null,
+      "controlled_priority_bonus": 7.0,
+      "base_priority": 67.0,
+      "controlled_learning_delta": 0.0,
+      "first_seen_at": "2026-10-04T05:19:17.255245+00:00",
+      "run_count": 1
+    },
+    {
+      "task_id": "e83675d8909cba",
+      "kind": "playbook_validation",
+      "key": "CP-03",
+      "title": "CP-03 · Replay/Forward 证据验证",
+      "priority": 67.0,
+      "why_now": "Replay有效样本 225；Forward 5日成熟样本 0。历史回放与真实前瞻必须继续分开验证。",
+      "questions": [
+        "Replay 与 Forward 的方向一致性是否一致？",
+        "失败样本集中在哪些市场环境？",
+        "有效样本是否存在聚类或样本不足？",
+        "下一批 Forward 样本成熟后证据状态是否变化？"
+      ],
+      "evidence_sources": [
+        "walk_forward_replay",
+        "playbook_outcome_shadow",
+        "playbook_status",
+        "decision_journal"
+      ],
+      "status": "open",
+      "review_window_days": 20,
+      "guardrail": "研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。",
+      "replay_evidence_state": "replay_supportive",
+      "forward_evidence_state": null,
+      "controlled_priority_bonus": 7.0,
+      "base_priority": 67.0,
+      "controlled_learning_delta": 0.0,
+      "first_seen_at": "2026-10-04T05:19:17.255248+00:00",
+      "run_count": 1
     },
     {
       "task_id": "43f70509fc8dfb",
@@ -358,7 +448,7 @@
       "base_priority": 58.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-10-02T12:50:25.083840+00:00",
-      "run_count": 39
+      "run_count": 40
     },
     {
       "task_id": "2b928f4ea4de7b",
@@ -385,7 +475,7 @@
       "base_priority": 58.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-10-02T12:50:25.083849+00:00",
-      "run_count": 39
+      "run_count": 40
     },
     {
       "task_id": "b8bb1fc9e9fd51",
@@ -412,7 +502,7 @@
       "base_priority": 58.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-10-02T12:50:25.083852+00:00",
-      "run_count": 39
+      "run_count": 40
     }
   ],
   "today": [
@@ -444,7 +534,7 @@
       "base_priority": 92.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-10-03T03:16:56.812673+00:00",
-      "run_count": 27
+      "run_count": 28
     },
     {
       "task_id": "ff2fe8dce9c4c9",
@@ -476,7 +566,7 @@
       "base_priority": 88.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-10-03T03:16:56.812664+00:00",
-      "run_count": 27
+      "run_count": 28
     },
     {
       "task_id": "dc139bb52a1e29",
@@ -507,7 +597,7 @@
       "base_priority": 86.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-10-03T02:34:31.267989+00:00",
-      "run_count": 28
+      "run_count": 29
     },
     {
       "task_id": "b528aa82a03ae2",
@@ -535,7 +625,7 @@
       "base_priority": 78.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-10-02T12:28:47.907827+00:00",
-      "run_count": 41
+      "run_count": 42
     },
     {
       "task_id": "320b47e4133735",
@@ -563,7 +653,7 @@
       "base_priority": 78.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-10-02T12:28:47.907809+00:00",
-      "run_count": 41
+      "run_count": 42
     },
     {
       "task_id": "970cd03ca29c6a",
@@ -591,7 +681,7 @@
       "base_priority": 78.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-10-03T05:28:16.004181+00:00",
-      "run_count": 17
+      "run_count": 18
     },
     {
       "task_id": "18388d1182a7d7",
@@ -619,11 +709,11 @@
       "base_priority": 72.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-10-03T05:28:16.004209+00:00",
-      "run_count": 17
+      "run_count": 18
     }
   ],
   "counts": {
-    "open": 14,
+    "open": 17,
     "high_priority": 7,
     "persistent": 14
   },

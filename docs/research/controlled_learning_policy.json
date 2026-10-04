@@ -1,0 +1,106 @@
+{
+  "version": "6.12.0",
+  "generated_at": "2026-10-04T05:19:17.176048+00:00",
+  "mode": "controlled_research_only",
+  "production_mutation": false,
+  "automatic_orders": false,
+  "max_abs_priority_delta": 5.0,
+  "task_kind_priority_delta": {},
+  "playbook_validation_priority_bonus": {
+    "CP-01": 7,
+    "CP-02": 7,
+    "CP-03": 7
+  },
+  "replay_evidence": {
+    "CP-01": {
+      "effective_n": 149,
+      "alignment20_effective_weighted": 0.6198069385405248,
+      "state": "replay_supportive",
+      "provenance": "historical_replay_post_rule_design"
+    },
+    "CP-02": {
+      "effective_n": 560,
+      "alignment20_effective_weighted": 0.5322903332096054,
+      "state": "replay_mixed",
+      "provenance": "historical_replay_post_rule_design"
+    },
+    "CP-03": {
+      "effective_n": 225,
+      "alignment20_effective_weighted": 0.6028829577678204,
+      "state": "replay_supportive",
+      "provenance": "historical_replay_post_rule_design"
+    }
+  },
+  "forward_evidence": {},
+  "method_evidence_state": {
+    "AI研究方法": {
+      "direct_n": 0,
+      "alignment20": null,
+      "state": "unproven",
+      "auto_weight_delta": 0.0
+    },
+    "LEAPS": {
+      "direct_n": 0,
+      "alignment20": null,
+      "state": "unproven",
+      "auto_weight_delta": 0.0
+    },
+    "Sell Put": {
+      "direct_n": 0,
+      "alignment20": null,
+      "state": "unproven",
+      "auto_weight_delta": 0.0
+    },
+    "仓位与加减仓": {
+      "direct_n": 0,
+      "alignment20": null,
+      "state": "unproven",
+      "auto_weight_delta": 0.0
+    },
+    "估值与价格": {
+      "direct_n": 0,
+      "alignment20": null,
+      "state": "unproven",
+      "auto_weight_delta": 0.0
+    },
+    "失败复盘": {
+      "direct_n": 0,
+      "alignment20": null,
+      "state": "unproven",
+      "auto_weight_delta": 0.0
+    },
+    "趋势确认": {
+      "direct_n": 0,
+      "alignment20": null,
+      "state": "unproven",
+      "auto_weight_delta": 0.0
+    },
+    "长期持有纪律": {
+      "direct_n": 0,
+      "alignment20": null,
+      "state": "unproven",
+      "auto_weight_delta": 0.0
+    },
+    "风险管理": {
+      "direct_n": 0,
+      "alignment20": null,
+      "state": "unproven",
+      "auto_weight_delta": 0.0
+    }
+  },
+  "candidate_adjustments": [],
+  "change_log": {
+    "previous_generated_at": null,
+    "recomputed_from_current_evidence": true,
+    "cumulative_same_day_learning": false,
+    "rollback": "delete/ignore controlled_learning_policy.json to return all controlled deltas to zero"
+  },
+  "guardrails": [
+    "Only research ordering, evidence labels and reminder priority may change automatically.",
+    "All research-priority deltas are bounded to +/-5 points.",
+    "Repeated workflows on the same market day do not accumulate deltas.",
+    "Historical replay and Forward evidence remain separately labeled.",
+    "Method/source weights remain frozen until direct evidence maturity gates are met.",
+    "Production thresholds, Hard Exit, position sizing, portfolio allocation and order logic are immutable here."
+  ]
+}

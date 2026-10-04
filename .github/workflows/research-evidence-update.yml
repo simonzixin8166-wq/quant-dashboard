@@ -1,6 +1,14 @@
 name: Research Evidence Update
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - "scripts/v615_*.py"
+      - "scripts/evaluation_spec.py"
+      - "scripts/research_boundary_guard.py"
+      - "research/specs/evaluation_spec.json"
+      - ".github/workflows/research-evidence-update.yml"
   workflow_dispatch: {}
   schedule:
     - cron: '10 22 * * 1-5'

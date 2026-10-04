@@ -120,7 +120,7 @@ with tempfile.TemporaryDirectory() as td:
 workflow=(ROOT/".github/workflows/daily.yml").read_text(encoding="utf-8")
 assert "Bootstrap / refresh Replay history dependencies" in workflow
 assert "python scripts/bootstrap_replay_history.py" in workflow
-assert workflow.index("bootstrap_replay_history.py") < workflow.index("local_history_agent.py")
+assert workflow.index("- name: Bootstrap / refresh Replay history dependencies") < workflow.index("- name: Update local STOOQ history and autonomous learning")
 assert "continue-on-error: true" in workflow
 
 print("PASS V6.11.1 replay dependency expansion / production-rule parity / free-first bootstrap")

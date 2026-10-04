@@ -185,7 +185,7 @@ def cp02_events(qqq_df,vix_df):
                         "objective_group":objective_map.get(rule),"expected_direction":direction_map.get(rule),
                         "baseline_close":row["close"],"rule_hash":rule_hash("CP-02"),
                         "evidence_provenance":PROVENANCE,"scoreable":True,
-                        "outcomes":fwd_outcomes(qqq_indexed,pos,row["close"],qqq_indexed,row["date"],direction_map.get(rule,"bullish")),
+                        "outcomes":fwd_outcomes(qqq_indexed,pos,row["close"],None,row["date"],direction_map.get(rule,"bullish")),
                     })
         previous_target=target
         previous_rule=rule

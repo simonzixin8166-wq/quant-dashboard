@@ -1,6 +1,6 @@
 {
   "version": "6.14.3",
-  "generated_at": "2026-10-04T12:10:30.240971+00:00",
+  "generated_at": "2026-10-04T13:28:51.827877+00:00",
   "mode": "autonomous_research_planner",
   "queue": [
     {
@@ -31,7 +31,7 @@
       "base_priority": 92.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-10-03T03:16:56.812673+00:00",
-      "run_count": 50
+      "run_count": 51
     },
     {
       "task_id": "ff2fe8dce9c4c9",
@@ -63,7 +63,7 @@
       "base_priority": 88.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-10-03T03:16:56.812664+00:00",
-      "run_count": 50
+      "run_count": 51
     },
     {
       "task_id": "dc139bb52a1e29",
@@ -94,7 +94,7 @@
       "base_priority": 86.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-10-03T02:34:31.267989+00:00",
-      "run_count": 51
+      "run_count": 52
     },
     {
       "task_id": "b528aa82a03ae2",
@@ -122,7 +122,7 @@
       "base_priority": 78.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-10-02T12:28:47.907827+00:00",
-      "run_count": 64
+      "run_count": 65
     },
     {
       "task_id": "320b47e4133735",
@@ -150,7 +150,7 @@
       "base_priority": 78.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-10-02T12:28:47.907809+00:00",
-      "run_count": 64
+      "run_count": 65
     },
     {
       "task_id": "970cd03ca29c6a",
@@ -178,7 +178,7 @@
       "base_priority": 78.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-10-03T05:28:16.004181+00:00",
-      "run_count": 40
+      "run_count": 41
     },
     {
       "task_id": "18388d1182a7d7",
@@ -206,162 +206,7 @@
       "base_priority": 72.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-10-03T05:28:16.004209+00:00",
-      "run_count": 40
-    },
-    {
-      "task_id": "9f719a4314166c",
-      "kind": "method_validation",
-      "key": "仓位与加减仓",
-      "title": "仓位与加减仓 · 方法证据跟踪",
-      "priority": 70.0,
-      "why_now": "Method Memory 当前为 direct_developing；Direct 6，成熟基准样本 5。系统只继续研究和找反证，不自动改变方法权重。",
-      "questions": [
-        "20日成熟样本在不同市场环境下是否一致？",
-        "失败样本集中在哪些动作或环境？",
-        "60日样本成熟后结论是否改变？",
-        "是否存在作者/标的集中导致的伪优势？"
-      ],
-      "evidence_sources": [
-        "method_memory",
-        "source_outcomes",
-        "source_intelligence",
-        "market_history"
-      ],
-      "status": "open",
-      "review_window_days": 14,
-      "guardrail": "研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。",
-      "method_evidence_state": "direct_developing",
-      "direct_validated_events": 6,
-      "mature_basis_n": 5,
-      "base_priority": 70.0,
-      "controlled_learning_delta": 0.0,
-      "first_seen_at": "2026-10-04T07:25:43.873482+00:00",
-      "run_count": 17
-    },
-    {
-      "task_id": "e27477c12d7f36",
-      "kind": "failure_review",
-      "key": "NOW",
-      "title": "NOW · 失败归因复盘（1样本）",
-      "priority": 68.0,
-      "why_now": "该标的累计 1 个外部研究失效/反例样本，需要归纳共同失败机制。",
-      "questions": [
-        "这些失败是否共享同一市场环境？",
-        "主要来自趋势、事件、估值、宏观还是数据问题？",
-        "是否存在重复的反证线索？",
-        "应调整研究权重还是仅记录反例？"
-      ],
-      "evidence_sources": [
-        "source_outcomes",
-        "evidence_attribution",
-        "method_memory",
-        "market_history"
-      ],
-      "status": "open",
-      "review_window_days": 5,
-      "guardrail": "研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。",
-      "sample_count": 1,
-      "example_event_ids": [
-        "brightline-blog-wenxuecity-com-myblog-82458-202608-22905-html:0:NOW:0"
-      ],
-      "base_priority": 68.0,
-      "controlled_learning_delta": 0.0,
-      "first_seen_at": "2026-10-02T12:31:57.622540+00:00",
-      "run_count": 63
-    },
-    {
-      "task_id": "022a1760e7ebb2",
-      "kind": "failure_review",
-      "key": "NBIS",
-      "title": "NBIS · 失败归因复盘（2样本）",
-      "priority": 68.0,
-      "why_now": "该标的累计 2 个外部研究失效/反例样本，需要归纳共同失败机制。",
-      "questions": [
-        "这些失败是否共享同一市场环境？",
-        "主要来自趋势、事件、估值、宏观还是数据问题？",
-        "是否存在重复的反证线索？",
-        "应调整研究权重还是仅记录反例？"
-      ],
-      "evidence_sources": [
-        "source_outcomes",
-        "evidence_attribution",
-        "method_memory",
-        "market_history"
-      ],
-      "status": "open",
-      "review_window_days": 5,
-      "guardrail": "研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。",
-      "sample_count": 2,
-      "example_event_ids": [
-        "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html:0:NBIS:0",
-        "c86f0c70f65e76dfa62b:0:NBIS:0"
-      ],
-      "base_priority": 68.0,
-      "controlled_learning_delta": 0.0,
-      "first_seen_at": "2026-10-02T12:31:57.622556+00:00",
-      "run_count": 63
-    },
-    {
-      "task_id": "e3102a2d9894f8",
-      "kind": "failure_review",
-      "key": "CRWV",
-      "title": "CRWV · 失败归因复盘（1样本）",
-      "priority": 68.0,
-      "why_now": "该标的累计 1 个外部研究失效/反例样本，需要归纳共同失败机制。",
-      "questions": [
-        "这些失败是否共享同一市场环境？",
-        "主要来自趋势、事件、估值、宏观还是数据问题？",
-        "是否存在重复的反证线索？",
-        "应调整研究权重还是仅记录反例？"
-      ],
-      "evidence_sources": [
-        "source_outcomes",
-        "evidence_attribution",
-        "method_memory",
-        "market_history"
-      ],
-      "status": "open",
-      "review_window_days": 5,
-      "guardrail": "研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。",
-      "sample_count": 1,
-      "example_event_ids": [
-        "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html:0:CRWV:0"
-      ],
-      "base_priority": 68.0,
-      "controlled_learning_delta": 0.0,
-      "first_seen_at": "2026-10-02T12:31:57.622558+00:00",
-      "run_count": 63
-    },
-    {
-      "task_id": "0900349389a0a4",
-      "kind": "failure_review",
-      "key": "MU",
-      "title": "MU · 失败归因复盘（1样本）",
-      "priority": 68.0,
-      "why_now": "该标的累计 1 个外部研究失效/反例样本，需要归纳共同失败机制。",
-      "questions": [
-        "这些失败是否共享同一市场环境？",
-        "主要来自趋势、事件、估值、宏观还是数据问题？",
-        "是否存在重复的反证线索？",
-        "应调整研究权重还是仅记录反例？"
-      ],
-      "evidence_sources": [
-        "source_outcomes",
-        "evidence_attribution",
-        "method_memory",
-        "market_history"
-      ],
-      "status": "open",
-      "review_window_days": 5,
-      "guardrail": "研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。",
-      "sample_count": 1,
-      "example_event_ids": [
-        "3d512f18166afbbf6b5d:0:MU:0"
-      ],
-      "base_priority": 68.0,
-      "controlled_learning_delta": 0.0,
-      "first_seen_at": "2026-10-03T04:14:12.150028+00:00",
-      "run_count": 44
+      "run_count": 41
     },
     {
       "task_id": "3a4edf33159ab0",
@@ -390,7 +235,36 @@
       "base_priority": 68.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-10-04T09:04:25.868710+00:00",
-      "run_count": 9
+      "run_count": 10
+    },
+    {
+      "task_id": "7768c5517ece01",
+      "kind": "method_rule_candidate",
+      "key": "仓位与加减仓",
+      "title": "仓位与加减仓 · 结构规则候选验证",
+      "priority": 68.0,
+      "why_now": "Source Reading 已提取 10 条明确结构规则候选，但 Direct 仍为 0；需要先核对作者归属、触发/失效条件与后续结果，不能直接视为方法有效。",
+      "questions": [
+        "候选规则的作者归属是否明确？",
+        "触发条件和失效条件是否足够结构化？",
+        "是否已经触发并可建立真实 baseline？",
+        "需要等待哪些5/20/60日结果？"
+      ],
+      "evidence_sources": [
+        "source_reading_memory",
+        "method_memory",
+        "source_outcomes",
+        "market_history"
+      ],
+      "status": "open",
+      "review_window_days": 14,
+      "guardrail": "研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。",
+      "testable_rule_candidates": 10,
+      "direct_validated_events": 0,
+      "base_priority": 68.0,
+      "controlled_learning_delta": 0.0,
+      "first_seen_at": "2026-10-04T13:28:51.827833+00:00",
+      "run_count": 1
     },
     {
       "task_id": "49259b11ae2b29",
@@ -420,7 +294,7 @@
       "base_priority": 67.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-10-04T05:19:17.255231+00:00",
-      "run_count": 23
+      "run_count": 24
     },
     {
       "task_id": "de7fd5d61b2cae",
@@ -450,7 +324,7 @@
       "base_priority": 67.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-10-04T05:19:17.255245+00:00",
-      "run_count": 23
+      "run_count": 24
     },
     {
       "task_id": "e83675d8909cba",
@@ -480,7 +354,7 @@
       "base_priority": 67.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-10-04T05:19:17.255248+00:00",
-      "run_count": 23
+      "run_count": 24
     },
     {
       "task_id": "43f70509fc8dfb",
@@ -507,7 +381,7 @@
       "base_priority": 58.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-10-02T12:50:25.083840+00:00",
-      "run_count": 62
+      "run_count": 63
     },
     {
       "task_id": "2b928f4ea4de7b",
@@ -534,7 +408,7 @@
       "base_priority": 58.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-10-02T12:50:25.083849+00:00",
-      "run_count": 62
+      "run_count": 63
     },
     {
       "task_id": "b8bb1fc9e9fd51",
@@ -561,7 +435,7 @@
       "base_priority": 58.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-10-02T12:50:25.083852+00:00",
-      "run_count": 62
+      "run_count": 63
     }
   ],
   "today": [
@@ -593,7 +467,7 @@
       "base_priority": 92.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-10-03T03:16:56.812673+00:00",
-      "run_count": 50
+      "run_count": 51
     },
     {
       "task_id": "ff2fe8dce9c4c9",
@@ -625,7 +499,7 @@
       "base_priority": 88.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-10-03T03:16:56.812664+00:00",
-      "run_count": 50
+      "run_count": 51
     },
     {
       "task_id": "dc139bb52a1e29",
@@ -656,7 +530,7 @@
       "base_priority": 86.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-10-03T02:34:31.267989+00:00",
-      "run_count": 51
+      "run_count": 52
     },
     {
       "task_id": "b528aa82a03ae2",
@@ -684,7 +558,7 @@
       "base_priority": 78.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-10-02T12:28:47.907827+00:00",
-      "run_count": 64
+      "run_count": 65
     },
     {
       "task_id": "320b47e4133735",
@@ -712,7 +586,7 @@
       "base_priority": 78.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-10-02T12:28:47.907809+00:00",
-      "run_count": 64
+      "run_count": 65
     },
     {
       "task_id": "970cd03ca29c6a",
@@ -740,7 +614,7 @@
       "base_priority": 78.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-10-03T05:28:16.004181+00:00",
-      "run_count": 40
+      "run_count": 41
     },
     {
       "task_id": "18388d1182a7d7",
@@ -768,43 +642,13 @@
       "base_priority": 72.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-10-03T05:28:16.004209+00:00",
-      "run_count": 40
-    },
-    {
-      "task_id": "9f719a4314166c",
-      "kind": "method_validation",
-      "key": "仓位与加减仓",
-      "title": "仓位与加减仓 · 方法证据跟踪",
-      "priority": 70.0,
-      "why_now": "Method Memory 当前为 direct_developing；Direct 6，成熟基准样本 5。系统只继续研究和找反证，不自动改变方法权重。",
-      "questions": [
-        "20日成熟样本在不同市场环境下是否一致？",
-        "失败样本集中在哪些动作或环境？",
-        "60日样本成熟后结论是否改变？",
-        "是否存在作者/标的集中导致的伪优势？"
-      ],
-      "evidence_sources": [
-        "method_memory",
-        "source_outcomes",
-        "source_intelligence",
-        "market_history"
-      ],
-      "status": "open",
-      "review_window_days": 14,
-      "guardrail": "研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。",
-      "method_evidence_state": "direct_developing",
-      "direct_validated_events": 6,
-      "mature_basis_n": 5,
-      "base_priority": 70.0,
-      "controlled_learning_delta": 0.0,
-      "first_seen_at": "2026-10-04T07:25:43.873482+00:00",
-      "run_count": 17
+      "run_count": 41
     }
   ],
   "counts": {
-    "open": 19,
-    "high_priority": 8,
-    "persistent": 19
+    "open": 15,
+    "high_priority": 7,
+    "persistent": 14
   },
   "planner_policy": {
     "objective": "优先研究可能改变 Thesis、风险暴露或方法可信度的问题。",

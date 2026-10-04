@@ -172,9 +172,10 @@ class PrivateGitHubLedger:
         return AppendResult(stream,path,bool(added),len(added),new_meta["record_count"],prev,reconciled,recovered_records)
 
 def aggregate_anchor(results):
-    heads={r.stream:{"path":r.path,"count":r.record_count,"head_hash":r.head_hash,"reconciled":bool(r.reconciled),"recovered_records":int(r.recovered_records)} for r in results}
+    heads={r.stream:{"path":r.path,"count":r.record_count,"head_hash":r.head_hash} for r in results}
+    recovery={r.stream:{"reconciled":True,"recovered_records":int(r.recovered_records)} for r in results if r.reconciled}
     root=hashlib.sha256(canonical_json(heads).encode("utf-8")).hexdigest()
-    return {"root_hash":root,"streams":heads,"generated_at":datetime.now(timezone.utc).isoformat()}
+    return {"root_hash":root,"streams":heads,"reconciliation":recovery,"generated_at":datetime.now(timezone.utc).isoformat()}
 
 if __name__=="__main__":
     writer=PrivateGitHubLedger.from_env()

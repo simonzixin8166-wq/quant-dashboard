@@ -14,6 +14,7 @@ PRODUCTION_MODULES=("scripts/playbook_engine.py","scripts/fetch_and_build.py","s
 HASH_TARGETS=(
     "config/playbooks.public.json",
     "scripts/playbook_config.py",
+    "docs/research/ledger_anchor.json",
 )
 RULE_HASH_FILES=(
     "docs/data.json",

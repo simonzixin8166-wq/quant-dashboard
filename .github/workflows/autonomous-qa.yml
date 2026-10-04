@@ -75,6 +75,7 @@ jobs:
           python tests/test_v611_walk_forward_replay.py
           python tests/test_v611_replay_dependency_expansion.py
           python tests/test_v612_controlled_learning.py
+          python tests/test_v612_production_writer_serialization.py
       - name: Public static privacy guard
         run: |
           if grep -R -n -E '"(option_positions|private_positions|broker_account_id)"' docs/research docs/data.json 2>/dev/null; then

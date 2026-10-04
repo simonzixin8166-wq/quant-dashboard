@@ -57,15 +57,33 @@ jobs:
         run: python scripts/local_history_agent.py
 
       - name: Build V6.10a Playbook state and Silent Ledger bridge
+        id: playbook_engine
+        continue-on-error: true
         env:
-          MYALPHA_LEDGER_REPO: simonzixin8166-wq/myalpha-ledger-private
+          MYALPHA_LEDGER_REPO: ${{ vars.MYALPHA_LEDGER_REPO || 'simonzixin8166-wq/myalpha-ledger-private' }}
           MYALPHA_LEDGER_TOKEN: ${{ secrets.MYALPHA_LEDGER_TOKEN }}
           MYALPHA_LEDGER_BRANCH: main
           MYALPHA_PLAYBOOK_ALERTS_ENABLED: "false"
+          MYALPHA_CP_01_ENABLED: ${{ vars.MYALPHA_CP_01_ENABLED || 'true' }}
+          MYALPHA_CP_01_LEDGER_ENABLED: ${{ vars.MYALPHA_CP_01_LEDGER_ENABLED || 'true' }}
+          MYALPHA_CP_02_ENABLED: ${{ vars.MYALPHA_CP_02_ENABLED || 'true' }}
+          MYALPHA_CP_02_LEDGER_ENABLED: ${{ vars.MYALPHA_CP_02_LEDGER_ENABLED || 'true' }}
+          MYALPHA_CP_03_ENABLED: ${{ vars.MYALPHA_CP_03_ENABLED || 'true' }}
+          MYALPHA_CP_03_LEDGER_ENABLED: ${{ vars.MYALPHA_CP_03_LEDGER_ENABLED || 'true' }}
         run: python scripts/playbook_engine.py
 
+      - name: Record Playbook engine failure without blocking website
+        if: steps.playbook_engine.outcome == 'failure'
+        run: python scripts/module_failure_marker.py playbook_engine
+
       - name: Build V6.10b Market Location Research (research-only)
+        id: market_location
+        continue-on-error: true
         run: python scripts/range_intelligence.py
+
+      - name: Record Market Location failure without blocking website
+        if: steps.market_location.outcome == 'failure'
+        run: python scripts/module_failure_marker.py market_location_research
 
       - name: Update FRED point-in-time macro context
         continue-on-error: true

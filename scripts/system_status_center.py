@@ -159,7 +159,9 @@ def artifact_health(name,path,now=None):
         freshness="stale"
     else:
         freshness="expired"
-    decision_eligible=available and freshness=="fresh"
+    freshness_eligible=available and freshness=="fresh"
+    research_only=name=="range_intelligence"
+    decision_eligible=freshness_eligible and not research_only
     return {
         "updated_at":updated,
         "available":available,
@@ -167,7 +169,7 @@ def artifact_health(name,path,now=None):
         "max_age_hours":max_age,
         "freshness":freshness,
         "decision_eligible":decision_eligible,
-        "participation":"eligible" if decision_eligible else "excluded",
+        "participation":"research_only" if research_only and freshness_eligible else ("eligible" if decision_eligible else "excluded"),
     }
 
 def build(fetch_runs=True):

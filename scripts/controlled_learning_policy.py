@@ -124,14 +124,15 @@ def candidate_adjustments(self_improvement):
     return rows
 
 def method_states(method):
-    """Mirror Method Memory evidence states; never maintain a parallel taxonomy."""
+    """Legacy Method Memory is display/context only under Evidence Foundation."""
     out={}
+    legacy=method.get("evidence_role")=="legacy_descriptive_only"
     for m in method.get("methods") or []:
-        direct=int(m.get("direct_validated_events") or 0)
-        perf=(m.get("performance") or {}).get("20") or {}
-        rate=finite(perf.get("alignment_rate"))
-        evidence=m.get("evidence_maturity") or {}
-        state=evidence.get("state") or m.get("status") or ("context_only" if direct==0 else "direct_early")
+        direct=0 if legacy else int(m.get("direct_validated_events") or 0)
+        perf={} if legacy else ((m.get("performance") or {}).get("20") or {})
+        rate=None if legacy else finite(perf.get("alignment_rate"))
+        evidence={} if legacy else (m.get("evidence_maturity") or {})
+        state="legacy_descriptive_only" if legacy else (evidence.get("state") or m.get("status") or ("context_only" if direct==0 else "direct_early"))
         out[m.get("method")]={
             "direct_n":direct,
             "alignment20":rate,

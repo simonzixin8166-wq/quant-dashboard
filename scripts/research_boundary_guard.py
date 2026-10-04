@@ -37,6 +37,8 @@ def check_evidence_lock():
         problems.append("rule_family_definition_version_mismatch")
     if fam.get("definition_hash")!=lock.get("rule_family_semantic_definition_hash"):
         problems.append("rule_family_semantic_hash_mismatch")
+    if git_blob_sha1(MANIFEST)!=lock.get("production_boundary_manifest_git_blob_sha1"):
+        problems.append("production_boundary_manifest_hash_mismatch")
     return problems
 
 def sha(path):
@@ -77,20 +79,11 @@ def snapshot():
 
 def check_manifest_completeness():
     manifest=load_manifest()
-    protected=set(manifest.get("protected_files") or [])
-    prefixes=tuple(manifest.get("protected_prefixes") or [])
-    required=[
-        "config/playbooks.public.json",
-        "scripts/playbook_config.py",
-        "scripts/fetch_and_build.py",
-        "scripts/autonomous_research_planner.py",
-        "docs/research/ledger_anchor.json",
-    ]
-    missing=[]
-    for rel in required:
-        if rel in protected or any(rel.startswith(p) for p in prefixes):
-            continue
-        missing.append(rel)
+    prefixes=set(manifest.get("protected_prefixes") or [])
+    required_prefixes={".github/","config/","docs/","data/","scripts/"}
+    missing=sorted(required_prefixes-prefixes)
+    if manifest.get("manifest_version")!="1.1":
+        missing.append("manifest_version:1.1")
     return missing
 
 def check_production_reads():

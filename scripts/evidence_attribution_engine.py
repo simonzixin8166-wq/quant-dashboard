@@ -392,6 +392,7 @@ def build(data: dict, learning: dict, agent: dict, history: dict, source_intel: 
     return {
         "version": VERSION,
         "generated_at": datetime.now(timezone.utc).isoformat(),
+        "external_outcome_evidence_role":"legacy_descriptive_only",
         "as_of": data.get("updated"),
         "architecture": [
             "plain_language_glossary",
@@ -425,7 +426,7 @@ def build(data: dict, learning: dict, agent: dict, history: dict, source_intel: 
             "external_failure_candidates": external_failures[:20],
             "external_outcome_reviews": outcome_learning["recent_reviews"],
             "external_outcome_review_count": outcome_learning["review_candidates"],
-            "external_note": "外部失败案例先作为候选；只有达到后续交易日成熟窗口并出现可复核结果，才进入结果归因层。",
+            "external_note": "旧 Source Outcome 仅保留描述性复盘；不得进入 Evidence Foundation 方法成熟度、Planner 权重或 Promotion。",
         },
         "external_source_intelligence": {
             "thesis_candidates": external_thesis[:20],

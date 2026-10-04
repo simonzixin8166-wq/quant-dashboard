@@ -5,7 +5,7 @@ sys.path.insert(0,str(ROOT/"scripts"))
 from v615_statistical_controls import positive_control,repeated_negative_control,leakage_canary
 
 spec=json.loads((ROOT/"research/specs/evaluation_spec.json").read_text())
-assert spec["spec_version"]=="1.2"
+assert spec["spec_version"]=="1.3"
 pos=positive_control(spec)
 assert pos["pass"] is True
 assert pos["effective_n"]>=20
@@ -23,4 +23,4 @@ leak=leakage_canary(spec)
 assert leak["pass"] is True
 assert leak["pre_ingest_event_rejected"] is True
 assert leak["future_price_mutation_does_not_change_prior_baseline"] is True
-print("PASS V6.15.8d strengthened positive / 500-seed negative / leakage controls")
+print("PASS V6.15.8e overlap-cluster positive / 500-seed negative / leakage controls")

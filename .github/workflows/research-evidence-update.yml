@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - "scripts/v615_*.py"
+      - "scripts/v616_*.py"
       - "scripts/evaluation_spec.py"
       - "scripts/entry_semantics.py"
       - "scripts/research_boundary_guard.py"
@@ -60,6 +61,16 @@ jobs:
         run: python scripts/run_research_step.py --name contradiction_memory -- python scripts/v615_contradiction_memory.py
       - name: Promotion gate invariant
         run: python scripts/run_research_step.py --name promotion_gate -- python scripts/v615_promotion_gate.py
+      - name: Statistical controls invariant
+        run: python scripts/run_research_step.py --name statistical_controls -- python scripts/v615_statistical_controls.py
+      - name: Spec coexistence audit invariant
+        run: python scripts/run_research_step.py --name spec_coexistence -- python scripts/v615_spec_coexistence_audit.py
+      - name: Component manifest invariant
+        run: python scripts/run_research_step.py --name component_manifest -- python scripts/v615_component_manifest.py
+      - name: V6.16 readiness invariant
+        run: python scripts/run_research_step.py --name v616_readiness -- python scripts/v616_readiness_gate.py
+      - name: Monthly evidence audit invariant
+        run: python scripts/run_research_step.py --name monthly_evidence_audit -- python scripts/v615_monthly_evidence_audit.py
       - name: Research regression tests
         run: |
           python tests/test_v6150_evaluation_boundary.py
@@ -75,6 +86,11 @@ jobs:
           python tests/test_v6158b_rule_family.py
           python tests/test_v6158b_entry_observational.py
           python tests/test_v6158b_family_statistics.py
+          python tests/test_v6158c_statistical_controls.py
+          python tests/test_v6158c_readiness_gate.py
+          python tests/test_v6158c_spec_coexistence.py
+          python tests/test_v6158c_component_manifest.py
+          python tests/test_v6158c_monthly_audit.py
       - name: Final compute allowlist
         run: python scripts/research_boundary_guard.py --assert-worktree-research-only
       - name: Package research artifacts

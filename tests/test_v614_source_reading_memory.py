@@ -7,6 +7,7 @@ ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/"scripts"))
 
 import source_reading_memory as srm
+import method_memory_engine as mm
 import system_status_center as ssc
 
 source={
@@ -84,6 +85,23 @@ tr=next(x for x in r4["propositions"] if x["kind"]=="trigger")
 assert tr["testable"] is False
 assert r4["testable_rule_count"]==0
 
+# Source Reading candidates flow into Method Memory as candidates only, never
+# as direct performance before an eligible triggered outcome exists.
+method_source={
+ "counts":{"records":1},
+ "records":[{"url":"u1","author":"A","topics":["仓位与加减仓"],"title":"计划","excerpt":""}]
+}
+method_validation={"events":[]}
+method=mm.build(method_source,method_validation,histories={},evidence={},reading=out)
+position=next(x for x in method["methods"] if x["method"]=="仓位与加减仓")
+assert method["version"]=="6.14.0"
+assert method["counts"]["source_reading_testable_rules"]==1
+assert position["source_reading"]["testable_rule_candidates"]==1
+assert position["source_reading"]["state"]=="candidate_rules_available"
+assert position["direct_validated_events"]==0
+assert position["performance"] is None
+assert position["status"]=="context_only"
+
 # Public artifact contains no production mutation path.
 blob=json.dumps(out,ensure_ascii=False).lower()
 for forbidden in ("automatic_order","position_size_change","production_threshold_change"):
@@ -97,6 +115,12 @@ with TemporaryDirectory() as td:
     h=ssc.artifact_health("source_reading_memory",p,datetime.now(timezone.utc))
     assert h["decision_eligible"] is False
     assert h["participation"]=="research_only"
+
+ui=(ROOT/"docs"/"assets"/"knowledge.js").read_text(encoding="utf-8")
+assert "research/source_reading_memory.json" in ui
+assert "来源阅读记忆" in ui
+assert "可验证规则" in ui
+assert "Research Only，不自动改变交易规则。" in ui
 
 workflow=(ROOT/".github/workflows/daily.yml").read_text(encoding="utf-8")
 assert "Build V6.14 Source Reading Memory" in workflow

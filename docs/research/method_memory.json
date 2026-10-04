@@ -1,16 +1,16 @@
 {
-  "version": "5.9.2",
-  "generated_at": "2026-10-04T05:56:21.844802+00:00",
+  "version": "6.13.1",
+  "generated_at": "2026-10-04T06:07:02.443166+00:00",
   "counts": {
     "methods": 9,
     "source_records": 1215,
     "eligible_triggered_events": 7,
-    "direct_method_links": 0,
+    "direct_method_links": 6,
     "mature60_eligible_events": 0
   },
   "methodology": {
     "eligible_events": "author_action / author_plan + triggered only",
-    "attribution_layers": "article topics are context; performance requires conservative event-level direct method attribution",
+    "attribution_layers": "article topics are context; direct performance may also come from explicit unambiguous operation semantics",
     "excluded": "third-party examples, unconfirmed attribution, untriggered plans",
     "horizons": [
       5,
@@ -20,7 +20,8 @@
     "risk_metrics": "MAE/MFE measured from validated baseline price",
     "benchmark": "QQQ excess return when available",
     "market_context": "QQQ position vs 20/50-day moving averages plus 60-day drawdown and 20-day realized volatility",
-    "causality": "none claimed"
+    "causality": "none claimed",
+    "evidence_state_policy": "context_only -> direct_early -> direct_developing -> outcome_supportive/mixed/challenging; supportive/challenging requires >=8 mature 20-session direct events"
   },
   "methods": [
     {
@@ -72,7 +73,13 @@
       "market_context_counts": {},
       "context_market_counts": {},
       "failure_examples": [],
-      "status": "evidence_building",
+      "status": "context_only",
+      "evidence_maturity": {
+        "state": "context_only",
+        "basis_horizon": null,
+        "mature_n": 0,
+        "alignment_rate": null
+      },
       "interpretation_guardrail": "performance 仅统计可直接归因到该方法的事件；context_performance 只描述同篇文章中的同期结果，不能视为方法有效性证明。"
     },
     {
@@ -128,7 +135,13 @@
         "trend_positive": 1
       },
       "failure_examples": [],
-      "status": "evidence_building",
+      "status": "context_only",
+      "evidence_maturity": {
+        "state": "context_only",
+        "basis_horizon": null,
+        "mature_n": 0,
+        "alignment_rate": null
+      },
       "interpretation_guardrail": "performance 仅统计可直接归因到该方法的事件；context_performance 只描述同篇文章中的同期结果，不能视为方法有效性证明。"
     },
     {
@@ -187,7 +200,13 @@
         "mixed": 1
       },
       "failure_examples": [],
-      "status": "evidence_building",
+      "status": "context_only",
+      "evidence_maturity": {
+        "state": "context_only",
+        "basis_horizon": null,
+        "mature_n": 0,
+        "alignment_rate": null
+      },
       "interpretation_guardrail": "performance 仅统计可直接归因到该方法的事件；context_performance 只描述同篇文章中的同期结果，不能视为方法有效性证明。"
     },
     {
@@ -199,11 +218,45 @@
         "三心三意",
         "我是一只井底蛙"
       ],
-      "direct_validated_events": 0,
+      "direct_validated_events": 6,
       "context_validated_events": 0,
       "mature60_direct": 0,
-      "performance_basis": "context_only_no_method_performance",
-      "performance": null,
+      "performance_basis": "direct_event_attribution",
+      "performance": {
+        "5": {
+          "n": 6,
+          "avg_return": 0.019296037432250723,
+          "median_return": -0.022224944070615094,
+          "avg_mae": -0.06241287177009878,
+          "median_mae": -0.05414877446557742,
+          "avg_mfe": 0.07162961536085373,
+          "median_mfe": 0.03676023583306054,
+          "avg_excess_vs_qqq": 0.017175946399674624,
+          "alignment_rate": 0.75
+        },
+        "20": {
+          "n": 5,
+          "avg_return": 0.022199343235386325,
+          "median_return": -0.06168216253443515,
+          "avg_mae": -0.09695780941100765,
+          "median_mae": -0.10789697095642903,
+          "avg_mfe": 0.17874314716913092,
+          "median_mfe": 0.10994367623775236,
+          "avg_excess_vs_qqq": 0.013983443999506618,
+          "alignment_rate": 0.6666666666666666
+        },
+        "60": {
+          "n": 0,
+          "avg_return": null,
+          "median_return": null,
+          "avg_mae": null,
+          "median_mae": null,
+          "avg_mfe": null,
+          "median_mfe": null,
+          "avg_excess_vs_qqq": null,
+          "alignment_rate": null
+        }
+      },
       "context_performance": {
         "5": {
           "n": 0,
@@ -239,10 +292,84 @@
           "alignment_rate": null
         }
       },
-      "market_context_counts": {},
+      "market_context_counts": {
+        "trend_weak": 1,
+        "mixed": 2,
+        "trend_positive": 3
+      },
       "context_market_counts": {},
-      "failure_examples": [],
-      "status": "evidence_building",
+      "failure_examples": [
+        {
+          "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-22905-html:0:NOW:0",
+          "author": "BrightLine",
+          "symbol": "NOW",
+          "title": "ServiceNow回来了，我在145卖掉一半",
+          "url": "https://blog.wenxuecity.com/myblog/82458/202608/22905.html",
+          "baseline_date": "2026-08-31",
+          "horizon": 20,
+          "return": -0.08544481442282026,
+          "mae": -0.10789697095642903,
+          "mfe": 0.05292795731663125,
+          "alignment": "not_aligned",
+          "market_context": {
+            "state": "mixed",
+            "qqq_close": 716.76,
+            "above_ma20": false,
+            "above_ma50": true,
+            "qqq_drawdown_60": -0.03661290322580646,
+            "qqq_realized_vol_20": 0.17436198733560207
+          }
+        },
+        {
+          "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html:0:NBIS:0",
+          "author": "BrightLine",
+          "symbol": "NBIS",
+          "title": "子弹与耐心：8·18 AI板块大跌手记。",
+          "url": "https://blog.wenxuecity.com/myblog/82458/202608/14095.html",
+          "baseline_date": "2026-08-19",
+          "horizon": 20,
+          "return": -0.06168216253443515,
+          "mae": -0.16150137741046822,
+          "mfe": 0.09650482093663926,
+          "alignment": "not_scored",
+          "market_context": {
+            "state": "trend_positive",
+            "qqq_close": 716.08,
+            "above_ma20": true,
+            "above_ma50": true,
+            "qqq_drawdown_60": -0.04031306958293113,
+            "qqq_realized_vol_20": 0.23927176991996357
+          }
+        },
+        {
+          "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html:0:CRWV:0",
+          "author": "BrightLine",
+          "symbol": "CRWV",
+          "title": "子弹与耐心：8·18 AI板块大跌手记。",
+          "url": "https://blog.wenxuecity.com/myblog/82458/202608/14095.html",
+          "baseline_date": "2026-08-19",
+          "horizon": 20,
+          "return": -0.1522870167918733,
+          "mae": -0.16937287642251608,
+          "mfe": 0.10994367623775236,
+          "alignment": "not_scored",
+          "market_context": {
+            "state": "trend_positive",
+            "qqq_close": 716.08,
+            "above_ma20": true,
+            "above_ma50": true,
+            "qqq_drawdown_60": -0.04031306958293113,
+            "qqq_realized_vol_20": 0.23927176991996357
+          }
+        }
+      ],
+      "status": "direct_developing",
+      "evidence_maturity": {
+        "state": "direct_developing",
+        "basis_horizon": 20,
+        "mature_n": 5,
+        "alignment_rate": null
+      },
       "interpretation_guardrail": "performance 仅统计可直接归因到该方法的事件；context_performance 只描述同篇文章中的同期结果，不能视为方法有效性证明。"
     },
     {
@@ -298,7 +425,13 @@
         "trend_weak": 1
       },
       "failure_examples": [],
-      "status": "evidence_building",
+      "status": "context_only",
+      "evidence_maturity": {
+        "state": "context_only",
+        "basis_horizon": null,
+        "mature_n": 0,
+        "alignment_rate": null
+      },
       "interpretation_guardrail": "performance 仅统计可直接归因到该方法的事件；context_performance 只描述同篇文章中的同期结果，不能视为方法有效性证明。"
     },
     {
@@ -357,7 +490,13 @@
         "trend_positive": 3
       },
       "failure_examples": [],
-      "status": "evidence_building",
+      "status": "context_only",
+      "evidence_maturity": {
+        "state": "context_only",
+        "basis_horizon": null,
+        "mature_n": 0,
+        "alignment_rate": null
+      },
       "interpretation_guardrail": "performance 仅统计可直接归因到该方法的事件；context_performance 只描述同篇文章中的同期结果，不能视为方法有效性证明。"
     },
     {
@@ -412,7 +551,13 @@
       "market_context_counts": {},
       "context_market_counts": {},
       "failure_examples": [],
-      "status": "evidence_building",
+      "status": "context_only",
+      "evidence_maturity": {
+        "state": "context_only",
+        "basis_horizon": null,
+        "mature_n": 0,
+        "alignment_rate": null
+      },
       "interpretation_guardrail": "performance 仅统计可直接归因到该方法的事件；context_performance 只描述同篇文章中的同期结果，不能视为方法有效性证明。"
     },
     {
@@ -469,7 +614,13 @@
         "mixed": 1
       },
       "failure_examples": [],
-      "status": "evidence_building",
+      "status": "context_only",
+      "evidence_maturity": {
+        "state": "context_only",
+        "basis_horizon": null,
+        "mature_n": 0,
+        "alignment_rate": null
+      },
       "interpretation_guardrail": "performance 仅统计可直接归因到该方法的事件；context_performance 只描述同篇文章中的同期结果，不能视为方法有效性证明。"
     },
     {
@@ -528,13 +679,20 @@
         "mixed": 2
       },
       "failure_examples": [],
-      "status": "evidence_building",
+      "status": "context_only",
+      "evidence_maturity": {
+        "state": "context_only",
+        "basis_horizon": null,
+        "mature_n": 0,
+        "alignment_rate": null
+      },
       "interpretation_guardrail": "performance 仅统计可直接归因到该方法的事件；context_performance 只描述同篇文章中的同期结果，不能视为方法有效性证明。"
     }
   ],
   "guardrails": [
     "Method Memory learns from outcomes; it does not copy an author's conclusion into MyAlpha.",
     "Article-level method tags never automatically convert every operation in that article into method performance.",
+    "Explicit sell-put, LEAPS, position-adjustment and technical-condition semantics may create direct method links even when article topics miss the category.",
     "Small direct samples are displayed as evidence_building rather than treated as stable edge.",
     "Failure examples are counterexamples for review, not labels that an author or method is generally wrong.",
     "No Method Memory statistic may directly change production trading thresholds without a separate validated policy step."

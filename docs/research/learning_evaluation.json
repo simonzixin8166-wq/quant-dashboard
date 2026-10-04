@@ -1,9 +1,9 @@
 {
   "version": "6.9.0",
-  "generated_at": "2026-10-04T05:56:30.901576+00:00",
+  "generated_at": "2026-10-04T06:07:10.390310+00:00",
   "title": "Learning Evaluation · 自我评估中心",
   "learning_health": {
-    "score": 69.0,
+    "score": 73.0,
     "max_score": 100,
     "meaning": "衡量学习链覆盖、反证纪律、未知项透明度、历史记忆和直接方法验证成熟度；不是收益率或买卖评分。",
     "components": {
@@ -11,7 +11,7 @@
       "counter_evidence_discipline": 10.0,
       "explicit_unknowns": 15.0,
       "historical_memory": 20,
-      "direct_method_validation": 0
+      "direct_method_validation": 4
     }
   },
   "research_scorecard": {
@@ -36,9 +36,9 @@
   "method_validation": {
     "source_records": 1215,
     "eligible_triggered_events": 7,
-    "direct_method_links": 0,
+    "direct_method_links": 6,
     "mature60_eligible_events": 0,
-    "methods_with_direct_validation": 0,
+    "methods_with_direct_validation": 1,
     "validated_methods": 0,
     "methods": [
       {
@@ -61,9 +61,28 @@
       },
       {
         "method": "仓位与加减仓",
-        "direct_validated_events": 0,
-        "maturity": "unproven",
-        "horizons": {}
+        "direct_validated_events": 6,
+        "maturity": "early",
+        "horizons": {
+          "5": {
+            "n": 6,
+            "alignment_rate": 0.75,
+            "avg_return": 0.019296037432250723,
+            "median_return": -0.022224944070615094
+          },
+          "20": {
+            "n": 5,
+            "alignment_rate": 0.6666666666666666,
+            "avg_return": 0.022199343235386325,
+            "median_return": -0.06168216253443515
+          },
+          "60": {
+            "n": 0,
+            "alignment_rate": null,
+            "avg_return": null,
+            "median_return": null
+          }
+        }
       },
       {
         "method": "估值与价格",
@@ -152,8 +171,7 @@
     "本轮自动完成 8 项研究，其中高置信度 6 项；所有结论继续区分支持证据、反证和未知项。",
     "历史库已有 4286 个60日成熟状态样本，可用于相似情境先验；实时前瞻样本仍单独验证。",
     "Method Memory 已吸收 1215 条来源记录，但直接方法验证仍需继续积累。",
-    "当前最大证据缺口是“前瞻成熟样本”（9 项），下一轮研究应优先补齐而不是猜测。",
-    "当前外部方法仍没有足够直接归因样本，因此不能把博主观点晋级为正式策略。"
+    "当前最大证据缺口是“前瞻成熟样本”（9 项），下一轮研究应优先补齐而不是猜测。"
   ],
   "next_learning_focus": [
     {
@@ -173,12 +191,6 @@
       "focus": "宏观/跨资产数据",
       "reason": "本轮出现 2 个未完成验证项。",
       "action": "优先补证据并记录结果；不得用推测填补缺失事实。"
-    },
-    {
-      "priority": 4,
-      "focus": "方法直接验证",
-      "reason": "当前方法库以来源记录和候选事件为主，直接方法归因样本不足。",
-      "action": "继续锁定触发时点并等待5/20/60/120日结果成熟。"
     }
   ],
   "shadow_status": {

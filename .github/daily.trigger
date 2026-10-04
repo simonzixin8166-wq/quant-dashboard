@@ -1,1 +1,1 @@
-Run V6.11.1 replay dependency production verification after archive contract fix
+Run V6.11.1 replay dependency production verification after journal count fix

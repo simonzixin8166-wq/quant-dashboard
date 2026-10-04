@@ -1,5 +1,8 @@
 name: Wenxuecity Research Update
 on:
+  schedule:
+    - cron: '20 1 * * *'       # daily blog/source refresh
+    - cron: '10 22 * * 1-5'    # after US regular close, DST/EST safe
   workflow_dispatch:
     inputs:
       mode:
@@ -44,10 +47,13 @@ jobs:
         run: |
           if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
             python scripts/update_wenxuecity.py --mode "$INPUT_MODE" --force
-          elif [ "$SCHEDULE" = '20 22 * * *' ]; then
+          elif [ "$SCHEDULE" = '20 1 * * *' ]; then
             python scripts/update_wenxuecity.py --mode blog
-          else
+          elif [ "$SCHEDULE" = '10 22 * * 1-5' ]; then
             python scripts/update_wenxuecity.py --mode close
+          else
+            echo "Unknown schedule: $SCHEDULE"
+            exit 1
           fi
       - name: Preserve results and failure status
         id: commit

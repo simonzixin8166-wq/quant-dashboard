@@ -8,6 +8,11 @@ const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 const num=v=>Number.isFinite(Number(v))?Number(v):null;
 const pct=v=>num(v)===null?'—':`${Number(v)>=0?'+':''}${(Number(v)*100).toFixed(1)}%`;
 const dateOnly=s=>String(s||'').slice(0,10);
+const isWeekendDate=s=>{const d=Date.parse(`${dateOnly(s)}T12:00:00Z`);if(!Number.isFinite(d))return false;const w=new Date(d).getUTCDay();return w===0||w===6};
+function latestCompleteMarketDate(candidates=[]){
+  const dates=(candidates||[]).map(c=>dateOnly(c?.dailyAsOf)).filter(x=>/^\d{4}-\d{2}-\d{2}$/.test(x)&&!isWeekendDate(x));
+  return dates.length?[...dates].sort().at(-1):null;
+}
 function mergeCandidate(dst,src){
   const out={...(dst||{}),...(src||{})};
   out.price=num(dst?.price)!==null?num(dst.price):num(src?.price);
@@ -40,9 +45,10 @@ function read(){
     if(!Array.isArray(rows)){
       rows=[];
       for(const k of OLD_KEYS){const old=JSON.parse(localStorage.getItem(k)||'[]');if(Array.isArray(old)&&old.length){rows=old.map(x=>({...x,version:x.version||'migrated'}));break}}
-      localStorage.setItem(KEY,JSON.stringify(rows));
     }
-    return rows;
+    const cleaned=rows.filter(x=>!isWeekendDate(x?.date||x?.at));
+    if(cleaned.length!==rows.length||!localStorage.getItem(KEY))localStorage.setItem(KEY,JSON.stringify(cleaned));
+    return cleaned;
   }catch{return []}
 }
 function write(rows){try{localStorage.setItem(KEY,JSON.stringify(consolidate(rows).slice(-300)))}catch{}}
@@ -55,22 +61,26 @@ function candidateDecision(c,classification){
   return '继续观察';
 }
 function recordAssistantEvent({snapshot,classification,candidates=[],optionIdeas=[]}){
-  const now=new Date().toISOString(),day=now.slice(0,10),rows=read();
+  const now=new Date().toISOString(),day=latestCompleteMarketDate(candidates);
+  if(!day)return; // No confirmed new trading-day close: weekend/holiday/incomplete daily data must not create a sample.
+  const eligible=(candidates||[]).filter(c=>dateOnly(c?.dailyAsOf)===day&&num(c?.dailyClose)!==null);
+  if(!eligible.length)return;
+  const rows=read();
   let daily=rows.find(x=>x.date===day);
-  if(!daily){daily={key:`${day}|daily`,at:now,date:day,level:classification.level,mode:classification.mode,title:classification.title||'常态监测',spx:num(snapshot.spx),ixic:num(snapshot.ixic),vix:num(snapshot.vix),candidates:[],optionIdeas:[],source:'automatic-scan-v5.6',version:'5.6',scanCount:0};rows.push(daily)}
-  daily.scanCount=(daily.scanCount||0)+1;daily.at=now;daily.level=classification.level;daily.mode=classification.mode;daily.title=classification.title||daily.title;daily.spx=num(snapshot.spx);daily.ixic=num(snapshot.ixic);daily.vix=num(snapshot.vix);
+  if(!daily){daily={key:`${day}|daily`,at:now,date:day,marketDateSource:'complete_daily_close',level:classification.level,mode:classification.mode,title:classification.title||'常态监测',spx:num(snapshot.spx),ixic:num(snapshot.ixic),vix:num(snapshot.vix),candidates:[],optionIdeas:[],source:'automatic-scan-v5.6',version:'5.6',scanCount:0};rows.push(daily)}
+  daily.scanCount=(daily.scanCount||0)+1;daily.at=now;daily.level=classification.level;daily.mode=classification.mode;daily.title=classification.title||daily.title;daily.spx=num(snapshot.spx);daily.ixic=num(snapshot.ixic);daily.vix=num(snapshot.vix);daily.marketDateSource='complete_daily_close';
   const map=new Map((daily.candidates||[]).map(x=>[x.symbol,x]));
-  for(const c of (candidates||[]).slice(0,8)){
+  for(const c of eligible.slice(0,8)){
     if(!c?.symbol)continue;
-    const decision=candidateDecision(c,classification),prev=map.get(c.symbol);
+    const decision=candidateDecision(c,classification),prev=map.get(c.symbol),entry=num(c.dailyClose);
     if(!prev){
-      map.set(c.symbol,{symbol:c.symbol,name:c.name||c.symbol,price:num(c.price),latestPrice:num(c.price),score:num(c.score),stage:c.stage||'',zone:c.zone||'',hasThesis:Boolean(c.hasThesis),decision,outcomes:{},firstSeenAt:now,lastSeenAt:now,transitions:[]});
+      map.set(c.symbol,{symbol:c.symbol,name:c.name||c.symbol,price:entry,latestPrice:num(c.price),priceSource:'complete_daily_close',dailyAsOf:day,score:num(c.score),stage:c.stage||'',zone:c.zone||'',hasThesis:Boolean(c.hasThesis),decision,outcomes:{},firstSeenAt:now,lastSeenAt:now,transitions:[]});
       continue;
     }
     const changed=prev.decision!==decision||String(prev.stage||'')!==String(c.stage||'');
     const transitions=[...(prev.transitions||[])];
     if(changed)transitions.push({at:now,fromDecision:prev.decision||'',toDecision:decision,fromStage:prev.stage||'',toStage:c.stage||''});
-    map.set(c.symbol,{...prev,name:c.name||prev.name||c.symbol,latestPrice:num(c.price),score:num(c.score),stage:c.stage||'',zone:c.zone||'',hasThesis:Boolean(c.hasThesis),decision,lastSeenAt:now,transitions:transitions.slice(-40)});
+    map.set(c.symbol,{...prev,name:c.name||prev.name||c.symbol,price:prev.price??entry,latestPrice:num(c.price),priceSource:'complete_daily_close',dailyAsOf:day,score:num(c.score),stage:c.stage||'',zone:c.zone||'',hasThesis:Boolean(c.hasThesis),decision,lastSeenAt:now,transitions:transitions.slice(-40)});
   }
   daily.candidates=[...map.values()];
   daily.optionIdeas=(optionIdeas||[]).slice(0,8);
@@ -172,9 +182,7 @@ function candidateRows(rows){const out=[];for(const e of[...rows].reverse())for(
 async function loadJson(url){try{const r=await fetch(`${url}?v=${Date.now()}`,{cache:'no-store'});if(!r.ok)return null;return await r.json()}catch{return null}}
 async function ensureHistory(){if(state.historyLoaded)return state.history;state.historyLoaded=true;state.history=await loadJson('research/historical_journal.json');setTimeout(()=>global.MAVInvestmentAssistant?.rescan?.(),0);return state.history}
 function maturityHint(date,h){
-  const d=Date.parse(date);if(!Number.isFinite(d))return `等待第${h}个交易日`;
-  const rough=Math.max(0,h-Math.floor((Date.now()-d)/86400000*5/7));
-  return rough>0?`约还需${rough}个交易日`:`等待收盘数据补齐`;
+  return `等待第${h}个交易日收盘`;
 }
 function outcomeCell(c,e,h){const r=c.outcomes?.[h];if(r)return `<span class="${num(r.return)>0?'pos-text':num(r.return)<0?'neg-text':''}">${pct(r.return)}</span><small>${esc(r.date||'')}</small>`;return `<span class="journal-pending">未成熟</span><small>${esc(maturityHint(e.date,h))}</small>`}
 function validationHtml(data){
@@ -198,7 +206,7 @@ async function render(error=''){
   <section class="journal-summary"><article><span>决策日</span><b>${rows.length}</b><small>同日同标的只保留一条主记录</small></article><article><span>等待成熟</span><b>${pending}</b><small>每条从首次入档日起算</small></article><article><span>实时20日成熟</span><b>${s20.n}</b><small>平均 ${pct(s20.avg)}</small></article><article><span>实时60日成熟</span><b>${s60.n}</b><small>平均 ${pct(s60.avg)}</small></article></section>
   ${error||state.lastAuthError?`<div class="journal-warning">${esc(error||state.lastAuthError)}。历史学习不依赖登录，仍可正常使用。</div>`:''}
   <section class="journal-panel"><div class="journal-head"><div><h2>自主学习 · 历史回填</h2><p>使用你提供的 STOOQ OHLCV，本地因果重放 Trend Pulse；不重复下载多年历史，也不使用未来数据。</p></div></div>${stageProfileHtml(history)}${recentHistoryHtml(history)}</section>
-  <section class="journal-panel"><div class="journal-head"><div><h2>实时决策日志</h2><p>保存系统当时真实看到的环境和候选，防止事后改写。20 / 60 / 120均按各自入档交易日起算。</p></div><small>当前可补齐 ${pending===0?0:'部分'} 条</small></div>${recent.length?`<div class="journal-table-wrap"><table class="journal-table"><thead><tr><th>日期</th><th>环境</th><th>标的 / 当时判断</th><th>入档价格</th><th>20日</th><th>60日</th><th>120日</th></tr></thead><tbody>${recent.map(({e,c})=>`<tr><td>${esc(e.date)}</td><td>${esc(marketLabel(e))}<small>VIX ${e.vix==null?'—':Number(e.vix).toFixed(1)}</small></td><td><b>${esc(c.symbol)}</b><small>${esc(c.decision)} · ${esc(c.stage||c.zone||'')}${(c.transitions||[]).length?` · 日内变化 ${(c.transitions||[]).length}次`:''}</small></td><td>${c.price==null?'—':'$'+Number(c.price).toFixed(2)}</td>${H.map(h=>`<td>${outcomeCell(c,e,h)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`:`<div class="journal-empty"><b>还没有实时记录</b><p>市场状态或候选发生有意义变化后会自动留下快照，不需要手工记录。</p></div>`}</section>
+  <section class="journal-panel"><div class="journal-head"><div><h2>实时决策日志</h2><p>保存系统当时真实看到的环境和候选，防止事后改写。20 / 60 / 120均按各自入档交易日起算。</p></div><small>当前可补齐 ${pending===0?0:'部分'} 条</small></div>${recent.length?`<div class="journal-table-wrap"><table class="journal-table"><thead><tr><th>交易日</th><th>环境</th><th>标的 / 当时判断</th><th>收盘入档价</th><th>20日</th><th>60日</th><th>120日</th></tr></thead><tbody>${recent.map(({e,c})=>`<tr><td>${esc(e.date)}</td><td>${esc(marketLabel(e))}<small>VIX ${e.vix==null?'—':Number(e.vix).toFixed(1)}</small></td><td><b>${esc(c.symbol)}</b><small>${esc(c.decision)} · ${esc(c.stage||c.zone||'')}${(c.transitions||[]).length?` · 日内变化 ${(c.transitions||[]).length}次`:''}</small></td><td>${c.price==null?'—':'$'+Number(c.price).toFixed(2)}</td>${H.map(h=>`<td>${outcomeCell(c,e,h)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`:`<div class="journal-empty"><b>还没有实时记录</b><p>市场状态或候选发生有意义变化后会自动留下快照，不需要手工记录。</p></div>`}</section>
   <section class="journal-panel"><div class="journal-head"><div><h2>历史市场规则验证</h2><p>单独检查观察 / 大跌 / 极端市场触发，不与个股 Trend Pulse 样本混在一起。</p></div></div>${validationHtml(backtestCache)}</section>
   <section class="journal-panel"><div class="journal-head"><div><h2>Weekly Self Review · 每周自主复盘</h2><p>系统评价自己的历史判断、重复提醒和漏掉的行情，并把结论用于后续研究优先级。</p></div></div>${selfReviewHtml(rows)}</section>
   <section class="journal-panel"><div class="journal-head"><div><h2>Agent Error Memory · 错误记忆</h2><p>只记录已经有成熟结果的误报、漏掉上涨和大幅不利波动；它只调整研究权重，不自动修改核心策略。</p></div></div>${(()=>{const errs=errorMemory(rows);return errs.length?`<div class="learning-grid">${errs.slice(0,8).map(x=>`<article class="learning-card"><div><b>${esc(x.symbol)} · ${esc(x.type)}</b><span>${esc(x.date)}</span></div><strong>20日 ${pct(x.return20)}</strong><p>${esc(x.note)}</p><small>当时判断：${esc(x.decision)}</small></article>`).join('')}</div>`:'<div class="journal-empty"><b>暂无成熟错误样本</b><p>待20日结果成熟后自动归类，不会用未成熟样本提前“学习”。</p></div>'})()}</section>

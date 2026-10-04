@@ -14,6 +14,11 @@ assert check_allowed_paths(["research/state/x.json"])==[]
 # Negative injection: any write outside research/ must be rejected.
 assert check_allowed_paths(["config/injected.json"])==["config/injected.json"]
 assert check_allowed_paths(["docs/data/injected.json"])==["docs/data/injected.json"]
+lock=json.loads((ROOT/"config/research_evidence_lock.json").read_text())
+assert len(lock.get("locked_research_specs") or {})>=6
+assert "research/specs/v616_readiness_spec.json" in lock["locked_research_specs"]
+assert "research/specs/entry_semantics_registry.json" in lock["locked_research_specs"]
+assert "research/specs/component_registry.json" in lock["locked_research_specs"]
 spec=json.loads((ROOT/"research/specs/evaluation_spec.json").read_text())
 assert spec["spec_version"]=="1.3"
 assert spec["thresholds"]["provisional"] is True

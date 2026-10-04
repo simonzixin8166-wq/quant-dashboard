@@ -1,12 +1,14 @@
 {
-  "version": "6.15.8b",
-  "generated_at": "2026-10-04T12:44:40.138290+00:00",
-  "spec_version": "1.1",
-  "definition_hash": "92950167b926829b081ba7a870eed18d06684b4ad1b9da8d655b905ac82ac455",
+  "version": "6.15.8d",
+  "generated_at": "2026-10-04T13:15:48.428492+00:00",
+  "spec_version": "1.2",
+  "definition_hash": "9dfcae0df0481ffd2d09c464abc07df241ddc9cce7eecd63565da418c2d92a96",
   "multiple_testing": {
-    "hypotheses_tested": 0,
+    "hypotheses_declared": 27,
+    "hypotheses_testable": 0,
     "fdr_q": 0.05,
-    "method": "Benjamini-Hochberg"
+    "method": "Benjamini-Hochberg",
+    "untestable_pvalue": 1.0
   },
   "counts": {
     "families": 9,
@@ -14,17 +16,18 @@
   },
   "cards": [
     {
-      "family_id": "family_5747c607b9610aa660214944",
+      "family_id": "family_11da9d427cea1972eb5fd03b",
       "family_key": {
         "primary_method": "unattributed",
         "operation_type": "buy_or_add",
         "entry_semantic": "next_session",
         "direction": "bullish",
-        "instrument_type": "mixed",
+        "instrument_type": "equity",
         "rule_template": {
           "field_names": [],
           "actions": [
-            "buy"
+            "planned_buy",
+            "planned_sell"
           ],
           "condition_classes": [
             "other"
@@ -32,9 +35,9 @@
         }
       },
       "member_rule_ids": [
-        "rule_3d5a6c633f3813b204dcefef"
+        "rule_eb73767b47ff77a4f7ec692a"
       ],
-      "analysis_count": 1,
+      "analysis_count": 2,
       "evidence_count": 0,
       "independent_authors": 0,
       "horizons": {
@@ -57,7 +60,11 @@
           "benchmark_direction_adjusted_mae_mean": null,
           "test_status": "not_testable",
           "p_value": null,
-          "fdr": null
+          "fdr": {
+            "p_value": 1.0,
+            "q_value": 1.0,
+            "reject": false
+          }
         },
         "20": {
           "raw_mature_events": 0,
@@ -78,7 +85,11 @@
           "benchmark_direction_adjusted_mae_mean": null,
           "test_status": "not_testable",
           "p_value": null,
-          "fdr": null
+          "fdr": {
+            "p_value": 1.0,
+            "q_value": 1.0,
+            "reject": false
+          }
         },
         "60": {
           "raw_mature_events": 0,
@@ -99,13 +110,124 @@
           "benchmark_direction_adjusted_mae_mean": null,
           "test_status": "not_testable",
           "p_value": null,
-          "fdr": null
+          "fdr": {
+            "p_value": 1.0,
+            "q_value": 1.0,
+            "reject": false
+          }
         }
       },
       "status": "sample_insufficient_research_only"
     },
     {
-      "family_id": "family_79fb47576aafef4300958f7e",
+      "family_id": "family_4d4d5a7125b524fe18c491c9",
+      "family_key": {
+        "primary_method": "unattributed",
+        "operation_type": "buy_or_add",
+        "entry_semantic": "unknown",
+        "direction": "bullish",
+        "instrument_type": "equity",
+        "rule_template": {
+          "field_names": [
+            "entry_1",
+            "entry_2",
+            "target_range"
+          ],
+          "actions": [
+            "planned_buy"
+          ],
+          "condition_classes": [
+            "other"
+          ]
+        }
+      },
+      "member_rule_ids": [
+        "rule_ae909f54a3b20cdff9010180"
+      ],
+      "analysis_count": 2,
+      "evidence_count": 0,
+      "independent_authors": 0,
+      "horizons": {
+        "5": {
+          "raw_mature_events": 0,
+          "effective_n": 0,
+          "independent_time_clusters": 0,
+          "independent_authors": 0,
+          "direction_adjusted_return_mean": null,
+          "unconditional_lift_mean": null,
+          "lift_ci95": {
+            "blocks": 0,
+            "n": 0,
+            "mean": null,
+            "lower": null,
+            "upper": null
+          },
+          "excess_vs_qqq_mean": null,
+          "direction_adjusted_mae_mean": null,
+          "benchmark_direction_adjusted_mae_mean": null,
+          "test_status": "not_testable",
+          "p_value": null,
+          "fdr": {
+            "p_value": 1.0,
+            "q_value": 1.0,
+            "reject": false
+          }
+        },
+        "20": {
+          "raw_mature_events": 0,
+          "effective_n": 0,
+          "independent_time_clusters": 0,
+          "independent_authors": 0,
+          "direction_adjusted_return_mean": null,
+          "unconditional_lift_mean": null,
+          "lift_ci95": {
+            "blocks": 0,
+            "n": 0,
+            "mean": null,
+            "lower": null,
+            "upper": null
+          },
+          "excess_vs_qqq_mean": null,
+          "direction_adjusted_mae_mean": null,
+          "benchmark_direction_adjusted_mae_mean": null,
+          "test_status": "not_testable",
+          "p_value": null,
+          "fdr": {
+            "p_value": 1.0,
+            "q_value": 1.0,
+            "reject": false
+          }
+        },
+        "60": {
+          "raw_mature_events": 0,
+          "effective_n": 0,
+          "independent_time_clusters": 0,
+          "independent_authors": 0,
+          "direction_adjusted_return_mean": null,
+          "unconditional_lift_mean": null,
+          "lift_ci95": {
+            "blocks": 0,
+            "n": 0,
+            "mean": null,
+            "lower": null,
+            "upper": null
+          },
+          "excess_vs_qqq_mean": null,
+          "direction_adjusted_mae_mean": null,
+          "benchmark_direction_adjusted_mae_mean": null,
+          "test_status": "not_testable",
+          "p_value": null,
+          "fdr": {
+            "p_value": 1.0,
+            "q_value": 1.0,
+            "reject": false
+          }
+        }
+      },
+      "status": "sample_insufficient_research_only"
+    },
+    {
+      "family_id": "family_6effd9d4f8b40eb5ac48ab29",
       "family_key": {
         "primary_method": "unattributed",
         "operation_type": "buy_or_add",
@@ -152,7 +274,11 @@
           "benchmark_direction_adjusted_mae_mean": null,
           "test_status": "not_testable",
           "p_value": null,
-          "fdr": null
+          "fdr": {
+            "p_value": 1.0,
+            "q_value": 1.0,
+            "reject": false
+          }
         },
         "20": {
           "raw_mature_events": 0,
@@ -173,7 +299,11 @@
           "benchmark_direction_adjusted_mae_mean": null,
           "test_status": "not_testable",
           "p_value": null,
-          "fdr": null
+          "fdr": {
+            "p_value": 1.0,
+            "q_value": 1.0,
+            "reject": false
+          }
         },
         "60": {
           "raw_mature_events": 0,
@@ -194,19 +324,129 @@
           "benchmark_direction_adjusted_mae_mean": null,
           "test_status": "not_testable",
           "p_value": null,
-          "fdr": null
+          "fdr": {
+            "p_value": 1.0,
+            "q_value": 1.0,
+            "reject": false
+          }
         }
       },
       "status": "sample_insufficient_research_only"
     },
     {
-      "family_id": "family_816ebc978ea73134b6778887",
+      "family_id": "family_78dde7527c8f55f0bc3a49fb",
+      "family_key": {
+        "primary_method": "unattributed",
+        "operation_type": "buy_or_add",
+        "entry_semantic": "unknown",
+        "direction": "bullish",
+        "instrument_type": "equity",
+        "rule_template": {
+          "field_names": [
+            "entry_1",
+            "entry_2"
+          ],
+          "actions": [
+            "planned_buy"
+          ],
+          "condition_classes": [
+            "other"
+          ]
+        }
+      },
+      "member_rule_ids": [
+        "rule_5813c2e59f7d9a606bb3bec6"
+      ],
+      "analysis_count": 2,
+      "evidence_count": 0,
+      "independent_authors": 0,
+      "horizons": {
+        "5": {
+          "raw_mature_events": 0,
+          "effective_n": 0,
+          "independent_time_clusters": 0,
+          "independent_authors": 0,
+          "direction_adjusted_return_mean": null,
+          "unconditional_lift_mean": null,
+          "lift_ci95": {
+            "blocks": 0,
+            "n": 0,
+            "mean": null,
+            "lower": null,
+            "upper": null
+          },
+          "excess_vs_qqq_mean": null,
+          "direction_adjusted_mae_mean": null,
+          "benchmark_direction_adjusted_mae_mean": null,
+          "test_status": "not_testable",
+          "p_value": null,
+          "fdr": {
+            "p_value": 1.0,
+            "q_value": 1.0,
+            "reject": false
+          }
+        },
+        "20": {
+          "raw_mature_events": 0,
+          "effective_n": 0,
+          "independent_time_clusters": 0,
+          "independent_authors": 0,
+          "direction_adjusted_return_mean": null,
+          "unconditional_lift_mean": null,
+          "lift_ci95": {
+            "blocks": 0,
+            "n": 0,
+            "mean": null,
+            "lower": null,
+            "upper": null
+          },
+          "excess_vs_qqq_mean": null,
+          "direction_adjusted_mae_mean": null,
+          "benchmark_direction_adjusted_mae_mean": null,
+          "test_status": "not_testable",
+          "p_value": null,
+          "fdr": {
+            "p_value": 1.0,
+            "q_value": 1.0,
+            "reject": false
+          }
+        },
+        "60": {
+          "raw_mature_events": 0,
+          "effective_n": 0,
+          "independent_time_clusters": 0,
+          "independent_authors": 0,
+          "direction_adjusted_return_mean": null,
+          "unconditional_lift_mean": null,
+          "lift_ci95": {
+            "blocks": 0,
+            "n": 0,
+            "mean": null,
+            "lower": null,
+            "upper": null
+          },
+          "excess_vs_qqq_mean": null,
+          "direction_adjusted_mae_mean": null,
+          "benchmark_direction_adjusted_mae_mean": null,
+          "test_status": "not_testable",
+          "p_value": null,
+          "fdr": {
+            "p_value": 1.0,
+            "q_value": 1.0,
+            "reject": false
+          }
+        }
+      },
+      "status": "sample_insufficient_research_only"
+    },
+    {
+      "family_id": "family_8cd9d399a16f6c2f09f1fbfd",
       "family_key": {
         "primary_method": "unattributed",
         "operation_type": "buy_or_add",
         "entry_semantic": "next_session",
         "direction": "bullish",
-        "instrument_type": "equity",
+        "instrument_type": "mixed",
         "rule_template": {
           "field_names": [],
           "actions": [
@@ -218,7 +458,7 @@
         }
       },
       "member_rule_ids": [
-        "rule_2370c763517b6a94a57f31d5"
+        "rule_3d5a6c633f3813b204dcefef"
       ],
       "analysis_count": 1,
       "evidence_count": 0,
@@ -243,7 +483,11 @@
           "benchmark_direction_adjusted_mae_mean": null,
           "test_status": "not_testable",
           "p_value": null,
-          "fdr": null
+          "fdr": {
+            "p_value": 1.0,
+            "q_value": 1.0,
+            "reject": false
+          }
         },
         "20": {
           "raw_mature_events": 0,
@@ -264,7 +508,11 @@
           "benchmark_direction_adjusted_mae_mean": null,
           "test_status": "not_testable",
           "p_value": null,
-          "fdr": null
+          "fdr": {
+            "p_value": 1.0,
+            "q_value": 1.0,
+            "reject": false
+          }
         },
         "60": {
           "raw_mature_events": 0,
@@ -285,13 +533,17 @@
           "benchmark_direction_adjusted_mae_mean": null,
           "test_status": "not_testable",
           "p_value": null,
-          "fdr": null
+          "fdr": {
+            "p_value": 1.0,
+            "q_value": 1.0,
+            "reject": false
+          }
         }
       },
       "status": "sample_insufficient_research_only"
     },
     {
-      "family_id": "family_85cc204f68e4ea2b9e0c417e",
+      "family_id": "family_957dffa5bf94da2e055bff24",
       "family_key": {
         "primary_method": "Sell Put",
         "operation_type": "sell_put",
@@ -339,7 +591,11 @@
           "benchmark_direction_adjusted_mae_mean": null,
           "test_status": "not_testable",
           "p_value": null,
-          "fdr": null
+          "fdr": {
+            "p_value": 1.0,
+            "q_value": 1.0,
+            "reject": false
+          }
         },
         "20": {
           "raw_mature_events": 0,
@@ -360,7 +616,11 @@
           "benchmark_direction_adjusted_mae_mean": null,
           "test_status": "not_testable",
           "p_value": null,
-          "fdr": null
+          "fdr": {
+            "p_value": 1.0,
+            "q_value": 1.0,
+            "reject": false
+          }
         },
         "60": {
           "raw_mature_events": 0,
@@ -381,26 +641,27 @@
           "benchmark_direction_adjusted_mae_mean": null,
           "test_status": "not_testable",
           "p_value": null,
-          "fdr": null
+          "fdr": {
+            "p_value": 1.0,
+            "q_value": 1.0,
+            "reject": false
+          }
         }
       },
       "status": "sample_insufficient_research_only"
     },
     {
-      "family_id": "family_a049c8a6d0b629977805134a",
+      "family_id": "family_d3bb367797890ffe39d830a4",
       "family_key": {
         "primary_method": "unattributed",
-        "operation_type": "buy_or_add",
-        "entry_semantic": "unknown",
-        "direction": "bullish",
+        "operation_type": "other",
+        "entry_semantic": "next_session",
+        "direction": "unknown",
         "instrument_type": "equity",
         "rule_template": {
-          "field_names": [
-            "entry_1",
-            "entry_2"
-          ],
+          "field_names": [],
           "actions": [
-            "planned_buy"
+            "hold"
           ],
           "condition_classes": [
             "other"
@@ -408,9 +669,9 @@
         }
       },
       "member_rule_ids": [
-        "rule_5813c2e59f7d9a606bb3bec6"
+        "rule_26d52404c2da0961f564e0ed"
       ],
-      "analysis_count": 2,
+      "analysis_count": 1,
       "evidence_count": 0,
       "independent_authors": 0,
       "horizons": {
@@ -433,7 +694,11 @@
           "benchmark_direction_adjusted_mae_mean": null,
           "test_status": "not_testable",
           "p_value": null,
-          "fdr": null
+          "fdr": {
+            "p_value": 1.0,
+            "q_value": 1.0,
+            "reject": false
+          }
         },
         "20": {
           "raw_mature_events": 0,
@@ -454,7 +719,11 @@
           "benchmark_direction_adjusted_mae_mean": null,
           "test_status": "not_testable",
           "p_value": null,
-          "fdr": null
+          "fdr": {
+            "p_value": 1.0,
+            "q_value": 1.0,
+            "reject": false
+          }
         },
         "60": {
           "raw_mature_events": 0,
@@ -475,108 +744,17 @@
           "benchmark_direction_adjusted_mae_mean": null,
           "test_status": "not_testable",
           "p_value": null,
-          "fdr": null
+          "fdr": {
+            "p_value": 1.0,
+            "q_value": 1.0,
+            "reject": false
+          }
         }
       },
       "status": "sample_insufficient_research_only"
     },
     {
-      "family_id": "family_d05414599b6627dee0979edb",
-      "family_key": {
-        "primary_method": "unattributed",
-        "operation_type": "buy_or_add",
-        "entry_semantic": "unknown",
-        "direction": "bullish",
-        "instrument_type": "equity",
-        "rule_template": {
-          "field_names": [
-            "entry_1",
-            "entry_2",
-            "target_range"
-          ],
-          "actions": [
-            "planned_buy"
-          ],
-          "condition_classes": [
-            "other"
-          ]
-        }
-      },
-      "member_rule_ids": [
-        "rule_ae909f54a3b20cdff9010180"
-      ],
-      "analysis_count": 2,
-      "evidence_count": 0,
-      "independent_authors": 0,
-      "horizons": {
-        "5": {
-          "raw_mature_events": 0,
-          "effective_n": 0,
-          "independent_time_clusters": 0,
-          "independent_authors": 0,
-          "direction_adjusted_return_mean": null,
-          "unconditional_lift_mean": null,
-          "lift_ci95": {
-            "blocks": 0,
-            "n": 0,
-            "mean": null,
-            "lower": null,
-            "upper": null
-          },
-          "excess_vs_qqq_mean": null,
-          "direction_adjusted_mae_mean": null,
-          "benchmark_direction_adjusted_mae_mean": null,
-          "test_status": "not_testable",
-          "p_value": null,
-          "fdr": null
-        },
-        "20": {
-          "raw_mature_events": 0,
-          "effective_n": 0,
-          "independent_time_clusters": 0,
-          "independent_authors": 0,
-          "direction_adjusted_return_mean": null,
-          "unconditional_lift_mean": null,
-          "lift_ci95": {
-            "blocks": 0,
-            "n": 0,
-            "mean": null,
-            "lower": null,
-            "upper": null
-          },
-          "excess_vs_qqq_mean": null,
-          "direction_adjusted_mae_mean": null,
-          "benchmark_direction_adjusted_mae_mean": null,
-          "test_status": "not_testable",
-          "p_value": null,
-          "fdr": null
-        },
-        "60": {
-          "raw_mature_events": 0,
-          "effective_n": 0,
-          "independent_time_clusters": 0,
-          "independent_authors": 0,
-          "direction_adjusted_return_mean": null,
-          "unconditional_lift_mean": null,
-          "lift_ci95": {
-            "blocks": 0,
-            "n": 0,
-            "mean": null,
-            "lower": null,
-            "upper": null
-          },
-          "excess_vs_qqq_mean": null,
-          "direction_adjusted_mae_mean": null,
-          "benchmark_direction_adjusted_mae_mean": null,
-          "test_status": "not_testable",
-          "p_value": null,
-          "fdr": null
-        }
-      },
-      "status": "sample_insufficient_research_only"
-    },
-    {
-      "family_id": "family_dbb1ea196f97de3c59c0d292",
+      "family_id": "family_d3c7338f06aed27e334b6552",
       "family_key": {
         "primary_method": "unattributed",
         "operation_type": "buy_or_add",
@@ -586,8 +764,7 @@
         "rule_template": {
           "field_names": [],
           "actions": [
-            "planned_buy",
-            "planned_sell"
+            "buy"
           ],
           "condition_classes": [
             "other"
@@ -595,9 +772,9 @@
         }
       },
       "member_rule_ids": [
-        "rule_eb73767b47ff77a4f7ec692a"
+        "rule_2370c763517b6a94a57f31d5"
       ],
-      "analysis_count": 2,
+      "analysis_count": 1,
       "evidence_count": 0,
       "independent_authors": 0,
       "horizons": {
@@ -620,7 +797,11 @@
           "benchmark_direction_adjusted_mae_mean": null,
           "test_status": "not_testable",
           "p_value": null,
-          "fdr": null
+          "fdr": {
+            "p_value": 1.0,
+            "q_value": 1.0,
+            "reject": false
+          }
         },
         "20": {
           "raw_mature_events": 0,
@@ -641,7 +822,11 @@
           "benchmark_direction_adjusted_mae_mean": null,
           "test_status": "not_testable",
           "p_value": null,
-          "fdr": null
+          "fdr": {
+            "p_value": 1.0,
+            "q_value": 1.0,
+            "reject": false
+          }
         },
         "60": {
           "raw_mature_events": 0,
@@ -662,13 +847,17 @@
           "benchmark_direction_adjusted_mae_mean": null,
           "test_status": "not_testable",
           "p_value": null,
-          "fdr": null
+          "fdr": {
+            "p_value": 1.0,
+            "q_value": 1.0,
+            "reject": false
+          }
         }
       },
       "status": "sample_insufficient_research_only"
     },
     {
-      "family_id": "family_f19ed52e027a04a83b912b2b",
+      "family_id": "family_ef6cfab9d923b15d204c1a16",
       "family_key": {
         "primary_method": "unattributed",
         "operation_type": "buy_or_add",
@@ -718,7 +907,11 @@
           "benchmark_direction_adjusted_mae_mean": null,
           "test_status": "not_testable",
           "p_value": null,
-          "fdr": null
+          "fdr": {
+            "p_value": 1.0,
+            "q_value": 1.0,
+            "reject": false
+          }
         },
         "20": {
           "raw_mature_events": 0,
@@ -739,7 +932,11 @@
           "benchmark_direction_adjusted_mae_mean": null,
           "test_status": "not_testable",
           "p_value": null,
-          "fdr": null
+          "fdr": {
+            "p_value": 1.0,
+            "q_value": 1.0,
+            "reject": false
+          }
         },
         "60": {
           "raw_mature_events": 0,
@@ -760,98 +957,11 @@
           "benchmark_direction_adjusted_mae_mean": null,
           "test_status": "not_testable",
           "p_value": null,
-          "fdr": null
-        }
-      },
-      "status": "sample_insufficient_research_only"
-    },
-    {
-      "family_id": "family_f7a26c1859676f9e2e53864d",
-      "family_key": {
-        "primary_method": "unattributed",
-        "operation_type": "other",
-        "entry_semantic": "next_session",
-        "direction": "unknown",
-        "instrument_type": "equity",
-        "rule_template": {
-          "field_names": [],
-          "actions": [
-            "hold"
-          ],
-          "condition_classes": [
-            "other"
-          ]
-        }
-      },
-      "member_rule_ids": [
-        "rule_26d52404c2da0961f564e0ed"
-      ],
-      "analysis_count": 1,
-      "evidence_count": 0,
-      "independent_authors": 0,
-      "horizons": {
-        "5": {
-          "raw_mature_events": 0,
-          "effective_n": 0,
-          "independent_time_clusters": 0,
-          "independent_authors": 0,
-          "direction_adjusted_return_mean": null,
-          "unconditional_lift_mean": null,
-          "lift_ci95": {
-            "blocks": 0,
-            "n": 0,
-            "mean": null,
-            "lower": null,
-            "upper": null
-          },
-          "excess_vs_qqq_mean": null,
-          "direction_adjusted_mae_mean": null,
-          "benchmark_direction_adjusted_mae_mean": null,
-          "test_status": "not_testable",
-          "p_value": null,
-          "fdr": null
-        },
-        "20": {
-          "raw_mature_events": 0,
-          "effective_n": 0,
-          "independent_time_clusters": 0,
-          "independent_authors": 0,
-          "direction_adjusted_return_mean": null,
-          "unconditional_lift_mean": null,
-          "lift_ci95": {
-            "blocks": 0,
-            "n": 0,
-            "mean": null,
-            "lower": null,
-            "upper": null
-          },
-          "excess_vs_qqq_mean": null,
-          "direction_adjusted_mae_mean": null,
-          "benchmark_direction_adjusted_mae_mean": null,
-          "test_status": "not_testable",
-          "p_value": null,
-          "fdr": null
-        },
-        "60": {
-          "raw_mature_events": 0,
-          "effective_n": 0,
-          "independent_time_clusters": 0,
-          "independent_authors": 0,
-          "direction_adjusted_return_mean": null,
-          "unconditional_lift_mean": null,
-          "lift_ci95": {
-            "blocks": 0,
-            "n": 0,
-            "mean": null,
-            "lower": null,
-            "upper": null
-          },
-          "excess_vs_qqq_mean": null,
-          "direction_adjusted_mae_mean": null,
-          "benchmark_direction_adjusted_mae_mean": null,
-          "test_status": "not_testable",
-          "p_value": null,
-          "fdr": null
+          "fdr": {
+            "p_value": 1.0,
+            "q_value": 1.0,
+            "reject": false
+          }
         }
       },
       "status": "sample_insufficient_research_only"
@@ -859,9 +969,9 @@
   ],
   "guardrails": [
     "Family membership is frozen before reading outcomes.",
-    "Repeated events from the same author/symbol/week collapse into one effective unit.",
-    "Bootstrap resamples complete ISO-week blocks.",
-    "FDR is applied across all testable family x horizon hypotheses in one run.",
+    "Effective sample size is symbol x non-overlapping horizon block; author count is reported separately.",
+    "Bootstrap resamples complete non-overlapping horizon blocks; all symbols in a block stay together.",
+    "FDR is applied to the full frozen active-family x declared-horizon hypothesis set; untestable hypotheses enter as p=1.",
     "Below the minimum cluster count, inference is marked not_testable."
   ]
 }

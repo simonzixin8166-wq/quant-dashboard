@@ -1,6 +1,6 @@
 {
-  "version": "6.15.8c",
-  "generated_at": "2026-10-04T12:44:42.148346+00:00",
+  "version": "6.15.8d",
+  "generated_at": "2026-10-04T13:15:57.297703+00:00",
   "audit_month": "2026-10",
   "all_integrity_checks_pass": true,
   "checks": {
@@ -15,11 +15,8 @@
     "events": 47,
     "scoreable": 0,
     "primary_exclusion": {
-      "cache_only_unscored": 3,
-      "missing_rule_id": 29,
-      "unknown_entry_semantics": 11,
-      "unsupported_direction": 2,
-      "not_triggered": 2
+      "non_point_in_time_source": 36,
+      "timestamp_provenance_unknown": 11
     }
   },
   "source_store": {
@@ -36,15 +33,16 @@
     "symbols": 6,
     "events": 11,
     "by_classification": {
-      "structural_or_symbol_mapping_unresolved": 6
+      "access_failure": 6
     }
   },
   "readiness": {
     "ready_for_v616": false,
     "blockers": [
       "production_boundary_clean_runs",
-      "point_in_time_mature_20_events",
-      "point_in_time_mature_60_events",
+      "production_boundary_clean_span",
+      "point_in_time_mature_20_effective_units",
+      "point_in_time_mature_60_effective_units",
       "families_with_mature_20",
       "families_with_mature_60"
     ]

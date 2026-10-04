@@ -1,7 +1,7 @@
 {
-  "version": "6.15.8c",
-  "generated_at": "2026-10-04T12:44:41.591561+00:00",
-  "spec_version": "1.1",
+  "version": "6.15.8d",
+  "generated_at": "2026-10-04T13:15:56.685724+00:00",
+  "spec_version": "1.2",
   "all_pass": true,
   "controls": {
     "positive_control": {
@@ -11,18 +11,23 @@
       "ci_lower": 0.02,
       "fdr": {
         "p_value": 0.004497751124437781,
-        "q_value": 0.004497751124437781,
+        "q_value": 0.013493253373313342,
         "reject": true
       },
       "promotion_state": "evaluated_evidence",
-      "expected": "known positive alpha is statistically detectable under an active test-only gate"
+      "hypotheses_declared": 3,
+      "expected": "known positive alpha is statistically detectable using non-overlapping 60-day blocks under an active test-only gate"
     },
     "repeated_negative_control": {
       "pass": true,
-      "seeds": 60,
-      "false_promotions": 4,
-      "false_promotion_rate": 0.06666666666666667,
-      "maximum_allowed_rate": 0.1,
+      "seeds": 500,
+      "false_promotions": 8,
+      "false_promotion_rate": 0.016,
+      "wilson95": {
+        "lower": 0.008129253033388314,
+        "upper": 0.03125110853339426
+      },
+      "maximum_allowed_wilson_upper": 0.1,
       "sample": [
         {
           "seed": 0,
@@ -30,7 +35,7 @@
           "mean": -0.000863094468979384,
           "fdr": {
             "p_value": 0.5377311344327836,
-            "q_value": 0.5377311344327836,
+            "q_value": 1.0,
             "reject": false
           }
         },
@@ -40,7 +45,7 @@
           "mean": 0.006292861295991066,
           "fdr": {
             "p_value": 0.13793103448275862,
-            "q_value": 0.13793103448275862,
+            "q_value": 0.41379310344827586,
             "reject": false
           }
         },
@@ -50,7 +55,7 @@
           "mean": -0.0010299468725606619,
           "fdr": {
             "p_value": 0.5792103948025987,
-            "q_value": 0.5792103948025987,
+            "q_value": 1.0,
             "reject": false
           }
         },
@@ -60,7 +65,7 @@
           "mean": 0.009366680188427772,
           "fdr": {
             "p_value": 0.10944527736131934,
-            "q_value": 0.10944527736131934,
+            "q_value": 0.328335832083958,
             "reject": false
           }
         },
@@ -70,7 +75,7 @@
           "mean": -0.0009728106671278641,
           "fdr": {
             "p_value": 0.5762118940529735,
-            "q_value": 0.5762118940529735,
+            "q_value": 1.0,
             "reject": false
           }
         },
@@ -80,7 +85,7 @@
           "mean": -0.0029120156594242,
           "fdr": {
             "p_value": 0.657671164417791,
-            "q_value": 0.657671164417791,
+            "q_value": 1.0,
             "reject": false
           }
         },
@@ -90,18 +95,18 @@
           "mean": 0.0021299997615585593,
           "fdr": {
             "p_value": 0.3633183408295852,
-            "q_value": 0.3633183408295852,
+            "q_value": 1.0,
             "reject": false
           }
         },
         {
           "seed": 7,
-          "passed": true,
+          "passed": false,
           "mean": 0.010990518152995782,
           "fdr": {
             "p_value": 0.046476761619190406,
-            "q_value": 0.046476761619190406,
-            "reject": true
+            "q_value": 0.13943028485757122,
+            "reject": false
           }
         },
         {
@@ -110,7 +115,7 @@
           "mean": -0.008137315383700992,
           "fdr": {
             "p_value": 0.9710144927536232,
-            "q_value": 0.9710144927536232,
+            "q_value": 1.0,
             "reject": false
           }
         },
@@ -120,12 +125,12 @@
           "mean": -0.0023320647413384793,
           "fdr": {
             "p_value": 0.6996501749125438,
-            "q_value": 0.6996501749125438,
+            "q_value": 1.0,
             "reject": false
           }
         }
       ],
-      "expected": "repeated zero-alpha simulations remain below the predeclared false-promotion ceiling"
+      "expected": "under zero alpha, the Wilson 95% upper bound of false promotion stays below the predeclared ceiling"
     },
     "leakage_canary": {
       "pass": true,
@@ -138,7 +143,7 @@
   "guardrails": [
     "Synthetic controls never alter production rules or real evidence.",
     "The positive control tests detectability, not investment validity.",
-    "The repeated negative control is deterministic across fixed seeds.",
+    "The repeated negative control uses at least 500 deterministic seeds and passes only when the Wilson 95% upper bound is below the predeclared ceiling.",
     "The leakage canary must fail closed on post-decision or pre-ingest information."
   ]
 }

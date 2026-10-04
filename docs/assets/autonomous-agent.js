@@ -1,7 +1,7 @@
 (function(global){
   'use strict';
   const $=id=>document.getElementById(id);
-  const state={publicData:null,evidenceData:null,systemStatus:null,plannerData:null,researchData:null,selfImproveData:null,learningEvalData:null,crossAssetData:null,breadthData:null,regimeData:null,rangeData:null,playbookData:null,ledgerAnchor:null,outcomeData:null,lastRender:0};
+  const state={publicData:null,evidenceData:null,systemStatus:null,plannerData:null,researchData:null,selfImproveData:null,learningEvalData:null,crossAssetData:null,breadthData:null,regimeData:null,rangeData:null,playbookData:null,ledgerAnchor:null,outcomeData:null,replayData:null,lastRender:0};
   const MEMORY_KEY='mavAgentDecisionMemoryV562', LEGACY_MEMORY_KEY='mavAgentDecisionMemoryV56', POLICY_KEY='mavLearningPolicyV1';
 
   function n(v){const x=Number(v);return Number.isFinite(x)?x:null}
@@ -90,7 +90,7 @@
 
   async function loadPublic(){
     try{
-      const [a,e,s,h,p,x,v7,le,ca,bi,rg,range,pb,la,po]=await Promise.all([
+      const [a,e,s,h,p,x,v7,le,ca,bi,rg,range,pb,la,po,rp]=await Promise.all([
         fetch('research/autonomous_agent.json?v='+Date.now(),{cache:'no-store'}),
         fetch('research/evidence_attribution.json?v='+Date.now(),{cache:'no-store'}),
         fetch('data/source_intelligence.json?v='+Date.now(),{cache:'no-store'}),
@@ -105,7 +105,8 @@
         fetch('research/range_intelligence.json?v='+Date.now(),{cache:'no-store'}).catch(()=>null),
         fetch('research/playbook_status.json?v='+Date.now(),{cache:'no-store'}).catch(()=>null),
         fetch('research/ledger_anchor.json?v='+Date.now(),{cache:'no-store'}).catch(()=>null),
-        fetch('research/playbook_outcome_shadow.json?v='+Date.now(),{cache:'no-store'}).catch(()=>null)
+        fetch('research/playbook_outcome_shadow.json?v='+Date.now(),{cache:'no-store'}).catch(()=>null),
+        fetch('research/walk_forward_replay.json?v='+Date.now(),{cache:'no-store'}).catch(()=>null)
       ]);
       state.publicData=a.ok?await a.json():null;
       state.evidenceData=e.ok?await e.json():null;
@@ -122,7 +123,8 @@
       state.playbookData=pb&&pb.ok?await pb.json():null;
       state.ledgerAnchor=la&&la.ok?await la.json():null;
       state.outcomeData=po&&po.ok?await po.json():null;
-    }catch{state.publicData=null;state.evidenceData=null;state.sourceIntel=null;state.systemStatus=null;state.plannerData=null;state.researchData=null;state.selfImproveData=null;state.learningEvalData=null;state.crossAssetData=null;state.breadthData=null;state.regimeData=null;state.rangeData=null;state.playbookData=null;state.ledgerAnchor=null;state.outcomeData=null}
+      state.replayData=rp&&rp.ok?await rp.json():null;
+    }catch{state.publicData=null;state.evidenceData=null;state.sourceIntel=null;state.systemStatus=null;state.plannerData=null;state.researchData=null;state.selfImproveData=null;state.learningEvalData=null;state.crossAssetData=null;state.breadthData=null;state.regimeData=null;state.rangeData=null;state.playbookData=null;state.ledgerAnchor=null;state.outcomeData=null;state.replayData=null}
   }
 
 
@@ -210,6 +212,14 @@
   }
 
 
+  function replayShadowHtml(){
+    const r=state.replayData||{};if(!r.version)return'';
+    const s=r.summary||{},cov=r.coverage||{};
+    const cp01=cov['CP-01']||{},cp02=cov['CP-02']||{},cp03=cov['CP-03']||{};
+    return `<div class="agent-change"><b>V6.11 Historical Replay · Research Only</b><span>Raw ${esc(s.raw_events??0)} · Effective clusters ${esc(s.effective_clusters??0)} · 可完整回放 ${esc(s.replayable_playbooks??0)}/3</span></div>
+      <small>证据标签：historical_replay_post_rule_design。CP-01 ${esc(cp01.status||'—')}；CP-02 ${esc(cp02.status||'—')}；CP-03 ${esc(cp03.status||'—')}。缺少依赖的数据不会用近似条件补齐，也不会与真实 Forward 样本混合。</small>`;
+  }
+
   function outcomeShadowHtml(){
     const o=state.outcomeData||{};if(!o.version)return'';
     const m=o.mature_total||{},p=o.pending_total||{};
@@ -232,6 +242,7 @@
       <div class="agent-metrics"><span>Heartbeat ${esc(d.heartbeat?.status||'—')}</span><span>Data Quality ${esc(d.data_quality?.status||'—')}</span><span>Kill Switch ${d.kill_switch?.global_enabled===false?'已暂停':'正常'}</span><span>Ledger ${esc(a.status||d.storage?.health||'—')}</span></div>
       <p><strong>Forward 起始：</strong>${esc(s.start_market_date||'2026-10-02')} · <strong>账本摘要：</strong>${esc(counts)} · <strong>Root：</strong>${esc(root?root.slice(0,10)+'…':'—')}</p>
       ${outcomeShadowHtml()}
+      ${replayShadowHtml()}
       <small>CP-02 的 full_restore 若是启动基线，只表示当前允许恢复目标敞口，不代表新的 Forward Trigger；Raw Ledger 始终留在私有仓库。</small></details>`;
   }
 

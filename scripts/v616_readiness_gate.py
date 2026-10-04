@@ -69,7 +69,7 @@ def build(spec,events,families,source,controls,boundary,components):
     control_ok=bool(controls.get("all_pass")) and all((control_map.get(k) or {}).get("pass") for k in control_names)
     clean_runs=clean_boundary_runs(boundary)
     maturity=mature_counts(events,families)
-    component_ok=(components.get("counts") or {}).get("missing_code_hashes",1)==0 and (components.get("counts") or {}).get("missing_artifact_hashes",1)==0
+    component_ok=(components.get("counts") or {}).get("missing_code_hashes",1)==0 and (components.get("counts") or {}).get("missing_required_artifact_hashes",1)==0
 
     conditions={
         "eventscore_conservation":conservation,

@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 """Research/production dependency and write-boundary guard for V6.15."""
 from __future__ import annotations
-import hashlib, json, os, re, sys
+import hashlib, json, os, re, subprocess, sys
 from pathlib import Path
 
 ROOT=Path(__file__).resolve().parents[1]
 FORBIDDEN_WRITE_PREFIXES=("config/","data/ledger/","docs/data/","docs/assets/")
+DEFAULT_RESEARCH_WRITE_PREFIXES=("research/",)
 RESEARCH_READ_MARKERS=(
     "method_memory.json","learning_evaluation.json","controlled_learning_policy.json",
     "source_rule_lifecycle.json","self_improvement",
@@ -60,17 +61,72 @@ def check_production_reads():
                 violations.append({"file":rel,"marker":marker})
     return violations
 
+def normalize_git_path(raw):
+    p=str(raw or "").strip().replace("\\","/")
+    if " -> " in p:
+        p=p.split(" -> ",1)[1]
+    return p
+
 def check_changed_paths(paths):
     bad=[]
     for raw in paths:
-        p=str(raw).replace("\\","/")
+        p=normalize_git_path(raw)
         if any(p.startswith(x) for x in FORBIDDEN_WRITE_PREFIXES):
             bad.append(p)
     return bad
 
+def check_allowed_paths(paths,allowed_prefixes=DEFAULT_RESEARCH_WRITE_PREFIXES):
+    bad=[]
+    allowed=tuple(str(x).replace("\\","/") for x in allowed_prefixes)
+    for raw in paths:
+        p=normalize_git_path(raw)
+        if p and not any(p.startswith(prefix) for prefix in allowed):
+            bad.append(p)
+    return bad
+
+def git_worktree_paths():
+    output=subprocess.check_output(
+        ["git","status","--porcelain=v1","--untracked-files=all"],
+        cwd=ROOT,text=True,stderr=subprocess.STDOUT,
+    )
+    paths=[]
+    for line in output.splitlines():
+        if not line.strip():continue
+        paths.append(line[3:] if len(line)>=4 else line)
+    return paths
+
+def git_staged_paths():
+    output=subprocess.check_output(
+        ["git","diff","--cached","--name-only"],
+        cwd=ROOT,text=True,stderr=subprocess.STDOUT,
+    )
+    return [x.strip() for x in output.splitlines() if x.strip()]
+
+def assert_allowed(paths,allowed_prefixes=DEFAULT_RESEARCH_WRITE_PREFIXES,label="worktree"):
+    bad=check_allowed_paths(paths,allowed_prefixes)
+    if bad:
+        print(json.dumps({
+            "ok":False,
+            "boundary":label,
+            "allowed_prefixes":list(allowed_prefixes),
+            "violations":bad,
+        },ensure_ascii=False,indent=2))
+        return 3
+    print(json.dumps({
+        "ok":True,
+        "boundary":label,
+        "allowed_prefixes":list(allowed_prefixes),
+        "changed_paths":len(list(paths)),
+    },ensure_ascii=False))
+    return 0
+
 def main():
     if "--snapshot" in sys.argv:
         print(json.dumps(snapshot(),ensure_ascii=False,sort_keys=True)); return 0
+    if "--assert-worktree-research-only" in sys.argv:
+        return assert_allowed(git_worktree_paths(),label="worktree_research_only")
+    if "--assert-staged-research-only" in sys.argv:
+        return assert_allowed(git_staged_paths(),label="staged_research_only")
     violations=check_production_reads()
     if violations:
         print(json.dumps({"ok":False,"production_read_violations":violations},ensure_ascii=False,indent=2))

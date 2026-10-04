@@ -94,28 +94,43 @@ def direction_from_event(event):
     d=(event.get("alignment") or {}).get("direction")
     return d if d in {"bullish","bearish"} else ("option_structure" if d=="option_structure" else "unknown")
 
-def historical_unconditional_return(df,baseline_date,horizon,max_samples=252):
-    """Prior-only unconditional same-symbol forward return mean.
+def direction_adjusted_excursions(direction,mae,mfe):
+    if mae is None or mfe is None:return None,None
+    if direction=="bullish":
+        return float(mae),float(mfe)
+    if direction=="bearish":
+        # For a bearish thesis, price rises are adverse and price falls favorable.
+        return -float(mfe),-float(mae)
+    return None,None
 
-    Every baseline sample must fully mature before the target event date, avoiding
-    contamination by future observations relative to the decision timestamp.
-    """
+def historical_unconditional_metrics(df,baseline_date,horizon,direction,max_samples=252):
+    """Prior-only unconditional same-symbol baseline for return and adverse excursion."""
     if df is None or df.empty or not baseline_date:return None
     try:d=pd.Timestamp(str(baseline_date)[:10])
     except Exception:return None
     work=df[df.index<d].copy()
     if len(work)<=horizon+1:return None
-    vals=[]
-    # Require sample outcome to be known before d: end index is strictly before d.
+    returns=[]; maes=[]
     for i in range(max(0,len(work)-max_samples-horizon),len(work)-horizon):
         try:
             entry=float(work.iloc[i]["open"])
-            end=float(work.iloc[i+horizon]["close"])
-            if entry and math.isfinite(entry) and math.isfinite(end):
-                vals.append(end/entry-1.0)
+            path=work.iloc[i:i+horizon+1]
+            end=float(path.iloc[-1]["close"])
+            raw=end/entry-1.0
+            raw_mae=float(path["low"].min()/entry-1.0)
+            raw_mfe=float(path["high"].max()/entry-1.0)
+            adj=direction_adjusted_return(direction,raw)
+            adj_mae,_=direction_adjusted_excursions(direction,raw_mae,raw_mfe)
+            if adj is not None:returns.append(adj)
+            if adj_mae is not None:maes.append(adj_mae)
         except Exception:
             continue
-    return sum(vals)/len(vals) if vals else None
+    if not returns:return None
+    return {
+        "n":len(returns),
+        "direction_adjusted_return":sum(returns)/len(returns),
+        "direction_adjusted_mae":sum(maes)/len(maes) if maes else None,
+    }
 
 def registry_map(registry):
     out={}
@@ -151,18 +166,24 @@ def adapt(validation,registry,histories=None,spec=None):
             raw=old.get("return")
             adj=direction_adjusted_return(direction,raw)
             hist=histories.get(symbol,{}).get("df")
-            unconditional=historical_unconditional_return(hist,ev.get("baseline_date"),h)
-            uncond_adj=direction_adjusted_return(direction,unconditional)
+            raw_mae=old.get("mae");raw_mfe=old.get("mfe")
+            adj_mae,adj_mfe=direction_adjusted_excursions(direction,raw_mae,raw_mfe)
+            baseline=historical_unconditional_metrics(hist,ev.get("baseline_date"),h,direction)
+            uncond_adj=(baseline or {}).get("direction_adjusted_return")
             lift=None if adj is None or uncond_adj is None else adj-uncond_adj
             scores[str(h)]={
                 "raw_return":raw,
                 "direction_adjusted_return":adj,
                 "benchmark_return":old.get("benchmark_return"),
                 "excess_vs_qqq":old.get("excess_vs_qqq"),
-                "unconditional_baseline_return":unconditional,
+                "unconditional_baseline_direction_adjusted_return":uncond_adj,
+                "unconditional_baseline_direction_adjusted_mae":(baseline or {}).get("direction_adjusted_mae"),
+                "unconditional_baseline_n":(baseline or {}).get("n"),
                 "unconditional_lift":lift,
-                "mae":old.get("mae"),
-                "mfe":old.get("mfe"),
+                "mae":raw_mae,
+                "mfe":raw_mfe,
+                "direction_adjusted_mae":adj_mae,
+                "direction_adjusted_mfe":adj_mfe,
                 "legacy_alignment":(ev.get("alignment") or {}).get(str(h)),
             }
         rows.append({

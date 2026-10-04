@@ -1,7 +1,7 @@
 (function(global){
   'use strict';
   const $=id=>document.getElementById(id);
-  const state={publicData:null,evidenceData:null,systemStatus:null,plannerData:null,researchData:null,selfImproveData:null,learningEvalData:null,crossAssetData:null,breadthData:null,regimeData:null,lastRender:0};
+  const state={publicData:null,evidenceData:null,systemStatus:null,plannerData:null,researchData:null,selfImproveData:null,learningEvalData:null,crossAssetData:null,breadthData:null,regimeData:null,rangeData:null,lastRender:0};
   const MEMORY_KEY='mavAgentDecisionMemoryV562', LEGACY_MEMORY_KEY='mavAgentDecisionMemoryV56', POLICY_KEY='mavLearningPolicyV1';
 
   function n(v){const x=Number(v);return Number.isFinite(x)?x:null}
@@ -90,7 +90,7 @@
 
   async function loadPublic(){
     try{
-      const [a,e,s,h,p,x,v7,le,ca,bi,rg]=await Promise.all([
+      const [a,e,s,h,p,x,v7,le,ca,bi,rg,range]=await Promise.all([
         fetch('research/autonomous_agent.json?v='+Date.now(),{cache:'no-store'}),
         fetch('research/evidence_attribution.json?v='+Date.now(),{cache:'no-store'}),
         fetch('data/source_intelligence.json?v='+Date.now(),{cache:'no-store'}),
@@ -101,7 +101,8 @@
         fetch('research/learning_evaluation.json?v='+Date.now(),{cache:'no-store'}).catch(()=>null),
         fetch('research/cross_asset_divergence.json?v='+Date.now(),{cache:'no-store'}).catch(()=>null),
         fetch('research/breadth_intelligence.json?v='+Date.now(),{cache:'no-store'}).catch(()=>null),
-        fetch('research/regime_combination_memory.json?v='+Date.now(),{cache:'no-store'}).catch(()=>null)
+        fetch('research/regime_combination_memory.json?v='+Date.now(),{cache:'no-store'}).catch(()=>null),
+        fetch('research/range_intelligence.json?v='+Date.now(),{cache:'no-store'}).catch(()=>null)
       ]);
       state.publicData=a.ok?await a.json():null;
       state.evidenceData=e.ok?await e.json():null;
@@ -114,7 +115,18 @@
       state.crossAssetData=ca&&ca.ok?await ca.json():null;
       state.breadthData=bi&&bi.ok?await bi.json():null;
       state.regimeData=rg&&rg.ok?await rg.json():null;
-    }catch{state.publicData=null;state.evidenceData=null;state.sourceIntel=null;state.systemStatus=null;state.plannerData=null;state.researchData=null;state.selfImproveData=null;state.learningEvalData=null;state.crossAssetData=null;state.breadthData=null;state.regimeData=null}
+      state.rangeData=range&&range.ok?await range.json():null;
+    }catch{state.publicData=null;state.evidenceData=null;state.sourceIntel=null;state.systemStatus=null;state.plannerData=null;state.researchData=null;state.selfImproveData=null;state.learningEvalData=null;state.crossAssetData=null;state.breadthData=null;state.regimeData=null;state.rangeData=null}
+  }
+
+
+  function rangeIntelligenceHtml(){
+    const d=state.rangeData||{};if(!d.version||d.mode!=='research_only')return'';
+    const labels={RANGE_EXTENDED:'扩张区',RANGE_BALANCED:'均衡区',RANGE_PULLBACK:'回撤区',RANGE_STRESS:'压力区',UNDETERMINED:'数据不足'};
+    const cls={RANGE_EXTENDED:'review',RANGE_BALANCED:'watch',RANGE_PULLBACK:'review',RANGE_STRESS:'action',UNDETERMINED:'watch'};
+    const rows=(d.assets||[]);
+    return `<div class="agent-section-title"><b>V6.10b Range Intelligence · 区间研究</b><span>Research Only · 不写 Forward Ledger</span></div>
+      <div class="agent-grid">${rows.map(x=>`<article class="agent-card agent-${cls[x.state]||'watch'}"><div class="agent-card-head"><div><span>RANGE RESEARCH</span><h3>${esc(x.symbol)} · ${esc(labels[x.state]||x.state)}</h3></div><b>${esc(x.market_date||'—')}</b></div><div class="agent-metrics"><span>RSI ${num(x.metrics?.rsi14,1)}</span><span>回撤 ${pct(x.metrics?.drawdown,1)}</span><span>距200MA ${pct(x.metrics?.distance_200ma,1)}</span></div><p>${esc(x.decision_prompt||'')}</p><small>仅研究提示：不改变 CP-01/02/03，不生成仓位，不写 Trigger/Outcome Ledger。</small></article>`).join('')}</div>`;
   }
 
 
@@ -586,6 +598,7 @@
       ${crossAssetHtml()}
       ${breadthIntelligenceHtml()}
       ${regimeMemoryHtml()}
+      ${rangeIntelligenceHtml()}
       ${learningEvaluationHtml()}
       ${brainHtml()}
       ${systemStatusHtml()}\n      ${sourceIntelHtml()}

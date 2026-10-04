@@ -343,7 +343,11 @@ def main():
     out=build(load(SPEC,{}))
     OUT.parent.mkdir(parents=True,exist_ok=True)
     OUT.write_text(json.dumps(out,ensure_ascii=False,indent=2),encoding="utf-8")
-    print(json.dumps({"all_pass":out["all_pass"],"controls":{k:v["pass"] for k,v in out["controls"].items()}},ensure_ascii=False))
+    print(json.dumps({
+        "all_pass":out["all_pass"],
+        "controls":{k:v.get("pass") for k,v in out["controls"].items() if "pass" in v},
+        "power_curve_points":len((out["controls"].get("power_curve") or {}).get("points") or []),
+    },ensure_ascii=False))
     return 0 if out["all_pass"] else 2
 
 if __name__=="__main__":

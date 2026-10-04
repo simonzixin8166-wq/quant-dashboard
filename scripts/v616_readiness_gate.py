@@ -5,8 +5,11 @@ import json
 from collections import defaultdict
 from datetime import datetime,timezone
 from pathlib import Path
+import sys
 
 ROOT=Path(__file__).resolve().parents[1]
+sys.path.insert(0,str(ROOT/"scripts"))
+from v615_dependence_clusters import overlap_connected_clusters,assert_non_overlapping
 SPEC=ROOT/"research"/"specs"/"v616_readiness_spec.json"
 EVENTS=ROOT/"research"/"events"/"event_scores_v1.json"
 FAMILIES=ROOT/"research"/"registry"/"rule_families.json"
@@ -15,7 +18,7 @@ CONTROLS=ROOT/"research"/"reports"/"statistical_controls.json"
 BOUNDARY=ROOT/"research"/"audit"/"step_boundary_log.json"
 COMPONENTS=ROOT/"research"/"component_manifest.json"
 OUT=ROOT/"research"/"reports"/"v616_readiness_gate.json"
-VERSION="6.15.8d"
+VERSION="6.15.8e"
 
 def load(p,d):
     try:return json.loads(p.read_text(encoding="utf-8"))
@@ -47,35 +50,27 @@ def clean_boundary_runs(boundary):
     span=(max(dated)-min(dated)).days if len(dated)>=2 else 0
     return {"count":len(clean_rows),"span_days":span}
 
-def _week_index(day):
-    try:
-        import pandas as pd
-        ts=pd.Timestamp(str(day)[:10])
-        monday=ts-pd.Timedelta(days=int(ts.weekday()))
-        return int(monday.toordinal()//7)
-    except Exception:return None
-
-def _horizon_block(day,weeks):
-    wi=_week_index(day)
-    return None if wi is None else wi//max(1,int(weeks))
-
 def mature_counts(events,families):
     r2f=family_map(families)
-    block_weeks={"20":4,"60":12}
     units={"20":set(),"60":set()}
     fams={"20":set(),"60":set()}
-    for e in events.get("events") or []:
-        if not e.get("scoreable") or e.get("point_in_time_status")!="eligible":
-            continue
-        fid=r2f.get(e.get("rule_id"))
-        if not fid:continue
-        sym=str(e.get("symbol") or "unknown")
-        for h in ("20","60"):
-            if (e.get("scores") or {}).get(h):
-                blk=_horizon_block(e.get("baseline_date"),block_weeks[h])
-                if blk is not None:
-                    units[h].add((sym,blk))
-                    fams[h].add(fid)
+    eligible=[
+        e for e in (events.get("events") or [])
+        if e.get("scoreable") and e.get("point_in_time_status")=="eligible" and r2f.get(e.get("rule_id"))
+    ]
+    for h in ("20","60"):
+        cluster_map,meta=overlap_connected_clusters(eligible,int(h),require_lift=False)
+        if not assert_non_overlapping(meta):
+            raise AssertionError(f"readiness clusters overlap for horizon {h}")
+        for e in eligible:
+            if not (e.get("scores") or {}).get(h):
+                continue
+            cluster=cluster_map.get(str(e.get("event_id") or ""))
+            if cluster is None:
+                continue
+            sym=str(e.get("symbol") or "unknown")
+            units[h].add((sym,cluster))
+            fams[h].add(r2f.get(e.get("rule_id")))
     return {
         "mature_20_effective_units":len(units["20"]),
         "mature_60_effective_units":len(units["60"]),
@@ -126,6 +121,7 @@ def build(spec,events,families,source,controls,boundary,components):
         "blockers":blockers,
         "guardrails":[
             "This gate measures pipeline readiness only; it does not validate investment effectiveness.",
+            "Maturity uses the same overlap-connected realized-horizon clusters as Family Scorecards.",
             "No Promotion Gate pass is required.",
             "Passing this gate authorizes only a review of whether to begin V6.16."
         ],

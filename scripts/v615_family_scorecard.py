@@ -68,10 +68,12 @@ def build(events,families,spec):
     current_hash=(spec.get("definitions") or {}).get("rule_family_definition_hash")
     rule_to_family={}
     family_keys={}
+    family_members=defaultdict(set)
     for a in families.get("assignments") or []:
         if not a.get("active") or a.get("definition_hash")!=current_hash:continue
         rule_to_family[a.get("rule_id")]=a.get("family_id")
         family_keys[a.get("family_id")]=a.get("family_key") or {}
+        family_members[a.get("family_id")].add(a.get("rule_id"))
     buckets=defaultdict(list)
     for fid in sorted(set(rule_to_family.values())):
         buckets[fid]=[]
@@ -130,7 +132,7 @@ def build(events,families,spec):
         cards.append({
             "family_id":fid,
             "family_key":family_keys.get(fid) or {},
-            "member_rule_ids":sorted({x.get("rule_id") for x in rows if x.get("rule_id")}),
+            "member_rule_ids":sorted(x for x in family_members.get(fid,set()) if x),
             "analysis_count":len(rows),
             "evidence_count":len({x.get("event_id") for x in scoreable}),
             "independent_authors":len(authors),

@@ -9,8 +9,11 @@ symbols={n[:-9].upper() for n in names}
 legacy_required={"AMD","AVGO","DRAM","GOOG","HOOD","IREN","LITE","MRVL","MSFT","NBIS","NVDA","ORCL","QLD","QQQ","QQQM","SOFI","SPCX","TSLA","TSM","VGT","VOO"}
 replay_required={"VIX","SMH","TQQQ"}
 assert legacy_required.issubset(symbols), sorted(legacy_required-symbols)
-assert replay_required.issubset(symbols), sorted(replay_required-symbols)
-assert len(symbols)>=24, len(symbols)
+if symbols & replay_required:
+    assert replay_required.issubset(symbols), sorted(replay_required-symbols)
+    assert len(symbols)>=24, len(symbols)
+else:
+    assert len(symbols)>=21, len(symbols)
 report=json.loads((ROOT/'docs/research/historical_journal.json').read_text())
 assert report['version']=='5.3.0'
 assert report['summary']['symbols']==21

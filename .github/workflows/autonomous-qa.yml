@@ -80,6 +80,7 @@ jobs:
           python tests/test_v613_challenger_experiments.py
           python tests/test_v6131_method_memory_attribution.py
           python tests/test_v6132_method_evidence_state_unification.py
+          python tests/test_v6133_method_learning_followup.py
       - name: Public static privacy guard
         run: |
           if grep -R -n -E '"(option_positions|private_positions|broker_account_id)"' docs/research docs/data.json 2>/dev/null; then

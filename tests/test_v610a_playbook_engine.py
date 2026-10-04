@@ -176,6 +176,7 @@ with tempfile.TemporaryDirectory() as td:
         writer=FakeWriter()
         status,_=pe.build(now=now,writer=writer)
         assert status["storage"]["forward_clock_active"] is True
+        assert status["stabilization"]=={"start_market_date":"2026-10-02","completed_sessions":1,"target_sessions":10,"complete":False}
         # Existing current states become baseline; no fake trigger event is created.
         first_trigger_records=[x for stream,records,_ in writer.calls if stream=="trigger" for x in records]
         assert first_trigger_records==[]
@@ -196,6 +197,31 @@ with tempfile.TemporaryDirectory() as td:
         events=[x for stream,records,_ in writer3.calls if stream=="trigger" for x in records]
         vgt=[x for x in events if x.get("entity_key")=="CP-01:VGT"]
         assert len(vgt)==1 and vgt[0]["state"]=="TRIGGERED" and vgt[0]["scoreable"] is True
+    finally:
+        pe.DATA,pe.HISTORY,pe.STATUS_OUT,pe.ANCHOR_OUT=old
+
+
+
+# --- Legacy CP-01 hash correction must never masquerade as a Forward trigger ---
+with tempfile.TemporaryDirectory() as td:
+    td=Path(td)
+    old=(pe.DATA,pe.HISTORY,pe.STATUS_OUT,pe.ANCHOR_OUT)
+    try:
+        pe.DATA=td/"data.json";pe.HISTORY=td/"history.json";pe.STATUS_OUT=td/"status.json";pe.ANCHOR_OUT=td/"anchor.json"
+        pe.DATA.write_text(json.dumps(data),encoding="utf-8")
+        pe.HISTORY.write_text(json.dumps(history),encoding="utf-8")
+        legacy_rows=copy.deepcopy(pe.evaluate(data,history,now)[1])
+        for row in legacy_rows:
+            if row["playbook_id"]=="CP-01":
+                row["rule_hash"]=pe.LEGACY_CP01_HASH
+            row["committed_state_key"]=row["state_key"]
+        pe.STATUS_OUT.write_text(json.dumps({"storage":{"forward_clock_active":True},"playbooks":legacy_rows}),encoding="utf-8")
+        writer=FakeWriter()
+        pe.build(now=now,writer=writer)
+        triggers=[x for stream,records,_ in writer.calls if stream=="trigger" for x in records]
+        corrections=[x for stream,records,_ in writer.calls if stream=="correction" for x in records]
+        assert triggers==[]
+        assert any(x.get("kind")=="rule_hash_canonicalization_correction" and x.get("semantic_change") is False for x in corrections)
     finally:
         pe.DATA,pe.HISTORY,pe.STATUS_OUT,pe.ANCHOR_OUT=old
 

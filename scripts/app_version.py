@@ -20,6 +20,7 @@ COMPONENT_VERSIONS = {
     "learning_evaluation": "6.9.0",
     "system_status": "4",
     "playbook_engine": "6.10a.0",
+    "playbook_outcome_foundation": "6.11.0-shadow",
     "trigger_ledger_schema": "1.0",
     "market_location_research": "6.10b.1",
     "public_leak_guard": "6.10b.1",

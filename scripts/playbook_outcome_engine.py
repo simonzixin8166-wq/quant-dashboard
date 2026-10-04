@@ -26,7 +26,7 @@ ROOT=Path(__file__).resolve().parents[1]
 CONFIG=ROOT/"config"/"playbook_outcomes.json"
 OUT=ROOT/"docs"/"research"/"playbook_outcome_shadow.json"
 PLAYBOOK_STATUS=ROOT/"docs"/"research"/"playbook_status.json"
-VERSION="6.11.0-shadow"
+VERSION="6.12.1-shadow"
 
 def load(path, default=None):
     try:return json.loads(path.read_text(encoding="utf-8"))
@@ -163,29 +163,56 @@ def aggregate(scored, horizons):
     by_playbook={}
     for row in scored:
         pid=row.get("playbook_id") or "UNKNOWN"
+        detail=row.get("state_detail") or "unknown"
         slot=by_playbook.setdefault(pid,{
             "trigger_records":0,
             "baseline_pass":0,
             "baseline_mismatch":0,
             "history_or_definition_missing":0,
+            "late_detected":0,
+            "timing_uncertain":0,
             "horizons":{str(h):{"mature":0,"aligned":0,"not_aligned":0,"pending":0} for h in horizons},
             "objective_groups":{},
+            "by_state_detail":{},
         })
         slot["trigger_records"]+=1
+        if row.get("late_detected"):slot["late_detected"]+=1
+        if row.get("timing_uncertain"):slot["timing_uncertain"]+=1
         check=row.get("baseline_check")
         if check=="pass":slot["baseline_pass"]+=1
         elif check=="baseline_mismatch":slot["baseline_mismatch"]+=1
         else:slot["history_or_definition_missing"]+=1
         group=row.get("objective_group")
         if group:slot["objective_groups"][group]=slot["objective_groups"].get(group,0)+1
+
+        detail_slot=slot["by_state_detail"].setdefault(detail,{
+            "trigger_records":0,
+            "late_detected":0,
+            "timing_uncertain":0,
+            "baseline_mismatch":0,
+            "horizons":{str(h):{"mature":0,"aligned":0,"not_aligned":0,"pending":0} for h in horizons},
+        })
+        detail_slot["trigger_records"]+=1
+        if row.get("late_detected"):detail_slot["late_detected"]+=1
+        if row.get("timing_uncertain"):detail_slot["timing_uncertain"]+=1
+        if check=="baseline_mismatch":detail_slot["baseline_mismatch"]+=1
+
         for h in horizons:
             out=(row.get("outcomes") or {}).get(str(h))
             hs=slot["horizons"][str(h)]
-            if not out:hs["pending"]+=1
+            dhs=detail_slot["horizons"][str(h)]
+            if not out:
+                hs["pending"]+=1
+                dhs["pending"]+=1
             else:
                 hs["mature"]+=1
-                if out.get("aligned"):hs["aligned"]+=1
-                else:hs["not_aligned"]+=1
+                dhs["mature"]+=1
+                if out.get("aligned"):
+                    hs["aligned"]+=1
+                    dhs["aligned"]+=1
+                else:
+                    hs["not_aligned"]+=1
+                    dhs["not_aligned"]+=1
     return by_playbook
 
 def build(writer=None, store=None, market_date=None, now=None):
@@ -207,7 +234,12 @@ def build(writer=None, store=None, market_date=None, now=None):
         and x.get("scoreable") is True
         and x.get("evidence_provenance")=="forward_out_of_sample"
     ]
-    scored=[score_event(x,defs.get(x.get("playbook_id")) or {},store,horizons,tolerance) for x in eligible]
+    scored=[]
+    for x in eligible:
+        row=score_event(x,defs.get(x.get("playbook_id")) or {},store,horizons,tolerance)
+        row["late_detected"]=bool(x.get("late_detected"))
+        row["timing_uncertain"]=bool(x.get("timing_uncertain"))
+        scored.append(row)
     summary=aggregate(scored,horizons)
     mature_total={str(h):sum((x.get("horizons") or {}).get(str(h),{}).get("mature",0) for x in summary.values()) for h in horizons}
     pending_total={str(h):sum((x.get("horizons") or {}).get(str(h),{}).get("pending",0) for x in summary.values()) for h in horizons}

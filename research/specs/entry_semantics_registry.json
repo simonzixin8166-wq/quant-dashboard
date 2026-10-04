@@ -1,0 +1,50 @@
+{
+  "registry_version": "1.0",
+  "status": "frozen_v6158b",
+  "semantics": {
+    "next_session": {
+      "baseline_kinds": ["next_session"],
+      "trigger_rule": "next completed market session",
+      "fill_model": "simulated_next_session_open",
+      "default_fill_status": "simulated_fill",
+      "fill_confidence": "high",
+      "scoreable_if_other_guards_pass": true
+    },
+    "breakout": {
+      "condition_keywords": ["breakout", "突破", "站上", "above resistance", "break above", "new high"],
+      "trigger_rule": "daily high reaches or exceeds the explicitly stated breakout level after publication",
+      "fill_model": "simulated_touch_fill",
+      "default_fill_status": "simulated_touch_fill",
+      "fill_confidence": "medium",
+      "scoreable_if_other_guards_pass": true
+    },
+    "pullback_limit": {
+      "condition_keywords": ["pullback", "回调", "回踩", "跌到", "below", "limit", "support"],
+      "trigger_rule": "daily low reaches or falls below the explicitly stated limit level after publication",
+      "fill_model": "simulated_touch_fill",
+      "default_fill_status": "simulated_touch_fill",
+      "fill_confidence": "medium",
+      "scoreable_if_other_guards_pass": true
+    },
+    "conditional": {
+      "baseline_kinds": ["entry_below"],
+      "trigger_rule": "explicit structured condition must be satisfied",
+      "fill_model": "simulated_conditional_fill",
+      "default_fill_status": "conditional",
+      "fill_confidence": "medium",
+      "scoreable_if_other_guards_pass": true
+    },
+    "unknown": {
+      "trigger_rule": "not inferable from frozen structured evidence",
+      "fill_model": "none",
+      "default_fill_status": "unknown",
+      "fill_confidence": "none",
+      "scoreable_if_other_guards_pass": false
+    }
+  },
+  "guardrails": [
+    "Entry semantics cannot be inferred from realized future price performance.",
+    "A daily-bar touch is a simulated rule fill, never evidence that the author actually received an execution.",
+    "Unknown entry semantics remain non-scoreable."
+  ]
+}

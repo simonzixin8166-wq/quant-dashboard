@@ -1,27 +1,50 @@
 {
-  "spec_version": "1.0",
+  "spec_version": "1.1",
+  "previous_spec_version": "1.0",
   "status": "provisional_frozen",
   "frozen_at": "2026-10-04",
+  "change_reason": "Correct the evaluation unit before any family-level promotion result exists; add frozen multiplicity, clustering and entry-semantics definitions without changing numeric promotion thresholds.",
   "definitions": {
     "direction_adjusted_return": "direction_sign * raw_return",
     "primary_metric": "unconditional_lift_vs_same_symbol_same_horizon",
     "secondary_metric": "excess_vs_qqq",
     "horizons_trading_days": [5, 20, 60],
     "feature_cutoff": "strictly_before_decision_timestamp; daily market context uses prior completed close",
-    "overlap_policy": "cluster overlapping same-rule same-symbol events before effective sample counting",
     "hit_rate_role": "auxiliary_only_with_confidence_interval",
-    "entry_semantics": {
-      "pullback_limit": "trigger when low <= level after publication",
-      "breakout": "trigger when high >= level after publication",
-      "conditional": "trigger only when explicit condition is satisfied",
-      "next_session": "use next-session open only when no better timestamp/entry semantics exist",
-      "unknown": "not scoreable"
+    "promotion_unit": "rule_family",
+    "rule_instance_role": "immutable_provenance_atom_only",
+    "rule_family_definition_version": "1.0",
+    "rule_family_definition_hash": "92950167b926829b081ba7a870eed18d06684b4ad1b9da8d655b905ac82ac455",
+    "entry_semantics_registry_version": "1.0",
+    "clustering": {
+      "author_independence": "unique author count within each rule family",
+      "event_effective_unit": "author x symbol x ISO-week",
+      "bootstrap_block": "ISO-week; resample whole weeks so cross-symbol market correlation stays together",
+      "same_author_repeats_do_not_create_new_independent_authors": true
+    },
+    "multiple_testing": {
+      "hypothesis_family": "all testable rule_family x horizon combinations in one evaluation run",
+      "pvalue_method": "cluster sign-flip null on ISO-week block means",
+      "fdr_method": "Benjamini-Hochberg",
+      "fdr_q": 0.05,
+      "bootstrap_resamples": 2000,
+      "bootstrap_seed": 6158,
+      "minimum_time_clusters_for_testing": 6,
+      "below_minimum": "not_testable"
+    },
+    "mae_noninferiority": {
+      "v1_1_method": "point_estimate",
+      "pass_rule": "observed mean direction-adjusted MAE >= unconditional benchmark mean direction-adjusted MAE",
+      "future_change_requires_new_spec_version": true
     },
     "price_source_policy": {
-      "canonical": "STOOQ archive",
-      "cache_role": "gap_fill_only",
+      "tier_1": "STOOQ archive",
+      "tier_2": "disabled_pending_coverage_audit",
+      "cache_role": "context_or_gap_fill_only",
+      "same_event_mixed_source_tiers": false,
       "overlap_check": "required",
-      "conflict_policy": "mark invalid/conflict and do not score"
+      "conflict_policy": "mark invalid/conflict and do not score",
+      "fallback_selection_must_ignore_performance": true
     }
   },
   "thresholds": {
@@ -36,11 +59,17 @@
     "requires_new_spec_version": true,
     "requires_power_or_sample_size_analysis": true,
     "forbid_tuning_to_pass_named_methods": true,
-    "retain_legacy_results": true
+    "retain_legacy_results": true,
+    "family_membership_cannot_be_reassigned_in_place": true
+  },
+  "promotion_activation": {
+    "state": "shadow_until_v6158c_controls_pass",
+    "reason": "The statistical pipeline must pass synthetic positive, repeated negative and leakage-canary controls before family-level promotion can be treated as validated."
   },
   "guardrails": {
     "research_only": true,
     "automatic_ordering": false,
-    "production_mutation": false
+    "production_mutation": false,
+    "observational_events_are_descriptive_only": true
   }
 }

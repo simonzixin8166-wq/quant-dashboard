@@ -44,10 +44,9 @@ jobs:
         run: |
           if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
             python scripts/update_wenxuecity.py --mode "$INPUT_MODE" --force
-          elif [ "$SCHEDULE" = '20 22 * * *' ]; then
-            python scripts/update_wenxuecity.py --mode blog
           else
-            python scripts/update_wenxuecity.py --mode close
+            echo "This workflow is manual fallback only; primary source intake is wxc-bot -> state/research_feed.json."
+            exit 1
           fi
       - name: Preserve results and failure status
         id: commit

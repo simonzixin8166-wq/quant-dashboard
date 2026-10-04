@@ -49,7 +49,7 @@ source={
 }
 
 out=srm.build(source)
-assert out["version"]=="6.14.2"
+assert out["version"]=="6.14.6"
 assert out["mode"]=="research_only_free_first"
 assert out["counts"]["source_records"]==4
 assert out["counts"]["records_with_testable_rules"]==1
@@ -139,4 +139,4 @@ assert "module_failure_marker.py source_reading_memory" in workflow
 manifest=(ROOT/"scripts/generate_build_manifest.py").read_text(encoding="utf-8")
 assert "research/source_reading_memory.json" in manifest
 
-print("PASS V6.14.2 source reading propositions / explicit method attribution / no topic promotion / research-only")
+print("PASS V6.14.6 source reading propositions / explicit method attribution / six-way semantics / research-only")

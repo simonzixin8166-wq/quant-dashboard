@@ -34,7 +34,7 @@ function sourceReadingHtml(){
     <p>系统把已采集来源拆成事实、作者观点、触发条件、失效条件与可验证规则；只有结构足够明确的规则才进入后续结果验证。</p>
     <p><strong>来源 ${esc(c.source_records??0)}</strong> · 命题 ${esc(c.propositions??0)} · 可验证规则 ${esc(c.testable_rules??0)} · 含规则来源 ${esc(c.records_with_testable_rules??0)}</p>
     ${lifecycle}
-    <p class="kh-muted">Fact ${esc(k.fact??0)} · Trigger ${esc(k.trigger??0)} · Invalidation ${esc(k.invalidation??0)} · Author View ${esc(k.author_view??0)}。Sell Put 触及行权价只算基础标的上下文，不等于期权盈利。Research Only，不自动改变交易规则。</p>
+    <p class="kh-muted">Fact ${esc(k.fact??0)} · Author View ${esc(k.author_view??0)} · Trigger ${esc(k.trigger??0)} · Invalidation ${esc(k.invalidation??0)} · Testable Rule ${esc(k.testable_rule??0)} · Non-testable View ${esc(k.non_testable_view??0)}。Sell Put 触及行权价只算基础标的上下文，不等于期权盈利。Research Only，不自动改变交易规则。</p>
   </div>`;
 }
 async function loadSourceReading(){

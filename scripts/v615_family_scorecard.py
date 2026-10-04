@@ -73,6 +73,8 @@ def build(events,families,spec):
         rule_to_family[a.get("rule_id")]=a.get("family_id")
         family_keys[a.get("family_id")]=a.get("family_key") or {}
     buckets=defaultdict(list)
+    for fid in sorted(set(rule_to_family.values())):
+        buckets[fid]=[]
     for e in events.get("events") or []:
         fid=rule_to_family.get(e.get("rule_id"))
         if fid:buckets[fid].append(e)

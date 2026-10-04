@@ -8,7 +8,7 @@ from v616_readiness_gate import build
 def score(day,h,val):
     return {"raw_return":val,"horizon_end_date":(pd.Timestamp(day)+pd.tseries.offsets.BDay(h)).date().isoformat()}
 
-spec={"readiness_spec_version":"1.1","requirements":{
+spec={"readiness_spec_version":"1.2","requirements":{
  "statistical_controls_required":["positive_control","repeated_negative_control","leakage_canary"],
  "production_boundary_clean_workflow_runs_min":5,
  "production_boundary_clean_span_days_min":14,

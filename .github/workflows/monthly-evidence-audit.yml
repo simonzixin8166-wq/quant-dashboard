@@ -1,0 +1,72 @@
+name: Monthly Evidence Audit
+
+on:
+  workflow_dispatch: {}
+  schedule:
+    - cron: '30 22 1 * *'
+
+concurrency:
+  group: myalpha-production-writer
+  cancel-in-progress: false
+
+jobs:
+  compute:
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Boundary precheck
+        run: python scripts/research_boundary_guard.py
+      - name: Refresh component manifest
+        run: python scripts/run_research_step.py --name monthly_component_manifest -- python scripts/v615_component_manifest.py
+      - name: Refresh V6.16 readiness
+        run: python scripts/run_research_step.py --name monthly_v616_readiness -- python scripts/v616_readiness_gate.py
+      - name: Build monthly evidence audit
+        run: python scripts/run_research_step.py --name monthly_integrity_audit -- python scripts/v615_monthly_evidence_audit.py
+      - name: Final compute allowlist
+        run: python scripts/research_boundary_guard.py --assert-worktree-research-only
+      - name: Package monthly research artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: monthly-evidence-audit-output
+          path: research/
+          if-no-files-found: error
+          retention-days: 7
+
+  commit:
+    needs: compute
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Download monthly research artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: monthly-evidence-audit-output
+          path: research/
+      - name: Commit allowlist precheck
+        run: python scripts/research_boundary_guard.py --assert-worktree-research-only
+      - name: Commit monthly audit only
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add research/
+          python scripts/research_boundary_guard.py --assert-staged-research-only
+          git commit -m "Monthly evidence audit $(date -u +%Y-%m)" || echo "No monthly audit changes"
+          git pull --rebase origin main
+          python scripts/research_boundary_guard.py --assert-staged-research-only
+          git push origin HEAD:main

@@ -50,7 +50,7 @@ def month_keys(anchor_date, months_back=4):
 
 def read_private_records(writer, stream, market_date, months_back=4):
     if writer is None:return [],[]
-    records=[];problems=[]
+    records=[];problems=[];previous_head=None
     for month in month_keys(market_date,months_back):
         text,_=writer.read_text(f"ledger/{stream}/{month}.jsonl")
         rows=[]
@@ -61,11 +61,15 @@ def read_private_records(writer, stream, market_date, months_back=4):
                 problems.append(f"{stream}:{month}:invalid_json")
         if not rows:continue
         initial=rows[0].get("prev_hash") or ZERO_HASH
+        if previous_head is not None and initial!=previous_head:
+            problems.append(f"{stream}:{month}:cross_month_prev_hash_mismatch")
+            continue
         ok,meta=verify_records(rows,initial)
         if not ok:
             problems.append(f"{stream}:{month}:chain_{meta.get('reason')}")
             continue
         records.extend(rows)
+        previous_head=meta.get("head_hash")
     return records,problems
 
 def outcome_asset(event, definition):

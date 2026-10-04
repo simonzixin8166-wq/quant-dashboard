@@ -1,27 +1,33 @@
 {
-  "readiness_spec_version": "1.0",
+  "readiness_spec_version": "1.1",
   "status": "frozen_before_first_20d_maturity",
   "frozen_at": "2026-10-04",
   "purpose": "Operational readiness gate for starting V6.16 Situation Learning. This gate does not validate investment effectiveness and does not require any Promotion Gate pass.",
   "requirements": {
     "eventscore_conservation_required": true,
     "source_store_full_coverage_required": true,
-    "statistical_controls_required": ["positive_control", "repeated_negative_control", "leakage_canary"],
+    "statistical_controls_required": [
+      "positive_control",
+      "repeated_negative_control",
+      "leakage_canary"
+    ],
     "production_boundary_clean_workflow_runs_min": 5,
-    "point_in_time_mature_20_events_min": 12,
-    "point_in_time_mature_60_events_min": 6,
     "families_with_mature_20_min": 2,
     "families_with_mature_60_min": 1,
     "unresolved_integrity_blockers_max": 0,
-    "promotion_pass_required": false
+    "promotion_pass_required": false,
+    "point_in_time_mature_20_effective_units_min": 12,
+    "point_in_time_mature_60_effective_units_min": 6,
+    "production_boundary_clean_span_days_min": 14
   },
   "rationale": {
     "operational_not_effectiveness_gate": true,
-    "why_20d_12": "Enough distinct forward observations to prove repeated 20-day maturation across the real point-in-time pipeline without claiming statistical efficacy.",
-    "why_60d_6": "Enough real 60-day observations to prove that at least one complete long-horizon path can mature; this is intentionally below Promotion evidence requirements.",
+    "why_20d_12": "12 effective symbol×non-overlapping-20d-block units prove repeated medium-horizon maturation without claiming alpha efficacy.",
+    "why_60d_6": "6 effective symbol×non-overlapping-60d-block units prove repeated long-horizon maturation without claiming alpha efficacy.",
     "why_multiple_families": "Avoid declaring readiness from a single narrow rule family implementation path.",
     "expected_first_20d_window": "approximately early November 2026",
-    "expected_first_60d_window": "approximately late December 2026 to early January 2027"
+    "expected_first_60d_window": "approximately late December 2026 to early January 2027",
+    "effective_unit": "symbol x non-overlapping horizon block; author count is separate"
   },
   "power_reference": {
     "standardized_effect_d": 0.5,

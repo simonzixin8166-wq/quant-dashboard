@@ -5,7 +5,7 @@ This is diagnostic only. It never upgrades cache data into scoreable evidence an
 never chooses a fallback source based on performance.
 """
 from __future__ import annotations
-import csv, io, json, urllib.parse, urllib.request
+import csv, io, json, urllib.error, urllib.parse, urllib.request
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
@@ -18,7 +18,7 @@ sys.path.insert(0,str(ROOT/"scripts"))
 from local_history_agent import read_archive
 from source_history_cache import read_cache
 
-VERSION="6.15.8a"
+VERSION="6.15.8d"
 
 def load(path,default):
     try:return json.loads(path.read_text(encoding="utf-8"))
@@ -38,33 +38,48 @@ def probe_stooq(symbol,days=45,timeout=12):
     req=urllib.request.Request(url,headers={"User-Agent":"MyAlphaView/ResearchCoverageAudit"})
     try:
         with urllib.request.urlopen(req,timeout=timeout) as resp:
-            body=resp.read().decode("utf-8","replace")
+            raw=resp.read()
+            http_status=getattr(resp,"status",None)
+            headers={str(k).lower():str(v) for k,v in resp.headers.items()}
+        body=raw.decode("utf-8","replace")
         rows=list(csv.DictReader(io.StringIO(body)))
         valid=[r for r in rows if r.get("Date") and r.get("Close")]
+        meta={
+            "http_status":http_status,
+            "content_type":headers.get("content-type"),
+            "content_length_header":headers.get("content-length"),
+            "response_bytes":len(raw),
+            "response_prefix":body[:160].replace("\n","\\n").replace("\r","\\r"),
+            "symbol_mapping":stooq_symbol(symbol),
+        }
         if valid:
-            return {
-                "status":"available",
-                "rows":len(valid),
-                "from":valid[0].get("Date"),
-                "to":valid[-1].get("Date"),
-                "symbol_mapping":stooq_symbol(symbol),
-            }
-        return {"status":"no_valid_rows","rows":0,"symbol_mapping":stooq_symbol(symbol)}
+            return {"status":"available","rows":len(valid),"from":valid[0].get("Date"),"to":valid[-1].get("Date"),**meta}
+        return {"status":"no_valid_rows","rows":0,**meta}
+    except urllib.error.HTTPError as exc:
+        return {
+            "status":"access_failure","http_status":getattr(exc,"code",None),
+            "error":str(exc)[:180],"symbol_mapping":stooq_symbol(symbol),
+        }
     except Exception as exc:
-        return {"status":"temporary_probe_failure","error":str(exc)[:180],"symbol_mapping":stooq_symbol(symbol)}
+        return {"status":"access_failure","error":str(exc)[:180],"symbol_mapping":stooq_symbol(symbol)}
 
-def classify(local_present,cache_present,probe):
+def classify(local_present,cache_present,probe,control_probe=None):
     if local_present:
-        return "mapping_or_local_selection_bug"
+        return "universe_gap_or_local_selection_bug"
     if probe.get("status")=="available":
-        return "local_archive_provisioning_gap"
-    if probe.get("status")=="temporary_probe_failure":
-        return "temporary_probe_failure"
+        return "universe_gap"
+    if probe.get("status")=="access_failure":
+        return "access_failure"
+    if control_probe and control_probe.get("status")!="available":
+        return "access_or_format_failure"
+    if probe.get("status")=="no_valid_rows":
+        return "symbol_mapping_or_true_no_coverage_unresolved"
     if cache_present:
-        return "structural_or_symbol_mapping_unresolved"
+        return "unresolved"
     return "missing_everywhere_unresolved"
 
-def build(events,core,cache,probe_fn=probe_stooq):
+def build(events,core,cache,probe_fn=probe_stooq,control_symbol="AAPL"):
+    control_probe=probe_fn(control_symbol)
     candidates={}
     for ev in events.get("events") or []:
         if not ev.get("rule_id"):continue
@@ -89,7 +104,7 @@ def build(events,core,cache,probe_fn=probe_stooq):
             "local_stooq_archive_present":local_present,
             "cache_present":cache_present,
             "upstream_stooq_probe":probe,
-            "classification":classify(local_present,cache_present,probe),
+            "classification":classify(local_present,cache_present,probe,control_probe),
         })
     counts={}
     for row in rows:counts[row["classification"]]=counts.get(row["classification"],0)+1
@@ -97,9 +112,12 @@ def build(events,core,cache,probe_fn=probe_stooq):
         "version":VERSION,
         "generated_at":datetime.now(timezone.utc).isoformat(),
         "policy":"diagnostic_only_no_fallback_selection",
+        "control_symbol":control_symbol,
+        "control_probe":control_probe,
         "counts":{"symbols":len(rows),"events":sum(x["event_count"] for x in rows),"by_classification":counts},
         "symbols":rows,
         "guardrails":[
+            "A known-control symbol is probed in the same run; raw HTTP metadata and response prefix are retained for diagnosis.",
             "Absence from the local STOOQ watchlist archive does not imply absence from the STOOQ service.",
             "No fallback source is selected in this audit.",
             "Coverage/data-quality criteria may determine a future source policy; investment performance may not.",

@@ -10,16 +10,17 @@ import pandas as pd
 ROOT=Path(__file__).resolve().parents[1]
 SPEC=ROOT/"research"/"specs"/"evaluation_spec.json"
 OUT=ROOT/"research"/"reports"/"statistical_controls.json"
-VERSION="6.15.8c"
+VERSION="6.15.8d"
 
 sys.path.insert(0,str(ROOT/"scripts"))
 from v615_family_scorecard import build as build_family_scorecard
 from v615_promotion_gate import build as build_promotion
 from v615_event_score import adapt,historical_unconditional_metrics
 
-WEEK_DATES=["2026-01-05","2026-01-12","2026-01-19","2026-01-26","2026-02-02","2026-02-09","2026-02-16","2026-02-23"]
+BLOCK_DATES=["2026-01-05","2026-03-30","2026-06-22","2026-09-14","2026-12-07","2027-03-01","2027-05-24","2027-08-16"]
 RULES=["r1","r2","r3"]
 AUTHORS=["author-a","author-b","author-c"]
+SYMBOLS=["AAA","BBB","CCC"]
 FAMILY="synthetic-family"
 
 def load(p,d):
@@ -43,11 +44,11 @@ def synthetic_common(spec):
 
 def synthetic_events(lifts):
     events=[]
-    for wi,day in enumerate(WEEK_DATES):
-        for ai,(rid,author) in enumerate(zip(RULES,AUTHORS)):
+    for wi,day in enumerate(BLOCK_DATES):
+        for ai,(rid,author,symbol) in enumerate(zip(RULES,AUTHORS,SYMBOLS)):
             lift=float(lifts[wi])
             events.append({
-                "event_id":f"synthetic-{wi}-{ai}","rule_id":rid,"author":author,"symbol":"ABC",
+                "event_id":f"synthetic-{wi}-{ai}","rule_id":rid,"author":author,"symbol":symbol,
                 "baseline_date":day,"triggered":True,"scoreable":True,"direction":"bullish",
                 "data_quality":{"status":"ok"},
                 "scores":{"5":None,"20":None,"60":{
@@ -73,7 +74,7 @@ def full_pipeline_pass(events,spec):
     return bool(row.get("passed")),score,gate
 
 def positive_control(spec):
-    passed,score,gate=full_pipeline_pass(synthetic_events([0.02]*len(WEEK_DATES)),spec)
+    passed,score,gate=full_pipeline_pass(synthetic_events([0.02]*len(BLOCK_DATES)),spec)
     h60=score["cards"][0]["horizons"]["60"]
     return {
         "pass":passed,
@@ -82,31 +83,42 @@ def positive_control(spec):
         "ci_lower":(h60.get("lift_ci95") or {}).get("lower"),
         "fdr":h60.get("fdr"),
         "promotion_state":gate["results"][0].get("state"),
-        "expected":"known positive alpha is statistically detectable under an active test-only gate",
+        "hypotheses_declared":score.get("multiple_testing",{}).get("hypotheses_declared"),
+        "expected":"known positive alpha is statistically detectable using non-overlapping 60-day blocks under an active test-only gate",
     }
 
-def repeated_negative_control(spec,seeds=60,max_false_rate=0.10):
+def wilson_interval(successes,n,z=1.959963984540054):
+    if n<=0:return {"lower":None,"upper":None}
+    p=successes/n
+    denom=1+(z*z)/n
+    centre=(p+(z*z)/(2*n))/denom
+    half=(z*((p*(1-p)/n)+(z*z)/(4*n*n))**0.5)/denom
+    return {"lower":max(0.0,centre-half),"upper":min(1.0,centre+half)}
+
+def repeated_negative_control(spec,seeds=500,max_false_rate_upper=0.10):
     false_promotions=0
     details=[]
     for seed in range(seeds):
         rng=random.Random(100000+seed)
-        # One independent zero-mean shock per weekly block; all authors in the
-        # block share it, deliberately preserving market correlation.
-        lifts=[rng.gauss(0.0,0.02) for _ in WEEK_DATES]
+        # One zero-mean shock per non-overlapping 60-day block. All symbols in
+        # that block share the shock, preserving cross-sectional market dependence.
+        lifts=[rng.gauss(0.0,0.02) for _ in BLOCK_DATES]
         passed,score,_=full_pipeline_pass(synthetic_events(lifts),spec)
         if passed:false_promotions+=1
         if seed<10:
             h=score["cards"][0]["horizons"]["60"]
             details.append({"seed":seed,"passed":passed,"mean":h.get("unconditional_lift_mean"),"fdr":h.get("fdr")})
     rate=false_promotions/seeds
+    interval=wilson_interval(false_promotions,seeds)
     return {
-        "pass":rate<=max_false_rate,
+        "pass":interval["upper"]<=max_false_rate_upper,
         "seeds":seeds,
         "false_promotions":false_promotions,
         "false_promotion_rate":rate,
-        "maximum_allowed_rate":max_false_rate,
+        "wilson95":interval,
+        "maximum_allowed_wilson_upper":max_false_rate_upper,
         "sample":details,
-        "expected":"repeated zero-alpha simulations remain below the predeclared false-promotion ceiling",
+        "expected":"under zero alpha, the Wilson 95% upper bound of false promotion stays below the predeclared ceiling",
     }
 
 def leakage_canary(spec):
@@ -163,7 +175,7 @@ def build(spec):
         "guardrails":[
             "Synthetic controls never alter production rules or real evidence.",
             "The positive control tests detectability, not investment validity.",
-            "The repeated negative control is deterministic across fixed seeds.",
+            "The repeated negative control uses at least 500 deterministic seeds and passes only when the Wilson 95% upper bound is below the predeclared ceiling.",
             "The leakage canary must fail closed on post-decision or pre-ingest information."
         ],
     }

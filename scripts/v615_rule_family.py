@@ -11,7 +11,7 @@ RULES=ROOT/"research"/"registry"/"rules.json"
 SPEC=ROOT/"research"/"specs"/"evaluation_spec.json"
 DEF=ROOT/"research"/"specs"/"rule_family_definition.json"
 OUT=ROOT/"research"/"registry"/"rule_families.json"
-VERSION="6.15.8b"
+VERSION="6.15.8d"
 
 sys.path.insert(0,str(ROOT/"scripts"))
 from entry_semantics import classify_rule
@@ -32,6 +32,8 @@ def verify_definition(defn):
     # definition_hash was frozen over the core definition fields only.
     core={
       "definition_version":defn.get("definition_version"),
+      "normalizer_version":defn.get("normalizer_version"),
+      "extractor_version":defn.get("extractor_version"),
       "immutable_dimensions":defn.get("immutable_dimensions"),
       "rule_template":defn.get("rule_template"),
       "condition_classes":defn.get("condition_classes"),

@@ -13,6 +13,31 @@ RESEARCH_READ_MARKERS=(
 )
 PRODUCTION_MODULES=("scripts/playbook_engine.py","scripts/fetch_and_build.py","scripts/private_ledger.py")
 MANIFEST=ROOT/"research"/"specs"/"production_boundary_manifest.json"
+EVIDENCE_LOCK=ROOT/"config"/"research_evidence_lock.json"
+EVALUATION_SPEC=ROOT/"research"/"specs"/"evaluation_spec.json"
+FAMILY_DEF=ROOT/"research"/"specs"/"rule_family_definition.json"
+
+def git_blob_sha1(path):
+    raw=path.read_bytes()
+    header=f"blob {len(raw)}\0".encode("utf-8")
+    return hashlib.sha1(header+raw).hexdigest()
+
+def check_evidence_lock():
+    lock=json.loads(EVIDENCE_LOCK.read_text(encoding="utf-8"))
+    problems=[]
+    if git_blob_sha1(EVALUATION_SPEC)!=lock.get("evaluation_spec_git_blob_sha1"):
+        problems.append("evaluation_spec_hash_mismatch")
+    if git_blob_sha1(FAMILY_DEF)!=lock.get("rule_family_definition_git_blob_sha1"):
+        problems.append("rule_family_definition_hash_mismatch")
+    spec=json.loads(EVALUATION_SPEC.read_text(encoding="utf-8"))
+    fam=json.loads(FAMILY_DEF.read_text(encoding="utf-8"))
+    if spec.get("spec_version")!=lock.get("evaluation_spec_version"):
+        problems.append("evaluation_spec_version_mismatch")
+    if fam.get("definition_version")!=lock.get("rule_family_definition_version"):
+        problems.append("rule_family_definition_version_mismatch")
+    if fam.get("definition_hash")!=lock.get("rule_family_semantic_definition_hash"):
+        problems.append("rule_family_semantic_hash_mismatch")
+    return problems
 
 def sha(path):
     p=ROOT/path
@@ -145,6 +170,10 @@ def main():
         return assert_allowed(git_worktree_paths(),label="worktree_research_only")
     if "--assert-staged-research-only" in sys.argv:
         return assert_allowed(git_staged_paths(),label="staged_research_only")
+    lock_problems=check_evidence_lock()
+    if lock_problems:
+        print(json.dumps({"ok":False,"evidence_lock_violations":lock_problems},ensure_ascii=False,indent=2))
+        return 6
     missing=check_manifest_completeness()
     if missing:
         print(json.dumps({"ok":False,"manifest_missing_required_coverage":missing},ensure_ascii=False,indent=2))

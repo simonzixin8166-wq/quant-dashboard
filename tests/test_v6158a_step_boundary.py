@@ -2,9 +2,10 @@ import json,sys,tempfile
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/"scripts"))
-from research_boundary_guard import snapshot,check_manifest_completeness,check_allowed_paths
+from research_boundary_guard import snapshot,check_manifest_completeness,check_allowed_paths,check_evidence_lock
 
 assert check_manifest_completeness()==[]
+assert check_evidence_lock()==[]
 snap=snapshot()
 assert snap["manifest_version"]=="1.0"
 files=snap["files"]
@@ -17,6 +18,7 @@ assert "docs/research/ledger_anchor.json" in files
 # Negative write injection must be rejected by the allowlist.
 assert check_allowed_paths(["research/audit/x.json"])==[]
 assert check_allowed_paths(["docs/data/injected.json"])==["docs/data/injected.json"]
+assert check_allowed_paths(["config/research_evidence_lock.json"])==["config/research_evidence_lock.json"]
 
 workflow=(ROOT/".github/workflows/research-evidence-update.yml").read_text(encoding="utf-8")
 assert "permissions:\n      contents: read" in workflow

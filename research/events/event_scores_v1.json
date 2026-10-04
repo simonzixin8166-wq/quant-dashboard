@@ -1,17 +1,19 @@
 {
-  "version": "6.15.2",
-  "generated_at": "2026-10-04T12:03:18.629590+00:00",
+  "version": "6.15.8a",
+  "generated_at": "2026-10-04T12:11:15.707569+00:00",
   "spec_version": "1.0",
   "mode": "research_only_adapter",
   "counts": {
     "events": 47,
     "scoreable": 0,
-    "excluded": {
+    "primary_exclusion": {
+      "cache_only_unscored": 3,
+      "missing_rule_id": 29,
       "unknown_entry_semantics": 11,
-      "option_unscored": 0,
-      "missing_rule": 29,
-      "price_conflict": 0
-    }
+      "unsupported_direction": 2,
+      "not_triggered": 2
+    },
+    "conservation_ok": true
   },
   "events": [
     {
@@ -28,7 +30,14 @@
       "direction": "bullish",
       "triggered": true,
       "scoreable": false,
-      "exclusion_reasons": [],
+      "primary_exclusion_reason": "cache_only_unscored",
+      "secondary_exclusion_reasons": [
+        "non_point_in_time_source"
+      ],
+      "exclusion_reasons": [
+        "cache_only_unscored",
+        "non_point_in_time_source"
+      ],
       "maturity": {
         "5": true,
         "20": false,
@@ -58,6 +67,14 @@
         "source": "cache",
         "price_series_hash": "c47fc7c6167667ce0222c9a52f97b0faabdb48985a28a3b02ef0d4aaf0766d5c"
       },
+      "source_provenance": {
+        "first_fetched_at": "2026-10-04T11:37:19.980145+00:00",
+        "ingest_type": "initial_migration",
+        "published_at_semantics": "upstream_published_at_unverified",
+        "timestamp_confidence": "unverified",
+        "snapshot_hash": "b32ff3bea35c174102427e0df1f4fbe548306cd72605ea17abd5b05bede5641b"
+      },
+      "point_in_time_status": "historical_pre_ingest",
       "market_timestamp_cutoff": "strictly_before_baseline_date"
     },
     {
@@ -74,7 +91,14 @@
       "direction": "bullish",
       "triggered": true,
       "scoreable": false,
-      "exclusion_reasons": [],
+      "primary_exclusion_reason": "cache_only_unscored",
+      "secondary_exclusion_reasons": [
+        "non_point_in_time_source"
+      ],
+      "exclusion_reasons": [
+        "cache_only_unscored",
+        "non_point_in_time_source"
+      ],
       "maturity": {
         "5": true,
         "20": false,
@@ -104,6 +128,14 @@
         "source": "cache",
         "price_series_hash": "88b0a00cce62315fea5eff552140c755ff594d9bc6fb3331aba737f6a335bd6a"
       },
+      "source_provenance": {
+        "first_fetched_at": "2026-10-04T11:37:19.980145+00:00",
+        "ingest_type": "initial_migration",
+        "published_at_semantics": "source_archive_publication_date",
+        "timestamp_confidence": "high",
+        "snapshot_hash": "50efdc71aa873acf6257f75ba47b8bc3b78039facce2fb6be984eefa7e315043"
+      },
+      "point_in_time_status": "historical_pre_ingest",
       "market_timestamp_cutoff": "strictly_before_baseline_date"
     },
     {
@@ -120,8 +152,13 @@
       "direction": "bullish",
       "triggered": true,
       "scoreable": false,
+      "primary_exclusion_reason": "missing_rule_id",
+      "secondary_exclusion_reasons": [
+        "non_point_in_time_source"
+      ],
       "exclusion_reasons": [
-        "missing_rule_id"
+        "missing_rule_id",
+        "non_point_in_time_source"
       ],
       "maturity": {
         "5": true,
@@ -153,6 +190,14 @@
         "price_series_hash": "ea60c2b2f0f6aa68958890c3991aedfab620d8bbdbb309cd0864bcc82a3e4106",
         "overlap_conflicts": []
       },
+      "source_provenance": {
+        "first_fetched_at": "2026-10-04T11:37:19.980145+00:00",
+        "ingest_type": "initial_migration",
+        "published_at_semantics": "upstream_published_at_unverified",
+        "timestamp_confidence": "unverified",
+        "snapshot_hash": "ae9fe512f29f9c56a2819de4f4dc9efd048d86277eac65adfd006eece00d5794"
+      },
+      "point_in_time_status": "historical_pre_ingest",
       "market_timestamp_cutoff": "strictly_before_baseline_date"
     },
     {
@@ -169,8 +214,15 @@
       "direction": "bullish",
       "triggered": true,
       "scoreable": false,
+      "primary_exclusion_reason": "missing_rule_id",
+      "secondary_exclusion_reasons": [
+        "cache_only_unscored",
+        "non_point_in_time_source"
+      ],
       "exclusion_reasons": [
-        "missing_rule_id"
+        "missing_rule_id",
+        "cache_only_unscored",
+        "non_point_in_time_source"
       ],
       "maturity": {
         "5": true,
@@ -201,6 +253,14 @@
         "source": "cache",
         "price_series_hash": "4e6e88f416ca5dfa567dc6ec680b7fd30bdccf883b0ba7028c115145078f1b7c"
       },
+      "source_provenance": {
+        "first_fetched_at": "2026-10-04T11:37:19.980145+00:00",
+        "ingest_type": "initial_migration",
+        "published_at_semantics": "upstream_published_at_unverified",
+        "timestamp_confidence": "unverified",
+        "snapshot_hash": "ae9fe512f29f9c56a2819de4f4dc9efd048d86277eac65adfd006eece00d5794"
+      },
+      "point_in_time_status": "historical_pre_ingest",
       "market_timestamp_cutoff": "strictly_before_baseline_date"
     },
     {
@@ -217,7 +277,14 @@
       "direction": "bullish",
       "triggered": true,
       "scoreable": false,
-      "exclusion_reasons": [],
+      "primary_exclusion_reason": "cache_only_unscored",
+      "secondary_exclusion_reasons": [
+        "non_point_in_time_source"
+      ],
+      "exclusion_reasons": [
+        "cache_only_unscored",
+        "non_point_in_time_source"
+      ],
       "maturity": {
         "5": true,
         "20": true,
@@ -261,6 +328,14 @@
         "source": "cache",
         "price_series_hash": "10eaed50f213b8bc9b115d373671aff1c4f04b167ff46df2651a3e9c9afec624"
       },
+      "source_provenance": {
+        "first_fetched_at": "2026-10-04T11:37:19.980145+00:00",
+        "ingest_type": "initial_migration",
+        "published_at_semantics": "source_archive_publication_date",
+        "timestamp_confidence": "high",
+        "snapshot_hash": "5c1eac4da6176234bf5de29214d6c7a9f62e55fe542eded6e96987b4a17a6558"
+      },
+      "point_in_time_status": "historical_pre_ingest",
       "market_timestamp_cutoff": "strictly_before_baseline_date"
     },
     {
@@ -277,9 +352,17 @@
       "direction": "bullish",
       "triggered": false,
       "scoreable": false,
+      "primary_exclusion_reason": "unknown_entry_semantics",
+      "secondary_exclusion_reasons": [
+        "not_triggered",
+        "cache_only_unscored",
+        "timestamp_provenance_unknown"
+      ],
       "exclusion_reasons": [
         "not_triggered",
-        "unknown_entry_semantics"
+        "unknown_entry_semantics",
+        "cache_only_unscored",
+        "timestamp_provenance_unknown"
       ],
       "maturity": {
         "5": false,
@@ -296,6 +379,14 @@
         "source": "cache",
         "price_series_hash": "29ab7fe2ec45482ac45b03f37f968e9d0675933138149d1bd6bef8eefc909674"
       },
+      "source_provenance": {
+        "first_fetched_at": "2026-10-04T11:37:19.980145+00:00",
+        "ingest_type": "initial_migration",
+        "published_at_semantics": "source_archive_publication_date",
+        "timestamp_confidence": "high",
+        "snapshot_hash": "d58768ccbc73662305815e9f124a7b6975de64215e9e1838900e7fdc0d0159fb"
+      },
+      "point_in_time_status": "unknown",
       "market_timestamp_cutoff": "strictly_before_baseline_date"
     },
     {
@@ -312,7 +403,14 @@
       "direction": "unknown",
       "triggered": true,
       "scoreable": false,
-      "exclusion_reasons": [],
+      "primary_exclusion_reason": "unsupported_direction",
+      "secondary_exclusion_reasons": [
+        "non_point_in_time_source"
+      ],
+      "exclusion_reasons": [
+        "unsupported_direction",
+        "non_point_in_time_source"
+      ],
       "maturity": {
         "5": true,
         "20": true,
@@ -357,6 +455,14 @@
         "price_series_hash": "c852d25a53099e307651ec26bcadf55fd21736c0db111e94888eac56b54ca8ec",
         "overlap_conflicts": []
       },
+      "source_provenance": {
+        "first_fetched_at": "2026-10-04T11:37:19.980145+00:00",
+        "ingest_type": "initial_migration",
+        "published_at_semantics": "source_archive_publication_date",
+        "timestamp_confidence": "high",
+        "snapshot_hash": "d58768ccbc73662305815e9f124a7b6975de64215e9e1838900e7fdc0d0159fb"
+      },
+      "point_in_time_status": "historical_pre_ingest",
       "market_timestamp_cutoff": "strictly_before_baseline_date"
     },
     {
@@ -373,9 +479,15 @@
       "direction": "bullish",
       "triggered": false,
       "scoreable": false,
+      "primary_exclusion_reason": "unknown_entry_semantics",
+      "secondary_exclusion_reasons": [
+        "not_triggered",
+        "timestamp_provenance_unknown"
+      ],
       "exclusion_reasons": [
         "not_triggered",
-        "unknown_entry_semantics"
+        "unknown_entry_semantics",
+        "timestamp_provenance_unknown"
       ],
       "maturity": {
         "5": false,
@@ -393,6 +505,14 @@
         "price_series_hash": "c852d25a53099e307651ec26bcadf55fd21736c0db111e94888eac56b54ca8ec",
         "overlap_conflicts": []
       },
+      "source_provenance": {
+        "first_fetched_at": "2026-10-04T11:37:19.980145+00:00",
+        "ingest_type": "initial_migration",
+        "published_at_semantics": "source_archive_publication_date",
+        "timestamp_confidence": "high",
+        "snapshot_hash": "d58768ccbc73662305815e9f124a7b6975de64215e9e1838900e7fdc0d0159fb"
+      },
+      "point_in_time_status": "unknown",
       "market_timestamp_cutoff": "strictly_before_baseline_date"
     },
     {
@@ -409,9 +529,15 @@
       "direction": "bullish",
       "triggered": false,
       "scoreable": false,
+      "primary_exclusion_reason": "unknown_entry_semantics",
+      "secondary_exclusion_reasons": [
+        "not_triggered",
+        "timestamp_provenance_unknown"
+      ],
       "exclusion_reasons": [
         "not_triggered",
-        "unknown_entry_semantics"
+        "unknown_entry_semantics",
+        "timestamp_provenance_unknown"
       ],
       "maturity": {
         "5": false,
@@ -429,6 +555,14 @@
         "price_series_hash": "c852d25a53099e307651ec26bcadf55fd21736c0db111e94888eac56b54ca8ec",
         "overlap_conflicts": []
       },
+      "source_provenance": {
+        "first_fetched_at": "2026-10-04T11:37:19.980145+00:00",
+        "ingest_type": "initial_migration",
+        "published_at_semantics": "source_archive_publication_date",
+        "timestamp_confidence": "high",
+        "snapshot_hash": "d58768ccbc73662305815e9f124a7b6975de64215e9e1838900e7fdc0d0159fb"
+      },
+      "point_in_time_status": "unknown",
       "market_timestamp_cutoff": "strictly_before_baseline_date"
     },
     {
@@ -445,9 +579,15 @@
       "direction": "bullish",
       "triggered": false,
       "scoreable": false,
+      "primary_exclusion_reason": "unknown_entry_semantics",
+      "secondary_exclusion_reasons": [
+        "not_triggered",
+        "timestamp_provenance_unknown"
+      ],
       "exclusion_reasons": [
         "not_triggered",
-        "unknown_entry_semantics"
+        "unknown_entry_semantics",
+        "timestamp_provenance_unknown"
       ],
       "maturity": {
         "5": false,
@@ -465,6 +605,14 @@
         "price_series_hash": "ddebc6db2defc7b19bf897a3ec2125fced5881b49cdcad44121cdb6962589e4c",
         "overlap_conflicts": []
       },
+      "source_provenance": {
+        "first_fetched_at": "2026-10-04T11:37:19.980145+00:00",
+        "ingest_type": "initial_migration",
+        "published_at_semantics": "source_archive_publication_date",
+        "timestamp_confidence": "high",
+        "snapshot_hash": "d58768ccbc73662305815e9f124a7b6975de64215e9e1838900e7fdc0d0159fb"
+      },
+      "point_in_time_status": "unknown",
       "market_timestamp_cutoff": "strictly_before_baseline_date"
     },
     {
@@ -481,9 +629,15 @@
       "direction": "bullish",
       "triggered": false,
       "scoreable": false,
+      "primary_exclusion_reason": "unknown_entry_semantics",
+      "secondary_exclusion_reasons": [
+        "not_triggered",
+        "timestamp_provenance_unknown"
+      ],
       "exclusion_reasons": [
         "not_triggered",
-        "unknown_entry_semantics"
+        "unknown_entry_semantics",
+        "timestamp_provenance_unknown"
       ],
       "maturity": {
         "5": false,
@@ -501,6 +655,14 @@
         "price_series_hash": "ddebc6db2defc7b19bf897a3ec2125fced5881b49cdcad44121cdb6962589e4c",
         "overlap_conflicts": []
       },
+      "source_provenance": {
+        "first_fetched_at": "2026-10-04T11:37:19.980145+00:00",
+        "ingest_type": "initial_migration",
+        "published_at_semantics": "source_archive_publication_date",
+        "timestamp_confidence": "high",
+        "snapshot_hash": "d58768ccbc73662305815e9f124a7b6975de64215e9e1838900e7fdc0d0159fb"
+      },
+      "point_in_time_status": "unknown",
       "market_timestamp_cutoff": "strictly_before_baseline_date"
     },
     {
@@ -517,9 +679,17 @@
       "direction": "bullish",
       "triggered": false,
       "scoreable": false,
+      "primary_exclusion_reason": "unknown_entry_semantics",
+      "secondary_exclusion_reasons": [
+        "not_triggered",
+        "cache_only_unscored",
+        "timestamp_provenance_unknown"
+      ],
       "exclusion_reasons": [
         "not_triggered",
-        "unknown_entry_semantics"
+        "unknown_entry_semantics",
+        "cache_only_unscored",
+        "timestamp_provenance_unknown"
       ],
       "maturity": {
         "5": false,
@@ -536,6 +706,14 @@
         "source": "cache",
         "price_series_hash": "57a2312816e03a2a93342c9d30d50298be3c7962c64498986dac4d3f0a302b67"
       },
+      "source_provenance": {
+        "first_fetched_at": "2026-10-04T11:37:19.980145+00:00",
+        "ingest_type": "initial_migration",
+        "published_at_semantics": "source_archive_publication_date",
+        "timestamp_confidence": "high",
+        "snapshot_hash": "d58768ccbc73662305815e9f124a7b6975de64215e9e1838900e7fdc0d0159fb"
+      },
+      "point_in_time_status": "unknown",
       "market_timestamp_cutoff": "strictly_before_baseline_date"
     },
     {
@@ -552,8 +730,15 @@
       "direction": "bullish",
       "triggered": true,
       "scoreable": false,
+      "primary_exclusion_reason": "unknown_entry_semantics",
+      "secondary_exclusion_reasons": [
+        "cache_only_unscored",
+        "non_point_in_time_source"
+      ],
       "exclusion_reasons": [
-        "unknown_entry_semantics"
+        "unknown_entry_semantics",
+        "cache_only_unscored",
+        "non_point_in_time_source"
       ],
       "maturity": {
         "5": true,
@@ -598,6 +783,14 @@
         "source": "cache",
         "price_series_hash": "57a2312816e03a2a93342c9d30d50298be3c7962c64498986dac4d3f0a302b67"
       },
+      "source_provenance": {
+        "first_fetched_at": "2026-10-04T11:37:19.980145+00:00",
+        "ingest_type": "initial_migration",
+        "published_at_semantics": "source_archive_publication_date",
+        "timestamp_confidence": "high",
+        "snapshot_hash": "d58768ccbc73662305815e9f124a7b6975de64215e9e1838900e7fdc0d0159fb"
+      },
+      "point_in_time_status": "historical_pre_ingest",
       "market_timestamp_cutoff": "strictly_before_baseline_date"
     },
     {
@@ -614,9 +807,15 @@
       "direction": "bullish",
       "triggered": false,
       "scoreable": false,
+      "primary_exclusion_reason": "unknown_entry_semantics",
+      "secondary_exclusion_reasons": [
+        "not_triggered",
+        "timestamp_provenance_unknown"
+      ],
       "exclusion_reasons": [
         "not_triggered",
-        "unknown_entry_semantics"
+        "unknown_entry_semantics",
+        "timestamp_provenance_unknown"
       ],
       "maturity": {
         "5": false,
@@ -634,6 +833,14 @@
         "price_series_hash": "da5d1a09ee683c7416d956360b3bdd9f682a600ad9aadab15cae018f90fc4a5a",
         "overlap_conflicts": []
       },
+      "source_provenance": {
+        "first_fetched_at": "2026-10-04T11:37:19.980145+00:00",
+        "ingest_type": "initial_migration",
+        "published_at_semantics": "source_archive_publication_date",
+        "timestamp_confidence": "high",
+        "snapshot_hash": "d58768ccbc73662305815e9f124a7b6975de64215e9e1838900e7fdc0d0159fb"
+      },
+      "point_in_time_status": "unknown",
       "market_timestamp_cutoff": "strictly_before_baseline_date"
     },
     {
@@ -650,8 +857,13 @@
       "direction": "bullish",
       "triggered": true,
       "scoreable": false,
+      "primary_exclusion_reason": "unknown_entry_semantics",
+      "secondary_exclusion_reasons": [
+        "non_point_in_time_source"
+      ],
       "exclusion_reasons": [
-        "unknown_entry_semantics"
+        "unknown_entry_semantics",
+        "non_point_in_time_source"
       ],
       "maturity": {
         "5": true,
@@ -697,6 +909,14 @@
         "price_series_hash": "da5d1a09ee683c7416d956360b3bdd9f682a600ad9aadab15cae018f90fc4a5a",
         "overlap_conflicts": []
       },
+      "source_provenance": {
+        "first_fetched_at": "2026-10-04T11:37:19.980145+00:00",
+        "ingest_type": "initial_migration",
+        "published_at_semantics": "source_archive_publication_date",
+        "timestamp_confidence": "high",
+        "snapshot_hash": "d58768ccbc73662305815e9f124a7b6975de64215e9e1838900e7fdc0d0159fb"
+      },
+      "point_in_time_status": "historical_pre_ingest",
       "market_timestamp_cutoff": "strictly_before_baseline_date"
     },
     {
@@ -713,8 +933,15 @@
       "direction": "bullish",
       "triggered": false,
       "scoreable": false,
+      "primary_exclusion_reason": "not_triggered",
+      "secondary_exclusion_reasons": [
+        "cache_only_unscored",
+        "timestamp_provenance_unknown"
+      ],
       "exclusion_reasons": [
-        "not_triggered"
+        "not_triggered",
+        "cache_only_unscored",
+        "timestamp_provenance_unknown"
       ],
       "maturity": {
         "5": false,
@@ -731,6 +958,14 @@
         "source": "cache",
         "price_series_hash": "88b0a00cce62315fea5eff552140c755ff594d9bc6fb3331aba737f6a335bd6a"
       },
+      "source_provenance": {
+        "first_fetched_at": "2026-10-04T11:37:19.980145+00:00",
+        "ingest_type": "initial_migration",
+        "published_at_semantics": "source_archive_publication_date",
+        "timestamp_confidence": "high",
+        "snapshot_hash": "d58768ccbc73662305815e9f124a7b6975de64215e9e1838900e7fdc0d0159fb"
+      },
+      "point_in_time_status": "unknown",
       "market_timestamp_cutoff": "strictly_before_baseline_date"
     },
     {
@@ -747,8 +982,15 @@
       "direction": "bullish",
       "triggered": false,
       "scoreable": false,
+      "primary_exclusion_reason": "not_triggered",
+      "secondary_exclusion_reasons": [
+        "cache_only_unscored",
+        "timestamp_provenance_unknown"
+      ],
       "exclusion_reasons": [
-        "not_triggered"
+        "not_triggered",
+        "cache_only_unscored",
+        "timestamp_provenance_unknown"
       ],
       "maturity": {
         "5": false,
@@ -765,6 +1007,14 @@
         "source": "cache",
         "price_series_hash": "88b0a00cce62315fea5eff552140c755ff594d9bc6fb3331aba737f6a335bd6a"
       },
+      "source_provenance": {
+        "first_fetched_at": "2026-10-04T11:37:19.980145+00:00",
+        "ingest_type": "initial_migration",
+        "published_at_semantics": "source_archive_publication_date",
+        "timestamp_confidence": "high",
+        "snapshot_hash": "d58768ccbc73662305815e9f124a7b6975de64215e9e1838900e7fdc0d0159fb"
+      },
+      "point_in_time_status": "unknown",
       "market_timestamp_cutoff": "strictly_before_baseline_date"
     },
     {
@@ -781,7 +1031,16 @@
       "direction": "unknown",
       "triggered": true,
       "scoreable": false,
-      "exclusion_reasons": [],
+      "primary_exclusion_reason": "unsupported_direction",
+      "secondary_exclusion_reasons": [
+        "cache_only_unscored",
+        "non_point_in_time_source"
+      ],
+      "exclusion_reasons": [
+        "unsupported_direction",
+        "cache_only_unscored",
+        "non_point_in_time_source"
+      ],
       "maturity": {
         "5": true,
         "20": true,
@@ -825,6 +1084,14 @@
         "source": "cache",
         "price_series_hash": "b888867effedea975f5d923d9b9bed56d4feb30ff2ea61bc6b74344ba8777076"
       },
+      "source_provenance": {
+        "first_fetched_at": "2026-10-04T11:37:19.980145+00:00",
+        "ingest_type": "initial_migration",
+        "published_at_semantics": "source_archive_publication_date",
+        "timestamp_confidence": "high",
+        "snapshot_hash": "d58768ccbc73662305815e9f124a7b6975de64215e9e1838900e7fdc0d0159fb"
+      },
+      "point_in_time_status": "historical_pre_ingest",
       "market_timestamp_cutoff": "strictly_before_baseline_date"
     },
     {
@@ -841,9 +1108,17 @@
       "direction": "bullish",
       "triggered": false,
       "scoreable": false,
+      "primary_exclusion_reason": "unknown_entry_semantics",
+      "secondary_exclusion_reasons": [
+        "not_triggered",
+        "cache_only_unscored",
+        "timestamp_provenance_unknown"
+      ],
       "exclusion_reasons": [
         "not_triggered",
-        "unknown_entry_semantics"
+        "unknown_entry_semantics",
+        "cache_only_unscored",
+        "timestamp_provenance_unknown"
       ],
       "maturity": {
         "5": false,
@@ -860,6 +1135,14 @@
         "source": "cache",
         "price_series_hash": "b888867effedea975f5d923d9b9bed56d4feb30ff2ea61bc6b74344ba8777076"
       },
+      "source_provenance": {
+        "first_fetched_at": "2026-10-04T11:37:19.980145+00:00",
+        "ingest_type": "initial_migration",
+        "published_at_semantics": "source_archive_publication_date",
+        "timestamp_confidence": "high",
+        "snapshot_hash": "d58768ccbc73662305815e9f124a7b6975de64215e9e1838900e7fdc0d0159fb"
+      },
+      "point_in_time_status": "unknown",
       "market_timestamp_cutoff": "strictly_before_baseline_date"
     },
     {
@@ -876,9 +1159,17 @@
       "direction": "bullish",
       "triggered": false,
       "scoreable": false,
+      "primary_exclusion_reason": "unknown_entry_semantics",
+      "secondary_exclusion_reasons": [
+        "not_triggered",
+        "cache_only_unscored",
+        "timestamp_provenance_unknown"
+      ],
       "exclusion_reasons": [
         "not_triggered",
-        "unknown_entry_semantics"
+        "unknown_entry_semantics",
+        "cache_only_unscored",
+        "timestamp_provenance_unknown"
       ],
       "maturity": {
         "5": false,
@@ -895,6 +1186,14 @@
         "source": "cache",
         "price_series_hash": "b888867effedea975f5d923d9b9bed56d4feb30ff2ea61bc6b74344ba8777076"
       },
+      "source_provenance": {
+        "first_fetched_at": "2026-10-04T11:37:19.980145+00:00",
+        "ingest_type": "initial_migration",
+        "published_at_semantics": "source_archive_publication_date",
+        "timestamp_confidence": "high",
+        "snapshot_hash": "d58768ccbc73662305815e9f124a7b6975de64215e9e1838900e7fdc0d0159fb"
+      },
+      "point_in_time_status": "unknown",
       "market_timestamp_cutoff": "strictly_before_baseline_date"
     },
     {
@@ -911,8 +1210,13 @@
       "direction": "bullish",
       "triggered": true,
       "scoreable": false,
+      "primary_exclusion_reason": "missing_rule_id",
+      "secondary_exclusion_reasons": [
+        "non_point_in_time_source"
+      ],
       "exclusion_reasons": [
-        "missing_rule_id"
+        "missing_rule_id",
+        "non_point_in_time_source"
       ],
       "maturity": {
         "5": true,
@@ -958,6 +1262,14 @@
         "price_series_hash": "c852d25a53099e307651ec26bcadf55fd21736c0db111e94888eac56b54ca8ec",
         "overlap_conflicts": []
       },
+      "source_provenance": {
+        "first_fetched_at": "2026-10-04T11:37:19.980145+00:00",
+        "ingest_type": "initial_migration",
+        "published_at_semantics": "upstream_published_at_unverified",
+        "timestamp_confidence": "unverified",
+        "snapshot_hash": "97841b671959b8d40d71e54c6af9ab760f12b61640141012ec1bf3c481ff0423"
+      },
+      "point_in_time_status": "historical_pre_ingest",
       "market_timestamp_cutoff": "strictly_before_baseline_date"
     },
     {
@@ -974,8 +1286,13 @@
       "direction": "bullish",
       "triggered": true,
       "scoreable": false,
+      "primary_exclusion_reason": "missing_rule_id",
+      "secondary_exclusion_reasons": [
+        "non_point_in_time_source"
+      ],
       "exclusion_reasons": [
-        "missing_rule_id"
+        "missing_rule_id",
+        "non_point_in_time_source"
       ],
       "maturity": {
         "5": true,
@@ -1021,6 +1338,14 @@
         "price_series_hash": "c852d25a53099e307651ec26bcadf55fd21736c0db111e94888eac56b54ca8ec",
         "overlap_conflicts": []
       },
+      "source_provenance": {
+        "first_fetched_at": "2026-10-04T11:37:19.980145+00:00",
+        "ingest_type": "initial_migration",
+        "published_at_semantics": "upstream_published_at_unverified",
+        "timestamp_confidence": "unverified",
+        "snapshot_hash": "efc5f8515fd4eb2a2fcee55f0146e66542329500f3996e0f63518eb255566d2c"
+      },
+      "point_in_time_status": "historical_pre_ingest",
       "market_timestamp_cutoff": "strictly_before_baseline_date"
     },
     {
@@ -1037,8 +1362,13 @@
       "direction": "bullish",
       "triggered": true,
       "scoreable": false,
+      "primary_exclusion_reason": "missing_rule_id",
+      "secondary_exclusion_reasons": [
+        "non_point_in_time_source"
+      ],
       "exclusion_reasons": [
-        "missing_rule_id"
+        "missing_rule_id",
+        "non_point_in_time_source"
       ],
       "maturity": {
         "5": true,
@@ -1084,6 +1414,14 @@
         "price_series_hash": "ea60c2b2f0f6aa68958890c3991aedfab620d8bbdbb309cd0864bcc82a3e4106",
         "overlap_conflicts": []
       },
+      "source_provenance": {
+        "first_fetched_at": "2026-10-04T11:37:19.980145+00:00",
+        "ingest_type": "initial_migration",
+        "published_at_semantics": "upstream_published_at_unverified",
+        "timestamp_confidence": "unverified",
+        "snapshot_hash": "d263c549ec534b933dbf9fb2ab99059668f336523656795d2489537e0fc7e59d"
+      },
+      "point_in_time_status": "historical_pre_ingest",
       "market_timestamp_cutoff": "strictly_before_baseline_date"
     },
     {
@@ -1100,8 +1438,15 @@
       "direction": "bullish",
       "triggered": true,
       "scoreable": false,
+      "primary_exclusion_reason": "missing_rule_id",
+      "secondary_exclusion_reasons": [
+        "cache_only_unscored",
+        "non_point_in_time_source"
+      ],
       "exclusion_reasons": [
-        "missing_rule_id"
+        "missing_rule_id",
+        "cache_only_unscored",
+        "non_point_in_time_source"
       ],
       "maturity": {
         "5": true,
@@ -1146,6 +1491,14 @@
         "source": "cache",
         "price_series_hash": "4e6e88f416ca5dfa567dc6ec680b7fd30bdccf883b0ba7028c115145078f1b7c"
       },
+      "source_provenance": {
+        "first_fetched_at": "2026-10-04T11:37:19.980145+00:00",
+        "ingest_type": "initial_migration",
+        "published_at_semantics": "upstream_published_at_unverified",
+        "timestamp_confidence": "unverified",
+        "snapshot_hash": "ecaa7c67927d15f6a495a0562476811f1350ec9d9657e69b164abb9233a67f01"
+      },
+      "point_in_time_status": "historical_pre_ingest",
       "market_timestamp_cutoff": "strictly_before_baseline_date"
     },
     {
@@ -1162,8 +1515,13 @@
       "direction": "bullish",
       "triggered": true,
       "scoreable": false,
+      "primary_exclusion_reason": "missing_rule_id",
+      "secondary_exclusion_reasons": [
+        "non_point_in_time_source"
+      ],
       "exclusion_reasons": [
-        "missing_rule_id"
+        "missing_rule_id",
+        "non_point_in_time_source"
       ],
       "maturity": {
         "5": true,
@@ -1209,6 +1567,14 @@
         "price_series_hash": "c852d25a53099e307651ec26bcadf55fd21736c0db111e94888eac56b54ca8ec",
         "overlap_conflicts": []
       },
+      "source_provenance": {
+        "first_fetched_at": "2026-10-04T11:37:19.980145+00:00",
+        "ingest_type": "initial_migration",
+        "published_at_semantics": "upstream_published_at_unverified",
+        "timestamp_confidence": "unverified",
+        "snapshot_hash": "741217f32d5330bff3672ed5778c217863320e5195fa1089b37c96e1520809b9"
+      },
+      "point_in_time_status": "historical_pre_ingest",
       "market_timestamp_cutoff": "strictly_before_baseline_date"
     },
     {
@@ -1225,8 +1591,13 @@
       "direction": "bullish",
       "triggered": true,
       "scoreable": false,
+      "primary_exclusion_reason": "missing_rule_id",
+      "secondary_exclusion_reasons": [
+        "non_point_in_time_source"
+      ],
       "exclusion_reasons": [
-        "missing_rule_id"
+        "missing_rule_id",
+        "non_point_in_time_source"
       ],
       "maturity": {
         "5": true,
@@ -1272,6 +1643,14 @@
         "price_series_hash": "c852d25a53099e307651ec26bcadf55fd21736c0db111e94888eac56b54ca8ec",
         "overlap_conflicts": []
       },
+      "source_provenance": {
+        "first_fetched_at": "2026-10-04T11:37:19.980145+00:00",
+        "ingest_type": "initial_migration",
+        "published_at_semantics": "upstream_published_at_unverified",
+        "timestamp_confidence": "unverified",
+        "snapshot_hash": "ed29987b793df03325b012926ab2ad47ebda6ec85d8608beb01c992d9fe5f489"
+      },
+      "point_in_time_status": "historical_pre_ingest",
       "market_timestamp_cutoff": "strictly_before_baseline_date"
     },
     {
@@ -1288,8 +1667,13 @@
       "direction": "bearish",
       "triggered": true,
       "scoreable": false,
+      "primary_exclusion_reason": "missing_rule_id",
+      "secondary_exclusion_reasons": [
+        "non_point_in_time_source"
+      ],
       "exclusion_reasons": [
-        "missing_rule_id"
+        "missing_rule_id",
+        "non_point_in_time_source"
       ],
       "maturity": {
         "5": true,
@@ -1335,6 +1719,14 @@
         "price_series_hash": "c852d25a53099e307651ec26bcadf55fd21736c0db111e94888eac56b54ca8ec",
         "overlap_conflicts": []
       },
+      "source_provenance": {
+        "first_fetched_at": "2026-10-04T11:37:19.980145+00:00",
+        "ingest_type": "initial_migration",
+        "published_at_semantics": "source_archive_publication_date",
+        "timestamp_confidence": "high",
+        "snapshot_hash": "b8956f0b03e420c53054a927acb981cf2d8c9d7a9ae8ccd18aae10a0c4321715"
+      },
+      "point_in_time_status": "historical_pre_ingest",
       "market_timestamp_cutoff": "strictly_before_baseline_date"
     },
     {
@@ -1351,8 +1743,13 @@
       "direction": "bullish",
       "triggered": true,
       "scoreable": false,
+      "primary_exclusion_reason": "missing_rule_id",
+      "secondary_exclusion_reasons": [
+        "non_point_in_time_source"
+      ],
       "exclusion_reasons": [
-        "missing_rule_id"
+        "missing_rule_id",
+        "non_point_in_time_source"
       ],
       "maturity": {
         "5": true,
@@ -1398,6 +1795,14 @@
         "price_series_hash": "c852d25a53099e307651ec26bcadf55fd21736c0db111e94888eac56b54ca8ec",
         "overlap_conflicts": []
       },
+      "source_provenance": {
+        "first_fetched_at": "2026-10-04T11:37:19.980145+00:00",
+        "ingest_type": "initial_migration",
+        "published_at_semantics": "source_archive_publication_date",
+        "timestamp_confidence": "high",
+        "snapshot_hash": "b8956f0b03e420c53054a927acb981cf2d8c9d7a9ae8ccd18aae10a0c4321715"
+      },
+      "point_in_time_status": "historical_pre_ingest",
       "market_timestamp_cutoff": "strictly_before_baseline_date"
     },
     {
@@ -1414,8 +1819,13 @@
       "direction": "bearish",
       "triggered": true,
       "scoreable": false,
+      "primary_exclusion_reason": "missing_rule_id",
+      "secondary_exclusion_reasons": [
+        "non_point_in_time_source"
+      ],
       "exclusion_reasons": [
-        "missing_rule_id"
+        "missing_rule_id",
+        "non_point_in_time_source"
       ],
       "maturity": {
         "5": true,
@@ -1461,6 +1871,14 @@
         "price_series_hash": "da5d1a09ee683c7416d956360b3bdd9f682a600ad9aadab15cae018f90fc4a5a",
         "overlap_conflicts": []
       },
+      "source_provenance": {
+        "first_fetched_at": "2026-10-04T11:37:19.980145+00:00",
+        "ingest_type": "initial_migration",
+        "published_at_semantics": "source_archive_publication_date",
+        "timestamp_confidence": "high",
+        "snapshot_hash": "b8956f0b03e420c53054a927acb981cf2d8c9d7a9ae8ccd18aae10a0c4321715"
+      },
+      "point_in_time_status": "historical_pre_ingest",
       "market_timestamp_cutoff": "strictly_before_baseline_date"
     },
     {
@@ -1477,8 +1895,15 @@
       "direction": "bearish",
       "triggered": true,
       "scoreable": false,
+      "primary_exclusion_reason": "missing_rule_id",
+      "secondary_exclusion_reasons": [
+        "cache_only_unscored",
+        "non_point_in_time_source"
+      ],
       "exclusion_reasons": [
-        "missing_rule_id"
+        "missing_rule_id",
+        "cache_only_unscored",
+        "non_point_in_time_source"
       ],
       "maturity": {
         "5": true,
@@ -1523,6 +1948,14 @@
         "source": "cache",
         "price_series_hash": "b888867effedea975f5d923d9b9bed56d4feb30ff2ea61bc6b74344ba8777076"
       },
+      "source_provenance": {
+        "first_fetched_at": "2026-10-04T11:37:19.980145+00:00",
+        "ingest_type": "initial_migration",
+        "published_at_semantics": "source_archive_publication_date",
+        "timestamp_confidence": "high",
+        "snapshot_hash": "b8956f0b03e420c53054a927acb981cf2d8c9d7a9ae8ccd18aae10a0c4321715"
+      },
+      "point_in_time_status": "historical_pre_ingest",
       "market_timestamp_cutoff": "strictly_before_baseline_date"
     },
     {
@@ -1539,8 +1972,13 @@
       "direction": "bullish",
       "triggered": true,
       "scoreable": false,
+      "primary_exclusion_reason": "missing_rule_id",
+      "secondary_exclusion_reasons": [
+        "non_point_in_time_source"
+      ],
       "exclusion_reasons": [
-        "missing_rule_id"
+        "missing_rule_id",
+        "non_point_in_time_source"
       ],
       "maturity": {
         "5": true,
@@ -1586,6 +2024,14 @@
         "price_series_hash": "c852d25a53099e307651ec26bcadf55fd21736c0db111e94888eac56b54ca8ec",
         "overlap_conflicts": []
       },
+      "source_provenance": {
+        "first_fetched_at": "2026-10-04T11:37:19.980145+00:00",
+        "ingest_type": "initial_migration",
+        "published_at_semantics": "upstream_published_at_unverified",
+        "timestamp_confidence": "unverified",
+        "snapshot_hash": "1804a087f42aca88358fe9dc94092ff32dee8dd2168e574925f702fa259833a6"
+      },
+      "point_in_time_status": "historical_pre_ingest",
       "market_timestamp_cutoff": "strictly_before_baseline_date"
     },
     {
@@ -1602,8 +2048,15 @@
       "direction": "bullish",
       "triggered": true,
       "scoreable": false,
+      "primary_exclusion_reason": "missing_rule_id",
+      "secondary_exclusion_reasons": [
+        "cache_only_unscored",
+        "non_point_in_time_source"
+      ],
       "exclusion_reasons": [
-        "missing_rule_id"
+        "missing_rule_id",
+        "cache_only_unscored",
+        "non_point_in_time_source"
       ],
       "maturity": {
         "5": true,
@@ -1648,6 +2101,14 @@
         "source": "cache",
         "price_series_hash": "4e6e88f416ca5dfa567dc6ec680b7fd30bdccf883b0ba7028c115145078f1b7c"
       },
+      "source_provenance": {
+        "first_fetched_at": "2026-10-04T11:37:19.980145+00:00",
+        "ingest_type": "initial_migration",
+        "published_at_semantics": "upstream_published_at_unverified",
+        "timestamp_confidence": "unverified",
+        "snapshot_hash": "1804a087f42aca88358fe9dc94092ff32dee8dd2168e574925f702fa259833a6"
+      },
+      "point_in_time_status": "historical_pre_ingest",
       "market_timestamp_cutoff": "strictly_before_baseline_date"
     },
     {
@@ -1664,8 +2125,13 @@
       "direction": "bullish",
       "triggered": true,
       "scoreable": false,
+      "primary_exclusion_reason": "missing_rule_id",
+      "secondary_exclusion_reasons": [
+        "non_point_in_time_source"
+      ],
       "exclusion_reasons": [
-        "missing_rule_id"
+        "missing_rule_id",
+        "non_point_in_time_source"
       ],
       "maturity": {
         "5": true,
@@ -1711,6 +2177,14 @@
         "price_series_hash": "ddebc6db2defc7b19bf897a3ec2125fced5881b49cdcad44121cdb6962589e4c",
         "overlap_conflicts": []
       },
+      "source_provenance": {
+        "first_fetched_at": "2026-10-04T11:37:19.980145+00:00",
+        "ingest_type": "initial_migration",
+        "published_at_semantics": "upstream_published_at_unverified",
+        "timestamp_confidence": "unverified",
+        "snapshot_hash": "1804a087f42aca88358fe9dc94092ff32dee8dd2168e574925f702fa259833a6"
+      },
+      "point_in_time_status": "historical_pre_ingest",
       "market_timestamp_cutoff": "strictly_before_baseline_date"
     },
     {
@@ -1727,8 +2201,13 @@
       "direction": "bullish",
       "triggered": true,
       "scoreable": false,
+      "primary_exclusion_reason": "missing_rule_id",
+      "secondary_exclusion_reasons": [
+        "non_point_in_time_source"
+      ],
       "exclusion_reasons": [
-        "missing_rule_id"
+        "missing_rule_id",
+        "non_point_in_time_source"
       ],
       "maturity": {
         "5": true,
@@ -1774,6 +2253,14 @@
         "price_series_hash": "c852d25a53099e307651ec26bcadf55fd21736c0db111e94888eac56b54ca8ec",
         "overlap_conflicts": []
       },
+      "source_provenance": {
+        "first_fetched_at": "2026-10-04T11:37:19.980145+00:00",
+        "ingest_type": "initial_migration",
+        "published_at_semantics": "upstream_published_at_unverified",
+        "timestamp_confidence": "unverified",
+        "snapshot_hash": "60d40c303dab44d9943a927f643324bae357bd299a3c097d986779283ab3c006"
+      },
+      "point_in_time_status": "historical_pre_ingest",
       "market_timestamp_cutoff": "strictly_before_baseline_date"
     },
     {
@@ -1790,8 +2277,15 @@
       "direction": "bullish",
       "triggered": true,
       "scoreable": false,
+      "primary_exclusion_reason": "missing_rule_id",
+      "secondary_exclusion_reasons": [
+        "cache_only_unscored",
+        "non_point_in_time_source"
+      ],
       "exclusion_reasons": [
-        "missing_rule_id"
+        "missing_rule_id",
+        "cache_only_unscored",
+        "non_point_in_time_source"
       ],
       "maturity": {
         "5": true,
@@ -1836,6 +2330,14 @@
         "source": "cache",
         "price_series_hash": "4e6e88f416ca5dfa567dc6ec680b7fd30bdccf883b0ba7028c115145078f1b7c"
       },
+      "source_provenance": {
+        "first_fetched_at": "2026-10-04T11:37:19.980145+00:00",
+        "ingest_type": "initial_migration",
+        "published_at_semantics": "upstream_published_at_unverified",
+        "timestamp_confidence": "unverified",
+        "snapshot_hash": "60d40c303dab44d9943a927f643324bae357bd299a3c097d986779283ab3c006"
+      },
+      "point_in_time_status": "historical_pre_ingest",
       "market_timestamp_cutoff": "strictly_before_baseline_date"
     },
     {
@@ -1852,8 +2354,13 @@
       "direction": "bullish",
       "triggered": true,
       "scoreable": false,
+      "primary_exclusion_reason": "missing_rule_id",
+      "secondary_exclusion_reasons": [
+        "non_point_in_time_source"
+      ],
       "exclusion_reasons": [
-        "missing_rule_id"
+        "missing_rule_id",
+        "non_point_in_time_source"
       ],
       "maturity": {
         "5": true,
@@ -1899,6 +2406,14 @@
         "price_series_hash": "0d21af10d7b7bb1be2406f35a339f99b29d1d2e7983983d165862abb13985c6e",
         "overlap_conflicts": []
       },
+      "source_provenance": {
+        "first_fetched_at": "2026-10-04T12:11:10.455070+00:00",
+        "ingest_type": "backfill_ingest",
+        "published_at_semantics": "source_archive_publication_date",
+        "timestamp_confidence": "high",
+        "snapshot_hash": "158f2bbfffcca33cf6d37d2a190157692b7c0e0ba421feb922e316fc4a2412f0"
+      },
+      "point_in_time_status": "historical_pre_ingest",
       "market_timestamp_cutoff": "strictly_before_baseline_date"
     },
     {
@@ -1915,8 +2430,13 @@
       "direction": "bullish",
       "triggered": true,
       "scoreable": false,
+      "primary_exclusion_reason": "missing_rule_id",
+      "secondary_exclusion_reasons": [
+        "non_point_in_time_source"
+      ],
       "exclusion_reasons": [
-        "missing_rule_id"
+        "missing_rule_id",
+        "non_point_in_time_source"
       ],
       "maturity": {
         "5": true,
@@ -1962,6 +2482,14 @@
         "price_series_hash": "0d21af10d7b7bb1be2406f35a339f99b29d1d2e7983983d165862abb13985c6e",
         "overlap_conflicts": []
       },
+      "source_provenance": {
+        "first_fetched_at": "2026-10-04T12:11:10.455070+00:00",
+        "ingest_type": "backfill_ingest",
+        "published_at_semantics": "source_archive_publication_date",
+        "timestamp_confidence": "high",
+        "snapshot_hash": "158f2bbfffcca33cf6d37d2a190157692b7c0e0ba421feb922e316fc4a2412f0"
+      },
+      "point_in_time_status": "historical_pre_ingest",
       "market_timestamp_cutoff": "strictly_before_baseline_date"
     },
     {
@@ -1978,8 +2506,13 @@
       "direction": "bullish",
       "triggered": true,
       "scoreable": false,
+      "primary_exclusion_reason": "missing_rule_id",
+      "secondary_exclusion_reasons": [
+        "non_point_in_time_source"
+      ],
       "exclusion_reasons": [
-        "missing_rule_id"
+        "missing_rule_id",
+        "non_point_in_time_source"
       ],
       "maturity": {
         "5": true,
@@ -2025,6 +2558,14 @@
         "price_series_hash": "0d21af10d7b7bb1be2406f35a339f99b29d1d2e7983983d165862abb13985c6e",
         "overlap_conflicts": []
       },
+      "source_provenance": {
+        "first_fetched_at": "2026-10-04T12:11:10.455070+00:00",
+        "ingest_type": "backfill_ingest",
+        "published_at_semantics": "source_archive_publication_date",
+        "timestamp_confidence": "high",
+        "snapshot_hash": "158f2bbfffcca33cf6d37d2a190157692b7c0e0ba421feb922e316fc4a2412f0"
+      },
+      "point_in_time_status": "historical_pre_ingest",
       "market_timestamp_cutoff": "strictly_before_baseline_date"
     },
     {
@@ -2041,8 +2582,13 @@
       "direction": "bullish",
       "triggered": true,
       "scoreable": false,
+      "primary_exclusion_reason": "missing_rule_id",
+      "secondary_exclusion_reasons": [
+        "non_point_in_time_source"
+      ],
       "exclusion_reasons": [
-        "missing_rule_id"
+        "missing_rule_id",
+        "non_point_in_time_source"
       ],
       "maturity": {
         "5": true,
@@ -2088,6 +2634,14 @@
         "price_series_hash": "0d21af10d7b7bb1be2406f35a339f99b29d1d2e7983983d165862abb13985c6e",
         "overlap_conflicts": []
       },
+      "source_provenance": {
+        "first_fetched_at": "2026-10-04T12:11:10.455070+00:00",
+        "ingest_type": "backfill_ingest",
+        "published_at_semantics": "upstream_published_at_unverified",
+        "timestamp_confidence": "unverified",
+        "snapshot_hash": "276b027dd56107ab987202c35d6dd542a228d3848d5b2fa8abdb26c1852ff2e5"
+      },
+      "point_in_time_status": "historical_pre_ingest",
       "market_timestamp_cutoff": "strictly_before_baseline_date"
     },
     {
@@ -2104,8 +2658,13 @@
       "direction": "bullish",
       "triggered": true,
       "scoreable": false,
+      "primary_exclusion_reason": "missing_rule_id",
+      "secondary_exclusion_reasons": [
+        "non_point_in_time_source"
+      ],
       "exclusion_reasons": [
-        "missing_rule_id"
+        "missing_rule_id",
+        "non_point_in_time_source"
       ],
       "maturity": {
         "5": true,
@@ -2151,6 +2710,14 @@
         "price_series_hash": "0d21af10d7b7bb1be2406f35a339f99b29d1d2e7983983d165862abb13985c6e",
         "overlap_conflicts": []
       },
+      "source_provenance": {
+        "first_fetched_at": "2026-10-04T12:11:10.455070+00:00",
+        "ingest_type": "backfill_ingest",
+        "published_at_semantics": "upstream_published_at_unverified",
+        "timestamp_confidence": "unverified",
+        "snapshot_hash": "1e8bef610cee624031d2a8e405480961e67409072efb513ea474e5be09ac4a43"
+      },
+      "point_in_time_status": "historical_pre_ingest",
       "market_timestamp_cutoff": "strictly_before_baseline_date"
     },
     {
@@ -2167,8 +2734,13 @@
       "direction": "bullish",
       "triggered": true,
       "scoreable": false,
+      "primary_exclusion_reason": "missing_rule_id",
+      "secondary_exclusion_reasons": [
+        "non_point_in_time_source"
+      ],
       "exclusion_reasons": [
-        "missing_rule_id"
+        "missing_rule_id",
+        "non_point_in_time_source"
       ],
       "maturity": {
         "5": true,
@@ -2214,6 +2786,14 @@
         "price_series_hash": "ea60c2b2f0f6aa68958890c3991aedfab620d8bbdbb309cd0864bcc82a3e4106",
         "overlap_conflicts": []
       },
+      "source_provenance": {
+        "first_fetched_at": "2026-10-04T12:11:10.455070+00:00",
+        "ingest_type": "backfill_ingest",
+        "published_at_semantics": "upstream_published_at_unverified",
+        "timestamp_confidence": "unverified",
+        "snapshot_hash": "3bb185aef59ca96719daa511a6813c484902e47315be2b8a40bf5aa87de95872"
+      },
+      "point_in_time_status": "historical_pre_ingest",
       "market_timestamp_cutoff": "strictly_before_baseline_date"
     },
     {
@@ -2230,8 +2810,15 @@
       "direction": "bullish",
       "triggered": true,
       "scoreable": false,
+      "primary_exclusion_reason": "missing_rule_id",
+      "secondary_exclusion_reasons": [
+        "cache_only_unscored",
+        "non_point_in_time_source"
+      ],
       "exclusion_reasons": [
-        "missing_rule_id"
+        "missing_rule_id",
+        "cache_only_unscored",
+        "non_point_in_time_source"
       ],
       "maturity": {
         "5": true,
@@ -2276,6 +2863,14 @@
         "source": "cache",
         "price_series_hash": "4e6e88f416ca5dfa567dc6ec680b7fd30bdccf883b0ba7028c115145078f1b7c"
       },
+      "source_provenance": {
+        "first_fetched_at": "2026-10-04T12:11:10.455070+00:00",
+        "ingest_type": "backfill_ingest",
+        "published_at_semantics": "upstream_published_at_unverified",
+        "timestamp_confidence": "unverified",
+        "snapshot_hash": "62b548038c6e1819bf27602489a445d0b70be21e0762e58fcbbc396e6a2342a1"
+      },
+      "point_in_time_status": "historical_pre_ingest",
       "market_timestamp_cutoff": "strictly_before_baseline_date"
     },
     {
@@ -2292,8 +2887,13 @@
       "direction": "bullish",
       "triggered": true,
       "scoreable": false,
+      "primary_exclusion_reason": "missing_rule_id",
+      "secondary_exclusion_reasons": [
+        "non_point_in_time_source"
+      ],
       "exclusion_reasons": [
-        "missing_rule_id"
+        "missing_rule_id",
+        "non_point_in_time_source"
       ],
       "maturity": {
         "5": true,
@@ -2339,6 +2939,14 @@
         "price_series_hash": "c852d25a53099e307651ec26bcadf55fd21736c0db111e94888eac56b54ca8ec",
         "overlap_conflicts": []
       },
+      "source_provenance": {
+        "first_fetched_at": "2026-10-04T12:11:10.455070+00:00",
+        "ingest_type": "backfill_ingest",
+        "published_at_semantics": "upstream_published_at_unverified",
+        "timestamp_confidence": "unverified",
+        "snapshot_hash": "5a4cd4127db4d1ea37971f6ae7188c0ebe8bd967dec07492f85127dadb11f4ef"
+      },
+      "point_in_time_status": "historical_pre_ingest",
       "market_timestamp_cutoff": "strictly_before_baseline_date"
     },
     {
@@ -2355,8 +2963,15 @@
       "direction": "bullish",
       "triggered": true,
       "scoreable": false,
+      "primary_exclusion_reason": "missing_rule_id",
+      "secondary_exclusion_reasons": [
+        "cache_only_unscored",
+        "non_point_in_time_source"
+      ],
       "exclusion_reasons": [
-        "missing_rule_id"
+        "missing_rule_id",
+        "cache_only_unscored",
+        "non_point_in_time_source"
       ],
       "maturity": {
         "5": true,
@@ -2401,6 +3016,14 @@
         "source": "cache",
         "price_series_hash": "4e6e88f416ca5dfa567dc6ec680b7fd30bdccf883b0ba7028c115145078f1b7c"
       },
+      "source_provenance": {
+        "first_fetched_at": "2026-10-04T12:11:10.455070+00:00",
+        "ingest_type": "backfill_ingest",
+        "published_at_semantics": "upstream_published_at_unverified",
+        "timestamp_confidence": "unverified",
+        "snapshot_hash": "5a4cd4127db4d1ea37971f6ae7188c0ebe8bd967dec07492f85127dadb11f4ef"
+      },
+      "point_in_time_status": "historical_pre_ingest",
       "market_timestamp_cutoff": "strictly_before_baseline_date"
     },
     {
@@ -2417,8 +3040,13 @@
       "direction": "bullish",
       "triggered": true,
       "scoreable": false,
+      "primary_exclusion_reason": "missing_rule_id",
+      "secondary_exclusion_reasons": [
+        "non_point_in_time_source"
+      ],
       "exclusion_reasons": [
-        "missing_rule_id"
+        "missing_rule_id",
+        "non_point_in_time_source"
       ],
       "maturity": {
         "5": true,
@@ -2464,6 +3092,14 @@
         "price_series_hash": "ea60c2b2f0f6aa68958890c3991aedfab620d8bbdbb309cd0864bcc82a3e4106",
         "overlap_conflicts": []
       },
+      "source_provenance": {
+        "first_fetched_at": "2026-10-04T12:11:10.455070+00:00",
+        "ingest_type": "backfill_ingest",
+        "published_at_semantics": "upstream_published_at_unverified",
+        "timestamp_confidence": "unverified",
+        "snapshot_hash": "4ce45f947c25d457885818a999bff01c1a119be080e038554ad127f134116b13"
+      },
+      "point_in_time_status": "historical_pre_ingest",
       "market_timestamp_cutoff": "strictly_before_baseline_date"
     },
     {
@@ -2480,8 +3116,13 @@
       "direction": "bullish",
       "triggered": true,
       "scoreable": false,
+      "primary_exclusion_reason": "missing_rule_id",
+      "secondary_exclusion_reasons": [
+        "non_point_in_time_source"
+      ],
       "exclusion_reasons": [
-        "missing_rule_id"
+        "missing_rule_id",
+        "non_point_in_time_source"
       ],
       "maturity": {
         "5": true,
@@ -2541,6 +3182,14 @@
         "price_series_hash": "ddebc6db2defc7b19bf897a3ec2125fced5881b49cdcad44121cdb6962589e4c",
         "overlap_conflicts": []
       },
+      "source_provenance": {
+        "first_fetched_at": "2026-10-04T12:11:10.455070+00:00",
+        "ingest_type": "backfill_ingest",
+        "published_at_semantics": "upstream_published_at_unverified",
+        "timestamp_confidence": "unverified",
+        "snapshot_hash": "8b37dfb9d4b540fdc6922657a5948a35015d28ecfb2378d16263c79184760506"
+      },
+      "point_in_time_status": "historical_pre_ingest",
       "market_timestamp_cutoff": "strictly_before_baseline_date"
     },
     {
@@ -2557,8 +3206,13 @@
       "direction": "bullish",
       "triggered": true,
       "scoreable": false,
+      "primary_exclusion_reason": "missing_rule_id",
+      "secondary_exclusion_reasons": [
+        "non_point_in_time_source"
+      ],
       "exclusion_reasons": [
-        "missing_rule_id"
+        "missing_rule_id",
+        "non_point_in_time_source"
       ],
       "maturity": {
         "5": true,
@@ -2618,6 +3272,14 @@
         "price_series_hash": "ea60c2b2f0f6aa68958890c3991aedfab620d8bbdbb309cd0864bcc82a3e4106",
         "overlap_conflicts": []
       },
+      "source_provenance": {
+        "first_fetched_at": "2026-10-04T12:11:10.455070+00:00",
+        "ingest_type": "backfill_ingest",
+        "published_at_semantics": "upstream_published_at_unverified",
+        "timestamp_confidence": "unverified",
+        "snapshot_hash": "9cf7c11412cd5958831cfb363b5443810d023bd5a15615e7c511353efdcde583"
+      },
+      "point_in_time_status": "historical_pre_ingest",
       "market_timestamp_cutoff": "strictly_before_baseline_date"
     }
   ],
@@ -2625,6 +3287,7 @@
     "Legacy outcomes remain available; EventScore is an adapter, not an in-place rewrite.",
     "Unknown entry semantics never enter method performance.",
     "STOOQ archive is canonical; cache only fills gaps after overlap consistency checks.",
-    "Price conflicts and option structures stay unscored."
+    "Every non-scoreable event has exactly one primary exclusion reason; the conservation equation is enforced.",
+    "Price conflicts, cache-only histories, pre-ingest historical evidence and option structures stay unscored."
   ]
 }

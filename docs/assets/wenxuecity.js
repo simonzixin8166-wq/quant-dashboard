@@ -23,7 +23,7 @@ const brightlineMethods=[
  {name:'让赢家奔跑，但长期持有也必须持续验证',type:'持有层',rule:'长期持有不是买入后不再检查；只有商业逻辑、竞争优势和风险仍成立，才有继续持有的理由。',boundary:'不能因为历史成本低、曾经盈利或不想交税，就忽略当前风险和机会成本。',site:'个股观察池已有趋势与研究入口，但基本面复核仍偏弱。',gap:'研究卡增加“最近一次 thesis 复核 / 下一证据里程碑”，让持有理由随时间更新。',urls:['https://blog.wenxuecity.com/myblog/82458/202512/2836.html']},
  {name:'AI 是研究助手，不是事实来源',type:'工具层',rule:'AI 可做扫描、清单、归纳和复盘；关键数字必须回到真实数据源核对，回测要防前视偏差、过拟合和现实交易成本。',boundary:'语言流畅不等于结论正确；AI生成的评级、点位和概率不能直接进入交易规则。',site:'网站已有数据完整性校验、双源核验、回测与来源状态。',gap:'文学城/博主内容继续明确“作者观点 / AI归纳 / 本站分析 / 待核验事实”四层，不自动改写交易策略。',urls:['https://blog.wenxuecity.com/myoverview/82458/','https://blog.wenxuecity.com/myblog/82458/202606/12009.html']}
 ];
-let data=window.WXCCurated||null,sourceIntel=null,sourceOutcome=null,methodMemory=null,tab='topics',author='',query='';const exportRecords=new Map();
+let data=window.WXCCurated||null,sourceIntel=null,sourceOutcome=null,methodMemory=null,tab='overview',author='',query='';const exportRecords=new Map();
 const methodTaxonomy=[
  {name:'指数为核心，个股建立在研究优势上',keys:['指数','QQQ','研究','edge','个股','FOMO']},
  {name:'先假设、再验证；对了加码，错了缩小',keys:['假设','验证','加仓','斩仓','工程','实验']},
@@ -70,12 +70,44 @@ function methodMemoryView(){
 }
 function validationView(){const d=sourceOutcome||{};const n=d.counts||{};const rows=(d.events||[]).filter(x=>x.attribution!=='third_party_example');return `<div class="wxc-box"><h2>验证结果 · 5 / 20 / 60 交易日跟踪</h2><p>把作者本人操作/预案与本地历史行情对照，不评价作者“好坏”，只记录之后发生了什么。</p><p><b>${n.events||0}</b> 个验证事件 · <b>${n.triggered_author_owned||0}</b> 个本人操作/预案已触发 · <b>${n.untriggered_plans||0}</b> 个分档计划尚未触发 · <b>${n.mature60||0}</b> 个已有60日成熟结果 · 覆盖 <b>${n.symbols||0}</b> 个标的。</p><p class="wxc-warning">归属待复核的操作不会自动进入方法权重；引用第三方案例不计入作者本人表现。</p></div><div class="wxc-grid">${rows.slice(0,100).map(outcomeCard).join('')||'<p>等待首次结果验证构建。</p>'}</div>`}
 
+function sourceState(){
+ const sources=data?.sources||[],bad=sources.filter(s=>s.status!=='ok');
+ return {bad,total:sources.length,healthy:bad.length===0&&sources.length>0};
+}
+function researchCenterOverview(){
+ const src=sourceState(),methodCount=methodMemory?.counts?.methods||researchLibrary.methods?.length||0;
+ const ops=sourceIntel?.counts?.structured_operations||operationRows().length||0;
+ const validations=sourceOutcome?.counts?.events||0;
+ const failures=sourceIntel?.failure_review?.length||0;
+ return `<div class="wxc-overview-metrics">
+   <article><span>研究资料</span><b>${data?.articles?.length||0}</b><small>已收录正文整理</small></article>
+   <article><span>方法主题</span><b>${methodCount}</b><small>Method Memory</small></article>
+   <article><span>具体操作</span><b>${ops}</b><small>仅原文明示动作</small></article>
+   <article><span>验证事件</span><b>${validations}</b><small>5 / 20 / 60交易日</small></article>
+   <article><span>失败候选</span><b>${failures}</b><small>用于反证与边界</small></article>
+ </div>
+ <div class="wxc-box wxc-research-loop"><h2>研究闭环 · 不是文章仓库</h2><p>外部观点只有经过“来源留痕 → 方法归纳 → 具体操作提取 → 后续验证/失败复盘”，才有资格影响研究优先级；不会自动改正式交易规则。</p>
+ <div class="wxc-pipeline"><div><b>01 来源</b><span>保留作者、日期、原文与采集状态</span></div><div><b>02 方法</b><span>合并重复观点，形成可复用条件与边界</span></div><div><b>03 操作</b><span>只提取原文明示动作，不补猜价格或仓位</span></div><div><b>04 验证</b><span>按交易日跟踪结果、反例与失败归因</span></div><div><b>05 判断</b><span>形成 MyAlpha 自己的研究结论</span></div></div>
+ <p class="wxc-meta">当前来源状态：${src.healthy?'正常':src.bad+' 个来源异常/未验收'}。来源异常不会删除历史资料，但新内容不能假装已经更新。</p></div>
+ ${topicStudyView()}`;
+}
+function methodsAndOperationsView(){return methodMemoryView()+intelOperationView()}
+function validationAndReviewView(){return validationView()+failureReviewView()+evolutionView()}
+function sourceStatusHub(){
+ const failed=(data?.sources||[]).filter(s=>s.status!=='ok'),lastOk=(data?.sources||[]).map(s=>s.last_success_at).filter(Boolean).sort().slice(-1)[0];
+ return `<div class="wxc-box"><h2>来源与自动更新状态</h2><p><b>资料库人工整理：</b>${esc(localTime(data?.curation_updated_at))}</p><p><b>最近采集尝试：</b>${esc(localTime(data?.last_attempt_at))}</p><p><b>最近完整成功：</b>${esc(localTime(lastOk))}</p><p class="${failed.length?'wxc-warning':'wxc-meta'}">${failed.length?'当前有 '+failed.length+' 个来源不可用或未通过实网验收；因此不能把页面上的旧资料理解成“已更新到今天”。':'自动来源当前正常。'}</p><p class="wxc-meta">“重新载入已发布数据”只重新读取网站已经发布的研究 JSON，不会伪装成后台抓取。真正采集由 GitHub Actions 定时任务负责。</p></div>${sourceArchiveView()}`;
+}
+
 
 function render(){
 exportRecords.clear();
-root.innerHTML=`<header class="wxc-hero"><span class="wxc-eyebrow">MYALPHA VIEW / 方法研究中心</span><h1>读观点，留证据，形成自己的判断</h1><p>学习可复用的方法、具体操作与风险边界；文章只是证据来源，不以“收集文章数量”为目标。</p><p class="wxc-meta">${data?'已收录 '+data.articles.length+' 篇正文整理 · 内容整理时间：'+esc(localTime(data.curation_updated_at)):'正在读取研究资料…'}</p>${data&&(data.sources||[]).some(s=>s.status!=='ok')?'<p class="wxc-warning">下方文章已可阅读；后台自动更新尚未完成实网验收，不代表实时或全量收录。</p>':''}</header><nav class="wxc-tabs" aria-label="文学城栏目">${Object.entries({topics:'主题研究',methodmemory:'方法记忆',operations:'具体操作',validation:'验证结果',failures:'失败复盘',evolution:'观点演变',sources:'来源档案'}).map(([k,v])=>`<button data-tab="${k}" aria-pressed="${tab===k}">${v}</button>`).join('')}<button id="wxcReload">刷新资料</button></nav><div id="wxcContent"></div>`;
+root.innerHTML=`<header class="wxc-hero"><span class="wxc-eyebrow">MYALPHA VIEW / 方法研究中心</span><h1>读观点，留证据，形成自己的判断</h1><p>学习可复用的方法、具体操作与风险边界；文章只是证据来源，不以“收集文章数量”为目标。</p><div class="wxc-freshness"><span>资料库整理：${data?esc(localTime(data.curation_updated_at)):'读取中'}</span><span>最近采集尝试：${data?esc(localTime(data.last_attempt_at)):'读取中'}</span></div>${data&&(data.sources||[]).some(s=>s.status!=='ok')?'<p class="wxc-warning">自动来源目前并非实时成功状态。历史资料可正常研究，但不要把旧内容误认为“今天已更新”。</p>':''}</header><nav class="wxc-tabs wxc-primary-tabs" aria-label="文学城栏目">${Object.entries({overview:'研究总览',methods_hub:'方法与操作',review_hub:'验证与复盘',sources_hub:'来源与状态'}).map(([k,v])=>`<button data-tab="${k}" aria-pressed="${tab===k}">${v}</button>`).join('')}<button id="wxcReload" title="只重新读取网站已发布的数据，不触发后台采集">重新载入已发布数据</button></nav><div id="wxcContent"></div>`;
 root.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{tab=b.dataset.tab;render()});root.querySelector('#wxcReload').onclick=load;if(!data)return;
 const body=root.querySelector('#wxcContent');
+if(tab==='overview'){body.innerHTML=researchCenterOverview();return;}
+if(tab==='methods_hub'){body.innerHTML=methodsAndOperationsView();return;}
+if(tab==='review_hub'){body.innerHTML=validationAndReviewView();return;}
+if(tab==='sources_hub'){body.innerHTML=sourceStatusHub();return;}
 if(tab==='topics'){body.innerHTML=topicStudyView();return;}
 if(tab==='methodmemory'){body.innerHTML=methodMemoryView();return;}
 if(tab==='operations'){body.innerHTML=intelOperationView();return;}

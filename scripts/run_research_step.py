@@ -7,7 +7,7 @@ from pathlib import Path
 
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/"scripts"))
-from research_boundary_guard import snapshot, assert_allowed, git_worktree_paths
+from research_boundary_guard import snapshot, assert_allowed, git_worktree_paths, check_evidence_lock
 
 AUDIT=ROOT/"research"/"audit"/"step_boundary_log.json"
 
@@ -24,10 +24,15 @@ def main():
     if cmd and cmd[0]=="--":cmd=cmd[1:]
     if not cmd:
         raise SystemExit("missing command after --")
+    lock_before=check_evidence_lock()
+    if lock_before:
+        print(json.dumps({"ok":False,"step":args.name,"evidence_lock_before":lock_before},ensure_ascii=False,indent=2))
+        return 6
     before=snapshot()
     started=datetime.now(timezone.utc).isoformat()
     proc=subprocess.run(cmd,cwd=ROOT)
     after=snapshot()
+    lock_after=check_evidence_lock()
     same=before==after
     allowed_rc=assert_allowed(git_worktree_paths(),label=f"step:{args.name}:worktree")
     record={
@@ -39,6 +44,7 @@ def main():
         "command":cmd,
         "returncode":proc.returncode,
         "production_boundary_unchanged":same,
+        "evidence_lock_unchanged":not lock_after,
         "research_only_worktree":allowed_rc==0,
         "before":before,
         "after":after,
@@ -51,6 +57,9 @@ def main():
     AUDIT.write_text(json.dumps(prior,ensure_ascii=False,indent=2),encoding="utf-8")
     if proc.returncode!=0:
         return proc.returncode
+    if lock_after:
+        print(json.dumps({"ok":False,"step":args.name,"evidence_lock_after":lock_after},ensure_ascii=False,indent=2))
+        return 6
     if not same:
         print(json.dumps({"ok":False,"step":args.name,"reason":"production_boundary_changed"},ensure_ascii=False,indent=2))
         return 4

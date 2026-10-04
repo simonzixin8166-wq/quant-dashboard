@@ -1,0 +1,60 @@
+{
+  "schema_version": "1.0",
+  "mode": "shadow_no_forward_ledger_write",
+  "horizons": [5, 20, 60],
+  "baseline_revalidation_tolerance": 0.03,
+  "definitions": {
+    "CP-01": {
+      "name": "核心 ETF 回撤分档",
+      "evaluation_asset": "event_symbol",
+      "benchmark": "QQQ",
+      "expected_direction_by_detail": {
+        "tier1": "bullish",
+        "tier2": "bullish",
+        "tier3": "bullish"
+      },
+      "success_basis": "directional_alignment",
+      "interpretation": "评价回撤分档触发后对应 ETF 的前瞻表现；只做研究验证，不改变分档阈值。"
+    },
+    "CP-02": {
+      "name": "TQQQ / QQQ 回调杠杆情境",
+      "evaluation_asset": "QQQ",
+      "benchmark": null,
+      "expected_direction_by_detail": {
+        "hard_exit": "bearish",
+        "tier2": "bearish",
+        "tier1": "bearish",
+        "partial_restore": "bullish",
+        "full_restore": "bullish"
+      },
+      "objective_group_by_detail": {
+        "hard_exit": "risk_reduction",
+        "tier2": "risk_reduction",
+        "tier1": "risk_reduction",
+        "partial_restore": "risk_restore",
+        "full_restore": "risk_restore"
+      },
+      "success_basis": "directional_alignment_proxy",
+      "interpretation": "CP-02 的降低风险与恢复风险必须分开评价；使用 QQQ 作为状态机评价序列，不把 TQQQ 杠杆收益混进同一成绩。"
+    },
+    "CP-03": {
+      "name": "LEAPS Opportunity",
+      "evaluation_asset": "event_symbol",
+      "benchmark": "QQQ",
+      "expected_direction_by_detail": {
+        "candidate": "bullish",
+        "strong": "bullish"
+      },
+      "success_basis": "underlying_directional_proxy",
+      "interpretation": "只评价标的走势，不伪造 LEAPS 合约 P&L；真实期权收益必须等合约级数据。"
+    }
+  },
+  "guardrails": [
+    "Forward Trigger records remain the source of truth.",
+    "This foundation does not write an Outcome stream during the 10-session stabilization window.",
+    "Historical replay and Forward outcomes must remain separately labeled.",
+    "Baseline price is revalidated against local point-in-time history before scoring.",
+    "A baseline mismatch is quarantined rather than silently rescored.",
+    "No outcome result may automatically change production thresholds, position sizing, Hard Exit rules, or place orders."
+  ]
+}

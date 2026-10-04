@@ -1,7 +1,7 @@
 (function(global){
   'use strict';
   const $=id=>document.getElementById(id);
-  const state={publicData:null,evidenceData:null,systemStatus:null,plannerData:null,researchData:null,selfImproveData:null,learningEvalData:null,crossAssetData:null,breadthData:null,regimeData:null,rangeData:null,playbookData:null,ledgerAnchor:null,lastRender:0};
+  const state={publicData:null,evidenceData:null,systemStatus:null,plannerData:null,researchData:null,selfImproveData:null,learningEvalData:null,crossAssetData:null,breadthData:null,regimeData:null,rangeData:null,playbookData:null,ledgerAnchor:null,outcomeData:null,lastRender:0};
   const MEMORY_KEY='mavAgentDecisionMemoryV562', LEGACY_MEMORY_KEY='mavAgentDecisionMemoryV56', POLICY_KEY='mavLearningPolicyV1';
 
   function n(v){const x=Number(v);return Number.isFinite(x)?x:null}
@@ -90,7 +90,7 @@
 
   async function loadPublic(){
     try{
-      const [a,e,s,h,p,x,v7,le,ca,bi,rg,range,pb,la]=await Promise.all([
+      const [a,e,s,h,p,x,v7,le,ca,bi,rg,range,pb,la,po]=await Promise.all([
         fetch('research/autonomous_agent.json?v='+Date.now(),{cache:'no-store'}),
         fetch('research/evidence_attribution.json?v='+Date.now(),{cache:'no-store'}),
         fetch('data/source_intelligence.json?v='+Date.now(),{cache:'no-store'}),
@@ -104,7 +104,8 @@
         fetch('research/regime_combination_memory.json?v='+Date.now(),{cache:'no-store'}).catch(()=>null),
         fetch('research/range_intelligence.json?v='+Date.now(),{cache:'no-store'}).catch(()=>null),
         fetch('research/playbook_status.json?v='+Date.now(),{cache:'no-store'}).catch(()=>null),
-        fetch('research/ledger_anchor.json?v='+Date.now(),{cache:'no-store'}).catch(()=>null)
+        fetch('research/ledger_anchor.json?v='+Date.now(),{cache:'no-store'}).catch(()=>null),
+        fetch('research/playbook_outcome_shadow.json?v='+Date.now(),{cache:'no-store'}).catch(()=>null)
       ]);
       state.publicData=a.ok?await a.json():null;
       state.evidenceData=e.ok?await e.json():null;
@@ -120,7 +121,8 @@
       state.rangeData=range&&range.ok?await range.json():null;
       state.playbookData=pb&&pb.ok?await pb.json():null;
       state.ledgerAnchor=la&&la.ok?await la.json():null;
-    }catch{state.publicData=null;state.evidenceData=null;state.sourceIntel=null;state.systemStatus=null;state.plannerData=null;state.researchData=null;state.selfImproveData=null;state.learningEvalData=null;state.crossAssetData=null;state.breadthData=null;state.regimeData=null;state.rangeData=null;state.playbookData=null;state.ledgerAnchor=null}
+      state.outcomeData=po&&po.ok?await po.json():null;
+    }catch{state.publicData=null;state.evidenceData=null;state.sourceIntel=null;state.systemStatus=null;state.plannerData=null;state.researchData=null;state.selfImproveData=null;state.learningEvalData=null;state.crossAssetData=null;state.breadthData=null;state.regimeData=null;state.rangeData=null;state.playbookData=null;state.ledgerAnchor=null;state.outcomeData=null}
   }
 
 
@@ -208,6 +210,12 @@
   }
 
 
+  function outcomeShadowHtml(){
+    const o=state.outcomeData||{};if(!o.version)return'';
+    const m=o.mature_total||{},p=o.pending_total||{};
+    return `<div class="agent-change"><b>Outcome Learning · Shadow Only</b><span>Forward Trigger ${esc(o.eligible_forward_triggers??0)} · 5日成熟 ${esc(m['5']??0)} / 待成熟 ${esc(p['5']??0)} · 20日成熟 ${esc(m['20']??0)} · 60日成熟 ${esc(m['60']??0)}</span></div><small>只建立结果学习闭环，不写 Forward Outcome Ledger；样本不足时不展示胜率、不改变正式规则。</small>`;
+  }
+
   function playbookRuntimeHtml(){
     const d=state.playbookData||{},a=state.ledgerAnchor||{};
     if(!Array.isArray(d.playbooks)||!d.playbooks.length)return'';
@@ -223,6 +231,7 @@
       <div class="journal-table-wrap"><table class="journal-table"><thead><tr><th>剧本</th><th>标的</th><th>当前状态</th><th>运行</th><th>证据</th><th>规则</th></tr></thead><tbody>${rows}</tbody></table></div>
       <div class="agent-metrics"><span>Heartbeat ${esc(d.heartbeat?.status||'—')}</span><span>Data Quality ${esc(d.data_quality?.status||'—')}</span><span>Kill Switch ${d.kill_switch?.global_enabled===false?'已暂停':'正常'}</span><span>Ledger ${esc(a.status||d.storage?.health||'—')}</span></div>
       <p><strong>Forward 起始：</strong>${esc(s.start_market_date||'2026-10-02')} · <strong>账本摘要：</strong>${esc(counts)} · <strong>Root：</strong>${esc(root?root.slice(0,10)+'…':'—')}</p>
+      ${outcomeShadowHtml()}
       <small>CP-02 的 full_restore 若是启动基线，只表示当前允许恢复目标敞口，不代表新的 Forward Trigger；Raw Ledger 始终留在私有仓库。</small></details>`;
   }
 

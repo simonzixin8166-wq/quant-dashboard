@@ -25,7 +25,7 @@ FEEDBACK=RESEARCH/"forward_learning_feedback.json"
 PREV=RESEARCH/"controlled_learning_policy.json"
 OUT=PREV
 
-VERSION="6.15.8d"
+VERSION="6.13.2"
 MAX_ABS_PRIORITY_DELTA=5.0
 
 def load(path):

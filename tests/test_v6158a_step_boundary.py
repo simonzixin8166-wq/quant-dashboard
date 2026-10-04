@@ -7,13 +7,18 @@ from research_boundary_guard import snapshot,check_manifest_completeness,check_a
 assert check_manifest_completeness()==[]
 assert check_evidence_lock()==[]
 snap=snapshot()
-assert snap["manifest_version"]=="1.0"
+assert snap["manifest_version"]=="1.1"
 files=snap["files"]
 assert "config/playbooks.public.json" in files
 assert "scripts/playbook_config.py" in files
 assert "scripts/fetch_and_build.py" in files
 assert "scripts/autonomous_research_planner.py" in files
 assert "docs/research/ledger_anchor.json" in files
+assert any(k.startswith(".github/") for k in files)
+assert any(k.startswith("config/") for k in files)
+assert any(k.startswith("docs/") for k in files)
+assert any(k.startswith("data/") for k in files)
+assert any(k.startswith("scripts/") for k in files)
 
 # Negative write injection must be rejected by the allowlist.
 assert check_allowed_paths(["research/audit/x.json"])==[]

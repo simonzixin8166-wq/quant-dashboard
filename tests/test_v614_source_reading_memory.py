@@ -49,7 +49,7 @@ source={
 }
 
 out=srm.build(source)
-assert out["version"]=="6.14.0"
+assert out["version"]=="6.14.2"
 assert out["mode"]=="research_only_free_first"
 assert out["counts"]["source_records"]==4
 assert out["counts"]["records_with_testable_rules"]==1
@@ -94,7 +94,7 @@ method_source={
 method_validation={"events":[]}
 method=mm.build(method_source,method_validation,histories={},evidence={},reading=out)
 position=next(x for x in method["methods"] if x["method"]=="仓位与加减仓")
-assert method["version"]=="6.14.0"
+assert method["version"]=="6.14.2"
 assert method["counts"]["source_reading_testable_rules"]==1
 assert position["source_reading"]["testable_rule_candidates"]==1
 assert position["source_reading"]["state"]=="candidate_rules_available"

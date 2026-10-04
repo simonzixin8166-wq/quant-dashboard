@@ -1,7 +1,7 @@
 (function(global){
   'use strict';
   const $=id=>document.getElementById(id);
-  const state={publicData:null,evidenceData:null,systemStatus:null,plannerData:null,researchData:null,selfImproveData:null,learningEvalData:null,crossAssetData:null,breadthData:null,regimeData:null,rangeData:null,playbookData:null,ledgerAnchor:null,outcomeData:null,replayData:null,lastRender:0};
+  const state={publicData:null,evidenceData:null,systemStatus:null,plannerData:null,researchData:null,selfImproveData:null,learningEvalData:null,crossAssetData:null,breadthData:null,regimeData:null,rangeData:null,playbookData:null,ledgerAnchor:null,outcomeData:null,replayData:null,controlledPolicy:null,lastRender:0};
   const MEMORY_KEY='mavAgentDecisionMemoryV562', LEGACY_MEMORY_KEY='mavAgentDecisionMemoryV56', POLICY_KEY='mavLearningPolicyV1';
 
   function n(v){const x=Number(v);return Number.isFinite(x)?x:null}
@@ -9,7 +9,7 @@
   function money(v){return Number.isFinite(Number(v))?'$'+Number(v).toFixed(2):'—'}
   function num(v,d=2){return Number.isFinite(Number(v))?Number(v).toFixed(d):'—'}
   function humanTime(v){if(!v)return'—';try{return new Intl.DateTimeFormat('zh-CN',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false}).format(new Date(v))}catch{return String(v)}}
-  function kindLabel(v){return({regime_combination:'组合环境',breadth_intelligence:'市场宽度',cross_asset_divergence:'跨资产背离',market_anomaly:'个股异动',failure_review:'失败复盘',method_evidence_gap:'方法验证',module_learning_review:'模块学习',architecture_gap:'架构检查',leverage_rebound:'杠杆回调',module_learning_design:'模块学习设计',research_process:'研究流程'})[v]||v||'研究'}
+  function kindLabel(v){return({regime_combination:'组合环境',breadth_intelligence:'市场宽度',cross_asset_divergence:'跨资产背离',market_anomaly:'个股异动',failure_review:'失败复盘',method_evidence_gap:'方法验证',module_learning_review:'模块学习',architecture_gap:'架构检查',leverage_rebound:'杠杆回调',module_learning_design:'模块学习设计',research_process:'研究流程',playbook_validation:'剧本验证'})[v]||v||'研究'}
   function confidenceLabel(v){return({high:'高',medium:'中',low:'低'})[v]||v||'—'}
   function shadowChange(x){const p=x?.proposed_change||{};if(p.target_mode==='shadow_only')return '先建立结果标签，再进入影子学习';if(p.require_explicit_unknowns&&p.prioritize_missing_official_evidence)return '强制记录未知项，并优先补齐官方证据';if(Number.isFinite(Number(p.priority_weight_delta)))return '研究优先级权重 '+(Number(p.priority_weight_delta)>0?'+':'')+Number(p.priority_weight_delta);return Object.entries(p).map(([k,v])=>k+'='+String(v)).join(' · ')||'等待候选说明'}
   function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
@@ -90,7 +90,7 @@
 
   async function loadPublic(){
     try{
-      const [a,e,s,h,p,x,v7,le,ca,bi,rg,range,pb,la,po,rp]=await Promise.all([
+      const [a,e,s,h,p,x,v7,le,ca,bi,rg,range,pb,la,po,rp,cl]=await Promise.all([
         fetch('research/autonomous_agent.json?v='+Date.now(),{cache:'no-store'}),
         fetch('research/evidence_attribution.json?v='+Date.now(),{cache:'no-store'}),
         fetch('data/source_intelligence.json?v='+Date.now(),{cache:'no-store'}),
@@ -106,7 +106,8 @@
         fetch('research/playbook_status.json?v='+Date.now(),{cache:'no-store'}).catch(()=>null),
         fetch('research/ledger_anchor.json?v='+Date.now(),{cache:'no-store'}).catch(()=>null),
         fetch('research/playbook_outcome_shadow.json?v='+Date.now(),{cache:'no-store'}).catch(()=>null),
-        fetch('research/walk_forward_replay.json?v='+Date.now(),{cache:'no-store'}).catch(()=>null)
+        fetch('research/walk_forward_replay.json?v='+Date.now(),{cache:'no-store'}).catch(()=>null),
+        fetch('research/controlled_learning_policy.json?v='+Date.now(),{cache:'no-store'}).catch(()=>null)
       ]);
       state.publicData=a.ok?await a.json():null;
       state.evidenceData=e.ok?await e.json():null;
@@ -124,7 +125,8 @@
       state.ledgerAnchor=la&&la.ok?await la.json():null;
       state.outcomeData=po&&po.ok?await po.json():null;
       state.replayData=rp&&rp.ok?await rp.json():null;
-    }catch{state.publicData=null;state.evidenceData=null;state.sourceIntel=null;state.systemStatus=null;state.plannerData=null;state.researchData=null;state.selfImproveData=null;state.learningEvalData=null;state.crossAssetData=null;state.breadthData=null;state.regimeData=null;state.rangeData=null;state.playbookData=null;state.ledgerAnchor=null;state.outcomeData=null;state.replayData=null}
+      state.controlledPolicy=cl&&cl.ok?await cl.json():null;
+    }catch{state.publicData=null;state.evidenceData=null;state.sourceIntel=null;state.systemStatus=null;state.plannerData=null;state.researchData=null;state.selfImproveData=null;state.learningEvalData=null;state.crossAssetData=null;state.breadthData=null;state.regimeData=null;state.rangeData=null;state.playbookData=null;state.ledgerAnchor=null;state.outcomeData=null;state.replayData=null;state.controlledPolicy=null}
   }
 
 
@@ -146,6 +148,17 @@
       <article class="agent-card agent-review"><div class="agent-card-head"><div><span>EVIDENCE GAPS</span><h3>当前最需要补什么</h3></div><b>${g.length} 类缺口</b></div><ul>${g.slice(0,5).map(x=>`<li><b>${esc(x.category)}</b> · ${x.count||0} 项</li>`).join('')||'<li>当前没有集中证据缺口。</li>'}</ul><details><summary>下一轮学习重点</summary><ul>${focus.slice(0,5).map(x=>`<li><b>#${x.priority} ${esc(x.focus)}</b> · ${esc(x.action)}</li>`).join('')}</ul></details><small>证据不足时只降置信度或补证据，不用猜测补全事实。</small></article></div>`;
   }
 
+  function controlledLearningHtml(){
+    const d=state.controlledPolicy||{};if(!d.version)return'';
+    const adj=d.candidate_adjustments||[],active=adj.filter(x=>x.active),pb=d.playbook_validation_priority_bonus||{};
+    const applied=Object.entries(d.task_kind_priority_delta||{});
+    return `<div class="agent-section-title"><b>V6.12 Controlled Learning · 受控自学习</b><span>Research Only · 正式交易规则锁定</span></div>
+      <article class="agent-card agent-watch"><div class="agent-card-head"><div><span>CONTROLLED LEARNING ZONE</span><h3>系统可自动改变研究行为，不自动改变交易规则</h3></div><b>${esc(d.mode||'')}</b></div>
+      <div class="agent-metrics"><span>已激活调整 ${active.length}</span><span>研究权重调整 ${applied.length}</span><span>单项上限 ±${esc(d.max_abs_priority_delta??5)}</span><span>CP-01验证 +${esc(pb['CP-01']??0)}</span><span>CP-02验证 +${esc(pb['CP-02']??0)}</span><span>CP-03验证 +${esc(pb['CP-03']??0)}</span></div>
+      <p><strong>当前自动范围：</strong>研究任务优先级、证据状态、提醒排序。重复 Workflow 不累计学习；Replay 与 Forward 分开。</p>
+      <small>仓位、下单、核心配置、CP阈值与 TQQQ Hard Exit 均不受本层自动修改。</small></article>`;
+  }
+
   function brainHtml(){
     if(decisionDataBlock().blocked)return '<div class="agent-empty">当前研究计划与研究结果因关键数据新鲜度不足暂停作为当前结论展示；待数据恢复后自动恢复。</div>';
     const p=state.plannerData||{},x=state.researchData||{},v=state.selfImproveData||{};
@@ -157,7 +170,7 @@
       <div class="agent-grid">${cands.slice(0,6).map(x=>`<article class="agent-card agent-watch"><div class="agent-card-head"><div><span>影子测试 · ${esc(kindLabel(x.kind))}</span><h3>${esc(x.scope==='tab-cn-hk'?'A股港股学习模式':x.scope==='evidence_coverage'?'证据完整度':x.scope||'研究策略')}</h3></div><b>${esc(x.state==='eligible_for_review'?'可复核':'影子测试')}</b></div><p><strong>候选改进：</strong>${esc(shadowChange(x))}</p><p><strong>依据：</strong>${esc(x.reason||'')}</p><div class="agent-metrics"><span>证据 ${x.evidence_n||0}</span><span>独立市场日 ${x.shadow_market_days??x.shadow_runs??0} 天</span><span>Workflow ${x.workflow_runs||0} 次</span><span>最低市场日门槛 ${v.promotion_gate?.minimum_shadow_market_days??v.promotion_gate?.minimum_shadow_runs??5} 天</span></div><small>达到门槛也不会自动修改正式交易规则；Promotion Gate 要求人工复核。</small></article>`).join('')||'<div class="agent-empty">目前没有新的策略候选。</div>'}</div>`;
     const executed=`<div class="agent-section-title"><b>自主研究执行 · 研究结果</b><span>${results.length} 项已分析 · 反证 ${x.summary?.with_counter_evidence||0} · 未知项 ${x.summary?.with_unknowns||0}</span></div>
       <div class="agent-grid">${results.slice(0,6).map(r=>`<article class="agent-card agent-${r.confidence==='high'?'watch':'review'}"><div class="agent-card-head"><div><span>已分析 · ${esc(kindLabel(r.kind))}</span><h3>${esc(r.title||r.key||'自主研究')}</h3></div><b>${esc(confidenceLabel(r.confidence))}置信 · ${r.evidence_score??'—'}</b></div><p><strong>暂时结论：</strong>${esc(r.provisional_conclusion||'')}</p><details open><summary>支持证据（${(r.supporting_evidence||[]).length}）</summary><ul>${(r.supporting_evidence||[]).slice(0,5).map(z=>`<li>${esc(z)}</li>`).join('')||'<li>暂无</li>'}</ul></details><details><summary>反证（${(r.counter_evidence||[]).length}）</summary><ul>${(r.counter_evidence||[]).slice(0,5).map(z=>`<li>${esc(z)}</li>`).join('')||'<li>暂无</li>'}</ul></details><details><summary>未知项（${(r.unknowns||[]).length}）</summary><ul>${(r.unknowns||[]).slice(0,5).map(z=>`<li>${esc(z)}</li>`).join('')||'<li>暂无</li>'}</ul></details><small>已自动分析 ${r.analysis_runs||1} 次 · 不补猜缺失事实 · 不自动交易。</small></article>`).join('')||'<div class="agent-empty">等待执行第一批自主研究任务。</div>'}</div>`;
-    return planner+executed+shadow;
+    return controlledLearningHtml()+planner+executed+shadow;
   }
 
   function crossAssetHtml(){

@@ -92,7 +92,7 @@ def market_context(histories: dict, baseline_date: str):
         d=pd.Timestamp(str(baseline_date)[:10])
     except Exception:
         return {"state":"unknown"}
-    work=q[q.index <= d].copy()
+    work=q[q.index < d].copy()
     if work.empty:
         return {"state":"unknown"}
     close=work["close"].astype(float)
@@ -268,7 +268,7 @@ def build(source: dict, validation: dict, histories: dict|None=None, evidence: d
             h="60" if e.get("outcomes",{}).get("60") else ("20" if e.get("outcomes",{}).get("20") else "5")
             outcome=e.get("outcomes",{}).get(h)
             align=e.get("alignment",{}).get(h)
-            if outcome and (align=="not_aligned" or finite(outcome.get("return")) is not None and outcome.get("return")<0):
+            if outcome and align=="not_aligned":
                 failures.append({
                     "event_id":e.get("event_id"),"author":e.get("author"),"symbol":e.get("symbol"),
                     "title":e.get("title"),"url":e.get("url"),"baseline_date":e.get("baseline_date"),

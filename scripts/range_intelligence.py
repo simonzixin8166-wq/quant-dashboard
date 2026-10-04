@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
-"""V6.10b research-only Range Intelligence.
+"""V6.10b research-only Market Location Research.
+
+Legacy filename retained for compatibility. This is not the planned structural
+Range Engine / volume-profile / support-resistance state machine.
 
 This module is deliberately outside the production Playbook state machine.
 It does not write the Forward Ledger, change CP-01/02/03, size positions,
@@ -82,6 +85,9 @@ def build(data=None, playbook=None, now=None):
         })
     payload = {
         "version": VERSION,
+        "display_name": "Market Location Research",
+        "legacy_module_name": "Range Intelligence",
+        "capability_scope": "RSI + drawdown + distance-to-200MA market-location classifier; not structural Range Engine",
         "generated_at": now.astimezone(timezone.utc).isoformat(),
         "market_date": market_date,
         "mode": "research_only",

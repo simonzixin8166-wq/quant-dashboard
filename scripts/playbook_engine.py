@@ -24,6 +24,9 @@ ANCHOR_OUT=ROOT/"docs"/"research"/"ledger_anchor.json"
 
 ENGINE_VERSION="6.10a.0"
 SCHEMA_VERSION="1.0"
+LEGACY_CP01_HASH="ad5eab7a409996693a01eea24dfeb9a2f070a27f535092a7cd079acee14972b9"
+FORWARD_BASELINE_DATE="2026-10-02"
+STABILIZATION_SESSIONS=10
 
 def load(path,default=None):
     try:return json.loads(path.read_text(encoding="utf-8"))
@@ -149,6 +152,8 @@ def _state_row(playbook_id,symbol,state,detail,market_date,quality,metrics=None,
         "market_date":market_date,
         "rule_version":PLAYBOOKS[playbook_id].get("rule_version"),
         "rule_hash":rh,
+        "lifecycle":PLAYBOOKS[playbook_id].get("lifecycle","active"),
+        "evidence":PLAYBOOKS[playbook_id].get("evidence","unverified"),
         "quality":quality,
         "baseline_close":baseline_close,
         "benchmark":benchmark,
@@ -293,13 +298,27 @@ def build(now=None,writer=None):
     starting_forward=forward_active and not previous_forward
     commit_sha=git_sha()
 
-    trigger_events=[];audit_events=[];discipline_events=[]
+    trigger_events=[];audit_events=[];discipline_events=[];correction_events=[]
     pending_by_entity={}
 
     if not gate["fresh"]:
         audit_events.append(_audit_event("heartbeat_or_freshness_failed",";".join(gate["global_reasons"]),gate["market_date"],now,commit_sha,{"expected_market_date":gate["expected_market_date"]}))
     if starting_forward:
         audit_events.append(_audit_event("forward_clock_started","Forward clock baseline established; current states are not backfilled as triggers.",gate["market_date"],now,commit_sha))
+
+    legacy_cp01=any(
+        x.get("playbook_id")=="CP-01" and x.get("rule_hash")==LEGACY_CP01_HASH
+        for x in (previous.get("playbooks") or [])
+    )
+    if legacy_cp01 and any(x.get("playbook_id")=="CP-01" and x.get("rule_hash")!=LEGACY_CP01_HASH for x in rows):
+        corr=_audit_event(
+            "rule_hash_canonicalization_correction",
+            "CP-01 rule_hash now includes its existing core_tiers dependencies; trading thresholds and semantics are unchanged.",
+            gate["market_date"],now,commit_sha,
+            {"playbook_id":"CP-01","old_rule_hash":LEGACY_CP01_HASH,"new_rule_hash":rule_hash("CP-01"),"semantic_change":False}
+        )
+        corr["record_type"]="correction_event"
+        correction_events.append(corr)
 
     for row in rows:
         old=prev_rows.get(row["entity_key"]) or {}
@@ -338,8 +357,19 @@ def build(now=None,writer=None):
     results=[]
     if forward_active:
         try:
-            for stream,events in (("trigger",trigger_events),("audit",audit_events),("discipline",discipline_events),("correction",[])):
-                results.append(writer.append_many(stream,events,gate["market_date"] or now.date().isoformat()))
+            stream_events={"trigger":trigger_events,"audit":audit_events,"discipline":discipline_events,"correction":correction_events}
+            for stream in ("trigger","audit","discipline","correction"):
+                res=writer.append_many(stream,stream_events[stream],gate["market_date"] or now.date().isoformat())
+                results.append(res)
+                if res.reconciled and stream!="correction":
+                    corr=_audit_event(
+                        "ledger_head_reconciled",
+                        f"{stream} ledger monthly file verified ahead of stale head metadata; head metadata repaired.",
+                        gate["market_date"],now,commit_sha,
+                        {"stream":stream,"recovered_records":res.recovered_records,"semantic_change":False}
+                    )
+                    corr["record_type"]="correction_event"
+                    correction_events.append(corr)
             a=aggregate_anchor(results)
             anchor.update(a);anchor["status"]="ok";write_ok=True
         except Exception as exc:
@@ -356,6 +386,11 @@ def build(now=None,writer=None):
             row["committed_state_key"]=row["state_key"]
             row["pending_transition"]=False
 
+    observed=parse_date(gate.get("market_date"))
+    baseline=parse_date(FORWARD_BASELINE_DATE)
+    stabilization_completed=0
+    if observed and baseline and observed>=baseline:
+        stabilization_completed=min(STABILIZATION_SESSIONS,1+len(sessions_between(baseline,observed)))
     status={
         "version":ENGINE_VERSION,"schema_version":SCHEMA_VERSION,"generated_at":now_iso(now),
         "market_date":gate["market_date"],"expected_market_date":gate["expected_market_date"],
@@ -390,6 +425,12 @@ def build(now=None,writer=None):
             "health":anchor["status"],
             "raw_private":True,
             "public_output":"sanitized status + anchor only",
+        },
+        "stabilization":{
+            "start_market_date":FORWARD_BASELINE_DATE,
+            "completed_sessions":stabilization_completed,
+            "target_sessions":STABILIZATION_SESSIONS,
+            "complete":stabilization_completed>=STABILIZATION_SESSIONS,
         },
         "counts":{
             "entities":len(rows),

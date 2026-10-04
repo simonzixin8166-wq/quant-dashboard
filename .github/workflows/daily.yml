@@ -64,7 +64,7 @@ jobs:
           MYALPHA_PLAYBOOK_ALERTS_ENABLED: "false"
         run: python scripts/playbook_engine.py
 
-      - name: Build V6.10b Range Intelligence (research-only)
+      - name: Build V6.10b Market Location Research (research-only)
         run: python scripts/range_intelligence.py
 
       - name: Update FRED point-in-time macro context
@@ -198,7 +198,7 @@ jobs:
           python tests/test_system_status_center.py
           python tests/test_v610a_playbook_engine.py
           python tests/test_v610b_parallel_safety.py
-          python scripts/private_guardrail.py
+          python scripts/private_guardrail.py  # Public Leak Guard
           python -m py_compile scripts/generate_build_manifest.py scripts/verify_deployment.py
         
       - name: Commit and push

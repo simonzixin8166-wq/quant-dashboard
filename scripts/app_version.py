@@ -21,6 +21,8 @@ COMPONENT_VERSIONS = {
     "system_status": "4",
     "playbook_engine": "6.10a.0",
     "trigger_ledger_schema": "1.0",
+    "market_location_research": "6.10b.1",
+    "public_leak_guard": "6.10b.1",
     "range_intelligence": "6.10b.0",
     "private_guardrail": "6.10b.0",
 }

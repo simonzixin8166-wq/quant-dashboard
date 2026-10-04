@@ -21,9 +21,21 @@ PLAYBOOKS={row["playbook_id"]:row for row in _REGISTRY["playbooks"]}
 TQQQ_RULES=PLAYBOOKS["CP-02"]["rules"]
 LEAPS_RULES=PLAYBOOKS["CP-03"]["rules"]
 
+# Hash-contract versions are data-integrity metadata, not trading thresholds.
+# CP-01 v2 fixes the legacy omission where core_tiers lived outside the
+# playbook object and therefore did not affect rule_hash.
+HASH_CONTRACT_VERSIONS={"CP-01":"2","CP-02":"1","CP-03":"1"}
+DEPENDENCY_VERSIONS={"CP-01":{"core_level_semantics":"1.0"}}
+
 def canonical_rule(playbook_id:str):
     row=PLAYBOOKS[playbook_id]
     frozen={k:v for k,v in row.items() if k not in {"evidence","lifecycle","notifications_enabled","ledger_enabled","enabled"}}
+    if playbook_id=="CP-01":
+        frozen["_hash_contract_version"]=HASH_CONTRACT_VERSIONS["CP-01"]
+        frozen["_dependencies"]={
+            "core_tiers":{symbol:CORE_TIERS[symbol] for symbol in row.get("assets",[]) if symbol in CORE_TIERS},
+            **DEPENDENCY_VERSIONS["CP-01"],
+        }
     return json.dumps(frozen,ensure_ascii=False,sort_keys=True,separators=(",",":"))
 
 def rule_hash(playbook_id:str):

@@ -10,12 +10,16 @@ import range_intelligence as ri
 import private_guardrail as pg
 
 # Stabilization contract: hashes captured from the V6.10a production baseline.
-EXPECTED = {
-    "CP-01": "ad5eab7a409996693a01eea24dfeb9a2f070a27f535092a7cd079acee14972b9",
+LEGACY_CP01_HASH = "ad5eab7a409996693a01eea24dfeb9a2f070a27f535092a7cd079acee14972b9"
+EXPECTED_UNCHANGED = {
     "CP-02": "f89277cd0b6f80aa2682799ee45d3c02a0cd76633d855cb0621557bc18db8fb5",
     "CP-03": "20aaf8cf9b5c9dfcc137305750b16ccd04a08f873a4a2ddb83d6ef6ffd99220d",
 }
-assert {k: pc.rule_hash(k) for k in EXPECTED} == EXPECTED
+assert {k: pc.rule_hash(k) for k in EXPECTED_UNCHANGED} == EXPECTED_UNCHANGED
+assert pc.rule_hash("CP-01") != LEGACY_CP01_HASH
+assert pc.CORE_TIERS["QQQM"] == {"t1":0.12,"t2":0.18,"t3":0.25}
+assert pc.CORE_TIERS["VGT"] == {"t1":0.15,"t2":0.20,"t3":0.30}
+assert pc.CORE_TIERS["QLD"] == {"t1":0.25,"t2":0.35,"t3":0.50}
 assert pc.TQQQ_RULES["hard_exit"] == {"vix_ma50_gt": 26, "vix_ma200_gt": 24}
 
 # Range Intelligence must remain a pure research surface.
@@ -37,7 +41,7 @@ assert all(x["research_only"] and not x["scoreable"] and not x["ledger_write"] f
 assert pg.scan()==[], pg.scan()
 
 workflow=(ROOT/".github/workflows/daily.yml").read_text(encoding="utf-8")
-assert "Build V6.10b Range Intelligence (research-only)" in workflow
+assert "Build V6.10b Market Location Research (research-only)" in workflow
 assert "python scripts/range_intelligence.py" in workflow
 assert "python scripts/private_guardrail.py" in workflow
 
@@ -48,8 +52,12 @@ manifest=(ROOT/"scripts/generate_build_manifest.py").read_text(encoding="utf-8")
 assert "research/range_intelligence.json" in manifest
 
 ui=(ROOT/"docs"/"assets"/"autonomous-agent.js").read_text(encoding="utf-8")
-assert "V6.10b Range Intelligence · 区间研究" in ui
-assert "Research Only · 不写 Forward Ledger" in ui
+assert "V6.10b Market Location Research · 市场位置研究" in ui
+assert "Research Only · 不是完整 Range Engine" in ui
 assert "state.rangeData" in ui
+assert "Playbook · 剧本运行摘要" in ui
+assert "不展示私有账本内容" in ui
+assert "research/playbook_status.json" in ui
+assert "research/ledger_anchor.json" in ui
 
-print("PASS V6.10b parallel safety / Range Intelligence / Private Guardrail / production wiring")
+print("PASS V6.10b parallel safety / Market Location Research / Public Leak Guard / Playbook summary")

@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
-"""Fail-closed static guard for MyAlpha public artifacts.
+"""Public Leak Guard: fail-closed static scan for MyAlpha public artifacts.
+
+Legacy filename retained for compatibility. This is not the planned private
+capital/leverage guardrail.
 
 The public repository may contain sanitized status/anchors, but never raw
 account, brokerage-position, token, or Forward-Ledger material.
@@ -48,11 +51,11 @@ def scan():
 def main():
     findings = scan()
     if findings:
-        print("PRIVATE GUARDRAIL FAIL")
+        print("PUBLIC LEAK GUARD FAIL")
         for item in findings:
             print(item)
         raise SystemExit(1)
-    print("PASS V6.10b Private Guardrail: public artifacts contain no detected private ledger/account material")
+    print("PASS V6.10b Public Leak Guard: public artifacts contain no detected private ledger/account material")
 
 
 if __name__ == "__main__":

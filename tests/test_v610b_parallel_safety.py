@@ -36,4 +36,20 @@ assert all(x["research_only"] and not x["scoreable"] and not x["ledger_write"] f
 # Public tree must pass the fail-closed private material scan.
 assert pg.scan()==[], pg.scan()
 
-print("PASS V6.10b parallel safety / Range Intelligence / Private Guardrail")
+workflow=(ROOT/".github/workflows/daily.yml").read_text(encoding="utf-8")
+assert "Build V6.10b Range Intelligence (research-only)" in workflow
+assert "python scripts/range_intelligence.py" in workflow
+assert "python scripts/private_guardrail.py" in workflow
+
+status_src=(ROOT/"scripts/system_status_center.py").read_text(encoding="utf-8")
+assert '"range_intelligence": ROOT/"docs"/"research"/"range_intelligence.json"' in status_src
+
+manifest=(ROOT/"scripts/generate_build_manifest.py").read_text(encoding="utf-8")
+assert "research/range_intelligence.json" in manifest
+
+ui=(ROOT/"docs"/"assets"/"autonomous-agent.js").read_text(encoding="utf-8")
+assert "V6.10b Range Intelligence · 区间研究" in ui
+assert "Research Only · 不写 Forward Ledger" in ui
+assert "state.rangeData" in ui
+
+print("PASS V6.10b parallel safety / Range Intelligence / Private Guardrail / production wiring")

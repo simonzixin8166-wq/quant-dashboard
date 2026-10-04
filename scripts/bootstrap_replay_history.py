@@ -21,6 +21,7 @@ TARGETS={
     "TQQQ":"TQQQ",
 }
 PERIOD="max"
+REFRESH_SYMBOLS={"VIX":"^VIX"}
 
 def symbol_from_member(name):
     base=Path(name).name.lower()
@@ -61,11 +62,25 @@ def csv_bytes(df):
     y.to_csv(out,index=False,lineterminator="\n")
     return out.getvalue().encode("utf-8")
 
+def read_member(symbol):
+    if not ARCHIVE.exists():return None
+    name=f"{symbol.lower()}_us_d.csv"
+    try:
+        with zipfile.ZipFile(ARCHIVE,"r") as z:
+            raw=z.read(name)
+        df=pd.read_csv(io.BytesIO(raw))
+        df.columns=[str(x).lower() for x in df.columns]
+        df["date"]=pd.to_datetime(df["date"],errors="coerce")
+        for col in ("open","high","low","close","volume"):
+            df[col]=pd.to_numeric(df[col],errors="coerce")
+        return df.dropna(subset=["date","open","high","low","close"]).sort_values("date").drop_duplicates("date",keep="last")
+    except Exception:
+        return None
+
 def bootstrap():
     have=existing_symbols()
     missing={k:v for k,v in TARGETS.items() if k not in have}
-    result={"existing":sorted(have),"requested":sorted(missing),"added":[],"failed":[]}
-    if not missing:return result
+    result={"existing":sorted(have),"requested":sorted(missing),"added":[],"refreshed":[],"failed":[]}
 
     downloads={}
     for symbol,ticker in missing.items():
@@ -79,6 +94,30 @@ def bootstrap():
         except Exception as exc:
             result["failed"].append({"symbol":symbol,"reason":str(exc)[:160]})
 
+    # VIX is not part of docs/data.json, so refresh only a short recent window
+    # after the one-time bootstrap. SMH/TQQQ continue to receive normal local
+    # archive appends from docs/data.json.
+    for symbol,ticker in REFRESH_SYMBOLS.items():
+        if symbol in missing or symbol not in have:
+            continue
+        try:
+            recent=normalize(yf.download(ticker,period="10d",interval="1d",auto_adjust=False,progress=False,threads=False))
+            existing=read_member(symbol)
+            if recent is None or recent.empty or existing is None or existing.empty:
+                continue
+            before=existing["date"].max()
+            merged=pd.concat([existing,recent],ignore_index=True).sort_values("date").drop_duplicates("date",keep="last")
+            if merged["date"].max()>before:
+                downloads[symbol]=merged
+                result["refreshed"].append({
+                    "symbol":symbol,
+                    "from":before.date().isoformat(),
+                    "to":merged["date"].max().date().isoformat(),
+                    "source":"Yahoo Finance / yfinance 10d incremental refresh",
+                })
+        except Exception as exc:
+            result["failed"].append({"symbol":symbol,"reason":"refresh:"+str(exc)[:140]})
+
     if not downloads:return result
 
     ARCHIVE.parent.mkdir(parents=True,exist_ok=True)
@@ -91,13 +130,14 @@ def bootstrap():
                     zout.writestr(name,zin.read(name))
         for symbol,df in sorted(downloads.items()):
             zout.writestr(f"{symbol.lower()}_us_d.csv",csv_bytes(df))
-            result["added"].append({
-                "symbol":symbol,
-                "rows":len(df),
-                "first_date":df["date"].min().date().isoformat(),
-                "last_date":df["date"].max().date().isoformat(),
-                "source":"Yahoo Finance / yfinance one-time bootstrap",
-            })
+            if symbol in missing:
+                result["added"].append({
+                    "symbol":symbol,
+                    "rows":len(df),
+                    "first_date":df["date"].min().date().isoformat(),
+                    "last_date":df["date"].max().date().isoformat(),
+                    "source":"Yahoo Finance / yfinance one-time bootstrap",
+                })
     tmp.replace(ARCHIVE)
     return result
 

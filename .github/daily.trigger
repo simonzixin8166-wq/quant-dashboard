@@ -1,1 +1,1 @@
-Verify V6.14.7 Source Reading provenance UI in production
+Refresh V6.15.8d legacy-outcome isolation artifacts after Evidence Foundation hardening

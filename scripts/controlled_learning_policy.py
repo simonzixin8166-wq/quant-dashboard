@@ -219,7 +219,7 @@ def build(replay,outcome,self_improvement,method,feedback=None,previous=None,now
     }
 
 def main():
-    out=build(load(REPLAY),load(OUTCOME),load(SELF),load(METHOD),load(PREV))
+    out=build(load(REPLAY),load(OUTCOME),load(SELF),load(METHOD),load(FEEDBACK),load(PREV))
     OUT.parent.mkdir(parents=True,exist_ok=True)
     OUT.write_text(json.dumps(out,ensure_ascii=False,indent=2),encoding="utf-8")
     print(json.dumps({

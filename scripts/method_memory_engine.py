@@ -259,7 +259,7 @@ def build(source: dict, validation: dict, histories: dict|None=None, evidence: d
             direct_states[method][ctx.get("state") or "unknown"]+=1
 
     methods=[]
-    for method in sorted(set(source_occurrences)|set(context_buckets)|set(direct_buckets)):
+    for method in sorted(set(source_occurrences)|set(context_buckets)|set(direct_buckets)|set(reading_by_method)):
         context_evs=context_buckets.get(method,[])
         direct_evs=direct_buckets.get(method,[])
         mature60=sum(1 for e in direct_evs if e.get("outcomes",{}).get("60"))

@@ -1,7 +1,7 @@
 (function(global){
   'use strict';
   const $=id=>document.getElementById(id);
-  const state={publicData:null,evidenceData:null,systemStatus:null,plannerData:null,researchData:null,selfImproveData:null,learningEvalData:null,crossAssetData:null,breadthData:null,regimeData:null,rangeData:null,playbookData:null,ledgerAnchor:null,outcomeData:null,replayData:null,controlledPolicy:null,forwardFeedback:null,lastRender:0};
+  const state={publicData:null,evidenceData:null,systemStatus:null,plannerData:null,researchData:null,selfImproveData:null,learningEvalData:null,crossAssetData:null,breadthData:null,regimeData:null,rangeData:null,playbookData:null,ledgerAnchor:null,outcomeData:null,replayData:null,controlledPolicy:null,forwardFeedback:null,challengerExperiments:null,lastRender:0};
   const MEMORY_KEY='mavAgentDecisionMemoryV562', LEGACY_MEMORY_KEY='mavAgentDecisionMemoryV56', POLICY_KEY='mavLearningPolicyV1';
 
   function n(v){const x=Number(v);return Number.isFinite(x)?x:null}
@@ -90,7 +90,7 @@
 
   async function loadPublic(){
     try{
-      const [a,e,s,h,p,x,v7,le,ca,bi,rg,range,pb,la,po,rp,cl,ff]=await Promise.all([
+      const [a,e,s,h,p,x,v7,le,ca,bi,rg,range,pb,la,po,rp,cl,ff,ce]=await Promise.all([
         fetch('research/autonomous_agent.json?v='+Date.now(),{cache:'no-store'}),
         fetch('research/evidence_attribution.json?v='+Date.now(),{cache:'no-store'}),
         fetch('data/source_intelligence.json?v='+Date.now(),{cache:'no-store'}),
@@ -108,7 +108,8 @@
         fetch('research/playbook_outcome_shadow.json?v='+Date.now(),{cache:'no-store'}).catch(()=>null),
         fetch('research/walk_forward_replay.json?v='+Date.now(),{cache:'no-store'}).catch(()=>null),
         fetch('research/controlled_learning_policy.json?v='+Date.now(),{cache:'no-store'}).catch(()=>null),
-        fetch('research/forward_learning_feedback.json?v='+Date.now(),{cache:'no-store'}).catch(()=>null)
+        fetch('research/forward_learning_feedback.json?v='+Date.now(),{cache:'no-store'}).catch(()=>null),
+        fetch('research/challenger_experiments.json?v='+Date.now(),{cache:'no-store'}).catch(()=>null)
       ]);
       state.publicData=a.ok?await a.json():null;
       state.evidenceData=e.ok?await e.json():null;
@@ -128,7 +129,8 @@
       state.replayData=rp&&rp.ok?await rp.json():null;
       state.controlledPolicy=cl&&cl.ok?await cl.json():null;
       state.forwardFeedback=ff&&ff.ok?await ff.json():null;
-    }catch{state.publicData=null;state.evidenceData=null;state.sourceIntel=null;state.systemStatus=null;state.plannerData=null;state.researchData=null;state.selfImproveData=null;state.learningEvalData=null;state.crossAssetData=null;state.breadthData=null;state.regimeData=null;state.rangeData=null;state.playbookData=null;state.ledgerAnchor=null;state.outcomeData=null;state.replayData=null;state.controlledPolicy=null;state.forwardFeedback=null}
+      state.challengerExperiments=ce&&ce.ok?await ce.json():null;
+    }catch{state.publicData=null;state.evidenceData=null;state.sourceIntel=null;state.systemStatus=null;state.plannerData=null;state.researchData=null;state.selfImproveData=null;state.learningEvalData=null;state.crossAssetData=null;state.breadthData=null;state.regimeData=null;state.rangeData=null;state.playbookData=null;state.ledgerAnchor=null;state.outcomeData=null;state.replayData=null;state.controlledPolicy=null;state.forwardFeedback=null;state.challengerExperiments=null}
   }
 
 
@@ -150,6 +152,15 @@
       <article class="agent-card agent-review"><div class="agent-card-head"><div><span>EVIDENCE GAPS</span><h3>当前最需要补什么</h3></div><b>${g.length} 类缺口</b></div><ul>${g.slice(0,5).map(x=>`<li><b>${esc(x.category)}</b> · ${x.count||0} 项</li>`).join('')||'<li>当前没有集中证据缺口。</li>'}</ul><details><summary>下一轮学习重点</summary><ul>${focus.slice(0,5).map(x=>`<li><b>#${x.priority} ${esc(x.focus)}</b> · ${esc(x.action)}</li>`).join('')}</ul></details><small>证据不足时只降置信度或补证据，不用猜测补全事实。</small></article></div>`;
   }
 
+  function challengerExperimentHtml(){
+    const d=state.challengerExperiments||{};if(!d.version)return'';
+    if((d.candidate_count||0)===0){
+      return '<div class="agent-change"><b>V6.13 Challenger Experiments</b><span>等待真实 Forward Challenger · 不从 Replay 单独制造候选</span></div>';
+    }
+    const ready=(d.experiments||[]).filter(x=>x.execution?.ready).length;
+    return `<div class="agent-change"><b>V6.13 Challenger Experiments</b><span>候选 ${esc(d.candidate_count||0)} · 预注册实验 ${esc(d.experiment_count||0)} · 可运行 ${esc(ready)}</span></div><small>实验规格在结果生成前冻结；只能 Shadow 研究，任何晋级仍需人工复核。</small>`;
+  }
+
   function controlledLearningHtml(){
     const d=state.controlledPolicy||{};if(!d.version)return'';
     const adj=d.candidate_adjustments||[],active=adj.filter(x=>x.active),pb=d.playbook_validation_priority_bonus||{};
@@ -162,6 +173,7 @@
       <div class="agent-metrics"><span>已激活调整 ${active.length}</span><span>研究权重调整 ${applied.length}</span><span>单项上限 ±${esc(d.max_abs_priority_delta??5)}</span><span>CP-01验证 +${esc(pb['CP-01']??0)}</span><span>CP-02验证 +${esc(pb['CP-02']??0)}</span><span>CP-03验证 +${esc(pb['CP-03']??0)}</span></div>
       <p><strong>Forward Learning：</strong>${esc(forwardLine)}</p>
       <div class="agent-metrics"><span>20日成熟 ${esc(fc.forward_mature20??0)}</span><span>60日成熟 ${esc(fc.forward_mature60??0)}</span><span>归因复盘 ${esc(fc.attribution_reviews??0)}</span><span>Challenger ${esc(fc.challenger_candidates??chall.length)}</span></div>
+      ${challengerExperimentHtml()}
       <p><strong>当前自动范围：</strong>研究任务优先级、证据状态、提醒排序。重复 Workflow 不累计学习；Replay 与 Forward 分开。</p>
       <small>Challenger 仅做影子诊断，不能自动晋级；仓位、下单、核心配置、CP阈值与 TQQQ Hard Exit 均不受本层自动修改。</small></article>`;
   }

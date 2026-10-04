@@ -1,1 +1,1 @@
-Verify V6.14.2 Source Reading explicit method attribution end-to-end
+Verify V6.14.4 research fairness slot executes structured Sell Put candidate

@@ -1,7 +1,7 @@
 (function(global){
   'use strict';
   const $=id=>document.getElementById(id);
-  const state={publicData:null,evidenceData:null,systemStatus:null,plannerData:null,researchData:null,selfImproveData:null,learningEvalData:null,crossAssetData:null,breadthData:null,regimeData:null,rangeData:null,lastRender:0};
+  const state={publicData:null,evidenceData:null,systemStatus:null,plannerData:null,researchData:null,selfImproveData:null,learningEvalData:null,crossAssetData:null,breadthData:null,regimeData:null,rangeData:null,playbookData:null,ledgerAnchor:null,lastRender:0};
   const MEMORY_KEY='mavAgentDecisionMemoryV562', LEGACY_MEMORY_KEY='mavAgentDecisionMemoryV56', POLICY_KEY='mavLearningPolicyV1';
 
   function n(v){const x=Number(v);return Number.isFinite(x)?x:null}
@@ -90,7 +90,7 @@
 
   async function loadPublic(){
     try{
-      const [a,e,s,h,p,x,v7,le,ca,bi,rg,range]=await Promise.all([
+      const [a,e,s,h,p,x,v7,le,ca,bi,rg,range,pb,la]=await Promise.all([
         fetch('research/autonomous_agent.json?v='+Date.now(),{cache:'no-store'}),
         fetch('research/evidence_attribution.json?v='+Date.now(),{cache:'no-store'}),
         fetch('data/source_intelligence.json?v='+Date.now(),{cache:'no-store'}),
@@ -102,7 +102,9 @@
         fetch('research/cross_asset_divergence.json?v='+Date.now(),{cache:'no-store'}).catch(()=>null),
         fetch('research/breadth_intelligence.json?v='+Date.now(),{cache:'no-store'}).catch(()=>null),
         fetch('research/regime_combination_memory.json?v='+Date.now(),{cache:'no-store'}).catch(()=>null),
-        fetch('research/range_intelligence.json?v='+Date.now(),{cache:'no-store'}).catch(()=>null)
+        fetch('research/range_intelligence.json?v='+Date.now(),{cache:'no-store'}).catch(()=>null),
+        fetch('research/playbook_status.json?v='+Date.now(),{cache:'no-store'}).catch(()=>null),
+        fetch('research/ledger_anchor.json?v='+Date.now(),{cache:'no-store'}).catch(()=>null)
       ]);
       state.publicData=a.ok?await a.json():null;
       state.evidenceData=e.ok?await e.json():null;
@@ -116,7 +118,9 @@
       state.breadthData=bi&&bi.ok?await bi.json():null;
       state.regimeData=rg&&rg.ok?await rg.json():null;
       state.rangeData=range&&range.ok?await range.json():null;
-    }catch{state.publicData=null;state.evidenceData=null;state.sourceIntel=null;state.systemStatus=null;state.plannerData=null;state.researchData=null;state.selfImproveData=null;state.learningEvalData=null;state.crossAssetData=null;state.breadthData=null;state.regimeData=null;state.rangeData=null}
+      state.playbookData=pb&&pb.ok?await pb.json():null;
+      state.ledgerAnchor=la&&la.ok?await la.json():null;
+    }catch{state.publicData=null;state.evidenceData=null;state.sourceIntel=null;state.systemStatus=null;state.plannerData=null;state.researchData=null;state.selfImproveData=null;state.learningEvalData=null;state.crossAssetData=null;state.breadthData=null;state.regimeData=null;state.rangeData=null;state.playbookData=null;state.ledgerAnchor=null}
   }
 
 
@@ -125,8 +129,8 @@
     const labels={RANGE_EXTENDED:'扩张区',RANGE_BALANCED:'均衡区',RANGE_PULLBACK:'回撤区',RANGE_STRESS:'压力区',UNDETERMINED:'数据不足'};
     const cls={RANGE_EXTENDED:'review',RANGE_BALANCED:'watch',RANGE_PULLBACK:'review',RANGE_STRESS:'action',UNDETERMINED:'watch'};
     const rows=(d.assets||[]);
-    return `<div class="agent-section-title"><b>V6.10b Range Intelligence · 区间研究</b><span>Research Only · 不写 Forward Ledger</span></div>
-      <div class="agent-grid">${rows.map(x=>`<article class="agent-card agent-${cls[x.state]||'watch'}"><div class="agent-card-head"><div><span>RANGE RESEARCH</span><h3>${esc(x.symbol)} · ${esc(labels[x.state]||x.state)}</h3></div><b>${esc(x.market_date||'—')}</b></div><div class="agent-metrics"><span>RSI ${num(x.metrics?.rsi14,1)}</span><span>回撤 ${pct(x.metrics?.drawdown,1)}</span><span>距200MA ${pct(x.metrics?.distance_200ma,1)}</span></div><p>${esc(x.decision_prompt||'')}</p><small>仅研究提示：不改变 CP-01/02/03，不生成仓位，不写 Trigger/Outcome Ledger。</small></article>`).join('')}</div>`;
+    return `<div class="agent-section-title"><b>V6.10b Market Location Research · 市场位置研究</b><span>Research Only · 不是完整 Range Engine</span></div>
+      <div class="agent-grid">${rows.map(x=>`<article class="agent-card agent-${cls[x.state]||'watch'}"><div class="agent-card-head"><div><span>RANGE RESEARCH</span><h3>${esc(x.symbol)} · ${esc(labels[x.state]||x.state)}</h3></div><b>${esc(x.market_date||'—')}</b></div><div class="agent-metrics"><span>RSI ${num(x.metrics?.rsi14,1)}</span><span>回撤 ${pct(x.metrics?.drawdown,1)}</span><span>距200MA ${pct(x.metrics?.distance_200ma,1)}</span></div><p>${esc(x.decision_prompt||'')}</p><small>仅做 RSI / 回撤 / 200MA 市场位置分类：不改变 CP-01/02/03，不生成仓位，不写 Forward Ledger；结构化 Range Engine 尚未开发。</small></article>`).join('')}</div>`;
   }
 
 
@@ -201,6 +205,25 @@
       ${b.level?`<article class="agent-card agent-${b.level==='fragile'?'action':b.level==='weakening'?'review':'watch'}"><div class="agent-card-head"><div><span>V6.8 BREADTH</span><h3>${esc(b.label||'市场参与度')}</h3></div><b>${esc(b.participation_score??'—')}/100</b></div><div class="agent-metrics"><span>20日 ${pct(bm.b20)}</span><span>50日 ${pct(bm.b50)}</span><span>200日 ${pct(bm.b200)}</span><span>SPY-RSP ${pct(bm.spy_minus_rsp_20d,1)}</span><span>QQQ-QQQE ${pct(bm.qqq_minus_qqqe_20d,1)}</span><span>A/D20 ${n(bm.ad_line_20d)!==null?n(bm.ad_line_20d).toFixed(2):'—'}</span><span>52周新高 ${pct(bm.new_high_52w_pct,1)}</span></div><p>${esc((b.interpretation||[])[0]||'市场参与度正在评估。')}</p><small>${esc(b.guardrail||'')}</small></article>`:''}
       ${r.level?`<article class="agent-card agent-${r.level==='high'?'action':r.level==='medium'?'review':'watch'}"><div class="agent-card-head"><div><span>V6.8 REGIME MEMORY</span><h3>${esc(r.label||'组合情境')}</h3></div><b>${esc(r.state_id||'')}</b></div><p>${esc((r.interpretation||[])[0]||'')}</p><div class="agent-metrics"><span>同类历史 ${r.historical_matches?.total||0}</span><span>20日成熟 ${r.historical_matches?.mature?.['20']?.n||0}</span></div><small>${esc(r.guardrail||'')}</small></article>`:''}
       </div>`;
+  }
+
+
+  function playbookRuntimeHtml(){
+    const d=state.playbookData||{},a=state.ledgerAnchor||{};
+    if(!Array.isArray(d.playbooks)||!d.playbooks.length)return'';
+    const names={'CP-01':'核心 ETF 回撤分档','CP-02':'TQQQ / QQQ 回调杠杆','CP-03':'LEAPS Opportunity'};
+    const stateCn={IDLE:'等待条件',NEAR_TRIGGER:'接近条件',TRIGGERED:'当前状态触发',UNDETERMINED:'数据不足'};
+    const evidenceCn={unverified:'未验证',verified:'已验证',research_only:'仅研究'};
+    const lifecycleCn={active:'运行中',paused:'暂停',retired:'停用'};
+    const rows=d.playbooks.map(x=>`<tr><td><b>${esc(x.playbook_id)}</b><small>${esc(names[x.playbook_id]||'')}</small></td><td>${esc(x.symbol)}</td><td>${esc(stateCn[x.state]||x.state)}<small>${esc(x.detail||'')}</small></td><td>${esc(lifecycleCn[x.lifecycle]||x.lifecycle||'运行中')}</td><td>${esc(evidenceCn[x.evidence]||x.evidence||'未验证')}</td><td>v${esc(x.rule_version||'—')}</td></tr>`).join('');
+    const s=d.stabilization||{},streams=a.streams||{},root=String(a.root_hash||'');
+    const counts=['trigger','audit','discipline','correction'].map(k=>`${k} ${streams[k]?.count??0}`).join(' · ');
+    return `<div class="agent-section-title"><b>Playbook · 剧本运行摘要</b><span>只读 · 不展示私有账本内容</span></div>
+      <details class="agent-card agent-watch" open><summary><b>前瞻时钟与 7 个剧本对象</b> · 稳定期 ${s.completed_sessions??'—'}/${s.target_sessions??10} 个交易日</summary>
+      <div class="journal-table-wrap"><table class="journal-table"><thead><tr><th>剧本</th><th>标的</th><th>当前状态</th><th>生命周期</th><th>证据</th><th>规则</th></tr></thead><tbody>${rows}</tbody></table></div>
+      <div class="agent-metrics"><span>Heartbeat ${esc(d.heartbeat?.status||'—')}</span><span>Data Quality ${esc(d.data_quality?.status||'—')}</span><span>Kill Switch ${d.kill_switch?.global_enabled===false?'已暂停':'正常'}</span><span>Ledger ${esc(a.status||d.storage?.health||'—')}</span></div>
+      <p><strong>Forward 起始：</strong>${esc(s.start_market_date||'2026-10-02')} · <strong>账本摘要：</strong>${esc(counts)} · <strong>Root：</strong>${esc(root?root.slice(0,10)+'…':'—')}</p>
+      <small>CP-02 的 full_restore 若是启动基线，只表示当前允许恢复目标敞口，不代表新的 Forward Trigger；Raw Ledger 始终留在私有仓库。</small></details>`;
   }
 
   function systemStatusHtml(){
@@ -601,6 +624,7 @@
       ${rangeIntelligenceHtml()}
       ${learningEvaluationHtml()}
       ${brainHtml()}
+      ${playbookRuntimeHtml()}
       ${systemStatusHtml()}\n      ${sourceIntelHtml()}
       ${evidenceHtml()}
       ${attributionHtml()}

@@ -1,1 +1,1 @@
-Run V6.10a private ledger verification
+Run V6.10b production verification

@@ -1,0 +1,231 @@
+#!/usr/bin/env python3
+"""V6.15.2 EventScore compatibility layer.
+
+This module adapts existing Source Outcome events to one versioned score format.
+It does not replace the legacy engines yet.
+"""
+from __future__ import annotations
+import hashlib, json, math, sys
+from datetime import datetime, timezone
+from pathlib import Path
+
+import pandas as pd
+
+ROOT=Path(__file__).resolve().parents[1]
+VALIDATION=ROOT/"docs"/"research"/"source_outcome_validation.json"
+REGISTRY=ROOT/"research"/"registry"/"rules.json"
+OUT=ROOT/"research"/"events"/"event_scores_v1.json"
+COMPARE=ROOT/"research"/"audit"/"v615_eventscore_comparison.json"
+
+sys.path.insert(0,str(ROOT/"scripts"))
+from evaluation_spec import load_spec,direction_adjusted_return
+from local_history_agent import read_archive
+from source_history_cache import read_cache
+
+VERSION="6.15.2"
+HORIZONS=(5,20,60)
+
+def load(path,default):
+    try:return json.loads(path.read_text(encoding="utf-8"))
+    except Exception:return default
+
+def frame_hash(df):
+    if df is None or df.empty:return None
+    cols=[c for c in ("open","high","low","close") if c in df.columns]
+    payload=df[cols].copy().sort_index().to_csv(date_format="%Y-%m-%d",float_format="%.10g")
+    return hashlib.sha256(payload.encode()).hexdigest()
+
+def reconcile_history(stooq,cache,tolerance=0.005):
+    """STOOQ is canonical; cache can fill dates absent from STOOQ only."""
+    if stooq is None or stooq.empty:
+        if cache is None or cache.empty:
+            return None,{"status":"missing","source":"none","price_series_hash":None}
+        # Without canonical STOOQ this is context-only, never scoreable.
+        c=cache.copy().sort_index()
+        return c,{"status":"cache_only_unscored","source":"cache","price_series_hash":frame_hash(c)}
+    base=stooq.copy().sort_index()
+    status="ok"
+    overlap=[]
+    if cache is not None and not cache.empty:
+        common=base.index.intersection(cache.index)
+        for dt in common:
+            a=float(base.loc[dt,"close"]); b=float(cache.loc[dt,"close"])
+            if a and abs(a-b)/abs(a)>tolerance:
+                overlap.append({"date":str(dt)[:10],"stooq":a,"cache":b})
+        if overlap:
+            status="conflict"
+        else:
+            gap=cache.loc[~cache.index.isin(base.index)]
+            if not gap.empty:
+                base=pd.concat([base,gap]).sort_index()
+    return base,{
+        "status":status,
+        "source":"stooq_archive+cache_gap_fill" if cache is not None and not cache.empty else "stooq_archive",
+        "price_series_hash":frame_hash(base),
+        "overlap_conflicts":overlap[:10],
+    }
+
+def parse_event_identity(event):
+    raw=str(event.get("event_id") or "")
+    parts=raw.rsplit(":",3)
+    if len(parts)==4:
+        sid,op_idx,symbol,baseline_idx=parts
+        try:op_idx=int(op_idx)
+        except Exception:op_idx=None
+        return sid,op_idx,symbol,baseline_idx
+    return None,None,event.get("symbol"),None
+
+def entry_type(event):
+    kind=str(event.get("baseline_kind") or "")
+    op=event.get("operation") or {}
+    conditions=" ".join(str(x).lower() for x in (op.get("conditions") or []))
+    if kind=="next_session":return "next_session"
+    if any(k in conditions for k in ("breakout","突破","站上","above resistance","break above")):
+        return "breakout"
+    if kind=="entry_below":
+        return "conditional"
+    if kind in {"entry_1","entry_2"}:
+        if any(k in conditions for k in ("pullback","回调","回踩","跌到","below","limit")):
+            return "pullback_limit"
+        return "unknown"
+    return "unknown"
+
+def direction_from_event(event):
+    d=(event.get("alignment") or {}).get("direction")
+    return d if d in {"bullish","bearish"} else ("option_structure" if d=="option_structure" else "unknown")
+
+def historical_unconditional_return(df,baseline_date,horizon,max_samples=252):
+    """Prior-only unconditional same-symbol forward return mean.
+
+    Every baseline sample must fully mature before the target event date, avoiding
+    contamination by future observations relative to the decision timestamp.
+    """
+    if df is None or df.empty or not baseline_date:return None
+    try:d=pd.Timestamp(str(baseline_date)[:10])
+    except Exception:return None
+    work=df[df.index<d].copy()
+    if len(work)<=horizon+1:return None
+    vals=[]
+    # Require sample outcome to be known before d: end index is strictly before d.
+    for i in range(max(0,len(work)-max_samples-horizon),len(work)-horizon):
+        try:
+            entry=float(work.iloc[i]["open"])
+            end=float(work.iloc[i+horizon]["close"])
+            if entry and math.isfinite(entry) and math.isfinite(end):
+                vals.append(end/entry-1.0)
+        except Exception:
+            continue
+    return sum(vals)/len(vals) if vals else None
+
+def registry_map(registry):
+    out={}
+    for m in registry.get("legacy_mapping") or []:
+        out[(str(m.get("source_id")),m.get("operation_index"))]=m.get("rule_id")
+    return out
+
+def adapt(validation,registry,histories=None,spec=None):
+    spec=spec or load_spec()
+    mapping=registry_map(registry)
+    histories=histories or {}
+    rows=[]
+    excluded={"unknown_entry_semantics":0,"option_unscored":0,"missing_rule":0,"price_conflict":0}
+    for ev in validation.get("events") or []:
+        sid,op_idx,symbol,_=parse_event_identity(ev)
+        rid=mapping.get((str(sid),op_idx))
+        et=entry_type(ev)
+        direction=direction_from_event(ev)
+        hmeta=histories.get(symbol,{}).get("meta") or {}
+        price_ok=hmeta.get("status")=="ok"
+        scoreable=bool(rid and ev.get("triggered") and direction in {"bullish","bearish"} and et!="unknown" and price_ok)
+        reasons=[]
+        if not rid:reasons.append("missing_rule_id");excluded["missing_rule"]+=1
+        if direction=="option_structure":reasons.append("missing_real_option_pnl");excluded["option_unscored"]+=1
+        if et=="unknown":reasons.append("unknown_entry_semantics");excluded["unknown_entry_semantics"]+=1
+        if hmeta.get("status")=="conflict":reasons.append("price_source_conflict");excluded["price_conflict"]+=1
+        if not ev.get("triggered"):reasons.append("not_triggered")
+        scores={}
+        for h in HORIZONS:
+            old=(ev.get("outcomes") or {}).get(str(h))
+            if not old:
+                scores[str(h)]=None;continue
+            raw=old.get("return")
+            adj=direction_adjusted_return(direction,raw)
+            hist=histories.get(symbol,{}).get("df")
+            unconditional=historical_unconditional_return(hist,ev.get("baseline_date"),h)
+            uncond_adj=direction_adjusted_return(direction,unconditional)
+            lift=None if adj is None or uncond_adj is None else adj-uncond_adj
+            scores[str(h)]={
+                "raw_return":raw,
+                "direction_adjusted_return":adj,
+                "benchmark_return":old.get("benchmark_return"),
+                "excess_vs_qqq":old.get("excess_vs_qqq"),
+                "unconditional_baseline_return":unconditional,
+                "unconditional_lift":lift,
+                "mae":old.get("mae"),
+                "mfe":old.get("mfe"),
+                "legacy_alignment":(ev.get("alignment") or {}).get(str(h)),
+            }
+        rows.append({
+            "event_id":ev.get("event_id"),
+            "rule_id":rid,
+            "legacy_source_id":sid,
+            "legacy_operation_index":op_idx,
+            "spec_version":spec.get("spec_version"),
+            "author":ev.get("author"),
+            "symbol":symbol,
+            "published_at":ev.get("published_at"),
+            "baseline_date":ev.get("baseline_date"),
+            "entry_type":et,
+            "direction":direction,
+            "triggered":bool(ev.get("triggered")),
+            "scoreable":scoreable,
+            "exclusion_reasons":sorted(set(reasons)),
+            "maturity":{str(h):bool((ev.get("outcomes") or {}).get(str(h))) for h in HORIZONS},
+            "scores":scores,
+            "data_quality":hmeta,
+            "market_timestamp_cutoff":"strictly_before_baseline_date",
+        })
+    return {
+        "version":VERSION,
+        "generated_at":datetime.now(timezone.utc).isoformat(),
+        "spec_version":spec.get("spec_version"),
+        "mode":"research_only_adapter",
+        "counts":{"events":len(rows),"scoreable":sum(1 for x in rows if x["scoreable"]),"excluded":excluded},
+        "events":rows,
+        "guardrails":[
+            "Legacy outcomes remain available; EventScore is an adapter, not an in-place rewrite.",
+            "Unknown entry semantics never enter method performance.",
+            "STOOQ archive is canonical; cache only fills gaps after overlap consistency checks.",
+            "Price conflicts and option structures stay unscored."
+        ]
+    }
+
+def build_histories():
+    stooq=read_archive();cache=read_cache()
+    syms=set(stooq)|set(cache)
+    out={}
+    for s in syms:
+        df,meta=reconcile_history(stooq.get(s),cache.get(s))
+        out[s]={"df":df,"meta":meta}
+    return out
+
+def main():
+    validation=load(VALIDATION,{})
+    registry=load(REGISTRY,{})
+    result=adapt(validation,registry,build_histories(),load_spec())
+    OUT.parent.mkdir(parents=True,exist_ok=True)
+    OUT.write_text(json.dumps(result,ensure_ascii=False,indent=2),encoding="utf-8")
+    comparison={
+        "version":VERSION,
+        "generated_at":result["generated_at"],
+        "legacy_events":len(validation.get("events") or []),
+        "eventscore_events":result["counts"]["events"],
+        "eventscore_scoreable":result["counts"]["scoreable"],
+        "excluded":result["counts"]["excluded"],
+        "note":"Old outcomes are retained; differences reflect stricter entry/data-quality/spec eligibility, not overwritten history."
+    }
+    COMPARE.parent.mkdir(parents=True,exist_ok=True)
+    COMPARE.write_text(json.dumps(comparison,ensure_ascii=False,indent=2),encoding="utf-8")
+    print(json.dumps(result["counts"],ensure_ascii=False))
+
+if __name__=="__main__":main()

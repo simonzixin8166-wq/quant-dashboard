@@ -11,7 +11,7 @@ assert definition["normalizer_version"]=="v615_rule_registry.normalize_rule@6.15
 assert definition["extractor_version"]=="source_reading_memory@6.14.6"
 assert definition["definition_version"]=="1.3"
 assert definition["direction_rules"]["mixed_direction_label"]=="mixed_direction"
-assert spec["spec_version"]=="1.5"
+assert spec["spec_version"]=="1.6"
 assert spec["thresholds"]["independent_authors_min"]==3
 assert spec["thresholds"]["independent_time_clusters_min"]==6
 assert spec["thresholds"]["mature_60_effective_samples_min"]==20

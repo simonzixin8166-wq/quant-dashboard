@@ -18,7 +18,7 @@ CONTROLS=ROOT/"research"/"reports"/"statistical_controls.json"
 BOUNDARY=ROOT/"research"/"audit"/"step_boundary_log.json"
 COMPONENTS=ROOT/"research"/"component_manifest.json"
 OUT=ROOT/"research"/"reports"/"v616_readiness_gate.json"
-VERSION="6.15.8h"
+VERSION="6.15.8i"
 
 def load(p,d):
     try:return json.loads(p.read_text(encoding="utf-8"))
@@ -80,11 +80,15 @@ def mature_counts(events,families):
 
 def build(spec,events,families,source,controls,boundary,components):
     req=spec.get("requirements") or {}
-    reported_total=int(source.get("source_window_reported_total") or 0)
     current_ingest=int(source.get("full_ingest_size") if source.get("full_ingest_size") is not None else len(source.get("records") or []))
     accounting=source.get("source_accounting") or {}
+    reconciliation=source.get("upstream_reconciliation") or {}
     current_upstream=int(accounting.get("current_upstream_records") if accounting.get("current_upstream_records") is not None else current_ingest)
-    source_ok=(current_ingest>=reported_total and current_upstream>=reported_total)
+    source_ok=bool(
+        accounting.get("current_ingest_complete")
+        and reconciliation.get("reconciliation_ok",True)
+        and current_ingest==current_upstream
+    )
     conservation=bool((events.get("counts") or {}).get("conservation_ok"))
     control_names=req.get("statistical_controls_required") or []
     control_map=controls.get("controls") or {}
@@ -122,13 +126,16 @@ def build(spec,events,families,source,controls,boundary,components):
             "source_store_current_full_ingest_records":current_ingest,
             "source_store_current_upstream_records":current_upstream,
             "source_store_retained_historical_records":accounting.get("retained_historical_records"),
-            "source_store_reported_total":source.get("source_window_reported_total"),
+            "source_store_legacy_reported_total":source.get("legacy_reported_total",source.get("source_window_reported_total")),
+            "source_store_upstream_raw_records":reconciliation.get("upstream_raw_records"),
+            "source_store_upstream_duplicates_removed":reconciliation.get("duplicates_removed"),
+            "source_store_upstream_excluded":reconciliation.get("excluded_missing_identity"),
         },
         "conditions":conditions,
         "blockers":blockers,
         "guardrails":[
             "This gate measures pipeline readiness only; it does not validate investment effectiveness.",
-            "Source Store completeness is judged from the current full ingest, not from append-only historical record count.",
+            "Source Store completeness is judged from the same-run raw→eligible→deduplicated reconciliation and current full ingest; legacy reported totals and append-only history are non-gating.",
             "Maturity uses the same overlap-connected realized-horizon clusters as Family Scorecards.",
             "No Promotion Gate pass is required.",
             "Passing this gate authorizes only a review of whether to begin V6.16."

@@ -117,6 +117,8 @@ jobs:
         run: python scripts/verify_deployment.py --base-url https://myalphaview.com --timeout 600
       - uses: actions/setup-node@v4
         with: {node-version: '20'}
+      - name: Validate browser QA script syntax
+        run: node --check scripts/autonomous_site_qa.mjs
       - name: Install pinned browser test runtime
         run: |
           npm install --no-save playwright@1.55.0

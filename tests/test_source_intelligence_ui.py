@@ -69,3 +69,9 @@ assert "Q1/Q2 可学习" in js
 assert "不把旧视频洗成今天的 Forward Evidence" in js
 assert "Forward / EventScore / Promotion 均不参与" in js
 print("PASS YouTube historical learning UI isolation")
+
+# V6.15 Author Intelligence keeps historical author memory separate from forward evidence.
+assert "Author Intelligence · 作者研究画像" in js
+assert "research/author_intelligence.json" in js
+assert "没有真实 point-in-time 样本时保持 0" in js
+print("PASS V6.15 author intelligence UI")

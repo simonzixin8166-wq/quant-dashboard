@@ -203,7 +203,8 @@ def level_checks(op, df, start):
             checks["target_high"]={"level":high,"touch20":touched(df,start,high,"up",20),"touch60":touched(df,start,high,"up",60)}
     return checks
 
-def build(source: dict, store: dict[str,pd.DataFrame]):
+def build(source: dict, store: dict[str,pd.DataFrame], price_provenance: dict|None=None):
+    price_provenance=price_provenance or {}
     qqq=store.get("QQQ")
     events=[]
     missing=Counter()
@@ -251,6 +252,13 @@ def build(source: dict, store: dict[str,pd.DataFrame]):
                         "triggered":triggered,
                         "baseline_date":start.date().isoformat() if start is not None else None,
                         "baseline_price":entry,
+                        "price_provenance":{
+                            "price_source":(price_provenance.get(symbol) or {}).get("price_source"),
+                            "adjustment_basis":(price_provenance.get(symbol) or {}).get("adjustment_basis"),
+                            "baseline_source":(price_provenance.get(symbol) or {}).get("price_source"),
+                            "horizon_source":(price_provenance.get(symbol) or {}).get("price_source"),
+                            "same_source":bool((price_provenance.get(symbol) or {}).get("price_source")),
+                        },
                         "outcomes":outcomes,
                         "alignment":alignment,
                         "level_checks":level_checks(op,df,pub_start),
@@ -327,12 +335,23 @@ def main():
     source=load(SOURCE,{"operation_cases":[]})
     core=read_archive()
     fallback=read_cache()
-    store={**fallback, **core}  # Core STOOQ history always wins when both exist.
-    result=build(source,store)
+    store={**fallback, **core}  # Whole-symbol precedence only; never splice sources inside one event.
+    provenance={}
+    for sym in fallback:
+        provenance[sym]={
+            "price_source":"yfinance_validation_cache",
+            "adjustment_basis":"yfinance_auto_adjust_false_native_ohlc",
+        }
+    for sym in core:
+        provenance[sym]={
+            "price_source":"stooq_archive",
+            "adjustment_basis":"stooq_archive_native_series",
+        }
+    result=build(source,store,provenance)
     result["history_sources"]={
         "core_stooq_symbols":len(core),
         "source_validation_cache_symbols":len(fallback),
-        "principle":"STOOQ core wins; yfinance fallback is isolated to external-source validation only."
+        "principle":"STOOQ core wins at whole-symbol level; baseline and every horizon for an event use the same target-symbol source. yfinance remains validation-only fallback."
     }
     OUT.parent.mkdir(parents=True,exist_ok=True)
     OUT.write_text(json.dumps(result,ensure_ascii=False,indent=2),encoding="utf-8")

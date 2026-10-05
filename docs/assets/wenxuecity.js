@@ -23,7 +23,7 @@ const brightlineMethods=[
  {name:'让赢家奔跑，但长期持有也必须持续验证',type:'持有层',rule:'长期持有不是买入后不再检查；只有商业逻辑、竞争优势和风险仍成立，才有继续持有的理由。',boundary:'不能因为历史成本低、曾经盈利或不想交税，就忽略当前风险和机会成本。',site:'个股观察池已有趋势与研究入口，但基本面复核仍偏弱。',gap:'研究卡增加“最近一次 thesis 复核 / 下一证据里程碑”，让持有理由随时间更新。',urls:['https://blog.wenxuecity.com/myblog/82458/202512/2836.html']},
  {name:'AI 是研究助手，不是事实来源',type:'工具层',rule:'AI 可做扫描、清单、归纳和复盘；关键数字必须回到真实数据源核对，回测要防前视偏差、过拟合和现实交易成本。',boundary:'语言流畅不等于结论正确；AI生成的评级、点位和概率不能直接进入交易规则。',site:'网站已有数据完整性校验、双源核验、回测与来源状态。',gap:'文学城/博主内容继续明确“作者观点 / AI归纳 / 本站分析 / 待核验事实”四层，不自动改写交易策略。',urls:['https://blog.wenxuecity.com/myoverview/82458/','https://blog.wenxuecity.com/myblog/82458/202606/12009.html']}
 ];
-let data=window.WXCCurated||null,sourceIntel=null,sourceOutcome=null,methodMemory=null,tab='overview',author='',query='';const exportRecords=new Map();
+let data=window.WXCCurated||null,sourceIntel=null,sourceOutcome=null,methodMemory=null,evidenceStatus=null,tab='overview',author='',query='';const exportRecords=new Map();
 const methodTaxonomy=[
  {name:'指数为核心，个股建立在研究优势上',keys:['指数','QQQ','研究','edge','个股','FOMO']},
  {name:'先假设、再验证；对了加码，错了缩小',keys:['假设','验证','加仓','斩仓','工程','实验']},
@@ -68,7 +68,18 @@ function methodMemoryView(){
  const horizon=m=>['5','20','60'].map(h=>{const x=m.performance?.[h];return `<span>${h}日 n=${x?.n??0} · 收益 ${mmPct(x?.avg_return)} · MAE ${mmPct(x?.avg_mae)} · MFE ${mmPct(x?.avg_mfe)}${x?.avg_excess_vs_qqq!=null?' · 超额 '+mmPct(x.avg_excess_vs_qqq):''}</span>`}).join('');
  return `<div class='wxc-box'><h2>Method Memory · 方法记忆</h2><p>把“文章提到的方法”和“具体操作可直接归因的方法”分开。只有 Direct 样本进入方法绩效；Context 只说明同篇文章里发生过什么，不把相关性冒充因果。</p><p><b>${counts.methods||0}</b> 个方法主题 · <b>${counts.source_records||0}</b> 条研究记录 · <b>${counts.eligible_triggered_events||0}</b> 个可验证触发事件 · <b>${counts.direct_method_links||0}</b> 个直接方法链接。</p><p class='wxc-warning'>样本少时只显示 evidence_building；不会因为外部作者历史表现自动修改 MyAlpha 的交易阈值、仓位或下单规则。</p></div><div class='wxc-grid'>${rows.map(m=>`<article><div><span class='wxc-tag'>${esc(m.status==='research_memory'?'研究记忆':'证据积累')}</span><span class='wxc-tag'>${esc(m.performance_basis==='direct_event_attribution'?'Direct':'Context only')}</span></div><h3>${esc(m.method)}</h3><p><b>来源出现：</b>${m.source_occurrences||0} 条 · <b>直接验证：</b>${m.direct_validated_events||0} · <b>上下文验证：</b>${m.context_validated_events||0} · <b>60日成熟 Direct：</b>${m.mature60_direct||0}</p>${m.performance?`<div class='agent-metrics'>${horizon(m)}</div>`:`<p class='wxc-meta'>目前没有足够直接归因事件，因此不展示“方法收益”；上下文结果仅保留作研究线索。</p>`}<p class='wxc-meta'>${esc(m.interpretation_guardrail||'')}</p>${(m.failure_examples||[]).length?`<details><summary>查看反例 / 失效候选（${m.failure_examples.length}）</summary>${m.failure_examples.slice(0,6).map(x=>`<p><b>${esc(x.symbol||'')}</b> · ${esc(x.title||'')} · ${x.horizon||''}日 ${mmPct(x.return)} · MAE ${mmPct(x.mae)} / MFE ${mmPct(x.mfe)}</p>`).join('')}</details>`:''}</article>`).join('')||`<div class='wxc-box'><p>等待 Method Memory 首次构建。</p></div>`}</div>`;
 }
-function validationView(){const d=sourceOutcome||{};const n=d.counts||{};const rows=(d.events||[]).filter(x=>x.attribution!=='third_party_example');return `<div class="wxc-box"><h2>验证结果 · 5 / 20 / 60 交易日跟踪</h2><p>把作者本人操作/预案与本地历史行情对照，不评价作者“好坏”，只记录之后发生了什么。</p><p><b>${n.events||0}</b> 个验证事件 · <b>${n.triggered_author_owned||0}</b> 个本人操作/预案已触发 · <b>${n.untriggered_plans||0}</b> 个分档计划尚未触发 · <b>${n.mature60||0}</b> 个已有60日成熟结果 · 覆盖 <b>${n.symbols||0}</b> 个标的。</p><p class="wxc-warning">归属待复核的操作不会自动进入方法权重；引用第三方案例不计入作者本人表现。</p></div><div class="wxc-grid">${rows.slice(0,100).map(outcomeCard).join('')||'<p>等待首次结果验证构建。</p>'}</div>`}
+function evidenceLayerView(){
+ const e=evidenceStatus?.evidence_layers||{},legacy=e.legacy_observational_archive||{},forward=e.forward_evidence_candidates||{},mature=e.mature_scoreable_evidence||{};
+ return `<div class="wxc-box"><h2>Spec 1.5 证据分层</h2><p>研究中心把“历史观察”“真实 Forward 候选”“成熟可评分证据”分开显示，避免把旧回放结果误认为正式研究样本。</p>
+ <div class="wxc-overview-metrics">
+   <article><span>历史观察归档</span><b>${legacy.count??0}</b><small>只读复盘 · 不参与 Promotion</small></article>
+   <article><span>Forward 证据候选</span><b>${forward.count??0}</b><small>point-in-time · 当前可评分 ${forward.scoreable_now??0}</small></article>
+   <article><span>20日成熟证据</span><b>${mature.event_count_20d??0}</b><small>有效单元 ${mature.effective_units_20d??0}</small></article>
+   <article><span>60日成熟证据</span><b>${mature.event_count_60d??0}</b><small>有效单元 ${mature.effective_units_60d??0}</small></article>
+ </div>
+ <p class="wxc-meta">Evaluation Spec ${esc(evidenceStatus?.evaluation_spec_version||'—')} · Scoring Engine ${esc(evidenceStatus?.scoring_engine_version||'—')} · Promotion passed ${esc(evidenceStatus?.promotion?.families_passed??0)}。Forward 候选未成熟前不代表方法有效。</p></div>`;
+}
+function validationView(){const d=sourceOutcome||{};const n=d.counts||{};const rows=(d.events||[]).filter(x=>x.attribution!=='third_party_example');return evidenceLayerView()+`<div class="wxc-box"><h2>历史观察归档 · 旧 Outcome 5 / 20 / 60 日跟踪</h2><p>这里保留作者本人操作/预案与历史行情的描述性复盘，只回答“后来发生了什么”。这些旧 Outcome <b>不是</b> Spec 1.5 的正式研究样本，也不参与 Promotion。</p><p><b>${n.events||0}</b> 条当前旧 Outcome 记录 · <b>${n.triggered_author_owned||0}</b> 条本人操作/预案已触发 · <b>${n.untriggered_plans||0}</b> 条分档计划尚未触发 · 覆盖 <b>${n.symbols||0}</b> 个标的。</p><p class="wxc-warning">旧 Method Memory / Outcome 仅用于历史观察、反例和方法线索；正式证据状态以上方 Spec 1.5 分层为准。</p></div><div class="wxc-grid">${rows.slice(0,100).map(outcomeCard).join('')||'<p>等待历史观察归档构建。</p>'}</div>`}
 
 function sourceState(){
  const sources=data?.sources||[],bad=sources.filter(s=>s.status!=='ok');
@@ -77,15 +88,17 @@ function sourceState(){
 function researchCenterOverview(){
  const src=sourceState(),methodCount=methodMemory?.counts?.methods||researchLibrary.methods?.length||0;
  const ops=sourceIntel?.counts?.structured_operations||operationRows().length||0;
- const validations=sourceOutcome?.counts?.events||0;
+ const evidence=evidenceStatus?.evidence_layers||{},legacy=evidence.legacy_observational_archive||{},forward=evidence.forward_evidence_candidates||{},mature=evidence.mature_scoreable_evidence||{};
  const failures=sourceIntel?.failure_review?.length||0;
  return `<div class="wxc-overview-metrics">
    <article><span>研究资料</span><b>${data?.articles?.length||0}</b><small>已收录正文整理</small></article>
-   <article><span>方法主题</span><b>${methodCount}</b><small>Method Memory</small></article>
-   <article><span>具体操作</span><b>${ops}</b><small>仅原文明示动作</small></article>
-   <article><span>验证事件</span><b>${validations}</b><small>5 / 20 / 60交易日</small></article>
+   <article><span>方法主题</span><b>${methodCount}</b><small>Method Memory · 描述性</small></article>
+   <article><span>历史观察归档</span><b>${legacy.count??0}</b><small>不参与 Promotion</small></article>
+   <article><span>Forward 候选</span><b>${forward.count??0}</b><small>当前可评分 ${forward.scoreable_now??0}</small></article>
+   <article><span>成熟证据</span><b>${mature.event_count_60d??0}</b><small>60日 · Spec 1.5</small></article>
    <article><span>失败候选</span><b>${failures}</b><small>用于反证与边界</small></article>
  </div>
+ ${evidenceLayerView()}
  <div class="wxc-box wxc-research-loop"><h2>研究闭环 · 不是文章仓库</h2><p>外部观点只有经过“来源留痕 → 方法归纳 → 具体操作提取 → 后续验证/失败复盘”，才有资格影响研究优先级；不会自动改正式交易规则。</p>
  <div class="wxc-pipeline"><div><b>01 来源</b><span>保留作者、日期、原文与采集状态</span></div><div><b>02 方法</b><span>合并重复观点，形成可复用条件与边界</span></div><div><b>03 操作</b><span>只提取原文明示动作，不补猜价格或仓位</span></div><div><b>04 验证</b><span>按交易日跟踪结果、反例与失败归因</span></div><div><b>05 判断</b><span>形成 MyAlpha 自己的研究结论</span></div></div>
  <p class="wxc-meta">当前来源状态：${src.healthy?'正常':src.bad+' 个来源异常/未验收'}。来源异常不会删除历史资料，但新内容不能假装已经更新。</p></div>
@@ -130,6 +143,6 @@ function results(){const list=(data.articles||[]).filter(a=>(tab==='blogs'?a.kin
 body.querySelector('#wxcAuthor').onchange=e=>{author=e.target.value;results()};body.querySelector('#wxcSearch').oninput=e=>{query=e.target.value;results()};results();
 }
 function wireMethods(){root.querySelectorAll('[data-method]').forEach(b=>b.onclick=()=>{const a=exportRecords.get(b.dataset.method);if(!a?.analysis)return;const n={kind:'method',name:a.title,source:a.url,date:(a.published_raw||'').slice(0,10),thesis:a.analysis.author_view+'；'+a.analysis.rules,catalyst:'原文涉及市场，具体适用范围待验证',risk:a.analysis.risks,invalid:'未形成经验证的失效阈值；'+a.analysis.verification,validation:'未回测、未采用。'+a.analysis.site_analysis,operations:a.analysis.operations||[]};const u=URL.createObjectURL(new Blob([JSON.stringify({version:1,notes:[n]},null,2)],{type:'application/json'}));const link=document.createElement('a');link.href=u;link.download='wenxuecity-method-'+a.id+'.json';link.click();setTimeout(()=>URL.revokeObjectURL(u),1000)})}
-async function load(){const button=root.querySelector('#wxcReload');if(button)button.disabled=true;try{const [r,s,o,m]=await Promise.all([fetch('data/wenxuecity.json',{cache:'no-store',signal:AbortSignal.timeout(10000)}),fetch('data/source_intelligence.json',{cache:'no-store',signal:AbortSignal.timeout(10000)}).catch(()=>null),fetch('research/source_outcome_validation.json',{cache:'no-store',signal:AbortSignal.timeout(10000)}).catch(()=>null),fetch('research/method_memory.json',{cache:'no-store',signal:AbortSignal.timeout(10000)}).catch(()=>null)]);if(!r.ok)throw Error('HTTP '+r.status);const next=await r.json();if(next.version!==1||!Array.isArray(next.articles))throw Error('资料格式不符合要求');data=next;if(s&&s.ok)sourceIntel=await s.json();if(o&&o.ok)sourceOutcome=await o.json();if(m&&m.ok)methodMemory=await m.json();render()}catch(e){if(!data)render();const note=document.createElement('p');note.className='wxc-warning';note.setAttribute('role','status');note.textContent='资料读取失败，已保留可用旧内容。请稍后刷新。';root.prepend(note)}finally{const b=root.querySelector('#wxcReload');if(b)b.disabled=false}}
+async function load(){const button=root.querySelector('#wxcReload');if(button)button.disabled=true;try{const [r,s,o,m,e]=await Promise.all([fetch('data/wenxuecity.json',{cache:'no-store',signal:AbortSignal.timeout(10000)}),fetch('data/source_intelligence.json',{cache:'no-store',signal:AbortSignal.timeout(10000)}).catch(()=>null),fetch('research/source_outcome_validation.json',{cache:'no-store',signal:AbortSignal.timeout(10000)}).catch(()=>null),fetch('research/method_memory.json',{cache:'no-store',signal:AbortSignal.timeout(10000)}).catch(()=>null),fetch('research/evidence_status.json',{cache:'no-store',signal:AbortSignal.timeout(10000)}).catch(()=>null)]);if(!r.ok)throw Error('HTTP '+r.status);const next=await r.json();if(next.version!==1||!Array.isArray(next.articles))throw Error('资料格式不符合要求');data=next;if(s&&s.ok)sourceIntel=await s.json();if(o&&o.ok)sourceOutcome=await o.json();if(m&&m.ok)methodMemory=await m.json();if(e&&e.ok)evidenceStatus=await e.json();render()}catch(e){if(!data)render();const note=document.createElement('p');note.className='wxc-warning';note.setAttribute('role','status');note.textContent='资料读取失败，已保留可用旧内容。请稍后刷新。';root.prepend(note)}finally{const b=root.querySelector('#wxcReload');if(b)b.disabled=false}}
 render();load();
 })();

@@ -91,7 +91,7 @@ def system_trust():
     excluded=((s.get("decision_data_contract") or {}).get("excluded_artifacts") or [])
     guard=(s.get("resource_guard") or {}).get("mode","unknown")
     overall=s.get("overall","unknown")
-    ok=overall=="ok" and not excluded
+    ok=overall in {"ok","running"} and not excluded
     return {"ok":ok,"overall":overall,"excluded":excluded,"resource_mode":guard}
 
 def thesis_review_actions(notes):

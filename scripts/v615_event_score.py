@@ -25,7 +25,7 @@ from entry_semantics import classify_event
 from local_history_agent import read_archive
 from source_history_cache import read_cache
 
-VERSION="6.15.8e"
+VERSION="6.15.8g"
 HORIZONS=(5,20,60)
 
 def load(path,default):
@@ -81,9 +81,22 @@ def parse_event_identity(event):
 def entry_type(event):
     return classify_event(event).get("entry_type") or "unknown"
 
-def direction_from_event(event):
+def direction_from_event(event,rule=None):
     d=(event.get("alignment") or {}).get("direction")
-    return d if d in {"bullish","bearish"} else ("option_structure" if d=="option_structure" else "unknown")
+    if d in {"bullish","bearish","option_structure"}:
+        return d
+    nr=(rule or {}).get("normalized_rule") or {}
+    actions={str(x).lower() for x in (nr.get("actions") or [])}
+    buys={"buy","add","planned_buy"}
+    sells={"sell","planned_sell","clear","trim","trim_half"}
+    has_buy=bool(actions & buys); has_sell=bool(actions & sells)
+    if has_buy and has_sell:
+        return "mixed_direction"
+    if has_buy:
+        return "bullish"
+    if has_sell:
+        return "bearish"
+    return "unknown"
 
 def direction_adjusted_excursions(direction,mae,mfe):
     if mae is None or mfe is None:return None,None
@@ -160,6 +173,7 @@ def exclusion_reasons(rid,triggered,direction,entry_type,data_status,point_statu
     if not rid:reasons.append("missing_rule_id")
     if not triggered:reasons.append("not_triggered")
     if direction=="option_structure":reasons.append("missing_real_option_pnl")
+    elif direction=="mixed_direction":reasons.append("mixed_direction_unscored")
     elif direction not in {"bullish","bearish"}:reasons.append("unsupported_direction")
     if entry_type=="unknown":reasons.append("unknown_entry_semantics")
     if data_status=="conflict":reasons.append("price_source_conflict")
@@ -174,6 +188,7 @@ DEFAULT_PRIMARY_PRECEDENCE=(
     "timestamp_provenance_unknown",
     "missing_rule_id",
     "missing_real_option_pnl",
+    "mixed_direction_unscored",
     "unsupported_direction",
     "unknown_entry_semantics",
     "not_triggered",
@@ -191,6 +206,7 @@ def choose_primary(reasons,spec=None):
 def adapt(validation,registry,histories=None,spec=None,source_store=None):
     spec=spec or load_spec()
     mapping=registry_map(registry)
+    rule_by_id={r.get("rule_id"):r for r in (registry.get("rules") or [])}
     histories=histories or {}
     provenance=source_provenance_map(source_store or {})
     rows=[]
@@ -200,7 +216,7 @@ def adapt(validation,registry,histories=None,spec=None,source_store=None):
         rid=mapping.get((str(sid),op_idx))
         entry_meta=classify_event(ev)
         et=entry_meta.get("entry_type") or "unknown"
-        direction=direction_from_event(ev)
+        direction=direction_from_event(ev,rule_by_id.get(rid) or {})
         hmeta=histories.get(symbol,{}).get("meta") or {}
         prov=provenance.get(str(sid)) or {}
         pit=point_in_time_status(prov,ev.get("baseline_date"))
@@ -286,6 +302,7 @@ def adapt(validation,registry,histories=None,spec=None,source_store=None):
             "Legacy outcomes remain available; EventScore is an adapter, not an in-place rewrite.",
             "Unknown entry semantics never enter method performance.",
             "STOOQ archive is canonical; cache only fills gaps after overlap consistency checks.",
+            "Mixed buy/sell rule structures are explicitly mixed_direction and remain unscored rather than being forced bullish or bearish.",
             "Every mature horizon carries the exact realized horizon_end_date from the source outcome record for dependence clustering.",
             "Every non-scoreable event has exactly one primary exclusion reason; the conservation equation is enforced.",
             "Price conflicts, cache-only histories, pre-ingest historical evidence and option structures stay unscored."

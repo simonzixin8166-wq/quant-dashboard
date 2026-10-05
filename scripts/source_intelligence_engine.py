@@ -259,9 +259,29 @@ def normalize_records(records):
             dedup[key] = r
     return sorted(dedup.values(), key=lambda x: x.get("published_at",""), reverse=True)
 
-def collect_full_records():
+def collect_full_records_with_accounting():
+    """Return one live raw->eligible->deduplicated reconciliation snapshot."""
     feed = fetch_feed()
-    return normalize_records(seed_brightline() + list(feed.get("records") or []))
+    raw = seed_brightline() + list(feed.get("records") or [])
+    eligible = [x for x in raw if x.get("url") or x.get("title")]
+    normalized = normalize_records(raw)
+    accounting = {
+        "upstream_raw_records": len(raw),
+        "eligible_raw_records": len(eligible),
+        "normalized_unique_records": len(normalized),
+        "duplicates_removed": max(0, len(eligible)-len(normalized)),
+        "excluded_missing_identity": max(0, len(raw)-len(eligible)),
+    }
+    accounting["reconciliation_ok"] = (
+        accounting["upstream_raw_records"]
+        == accounting["eligible_raw_records"] + accounting["excluded_missing_identity"]
+        and accounting["eligible_raw_records"]
+        == accounting["normalized_unique_records"] + accounting["duplicates_removed"]
+    )
+    return normalized, accounting
+
+def collect_full_records():
+    return collect_full_records_with_accounting()[0]
 
 def build(records):
     rows = normalize_records(records)

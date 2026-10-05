@@ -7,7 +7,7 @@ assert "BrightLine" in data["authors"]
 assert "风险管理" in data["topic_groups"]
 assert data["thesis_candidates"]
 js=(ROOT/"docs"/"assets"/"wenxuecity.js").read_text(encoding="utf-8")
-for label in ["主题研究","方法记忆","具体操作","验证结果","失败复盘","观点演变","来源档案"]:
+for label in ["主题研究","方法记忆","具体操作","历史观察归档","失败复盘","观点演变","来源档案"]:
     assert label in js
 nav=js.split('aria-label="文学城栏目"',1)[1].split('</nav>',1)[0]
 for old in ["投资助手","方法地图","博客文章","论坛与收盘复盘","方法沉淀","作者与数据状态"]:
@@ -19,7 +19,12 @@ assert data["counts"]["records"] >= 118
 print("PASS source intelligence UI")
 
 assert "research/source_outcome_validation.json" in js
-assert "5 / 20 / 60 交易日跟踪" in js
+assert "历史观察归档 · 旧 Outcome 5 / 20 / 60 日跟踪" in js
+assert "Spec 1.5 证据分层" in js
+assert "Forward 证据候选" in js
+assert "成熟可评分证据" in js
+assert "research/evidence_status.json" in js
+assert "旧 Method Memory / Outcome 仅用于历史观察" in js
 
 assert "第一档买入价" in js
 assert "第二档买入价" in js
@@ -31,3 +36,17 @@ assert "research/method_memory.json" in js
 assert "Method Memory · 方法记忆" in js
 assert "Direct" in js and "Context only" in js
 assert "60日成熟 Direct" in js
+
+
+status=json.loads((ROOT/"docs"/"research"/"evidence_status.json").read_text(encoding="utf-8"))
+layers=status["evidence_layers"]
+assert status["evaluation_spec_version"]=="1.5"
+assert layers["legacy_observational_archive"]["count"]>=46
+assert layers["forward_evidence_candidates"]["count"]>=0
+assert layers["mature_scoreable_evidence"]["event_count_60d"]>=0
+assert status["promotion"]["production_effect"]=="none"
+builder=(ROOT/"scripts"/"public_research_evidence_status.py").read_text(encoding="utf-8")
+assert "point_in_time_status" in builder
+assert "scoreable" in builder
+assert "legacy_observational_archive" in builder
+assert "Method Memory and Source Outcome remain descriptive/legacy" in builder

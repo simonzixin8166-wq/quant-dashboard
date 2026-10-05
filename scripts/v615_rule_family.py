@@ -11,7 +11,7 @@ RULES=ROOT/"research"/"registry"/"rules.json"
 SPEC=ROOT/"research"/"specs"/"evaluation_spec.json"
 DEF=ROOT/"research"/"specs"/"rule_family_definition.json"
 OUT=ROOT/"research"/"registry"/"rule_families.json"
-VERSION="6.15.8g"
+VERSION="6.15.8i"
 
 sys.path.insert(0,str(ROOT/"scripts"))
 from entry_semantics import classify_rule
@@ -62,10 +62,19 @@ def primary_method(rule):
     return primary or "unattributed"
 
 def structural_direction(rule,method,defn=None):
-    actions={str(x).lower() for x in ((rule.get("normalized_rule") or {}).get("actions") or [])}
+    nr=rule.get("normalized_rule") or {}
+    actions={str(x).lower() for x in (nr.get("actions") or [])}
     if method=="Sell Put":return "option_bullish_income"
     if method=="LEAPS":return "option_bullish"
     cfg=(defn or {}).get("direction_rules") or {}
+    option_actions=set(str(x).lower() for x in (cfg.get("option_context_action_tokens") or []))
+    option_fields=set(str(x).lower() for x in (cfg.get("option_context_field_tokens") or []))
+    fields={str(x).lower() for x in ((nr.get("fields") or {}).keys())}
+    field_has_option_context=any(any(tok in field for tok in option_fields) for field in fields)
+    # Unsupported option structures (e.g. covered-call-like generic sell + call fields)
+    # must fail closed instead of being mislabeled as a bearish stock exit.
+    if (actions & option_actions) or field_has_option_context:
+        return "unknown"
     bullish=set(str(x).lower() for x in (cfg.get("bullish_actions") or ["buy","add","planned_buy"]))
     bearish=set(str(x).lower() for x in (cfg.get("bearish_actions") or ["sell","planned_sell","clear","trim","trim_half","reduce"]))
     has_bull=bool(actions & bullish)

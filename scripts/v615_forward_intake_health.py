@@ -77,10 +77,23 @@ def build(store,rules,families,events,spec,now=None):
         }
         for e in forward_events if e.get("point_in_time_status")!="eligible"
     ]
-    suspicious_live_sources=[
+    rekeyed_live_inherited=[
         sid for sid,meta in source_meta.items()
-        if ((meta or {}).get("ingest_type")=="live_ingest" or (meta or {}).get("admission_class")=="genuine_forward") and not genuine_forward_source(meta)
+        if (meta or {}).get("admission_class")=="rekeyed_duplicate"
+        and (meta or {}).get("ingest_type")=="live_ingest"
     ]
+    suspicious_live_sources=[]
+    for sid,meta in source_meta.items():
+        admission=(meta or {}).get("admission_class")
+        ingest=(meta or {}).get("ingest_type")
+        if admission=="rekeyed_duplicate" and ingest=="live_ingest":
+            continue
+        if admission=="genuine_forward":
+            if not genuine_forward_source(meta):
+                suspicious_live_sources.append(sid)
+            continue
+        if ingest=="live_ingest":
+            suspicious_live_sources.append(sid)
     blockers=[]
     if suspicious_live_sources: blockers.append("live_ingest_missing_immutable_forward_provenance")
     if missing_family: blockers.append("live_rule_missing_current_family_assignment")
@@ -112,6 +125,7 @@ def build(store,rules,families,events,spec,now=None):
             "forward_eventscore_events":len(forward_events),
             "point_in_time_eligible_events":len(eligible_forward),
             "scoreable_forward_events":len(scoreable_forward),
+            "rekeyed_live_inherited_sources":len(rekeyed_live_inherited),
         },
         "eligible_event_primary_outcomes":dict(sorted(exclusions.items())),
         "blockers":blockers,
@@ -120,6 +134,7 @@ def build(store,rules,families,events,spec,now=None):
             "missing_event_rule_ids":missing_event,
             "noneligible_forward_events":noneligible[:50],
             "suspicious_live_source_ids":sorted(suspicious_live_sources)[:50],
+            "rekeyed_live_inherited_source_ids":sorted(rekeyed_live_inherited)[:50],
         },
         "guardrails":[
             "A genuine forward rule requires persisted admission_class=genuine_forward, live_ingest, immutable first observation provenance, and the Spec-defined Evidence Foundation start.",

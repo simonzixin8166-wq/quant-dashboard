@@ -58,3 +58,80 @@ old_live=build(old_live_store,old_live_rules,base_families,base_events,spec,now=
 assert old_live["integrity_pass"] is False
 assert "live_ingest_missing_immutable_forward_provenance" in old_live["blockers"]
 print("PASS Spec 1.7 genuine-forward admission lock")
+
+
+# M1 hotfix: a legitimate rekeyed duplicate may inherit live_ingest from its genuine-forward parent.
+# It is diagnostic only: no blocker, no live rule, no forward event.
+rekey_store={"records":base_store["records"]+[{
+ "source_key":"s-rekey","ingest_type":"live_ingest",
+ "first_fetched_at":"2026-10-05T12:00:00+00:00",
+ "first_fetched_at_origin":"source_store_first_observation",
+ "admission_class":"rekeyed_duplicate",
+ "identity_parent_source_key":"s-parent",
+ "record":{"id":"s-rekey"}
+}]}
+rekey_rules={"rules":base_rules["rules"]+[{"rule_id":"r-rekey","source_id":"s-rekey","author":"x","active":True}]}
+rekey_families={"assignments":base_families["assignments"]+[{"rule_id":"r-rekey","definition_hash":"defhash","active":True}]}
+rekey_events={"scoring_engine_version":"event_score@6.15.8l","events":base_events["events"]+[{
+ "event_id":"e-rekey","rule_id":"r-rekey","point_in_time_status":"source_not_genuine_forward","scoreable":False,
+ "primary_exclusion_reason":"non_point_in_time_source"
+}]}
+rekey_out=build(rekey_store,rekey_rules,rekey_families,rekey_events,spec,now="2026-10-06T00:00:00Z")
+assert rekey_out["integrity_pass"] is True
+assert "live_ingest_missing_immutable_forward_provenance" not in rekey_out["blockers"]
+assert rekey_out["counts"]["rekeyed_live_inherited_sources"]==1
+assert rekey_out["counts"]["genuine_forward_rules"]==0
+assert rekey_out["counts"]["forward_eventscore_events"]==0
+assert "s-rekey" in rekey_out["details"]["rekeyed_live_inherited_source_ids"]
+
+# Genuine forward with invalid provenance remains a blocker.
+bad_genuine_store={"records":base_store["records"]+[{
+ "source_key":"s-bad-genuine","ingest_type":"live_ingest",
+ "first_fetched_at":"2026-10-05T12:00:00+00:00",
+ "first_fetched_at_origin":"wrong_origin",
+ "admission_class":"genuine_forward",
+ "record":{"id":"s-bad-genuine"}
+}]}
+bad_genuine_rules={"rules":base_rules["rules"]+[{"rule_id":"r-bg","source_id":"s-bad-genuine","author":"x","active":True}]}
+bad_genuine=build(bad_genuine_store,bad_genuine_rules,base_families,base_events,spec,now="2026-10-06T00:00:00Z")
+assert bad_genuine["integrity_pass"] is False
+assert "live_ingest_missing_immutable_forward_provenance" in bad_genuine["blockers"]
+
+# Missing admission class + live_ingest is suspicious.
+missing_class_store={"records":base_store["records"]+[{
+ "source_key":"s-missing","ingest_type":"live_ingest",
+ "first_fetched_at":"2026-10-05T12:00:00+00:00",
+ "first_fetched_at_origin":"source_store_first_observation",
+ "record":{"id":"s-missing"}
+}]}
+missing_class_rules={"rules":base_rules["rules"]+[{"rule_id":"r-missing","source_id":"s-missing","author":"x","active":True}]}
+missing_class=build(missing_class_store,missing_class_rules,base_families,base_events,spec,now="2026-10-06T00:00:00Z")
+assert missing_class["integrity_pass"] is False
+assert "live_ingest_missing_immutable_forward_provenance" in missing_class["blockers"]
+
+# Unknown admission class + live_ingest is suspicious.
+unknown_class_store={"records":base_store["records"]+[{
+ "source_key":"s-unknown","ingest_type":"live_ingest",
+ "first_fetched_at":"2026-10-05T12:00:00+00:00",
+ "first_fetched_at_origin":"source_store_first_observation",
+ "admission_class":"unexpected_class",
+ "record":{"id":"s-unknown"}
+}]}
+unknown_class_rules={"rules":base_rules["rules"]+[{"rule_id":"r-unknown","source_id":"s-unknown","author":"x","active":True}]}
+unknown_class=build(unknown_class_store,unknown_class_rules,base_families,base_events,spec,now="2026-10-06T00:00:00Z")
+assert unknown_class["integrity_pass"] is False
+assert "live_ingest_missing_immutable_forward_provenance" in unknown_class["blockers"]
+
+# backfill + live_ingest is impossible under migrate_sources and must fail.
+bad_backfill_store={"records":base_store["records"]+[{
+ "source_key":"s-backfill-live","ingest_type":"live_ingest",
+ "first_fetched_at":"2026-10-05T12:00:00+00:00",
+ "first_fetched_at_origin":"source_store_first_observation",
+ "admission_class":"backfill",
+ "record":{"id":"s-backfill-live"}
+}]}
+bad_backfill_rules={"rules":base_rules["rules"]+[{"rule_id":"r-backfill-live","source_id":"s-backfill-live","author":"x","active":True}]}
+bad_backfill=build(bad_backfill_store,bad_backfill_rules,base_families,base_events,spec,now="2026-10-06T00:00:00Z")
+assert bad_backfill["integrity_pass"] is False
+assert "live_ingest_missing_immutable_forward_provenance" in bad_backfill["blockers"]
+print("PASS Forward Guard rekeyed-live diagnostic / impossible live-state blockers")

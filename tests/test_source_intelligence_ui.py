@@ -50,3 +50,14 @@ assert "point_in_time_status" in builder
 assert "scoreable" in builder
 assert "legacy_observational_archive" in builder
 assert "Method Memory and Source Outcome remain descriptive/legacy" in builder
+
+
+# Source->Rule funnel is public observability only; UI must not present fake maturity progress.
+assert "Source → Rule 运行漏斗" in js
+assert "自上次成功运行以来" in js
+assert "未开始 · 等待第一条 genuine forward" in js
+builder=(ROOT/"scripts"/"public_research_evidence_status.py").read_text(encoding="utf-8")
+assert "source_rule_funnel" in builder
+assert "maturity_clock" in builder
+assert "result_blind" in builder
+print("PASS Source->Rule funnel public observability UI contract")

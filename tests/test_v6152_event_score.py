@@ -153,3 +153,14 @@ assert point_in_time_status({"first_fetched_at":"2026-10-07T13:30:00+00:00","fir
 assert point_in_time_status({"first_fetched_at":"2026-10-07T14:00:00+00:00","first_fetched_at_origin":"source_store_first_observation","admission_class":"genuine_forward"},"2026-10-07",forward_spec)=="historical_pre_ingest"
 assert point_in_time_status({"first_fetched_at":"2026-10-07T14:00:00","first_fetched_at_origin":"source_store_first_observation","admission_class":"genuine_forward"},"2026-10-07",forward_spec)=="unknown"
 print("PASS Spec 1.7 timestamp-level point-in-time eligibility / source admission closed")
+
+
+# Registry mapping must hide explicitly retroactive/non-forward-eligible rules.
+retro_registry={
+ "rules":[{"rule_id":"r1","forward_eligible":False}],
+ "legacy_mapping":[{"source_id":"s1","operation_index":0,"rule_id":"r1"}]
+}
+retro=adapt(forward_validation,retro_registry,{"ABC":{"df":stooq,"meta":{"status":"ok","source":"stooq_archive","price_source":"stooq_archive","adjustment_basis":"stooq_archive_native_series","price_series_hash":"x"}}},forward_spec,forward_store,forward_families)
+assert retro["events"][0]["scoreable"] is False
+assert retro["events"][0]["primary_exclusion_reason"]=="missing_rule_id"
+print("PASS retroactive rule hidden from EventScore mapping")

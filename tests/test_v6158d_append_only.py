@@ -7,9 +7,11 @@ from v615_append_only_guard import check,head_json
 
 old={
  "event_history":{"records":[{"event_id":"e","spec_version":"1.1","score_hash":"h","recorded_at":"t","score":{"x":1}}]},
- "rules":{"rules":[{"rule_id":"r","semantic_hash":"s","duplicate_rank":1,"first_seen_at":"t","source_id":"src","normalized_rule_hash":"n","extractor_input_hash":"x","extractor_input_revisions":[]}]},
+ "rules":{"rules":[{"rule_id":"r","semantic_hash":"s","duplicate_rank":1,"first_seen_at":"t","source_id":"src","normalized_rule_hash":"n","extractor_input_hash":"x","extractor_input_revisions":[]}],
+ "source_observations":[{"source_id":"src","first_registry_seen_at":"t","first_extractor_version":"x","first_extractor_input_hash":"h"}]},
  "source_store":{"records":[{"source_key":"src","first_fetched_at":"t","ingest_type":"initial_migration","admission_class":"initial_migration","admission_classified_at":"t","identity_parent_source_key":None,"snapshot_hash":"a","snapshot_history":[]}]},
- "contradictions":{"records":[{"contradiction_id":"c","first_seen_at":"t","last_seen_at":"t"}]}
+ "contradictions":{"records":[{"contradiction_id":"c","first_seen_at":"t","last_seen_at":"t"}]},
+ "source_rule_funnel_history":{"records":[{"snapshot_id":"snap1","schema_version":"1.0","new_sources_total":0}]}
 }
 assert check(old,copy.deepcopy(old))==[]
 
@@ -56,3 +58,25 @@ with patch("v615_append_only_guard.subprocess.check_output") as co, patch("v615_
     except RuntimeError:
         pass
 print("PASS V6.15.8l append-only HEAD read fail-closed behavior")
+
+
+bad=copy.deepcopy(old);bad["rules"]["source_observations"][0]["first_registry_seen_at"]="changed"
+assert any("source_observation_immutable_changed" in x for x in check(old,bad))
+
+bad=copy.deepcopy(old);bad["rules"]["source_observations"]=[]
+assert any("source_observation_missing" in x for x in check(old,bad))
+
+bad=copy.deepcopy(old);bad["source_rule_funnel_history"]["records"][0]["new_sources_total"]=99
+assert any("funnel_history_rewritten" in x for x in check(old,bad))
+
+bad=copy.deepcopy(old);bad["source_rule_funnel_history"]["records"]=[]
+assert any("funnel_history_missing" in x for x in check(old,bad))
+print("PASS funnel/source-observation append-only invariants")
+
+
+elig=copy.deepcopy(old)
+elig["rules"]["rules"][0]["extraction_mode"]="forward_initial"
+elig["rules"]["rules"][0]["forward_eligible"]=True
+elig2=copy.deepcopy(elig);elig2["rules"]["rules"][0]["forward_eligible"]=False
+assert any("rule_immutable_changed:r:forward_eligible" in x for x in check(elig,elig2))
+print("PASS rule forward eligibility immutable after migration")

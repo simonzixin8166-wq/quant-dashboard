@@ -1,0 +1,53 @@
+name: Server Action Watch
+
+on:
+  schedule:
+    # US trading-day watch. Covers EDT/EST regular-session windows with some buffer.
+    - cron: "*/15 13-22 * * 1-5"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: myalpha-production-writer
+  cancel-in-progress: false
+
+jobs:
+  action-watch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Validate server action engine
+        run: |
+          python -m py_compile scripts/server_action_engine.py
+          python tests/test_v615_server_action_engine.py
+
+      - name: Build server-side action status and deliver alerts
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          OPTIONS_MARKET_ENDPOINT: ${{ vars.OPTIONS_MARKET_ENDPOINT }}
+          MYALPHA_TG_BOT_TOKEN: ${{ secrets.MYALPHA_TG_BOT_TOKEN }}
+          MYALPHA_TG_CHAT_ID: ${{ secrets.MYALPHA_TG_CHAT_ID }}
+        run: python scripts/server_action_engine.py
+
+      - name: Save sanitized action health only
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add docs/research/server_action_status.json
+          if ! git diff --cached --quiet; then
+            git commit -m "update server action status"
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi

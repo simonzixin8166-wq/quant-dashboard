@@ -27,8 +27,8 @@ from entry_semantics import classify_event
 from local_history_agent import read_archive
 from source_history_cache import read_cache
 
-VERSION="6.15.8k"
-SCORING_ENGINE_VERSION="event_score@6.15.8k"
+VERSION="6.15.8l"
+SCORING_ENGINE_VERSION="event_score@6.15.8l"
 HORIZONS=(5,20,60)
 
 def load(path,default):
@@ -159,6 +159,9 @@ def source_provenance_map(store):
             "first_fetched_at":row.get("first_fetched_at"),
             "ingest_type":row.get("ingest_type"),
             "first_fetched_at_origin":row.get("first_fetched_at_origin"),
+            "admission_class":row.get("admission_class"),
+            "admission_origin":row.get("admission_origin"),
+            "identity_parent_source_key":row.get("identity_parent_source_key"),
             "published_at_semantics":row.get("published_at_semantics"),
             "timestamp_confidence":row.get("timestamp_confidence"),
             "snapshot_hash":row.get("snapshot_hash"),
@@ -184,17 +187,29 @@ def baseline_timestamp_utc(baseline_date,spec=None):
 
 def point_in_time_status(prov,baseline_date,spec=None):
     first=(prov or {}).get("first_fetched_at")
+    cfg=((spec or {}).get("definitions") or {}).get("point_in_time_eligibility") or {}
+    admission_cfg=cfg.get("source_admission") or {}
+    required_class=admission_cfg.get("genuine_forward_required_class","genuine_forward")
+    if (prov or {}).get("admission_class")!=required_class:
+        return "source_not_genuine_forward"
+    if (prov or {}).get("first_fetched_at_origin")!="source_store_first_observation":
+        return "source_not_genuine_forward"
     if not first or not baseline_date:
         return "unknown"
     try:
         first_ts=pd.Timestamp(first)
         if first_ts.tzinfo is None:
             return "unknown"
-        first_utc=first_ts.tz_convert("UTC").to_pydatetime()
+        first_utc=first_ts.tz_convert("UTC")
+        foundation=pd.Timestamp(cfg.get("evidence_foundation_start_utc"))
+        if foundation.tzinfo is None:
+            return "unknown"
+        if first_utc<foundation.tz_convert("UTC"):
+            return "source_not_genuine_forward"
         baseline_utc=baseline_timestamp_utc(baseline_date,spec)
         if baseline_utc is None:
             return "unknown"
-        return "eligible" if baseline_utc>first_utc else "historical_pre_ingest"
+        return "eligible" if baseline_utc>first_utc.to_pydatetime() else "historical_pre_ingest"
     except Exception:
         return "unknown"
 
@@ -242,7 +257,7 @@ def exclusion_reasons(rid,triggered,direction,entry_type,data_status,point_statu
     if data_status=="conflict":reasons.append("price_source_conflict")
     elif data_status=="cache_only_unscored":reasons.append("cache_only_unscored")
     elif data_status!="ok":reasons.append("missing_price_data")
-    if point_status=="historical_pre_ingest":reasons.append("non_point_in_time_source")
+    if point_status in {"historical_pre_ingest","source_not_genuine_forward"}:reasons.append("non_point_in_time_source")
     elif point_status=="unknown":reasons.append("timestamp_provenance_unknown")
     return reasons
 

@@ -11,6 +11,11 @@ from research_boundary_guard import snapshot, assert_allowed, git_worktree_paths
 
 AUDIT=ROOT/"research"/"audit"/"step_boundary_log.json"
 
+def snapshot_digest(value):
+    raw=json.dumps(value,sort_keys=True,separators=(",",":"),ensure_ascii=False).encode("utf-8")
+    import hashlib
+    return hashlib.sha256(raw).hexdigest()
+
 def load(path,default):
     try:return json.loads(path.read_text(encoding="utf-8"))
     except Exception:return default
@@ -46,13 +51,14 @@ def main():
         "production_boundary_unchanged":same,
         "evidence_lock_unchanged":not lock_after,
         "research_only_worktree":allowed_rc==0,
-        "before":before,
-        "after":after,
+        "before_hash":snapshot_digest(before),
+        "after_hash":snapshot_digest(after),
+        "protected_file_count":len((before or {}).get("files") or {}),
     }
     prior=load(AUDIT,{"version":"6.15.8a","records":[]})
     prior["generated_at"]=record["completed_at"]
     prior.setdefault("records",[]).append(record)
-    prior["records"]=prior["records"][-200:]
+    prior["records"]=prior["records"][-80:]
     AUDIT.parent.mkdir(parents=True,exist_ok=True)
     AUDIT.write_text(json.dumps(prior,ensure_ascii=False,indent=2),encoding="utf-8")
     if proc.returncode!=0:

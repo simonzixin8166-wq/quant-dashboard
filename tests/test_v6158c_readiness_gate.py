@@ -38,7 +38,9 @@ for day in ["2026-03-02","2026-06-15"]:
           "scoreable":True,"point_in_time_status":"eligible",
           "scores":{"20":score(day,20,0.01),"60":None}})
 event_doc={"counts":{"conservation_ok":True},"events":events}
-source={"source_window_reported_total":3,"full_ingest_size":3,"source_accounting":{"current_upstream_records":3,"retained_historical_records":0},"records":[1,2,3]}
+source={"source_window_reported_total":3,"legacy_reported_total":3,"full_ingest_size":3,
+"upstream_reconciliation":{"upstream_raw_records":4,"eligible_raw_records":4,"normalized_unique_records":3,"duplicates_removed":1,"excluded_missing_identity":0,"reconciliation_ok":True},
+"source_accounting":{"current_upstream_records":3,"current_ingested_unique_records":3,"retained_historical_records":0,"current_ingest_complete":True},"records":[1,2,3]}
 controls={"all_pass":True,"controls":{
  "positive_control":{"pass":True},"repeated_negative_control":{"pass":True},"leakage_canary":{"pass":True}
 }}
@@ -77,7 +79,9 @@ assert out3["ready_for_v616"] is False
 assert "production_boundary_clean_span" in out3["blockers"]
 
 # Retained historical rows cannot mask an incomplete current ingestion.
-bad_source={"source_window_reported_total":3,"full_ingest_size":2,"source_accounting":{"current_upstream_records":2,"retained_historical_records":8},"records":[1,2,3,4,5,6,7,8,9,10]}
+bad_source={"source_window_reported_total":3,"legacy_reported_total":3,"full_ingest_size":2,
+"upstream_reconciliation":{"upstream_raw_records":3,"eligible_raw_records":3,"normalized_unique_records":3,"duplicates_removed":0,"excluded_missing_identity":0,"reconciliation_ok":True},
+"source_accounting":{"current_upstream_records":3,"current_ingested_unique_records":2,"retained_historical_records":8,"current_ingest_complete":False},"records":[1,2,3,4,5,6,7,8,9,10]}
 out4=build(spec,event_doc,families,bad_source,controls,boundary,components)
 assert out4["ready_for_v616"] is False
 assert out4["conditions"]["source_store_full_coverage"] is False

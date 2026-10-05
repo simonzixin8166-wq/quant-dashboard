@@ -1,0 +1,163 @@
+#!/usr/bin/env python3
+"""Server-side Daily Action Engine.
+
+Reads private option positions through Supabase, fetches only held-contract
+quotes through the existing options-market Edge Function, applies fail-closed
+risk/event rules, optionally delivers a concise alert, and writes only a
+sanitized public health summary (never symbols/accounts/position details).
+"""
+from __future__ import annotations
+import json,os,urllib.request,urllib.parse
+from datetime import datetime,timezone,timedelta
+from pathlib import Path
+
+ROOT=Path(__file__).resolve().parents[1]
+EVENTS=ROOT/"docs"/"data"/"market_events.json"
+SYSTEM=ROOT/"docs"/"research"/"system_status.json"
+PUBLIC_OUT=ROOT/"docs"/"research"/"server_action_status.json"
+DEFAULT_EDGE="https://rhielbkvhgqbthcgztci.supabase.co/functions/v1/options-market"
+
+def load(path):
+    try:return json.loads(path.read_text(encoding="utf-8"))
+    except Exception:return {}
+
+def req_json(url,headers=None,timeout=15):
+    req=urllib.request.Request(url,headers=headers or {"User-Agent":"MyAlpha-Server-Action"})
+    with urllib.request.urlopen(req,timeout=timeout) as r:
+        return json.loads(r.read().decode("utf-8"))
+
+def supabase_rows(table):
+    base=os.getenv("SUPABASE_URL");key=os.getenv("SUPABASE_KEY")
+    if not base or not key:return None
+    url=f"{base.rstrip('/')}/rest/v1/{table}?select=*"
+    return req_json(url,{"apikey":key,"Authorization":f"Bearer {key}","User-Agent":"MyAlpha-Server-Action"})
+
+def occ_symbol(p):
+    root=str(p.get("symbol") or "").upper()
+    expiry=str(p.get("expiry") or "")[:10].replace("-","")[2:]
+    typ="P" if str(p.get("opt_type") or "").lower()=="put" else "C"
+    try:strike=f"{int(round(float(p.get('strike'))*1000)):08d}"
+    except Exception:return None
+    return f"{root}{expiry}{typ}{strike}" if root and len(expiry)==6 else None
+
+def edge_quote(option_symbol):
+    key=os.getenv("SUPABASE_KEY") or ""
+    endpoint=os.getenv("OPTIONS_MARKET_ENDPOINT") or DEFAULT_EDGE
+    url=endpoint+"?"+urllib.parse.urlencode({"action":"quote","optionSymbol":option_symbol})
+    headers={"User-Agent":"MyAlpha-Server-Action"}
+    if key:
+        headers.update({"apikey":key,"Authorization":f"Bearer {key}"})
+    return req_json(url,headers)
+
+def first(row,key):
+    v=row.get(key)
+    return v[0] if isinstance(v,list) and v else None
+
+def parse_dt(v):
+    if not v:return None
+    try:return datetime.fromisoformat(str(v).replace("Z","+00:00")).astimezone(timezone.utc)
+    except Exception:return None
+
+def upcoming_events(hours=48):
+    now=datetime.now(timezone.utc);end=now+timedelta(hours=hours);rows=[]
+    for e in load(EVENTS).get("events") or []:
+        dt=parse_dt(e.get("datetime"))
+        if dt and now<=dt<=end:rows.append({**e,"at":dt})
+    return sorted(rows,key=lambda x:x["at"])
+
+def system_trust():
+    s=load(SYSTEM)
+    excluded=((s.get("decision_data_contract") or {}).get("excluded_artifacts") or [])
+    guard=(s.get("resource_guard") or {}).get("mode","unknown")
+    overall=s.get("overall","unknown")
+    ok=overall=="ok" and not excluded
+    return {"ok":ok,"overall":overall,"excluded":excluded,"resource_mode":guard}
+
+def risk_for(p,q,events):
+    now=datetime.now(timezone.utc).date()
+    try:expiry=datetime.fromisoformat(str(p.get("expiry"))[:10]).date();dte=(expiry-now).days
+    except Exception:dte=None
+    spot=first(q,"underlyingPrice") if q else None
+    bid=first(q,"bid") if q else None;ask=first(q,"ask") if q else None;mid=first(q,"mid") if q else None
+    delta=first(q,"delta") if q else None;updated=first(q,"updated") if q else None
+    try:
+        strike=float(p.get("strike"));spot=float(spot) if spot is not None else None
+    except Exception:strike=None;spot=None
+    stale=True
+    if updated:
+        try:stale=(datetime.now(timezone.utc)-datetime.fromtimestamp(float(updated),timezone.utc))>timedelta(minutes=45)
+        except Exception:stale=True
+    if dte is None:return {"level":"unknown","reason":"expiry unavailable","dte":None}
+    if q is None or spot is None or stale:return {"level":"unknown","reason":"quote unavailable or stale","dte":dte}
+    typ=str(p.get("opt_type") or "").lower()
+    itm=(spot<strike) if typ=="put" else (spot>strike)
+    dist=abs(spot/strike-1) if strike else None
+    spread=((float(ask)-float(bid))/float(mid)) if bid is not None and ask is not None and mid not in (None,0) else None
+    level="l1";reason="no server risk trigger"
+    if dte<0:level,reason="l3","expired / settlement required"
+    elif dte<=7 and (itm or (dist is not None and dist<=.01)):level,reason="l3","near expiry and ATM/ITM"
+    elif dte<=14 and (itm or (dist is not None and dist<=.05)):level,reason="l2","near assignment risk zone"
+    elif spread is not None and spread>.15:level,reason="l2","wide bid/ask spread"
+    elif events:level,reason="l2","major macro event inside 48h review window"
+    return {"level":level,"reason":reason,"dte":dte,"spot":spot,"delta":delta,"spread":spread}
+
+def build():
+    trust=system_trust();positions=supabase_rows("options_positions")
+    if positions is None:
+        return {"status":"cannot_judge","trust":trust,"reason":"Supabase credentials unavailable","actions":[],"quote_failures":0}
+    open_rows=[p for p in positions if str(p.get("status") or "open") in {"open","pending_settlement"}]
+    events=upcoming_events(48);actions=[];quote_failures=0
+    for p in open_rows:
+        occ=occ_symbol(p);q=None
+        if occ:
+            try:q=edge_quote(occ)
+            except Exception:quote_failures+=1
+        risk=risk_for(p,q,events)
+        if risk["level"] in {"l2","l3"}:
+            actions.append({"level":risk["level"],"symbol":p.get("symbol"),"expiry":p.get("expiry"),"reason":risk["reason"],"dte":risk.get("dte")})
+        elif risk["level"]=="unknown":
+            actions.append({"level":"unknown","symbol":p.get("symbol"),"expiry":p.get("expiry"),"reason":risk["reason"],"dte":risk.get("dte")})
+    cannot=not trust["ok"] or any(a["level"]=="unknown" for a in actions)
+    status="cannot_judge" if cannot else ("action_required" if any(a["level"] in {"l2","l3"} for a in actions) else "clear")
+    return {"status":status,"trust":trust,"positions_checked":len(open_rows),"event_count_48h":len(events),"actions":actions,"quote_failures":quote_failures}
+
+def notify(result):
+    if result["status"]=="clear":return "not_needed"
+    token=os.getenv("MYALPHA_TG_BOT_TOKEN");chat=os.getenv("MYALPHA_TG_CHAT_ID")
+    if not token or not chat:return "not_configured"
+    if result["status"]=="cannot_judge":
+        title="MyAlpha：今日无法可靠判断"
+    else:title="MyAlpha：有需要处理的事项"
+    lines=[title]
+    for a in result["actions"][:8]:
+        lines.append(f"- {a['level'].upper()} {a.get('symbol','?')} {a.get('expiry','')}：{a.get('reason','')}")
+    if result.get("event_count_48h"):lines.append(f"- 48小时内宏观事件：{result['event_count_48h']} 项")
+    body=urllib.parse.urlencode({"chat_id":chat,"text":"\n".join(lines)}).encode()
+    req=urllib.request.Request(f"https://api.telegram.org/bot{token}/sendMessage",data=body,method="POST")
+    with urllib.request.urlopen(req,timeout=12) as r:r.read()
+    return "sent"
+
+def main():
+    result=build();delivery=notify(result)
+    public={
+      "version":"6.15-p012",
+      "generated_at":datetime.now(timezone.utc).isoformat(),
+      "status":result["status"],
+      "positions_checked":result.get("positions_checked",0),
+      "action_counts":{
+        "l3":sum(1 for x in result["actions"] if x["level"]=="l3"),
+        "l2":sum(1 for x in result["actions"] if x["level"]=="l2"),
+        "unknown":sum(1 for x in result["actions"] if x["level"]=="unknown"),
+      },
+      "event_count_48h":result.get("event_count_48h",0),
+      "quote_failures":result.get("quote_failures",0),
+      "data_trust":result["trust"],
+      "delivery":delivery,
+      "privacy":"sanitized public summary only; symbols/accounts/private position details are never written here",
+    }
+    PUBLIC_OUT.parent.mkdir(parents=True,exist_ok=True)
+    PUBLIC_OUT.write_text(json.dumps(public,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
+    print(json.dumps(public,ensure_ascii=False))
+    return 0 if result["status"]!="cannot_judge" else 0
+
+if __name__=="__main__":raise SystemExit(main())

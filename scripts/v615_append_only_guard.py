@@ -10,6 +10,7 @@ TARGETS={
  "rules":ROOT/"research/registry/rules.json",
  "source_store":ROOT/"research/store/source_store.json",
  "contradictions":ROOT/"research/history/contradictions.json",
+ "source_rule_funnel_history":ROOT/"research/history/source_rule_funnel_history.json",
 }
 VERSION="6.15.8l"
 
@@ -66,6 +67,28 @@ def rule_violations(old,new):
             if old_hash not in revisions:problems.append(f"rule_extractor_revision_lost:{rid}")
     return problems
 
+def source_observation_violations(old,new):
+    problems=[]
+    old_rows={str(r.get("source_id")):r for r in old.get("source_observations") or [] if r.get("source_id")}
+    new_rows={str(r.get("source_id")):r for r in new.get("source_observations") or [] if r.get("source_id")}
+    for sid,row in old_rows.items():
+        nr=new_rows.get(sid)
+        if not nr:
+            problems.append(f"source_observation_missing:{sid}");continue
+        for k in ("source_id","first_registry_seen_at","first_extractor_version","first_extractor_input_hash"):
+            if nr.get(k)!=row.get(k):
+                problems.append(f"source_observation_immutable_changed:{sid}:{k}")
+    return problems
+
+def funnel_history_violations(old,new):
+    problems=[]
+    old_rows={str(r.get("snapshot_id")):r for r in old.get("records") or [] if r.get("snapshot_id")}
+    new_rows={str(r.get("snapshot_id")):r for r in new.get("records") or [] if r.get("snapshot_id")}
+    for sid,row in old_rows.items():
+        if sid not in new_rows:problems.append(f"funnel_history_missing:{sid}")
+        elif new_rows[sid]!=row:problems.append(f"funnel_history_rewritten:{sid}")
+    return problems
+
 def source_store_violations(old,new):
     problems=[]
     old_rows={r.get("source_key"):r for r in old.get("records") or [] if r.get("source_key")}
@@ -103,8 +126,10 @@ def check(old_docs,new_docs):
     return (
       event_history_violations(old_docs.get("event_history",{}),new_docs.get("event_history",{}))
       +rule_violations(old_docs.get("rules",{}),new_docs.get("rules",{}))
+      +source_observation_violations(old_docs.get("rules",{}),new_docs.get("rules",{}))
       +source_store_violations(old_docs.get("source_store",{}),new_docs.get("source_store",{}))
       +contradiction_violations(old_docs.get("contradictions",{}),new_docs.get("contradictions",{}))
+      +funnel_history_violations(old_docs.get("source_rule_funnel_history",{}),new_docs.get("source_rule_funnel_history",{}))
     )
 
 def main():

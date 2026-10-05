@@ -135,6 +135,7 @@
     const chip=document.getElementById('stockCountChip');if(chip)chip.textContent=`${count}只`;
     const stamp=document.getElementById('stockWatchStatus');
     if(stamp)stamp.textContent=`${count}只 · ${sessionOpen()?'普通观察股盘中10分钟更新':'休市保留最近报价'} · 指标${Object.keys(state.daily).length?'按完整收盘日线':'等待日线'} · ${new Date().toLocaleTimeString()}`;
+    global.MAVProductIntelligence?.render?.();
   }
   async function load(){
     if(state.loading)return;state.loading=true;

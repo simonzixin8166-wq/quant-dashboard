@@ -241,6 +241,9 @@ def normalize(row):
         "archive_only": bool(row.get("archive_only")),
         "deep_analysis": bool(row.get("deep_analysis")),
         "source_notice": row.get("source_notice") or "外部作者原始观点，仅作研究来源。",
+        "source_role": row.get("source_role"),
+        "transcript_status": row.get("transcript_status"),
+        "captured_at": row.get("captured_at"),
         "myalpha_validation": "needs_independent_validation",
     }
 

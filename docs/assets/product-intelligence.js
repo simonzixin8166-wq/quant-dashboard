@@ -118,9 +118,22 @@ function render(){
  root.querySelectorAll('[data-pi-symbol]').forEach(b=>b.addEventListener('click',()=>global.StockWatchlist?.focus?.(b.dataset.piSymbol)));
  state.lastAt=Date.now();
 }
+function recordDecisionState(){
+ const s=state.serverAction;if(!s||!global.MAVDecisionJournal?.recordOperatorDecision)return;
+ const decision=s.status==='cannot_judge'?'cannot_judge':s.status==='action_required'?'action_required':'no_action';
+ const attribution=s.status==='cannot_judge'?'data_error':'pending';
+ global.MAVDecisionJournal.recordOperatorDecision({
+   decision,source:'server_action_engine',
+   reason:s.status==='cannot_judge'?'关键数据不足或风险状态未知':s.status==='action_required'?'存在需要处理/复核的服务端行动':'当前服务端检查未发现升级事项',
+   dataState:s.data_trust?.overall||'unknown',
+   evidenceState:s.status==='cannot_judge'?'insufficient':'usable',
+   fingerprint:s.alert_fingerprint||'',attribution
+ });
+}
 async function loadSystemStatus(){
  try{const r=await fetch('research/system_status.json?v='+Date.now(),{cache:'no-store'});state.systemStatus=r.ok?await r.json():null}catch{state.systemStatus=null}
  try{const r=await fetch('research/server_action_status.json?v='+Date.now(),{cache:'no-store'});state.serverAction=r.ok?await r.json():null}catch{state.serverAction=null}
+ recordDecisionState();
 }
 function schedule(){clearInterval(state.timer);state.timer=setInterval(()=>{if(document.visibilityState==='visible')render()},120000)}
 function init(){loadSystemStatus().finally(render);render();schedule();window.addEventListener('mav:options-updated',render);document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')render()});setTimeout(render,1200);setTimeout(render,3500)}

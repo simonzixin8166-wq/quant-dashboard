@@ -136,31 +136,29 @@ function authorIntelligenceView(){
 function v615ProgramStatusView(){
  const p=programStatus||{},f=p.forward_evidence||{};
  if(!p.program_state)return '';
- const label=p.architecture_integrity_pass?'架构完整性 PASS':'需要处理';
- return `<div class="wxc-box"><h2>V6.15 阶段状态</h2><p><b>${esc(label)}</b> · ${esc(p.program_state)}</p><div class="wxc-overview-metrics"><article><span>Genuine Forward Rules</span><b>${f.genuine_forward_rules??0}</b><small>只算真实首次收录</small></article><article><span>Scoreable Forward</span><b>${f.scoreable_forward_events??0}</b><small>不以历史样本补数</small></article><article><span>20日有效单元</span><b>${f.mature_20_effective_units??0}</b><small>自然成熟</small></article><article><span>60日有效单元</span><b>${f.mature_60_effective_units??0}</b><small>自然成熟</small></article></div><p class="wxc-meta">工程完成与证据成熟分开：20/60 日不能通过回填历史视频或结果已知样本加速。</p></div>`;
+ const healthy=Boolean(p.architecture_integrity_pass),waiting=(f.genuine_forward_rules??0)===0;
+ return `<section class="wxc-cockpit-hero">
+  <div class="wxc-cockpit-copy"><span class="wxc-eyebrow">V6.15 · EVIDENCE ENGINE</span><div class="wxc-cockpit-title-row"><h2>研究系统已就绪，正在等待真实 Forward 样本</h2><span class="wxc-state-pill ${healthy?'ok':'warn'}">${healthy?'架构 PASS':'需要检查'}</span></div><p>历史学习已经接通，但不会污染正式证据。真正的 5/20/60 日验证只从首次捕获的新观点开始累计。</p><div class="wxc-cockpit-note">${waiting?'当前没有 genuine forward rule 属于正常状态；系统不会用旧视频或历史回放补数。':'已开始积累 genuine forward evidence，成熟度按真实交易日自然推进。'}</div></div>
+  <div class="wxc-cockpit-metrics"><article><span>Forward Rules</span><b>${f.genuine_forward_rules??0}</b><small>首次捕获</small></article><article><span>可评分</span><b>${f.scoreable_forward_events??0}</b><small>EventScore</small></article><article><span>20日</span><b>${f.mature_20_effective_units??0}</b><small>有效单元</small></article><article><span>60日</span><b>${f.mature_60_effective_units??0}</b><small>有效单元</small></article></div>
+ </section>`;
 }
 function researchCenterOverview(){
  const src=sourceState(),methodCount=methodMemory?.counts?.methods||researchLibrary.methods?.length||0;
- const ops=sourceIntel?.counts?.structured_operations||operationRows().length||0;
  const evidence=evidenceStatus?.evidence_layers||{},legacy=evidence.legacy_observational_archive||{},forward=evidence.forward_evidence_candidates||{},mature=evidence.mature_scoreable_evidence||{};
- const failures=sourceIntel?.failure_review?.length||0;
- return `<div class="wxc-overview-metrics">
-   <article><span>研究资料</span><b>${data?.articles?.length||0}</b><small>已收录正文整理</small></article>
-   <article><span>方法主题</span><b>${methodCount}</b><small>Method Memory · 描述性</small></article>
-   <article><span>历史观察归档</span><b>${legacy.count??0}</b><small>不参与 Promotion</small></article>
-   <article><span>Forward 候选</span><b>${forward.count??0}</b><small>当前可评分 ${forward.scoreable_now??0}</small></article>
-   <article><span>成熟证据</span><b>${mature.event_count_60d??0}</b><small>60日 · 当前 Spec</small></article>
-   <article><span>失败候选</span><b>${failures}</b><small>用于反证与边界</small></article>
- </div>
- ${v615ProgramStatusView()}
- ${sourceRuleFunnelView()}
- ${evidenceLayerView()}
- ${youtubeHistoricalLearningView()}
- ${authorIntelligenceView()}
- <div class="wxc-box wxc-research-loop"><h2>研究闭环 · 不是文章仓库</h2><p>外部观点只有经过“来源留痕 → 方法归纳 → 具体操作提取 → 后续验证/失败复盘”，才有资格影响研究优先级；不会自动改正式交易规则。</p>
- <div class="wxc-pipeline"><div><b>01 来源</b><span>保留作者、日期、原文与采集状态</span></div><div><b>02 方法</b><span>合并重复观点，形成可复用条件与边界</span></div><div><b>03 操作</b><span>只提取原文明示动作，不补猜价格或仓位</span></div><div><b>04 验证</b><span>按交易日跟踪结果、反例与失败归因</span></div><div><b>05 判断</b><span>形成 MyAlpha 自己的研究结论</span></div></div>
- <p class="wxc-meta">当前来源状态：${src.healthy?'正常':src.bad+' 个来源异常/未验收'}。来源异常不会删除历史资料，但新内容不能假装已经更新。</p></div>
- ${topicStudyView()}`;
+ const failures=sourceIntel?.failure_review?.length||0,hist=sourceIntel?.historical_learning?.counts||{};
+ return `${v615ProgramStatusView()}
+ <section class="wxc-section-block"><div class="wxc-section-headline"><div><span class="wxc-eyebrow">01 · CURRENT STATE</span><h2>先看结论</h2><p>这一区只回答：资料有多少、哪些只是历史学习、哪些是真实 Forward、哪些已经成熟。</p></div><span class="wxc-state-pill ${src.healthy?'ok':'warn'}">${src.healthy?'来源正常':'来源需核验'}</span></div>
+ <div class="wxc-overview-metrics wxc-overview-metrics-compact">
+   <article><span>研究资料</span><b>${data?.articles?.length||0}</b><small>已整理正文</small></article>
+   <article><span>方法主题</span><b>${methodCount}</b><small>Method Memory</small></article>
+   <article><span>历史视频</span><b>${hist.records??0}</b><small>Q1/Q2 ${hist.q1_q2_learning_eligible??0}</small></article>
+   <article><span>Forward 候选</span><b>${forward.count??0}</b><small>可评分 ${forward.scoreable_now??0}</small></article>
+   <article><span>60日成熟</span><b>${mature.event_count_60d??0}</b><small>当前 Spec</small></article>
+   <article><span>失败/反例</span><b>${failures}</b><small>边界学习</small></article>
+ </div></section>
+ <section class="wxc-section-block"><div class="wxc-section-headline"><div><span class="wxc-eyebrow">02 · EVIDENCE</span><h2>再看证据链</h2><p>历史观察、真实 Forward、成熟证据严格分层；漏斗只解释来源如何进入规则，不参与结果评分。</p></div></div>${evidenceLayerView()}${sourceRuleFunnelView()}</section>
+ <section class="wxc-section-block"><div class="wxc-section-headline"><div><span class="wxc-eyebrow">03 · LEARNING MEMORY</span><h2>最后看历史学习与作者画像</h2><p>这里只总结过去长期关注的方法、主题与环境，不给历史作者补“胜率”。</p></div></div>${youtubeHistoricalLearningView()}${authorIntelligenceView()}</section>
+ <details class="wxc-box wxc-secondary-detail"><summary>展开研究闭环与主题研究</summary><div class="wxc-pipeline"><div><b>01 来源</b><span>保留作者、日期、原文与采集状态</span></div><div><b>02 方法</b><span>合并重复观点，形成可复用条件与边界</span></div><div><b>03 操作</b><span>只提取原文明示动作</span></div><div><b>04 验证</b><span>按交易日跟踪结果与反例</span></div><div><b>05 判断</b><span>形成 MyAlpha 自己的研究结论</span></div></div><p class="wxc-meta">当前来源状态：${src.healthy?'正常':src.bad+' 个来源异常/未验收'}。来源异常不会删除历史资料，也不会把旧内容假装成今天更新。</p>${topicStudyView()}</details>`;
 }
 function methodsAndOperationsView(){return methodMemoryView()+intelOperationView()}
 function validationAndReviewView(){return validationView()+failureReviewView()+evolutionView()}

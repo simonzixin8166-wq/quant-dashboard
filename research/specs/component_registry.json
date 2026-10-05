@@ -11,14 +11,14 @@
     },
     {
       "name": "source_store",
-      "version": "6.15.8i",
+      "version": "6.15.8k",
       "script": "scripts/v615_persistent_source_store.py",
       "artifact": "research/store/source_store.json",
       "artifact_required": true
     },
     {
       "name": "event_score",
-      "version": "6.15.8j",
+      "version": "6.15.8k",
       "script": "scripts/v615_event_score.py",
       "artifact": "research/events/event_scores_v1.json",
       "artifact_required": true
@@ -74,7 +74,7 @@
     },
     {
       "name": "spec_coexistence_audit",
-      "version": "6.15.8i",
+      "version": "6.15.8k",
       "script": "scripts/v615_spec_coexistence_audit.py",
       "artifact": "research/audit/eventscore_spec_coexistence.json",
       "artifact_required": true
@@ -120,12 +120,20 @@
       "script": "scripts/v616_readiness_forecast.py",
       "artifact": "research/reports/v616_readiness_forecast.json",
       "artifact_required": false
+    },
+    {
+      "name": "forward_intake_health",
+      "version": "6.15.8k",
+      "script": "scripts/v615_forward_intake_health.py",
+      "artifact": "research/reports/forward_intake_health.json",
+      "artifact_required": true
     }
   ],
   "guardrails": [
     "Component versions are independent from APP_VERSION.",
     "The generated component manifest records code and artifact hashes for reproducibility.",
     "Research component metadata must not be presented as a user-visible product version.",
-    "Spec 1.5 statistical consumers use current-effective EventScore revisions only; append-only history remains provenance."
+    "Spec 1.6 statistical consumers use current-effective EventScore revisions only; append-only history remains provenance.",
+    "Spec 1.6 point-in-time eligibility uses exact timezone-aware baseline timestamps strictly after immutable first_fetched_at."
   ]
 }

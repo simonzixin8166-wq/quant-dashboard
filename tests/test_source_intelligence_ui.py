@@ -80,3 +80,15 @@ assert "V6.15 阶段状态" in js
 assert "research/v615_program_status.json" in js
 assert "20/60 日不能通过回填历史视频" in js
 print("PASS V6.15 program status UI")
+
+
+# V6.15 research cockpit prioritizes current state -> evidence -> learning memory.
+assert "研究系统已就绪，正在等待真实 Forward 样本" in js
+assert "01 · CURRENT STATE" in js
+assert "02 · EVIDENCE" in js
+assert "03 · LEARNING MEMORY" in js
+assert "展开研究闭环与主题研究" in js
+css=(ROOT/"docs"/"assets"/"wenxuecity.css").read_text(encoding="utf-8")
+for cls in ["wxc-cockpit-hero","wxc-cockpit-metrics","wxc-section-block","wxc-secondary-detail"]:
+    assert cls in css
+print("PASS V6.15 research cockpit hierarchy")

@@ -269,11 +269,13 @@ def run():
     if not report["conservation"]["pass"]:
         raise RuntimeError("source funnel conservation failed")
     # State/history are written only after successful computation.
+    # Publish the diagnostic view first. Only after that succeeds do we advance
+    # the key-set window atomically; any failure leaves state/history unchanged.
+    dump_atomic(PATHS["latest"],report)
     write_transaction([
         (PATHS["history"],history_out),
         (PATHS["state"],state_out),
     ])
-    dump_atomic(PATHS["latest"],report)
     return report
 
 def main():

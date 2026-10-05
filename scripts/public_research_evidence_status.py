@@ -16,6 +16,7 @@ READINESS=ROOT/"research"/"reports"/"v616_readiness_gate.json"
 FAMILY=ROOT/"research"/"reports"/"family_feasibility.json"
 PROMOTION=ROOT/"research"/"reports"/"promotion_gate.json"
 FORWARD_HEALTH=ROOT/"research"/"reports"/"forward_intake_health.json"
+FUNNEL=ROOT/"research"/"reports"/"source_rule_funnel_latest.json"
 OUT=ROOT/"docs"/"research"/"evidence_status.json"
 VERSION="1.0"
 
@@ -25,7 +26,7 @@ def load(path, default):
     except Exception:
         return default
 
-def build(events, coexistence, readiness, family, promotion, forward_health):
+def build(events, coexistence, readiness, family, promotion, forward_health, funnel=None):
     rows=events.get("events") or []
     forward=[e for e in rows if e.get("point_in_time_status")=="eligible"]
     scoreable=[e for e in forward if e.get("scoreable")]
@@ -35,6 +36,12 @@ def build(events, coexistence, readiness, family, promotion, forward_health):
     rd=readiness.get("observed") or {}
     fam_counts=family.get("counts") or {}
     promo_counts=promotion.get("counts") or {}
+    funnel=funnel or {}
+    funnel_down=funnel.get("downstream_counts") or {}
+    funnel_low=funnel.get("low_confidence_genuine_forward_sources") or {}
+    fcounts=forward_health.get("counts") or {}
+    genuine_rules=int(fcounts.get("genuine_forward_rules") or 0)
+    maturity_state="not_started" if genuine_rules==0 else ("started" if forward else "awaiting_first_baseline")
 
     return {
         "version":VERSION,
@@ -68,6 +75,44 @@ def build(events, coexistence, readiness, family, promotion, forward_health):
             "families_reviewable":int(promo_counts.get("statistical_criteria_passed") or 0),
             "production_effect":"none"
         },
+        "source_rule_funnel":{
+            "schema_version":funnel.get("schema_version"),
+            "status":funnel.get("status") or "unavailable",
+            "generated_at":funnel.get("generated_at"),
+            "new_sources_total":int(funnel.get("new_sources_total") or 0),
+            "terminal_reason_counts":funnel.get("terminal_reason_counts") or {},
+            "terminal_reason_share":funnel.get("terminal_reason_share") or {},
+            "conservation":funnel.get("conservation") or {},
+            "downstream":{
+                "operations_total":int(funnel_down.get("operations_total") or 0),
+                "propositions_total":int(funnel_down.get("propositions_total") or 0),
+                "new_forward_rules_total":int(funnel_down.get("new_forward_rules_total") or 0),
+                "independent_authors":int(funnel_down.get("independent_authors") or 0),
+                "largest_author_rule_share":funnel_down.get("largest_author_rule_share"),
+                "cumulative_forward_rules":int(funnel_down.get("cumulative_forward_rules") or 0),
+                "cumulative_forward_authors":int(funnel_down.get("cumulative_forward_authors") or 0),
+                "cumulative_largest_author_rule_share":funnel_down.get("cumulative_largest_author_rule_share"),
+                "admission_sources_with_operations":funnel_down.get("admission_sources_with_operations") or {},
+                "no_operations_context_split":funnel_down.get("no_operations_context_split") or {},
+            },
+            "low_confidence_genuine_forward_sources":{
+                "new":int(funnel_low.get("new") or 0),
+                "cumulative":int(funnel_low.get("cumulative") or 0),
+                "review_required":bool(funnel_low.get("review_required")),
+            },
+            "non_gating":True,
+            "result_blind":True,
+        },
+        "maturity_clock":{
+            "status":maturity_state,
+            "genuine_forward_rules":genuine_rules,
+            "first_eligible_baseline_timestamp_utc":min(
+                [str(e.get("baseline_timestamp_utc")) for e in forward if e.get("baseline_timestamp_utc")],
+                default=None
+            ),
+            "mature_20_effective_units":int(rd.get("mature_20_effective_units") or 0),
+            "mature_60_effective_units":int(rd.get("mature_60_effective_units") or 0),
+        },
         "forward_intake_health":{
             "status":forward_health.get("status") or "unknown",
             "integrity_pass":bool(forward_health.get("integrity_pass")),
@@ -83,7 +128,8 @@ def build(events, coexistence, readiness, family, promotion, forward_health):
             "Legacy observational archive counts are not research sample counts.",
             "Forward candidates are not mature evidence.",
             "Method Memory and Source Outcome remain descriptive/legacy views and cannot override current Evaluation Spec Promotion evidence.",
-            "This public summary contains no private positions or account data."
+            "This public summary contains no private positions or account data.",
+            "Source-to-Rule funnel is diagnostic and cannot feed Promotion, Readiness, Planner, Agent, or trading decisions."
         ]
     }
 
@@ -94,7 +140,8 @@ def main():
         load(READINESS,{}),
         load(FAMILY,{}),
         load(PROMOTION,{}),
-        load(FORWARD_HEALTH,{})
+        load(FORWARD_HEALTH,{}),
+        load(FUNNEL,{})
     )
     OUT.parent.mkdir(parents=True,exist_ok=True)
     OUT.write_text(json.dumps(out,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")

@@ -105,3 +105,10 @@ assert "promotion" not in funnel.PATHS
 assert "readiness" not in funnel.PATHS
 
 print("PASS Source->Rule Funnel v1.0 baseline/key-diff/conservation/history/rollback/result-blind")
+
+
+# Failed latest-report publication must occur before state/history advance.
+script=(ROOT/"scripts"/"v615_source_rule_funnel.py").read_text(encoding="utf-8")
+run_body=script.split("def run():",1)[1].split("def main():",1)[0]
+assert run_body.index('dump_atomic(PATHS["latest"],report)') < run_body.index("write_transaction([")
+print("PASS funnel failure cannot advance state/history before latest report publication")

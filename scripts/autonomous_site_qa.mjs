@@ -7,7 +7,8 @@ const browser=await chromium.launch({headless:true});
 async function publicRun(viewport,name){
   const page=await browser.newPage({viewportSize:viewport});
   page.on('console',m=>{if(m.type()==='error')report.console_errors.push(String(m.text()).slice(0,300))});
-  page.on('pageerror',e=>report.console_errors.push(String(e.message).slice(0,300)));\n  page.on('response',r=>{if(r.status()>=400)report.http_errors.push({status:r.status(),url:r.url().slice(0,500)})});
+  page.on('pageerror',e=>report.console_errors.push(String(e.message).slice(0,300)));
+  page.on('response',r=>{if(r.status()>=400)report.http_errors.push({status:r.status(),url:r.url().slice(0,500)})});
   await page.goto(base+'/?qa='+Date.now(),{waitUntil:'networkidle',timeout:90000});
   await page.waitForTimeout(3500);
   const v=await page.locator('meta[name="application-version"]').getAttribute('content');

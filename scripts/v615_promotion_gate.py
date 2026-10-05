@@ -18,7 +18,7 @@ FAMILIES=ROOT/"research"/"registry"/"rule_families.json"
 EVENTS=ROOT/"research"/"events"/"event_scores_v1.json"
 SPEC=ROOT/"research"/"specs"/"evaluation_spec.json"
 OUT=ROOT/"research"/"reports"/"promotion_gate.json"
-VERSION="6.15.8d"
+VERSION="6.15.8i"
 
 def load(p,d):
     try:return json.loads(p.read_text(encoding="utf-8"))
@@ -60,6 +60,8 @@ def build(scorecards,contradictions,registry,families,events,spec):
         fdr=h60.get("fdr") or {}
         mae=h60.get("direction_adjusted_mae_mean")
         bmae=h60.get("benchmark_direction_adjusted_mae_mean")
+        mae_ci=h60.get("mae_noninferiority_ci95") or {}
+        max_symbol_share=h60.get("single_symbol_effective_unit_share_max")
         key=c.get("family_key") or {}
         members=sorted(family_members.get(fid) or c.get("member_rule_ids") or [])
         option_family=key.get("instrument_type")=="option_structure" or key.get("primary_method") in {"Sell Put","LEAPS"}
@@ -81,7 +83,14 @@ def build(scorecards,contradictions,registry,families,events,spec):
             "mature_60_effective_samples":h60.get("effective_n",0)>=int(th.get("mature_60_effective_samples_min",20)),
             "lift_ci95_lower_bound_gt_zero":ci.get("lower") is not None and ci.get("lower")>float(th.get("lift_ci95_lower_bound_gt",0)),
             "fdr_supported_60":bool(fdr.get("reject")),
-            "mae_not_worse_than_benchmark":mae is not None and bmae is not None and mae>=bmae,
+            "mae_not_worse_than_benchmark":(
+                mae_ci.get("lower") is not None
+                and mae_ci.get("lower")>=float(th.get("mae_noninferiority_ci95_lower_bound_gte",0.0))
+            ),
+            "single_symbol_concentration_within_cap":(
+                max_symbol_share is not None
+                and max_symbol_share<=float(th.get("max_single_symbol_effective_unit_share",0.40))
+            ),
             "provenance_complete":provenance_ok,
             "price_data_consistent":data_ok,
             "no_unresolved_contradiction":not unresolved_by_family.get(fid),
@@ -119,6 +128,8 @@ def build(scorecards,contradictions,registry,families,events,spec):
             "Promotion is evaluated at the frozen Rule Family level, never at individual Rule instances.",
             "Promotion remains shadow-only until V6.15.8c statistical controls pass and a new spec activates it.",
             "Promotion never changes production rules, Planner weights, positions, allocations or orders.",
+            "MAE noninferiority is decided by the pre-registered paired cluster-bootstrap lower bound, not a point estimate.",
+            "No single symbol may exceed the pre-registered effective-unit share cap for Promotion.",
             "A closed gate is a valid and expected result when evidence is insufficient."
         ],
     }

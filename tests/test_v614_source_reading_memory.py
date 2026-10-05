@@ -44,6 +44,18 @@ source={
    "title":"趋势修复","url":"u4","symbols":["AMD"],"topics":["趋势确认"],
    "excerpt":"如果突破MA50，可能进入趋势修复。",
    "operations":[],"portfolio_rules":[],"lessons":[]
+  },
+  {
+   "id":"r5","source":"youtube","source_kind":"video","author":"老李玩钱","published_at":"2026-10-05",
+   "title":"第三方结构化摘要","url":"u5","symbols":["QQQ"],"topics":["仓位与加减仓"],
+   "excerpt":"摘要声称QQQ分两档建仓。",
+   "content_quality":"Q3","content_provider":"stockvoice.cmoney.tw",
+   "content_origin":"structured_summary","rule_candidate_allowed":False,
+   "operations":[{
+      "symbols":["QQQ"],"actions":["planned_buy"],"entry_1":700,"entry_2":680,
+      "attribution":"author_plan"
+   }],
+   "portfolio_rules":[],"lessons":[]
   }
  ]
 }
@@ -51,7 +63,7 @@ source={
 out=srm.build(source)
 assert out["version"]=="6.14.6"
 assert out["mode"]=="research_only_free_first"
-assert out["counts"]["source_records"]==4
+assert out["counts"]["source_records"]==5
 assert out["counts"]["records_with_testable_rules"]==1
 assert out["counts"]["testable_rules"]==1
 
@@ -90,6 +102,16 @@ r4=next(x for x in out["records"] if x["source_id"]=="r4")
 tr=next(x for x in r4["propositions"] if x["kind"]=="trigger")
 assert tr["testable"] is False
 assert r4["testable_rule_count"]==0
+
+# A Q3/Q4/Q5 source explicitly marked rule_candidate_allowed=false remains
+# context-only even if an upstream feed accidentally supplies an author_plan operation.
+r5=next(x for x in out["records"] if x["source_id"]=="r5")
+assert any(x["kind"]=="fact" for x in r5["propositions"])
+assert r5["testable_rule_count"]==0
+assert not any(x["kind"]=="testable_rule" for x in r5["propositions"])
+assert r5["content_quality"]=="Q3"
+assert r5["content_provider"]=="stockvoice.cmoney.tw"
+assert r5["rule_candidate_allowed"] is False
 
 # Source Reading candidates flow into Method Memory as candidates only, never
 # as direct performance before an eligible triggered outcome exists.

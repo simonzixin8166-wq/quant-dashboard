@@ -19,6 +19,7 @@ data={
  "boundary":{"records":[{"production_boundary_unchanged":True,"research_only_worktree":True}]},
  "cache":{"counts":{"symbols":2,"events":3}},
  "components":{"counts":{"missing_code_hashes":0,"missing_required_artifact_hashes":0}},
+ "forward_intake":{"integrity_pass":True,"status":"waiting_for_first_genuine_forward_rule","forward_path_observed":False,"first_scoreable_forward_observed":False,"counts":{"genuine_forward_rules":0},"blockers":[]},
 }
 out=build(data,datetime(2026,10,4,tzinfo=timezone.utc))
 assert out["audit_month"]=="2026-10"
@@ -28,6 +29,8 @@ assert out["source_store"]["persistent_records"]==3
 assert out["source_store"]["current_full_ingest_records"]==3
 assert out["source_store"]["current_upstream_records"]==3
 assert out["readiness"]["ready_for_v616"] is False
+assert out["checks"]["forward_intake_integrity"] is True
+assert out["forward_intake"]["status"]=="waiting_for_first_genuine_forward_rule"
 
 # Negative integrity injection must make the audit fail.
 bad=dict(data)
@@ -54,3 +57,10 @@ assert "contents: read" in workflow
 assert "contents: write" in workflow
 assert "monthly_integrity_audit" in workflow
 print("PASS V6.15.8h monthly audit current-ingest completeness / fixed cadence / hard isolation")
+
+
+bad_forward=dict(data)
+bad_forward["forward_intake"]={"integrity_pass":False,"status":"forward_intake_integrity_failure","forward_path_observed":True,"first_scoreable_forward_observed":False,"counts":{"genuine_forward_rules":1},"blockers":["live_rule_missing_eventscore_event"]}
+out4=build(bad_forward,datetime(2026,10,4,tzinfo=timezone.utc))
+assert out4["all_integrity_checks_pass"] is False
+assert out4["checks"]["forward_intake_integrity"] is False

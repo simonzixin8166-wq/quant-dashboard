@@ -189,11 +189,12 @@ def point_in_time_status(prov,baseline_date,spec=None):
     first=(prov or {}).get("first_fetched_at")
     cfg=((spec or {}).get("definitions") or {}).get("point_in_time_eligibility") or {}
     admission_cfg=cfg.get("source_admission") or {}
-    required_class=admission_cfg.get("genuine_forward_required_class","genuine_forward")
-    if (prov or {}).get("admission_class")!=required_class:
-        return "source_not_genuine_forward"
-    if (prov or {}).get("first_fetched_at_origin")!="source_store_first_observation":
-        return "source_not_genuine_forward"
+    if admission_cfg:
+        required_class=admission_cfg.get("genuine_forward_required_class","genuine_forward")
+        if (prov or {}).get("admission_class")!=required_class:
+            return "source_not_genuine_forward"
+        if (prov or {}).get("first_fetched_at_origin")!="source_store_first_observation":
+            return "source_not_genuine_forward"
     if not first or not baseline_date:
         return "unknown"
     try:
@@ -201,11 +202,12 @@ def point_in_time_status(prov,baseline_date,spec=None):
         if first_ts.tzinfo is None:
             return "unknown"
         first_utc=first_ts.tz_convert("UTC")
-        foundation=pd.Timestamp(cfg.get("evidence_foundation_start_utc"))
-        if foundation.tzinfo is None:
-            return "unknown"
-        if first_utc<foundation.tz_convert("UTC"):
-            return "source_not_genuine_forward"
+        if admission_cfg:
+            foundation=pd.Timestamp(cfg.get("evidence_foundation_start_utc"))
+            if foundation.tzinfo is None:
+                return "unknown"
+            if first_utc<foundation.tz_convert("UTC"):
+                return "source_not_genuine_forward"
         baseline_utc=baseline_timestamp_utc(baseline_date,spec)
         if baseline_utc is None:
             return "unknown"

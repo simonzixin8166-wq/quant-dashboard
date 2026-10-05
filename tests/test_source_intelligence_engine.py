@@ -99,13 +99,22 @@ print("PASS V5.9.1 upstream symbol sanitization")
 yt=si.build([{
  "id":"yt1","source":"youtube","source_kind":"video","author":"RhinoFinance / 视野环球财经",
  "published_at":"2026-10-05","title":"QQQ / TSLA update","url":"https://www.youtube.com/watch?v=abc",
- "excerpt":"","source_role":"rule_supply","transcript_status":"unavailable:RequestBlocked",
+ "excerpt":"","source_role":"rule_supply","transcript_status":"available",
+ "content_quality":"Q3","content_provider":"stockvoice.cmoney.tw",
+ "content_provider_url":"https://stockvoice.cmoney.tw/post/x",
+ "content_origin":"structured_summary","timestamp_evidence":True,
+ "rule_candidate_allowed":False,
  "captured_at":"2026-10-05T09:00:00Z"
 }])
 yr=yt["records"][0]
 assert yr["source"]=="youtube"
 assert yr["source_kind"]=="video"
 assert yr["source_role"]=="rule_supply"
-assert yr["transcript_status"]=="unavailable:RequestBlocked"
+assert yr["transcript_status"]=="available"
+assert yr["content_quality"]=="Q3"
+assert yr["content_provider"]=="stockvoice.cmoney.tw"
+assert yr["content_origin"]=="structured_summary"
+assert yr["timestamp_evidence"] is True
+assert yr["rule_candidate_allowed"] is False
 assert yr["captured_at"]=="2026-10-05T09:00:00Z"
 print("PASS YouTube source provenance preservation")

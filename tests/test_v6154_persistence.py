@@ -12,6 +12,7 @@ source={"counts":{"records":2},"records":visible}
 a=migrate_sources(source,now="2026-10-04T00:00:00Z",full_records=visible)
 assert len(a["records"])==2
 assert all(x["first_fetched_at"]=="2026-10-04T00:00:00Z" for x in a["records"])
+assert all(x["first_fetched_at_origin"]=="source_store_first_observation" for x in a["records"])
 assert all(x["first_fetched_at"]!=x.get("published_at") for x in a["records"])
 assert a["records"][0]["timestamp_confidence"] in {"high","unverified","missing"}
 assert a["records"][0]["content_hash_scope"]=="normalized_title_excerpt_only"
@@ -25,6 +26,8 @@ b=migrate_sources(source2,a,now="2026-10-05T00:00:00Z",full_records=full)
 assert len(b["records"])>=source2["counts"]["records"]
 by={x["source_key"]:x for x in b["records"]}
 assert by["s1"]["first_fetched_at"]=="2026-10-04T00:00:00Z"
+assert by["s1"]["ingest_type"]=="initial_migration"
+assert by["s1"]["first_fetched_at_origin"]=="source_store_first_observation"
 assert by["s3"]["first_fetched_at"]=="2026-10-05T00:00:00Z"
 assert by["s3"]["ingest_type"]=="backfill_ingest"
 assert by["s3"]["first_fetched_at"]!=by["s3"]["published_at"]
@@ -72,3 +75,12 @@ assert len(current)==2
 assert {x["event_id"] for x in current}=={"e1","e2"}
 assert [x for x in current if x["event_id"]=="e1"][0]["score_hash"]=="b"
 print("PASS V6.15.8i one effective history revision per event/spec")
+
+
+# Re-ingesting an existing source must never refresh first_fetched_at or promote its ingest type.
+again=migrate_sources(source,a,now="2026-10-10T12:34:56Z",full_records=visible)
+again_by={x["source_key"]:x for x in again["records"]}
+assert again_by["s1"]["first_fetched_at"]=="2026-10-04T00:00:00Z"
+assert again_by["s1"]["ingest_type"]=="initial_migration"
+assert again_by["s1"]["first_fetched_at_origin"]=="source_store_first_observation"
+print("PASS V6.15.8k immutable first_fetched_at / ingest_type re-ingest defense")

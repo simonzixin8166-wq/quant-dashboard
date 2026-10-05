@@ -49,6 +49,34 @@ def dump_atomic(path,obj):
     finally:
         if os.path.exists(tmp):os.unlink(tmp)
 
+def write_transaction(items):
+    """Atomically-as-practical replace a small file bundle with rollback."""
+    prepared=[]
+    originals={}
+    try:
+        for path,obj in items:
+            path=Path(path);path.parent.mkdir(parents=True,exist_ok=True)
+            originals[path]=(path.exists(),path.read_bytes() if path.exists() else None)
+            fd,tmp=tempfile.mkstemp(prefix=path.name+".",dir=path.parent)
+            with os.fdopen(fd,"w",encoding="utf-8") as f:
+                json.dump(obj,f,ensure_ascii=False,indent=2);f.write("\n")
+            prepared.append((path,tmp))
+        replaced=[]
+        for path,tmp in prepared:
+            os.replace(tmp,path);replaced.append(path)
+        return
+    except Exception:
+        for path in reversed(locals().get("replaced",[])):
+            existed,data=originals[path]
+            if existed:
+                path.write_bytes(data)
+            else:
+                path.unlink(missing_ok=True)
+        raise
+    finally:
+        for _,tmp in prepared:
+            if os.path.exists(tmp):os.unlink(tmp)
+
 def stable_hash(v):
     raw=json.dumps(v,ensure_ascii=False,sort_keys=True,separators=(",",":")).encode("utf-8")
     return hashlib.sha256(raw).hexdigest()
@@ -241,8 +269,10 @@ def run():
     if not report["conservation"]["pass"]:
         raise RuntimeError("source funnel conservation failed")
     # State/history are written only after successful computation.
-    dump_atomic(PATHS["history"],history_out)
-    dump_atomic(PATHS["state"],state_out)
+    write_transaction([
+        (PATHS["history"],history_out),
+        (PATHS["state"],state_out),
+    ])
     dump_atomic(PATHS["latest"],report)
     return report
 

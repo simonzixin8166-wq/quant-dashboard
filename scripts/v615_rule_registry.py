@@ -69,12 +69,14 @@ def build(reading,source,prior=None,now=None,source_store=None):
         if sid: source_meta[sid]=row
 
     current_observations=[]
+    seen_observation_ids=set()
     reading_records=list(reading.get("records") or [])
     for rec in reading_records:
         sid=str(rec.get("source_id") or "")
         if not sid: continue
         old_obs=prior_observations.get(sid)
         meta=source_meta.get(sid) or {}
+        seen_observation_ids.add(sid)
         current_observations.append({
             "source_id":sid,
             "first_registry_seen_at":(old_obs or {}).get("first_registry_seen_at") or now,
@@ -86,6 +88,10 @@ def build(reading,source,prior=None,now=None,source_store=None):
             "source_admission_class":meta.get("admission_class"),
             "source_first_fetched_at":meta.get("first_fetched_at"),
         })
+
+    for sid,old_obs in prior_observations.items():
+        if sid not in seen_observation_ids:
+            current_observations.append(dict(old_obs))
 
     candidates=[]
     for rec in reading_records:

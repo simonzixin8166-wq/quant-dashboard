@@ -129,8 +129,16 @@ hist={
  "counts":{"records":1,"q1_q2_learning_eligible":1,"q5_metadata_only":0}
 }
 h=si.build(sample,youtube_historical_learning=hist)
-assert h["youtube_historical_learning"]["counts"]["records"]==1
-assert h["youtube_historical_learning"]["non_gating"] is True
+assert h["historical_learning"]["counts"]["records"]==1
+assert h["historical_learning"]["non_gating"] is True
 assert all(x.get("id")!="yt_hist_x" for x in h["records"])
+assert h["historical_learning"]["result_blind"] is True
+hr=h["historical_learning"]["records"][0]
+assert hr["forward_evidence_eligible"] is False
+assert hr["promotion_eligible"] is False
+assert hr["event_score_eligible"] is False
+assert hr["source_store_eligible"] is False
+assert hr["rule_registry_eligible"] is False
+assert hr["non_gating"] is True
 assert h["counts"]["records"]==2
 print("PASS historical YouTube learning top-level isolation")

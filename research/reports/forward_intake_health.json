@@ -1,0 +1,32 @@
+{
+  "version": "6.15.8j",
+  "generated_at": "2026-10-05T04:20:45.235993+00:00",
+  "spec_version": "1.5",
+  "scoring_engine_version": "event_score@6.15.8j",
+  "status": "waiting_for_first_genuine_forward_rule",
+  "integrity_pass": true,
+  "forward_path_observed": false,
+  "first_scoreable_forward_observed": false,
+  "counts": {
+    "active_rules": 11,
+    "genuine_forward_rules": 0,
+    "genuine_forward_rule_authors": 0,
+    "forward_eventscore_events": 0,
+    "point_in_time_eligible_events": 0,
+    "scoreable_forward_events": 0
+  },
+  "eligible_event_primary_outcomes": {},
+  "blockers": [],
+  "details": {
+    "missing_family_rule_ids": [],
+    "missing_event_rule_ids": [],
+    "noneligible_forward_events": []
+  },
+  "guardrails": [
+    "No live rule is fabricated to make the forward count non-zero.",
+    "Waiting for the first genuine live rule is healthy and distinct from a broken path.",
+    "A genuine live rule must map to the current Rule Family definition and an EventScore event.",
+    "Its EventScore event must be point-in-time eligible; scoreability may still be blocked by pre-registered semantic or price-source rules.",
+    "This guard cannot alter Promotion, thresholds, production rules, positions, or orders."
+  ]
+}

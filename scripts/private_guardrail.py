@@ -25,6 +25,34 @@ PUBLIC_JSON_ROOT_ALLOWLIST = {
     "docs/research/auto_thesis_drafts.json": {
         "version","generated_at","mode","external_requests","symbols","counts","guardrails",
     },
+    "docs/research/system_status.json": {
+        "version","generated_at","overall","principle","workflows","artifacts",
+        "playbook_runtime","range_research","resource_guard","decision_data_contract",
+    },
+    "docs/research/official_evidence.json": {
+        "version","generated_at","source","policy","selected_symbols","symbols",
+        "counts","ticker_directory_status",
+    },
+    "docs/research/event_evidence.json": {
+        "version","generated_at","source","policy","selected_symbols","symbols","counts",
+    },
+    "docs/research/autonomous_agent.json": {
+        "version","generated_at","as_of","mode","attention_summary","watchlist_attention",
+        "private_position_agent","discovery_queue","roadmap","guardrails",
+    },
+    "docs/research/research_execution.json": {
+        "version","generated_at","planner_version","policy","results","summary",
+    },
+    "docs/research/controlled_learning_policy.json": {
+        "version","generated_at","mode","automatic_orders","production_mutation",
+        "max_abs_priority_delta","task_kind_priority_delta","playbook_validation_priority_bonus",
+        "candidate_adjustments","change_log","forward_evidence","forward_learning_feedback",
+        "replay_evidence","method_evidence_state","guardrails",
+    },
+    "docs/research/source_rule_lifecycle.json": {
+        "version","generated_at","mode","source_reading_version","source_outcome_version",
+        "counts","by_method","rules","guardrails",
+    },
 }
 PRIVATE_FIELD_NAMES = {
     "broker_account_id","account_number","user_id","option_positions","private_positions",

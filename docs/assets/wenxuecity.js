@@ -68,14 +68,48 @@ function methodMemoryView(){
  const horizon=m=>['5','20','60'].map(h=>{const x=m.performance?.[h];return `<span>${h}日 n=${x?.n??0} · 收益 ${mmPct(x?.avg_return)} · MAE ${mmPct(x?.avg_mae)} · MFE ${mmPct(x?.avg_mfe)}${x?.avg_excess_vs_qqq!=null?' · 超额 '+mmPct(x.avg_excess_vs_qqq):''}</span>`}).join('');
  return `<div class='wxc-box'><h2>Method Memory · 方法记忆</h2><p>把“文章提到的方法”和“具体操作可直接归因的方法”分开。只有 Direct 样本进入方法绩效；Context 只说明同篇文章里发生过什么，不把相关性冒充因果。</p><p><b>${counts.methods||0}</b> 个方法主题 · <b>${counts.source_records||0}</b> 条研究记录 · <b>${counts.eligible_triggered_events||0}</b> 个可验证触发事件 · <b>${counts.direct_method_links||0}</b> 个直接方法链接。</p><p class='wxc-warning'>样本少时只显示 evidence_building；不会因为外部作者历史表现自动修改 MyAlpha 的交易阈值、仓位或下单规则。</p></div><div class='wxc-grid'>${rows.map(m=>`<article><div><span class='wxc-tag'>${esc(m.status==='research_memory'?'研究记忆':'证据积累')}</span><span class='wxc-tag'>${esc(m.performance_basis==='direct_event_attribution'?'Direct':'Context only')}</span></div><h3>${esc(m.method)}</h3><p><b>来源出现：</b>${m.source_occurrences||0} 条 · <b>直接验证：</b>${m.direct_validated_events||0} · <b>上下文验证：</b>${m.context_validated_events||0} · <b>60日成熟 Direct：</b>${m.mature60_direct||0}</p>${m.performance?`<div class='agent-metrics'>${horizon(m)}</div>`:`<p class='wxc-meta'>目前没有足够直接归因事件，因此不展示“方法收益”；上下文结果仅保留作研究线索。</p>`}<p class='wxc-meta'>${esc(m.interpretation_guardrail||'')}</p>${(m.failure_examples||[]).length?`<details><summary>查看反例 / 失效候选（${m.failure_examples.length}）</summary>${m.failure_examples.slice(0,6).map(x=>`<p><b>${esc(x.symbol||'')}</b> · ${esc(x.title||'')} · ${x.horizon||''}日 ${mmPct(x.return)} · MAE ${mmPct(x.mae)} / MFE ${mmPct(x.mfe)}</p>`).join('')}</details>`:''}</article>`).join('')||`<div class='wxc-box'><p>等待 Method Memory 首次构建。</p></div>`}</div>`;
 }
+function funnelPct(v){return v==null?'—':(Number(v)*100).toFixed(1)+'%'}
+function sourceRuleFunnelView(){
+ const f=evidenceStatus?.source_rule_funnel||{},d=f.downstream||{},counts=f.terminal_reason_counts||{},shares=f.terminal_reason_share||{};
+ const labels={
+  backfill:'Backfill',rekeyed_duplicate:'Rekey Duplicate',identity_ambiguous:'Identity Ambiguous',
+  late_discovery:'Late Discovery',admission_integrity_rejected:'Admission 状态异常',
+  no_operations:'无 Operations',operation_missing_symbol:'Operation 缺标的',
+  no_testable_proposition:'无 Testable Proposition',testable_rule_without_registry_rule:'Testable Rule 未入 Registry',
+  rule_formed:'形成新 Forward Rule',reason_not_recorded:'原因尚未记录'
+ };
+ const order=['backfill','rekeyed_duplicate','identity_ambiguous','late_discovery','admission_integrity_rejected','no_operations','operation_missing_symbol','no_testable_proposition','testable_rule_without_registry_rule','rule_formed','reason_not_recorded'];
+ const baseline=f.status==='baseline_established';
+ const unavailable=!f.schema_version;
+ const rows=order.map(k=>`<tr><td>${esc(labels[k]||k)}</td><td>${esc(counts[k]??0)}</td><td>${shares[k]==null?'—':esc(funnelPct(shares[k]))}</td></tr>`).join('');
+ const largest=d.largest_author_rule_share==null?'—':funnelPct(d.largest_author_rule_share);
+ const cumulativeLargest=d.cumulative_largest_author_rule_share==null?'—':funnelPct(d.cumulative_largest_author_rule_share);
+ return `<div class="wxc-box"><h2>Source → Rule 运行漏斗</h2>
+  <p>按<strong>自上次成功运行以来</strong>首次出现的 Source key 做守恒诊断。它只告诉你新来源在哪里退出，不读取收益、胜率、MAE，也不参与 Promotion、Readiness 或 Agent 决策。</p>
+  ${unavailable?'<p class="wxc-warning">等待 Source → Rule Funnel 首次公开同步。</p>':baseline?'<p class="wxc-meta"><b>状态：</b>Baseline Established · 已记录当前来源基线；本次新增为 0，属于健康状态。</p>':`<p class="wxc-meta"><b>本窗口新增：</b>${esc(f.new_sources_total??0)} · 守恒 ${f.conservation?.pass?'PASS':'需检查'} · 更新时间 ${esc(localTime(f.generated_at))}</p>`}
+  <div class="wxc-table"><table><thead><tr><th>Source 终止原因</th><th>数量</th><th>占新增来源</th></tr></thead><tbody>${rows}</tbody></table></div>
+  <div class="wxc-overview-metrics">
+   <article><span>Operations</span><b>${esc(d.operations_total??0)}</b><small>下游数量 · 非守恒</small></article>
+   <article><span>Propositions</span><b>${esc(d.propositions_total??0)}</b><small>下游数量 · 非守恒</small></article>
+   <article><span>新 Forward Rules</span><b>${esc(d.new_forward_rules_total??0)}</b><small>只统计 forward_eligible</small></article>
+   <article><span>新增规则作者</span><b>${esc(d.independent_authors??0)}</b><small>最大作者占比 ${esc(largest)}</small></article>
+   <article><span>累计 Forward Authors</span><b>${esc(d.cumulative_forward_authors??0)}</b><small>最大作者占比 ${esc(cumulativeLargest)}</small></article>
+   <article><span>低可信 Forward</span><b>${esc(f.low_confidence_genuine_forward_sources?.cumulative??0)}</b><small>${f.low_confidence_genuine_forward_sources?.review_required?'需要人工复核':'当前无需复核'}</small></article>
+  </div>
+  <p class="wxc-meta">Source 级终止原因必须守恒；Operations / Propositions / Rules / Authors 是独立下游数量，不能与 Source 数直接相减。reason_not_recorded 代表管线没有记录足够原因，不由漏斗自行猜测。</p>
+ </div>`;
+}
 function evidenceLayerView(){
- const e=evidenceStatus?.evidence_layers||{},legacy=e.legacy_observational_archive||{},forward=e.forward_evidence_candidates||{},mature=e.mature_scoreable_evidence||{};
+ const e=evidenceStatus?.evidence_layers||{},legacy=e.legacy_observational_archive||{},forward=e.forward_evidence_candidates||{},mature=e.mature_scoreable_evidence||{},clock=evidenceStatus?.maturity_clock||{};
+ const notStarted=clock.status==='not_started';
+ const wait20=notStarted?'未开始 · 等待第一条 genuine forward':('有效单元 '+(mature.effective_units_20d??0));
+ const wait60=notStarted?'未开始 · 等待第一条 genuine forward':('有效单元 '+(mature.effective_units_60d??0));
  return `<div class="wxc-box"><h2>正式证据分层</h2><p>研究中心把“历史观察”“真实 Forward 候选”“成熟可评分证据”分开显示，避免把旧回放结果误认为正式研究样本。</p>
  <div class="wxc-overview-metrics">
    <article><span>历史观察归档</span><b>${legacy.count??0}</b><small>只读复盘 · 不参与 Promotion</small></article>
    <article><span>Forward 证据候选</span><b>${forward.count??0}</b><small>point-in-time · 当前可评分 ${forward.scoreable_now??0}</small></article>
-   <article><span>20日成熟证据</span><b>${mature.event_count_20d??0}</b><small>有效单元 ${mature.effective_units_20d??0}</small></article>
-   <article><span>60日成熟证据</span><b>${mature.event_count_60d??0}</b><small>有效单元 ${mature.effective_units_60d??0}</small></article>
+   <article><span>20日成熟证据</span><b>${mature.event_count_20d??0}</b><small>${esc(wait20)}</small></article>
+   <article><span>60日成熟证据</span><b>${mature.event_count_60d??0}</b><small>${esc(wait60)}</small></article>
  </div>
  <p class="wxc-meta">Evaluation Spec ${esc(evidenceStatus?.evaluation_spec_version||'—')} · Scoring Engine ${esc(evidenceStatus?.scoring_engine_version||'—')} · Promotion passed ${esc(evidenceStatus?.promotion?.families_passed??0)}。Forward 候选未成熟前不代表方法有效。</p>
  <p class="wxc-meta"><b>Forward Intake：</b>${esc(evidenceStatus?.forward_intake_health?.status||'unknown')} · 完整性 ${evidenceStatus?.forward_intake_health?.integrity_pass?'PASS':'等待/异常待核验'}。当前没有真实 forward rule 时，“waiting_for_first_genuine_forward_rule”属于正常等待。</p></div>`;
@@ -99,6 +133,7 @@ function researchCenterOverview(){
    <article><span>成熟证据</span><b>${mature.event_count_60d??0}</b><small>60日 · 当前 Spec</small></article>
    <article><span>失败候选</span><b>${failures}</b><small>用于反证与边界</small></article>
  </div>
+ ${sourceRuleFunnelView()}
  ${evidenceLayerView()}
  <div class="wxc-box wxc-research-loop"><h2>研究闭环 · 不是文章仓库</h2><p>外部观点只有经过“来源留痕 → 方法归纳 → 具体操作提取 → 后续验证/失败复盘”，才有资格影响研究优先级；不会自动改正式交易规则。</p>
  <div class="wxc-pipeline"><div><b>01 来源</b><span>保留作者、日期、原文与采集状态</span></div><div><b>02 方法</b><span>合并重复观点，形成可复用条件与边界</span></div><div><b>03 操作</b><span>只提取原文明示动作，不补猜价格或仓位</span></div><div><b>04 验证</b><span>按交易日跟踪结果、反例与失败归因</span></div><div><b>05 判断</b><span>形成 MyAlpha 自己的研究结论</span></div></div>

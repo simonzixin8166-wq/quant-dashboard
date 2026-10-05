@@ -1,0 +1,49 @@
+{
+  "version": "1.0",
+  "generated_at": "2026-10-05T03:39:05Z",
+  "evaluation_spec_version": "1.5",
+  "scoring_engine_version": "event_score@6.15.8j",
+  "evidence_layers": {
+    "legacy_observational_archive": {
+      "count": 47,
+      "label": "历史观察归档",
+      "description": "历史/迁移事件，仅供复盘和方法线索，不参与 Promotion。"
+    },
+    "forward_evidence_candidates": {
+      "count": 0,
+      "scoreable_now": 0,
+      "forward_rules_observed": 0,
+      "label": "Forward 证据候选",
+      "description": "在真实收录时间之后形成的 point-in-time 事件；未成熟前不代表方法有效。"
+    },
+    "mature_scoreable_evidence": {
+      "event_count_20d": 0,
+      "event_count_60d": 0,
+      "effective_units_20d": 0,
+      "effective_units_60d": 0,
+      "label": "成熟可评分证据",
+      "description": "满足 point-in-time、价格来源、语义与成熟度要求后进入统计检验的证据。"
+    }
+  },
+  "promotion": {
+    "families_passed": 0,
+    "families_reviewable": 0,
+    "production_effect": "none"
+  },
+  "readiness": {
+    "ready_for_v616": false,
+    "blockers": [
+      "production_boundary_clean_span",
+      "point_in_time_mature_20_effective_units",
+      "point_in_time_mature_60_effective_units",
+      "families_with_mature_20",
+      "families_with_mature_60"
+    ]
+  },
+  "guardrails": [
+    "Legacy observational archive counts are not research sample counts.",
+    "Forward candidates are not mature evidence.",
+    "Method Memory and Source Outcome remain descriptive/legacy views and cannot override Spec 1.5 Promotion evidence.",
+    "This public summary contains no private positions or account data."
+  ]
+}

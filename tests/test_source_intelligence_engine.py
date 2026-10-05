@@ -118,3 +118,19 @@ assert yr["timestamp_evidence"] is True
 assert yr["rule_candidate_allowed"] is False
 assert yr["captured_at"]=="2026-10-05T09:00:00Z"
 print("PASS YouTube source provenance preservation")
+
+
+# Historical YouTube learning is exposed at top level only and must never join
+# source records / Source Store forward intake.
+hist={
+ "version":1,"mode":"historical_observational_learning_only","non_gating":True,
+ "result_blind":True,
+ "records":[{"archive_id":"yt_hist_x","author":"老李玩钱","quality":"Q2","forward_evidence_eligible":False}],
+ "counts":{"records":1,"q1_q2_learning_eligible":1,"q5_metadata_only":0}
+}
+h=si.build(sample,youtube_historical_learning=hist)
+assert h["youtube_historical_learning"]["counts"]["records"]==1
+assert h["youtube_historical_learning"]["non_gating"] is True
+assert all(x.get("id")!="yt_hist_x" for x in h["records"])
+assert h["counts"]["records"]==2
+print("PASS historical YouTube learning top-level isolation")

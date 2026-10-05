@@ -127,7 +127,7 @@ def build(rules,spec,defn,prior=None,now=None):
     prior_key={(x.get("rule_id"),x.get("definition_hash")):x for x in prior_rows}
     current=[]
     for rule in rules.get("rules") or []:
-        if not rule.get("active",True):continue
+        if not rule.get("active",True) or rule.get("forward_eligible") is False:continue
         key=structural_key(rule,defn)
         fid="family_"+hashlib.sha256(f"{dh}|{canonical(key)}".encode("utf-8")).hexdigest()[:24]
         old=prior_key.get((rule.get("rule_id"),dh))

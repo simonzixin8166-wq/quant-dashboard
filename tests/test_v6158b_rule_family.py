@@ -61,3 +61,9 @@ covered["normalized_rule"]["fields"]["call_strike"]=120.0
 covered["normalized_rule"]["actions"]=["sell"]
 assert structural_key(covered,definition)["direction"]=="unknown"
 print("PASS V6.15.8i unsupported option context fails closed")
+
+
+retro=copy.deepcopy(base);retro["rule_id"]="retro";retro["forward_eligible"]=False
+out_retro=build({"rules":[base,retro]},spec,definition,{},now="t3")
+assert {x["rule_id"] for x in out_retro["assignments"] if x.get("active")}=={"r1"}
+print("PASS retroactive rule excluded from Rule Family evidence path")

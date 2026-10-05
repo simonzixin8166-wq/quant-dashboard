@@ -306,6 +306,51 @@ def collect_full_records_with_accounting():
 def collect_full_records():
     return collect_full_records_with_accounting()[0]
 
+def historical_learning_block(payload=None):
+    """Bridge historical learning into Source Intelligence without admitting it to evidence intake.
+
+    The upstream archive is treated as untrusted descriptive input. Eligibility
+    flags that could affect forward evidence are force-closed again here so a
+    future collector regression cannot promote historical material.
+    """
+    src = payload if isinstance(payload, dict) else {}
+    records = []
+    for raw in src.get("records") or []:
+        if not isinstance(raw, dict):
+            continue
+        row = dict(raw)
+        row["forward_evidence_eligible"] = False
+        row["promotion_eligible"] = False
+        row["event_score_eligible"] = False
+        row["source_store_eligible"] = False
+        row["rule_registry_eligible"] = False
+        row["non_gating"] = True
+        records.append(row)
+    upstream_counts = src.get("counts") if isinstance(src.get("counts"), dict) else {}
+    counts = dict(upstream_counts)
+    counts["records"] = len(records)
+    counts["q1_q2_learning_eligible"] = sum(
+        1 for r in records
+        if r.get("historical_learning_eligible") and str(r.get("quality") or "").upper() in {"Q1","Q2"}
+    )
+    counts["structured_operations"] = sum(len(r.get("operations") or []) for r in records)
+    return {
+        "version": src.get("version", 1),
+        "source": "wxc-bot/state/youtube_learning_archive.json",
+        "upstream_generated_at": src.get("generated_at"),
+        "mode": "historical_observational_learning_only",
+        "non_gating": True,
+        "result_blind": True,
+        "records": records,
+        "counts": counts,
+        "guardrails": [
+            "Historical learning is a top-level descriptive block, never part of Source Intelligence records.",
+            "Historical learning never enters Source Store, Rule Registry, EventScore, Promotion, Readiness, Planner gating, or orders.",
+            "All forward_evidence_eligible / promotion_eligible / event_score_eligible flags are force-closed at the bridge.",
+            "Only Q1/Q2 historical text may contribute structured learning; lower-quality material remains context-only.",
+        ],
+    }
+
 def build(records, youtube_historical_learning=None):
     rows = normalize_records(records)
 
@@ -435,14 +480,7 @@ def build(records, youtube_historical_learning=None):
             for r in rows if r["lessons"]
         ][:80],
         "research_alerts": sorted(alerts, key=lambda x: -x["priority"])[:24],
-        "youtube_historical_learning": youtube_historical_learning or {
-            "version":1,
-            "mode":"historical_observational_learning_only",
-            "non_gating":True,
-            "result_blind":True,
-            "records":[],
-            "counts":{"records":0,"q1_q2_learning_eligible":0,"q5_metadata_only":0},
-        },
+        "historical_learning": historical_learning_block(youtube_historical_learning),
         "records": rows[:800],
         "guardrails": [
             "每条外部内容保留作者、日期、原文链接和来源类型。",

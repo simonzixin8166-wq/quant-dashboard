@@ -74,8 +74,14 @@ def source_store_violations(old,new):
         nr=new_rows.get(key)
         if not nr:
             problems.append(f"source_missing:{key}");continue
-        for k in ("first_fetched_at","ingest_type","admission_class","admission_classified_at","identity_parent_source_key"):
+        for k in ("first_fetched_at","ingest_type"):
             if nr.get(k)!=row.get(k):problems.append(f"source_immutable_changed:{key}:{k}")
+        # Spec 1.7 permits exactly one migration from legacy rows that did not
+        # yet carry admission identity. Once present in HEAD, admission fields
+        # are immutable.
+        for k in ("admission_class","admission_classified_at","identity_parent_source_key"):
+            if k in row and nr.get(k)!=row.get(k):
+                problems.append(f"source_immutable_changed:{key}:{k}")
         old_hash=row.get("snapshot_hash")
         if old_hash and nr.get("snapshot_hash")!=old_hash:
             hist=set(nr.get("snapshot_history") or [])

@@ -134,3 +134,30 @@ assert h["youtube_historical_learning"]["non_gating"] is True
 assert all(x.get("id")!="yt_hist_x" for x in h["records"])
 assert h["counts"]["records"]==2
 print("PASS historical YouTube learning top-level isolation")
+
+
+# Historical YouTube learning is attached only as a non-gating top-level block.
+hist={
+ "version":1,
+ "mode":"historical_observational_learning_only",
+ "non_gating":True,
+ "records":[{
+  "archive_id":"yt_hist_1","author":"老李玩钱","video_id":"qVSoCX8pVDg",
+  "quality":"Q2","historical_learning_eligible":True,
+  "forward_evidence_eligible":False,"promotion_eligible":False,"event_score_eligible":False
+ }]
+}
+bridge=si.build(sample, youtube_historical_learning=hist)
+assert bridge["counts"]["records"]==2
+assert all(r.get("id")!="yt_hist_1" for r in bridge["records"])
+ytb=bridge["historical_learning"]["youtube"]
+assert ytb["mode"]=="historical_observational_learning_only"
+assert ytb["non_gating"] is True
+assert ytb["records"][0]["forward_evidence_eligible"] is False
+boundary=bridge["historical_learning"]["boundary"]
+assert boundary["included_in_records"] is False
+assert boundary["included_in_source_store"] is False
+assert boundary["included_in_rule_registry"] is False
+assert boundary["included_in_event_score"] is False
+assert boundary["included_in_promotion"] is False
+print("PASS isolated YouTube historical learning bridge")

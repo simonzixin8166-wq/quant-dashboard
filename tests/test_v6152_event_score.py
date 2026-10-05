@@ -65,3 +65,26 @@ base2=base.copy()
 base2.loc[base2.index>=decision,["open","high","low","close"]]=9999.0
 m2=historical_unconditional_metrics(base2,decision,20,"bullish")
 assert m1==m2
+
+
+# Family structural direction overrides permissive legacy alignment for eligibility.
+mixed_validation={"events":[{
+ "event_id":"s1:0:ABC:0","author":"a","symbol":"ABC","published_at":"2026-01-01",
+ "baseline_date":"2026-01-02","baseline_kind":"entry_below","triggered":True,
+ "operation":{"conditions":[],"actions":["planned_buy","planned_sell"]},
+ "alignment":{"direction":"bullish","5":"aligned"},
+ "outcomes":{"5":{"date":"2026-01-09","return":0.1,"benchmark_return":0.1,"excess_vs_qqq":0.0,"mae":-0.02,"mfe":0.12}}
+}]}
+mixed_spec={"spec_version":"1.4","definitions":{"rule_family_definition_hash":"h"}}
+mixed_families={"assignments":[{
+ "rule_id":"r1","family_id":"f1","definition_hash":"h","active":True,
+ "family_key":{"direction":"mixed_direction"}
+}]}
+mixed_hist={"ABC":{"df":stooq,"meta":{"status":"ok","source":"stooq_archive","price_series_hash":"x"}}}
+mixed_out=adapt(mixed_validation,registry,mixed_hist,mixed_spec,source_store,mixed_families)
+mr=mixed_out["events"][0]
+assert mr["rule_structural_direction"]=="mixed_direction"
+assert mr["scoreable"] is False
+assert "unsupported_direction" in mr["exclusion_reasons"]
+assert mr["primary_exclusion_reason"]=="unsupported_direction"
+print("PASS V6.15.8h mixed-direction family fails closed despite bullish legacy label")

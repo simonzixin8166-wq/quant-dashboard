@@ -188,6 +188,44 @@ def artifact_health(name,path,now=None):
         "participation":"research_only" if research_only and freshness_eligible else ("eligible" if decision_eligible else "excluded"),
     }
 
+
+def build_resource_guard(repos, artifacts):
+    """Operational free-first guardrail.
+
+    This is intentionally a pressure/behavior guard, not a billing meter.
+    Provider billing/quota APIs are not required, so unknown commercial usage
+    is never fabricated. The guard only decides when MyAlpha should prefer
+    cache/event-driven/low-frequency behavior.
+    """
+    q_runs=list((repos.get("quant-dashboard") or {}).values())
+    w_runs=list((repos.get("wxc-bot") or {}).values())
+    running=sum(1 for x in q_runs+w_runs if x.get("status") in {"queued","in_progress","waiting","pending"})
+    unhealthy=sum(1 for x in q_runs+w_runs if x.get("health")=="bad")
+    stale=sum(1 for x in artifacts.values() if x.get("freshness") in {"stale","expired","missing"})
+    pressure="normal"
+    reasons=[]
+    if unhealthy>=2 or stale>=6:
+        pressure="conserve";reasons.append("multiple workflow/artifact problems: avoid expanding external requests")
+    elif running>=4 or unhealthy or stale>=3:
+        pressure="watch";reasons.append("elevated automation/data pressure")
+    else:
+        reasons.append("current automation/data pressure is low")
+    return {
+        "mode":pressure,
+        "billing_meter":False,
+        "free_first":True,
+        "signals":{"running_workflows":running,"unhealthy_workflows":unhealthy,"stale_or_missing_artifacts":stale},
+        "policies":{
+            "market_quotes":"cache first; regular watchlist 10-15m; open options 15m",
+            "official_evidence":"event-driven/incremental; no full-market crawl",
+            "youtube_historical":"weekly/manual retry with backoff",
+            "forward_sources":"new-item incremental only",
+            "thesis_refresh":"only when evidence hash changes or user adds a symbol",
+            "degrade_order":["historical retries","noncritical news enrichment","broad opportunity enrichment","core risk monitoring last"],
+        },
+        "reason":"; ".join(reasons),
+    }
+
 def build(fetch_runs=True):
     repos={}
     for repo,names in WATCH_WORKFLOWS.items():
@@ -239,6 +277,7 @@ def build(fetch_runs=True):
             "unresolved_failure":unresolved_playbook_failure,
             "failure_marker":((failures.get("modules") or {}).get("playbook_engine") or {}),
         },
+        "resource_guard":build_resource_guard(repos,artifacts),
         "decision_data_contract":{
             "critical_artifacts":sorted(CRITICAL_DECISION_ARTIFACTS),
             "excluded_artifacts":artifact_failures,

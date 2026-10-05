@@ -18,7 +18,7 @@ CONTROLS=ROOT/"research"/"reports"/"statistical_controls.json"
 BOUNDARY=ROOT/"research"/"audit"/"step_boundary_log.json"
 COMPONENTS=ROOT/"research"/"component_manifest.json"
 OUT=ROOT/"research"/"reports"/"v616_readiness_gate.json"
-VERSION="6.15.8e"
+VERSION="6.15.8h"
 
 def load(p,d):
     try:return json.loads(p.read_text(encoding="utf-8"))
@@ -80,7 +80,11 @@ def mature_counts(events,families):
 
 def build(spec,events,families,source,controls,boundary,components):
     req=spec.get("requirements") or {}
-    source_ok=len(source.get("records") or [])>=int(source.get("source_window_reported_total") or 0)
+    reported_total=int(source.get("source_window_reported_total") or 0)
+    current_ingest=int(source.get("full_ingest_size") if source.get("full_ingest_size") is not None else len(source.get("records") or []))
+    accounting=source.get("source_accounting") or {}
+    current_upstream=int(accounting.get("current_upstream_records") if accounting.get("current_upstream_records") is not None else current_ingest)
+    source_ok=(current_ingest>=reported_total and current_upstream>=reported_total)
     conservation=bool((events.get("counts") or {}).get("conservation_ok"))
     control_names=req.get("statistical_controls_required") or []
     control_map=controls.get("controls") or {}
@@ -114,13 +118,17 @@ def build(spec,events,families,source,controls,boundary,components):
             "clean_boundary_workflow_runs":clean_runs["count"],
             "clean_boundary_span_days":clean_runs["span_days"],
             **maturity,
-            "source_store_records":len(source.get("records") or []),
+            "source_store_persistent_records":len(source.get("records") or []),
+            "source_store_current_full_ingest_records":current_ingest,
+            "source_store_current_upstream_records":current_upstream,
+            "source_store_retained_historical_records":accounting.get("retained_historical_records"),
             "source_store_reported_total":source.get("source_window_reported_total"),
         },
         "conditions":conditions,
         "blockers":blockers,
         "guardrails":[
             "This gate measures pipeline readiness only; it does not validate investment effectiveness.",
+            "Source Store completeness is judged from the current full ingest, not from append-only historical record count.",
             "Maturity uses the same overlap-connected realized-horizon clusters as Family Scorecards.",
             "No Promotion Gate pass is required.",
             "Passing this gate authorizes only a review of whether to begin V6.16."

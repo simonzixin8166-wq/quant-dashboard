@@ -14,7 +14,7 @@ SOURCE=ROOT/"docs"/"data"/"source_intelligence.json"
 EVENTS=ROOT/"research"/"events"/"event_scores_v1.json"
 SOURCE_STORE=ROOT/"research"/"store"/"source_store.json"
 EVENT_HISTORY=ROOT/"research"/"history"/"event_score_history.json"
-VERSION="6.15.8d"
+VERSION="6.15.8h"
 
 sys.path.insert(0,str(ROOT/"scripts"))
 from source_intelligence_engine import collect_full_records
@@ -107,10 +107,12 @@ def migrate_sources(source,prior=None,now=None,full_records=None):
             "record":snap,
         })
     current={x["source_key"] for x in rows}
+    retained_historical=0
     for k,prev in old.items():
         if k not in current:
             x=dict(prev);x["source_still_online"]=False
             rows.append(x)
+            retained_historical+=1
     if len(rows) < source_total:
         raise AssertionError(f"source_store records {len(rows)} < normalized source count {source_total}")
     return {
@@ -119,6 +121,13 @@ def migrate_sources(source,prior=None,now=None,full_records=None):
         "source_window_reported_total":source_total,
         "visible_window_size":len(source.get("records") or []),
         "full_ingest_size":len(full),
+        "source_accounting":{
+            "current_upstream_records":len(current),
+            "persistent_records_total":len(rows),
+            "retained_historical_records":retained_historical,
+            "reported_normalized_total":source_total,
+            "current_ingest_complete":len(current)>=source_total,
+        },
         "records":rows,
     }
 
@@ -171,6 +180,7 @@ def main():
     print(json.dumps({
         "sources":len((src or {}).get("records") or []) if src is not None else None,
         "full_ingest_size":(src or {}).get("full_ingest_size") if src is not None else None,
+        "source_accounting":(src or {}).get("source_accounting") if src is not None else None,
         "history":len((hist or {}).get("records") or []) if hist is not None else None,
         "added":(hist or {}).get("added") if hist is not None else None,
     },ensure_ascii=False))

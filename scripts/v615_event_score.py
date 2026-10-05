@@ -18,6 +18,7 @@ REGISTRY=ROOT/"research"/"registry"/"rules.json"
 OUT=ROOT/"research"/"events"/"event_scores_v1.json"
 COMPARE=ROOT/"research"/"audit"/"v615_eventscore_comparison.json"
 SOURCE_STORE=ROOT/"research"/"store"/"source_store.json"
+FAMILIES=ROOT/"research"/"registry"/"rule_families.json"
 
 sys.path.insert(0,str(ROOT/"scripts"))
 from evaluation_spec import load_spec,direction_adjusted_return
@@ -25,7 +26,7 @@ from entry_semantics import classify_event
 from local_history_agent import read_archive
 from source_history_cache import read_cache
 
-VERSION="6.15.8e"
+VERSION="6.15.8h"
 HORIZONS=(5,20,60)
 
 def load(path,default):
@@ -129,6 +130,17 @@ def registry_map(registry):
         out[(str(m.get("source_id")),m.get("operation_index"))]=m.get("rule_id")
     return out
 
+def family_direction_map(families,spec):
+    out={}
+    current_hash=((spec.get("definitions") or {}).get("rule_family_definition_hash"))
+    for a in families.get("assignments") or []:
+        if not a.get("active"):continue
+        if current_hash and a.get("definition_hash")!=current_hash:continue
+        rid=a.get("rule_id")
+        if rid is None:continue
+        out[str(rid)]=((a.get("family_key") or {}).get("direction"))
+    return out
+
 def source_provenance_map(store):
     out={}
     for row in store.get("records") or []:
@@ -155,12 +167,14 @@ def point_in_time_status(prov,baseline_date):
     except Exception:
         return "unknown"
 
-def exclusion_reasons(rid,triggered,direction,entry_type,data_status,point_status):
+def exclusion_reasons(rid,triggered,direction,entry_type,data_status,point_status,structural_direction=None):
     reasons=[]
     if not rid:reasons.append("missing_rule_id")
     if not triggered:reasons.append("not_triggered")
     if direction=="option_structure":reasons.append("missing_real_option_pnl")
     elif direction not in {"bullish","bearish"}:reasons.append("unsupported_direction")
+    if structural_direction in {"mixed_direction","unknown"} and "unsupported_direction" not in reasons:
+        reasons.append("unsupported_direction")
     if entry_type=="unknown":reasons.append("unknown_entry_semantics")
     if data_status=="conflict":reasons.append("price_source_conflict")
     elif data_status=="cache_only_unscored":reasons.append("cache_only_unscored")
@@ -188,11 +202,12 @@ def choose_primary(reasons,spec=None):
         if key in reasons:return key
     return None
 
-def adapt(validation,registry,histories=None,spec=None,source_store=None):
+def adapt(validation,registry,histories=None,spec=None,source_store=None,families=None):
     spec=spec or load_spec()
     mapping=registry_map(registry)
     histories=histories or {}
     provenance=source_provenance_map(source_store or {})
+    structural_directions=family_direction_map(families or {},spec)
     rows=[]
     primary_counts=Counter()
     for ev in validation.get("events") or []:
@@ -201,10 +216,11 @@ def adapt(validation,registry,histories=None,spec=None,source_store=None):
         entry_meta=classify_event(ev)
         et=entry_meta.get("entry_type") or "unknown"
         direction=direction_from_event(ev)
+        structural_direction=structural_directions.get(str(rid)) if rid is not None else None
         hmeta=histories.get(symbol,{}).get("meta") or {}
         prov=provenance.get(str(sid)) or {}
         pit=point_in_time_status(prov,ev.get("baseline_date"))
-        reasons=exclusion_reasons(rid,bool(ev.get("triggered")),direction,et,hmeta.get("status"),pit)
+        reasons=exclusion_reasons(rid,bool(ev.get("triggered")),direction,et,hmeta.get("status"),pit,structural_direction)
         primary=choose_primary(reasons,spec)
         secondary=[x for x in reasons if x!=primary]
         scoreable=primary is None
@@ -255,6 +271,7 @@ def adapt(validation,registry,histories=None,spec=None,source_store=None):
             "entry_inference_source":entry_meta.get("inference_source"),
             "entry_registry_version":entry_meta.get("registry_version"),
             "direction":direction,
+            "rule_structural_direction":structural_direction,
             "triggered":bool(ev.get("triggered")),
             "scoreable":scoreable,
             "primary_exclusion_reason":primary,
@@ -285,6 +302,7 @@ def adapt(validation,registry,histories=None,spec=None,source_store=None):
         "guardrails":[
             "Legacy outcomes remain available; EventScore is an adapter, not an in-place rewrite.",
             "Unknown entry semantics never enter method performance.",
+            "Mixed/unknown Rule Family structural direction always fails closed even if a legacy outcome labels the event bullish or bearish.",
             "STOOQ archive is canonical; cache only fills gaps after overlap consistency checks.",
             "Every mature horizon carries the exact realized horizon_end_date from the source outcome record for dependence clustering.",
             "Every non-scoreable event has exactly one primary exclusion reason; the conservation equation is enforced.",
@@ -305,7 +323,7 @@ def main():
     validation=load(VALIDATION,{})
     registry=load(REGISTRY,{})
     histories=build_histories()
-    result=adapt(validation,registry,histories,load_spec(),load(SOURCE_STORE,{}))
+    result=adapt(validation,registry,histories,load_spec(),load(SOURCE_STORE,{}),load(FAMILIES,{}))
     OUT.parent.mkdir(parents=True,exist_ok=True)
     OUT.write_text(json.dumps(result,ensure_ascii=False,indent=2),encoding="utf-8")
     comparison={

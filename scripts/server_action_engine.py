@@ -27,6 +27,26 @@ def req_json(url,headers=None,timeout=15):
     with urllib.request.urlopen(req,timeout=timeout) as r:
         return json.loads(r.read().decode("utf-8"))
 
+
+def write_usage_ledger(rows):
+    """Best-effort service-role ledger. Failure never blocks risk checks."""
+    base=os.getenv("SUPABASE_URL");key=os.getenv("SUPABASE_KEY")
+    if not base or not key or not rows:
+        return False
+    try:
+        url=f"{base.rstrip('/')}/rest/v1/request_usage_ledger"
+        body=json.dumps(rows).encode()
+        req=urllib.request.Request(url,data=body,method="POST",headers={
+            "apikey":key,"Authorization":f"Bearer {key}",
+            "Content-Type":"application/json","Prefer":"return=minimal",
+            "User-Agent":"MyAlpha-Server-Action",
+        })
+        with urllib.request.urlopen(req,timeout=12) as r:
+            r.read()
+        return True
+    except Exception:
+        return False
+
 def supabase_rows(table):
     base=os.getenv("SUPABASE_URL");key=os.getenv("SUPABASE_KEY")
     if not base or not key:return None
@@ -131,7 +151,12 @@ def risk_for(p,q,events):
     return {"level":level,"reason":reason,"dte":dte,"spot":spot,"delta":delta,"spread":spread}
 
 def build():
-    trust=system_trust();positions=supabase_rows("options_positions");notes=supabase_rows("stock_research_notes")
+    trust=system_trust()
+    usage_rows=[]
+    positions=supabase_rows("options_positions")
+    usage_rows.append({"provider":"supabase","request_kind":"options_positions_read","request_count":1,"paid":False,"source":"server_action_engine"})
+    notes=supabase_rows("stock_research_notes")
+    usage_rows.append({"provider":"supabase","request_kind":"stock_research_notes_read","request_count":1,"paid":False,"source":"server_action_engine"})
     if positions is None:
         return {"status":"cannot_judge","trust":trust,"reason":"Supabase credentials unavailable","actions":[],"quote_failures":0}
     open_rows=[p for p in positions if str(p.get("status") or "open") in {"open","pending_settlement"}]
@@ -140,8 +165,11 @@ def build():
     for p in open_rows:
         occ=occ_symbol(p);q=None
         if occ:
-            try:q=edge_quote(occ)
-            except Exception:quote_failures+=1
+            try:
+                q=edge_quote(occ)
+                usage_rows.append({"provider":"alpaca_via_supabase_edge","request_kind":"held_option_quote","request_count":1,"paid":False,"source":"server_action_engine"})
+            except Exception:
+                quote_failures+=1
         risk=risk_for(p,q,events)
         if risk["level"] in {"l2","l3"}:
             actions.append({"level":risk["level"],"symbol":p.get("symbol"),"expiry":p.get("expiry"),"reason":risk["reason"],"dte":risk.get("dte")})
@@ -150,6 +178,7 @@ def build():
     actions.extend(thesis_actions)
     cannot=not trust["ok"] or any(a["level"]=="unknown" for a in actions)
     status="cannot_judge" if cannot else ("action_required" if any(a["level"] in {"l2","l3","review"} for a in actions) else "clear")
+    write_usage_ledger(usage_rows)
     return {"status":status,"trust":trust,"positions_checked":len(open_rows),"event_count_48h":len(events),"actions":actions,"quote_failures":quote_failures}
 
 def fingerprint(result):

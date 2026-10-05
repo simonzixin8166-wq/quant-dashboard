@@ -135,3 +135,12 @@ bad_backfill=build(bad_backfill_store,bad_backfill_rules,base_families,base_even
 assert bad_backfill["integrity_pass"] is False
 assert "live_ingest_missing_immutable_forward_provenance" in bad_backfill["blockers"]
 print("PASS Forward Guard rekeyed-live diagnostic / impossible live-state blockers")
+
+
+# Explicitly retroactive rule on a genuine source is not a live forward rule and does not create a missing-event blocker.
+retro_rules={"rules":base_rules["rules"]+[{"rule_id":"r-retro","source_id":"s1","author":"x","active":True,"forward_eligible":False}]}
+retro_only=build(live_store,retro_rules,base_families,base_events,spec,now="2026-10-06T00:00:00Z")
+assert retro_only["counts"]["genuine_forward_rules"]==0
+assert retro_only["counts"]["forward_eventscore_events"]==0
+assert "live_rule_missing_eventscore_event" not in retro_only["blockers"]
+print("PASS retroactive rule excluded from Forward Intake")

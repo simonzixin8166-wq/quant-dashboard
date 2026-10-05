@@ -10,6 +10,7 @@ on:
       - "scripts/source_intelligence_engine.py"
       - "scripts/source_reading_memory.py"
       - "scripts/source_outcome_validation.py"
+      - "scripts/public_research_evidence_status.py"
       - "scripts/method_memory_engine.py"
       - "scripts/module_intelligence_engine.py"
       - "scripts/cross_asset_divergence_engine.py"
@@ -57,7 +58,7 @@ jobs:
 
       - name: Validate source-learning code
         run: |
-          python -m py_compile scripts/cross_asset_divergence_engine.py scripts/breadth_intelligence_engine.py scripts/regime_combination_memory.py scripts/source_intelligence_engine.py scripts/source_reading_memory.py scripts/source_history_cache.py scripts/source_outcome_validation.py scripts/evidence_attribution_engine.py scripts/method_memory_engine.py scripts/module_intelligence_engine.py scripts/autonomous_research_planner.py scripts/official_evidence_engine.py scripts/event_evidence_engine.py scripts/event_window_attribution.py scripts/autonomous_research_executor.py scripts/self_improvement_engine.py scripts/learning_evaluation_engine.py scripts/system_status_center.py
+          python -m py_compile scripts/cross_asset_divergence_engine.py scripts/breadth_intelligence_engine.py scripts/regime_combination_memory.py scripts/source_intelligence_engine.py scripts/source_reading_memory.py scripts/source_history_cache.py scripts/source_outcome_validation.py scripts/public_research_evidence_status.py scripts/evidence_attribution_engine.py scripts/method_memory_engine.py scripts/module_intelligence_engine.py scripts/autonomous_research_planner.py scripts/official_evidence_engine.py scripts/event_evidence_engine.py scripts/event_window_attribution.py scripts/autonomous_research_executor.py scripts/self_improvement_engine.py scripts/learning_evaluation_engine.py scripts/system_status_center.py
           python tests/test_source_intelligence_engine.py
           python tests/test_source_outcome_validation.py
           python tests/test_source_intelligence_ui.py
@@ -95,6 +96,9 @@ jobs:
 
       - name: Build source outcome validation
         run: python scripts/source_outcome_validation.py
+
+      - name: Build public Spec 1.5 evidence status
+        run: python scripts/public_research_evidence_status.py
 
       - name: Rebuild evidence attribution
         run: python scripts/evidence_attribution_engine.py
@@ -144,7 +148,7 @@ jobs:
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
-          git add docs/data/source_intelligence.json docs/research/source_reading_memory.json docs/research/source_outcome_validation.json docs/research/evidence_attribution.json docs/research/method_memory.json docs/research/module_intelligence.json docs/research/cross_asset_divergence.json docs/research/cross_asset_divergence_history.json docs/research/breadth_intelligence.json docs/research/breadth_intelligence_history.json docs/research/regime_combination_memory.json docs/research/regime_combination_history.json docs/research/research_planner.json docs/research/official_evidence.json docs/research/event_evidence.json docs/research/event_window_attribution.json docs/research/research_execution.json docs/research/self_improvement.json docs/research/learning_evaluation.json docs/research/system_status.json
+          git add docs/data/source_intelligence.json docs/research/source_reading_memory.json docs/research/source_outcome_validation.json docs/research/evidence_status.json docs/research/evidence_attribution.json docs/research/method_memory.json docs/research/module_intelligence.json docs/research/cross_asset_divergence.json docs/research/cross_asset_divergence_history.json docs/research/breadth_intelligence.json docs/research/breadth_intelligence_history.json docs/research/regime_combination_memory.json docs/research/regime_combination_history.json docs/research/research_planner.json docs/research/official_evidence.json docs/research/event_evidence.json docs/research/event_window_attribution.json docs/research/research_execution.json docs/research/self_improvement.json docs/research/learning_evaluation.json docs/research/system_status.json
           if [ -f data/history/source_validation_history.zip ]; then git add data/history/source_validation_history.zip; fi
           if ! git diff --cached --quiet; then
             git commit -m "update source intelligence validation"

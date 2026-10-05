@@ -4,7 +4,7 @@ ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/"scripts"))
 from v615_forward_intake_health import build
 
-spec={"spec_version":"1.6","definitions":{"rule_family_definition_hash":"defhash"}}
+spec={"spec_version":"1.7","definitions":{"rule_family_definition_hash":"defhash","point_in_time_eligibility":{"evidence_foundation_start_utc":"2026-10-04T00:00:00+00:00","source_admission":{"genuine_forward_required_class":"genuine_forward"}}}}
 base_store={"records":[{"source_key":"old","ingest_type":"initial_migration","record":{"id":"old"}}]}
 base_rules={"rules":[{"rule_id":"r0","source_id":"old","author":"a","active":True}]}
 base_families={"assignments":[{"rule_id":"r0","definition_hash":"defhash","active":True}]}
@@ -15,7 +15,7 @@ assert waiting["integrity_pass"] is True
 assert waiting["status"]=="waiting_for_first_genuine_forward_rule"
 assert waiting["counts"]["genuine_forward_rules"]==0
 
-live_store={"records":base_store["records"]+[{"source_key":"s1","ingest_type":"live_ingest","first_fetched_at":"2026-10-05T12:00:00+00:00","first_fetched_at_origin":"source_store_first_observation","record":{"id":"s1"}}]}
+live_store={"records":base_store["records"]+[{"source_key":"s1","ingest_type":"live_ingest","first_fetched_at":"2026-10-05T12:00:00+00:00","first_fetched_at_origin":"source_store_first_observation","admission_class":"genuine_forward","record":{"id":"s1"}}]}
 live_rules={"rules":base_rules["rules"]+[{"rule_id":"r1","source_id":"s1","author":"new-author","active":True}]}
 live_families={"assignments":base_families["assignments"]+[{"rule_id":"r1","definition_hash":"defhash","active":True}]}
 live_events={"scoring_engine_version":"event_score@6.15.8j","events":base_events["events"]+[{
@@ -52,9 +52,9 @@ assert forged["integrity_pass"] is False
 assert "live_ingest_missing_immutable_forward_provenance" in forged["blockers"]
 
 # A live label before the Evidence Foundation start is not genuine forward evidence.
-old_live_store={"records":base_store["records"]+[{"source_key":"s3","ingest_type":"live_ingest","first_fetched_at":"2026-10-03T23:59:59+00:00","first_fetched_at_origin":"source_store_first_observation","record":{"id":"s3"}}]}
+old_live_store={"records":base_store["records"]+[{"source_key":"s3","ingest_type":"live_ingest","first_fetched_at":"2026-10-03T23:59:59+00:00","first_fetched_at_origin":"source_store_first_observation","admission_class":"genuine_forward","record":{"id":"s3"}}]}
 old_live_rules={"rules":base_rules["rules"]+[{"rule_id":"r3","source_id":"s3","author":"x","active":True}]}
 old_live=build(old_live_store,old_live_rules,base_families,base_events,spec,now="2026-10-06T00:00:00Z")
 assert old_live["integrity_pass"] is False
 assert "live_ingest_missing_immutable_forward_provenance" in old_live["blockers"]
-print("PASS Spec 1.6 genuine-forward double lock")
+print("PASS Spec 1.7 genuine-forward admission lock")

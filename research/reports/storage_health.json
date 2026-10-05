@@ -1,0 +1,34 @@
+{
+  "version": "6.15-p2",
+  "generated_at": "2026-10-05T13:20:42.439398+00:00",
+  "mode": "non_destructive_storage_governance",
+  "artifacts": {
+    "step_boundary_log": {
+      "path": "research/audit/step_boundary_log.json",
+      "bytes": 53608,
+      "limit_bytes": 5000000,
+      "status": "ok",
+      "partition_ready": true
+    },
+    "source_store": {
+      "path": "research/store/source_store.json",
+      "bytes": 2356588,
+      "limit_bytes": 5000000,
+      "status": "ok",
+      "partition_ready": false
+    },
+    "event_score_history": {
+      "path": "research/history/event_score_history.json",
+      "bytes": 1970317,
+      "limit_bytes": 5000000,
+      "status": "ok",
+      "partition_ready": false
+    }
+  },
+  "policy": {
+    "step_boundary_log": "hash-only + 80-record retention",
+    "source_store": "append-only; no pruning before reader-compatible partition migration",
+    "event_score_history": "append-only; no pruning before reader-compatible partition migration"
+  },
+  "next_partition_trigger": "Any formal evidence artifact >=5MB or sustained growth makes reader migration a P2 maintenance task; never delete evidence to hit the threshold."
+}

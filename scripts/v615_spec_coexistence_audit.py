@@ -10,13 +10,13 @@ ROOT=Path(__file__).resolve().parents[1]
 HISTORY=ROOT/"research"/"history"/"event_score_history.json"
 SPEC=ROOT/"research"/"specs"/"evaluation_spec.json"
 OUT=ROOT/"research"/"audit"/"eventscore_spec_coexistence.json"
-VERSION="6.15.8k"
+VERSION="6.15.8l"
 
 def load(p,d):
     try:return json.loads(p.read_text(encoding="utf-8"))
     except Exception:return d
 
-def build(history,current_spec_version="1.6"):
+def build(history,current_spec_version="1.7"):
     by_event=defaultdict(list)
     by_spec=Counter()
     for row in history.get("records") or []:

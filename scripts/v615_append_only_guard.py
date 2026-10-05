@@ -61,6 +61,11 @@ def rule_violations(old,new):
             problems.append(f"rule_missing:{rid}");continue
         for k in RULE_IMMUTABLE:
             if nr.get(k)!=row.get(k):problems.append(f"rule_immutable_changed:{rid}:{k}")
+        # One-time migration may add extraction_mode/forward_eligible to legacy
+        # rules. Once present in HEAD, their evidence eligibility is immutable.
+        for k in ("extraction_mode","forward_eligible"):
+            if k in row and nr.get(k)!=row.get(k):
+                problems.append(f"rule_immutable_changed:{rid}:{k}")
         old_hash=row.get("extractor_input_hash")
         if old_hash and nr.get("extractor_input_hash")!=old_hash:
             revisions={x.get("extractor_input_hash") for x in nr.get("extractor_input_revisions") or []}

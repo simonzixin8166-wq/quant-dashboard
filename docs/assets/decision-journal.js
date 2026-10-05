@@ -1,6 +1,6 @@
 (function(global){
 'use strict';
-const KEY='mavDecisionJournalV56', OLD_KEYS=['mavDecisionJournalV53','mavDecisionJournalV52','mavDecisionJournalV51'];
+const KEY='mavDecisionJournalV56', OPERATOR_KEY='mavOperatorDecisionsV615', OLD_KEYS=['mavDecisionJournalV53','mavDecisionJournalV52','mavDecisionJournalV51'];
 const endpoint='https://rhielbkvhgqbthcgztci.supabase.co/functions/v1/stock-market';
 const H=[20,60,120];
 const state={history:null,historyLoaded:false,lastAuthError:'',refreshing:false};
@@ -86,6 +86,34 @@ function recordAssistantEvent({snapshot,classification,candidates=[],optionIdeas
   daily.optionIdeas=(optionIdeas||[]).slice(0,8);
   write(rows);render();
 }
+
+function readOperatorDecisions(){
+  try{
+    const rows=JSON.parse(localStorage.getItem(OPERATOR_KEY)||'[]');
+    return Array.isArray(rows)?rows:[];
+  }catch{return []}
+}
+function recordOperatorDecision(entry={}){
+  const now=new Date().toISOString(),date=dateOnly(entry.date||now);
+  const row={
+    at:now,date,
+    decision:String(entry.decision||'unknown'),
+    source:String(entry.source||'daily_action_engine'),
+    reason:String(entry.reason||''),
+    data_state:String(entry.dataState||'unknown'),
+    evidence_state:String(entry.evidenceState||'unknown'),
+    fingerprint:String(entry.fingerprint||''),
+    user_action:String(entry.userAction||'unrecorded'),
+    attribution:String(entry.attribution||'pending'),
+  };
+  const rows=readOperatorDecisions();
+  const key=[row.date,row.decision,row.reason,row.fingerprint].join('|');
+  if(rows.some(x=>[x.date,x.decision,x.reason,x.fingerprint].join('|')===key))return row;
+  rows.push(row);
+  try{localStorage.setItem(OPERATOR_KEY,JSON.stringify(rows.slice(-180)))}catch{}
+  return row;
+}
+
 function supabase(){return global.mavSupabase||global.supabaseClient||null}
 async function waitForAuth(timeout=10000){
   const start=Date.now();let sb=null;
@@ -225,6 +253,6 @@ async function render(error=''){
 }
 function learningForStage(stage){const p=state.history?.profiles?.[stage];if(!p)return null;return {...p.evidence,stats:p.horizons?.['60']||null}}
 async function init(){render();setTimeout(()=>refreshOutcomes({silent:true}),4500)}
-global.MAVDecisionJournal={recordAssistantEvent,refreshOutcomes,render,getJournal:read,getHistorical:()=>state.history,learningForStage,getErrorMemory:()=>errorMemory(read()),getSelfReview:()=>weeklySelfReview(read()),state};
+global.MAVDecisionJournal={recordAssistantEvent,recordOperatorDecision,refreshOutcomes,render,getJournal:read,getOperatorDecisions:readOperatorDecisions,getHistorical:()=>state.history,learningForStage,getErrorMemory:()=>errorMemory(read()),getSelfReview:()=>weeklySelfReview(read()),state};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })(window);

@@ -16,6 +16,11 @@ warnings.filterwarnings("ignore")
 # 单一版本源：每日 Action、静态资源缓存版本与测试均从 app_version.py 读取。
 from app_version import APP_VERSION, OPTIONS_VERSION, ASSET_VERSION
 from playbook_config import CORE_TIERS
+from dashboard_universe import (
+    INDEX, DISPLAYED_INDEX, VOL_PROXY_SYM, BREADTH_EQUAL_WEIGHT_PROXIES,
+    STOCK_META, STOCKS, CN_HK_SYMBOLS, TENCENT_URL,
+)
+from dashboard_option_math import norm_cdf, norm_pdf, calc_option_greeks, build_yahoo_option_ticker
 
 API_KEY = os.environ.get("TWELVE_DATA_KEY", "demo")
 BASE = "https://api.twelvedata.com"
@@ -35,28 +40,7 @@ def throttle():
     LAST_TD_REQUEST_TIME = time.time()
 
 # ================= 2. 资产池配置 =================
-# CORE_TIERS comes from the version-controlled Playbook registry.
-INDEX = ["QQQ", "SPY", "VOO", "SMH", "TQQQ", "GCMAIN", "BTC/USD"]
-DISPLAYED_INDEX = ["QQQ", "VOO", "SMH", "TQQQ", "GCMAIN", "BTC/USD"]
-VOL_PROXY_SYM = "VIXY"
-BREADTH_EQUAL_WEIGHT_PROXIES = ["RSP", "QQQE"]
-
-STOCK_META = {
-    "SOFI": {"name": "SoFi Technologies"}, "IREN": {"name": "Iris Energy"}, "ORCL": {"name": "甲骨文"},
-    "TSLA": {"name": "特斯拉"}, "NVDA": {"name": "英伟达"}, "TSM":  {"name": "台积电"},
-    "LITE": {"name": "Lumentum"}, "AVGO": {"name": "博通"}, "MRVL": {"name": "美满电子"},
-    "NBIS": {"name": "Nebius"}, "GOOG": {"name": "谷歌"}, "AMD":  {"name": "超威半导体"},
-    "HOOD": {"name": "Robinhood"}, "DRAM": {"name": "Roundhill内存芯片"}, "SPCX": {"name": "SpaceX代币化"},
-    "QQQM": {"name": "纳指100(QQQM)"}, "QLD":  {"name": "纳指2倍做多(QLD)"}, "VGT":  {"name": "信息技术ETF(VGT)"},
-    "QQQ":  {"name": "纳指100(QQQ)"}, "VOO":  {"name": "标普500(VOO)"},
-}
-STOCKS = list(STOCK_META.keys())
-
-CN_HK_SYMBOLS = {
-    "sh000001": "上证指数", "sh000300": "沪深300", "sz159307": "红利低波100 ETF",
-    "hk03086": "华夏纳指 (港股)", "hk03416": "国指备兑 (港股)",
-}
-TENCENT_URL = "http://qt.gtimg.cn/q={symbols}"
+# Universe/config moved to dashboard_universe.py; names are re-exported here via import.
 
 def fetch_usdcny_reference(previous=None):
     """Latest completed daily USD/CNY reference via Yahoo/yfinance.
@@ -119,26 +103,7 @@ def get_core_ath_metrics(symbols):
     return result
 
 # ================= 4. 期权 BS 定价与数据抓取 =================
-def norm_cdf(x): return (1.0 + math.erf(x / math.sqrt(2.0))) / 2.0
-def norm_pdf(x): return math.exp(-0.5 * x**2) / math.sqrt(2.0 * math.pi)
-
-def calc_option_greeks(S, K, T, r, sigma, opt_type="Call"):
-    if T <= 0 or sigma <= 0 or S <= 0: return {"theo_price": 0.0, "delta": 0.0, "gamma": 0.0}
-    d1 = (math.log(S / K) + (r + 0.5 * sigma**2) * T) / (sigma * math.sqrt(T))
-    d2 = d1 - sigma * math.sqrt(T)
-    gamma = norm_pdf(d1) / (S * sigma * math.sqrt(T))
-    if opt_type.lower() == "call":
-        delta = norm_cdf(d1)
-        theo_price = S * norm_cdf(d1) - K * math.exp(-r * T) * norm_cdf(d2)
-    else:
-        delta = norm_cdf(d1) - 1.0
-        theo_price = K * math.exp(-r * T) * norm_cdf(-d2) - S * norm_cdf(-d1)
-    return {"theo_price": theo_price, "delta": delta, "gamma": gamma}
-
-def build_yahoo_option_ticker(sym, expiry_str, opt_type, strike):
-    dt = datetime.datetime.strptime(expiry_str, '%Y-%m-%d')
-    strike_str = f"{int(round(strike * 1000)):08d}"
-    return f"{sym}{dt.strftime('%y%m%d')}{'C' if opt_type.lower() == 'call' else 'P'}{strike_str}"
+# Pure math/ticker helpers moved to dashboard_option_math.py.
 
 def fetch_yahoo_option_quote(opt_ticker):
     url_v7 = f"https://query1.finance.yahoo.com/v7/finance/quote?symbols={opt_ticker}"

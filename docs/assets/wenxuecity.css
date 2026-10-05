@@ -46,3 +46,33 @@
 #wxcRoot .wxc-pipeline span{font-size:11px;color:var(--muted);line-height:1.55}
 @media(max-width:1050px){#wxcRoot .wxc-overview-metrics{grid-template-columns:repeat(3,minmax(0,1fr))}#wxcRoot .wxc-pipeline{grid-template-columns:1fr 1fr}#wxcRoot .wxc-pipeline>div:nth-child(odd){border-left:0}}
 @media(max-width:700px){#wxcRoot .wxc-overview-metrics{grid-template-columns:1fr 1fr}#wxcRoot .wxc-pipeline{grid-template-columns:1fr}#wxcRoot .wxc-pipeline>div{border-left:0;border-top:1px solid var(--line)}#wxcRoot .wxc-pipeline>div:first-child{border-top:0}#wxcRoot .wxc-primary-tabs{position:static}#wxcRoot .wxc-primary-tabs button{flex:1 1 calc(50% - 9px)}}
+
+
+/* V6.15 research cockpit hierarchy */
+#wxcRoot .wxc-cockpit-hero{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(360px,.8fr);gap:22px;padding:26px 28px;margin:0 0 20px;border:1px solid rgba(23,51,84,.14);border-radius:18px;background:linear-gradient(135deg,rgba(23,51,84,.98),rgba(36,60,88,.92));color:#fff;box-shadow:0 18px 42px rgba(17,31,50,.14)}
+#wxcRoot .wxc-cockpit-hero .wxc-eyebrow{color:#d7c08d;letter-spacing:.08em;font-weight:700}
+#wxcRoot .wxc-cockpit-title-row{display:flex;justify-content:space-between;gap:16px;align-items:flex-start}
+#wxcRoot .wxc-cockpit-title-row h2{font-size:25px;line-height:1.32;margin:8px 0 8px;color:#fff}
+#wxcRoot .wxc-cockpit-copy>p{color:rgba(255,255,255,.78);max-width:780px}
+#wxcRoot .wxc-cockpit-note{margin-top:14px;padding:10px 12px;border:1px solid rgba(255,255,255,.11);border-radius:10px;background:rgba(255,255,255,.06);font-size:12px;color:#dce5ef}
+#wxcRoot .wxc-state-pill{display:inline-flex;align-items:center;justify-content:center;white-space:nowrap;border-radius:999px;padding:5px 10px;font-size:11px;font-weight:700}
+#wxcRoot .wxc-state-pill.ok{background:rgba(45,166,110,.14);color:#20885a;border:1px solid rgba(45,166,110,.24)}
+#wxcRoot .wxc-cockpit-hero .wxc-state-pill.ok{background:rgba(61,196,132,.16);color:#bff3d7;border-color:rgba(133,232,184,.26)}
+#wxcRoot .wxc-state-pill.warn{background:rgba(184,121,36,.12);color:#9a6700;border:1px solid rgba(184,121,36,.25)}
+#wxcRoot .wxc-cockpit-metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;align-content:center}
+#wxcRoot .wxc-cockpit-metrics article{margin:0;padding:16px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.055);border-radius:12px}
+#wxcRoot .wxc-cockpit-metrics span,#wxcRoot .wxc-cockpit-metrics small{display:block;color:rgba(255,255,255,.63);font-size:10.5px}
+#wxcRoot .wxc-cockpit-metrics b{display:block;font-size:25px;margin:4px 0;color:#fff}
+#wxcRoot .wxc-section-block{margin:22px 0 26px}
+#wxcRoot .wxc-section-headline{display:flex;justify-content:space-between;gap:20px;align-items:flex-start;margin:0 2px 10px}
+#wxcRoot .wxc-section-headline h2{font-size:22px;margin:4px 0 3px}
+#wxcRoot .wxc-section-headline p{margin:0;color:var(--muted);font-size:12px;max-width:820px}
+#wxcRoot .wxc-overview-metrics-compact{grid-template-columns:repeat(6,minmax(0,1fr));gap:10px}
+#wxcRoot .wxc-overview-metrics-compact article{padding:14px 15px}
+#wxcRoot .wxc-overview-metrics-compact b{font-size:22px}
+#wxcRoot .wxc-secondary-detail{padding:0;overflow:hidden}
+#wxcRoot .wxc-secondary-detail>summary{padding:18px 22px;margin:0;border:0;font-size:14px;background:rgba(23,51,84,.035)}
+#wxcRoot .wxc-secondary-detail[open]>summary{border-bottom:1px solid var(--line)}
+#wxcRoot .wxc-secondary-detail>.wxc-pipeline,#wxcRoot .wxc-secondary-detail>p,#wxcRoot .wxc-secondary-detail>section,#wxcRoot .wxc-secondary-detail>.wxc-box{margin-left:20px;margin-right:20px}
+@media(max-width:1050px){#wxcRoot .wxc-cockpit-hero{grid-template-columns:1fr}#wxcRoot .wxc-overview-metrics-compact{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:700px){#wxcRoot .wxc-cockpit-hero{padding:20px}#wxcRoot .wxc-cockpit-title-row{display:block}#wxcRoot .wxc-cockpit-title-row .wxc-state-pill{margin-top:4px}#wxcRoot .wxc-cockpit-metrics{grid-template-columns:1fr 1fr}#wxcRoot .wxc-overview-metrics-compact{grid-template-columns:1fr 1fr}#wxcRoot .wxc-section-headline{display:block}#wxcRoot .wxc-section-headline .wxc-state-pill{margin-top:8px}}

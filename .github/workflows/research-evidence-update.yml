@@ -10,6 +10,7 @@ on:
       - "scripts/entry_semantics.py"
       - "scripts/research_boundary_guard.py"
       - "scripts/run_research_step.py"
+      - "scripts/research_storage_health.py"
       - "research/specs/**"
       - ".github/workflows/research-evidence-update.yml"
   workflow_dispatch: {}
@@ -82,6 +83,9 @@ jobs:
         run: python scripts/run_research_step.py --name monthly_evidence_audit -- python scripts/v615_monthly_evidence_audit.py
       - name: Append-only research history guard
         run: python scripts/v615_append_only_guard.py
+
+      - name: Research storage health
+        run: python scripts/research_storage_health.py
       - name: Research regression tests
         run: |
           python tests/test_v6150_evaluation_boundary.py

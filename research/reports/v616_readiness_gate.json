@@ -1,17 +1,17 @@
 {
   "version": "6.15.8e",
-  "generated_at": "2026-10-04T14:02:13.528713+00:00",
+  "generated_at": "2026-10-05T01:57:13.430900+00:00",
   "readiness_spec_version": "1.2",
   "ready_for_v616": false,
   "promotion_pass_required": false,
   "observed": {
-    "clean_boundary_workflow_runs": 5,
+    "clean_boundary_workflow_runs": 6,
     "clean_boundary_span_days": 0,
     "mature_20_effective_units": 0,
     "mature_60_effective_units": 0,
     "families_with_20": 0,
     "families_with_60": 0,
-    "source_store_records": 1215,
+    "source_store_records": 1227,
     "source_store_reported_total": 1215
   },
   "conditions": {
@@ -24,14 +24,15 @@
     "point_in_time_mature_60_effective_units": false,
     "families_with_mature_20": false,
     "families_with_mature_60": false,
-    "component_manifest_complete": true
+    "component_manifest_complete": false
   },
   "blockers": [
     "production_boundary_clean_span",
     "point_in_time_mature_20_effective_units",
     "point_in_time_mature_60_effective_units",
     "families_with_mature_20",
-    "families_with_mature_60"
+    "families_with_mature_60",
+    "component_manifest_complete"
   ],
   "guardrails": [
     "This gate measures pipeline readiness only; it does not validate investment effectiveness.",

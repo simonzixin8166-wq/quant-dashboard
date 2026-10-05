@@ -1,13 +1,14 @@
 import copy,sys
+from unittest.mock import patch,Mock
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/"scripts"))
-from v615_append_only_guard import check
+from v615_append_only_guard import check,head_json
 
 old={
  "event_history":{"records":[{"event_id":"e","spec_version":"1.1","score_hash":"h","recorded_at":"t","score":{"x":1}}]},
  "rules":{"rules":[{"rule_id":"r","semantic_hash":"s","duplicate_rank":1,"first_seen_at":"t","source_id":"src","normalized_rule_hash":"n","extractor_input_hash":"x","extractor_input_revisions":[]}]},
- "source_store":{"records":[{"source_key":"src","first_fetched_at":"t","ingest_type":"initial_migration","snapshot_hash":"a","snapshot_history":[]}]},
+ "source_store":{"records":[{"source_key":"src","first_fetched_at":"t","ingest_type":"initial_migration","admission_class":"initial_migration","admission_classified_at":"t","identity_parent_source_key":None,"snapshot_hash":"a","snapshot_history":[]}]},
  "contradictions":{"records":[{"contradiction_id":"c","first_seen_at":"t","last_seen_at":"t"}]}
 }
 assert check(old,copy.deepcopy(old))==[]
@@ -29,3 +30,29 @@ assert not any("source_snapshot_revision_lost" in x for x in check(old,good))
 bad=copy.deepcopy(old);bad["source_store"]["records"][0]["snapshot_hash"]="b"
 assert any("source_snapshot_revision_lost" in x for x in check(old,bad))
 print("PASS V6.15.8d-2 append-only negative invariants")
+
+
+bad=copy.deepcopy(old);bad["source_store"]["records"][0]["admission_class"]="genuine_forward"
+assert any("source_immutable_changed:src:admission_class" in x for x in check(old,bad))
+
+# HEAD absence is legal; other git failures must fail closed.
+with patch("v615_append_only_guard.subprocess.check_output") as co, patch("v615_append_only_guard.subprocess.run") as run:
+    co.return_value="deadbeef\n"
+    run.side_effect=[
+        Mock(returncode=128,stdout="",stderr="missing"),
+        Mock(returncode=0,stdout="",stderr=""),
+    ]
+    assert head_json("research/does-not-exist.json")=={}
+
+with patch("v615_append_only_guard.subprocess.check_output") as co, patch("v615_append_only_guard.subprocess.run") as run:
+    co.return_value="deadbeef\n"
+    run.side_effect=[
+        Mock(returncode=128,stdout="",stderr="io failure"),
+        Mock(returncode=2,stdout="",stderr="repo failure"),
+    ]
+    try:
+        head_json("research/history/event_score_history.json")
+        raise AssertionError("non-missing git failure must fail closed")
+    except RuntimeError:
+        pass
+print("PASS V6.15.8l append-only HEAD read fail-closed behavior")

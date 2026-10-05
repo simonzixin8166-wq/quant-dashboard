@@ -11,7 +11,7 @@ TARGETS={
  "source_store":ROOT/"research/store/source_store.json",
  "contradictions":ROOT/"research/history/contradictions.json",
 }
-VERSION="6.15.8d"
+VERSION="6.15.8l"
 
 def load_text_json(text,default=None):
     try:return json.loads(text)
@@ -22,10 +22,23 @@ def load(path,default=None):
     except Exception:return {} if default is None else default
 
 def head_json(rel):
+    # Missing-in-HEAD is a legitimate empty baseline. Any other git failure
+    # must fail closed so immutable provenance cannot silently lose protection.
     try:
-        text=subprocess.check_output(["git","show",f"HEAD:{rel}"],cwd=ROOT,text=True,stderr=subprocess.DEVNULL)
+        subprocess.check_output(["git","rev-parse","--verify","HEAD"],cwd=ROOT,text=True,stderr=subprocess.DEVNULL)
+    except Exception as exc:
+        raise RuntimeError(f"cannot resolve HEAD while reading {rel}") from exc
+    probe=subprocess.run(["git","cat-file","-e",f"HEAD:{rel}"],cwd=ROOT,text=True,capture_output=True)
+    if probe.returncode!=0:
+        tree=subprocess.run(["git","ls-tree","--name-only","HEAD","--",rel],cwd=ROOT,text=True,capture_output=True)
+        if tree.returncode==0 and not tree.stdout.strip():
+            return {}
+        raise RuntimeError(f"cannot read HEAD:{rel}: {probe.stderr or tree.stderr}")
+    try:
+        text=subprocess.check_output(["git","show",f"HEAD:{rel}"],cwd=ROOT,text=True,stderr=subprocess.PIPE)
         return load_text_json(text,{})
-    except Exception:return {}
+    except Exception as exc:
+        raise RuntimeError(f"git show failed for HEAD:{rel}") from exc
 
 def event_history_violations(old,new):
     problems=[]
@@ -63,6 +76,12 @@ def source_store_violations(old,new):
             problems.append(f"source_missing:{key}");continue
         for k in ("first_fetched_at","ingest_type"):
             if nr.get(k)!=row.get(k):problems.append(f"source_immutable_changed:{key}:{k}")
+        # Spec 1.7 permits exactly one migration from legacy rows that did not
+        # yet carry admission identity. Once present in HEAD, admission fields
+        # are immutable.
+        for k in ("admission_class","admission_classified_at","identity_parent_source_key"):
+            if k in row and nr.get(k)!=row.get(k):
+                problems.append(f"source_immutable_changed:{key}:{k}")
         old_hash=row.get("snapshot_hash")
         if old_hash and nr.get("snapshot_hash")!=old_hash:
             hist=set(nr.get("snapshot_history") or [])

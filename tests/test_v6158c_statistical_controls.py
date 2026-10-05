@@ -8,7 +8,7 @@ from v615_statistical_controls import (
 )
 
 spec=json.loads((ROOT/"research/specs/evaluation_spec.json").read_text())
-assert spec["spec_version"]=="1.6"
+assert spec["spec_version"]=="1.7"
 
 pos=positive_control(spec)
 assert pos["pass"] is True

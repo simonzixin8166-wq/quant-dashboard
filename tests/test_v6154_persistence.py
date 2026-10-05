@@ -2,7 +2,7 @@ import sys
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/"scripts"))
-from v615_persistent_source_store import migrate_sources,append_event_history,select_current_event_records
+from v615_persistent_source_store import migrate_sources,append_event_history,select_current_event_records,canonical_url,secondary_identity_fingerprint
 
 visible=[
  {"id":"s1","source":"wenxuecity","source_kind":"blog","published_at":"2020-01-01","title":"t1","url":"u1","operations":[]},
@@ -13,6 +13,7 @@ a=migrate_sources(source,now="2026-10-04T00:00:00Z",full_records=visible)
 assert len(a["records"])==2
 assert all(x["first_fetched_at"]=="2026-10-04T00:00:00Z" for x in a["records"])
 assert all(x["first_fetched_at_origin"]=="source_store_first_observation" for x in a["records"])
+assert all(x["admission_class"]=="initial_migration" for x in a["records"])
 assert all(x["first_fetched_at"]!=x.get("published_at") for x in a["records"])
 assert a["records"][0]["timestamp_confidence"] in {"high","unverified","missing"}
 assert a["records"][0]["content_hash_scope"]=="normalized_title_excerpt_only"
@@ -84,3 +85,47 @@ assert again_by["s1"]["first_fetched_at"]=="2026-10-04T00:00:00Z"
 assert again_by["s1"]["ingest_type"]=="initial_migration"
 assert again_by["s1"]["first_fetched_at_origin"]=="source_store_first_observation"
 print("PASS V6.15.8k immutable first_fetched_at / ingest_type re-ingest defense")
+
+
+# Spec 1.7 canonical URL strips tracking and normalizes host/scheme.
+assert canonical_url("http://www.Example.com/a/?utm_source=x&b=2&a=1#frag")=="https://example.com/a?a=1&b=2"
+
+# Rekey defense: same historical article under a new upstream id/url variant inherits old provenance.
+prior_article={"id":"old-id","source":"wenxuecity","source_kind":"blog","author":"A","published_at":"2026-10-01T00:00:00+00:00","title":"Same Story","url":"https://example.com/post?id=7&utm_source=old","operations":[]}
+seed=migrate_sources({"counts":{"records":1},"records":[prior_article]},now="2026-10-04T00:00:00+00:00",full_records=[prior_article])
+new_article=dict(prior_article);new_article["id"]="new-id";new_article["url"]="http://www.example.com/post?utm_medium=x&id=7"
+rekey=migrate_sources({"counts":{"records":1},"records":[new_article]},seed,now="2026-10-05T12:00:00+00:00",full_records=[new_article])
+rk=[x for x in rekey["records"] if x["source_key"]=="new-id"][0]
+assert rk["admission_class"]=="rekeyed_duplicate"
+assert rk["first_fetched_at"]=="2026-10-04T00:00:00+00:00"
+assert rk["identity_parent_source_key"]=="old-id"
+assert rk["ingest_type"]=="initial_migration"
+
+# Same-batch secondary fingerprint collision is order independent and fails closed.
+x1={"id":"x1","source":"feed","source_kind":"post","author":"Same","published_at":"2026-10-05","title":"Collision","url":"https://x.test/1","operations":[]}
+x2={"id":"x2","source":"feed","source_kind":"post","author":"Same","published_at":"2026-10-05","title":"Collision","url":"https://x.test/2","operations":[]}
+base_prior=seed
+ab=migrate_sources({"counts":{"records":2},"records":[x1,x2]},base_prior,now="2026-10-05T12:00:00+00:00",full_records=[x1,x2])
+ba=migrate_sources({"counts":{"records":2},"records":[x2,x1]},base_prior,now="2026-10-05T12:00:00+00:00",full_records=[x2,x1])
+assert {r["source_key"]:r["admission_class"] for r in ab["records"] if r["source_key"] in {"x1","x2"}}=={"x1":"identity_ambiguous","x2":"identity_ambiguous"}
+assert {r["source_key"]:r["admission_class"] for r in ba["records"] if r["source_key"] in {"x1","x2"}}=={"x1":"identity_ambiguous","x2":"identity_ambiguous"}
+
+# High-confidence publication timestamp is veto-only. Exactly 3 calendar days remains eligible; >3 is late discovery.
+fri={"id":"fri","source":"wenxuecity","source_kind":"blog","author":"A","published_at":"2026-10-02","title":"Friday","url":"https://example.com/fri","operations":[]}
+mon=migrate_sources({"counts":{"records":1},"records":[fri]},seed,now="2026-10-05T12:00:00+00:00",full_records=[fri])
+fr=[x for x in mon["records"] if x["source_key"]=="fri"][0]
+assert fr["late_discovery_age_calendar_days"]==3
+assert fr["admission_class"]=="genuine_forward"
+old_pub=dict(fri);old_pub["id"]="oldpub";old_pub["published_at"]="2026-10-01";old_pub["title"]="Old";old_pub["url"]="https://example.com/oldpub"
+late=migrate_sources({"counts":{"records":1},"records":[old_pub]},seed,now="2026-10-05T12:00:00+00:00",full_records=[old_pub])
+lr=[x for x in late["records"] if x["source_key"]=="oldpub"][0]
+assert lr["late_discovery_age_calendar_days"]==4
+assert lr["admission_class"]=="late_discovery"
+assert lr["ingest_type"]=="backfill_ingest"
+
+# Admission classification is immutable across later runs.
+again_late=migrate_sources({"counts":{"records":1},"records":[old_pub]},late,now="2026-10-06T12:00:00+00:00",full_records=[old_pub])
+al=[x for x in again_late["records"] if x["source_key"]=="oldpub"][0]
+assert al["admission_class"]=="late_discovery"
+assert al["admission_classified_at"]==lr["admission_classified_at"]
+print("PASS Spec 1.7 canonical identity / rekey / ambiguity / late-discovery admission")

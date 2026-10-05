@@ -12,10 +12,10 @@ history={"records":[
  {"event_id":"e1","spec_version":"1.4","score_hash":"v14hash","recorded_at":"t4","score":{"data_quality":{"price_series_hash":"px"}}},
  {"event_id":"e1","spec_version":"1.5","scoring_engine_version":"event_score@a","score_hash":"v15hash-a","recorded_at":"t5","score":{"data_quality":{"price_series_hash":"px"}}},
  {"event_id":"e1","spec_version":"1.5","scoring_engine_version":"event_score@b","score_hash":"v15hash-b","recorded_at":"t6","score":{"data_quality":{"price_series_hash":"px"}}},
- {"event_id":"e1","spec_version":"1.6","scoring_engine_version":"event_score@k","score_hash":"newhash","recorded_at":"t7","score":{"data_quality":{"price_series_hash":"px"}}}
+ {"event_id":"e1","spec_version":"1.7","scoring_engine_version":"event_score@k","score_hash":"newhash","recorded_at":"t7","score":{"data_quality":{"price_series_hash":"px"}}}
 ]}
-out=build(history,"1.6")
-assert out["counts"]["records_by_spec"]=={"1.0":1,"1.1":1,"1.2":1,"1.3":1,"1.4":1,"1.5":2,"1.6":1}
+out=build(history,"1.7")
+assert out["counts"]["records_by_spec"]=={"1.0":1,"1.1":1,"1.2":1,"1.3":1,"1.4":1,"1.5":2,"1.7":1}
 assert out["counts"]["events_with_current"]==1
 assert out["counts"]["events_with_prior_and_current"]==1
 assert out["counts"]["preserved_prior_records"]==7
@@ -26,4 +26,4 @@ assert row["current_score_hash"]=="newhash"
 assert row["current_scoring_engine_version"]=="event_score@k"
 assert {x["score_hash"] for x in row["prior_versions"]}=={"oldhash","midhash","v12hash","v13hash","v14hash","v15hash-a","v15hash-b"}
 assert all(x["record_preserved"] for x in row["prior_versions"])
-print("PASS V6.15.8i append-only EventScore Spec 1.6 coexistence / current-effective revision audit")
+print("PASS V6.15.8i append-only EventScore Spec 1.7 coexistence / current-effective revision audit")

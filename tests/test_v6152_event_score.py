@@ -94,8 +94,8 @@ print("PASS V6.15.8h mixed-direction family fails closed despite bullish legacy 
 
 # Forward-path positive control: a post-ingest, known-entry, same-source event can become scoreable.
 forward_validation={"events":[{
- "event_id":"s1:0:ABC:forward","author":"a","symbol":"ABC","published_at":"2026-01-01",
- "baseline_date":"2026-01-02","baseline_kind":"entry_below","triggered":True,
+ "event_id":"s1:0:ABC:forward","author":"a","symbol":"ABC","published_at":"2026-10-06",
+ "baseline_date":"2026-10-07","baseline_kind":"entry_below","triggered":True,
  "operation":{"conditions":[],"actions":["buy"]},"alignment":{"direction":"bullish","5":"aligned"},
  "price_provenance":{"price_source":"stooq_archive","adjustment_basis":"stooq_archive_native_series","baseline_source":"stooq_archive","horizon_source":"stooq_archive","same_source":True},
  "outcomes":{"5":{"date":"2026-01-09","return":0.1,"benchmark_return":0.1,"excess_vs_qqq":0.0,"mae":-0.02,"mfe":0.12}}
@@ -103,8 +103,8 @@ forward_validation={"events":[{
 forward_families={"assignments":[{
  "rule_id":"r1","family_id":"f1","definition_hash":"h","active":True,"family_key":{"direction":"bullish"}
 }]}
-forward_spec={"spec_version":"1.6","definitions":{"rule_family_definition_hash":"h","point_in_time_eligibility":{"evidence_foundation_start_utc":"2026-10-04T00:00:00+00:00"}}}
-forward_store={"records":[{"source_key":"s1","first_fetched_at":"2026-01-01T12:00:00+00:00","first_fetched_at_origin":"source_store_first_observation","record":{"id":"s1"}}]}
+forward_spec={"spec_version":"1.7","definitions":{"rule_family_definition_hash":"h","point_in_time_eligibility":{"evidence_foundation_start_utc":"2026-10-04T00:00:00+00:00","source_admission":{"genuine_forward_required_class":"genuine_forward"}}}}
+forward_store={"records":[{"source_key":"s1","first_fetched_at":"2026-10-06T12:00:00+00:00","first_fetched_at_origin":"source_store_first_observation","admission_class":"genuine_forward","ingest_type":"live_ingest","record":{"id":"s1"}}]}
 forward=adapt(forward_validation,registry,{"ABC":{"df":stooq,"meta":{"status":"ok","source":"stooq_archive","price_source":"stooq_archive","adjustment_basis":"stooq_archive_native_series","price_series_hash":"x"}}},forward_spec,forward_store,forward_families)
 assert forward["events"][0]["scoreable"] is True
 assert forward["events"][0]["point_in_time_status"]=="eligible"
@@ -115,8 +115,8 @@ print("PASS V6.15.8i forward EventScore positive path / explicit price provenanc
 # Workflow-ordering regression: stale Source Outcome rows without embedded
 # price_provenance must be deterministically upgraded from EventScore history metadata.
 stale_validation={"events":[{
- "event_id":"s1:0:ABC:stale","author":"a","symbol":"ABC","published_at":"2026-01-01",
- "baseline_date":"2026-01-02","baseline_kind":"entry_below","triggered":True,
+ "event_id":"s1:0:ABC:stale","author":"a","symbol":"ABC","published_at":"2026-10-06",
+ "baseline_date":"2026-10-07","baseline_kind":"entry_below","triggered":True,
  "operation":{"conditions":[],"actions":["buy"]},"alignment":{"direction":"bullish","5":"aligned"},
  "outcomes":{"5":{"date":"2026-01-09","return":0.1,"benchmark_return":0.1,"excess_vs_qqq":0.0,"mae":-0.02,"mfe":0.12}}
 }]}
@@ -146,10 +146,10 @@ assert scr["primary_exclusion_reason"]=="cache_only_unscored"
 print("PASS V6.15.8j deterministic provenance resolution / cache remains unscored")
 
 
-# Spec 1.6 exact timestamp eligibility: 2026-01-02 NYSE open is 14:30 UTC.
-assert baseline_timestamp_utc("2026-01-02",forward_spec).isoformat()=="2026-01-02T14:30:00+00:00"
-assert point_in_time_status({"first_fetched_at":"2026-01-02T14:29:59+00:00"},"2026-01-02",forward_spec)=="eligible"
-assert point_in_time_status({"first_fetched_at":"2026-01-02T14:30:00+00:00"},"2026-01-02",forward_spec)=="historical_pre_ingest"
-assert point_in_time_status({"first_fetched_at":"2026-01-02T15:00:00+00:00"},"2026-01-02",forward_spec)=="historical_pre_ingest"
-assert point_in_time_status({"first_fetched_at":"2026-01-02T15:00:00"},"2026-01-02",forward_spec)=="unknown"
-print("PASS Spec 1.6 timestamp-level point-in-time eligibility / same-session leakage closed")
+# Spec 1.7 exact timestamp eligibility: 2026-10-07 NYSE open is 13:30 UTC.
+assert baseline_timestamp_utc("2026-10-07",forward_spec).isoformat()=="2026-10-07T13:30:00+00:00"
+assert point_in_time_status({"first_fetched_at":"2026-10-07T13:29:59+00:00","first_fetched_at_origin":"source_store_first_observation","admission_class":"genuine_forward"},"2026-10-07",forward_spec)=="eligible"
+assert point_in_time_status({"first_fetched_at":"2026-10-07T13:30:00+00:00","first_fetched_at_origin":"source_store_first_observation","admission_class":"genuine_forward"},"2026-10-07",forward_spec)=="historical_pre_ingest"
+assert point_in_time_status({"first_fetched_at":"2026-10-07T14:00:00+00:00","first_fetched_at_origin":"source_store_first_observation","admission_class":"genuine_forward"},"2026-10-07",forward_spec)=="historical_pre_ingest"
+assert point_in_time_status({"first_fetched_at":"2026-10-07T14:00:00","first_fetched_at_origin":"source_store_first_observation","admission_class":"genuine_forward"},"2026-10-07",forward_spec)=="unknown"
+print("PASS Spec 1.7 timestamp-level point-in-time eligibility / source admission closed")

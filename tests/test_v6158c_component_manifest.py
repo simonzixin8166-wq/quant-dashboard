@@ -10,6 +10,6 @@ out=build(registry,spec)
 assert out["counts"]["components"]>=10
 assert out["counts"]["missing_code_hashes"]==0
 names={x["name"] for x in out["components"]}
-assert {"event_score","rule_family","family_scorecard","statistical_controls","v616_readiness_gate","dependence_clusters"}<=names
-assert out["evaluation_spec_version"]=="1.3"
-print("PASS V6.15.8e component code/artifact manifest")
+assert {"event_score","rule_family","family_scorecard","statistical_controls","v616_readiness_gate","dependence_clusters","family_feasibility","readiness_forecast"}<=names
+assert out["evaluation_spec_version"]=="1.4"
+print("PASS V6.15.8g component code/artifact manifest")

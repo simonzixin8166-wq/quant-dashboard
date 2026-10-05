@@ -20,12 +20,13 @@ assert "research/specs/v616_readiness_spec.json" in lock["locked_research_specs"
 assert "research/specs/entry_semantics_registry.json" in lock["locked_research_specs"]
 assert "research/specs/component_registry.json" in lock["locked_research_specs"]
 spec=json.loads((ROOT/"research/specs/evaluation_spec.json").read_text())
-assert spec["spec_version"]=="1.3"
+assert spec["spec_version"]=="1.4"
 assert spec["thresholds"]["provisional"] is True
 assert spec["change_policy"]["forbid_tuning_to_pass_named_methods"] is True
 assert spec["definitions"]["promotion_unit"]=="rule_family"
 assert spec["definitions"]["multiple_testing"]["fdr_method"]=="Benjamini-Hochberg"
-assert spec["promotion_activation"]["state"]=="shadow_until_statistical_controls_revalidated_under_spec_1_3"
+assert spec["promotion_activation"]["state"]=="shadow_until_statistical_controls_revalidated_under_spec_1_4"
+assert spec["definitions"]["rule_family_definition_version"]=="1.2"
 assert spec["definitions"]["clustering"]["event_effective_unit"]=="symbol x overlap-connected realized-horizon cluster"
 assert "transitively overlapping" in spec["definitions"]["clustering"]["time_cluster_definition"]
 assert spec["definitions"]["multiple_testing"]["untestable_hypothesis_pvalue_for_fdr"]==1.0

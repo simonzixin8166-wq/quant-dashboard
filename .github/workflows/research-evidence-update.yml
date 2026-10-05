@@ -43,6 +43,8 @@ jobs:
         run: python scripts/run_research_step.py --name rule_family -- python scripts/v615_rule_family.py
       - name: Source Store invariant
         run: python scripts/run_research_step.py --name source_store -- python scripts/v615_persistent_source_store.py --sources-only
+      - name: Family feasibility invariant
+        run: python scripts/run_research_step.py --name family_feasibility -- python scripts/v615_family_feasibility.py
       - name: EventScore invariant
         run: python scripts/run_research_step.py --name event_score -- python scripts/v615_event_score.py
       - name: Observational event invariant
@@ -69,6 +71,8 @@ jobs:
         run: python scripts/run_research_step.py --name component_manifest -- python scripts/v615_component_manifest.py
       - name: V6.16 readiness invariant
         run: python scripts/run_research_step.py --name v616_readiness -- python scripts/v616_readiness_gate.py
+      - name: Readiness forecast invariant
+        run: python scripts/run_research_step.py --name readiness_forecast -- python scripts/v616_readiness_forecast.py
       - name: Monthly evidence audit invariant
         run: python scripts/run_research_step.py --name monthly_evidence_audit -- python scripts/v615_monthly_evidence_audit.py
       - name: Append-only research history guard
@@ -96,6 +100,7 @@ jobs:
           python tests/test_v6158d_legacy_bypass.py
           python tests/test_v6158d_append_only.py
           python tests/test_v6158d_extractor_provenance.py
+          python tests/test_v6158g_family_feasibility.py
       - name: Final compute allowlist
         run: python scripts/research_boundary_guard.py --assert-worktree-research-only
       - name: Package research artifacts

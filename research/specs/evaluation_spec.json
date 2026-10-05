@@ -1,9 +1,9 @@
 {
-  "spec_version": "1.3",
-  "previous_spec_version": "1.2",
+  "spec_version": "1.4",
+  "previous_spec_version": "1.3",
   "status": "provisional_frozen",
-  "frozen_at": "2026-10-04",
-  "change_reason": "Replace fixed calendar horizon buckets with overlap-connected realized evaluation intervals so no two independent time clusters can share any evaluation dates.",
+  "frozen_at": "2026-10-05",
+  "change_reason": "Bind Rule Family definition 1.2 so planned buy + planned sell structures are classified as mixed_direction before any real mature evidence exists. Statistical thresholds and dependence/multiplicity definitions are unchanged.",
   "definitions": {
     "direction_adjusted_return": "direction_sign * raw_return",
     "primary_metric": "unconditional_lift_vs_same_symbol_same_horizon",
@@ -17,8 +17,8 @@
     "hit_rate_role": "auxiliary_only_with_confidence_interval",
     "promotion_unit": "rule_family",
     "rule_instance_role": "immutable_provenance_atom_only",
-    "rule_family_definition_version": "1.1",
-    "rule_family_definition_hash": "9dfcae0df0481ffd2d09c464abc07df241ddc9cce7eecd63565da418c2d92a96",
+    "rule_family_definition_version": "1.2",
+    "rule_family_definition_hash": "5a364430d2159220b60d3494a7a3c61ffe5b3d99b0bec8d13ea2859829e1cae1",
     "entry_semantics_registry_version": "1.0",
     "primary_exclusion_precedence": [
       "non_point_in_time_source",
@@ -84,8 +84,8 @@
     "spec_lock_must_be_updated_by_reviewed_pr": true
   },
   "promotion_activation": {
-    "state": "shadow_until_statistical_controls_revalidated_under_spec_1_3",
-    "reason": "Dependence clustering changed in v1.3 from fixed calendar buckets to overlap-connected realized windows; controls must pass under the new frozen definition before any activation."
+    "state": "shadow_until_statistical_controls_revalidated_under_spec_1_4",
+    "reason": "Family identity changed structurally in v1.2 to represent mixed-direction rules explicitly; controls and family feasibility diagnostics must be regenerated under the new frozen definition."
   },
   "guardrails": {
     "research_only": true,

@@ -1,5 +1,5 @@
 {
-  "definition_version": "1.1",
+  "definition_version": "1.2",
   "normalizer_version": "v615_rule_registry.normalize_rule@6.15.1",
   "extractor_version": "source_reading_memory@6.14.6",
   "immutable_dimensions": [
@@ -96,11 +96,29 @@
     "definition_change_creates_new_family_version": true,
     "never_reassign_old_membership_in_place": true
   },
-  "definition_hash": "9dfcae0df0481ffd2d09c464abc07df241ddc9cce7eecd63565da418c2d92a96",
+  "definition_hash": "5a364430d2159220b60d3494a7a3c61ffe5b3d99b0bec8d13ea2859829e1cae1",
   "guardrails": [
     "Family membership is determined only by frozen structural features.",
     "Normalizer and extractor versions are part of the frozen definition identity.",
+    "Planned buy and planned sell actions are directional opposites; a rule containing both is mixed_direction, never forced bullish or bearish.",
     "Author identity, publication time, realized outcomes and scorecard results are excluded from family assignment.",
     "Changing this definition requires a new definition_version and a new evaluation spec version."
-  ]
+  ],
+  "direction_rules": {
+    "bullish_actions": [
+      "buy",
+      "add",
+      "planned_buy"
+    ],
+    "bearish_actions": [
+      "sell",
+      "planned_sell",
+      "clear",
+      "trim",
+      "trim_half",
+      "reduce"
+    ],
+    "mixed_when_both_sides": true,
+    "mixed_direction_label": "mixed_direction"
+  }
 }

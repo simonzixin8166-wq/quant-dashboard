@@ -77,7 +77,8 @@ function evidenceLayerView(){
    <article><span>20日成熟证据</span><b>${mature.event_count_20d??0}</b><small>有效单元 ${mature.effective_units_20d??0}</small></article>
    <article><span>60日成熟证据</span><b>${mature.event_count_60d??0}</b><small>有效单元 ${mature.effective_units_60d??0}</small></article>
  </div>
- <p class="wxc-meta">Evaluation Spec ${esc(evidenceStatus?.evaluation_spec_version||'—')} · Scoring Engine ${esc(evidenceStatus?.scoring_engine_version||'—')} · Promotion passed ${esc(evidenceStatus?.promotion?.families_passed??0)}。Forward 候选未成熟前不代表方法有效。</p></div>`;
+ <p class="wxc-meta">Evaluation Spec ${esc(evidenceStatus?.evaluation_spec_version||'—')} · Scoring Engine ${esc(evidenceStatus?.scoring_engine_version||'—')} · Promotion passed ${esc(evidenceStatus?.promotion?.families_passed??0)}。Forward 候选未成熟前不代表方法有效。</p>
+ <p class="wxc-meta"><b>Forward Intake：</b>${esc(evidenceStatus?.forward_intake_health?.status||'unknown')} · 完整性 ${evidenceStatus?.forward_intake_health?.integrity_pass?'PASS':'等待/异常待核验'}。当前没有真实 forward rule 时，“waiting_for_first_genuine_forward_rule”属于正常等待。</p></div>`;
 }
 function validationView(){const d=sourceOutcome||{};const n=d.counts||{};const rows=(d.events||[]).filter(x=>x.attribution!=='third_party_example');return evidenceLayerView()+`<div class="wxc-box"><h2>历史观察归档 · 旧 Outcome 5 / 20 / 60 日跟踪</h2><p>这里保留作者本人操作/预案与历史行情的描述性复盘，只回答“后来发生了什么”。这些旧 Outcome <b>不是</b> Spec 1.5 的正式研究样本，也不参与 Promotion。</p><p><b>${n.events||0}</b> 条当前旧 Outcome 记录 · <b>${n.triggered_author_owned||0}</b> 条本人操作/预案已触发 · <b>${n.untriggered_plans||0}</b> 条分档计划尚未触发 · 覆盖 <b>${n.symbols||0}</b> 个标的。</p><p class="wxc-warning">旧 Method Memory / Outcome 仅用于历史观察、反例和方法线索；正式证据状态以上方 Spec 1.5 分层为准。</p></div><div class="wxc-grid">${rows.slice(0,100).map(outcomeCard).join('')||'<p>等待历史观察归档构建。</p>'}</div>`}
 

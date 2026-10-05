@@ -31,9 +31,9 @@ assert "permissions:\n      contents: write" in workflow
 assert "actions/upload-artifact@v4" in workflow
 assert "actions/download-artifact@v4" in workflow
 for step in [
- "rule_registry","rule_family","source_store","event_score","observational_events","stooq_coverage","method_attribution",
+ "rule_registry","rule_family","source_store","family_feasibility","event_score","observational_events","stooq_coverage","method_attribution",
  "event_history","rule_scorecard","family_scorecard","contradiction_memory","promotion_gate",
- "statistical_controls","spec_coexistence","component_manifest","v616_readiness","monthly_evidence_audit"
+ "statistical_controls","spec_coexistence","component_manifest","v616_readiness","readiness_forecast","monthly_evidence_audit"
 ]:
     assert f"--name {step}" in workflow
 print("PASS V6.15.8a per-step production invariant / split workflow permissions")

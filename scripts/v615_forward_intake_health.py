@@ -35,7 +35,7 @@ def build(store,rules,families,events,spec,now=None):
         if sid:
             source_meta[sid]=row
 
-    active_rules=[r for r in rules.get("rules") or [] if r.get("active",True)]
+    active_rules=[r for r in rules.get("rules") or [] if r.get("active",True) and r.get("forward_eligible") is not False]
     pit_cfg=((spec.get("definitions") or {}).get("point_in_time_eligibility") or {})
     admission_cfg=pit_cfg.get("source_admission") or {}
     required_class=admission_cfg.get("genuine_forward_required_class","genuine_forward")

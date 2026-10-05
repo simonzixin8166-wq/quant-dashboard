@@ -93,3 +93,19 @@ assert fm["f1"]["symbols"]==["SMH"], fm["f1"]["symbols"]
 assert fm["f2"]["symbols"]==[], fm["f2"]["symbols"]
 assert fm["f3"]["symbols"]==["NOW"], fm["f3"]["symbols"]
 print("PASS V5.9.1 upstream symbol sanitization")
+
+
+# Preserve YouTube collection provenance/role through Source Intelligence normalization.
+yt=si.build([{
+ "id":"yt1","source":"youtube","source_kind":"video","author":"RhinoFinance / 视野环球财经",
+ "published_at":"2026-10-05","title":"QQQ / TSLA update","url":"https://www.youtube.com/watch?v=abc",
+ "excerpt":"","source_role":"rule_supply","transcript_status":"unavailable:RequestBlocked",
+ "captured_at":"2026-10-05T09:00:00Z"
+}])
+yr=yt["records"][0]
+assert yr["source"]=="youtube"
+assert yr["source_kind"]=="video"
+assert yr["source_role"]=="rule_supply"
+assert yr["transcript_status"]=="unavailable:RequestBlocked"
+assert yr["captured_at"]=="2026-10-05T09:00:00Z"
+print("PASS YouTube source provenance preservation")

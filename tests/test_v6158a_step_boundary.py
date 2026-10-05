@@ -31,7 +31,7 @@ assert "permissions:\n      contents: write" in workflow
 assert "actions/upload-artifact@v4" in workflow
 assert "actions/download-artifact@v4" in workflow
 for step in [
- "rule_registry","rule_family","source_store","family_feasibility","event_score","observational_events","stooq_coverage","method_attribution",
+ "source_store","rule_registry","source_rule_funnel","rule_family","family_feasibility","event_score","observational_events","stooq_coverage","method_attribution",
  "event_history","rule_scorecard","family_scorecard","contradiction_memory","promotion_gate",
  "statistical_controls","spec_coexistence","component_manifest","v616_readiness","readiness_forecast","monthly_evidence_audit"
 ]:
@@ -49,3 +49,14 @@ try:
     assert "scripts/__pycache__/_boundary_test_temp.pyc" not in rels
 finally:
     tmp_cache.unlink(missing_ok=True)
+
+
+# Funnel is explicitly diagnostic/non-gating and runs after fresh Source Store + Rule Registry.
+store_pos=workflow.index("--name source_store")
+registry_pos=workflow.index("--name rule_registry")
+funnel_pos=workflow.index("--name source_rule_funnel")
+family_pos=workflow.index("--name rule_family")
+assert store_pos < registry_pos < funnel_pos < family_pos
+funnel_step=workflow[workflow.index("- name: Source to Rule funnel diagnostic"):family_pos]
+assert "continue-on-error: true" in funnel_step
+print("PASS source funnel workflow ordering / non-gating contract")

@@ -2,12 +2,12 @@ import fs from 'fs';
 import { chromium } from 'playwright';
 const base=(process.env.BASE_URL||'https://myalphaview.com').replace(/\/$/,'');
 const out=process.env.QA_OUT||'qa-artifacts';fs.mkdirSync(out,{recursive:true});
-const report={checked_at:new Date().toISOString(),base_url:base,public:{},private:{status:'SKIPPED'},interaction:{status:'SKIPPED',tabs:[],controls:[]},console_errors:[]};
+const report={checked_at:new Date().toISOString(),base_url:base,public:{},private:{status:'SKIPPED'},interaction:{status:'SKIPPED',tabs:[],controls:[]},console_errors:[],http_errors:[]};
 const browser=await chromium.launch({headless:true});
 async function publicRun(viewport,name){
   const page=await browser.newPage({viewportSize:viewport});
   page.on('console',m=>{if(m.type()==='error')report.console_errors.push(String(m.text()).slice(0,300))});
-  page.on('pageerror',e=>report.console_errors.push(String(e.message).slice(0,300)));
+  page.on('pageerror',e=>report.console_errors.push(String(e.message).slice(0,300)));\n  page.on('response',r=>{if(r.status()>=400)report.http_errors.push({status:r.status(),url:r.url().slice(0,500)})});
   await page.goto(base+'/?qa='+Date.now(),{waitUntil:'networkidle',timeout:90000});
   await page.waitForTimeout(3500);
   const v=await page.locator('meta[name="application-version"]').getAttribute('content');
@@ -77,4 +77,4 @@ if(pm&&session){
 }
 await page.close();}catch(e){report.private={status:'WARNING',error:String(e.message).slice(0,250)}}}
 await browser.close();
-report.overall=(Object.values(report.public).every(x=>Boolean(x.version)&&x.version===x.body_version&&x.assistant&&x.journal&&x.historical_learning&&x.autonomous_agent&&!x.negative_zero)&&report.private.status!=='FAIL'&&report.interaction.status==='PASS'&&report.console_errors.length===0)?'PASS':'FAIL';fs.writeFileSync(`${out}/report.json`,JSON.stringify(report,null,2));console.log(JSON.stringify(report,null,2));if(report.overall!=='PASS')process.exit(1);
+report.http_errors=[...new Map(report.http_errors.map(x=>[x.status+'|'+x.url,x])).values()];\nreport.overall=(Object.values(report.public).every(x=>Boolean(x.version)&&x.version===x.body_version&&x.assistant&&x.journal&&x.historical_learning&&x.autonomous_agent&&!x.negative_zero)&&report.private.status!=='FAIL'&&report.interaction.status==='PASS'&&report.console_errors.length===0)?'PASS':'FAIL';fs.writeFileSync(`${out}/report.json`,JSON.stringify(report,null,2));console.log(JSON.stringify(report,null,2));if(report.overall!=='PASS')process.exit(1);

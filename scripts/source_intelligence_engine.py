@@ -22,6 +22,10 @@ FEED_URL = os.getenv(
     "WXC_RESEARCH_FEED_URL",
     "https://raw.githubusercontent.com/simonzixin8166-wq/wxc-bot/main/state/research_feed.json",
 )
+YOUTUBE_ARCHIVE_URL = os.getenv(
+    "YOUTUBE_LEARNING_ARCHIVE_URL",
+    "https://raw.githubusercontent.com/simonzixin8166-wq/wxc-bot/main/state/youtube_learning_archive.json",
+)
 
 SYMBOLS = {
     "INTC","IREN","TSLA","QQQ","QQQM","VGT","QLD","TQQQ","NVDA","MU","AMZN",
@@ -75,6 +79,16 @@ def fetch_feed():
     except Exception as e:
         print("source feed unavailable:", e)
         return {"records":[]}
+
+def fetch_youtube_learning_archive():
+    try:
+        req = urllib.request.Request(YOUTUBE_ARCHIVE_URL, headers={"User-Agent":"MyAlphaView/SourceIntelligence"})
+        with urllib.request.urlopen(req, timeout=15) as r:
+            data = json.loads(r.read().decode("utf-8"))
+        return data if isinstance(data, dict) else {}
+    except Exception as e:
+        print("youtube learning archive unavailable:", e)
+        return {}
 
 def symbols(text: str):
     raw = text or ""
@@ -292,7 +306,7 @@ def collect_full_records_with_accounting():
 def collect_full_records():
     return collect_full_records_with_accounting()[0]
 
-def build(records):
+def build(records, youtube_historical_learning=None):
     rows = normalize_records(records)
 
     by_topic = defaultdict(list)
@@ -421,6 +435,14 @@ def build(records):
             for r in rows if r["lessons"]
         ][:80],
         "research_alerts": sorted(alerts, key=lambda x: -x["priority"])[:24],
+        "youtube_historical_learning": youtube_historical_learning or {
+            "version":1,
+            "mode":"historical_observational_learning_only",
+            "non_gating":True,
+            "result_blind":True,
+            "records":[],
+            "counts":{"records":0,"q1_q2_learning_eligible":0,"q5_metadata_only":0},
+        },
         "records": rows[:800],
         "guardrails": [
             "每条外部内容保留作者、日期、原文链接和来源类型。",
@@ -434,7 +456,7 @@ def build(records):
 def main():
     feed = fetch_feed()
     records = seed_brightline() + list(feed.get("records") or [])
-    result = build(records)
+    result = build(records, youtube_historical_learning=fetch_youtube_learning_archive())
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
     print(json.dumps(result["counts"], ensure_ascii=False))

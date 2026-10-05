@@ -61,3 +61,11 @@ assert "source_rule_funnel" in builder
 assert "maturity_clock" in builder
 assert "result_blind" in builder
 print("PASS Source->Rule funnel public observability UI contract")
+
+
+# Historical YouTube learning is visible but explicitly non-gating.
+assert "YouTube 历史学习记忆" in js
+assert "Q1/Q2 可学习" in js
+assert "不把旧视频洗成今天的 Forward Evidence" in js
+assert "Forward / EventScore / Promotion 均不参与" in js
+print("PASS YouTube historical learning UI isolation")

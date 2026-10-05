@@ -2,7 +2,7 @@ import sys
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/"scripts"))
-from v615_persistent_source_store import migrate_sources,append_event_history,select_current_event_records,canonical_url,secondary_identity_fingerprint
+from v615_persistent_source_store import migrate_sources,append_event_history,select_current_event_records,canonical_url,secondary_identity_fingerprint,normalize_text
 
 visible=[
  {"id":"s1","source":"wenxuecity","source_kind":"blog","published_at":"2020-01-01","title":"t1","url":"u1","operations":[]},
@@ -129,3 +129,44 @@ al=[x for x in again_late["records"] if x["source_key"]=="oldpub"][0]
 assert al["admission_class"]=="late_discovery"
 assert al["admission_classified_at"]==lr["admission_classified_at"]
 print("PASS Spec 1.7 canonical identity / rekey / ambiguity / late-discovery admission")
+
+
+# Hotfix: whitespace normalization must collapse all whitespace, including newlines.
+assert normalize_text("  Hello   World \n x ")=="hello world x"
+
+# A historical article re-keyed with only whitespace changes in title must inherit prior provenance.
+ws_old={"id":"ws-old","source":"feed","source_kind":"post","author":"Alpha","published_at":"2026-10-05","title":"Hello   World\nX","url":"https://old.example/ws","operations":[]}
+ws_seed=migrate_sources({"counts":{"records":1},"records":[ws_old]},now="2026-10-05T01:00:00+00:00",full_records=[ws_old])
+# Simulate persisted pre-hotfix fingerprint corruption: the row stores an incompatible fingerprint.
+ws_seed["records"][0]["secondary_identity_fingerprint"]="pre-hotfix-buggy-fingerprint"
+ws_new=dict(ws_old);ws_new["id"]="ws-new";ws_new["url"]="https://new.example/ws";ws_new["title"]="Hello World X"
+ws_rekey=migrate_sources({"counts":{"records":1},"records":[ws_new]},ws_seed,now="2026-10-05T02:00:00+00:00",full_records=[ws_new])
+ws_row=[x for x in ws_rekey["records"] if x["source_key"]=="ws-new"][0]
+assert ws_row["admission_class"]=="rekeyed_duplicate"
+assert ws_row["identity_parent_source_key"]=="ws-old"
+assert ws_row["first_fetched_at"]=="2026-10-05T01:00:00+00:00"
+assert ws_row["ingest_type"]=="initial_migration"
+
+# Rekey from a backfill parent stays non-forward and inherits the parent's first observation.
+backfill_parent={"id":"bf-old","source":"feed","source_kind":"post","author":"Beta","published_at":"2026-09-01","title":"Backfill Parent","url":"https://old.example/bf","operations":[]}
+bf_prior=migrate_sources(
+ {"counts":{"records":1},"records":[]},
+ ws_seed,
+ now="2026-10-05T03:00:00+00:00",
+ full_records=[backfill_parent]
+)
+bf_old=[x for x in bf_prior["records"] if x["source_key"]=="bf-old"][0]
+assert bf_old["admission_class"]=="backfill"
+assert bf_old["ingest_type"]=="backfill_ingest"
+backfill_new=dict(backfill_parent);backfill_new["id"]="bf-new";backfill_new["url"]="https://new.example/bf"
+bf_rekey=migrate_sources(
+ {"counts":{"records":1},"records":[backfill_new]},
+ bf_prior,
+ now="2026-10-05T04:00:00+00:00",
+ full_records=[backfill_new]
+)
+bf_new=[x for x in bf_rekey["records"] if x["source_key"]=="bf-new"][0]
+assert bf_new["admission_class"]=="rekeyed_duplicate"
+assert bf_new["ingest_type"]=="backfill_ingest"
+assert bf_new["first_fetched_at"]==bf_old["first_fetched_at"]
+print("PASS V6.15.8m whitespace normalization / persisted fingerprint recompute / backfill-parent rekey")

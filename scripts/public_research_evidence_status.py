@@ -15,6 +15,7 @@ COEX=ROOT/"research"/"audit"/"eventscore_spec_coexistence.json"
 READINESS=ROOT/"research"/"reports"/"v616_readiness_gate.json"
 FAMILY=ROOT/"research"/"reports"/"family_feasibility.json"
 PROMOTION=ROOT/"research"/"reports"/"promotion_gate.json"
+FORWARD_HEALTH=ROOT/"research"/"reports"/"forward_intake_health.json"
 OUT=ROOT/"docs"/"research"/"evidence_status.json"
 VERSION="1.0"
 
@@ -24,7 +25,7 @@ def load(path, default):
     except Exception:
         return default
 
-def build(events, coexistence, readiness, family, promotion):
+def build(events, coexistence, readiness, family, promotion, forward_health):
     rows=events.get("events") or []
     forward=[e for e in rows if e.get("point_in_time_status")=="eligible"]
     scoreable=[e for e in forward if e.get("scoreable")]
@@ -67,6 +68,13 @@ def build(events, coexistence, readiness, family, promotion):
             "families_reviewable":int(promo_counts.get("statistical_criteria_passed") or 0),
             "production_effect":"none"
         },
+        "forward_intake_health":{
+            "status":forward_health.get("status") or "unknown",
+            "integrity_pass":bool(forward_health.get("integrity_pass")),
+            "forward_path_observed":bool(forward_health.get("forward_path_observed")),
+            "first_scoreable_forward_observed":bool(forward_health.get("first_scoreable_forward_observed")),
+            "blockers":forward_health.get("blockers") or []
+        },
         "readiness":{
             "ready_for_v616":bool(readiness.get("ready_for_v616")),
             "blockers":readiness.get("blockers") or []
@@ -85,7 +93,8 @@ def main():
         load(COEX,{}),
         load(READINESS,{}),
         load(FAMILY,{}),
-        load(PROMOTION,{})
+        load(PROMOTION,{}),
+        load(FORWARD_HEALTH,{})
     )
     OUT.parent.mkdir(parents=True,exist_ok=True)
     OUT.write_text(json.dumps(out,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")

@@ -18,6 +18,7 @@ PATHS={
  "boundary":ROOT/"research/audit/step_boundary_log.json",
  "cache":ROOT/"research/audit/v615_cache_only_stooq_coverage.json",
  "components":ROOT/"research/component_manifest.json",
+ "forward_intake":ROOT/"research/reports/forward_intake_health.json",
 }
 OUT=ROOT/"research"/"reports"/"monthly_evidence_audit.json"
 HIST=ROOT/"research"/"reports"/"monthly"
@@ -31,7 +32,7 @@ def build(data,now=None):
     now=now or datetime.now(timezone.utc)
     source=data["source"];events=data["events"];families=data["families"]
     score=data["scorecards"];promotion=data["promotion"];controls=data["controls"]
-    readiness=data["readiness"];boundary=data["boundary"];cache=data["cache"];components=data["components"]
+    readiness=data["readiness"];boundary=data["boundary"];cache=data["cache"];components=data["components"];forward=data["forward_intake"]
     exclusions=(events.get("counts") or {}).get("primary_exclusion") or {}
     boundary_failures=[r for r in boundary.get("records") or [] if r.get("production_boundary_unchanged") is False or r.get("research_only_worktree") is False or r.get("evidence_lock_unchanged") is False]
     accounting=source.get("source_accounting") or {}
@@ -49,6 +50,7 @@ def build(data,now=None):
         "boundary_no_failures":len(boundary_failures)==0,
         "statistical_controls_pass":bool(controls.get("all_pass")),
         "component_manifest_complete":(components.get("counts") or {}).get("missing_code_hashes",1)==0 and (components.get("counts") or {}).get("missing_required_artifact_hashes",1)==0,
+        "forward_intake_integrity":bool(forward.get("integrity_pass",False)),
     }
     return {
         "version":VERSION,
@@ -79,6 +81,13 @@ def build(data,now=None):
             "promotion_passed":(promotion.get("counts") or {}).get("passed"),
         },
         "cache_coverage":cache.get("counts") or {},
+        "forward_intake":{
+            "status":forward.get("status"),
+            "forward_path_observed":forward.get("forward_path_observed"),
+            "first_scoreable_forward_observed":forward.get("first_scoreable_forward_observed"),
+            "counts":forward.get("counts") or {},
+            "blockers":forward.get("blockers") or [],
+        },
         "readiness":{
             "ready_for_v616":readiness.get("ready_for_v616"),
             "blockers":readiness.get("blockers") or [],

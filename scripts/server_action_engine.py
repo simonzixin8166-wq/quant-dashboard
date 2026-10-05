@@ -7,7 +7,7 @@ risk/event rules, optionally delivers a concise alert, and writes only a
 sanitized public health summary (never symbols/accounts/position details).
 """
 from __future__ import annotations
-import json,os,urllib.request,urllib.parse
+import json,os,urllib.request,urllib.parse,hashlib
 from datetime import datetime,timezone,timedelta
 from pathlib import Path
 
@@ -121,8 +121,23 @@ def build():
     status="cannot_judge" if cannot else ("action_required" if any(a["level"] in {"l2","l3"} for a in actions) else "clear")
     return {"status":status,"trust":trust,"positions_checked":len(open_rows),"event_count_48h":len(events),"actions":actions,"quote_failures":quote_failures}
 
-def notify(result):
+def fingerprint(result):
+    material={
+      "status":result.get("status"),
+      "trust":result.get("trust"),
+      "events":result.get("event_count_48h"),
+      "actions":[
+        {k:a.get(k) for k in ("level","symbol","expiry","reason","dte")}
+        for a in result.get("actions") or []
+      ],
+    }
+    return hashlib.sha256(json.dumps(material,sort_keys=True,ensure_ascii=False).encode()).hexdigest()[:20]
+
+def notify(result, previous=None):
     if result["status"]=="clear":return "not_needed"
+    fp=fingerprint(result)
+    if previous and previous.get("alert_fingerprint")==fp:
+        return "suppressed_duplicate"
     token=os.getenv("MYALPHA_TG_BOT_TOKEN");chat=os.getenv("MYALPHA_TG_CHAT_ID")
     if not token or not chat:return "not_configured"
     if result["status"]=="cannot_judge":
@@ -138,7 +153,10 @@ def notify(result):
     return "sent"
 
 def main():
-    result=build();delivery=notify(result)
+    result=build()
+    previous=load(PUBLIC_OUT)
+    fp=fingerprint(result)
+    delivery=notify(result,previous)
     public={
       "version":"6.15-p012",
       "generated_at":datetime.now(timezone.utc).isoformat(),
@@ -153,9 +171,12 @@ def main():
       "quote_failures":result.get("quote_failures",0),
       "data_trust":result["trust"],
       "delivery":delivery,
+      "alert_fingerprint":fp,
       "privacy":"sanitized public summary only; symbols/accounts/private position details are never written here",
     }
     PUBLIC_OUT.parent.mkdir(parents=True,exist_ok=True)
+    if previous and previous.get("alert_fingerprint")==fp and previous.get("status")==public.get("status") and previous.get("action_counts")==public.get("action_counts") and previous.get("data_trust")==public.get("data_trust"):
+        public=previous
     PUBLIC_OUT.write_text(json.dumps(public,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
     print(json.dumps(public,ensure_ascii=False))
     return 0 if result["status"]!="cannot_judge" else 0

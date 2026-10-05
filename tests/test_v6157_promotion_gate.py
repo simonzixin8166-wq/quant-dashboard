@@ -12,7 +12,9 @@ spec={
    "independent_authors_min":3,
    "independent_time_clusters_min":6,
    "mature_60_effective_samples_min":20,
-   "lift_ci95_lower_bound_gt":0
+   "lift_ci95_lower_bound_gt":0,
+   "mae_noninferiority_ci95_lower_bound_gte":0.0,
+   "max_single_symbol_effective_unit_share":0.40
  }
 }
 registry={"rules":[
@@ -42,7 +44,9 @@ good={"cards":[{
    "lift_ci95":{"lower":0.01},
    "fdr":{"reject":True},
    "direction_adjusted_mae_mean":-0.05,
-   "benchmark_direction_adjusted_mae_mean":-0.06
+   "benchmark_direction_adjusted_mae_mean":-0.06,
+   "mae_noninferiority_ci95":{"lower":0.001,"upper":0.02},
+   "single_symbol_effective_unit_share_max":0.35
  }}
 }]}
 out=build(good,{"records":[]},registry,families,events,spec)
@@ -62,7 +66,8 @@ bad={"cards":[{
  "member_rule_ids":["r1"],"independent_authors":1,
  "horizons":{"60":{
    "effective_n":0,"independent_time_clusters":0,"independent_authors":1,"lift_ci95":{"lower":None},
-   "fdr":None,"direction_adjusted_mae_mean":None,"benchmark_direction_adjusted_mae_mean":None
+   "fdr":None,"direction_adjusted_mae_mean":None,"benchmark_direction_adjusted_mae_mean":None,
+   "mae_noninferiority_ci95":{"lower":None,"upper":None},"single_symbol_effective_unit_share_max":None
  }}
 }]}
 out3=build(bad,{"records":[]},registry,families,events,active)

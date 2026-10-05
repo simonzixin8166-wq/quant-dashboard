@@ -1,5 +1,5 @@
 {
-  "definition_version": "1.2",
+  "definition_version": "1.3",
   "normalizer_version": "v615_rule_registry.normalize_rule@6.15.1",
   "extractor_version": "source_reading_memory@6.14.6",
   "immutable_dimensions": [
@@ -96,11 +96,12 @@
     "definition_change_creates_new_family_version": true,
     "never_reassign_old_membership_in_place": true
   },
-  "definition_hash": "5a364430d2159220b60d3494a7a3c61ffe5b3d99b0bec8d13ea2859829e1cae1",
+  "definition_hash": "ef707b032382d86715375985c81103dc9274eaece0a9629441a6c8fa230e7e29",
   "guardrails": [
     "Family membership is determined only by frozen structural features.",
     "Normalizer and extractor versions are part of the frozen definition identity.",
     "Planned buy and planned sell actions are directional opposites; a rule containing both is mixed_direction, never forced bullish or bearish.",
+    "Option-context actions/fields that are not covered by an explicitly supported option method fail closed to unknown direction; a generic sell must not turn a covered-call-like structure into a bearish stock-exit family.",
     "Author identity, publication time, realized outcomes and scorecard results are excluded from family assignment.",
     "Changing this definition requires a new definition_version and a new evaluation spec version."
   ],
@@ -119,6 +120,31 @@
       "reduce"
     ],
     "mixed_when_both_sides": true,
-    "mixed_direction_label": "mixed_direction"
+    "mixed_direction_label": "mixed_direction",
+    "option_context_action_tokens": [
+      "sell_call",
+      "covered_call",
+      "buy_call",
+      "buy_put",
+      "protective_put",
+      "cash_secured_put",
+      "sell_put",
+      "short_call",
+      "short_put",
+      "long_call",
+      "long_put"
+    ],
+    "option_context_field_tokens": [
+      "call",
+      "put",
+      "strike",
+      "expiry",
+      "expiration",
+      "premium",
+      "delta",
+      "iv",
+      "dte"
+    ],
+    "unsupported_option_context_policy": "unknown_fail_closed_unless_primary_method_has_explicit_option_mapping"
   }
 }

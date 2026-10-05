@@ -6,7 +6,9 @@ sys.path.insert(0,str(ROOT/"scripts"))
 from v615_monthly_evidence_audit import build
 
 data={
- "source":{"source_window_reported_total":3,"visible_window_size":2,"full_ingest_size":3,"source_accounting":{"current_upstream_records":3,"retained_historical_records":0},"records":[1,2,3]},
+ "source":{"source_window_reported_total":3,"legacy_reported_total":3,"visible_window_size":2,"full_ingest_size":3,
+           "upstream_reconciliation":{"upstream_raw_records":4,"eligible_raw_records":4,"normalized_unique_records":3,"duplicates_removed":1,"excluded_missing_identity":0,"reconciliation_ok":True},
+           "source_accounting":{"current_upstream_records":3,"current_ingested_unique_records":3,"retained_historical_records":0,"current_ingest_complete":True},"records":[1,2,3]},
  "events":{"counts":{"events":2,"scoreable":1,"conservation_ok":True,"primary_exclusion":{"missing_rule_id":1}},
            "events":[{"event_id":"e1","scoreable":True},{"event_id":"e2","scoreable":False,"primary_exclusion_reason":"missing_rule_id"}]},
  "families":{"counts":{"active_families":1}},
@@ -37,7 +39,9 @@ assert out2["checks"]["event_conservation"] is False
 assert out2["checks"]["no_reasonless_rejections"] is False
 
 bad_source=dict(data)
-bad_source["source"]={"source_window_reported_total":3,"visible_window_size":2,"full_ingest_size":2,"source_accounting":{"current_upstream_records":2,"retained_historical_records":8},"records":[1,2,3,4,5,6,7,8,9,10]}
+bad_source["source"]={"source_window_reported_total":3,"legacy_reported_total":3,"visible_window_size":2,"full_ingest_size":2,
+"upstream_reconciliation":{"upstream_raw_records":3,"eligible_raw_records":3,"normalized_unique_records":3,"duplicates_removed":0,"excluded_missing_identity":0,"reconciliation_ok":True},
+"source_accounting":{"current_upstream_records":3,"current_ingested_unique_records":2,"retained_historical_records":8,"current_ingest_complete":False},"records":[1,2,3,4,5,6,7,8,9,10]}
 out3=build(bad_source,datetime(2026,10,4,tzinfo=timezone.utc))
 assert out3["all_integrity_checks_pass"] is False
 assert out3["checks"]["source_store_full_coverage"] is False

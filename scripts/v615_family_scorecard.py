@@ -11,7 +11,7 @@ EVENTS=ROOT/"research"/"events"/"event_scores_v1.json"
 FAMILIES=ROOT/"research"/"registry"/"rule_families.json"
 SPEC=ROOT/"research"/"specs"/"evaluation_spec.json"
 OUT=ROOT/"research"/"reports"/"family_scorecards.json"
-VERSION="6.15.8e"
+VERSION="6.15.8i"
 
 sys.path.insert(0,str(ROOT/"scripts"))
 from evaluation_spec import block_bootstrap_ci,block_signflip_pvalue,benjamini_hochberg
@@ -25,7 +25,28 @@ def mean(vals):
     vals=[float(x) for x in vals if x is not None]
     return sum(vals)/len(vals) if vals else None
 
-def _unit_rows(rows,h,cluster_map):
+def _instrument_class(symbol,family_key):
+    if (family_key or {}).get("instrument_type")=="option_structure":
+        return "option_structure"
+    sym=str(symbol or "").upper()
+    if sym in {"QLD","TQQQ"}:return "leveraged_etf"
+    if sym in {"QQQ","QQQM","VGT","SPY","VOO","SMH","RSP","IBIT"}:return "etf"
+    if not sym or sym=="UNKNOWN":return "unknown"
+    return "equity"
+
+def _dedupe_current_events(events,spec_version):
+    """One current effective event per event_id for the active spec."""
+    chosen={}
+    for e in events.get("events") or []:
+        row_spec=e.get("spec_version")
+        if row_spec is not None and str(row_spec)!=str(spec_version):
+            continue
+        eid=str(e.get("event_id") or "")
+        if not eid:continue
+        chosen[eid]=e
+    return [chosen[k] for k in sorted(chosen)]
+
+def _unit_rows(rows,h,cluster_map,family_key=None):
     """Collapse author duplicates into one symbol x overlap-connected time cluster unit."""
     grouped=defaultdict(list)
     for e in rows:
@@ -49,11 +70,18 @@ def _unit_rows(rows,h,cluster_map):
             "return":mean([x.get("direction_adjusted_return") for x in scores]),
             "mae":mean([x.get("direction_adjusted_mae") for x in scores]),
             "benchmark_mae":mean([x.get("unconditional_baseline_direction_adjusted_mae") for x in scores]),
+            "mae_diff":mean([
+                (x.get("direction_adjusted_mae")-x.get("unconditional_baseline_direction_adjusted_mae"))
+                for x in scores
+                if x.get("direction_adjusted_mae") is not None and x.get("unconditional_baseline_direction_adjusted_mae") is not None
+            ]),
             "excess_vs_qqq":mean([x.get("excess_vs_qqq") for x in scores]),
+            "instrument_class":_instrument_class(symbol,family_key),
         })
     return units
 
 def build(events,families,spec):
+    events={"events":_dedupe_current_events(events,spec.get("spec_version"))}
     current_hash=(spec.get("definitions") or {}).get("rule_family_definition_hash")
     rule_to_family={}
     family_keys={}
@@ -89,17 +117,31 @@ def build(events,families,spec):
             cluster_map,cluster_meta=overlap_connected_clusters(scoreable,h,require_lift=True)
             if not assert_non_overlapping(cluster_meta):
                 raise AssertionError(f"overlap-connected clusters are not independent for {fid}|{h}")
-            units=_unit_rows(scoreable,h,cluster_map)
+            units=_unit_rows(scoreable,h,cluster_map,family_keys.get(fid) or {})
             blocks=defaultdict(list)
             for u in units:
                 if u.get("lift") is not None:
                     blocks[u["cluster"]].append(u["lift"])
             block_values=[vals for _,vals in sorted(blocks.items())]
             block_means=[mean(vals) for vals in block_values]
+            mae_blocks=defaultdict(list)
+            for u in units:
+                if u.get("mae_diff") is not None:
+                    mae_blocks[u["cluster"]].append(u["mae_diff"])
+            mae_block_values=[vals for _,vals in sorted(mae_blocks.items())]
+            symbol_counts=defaultdict(int)
+            instrument_counts=defaultdict(int)
+            for u in units:
+                symbol_counts[u["symbol"]]+=1
+                instrument_counts[u.get("instrument_class") or "unknown"]+=1
+            max_symbol_share=(max(symbol_counts.values())/len(units)) if units and symbol_counts else None
             testable=len(block_values)>=min_clusters
             derived_seed=seed+int(hashlib.sha256(f"{fid}|{h}".encode()).hexdigest()[:8],16)%100000
             ci=block_bootstrap_ci(block_values,resamples,derived_seed) if testable else {
                 "blocks":len(block_values),"n":len(units),"mean":mean([u.get("lift") for u in units]),"lower":None,"upper":None
+            }
+            mae_ci=block_bootstrap_ci(mae_block_values,resamples,derived_seed+17) if len(mae_block_values)>=min_clusters else {
+                "blocks":len(mae_block_values),"n":sum(len(x) for x in mae_block_values),"mean":mean([u.get("mae_diff") for u in units]),"lower":None,"upper":None
             }
             p=block_signflip_pvalue(block_means,resamples,derived_seed) if testable else None
             key=f"{fid}|{h}"
@@ -117,6 +159,11 @@ def build(events,families,spec):
                 "excess_vs_qqq_mean":mean([u.get("excess_vs_qqq") for u in units]),
                 "direction_adjusted_mae_mean":mean([u.get("mae") for u in units]),
                 "benchmark_direction_adjusted_mae_mean":mean([u.get("benchmark_mae") for u in units]),
+                "mae_noninferiority_difference_mean":mean([u.get("mae_diff") for u in units]),
+                "mae_noninferiority_ci95":mae_ci,
+                "single_symbol_effective_unit_share_max":max_symbol_share,
+                "symbol_effective_unit_counts":dict(sorted(symbol_counts.items())),
+                "instrument_class_diagnostic_counts":dict(sorted(instrument_counts.items())),
                 "test_status":"testable" if testable else "not_testable",
                 "p_value":p,
                 "fdr":None,
@@ -161,6 +208,9 @@ def build(events,families,spec):
             "Any directly or transitively overlapping realized evaluation windows are one time cluster; distinct clusters share no dates.",
             "Bootstrap resamples complete overlap-connected time clusters; all symbols in a cluster stay together.",
             "FDR is applied to the full frozen active-family x declared-horizon hypothesis set; untestable hypotheses enter as p=1.",
+            "MAE noninferiority uses a paired overlap-cluster bootstrap CI on event MAE minus unconditional benchmark MAE.",
+            "Instrument-class breakdown is diagnostic only and does not redefine Rule Family identity.",
+            "Duplicate current revisions of the same event_id are collapsed before statistical aggregation.",
             "Below the minimum cluster count, inference is marked not_testable."
         ],
     }

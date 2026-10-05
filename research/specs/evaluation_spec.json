@@ -1,9 +1,9 @@
 {
-  "spec_version": "1.4",
-  "previous_spec_version": "1.3",
+  "spec_version": "1.5",
+  "previous_spec_version": "1.4",
   "status": "provisional_frozen",
   "frozen_at": "2026-10-05",
-  "change_reason": "Bind Rule Family definition 1.2 so planned buy + planned sell structures are classified as mixed_direction before any real mature evidence exists. Statistical thresholds and dependence/multiplicity definitions are unchanged.",
+  "change_reason": "Pre-register forward-evidence integrity before any real scoreable sample exists: separate scoring-engine identity from Evaluation Spec identity; bind Rule Family 1.3 option-context fail-closed semantics; require baseline/horizon price-source and adjustment provenance with same-source scoring; replace MAE point-estimate noninferiority with paired overlap-cluster bootstrap CI; add a predeclared single-symbol concentration cap. No Promotion threshold is relaxed.",
   "definitions": {
     "direction_adjusted_return": "direction_sign * raw_return",
     "primary_metric": "unconditional_lift_vs_same_symbol_same_horizon",
@@ -17,8 +17,8 @@
     "hit_rate_role": "auxiliary_only_with_confidence_interval",
     "promotion_unit": "rule_family",
     "rule_instance_role": "immutable_provenance_atom_only",
-    "rule_family_definition_version": "1.2",
-    "rule_family_definition_hash": "5a364430d2159220b60d3494a7a3c61ffe5b3d99b0bec8d13ea2859829e1cae1",
+    "rule_family_definition_version": "1.3",
+    "rule_family_definition_hash": "ef707b032382d86715375985c81103dc9274eaece0a9629441a6c8fa230e7e29",
     "entry_semantics_registry_version": "1.0",
     "primary_exclusion_precedence": [
       "non_point_in_time_source",
@@ -28,6 +28,7 @@
       "unsupported_direction",
       "unknown_entry_semantics",
       "not_triggered",
+      "price_provenance_incomplete",
       "price_source_conflict",
       "cache_only_unscored",
       "missing_price_data"
@@ -53,9 +54,13 @@
       "below_minimum": "not_testable"
     },
     "mae_noninferiority": {
-      "pass_rule": "observed mean direction-adjusted MAE >= unconditional benchmark mean direction-adjusted MAE",
-      "future_change_requires_new_spec_version": true,
-      "v1_3_method": "point_estimate"
+      "metric": "paired_direction_adjusted_mae_difference = event_direction_adjusted_mae - unconditional_benchmark_direction_adjusted_mae",
+      "margin": 0,
+      "inference": "paired overlap-connected time-cluster bootstrap",
+      "bootstrap_resamples": 2000,
+      "bootstrap_seed": 6158,
+      "pass_rule": "ci95_lower_bound >= -margin",
+      "future_change_requires_new_spec_version": true
     },
     "price_source_policy": {
       "tier_1": "STOOQ archive",
@@ -64,7 +69,79 @@
       "same_event_mixed_source_tiers": false,
       "overlap_check": "required",
       "conflict_policy": "mark invalid/conflict and do not score",
-      "fallback_selection_must_ignore_performance": true
+      "fallback_selection_must_ignore_performance": true,
+      "baseline_horizon_same_source_required": true,
+      "adjustment_basis_required": true,
+      "provenance_fields": [
+        "price_source",
+        "adjustment_basis",
+        "baseline_source",
+        "horizon_source"
+      ],
+      "mixed_source_scoring_policy": "fail_closed",
+      "tier_2_policy": {
+        "state": "policy_frozen_not_activated",
+        "eligibility_criteria_only": [
+          "adjustment_method_documented",
+          "corporate_action_handling_documented",
+          "timestamp_semantics_documented",
+          "licensing_allows_use",
+          "stable_symbol_mapping",
+          "overlap_consistency_test_available"
+        ],
+        "forbidden_selection_inputs": [
+          "scoreable_count_gain",
+          "promotion_pass_rate",
+          "method_returns",
+          "lift",
+          "win_rate",
+          "named_method_performance"
+        ],
+        "activation_requires": [
+          "separate_reviewed_pr",
+          "stooq_access_diagnostic_complete",
+          "pre_activation_overlap_consistency_report",
+          "evidence_lock_update"
+        ],
+        "current_activation": false
+      }
+    },
+    "scoring_engine_identity": {
+      "record_field": "scoring_engine_version",
+      "semantic_change_requires_new_spec_version": true,
+      "semantic_change_examples": [
+        "direction",
+        "scoreable_eligibility",
+        "primary_or_secondary_exclusion_classification",
+        "entry_semantics",
+        "price_source_eligibility",
+        "metric_definition"
+      ],
+      "engine_only_change_examples": [
+        "refactor_without_output_change",
+        "performance",
+        "logging",
+        "nonsemantic_diagnostics"
+      ],
+      "history_identity": "event_id + spec_version + scoring_engine_version + score_hash",
+      "consumer_rule": "statistical consumers operate on one current effective record per event_id under the active spec; append-only historical revisions are audit/provenance only"
+    },
+    "instrument_diagnostics": {
+      "family_identity_unchanged": true,
+      "diagnostic_only_classes": [
+        "equity",
+        "etf",
+        "leveraged_etf",
+        "option_structure",
+        "mixed",
+        "unknown"
+      ],
+      "leveraged_etf_symbols": [
+        "QLD",
+        "TQQQ"
+      ],
+      "max_single_symbol_effective_unit_share_for_promotion": 0.4,
+      "note": "Instrument-class diagnostics do not create or merge Rule Families and cannot relax Promotion."
     }
   },
   "thresholds": {
@@ -73,7 +150,9 @@
     "independent_time_clusters_min": 6,
     "mature_60_effective_samples_min": 20,
     "lift_ci95_lower_bound_gt": 0,
-    "mae_not_worse_than_benchmark": true
+    "mae_not_worse_than_benchmark": true,
+    "max_single_symbol_effective_unit_share": 0.4,
+    "mae_noninferiority_ci95_lower_bound_gte": 0
   },
   "change_policy": {
     "requires_new_spec_version": true,
@@ -84,8 +163,8 @@
     "spec_lock_must_be_updated_by_reviewed_pr": true
   },
   "promotion_activation": {
-    "state": "shadow_until_statistical_controls_revalidated_under_spec_1_4",
-    "reason": "Family identity changed structurally in v1.2 to represent mixed-direction rules explicitly; controls and family feasibility diagnostics must be regenerated under the new frozen definition."
+    "state": "shadow_until_statistical_controls_revalidated_under_spec_1_5",
+    "reason": "Spec 1.5 adds stricter pre-registered forward-evidence identity, price provenance, MAE CI and concentration safeguards before any real scoreable point-in-time evidence exists."
   },
   "guardrails": {
     "research_only": true,

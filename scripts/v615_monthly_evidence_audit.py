@@ -21,7 +21,7 @@ PATHS={
 }
 OUT=ROOT/"research"/"reports"/"monthly_evidence_audit.json"
 HIST=ROOT/"research"/"reports"/"monthly"
-VERSION="6.15.8h"
+VERSION="6.15.8i"
 
 def load(p,d):
     try:return json.loads(p.read_text(encoding="utf-8"))
@@ -35,13 +35,17 @@ def build(data,now=None):
     exclusions=(events.get("counts") or {}).get("primary_exclusion") or {}
     boundary_failures=[r for r in boundary.get("records") or [] if r.get("production_boundary_unchanged") is False or r.get("research_only_worktree") is False or r.get("evidence_lock_unchanged") is False]
     accounting=source.get("source_accounting") or {}
-    reported_total=int(source.get("source_window_reported_total") or 0)
     current_ingest=int(source.get("full_ingest_size") if source.get("full_ingest_size") is not None else len(source.get("records") or []))
     current_upstream=int(accounting.get("current_upstream_records") if accounting.get("current_upstream_records") is not None else current_ingest)
+    reconciliation=source.get("upstream_reconciliation") or {}
     checks={
         "event_conservation":bool((events.get("counts") or {}).get("conservation_ok")),
         "no_reasonless_rejections":all(e.get("scoreable") or e.get("primary_exclusion_reason") for e in events.get("events") or []),
-        "source_store_full_coverage":current_ingest>=reported_total and current_upstream>=reported_total,
+        "source_store_full_coverage":bool(
+            accounting.get("current_ingest_complete")
+            and reconciliation.get("reconciliation_ok",True)
+            and current_ingest==current_upstream
+        ),
         "boundary_no_failures":len(boundary_failures)==0,
         "statistical_controls_pass":bool(controls.get("all_pass")),
         "component_manifest_complete":(components.get("counts") or {}).get("missing_code_hashes",1)==0 and (components.get("counts") or {}).get("missing_required_artifact_hashes",1)==0,
@@ -62,7 +66,11 @@ def build(data,now=None):
             "current_full_ingest_records":current_ingest,
             "current_upstream_records":current_upstream,
             "retained_historical_records":accounting.get("retained_historical_records"),
-            "reported_total":source.get("source_window_reported_total"),
+            "legacy_reported_total":source.get("legacy_reported_total",source.get("source_window_reported_total")),
+            "legacy_reported_total_role":source.get("legacy_reported_total_role"),
+            "upstream_raw_records":reconciliation.get("upstream_raw_records"),
+            "upstream_duplicates_removed":reconciliation.get("duplicates_removed"),
+            "upstream_excluded":reconciliation.get("excluded_missing_identity"),
             "visible_window":source.get("visible_window_size"),
         },
         "families":{

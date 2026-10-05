@@ -22,6 +22,7 @@ validation={"events":[{
  "event_id":"s1:0:ABC:0","author":"a","symbol":"ABC","published_at":"2026-01-01",
  "baseline_date":"2026-01-02","baseline_kind":"entry_1","triggered":True,
  "operation":{"conditions":[],"actions":["buy"]},"alignment":{"direction":"bullish","5":"aligned"},
+ "price_provenance":{"price_source":"stooq_archive","adjustment_basis":"stooq_archive_native_series","baseline_source":"stooq_archive","horizon_source":"stooq_archive","same_source":True},
  "outcomes":{"5":{"date":"2026-01-09","return":0.1,"benchmark_return":0.1,"excess_vs_qqq":0.0,"mae":-0.02,"mfe":0.12}}
 }]}
 registry={"legacy_mapping":[{"source_id":"s1","operation_index":0,"rule_id":"r1"}]}
@@ -73,6 +74,7 @@ mixed_validation={"events":[{
  "baseline_date":"2026-01-02","baseline_kind":"entry_below","triggered":True,
  "operation":{"conditions":[],"actions":["planned_buy","planned_sell"]},
  "alignment":{"direction":"bullish","5":"aligned"},
+ "price_provenance":{"price_source":"stooq_archive","adjustment_basis":"stooq_archive_native_series","baseline_source":"stooq_archive","horizon_source":"stooq_archive","same_source":True},
  "outcomes":{"5":{"date":"2026-01-09","return":0.1,"benchmark_return":0.1,"excess_vs_qqq":0.0,"mae":-0.02,"mfe":0.12}}
 }]}
 mixed_spec={"spec_version":"1.4","definitions":{"rule_family_definition_hash":"h"}}
@@ -88,3 +90,23 @@ assert mr["scoreable"] is False
 assert "unsupported_direction" in mr["exclusion_reasons"]
 assert mr["primary_exclusion_reason"]=="unsupported_direction"
 print("PASS V6.15.8h mixed-direction family fails closed despite bullish legacy label")
+
+
+# Forward-path positive control: a post-ingest, known-entry, same-source event can become scoreable.
+forward_validation={"events":[{
+ "event_id":"s1:0:ABC:forward","author":"a","symbol":"ABC","published_at":"2026-01-01",
+ "baseline_date":"2026-01-02","baseline_kind":"entry_below","triggered":True,
+ "operation":{"conditions":[],"actions":["buy"]},"alignment":{"direction":"bullish","5":"aligned"},
+ "price_provenance":{"price_source":"stooq_archive","adjustment_basis":"stooq_archive_native_series","baseline_source":"stooq_archive","horizon_source":"stooq_archive","same_source":True},
+ "outcomes":{"5":{"date":"2026-01-09","return":0.1,"benchmark_return":0.1,"excess_vs_qqq":0.0,"mae":-0.02,"mfe":0.12}}
+}]}
+forward_families={"assignments":[{
+ "rule_id":"r1","family_id":"f1","definition_hash":"h","active":True,"family_key":{"direction":"bullish"}
+}]}
+forward_spec={"spec_version":"1.5","definitions":{"rule_family_definition_hash":"h"}}
+forward_store={"records":[{"source_key":"s1","first_fetched_at":"2025-12-01T00:00:00Z","record":{"id":"s1"}}]}
+forward=adapt(forward_validation,registry,{"ABC":{"df":stooq,"meta":{"status":"ok","source":"stooq_archive","price_source":"stooq_archive","adjustment_basis":"stooq_archive_native_series","price_series_hash":"x"}}},forward_spec,forward_store,forward_families)
+assert forward["events"][0]["scoreable"] is True
+assert forward["events"][0]["point_in_time_status"]=="eligible"
+assert forward["events"][0]["scoring_engine_version"].startswith("event_score@")
+print("PASS V6.15.8i forward EventScore positive path / explicit price provenance")

@@ -26,7 +26,8 @@ from entry_semantics import classify_event
 from local_history_agent import read_archive
 from source_history_cache import read_cache
 
-VERSION="6.15.8h"
+VERSION="6.15.8i"
+SCORING_ENGINE_VERSION="event_score@6.15.8i"
 HORIZONS=(5,20,60)
 
 def load(path,default):
@@ -40,13 +41,20 @@ def frame_hash(df):
     return hashlib.sha256(payload.encode()).hexdigest()
 
 def reconcile_history(stooq,cache,tolerance=0.005):
-    """STOOQ is canonical; cache can fill dates absent from STOOQ only."""
+    """STOOQ is canonical and scoreable histories never splice multiple sources."""
     if stooq is None or stooq.empty:
         if cache is None or cache.empty:
-            return None,{"status":"missing","source":"none","price_series_hash":None}
+            return None,{"status":"missing","source":"none","price_source":"none","adjustment_basis":None,"price_series_hash":None}
         # Without canonical STOOQ this is context-only, never scoreable.
         c=cache.copy().sort_index()
-        return c,{"status":"cache_only_unscored","source":"cache","price_series_hash":frame_hash(c)}
+        return c,{
+            "status":"cache_only_unscored",
+            "source":"yfinance_validation_cache",
+            "price_source":"yfinance_validation_cache",
+            "adjustment_basis":"yfinance_auto_adjust_false_native_ohlc",
+            "same_source_only":True,
+            "price_series_hash":frame_hash(c),
+        }
     base=stooq.copy().sort_index()
     status="ok"
     overlap=[]
@@ -58,13 +66,12 @@ def reconcile_history(stooq,cache,tolerance=0.005):
                 overlap.append({"date":str(dt)[:10],"stooq":a,"cache":b})
         if overlap:
             status="conflict"
-        else:
-            gap=cache.loc[~cache.index.isin(base.index)]
-            if not gap.empty:
-                base=pd.concat([base,gap]).sort_index()
     return base,{
         "status":status,
-        "source":"stooq_archive+cache_gap_fill" if cache is not None and not cache.empty else "stooq_archive",
+        "source":"stooq_archive",
+        "price_source":"stooq_archive",
+        "adjustment_basis":"stooq_archive_native_series",
+        "same_source_only":True,
         "price_series_hash":frame_hash(base),
         "overlap_conflicts":overlap[:10],
     }
@@ -167,7 +174,8 @@ def point_in_time_status(prov,baseline_date):
     except Exception:
         return "unknown"
 
-def exclusion_reasons(rid,triggered,direction,entry_type,data_status,point_status,structural_direction=None):
+def exclusion_reasons(rid,triggered,direction,entry_type,data_status,point_status,structural_direction=None,price_provenance=None):
+    price_provenance=price_provenance or {}
     reasons=[]
     if not rid:reasons.append("missing_rule_id")
     if not triggered:reasons.append("not_triggered")
@@ -176,6 +184,13 @@ def exclusion_reasons(rid,triggered,direction,entry_type,data_status,point_statu
     if structural_direction in {"mixed_direction","unknown"} and "unsupported_direction" not in reasons:
         reasons.append("unsupported_direction")
     if entry_type=="unknown":reasons.append("unknown_entry_semantics")
+    px_source=price_provenance.get("price_source")
+    adjustment=price_provenance.get("adjustment_basis")
+    baseline_source=price_provenance.get("baseline_source")
+    horizon_source=price_provenance.get("horizon_source")
+    same_source=price_provenance.get("same_source")
+    if not px_source or not adjustment or not baseline_source or not horizon_source or same_source is not True or baseline_source!=horizon_source:
+        reasons.append("price_provenance_incomplete")
     if data_status=="conflict":reasons.append("price_source_conflict")
     elif data_status=="cache_only_unscored":reasons.append("cache_only_unscored")
     elif data_status!="ok":reasons.append("missing_price_data")
@@ -191,6 +206,7 @@ DEFAULT_PRIMARY_PRECEDENCE=(
     "unsupported_direction",
     "unknown_entry_semantics",
     "not_triggered",
+    "price_provenance_incomplete",
     "price_source_conflict",
     "cache_only_unscored",
     "missing_price_data",
@@ -220,7 +236,8 @@ def adapt(validation,registry,histories=None,spec=None,source_store=None,familie
         hmeta=histories.get(symbol,{}).get("meta") or {}
         prov=provenance.get(str(sid)) or {}
         pit=point_in_time_status(prov,ev.get("baseline_date"))
-        reasons=exclusion_reasons(rid,bool(ev.get("triggered")),direction,et,hmeta.get("status"),pit,structural_direction)
+        price_provenance=ev.get("price_provenance") or {}
+        reasons=exclusion_reasons(rid,bool(ev.get("triggered")),direction,et,hmeta.get("status"),pit,structural_direction,price_provenance)
         primary=choose_primary(reasons,spec)
         secondary=[x for x in reasons if x!=primary]
         scoreable=primary is None
@@ -260,6 +277,7 @@ def adapt(validation,registry,histories=None,spec=None,source_store=None,familie
             "legacy_source_id":sid,
             "legacy_operation_index":op_idx,
             "spec_version":spec.get("spec_version"),
+            "scoring_engine_version":SCORING_ENGINE_VERSION,
             "author":ev.get("author"),
             "symbol":symbol,
             "published_at":ev.get("published_at"),
@@ -280,6 +298,7 @@ def adapt(validation,registry,histories=None,spec=None,source_store=None,familie
             "maturity":{str(h):bool((ev.get("outcomes") or {}).get(str(h))) for h in HORIZONS},
             "scores":scores,
             "data_quality":hmeta,
+            "price_provenance":price_provenance,
             "source_provenance":prov,
             "point_in_time_status":pit,
             "market_timestamp_cutoff":"strictly_before_baseline_date",
@@ -291,6 +310,7 @@ def adapt(validation,registry,histories=None,spec=None,source_store=None,familie
         "version":VERSION,
         "generated_at":datetime.now(timezone.utc).isoformat(),
         "spec_version":spec.get("spec_version"),
+        "scoring_engine_version":SCORING_ENGINE_VERSION,
         "mode":"research_only_adapter",
         "counts":{
             "events":len(rows),
@@ -303,7 +323,8 @@ def adapt(validation,registry,histories=None,spec=None,source_store=None,familie
             "Legacy outcomes remain available; EventScore is an adapter, not an in-place rewrite.",
             "Unknown entry semantics never enter method performance.",
             "Mixed/unknown Rule Family structural direction always fails closed even if a legacy outcome labels the event bullish or bearish.",
-            "STOOQ archive is canonical; cache only fills gaps after overlap consistency checks.",
+            "STOOQ archive is canonical; scoreable histories never splice STOOQ and cache rows inside one event.",
+            "Baseline and horizon price provenance plus adjustment basis must be explicit and same-source or the event fails closed.",
             "Every mature horizon carries the exact realized horizon_end_date from the source outcome record for dependence clustering.",
             "Every non-scoreable event has exactly one primary exclusion reason; the conservation equation is enforced.",
             "Price conflicts, cache-only histories, pre-ingest historical evidence and option structures stay unscored."

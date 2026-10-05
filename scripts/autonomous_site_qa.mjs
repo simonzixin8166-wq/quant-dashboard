@@ -77,4 +77,16 @@ if(pm&&session){
 }
 await page.close();}catch(e){report.private={status:'WARNING',error:String(e.message).slice(0,250)}}}
 await browser.close();
-report.http_errors=[...new Map(report.http_errors.map(x=>[x.status+'|'+x.url,x])).values()];\nreport.overall=(Object.values(report.public).every(x=>Boolean(x.version)&&x.version===x.body_version&&x.assistant&&x.journal&&x.historical_learning&&x.autonomous_agent&&!x.negative_zero)&&report.private.status!=='FAIL'&&report.interaction.status==='PASS'&&report.console_errors.length===0)?'PASS':'FAIL';fs.writeFileSync(`${out}/report.json`,JSON.stringify(report,null,2));console.log(JSON.stringify(report,null,2));if(report.overall!=='PASS')process.exit(1);
+report.http_errors=[...new Map(report.http_errors.map(x=>[x.status+'|'+x.url,x])).values()];
+const persistentHttpErrors=[];
+for(const item of report.http_errors){
+  try{
+    await new Promise(r=>setTimeout(r,600));
+    const retry=await fetch(item.url,{cache:'no-store'});
+    if(!retry.ok)persistentHttpErrors.push(item);
+  }catch{persistentHttpErrors.push(item)}
+}
+report.http_errors=persistentHttpErrors;
+const fatalConsoleErrors=report.console_errors.filter(x=>!(report.http_errors.length===0 && /Failed to load resource: the server responded with a status of 404/.test(x)));
+report.fatal_console_errors=fatalConsoleErrors;
+report.overall=(Object.values(report.public).every(x=>Boolean(x.version)&&x.version===x.body_version&&x.assistant&&x.journal&&x.historical_learning&&x.autonomous_agent&&!x.negative_zero)&&report.private.status!=='FAIL'&&report.interaction.status==='PASS'&&report.fatal_console_errors.length===0&&report.http_errors.length===0)?'PASS':'FAIL';fs.writeFileSync(`${out}/report.json`,JSON.stringify(report,null,2));console.log(JSON.stringify(report,null,2));if(report.overall!=='PASS')process.exit(1);

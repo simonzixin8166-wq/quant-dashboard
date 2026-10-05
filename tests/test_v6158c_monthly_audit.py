@@ -6,7 +6,7 @@ sys.path.insert(0,str(ROOT/"scripts"))
 from v615_monthly_evidence_audit import build
 
 data={
- "source":{"source_window_reported_total":3,"visible_window_size":2,"records":[1,2,3]},
+ "source":{"source_window_reported_total":3,"visible_window_size":2,"full_ingest_size":3,"source_accounting":{"current_upstream_records":3,"retained_historical_records":0},"records":[1,2,3]},
  "events":{"counts":{"events":2,"scoreable":1,"conservation_ok":True,"primary_exclusion":{"missing_rule_id":1}},
            "events":[{"event_id":"e1","scoreable":True},{"event_id":"e2","scoreable":False,"primary_exclusion_reason":"missing_rule_id"}]},
  "families":{"counts":{"active_families":1}},
@@ -22,7 +22,9 @@ out=build(data,datetime(2026,10,4,tzinfo=timezone.utc))
 assert out["audit_month"]=="2026-10"
 assert out["all_integrity_checks_pass"] is True
 assert out["eventscore"]["events"]==2
-assert out["source_store"]["records"]==3
+assert out["source_store"]["persistent_records"]==3
+assert out["source_store"]["current_full_ingest_records"]==3
+assert out["source_store"]["current_upstream_records"]==3
 assert out["readiness"]["ready_for_v616"] is False
 
 # Negative integrity injection must make the audit fail.
@@ -34,9 +36,17 @@ assert out2["all_integrity_checks_pass"] is False
 assert out2["checks"]["event_conservation"] is False
 assert out2["checks"]["no_reasonless_rejections"] is False
 
+bad_source=dict(data)
+bad_source["source"]={"source_window_reported_total":3,"visible_window_size":2,"full_ingest_size":2,"source_accounting":{"current_upstream_records":2,"retained_historical_records":8},"records":[1,2,3,4,5,6,7,8,9,10]}
+out3=build(bad_source,datetime(2026,10,4,tzinfo=timezone.utc))
+assert out3["all_integrity_checks_pass"] is False
+assert out3["checks"]["source_store_full_coverage"] is False
+assert out3["source_store"]["persistent_records"]==10
+assert out3["source_store"]["current_full_ingest_records"]==2
+
 workflow=(ROOT/".github/workflows/monthly-evidence-audit.yml").read_text(encoding="utf-8")
 assert "cron: '30 22 1 * *'" in workflow
 assert "contents: read" in workflow
 assert "contents: write" in workflow
 assert "monthly_integrity_audit" in workflow
-print("PASS V6.15.8c monthly evidence audit / fixed cadence / hard isolation")
+print("PASS V6.15.8h monthly audit current-ingest completeness / fixed cadence / hard isolation")

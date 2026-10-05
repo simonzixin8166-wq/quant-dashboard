@@ -23,6 +23,10 @@ FEED_URL = os.getenv(
     "https://raw.githubusercontent.com/simonzixin8166-wq/wxc-bot/main/state/research_feed.json",
 )
 YOUTUBE_ARCHIVE_URL = os.getenv(
+    "YOUTUBE_HISTORICAL_LEARNING_URL",
+    "https://raw.githubusercontent.com/simonzixin8166-wq/wxc-bot/main/state/youtube_learning_archive.json",
+)
+YOUTUBE_ARCHIVE_URL = os.getenv(
     "YOUTUBE_LEARNING_ARCHIVE_URL",
     "https://raw.githubusercontent.com/simonzixin8166-wq/wxc-bot/main/state/youtube_learning_archive.json",
 )
@@ -70,15 +74,25 @@ def load(path: Path, default):
     except Exception:
         return default
 
-def fetch_feed():
+def _fetch_json_url(url, label, default):
     try:
-        req = urllib.request.Request(FEED_URL, headers={"User-Agent":"MyAlphaView/SourceIntelligence"})
+        req = urllib.request.Request(url, headers={"User-Agent":"MyAlphaView/SourceIntelligence"})
         with urllib.request.urlopen(req, timeout=15) as r:
             data = json.loads(r.read().decode("utf-8"))
-        return data if isinstance(data, dict) else {"records":[]}
+        return data if isinstance(data, dict) else default
     except Exception as e:
-        print("source feed unavailable:", e)
-        return {"records":[]}
+        print(f"{label} unavailable:", e)
+        return default
+
+def fetch_feed():
+    return _fetch_json_url(FEED_URL, "source feed", {"records":[]})
+
+def fetch_youtube_historical_learning():
+    return _fetch_json_url(
+        YOUTUBE_ARCHIVE_URL,
+        "youtube historical learning",
+        {"version":1,"mode":"historical_observational_learning_only","non_gating":True,"records":[]},
+    )
 
 def fetch_youtube_learning_archive():
     try:
@@ -444,6 +458,17 @@ def build(records, youtube_historical_learning=None):
             "counts":{"records":0,"q1_q2_learning_eligible":0,"q5_metadata_only":0},
         },
         "records": rows[:800],
+        "historical_learning": {
+            "youtube": youtube_historical_learning,
+            "boundary": {
+                "included_in_records": False,
+                "included_in_source_store": False,
+                "included_in_rule_registry": False,
+                "included_in_event_score": False,
+                "included_in_promotion": False,
+                "purpose": "历史方法/上下文学习，只读展示；不属于 forward evidence。",
+            },
+        },
         "guardrails": [
             "每条外部内容保留作者、日期、原文链接和来源类型。",
             "作者观点与MyAlpha独立分析必须分开展示。",

@@ -26,8 +26,8 @@ from entry_semantics import classify_event
 from local_history_agent import read_archive
 from source_history_cache import read_cache
 
-VERSION="6.15.8i"
-SCORING_ENGINE_VERSION="event_score@6.15.8i"
+VERSION="6.15.8j"
+SCORING_ENGINE_VERSION="event_score@6.15.8j"
 HORIZONS=(5,20,60)
 
 def load(path,default):
@@ -174,6 +174,30 @@ def point_in_time_status(prov,baseline_date):
     except Exception:
         return "unknown"
 
+def resolve_price_provenance(event,hmeta):
+    """Resolve event-level price provenance without depending on writer ordering.
+
+    New Source Outcome artifacts may carry explicit provenance. Older/stale
+    artifacts are deterministically upgraded from the same whole-symbol history
+    metadata used by EventScore. No performance information is consulted.
+    """
+    explicit=dict((event or {}).get("price_provenance") or {})
+    source=hmeta.get("price_source") or hmeta.get("source")
+    adjustment=hmeta.get("adjustment_basis")
+    if explicit:
+        explicit.setdefault("provenance_origin","source_outcome_artifact")
+        return explicit
+    if source and source!="none" and adjustment:
+        return {
+            "price_source":source,
+            "adjustment_basis":adjustment,
+            "baseline_source":source,
+            "horizon_source":source,
+            "same_source":bool(hmeta.get("same_source_only",True)),
+            "provenance_origin":"eventscore_deterministic_history_policy",
+        }
+    return {}
+
 def exclusion_reasons(rid,triggered,direction,entry_type,data_status,point_status,structural_direction=None,price_provenance=None):
     price_provenance=price_provenance or {}
     reasons=[]
@@ -236,7 +260,7 @@ def adapt(validation,registry,histories=None,spec=None,source_store=None,familie
         hmeta=histories.get(symbol,{}).get("meta") or {}
         prov=provenance.get(str(sid)) or {}
         pit=point_in_time_status(prov,ev.get("baseline_date"))
-        price_provenance=ev.get("price_provenance") or {}
+        price_provenance=resolve_price_provenance(ev,hmeta)
         reasons=exclusion_reasons(rid,bool(ev.get("triggered")),direction,et,hmeta.get("status"),pit,structural_direction,price_provenance)
         primary=choose_primary(reasons,spec)
         secondary=[x for x in reasons if x!=primary]
@@ -324,7 +348,8 @@ def adapt(validation,registry,histories=None,spec=None,source_store=None,familie
             "Unknown entry semantics never enter method performance.",
             "Mixed/unknown Rule Family structural direction always fails closed even if a legacy outcome labels the event bullish or bearish.",
             "STOOQ archive is canonical; scoreable histories never splice STOOQ and cache rows inside one event.",
-            "Baseline and horizon price provenance plus adjustment basis must be explicit and same-source or the event fails closed.",
+            "Baseline and horizon price provenance plus adjustment basis must be explicit or deterministically resolved from the same whole-symbol history policy; otherwise the event fails closed.",
+            "EventScore provenance resolution is result-blind and protects against Source Outcome / Research Evidence workflow ordering lag.",
             "Every mature horizon carries the exact realized horizon_end_date from the source outcome record for dependence clustering.",
             "Every non-scoreable event has exactly one primary exclusion reason; the conservation equation is enforced.",
             "Price conflicts, cache-only histories, pre-ingest historical evidence and option structures stay unscored."

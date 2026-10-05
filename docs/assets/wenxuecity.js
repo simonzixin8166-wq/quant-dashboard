@@ -70,7 +70,7 @@ function methodMemoryView(){
 }
 function evidenceLayerView(){
  const e=evidenceStatus?.evidence_layers||{},legacy=e.legacy_observational_archive||{},forward=e.forward_evidence_candidates||{},mature=e.mature_scoreable_evidence||{};
- return `<div class="wxc-box"><h2>Spec 1.5 证据分层</h2><p>研究中心把“历史观察”“真实 Forward 候选”“成熟可评分证据”分开显示，避免把旧回放结果误认为正式研究样本。</p>
+ return `<div class="wxc-box"><h2>正式证据分层</h2><p>研究中心把“历史观察”“真实 Forward 候选”“成熟可评分证据”分开显示，避免把旧回放结果误认为正式研究样本。</p>
  <div class="wxc-overview-metrics">
    <article><span>历史观察归档</span><b>${legacy.count??0}</b><small>只读复盘 · 不参与 Promotion</small></article>
    <article><span>Forward 证据候选</span><b>${forward.count??0}</b><small>point-in-time · 当前可评分 ${forward.scoreable_now??0}</small></article>
@@ -80,7 +80,7 @@ function evidenceLayerView(){
  <p class="wxc-meta">Evaluation Spec ${esc(evidenceStatus?.evaluation_spec_version||'—')} · Scoring Engine ${esc(evidenceStatus?.scoring_engine_version||'—')} · Promotion passed ${esc(evidenceStatus?.promotion?.families_passed??0)}。Forward 候选未成熟前不代表方法有效。</p>
  <p class="wxc-meta"><b>Forward Intake：</b>${esc(evidenceStatus?.forward_intake_health?.status||'unknown')} · 完整性 ${evidenceStatus?.forward_intake_health?.integrity_pass?'PASS':'等待/异常待核验'}。当前没有真实 forward rule 时，“waiting_for_first_genuine_forward_rule”属于正常等待。</p></div>`;
 }
-function validationView(){const d=sourceOutcome||{};const n=d.counts||{};const rows=(d.events||[]).filter(x=>x.attribution!=='third_party_example');return evidenceLayerView()+`<div class="wxc-box"><h2>历史观察归档 · 旧 Outcome 5 / 20 / 60 日跟踪</h2><p>这里保留作者本人操作/预案与历史行情的描述性复盘，只回答“后来发生了什么”。这些旧 Outcome <b>不是</b> Spec 1.5 的正式研究样本，也不参与 Promotion。</p><p><b>${n.events||0}</b> 条当前旧 Outcome 记录 · <b>${n.triggered_author_owned||0}</b> 条本人操作/预案已触发 · <b>${n.untriggered_plans||0}</b> 条分档计划尚未触发 · 覆盖 <b>${n.symbols||0}</b> 个标的。</p><p class="wxc-warning">旧 Method Memory / Outcome 仅用于历史观察、反例和方法线索；正式证据状态以上方 Spec 1.5 分层为准。</p></div><div class="wxc-grid">${rows.slice(0,100).map(outcomeCard).join('')||'<p>等待历史观察归档构建。</p>'}</div>`}
+function validationView(){const d=sourceOutcome||{};const n=d.counts||{};const rows=(d.events||[]).filter(x=>x.attribution!=='third_party_example');return evidenceLayerView()+`<div class="wxc-box"><h2>历史观察归档 · 旧 Outcome 5 / 20 / 60 日跟踪</h2><p>这里保留作者本人操作/预案与历史行情的描述性复盘，只回答“后来发生了什么”。这些旧 Outcome <b>不是</b> 当前 Evaluation Spec 的正式研究样本，也不参与 Promotion。</p><p><b>${n.events||0}</b> 条当前旧 Outcome 记录 · <b>${n.triggered_author_owned||0}</b> 条本人操作/预案已触发 · <b>${n.untriggered_plans||0}</b> 条分档计划尚未触发 · 覆盖 <b>${n.symbols||0}</b> 个标的。</p><p class="wxc-warning">旧 Method Memory / Outcome 仅用于历史观察、反例和方法线索；正式证据状态以上方 当前 Evaluation Spec 分层为准。</p></div><div class="wxc-grid">${rows.slice(0,100).map(outcomeCard).join('')||'<p>等待历史观察归档构建。</p>'}</div>`}
 
 function sourceState(){
  const sources=data?.sources||[],bad=sources.filter(s=>s.status!=='ok');
@@ -96,7 +96,7 @@ function researchCenterOverview(){
    <article><span>方法主题</span><b>${methodCount}</b><small>Method Memory · 描述性</small></article>
    <article><span>历史观察归档</span><b>${legacy.count??0}</b><small>不参与 Promotion</small></article>
    <article><span>Forward 候选</span><b>${forward.count??0}</b><small>当前可评分 ${forward.scoreable_now??0}</small></article>
-   <article><span>成熟证据</span><b>${mature.event_count_60d??0}</b><small>60日 · Spec 1.5</small></article>
+   <article><span>成熟证据</span><b>${mature.event_count_60d??0}</b><small>60日 · 当前 Spec</small></article>
    <article><span>失败候选</span><b>${failures}</b><small>用于反证与边界</small></article>
  </div>
  ${evidenceLayerView()}

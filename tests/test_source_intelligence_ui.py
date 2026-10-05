@@ -20,7 +20,7 @@ print("PASS source intelligence UI")
 
 assert "research/source_outcome_validation.json" in js
 assert "历史观察归档 · 旧 Outcome 5 / 20 / 60 日跟踪" in js
-assert "Spec 1.5 证据分层" in js
+assert "正式证据分层" in js
 assert "Forward 证据候选" in js
 assert "成熟可评分证据" in js
 assert "research/evidence_status.json" in js
@@ -40,7 +40,7 @@ assert "60日成熟 Direct" in js
 
 status=json.loads((ROOT/"docs"/"research"/"evidence_status.json").read_text(encoding="utf-8"))
 layers=status["evidence_layers"]
-assert status["evaluation_spec_version"]=="1.5"
+assert status["evaluation_spec_version"]=="1.6"
 assert layers["legacy_observational_archive"]["count"]>=46
 assert layers["forward_evidence_candidates"]["count"]>=0
 assert layers["mature_scoreable_evidence"]["event_count_60d"]>=0

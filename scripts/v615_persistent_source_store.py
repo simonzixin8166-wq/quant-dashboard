@@ -14,7 +14,7 @@ SOURCE=ROOT/"docs"/"data"/"source_intelligence.json"
 EVENTS=ROOT/"research"/"events"/"event_scores_v1.json"
 SOURCE_STORE=ROOT/"research"/"store"/"source_store.json"
 EVENT_HISTORY=ROOT/"research"/"history"/"event_score_history.json"
-VERSION="6.15.8i"
+VERSION="6.15.8k"
 
 sys.path.insert(0,str(ROOT/"scripts"))
 from source_intelligence_engine import collect_full_records,collect_full_records_with_accounting
@@ -104,6 +104,7 @@ def migrate_sources(source,prior=None,now=None,full_records=None,upstream_accoun
         rows.append({
             "source_key":k,
             "first_fetched_at":(prev or {}).get("first_fetched_at") or now,
+            "first_fetched_at_origin":(prev or {}).get("first_fetched_at_origin") or "source_store_first_observation",
             "last_seen_at":now,
             "ingest_type":ingest_type,
             "published_at":r.get("published_at"),

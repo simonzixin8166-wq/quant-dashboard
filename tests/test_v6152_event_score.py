@@ -3,7 +3,7 @@ from pathlib import Path
 import pandas as pd
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/"scripts"))
-from v615_event_score import reconcile_history,entry_type,adapt,historical_unconditional_metrics
+from v615_event_score import reconcile_history,entry_type,adapt,historical_unconditional_metrics,point_in_time_status,baseline_timestamp_utc
 
 idx=pd.to_datetime(["2026-01-01","2026-01-02","2026-01-03"])
 stooq=pd.DataFrame({"open":[100,101,102],"high":[101,102,103],"low":[99,100,101],"close":[100,101,102]},index=idx)
@@ -103,8 +103,8 @@ forward_validation={"events":[{
 forward_families={"assignments":[{
  "rule_id":"r1","family_id":"f1","definition_hash":"h","active":True,"family_key":{"direction":"bullish"}
 }]}
-forward_spec={"spec_version":"1.5","definitions":{"rule_family_definition_hash":"h"}}
-forward_store={"records":[{"source_key":"s1","first_fetched_at":"2025-12-01T00:00:00Z","record":{"id":"s1"}}]}
+forward_spec={"spec_version":"1.6","definitions":{"rule_family_definition_hash":"h","point_in_time_eligibility":{"evidence_foundation_start_utc":"2026-10-04T00:00:00+00:00"}}}
+forward_store={"records":[{"source_key":"s1","first_fetched_at":"2026-01-01T12:00:00+00:00","first_fetched_at_origin":"source_store_first_observation","record":{"id":"s1"}}]}
 forward=adapt(forward_validation,registry,{"ABC":{"df":stooq,"meta":{"status":"ok","source":"stooq_archive","price_source":"stooq_archive","adjustment_basis":"stooq_archive_native_series","price_series_hash":"x"}}},forward_spec,forward_store,forward_families)
 assert forward["events"][0]["scoreable"] is True
 assert forward["events"][0]["point_in_time_status"]=="eligible"
@@ -144,3 +144,12 @@ assert scr["price_provenance"]["price_source"]=="yfinance_validation_cache"
 assert scr["scoreable"] is False
 assert scr["primary_exclusion_reason"]=="cache_only_unscored"
 print("PASS V6.15.8j deterministic provenance resolution / cache remains unscored")
+
+
+# Spec 1.6 exact timestamp eligibility: 2026-01-02 NYSE open is 14:30 UTC.
+assert baseline_timestamp_utc("2026-01-02",forward_spec).isoformat()=="2026-01-02T14:30:00+00:00"
+assert point_in_time_status({"first_fetched_at":"2026-01-02T14:29:59+00:00"},"2026-01-02",forward_spec)=="eligible"
+assert point_in_time_status({"first_fetched_at":"2026-01-02T14:30:00+00:00"},"2026-01-02",forward_spec)=="historical_pre_ingest"
+assert point_in_time_status({"first_fetched_at":"2026-01-02T15:00:00+00:00"},"2026-01-02",forward_spec)=="historical_pre_ingest"
+assert point_in_time_status({"first_fetched_at":"2026-01-02T15:00:00"},"2026-01-02",forward_spec)=="unknown"
+print("PASS Spec 1.6 timestamp-level point-in-time eligibility / same-session leakage closed")

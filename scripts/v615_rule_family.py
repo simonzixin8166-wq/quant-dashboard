@@ -11,7 +11,7 @@ RULES=ROOT/"research"/"registry"/"rules.json"
 SPEC=ROOT/"research"/"specs"/"evaluation_spec.json"
 DEF=ROOT/"research"/"specs"/"rule_family_definition.json"
 OUT=ROOT/"research"/"registry"/"rule_families.json"
-VERSION="6.15.8d"
+VERSION="6.15.8g"
 
 sys.path.insert(0,str(ROOT/"scripts"))
 from entry_semantics import classify_rule
@@ -38,6 +38,8 @@ def verify_definition(defn):
       "rule_template":defn.get("rule_template"),
       "condition_classes":defn.get("condition_classes"),
       "instrument_type_rules":defn.get("instrument_type_rules"),
+      "structural_direction_rules":defn.get("structural_direction_rules"),
+      "coarsening_ladder":defn.get("coarsening_ladder"),
       "assignment_policy":defn.get("assignment_policy"),
     }
     got=sha(core)
@@ -60,12 +62,17 @@ def primary_method(rule):
     primary,_=normalize_methods(rule.get("method_candidates") or [])
     return primary or "unattributed"
 
-def structural_direction(rule,method):
+def structural_direction(rule,method,defn):
     actions={str(x).lower() for x in ((rule.get("normalized_rule") or {}).get("actions") or [])}
     if method=="Sell Put":return "option_bullish_income"
     if method=="LEAPS":return "option_bullish"
-    if actions & {"buy","add","planned_buy"} and not actions & {"sell","clear","trim","trim_half"}:return "bullish"
-    if actions & {"sell","clear","trim","trim_half"} and not actions & {"buy","add","planned_buy"}:return "bearish"
+    cfg=defn.get("structural_direction_rules") or {}
+    buys=set(cfg.get("buy_actions") or ["buy","add","planned_buy"])
+    sells=set(cfg.get("sell_actions") or ["sell","planned_sell","clear","trim","trim_half"])
+    has_buy=bool(actions & buys); has_sell=bool(actions & sells)
+    if has_buy and has_sell:return "mixed_direction"
+    if has_buy:return "bullish"
+    if has_sell:return "bearish"
     return "unknown"
 
 def instrument_type(rule,method,defn):
@@ -94,7 +101,7 @@ def structural_key(rule,defn):
         "primary_method":method,
         "operation_type":operation_type(nr),
         "entry_semantic":classify_rule(nr),
-        "direction":structural_direction(rule,method),
+        "direction":structural_direction(rule,method,defn),
         "instrument_type":instrument_type(rule,method,defn),
         "rule_template":template(rule,defn),
     }

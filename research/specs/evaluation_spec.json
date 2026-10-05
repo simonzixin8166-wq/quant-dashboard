@@ -78,7 +78,33 @@
         "baseline_source",
         "horizon_source"
       ],
-      "mixed_source_scoring_policy": "fail_closed"
+      "mixed_source_scoring_policy": "fail_closed",
+      "tier_2_policy": {
+        "state": "policy_frozen_not_activated",
+        "eligibility_criteria_only": [
+          "adjustment_method_documented",
+          "corporate_action_handling_documented",
+          "timestamp_semantics_documented",
+          "licensing_allows_use",
+          "stable_symbol_mapping",
+          "overlap_consistency_test_available"
+        ],
+        "forbidden_selection_inputs": [
+          "scoreable_count_gain",
+          "promotion_pass_rate",
+          "method_returns",
+          "lift",
+          "win_rate",
+          "named_method_performance"
+        ],
+        "activation_requires": [
+          "separate_reviewed_pr",
+          "stooq_access_diagnostic_complete",
+          "pre_activation_overlap_consistency_report",
+          "evidence_lock_update"
+        ],
+        "current_activation": false
+      }
     },
     "scoring_engine_identity": {
       "record_field": "scoring_engine_version",

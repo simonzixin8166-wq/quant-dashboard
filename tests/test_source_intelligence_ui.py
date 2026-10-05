@@ -78,7 +78,7 @@ print("PASS V6.15 author intelligence UI")
 
 assert "V6.15 · EVIDENCE ENGINE" in js
 assert "research/v615_program_status.json" in js
-assert "20/60 日不能通过回填历史视频" in js
+assert "不会用旧视频或历史回放补数" in js
 print("PASS V6.15 program status UI")
 
 

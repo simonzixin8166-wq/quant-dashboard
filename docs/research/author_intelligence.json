@@ -1,0 +1,120 @@
+{
+  "version": "6.15-author-intelligence-1",
+  "generated_at": "2026-10-05T11:23:32.350063+00:00",
+  "historical_learning": {
+    "non_gating": true,
+    "authors": [
+      {
+        "author": "Andrei Jikh",
+        "role": "market_context",
+        "records": 4,
+        "q1_q2_learning_eligible": 0,
+        "quality_counts": {
+          "Q5": 3,
+          "Q4": 1
+        },
+        "symbols": [],
+        "themes": [],
+        "macro_topics": [],
+        "structured_operations": 0,
+        "mode": "historical_descriptive_only",
+        "gating_effect": "none"
+      },
+      {
+        "author": "RhinoFinance / 视野环球财经",
+        "role": "rule_supply",
+        "records": 1,
+        "q1_q2_learning_eligible": 0,
+        "quality_counts": {
+          "Q5": 1
+        },
+        "symbols": [],
+        "themes": [],
+        "macro_topics": [],
+        "structured_operations": 0,
+        "mode": "historical_descriptive_only",
+        "gating_effect": "none"
+      },
+      {
+        "author": "老李玩钱",
+        "role": "rule_supply",
+        "records": 4,
+        "q1_q2_learning_eligible": 1,
+        "quality_counts": {
+          "Q2": 1,
+          "Q5": 3
+        },
+        "symbols": [
+          {
+            "name": "TSLA",
+            "count": 1
+          },
+          {
+            "name": "NVDA",
+            "count": 1
+          },
+          {
+            "name": "MU",
+            "count": 1
+          },
+          {
+            "name": "AMZN",
+            "count": 1
+          },
+          {
+            "name": "META",
+            "count": 1
+          }
+        ],
+        "themes": [
+          {
+            "name": "风险管理",
+            "count": 1
+          },
+          {
+            "name": "长期持有纪律",
+            "count": 1
+          },
+          {
+            "name": "TSLA",
+            "count": 1
+          }
+        ],
+        "macro_topics": [
+          {
+            "name": "黄金",
+            "count": 1
+          }
+        ],
+        "structured_operations": 0,
+        "mode": "historical_descriptive_only",
+        "gating_effect": "none"
+      }
+    ],
+    "counts": {
+      "records": 9,
+      "q1_q2_learning_eligible": 1,
+      "authors": 3
+    }
+  },
+  "forward_evidence": {
+    "point_in_time_only": true,
+    "authors": [],
+    "counts": {
+      "rules": 0,
+      "authors": 0,
+      "events": 0,
+      "scoreable_events": 0
+    }
+  },
+  "contradictions": {
+    "unresolved_total": 0,
+    "note": "Contradictions remain a risk/diagnostic layer; they do not convert historical learning into forward evidence."
+  },
+  "guardrails": [
+    "Historical author profiles are descriptive only and never feed Rule Registry, EventScore, Promotion, Planner weights or orders.",
+    "Forward author statistics use only forward_eligible Rule Registry rows and point-in-time eligible EventScore events.",
+    "No cross-author leaderboard is produced before sufficient independent forward evidence exists.",
+    "Zero forward evidence is a valid healthy state and must not be filled with backtests or historical videos."
+  ]
+}

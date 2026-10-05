@@ -61,7 +61,7 @@ def migrate_sources(source,prior=None,now=None,full_records=None,upstream_accoun
     upstream_accounting=dict(upstream_accounting or {
         "upstream_raw_records":len(full),
         "eligible_raw_records":len(full),
-        "normalized_unique_records":len(full),
+        "normalized_unique_records":max(len(full),legacy_reported_total),
         "duplicates_removed":0,
         "excluded_missing_identity":0,
         "reconciliation_ok":True,

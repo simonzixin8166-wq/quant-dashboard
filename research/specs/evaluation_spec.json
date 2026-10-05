@@ -1,9 +1,9 @@
 {
-  "spec_version": "1.5",
-  "previous_spec_version": "1.4",
+  "spec_version": "1.6",
+  "previous_spec_version": "1.5",
   "status": "provisional_frozen",
   "frozen_at": "2026-10-05",
-  "change_reason": "Pre-register forward-evidence integrity before any real scoreable sample exists: separate scoring-engine identity from Evaluation Spec identity; bind Rule Family 1.3 option-context fail-closed semantics; require baseline/horizon price-source and adjustment provenance with same-source scoring; replace MAE point-estimate noninferiority with paired overlap-cluster bootstrap CI; add a predeclared single-symbol concentration cap. No Promotion threshold is relaxed.",
+  "change_reason": "Pre-register exact point-in-time eligibility before the first genuine forward rule: first_fetched_at is the sole authoritative evidence clock; baseline eligibility uses a timezone-aware UTC tradable baseline timestamp strictly after first_fetched_at. Genuine forward intake additionally requires immutable first-observation provenance and a first_fetched_at at or after the Evidence Foundation start. No Promotion, FDR, family, author, MAE, price-source, or maturity threshold is changed.",
   "definitions": {
     "direction_adjusted_return": "direction_sign * raw_return",
     "primary_metric": "unconditional_lift_vs_same_symbol_same_horizon",
@@ -142,6 +142,17 @@
       ],
       "max_single_symbol_effective_unit_share_for_promotion": 0.4,
       "note": "Instrument-class diagnostics do not create or merge Rule Families and cannot relax Promotion."
+    },
+    "point_in_time_eligibility": {
+      "authoritative_clock": "Source Store first_fetched_at only; published_at is diagnostic and can never make evidence earlier",
+      "evidence_foundation_start_utc": "2026-10-04T00:00:00+00:00",
+      "baseline_timestamp_semantics": "baseline_date US regular-session open 09:30 America/New_York converted to UTC; for daily OHLC planned-touch events this is intentionally conservative and requires the source to have been fetched before that session opened",
+      "comparison": "baseline_timestamp_utc > first_fetched_at_utc",
+      "equality_policy": "fail_closed_not_eligible",
+      "timezone_policy": "both timestamps must parse as timezone-aware instants; unknown/naive first_fetched_at is not eligible",
+      "unknown_source_timezone_policy": "published_at remains diagnostic only; eligibility still uses first_fetched_at",
+      "backfill_policy": "backfill_ingest is never genuine forward evidence",
+      "future_change_requires_new_spec_version": true
     }
   },
   "thresholds": {
@@ -163,8 +174,8 @@
     "spec_lock_must_be_updated_by_reviewed_pr": true
   },
   "promotion_activation": {
-    "state": "shadow_until_statistical_controls_revalidated_under_spec_1_5",
-    "reason": "Spec 1.5 adds stricter pre-registered forward-evidence identity, price provenance, MAE CI and concentration safeguards before any real scoreable point-in-time evidence exists."
+    "state": "shadow_until_statistical_controls_revalidated_under_spec_1_6",
+    "reason": "Spec 1.6 hardens point-in-time eligibility before any genuine forward evidence exists; all prior Spec 1.5 Promotion safeguards remain unchanged."
   },
   "guardrails": {
     "research_only": true,

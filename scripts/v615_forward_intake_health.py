@@ -20,7 +20,8 @@ PATHS={
  "spec":ROOT/"research"/"specs"/"evaluation_spec.json",
 }
 OUT=ROOT/"research"/"reports"/"forward_intake_health.json"
-VERSION="6.15.8j"
+VERSION="6.15.8k"
+FOUNDATION_START_UTC="2026-10-04T00:00:00+00:00"
 
 def load(p,d):
     try:return json.loads(p.read_text(encoding="utf-8"))
@@ -36,7 +37,17 @@ def build(store,rules,families,events,spec,now=None):
             source_meta[sid]=row
 
     active_rules=[r for r in rules.get("rules") or [] if r.get("active",True)]
-    live_rules=[r for r in active_rules if (source_meta.get(str(r.get("source_id"))) or {}).get("ingest_type")=="live_ingest"]
+    def genuine_forward_source(meta):
+        if (meta or {}).get("ingest_type")!="live_ingest": return False
+        if (meta or {}).get("first_fetched_at_origin")!="source_store_first_observation": return False
+        try:
+            from datetime import datetime
+            first=datetime.fromisoformat(str(meta.get("first_fetched_at")).replace("Z","+00:00"))
+            start=datetime.fromisoformat(FOUNDATION_START_UTC)
+            return first.tzinfo is not None and first>=start
+        except Exception:
+            return False
+    live_rules=[r for r in active_rules if genuine_forward_source(source_meta.get(str(r.get("source_id"))) or {})]
     live_rule_ids={str(r.get("rule_id")) for r in live_rules if r.get("rule_id")}
 
     current_hash=((spec.get("definitions") or {}).get("rule_family_definition_hash"))
@@ -62,7 +73,12 @@ def build(store,rules,families,events,spec,now=None):
         }
         for e in forward_events if e.get("point_in_time_status")!="eligible"
     ]
+    suspicious_live_sources=[
+        sid for sid,meta in source_meta.items()
+        if (meta or {}).get("ingest_type")=="live_ingest" and not genuine_forward_source(meta)
+    ]
     blockers=[]
+    if suspicious_live_sources: blockers.append("live_ingest_missing_immutable_forward_provenance")
     if missing_family: blockers.append("live_rule_missing_current_family_assignment")
     if missing_event: blockers.append("live_rule_missing_eventscore_event")
     if noneligible: blockers.append("live_rule_event_not_point_in_time_eligible")
@@ -99,8 +115,10 @@ def build(store,rules,families,events,spec,now=None):
             "missing_family_rule_ids":missing_family,
             "missing_event_rule_ids":missing_event,
             "noneligible_forward_events":noneligible[:50],
+            "suspicious_live_source_ids":sorted(suspicious_live_sources)[:50],
         },
         "guardrails":[
+            "A genuine forward rule requires live_ingest, immutable source_store_first_observation provenance, and first_fetched_at on/after the Evidence Foundation start.",
             "No live rule is fabricated to make the forward count non-zero.",
             "Waiting for the first genuine live rule is healthy and distinct from a broken path.",
             "A genuine live rule must map to the current Rule Family definition and an EventScore event.",

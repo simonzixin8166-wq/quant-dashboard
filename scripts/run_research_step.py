@@ -57,6 +57,15 @@ def main():
     }
     prior=load(AUDIT,{"version":"6.15.8a","records":[]})
     prior["generated_at"]=record["completed_at"]
+    # One-time compaction of legacy audit rows: preserve invariant evidence as hashes,
+    # not repeated multi-megabyte production snapshots.
+    for old_record in prior.get("records",[]):
+        if "before" in old_record and "before_hash" not in old_record:
+            old_record["before_hash"]=snapshot_digest(old_record.get("before"))
+        if "after" in old_record and "after_hash" not in old_record:
+            old_record["after_hash"]=snapshot_digest(old_record.get("after"))
+        old_record.pop("before",None)
+        old_record.pop("after",None)
     prior.setdefault("records",[]).append(record)
     prior["records"]=prior["records"][-80:]
     AUDIT.parent.mkdir(parents=True,exist_ok=True)

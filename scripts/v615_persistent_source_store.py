@@ -93,10 +93,12 @@ def late_discovery_veto(r,ts,now,spec):
     cfg=((((spec or {}).get("definitions") or {}).get("point_in_time_eligibility") or {}).get("source_admission") or {})
     trusted=set(cfg.get("high_confidence_published_at_semantics") or [])
     if ts.get("published_at_semantics") not in trusted:return False,None
-    pub=parse_aware(r.get("published_at"))
+    pub_day=published_calendar_date(r.get("published_at"))
     seen=parse_aware(now)
-    if pub is None or seen is None:return False,None
-    days=(seen.date()-pub.astimezone(timezone.utc).date()).days
+    if not pub_day or seen is None:return False,None
+    try: pub_date=datetime.fromisoformat(pub_day).date()
+    except Exception:return False,None
+    days=(seen.astimezone(timezone.utc).date()-pub_date).days
     limit=int(cfg.get("late_discovery_calendar_days_max",3))
     return days>limit,days
 

@@ -110,3 +110,37 @@ assert forward["events"][0]["scoreable"] is True
 assert forward["events"][0]["point_in_time_status"]=="eligible"
 assert forward["events"][0]["scoring_engine_version"].startswith("event_score@")
 print("PASS V6.15.8i forward EventScore positive path / explicit price provenance")
+
+
+# Workflow-ordering regression: stale Source Outcome rows without embedded
+# price_provenance must be deterministically upgraded from EventScore history metadata.
+stale_validation={"events":[{
+ "event_id":"s1:0:ABC:stale","author":"a","symbol":"ABC","published_at":"2026-01-01",
+ "baseline_date":"2026-01-02","baseline_kind":"entry_below","triggered":True,
+ "operation":{"conditions":[],"actions":["buy"]},"alignment":{"direction":"bullish","5":"aligned"},
+ "outcomes":{"5":{"date":"2026-01-09","return":0.1,"benchmark_return":0.1,"excess_vs_qqq":0.0,"mae":-0.02,"mfe":0.12}}
+}]}
+stale_hist={"ABC":{"df":stooq,"meta":{
+ "status":"ok","source":"stooq_archive","price_source":"stooq_archive",
+ "adjustment_basis":"stooq_archive_native_series","same_source_only":True,
+ "price_series_hash":"x"
+}}}
+stale=adapt(stale_validation,registry,stale_hist,forward_spec,forward_store,forward_families)
+sr=stale["events"][0]
+assert sr["scoreable"] is True
+assert sr["price_provenance"]["price_source"]=="stooq_archive"
+assert sr["price_provenance"]["baseline_source"]==sr["price_provenance"]["horizon_source"]=="stooq_archive"
+assert sr["price_provenance"]["provenance_origin"]=="eventscore_deterministic_history_policy"
+assert "price_provenance_incomplete" not in sr["exclusion_reasons"]
+
+# Cache-only provenance may be complete, but remains unscoreable by source policy.
+stale_cache=adapt(stale_validation,registry,{"ABC":{"df":stooq,"meta":{
+ "status":"cache_only_unscored","source":"yfinance_validation_cache",
+ "price_source":"yfinance_validation_cache","adjustment_basis":"yfinance_auto_adjust_false_native_ohlc",
+ "same_source_only":True,"price_series_hash":"x"
+}}},forward_spec,forward_store,forward_families)
+scr=stale_cache["events"][0]
+assert scr["price_provenance"]["price_source"]=="yfinance_validation_cache"
+assert scr["scoreable"] is False
+assert scr["primary_exclusion_reason"]=="cache_only_unscored"
+print("PASS V6.15.8j deterministic provenance resolution / cache remains unscored")

@@ -59,6 +59,7 @@ validation={"events":[{
 }]}
 source_store={"records":[{
  "source_key":source_id,"first_fetched_at":"2026-10-06T00:00:00+00:00",
+ "first_fetched_at_origin":"source_store_first_observation",
  "ingest_type":"live_ingest","published_at_semantics":"upstream_published_at_unverified",
  "timestamp_confidence":"unverified","snapshot_hash":"synthetic","record":{"id":source_id}
 }]}
@@ -74,4 +75,18 @@ assert row["scoreable"] is True
 assert row["primary_exclusion_reason"] is None
 assert row["price_provenance"]["baseline_source"]==row["price_provenance"]["horizon_source"]=="stooq_archive"
 assert row["scoring_engine_version"].startswith("event_score@")
-print("PASS V6.15.8i isolated forward source -> registry -> family -> EventScore canary")
+print("PASS Spec 1.6 isolated forward source -> registry -> family -> EventScore canary")
+
+
+# Intraday leakage canary: source first seen after the baseline session open must fail closed.
+late_store={"records":[{
+ "source_key":source_id,"first_fetched_at":"2026-10-07T14:00:00+00:00",
+ "first_fetched_at_origin":"source_store_first_observation",
+ "ingest_type":"live_ingest","record":{"id":source_id}
+}]}
+late=adapt(validation,registry,histories,spec,late_store,families)
+late_row=late["events"][0]
+assert late_row["point_in_time_status"]=="historical_pre_ingest"
+assert late_row["scoreable"] is False
+assert late_row["primary_exclusion_reason"]=="non_point_in_time_source"
+print("PASS Spec 1.6 intraday forward leakage canary")

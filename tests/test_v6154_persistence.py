@@ -111,12 +111,12 @@ assert {r["source_key"]:r["admission_class"] for r in ab["records"] if r["source
 assert {r["source_key"]:r["admission_class"] for r in ba["records"] if r["source_key"] in {"x1","x2"}}=={"x1":"identity_ambiguous","x2":"identity_ambiguous"}
 
 # High-confidence publication timestamp is veto-only. Exactly 3 calendar days remains eligible; >3 is late discovery.
-fri={"id":"fri","source":"wenxuecity","source_kind":"blog","author":"A","published_at":"2026-10-02T12:00:00+00:00","title":"Friday","url":"https://example.com/fri","operations":[]}
+fri={"id":"fri","source":"wenxuecity","source_kind":"blog","author":"A","published_at":"2026-10-02","title":"Friday","url":"https://example.com/fri","operations":[]}
 mon=migrate_sources({"counts":{"records":1},"records":[fri]},seed,now="2026-10-05T12:00:00+00:00",full_records=[fri])
 fr=[x for x in mon["records"] if x["source_key"]=="fri"][0]
 assert fr["late_discovery_age_calendar_days"]==3
 assert fr["admission_class"]=="genuine_forward"
-old_pub=dict(fri);old_pub["id"]="oldpub";old_pub["published_at"]="2026-10-01T12:00:00+00:00";old_pub["title"]="Old";old_pub["url"]="https://example.com/oldpub"
+old_pub=dict(fri);old_pub["id"]="oldpub";old_pub["published_at"]="2026-10-01";old_pub["title"]="Old";old_pub["url"]="https://example.com/oldpub"
 late=migrate_sources({"counts":{"records":1},"records":[old_pub]},seed,now="2026-10-05T12:00:00+00:00",full_records=[old_pub])
 lr=[x for x in late["records"] if x["source_key"]=="oldpub"][0]
 assert lr["late_discovery_age_calendar_days"]==4

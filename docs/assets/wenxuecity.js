@@ -120,6 +120,13 @@ function sourceState(){
  const sources=data?.sources||[],bad=sources.filter(s=>s.status!=='ok');
  return {bad,total:sources.length,healthy:bad.length===0&&sources.length>0};
 }
+function youtubeHistoricalLearningView(){
+ const y=sourceIntel?.youtube_historical_learning||{},rows=y.records||[],counts=y.counts||{};
+ if(!rows.length)return '<div class="wxc-box"><h2>YouTube 历史学习记忆</h2><p class="wxc-meta">等待历史学习 Archive 首次同步；它与 Forward Evidence 完全隔离。</p></div>';
+ const quality=q=>q||'Q5';
+ const cards=rows.map(r=>`<article><div><span class="wxc-tag">${esc(r.author||'未知作者')}</span><span class="wxc-tag">${esc(quality(r.quality))}</span><span class="wxc-tag">${esc(r.role==='market_context'?'Market Context':'Rule Supply')}</span></div><h3>${sourceLink(r.url,r.title||'(视频)')}</h3><p class="wxc-meta">Provider：${esc(r.provider||'metadata_only')} · ${r.historical_learning_eligible?'可做历史语义学习':'仅元数据监控'}</p>${(r.symbols||[]).length?`<p><b>涉及标的：</b>${(r.symbols||[]).map(esc).join(' / ')}</p>`:''}${(r.themes||[]).length?`<p><b>方法主题：</b>${(r.themes||[]).map(esc).join(' / ')}</p>`:''}${(r.macro_topics||[]).length?`<p><b>宏观主题：</b>${(r.macro_topics||[]).map(esc).join(' / ')}</p>`:''}${(r.representative_points||[]).length?`<details><summary>查看历史学习片段</summary>${r.representative_points.map(x=>`<p>${esc(x)}</p>`).join('')}</details>`:''}<p class="wxc-meta">历史观察专用：Forward / EventScore / Promotion 均不参与。</p></article>`).join('');
+ return `<div class="wxc-box"><h2>YouTube 历史学习记忆</h2><p>只学习已经公开的历史视频方法与背景，不把旧视频洗成今天的 Forward Evidence。Q1/Q2 可做语义学习；Q3–Q5 只作上下文或元数据。</p><div class="wxc-overview-metrics"><article><span>历史视频</span><b>${counts.records??rows.length}</b><small>非 gating</small></article><article><span>Q1/Q2 可学习</span><b>${counts.q1_q2_learning_eligible??0}</b><small>语义学习</small></article><article><span>Q5 Metadata</span><b>${counts.q5_metadata_only??0}</b><small>不生成规则</small></article><article><span>结构化操作</span><b>${counts.structured_operations??0}</b><small>仅历史观察</small></article></div></div><div class="wxc-grid">${cards}</div>`;
+}
 function researchCenterOverview(){
  const src=sourceState(),methodCount=methodMemory?.counts?.methods||researchLibrary.methods?.length||0;
  const ops=sourceIntel?.counts?.structured_operations||operationRows().length||0;
@@ -135,6 +142,7 @@ function researchCenterOverview(){
  </div>
  ${sourceRuleFunnelView()}
  ${evidenceLayerView()}
+ ${youtubeHistoricalLearningView()}
  <div class="wxc-box wxc-research-loop"><h2>研究闭环 · 不是文章仓库</h2><p>外部观点只有经过“来源留痕 → 方法归纳 → 具体操作提取 → 后续验证/失败复盘”，才有资格影响研究优先级；不会自动改正式交易规则。</p>
  <div class="wxc-pipeline"><div><b>01 来源</b><span>保留作者、日期、原文与采集状态</span></div><div><b>02 方法</b><span>合并重复观点，形成可复用条件与边界</span></div><div><b>03 操作</b><span>只提取原文明示动作，不补猜价格或仓位</span></div><div><b>04 验证</b><span>按交易日跟踪结果、反例与失败归因</span></div><div><b>05 判断</b><span>形成 MyAlpha 自己的研究结论</span></div></div>
  <p class="wxc-meta">当前来源状态：${src.healthy?'正常':src.bad+' 个来源异常/未验收'}。来源异常不会删除历史资料，但新内容不能假装已经更新。</p></div>

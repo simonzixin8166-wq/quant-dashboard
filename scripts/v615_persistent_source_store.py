@@ -15,7 +15,7 @@ SOURCE=ROOT/"docs"/"data"/"source_intelligence.json"
 EVENTS=ROOT/"research"/"events"/"event_scores_v1.json"
 SOURCE_STORE=ROOT/"research"/"store"/"source_store.json"
 EVENT_HISTORY=ROOT/"research"/"history"/"event_score_history.json"
-VERSION="6.15.8l"
+VERSION="6.15.8m"
 
 sys.path.insert(0,str(ROOT/"scripts"))
 from source_intelligence_engine import collect_full_records,collect_full_records_with_accounting
@@ -37,7 +37,7 @@ def source_key(r):
 TRACKING_KEYS={"fbclid","gclid","mc_cid","mc_eid"}
 
 def normalize_text(v):
-    return re.sub(r"\\s+"," ",str(v or "").strip().lower())
+    return re.sub(r"\s+"," ",str(v or "").strip().lower())
 
 def canonical_url(url):
     if not url:return ""
@@ -78,9 +78,14 @@ def secondary_identity_fingerprint(r):
 
 def identity_fields_from_row(row):
     rec=(row or {}).get("record") or {}
+    # Recompute identity from the persisted source record using the current
+    # Spec-1.7 implementation. This intentionally avoids trusting a stored
+    # secondary fingerprint produced by the pre-hotfix whitespace bug.
+    recomputed_url=canonical_url(rec.get("url"))
+    recomputed_secondary=secondary_identity_fingerprint(rec)
     return {
-        "canonical_url":(row or {}).get("canonical_url") or canonical_url(rec.get("url")),
-        "secondary_identity_fingerprint":(row or {}).get("secondary_identity_fingerprint") or secondary_identity_fingerprint(rec),
+        "canonical_url":recomputed_url or (row or {}).get("canonical_url") or "",
+        "secondary_identity_fingerprint":recomputed_secondary or (row or {}).get("secondary_identity_fingerprint") or "",
     }
 
 def parse_aware(v):

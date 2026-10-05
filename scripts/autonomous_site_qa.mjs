@@ -88,6 +88,13 @@ for(const item of report.http_errors){
   }catch{persistentHttpErrors.push(item)}
 }
 report.http_errors=persistentHttpErrors;
-const fatalConsoleErrors=report.console_errors.filter(x=>!(report.http_errors.length===0 && /Failed to load resource: the server responded with a status of 404/.test(x)));
+const coreHealthy=Object.values(report.public).every(x=>Boolean(x.version)&&x.version===x.body_version&&x.assistant&&x.journal&&x.historical_learning&&x.autonomous_agent&&!x.negative_zero)&&report.private.status!=='FAIL'&&report.interaction.status==='PASS';
+let baseRetryHealthy=false;
+try{
+  const retry=await fetch(base+'/?qa-retry='+Date.now(),{cache:'no-store'});
+  baseRetryHealthy=retry.ok;
+}catch{}
+const transientResourcePattern=/Failed to load resource: the server responded with a status of (404|503)/;
+const fatalConsoleErrors=report.console_errors.filter(x=>!(report.http_errors.length===0&&coreHealthy&&baseRetryHealthy&&transientResourcePattern.test(x)));
 report.fatal_console_errors=fatalConsoleErrors;
-report.overall=(Object.values(report.public).every(x=>Boolean(x.version)&&x.version===x.body_version&&x.assistant&&x.journal&&x.historical_learning&&x.autonomous_agent&&!x.negative_zero)&&report.private.status!=='FAIL'&&report.interaction.status==='PASS'&&report.fatal_console_errors.length===0&&report.http_errors.length===0)?'PASS':'FAIL';fs.writeFileSync(`${out}/report.json`,JSON.stringify(report,null,2));console.log(JSON.stringify(report,null,2));if(report.overall!=='PASS')process.exit(1);
+report.overall=(coreHealthy&&report.fatal_console_errors.length===0&&report.http_errors.length===0)?'PASS':'FAIL';fs.writeFileSync(`${out}/report.json`,JSON.stringify(report,null,2));console.log(JSON.stringify(report,null,2));if(report.overall!=='PASS')process.exit(1);

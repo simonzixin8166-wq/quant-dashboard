@@ -1,9 +1,9 @@
 {
-  "spec_version": "1.6",
-  "previous_spec_version": "1.5",
-  "status": "provisional_frozen",
+  "spec_version": "1.7",
+  "previous_spec_version": "1.6",
+  "status": "frozen",
   "frozen_at": "2026-10-05",
-  "change_reason": "Pre-register exact point-in-time eligibility before the first genuine forward rule: first_fetched_at is the sole authoritative evidence clock; baseline eligibility uses a timezone-aware UTC tradable baseline timestamp strictly after first_fetched_at. Genuine forward intake additionally requires immutable first-observation provenance and a first_fetched_at at or after the Evidence Foundation start. No Promotion, FDR, family, author, MAE, price-source, or maturity threshold is changed.",
+  "change_reason": "Final pre-forward source-admission hardening before any genuine forward rule exists: freeze canonical source identity, immutable admission_class, high-confidence late-discovery veto, single-source Evidence Foundation start, and EventScore-level genuine-forward admission. No Promotion, FDR, family, author, MAE, price-source, concentration, or maturity threshold is changed.",
   "definitions": {
     "direction_adjusted_return": "direction_sign * raw_return",
     "primary_metric": "unconditional_lift_vs_same_symbol_same_horizon",
@@ -152,7 +152,35 @@
       "timezone_policy": "both timestamps must parse as timezone-aware instants; unknown/naive first_fetched_at is not eligible",
       "unknown_source_timezone_policy": "published_at remains diagnostic only; eligibility still uses first_fetched_at",
       "backfill_policy": "backfill_ingest is never genuine forward evidence",
-      "future_change_requires_new_spec_version": true
+      "future_change_requires_new_spec_version": true,
+      "source_admission": {
+        "version": "1.0",
+        "admission_class_field": "admission_class",
+        "immutable_after_first_classification": true,
+        "genuine_forward_required_class": "genuine_forward",
+        "canonical_url_normalization": {
+          "scheme": "lowercase; http and https normalized to https",
+          "host": "lowercase; leading www. removed",
+          "path": "remove trailing slash except root; preserve remaining path",
+          "query": "drop fragment; remove tracking parameters beginning utm_ plus fbclid,gclid,mc_cid,mc_eid; sort remaining key/value pairs",
+          "fragment": "discard"
+        },
+        "secondary_identity_fingerprint": "sha256(normalized_title + normalized_author + published_calendar_date)",
+        "secondary_unique_match_policy": "inherit prior identity only when exactly one historical match exists",
+        "ambiguous_identity_policy": "fail_closed_identity_ambiguous",
+        "same_batch_collision_policy": "all colliding new keys are identity_ambiguous independent of processing order",
+        "rekey_policy": "canonical or unique secondary match to prior source => rekeyed_duplicate and inherit prior first_fetched_at, ingest_type and admission provenance",
+        "high_confidence_published_at_semantics": [
+          "source_archive_publication_date"
+        ],
+        "late_discovery_calendar_days_max": 3,
+        "late_discovery_comparison": "published_at_age_calendar_days > 3",
+        "late_discovery_policy": "high-confidence publication timestamp is veto-only; late discovery cannot be genuine forward",
+        "low_confidence_publication_policy": "diagnostic_only_no_veto_no_upgrade",
+        "backfill_policy": "backfill and recovered historical sources are never genuine forward",
+        "eventscore_policy": "point-in-time eligible requires admission_class genuine_forward, immutable first-observation provenance, first_fetched_at at/after Evidence Foundation start, and baseline_timestamp_utc strictly after first_fetched_at",
+        "future_change_requires_new_spec_version": true
+      }
     }
   },
   "thresholds": {
@@ -171,11 +199,12 @@
     "forbid_tuning_to_pass_named_methods": true,
     "retain_legacy_results": true,
     "family_membership_cannot_be_reassigned_in_place": true,
-    "spec_lock_must_be_updated_by_reviewed_pr": true
+    "spec_lock_must_be_updated_by_reviewed_pr": true,
+    "post_freeze_exception": "Only a demonstrated evidence-contamination or integrity defect may justify a future Evaluation Spec change. It must use a reviewed PR plus evidence-lock update; already accumulated forward evidence remains archived under its original Spec and cannot be mixed with a later Spec."
   },
   "promotion_activation": {
-    "state": "shadow_until_statistical_controls_revalidated_under_spec_1_6",
-    "reason": "Spec 1.6 hardens point-in-time eligibility before any genuine forward evidence exists; all prior Spec 1.5 Promotion safeguards remain unchanged."
+    "state": "shadow_until_statistical_controls_revalidated_under_spec_1_7",
+    "reason": "Spec 1.7 is the final pre-forward source-admission freeze; all prior statistical thresholds remain unchanged."
   },
   "guardrails": {
     "research_only": true,

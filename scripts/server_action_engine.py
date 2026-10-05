@@ -14,6 +14,7 @@ from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
 EVENTS=ROOT/"docs"/"data"/"market_events.json"
 SYSTEM=ROOT/"docs"/"research"/"system_status.json"
+AUTO_THESIS=ROOT/"docs"/"research"/"auto_thesis_drafts.json"
 PUBLIC_OUT=ROOT/"docs"/"research"/"server_action_status.json"
 DEFAULT_EDGE="https://rhielbkvhgqbthcgztci.supabase.co/functions/v1/options-market"
 
@@ -73,6 +74,34 @@ def system_trust():
     ok=overall=="ok" and not excluded
     return {"ok":ok,"overall":overall,"excluded":excluded,"resource_mode":guard}
 
+def thesis_review_actions(notes):
+    drafts=(load(AUTO_THESIS).get("symbols") or {})
+    out=[]
+    for note in notes or []:
+        symbol=str(note.get("symbol") or "").upper()
+        if not symbol or symbol not in drafts:
+            continue
+        updated=parse_dt(note.get("updated_at"))
+        if not updated:
+            continue
+        latest=None
+        src=drafts[symbol].get("sources") or {}
+        for x in src.get("official") or []:
+            d=parse_dt((x.get("date") or "")+"T00:00:00Z")
+            latest=max(latest,d) if latest and d else (d or latest)
+        for x in src.get("events") or []:
+            d=parse_dt(x.get("published_at"))
+            latest=max(latest,d) if latest and d else (d or latest)
+        if latest and latest>updated:
+            out.append({
+                "level":"review",
+                "symbol":symbol,
+                "reason":"new evidence arrived after thesis update",
+                "invalidation_defined":bool(str(note.get("invalidation") or "").strip()),
+                "evidence_at":latest.isoformat(),
+            })
+    return out
+
 def risk_for(p,q,events):
     now=datetime.now(timezone.utc).date()
     try:expiry=datetime.fromisoformat(str(p.get("expiry"))[:10]).date();dte=(expiry-now).days
@@ -102,11 +131,12 @@ def risk_for(p,q,events):
     return {"level":level,"reason":reason,"dte":dte,"spot":spot,"delta":delta,"spread":spread}
 
 def build():
-    trust=system_trust();positions=supabase_rows("options_positions")
+    trust=system_trust();positions=supabase_rows("options_positions");notes=supabase_rows("stock_research_notes")
     if positions is None:
         return {"status":"cannot_judge","trust":trust,"reason":"Supabase credentials unavailable","actions":[],"quote_failures":0}
     open_rows=[p for p in positions if str(p.get("status") or "open") in {"open","pending_settlement"}]
     events=upcoming_events(48);actions=[];quote_failures=0
+    thesis_actions=thesis_review_actions(notes or [])
     for p in open_rows:
         occ=occ_symbol(p);q=None
         if occ:
@@ -117,8 +147,9 @@ def build():
             actions.append({"level":risk["level"],"symbol":p.get("symbol"),"expiry":p.get("expiry"),"reason":risk["reason"],"dte":risk.get("dte")})
         elif risk["level"]=="unknown":
             actions.append({"level":"unknown","symbol":p.get("symbol"),"expiry":p.get("expiry"),"reason":risk["reason"],"dte":risk.get("dte")})
+    actions.extend(thesis_actions)
     cannot=not trust["ok"] or any(a["level"]=="unknown" for a in actions)
-    status="cannot_judge" if cannot else ("action_required" if any(a["level"] in {"l2","l3"} for a in actions) else "clear")
+    status="cannot_judge" if cannot else ("action_required" if any(a["level"] in {"l2","l3","review"} for a in actions) else "clear")
     return {"status":status,"trust":trust,"positions_checked":len(open_rows),"event_count_48h":len(events),"actions":actions,"quote_failures":quote_failures}
 
 def fingerprint(result):
@@ -166,6 +197,7 @@ def main():
         "l3":sum(1 for x in result["actions"] if x["level"]=="l3"),
         "l2":sum(1 for x in result["actions"] if x["level"]=="l2"),
         "unknown":sum(1 for x in result["actions"] if x["level"]=="unknown"),
+        "thesis_review":sum(1 for x in result["actions"] if x["level"]=="review"),
       },
       "event_count_48h":result.get("event_count_48h",0),
       "quote_failures":result.get("quote_failures",0),

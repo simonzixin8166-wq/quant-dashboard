@@ -37,12 +37,15 @@ jobs:
         run: pip install "yfinance>=0.2.65,<0.3" pandas
       - name: Boundary precheck
         run: python scripts/research_boundary_guard.py
-      - name: Rule Registry invariant
-        run: python scripts/run_research_step.py --name rule_registry -- python scripts/v615_rule_registry.py
-      - name: Rule Family invariant
-        run: python scripts/run_research_step.py --name rule_family -- python scripts/v615_rule_family.py
       - name: Source Store invariant
         run: python scripts/run_research_step.py --name source_store -- python scripts/v615_persistent_source_store.py --sources-only
+      - name: Rule Registry invariant
+        run: python scripts/run_research_step.py --name rule_registry -- python scripts/v615_rule_registry.py
+      - name: Source to Rule funnel diagnostic
+        continue-on-error: true
+        run: python scripts/run_research_step.py --name source_rule_funnel -- python scripts/v615_source_rule_funnel.py
+      - name: Rule Family invariant
+        run: python scripts/run_research_step.py --name rule_family -- python scripts/v615_rule_family.py
       - name: Family feasibility invariant
         run: python scripts/run_research_step.py --name family_feasibility -- python scripts/v615_family_feasibility.py
       - name: EventScore invariant
@@ -105,6 +108,7 @@ jobs:
           python tests/test_v6158g_family_feasibility.py
           python tests/test_v6158i_forward_e2e.py
           python tests/test_v615_forward_intake_health.py
+          python tests/test_v615_source_rule_funnel.py
       - name: Final compute allowlist
         run: python scripts/research_boundary_guard.py --assert-worktree-research-only
       - name: Package research artifacts

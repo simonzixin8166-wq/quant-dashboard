@@ -40,7 +40,7 @@ assert "60日成熟 Direct" in js
 
 status=json.loads((ROOT/"docs"/"research"/"evidence_status.json").read_text(encoding="utf-8"))
 layers=status["evidence_layers"]
-assert status["evaluation_spec_version"]=="1.6"
+assert status["evaluation_spec_version"]=="1.7"
 assert layers["legacy_observational_archive"]["count"]>=46
 assert layers["forward_evidence_candidates"]["count"]>=0
 assert layers["mature_scoreable_evidence"]["event_count_60d"]>=0

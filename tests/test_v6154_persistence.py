@@ -28,6 +28,21 @@ assert by["s1"]["first_fetched_at"]=="2026-10-04T00:00:00Z"
 assert by["s3"]["first_fetched_at"]=="2026-10-05T00:00:00Z"
 assert by["s3"]["ingest_type"]=="backfill_ingest"
 assert by["s3"]["first_fetched_at"]!=by["s3"]["published_at"]
+assert b["source_accounting"]["current_upstream_records"]==3
+assert b["source_accounting"]["persistent_records_total"]==3
+assert b["source_accounting"]["retained_historical_records"]==0
+assert b["source_accounting"]["current_ingest_complete"] is True
+
+# Append-only history is retained but must be separated from current ingestion.
+current=[visible[0],full[2]]
+c=migrate_sources({"counts":{"records":2},"records":current},b,now="2026-10-06T00:00:00Z",full_records=current)
+assert len(c["records"])==3
+assert c["source_accounting"]["current_upstream_records"]==2
+assert c["source_accounting"]["persistent_records_total"]==3
+assert c["source_accounting"]["retained_historical_records"]==1
+assert c["source_accounting"]["current_ingest_complete"] is True
+cby={x["source_key"]:x for x in c["records"]}
+assert cby["s2"]["source_still_online"] is False
 
 # Fail closed if pre-window ingestion is incomplete.
 try:

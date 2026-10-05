@@ -12,7 +12,7 @@ EVENTS=ROOT/"research"/"events"/"event_scores_v1.json"
 READING=ROOT/"docs"/"research"/"source_reading_memory.json"
 OUT=ROOT/"research"/"state"/"method_attribution.json"
 CLAIMS=ROOT/"research"/"state"/"source_claims.json"
-VERSION="6.15.3"
+VERSION="6.15.8g"
 
 METHOD_PRIORITY=("Sell Put","LEAPS","趋势确认")
 OPERATIONAL_METHOD_NAMES={"仓位与加减仓"}
@@ -26,8 +26,11 @@ def operation_type(rule):
     actions={str(x).lower() for x in ((rule or {}).get("actions") or [])}
     fields=(rule or {}).get("fields") or {}
     if "sell_put" in actions or fields.get("sell_put_strike") is not None:return "sell_put"
-    if actions & {"trim","trim_half","sell","clear"}:return "reduce_or_exit"
-    if actions & {"buy","add","planned_buy"}:return "buy_or_add"
+    buy_actions={"buy","add","planned_buy"}
+    sell_actions={"trim","trim_half","sell","planned_sell","clear"}
+    if actions & buy_actions and actions & sell_actions:return "mixed_buy_sell"
+    if actions & sell_actions:return "reduce_or_exit"
+    if actions & buy_actions:return "buy_or_add"
     if fields.get("entry_1") is not None or fields.get("entry_2") is not None or fields.get("entry_below") is not None:return "planned_entry"
     if fields.get("exit_line") is not None:return "risk_exit_level"
     return "other"

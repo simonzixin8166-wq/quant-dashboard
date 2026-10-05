@@ -82,7 +82,7 @@ def build(events, coexistence, readiness, family, promotion, forward_health):
         "guardrails":[
             "Legacy observational archive counts are not research sample counts.",
             "Forward candidates are not mature evidence.",
-            "Method Memory and Source Outcome remain descriptive/legacy views and cannot override Spec 1.5 Promotion evidence.",
+            "Method Memory and Source Outcome remain descriptive/legacy views and cannot override current Evaluation Spec Promotion evidence.",
             "This public summary contains no private positions or account data."
         ]
     }

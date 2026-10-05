@@ -16,11 +16,53 @@ ROOT = Path(__file__).resolve().parents[1]
 PUBLIC_ROOTS = (ROOT / "docs", ROOT / "config")
 TEXT_SUFFIXES = {".json", ".jsonl", ".html", ".js", ".css", ".md", ".txt", ".csv"}
 FORBIDDEN_KEYS = re.compile(r'"(?:option_positions|private_positions|broker_account_id|account_number|ledger_records)"\s*:', re.I)
+PUBLIC_JSON_ROOT_ALLOWLIST = {
+    "docs/research/server_action_status.json": {
+        "version","generated_at","status","positions_checked","action_counts",
+        "event_count_48h","quote_failures","data_trust","delivery",
+        "alert_fingerprint","privacy",
+    },
+    "docs/research/auto_thesis_drafts.json": {
+        "version","generated_at","mode","external_requests","symbols","counts","guardrails",
+    },
+}
+PRIVATE_FIELD_NAMES = {
+    "broker_account_id","account_number","user_id","option_positions","private_positions",
+    "ledger_records","access_token","refresh_token","api_key","secret_key",
+}
+
 SECRET_PATTERNS = (
     re.compile(r'ghp_[A-Za-z0-9]{20,}'),
     re.compile(r'github_pat_[A-Za-z0-9_]{20,}'),
     re.compile(r'-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----'),
 )
+
+
+def schema_findings(path: Path, text: str):
+    rel=path.relative_to(ROOT).as_posix()
+    allowed=PUBLIC_JSON_ROOT_ALLOWLIST.get(rel)
+    if allowed is None or path.suffix.lower()!=".json":
+        return []
+    try:
+        import json
+        doc=json.loads(text)
+    except Exception:
+        return [f"invalid-json:{rel}"]
+    if not isinstance(doc,dict):
+        return [f"unexpected-json-root:{rel}"]
+    extras=sorted(set(doc)-set(allowed))
+    findings=[f"unexpected-public-root-key:{rel}:{k}" for k in extras]
+    def walk(v,prefix=""):
+        if isinstance(v,dict):
+            for k,val in v.items():
+                if str(k).lower() in PRIVATE_FIELD_NAMES:
+                    findings.append(f"private-field-name:{rel}:{prefix}{k}")
+                walk(val,prefix+str(k)+".")
+        elif isinstance(v,list):
+            for item in v:
+                walk(item,prefix)
+    walk(doc)
+    return findings
 
 
 def scan():
@@ -45,6 +87,7 @@ def scan():
                 findings.append(f"private-key-material:{rel}")
             if any(p.search(text) for p in SECRET_PATTERNS):
                 findings.append(f"secret-pattern:{rel}")
+            findings.extend(schema_findings(path,text))
     return sorted(set(findings))
 
 

@@ -72,3 +72,11 @@ assert any("funnel_history_rewritten" in x for x in check(old,bad))
 bad=copy.deepcopy(old);bad["source_rule_funnel_history"]["records"]=[]
 assert any("funnel_history_missing" in x for x in check(old,bad))
 print("PASS funnel/source-observation append-only invariants")
+
+
+elig=copy.deepcopy(old)
+elig["rules"]["rules"][0]["extraction_mode"]="forward_initial"
+elig["rules"]["rules"][0]["forward_eligible"]=True
+elig2=copy.deepcopy(elig);elig2["rules"]["rules"][0]["forward_eligible"]=False
+assert any("rule_immutable_changed:r:forward_eligible" in x for x in check(elig,elig2))
+print("PASS rule forward eligibility immutable after migration")

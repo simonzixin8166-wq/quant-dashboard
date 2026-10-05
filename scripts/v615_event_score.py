@@ -158,6 +158,7 @@ def source_provenance_map(store):
         out[str(sid)]={
             "first_fetched_at":row.get("first_fetched_at"),
             "ingest_type":row.get("ingest_type"),
+            "first_fetched_at_origin":row.get("first_fetched_at_origin"),
             "published_at_semantics":row.get("published_at_semantics"),
             "timestamp_confidence":row.get("timestamp_confidence"),
             "snapshot_hash":row.get("snapshot_hash"),

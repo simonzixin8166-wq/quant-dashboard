@@ -17,7 +17,7 @@ FAMILIES=ROOT/"research"/"registry"/"rule_families.json"
 SOURCE=ROOT/"research"/"store"/"source_store.json"
 SPEC=ROOT/"research"/"specs"/"evaluation_spec.json"
 OUT=ROOT/"research"/"reports"/"family_feasibility.json"
-VERSION="6.15.8g"
+VERSION="6.15.8i"
 
 def load(p,d):
     try:return json.loads(p.read_text(encoding="utf-8"))
@@ -121,14 +121,22 @@ def build(rules,families,source,spec):
         "families":rows,
         "assessment":{
             "current_author_diversity_sufficient":families_at_threshold>0,
+            "global_author_supply_bottleneck":len(all_authors)<threshold,
             "family_granularity_review_needed_now":False,
-            "reason":"No family yet has forward longitudinal evidence sufficient to estimate cross-author convergence. Do not coarsen families using outcome or pass-rate information.",
-            "next_structural_review_trigger":"At least 28 calendar days of forward rule intake and at least 3 distinct forward authors across active rules.",
+            "reason":"Current global author supply is itself below the independent-author threshold, so family coarsening cannot solve author feasibility. Do not coarsen families using outcome or pass-rate information.",
+            "next_structural_review_trigger":{
+                "forward_calendar_days_min":28,
+                "distinct_forward_authors_min":3,
+                "forward_rules_total_min":12,
+                "forward_rules_in_any_family_considered_for_coarsening_min":3,
+                "allowed_review_outcomes":["keep_current_granularity","continue_waiting","predeclare_coarse_hierarchy_for_future_only"]
+            },
         },
         "guardrails":[
             "This report does not use returns, win rates, lift, MAE, FDR outcomes or Promotion results.",
             "Backfill/migration rules do not estimate future rule generation velocity.",
             "A coarse-family alternative may be designed only from structural features and must be frozen before inspecting its performance.",
+            "Reaching a structural-review trigger does not imply families must be merged; continue_waiting is an explicit valid outcome.",
             "This report cannot change family membership or Evaluation Spec automatically."
         ],
     }

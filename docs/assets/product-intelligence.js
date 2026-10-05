@@ -3,7 +3,7 @@
 const $=id=>document.getElementById(id);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const rank={l3:3,l2:2,l1:1,unknown:0};
-const state={timer:null,lastAt:0};
+const state={timer:null,lastAt:0,systemStatus:null};
 
 function optionRows(){
  const api=global.OptionV2;if(!api?.getPositions)return[];
@@ -28,13 +28,23 @@ function optionActions(){
  }).sort((a,b)=>(rank[b.risk]||0)-(rank[a.risk]||0)||String(a.expiry).localeCompare(String(b.expiry)));
 }
 function stockStatus(){try{return global.StockWatchlist?.assistantStatus?.()||{count:0,researchCount:0,risk:[],improving:[],hot:[],loaded:false}}catch{return{count:0,researchCount:0,risk:[],improving:[],hot:[],loaded:false}}}
+function opportunityScore(x,kind){
+ let score=50;
+ const pulse=Number(x?.score);
+ if(Number.isFinite(pulse))score+=Math.max(-20,Math.min(20,pulse/5));
+ if(x?.hasThesis)score+=10;
+ if(kind==='improving')score+=15;
+ if(kind==='hot')score-=8;
+ if(kind==='risk')score-=25;
+ return Math.max(0,Math.min(100,Math.round(score)));
+}
 function opportunities(){
  const s=stockStatus(),seen=new Set(),rows=[];
- const add=(x,tone,label,why)=>{if(!x?.symbol||seen.has(x.symbol))return;seen.add(x.symbol);rows.push({symbol:x.symbol,tone,label,why})};
- (s.improving||[]).forEach(x=>add(x,'good','修复 / 转强','趋势改善，下一步核对 Thesis、策略价与事件风险'));
- (s.hot||[]).forEach(x=>add(x,'warn','强势但偏热','保持关注，不因高分追涨；等待更好的风险收益位置'));
- (s.risk||[]).forEach(x=>add(x,'bad','风险优先','趋势退潮或恶化，优先复核 Thesis 与失效条件'));
- return rows.slice(0,4);
+ const add=(x,tone,label,why,kind)=>{if(!x?.symbol||seen.has(x.symbol))return;seen.add(x.symbol);rows.push({symbol:x.symbol,tone,label,why,score:opportunityScore(x,kind)})};
+ (s.improving||[]).forEach(x=>add(x,'good','修复 / 转强','趋势改善，下一步核对 Thesis、策略价与事件风险','improving'));
+ (s.hot||[]).forEach(x=>add(x,'warn','强势但偏热','保持关注，不因高分追涨；等待更好的风险收益位置','hot'));
+ (s.risk||[]).forEach(x=>add(x,'bad','风险优先','趋势退潮或恶化，优先复核 Thesis 与失效条件','risk'));
+ return rows.sort((a,b)=>b.score-a.score).slice(0,4);
 }
 function dataHealth(){
  const rows=[];
@@ -52,21 +62,23 @@ function dataHealth(){
  const sourceText=[...document.querySelectorAll('#tab-wenxuecity .wxc-warning')].map(x=>x.textContent).join(' ');
  if(sourceText)rows.push({name:'研究来源',status:'warn',detail:'部分来源需要核验；历史资料仍可用'});
  else rows.push({name:'研究来源',status:'ok',detail:'Source Intelligence 已启用 fail-closed 保护'});
- return rows.slice(0,5);
+ const guard=state.systemStatus?.resource_guard;
+ if(guard)rows.push({name:'免费额度守门',status:guard.mode==='normal'?'ok':guard.mode==='watch'?'warn':'bad',detail:`${guard.mode==='normal'?'正常':'已进入'+guard.mode} · 缓存优先/事件驱动`});
+ return rows.slice(0,6);
 }
 function actionItems(){
  const opt=optionActions(),s=stockStatus(),rows=[];
- opt.filter(x=>x.risk==='l3').slice(0,2).forEach(x=>rows.push({tone:'bad',when:'今日',title:`${x.symbol} 期权需处理`,text:x.reason,target:'tab-options'}));
- opt.filter(x=>x.risk==='l2').slice(0,2).forEach(x=>rows.push({tone:'warn',when:'今日 / 次日',title:`${x.symbol} 期权复核`,text:x.reason,target:'tab-options'}));
- opt.filter(x=>x.timing.includes('止盈')).slice(0,2).forEach(x=>rows.push({tone:'good',when:'今日',title:`${x.symbol} 可评估止盈`,text:x.reason,target:'tab-options'}));
- (s.risk||[]).slice(0,2).forEach(x=>rows.push({tone:'bad',when:'今日',title:`${x.symbol} Thesis 复核`,text:'趋势转弱/退潮，先确认原始逻辑是否仍成立。',target:'tab-stocks'}));
- (s.improving||[]).slice(0,2).forEach(x=>rows.push({tone:'good',when:'观察',title:`${x.symbol} 出现修复`,text:'趋势改善，继续检查策略价、基本面与事件条件。',target:'tab-stocks'}));
- if(!rows.length)rows.push({tone:'neutral',when:'当前',title:'没有必须立即处理的事项',text:'系统继续扫描市场、观察池、期权与研究来源；正常状态保持安静。',target:'tab-agent-center'});
- return rows.slice(0,5);
+ opt.filter(x=>x.risk==='l3').slice(0,2).forEach(x=>rows.push({priority:100,tone:'bad',when:'今日',title:`${x.symbol} 期权需处理`,text:x.reason,target:'tab-options'}));
+ opt.filter(x=>x.risk==='l2').slice(0,2).forEach(x=>rows.push({priority:80,tone:'warn',when:'今日 / 次日',title:`${x.symbol} 期权复核`,text:x.reason,target:'tab-options'}));
+ opt.filter(x=>x.timing.includes('止盈')).slice(0,2).forEach(x=>rows.push({priority:70,tone:'good',when:'今日',title:`${x.symbol} 可评估止盈`,text:x.reason,target:'tab-options'}));
+ (s.risk||[]).slice(0,2).forEach(x=>rows.push({priority:85,tone:'bad',when:'今日',title:`${x.symbol} Thesis 复核`,text:'趋势转弱/退潮，先确认原始逻辑是否仍成立。',target:'tab-stocks'}));
+ (s.improving||[]).slice(0,2).forEach(x=>rows.push({priority:50,tone:'good',when:'观察',title:`${x.symbol} 出现修复`,text:'趋势改善，继续检查策略价、基本面与事件条件。',target:'tab-stocks'}));
+ if(!rows.length)rows.push({priority:10,tone:'neutral',when:'当前',title:'没有必须立即处理的事项',text:'系统继续扫描市场、观察池、期权与研究来源；正常状态保持安静。',target:'tab-agent-center'});
+ return rows.sort((a,b)=>(b.priority||0)-(a.priority||0)).slice(0,5);
 }
 function card(title,value,detail,tone='neutral'){return `<article class="pi-stat ${tone}"><span>${esc(title)}</span><b>${esc(value)}</b><small>${esc(detail)}</small></article>`}
 function actionHtml(x,i){return `<article class="pi-action ${esc(x.tone)}"><span class="pi-seq">0${i+1}</span><div><div class="pi-action-top"><b>${esc(x.title)}</b><span>${esc(x.when)}</span></div><p>${esc(x.text)}</p><button type="button" data-pi-target="${esc(x.target)}">打开处理</button></div></article>`}
-function opportunityHtml(x){return `<button type="button" class="pi-opportunity ${esc(x.tone)}" data-pi-symbol="${esc(x.symbol)}"><span>${esc(x.symbol)}</span><b>${esc(x.label)}</b><small>${esc(x.why)}</small></button>`}
+function opportunityHtml(x){return `<button type="button" class="pi-opportunity ${esc(x.tone)}" data-pi-symbol="${esc(x.symbol)}"><span>${esc(x.symbol)}</span><b>${esc(x.label)} <em>${esc(x.score)}/100</em></b><small>${esc(x.why)}</small></button>`}
 function healthHtml(x){return `<div class="pi-health-row"><i class="${esc(x.status)}"></i><div><b>${esc(x.name)}</b><small>${esc(x.detail)}</small></div></div>`}
 
 function render(){
@@ -99,8 +111,11 @@ function render(){
  root.querySelectorAll('[data-pi-symbol]').forEach(b=>b.addEventListener('click',()=>global.StockWatchlist?.focus?.(b.dataset.piSymbol)));
  state.lastAt=Date.now();
 }
+async function loadSystemStatus(){
+ try{const r=await fetch('research/system_status.json?v='+Date.now(),{cache:'no-store'});state.systemStatus=r.ok?await r.json():null}catch{state.systemStatus=null}
+}
 function schedule(){clearInterval(state.timer);state.timer=setInterval(()=>{if(document.visibilityState==='visible')render()},120000)}
-function init(){render();schedule();window.addEventListener('mav:options-updated',render);document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')render()});setTimeout(render,1200);setTimeout(render,3500)}
+function init(){loadSystemStatus().finally(render);render();schedule();window.addEventListener('mav:options-updated',render);document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')render()});setTimeout(render,1200);setTimeout(render,3500)}
 global.MAVProductIntelligence={render,optionActions,opportunities,dataHealth};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })(window);

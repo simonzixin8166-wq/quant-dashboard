@@ -1,5 +1,5 @@
 name: Source Intelligence Validation
-# Manual source-sync marker: 2026-10-05T12:08Z product-intelligence-full-upgrade
+# Manual source-sync marker: 2026-10-05T12:28Z free-first-intelligence-batch
 
 on:
   push:
@@ -9,6 +9,7 @@ on:
       - "docs/data/brightline_2026_fulltext_insights.json"
       - "scripts/source_intelligence_engine.py"
       - "scripts/v615_author_intelligence.py"
+      - "scripts/v615_auto_thesis_engine.py"
       - "scripts/research_program_status.py"
       - "scripts/source_reading_memory.py"
       - "scripts/source_outcome_validation.py"
@@ -27,6 +28,7 @@ on:
       - "scripts/evidence_attribution_engine.py"
       - "docs/assets/wenxuecity.js"
       - "tests/test_v615_product_intelligence_ui.py"
+      - "tests/test_v615_free_first_intelligence.py"
       - "scripts/fetch_and_build.py"
       - "docs/assets/stock-watchlist.js"
       - "docs/assets/design-v4.8.css"
@@ -103,6 +105,9 @@ jobs:
       - name: Build V6.15 Author Intelligence
         run: python scripts/v615_author_intelligence.py
 
+      - name: Build V6.15 Auto Thesis drafts
+        run: python scripts/v615_auto_thesis_engine.py
+
       - name: Build V6.14 Source Reading Memory
         run: python scripts/source_reading_memory.py
 
@@ -166,7 +171,7 @@ jobs:
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
-          git add docs/data/source_intelligence.json docs/research/author_intelligence.json docs/research/v615_program_status.json docs/research/source_reading_memory.json docs/research/source_outcome_validation.json docs/research/evidence_status.json docs/research/evidence_attribution.json docs/research/method_memory.json docs/research/module_intelligence.json docs/research/cross_asset_divergence.json docs/research/cross_asset_divergence_history.json docs/research/breadth_intelligence.json docs/research/breadth_intelligence_history.json docs/research/regime_combination_memory.json docs/research/regime_combination_history.json docs/research/research_planner.json docs/research/official_evidence.json docs/research/event_evidence.json docs/research/event_window_attribution.json docs/research/research_execution.json docs/research/self_improvement.json docs/research/learning_evaluation.json docs/research/system_status.json
+          git add docs/data/source_intelligence.json docs/research/author_intelligence.json docs/research/auto_thesis_drafts.json docs/research/v615_program_status.json docs/research/source_reading_memory.json docs/research/source_outcome_validation.json docs/research/evidence_status.json docs/research/evidence_attribution.json docs/research/method_memory.json docs/research/module_intelligence.json docs/research/cross_asset_divergence.json docs/research/cross_asset_divergence_history.json docs/research/breadth_intelligence.json docs/research/breadth_intelligence_history.json docs/research/regime_combination_memory.json docs/research/regime_combination_history.json docs/research/research_planner.json docs/research/official_evidence.json docs/research/event_evidence.json docs/research/event_window_attribution.json docs/research/research_execution.json docs/research/self_improvement.json docs/research/learning_evaluation.json docs/research/system_status.json
           if [ -f data/history/source_validation_history.zip ]; then git add data/history/source_validation_history.zip; fi
           if ! git diff --cached --quiet; then
             git commit -m "update source intelligence validation"

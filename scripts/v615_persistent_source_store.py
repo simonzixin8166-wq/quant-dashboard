@@ -15,7 +15,7 @@ SOURCE=ROOT/"docs"/"data"/"source_intelligence.json"
 EVENTS=ROOT/"research"/"events"/"event_scores_v1.json"
 SOURCE_STORE=ROOT/"research"/"store"/"source_store.json"
 EVENT_HISTORY=ROOT/"research"/"history"/"event_score_history.json"
-VERSION="6.15.8m"
+VERSION="6.15.8l"
 
 sys.path.insert(0,str(ROOT/"scripts"))
 from source_intelligence_engine import collect_full_records,collect_full_records_with_accounting

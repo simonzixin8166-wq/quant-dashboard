@@ -1,6 +1,12 @@
 name: Server Action Watch
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - "scripts/server_action_engine.py"
+      - "tests/test_v615_server_action_engine.py"
+      - ".github/workflows/server-action-watch.yml"
   schedule:
     # US trading-day watch. Covers EDT/EST regular-session windows with some buffer.
     - cron: "*/30 13-22 * * 1-5"

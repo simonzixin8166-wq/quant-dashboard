@@ -1,5 +1,5 @@
 {
-  "definition_version": "1.1",
+  "definition_version": "1.2",
   "normalizer_version": "v615_rule_registry.normalize_rule@6.15.1",
   "extractor_version": "source_reading_memory@6.14.6",
   "immutable_dimensions": [
@@ -96,11 +96,68 @@
     "definition_change_creates_new_family_version": true,
     "never_reassign_old_membership_in_place": true
   },
-  "definition_hash": "9dfcae0df0481ffd2d09c464abc07df241ddc9cce7eecd63565da418c2d92a96",
+  "definition_hash": "c5e7133f20e4fdfe40480f23ed5ca1be8e4f21f8abdc4846baad33330567b809",
   "guardrails": [
     "Family membership is determined only by frozen structural features.",
     "Normalizer and extractor versions are part of the frozen definition identity.",
+    "Mixed buy/sell structures are explicitly mixed_direction; they are never forced bullish or bearish.",
+    "The coarsening ladder is frozen before mature evidence and is diagnostic-only; it cannot be activated from performance results.",
     "Author identity, publication time, realized outcomes and scorecard results are excluded from family assignment.",
     "Changing this definition requires a new definition_version and a new evaluation spec version."
-  ]
+  ],
+  "structural_direction_rules": {
+    "buy_actions": [
+      "buy",
+      "add",
+      "planned_buy"
+    ],
+    "sell_actions": [
+      "sell",
+      "planned_sell",
+      "clear",
+      "trim",
+      "trim_half"
+    ],
+    "mixed_policy": "If both buy-side and sell-side actions are present in one normalized rule, direction=mixed_direction and the rule is not performance-scoreable until a future extractor can split the operations without using outcomes."
+  },
+  "coarsening_ladder": {
+    "status": "frozen_structural_diagnostic_only",
+    "result_blind": true,
+    "levels": [
+      {
+        "level": "L0_current",
+        "dimensions": [
+          "primary_method",
+          "operation_type",
+          "entry_semantic",
+          "direction",
+          "instrument_type",
+          "rule_template"
+        ],
+        "activation": "current"
+      },
+      {
+        "level": "L1_no_rule_template",
+        "dimensions": [
+          "primary_method",
+          "operation_type",
+          "entry_semantic",
+          "direction",
+          "instrument_type"
+        ],
+        "activation": "diagnostic_only"
+      },
+      {
+        "level": "L2_method_operation_direction_instrument",
+        "dimensions": [
+          "primary_method",
+          "operation_type",
+          "direction",
+          "instrument_type"
+        ],
+        "activation": "diagnostic_only"
+      }
+    ],
+    "activation_policy": "A coarser level may only become active in a future definition/spec version after a predeclared structural feasibility review. Realized returns, win rates, CI results and named-method pass/fail outcomes are forbidden inputs."
+  }
 }

@@ -114,6 +114,37 @@ function recordOperatorDecision(entry={}){
   return row;
 }
 
+function updateOperatorDecision(fingerprint,userAction,attribution,note=''){
+  const rows=readOperatorDecisions();
+  const idx=rows.findIndex(x=>String(x.fingerprint||'')===String(fingerprint||''));
+  if(idx<0)return false;
+  const allowedActions=new Set(['executed','no_action','watch','deferred','unrecorded']);
+  const allowedAttribution=new Set(['pending','system_error','user_decision_error','data_error','market_randomness','correct_process']);
+  rows[idx]={...rows[idx],user_action:allowedActions.has(userAction)?userAction:'unrecorded',attribution:allowedAttribution.has(attribution)?attribution:'pending',operator_note:String(note||'').slice(0,300),operator_updated_at:new Date().toISOString()};
+  try{localStorage.setItem(OPERATOR_KEY,JSON.stringify(rows.slice(-180)))}catch{}
+  render();return true;
+}
+function operatorDecisionHtml(){
+  const rows=readOperatorDecisions().slice(-12).reverse();
+  if(!rows.length)return '<div class="journal-empty"><b>还没有操作决策记录</b><p>服务端 Action Engine 产生 action / no-action / cannot-judge 后会自动留下快照。</p></div>';
+  const actionLabel={executed:'已执行',no_action:'决定不操作',watch:'继续观察',deferred:'推迟处理',unrecorded:'未记录'};
+  const attrLabel={pending:'待归因',system_error:'系统判断错误',user_decision_error:'人工决策错误',data_error:'数据错误',market_randomness:'市场随机性',correct_process:'流程正确'};
+  return '<div class="operator-decision-list">'+rows.map(x=>{
+    const actionOptions=Object.entries(actionLabel).map(([k,v])=>'<option value="'+k+'" '+(x.user_action===k?'selected':'')+'>'+v+'</option>').join('');
+    const attrOptions=Object.entries(attrLabel).map(([k,v])=>'<option value="'+k+'" '+(x.attribution===k?'selected':'')+'>'+v+'</option>').join('');
+    return '<article class="operator-decision-card"><div><b>'+esc(x.date)+' · '+esc(x.decision)+'</b><span>'+esc(x.data_state)+' / '+esc(x.evidence_state)+'</span></div><p>'+esc(x.reason||'—')+'</p><div class="operator-decision-controls"><select data-operator-action="'+esc(x.fingerprint)+'">'+actionOptions+'</select><select data-operator-attr="'+esc(x.fingerprint)+'">'+attrOptions+'</select><button type="button" data-operator-save="'+esc(x.fingerprint)+'">保存</button></div>'+(x.operator_note?'<small>'+esc(x.operator_note)+'</small>':'')+'</article>';
+  }).join('')+'</div>';
+}
+function bindOperatorDecisionControls(root){
+  root.querySelectorAll('[data-operator-save]').forEach(btn=>btn.addEventListener('click',()=>{
+    const fp=btn.dataset.operatorSave;
+    const action=root.querySelector('[data-operator-action="'+CSS.escape(fp)+'"]')?.value||'unrecorded';
+    const attr=root.querySelector('[data-operator-attr="'+CSS.escape(fp)+'"]')?.value||'pending';
+    updateOperatorDecision(fp,action,attr);
+    global.MAV?.toast?.('实际操作 / 归因已记录','good');
+  }));
+}
+
 function supabase(){return global.mavSupabase||global.supabaseClient||null}
 async function waitForAuth(timeout=10000){
   const start=Date.now();let sb=null;
@@ -249,10 +280,12 @@ async function render(error=''){
   <section class="journal-panel"><div class="journal-head"><div><h2>历史市场规则验证</h2><p>单独检查观察 / 大跌 / 极端市场触发，不与个股 Trend Pulse 样本混在一起。</p></div></div>${validationHtml(backtestCache)}</section>
   <section class="journal-panel"><div class="journal-head"><div><h2>Weekly Self Review · 每周自主复盘</h2><p>系统评价自己的历史判断、重复提醒和漏掉的行情，并把结论用于后续研究优先级。</p></div></div>${selfReviewHtml(rows)}</section>
   <section class="journal-panel"><div class="journal-head"><div><h2>Agent Error Memory · 错误记忆</h2><p>只记录已经有成熟结果的误报、漏掉上涨和大幅不利波动；它只调整研究权重，不自动修改核心策略。</p></div></div>${(()=>{const errs=errorMemory(rows);return errs.length?`<div class="learning-grid">${errs.slice(0,8).map(x=>`<article class="learning-card"><div><b>${esc(x.symbol)} · ${esc(x.type)}</b><span>${esc(x.date)}</span></div><strong>20日 ${pct(x.return20)}</strong><p>${esc(x.note)}</p><small>当时判断：${esc(x.decision)}</small></article>`).join('')}</div>`:'<div class="journal-empty"><b>暂无成熟错误样本</b><p>待20日结果成熟后自动归类，不会用未成熟样本提前“学习”。</p></div>'})()}</section>
+  <section class="journal-panel"><div class="journal-head"><div><h2>实际操作与错误归因</h2><p>系统建议与最终人工决定分开保存；错误只能归为系统、人工、数据或市场随机性，不用结果好坏反推当时过程。</p></div></div>${operatorDecisionHtml()}</section>
   <section class="journal-panel journal-boundary"><h2>AI Agent 学习边界</h2><div><b>自动完成</b><p>历史回填、每日增量、结果成熟、样本统计、研究优先级、异常提醒和 QA。</p></div><div><b>必须由投资者决定</b><p>买卖、仓位、核心ETF阈值变更、把博主经验升级成正式规则。AI不会自动下单。</p></div></section>`;
+  bindOperatorDecisionControls(root);
 }
 function learningForStage(stage){const p=state.history?.profiles?.[stage];if(!p)return null;return {...p.evidence,stats:p.horizons?.['60']||null}}
 async function init(){render();setTimeout(()=>refreshOutcomes({silent:true}),4500)}
-global.MAVDecisionJournal={recordAssistantEvent,recordOperatorDecision,refreshOutcomes,render,getJournal:read,getOperatorDecisions:readOperatorDecisions,getHistorical:()=>state.history,learningForStage,getErrorMemory:()=>errorMemory(read()),getSelfReview:()=>weeklySelfReview(read()),state};
+global.MAVDecisionJournal={recordAssistantEvent,recordOperatorDecision,updateOperatorDecision,refreshOutcomes,render,getJournal:read,getOperatorDecisions:readOperatorDecisions,getHistorical:()=>state.history,learningForStage,getErrorMemory:()=>errorMemory(read()),getSelfReview:()=>weeklySelfReview(read()),state};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })(window);

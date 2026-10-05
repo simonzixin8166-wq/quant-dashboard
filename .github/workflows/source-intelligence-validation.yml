@@ -1,5 +1,5 @@
 name: Source Intelligence Validation
-# Manual source-sync marker: 2026-10-05T13:02Z p012-frozen-plan-batch
+# Manual source-sync marker: 2026-10-05T13:18Z p2-completion-batch
 
 on:
   push:
@@ -42,6 +42,12 @@ on:
       - "tests/test_v615_server_action_engine.py"
       - "supabase/migrations/202610050001_private_watchlist_targets.sql"
       - "supabase/migrations/202610050002_request_usage_ledger.sql"
+      - "docs/assets/decision-journal.css"
+      - "scripts/dashboard_universe.py"
+      - "scripts/dashboard_option_math.py"
+      - "scripts/research_storage_health.py"
+      - ".github/workflows/daily.yml"
+      - "tests/test_p2_completion.py"
       - ".github/workflows/source-intelligence-validation.yml"
   schedule:
     # Runs after wxc-bot research-close (22:30 UTC) so new author research reaches MyAlpha the same cycle.

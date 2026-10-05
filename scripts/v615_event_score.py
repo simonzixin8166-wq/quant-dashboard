@@ -7,7 +7,8 @@ It does not replace the legacy engines yet.
 from __future__ import annotations
 import hashlib, json, math, sys
 from collections import Counter
-from datetime import datetime, timezone
+from datetime import datetime, time, timezone
+from zoneinfo import ZoneInfo
 from pathlib import Path
 
 import pandas as pd
@@ -26,8 +27,8 @@ from entry_semantics import classify_event
 from local_history_agent import read_archive
 from source_history_cache import read_cache
 
-VERSION="6.15.8j"
-SCORING_ENGINE_VERSION="event_score@6.15.8j"
+VERSION="6.15.8k"
+SCORING_ENGINE_VERSION="event_score@6.15.8k"
 HORIZONS=(5,20,60)
 
 def load(path,default):
@@ -163,14 +164,36 @@ def source_provenance_map(store):
         }
     return out
 
-def point_in_time_status(prov,baseline_date):
+def baseline_timestamp_utc(baseline_date,spec=None):
+    """Conservative tradable baseline instant for daily US equity OHLC.
+
+    A daily bar's baseline date is anchored to the US regular-session open.
+    This prevents a source first seen during that session from consuming any
+    part of the same daily bar as point-in-time evidence.
+    """
+    if not baseline_date:return None
+    cfg=((spec or {}).get("definitions") or {}).get("point_in_time_eligibility") or {}
+    try:
+        day=pd.Timestamp(str(baseline_date)[:10]).date()
+        eastern=ZoneInfo("America/New_York")
+        local=datetime.combine(day,time(9,30),tzinfo=eastern)
+        return local.astimezone(timezone.utc)
+    except Exception:
+        return None
+
+def point_in_time_status(prov,baseline_date,spec=None):
     first=(prov or {}).get("first_fetched_at")
     if not first or not baseline_date:
         return "unknown"
     try:
-        first_day=pd.Timestamp(str(first)[:10])
-        baseline=pd.Timestamp(str(baseline_date)[:10])
-        return "eligible" if baseline>=first_day else "historical_pre_ingest"
+        first_ts=pd.Timestamp(first)
+        if first_ts.tzinfo is None:
+            return "unknown"
+        first_utc=first_ts.tz_convert("UTC").to_pydatetime()
+        baseline_utc=baseline_timestamp_utc(baseline_date,spec)
+        if baseline_utc is None:
+            return "unknown"
+        return "eligible" if baseline_utc>first_utc else "historical_pre_ingest"
     except Exception:
         return "unknown"
 
@@ -259,7 +282,8 @@ def adapt(validation,registry,histories=None,spec=None,source_store=None,familie
         structural_direction=structural_directions.get(str(rid)) if rid is not None else None
         hmeta=histories.get(symbol,{}).get("meta") or {}
         prov=provenance.get(str(sid)) or {}
-        pit=point_in_time_status(prov,ev.get("baseline_date"))
+        baseline_ts=baseline_timestamp_utc(ev.get("baseline_date"),spec)
+        pit=point_in_time_status(prov,ev.get("baseline_date"),spec)
         price_provenance=resolve_price_provenance(ev,hmeta)
         reasons=exclusion_reasons(rid,bool(ev.get("triggered")),direction,et,hmeta.get("status"),pit,structural_direction,price_provenance)
         primary=choose_primary(reasons,spec)
@@ -306,6 +330,7 @@ def adapt(validation,registry,histories=None,spec=None,source_store=None,familie
             "symbol":symbol,
             "published_at":ev.get("published_at"),
             "baseline_date":ev.get("baseline_date"),
+            "baseline_timestamp_utc":baseline_ts.isoformat() if baseline_ts is not None else None,
             "entry_type":et,
             "fill_status":entry_meta.get("fill_status"),
             "fill_confidence":entry_meta.get("fill_confidence"),
@@ -325,7 +350,7 @@ def adapt(validation,registry,histories=None,spec=None,source_store=None,familie
             "price_provenance":price_provenance,
             "source_provenance":prov,
             "point_in_time_status":pit,
-            "market_timestamp_cutoff":"strictly_before_baseline_date",
+            "market_timestamp_cutoff":"strictly_before_baseline_timestamp_utc",
         })
     scoreable_n=sum(1 for x in rows if x["scoreable"])
     if len(rows) != scoreable_n + sum(primary_counts.values()):

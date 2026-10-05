@@ -2,7 +2,7 @@
   'use strict';
   const endpoint='https://rhielbkvhgqbthcgztci.supabase.co/functions/v1/stock-market';
   const DAILY_CACHE_KEY='mav-stock-daily-v1';
-  const state={items:[],quotes:{},daily:{},research:{},researchReady:true,dailyPhase:'',timer:null,loading:false};
+  const state={items:[],quotes:{},daily:{},research:{},autoThesis:{},researchReady:true,dailyPhase:'',timer:null,loading:false};
   const esc=value=>String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
   const num=value=>Number.isFinite(Number(value))?Number(value):null;
   const money=value=>num(value)===null?'—':`$${Number(value).toFixed(2)}`;
@@ -99,22 +99,33 @@
     if(dist!==null&&dist<-.10)return '价格明显低于长期均线，市场结构偏弱。普通投资者应先核对基本面是否恶化，再考虑价格是否真的更有吸引力。';
     return '目前没有单一指标给出强方向。先看“为什么关注、什么会证明我错”，再用趋势与价格位置做辅助确认。';
   }
+  function autoDraftHtml(symbol){
+    const d=state.autoThesis[symbol];if(!d)return '';
+    return `<details class="stock-auto-thesis"><summary>系统自动补充 · 官方/事件证据草稿</summary><div class="stock-auto-thesis-grid"><p><b>证据摘要</b><br>${esc(d.evidence_summary||'—')}</p><p><b>催化剂/事件</b><br>${esc(d.catalysts||'—').replace(/\n/g,'<br>')}</p><p><b>风险</b><br>${esc(d.risks||'—').replace(/\n/g,'<br>')}</p><p><b>失效提醒</b><br>${esc(d.invalidation||'—')}</p></div><small>只使用已抓取的官方/事件证据；不覆盖你的手工研究卡。</small></details>`;
+  }
   function researchHtml(symbol,q,tp){
     const r=state.research[symbol];const edit=Boolean(global.isAdmin ?? (typeof isAdmin!=='undefined'&&isAdmin));
     const btn=edit?`<button type="button" onclick="StockWatchlist.openResearch('${esc(symbol)}')">${r?'编辑研究卡':'＋ 写研究卡'}</button>`:'';
     if(!state.researchReady)return `<div class="stock-research-card"><div class="stock-research-head"><div><h4>投资论点 · Research Thesis</h4><p>私有研究层</p></div>${btn}</div><div class="stock-research-empty">研究卡数据库尚未启用。先执行 V4.9.6 Supabase migration，再刷新页面。</div></div>`;
-    if(!r)return `<div class="stock-research-card"><div class="stock-research-head"><div><h4>投资论点 · Research Thesis</h4><p>先写为什么，再看价格；Trend Pulse只做第二层确认。</p></div>${btn}</div><div class="stock-research-guide"><b>通俗判断：</b>${esc(plainGuide(q,tp))}</div><div class="stock-research-empty">还没有研究卡。建议先写：为什么不直接买指数、核心论点、催化剂、最大风险、什么事实会证明判断错了。</div></div>`;
+    if(!r)return `<div class="stock-research-card"><div class="stock-research-head"><div><h4>投资论点 · Research Thesis</h4><p>先写为什么，再看价格；Trend Pulse只做第二层确认。</p></div>${btn}</div><div class="stock-research-guide"><b>通俗判断：</b>${esc(plainGuide(q,tp))}</div><div class="stock-research-empty">还没有研究卡。建议先写：为什么不直接买指数、核心论点、催化剂、最大风险、什么事实会证明判断错了。</div>${autoDraftHtml(symbol)}</div>`;
     const box=(label,key,wide='')=>`<div class="stock-research-item ${wide}"><span>${label}</span><p>${esc(r[key]||'未填写')}</p></div>`;
-    return `<div class="stock-research-card"><div class="stock-research-head"><div><h4>投资论点 · Research Thesis</h4><p>最近更新 ${esc((r.updated_at||'').slice(0,10)||'—')} · 下次核验 ${esc(r.next_review_date||'未设置')}</p></div>${btn}</div><div class="stock-research-guide"><b>现在怎么看：</b>${esc(plainGuide(q,tp))}</div><div class="stock-research-grid">${box('我的 Edge / 为什么不是直接买指数','edge')}${box('投资论点 Thesis','thesis','wide')}${box('催化剂','catalysts')}${box('最大风险','risks')}${box('失效条件 / 什么事实说明我错了','invalidation','wide')}${box('估值 / 价格位置','valuation_note')}${box('下一步研究方案','plan','wide')}</div></div>`;
+    return `<div class="stock-research-card"><div class="stock-research-head"><div><h4>投资论点 · Research Thesis</h4><p>最近更新 ${esc((r.updated_at||'').slice(0,10)||'—')} · 下次核验 ${esc(r.next_review_date||'未设置')}</p></div>${btn}</div><div class="stock-research-guide"><b>现在怎么看：</b>${esc(plainGuide(q,tp))}</div><div class="stock-research-grid">${box('我的 Edge / 为什么不是直接买指数','edge')}${box('投资论点 Thesis','thesis','wide')}${box('催化剂','catalysts')}${box('最大风险','risks')}${box('失效条件 / 什么事实说明我错了','invalidation','wide')}${box('估值 / 价格位置','valuation_note')}${box('下一步研究方案','plan','wide')}</div>${autoDraftHtml(symbol)}</div>`;
+  }
+  async function loadAutoThesis(){
+    try{
+      const r=await fetch('research/auto_thesis_drafts.json?v='+Date.now(),{cache:'no-store'});
+      const body=r.ok?await r.json():{};
+      state.autoThesis=body.symbols||{};
+    }catch{state.autoThesis={}}
   }
   async function loadResearch(symbols){
-    state.research={};state.researchReady=true;if(!symbols.length)return;
+    state.research={};state.researchReady=true;await loadAutoThesis();if(!symbols.length)return;
     try{const {data,error}=await supabaseClient.from('stock_research_notes').select('*').in('symbol',symbols);if(error)throw error;(data||[]).forEach(r=>state.research[r.symbol]=r)}catch(error){state.researchReady=false;const msg=String(error?.message||error);if(!/stock_research_notes|schema cache|does not exist|PGRST/i.test(msg))global.MAV?.toast(`研究卡读取失败：${msg}`,'warn')}
   }
   function ensureResearchModal(){
     let modal=document.getElementById('stockResearchModal');if(modal)return modal;modal=document.createElement('div');modal.id='stockResearchModal';modal.className='option-modal-backdrop';modal.style.display='none';modal.innerHTML=`<div class="option-modal-card stock-research-modal"><div class="option-modal-head"><div><h3 id="stockResearchTitle">个股研究卡</h3><p>先写论点、反证和下一核验；不记录真实持仓金额。</p></div><button type="button" onclick="StockWatchlist.closeResearch()">×</button></div><p class="stock-research-help">普通投资者模板：不会的指标可以不填。重点是“为什么关注、什么会证明我错、下一步看什么证据”。</p><div class="stock-research-form"><label>我的 Edge / 为什么不是直接买指数<textarea id="researchEdge"></textarea></label><label>下一核验日期<input id="researchNextReview" type="date"></label><label class="wide">投资论点 Thesis<textarea id="researchThesis"></textarea></label><label>主要催化剂<textarea id="researchCatalysts"></textarea></label><label>最大风险<textarea id="researchRisks"></textarea></label><label class="wide">失效条件 / 什么事实说明判断错了<textarea id="researchInvalidation"></textarea></label><label>估值 / 价格位置<textarea id="researchValuation"></textarea></label><label>下一步研究方案<textarea id="researchPlan"></textarea></label></div><div class="option-modal-actions"><button type="button" onclick="StockWatchlist.closeResearch()">取消</button><button class="primary" type="button" onclick="StockWatchlist.saveResearch()">保存研究卡</button></div><input id="researchSymbol" type="hidden"></div>`;document.body.appendChild(modal);return modal;
   }
-  function openResearch(symbol){const m=ensureResearchModal(),r=state.research[symbol]||{};document.getElementById('researchSymbol').value=symbol;document.getElementById('stockResearchTitle').textContent=`${symbol} · 个股研究卡`;document.getElementById('researchEdge').value=r.edge||'';document.getElementById('researchThesis').value=r.thesis||'';document.getElementById('researchCatalysts').value=r.catalysts||'';document.getElementById('researchRisks').value=r.risks||'';document.getElementById('researchInvalidation').value=r.invalidation||'';document.getElementById('researchValuation').value=r.valuation_note||'';document.getElementById('researchPlan').value=r.plan||'';document.getElementById('researchNextReview').value=r.next_review_date||'';m.style.display='grid'}
+  function openResearch(symbol){const m=ensureResearchModal(),r=state.research[symbol]||{},d=state.autoThesis[symbol]||{};document.getElementById('researchSymbol').value=symbol;document.getElementById('stockResearchTitle').textContent=`${symbol} · 个股研究卡`;document.getElementById('researchEdge').value=r.edge||'';document.getElementById('researchThesis').value=r.thesis||d.evidence_summary||'';document.getElementById('researchCatalysts').value=r.catalysts||d.catalysts||'';document.getElementById('researchRisks').value=r.risks||d.risks||'';document.getElementById('researchInvalidation').value=r.invalidation||d.invalidation||'';document.getElementById('researchValuation').value=r.valuation_note||d.valuation_note||'';document.getElementById('researchPlan').value=r.plan||d.plan||'';document.getElementById('researchNextReview').value=r.next_review_date||'';m.style.display='grid'}
   function closeResearch(){const m=document.getElementById('stockResearchModal');if(m)m.style.display='none'}
   async function saveResearch(){const symbol=document.getElementById('researchSymbol').value;const {data:{session}}=await supabaseClient.auth.getSession();if(!session){alert('请先登录');return}const payload={user_id:session.user.id,symbol,edge:document.getElementById('researchEdge').value.trim(),thesis:document.getElementById('researchThesis').value.trim(),catalysts:document.getElementById('researchCatalysts').value.trim(),risks:document.getElementById('researchRisks').value.trim(),invalidation:document.getElementById('researchInvalidation').value.trim(),valuation_note:document.getElementById('researchValuation').value.trim(),plan:document.getElementById('researchPlan').value.trim(),next_review_date:document.getElementById('researchNextReview').value||null,updated_at:new Date().toISOString()};const {data,error}=await supabaseClient.from('stock_research_notes').upsert(payload).select().single();if(error){alert(`研究卡保存失败：${error.message}`);return}state.research[symbol]=data;state.researchReady=true;closeResearch();render();global.MAVInvestmentAssistant?.rescan?.();global.MAV?.toast(`${symbol} 研究卡已保存`,'good')}
   function rowHtml(item,index){

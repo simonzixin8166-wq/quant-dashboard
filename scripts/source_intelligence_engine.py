@@ -243,6 +243,12 @@ def normalize(row):
         "source_notice": row.get("source_notice") or "外部作者原始观点，仅作研究来源。",
         "source_role": row.get("source_role"),
         "transcript_status": row.get("transcript_status"),
+        "content_quality": row.get("content_quality"),
+        "content_provider": row.get("content_provider"),
+        "content_provider_url": row.get("content_provider_url"),
+        "content_origin": row.get("content_origin"),
+        "timestamp_evidence": bool(row.get("timestamp_evidence")),
+        "rule_candidate_allowed": row.get("rule_candidate_allowed"),
         "captured_at": row.get("captured_at"),
         "myalpha_validation": "needs_independent_validation",
     }

@@ -67,6 +67,10 @@ def extractor_input_payload(row):
         "operations":row.get("operations") or [],
         "portfolio_rules":row.get("portfolio_rules") or [],
         "lessons":row.get("lessons") or [],
+        "content_quality":row.get("content_quality"),
+        "content_provider":row.get("content_provider"),
+        "content_origin":row.get("content_origin"),
+        "rule_candidate_allowed":row.get("rule_candidate_allowed"),
     }
 
 def extractor_input_hash(row):
@@ -167,7 +171,8 @@ def record_memory(row):
                 {"operation_index":i,"field":"exit_line","attribution":owner})
 
         rule=explicit_rule_from_operation(op)
-        if rule and owner in {"author_action","author_plan"}:
+        source_rule_allowed = row.get("rule_candidate_allowed") is not False
+        if rule and owner in {"author_action","author_plan"} and source_rule_allowed:
             method_candidates=explicit_method_candidates(op,row)
             add(props,sid,"testable_rule",f"{sym}：结构化操作规则 {json.dumps(rule,ensure_ascii=False,sort_keys=True)}",
                 "high",True,{
@@ -218,6 +223,10 @@ def record_memory(row):
         "url":row.get("url"),
         "symbols":row.get("symbols") or [],
         "topics":row.get("topics") or [],
+        "content_quality":row.get("content_quality"),
+        "content_provider":row.get("content_provider"),
+        "content_origin":row.get("content_origin"),
+        "rule_candidate_allowed":row.get("rule_candidate_allowed"),
         "propositions":props,
         "testable_rule_count":len(testable),
         "reading_state":"testable" if testable else ("structured_context" if props else "insufficient_content"),
@@ -265,6 +274,7 @@ def build(source):
             "Only source text and existing structured fields are transformed.",
             "Article topic alone never becomes a testable rule.",
             "Only explicit structured operations owned by the author can create testable_rule records.",
+            "Sources explicitly marked rule_candidate_allowed=false can never create testable_rule records.",
             "Prose triggers, invalidations and views remain context until later structured validation.",
             "Unclassified source prose is preserved as non_testable_view instead of being discarded or promoted.",
             "Every source record carries a hash of the exact normalized fields consumed by this extractor.",

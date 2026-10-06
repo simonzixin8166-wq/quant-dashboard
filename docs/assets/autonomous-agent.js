@@ -619,7 +619,12 @@
   }
 
   function decisionDataBlock(){
-    const contract=state.systemStatus?.decision_data_contract||{};
+    if(!state.systemStatus)return{blocked:true,excluded:['system_status_unavailable'],rule:'System Status unavailable; fail closed.'};
+    const authority=global.MAVProductIntelligence?.decisionAuthority?.();
+    if(!authority||authority.decision_eligible!==true){
+      return{blocked:true,excluded:['decision_authority_blocked'],rule:authority?.detail||'Decision Authority unavailable or blocked.'};
+    }
+    const contract=state.systemStatus.decision_data_contract||{};
     const excluded=Array.isArray(contract.excluded_artifacts)?contract.excluded_artifacts:[];
     const critical=new Set(['market_dashboard','learning_engine','autonomous_agent','cross_asset_divergence','breadth_intelligence','regime_combination_memory']);
     const blocked=excluded.filter(x=>critical.has(x));
@@ -696,6 +701,7 @@
   global.MAVAutonomousAgent={render,loadPublic,optionAdvice,privateAttention,remainingEdge,readMemory,decisionHistory,buildLearningPolicy,resetLearningPolicy,resumeLearningPolicy,decisionDataBlock,state};
   if(typeof document!=='undefined'){
     window.addEventListener('mav:options-updated',()=>render());
+    window.addEventListener('mav:decision-authority',()=>render());
     document.addEventListener('DOMContentLoaded',init);
   }
 })(typeof window!=='undefined'?window:globalThis);

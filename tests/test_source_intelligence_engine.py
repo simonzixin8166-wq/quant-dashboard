@@ -79,6 +79,25 @@ assert "趋势确认" in gm["g2"]["topics"]
 assert "TA" not in gm["g3"]["symbols"], gm["g3"]["symbols"]
 print("PASS V5.9.1 false-positive guards")
 
+# V6.15 ticker entity hardening: finance jargon is not a ticker; maintained
+# symbols and explicit $-prefixed unknowns are still recognized.
+entity_guard=si.build([
+ {"id":"e1","source":"wenxuecity","source_kind":"forum","author":"x","published_at":"2026-10-01",
+  "title":"YOY DCA LEAPS FOMO YTD ROI MACD update","url":"https://example/e1","excerpt":""},
+ {"id":"e2","source":"wenxuecity","source_kind":"forum","author":"x","published_at":"2026-10-01",
+  "title":"AAOI and CIEN breakout","url":"https://example/e2","excerpt":""},
+ {"id":"e3","source":"wenxuecity","source_kind":"forum","author":"x","published_at":"2026-10-01",
+  "title":"Watching $XYZ after earnings","url":"https://example/e3","excerpt":""},
+ {"id":"e4","source":"wenxuecity","source_kind":"forum","author":"x","published_at":"2026-10-01",
+  "title":"meta discussion and coin toss","url":"https://example/e4","excerpt":""},
+])
+em={x["id"]:x for x in entity_guard["records"]}
+assert em["e1"]["symbols"]==[], em["e1"]["symbols"]
+assert set(em["e2"]["symbols"])=={"AAOI","CIEN"}, em["e2"]["symbols"]
+assert em["e3"]["symbols"]==["XYZ"], em["e3"]["symbols"]
+assert "META" not in em["e4"]["symbols"] and "COIN" not in em["e4"]["symbols"]
+print("PASS V6.15 ticker entity hardening")
+
 # V5.9.1 upstream-feed symbol sanitization: do not preserve collector false positives.
 feed_clean=si.build([
  {"id":"f1","source":"wenxuecity","source_kind":"forum","author":"三心三意","published_at":"2026-10-01",

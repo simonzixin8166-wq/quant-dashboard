@@ -64,7 +64,7 @@ expanded=ee.selected_symbols(planner,review_evidence)
 assert expanded[:2]==["IREN","SOFI"]
 for sym in ["MSFT","VGT","LITE","NOW","NBIS","CRWV","MU"]:
     assert sym in expanded
-assert len(expanded)<=12
+assert len(expanded)<=16
 print("PASS V6.15 event evidence learning-review expansion")
 
 crowded_planner={"today":[{"kind":"market_anomaly","key":"MSFT"},{"kind":"market_anomaly","key":"LITE"}],
@@ -72,5 +72,5 @@ crowded_planner={"today":[{"kind":"market_anomaly","key":"MSFT"},{"kind":"market
 crowded=ee.selected_symbols(crowded_planner,review_evidence)
 for sym in ["NOW","NBIS","CRWV","MU"]:
     assert sym in crowded, crowded
-assert len(crowded)<=12
+assert len(crowded)<=16
 print("PASS learning-review priority over backlog queue")

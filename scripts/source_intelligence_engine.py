@@ -30,7 +30,7 @@ YOUTUBE_ARCHIVE_URL = os.getenv(
 SYMBOLS = {
     "INTC","IREN","TSLA","QQQ","QQQM","VGT","QLD","TQQQ","NVDA","MU","AMZN",
     "NOW","META","SMH","SPY","VOO","ORCL","IBIT","BTC","COIN","NBIS","CRWV","SNDK",
-    "PYPL","GOOG","GOOGL","AAPL","MSFT","JPM","AMAT","LITE","BE","MRVL","RSP","QCOM",
+    "PYPL","GOOG","GOOGL","AAPL","MSFT","JPM","AMAT","LITE","BE","MRVL","RSP","QCOM","AAOI","CIEN",
 }
 # Uppercase tokens from forum titles are useful ticker candidates, but a conservative
 # blocklist prevents common English abbreviations from becoming symbols.
@@ -39,8 +39,10 @@ TICKER_BLOCKLIST = {
     "DCF","ATH","ATL","LOL","IMO","IMHO","FYI","MM","SP","CC","DTE","IV","OI","RSI",
     "MA","TA","USD","US","ETF","ETFS","THE","AND","BUT","FOR","WITH","THIS","THAT","YOU",
     "YOUR","FROM","HOLD","BUY","SELL","PUT","CALL","LONG","SHORT","STOP","LOSS",
+    "YOY","DCA","LEAP","LEAPS","FOMO","YTD","ROI","ER","IPO","CAPEX","FCF","HDD","HBM",
+    "PEG","PCE","MACD","YMYD","RR","FA","PT","CNN","ID","DT","ES",
 }
-AMBIGUOUS_WORD_TICKERS = {"NOW","BE"}
+AMBIGUOUS_WORD_TICKERS = {"NOW","BE","META","LITE","COIN","MU","ARM","APP","ES","ID","DT"}
 TOPICS = {
     "Sell Put": ["sell put","卖put","卖 put","sp "],
     "LEAPS": ["leap","leaps","长期期权"],
@@ -101,10 +103,14 @@ def symbols(text: str):
         if re.search(rf"(?<![A-Z0-9]){re.escape(s)}(?![A-Z0-9])", haystack):
             found.append(s)
 
-    # Historical reparse: forum posts often mention symbols that were not in the
-    # original static universe. Infer only explicit uppercase ticker-like tokens.
-    for token in re.findall(r"(?<![A-Za-z0-9])\$?([A-Z]{2,5})(?![A-Za-z0-9])", raw):
+    # Historical reparse: do not treat every uppercase finance/English token as
+    # a ticker. Unknown symbols require an explicit $ prefix; otherwise they must
+    # already be in the maintained symbol universe above.
+    for match in re.finditer(r"(?<![A-Za-z0-9])(\$?)([A-Z]{2,5})(?![A-Za-z0-9])", raw):
+        prefix,token=match.group(1),match.group(2)
         if token in TICKER_BLOCKLIST:
+            continue
+        if token not in SYMBOLS and prefix!="$":
             continue
         if token not in found:
             found.append(token)
@@ -130,9 +136,13 @@ def sanitize_declared_symbols(values, text: str):
             continue
         if sym in TICKER_BLOCKLIST:
             continue
-        if sym in AMBIGUOUS_WORD_TICKERS:
-            if not re.search(rf"(?<![A-Za-z0-9])\$?{re.escape(sym)}(?![A-Za-z0-9])", raw):
-                continue
+        explicit=bool(re.search(rf"(?<![A-Za-z0-9])\$?{re.escape(sym)}(?![A-Za-z0-9])", raw))
+        if sym in AMBIGUOUS_WORD_TICKERS and not explicit:
+            continue
+        # Unknown upstream metadata is accepted only when the symbol is actually
+        # present in the source text; maintained symbols may survive short excerpts.
+        if sym not in SYMBOLS and not explicit:
+            continue
         if sym not in out:
             out.append(sym)
     return out[:12]

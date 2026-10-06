@@ -17,6 +17,7 @@ ROOT=Path(__file__).resolve().parents[1]
 PLANNER=ROOT/"docs/research/research_planner.json"
 DATA=ROOT/"docs/data.json"
 PREV=ROOT/"docs/research/event_evidence.json"
+EVIDENCE=ROOT/"docs/research/evidence_attribution.json"
 OUT=PREV
 SEARCH="https://query1.finance.yahoo.com/v1/finance/search?{query}"
 ETF_OR_INDEX={"QQQ","QQQM","VOO","SPY","VGT","QLD","TQQQ","SMH","IBIT","GLD","RSP"}
@@ -47,15 +48,19 @@ def load(path):
     try:return json.loads(path.read_text(encoding="utf-8"))
     except Exception:return {}
 
-def selected_symbols(planner):
+def selected_symbols(planner,evidence=None):
     out=list(PINNED_PUBLIC_RESEARCH)
     for row in (planner.get("today") or [])+(planner.get("queue") or []):
         if row.get("kind") not in {"market_anomaly","discovery","failure_review"}:continue
         sym=str(row.get("key") or "").upper().strip()
         if not re.fullmatch(r"[A-Z]{1,5}",sym):continue
         if sym not in out:out.append(sym)
-        if len(out)>=8:break
-    return out
+    reviews=((evidence or {}).get("failure_attribution") or {}).get("external_outcome_reviews") or []
+    for row in reviews:
+        sym=str(row.get("symbol") or "").upper().strip()
+        if re.fullmatch(r"[A-Z]{1,5}",sym) and sym not in out:
+            out.append(sym)
+    return out[:12]
 
 def request_json(url):
     req=urllib.request.Request(url,headers={"User-Agent":"Mozilla/5.0 MyAlphaView/6.4","Accept":"application/json"})
@@ -134,7 +139,7 @@ def peer_context(symbol,data):
     return {"peers":rows,"peer_count":len(rows),"direction":direction,"avg_day_change":avg}
 
 def build(planner,data,previous):
-    syms=selected_symbols(planner)
+    syms=selected_symbols(planner,load(EVIDENCE))
     prev=(previous.get("symbols") or {}) if isinstance(previous,dict) else {}
     symbols={}
     for sym in syms:
@@ -164,7 +169,7 @@ def build(planner,data,previous):
         "with_peer_context":sum((x.get("peer_context") or {}).get("peer_count",0)>0 for x in symbols.values()),
       },
       "policy":{
-        "max_symbols":8,"max_news_per_symbol":5,
+        "max_symbols":12,"max_news_per_symbol":5,
         "full_market_crawl":False,"article_body_invented":False,
         "automatic_orders":False,"production_rule_mutation":False,
         "source_hierarchy":"official SEC remains above news; newswire/press wire above general media/opinion",

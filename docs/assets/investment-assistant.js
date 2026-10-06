@@ -6,6 +6,10 @@ const state={last:null,lastSnapshot:null,lastAlertKey:null,lastAlertAt:0,optionI
 const n=v=>Number.isFinite(Number(v))?Number(v):null;
 const pct=v=>v===null?'—':`${v>=0?'+':''}${(v*100).toFixed(2)}%`;
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function decisionAuthority(){
+  try{return global.MAVProductIntelligence?.decisionAuthority?.()||{status:'ready',decision_eligible:true,title:'系统正常值守',detail:''}}
+  catch{return{status:'cannot_judge',decision_eligible:false,title:'今日无法可靠判断',detail:'决策数据状态未知。'}}
+}
 function classify(spx,ixic,vix){
   spx=n(spx);ixic=n(ixic);vix=n(vix);
   if((ixic!==null&&ixic<=-.04)||(spx!==null&&spx<=-.035)||(vix!==null&&vix>=35)) return {mode:'fear',level:'panic',title:'极端回撤 · 风险优先',tone:'bad',rank:3};
@@ -86,8 +90,14 @@ function optionIdeasHtml(){
   if(!state.optionIdeas.length)return '<div class="agent-option-scan"><b>期权链候选尚未生成</b><small>未登录、行情权限不足或当前没有满足条件的标的时，系统只保留策略级提醒。</small></div>';
   return `<div class="agent-option-grid">${state.optionIdeas.map(x=>`<article><div><b>${esc(x.symbol)}</b><span>${esc(x.kind)}</span></div><strong>${esc(x.contract||x.expiration||'研究候选')}</strong><p>${esc(x.reason||'')}</p><small>${esc(x.metrics||'')}</small></article>`).join('')}</div>`;
 }
+function renderBlocked(root,authority){
+  root.hidden=false;
+  root.classList.remove('assistant-normal');
+  root.innerHTML=`<div class="assistant-duty-head"><div><span>AI INVESTMENT ASSISTANT · 解释层</span><h2>AI 投资助手 · 等待数据恢复</h2><p>今日驾驶舱是唯一执行结论；当前 Data Trust 未通过，因此本模块停止输出“正常/无需处理”等市场结论。</p></div><div class="assistant-scan-time"><b>决策已阻断</b><small>先恢复最新完整交易日数据</small></div></div><div class="agent-strip"><div><span>Decision Authority</span><b>今日无法可靠判断</b><small>${esc(authority?.detail||'关键数据不完整或业务日期过期。')}</small></div><div><span>Market Agent</span><b>仅保留解释</b><small>不使用过期日线生成新的行动判断</small></div><div><span>Options Agent</span><b>不升级动作</b><small>私有持仓报价仍可查看，但不覆盖全站 Data Trust</small></div><div><span>Risk Agent</span><b>Fail Closed</b><small>数据恢复后再重新扫描</small></div></div><div class="assistant-top3"><div class="agent-section-title"><b>当前唯一处理事项</b><small>与今日驾驶舱保持一致。</small></div><div class="assistant-top3-grid"><article class="bad"><span>01</span><div><b>恢复决策数据</b><p>${esc(authority?.detail||'关键数据未通过新鲜度门。')}</p><div class="assistant-inline-actions"><button type="button" onclick="openDashboardTab('tab-system-health')">查看系统状态</button></div></div></article></div></div>`;
+}
 function render(snapshot){
   const root=document.getElementById('marketOptionAlert');if(!root)return;
+  const authority=decisionAuthority();if(!authority.decision_eligible){state.lastSnapshot=snapshot;renderBlocked(root,authority);return;}
   const c=classify(snapshot.spx,snapshot.ixic,snapshot.vix);state.last={...snapshot,...c};state.lastSnapshot=snapshot;state.lastScanAt=Date.now();notifyTransition(c);
   root.hidden=false;root.classList.toggle('assistant-normal',c.mode==='normal');
   const list=candidates(c.mode),sp=strategy('fear-sell-put'),bc=strategy('fear-buy-call'),leaps=strategy('fear-leaps'),cc=strategy('greed-covered-call'),pp=strategy('greed-protective-put');
@@ -118,5 +128,6 @@ function updateFromMarket(body){
   if(spx===null&&ixic===null&&vix===null)return;render({spx,ixic,vix,updated:Date.now()});
 }
 function rescan(){if(state.lastSnapshot)render(state.lastSnapshot)}
+window.addEventListener('mav:decision-authority',()=>{if(state.lastSnapshot)render(state.lastSnapshot)});
 global.MAVInvestmentAssistant={classify,render,updateFromMarket,rescan,state,getJournal:readJournal,getRules:()=>registry().rules||[]};
 })(window);

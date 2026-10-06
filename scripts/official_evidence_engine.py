@@ -130,8 +130,8 @@ def recent_filings(submissions,cik,user_agent):
         if len(rows)>=3:break
     return rows
 
-def build(planner,previous,user_agent):
-    syms=selected_symbols(planner,load(EVIDENCE))
+def build(planner,previous,user_agent,evidence=None):
+    syms=selected_symbols(planner,evidence)
     result={"version":"6.3.0","generated_at":datetime.now(timezone.utc).isoformat(),
             "source":"SEC EDGAR official","symbols":{},"selected_symbols":syms,
             "policy":{"max_symbols":10,"max_filings_per_symbol":3,"automatic_orders":False,
@@ -177,7 +177,7 @@ def build(planner,previous,user_agent):
 def main():
     planner=load(PLANNER); previous=load(PREVIOUS)
     ua=os.getenv("SEC_USER_AGENT","MyAlphaView/6.3 research-agent myalphaview.com")
-    out=build(planner,previous,ua)
+    out=build(planner,previous,ua,load(EVIDENCE))
     OUT.parent.mkdir(parents=True,exist_ok=True)
     OUT.write_text(json.dumps(out,ensure_ascii=False,indent=2),encoding="utf-8")
     print(json.dumps(out["counts"],ensure_ascii=False))

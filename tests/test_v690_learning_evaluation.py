@@ -21,7 +21,7 @@ self_improvement={"candidate_brain":{"count":2},"shadow_brain":{"eligible_for_re
 
 auto_thesis={"symbols":{"IREN":{"sources":{"official":[{"evidence_class":"direct_company"}]}}}}
 event_window={"summary":{"reviews":5,"with_sec":1,"with_ranked_event":2}}
-server_action={"positions_checked":3,"quote_failures":0,"action_counts":{"unknown":0}}
+server_action={"positions_checked":3,"quote_failures":0,"action_counts":{"unknown":0},"option_learning":{"observations":3,"mature_outcomes":1}}
 forward_feedback={"counts":{"forward_mature20":0,"forward_mature60":0,"attribution_reviews":0}}
 out=le.build(execution,planner,learning,method,evidence,history,self_improvement,auto_thesis,event_window,server_action,forward_feedback)
 assert out["version"]=="6.13.2"
@@ -39,7 +39,9 @@ assert eq["market"]["validation_state"]=="forward_unproven"
 assert eq["fundamental"]["evidence_state"]=="direct_company_ready"
 assert eq["fundamental"]["validation_state"]=="outcome_link_missing"
 assert eq["event"]["validation_state"]=="descriptive_context_only"
-assert eq["options"]["validation_state"]=="outcome_learning_missing"
+assert eq["options"]["validation_state"]=="outcome_maturing"
+assert eq["options"]["state_observations"]==3
+assert eq["options"]["mature_outcomes"]==1
 assert eq["decision"]["validation_state"]=="partial_local_loop"
 assert out["lessons"]
 assert any("证据缺口" in x or "直接验证" in x or "历史库" in x for x in out["lessons"])

@@ -3,7 +3,7 @@
 const KEY='mavDecisionJournalV56', OPERATOR_KEY='mavOperatorDecisionsV615', OLD_KEYS=['mavDecisionJournalV53','mavDecisionJournalV52','mavDecisionJournalV51'];
 const endpoint='https://rhielbkvhgqbthcgztci.supabase.co/functions/v1/stock-market';
 const H=[20,60,120];
-const state={history:null,historyLoaded:false,lastAuthError:'',refreshing:false};
+const state={history:null,historyLoaded:false,lastAuthError:'',refreshing:false,operatorRemoteReady:false};
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const num=v=>Number.isFinite(Number(v))?Number(v):null;
 const pct=v=>num(v)===null?'—':`${Number(v)>=0?'+':''}${(Number(v)*100).toFixed(1)}%`;
@@ -87,6 +87,75 @@ function recordAssistantEvent({snapshot,classification,candidates=[],optionIdeas
   write(rows);render();
 }
 
+function operatorRowToDb(row,userId){
+  return{
+    user_id:userId,
+    decision_date:row.date,
+    decision:String(row.decision||'unknown'),
+    source:String(row.source||'daily_action_engine'),
+    reason:String(row.reason||''),
+    data_state:String(row.data_state||'unknown'),
+    evidence_state:String(row.evidence_state||'unknown'),
+    fingerprint:String(row.fingerprint||''),
+    first_seen_at:row.at||new Date().toISOString(),
+    last_seen_at:row.last_seen_at||row.at||new Date().toISOString(),
+    seen_count:Math.max(1,Number(row.count)||1),
+    user_action:String(row.user_action||'unrecorded'),
+    attribution:String(row.attribution||'pending'),
+    operator_note:String(row.operator_note||'').slice(0,300),
+    operator_updated_at:row.operator_updated_at||null,
+  };
+}
+function dbRowToOperator(row){
+  return{
+    at:row.first_seen_at,last_seen_at:row.last_seen_at,count:row.seen_count,
+    date:row.decision_date,decision:row.decision,source:row.source,reason:row.reason,
+    data_state:row.data_state,evidence_state:row.evidence_state,fingerprint:row.fingerprint,
+    user_action:row.user_action,attribution:row.attribution,operator_note:row.operator_note||'',
+    operator_updated_at:row.operator_updated_at||null
+  };
+}
+async function persistOperatorDecision(row){
+  try{
+    const sb=supabase();
+    if(!sb?.auth?.getSession)return false;
+    const {data:{session}}=await sb.auth.getSession();
+    if(!session)return false;
+    const payload=operatorRowToDb(row,session.user.id);
+    const {error}=await sb.from('operator_decisions').upsert(payload,{onConflict:'user_id,decision_date,decision,source,fingerprint'});
+    if(error)throw error;
+    state.operatorRemoteReady=true;return true;
+  }catch(error){
+    const msg=String(error?.message||error);
+    if(!/operator_decisions|schema cache|does not exist|PGRST/i.test(msg))console.warn('operator decision sync failed',msg);
+    return false;
+  }
+}
+async function loadOperatorDecisionsRemote(){
+  try{
+    const sb=supabase();
+    if(!sb?.auth?.getSession)return;
+    const {data:{session}}=await sb.auth.getSession();
+    if(!session)return;
+    const {data,error}=await sb.from('operator_decisions').select('*').order('last_seen_at',{ascending:false}).limit(180);
+    if(error)throw error;
+    const remote=(data||[]).map(dbRowToOperator),local=readOperatorDecisions();
+    const map=new Map();
+    for(const row of [...local,...remote]){
+      const key=[row.date,row.decision,row.source,row.fingerprint].join('|');
+      const prev=map.get(key);
+      if(!prev||String(row.last_seen_at||row.at||'')>String(prev.last_seen_at||prev.at||''))map.set(key,row);
+    }
+    const merged=[...map.values()].sort((a,b)=>String(a.last_seen_at||a.at||'').localeCompare(String(b.last_seen_at||b.at||''))).slice(-180);
+    localStorage.setItem(OPERATOR_KEY,JSON.stringify(merged));
+    state.operatorRemoteReady=true;
+    render();
+  }catch(error){
+    const msg=String(error?.message||error);
+    if(!/operator_decisions|schema cache|does not exist|PGRST/i.test(msg))console.warn('operator decision remote load failed',msg);
+  }
+}
+
 function readOperatorDecisions(){
   try{
     const rows=JSON.parse(localStorage.getItem(OPERATOR_KEY)||'[]');
@@ -112,10 +181,12 @@ function recordOperatorDecision(entry={}){
   if(idx>=0){
     rows[idx]={...rows[idx],last_seen_at:now,count:Math.max(1,Number(rows[idx].count)||1)+1,reason:row.reason||rows[idx].reason,data_state:row.data_state,evidence_state:row.evidence_state};
     try{localStorage.setItem(OPERATOR_KEY,JSON.stringify(rows.slice(-180)))}catch{}
+    persistOperatorDecision(rows[idx]);
     return rows[idx];
   }
   rows.push(row);
   try{localStorage.setItem(OPERATOR_KEY,JSON.stringify(rows.slice(-180)))}catch{}
+  persistOperatorDecision(row);
   return row;
 }
 
@@ -127,6 +198,7 @@ function updateOperatorDecision(fingerprint,userAction,attribution,note=''){
   const allowedAttribution=new Set(['pending','system_error','user_decision_error','data_error','market_randomness','correct_process']);
   rows[idx]={...rows[idx],user_action:allowedActions.has(userAction)?userAction:'unrecorded',attribution:allowedAttribution.has(attribution)?attribution:'pending',operator_note:String(note||'').slice(0,300),operator_updated_at:new Date().toISOString()};
   try{localStorage.setItem(OPERATOR_KEY,JSON.stringify(rows.slice(-180)))}catch{}
+  persistOperatorDecision(rows[idx]);
   render();return true;
 }
 function operatorDecisionHtml(){
@@ -290,7 +362,7 @@ async function render(error=''){
   bindOperatorDecisionControls(root);
 }
 function learningForStage(stage){const p=state.history?.profiles?.[stage];if(!p)return null;return {...p.evidence,stats:p.horizons?.['60']||null}}
-async function init(){render();setTimeout(()=>refreshOutcomes({silent:true}),4500)}
+async function init(){render();loadOperatorDecisionsRemote();setTimeout(()=>refreshOutcomes({silent:true}),4500)}
 global.MAVDecisionJournal={recordAssistantEvent,recordOperatorDecision,updateOperatorDecision,refreshOutcomes,render,getJournal:read,getOperatorDecisions:readOperatorDecisions,getHistorical:()=>state.history,learningForStage,getErrorMemory:()=>errorMemory(read()),getSelfReview:()=>weeklySelfReview(read()),state};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })(window);

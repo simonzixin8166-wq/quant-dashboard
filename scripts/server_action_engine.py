@@ -7,12 +7,15 @@ risk/event rules, optionally delivers a concise alert, and writes only a
 sanitized public health summary (never symbols/accounts/position details).
 """
 from __future__ import annotations
-import json,os,urllib.request,urllib.parse,hashlib
+import json,os,urllib.request,urllib.parse,hashlib,sys
 from datetime import datetime,timezone,timedelta
 from pathlib import Path
 
 ROOT=Path(__file__).resolve().parents[1]
+sys.path.insert(0,str(ROOT/"scripts"))
+import trading_calendar
 EVENTS=ROOT/"docs"/"data"/"market_events.json"
+DATA=ROOT/"docs"/"data.json"
 SYSTEM=ROOT/"docs"/"research"/"system_status.json"
 AUTO_THESIS=ROOT/"docs"/"research"/"auto_thesis_drafts.json"
 PUBLIC_OUT=ROOT/"docs"/"research"/"server_action_status.json"
@@ -86,13 +89,24 @@ def upcoming_events(hours=48):
         if dt and now<=dt<=end:rows.append({**e,"at":dt})
     return sorted(rows,key=lambda x:x["at"])
 
-def system_trust():
-    s=load(SYSTEM)
+def system_trust(now=None):
+    now=now or datetime.now(timezone.utc)
+    s=load(SYSTEM);data=load(DATA)
     excluded=((s.get("decision_data_contract") or {}).get("excluded_artifacts") or [])
     guard=(s.get("resource_guard") or {}).get("mode","unknown")
     overall=s.get("overall","unknown")
-    ok=overall in {"ok","running"} and not excluded
-    return {"ok":ok,"overall":overall,"excluded":excluded,"resource_mode":guard}
+    expected=trading_calendar.expected_latest_completed_session(now).isoformat()
+    market_as_of=str(data.get("spy_date") or ((data.get("index") or {}).get("SPY") or {}).get("date") or "")
+    generated=parse_dt(s.get("generated_at"))
+    age_hours=None if not generated else max(0.0,(now-generated).total_seconds()/3600)
+    status_fresh=age_hours is not None and age_hours<=30
+    market_fresh=bool(market_as_of) and market_as_of==expected
+    ok=overall in {"ok","running"} and not excluded and status_fresh and market_fresh
+    return {
+        "ok":ok,"overall":overall,"excluded":excluded,"resource_mode":guard,
+        "market_as_of":market_as_of or None,"expected_market_date":expected,
+        "system_status_age_hours":None if age_hours is None else round(age_hours,2),
+    }
 
 def thesis_review_actions(notes):
     drafts=(load(AUTO_THESIS).get("symbols") or {})

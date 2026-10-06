@@ -5,6 +5,9 @@ on:
   workflow_run:
     workflows: ["Daily Dashboard Update", "Source Intelligence Validation"]
     types: [completed]
+  schedule:
+    # Independent stale-data sentinel; catches a missed/failed Daily even when no upstream workflow completes.
+    - cron: '0 14 * * *'
   workflow_dispatch: {}
 
 permissions:
@@ -128,6 +131,8 @@ jobs:
         run: |
           npm install --no-save playwright@1.55.0
           npx playwright install --with-deps chromium
+      - name: Compute independent expected market date
+        run: echo "EXPECTED_MARKET_DATE=$(python scripts/trading_calendar.py)" >> "$GITHUB_ENV"
       - name: Browser autonomous QA
         env:
           BASE_URL: https://myalphaview.com

@@ -43,19 +43,33 @@ import tempfile, json
 with tempfile.TemporaryDirectory() as td:
     p=Path(td)/"artifact.json"
     now=datetime.now(timezone.utc)
-    p.write_text(json.dumps({"generated_at":now.isoformat()}),encoding="utf-8")
+    expected=ssc.expected_completed_us_session(now)
+    p.write_text(json.dumps({"generated_at":now.isoformat(),"spy_date":expected}),encoding="utf-8")
     fresh=ssc.artifact_health("market_dashboard",p,now)
-    assert fresh["freshness"]=="fresh" and fresh["decision_eligible"] is True
+    assert fresh["freshness"]=="fresh" and fresh["business_freshness"]=="fresh"
+    assert fresh["market_as_of"]==expected and fresh["expected_market_date"]==expected
+    assert fresh["decision_eligible"] is True
     research=ssc.artifact_health("range_intelligence",p,now)
     assert research["freshness"]=="fresh"
     assert research["decision_eligible"] is False
     assert research["participation"]=="research_only"
-    p.write_text(json.dumps({"generated_at":(now-timedelta(hours=80)).isoformat()}),encoding="utf-8")
+    old_business=(datetime.fromisoformat(expected)-timedelta(days=3)).date().isoformat()
+    p.write_text(json.dumps({"generated_at":now.isoformat(),"spy_date":old_business}),encoding="utf-8")
+    stale_business=ssc.artifact_health("market_dashboard",p,now)
+    assert stale_business["freshness"]=="fresh"
+    assert stale_business["business_freshness"]=="stale"
+    assert stale_business["decision_eligible"] is False
+    p.write_text(json.dumps({"generated_at":(now-timedelta(hours=80)).isoformat(),"spy_date":expected}),encoding="utf-8")
     stale=ssc.artifact_health("market_dashboard",p,now)
     assert stale["freshness"]=="stale" and stale["decision_eligible"] is False
-    p.write_text(json.dumps({"generated_at":(now-timedelta(hours=200)).isoformat()}),encoding="utf-8")
+    p.write_text(json.dumps({"generated_at":(now-timedelta(hours=200)).isoformat(),"spy_date":expected}),encoding="utf-8")
     expired=ssc.artifact_health("market_dashboard",p,now)
     assert expired["freshness"]=="expired" and expired["participation"]=="excluded"
+
+# The latest completed US session is business-time aware and skips weekends/NYSE holidays.
+assert ssc.is_nyse_session_day(datetime(2026,10,5,tzinfo=timezone.utc).date())
+assert not ssc.is_nyse_session_day(datetime(2026,10,4,tzinfo=timezone.utc).date())
+
 
 assert "Autonomous QA & Security" in ssc.WATCH_WORKFLOWS["quant-dashboard"]
 assert "decision_data_contract" in result

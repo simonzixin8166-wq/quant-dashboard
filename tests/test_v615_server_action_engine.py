@@ -57,6 +57,10 @@ assert sa.option_state_fingerprint(pos,risk_a)==sa.option_state_fingerprint(pos,
 risk_same_state_later={"level":"l1","reason":"no server risk trigger","dte":12,"delta":-0.44}
 assert sa.option_state_fingerprint(pos,risk_a)==sa.option_state_fingerprint(pos,risk_same_state_later)
 assert sa.option_state_fingerprint(pos,risk_a)!=sa.option_state_fingerprint(pos,risk_b)
+latest_rows=[{"position_id":7,"state_fingerprint":sa.option_state_fingerprint(pos,risk_a),"observed_at":"2026-10-06T10:00:00Z"}]
+latest=sa.latest_option_states(latest_rows)
+assert sa.should_record_option_state(pos,risk_same_state_later,latest) is False
+assert sa.should_record_option_state(pos,risk_b,latest) is True
 assert "option_learning_observations" in src
 
 # Thesis Review authority: only direct-company official evidence may trigger review.

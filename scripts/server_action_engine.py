@@ -20,7 +20,7 @@ SYSTEM=ROOT/"docs"/"research"/"system_status.json"
 AUTO_THESIS=ROOT/"docs"/"research"/"auto_thesis_drafts.json"
 PUBLIC_OUT=ROOT/"docs"/"research"/"server_action_status.json"
 DEFAULT_EDGE="https://rhielbkvhgqbthcgztci.supabase.co/functions/v1/options-market"
-# Learning Quality write-path verification trigger: private state-entry/outcome ledgers.
+# Learning Quality write-path verification trigger: private state-entry/outcome ledgers; final closure run.
 
 def load(path):
     try:return json.loads(path.read_text(encoding="utf-8"))

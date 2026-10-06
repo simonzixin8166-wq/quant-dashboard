@@ -136,9 +136,29 @@ def thesis_review_actions(notes):
             })
     return out
 
-def risk_for(p,q,events):
-    now=datetime.now(timezone.utc).date()
-    try:expiry=datetime.fromisoformat(str(p.get("expiry"))[:10]).date();dte=(expiry-now).days
+def quote_freshness_cutoff(now=None):
+    """Minimum acceptable held-option quote timestamp.
+
+    During regular trading hours use a rolling 45-minute window. Outside regular
+    hours, compare against the last regular-session close minus 45 minutes so a
+    valid closing quote does not become "stale" merely because the market is shut.
+    """
+    now=now or datetime.now(timezone.utc)
+    local=now.astimezone(trading_calendar.ET)
+    minutes=local.hour*60+local.minute
+    if trading_calendar.is_session(local.date()) and 570<=minutes<960:
+        return now-timedelta(minutes=45)
+    if trading_calendar.is_session(local.date()) and minutes>=960:
+        session=local.date()
+    else:
+        session=trading_calendar.previous_session(local.date())
+    close_local=datetime(session.year,session.month,session.day,16,0,tzinfo=trading_calendar.ET)
+    return close_local.astimezone(timezone.utc)-timedelta(minutes=45)
+
+def risk_for(p,q,events,now=None):
+    now_dt=now or datetime.now(timezone.utc)
+    today=now_dt.date()
+    try:expiry=datetime.fromisoformat(str(p.get("expiry"))[:10]).date();dte=(expiry-today).days
     except Exception:dte=None
     spot=first(q,"underlyingPrice") if q else None
     bid=first(q,"bid") if q else None;ask=first(q,"ask") if q else None;mid=first(q,"mid") if q else None
@@ -148,7 +168,7 @@ def risk_for(p,q,events):
     except Exception:strike=None;spot=None
     stale=True
     if updated:
-        try:stale=(datetime.now(timezone.utc)-datetime.fromtimestamp(float(updated),timezone.utc))>timedelta(minutes=45)
+        try:stale=datetime.fromtimestamp(float(updated),timezone.utc)<quote_freshness_cutoff(now_dt)
         except Exception:stale=True
     if dte is None:return {"level":"unknown","reason":"expiry unavailable","dte":None}
     if q is None or spot is None or stale:return {"level":"unknown","reason":"quote unavailable or stale","dte":dte}
@@ -231,9 +251,11 @@ def main():
     previous=load(PUBLIC_OUT)
     fp=fingerprint(result)
     delivery=notify(result,previous)
+    checked_at=datetime.now(timezone.utc)
     public={
       "version":"6.15-p012",
-      "generated_at":datetime.now(timezone.utc).isoformat(),
+      "generated_at":checked_at.isoformat(),
+      "last_checked_at":checked_at.isoformat(),
       "status":result["status"],
       "positions_checked":result.get("positions_checked",0),
       "action_counts":{
@@ -250,10 +272,17 @@ def main():
       "privacy":"sanitized public summary only; symbols/accounts/private position details are never written here",
     }
     PUBLIC_OUT.parent.mkdir(parents=True,exist_ok=True)
-    if previous and previous.get("alert_fingerprint")==fp and previous.get("status")==public.get("status") and previous.get("action_counts")==public.get("action_counts") and previous.get("data_trust")==public.get("data_trust"):
-        public=previous
+    same=bool(previous and previous.get("alert_fingerprint")==fp and previous.get("status")==public.get("status") and previous.get("action_counts")==public.get("action_counts") and previous.get("data_trust")==public.get("data_trust"))
+    if same:
+        prior_checked=parse_dt(previous.get("last_checked_at") or previous.get("generated_at"))
+        if prior_checked and checked_at-prior_checked<timedelta(hours=6):
+            public=previous
+        else:
+            public["generated_at"]=previous.get("generated_at") or public["generated_at"]
     PUBLIC_OUT.write_text(json.dumps(public,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
+    if result["status"]=="cannot_judge":
+        print("::warning::Server Action cannot_judge; sanitized status remains fail-closed")
     print(json.dumps(public,ensure_ascii=False))
-    return 0 if result["status"]!="cannot_judge" else 0
+    return 0
 
 if __name__=="__main__":raise SystemExit(main())

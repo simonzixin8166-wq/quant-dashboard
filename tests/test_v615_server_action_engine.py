@@ -41,6 +41,12 @@ assert "last_checked_at" in src
 assert "trading_calendar.expected_latest_completed_session" in src
 assert "symbols/accounts/private position details are never written here" in src
 
+# Heartbeat age must not change alert fingerprint or same-state comparison semantics.
+base_result={"status":"clear","trust":{"ok":True,"overall":"ok","market_as_of":"2026-10-05","expected_market_date":"2026-10-05","system_status_age_hours":0.04},"event_count_48h":0,"actions":[]}
+later_result={"status":"clear","trust":{**base_result["trust"],"system_status_age_hours":0.54},"event_count_48h":0,"actions":[]}
+assert sa.fingerprint(base_result)==sa.fingerprint(later_result)
+assert sa.stable_trust(base_result["trust"])==sa.stable_trust(later_result["trust"])
+
 # Thesis Review authority: only direct-company official evidence may trigger review.
 old_auto=sa.AUTO_THESIS
 try:

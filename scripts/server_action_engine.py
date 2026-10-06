@@ -79,12 +79,12 @@ def write_option_learning_observations(rows):
         return False
 
 def option_state_fingerprint(position,risk):
+    # State-entry identity only. DTE/Delta/spot are observation payload, not
+    # state identity; otherwise an unchanged risk state would append daily.
     material={
       "position_id":position.get("id"),
       "level":risk.get("level"),
       "reason":risk.get("reason"),
-      "dte":risk.get("dte"),
-      "delta":None if risk.get("delta") is None else round(float(risk.get("delta")),2),
     }
     return hashlib.sha256(json.dumps(material,sort_keys=True).encode()).hexdigest()[:24]
 
@@ -271,7 +271,7 @@ def build():
     cannot=not trust["ok"] or any(a["level"]=="unknown" for a in actions)
     status="cannot_judge" if cannot else ("action_required" if any(a["level"] in {"l2","l3","review"} for a in actions) else "clear")
     write_usage_ledger(usage_rows)
-    learning_rows_count=len(learning_outcomes or [])
+    learning_rows_count=max(len(learning_outcomes or []),len(learning_rows))
     mature_outcomes=sum(1 for x in (learning_outcomes or []) if x.get("outcome_mature") is True)
     operator_total=len(operator_rows or [])
     operator_attributed=sum(1 for x in (operator_rows or []) if x.get("attribution") not in {None,"","pending"})

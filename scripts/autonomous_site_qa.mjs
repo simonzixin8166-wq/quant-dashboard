@@ -102,7 +102,11 @@ try{
     report.business_data={status:ok?'PASS':'FAIL',system_overall:sys.overall||'unknown',market_as_of:marketAsOf,expected_market_date:expected,business_freshness:market.business_freshness||'unknown',decision_eligible:Boolean(market.decision_eligible)};
   }else report.business_data={status:'FAIL',error:`status ${sr.status}/${dr.status}`};
 }catch(e){report.business_data={status:'FAIL',error:String(e.message).slice(0,200)}}
-const coreHealthy=Object.values(report.public).every(x=>Boolean(x.version)&&x.version===x.body_version&&x.assistant&&x.journal&&x.historical_learning&&x.autonomous_agent&&!x.negative_zero)&&report.private.status!=='FAIL'&&report.interaction.status==='PASS'&&report.business_data.status==='PASS';
+const engineeringBaseHealthy=Object.values(report.public).every(x=>Boolean(x.version)&&x.version===x.body_version&&x.assistant&&x.journal&&x.historical_learning&&x.autonomous_agent&&!x.negative_zero)&&report.private.status!=='FAIL'&&report.interaction.status==='PASS';
+report.engineering_qa={status:engineeringBaseHealthy?'PASS':'FAIL',public_surfaces:Object.keys(report.public),private_status:report.private.status,interaction_status:report.interaction.status};
+report.investment_data_qa={status:report.business_data.status,market_as_of:report.business_data.market_as_of||null,expected_market_date:report.business_data.expected_market_date||null,business_freshness:report.business_data.business_freshness||'unknown',decision_eligible:Boolean(report.business_data.decision_eligible)};
+report.decision_readiness={status:(engineeringBaseHealthy&&report.business_data.status==='PASS')?'PASS':'FAIL',rule:'Engineering QA and Investment Data QA must both PASS; stale or incomplete market data fails closed.'};
+const coreHealthy=engineeringBaseHealthy&&report.investment_data_qa.status==='PASS'&&report.decision_readiness.status==='PASS';
 let baseRetryHealthy=false;
 try{
   const retry=await fetch(base+'/?qa-retry='+Date.now(),{cache:'no-store'});
@@ -111,4 +115,6 @@ try{
 const transientResourcePattern=/Failed to load resource: the server responded with a status of (404|503)/;
 const fatalConsoleErrors=report.console_errors.filter(x=>!(report.http_errors.length===0&&coreHealthy&&baseRetryHealthy&&transientResourcePattern.test(x)));
 report.fatal_console_errors=fatalConsoleErrors;
-report.overall=(coreHealthy&&report.fatal_console_errors.length===0&&report.http_errors.length===0)?'PASS':'FAIL';fs.writeFileSync(`${out}/report.json`,JSON.stringify(report,null,2));console.log(JSON.stringify(report,null,2));if(report.overall!=='PASS')process.exit(1);
+report.engineering_qa.status=(engineeringBaseHealthy&&report.fatal_console_errors.length===0&&report.http_errors.length===0)?'PASS':'FAIL';
+report.decision_readiness.status=(report.engineering_qa.status==='PASS'&&report.investment_data_qa.status==='PASS')?'PASS':'FAIL';
+report.overall=report.decision_readiness.status;fs.writeFileSync(`${out}/report.json`,JSON.stringify(report,null,2));console.log(JSON.stringify(report,null,2));if(report.overall!=='PASS')process.exit(1);

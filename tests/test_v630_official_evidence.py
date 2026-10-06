@@ -53,3 +53,12 @@ assert msft["filings"][0]["excerpts"]
 assert "Results of Operations" in msft["filings"][0]["excerpts"][0]
 assert out["policy"]["automatic_orders"] is False
 print("PASS V6.3 SEC official evidence layer")
+
+
+review_evidence={"failure_attribution":{"external_outcome_reviews":[{"symbol":"NOW"},{"symbol":"NBIS"},{"symbol":"CRWV"},{"symbol":"MU"}]}}
+expanded=oe.selected_symbols(planner,review_evidence)
+assert expanded[:2]==["IREN","SOFI"]
+for sym in ["MSFT","LITE","NOW","NBIS","CRWV","MU"]:
+    assert sym in expanded
+assert len(expanded)<=10
+print("PASS V6.15 official evidence learning-review expansion")

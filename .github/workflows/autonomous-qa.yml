@@ -14,7 +14,7 @@ permissions:
   contents: read
 concurrency:
   group: autonomous-qa-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 jobs:
   pr-contract:
     if: ${{ github.event_name == 'pull_request' }}

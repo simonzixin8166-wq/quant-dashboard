@@ -18,7 +18,7 @@ TEXT_SUFFIXES = {".json", ".jsonl", ".html", ".js", ".css", ".md", ".txt", ".csv
 FORBIDDEN_KEYS = re.compile(r'"(?:option_positions|private_positions|broker_account_id|account_number|ledger_records)"\s*:', re.I)
 PUBLIC_JSON_ROOT_ALLOWLIST = {
     "docs/research/server_action_status.json": {
-        "version","generated_at","status","positions_checked","action_counts",
+        "version","generated_at","last_checked_at","status","positions_checked","action_counts",
         "event_count_48h","quote_failures","data_trust","delivery",
         "alert_fingerprint","privacy",
     },

@@ -57,6 +57,8 @@ assert "research/learning_evaluation.json" in agent
 assert "当前最需要补什么" in agent
 assert "Five Learning Engines · 学习质量闭环" in agent
 assert "Evidence → Validation → Feedback" in agent
+assert "Learning Quality Weekly · 每周学习复盘" in agent
+assert "research/learning_quality_weekly.json" in agent
 
 workflow=(ROOT/".github/workflows/daily.yml").read_text(encoding="utf-8")
 assert "Build V6.9 Learning Evaluation" in workflow

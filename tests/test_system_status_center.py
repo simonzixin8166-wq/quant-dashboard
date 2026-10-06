@@ -69,6 +69,9 @@ with tempfile.TemporaryDirectory() as td:
 # The latest completed US session is business-time aware and skips weekends/NYSE holidays.
 assert ssc.is_nyse_session_day(datetime(2026,10,5,tzinfo=timezone.utc).date())
 assert not ssc.is_nyse_session_day(datetime(2026,10,4,tzinfo=timezone.utc).date())
+# Canonical 16:15 ET completion buffer must match trading_calendar in both DST and standard time.
+assert ssc.expected_completed_us_session(datetime(2026,10,6,21,30,tzinfo=timezone.utc))=="2026-10-06"
+assert ssc.expected_completed_us_session(datetime(2026,1,5,21,30,tzinfo=timezone.utc))=="2026-01-05"
 
 
 assert "Autonomous QA & Security" in ssc.WATCH_WORKFLOWS["quant-dashboard"]

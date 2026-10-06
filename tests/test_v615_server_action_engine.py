@@ -40,4 +40,24 @@ assert "quote_freshness_cutoff" in src
 assert "last_checked_at" in src
 assert "trading_calendar.expected_latest_completed_session" in src
 assert "symbols/accounts/private position details are never written here" in src
+
+# Thesis Review authority: only direct-company official evidence may trigger review.
+old_auto=sa.AUTO_THESIS
+try:
+    import tempfile, json
+    from pathlib import Path as _P
+    with tempfile.TemporaryDirectory() as td:
+        auto=_P(td)/"auto.json"
+        sa.AUTO_THESIS=auto
+        auto.write_text(json.dumps({"symbols":{"TEST":{"sources":{
+            "official":[{"date":"2026-10-05","evidence_class":"direct_company"}],
+            "events":[{"published_at":"2026-10-06T00:00:00Z","evidence_class":"media"}]
+        }}}}),encoding="utf-8")
+        notes=[{"symbol":"TEST","updated_at":"2026-10-04T00:00:00Z","invalidation":"x"}]
+        assert len(sa.thesis_review_actions(notes))==1
+        notes2=[{"symbol":"TEST","updated_at":"2026-10-05T12:00:00Z","invalidation":"x"}]
+        assert sa.thesis_review_actions(notes2)==[]  # newer media alone cannot trigger review
+finally:
+    sa.AUTO_THESIS=old_auto
+
 print("PASS V6.15 server action engine")

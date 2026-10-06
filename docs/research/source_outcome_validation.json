@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "generated_at": "2026-10-05T13:26:57.283712+00:00",
+  "generated_at": "2026-10-06T02:56:55.089673+00:00",
   "methodology": {
     "executed_action_baseline": "first trading session open strictly after source date when no reliable intraday timestamp exists",
     "planned_entry_baseline": "explicit stock-entry plans begin only on the first later session whose low touches the stated level; each tranche is validated separately",
@@ -16,30 +16,30 @@
     "attribution_limit": "third-party examples are excluded; unconfirmed source context is visible but excluded from aggregate method memory"
   },
   "counts": {
-    "events": 45,
-    "author_owned": 27,
+    "events": 44,
+    "author_owned": 26,
     "unconfirmed": 18,
-    "triggered_author_owned": 16,
+    "triggered_author_owned": 15,
     "untriggered_plans": 11,
     "mature60": 0,
-    "developing": 16,
+    "developing": 15,
     "symbols": 12
   },
   "missing_history": {},
   "by_action": {
     "add": {
       "5": {
-        "n": 6,
-        "avg_return": 0.048796026681868464,
-        "median_return": 0.022370805404266947,
-        "avg_excess_vs_qqq": 0.06653171236518872,
-        "alignment_rate": 0.6666666666666666
+        "n": 5,
+        "avg_return": 0.06359982777924722,
+        "median_return": 0.02822117226407861,
+        "avg_excess_vs_qqq": 0.0788468706293268,
+        "alignment_rate": 0.8
       },
       "20": {
-        "n": 6,
-        "avg_return": 0.14438933756540884,
-        "median_return": 0.12269695572906292,
-        "avg_excess_vs_qqq": 0.11860213605764296,
+        "n": 5,
+        "avg_return": 0.1646261769783659,
+        "median_return": 0.1313918682963331,
+        "avg_excess_vs_qqq": 0.13455931480455927,
         "alignment_rate": 1.0
       },
       "60": {
@@ -169,17 +169,17 @@
     },
     "bogbog": {
       "5": {
-        "n": 7,
-        "avg_return": 0.02588783835822111,
-        "median_return": 0.010941405607101773,
-        "avg_excess_vs_qqq": 0.03840852719007461,
-        "alignment_rate": 0.5714285714285714
+        "n": 6,
+        "avg_return": 0.034406307885428845,
+        "median_return": 0.013730922075778529,
+        "avg_excess_vs_qqq": 0.04398396154767067,
+        "alignment_rate": 0.6666666666666666
       },
       "20": {
-        "n": 6,
-        "avg_return": 0.12740756986346782,
-        "median_return": 0.11360944966380049,
-        "avg_excess_vs_qqq": 0.10124687828429176,
+        "n": 5,
+        "avg_return": 0.1442480557360367,
+        "median_return": 0.1313918682963331,
+        "avg_excess_vs_qqq": 0.11373300547653784,
         "alignment_rate": 1.0
       },
       "60": {
@@ -3327,69 +3327,6 @@
       },
       "level_checks": {},
       "status": "developing"
-    },
-    {
-      "event_id": "03d8673a1c3b5985b11c:0:NVDA:0",
-      "author": "bogbog",
-      "title": "AMD现在短期不便宜了，我记得两个月前您说过有个网红说AMD不好，但当时还是值得买的。",
-      "url": "https://bbs.wenxuecity.com/cfzh/96265.html",
-      "published_at": "2026-07-12 16:44:56",
-      "symbol": "NVDA",
-      "operation": {
-        "symbols": [
-          "NVDA"
-        ],
-        "actions": [
-          "add"
-        ],
-        "attribution": "author_action",
-        "attribution_confidence": "high"
-      },
-      "actions": [
-        "add"
-      ],
-      "attribution": "author_action",
-      "attribution_confidence": "high",
-      "baseline_kind": "next_session",
-      "baseline_assumption": "next trading session open because source date has no reliable intraday timestamp",
-      "planned_level": null,
-      "triggered": true,
-      "baseline_date": "2026-07-13",
-      "baseline_price": 208.54,
-      "price_provenance": {
-        "price_source": "stooq_archive",
-        "adjustment_basis": "stooq_archive_native_series",
-        "baseline_source": "stooq_archive",
-        "horizon_source": "stooq_archive",
-        "same_source": true
-      },
-      "outcomes": {
-        "5": {
-          "date": "2026-07-20",
-          "return": -0.02522297880502533,
-          "mae": -0.05068571976599212,
-          "mfe": 0.025270931236213823,
-          "benchmark_return": -0.0301788998495236,
-          "excess_vs_qqq": 0.004955921044498268
-        },
-        "20": {
-          "date": "2026-08-10",
-          "return": 0.04320514050062352,
-          "mae": -0.08885585499184812,
-          "mfe": 0.07777884338735963,
-          "benchmark_return": 0.004388898177562162,
-          "excess_vs_qqq": 0.038816242323061356
-        },
-        "60": null
-      },
-      "alignment": {
-        "direction": "bullish",
-        "5": "not_aligned",
-        "20": "aligned",
-        "60": null
-      },
-      "level_checks": {},
-      "status": "developing"
     }
   ],
   "guardrails": [
@@ -3402,7 +3339,7 @@
   ],
   "history_sources": {
     "core_stooq_symbols": 24,
-    "source_validation_cache_symbols": 11,
+    "source_validation_cache_symbols": 12,
     "principle": "STOOQ core wins at whole-symbol level; baseline and every horizon for an event use the same target-symbol source. yfinance remains validation-only fallback."
   }
 }

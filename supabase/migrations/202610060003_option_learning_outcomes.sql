@@ -21,3 +21,6 @@ select
 from public.option_learning_observations o
 join public.options_positions p
   on p.id=o.position_id and p.user_id=o.user_id;
+
+revoke select on public.option_learning_outcomes from anon;
+grant select on public.option_learning_outcomes to authenticated;

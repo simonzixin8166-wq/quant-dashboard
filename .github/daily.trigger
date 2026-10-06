@@ -1,1 +1,1 @@
-Refresh V6.15.8d legacy-outcome isolation artifacts after Evidence Foundation hardening
+V6.15 business-date freshness recovery run 2026-10-06T03:38Z

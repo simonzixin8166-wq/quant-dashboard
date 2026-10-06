@@ -6,4 +6,6 @@ assert "security_invoker = true" in sql
 assert "option_learning_observations" in sql
 assert "options_positions" in sql
 assert "outcome_mature" in sql
+assert "revoke select on public.option_learning_outcomes from anon" in sql
+assert "grant select on public.option_learning_outcomes to authenticated" in sql
 print("PASS private option learning outcome view contract")

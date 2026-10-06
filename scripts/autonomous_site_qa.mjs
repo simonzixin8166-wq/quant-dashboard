@@ -96,10 +96,28 @@ try{
   ]);
   if(sr.ok&&dr.ok){
     const sys=await sr.json(),data=await dr.json(),market=sys?.artifacts?.market_dashboard||{};
-    const marketAsOf=String(market.market_as_of||data?.spy_date||'');
-    const expected=String(market.expected_market_date||'');
-    const ok=market.business_freshness==='fresh'&&market.decision_eligible===true&&Boolean(expected)&&marketAsOf===expected&&sys.overall!=='attention';
-    report.business_data={status:ok?'PASS':'FAIL',system_overall:sys.overall||'unknown',market_as_of:marketAsOf,expected_market_date:expected,business_freshness:market.business_freshness||'unknown',decision_eligible:Boolean(market.decision_eligible)};
+    const marketAsOf=String(data?.spy_date||market.market_as_of||'');
+    const expected=String(process.env.EXPECTED_MARKET_DATE||'');
+    const sysGenerated=Date.parse(sys?.generated_at||'');
+    const statusAgeHours=Number.isFinite(sysGenerated)?(Date.now()-sysGenerated)/36e5:Infinity;
+    const ok=Boolean(expected)
+      && marketAsOf===expected
+      && String(market.market_as_of||'')===expected
+      && market.business_freshness==='fresh'
+      && market.decision_eligible===true
+      && statusAgeHours>=0
+      && statusAgeHours<=30
+      && sys.overall!=='attention';
+    report.business_data={
+      status:ok?'PASS':'FAIL',
+      system_overall:sys.overall||'unknown',
+      market_as_of:marketAsOf,
+      status_market_as_of:String(market.market_as_of||''),
+      expected_market_date:expected,
+      business_freshness:market.business_freshness||'unknown',
+      decision_eligible:Boolean(market.decision_eligible),
+      system_status_age_hours:Number.isFinite(statusAgeHours)?Number(statusAgeHours.toFixed(2)):null
+    };
   }else report.business_data={status:'FAIL',error:`status ${sr.status}/${dr.status}`};
 }catch(e){report.business_data={status:'FAIL',error:String(e.message).slice(0,200)}}
 const engineeringBaseHealthy=Object.values(report.public).every(x=>Boolean(x.version)&&x.version===x.body_version&&x.assistant&&x.journal&&x.historical_learning&&x.autonomous_agent&&!x.negative_zero)&&report.private.status!=='FAIL'&&report.interaction.status==='PASS';

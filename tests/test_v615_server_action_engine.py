@@ -54,6 +54,8 @@ risk_a={"level":"l1","reason":"no server risk trigger","dte":40,"delta":-0.12}
 risk_a_noise={"level":"l1","reason":"no server risk trigger","dte":40,"delta":-0.121}
 risk_b={"level":"l2","reason":"near assignment risk zone","dte":12,"delta":-0.55}
 assert sa.option_state_fingerprint(pos,risk_a)==sa.option_state_fingerprint(pos,risk_a_noise)
+risk_same_state_later={"level":"l1","reason":"no server risk trigger","dte":12,"delta":-0.44}
+assert sa.option_state_fingerprint(pos,risk_a)==sa.option_state_fingerprint(pos,risk_same_state_later)
 assert sa.option_state_fingerprint(pos,risk_a)!=sa.option_state_fingerprint(pos,risk_b)
 assert "option_learning_observations" in src
 

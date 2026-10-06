@@ -1,6 +1,6 @@
 {
   "version": "6.13.2",
-  "generated_at": "2026-10-06T10:20:44.758257+00:00",
+  "generated_at": "2026-10-06T10:37:24.143429+00:00",
   "title": "Learning Evaluation · 自我评估中心",
   "learning_health": {
     "score": 76.5,
@@ -13,6 +13,61 @@
       "historical_memory": 20,
       "direct_method_validation": 0
     }
+  },
+  "engine_quality": {
+    "market": {
+      "evidence_state": "strong_historical",
+      "validation_state": "forward_unproven",
+      "feedback_state": "research_priority_only",
+      "historical_mature_20": 4453,
+      "historical_mature_60": 4289,
+      "historical_mature_120": 4042,
+      "forward_mature_20": 0,
+      "forward_mature_60": 0,
+      "current_situations": 24,
+      "gap": "真实 Forward 样本尚未成熟；Historical 只能作为先验，不能替代 Forward。",
+      "safe_effect": "仅研究优先级/提醒排序"
+    },
+    "fundamental": {
+      "evidence_state": "direct_company_ready",
+      "validation_state": "outcome_link_missing",
+      "feedback_state": "thesis_review_only",
+      "symbols_with_direct_company": 6,
+      "direct_company_items": 18,
+      "draft_symbols": 8,
+      "gap": "已有 SEC/Direct Company 证据，但尚未建立基本面 Thesis 变化→后续结果的独立成熟归因。",
+      "safe_effect": "Direct Company 可触发 Thesis Review；不自动改交易规则"
+    },
+    "event": {
+      "evidence_state": "review_samples_present",
+      "validation_state": "descriptive_context_only",
+      "feedback_state": "hypothesis_only",
+      "review_samples": 5,
+      "with_sec_context": 0,
+      "with_ranked_event_context": 0,
+      "gap": "事件窗口目前是描述性邻近关系；日期接近不等于因果，且现有复盘样本的事件上下文覆盖仍有限。",
+      "safe_effect": "生成复盘假设/研究优先级"
+    },
+    "options": {
+      "evidence_state": "operational_quotes_ready",
+      "validation_state": "outcome_learning_missing",
+      "feedback_state": "risk_monitoring_only",
+      "positions_checked": 3,
+      "unknown_actions": 0,
+      "quote_failures": 0,
+      "gap": "当前主要完成持仓风险监控；Delta/DTE/IV/P&L/策略目的尚未形成独立的成熟结果学习闭环。",
+      "safe_effect": "风险提示；不自动仓位管理/交易"
+    },
+    "decision": {
+      "evidence_state": "attribution_available",
+      "validation_state": "partial_local_loop",
+      "feedback_state": "human_attribution_required",
+      "external_review_samples": 5,
+      "forward_attribution_reviews": 0,
+      "gap": "Operator Decision 的实际操作/归因主要保存在浏览器本地；后台 Learning Evaluation 无法完整审计全部人工决策闭环。",
+      "safe_effect": "错误归因/研究流程复盘；不因结果好坏自动改核心规则"
+    },
+    "principle": "五个引擎统一披露 Evidence→Validation→Feedback；没有成熟结果时明确写 missing/unproven，不用活动量冒充学习质量。"
   },
   "research_scorecard": {
     "analyzed": 8,
@@ -125,19 +180,20 @@
       ]
     },
     {
+      "category": "其他待验证项",
+      "count": 5,
+      "examples": [
+        "最近媒体事件证据暂不可用",
+        "暂无可用外部研究记录",
+        "当前 Direct=0：候选规则尚不能计入方法绩效，需先形成可验证触发并等待结果成熟"
+      ]
+    },
+    {
       "category": "行业/同业证据",
       "count": 4,
       "examples": [
         "同业样本已读取但未形成一致共振：2 个，方向 mixed",
         "行业同业联动样本暂不足"
-      ]
-    },
-    {
-      "category": "其他待验证项",
-      "count": 4,
-      "examples": [
-        "暂无可用外部研究记录",
-        "当前 Direct=0：候选规则尚不能计入方法绩效，需先形成可验证触发并等待结果成熟"
       ]
     },
     {
@@ -181,8 +237,8 @@
     },
     {
       "priority": 3,
-      "focus": "行业/同业证据",
-      "reason": "本轮出现 4 个未完成验证项。",
+      "focus": "其他待验证项",
+      "reason": "本轮出现 5 个未完成验证项。",
       "action": "优先补证据并记录结果；不得用推测填补缺失事实。"
     },
     {

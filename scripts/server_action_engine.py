@@ -216,10 +216,13 @@ def build():
     write_usage_ledger(usage_rows)
     return {"status":status,"trust":trust,"positions_checked":len(open_rows),"event_count_48h":len(events),"actions":actions,"quote_failures":quote_failures}
 
+def stable_trust(trust):
+    return {k:v for k,v in (trust or {}).items() if k!="system_status_age_hours"}
+
 def fingerprint(result):
     material={
       "status":result.get("status"),
-      "trust":result.get("trust"),
+      "trust":stable_trust(result.get("trust")),
       "events":result.get("event_count_48h"),
       "actions":[
         {k:a.get(k) for k in ("level","symbol","expiry","reason","dte")}
@@ -273,7 +276,7 @@ def main():
       "privacy":"sanitized public summary only; symbols/accounts/private position details are never written here",
     }
     PUBLIC_OUT.parent.mkdir(parents=True,exist_ok=True)
-    same=bool(previous and previous.get("alert_fingerprint")==fp and previous.get("status")==public.get("status") and previous.get("action_counts")==public.get("action_counts") and previous.get("data_trust")==public.get("data_trust"))
+    same=bool(previous and previous.get("alert_fingerprint")==fp and previous.get("status")==public.get("status") and previous.get("action_counts")==public.get("action_counts") and stable_trust(previous.get("data_trust"))==stable_trust(public.get("data_trust")))
     if same:
         prior_checked=parse_dt(previous.get("last_checked_at") or previous.get("generated_at"))
         if prior_checked and checked_at-prior_checked<timedelta(hours=6):

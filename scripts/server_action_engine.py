@@ -226,6 +226,8 @@ def build():
     usage_rows.append({"provider":"supabase","request_kind":"stock_research_notes_read","request_count":1,"paid":False,"source":"server_action_engine"})
     learning_outcomes=supabase_rows("option_learning_outcomes")
     usage_rows.append({"provider":"supabase","request_kind":"option_learning_outcomes_read","request_count":1,"paid":False,"source":"server_action_engine"})
+    operator_rows=supabase_rows("operator_decisions")
+    usage_rows.append({"provider":"supabase","request_kind":"operator_decisions_read","request_count":1,"paid":False,"source":"server_action_engine"})
     if positions is None:
         return {"status":"cannot_judge","trust":trust,"reason":"Supabase credentials unavailable","actions":[],"quote_failures":0}
     open_rows=[p for p in positions if str(p.get("status") or "open") in {"open","pending_settlement"}]
@@ -270,8 +272,12 @@ def build():
     write_usage_ledger(usage_rows)
     learning_rows_count=len(learning_outcomes or [])
     mature_outcomes=sum(1 for x in (learning_outcomes or []) if x.get("outcome_mature") is True)
+    operator_total=len(operator_rows or [])
+    operator_attributed=sum(1 for x in (operator_rows or []) if x.get("attribution") not in {None,"","pending"})
+    operator_actions=sum(1 for x in (operator_rows or []) if x.get("user_action") not in {None,"","unrecorded"})
     return {"status":status,"trust":trust,"positions_checked":len(open_rows),"event_count_48h":len(events),"actions":actions,"quote_failures":quote_failures,
-            "option_learning":{"observations":learning_rows_count,"mature_outcomes":mature_outcomes}}
+            "option_learning":{"observations":learning_rows_count,"mature_outcomes":mature_outcomes},
+            "decision_learning":{"persisted":operator_total,"with_user_action":operator_actions,"attributed":operator_attributed}}
 
 def stable_trust(trust):
     return {k:v for k,v in (trust or {}).items() if k!="system_status_age_hours"}
@@ -328,13 +334,14 @@ def main():
       "event_count_48h":result.get("event_count_48h",0),
       "quote_failures":result.get("quote_failures",0),
       "option_learning":result.get("option_learning") or {"observations":0,"mature_outcomes":0},
+      "decision_learning":result.get("decision_learning") or {"persisted":0,"with_user_action":0,"attributed":0},
       "data_trust":result["trust"],
       "delivery":delivery,
       "alert_fingerprint":fp,
       "privacy":"sanitized public summary only; symbols/accounts/private position details are never written here",
     }
     PUBLIC_OUT.parent.mkdir(parents=True,exist_ok=True)
-    same=bool(previous and previous.get("alert_fingerprint")==fp and previous.get("status")==public.get("status") and previous.get("action_counts")==public.get("action_counts") and previous.get("option_learning")==public.get("option_learning") and stable_trust(previous.get("data_trust"))==stable_trust(public.get("data_trust")))
+    same=bool(previous and previous.get("alert_fingerprint")==fp and previous.get("status")==public.get("status") and previous.get("action_counts")==public.get("action_counts") and previous.get("option_learning")==public.get("option_learning") and previous.get("decision_learning")==public.get("decision_learning") and stable_trust(previous.get("data_trust"))==stable_trust(public.get("data_trust")))
     if same:
         prior_checked=parse_dt(previous.get("last_checked_at") or previous.get("generated_at"))
         if prior_checked and checked_at-prior_checked<timedelta(hours=6):

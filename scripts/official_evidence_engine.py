@@ -76,20 +76,25 @@ def excerpts(text):
 
 def selected_symbols(planner,evidence=None):
     out=[s for s in PINNED_PUBLIC_RESEARCH if s not in ETF_OR_INDEX]
-    for row in (planner.get("today") or [])+(planner.get("queue") or []):
-        if row.get("kind") not in {"market_anomaly","discovery","failure_review"}:continue
-        sym=str(row.get("key") or "").upper().strip()
-        if not re.fullmatch(r"[A-Z]{1,5}",sym):continue
+    def add_rows(rows):
+        for row in rows or []:
+            if row.get("kind") not in {"market_anomaly","discovery","failure_review"}:continue
+            sym=str(row.get("key") or "").upper().strip()
+            if not re.fullmatch(r"[A-Z]{1,5}",sym):continue
         if sym in ETF_OR_INDEX:continue
-        if sym not in out:out.append(sym)
-    # Mature failure/outcome reviews are part of the learning loop. Keep their
-    # symbols in the evidence rotation so Event Attribution can actually find
-    # nearby official evidence instead of reviewing them without context.
+            if sym not in out:out.append(sym)
+
+    # Current-day research keeps priority, but mature outcome reviews come
+    # before the backlog queue so failed/missed samples can obtain evidence
+    # context and actually close the learning loop.
+    add_rows(planner.get("today") or [])
     reviews=((evidence or {}).get("failure_attribution") or {}).get("external_outcome_reviews") or []
     for row in reviews:
         sym=str(row.get("symbol") or "").upper().strip()
-        if re.fullmatch(r"[A-Z]{1,5}",sym) and sym not in ETF_OR_INDEX and sym not in out:
-            out.append(sym)
+        if not re.fullmatch(r"[A-Z]{1,5}",sym):continue
+        if sym in ETF_OR_INDEX:continue
+        if sym not in out:out.append(sym)
+    add_rows(planner.get("queue") or [])
     return out[:10]
 
 def ticker_map(payload):

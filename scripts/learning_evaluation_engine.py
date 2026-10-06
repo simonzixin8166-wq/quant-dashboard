@@ -34,6 +34,7 @@ PATHS = {
     "fundamental_outcomes": RESEARCH / "fundamental_outcome_context.json",
 }
 OUT = RESEARCH / "learning_evaluation.json"
+# Learning Quality sync trigger: refresh private outcome aggregates.
 
 def load(path: Path) -> dict:
     try:

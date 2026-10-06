@@ -3,6 +3,7 @@ ROOT=Path(__file__).resolve().parents[1]
 
 pi=(ROOT/"docs/assets/product-intelligence.js").read_text(encoding="utf-8")
 assistant=(ROOT/"docs/assets/investment-assistant.js").read_text(encoding="utf-8")
+agent=(ROOT/"docs/assets/autonomous-agent.js").read_text(encoding="utf-8")
 qa=(ROOT/"scripts/autonomous_site_qa.mjs").read_text(encoding="utf-8")
 status=(ROOT/"scripts/system_status_center.py").read_text(encoding="utf-8")
 server=(ROOT/"scripts/server_action_engine.py").read_text(encoding="utf-8")
@@ -21,6 +22,11 @@ assert "AI 投资助手 · 等待数据恢复" in assistant
 assert "今日驾驶舱是唯一执行结论" in assistant
 assert "if(!authority.decision_eligible)" in assistant
 assert "decision_eligible:false,title:'今日无法可靠判断'" in assistant
+
+assert "system_status_unavailable" in agent
+assert "decision_authority_blocked" in agent
+assert "authority.decision_eligible!==true" in agent
+assert "mav:decision-authority" in agent
 
 assert "report.business_data" in qa
 assert "business_freshness==='fresh'" in qa
@@ -45,5 +51,8 @@ assert 'DATA=ROOT/"docs"/"data.json"' in server
 assert "quote_freshness_cutoff" in server
 assert "last_checked_at" in server
 assert "schedule:" in workflow and "EXPECTED_MARKET_DATE" in workflow
+assert "cancel-in-progress: ${{ github.event_name == 'pull_request' }}" in workflow
+siv=(ROOT/".github/workflows/source-intelligence-validation.yml").read_text(encoding="utf-8")
+assert 'cron: "10 23 * * *"' in siv
 
 print("PASS single decision authority + business-date freshness contract")

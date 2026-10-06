@@ -3,7 +3,7 @@
 const $=id=>document.getElementById(id);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const rank={l3:3,l2:2,l1:1,unknown:0};
-const state={timer:null,lastAt:0,systemStatus:null,serverAction:null};
+const state={timer:null,lastAt:0,systemStatus:null,serverAction:null,systemLoaded:false,serverLoaded:false};
 
 function optionRows(){
  const api=global.OptionV2;if(!api?.getPositions)return[];
@@ -50,16 +50,27 @@ function opportunities(){
 }
 function decisionAuthority(){
  const sys=state.systemStatus,server=state.serverAction,market=sys?.artifacts?.market_dashboard;
- const marketBlocked=Boolean(market&&market.decision_eligible===false);
- const systemBlocked=Boolean(sys&&sys.overall==='attention'&&marketBlocked);
- const serverBlocked=server?.status==='cannot_judge'||server?.data_trust?.overall==='attention'||(server?.action_counts?.unknown||0)>0;
- if(marketBlocked||systemBlocked||serverBlocked){
-   const detail=marketBlocked
-     ? `美股日线 ${market?.market_as_of||'未知'}，应为 ${market?.expected_market_date||'最新完整交易日'}；业务数据未通过新鲜度门。`
-     : '服务端发现数据缺失、过期或关键风险状态未知。';
-   return{status:'cannot_judge',decision_eligible:false,title:'今日无法可靠判断',detail};
+ const blocked=(detail,status='cannot_judge')=>({status,decision_eligible:false,title:'今日无法可靠判断',detail});
+ if(!state.systemLoaded||!state.serverLoaded)return blocked('决策数据仍在加载；在 Data Trust 完整确认前不发布“正常/无需处理”结论。','loading');
+ if(!sys||!server||!market)return blocked('系统状态或服务端动作状态缺失。');
+ const generatedAt=Date.parse(sys.generated_at||'');
+ const statusAgeHours=Number.isFinite(generatedAt)?(Date.now()-generatedAt)/36e5:Infinity;
+ const marketOk=market.decision_eligible===true
+   && market.business_freshness==='fresh'
+   && Boolean(market.market_as_of)
+   && Boolean(market.expected_market_date)
+   && market.market_as_of===market.expected_market_date
+   && statusAgeHours>=0
+   && statusAgeHours<=30;
+ if(!marketOk){
+   return blocked(`美股日线 ${market.market_as_of||'未知'}，应为 ${market.expected_market_date||'最新完整交易日'}；Data Trust 未通过或状态快照已过期。`);
  }
- if(server?.status==='action_required')return{status:'action_required',decision_eligible:true,title:'存在需要处理的事项',detail:'服务端风险扫描已发现需要处理或复核的事项。'};
+ if(sys.overall==='attention'||sys.overall==='unknown')return blocked('系统状态存在未解决异常，暂不发布行动结论。');
+ const unknown=Number(server?.action_counts?.unknown||0);
+ const trustOk=server?.data_trust?.ok===true && ['ok','running'].includes(String(server?.data_trust?.overall||''));
+ const serverOk=['clear','action_required'].includes(String(server?.status||''))&&unknown===0&&trustOk;
+ if(!serverOk)return blocked('服务端发现数据缺失、过期或关键风险状态未知。');
+ if(server.status==='action_required')return{status:'action_required',decision_eligible:true,title:'存在需要处理的事项',detail:'服务端风险扫描已发现需要处理或复核的事项。'};
  return{status:'ready',decision_eligible:true,title:'系统正常值守',detail:'关键数据与服务端风险状态允许当前判断。'};
 }
 function dataHealth(){
@@ -97,7 +108,7 @@ function actionItems(){
  (s.improving||[]).slice(0,2).forEach(x=>rows.push({priority:50,tone:'good',when:'观察',title:`${x.symbol} 出现修复`,text:'趋势改善，继续检查策略价、基本面与事件条件。',target:'tab-stocks'}));
  const authority=decisionAuthority();
  if(!authority.decision_eligible){
-   rows.unshift({priority:120,tone:'bad',when:'当前',title:authority.title,text:authority.detail,target:'tab-system-health'});
+   return [{priority:120,tone:'bad',when:'当前',title:authority.title,text:authority.detail,target:'tab-system-health'}];
  }
  if(!rows.length)rows.push({priority:10,tone:'neutral',when:'当前',title:'当前无需操作',text:'已完成当前可用数据检查，未发现需要升级处理的事项。',target:'tab-agent-center'});
  return rows.sort((a,b)=>(b.priority||0)-(a.priority||0)).slice(0,5);
@@ -150,8 +161,8 @@ function recordDecisionState(){
  });
 }
 async function loadSystemStatus(){
- try{const r=await fetch('research/system_status.json?v='+Date.now(),{cache:'no-store'});state.systemStatus=r.ok?await r.json():null}catch{state.systemStatus=null}
- try{const r=await fetch('research/server_action_status.json?v='+Date.now(),{cache:'no-store'});state.serverAction=r.ok?await r.json():null}catch{state.serverAction=null}
+ try{const r=await fetch('research/system_status.json?v='+Date.now(),{cache:'no-store'});state.systemStatus=r.ok?await r.json():null}catch{state.systemStatus=null}finally{state.systemLoaded=true}
+ try{const r=await fetch('research/server_action_status.json?v='+Date.now(),{cache:'no-store'});state.serverAction=r.ok?await r.json():null}catch{state.serverAction=null}finally{state.serverLoaded=true}
  window.dispatchEvent(new CustomEvent('mav:decision-authority',{detail:decisionAuthority()}));
  recordDecisionState();
 }

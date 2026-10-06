@@ -17,6 +17,7 @@ from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
 PLANNER=ROOT/"docs/research/research_planner.json"
 PREVIOUS=ROOT/"docs/research/official_evidence.json"
+EVIDENCE=ROOT/"docs/research/evidence_attribution.json"
 OUT=PREVIOUS
 SEC_TICKERS="https://www.sec.gov/files/company_tickers.json"
 SEC_SUBMISSIONS="https://data.sec.gov/submissions/CIK{cik:010d}.json"
@@ -73,7 +74,7 @@ def excerpts(text):
     if not rows:rows=[t[:900]]
     return rows[:3]
 
-def selected_symbols(planner):
+def selected_symbols(planner,evidence=None):
     out=[s for s in PINNED_PUBLIC_RESEARCH if s not in ETF_OR_INDEX]
     for row in (planner.get("today") or [])+(planner.get("queue") or []):
         if row.get("kind") not in {"market_anomaly","discovery","failure_review"}:continue
@@ -81,8 +82,15 @@ def selected_symbols(planner):
         if not re.fullmatch(r"[A-Z]{1,5}",sym):continue
         if sym in ETF_OR_INDEX:continue
         if sym not in out:out.append(sym)
-        if len(out)>=6:break
-    return out
+    # Mature failure/outcome reviews are part of the learning loop. Keep their
+    # symbols in the evidence rotation so Event Attribution can actually find
+    # nearby official evidence instead of reviewing them without context.
+    reviews=((evidence or {}).get("failure_attribution") or {}).get("external_outcome_reviews") or []
+    for row in reviews:
+        sym=str(row.get("symbol") or "").upper().strip()
+        if re.fullmatch(r"[A-Z]{1,5}",sym) and sym not in ETF_OR_INDEX and sym not in out:
+            out.append(sym)
+    return out[:10]
 
 def ticker_map(payload):
     out={}
@@ -123,10 +131,10 @@ def recent_filings(submissions,cik,user_agent):
     return rows
 
 def build(planner,previous,user_agent):
-    syms=selected_symbols(planner)
+    syms=selected_symbols(planner,load(EVIDENCE))
     result={"version":"6.3.0","generated_at":datetime.now(timezone.utc).isoformat(),
             "source":"SEC EDGAR official","symbols":{},"selected_symbols":syms,
-            "policy":{"max_symbols":6,"max_filings_per_symbol":3,"automatic_orders":False,
+            "policy":{"max_symbols":10,"max_filings_per_symbol":3,"automatic_orders":False,
                       "production_rule_mutation":False,"fail_soft":True}}
     try:
         tickers=ticker_map(request_json(SEC_TICKERS,user_agent))

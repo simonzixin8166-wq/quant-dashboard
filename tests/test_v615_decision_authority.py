@@ -5,6 +5,8 @@ pi=(ROOT/"docs/assets/product-intelligence.js").read_text(encoding="utf-8")
 assistant=(ROOT/"docs/assets/investment-assistant.js").read_text(encoding="utf-8")
 qa=(ROOT/"scripts/autonomous_site_qa.mjs").read_text(encoding="utf-8")
 status=(ROOT/"scripts/system_status_center.py").read_text(encoding="utf-8")
+server=(ROOT/"scripts/server_action_engine.py").read_text(encoding="utf-8")
+workflow=(ROOT/".github/workflows/autonomous-qa.yml").read_text(encoding="utf-8")
 
 assert "function decisionAuthority()" in pi
 assert "market.business_freshness==='fresh'" in pi
@@ -25,6 +27,7 @@ assert "business_freshness==='fresh'" in qa
 assert "marketAsOf===expected" in qa
 assert "process.env.EXPECTED_MARKET_DATE" in qa
 assert "statusAgeHours<=30" in qa
+assert "report.server_action" in qa
 assert "report.engineering_qa" in qa
 assert "report.investment_data_qa" in qa
 assert "report.decision_readiness" in qa
@@ -39,6 +42,8 @@ assert "market_as_of" in status and "expected_market_date" in status
 assert "trading_calendar.expected_latest_completed_session" in server
 assert "age_hours<=30" in server
 assert 'DATA=ROOT/"docs"/"data.json"' in server
+assert "quote_freshness_cutoff" in server
+assert "last_checked_at" in server
 assert "schedule:" in workflow and "EXPECTED_MARKET_DATE" in workflow
 
 print("PASS single decision authority + business-date freshness contract")

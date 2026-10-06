@@ -62,3 +62,11 @@ for sym in ["MSFT","LITE","NOW","NBIS","CRWV","MU"]:
     assert sym in expanded
 assert len(expanded)<=10
 print("PASS V6.15 official evidence learning-review expansion")
+
+crowded_planner={"today":[{"kind":"market_anomaly","key":"MSFT"},{"kind":"market_anomaly","key":"LITE"}],
+                 "queue":[{"kind":"market_anomaly","key":x} for x in ["AMD","NVDA","TSLA","ORCL","META","AMZN","AVGO","QCOM","JPM","PYPL"]]}
+crowded=oe.selected_symbols(crowded_planner,review_evidence)
+for sym in ["NOW","NBIS","CRWV","MU"]:
+    assert sym in crowded, crowded
+assert len(crowded)<=10
+print("PASS learning-review priority over backlog queue")

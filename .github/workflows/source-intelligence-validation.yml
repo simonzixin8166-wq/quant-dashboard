@@ -56,6 +56,12 @@ on:
       - "tests/test_v615_fundamental_outcome_context.py"
       - "tests/test_v690_learning_evaluation.py"
       - "docs/assets/autonomous-agent.js"
+      - "supabase/migrations/202610060001_operator_decisions.sql"
+      - "supabase/migrations/202610060002_option_learning_observations.sql"
+      - "supabase/migrations/202610060003_option_learning_outcomes.sql"
+      - "tests/test_v615_operator_decision_persistence.py"
+      - "tests/test_v615_option_learning_observations.py"
+      - "tests/test_v615_option_learning_outcomes.py"
       - "scripts/autonomous_site_qa.mjs"
       - "docs/assets/investment-assistant.js"
       - "tests/test_v615_decision_authority.py"
@@ -130,6 +136,7 @@ jobs:
           python tests/test_v615_operator_decision_persistence.py
           python tests/test_v615_server_action_engine.py
           python tests/test_v615_option_learning_observations.py
+          python tests/test_v615_option_learning_outcomes.py
           node --check docs/assets/decision-journal.js
           node --check docs/assets/product-intelligence.js
           node --check docs/assets/investment-assistant.js

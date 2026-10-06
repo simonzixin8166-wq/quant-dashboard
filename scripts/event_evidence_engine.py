@@ -138,8 +138,8 @@ def peer_context(symbol,data):
     direction="broad_positive" if positive>=max(2,len(vals)*0.67) else "broad_negative" if negative>=max(2,len(vals)*0.67) else "mixed"
     return {"peers":rows,"peer_count":len(rows),"direction":direction,"avg_day_change":avg}
 
-def build(planner,data,previous):
-    syms=selected_symbols(planner,load(EVIDENCE))
+def build(planner,data,previous,evidence=None):
+    syms=selected_symbols(planner,evidence)
     prev=(previous.get("symbols") or {}) if isinstance(previous,dict) else {}
     symbols={}
     for sym in syms:
@@ -177,7 +177,7 @@ def build(planner,data,previous):
     }
 
 def main():
-    out=build(load(PLANNER),load(DATA),load(PREV))
+    out=build(load(PLANNER),load(DATA),load(PREV),load(EVIDENCE))
     OUT.parent.mkdir(parents=True,exist_ok=True)
     OUT.write_text(json.dumps(out,ensure_ascii=False,indent=2),encoding="utf-8")
     print(json.dumps(out["counts"],ensure_ascii=False))

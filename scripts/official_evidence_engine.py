@@ -95,7 +95,7 @@ def selected_symbols(planner,evidence=None):
         if sym in ETF_OR_INDEX:continue
         if sym not in out:out.append(sym)
     add_rows(planner.get("queue") or [])
-    return out[:10]
+    return out[:14]
 
 def ticker_map(payload):
     out={}
@@ -139,7 +139,7 @@ def build(planner,previous,user_agent,evidence=None):
     syms=selected_symbols(planner,evidence)
     result={"version":"6.3.0","generated_at":datetime.now(timezone.utc).isoformat(),
             "source":"SEC EDGAR official","symbols":{},"selected_symbols":syms,
-            "policy":{"max_symbols":10,"max_filings_per_symbol":3,"automatic_orders":False,
+            "policy":{"max_symbols":14,"max_filings_per_symbol":3,"automatic_orders":False,
                       "production_rule_mutation":False,"fail_soft":True}}
     try:
         tickers=ticker_map(request_json(SEC_TICKERS,user_agent))

@@ -67,7 +67,7 @@ def selected_symbols(planner,evidence=None):
         if not re.fullmatch(r"[A-Z]{1,5}",sym):continue
         if sym not in out:out.append(sym)
     add_rows(planner.get("queue") or [])
-    return out[:12]
+    return out[:16]
 
 def request_json(url):
     req=urllib.request.Request(url,headers={"User-Agent":"Mozilla/5.0 MyAlphaView/6.4","Accept":"application/json"})
@@ -176,7 +176,7 @@ def build(planner,data,previous,evidence=None):
         "with_peer_context":sum((x.get("peer_context") or {}).get("peer_count",0)>0 for x in symbols.values()),
       },
       "policy":{
-        "max_symbols":12,"max_news_per_symbol":5,
+        "max_symbols":16,"max_news_per_symbol":5,
         "full_market_crawl":False,"article_body_invented":False,
         "automatic_orders":False,"production_rule_mutation":False,
         "source_hierarchy":"official SEC remains above news; newswire/press wire above general media/opinion",

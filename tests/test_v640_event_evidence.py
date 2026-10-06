@@ -10,7 +10,7 @@ planner={"today":[
  {"kind":"market_anomaly","key":"VGT"},
  {"kind":"failure_review","key":"LITE"},
 ],"queue":[]}
-assert ee.selected_symbols(planner)==["MSFT","VGT","LITE"]
+assert ee.selected_symbols(planner)==["IREN","SOFI","MSFT","VGT","LITE"]
 
 payload={"news":[
  {"title":"Microsoft announces new AI infrastructure agreement","publisher":"Reuters","providerPublishTime":1790870400,"link":"https://example/r","relatedTickers":["MSFT"]},
@@ -38,9 +38,9 @@ try:
 finally:
     ee.fetch_news=old
 assert out["version"]=="6.4.1"
-assert out["counts"]["selected"]==3
-assert out["counts"]["ok"]==3
-assert out["counts"]["news_items"]==3
+assert out["counts"]["selected"]==5
+assert out["counts"]["ok"]==5
+assert out["counts"]["news_items"]==5
 assert out["policy"]["full_market_crawl"] is False
 assert out["policy"]["automatic_orders"] is False
 print("PASS V6.4 event and peer evidence layer")
@@ -55,3 +55,5 @@ assert len(filtered)==1
 assert "ServiceNow" in filtered[0]["title"]
 assert ee.relevant_to_symbol({"title":"Microsoft launches product","relatedTickers":[]},"MSFT") is True
 assert ee.relevant_to_symbol({"title":"Amazon launches product","relatedTickers":[]},"MSFT") is False
+
+assert ee.relevant_to_symbol({"title":"SoFi launches new product","relatedTickers":[]},"SOFI") is True

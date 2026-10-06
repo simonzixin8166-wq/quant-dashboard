@@ -20,6 +20,7 @@ PREV=ROOT/"docs/research/event_evidence.json"
 OUT=PREV
 SEARCH="https://query1.finance.yahoo.com/v1/finance/search?{query}"
 ETF_OR_INDEX={"QQQ","QQQM","VOO","SPY","VGT","QLD","TQQQ","SMH","IBIT","GLD","RSP"}
+PINNED_PUBLIC_RESEARCH=("IREN","SOFI")
 
 PEERS={
  "MSFT":["GOOGL","AMZN","META","ORCL"],
@@ -37,7 +38,7 @@ HIGH_QUALITY={"Reuters","Associated Press","AP Finance","Bloomberg","The Wall St
 PRESS_WIRE={"Business Wire","GlobeNewswire","PR Newswire"}
 COMPANY_TERMS={
  "MSFT":["microsoft"],"LITE":["lumentum"],"AVGO":["broadcom"],"NOW":["servicenow"],
- "NBIS":["nebius"],"CRWV":["coreweave"],"IREN":["iren","iris energy"],
+ "NBIS":["nebius"],"CRWV":["coreweave"],"IREN":["iren","iris energy"],"SOFI":["sofi","sofi technologies"],
  "NVDA":["nvidia"],"ORCL":["oracle"],"TSLA":["tesla"],
  "VGT":["vgt","vanguard information technology"],"VOO":["voo","vanguard s&p 500"],
 }
@@ -47,7 +48,7 @@ def load(path):
     except Exception:return {}
 
 def selected_symbols(planner):
-    out=[]
+    out=list(PINNED_PUBLIC_RESEARCH)
     for row in (planner.get("today") or [])+(planner.get("queue") or []):
         if row.get("kind") not in {"market_anomaly","discovery","failure_review"}:continue
         sym=str(row.get("key") or "").upper().strip()

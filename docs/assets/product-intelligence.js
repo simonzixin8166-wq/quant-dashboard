@@ -48,12 +48,32 @@ function opportunities(){
  const order={ACT:3,WATCH:2,IGNORE:1};
  return rows.sort((a,b)=>(order[b.action]||0)-(order[a.action]||0)).slice(0,4);
 }
+function decisionAuthority(){
+ const sys=state.systemStatus,server=state.serverAction,market=sys?.artifacts?.market_dashboard;
+ const marketBlocked=Boolean(market&&market.decision_eligible===false);
+ const systemBlocked=Boolean(sys&&sys.overall==='attention'&&marketBlocked);
+ const serverBlocked=server?.status==='cannot_judge'||server?.data_trust?.overall==='attention'||(server?.action_counts?.unknown||0)>0;
+ if(marketBlocked||systemBlocked||serverBlocked){
+   const detail=marketBlocked
+     ? `美股日线 ${market?.market_as_of||'未知'}，应为 ${market?.expected_market_date||'最新完整交易日'}；业务数据未通过新鲜度门。`
+     : '服务端发现数据缺失、过期或关键风险状态未知。';
+   return{status:'cannot_judge',decision_eligible:false,title:'今日无法可靠判断',detail};
+ }
+ if(server?.status==='action_required')return{status:'action_required',decision_eligible:true,title:'存在需要处理的事项',detail:'服务端风险扫描已发现需要处理或复核的事项。'};
+ return{status:'ready',decision_eligible:true,title:'系统正常值守',detail:'关键数据与服务端风险状态允许当前判断。'};
+}
 function dataHealth(){
  const rows=[];
  const live=$('liveStatusText')?.textContent?.trim();
  if(live)rows.push({name:'市场行情',status:/成功|正常/.test(live)?'ok':'warn',detail:live});
- const asof=$('usLiveAsOf')?.textContent?.trim();
- if(asof)rows.push({name:'美股日线',status:/截至/.test(asof)?'ok':'warn',detail:asof});
+ const market=state.systemStatus?.artifacts?.market_dashboard;
+ if(market){
+   const ok=market.decision_eligible===true&&market.business_freshness==='fresh';
+   rows.push({name:'美股日线',status:ok?'ok':'bad',detail:ok?`业务日期 ${market.market_as_of} · 已匹配最新完整交易日`:`业务日期 ${market.market_as_of||'未知'} · 应为 ${market.expected_market_date||'最新完整交易日'}`});
+ }else{
+   const asof=$('usLiveAsOf')?.textContent?.trim();
+   if(asof)rows.push({name:'美股日线',status:'warn',detail:asof});
+ }
  const opt=global.OptionV2?.getPositions?optionRows():[];
  if(opt.length){
    const usable=opt.filter(x=>x.fresh?.usable).length;
@@ -75,10 +95,9 @@ function actionItems(){
  opt.filter(x=>x.timing.includes('止盈')).slice(0,2).forEach(x=>rows.push({priority:70,tone:'good',when:'今日',title:`${x.symbol} 可评估止盈`,text:x.reason,target:'tab-options'}));
  (s.risk||[]).slice(0,2).forEach(x=>rows.push({priority:85,tone:'bad',when:'今日',title:`${x.symbol} 趋势风险复核`,text:'趋势转弱/退潮仅表示需要复核；不能直接等同 Thesis 已失效。',target:'tab-stocks'}));
  (s.improving||[]).slice(0,2).forEach(x=>rows.push({priority:50,tone:'good',when:'观察',title:`${x.symbol} 出现修复`,text:'趋势改善，继续检查策略价、基本面与事件条件。',target:'tab-stocks'}));
- const server=state.serverAction;
- const trustBlocked=server?.status==='cannot_judge'||server?.data_trust?.overall==='attention'||(server?.action_counts?.unknown||0)>0;
- if(trustBlocked){
-   rows.unshift({priority:120,tone:'bad',when:'当前',title:'今日无法可靠判断',text:'服务端发现数据缺失/过期或关键风险状态未知；先恢复数据，再判断是否无需操作。',target:'tab-system-health'});
+ const authority=decisionAuthority();
+ if(!authority.decision_eligible){
+   rows.unshift({priority:120,tone:'bad',when:'当前',title:authority.title,text:authority.detail,target:'tab-system-health'});
  }
  if(!rows.length)rows.push({priority:10,tone:'neutral',when:'当前',title:'当前无需操作',text:'已完成当前可用数据检查，未发现需要升级处理的事项。',target:'tab-agent-center'});
  return rows.sort((a,b)=>(b.priority||0)-(a.priority||0)).slice(0,5);
@@ -90,12 +109,12 @@ function healthHtml(x){return `<div class="pi-health-row"><i class="${esc(x.stat
 
 function render(){
  const root=$('productIntelligenceRoot');if(!root)return;
- const opts=optionRows(),actions=actionItems(),s=stockStatus(),opps=opportunities(),health=dataHealth(),server=state.serverAction;
+ const opts=optionRows(),actions=actionItems(),s=stockStatus(),opps=opportunities(),health=dataHealth(),server=state.serverAction,authority=decisionAuthority();
  const urgent=actions.filter(x=>x.tone==='bad').length,watch=actions.filter(x=>x.tone==='warn').length;
  root.innerHTML=`<section class="pi-shell">
-  <div class="pi-head"><div><span>MYALPHA DAILY COMMAND CENTER</span><h2>今日行动与组合智能</h2><p>先判断数据是否足够可信，再判断今天是否需要行动；风险、事件与机会统一排序。</p></div><div class="pi-head-state"><b>${server?.status==='cannot_judge'?'今日无法可靠判断':urgent?'有高优先级事项':'系统正常值守'}</b><small>${server?.generated_at?'服务端 '+new Date(server.generated_at).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):'等待服务端状态'}</small></div></div>
+  <div class="pi-head"><div><span>MYALPHA DAILY COMMAND CENTER</span><h2>今日行动与组合智能</h2><p>先判断数据是否足够可信，再判断今天是否需要行动；风险、事件与机会统一排序。</p></div><div class="pi-head-state"><b>${esc(authority.title)}</b><small>${server?.generated_at?'服务端 '+new Date(server.generated_at).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):'等待服务端状态'}</small></div></div>
   <div class="pi-stats">
-   ${card('今日高优先级',urgent,server?.status==='cannot_judge'?'数据不足，不能下“无需操作”结论':urgent?'优先处理风险事项':'暂无高优先级触发',server?.status==='cannot_judge'?'bad':urgent?'bad':'good')}
+   ${card('今日高优先级',urgent,!authority.decision_eligible?'数据不足，不能下“无需操作”结论':urgent?'优先处理风险事项':'暂无高优先级触发',!authority.decision_eligible?'bad':urgent?'bad':'good')}
    ${card('待复核',watch,watch?'今日或次日处理':'当前无 L2 提醒',watch?'warn':'neutral')}
    ${card('期权持仓',opts.length,opts.length?'按账户独立监控':'等待私有持仓','neutral')}
    ${card('观察池',s.loaded?s.count:'—',s.loaded?`${s.researchCount} 只有完整 Thesis`:'登录后自动扫描','neutral')}
@@ -133,10 +152,11 @@ function recordDecisionState(){
 async function loadSystemStatus(){
  try{const r=await fetch('research/system_status.json?v='+Date.now(),{cache:'no-store'});state.systemStatus=r.ok?await r.json():null}catch{state.systemStatus=null}
  try{const r=await fetch('research/server_action_status.json?v='+Date.now(),{cache:'no-store'});state.serverAction=r.ok?await r.json():null}catch{state.serverAction=null}
+ window.dispatchEvent(new CustomEvent('mav:decision-authority',{detail:decisionAuthority()}));
  recordDecisionState();
 }
 function schedule(){clearInterval(state.timer);state.timer=setInterval(()=>{if(document.visibilityState==='visible')render()},120000)}
 function init(){loadSystemStatus().finally(render);render();schedule();window.addEventListener('mav:options-updated',render);document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')render()});setTimeout(render,1200);setTimeout(render,3500)}
-global.MAVProductIntelligence={render,optionActions,opportunities,dataHealth};
+global.MAVProductIntelligence={render,optionActions,opportunities,dataHealth,decisionAuthority};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })(window);

@@ -21,9 +21,10 @@ self_improvement={"candidate_brain":{"count":2},"shadow_brain":{"eligible_for_re
 
 auto_thesis={"symbols":{"IREN":{"sources":{"official":[{"evidence_class":"direct_company"}]}}}}
 event_window={"summary":{"reviews":5,"with_sec":1,"with_ranked_event":2}}
-server_action={"positions_checked":3,"quote_failures":0,"action_counts":{"unknown":0},"option_learning":{"observations":3,"mature_outcomes":1}}
+server_action={"positions_checked":3,"quote_failures":0,"action_counts":{"unknown":0},"option_learning":{"observations":3,"mature_outcomes":1},"decision_learning":{"persisted":4,"with_user_action":3,"attributed":2}}
 forward_feedback={"counts":{"forward_mature20":0,"forward_mature60":0,"attribution_reviews":0}}
-out=le.build(execution,planner,learning,method,evidence,history,self_improvement,auto_thesis,event_window,server_action,forward_feedback)
+fundamental_outcomes={"summary":{"linked_direct_events":6,"mature_5":5,"mature_20":3,"mature_60":1}}
+out=le.build(execution,planner,learning,method,evidence,history,self_improvement,auto_thesis,event_window,server_action,forward_feedback,fundamental_outcomes)
 assert out["version"]=="6.13.2"
 assert out["research_scorecard"]["analyzed"]==2
 assert out["research_scorecard"]["situation_memory"]==12
@@ -37,12 +38,16 @@ eq=out["engine_quality"]
 assert set(eq)=={"market","fundamental","event","options","decision","principle"}
 assert eq["market"]["validation_state"]=="forward_unproven"
 assert eq["fundamental"]["evidence_state"]=="direct_company_ready"
-assert eq["fundamental"]["validation_state"]=="outcome_link_missing"
+assert eq["fundamental"]["validation_state"]=="descriptive_outcomes_maturing"
+assert eq["fundamental"]["linked_direct_events"]==6
+assert eq["fundamental"]["outcome_mature_20"]==3
 assert eq["event"]["validation_state"]=="descriptive_context_only"
 assert eq["options"]["validation_state"]=="outcome_maturing"
 assert eq["options"]["state_observations"]==3
 assert eq["options"]["mature_outcomes"]==1
-assert eq["decision"]["validation_state"]=="partial_local_loop"
+assert eq["decision"]["validation_state"]=="persisted_samples_present"
+assert eq["decision"]["persisted_operator_decisions"]==4
+assert eq["decision"]["attributed_operator_decisions"]==2
 assert out["lessons"]
 assert any("证据缺口" in x or "直接验证" in x or "历史库" in x for x in out["lessons"])
 

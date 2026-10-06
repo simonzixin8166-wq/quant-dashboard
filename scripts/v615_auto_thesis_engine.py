@@ -66,9 +66,11 @@ def build_symbol(symbol,off,event):
       "valuation_note":peer_note,
       "plan":plan,
       "sources":{
-        "official":[{"form":x.get("form"),"date":x.get("filing_date"),"url":x.get("url")} for x in latest_filings],
-        "events":[{"title":clean(x.get("title"),180),"publisher":x.get("publisher"),"published_at":x.get("published_at"),"url":x.get("url")} for x in latest_news]
+        "official":[{"form":x.get("form"),"date":x.get("filing_date"),"url":x.get("url"),"evidence_class":"direct_company"} for x in latest_filings],
+        "events":[{"title":clean(x.get("title"),180),"publisher":x.get("publisher"),"published_at":x.get("published_at"),"url":x.get("url"),"evidence_class":"media","source_type":x.get("source_type")} for x in latest_news],
+        "peer_context":{"evidence_class":"peer","direction":peer.get("direction"),"peer_count":peer.get("peer_count",0)}
       },
+      "evidence_policy":"Only direct_company evidence may directly trigger thesis review; media/peer/sector/macro remain supporting context.",
       "guardrail":"Evidence-grounded draft only. Never overwrites user notes; missing evidence stays explicit.",
     }
 

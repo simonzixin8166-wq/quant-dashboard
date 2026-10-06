@@ -149,15 +149,27 @@ function render(){
  state.lastAt=Date.now();
 }
 function recordDecisionState(){
- const s=state.serverAction;if(!s||!global.MAVDecisionJournal?.recordOperatorDecision)return;
- const decision=s.status==='cannot_judge'?'cannot_judge':s.status==='action_required'?'action_required':'no_action';
- const attribution=s.status==='cannot_judge'?'data_error':'pending';
+ const s=state.serverAction,sys=state.systemStatus,market=sys?.artifacts?.market_dashboard;
+ if(!s||!global.MAVDecisionJournal?.recordOperatorDecision)return;
+ const authority=decisionAuthority();
+ const decision=authority.status==='action_required'?'action_required':authority.decision_eligible?'no_action':'cannot_judge';
+ const attribution=decision==='cannot_judge'?'data_error':'pending';
+ const evidenceFingerprint=[
+   authority.status,
+   market?.market_as_of||'',
+   market?.expected_market_date||'',
+   s.status||'',
+   Number(s?.action_counts?.unknown||0),
+   Number(s?.action_counts?.l2||0),
+   Number(s?.action_counts?.l3||0),
+   Number(s?.action_counts?.thesis_review||0)
+ ].join('|');
  global.MAVDecisionJournal.recordOperatorDecision({
-   decision,source:'server_action_engine',
-   reason:s.status==='cannot_judge'?'关键数据不足或风险状态未知':s.status==='action_required'?'存在需要处理/复核的服务端行动':'当前服务端检查未发现升级事项',
-   dataState:s.data_trust?.overall||'unknown',
-   evidenceState:s.status==='cannot_judge'?'insufficient':'usable',
-   fingerprint:s.alert_fingerprint||'',attribution
+   decision,source:'decision_authority',
+   reason:authority.detail||authority.title||'',
+   dataState:authority.decision_eligible?'eligible':'blocked',
+   evidenceState:authority.decision_eligible?'usable':'insufficient',
+   fingerprint:evidenceFingerprint,attribution
  });
 }
 async function loadSystemStatus(){

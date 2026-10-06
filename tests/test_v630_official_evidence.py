@@ -10,10 +10,12 @@ planner={"today":[
  {"kind":"market_anomaly","key":"VGT"},
  {"kind":"failure_review","key":"LITE"},
 ],"queue":[]}
-assert oe.selected_symbols(planner)==["MSFT","LITE"]
+assert oe.selected_symbols(planner)==["IREN","SOFI","MSFT","LITE"]
 
 ticker_payload={"0":{"cik_str":789019,"ticker":"MSFT","title":"MICROSOFT CORP"},
-                "1":{"cik_str":1633978,"ticker":"LITE","title":"LUMENTUM HOLDINGS INC"}}
+                "1":{"cik_str":1633978,"ticker":"LITE","title":"LUMENTUM HOLDINGS INC"},
+                "2":{"cik_str":1878848,"ticker":"IREN","title":"IREN LIMITED"},
+                "3":{"cik_str":1818874,"ticker":"SOFI","title":"SOFI TECHNOLOGIES INC"}}
 submissions={
  "name":"MICROSOFT CORP",
  "filings":{"recent":{
@@ -40,10 +42,10 @@ finally:
     oe.request_json,oe.request_text=oldj,oldt
 
 assert out["version"]=="6.3.0"
-assert out["counts"]["selected"]==2
-assert out["counts"]["mapped"]==2
-assert out["counts"]["filings"]==4
-assert out["counts"]["with_excerpts"]==4
+assert out["counts"]["selected"]==4
+assert out["counts"]["mapped"]==4
+assert out["counts"]["filings"]==8
+assert out["counts"]["with_excerpts"]==8
 msft=out["symbols"]["MSFT"]
 assert msft["status"]=="ok"
 assert msft["filings"][0]["form"]=="10-Q"

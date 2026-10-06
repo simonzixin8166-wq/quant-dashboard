@@ -7,7 +7,7 @@ const n=v=>Number.isFinite(Number(v))?Number(v):null;
 const pct=v=>v===null?'—':`${v>=0?'+':''}${(v*100).toFixed(2)}%`;
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function decisionAuthority(){
-  try{return global.MAVProductIntelligence?.decisionAuthority?.()||{status:'ready',decision_eligible:true,title:'系统正常值守',detail:''}}
+  try{return global.MAVProductIntelligence?.decisionAuthority?.()||{status:'cannot_judge',decision_eligible:false,title:'今日无法可靠判断',detail:'决策权威尚未加载完成。'}}
   catch{return{status:'cannot_judge',decision_eligible:false,title:'今日无法可靠判断',detail:'决策数据状态未知。'}}
 }
 function classify(spx,ixic,vix){

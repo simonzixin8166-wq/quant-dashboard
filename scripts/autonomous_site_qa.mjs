@@ -90,12 +90,13 @@ for(const item of report.http_errors){
 report.http_errors=persistentHttpErrors;
 report.business_data={status:'FAIL'};
 try{
-  const [sr,dr]=await Promise.all([
+  const [sr,dr,ar]=await Promise.all([
     fetch(base+'/research/system_status.json?qa='+Date.now(),{cache:'no-store'}),
-    fetch(base+'/data.json?qa='+Date.now(),{cache:'no-store'})
+    fetch(base+'/data.json?qa='+Date.now(),{cache:'no-store'}),
+    fetch(base+'/research/server_action_status.json?qa='+Date.now(),{cache:'no-store'})
   ]);
-  if(sr.ok&&dr.ok){
-    const sys=await sr.json(),data=await dr.json(),market=sys?.artifacts?.market_dashboard||{};
+  if(sr.ok&&dr.ok&&ar.ok){
+    const sys=await sr.json(),data=await dr.json(),server=await ar.json(),market=sys?.artifacts?.market_dashboard||{};
     const marketAsOf=String(data?.spy_date||market.market_as_of||'');
     const expected=String(process.env.EXPECTED_MARKET_DATE||'');
     const sysGenerated=Date.parse(sys?.generated_at||'');
@@ -118,12 +119,19 @@ try{
       decision_eligible:Boolean(market.decision_eligible),
       system_status_age_hours:Number.isFinite(statusAgeHours)?Number(statusAgeHours.toFixed(2)):null
     };
-  }else report.business_data={status:'FAIL',error:`status ${sr.status}/${dr.status}`};
+    const unknown=Number(server?.action_counts?.unknown||0);
+    const serverOk=['clear','action_required'].includes(String(server?.status||''))&&unknown===0&&server?.data_trust?.ok===true;
+    report.server_action={status:serverOk?'PASS':'FAIL',server_status:server?.status||'unknown',unknown_actions:unknown,data_trust_ok:server?.data_trust?.ok===true,last_checked_at:server?.last_checked_at||server?.generated_at||null};
+  }else{
+    report.business_data={status:'FAIL',error:`status ${sr.status}/${dr.status}/${ar.status}`};
+    report.server_action={status:'FAIL',error:'server action status unavailable'};
+  }
 }catch(e){report.business_data={status:'FAIL',error:String(e.message).slice(0,200)}}
 const engineeringBaseHealthy=Object.values(report.public).every(x=>Boolean(x.version)&&x.version===x.body_version&&x.assistant&&x.journal&&x.historical_learning&&x.autonomous_agent&&!x.negative_zero)&&report.private.status!=='FAIL'&&report.interaction.status==='PASS';
 report.engineering_qa={status:engineeringBaseHealthy?'PASS':'FAIL',public_surfaces:Object.keys(report.public),private_status:report.private.status,interaction_status:report.interaction.status};
-report.investment_data_qa={status:report.business_data.status,market_as_of:report.business_data.market_as_of||null,expected_market_date:report.business_data.expected_market_date||null,business_freshness:report.business_data.business_freshness||'unknown',decision_eligible:Boolean(report.business_data.decision_eligible)};
-report.decision_readiness={status:(engineeringBaseHealthy&&report.business_data.status==='PASS')?'PASS':'FAIL',rule:'Engineering QA and Investment Data QA must both PASS; stale or incomplete market data fails closed.'};
+const investmentDataPass=report.business_data.status==='PASS'&&report.server_action?.status==='PASS';
+report.investment_data_qa={status:investmentDataPass?'PASS':'FAIL',market_as_of:report.business_data.market_as_of||null,expected_market_date:report.business_data.expected_market_date||null,business_freshness:report.business_data.business_freshness||'unknown',decision_eligible:Boolean(report.business_data.decision_eligible),server_action:report.server_action};
+report.decision_readiness={status:(engineeringBaseHealthy&&investmentDataPass)?'PASS':'FAIL',rule:'Engineering QA and Investment Data QA must both PASS; market freshness and server action must fail closed when unknown.'};
 const coreHealthy=engineeringBaseHealthy&&report.investment_data_qa.status==='PASS'&&report.decision_readiness.status==='PASS';
 let baseRetryHealthy=false;
 try{

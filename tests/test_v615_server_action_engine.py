@@ -47,6 +47,16 @@ later_result={"status":"clear","trust":{**base_result["trust"],"system_status_ag
 assert sa.fingerprint(base_result)==sa.fingerprint(later_result)
 assert sa.stable_trust(base_result["trust"])==sa.stable_trust(later_result["trust"])
 
+# Option outcome-learning state fingerprints are stable for the same state and
+# change only when the meaningful risk state changes.
+pos=p(id=7,user_id="00000000-0000-0000-0000-000000000001")
+risk_a={"level":"l1","reason":"no server risk trigger","dte":40,"delta":-0.12}
+risk_a_noise={"level":"l1","reason":"no server risk trigger","dte":40,"delta":-0.121}
+risk_b={"level":"l2","reason":"near assignment risk zone","dte":12,"delta":-0.55}
+assert sa.option_state_fingerprint(pos,risk_a)==sa.option_state_fingerprint(pos,risk_a_noise)
+assert sa.option_state_fingerprint(pos,risk_a)!=sa.option_state_fingerprint(pos,risk_b)
+assert "option_learning_observations" in src
+
 # Thesis Review authority: only direct-company official evidence may trigger review.
 old_auto=sa.AUTO_THESIS
 try:

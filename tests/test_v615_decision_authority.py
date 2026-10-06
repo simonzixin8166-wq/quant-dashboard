@@ -18,6 +18,10 @@ assert "if(!authority.decision_eligible)" in assistant
 assert "report.business_data" in qa
 assert "business_freshness==='fresh'" in qa
 assert "marketAsOf===expected" in qa
+assert "report.engineering_qa" in qa
+assert "report.investment_data_qa" in qa
+assert "report.decision_readiness" in qa
+assert "report.overall=report.decision_readiness.status" in qa
 
 assert "expected_completed_us_session" in status
 assert "market_business_freshness" in status

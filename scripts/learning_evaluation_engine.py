@@ -31,6 +31,7 @@ PATHS = {
     "event_window": RESEARCH / "event_window_attribution.json",
     "server_action": RESEARCH / "server_action_status.json",
     "forward_feedback": RESEARCH / "forward_learning_feedback.json",
+    "fundamental_outcomes": RESEARCH / "fundamental_outcome_context.json",
 }
 OUT = RESEARCH / "learning_evaluation.json"
 
@@ -101,7 +102,7 @@ def historical_summary(history: dict) -> dict:
         "role": "历史库提供先验与相似情境；实时前瞻结果用于验证系统当时判断是否可靠。",
     }
 
-def five_engine_scorecard(learning, history, auto_thesis=None, event_window=None, server_action=None, forward_feedback=None, evidence=None):
+def five_engine_scorecard(learning, history, auto_thesis=None, event_window=None, server_action=None, forward_feedback=None, evidence=None, fundamental_outcomes=None):
     """One auditable quality contract across the five learning domains.
 
     The states describe evidence maturity and feedback closure, not investment
@@ -112,6 +113,7 @@ def five_engine_scorecard(learning, history, auto_thesis=None, event_window=None
     server_action=server_action or {}
     forward_feedback=forward_feedback or {}
     evidence=evidence or {}
+    fundamental_outcomes=fundamental_outcomes or {}
 
     hs=historical_summary(history)
     fc=forward_feedback.get("counts") or {}
@@ -136,6 +138,14 @@ def five_engine_scorecard(learning, history, auto_thesis=None, event_window=None
     option_learning=server_action.get("option_learning") or {}
     option_observations=int(option_learning.get("observations") or 0)
     option_mature=int(option_learning.get("mature_outcomes") or 0)
+    decision_learning=server_action.get("decision_learning") or {}
+    decision_persisted=int(decision_learning.get("persisted") or 0)
+    decision_actions=int(decision_learning.get("with_user_action") or 0)
+    decision_attributed=int(decision_learning.get("attributed") or 0)
+    fundamental_summary=fundamental_outcomes.get("summary") or {}
+    fundamental_linked=int(fundamental_summary.get("linked_direct_events") or 0)
+    fundamental_m20=int(fundamental_summary.get("mature_20") or 0)
+    fundamental_m60=int(fundamental_summary.get("mature_60") or 0)
 
     return {
       "market":{
@@ -153,13 +163,16 @@ def five_engine_scorecard(learning, history, auto_thesis=None, event_window=None
       },
       "fundamental":{
         "evidence_state":"direct_company_ready" if direct_items else "insufficient",
-        "validation_state":"outcome_link_missing",
-        "feedback_state":"thesis_review_only",
+        "validation_state":"descriptive_outcomes_maturing" if fundamental_m20 else ("descriptive_outcomes_started" if fundamental_linked else "outcome_link_missing"),
+        "feedback_state":"thesis_review_plus_outcome_context" if fundamental_linked else "thesis_review_only",
         "symbols_with_direct_company":direct_symbols,
         "direct_company_items":direct_items,
         "draft_symbols":len(drafts),
-        "gap":"已有 SEC/Direct Company 证据，但尚未建立基本面 Thesis 变化→后续结果的独立成熟归因。",
-        "safe_effect":"Direct Company 可触发 Thesis Review；不自动改交易规则",
+        "linked_direct_events":fundamental_linked,
+        "outcome_mature_20":fundamental_m20,
+        "outcome_mature_60":fundamental_m60,
+        "gap":"已建立 Direct Company Evidence→后续市场结果的描述性链接；公告后涨跌不等于 Thesis 对错。" if fundamental_linked else "已有 SEC/Direct Company 证据，但尚未形成可验证的后续结果链接。",
+        "safe_effect":"Direct Company 可触发 Thesis Review，并提供后续结果上下文；不自动改交易规则",
       },
       "event":{
         "evidence_state":"review_samples_present" if event_summary.get("reviews") else "insufficient",
@@ -184,18 +197,21 @@ def five_engine_scorecard(learning, history, auto_thesis=None, event_window=None
         "safe_effect":"风险提示 + 结果学习；不自动仓位管理/交易",
       },
       "decision":{
-        "evidence_state":"attribution_available" if reviews else "partial",
-        "validation_state":"partial_local_loop",
+        "evidence_state":"private_ledger_ready",
+        "validation_state":"persisted_samples_present" if decision_persisted else "private_ledger_ready_no_samples",
         "feedback_state":"human_attribution_required",
         "external_review_samples":len(reviews),
         "forward_attribution_reviews":int(fc.get("attribution_reviews") or 0),
-        "gap":"Operator Decision 的实际操作/归因主要保存在浏览器本地；后台 Learning Evaluation 无法完整审计全部人工决策闭环。",
+        "persisted_operator_decisions":decision_persisted,
+        "with_user_action":decision_actions,
+        "attributed_operator_decisions":decision_attributed,
+        "gap":"私有 Decision Ledger 已上线；等待真实 Operator Decision、用户动作与人工归因逐步成熟。" if not decision_persisted else "已开始后台持久化真实 Operator Decision；仍需人工归因，不能因结果好坏自动改核心规则。",
         "safe_effect":"错误归因/研究流程复盘；不因结果好坏自动改核心规则",
       },
       "principle":"五个引擎统一披露 Evidence→Validation→Feedback；没有成熟结果时明确写 missing/unproven，不用活动量冒充学习质量。"
     }
 
-def build(execution, planner, learning, method, evidence, history, self_improvement, auto_thesis=None, event_window=None, server_action=None, forward_feedback=None):
+def build(execution, planner, learning, method, evidence, history, self_improvement, auto_thesis=None, event_window=None, server_action=None, forward_feedback=None, fundamental_outcomes=None):
     results = execution.get("results") or []
     analyzed = len(results)
     high = sum(x.get("confidence") == "high" for x in results)
@@ -293,7 +309,7 @@ def build(execution, planner, learning, method, evidence, history, self_improvem
             "components": components,
         },
         "engine_quality": five_engine_scorecard(
-            learning, history, auto_thesis, event_window, server_action, forward_feedback, evidence
+            learning, history, auto_thesis, event_window, server_action, forward_feedback, evidence, fundamental_outcomes
         ),
         "research_scorecard": {
             "analyzed": analyzed,
@@ -351,6 +367,7 @@ def main():
         load(PATHS["event_window"]),
         load(PATHS["server_action"]),
         load(PATHS["forward_feedback"]),
+        load(PATHS["fundamental_outcomes"]),
     )
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(out, ensure_ascii=False, indent=2), encoding="utf-8")

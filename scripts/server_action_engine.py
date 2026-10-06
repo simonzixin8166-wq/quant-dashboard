@@ -121,11 +121,12 @@ def thesis_review_actions(notes):
         latest=None
         src=drafts[symbol].get("sources") or {}
         for x in src.get("official") or []:
+            if x.get("evidence_class") not in {None,"direct_company"}:
+                continue
             d=parse_dt((x.get("date") or "")+"T00:00:00Z")
             latest=max(latest,d) if latest and d else (d or latest)
-        for x in src.get("events") or []:
-            d=parse_dt(x.get("published_at"))
-            latest=max(latest,d) if latest and d else (d or latest)
+        # Media/peer/sector/macro evidence is context only and cannot directly
+        # trigger a thesis state change or review action.
         if latest and latest>updated:
             out.append({
                 "level":"review",

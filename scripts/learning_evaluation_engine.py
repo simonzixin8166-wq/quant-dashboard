@@ -27,6 +27,10 @@ PATHS = {
     "evidence": RESEARCH / "evidence_attribution.json",
     "history": RESEARCH / "historical_journal.json",
     "self_improvement": RESEARCH / "self_improvement.json",
+    "auto_thesis": RESEARCH / "auto_thesis_drafts.json",
+    "event_window": RESEARCH / "event_window_attribution.json",
+    "server_action": RESEARCH / "server_action_status.json",
+    "forward_feedback": RESEARCH / "forward_learning_feedback.json",
 }
 OUT = RESEARCH / "learning_evaluation.json"
 
@@ -97,7 +101,96 @@ def historical_summary(history: dict) -> dict:
         "role": "历史库提供先验与相似情境；实时前瞻结果用于验证系统当时判断是否可靠。",
     }
 
-def build(execution, planner, learning, method, evidence, history, self_improvement):
+def five_engine_scorecard(learning, history, auto_thesis=None, event_window=None, server_action=None, forward_feedback=None, evidence=None):
+    """One auditable quality contract across the five learning domains.
+
+    The states describe evidence maturity and feedback closure, not investment
+    attractiveness. Missing loops stay explicit instead of being inferred.
+    """
+    auto_thesis=auto_thesis or {}
+    event_window=event_window or {}
+    server_action=server_action or {}
+    forward_feedback=forward_feedback or {}
+    evidence=evidence or {}
+
+    hs=historical_summary(history)
+    fc=forward_feedback.get("counts") or {}
+    situations=((learning.get("quality") or {}).get("situations")
+                or len(learning.get("situation_memory") or []))
+
+    drafts=auto_thesis.get("symbols") or {}
+    direct_symbols=0
+    direct_items=0
+    for row in drafts.values():
+        official=((row.get("sources") or {}).get("official") or [])
+        direct=[x for x in official if x.get("evidence_class")=="direct_company"]
+        if direct:
+            direct_symbols+=1
+            direct_items+=len(direct)
+
+    event_summary=event_window.get("summary") or {}
+    reviews=(evidence.get("failure_attribution") or {}).get("external_outcome_reviews") or []
+    option_counts=server_action.get("action_counts") or {}
+    option_unknown=int(option_counts.get("unknown") or 0)
+    checked=int(server_action.get("positions_checked") or 0)
+
+    return {
+      "market":{
+        "evidence_state":"strong_historical" if hs["mature_60"] else "insufficient",
+        "validation_state":"forward_unproven" if int(fc.get("forward_mature20") or 0)==0 else "forward_maturing",
+        "feedback_state":"research_priority_only",
+        "historical_mature_20":hs["mature_20"],
+        "historical_mature_60":hs["mature_60"],
+        "historical_mature_120":hs["mature_120"],
+        "forward_mature_20":int(fc.get("forward_mature20") or 0),
+        "forward_mature_60":int(fc.get("forward_mature60") or 0),
+        "current_situations":situations,
+        "gap":"真实 Forward 样本尚未成熟；Historical 只能作为先验，不能替代 Forward。",
+        "safe_effect":"仅研究优先级/提醒排序",
+      },
+      "fundamental":{
+        "evidence_state":"direct_company_ready" if direct_items else "insufficient",
+        "validation_state":"outcome_link_missing",
+        "feedback_state":"thesis_review_only",
+        "symbols_with_direct_company":direct_symbols,
+        "direct_company_items":direct_items,
+        "draft_symbols":len(drafts),
+        "gap":"已有 SEC/Direct Company 证据，但尚未建立基本面 Thesis 变化→后续结果的独立成熟归因。",
+        "safe_effect":"Direct Company 可触发 Thesis Review；不自动改交易规则",
+      },
+      "event":{
+        "evidence_state":"review_samples_present" if event_summary.get("reviews") else "insufficient",
+        "validation_state":"descriptive_context_only",
+        "feedback_state":"hypothesis_only",
+        "review_samples":int(event_summary.get("reviews") or 0),
+        "with_sec_context":int(event_summary.get("with_sec") or 0),
+        "with_ranked_event_context":int(event_summary.get("with_ranked_event") or 0),
+        "gap":"事件窗口目前是描述性邻近关系；日期接近不等于因果，且现有复盘样本的事件上下文覆盖仍有限。",
+        "safe_effect":"生成复盘假设/研究优先级",
+      },
+      "options":{
+        "evidence_state":"operational_quotes_ready" if checked and option_unknown==0 else "partial_or_unknown",
+        "validation_state":"outcome_learning_missing",
+        "feedback_state":"risk_monitoring_only",
+        "positions_checked":checked,
+        "unknown_actions":option_unknown,
+        "quote_failures":int(server_action.get("quote_failures") or 0),
+        "gap":"当前主要完成持仓风险监控；Delta/DTE/IV/P&L/策略目的尚未形成独立的成熟结果学习闭环。",
+        "safe_effect":"风险提示；不自动仓位管理/交易",
+      },
+      "decision":{
+        "evidence_state":"attribution_available" if reviews else "partial",
+        "validation_state":"partial_local_loop",
+        "feedback_state":"human_attribution_required",
+        "external_review_samples":len(reviews),
+        "forward_attribution_reviews":int(fc.get("attribution_reviews") or 0),
+        "gap":"Operator Decision 的实际操作/归因主要保存在浏览器本地；后台 Learning Evaluation 无法完整审计全部人工决策闭环。",
+        "safe_effect":"错误归因/研究流程复盘；不因结果好坏自动改核心规则",
+      },
+      "principle":"五个引擎统一披露 Evidence→Validation→Feedback；没有成熟结果时明确写 missing/unproven，不用活动量冒充学习质量。"
+    }
+
+def build(execution, planner, learning, method, evidence, history, self_improvement, auto_thesis=None, event_window=None, server_action=None, forward_feedback=None):
     results = execution.get("results") or []
     analyzed = len(results)
     high = sum(x.get("confidence") == "high" for x in results)
@@ -194,6 +287,9 @@ def build(execution, planner, learning, method, evidence, history, self_improvem
             "meaning": "衡量学习链覆盖、反证纪律、未知项透明度、历史记忆和直接方法验证成熟度；不是收益率或买卖评分。",
             "components": components,
         },
+        "engine_quality": five_engine_scorecard(
+            learning, history, auto_thesis, event_window, server_action, forward_feedback, evidence
+        ),
         "research_scorecard": {
             "analyzed": analyzed,
             "high_confidence": high,
@@ -246,6 +342,10 @@ def main():
         load(PATHS["evidence"]),
         load(PATHS["history"]),
         load(PATHS["self_improvement"]),
+        load(PATHS["auto_thesis"]),
+        load(PATHS["event_window"]),
+        load(PATHS["server_action"]),
+        load(PATHS["forward_feedback"]),
     )
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(out, ensure_ascii=False, indent=2), encoding="utf-8")

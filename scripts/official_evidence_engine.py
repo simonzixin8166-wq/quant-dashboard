@@ -22,6 +22,7 @@ SEC_TICKERS="https://www.sec.gov/files/company_tickers.json"
 SEC_SUBMISSIONS="https://data.sec.gov/submissions/CIK{cik:010d}.json"
 FORMS={"10-K","10-Q","8-K","6-K","20-F","40-F"}
 ETF_OR_INDEX={"QQQ","QQQM","VOO","SPY","VGT","QLD","TQQQ","SMH","IBIT","GLD","RSP"}
+PINNED_PUBLIC_RESEARCH=("IREN","SOFI")
 
 def load(path):
     try:return json.loads(path.read_text(encoding="utf-8"))
@@ -73,7 +74,7 @@ def excerpts(text):
     return rows[:3]
 
 def selected_symbols(planner):
-    out=[]
+    out=[s for s in PINNED_PUBLIC_RESEARCH if s not in ETF_OR_INDEX]
     for row in (planner.get("today") or [])+(planner.get("queue") or []):
         if row.get("kind") not in {"market_anomaly","discovery","failure_review"}:continue
         sym=str(row.get("key") or "").upper().strip()

@@ -62,13 +62,12 @@ def write_option_learning_observations(rows):
     base=os.getenv("SUPABASE_URL");key=os.getenv("SUPABASE_KEY")
     if not base or not key or not rows:return False
     try:
-        url=(f"{base.rstrip('/')}/rest/v1/option_learning_observations"
-             "?on_conflict=user_id,position_id,state_fingerprint")
+        url=f"{base.rstrip('/')}/rest/v1/option_learning_observations"
         body=json.dumps(rows).encode()
         req=urllib.request.Request(url,data=body,method="POST",headers={
             "apikey":key,"Authorization":f"Bearer {key}",
             "Content-Type":"application/json",
-            "Prefer":"resolution=ignore-duplicates,return=minimal",
+            "Prefer":"return=minimal",
             "User-Agent":"MyAlpha-Server-Action",
         })
         with urllib.request.urlopen(req,timeout=12) as r:r.read()
@@ -77,6 +76,23 @@ def write_option_learning_observations(rows):
         # Migration may not be applied yet; learning persistence is fail-soft
         # and must never alter the fail-closed risk decision path.
         return False
+
+def latest_option_states(rows):
+    latest={}
+    for row in rows or []:
+        pid=str(row.get("position_id"))
+        stamp=parse_dt(row.get("observed_at") or row.get("created_at"))
+        if not pid or not stamp:continue
+        prev=latest.get(pid)
+        prev_stamp=parse_dt(prev.get("observed_at") or prev.get("created_at")) if prev else None
+        if prev is None or prev_stamp is None or stamp>prev_stamp:
+            latest[pid]=row
+    return latest
+
+def should_record_option_state(position,risk,latest):
+    current=option_state_fingerprint(position,risk)
+    prev=(latest or {}).get(str(position.get("id"))) or {}
+    return prev.get("state_fingerprint")!=current
 
 def option_state_fingerprint(position,risk):
     # State-entry identity only. DTE/Delta/spot are observation payload, not
@@ -227,12 +243,15 @@ def build():
     usage_rows.append({"provider":"supabase","request_kind":"stock_research_notes_read","request_count":1,"paid":False,"source":"server_action_engine"})
     learning_outcomes=supabase_rows("option_learning_outcomes")
     usage_rows.append({"provider":"supabase","request_kind":"option_learning_outcomes_read","request_count":1,"paid":False,"source":"server_action_engine"})
+    learning_observations=supabase_rows("option_learning_observations")
+    usage_rows.append({"provider":"supabase","request_kind":"option_learning_observations_read","request_count":1,"paid":False,"source":"server_action_engine"})
     operator_rows=supabase_rows("operator_decisions")
     usage_rows.append({"provider":"supabase","request_kind":"operator_decisions_read","request_count":1,"paid":False,"source":"server_action_engine"})
     if positions is None:
         return {"status":"cannot_judge","trust":trust,"reason":"Supabase credentials unavailable","actions":[],"quote_failures":0}
     open_rows=[p for p in positions if str(p.get("status") or "open") in {"open","pending_settlement"}]
     events=upcoming_events(48);actions=[];quote_failures=0;learning_rows=[]
+    latest_states=latest_option_states(learning_observations or [])
     thesis_actions=thesis_review_actions(notes or [])
     for p in open_rows:
         occ=occ_symbol(p);q=None
@@ -243,7 +262,7 @@ def build():
             except Exception:
                 quote_failures+=1
         risk=risk_for(p,q,events)
-        if p.get("id") is not None and p.get("user_id"):
+        if p.get("id") is not None and p.get("user_id") and should_record_option_state(p,risk,latest_states):
             learning_rows.append({
               "user_id":p.get("user_id"),
               "position_id":p.get("id"),
@@ -267,11 +286,11 @@ def build():
         elif risk["level"]=="unknown":
             actions.append({"level":"unknown","symbol":p.get("symbol"),"expiry":p.get("expiry"),"reason":risk["reason"],"dte":risk.get("dte")})
     actions.extend(thesis_actions)
-    write_option_learning_observations(learning_rows)
+    learning_write_ok=write_option_learning_observations(learning_rows)
     cannot=not trust["ok"] or any(a["level"]=="unknown" for a in actions)
     status="cannot_judge" if cannot else ("action_required" if any(a["level"] in {"l2","l3","review"} for a in actions) else "clear")
     write_usage_ledger(usage_rows)
-    learning_rows_count=max(len(learning_outcomes or []),len(learning_rows))
+    learning_rows_count=len(learning_observations or [])+(len(learning_rows) if learning_write_ok else 0)
     mature_outcomes=sum(1 for x in (learning_outcomes or []) if x.get("outcome_mature") is True)
     operator_total=len(operator_rows or [])
     operator_attributed=sum(1 for x in (operator_rows or []) if x.get("attribution") not in {None,"","pending"})

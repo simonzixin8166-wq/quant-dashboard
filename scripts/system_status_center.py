@@ -3,8 +3,9 @@
 from __future__ import annotations
 
 import json, os, urllib.request
-from datetime import datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 ROOT=Path(__file__).resolve().parents[1]
 OUT=ROOT/"docs"/"research"/"system_status.json"
@@ -158,6 +159,75 @@ def parse_iso(value):
     except Exception:
         return None
 
+
+def _nth_weekday(year,month,weekday,n):
+    d=date(year,month,1)
+    while d.weekday()!=weekday:d+=timedelta(days=1)
+    return d+timedelta(days=7*(n-1))
+
+def _last_weekday(year,month,weekday):
+    if month==12:d=date(year+1,1,1)-timedelta(days=1)
+    else:d=date(year,month+1,1)-timedelta(days=1)
+    while d.weekday()!=weekday:d-=timedelta(days=1)
+    return d
+
+def _easter_sunday(year):
+    a=year%19;b=year//100;c=year%100;d=b//4;e=b%4;f=(b+8)//25;g=(b-f+1)//3
+    h=(19*a+b-d-g+15)%30;i=c//4;k=c%4;l=(32+2*e+2*i-h-k)%7;m=(a+11*h+22*l)//451
+    month=(h+l-7*m+114)//31;day=((h+l-7*m+114)%31)+1
+    return date(year,month,day)
+
+def _observed_fixed_holiday(d):
+    if d.weekday()==5:return d-timedelta(days=1)
+    if d.weekday()==6:return d+timedelta(days=1)
+    return d
+
+def nyse_holidays(year):
+    holidays={
+        _observed_fixed_holiday(date(year,1,1)),
+        _nth_weekday(year,1,0,3),      # MLK
+        _nth_weekday(year,2,0,3),      # Presidents Day
+        _easter_sunday(year)-timedelta(days=2),  # Good Friday
+        _last_weekday(year,5,0),       # Memorial Day
+        _observed_fixed_holiday(date(year,6,19)),
+        _observed_fixed_holiday(date(year,7,4)),
+        _nth_weekday(year,9,0,1),      # Labor Day
+        _nth_weekday(year,11,3,4),     # Thanksgiving
+        _observed_fixed_holiday(date(year,12,25)),
+    }
+    # If next New Year's Day is observed on Dec 31, that is also a closure.
+    next_new_year=_observed_fixed_holiday(date(year+1,1,1))
+    if next_new_year.year==year:holidays.add(next_new_year)
+    return holidays
+
+def is_nyse_session_day(d):
+    return d.weekday()<5 and d not in nyse_holidays(d.year)
+
+def expected_completed_us_session(now=None):
+    now=now or datetime.now(timezone.utc)
+    ny=now.astimezone(ZoneInfo("America/New_York"))
+    candidate=ny.date()
+    # Treat the day's close as safely complete after 18:00 ET. Before that,
+    # the latest decision-grade daily bar must be the previous completed session.
+    if ny.hour<18:candidate-=timedelta(days=1)
+    while not is_nyse_session_day(candidate):
+        candidate-=timedelta(days=1)
+    return candidate.isoformat()
+
+def market_business_freshness(path,now=None):
+    data=load(path)
+    market_as_of=str(data.get("spy_date") or ((data.get("index") or {}).get("SPY") or {}).get("date") or "")
+    expected=expected_completed_us_session(now)
+    if not market_as_of:
+        status="unknown"
+    elif market_as_of==expected:
+        status="fresh"
+    elif market_as_of<expected:
+        status="stale"
+    else:
+        status="future"
+    return {"market_as_of":market_as_of or None,"expected_market_date":expected,"business_freshness":status}
+
 def artifact_health(name,path,now=None):
     now=now or datetime.now(timezone.utc)
     updated=iso_from_file(path)
@@ -177,8 +247,12 @@ def artifact_health(name,path,now=None):
         freshness="expired"
     freshness_eligible=available and freshness=="fresh"
     research_only=name in {"range_intelligence","playbook_outcome_shadow","walk_forward_replay","controlled_learning_policy","forward_learning_feedback","challenger_experiments","source_reading_memory","source_rule_lifecycle"}
+    business={}
+    if name=="market_dashboard" and available:
+        business=market_business_freshness(path,now)
+        freshness_eligible=freshness_eligible and business.get("business_freshness")=="fresh"
     decision_eligible=freshness_eligible and not research_only
-    return {
+    out={
         "updated_at":updated,
         "available":available,
         "age_hours":age_hours,
@@ -187,6 +261,8 @@ def artifact_health(name,path,now=None):
         "decision_eligible":decision_eligible,
         "participation":"research_only" if research_only and freshness_eligible else ("eligible" if decision_eligible else "excluded"),
     }
+    if business:out.update(business)
+    return out
 
 
 def build_resource_guard(repos, artifacts):
@@ -234,6 +310,13 @@ def build(fetch_runs=True):
         repos[repo]=rows
     now=datetime.now(timezone.utc)
     artifacts={k:artifact_health(k,v,now) for k,v in ARTIFACTS.items()}
+    market_gate=artifacts.get("market_dashboard",{}).get("decision_eligible",False)
+    if not market_gate:
+        for name in CRITICAL_DECISION_ARTIFACTS-{"market_dashboard"}:
+            if name in artifacts:
+                artifacts[name]["decision_eligible"]=False
+                artifacts[name]["participation"]="excluded"
+                artifacts[name]["blocked_by"]="market_dashboard_business_freshness"
     overall="ok"
     critical=[
         repos["quant-dashboard"].get("Daily Dashboard Update",{}).get("health"),
@@ -281,7 +364,7 @@ def build(fetch_runs=True):
         "decision_data_contract":{
             "critical_artifacts":sorted(CRITICAL_DECISION_ARTIFACTS),
             "excluded_artifacts":artifact_failures,
-            "rule":"只有 freshness=fresh 且 decision_eligible=true 的关键产物才允许进入当前研究/决策摘要；缓存或过期数据只能作为历史上下文。",
+            "rule":"关键产物必须同时满足文件 freshness 与业务日期 freshness；market_as_of 必须等于 expected_market_date，才允许进入当前研究/决策摘要。缓存或过期数据只能作为历史上下文。",
         },
         "principle":"状态中心只报告自动化健康度与数据新鲜度；不会修改交易规则。",
     }

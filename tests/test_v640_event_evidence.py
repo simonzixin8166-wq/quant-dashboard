@@ -57,3 +57,12 @@ assert ee.relevant_to_symbol({"title":"Microsoft launches product","relatedTicke
 assert ee.relevant_to_symbol({"title":"Amazon launches product","relatedTickers":[]},"MSFT") is False
 
 assert ee.relevant_to_symbol({"title":"SoFi launches new product","relatedTickers":[]},"SOFI") is True
+
+
+review_evidence={"failure_attribution":{"external_outcome_reviews":[{"symbol":"NOW"},{"symbol":"NBIS"},{"symbol":"CRWV"},{"symbol":"MU"}]}}
+expanded=ee.selected_symbols(planner,review_evidence)
+assert expanded[:2]==["IREN","SOFI"]
+for sym in ["MSFT","VGT","LITE","NOW","NBIS","CRWV","MU"]:
+    assert sym in expanded
+assert len(expanded)<=12
+print("PASS V6.15 event evidence learning-review expansion")

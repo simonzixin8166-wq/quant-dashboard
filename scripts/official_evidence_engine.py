@@ -81,7 +81,7 @@ def selected_symbols(planner,evidence=None):
             if row.get("kind") not in {"market_anomaly","discovery","failure_review"}:continue
             sym=str(row.get("key") or "").upper().strip()
             if not re.fullmatch(r"[A-Z]{1,5}",sym):continue
-        if sym in ETF_OR_INDEX:continue
+            if sym in ETF_OR_INDEX:continue
             if sym not in out:out.append(sym)
 
     # Current-day research keeps priority, but mature outcome reviews come

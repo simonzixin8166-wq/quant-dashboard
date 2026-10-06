@@ -123,6 +123,26 @@ jobs:
           echo 'Public bundle secret scan PASS'
       - name: Verify deployed build matches repository build
         run: python scripts/verify_deployment.py --base-url https://myalphaview.com --timeout 600
+      - name: Wait for deployed Server Action snapshot
+        if: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.name == 'Server Action Watch' }}
+        run: |
+          python - <<'PY'
+          import json,time,urllib.request,sys
+          local=json.load(open("docs/research/server_action_status.json",encoding="utf-8"))
+          want=local.get("alert_fingerprint")
+          deadline=time.time()+600
+          while time.time()<deadline:
+              try:
+                  with urllib.request.urlopen("https://myalphaview.com/research/server_action_status.json?qa="+str(int(time.time())),timeout=20) as r:
+                      live=json.load(r)
+                  if want and live.get("alert_fingerprint")==want:
+                      print("Server Action deployment sync PASS",want);sys.exit(0)
+                  print("Waiting for Server Action deployment:",live.get("alert_fingerprint"),"expected",want)
+              except Exception as e:
+                  print("Waiting for Server Action deployment:",e)
+              time.sleep(15)
+          raise SystemExit("Server Action deployment sync FAIL")
+          PY
       - uses: actions/setup-node@v4
         with: {node-version: '20'}
       - name: Validate browser QA script syntax

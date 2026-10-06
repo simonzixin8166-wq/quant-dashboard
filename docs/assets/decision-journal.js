@@ -96,7 +96,7 @@ function readOperatorDecisions(){
 function recordOperatorDecision(entry={}){
   const now=new Date().toISOString(),date=dateOnly(entry.date||now);
   const row={
-    at:now,date,
+    at:now,last_seen_at:now,count:1,date,
     decision:String(entry.decision||'unknown'),
     source:String(entry.source||'daily_action_engine'),
     reason:String(entry.reason||''),
@@ -107,8 +107,13 @@ function recordOperatorDecision(entry={}){
     attribution:String(entry.attribution||'pending'),
   };
   const rows=readOperatorDecisions();
-  const key=[row.date,row.decision,row.reason,row.fingerprint].join('|');
-  if(rows.some(x=>[x.date,x.decision,x.reason,x.fingerprint].join('|')===key))return row;
+  const key=[row.date,row.decision,row.source,row.fingerprint].join('|');
+  const idx=rows.findIndex(x=>[x.date,x.decision,x.source,x.fingerprint].join('|')===key);
+  if(idx>=0){
+    rows[idx]={...rows[idx],last_seen_at:now,count:Math.max(1,Number(rows[idx].count)||1)+1,reason:row.reason||rows[idx].reason,data_state:row.data_state,evidence_state:row.evidence_state};
+    try{localStorage.setItem(OPERATOR_KEY,JSON.stringify(rows.slice(-180)))}catch{}
+    return rows[idx];
+  }
   rows.push(row);
   try{localStorage.setItem(OPERATOR_KEY,JSON.stringify(rows.slice(-180)))}catch{}
   return row;

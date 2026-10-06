@@ -3,7 +3,7 @@ on:
   pull_request:
     branches: [main]
   workflow_run:
-    workflows: ["Daily Dashboard Update", "Source Intelligence Validation"]
+    workflows: ["Daily Dashboard Update", "Source Intelligence Validation", "Server Action Watch"]
     types: [completed]
   schedule:
     # Independent stale-data sentinel; catches a missed/failed Daily even when no upstream workflow completes.

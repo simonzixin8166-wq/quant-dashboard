@@ -133,6 +133,9 @@ def five_engine_scorecard(learning, history, auto_thesis=None, event_window=None
     option_counts=server_action.get("action_counts") or {}
     option_unknown=int(option_counts.get("unknown") or 0)
     checked=int(server_action.get("positions_checked") or 0)
+    option_learning=server_action.get("option_learning") or {}
+    option_observations=int(option_learning.get("observations") or 0)
+    option_mature=int(option_learning.get("mature_outcomes") or 0)
 
     return {
       "market":{
@@ -170,13 +173,15 @@ def five_engine_scorecard(learning, history, auto_thesis=None, event_window=None
       },
       "options":{
         "evidence_state":"operational_quotes_ready" if checked and option_unknown==0 else "partial_or_unknown",
-        "validation_state":"outcome_learning_missing",
-        "feedback_state":"risk_monitoring_only",
+        "validation_state":"outcome_maturing" if option_mature else ("state_observations_started" if option_observations else "outcome_learning_missing"),
+        "feedback_state":"risk_monitoring_plus_outcomes" if option_observations else "risk_monitoring_only",
         "positions_checked":checked,
         "unknown_actions":option_unknown,
         "quote_failures":int(server_action.get("quote_failures") or 0),
-        "gap":"当前主要完成持仓风险监控；Delta/DTE/IV/P&L/策略目的尚未形成独立的成熟结果学习闭环。",
-        "safe_effect":"风险提示；不自动仓位管理/交易",
+        "state_observations":option_observations,
+        "mature_outcomes":option_mature,
+        "gap":"真实期权状态观察已开始；成熟结果只来自实际平仓/到期/被指派/展期，不用模拟样本。" if option_observations else "当前主要完成持仓风险监控；尚未形成真实状态观察→最终结果样本。",
+        "safe_effect":"风险提示 + 结果学习；不自动仓位管理/交易",
       },
       "decision":{
         "evidence_state":"attribution_available" if reviews else "partial",

@@ -1,0 +1,41 @@
+name: Learning Quality Weekly
+
+on:
+  schedule:
+    # Monday 07:40 Singapore / Sunday 23:40 UTC, after the 23:10 UTC source validation.
+    - cron: "40 23 * * 0"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: myalpha-production-writer
+  cancel-in-progress: false
+
+jobs:
+  weekly-learning-quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Build weekly learning quality report
+        run: |
+          python tests/test_v615_learning_quality_weekly.py
+          python scripts/learning_quality_weekly.py
+      - name: Save weekly report
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add docs/research/learning_quality_weekly.json
+          if ! git diff --cached --quiet; then
+            git commit -m "update weekly learning quality report"
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi

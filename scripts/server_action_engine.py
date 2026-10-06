@@ -56,6 +56,38 @@ def supabase_rows(table):
     url=f"{base.rstrip('/')}/rest/v1/{table}?select=*"
     return req_json(url,{"apikey":key,"Authorization":f"Bearer {key}","User-Agent":"MyAlpha-Server-Action"})
 
+def write_option_learning_observations(rows):
+    """Best-effort private state-entry ledger; never affects risk decisions."""
+    base=os.getenv("SUPABASE_URL");key=os.getenv("SUPABASE_KEY")
+    if not base or not key or not rows:return False
+    try:
+        url=(f"{base.rstrip('/')}/rest/v1/option_learning_observations"
+             "?on_conflict=user_id,position_id,state_fingerprint")
+        body=json.dumps(rows).encode()
+        req=urllib.request.Request(url,data=body,method="POST",headers={
+            "apikey":key,"Authorization":f"Bearer {key}",
+            "Content-Type":"application/json",
+            "Prefer":"resolution=ignore-duplicates,return=minimal",
+            "User-Agent":"MyAlpha-Server-Action",
+        })
+        with urllib.request.urlopen(req,timeout=12) as r:r.read()
+        return True
+    except Exception:
+        # Migration may not be applied yet; learning persistence is fail-soft
+        # and must never alter the fail-closed risk decision path.
+        return False
+
+def option_state_fingerprint(position,risk):
+    material={
+      "position_id":position.get("id"),
+      "level":risk.get("level"),
+      "reason":risk.get("reason"),
+      "dte":risk.get("dte"),
+      "delta":None if risk.get("delta") is None else round(float(risk.get("delta")),2),
+    }
+    return hashlib.sha256(json.dumps(material,sort_keys=True).encode()).hexdigest()[:24]
+
+
 def occ_symbol(p):
     root=str(p.get("symbol") or "").upper()
     expiry=str(p.get("expiry") or "")[:10].replace("-","")[2:]
@@ -195,7 +227,7 @@ def build():
     if positions is None:
         return {"status":"cannot_judge","trust":trust,"reason":"Supabase credentials unavailable","actions":[],"quote_failures":0}
     open_rows=[p for p in positions if str(p.get("status") or "open") in {"open","pending_settlement"}]
-    events=upcoming_events(48);actions=[];quote_failures=0
+    events=upcoming_events(48);actions=[];quote_failures=0;learning_rows=[]
     thesis_actions=thesis_review_actions(notes or [])
     for p in open_rows:
         occ=occ_symbol(p);q=None
@@ -206,11 +238,31 @@ def build():
             except Exception:
                 quote_failures+=1
         risk=risk_for(p,q,events)
+        if p.get("id") is not None and p.get("user_id"):
+            learning_rows.append({
+              "user_id":p.get("user_id"),
+              "position_id":p.get("id"),
+              "broker_account_id":p.get("broker_account_id"),
+              "symbol":p.get("symbol"),
+              "opt_type":p.get("opt_type"),
+              "side":p.get("side"),
+              "strike":p.get("strike"),
+              "expiry":str(p.get("expiry") or "")[:10],
+              "observed_at":datetime.now(timezone.utc).isoformat(),
+              "risk_level":risk.get("level") or "unknown",
+              "risk_reason":risk.get("reason") or "",
+              "dte":risk.get("dte"),
+              "underlying_price":risk.get("spot"),
+              "delta":risk.get("delta"),
+              "spread_ratio":risk.get("spread"),
+              "state_fingerprint":option_state_fingerprint(p,risk),
+            })
         if risk["level"] in {"l2","l3"}:
             actions.append({"level":risk["level"],"symbol":p.get("symbol"),"expiry":p.get("expiry"),"reason":risk["reason"],"dte":risk.get("dte")})
         elif risk["level"]=="unknown":
             actions.append({"level":"unknown","symbol":p.get("symbol"),"expiry":p.get("expiry"),"reason":risk["reason"],"dte":risk.get("dte")})
     actions.extend(thesis_actions)
+    write_option_learning_observations(learning_rows)
     cannot=not trust["ok"] or any(a["level"]=="unknown" for a in actions)
     status="cannot_judge" if cannot else ("action_required" if any(a["level"] in {"l2","l3","review"} for a in actions) else "clear")
     write_usage_ledger(usage_rows)

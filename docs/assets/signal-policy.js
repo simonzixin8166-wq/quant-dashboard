@@ -12,12 +12,13 @@ const ACTIONS={
   WAIT:{label:'WAIT',zh:'暂不介入，不追高',tone:'neutral',rank:1}
 };
 const n=v=>Number.isFinite(Number(v))?Number(v):null;
+const PROTECTED_TECHNICAL_ENTRY_SYMBOLS=new Set(['QQQM','QQQ','VGT','QLD','TQQQ','VOO']);
 function result(action,reason,next,meta={}){
   const a=ACTIONS[action]||ACTIONS.WATCH;
   return {action,...a,reason,next_confirmation:next||'',...meta};
 }
 function classify(input={}){
-  const score=n(input.score),stage=String(input.stage||''),held=input.held===true;
+  const score=n(input.score),stage=String(input.stage||''),held=input.held===true,symbol=String(input.symbol||'').toUpperCase();
   const authority=input.decisionEligible!==false;
   if(!authority)return result('NO_SIGNAL','Data Trust / Decision Authority 未通过，禁止发布行动信号。','等待可信数据恢复',{decision_eligible:false});
   if(input.invalidated===true)return result(held?'EXIT':'WATCH','原始 Thesis / 介入逻辑已明确失效。','重新建立 Thesis 后再评估');
@@ -27,6 +28,8 @@ function classify(input={}){
     if(/趋势退潮|高位钝化/.test(stage))return result('NO_ADD','上涨动能减弱，停止新增仓位并继续观察。','动量重新增强则恢复 HOLD；风险扩大则 REDUCE');
     return result('HOLD','当前未触发减仓或退出条件。','持续监控趋势、事件与 Thesis 失效条件');
   }
+  if(PROTECTED_TECHNICAL_ENTRY_SYMBOLS.has(symbol))return result('WATCH','该标的受正式策略规则保护，Trend Pulse 不能单独产生介入结论。','等待 Core Tier / TQQQ X2 / 正式策略触发');
+  if(input.hasThesis!==true)return result('WATCH','缺少可验证 Thesis，趋势改善只能进入观察，不能升级为介入信号。','补充 Thesis、失效条件与直接证据后再评估');
   if(/趋势启动/.test(stage)&&score!==null&&score>=0)return result('EARLY_ENTRY','趋势由弱转强，已进入早期介入观察区。','关键均线/价格结构继续确认后升级 CONFIRMED ENTRY');
   if(/二次启动/.test(stage)&&score!==null&&score>=30)return result('CONFIRMED_ENTRY','回踩后重新转强，趋势结构得到进一步确认。','持续验证量价、事件与风险条件');
   if(/趋势延续/.test(stage)&&score!==null&&score>=50)return result('CONFIRMED_ENTRY','趋势延续且强度达到确认区。','避免追高，等待风险收益合适的执行位置');
@@ -42,5 +45,5 @@ function applyLearnedEvidence(base,governance){
   }
   return {...base,learned_overlay:'eligible',learned_note:'仅已通过 Promotion Gate 的方法允许作为正式 Action 的附加证据；保护规则仍优先。'};
 }
-global.MAVSignalPolicy={ACTIONS,classify,applyLearnedEvidence};
+global.MAVSignalPolicy={ACTIONS,PROTECTED_TECHNICAL_ENTRY_SYMBOLS,classify,applyLearnedEvidence};
 })(window);

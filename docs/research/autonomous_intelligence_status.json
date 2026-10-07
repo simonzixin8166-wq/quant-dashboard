@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "generated_at": "2026-10-07T04:59:07.725553+00:00",
+  "generated_at": "2026-10-07T05:00:18.776431+00:00",
   "formal_app_version": "6.9.0",
   "north_star": "Collect -> Understand -> Structure -> Validate -> Promote -> Scan -> Decide -> Explain -> Learn Again",
   "active_milestone": "C_validation_evidence",
@@ -28,7 +28,7 @@
       "remaining": []
     },
     "B_autonomous_learning_core": {
-      "state": "active",
+      "state": "engineering_operational_source_defined_parameters_pending",
       "pass": true,
       "metrics": {
         "candidates": 7,
@@ -37,10 +37,22 @@
         "blocked_needs_definition": 1,
         "historical_replay_eligible": 2,
         "forward_observation_eligible": 0,
-        "production_eligible": 0
+        "production_eligible": 0,
+        "generic_moving_average_support_complete": true,
+        "generic_moving_average_windows": [
+          20,
+          50,
+          200
+        ],
+        "parameterized_indicators_fail_closed": [
+          "macd_hist_positive",
+          "ppo_above_signal",
+          "ppo_hist_positive",
+          "supertrend_bullish",
+          "tcds_cross_zero"
+        ]
       },
       "remaining": [
-        "increase generic candidate coverage",
         "resolve only source-defined indicator parameters"
       ]
     },

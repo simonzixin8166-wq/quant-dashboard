@@ -96,7 +96,10 @@ def build():
         "evidence_state":"awaiting_first_genuine_forward_candidate" if int(fcounts.get("state_entries") or 0)==0 else "forward_evidence_accumulating",
         "metrics":{
             "replayed_candidates":rsum.get("replayed",0),
-            "historical_replay_events":rsum.get("raw_events",0),
+            "historical_replay_raw_event_instances":rsum.get("raw_events",0),
+            "historical_replay_unique_state_entries":rsum.get("cross_candidate_unique_state_entries",rsum.get("raw_events",0)),
+            "historical_replay_duplicate_event_instances":rsum.get("cross_candidate_duplicate_event_instances",0),
+            "historical_replay_overlap_rate":rsum.get("cross_candidate_overlap_rate",0.0),
             "legacy_rule_forward_candidates":ev_forward.get("count",0),
             "compiled_forward_eligible_candidates":fcounts.get("eligible_candidates",0),
             "compiled_forward_state_entries":fcounts.get("state_entries",0),

@@ -91,7 +91,6 @@ param_cases=[
  ("macd_hist_positive",{"formula_id":"ema_macd","fast_period":12,"slow_period":26,"signal_period":9,"smoothing":"EMA"}),
  ("ppo_above_signal",{"formula_id":"ema_ppo","fast_period":12,"slow_period":26,"signal_period":9,"smoothing":"EMA"}),
  ("ppo_hist_positive",{"formula_id":"ema_ppo","fast_period":12,"slow_period":26,"signal_period":9,"smoothing":"EMA"}),
- ("supertrend_bullish",{"formula_id":"supertrend_atr_band","atr_period":10,"multiplier":3.0,"atr_smoothing":"Wilder_RMA"}),
 ]
 for cid,expr in param_cases:
     x=dict(cand)
@@ -101,4 +100,15 @@ for cid,expr in param_cases:
     row=res["candidates"][0]
     assert row["status"]=="replayed", (cid,row)
     assert row["raw_events"]>=1, (cid,row["raw_events"])
-print("PASS source-explicit parameterized indicator replay")
+print("PASS source-explicit MACD/PPO parameterized indicator replay")
+
+# Incomplete Supertrend definitions are rejected even if manually injected.
+sx=dict(cand)
+sx["candidate_id"]="param_supertrend_incomplete"
+sx["conditions"]=[{"condition_id":"supertrend_bullish","machine_ready":True,"expression":{
+ "formula_id":"supertrend_atr_band","atr_period":10,"multiplier":3.0,"atr_smoothing":"Wilder_RMA"
+}}]
+sres=build({"candidates":[sx]},{"AAA":hist,"QQQ":frame([100+i*.03 for i in range(420)])})
+assert sres["candidates"][0]["status"]=="blocked"
+assert sres["candidates"][0]["reason"]=="unsupported_replay_condition"
+print("PASS incomplete Supertrend replay fails closed")

@@ -36,6 +36,7 @@ def build():
     html=text("docs/index.html")
     product=text("docs/assets/product-intelligence.js")
     qa=text("scripts/autonomous_site_qa.mjs")
+    source_workflow=text(".github/workflows/source-intelligence-validation.yml")
 
     src_counts=src.get("counts") or {}
     source_count=int(src_counts.get("records") or len(src.get("records") or []))
@@ -170,6 +171,19 @@ def build():
     active="B_autonomous_learning_core"
     if milestones["B_autonomous_learning_core"]["pass"]:active="C_validation_evidence"
     if milestones["C_validation_evidence"]["pass"] and int(fcounts.get("outcomes_20") or 0)>0 and int(promo.get("families_passed") or 0)>0:active="D_decision_fusion_watchlist"
+    auto_wake={
+      "parameter_definition_queue_rebuilt_each_source_cycle":"Build Candidate Parameter Definition Queue" in source_workflow,
+      "forward_observer_runs_each_source_cycle":"Observe Genuine Forward Candidate State Entries" in source_workflow,
+      "source_validation_schedule_present":'cron: "10 23 * * *"' in source_workflow,
+      "manual_open_required":False,
+      "d_unlock_rule":{
+        "requires_forward_20d_outcomes":True,
+        "requires_promotion_family_pass":True,
+        "current_forward_20d_outcomes":int(fcounts.get("outcomes_20") or 0),
+        "current_promotion_families_passed":int(promo.get("families_passed") or 0),
+        "unlocked":bool(int(fcounts.get("outcomes_20") or 0)>0 and int(promo.get("families_passed") or 0)>0),
+      },
+    }
     return {
       "version":"1.0",
       "generated_at":datetime.now(timezone.utc).isoformat(),
@@ -177,6 +191,7 @@ def build():
       "north_star":"Collect -> Understand -> Structure -> Validate -> Promote -> Scan -> Decide -> Explain -> Learn Again",
       "active_milestone":active,
       "blockers":blockers,
+      "automatic_resume_contract":auto_wake,
       "milestones":milestones,
       "development_policy":{
         "bug_fix_behavior":"fix + regression test + QA + automatically return to active milestone",

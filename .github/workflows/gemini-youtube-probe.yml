@@ -17,7 +17,7 @@ concurrency:
 jobs:
   probe:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     env:
       VIDEO_URL: https://www.youtube.com/watch?v=qVSoCX8pVDg
       VIDEO_ID: qVSoCX8pVDg
@@ -113,7 +113,7 @@ jobs:
             method="POST",
           )
           try:
-              with urllib.request.urlopen(req,timeout=240) as r:
+              with urllib.request.urlopen(req,timeout=540) as r:
                   raw=json.loads(r.read().decode("utf-8"))
           except urllib.error.HTTPError as e:
               detail=e.read().decode("utf-8","replace")[:2000]

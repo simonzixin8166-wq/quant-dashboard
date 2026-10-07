@@ -63,6 +63,16 @@ assert wake["forward_observer_runs_each_source_cycle"] is True
 assert wake["source_validation_schedule_present"] is True
 assert wake["manual_open_required"] is False
 assert wake["d_unlock_rule"]["requires_forward_20d_outcomes"] is True
-assert wake["d_unlock_rule"]["requires_promotion_family_pass"] is True
+assert wake["d_unlock_rule"]["requires_candidate_evidence_family_pass"] is True
+assert wake["d_unlock_rule"]["current_candidate_evidence_families_passed"]>=0
 assert wake["d_unlock_rule"]["unlocked"] is False
 print("PASS automatic wait-state resume / D unlock contract")
+
+
+out=build()
+cm=out["milestones"]["C_validation_evidence"]["metrics"]
+assert "candidate_signal_direction_governance_complete" in cm
+assert "candidate_evidence_promotion_state" in cm
+if cm["candidate_signal_direction_governance_complete"]:
+    assert "explicit_candidate_signal_direction_governance" not in out["milestones"]["C_validation_evidence"]["remaining"]
+print("PASS Candidate direction governance and evidence-promotion status")

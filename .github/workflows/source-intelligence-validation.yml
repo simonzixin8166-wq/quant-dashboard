@@ -17,6 +17,8 @@ on:
       - "scripts/candidate_rule_replay.py"
       - "scripts/candidate_forward_observer.py"
       - "scripts/candidate_event_score.py"
+      - "scripts/candidate_family_scorecard.py"
+      - "tests/test_candidate_family_scorecard.py"
       - "tests/test_candidate_event_score.py"
       - "tests/test_candidate_forward_observer.py"
       - "scripts/candidate_rule_families.py"
@@ -119,7 +121,7 @@ jobs:
 
       - name: Validate source-learning code
         run: |
-          python -m py_compile scripts/research_program_status.py scripts/v615_author_intelligence.py scripts/cross_asset_divergence_engine.py scripts/breadth_intelligence_engine.py scripts/regime_combination_memory.py scripts/source_intelligence_engine.py scripts/source_reading_memory.py scripts/candidate_rule_compiler.py scripts/candidate_rule_replay.py scripts/candidate_forward_observer.py scripts/candidate_event_score.py scripts/candidate_rule_families.py scripts/autonomous_intelligence_status.py scripts/source_history_cache.py scripts/source_outcome_validation.py scripts/public_research_evidence_status.py scripts/evidence_attribution_engine.py scripts/method_memory_engine.py scripts/module_intelligence_engine.py scripts/autonomous_research_planner.py scripts/official_evidence_engine.py scripts/event_evidence_engine.py scripts/event_window_attribution.py scripts/autonomous_research_executor.py scripts/self_improvement_engine.py scripts/learning_evaluation_engine.py scripts/system_status_center.py scripts/autonomous_signal_governance.py
+          python -m py_compile scripts/research_program_status.py scripts/v615_author_intelligence.py scripts/cross_asset_divergence_engine.py scripts/breadth_intelligence_engine.py scripts/regime_combination_memory.py scripts/source_intelligence_engine.py scripts/source_reading_memory.py scripts/candidate_rule_compiler.py scripts/candidate_rule_replay.py scripts/candidate_forward_observer.py scripts/candidate_event_score.py scripts/candidate_family_scorecard.py scripts/candidate_rule_families.py scripts/autonomous_intelligence_status.py scripts/source_history_cache.py scripts/source_outcome_validation.py scripts/public_research_evidence_status.py scripts/evidence_attribution_engine.py scripts/method_memory_engine.py scripts/module_intelligence_engine.py scripts/autonomous_research_planner.py scripts/official_evidence_engine.py scripts/event_evidence_engine.py scripts/event_window_attribution.py scripts/autonomous_research_executor.py scripts/self_improvement_engine.py scripts/learning_evaluation_engine.py scripts/system_status_center.py scripts/autonomous_signal_governance.py
           python tests/test_source_intelligence_engine.py
           python tests/test_v615_youtube_historical_bridge.py
           python tests/test_v615_author_intelligence.py
@@ -134,6 +136,7 @@ jobs:
           python tests/test_candidate_rule_replay.py
           python tests/test_candidate_forward_observer.py
           python tests/test_candidate_event_score.py
+          python tests/test_candidate_family_scorecard.py
           python tests/test_candidate_rule_families.py
           python tests/test_autonomous_intelligence_status.py
           python tests/test_v6143_source_rule_validation_queue.py
@@ -191,6 +194,9 @@ jobs:
 
       - name: Build Candidate EventScore Adapter
         run: python scripts/candidate_event_score.py
+
+      - name: Build Candidate Family Shadow Scorecards
+        run: python scripts/candidate_family_scorecard.py
 
       - name: Replay Research Shadow Candidate Rules
         run: python scripts/candidate_rule_replay.py
@@ -267,7 +273,7 @@ jobs:
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
-          git add docs/data/source_intelligence.json docs/research/author_intelligence.json docs/research/auto_thesis_drafts.json docs/research/v615_program_status.json docs/research/source_reading_memory.json docs/research/candidate_rule_status.json research/registry/candidate_rules.json docs/research/candidate_forward_status.json research/history/candidate_forward_events.jsonl research/events/candidate_event_scores_v1.json docs/research/candidate_eventscore_status.json docs/research/candidate_rule_replay.json research/registry/candidate_rule_families.json docs/research/candidate_rule_family_status.json docs/research/source_outcome_validation.json docs/research/evidence_status.json docs/research/evidence_attribution.json docs/research/method_memory.json docs/research/module_intelligence.json docs/research/cross_asset_divergence.json docs/research/cross_asset_divergence_history.json docs/research/breadth_intelligence.json docs/research/breadth_intelligence_history.json docs/research/regime_combination_memory.json docs/research/regime_combination_history.json docs/research/research_planner.json docs/research/official_evidence.json docs/research/event_evidence.json docs/research/event_window_attribution.json docs/research/research_execution.json docs/research/self_improvement.json docs/research/fundamental_outcome_context.json docs/research/learning_evaluation.json docs/research/signal_governance.json docs/research/system_status.json docs/research/autonomous_intelligence_status.json
+          git add docs/data/source_intelligence.json docs/research/author_intelligence.json docs/research/auto_thesis_drafts.json docs/research/v615_program_status.json docs/research/source_reading_memory.json docs/research/candidate_rule_status.json research/registry/candidate_rules.json docs/research/candidate_forward_status.json research/history/candidate_forward_events.jsonl research/events/candidate_event_scores_v1.json docs/research/candidate_eventscore_status.json research/reports/candidate_family_scorecards.json docs/research/candidate_family_scorecard_status.json docs/research/candidate_rule_replay.json research/registry/candidate_rule_families.json docs/research/candidate_rule_family_status.json docs/research/source_outcome_validation.json docs/research/evidence_status.json docs/research/evidence_attribution.json docs/research/method_memory.json docs/research/module_intelligence.json docs/research/cross_asset_divergence.json docs/research/cross_asset_divergence_history.json docs/research/breadth_intelligence.json docs/research/breadth_intelligence_history.json docs/research/regime_combination_memory.json docs/research/regime_combination_history.json docs/research/research_planner.json docs/research/official_evidence.json docs/research/event_evidence.json docs/research/event_window_attribution.json docs/research/research_execution.json docs/research/self_improvement.json docs/research/fundamental_outcome_context.json docs/research/learning_evaluation.json docs/research/signal_governance.json docs/research/system_status.json docs/research/autonomous_intelligence_status.json
           if [ -f data/history/source_validation_history.zip ]; then git add data/history/source_validation_history.zip; fi
           if ! git diff --cached --quiet; then
             git commit -m "update source intelligence validation"

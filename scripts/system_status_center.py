@@ -148,8 +148,8 @@ def latest_by_name(runs,names):
 def health(conclusion,status):
     if status in {"queued","in_progress","waiting","pending"}:return "running"
     if conclusion=="success":return "ok"
-    if conclusion in {"failure","startup_failure","timed_out","cancelled"}:return "bad"
-    if conclusion=="skipped":return "neutral"
+    if conclusion in {"failure","startup_failure","timed_out"}:return "bad"
+    if conclusion in {"cancelled","skipped"}:return "neutral"
     return "unknown"
 
 def parse_iso(value):

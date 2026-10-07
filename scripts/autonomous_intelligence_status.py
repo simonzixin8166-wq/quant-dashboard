@@ -120,6 +120,8 @@ def build():
             and forward.get("historical_backfill_allowed") is False
             and candidate_score.get("promotion_effect")=="none"
             and candidate_family.get("promotion_effect")=="none"
+            and candidate_promotion.get("production_effect")=="none"
+            and candidate_promotion.get("promotion_effect") in {"evidence_tier_only","none"}
         ),
         "engineering_chain_complete":(
             bool(cand.get("version"))
@@ -127,6 +129,7 @@ def build():
             and bool(forward.get("version"))
             and bool(candidate_score.get("version"))
             and bool(candidate_family.get("version"))
+            and bool(candidate_promotion.get("version"))
         ),
         "evidence_state":"awaiting_first_genuine_forward_candidate" if int(fcounts.get("state_entries") or 0)==0 else "forward_evidence_accumulating",
         "metrics":{

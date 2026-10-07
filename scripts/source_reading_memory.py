@@ -234,7 +234,7 @@ def prose_candidate_rule(row, sentences):
                 if cid not in [x["condition_id"] for x in found]:
                     found.append({
                         "condition_id":cid,
-                        "machine_ready":bool(machine_ready),
+                        "machine_ready":False if cid in PARAMETERIZED_CONDITIONS else bool(machine_ready),
                     })
                 raw.append(sent)
     if not found:

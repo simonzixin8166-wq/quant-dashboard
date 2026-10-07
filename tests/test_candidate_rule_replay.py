@@ -70,3 +70,15 @@ assert dup["summary"]["cross_candidate_duplicate_event_instances"]==dup["summary
 assert dup["summary"]["cross_candidate_overlap_rate"]==0.5
 assert all(x["cross_candidate_overlap_events"]==x["raw_events"] for x in dup["candidates"])
 print("PASS cross-candidate historical overlap accounting")
+
+
+# MA20 / MA200 source-defined conditions replay without hidden parameters.
+for cid in ("price_above_ma20","ma20_hold_two_sessions","price_above_ma200","ma200_hold_two_sessions"):
+    x=dict(cand)
+    x["candidate_id"]="cand_"+cid
+    x["conditions"]=[{"condition_id":cid,"machine_ready":True}]
+    replayed=build({"candidates":[x]},{"AAA":frame([100.0]*210+[101.0,102.0,103.0]+[104.0]*120),"QQQ":frame([100+i*.01 for i in range(333)])})
+    row=replayed["candidates"][0]
+    assert row["status"]=="replayed", (cid,row)
+    assert row["raw_events"]>=1, (cid,row["raw_events"])
+print("PASS generic MA20/MA200 historical replay")

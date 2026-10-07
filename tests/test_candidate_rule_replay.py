@@ -57,3 +57,16 @@ assert out["candidates"][0]["status"]=="blocked"
 assert prov["AAA"]["status"]=="blocked"
 
 print("PASS candidate rule historical replay / walk-forward / regime / no-lookahead")
+
+
+# Identical state-entry histories across different Candidate instances are
+# reported as overlap, not as independent system-level evidence.
+cand_b=dict(cand)
+cand_b["candidate_id"]="cand_overlap"
+cand_b["state_role"]="confirmation"
+dup=build({"candidates":[cand,cand_b]},{"AAA":frame(vals),"QQQ":qqq})
+assert dup["summary"]["raw_events"]==2*dup["summary"]["cross_candidate_unique_state_entries"]
+assert dup["summary"]["cross_candidate_duplicate_event_instances"]==dup["summary"]["cross_candidate_unique_state_entries"]
+assert dup["summary"]["cross_candidate_overlap_rate"]==0.5
+assert all(x["cross_candidate_overlap_events"]==x["raw_events"] for x in dup["candidates"])
+print("PASS cross-candidate historical overlap accounting")

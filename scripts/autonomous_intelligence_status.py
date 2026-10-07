@@ -25,6 +25,7 @@ def build():
     reading=load("docs/research/source_reading_memory.json",{})
     cand=load("docs/research/candidate_rule_status.json",{})
     replay=load("docs/research/candidate_rule_replay.json",{})
+    forward=load("docs/research/candidate_forward_status.json",{})
     evidence=load("docs/research/evidence_status.json",{})
     system=load("docs/research/system_status.json",{})
     signal=load("docs/research/signal_governance.json",{})
@@ -37,6 +38,7 @@ def build():
     ccounts=cand.get("counts") or {}
     rsum=replay.get("summary") or {}
     ev_forward=((evidence.get("evidence_layers") or {}).get("forward_evidence_candidates") or {})
+    fcounts=forward.get("counts") or {}
     promo=evidence.get("promotion") or {}
     outlet=(
         "唯一行动出口" in html
@@ -64,10 +66,15 @@ def build():
         "metrics":{
             "replayed_candidates":rsum.get("replayed",0),
             "historical_replay_events":rsum.get("raw_events",0),
-            "forward_candidates":ev_forward.get("count",0),
+            "legacy_rule_forward_candidates":ev_forward.get("count",0),
+            "compiled_forward_eligible_candidates":fcounts.get("eligible_candidates",0),
+            "compiled_forward_state_entries":fcounts.get("state_entries",0),
+            "compiled_forward_outcomes_5":fcounts.get("outcomes_5",0),
+            "compiled_forward_outcomes_20":fcounts.get("outcomes_20",0),
+            "compiled_forward_outcomes_60":fcounts.get("outcomes_60",0),
             "promotion_families_passed":promo.get("families_passed",0),
         },
-        "remaining":["first_genuine_forward_rule","natural_20d_60d_maturity","family_level_promotion_evidence"],
+        "remaining":["first_genuine_forward_candidate_state_entry","natural_20d_60d_maturity","bridge_mature_candidate_family_to_existing_spec_1_7_promotion_gate"],
       },
       "D_decision_fusion_watchlist":{
         "state":"partial",
@@ -87,7 +94,7 @@ def build():
     if not milestones["E_single_action_outlet"]["pass"]:blockers.append("single_action_outlet")
     active="B_autonomous_learning_core"
     if milestones["B_autonomous_learning_core"]["pass"]:active="C_validation_evidence"
-    if milestones["C_validation_evidence"]["pass"] and int(ev_forward.get("count") or 0)>0:active="D_decision_fusion_watchlist"
+    if milestones["C_validation_evidence"]["pass"] and int(fcounts.get("outcomes_20") or 0)>0 and int(promo.get("families_passed") or 0)>0:active="D_decision_fusion_watchlist"
     return {
       "version":"1.0",
       "generated_at":datetime.now(timezone.utc).isoformat(),

@@ -175,3 +175,27 @@ assert x2["reproducibility_status"]=="blocked_needs_definition"
 assert x2["conditions"][0]["expression"] is None
 assert x2["historical_replay_eligible"] is False
 print("PASS explicit MACD unlock / incomplete Supertrend remains closed")
+
+
+# Genuine Forward eligibility must persist across compiler cycles while the
+# exact candidate definition is unchanged. Otherwise Observer can never see
+# the first post-formation completed bar.
+first=build(memory("price_above_ma50"),store("genuine_forward","high"),prior=feature_prior,now="2026-10-07T00:00:00Z")
+fc=first["candidates"][0]
+assert fc["forward_observation_eligible"] is True
+assert fc["formation_mode"]=="forward_initial"
+second=build(memory("price_above_ma50"),store("genuine_forward","high"),prior=first,now="2026-10-08T00:00:00Z")
+sc=second["candidates"][0]
+assert sc["forward_observation_eligible"] is True
+assert sc["formation_mode"]=="forward_initial"
+assert sc["candidate_definition_hash"]==fc["candidate_definition_hash"]
+
+# A changed definition with the same source/proposition identity must NOT
+# inherit Forward eligibility.
+changed=memory("price_below_ma50")
+third=build(changed,store("genuine_forward","high"),prior=first,now="2026-10-08T00:00:00Z")
+tc=third["candidates"][0]
+assert tc["candidate_definition_hash"]!=fc["candidate_definition_hash"]
+assert tc["forward_observation_eligible"] is False
+assert tc["formation_mode"]=="historical_or_retroactive"
+print("PASS forward_initial eligibility persistence / changed-definition fail closed")

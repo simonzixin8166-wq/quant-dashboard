@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Forward intake production-health guard for V6.15.
+"""Forward intake production-health guard for V6.15.\n\nFinal recovery verification marker: 2026-10-07.
 
 This report distinguishes "no genuine forward rule has arrived yet" from a
 broken production path. It is research-only and never changes Promotion or

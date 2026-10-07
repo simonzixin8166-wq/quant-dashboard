@@ -63,3 +63,12 @@ assert c["forward_observation_eligible"] is False
 assert "period/multiplier" in c["unresolved_inputs"][0]["reason"]
 
 print("PASS parameterized-indicator fail-closed semantics")
+
+# Candidate identity must be family-level and role-aware for later dedup/comparison.
+r=build(memory("price_above_ma50"),store("backfill"))
+c=r["candidates"][0]
+assert c["family_signature"].startswith("family_")
+assert c["state_role"]=="trigger"
+assert c["logic"]["trigger_conditions"]==["price_above_ma50"]
+assert c["scope"]["subject_attribution"]=="single_symbol_source_scope"
+print("PASS candidate family identity / lifecycle role")

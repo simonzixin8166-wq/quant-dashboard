@@ -78,6 +78,7 @@ def extractor_input_payload(row):
         "operations":row.get("operations") or [],
         "portfolio_rules":row.get("portfolio_rules") or [],
         "lessons":row.get("lessons") or [],
+        "method_signals":row.get("method_signals") or [],
         "content_quality":row.get("content_quality"),
         "content_provider":row.get("content_provider"),
         "content_origin":row.get("content_origin"),
@@ -137,11 +138,11 @@ def explicit_method_candidates(op,row=None):
 
 
 def prose_candidate_rule(row, sentences):
-    """Build a source-derived candidate rule from explicit prose only.
+    """Build a source-derived candidate rule from bounded structured signals + prose.
 
-    This is intentionally weaker than testable_rule: it never invents
-    thresholds, periods, or indicator definitions. Unsupported indicators
-    remain needs_definition and cannot enter Rule Registry / Promotion.
+    Upstream method_signals are extracted from full source text before the public
+    excerpt is truncated. They remain Research/Shadow evidence only. This layer
+    never invents thresholds, periods, or indicator definitions.
     """
     if row.get("rule_candidate_allowed") is False:
         return None
@@ -150,6 +151,17 @@ def prose_candidate_rule(row, sentences):
         return None
     found=[]
     raw=[]
+    upstream_state=None
+    for sig in row.get("method_signals") or []:
+        if not isinstance(sig,dict) or not sig.get("condition_id"):
+            continue
+        cid=str(sig.get("condition_id"))
+        if cid not in [x["condition_id"] for x in found]:
+            found.append({"condition_id":cid,"machine_ready":bool(sig.get("machine_ready"))})
+        snippet=clean_text(sig.get("evidence_excerpt"),180)
+        if snippet:raw.append(snippet)
+        if not upstream_state and sig.get("state_hint"):
+            upstream_state=str(sig.get("state_hint"))
     for sent in sentences:
         low=sent.lower()
         for cid,pattern,machine_ready in PROSE_CONDITION_PATTERNS:
@@ -162,13 +174,13 @@ def prose_candidate_rule(row, sentences):
                 raw.append(sent)
     if not found:
         return None
-    state_hint=None
+    state_hint=upstream_state
     prose=" ".join(sentences).lower()
-    if "early entry" in prose or "早期介入" in prose or "早期阶段" in prose:
+    if not state_hint and ("early entry" in prose or "早期介入" in prose or "早期阶段" in prose):
         state_hint="EARLY_ENTRY"
-    elif "confirmed entry" in prose or "趋势确认" in prose or "确认突破" in prose:
+    elif not state_hint and ("confirmed entry" in prose or "趋势确认" in prose or "确认突破" in prose):
         state_hint="CONFIRMATION"
-    elif "false break" in prose or "假突破" in prose or "失效" in prose:
+    elif not state_hint and ("false break" in prose or "假突破" in prose or "失效" in prose):
         state_hint="RISK"
     unsupported=[x["condition_id"] for x in found if not x["machine_ready"]]
     readiness="machine_ready" if not unsupported else "partial_needs_definition"

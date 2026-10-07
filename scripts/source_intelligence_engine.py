@@ -268,6 +268,18 @@ def normalize(row):
         return out
     learned_rules = type_labels(row.get("portfolio_rules") or [])
     learned_lessons = type_labels(row.get("lessons") or [])
+    method_signals=[]
+    for sig in row.get("method_signals") or []:
+        if not isinstance(sig,dict) or not sig.get("condition_id"):
+            continue
+        method_signals.append({
+            "condition_id":str(sig.get("condition_id"))[:80],
+            "machine_ready":bool(sig.get("machine_ready")),
+            "evidence_excerpt":str(sig.get("evidence_excerpt") or "")[:180],
+            "evidence_hash":str(sig.get("evidence_hash") or "")[:64],
+            "source_derived_only":bool(sig.get("source_derived_only",True)),
+            "state_hint":str(sig.get("state_hint") or "")[:40] or None,
+        })
     syms = list(dict.fromkeys(sanitize_declared_symbols(row.get("symbols"), text) + symbols(text)))
     tps = topics(text, row.get("themes_hint"))
     acts = actions(text)
@@ -292,6 +304,7 @@ def normalize(row):
         "operations": learned_ops,
         "portfolio_rules": learned_rules,
         "lessons": learned_lessons,
+        "method_signals": method_signals[:12],
         "failure_candidate": bool(failure),
         "archive_only": bool(row.get("archive_only")),
         "deep_analysis": bool(row.get("deep_analysis")),

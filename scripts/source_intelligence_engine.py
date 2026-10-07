@@ -184,7 +184,7 @@ def _symbol_present(sym: str, text: str) -> bool:
 
 def _near_hint(sym: str, text: str, hints, radius=36) -> bool:
     raw=str(text or "")
-    for m in re.finditer(rf"(?<![A-Za-z0-9])\\$?{re.escape(str(sym))}(?![A-Za-z0-9])",raw,re.I):
+    for m in re.finditer(rf"(?<![A-Za-z0-9])\$?{re.escape(str(sym))}(?![A-Za-z0-9])",raw,re.I):
         lo=max(0,m.start()-radius);hi=min(len(raw),m.end()+radius)
         window=raw[lo:hi].lower()
         if any(str(h).lower() in window for h in hints):

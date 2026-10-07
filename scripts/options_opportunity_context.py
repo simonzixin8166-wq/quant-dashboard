@@ -44,9 +44,9 @@ def build_symbol(symbol,market,svi):
     v=(svi.get("records") or {}).get(symbol) or {}
     if not m or v.get("status")!="ok":
         return {
-            "symbol":symbol,"state":"data_incomplete","scan_priority":"blocked",
-            "scan_lanes":[],"trade_action":None,"production_effect":"none",
-            "missing":["market" if not m else None,"support_volatility" if v.get("status")!="ok" else None],
+            "symbol":symbol,"status":"data_incomplete","state":"data_incomplete","scan_priority":"blocked",
+            "scan_lanes":[],"research_modes":[],"trade_action":None,"production_effect":"none",
+            "missing":[x for x in ["market" if not m else None,"support_volatility" if v.get("status")!="ok" else None] if x],
         }
 
     price=finite(m.get("close"))
@@ -95,11 +95,21 @@ def build_symbol(symbol,market,svi):
     if structurally_weak:score-=2
     priority="high" if score>=5 else "medium" if score>=2 else "low"
 
+    research_modes=[]
+    if "SELL_PUT_CHAIN_SCAN" in lanes:research_modes.append("SELL_PUT_SCREEN")
+    if any(x in lanes for x in ("LEAPS_CALL_CHAIN_SCAN","LEAPS_CALL_IV_CHECK","REVERSAL_CALL_RESEARCH")):research_modes.append("LEAPS_SCREEN")
+
     return {
         "symbol":symbol,
+        "status":"scan_context_ready" if lanes else "context_only",
         "state":"chain_scan_candidate" if lanes else "context_only",
         "scan_priority":priority,
         "scan_lanes":lanes,
+        "research_modes":research_modes,
+        "nearest_support":sup or None,
+        "rv20_ann_pct":rv20,
+        "rv60_ann_pct":rv60,
+        "garch20":g,
         "context":{
             "price":price,"rsi14":rsi,"dist_200ma":dist200,"window_drawdown":drawdown,
             "nearest_support":sup or None,
@@ -131,11 +141,15 @@ def build(market=None,svi=None,now=None):
     rows=[build_symbol(s,market,svi) for s in UNIVERSE]
     order={"high":3,"medium":2,"low":1,"blocked":0}
     rows.sort(key=lambda x:(-order.get(x.get("scan_priority"),0),UNIVERSE.index(x["symbol"])))
+    records={x["symbol"]:x for x in rows}
+    ranked=[x["symbol"] for x in rows if x.get("status")=="scan_context_ready"]
     return {
-        "version":"options-opportunity-context-1",
+        "version":"options-opportunity-context-1.1",
         "generated_at":now.isoformat(),
         "universe":UNIVERSE,
-        "records":rows,
+        "ranked_scan_order":ranked,
+        "records":records,
+        "records_list":rows,
         "guardrails":[
             "This artifact ranks live-chain research only; it is not a trade recommendation.",
             "No SELL PUT/LEAPS candidate may be promoted without Thesis/index-case, IV context, event risk and liquidity checks.",
@@ -150,8 +164,8 @@ def main():
     OUT.write_text(json.dumps(out,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
     print(json.dumps({
         "universe":len(out["records"]),
-        "high":sum(1 for x in out["records"] if x["scan_priority"]=="high"),
-        "scan_candidates":sum(1 for x in out["records"] if x["scan_lanes"]),
+        "high":sum(1 for x in out["records"].values() if x["scan_priority"]=="high"),
+        "scan_candidates":sum(1 for x in out["records"].values() if x["scan_lanes"]),
     },ensure_ascii=False))
 
 

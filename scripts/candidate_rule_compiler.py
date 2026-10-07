@@ -99,6 +99,18 @@ def compile_candidate(memory,prop,store_row):
     if not ready:status="blocked_needs_definition"
     sid=str(memory.get("source_id") or "")
     pid=str(prop.get("proposition_id") or "")
+    family=infer_family(conditions)
+    state_role=STATE_TO_ROLE.get(str(ev.get("state_hint") or ""),"unspecified")
+    logic={
+        "trigger_conditions":[x["condition_id"] for x in conditions] if state_role=="trigger" else [],
+        "confirmation_conditions":[x["condition_id"] for x in conditions] if state_role=="confirmation" else [],
+        "invalidation_conditions":[x["condition_id"] for x in conditions] if state_role=="invalidation_or_risk" else [],
+    }
+    family_signature=stable_id(
+        family,state_role,
+        ",".join(sorted(x["condition_id"] for x in conditions)),
+        "horizon:unknown"
+    )
     return {
         "candidate_id":"cand_"+stable_id(VERSION,sid,pid),
         "compiler_version":VERSION,
@@ -113,10 +125,12 @@ def compile_candidate(memory,prop,store_row):
             "url":memory.get("url"),
             "content_quality":memory.get("content_quality"),
         },
-        "scope":{"symbols":list(ev.get("symbols") or memory.get("symbols") or [])},
-        "method_family":infer_family(conditions),
+        "scope":{"symbols":list(ev.get("symbols") or memory.get("symbols") or []),"subject_attribution":"single_symbol_source_scope"},
+        "method_family":family,
+        "family_signature":"family_"+family_signature,
         "state_hint":ev.get("state_hint"),
-        "state_role":STATE_TO_ROLE.get(str(ev.get("state_hint") or ""),"unspecified"),
+        "state_role":state_role,
+        "logic":logic,
         "conditions":conditions,
         "machine_ready_conditions":[x["condition_id"] for x in ready],
         "unresolved_inputs":[{"condition_id":x["condition_id"],"reason":x["unresolved_reason"]} for x in unresolved],

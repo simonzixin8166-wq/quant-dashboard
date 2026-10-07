@@ -120,6 +120,9 @@ def build(agent,learning,evidence,method,source,previous,modules=None,cross_asse
             ])
             group=prose_groups.setdefault(semantic_key,{
                 "candidate":candidate,"symbol":symbols[0],"readiness":readiness,
+                "condition_ids":set(condition_ids),
+                "all_non_machine_ready":bool(conditions) and all(not bool(x.get("machine_ready")) for x in conditions),
+                "author":record.get("author"),"source_title":record.get("title"),
                 "provenance":[],"representative_record":record,"representative_prop":prop,
             })
             group["provenance"].append({
@@ -127,7 +130,40 @@ def build(agent,learning,evidence,method,source,previous,modules=None,cross_asse
                 "author":record.get("author"),"title":record.get("title"),"url":record.get("url"),
             })
 
+    # Same-author cross-channel copies can have unequal extraction depth
+    # because one bounded excerpt ends earlier than another/full-text enrichment.
+    # If a weaker group contains only non-machine-ready conditions and is a
+    # strict subset of a richer same-title candidate, merge its provenance into
+    # the richer hypothesis instead of counting a second research idea.
+    suppressed=set()
+    keys=list(prose_groups)
+    for small_key in keys:
+        small=prose_groups[small_key]
+        if not small.get("all_non_machine_ready"):
+            continue
+        for big_key in keys:
+            if small_key==big_key or big_key in suppressed:
+                continue
+            big=prose_groups[big_key]
+            same_identity=(
+                small.get("symbol")==big.get("symbol")
+                and str(small.get("author") or "")==str(big.get("author") or "")
+                and str(small.get("source_title") or "")==str(big.get("source_title") or "")
+            )
+            if same_identity and small.get("condition_ids") and small["condition_ids"] < big.get("condition_ids",set()):
+                big["provenance"].extend(small.get("provenance") or [])
+                # Preserve unique source/proposition provenance only once.
+                uniq={}
+                for p in big["provenance"]:
+                    pk=(str(p.get("source_id") or ""),str(p.get("proposition_id") or ""))
+                    uniq[pk]=p
+                big["provenance"]=list(uniq.values())
+                suppressed.add(small_key)
+                break
+
     for semantic_key,group in prose_groups.items():
+        if semantic_key in suppressed:
+            continue
         candidate=group["candidate"]
         record=group["representative_record"]
         prop=group["representative_prop"]

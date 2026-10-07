@@ -43,7 +43,7 @@ TRIGGER_HINTS=(
 PROSE_CONDITION_PATTERNS=(
     ("price_above_ma50", r"(?:股价|价格|price)?.{0,12}(?:站上|突破|above).{0,8}ma\s*50", True),
     ("price_below_ma50", r"(?:股价|价格|price)?.{0,16}(?:跌破|跌回|回落到|below).{0,10}ma\s*50", True),
-    ("ma50_hold_two_sessions", r"连续\s*(?:两|2)\s*(?:个)?(?:交易日|天).{0,16}(?:站上|守住|高于).{0,8}ma\s*50", True),
+    ("ma50_hold_two_sessions", r"(?:连续\s*(?:两|2)\s*(?:个)?(?:交易日|天).{0,16}(?:站上|守住|高于).{0,8}ma\s*50|ma\s*50.{0,24}连续\s*(?:两|2)\s*(?:个)?(?:交易日|天).{0,12}(?:站上|守住|高于|不破)?)", True),
     ("supertrend_bullish", r"supertrend.{0,16}(?:翻多|转多|bull)", True),
     ("macd_hist_positive", r"(?:macd.{0,12}(?:柱|hist)|(?:柱状图|histogram).{0,12}macd).{0,16}(?:转正|正值|positive)", True),
     ("ppo_above_signal", r"ppo.{0,20}(?:上穿|高于|超过|cross(?:es|ed)?\s+above).{0,12}signal", False),

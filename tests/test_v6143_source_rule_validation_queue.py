@@ -202,6 +202,9 @@ res=are.execute_task(pdef,prose_artifacts)
 assert res["kind"]=="prose_candidate_definition"
 assert res["research_status"]=="analyzed"
 assert res["counter_evidence"] and res["unknowns"]
+assert res["confidence"]=="medium"
+assert res["evidence_score"]<=65
+assert res["confidence_scope"]=="research_brief_not_method_validity"
 
 # The research selector reserves a slot for learning candidates without
 # converting them into an action or order.

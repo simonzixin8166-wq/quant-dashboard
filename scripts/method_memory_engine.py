@@ -36,6 +36,7 @@ METHOD_TOPICS = {
 sys.path.insert(0, str(ROOT / "scripts"))
 from local_history_agent import read_archive  # noqa: E402
 from source_history_cache import read_cache  # noqa: E402
+from source_intelligence_engine import collect_full_records  # noqa: E402
 
 
 def load(path: Path, default):
@@ -337,6 +338,14 @@ def build(source: dict, validation: dict, histories: dict|None=None, evidence: d
 
 def main():
     source=load(SOURCE,{})
+    try:
+        full=collect_full_records()
+        source=dict(source)
+        source["records"]=full
+        source.setdefault("counts",{})["records"]=len(full)
+        source["full_stream_learning"]=True
+    except Exception:
+        pass
     validation=load(VALIDATION,{})
     evidence=load(EVIDENCE,{})
     reading=load(READING,{})

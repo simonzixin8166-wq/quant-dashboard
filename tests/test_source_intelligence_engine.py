@@ -187,7 +187,7 @@ print("PASS historical YouTube learning top-level isolation")
 # holdings and examples stay distinct and cannot all become formal signal scope.
 ps=si.build([
  {"id":"ps1","source":"wenxuecity","source_kind":"forum","author":"A","published_at":"2026-10-07",
-  "title":"AMZN 趋势修复，和 QQQ 对比","url":"https://example/ps1",
+  "title":"AMZN 趋势修复","url":"https://example/ps1",
   "excerpt":"AMZN 重新站上 MA50；相比 QQQ 仍偏弱。"},
  {"id":"ps2","source":"wenxuecity","source_kind":"forum","author":"A","published_at":"2026-10-07",
   "title":"组合更新","url":"https://example/ps2",

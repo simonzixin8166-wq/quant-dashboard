@@ -1,0 +1,145 @@
+{
+  "version": "gemini-youtube-probe-1",
+  "generated_at": "2026-10-07T07:12:52.960883+00:00",
+  "provider": "gemini",
+  "model": "gemini-3.8-flash",
+  "source": {
+    "source": "youtube",
+    "author": "老李玩钱",
+    "title": "10月必买3支股票",
+    "video_id": "qVSoCX8pVDg",
+    "url": "https://www.youtube.com/watch?v=qVSoCX8pVDg"
+  },
+  "mode": "historical_research_probe_only",
+  "gemini_result": {
+    "summary_zh": "老李在2024年10月1日的视频中推荐了三只值得在10月份关注和布局的美股：谷歌（GOOG）、美光科技（MU）和亚马逊（AMZN）。他对各家公司的AI业务进展、基本面估值（市盈率PE）、近期财报以及技术面支撑位和加仓点位进行了分析，并展示了自己的美股持仓情况。",
+    "symbols": [
+      "GOOG",
+      "GOOGL",
+      "MU",
+      "AMZN",
+      "PLTR",
+      "META"
+    ],
+    "claims": [
+      {
+        "claim": "谷歌（GOOG）近期发布了Gemini 4 Argon AI模型，且投资组合中重仓SpaceX、Planet Labs及AST SpaceMobile，估值较为合理，技术面上335附近可轻仓买入，317附近可进一步加仓，长期目标价看回400附近。",
+        "timestamp": "04:08",
+        "evidence_mode": "spoken_plus_onscreen",
+        "confidence": "high"
+      },
+      {
+        "claim": "美光科技（MU）作为美国本土唯一的HBM制造商，受益于AI发展且最新财报超预期，华尔街投行纷纷上调目标价；若股价回调至支撑位附近可考虑开仓或加仓。",
+        "timestamp": "07:18",
+        "evidence_mode": "spoken_plus_onscreen",
+        "confidence": "high"
+      },
+      {
+        "claim": "亚马逊（AMZN）因AI资本支出庞大导致自由现金流账面转负引发市场担忧而回调，当前估值合理，建议在250和239支撑位附近分批开仓加仓进行长期布局。",
+        "timestamp": "10:34",
+        "evidence_mode": "spoken_plus_onscreen",
+        "confidence": "high"
+      },
+      {
+        "claim": "作者在另一个长期账户中持有PLTR、META和AMZN三只股票。",
+        "timestamp": "11:01",
+        "evidence_mode": "spoken_plus_onscreen",
+        "confidence": "high"
+      }
+    ],
+    "methods": [
+      {
+        "name": "支撑位与缺口分批建仓策略",
+        "explicit_parameters": {
+          "GOOG_first_entry": 335,
+          "GOOG_support_add": 317,
+          "MU_first_entry": 1010,
+          "MU_support_add": 900,
+          "AMZN_first_entry": 250,
+          "AMZN_gap_support_add": 239
+        },
+        "missing_parameters": [
+          "止损线",
+          "具体仓位比例"
+        ],
+        "timestamp": "04:18"
+      },
+      {
+        "name": "市盈率估值分析（P/E）",
+        "explicit_parameters": {
+          "GOOG_trailing_pe": 16.81,
+          "GOOG_forward_pe": 21.79,
+          "AMZN_trailing_pe": 20.05,
+          "AMZN_forward_pe": 23.64
+        },
+        "missing_parameters": [],
+        "timestamp": "03:44"
+      }
+    ],
+    "actions_mentioned": [
+      {
+        "symbol": "GOOG",
+        "author_action": "buy",
+        "timestamp": "04:18",
+        "is_author_statement": true
+      },
+      {
+        "symbol": "MU",
+        "author_action": "buy",
+        "timestamp": "07:27",
+        "is_author_statement": true
+      },
+      {
+        "symbol": "AMZN",
+        "author_action": "buy",
+        "timestamp": "10:48",
+        "is_author_statement": true
+      },
+      {
+        "symbol": "AMZN",
+        "author_action": "hold",
+        "timestamp": "11:03",
+        "is_author_statement": true
+      },
+      {
+        "symbol": "PLTR",
+        "author_action": "hold",
+        "timestamp": "11:12",
+        "is_author_statement": true
+      },
+      {
+        "symbol": "META",
+        "author_action": "hold",
+        "timestamp": "11:12",
+        "is_author_statement": true
+      }
+    ],
+    "invalidations": [],
+    "visual_only_observations": [
+      {
+        "observation": "屏幕上展示的账户总资产约为331,128.43美元，TOD账户中持有PLTR 700股、META 60股、AMZN 220股。",
+        "timestamp": "00:15"
+      },
+      {
+        "observation": "投行对美光科技目标价的网页截图中，Rosenblatt目标价为$190.00（视频口播误读或表述为1900），BofA为$155.00，高盛为$125.00。",
+        "timestamp": "08:02"
+      }
+    ],
+    "uncertainties": [
+      "美光科技图表上显示的数值尺度（1010、900等）与美股MU实际美金报价存在明显乘数偏差，投行目标价口播数值（1900、1550、1250）与屏幕显示数字（190、155、125）相差10倍，疑似币种转换或数据源单位差异。"
+    ],
+    "safety": {
+      "historical_only": true,
+      "forward_evidence_eligible": false,
+      "promotion_eligible": false,
+      "production_action": null
+    }
+  },
+  "myalpha_guardrails": {
+    "historical_only": true,
+    "forward_evidence_eligible": false,
+    "promotion_eligible": false,
+    "production_effect": "none",
+    "trade_action": null
+  }
+}

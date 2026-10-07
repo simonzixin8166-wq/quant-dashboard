@@ -30,3 +30,12 @@ assert a["metrics"]["primary_subject_attribution_active"] is True
 assert a["state"]=="operational_continuous_audit"
 assert "primary_subject_attribution" not in a["remaining"]
 print("PASS Milestone A Primary Subject Attribution completion state")
+
+out=build()
+cm=out["milestones"]["C_validation_evidence"]["metrics"]
+assert "historical_replay_raw_event_instances" in cm
+assert "historical_replay_unique_state_entries" in cm
+assert "historical_replay_duplicate_event_instances" in cm
+assert "historical_replay_overlap_rate" in cm
+assert "historical_replay_events" not in cm
+print("PASS honest historical replay overlap metrics in master status")

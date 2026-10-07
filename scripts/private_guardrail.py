@@ -19,8 +19,8 @@ FORBIDDEN_KEYS = re.compile(r'"(?:option_positions|private_positions|broker_acco
 PUBLIC_JSON_ROOT_ALLOWLIST = {
     "docs/research/server_action_status.json": {
         "version","generated_at","last_checked_at","status","positions_checked","action_counts",
-        "event_count_48h","quote_failures","data_trust","delivery",
-        "alert_fingerprint","privacy",
+        "event_count_48h","quote_failures","option_learning","decision_learning",
+        "data_trust","delivery","alert_fingerprint","privacy",
     },
     "docs/research/auto_thesis_drafts.json": {
         "version","generated_at","mode","external_requests","symbols","counts","guardrails",

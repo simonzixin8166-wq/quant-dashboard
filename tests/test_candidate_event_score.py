@@ -4,7 +4,7 @@ ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT))
 
 import pandas as pd
-from scripts.candidate_event_score import adapt
+from scripts.candidate_event_score import adapt, public_status
 from scripts.evaluation_spec import load_spec
 
 def frame(n=400):
@@ -63,3 +63,10 @@ assert res3["events"][0]["scoreable"] is False
 assert res3["events"][0]["point_in_time_status"]=="source_not_genuine_forward"
 
 print("PASS candidate EventScore Spec 1.7 metrics / fail-closed Promotion bridge")
+
+pub=public_status(res)
+assert pub["promotion_gate_bridge"]["state"]=="legacy_rule_promotion_bridge_frozen"
+assert pub["promotion_gate_bridge"]["candidate_evidence_promotion_path"]=="independent_ready"
+assert pub["production_effect"]=="none"
+assert pub["promotion_effect"]=="none"
+print("PASS legacy Rule bridge separated from Candidate Evidence Promotion")

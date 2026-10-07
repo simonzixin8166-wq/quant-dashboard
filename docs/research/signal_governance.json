@@ -1,0 +1,38 @@
+{
+  "version": "1.0",
+  "generated_at": "2026-10-07T02:24:53.396714+00:00",
+  "formal_app_version": "6.9.0",
+  "decision_authority": "today_cockpit",
+  "learned_production_effect": "none",
+  "promoted_families": [],
+  "action_vocabulary": [
+    "WATCH",
+    "EARLY_ENTRY",
+    "CONFIRMED_ENTRY",
+    "HOLD",
+    "NO_ADD",
+    "REDUCE",
+    "EXIT"
+  ],
+  "policy": {
+    "learn_autonomously": true,
+    "candidate_rules_allowed": true,
+    "shadow_validation_allowed": true,
+    "production_requires_promotion_gate": true,
+    "human_approval_required_for_protected_rule_changes": true,
+    "automatic_trading": false
+  },
+  "protected_rules": [
+    "TQQQ Hard Exit",
+    "Core ETF tiers",
+    "LEAPS single <=1%",
+    "LEAPS total <=3%",
+    "Options no auto trading"
+  ],
+  "guardrails": [
+    "Historical/backfill evidence cannot become genuine Forward evidence by relabeling.",
+    "A learned method cannot affect production actions unless Promotion Gate explicitly passes and production_effect is active.",
+    "Data Trust and Today Cockpit Decision Authority remain higher priority than learned overlays.",
+    "No signal places orders or chooses share/contract quantity automatically."
+  ]
+}

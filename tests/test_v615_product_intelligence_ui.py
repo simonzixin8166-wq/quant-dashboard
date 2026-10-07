@@ -32,4 +32,10 @@ assert "mav:option-opportunities" in js and "state.optionIdeas" in js
 assert "不会自动" not in js or True
 assert "详细证据与推导下沉到对应模块" in js
 assert "查看依据" not in js or "依据" in js
+
+assert "grid-area:auto!important" in css
+assert "grid-template-rows:auto auto auto" in css
+assert ".pi-opportunity>small{grid-area:auto!important" in css
+assert ".pi-axes{grid-area:auto!important" in css
+
 print("PASS V6.15 compact Today Cockpit result layer")

@@ -25,7 +25,7 @@ from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
 SRC=ROOT/"docs"/"data"/"source_intelligence.json"
 OUT=ROOT/"docs"/"research"/"source_reading_memory.json"
-VERSION="6.14.6"
+VERSION="6.14.7"
 
 VIEW_HINTS=(
     "认为","觉得","看好","看坏","可能","应该","预计","预期","判断","猜","倾向",
@@ -38,6 +38,17 @@ INVALID_HINTS=(
 TRIGGER_HINTS=(
     "突破","站上","跌破","回踩","如果","若","当","才考虑","触发","breakout","hold above",
     "above ma","below ma","if ","when ","entry",
+)
+
+PROSE_CONDITION_PATTERNS=(
+    ("price_above_ma50", r"(?:股价|价格|price)?.{0,12}(?:站上|突破|above).{0,8}ma\s*50", True),
+    ("price_below_ma50", r"(?:股价|价格|price)?.{0,12}(?:跌破|below).{0,8}ma\s*50", True),
+    ("ma50_hold_two_sessions", r"连续\s*(?:两|2)\s*(?:个)?(?:交易日|天).{0,16}(?:站上|守住|高于).{0,8}ma\s*50", True),
+    ("supertrend_bullish", r"supertrend.{0,16}(?:翻多|转多|bull)", True),
+    ("macd_hist_positive", r"(?:macd.{0,12}(?:柱|hist)|(?:柱状图|histogram).{0,12}macd).{0,16}(?:转正|正值|positive)", True),
+    ("ppo_above_signal", r"ppo.{0,20}(?:上穿|高于|超过|cross(?:es|ed)?\s+above).{0,12}signal", False),
+    ("ppo_hist_positive", r"(?:ppo.{0,12}(?:柱|histogram)|histogram.{0,12}ppo).{0,16}(?:转正|正值|positive)", False),
+    ("tcds_cross_zero", r"tcds.{0,28}(?:由负(?:值)?(?:转正|回升)|回到\s*(?:0|零)|转正|cross(?:es|ed)?\s+(?:0|zero))", False),
 )
 
 def load(path,default):
@@ -124,6 +135,53 @@ def explicit_method_candidates(op,row=None):
         out.append("趋势确认")
     return out
 
+
+def prose_candidate_rule(row, sentences):
+    """Build a source-derived candidate rule from explicit prose only.
+
+    This is intentionally weaker than testable_rule: it never invents
+    thresholds, periods, or indicator definitions. Unsupported indicators
+    remain needs_definition and cannot enter Rule Registry / Promotion.
+    """
+    if row.get("rule_candidate_allowed") is False:
+        return None
+    symbols=[str(x) for x in (row.get("symbols") or []) if str(x)]
+    if len(symbols)!=1:
+        return None
+    found=[]
+    raw=[]
+    for sent in sentences:
+        low=sent.lower()
+        for cid,pattern,machine_ready in PROSE_CONDITION_PATTERNS:
+            if re.search(pattern,low,re.I):
+                if cid not in [x["condition_id"] for x in found]:
+                    found.append({
+                        "condition_id":cid,
+                        "machine_ready":bool(machine_ready),
+                    })
+                raw.append(sent)
+    if not found:
+        return None
+    state_hint=None
+    prose=" ".join(sentences).lower()
+    if "early entry" in prose or "早期介入" in prose or "早期阶段" in prose:
+        state_hint="EARLY_ENTRY"
+    elif "confirmed entry" in prose or "趋势确认" in prose or "确认突破" in prose:
+        state_hint="CONFIRMATION"
+    elif "false break" in prose or "假突破" in prose or "失效" in prose:
+        state_hint="RISK"
+    unsupported=[x["condition_id"] for x in found if not x["machine_ready"]]
+    readiness="machine_ready" if not unsupported else "partial_needs_definition"
+    return {
+        "symbols":symbols,
+        "conditions":found,
+        "state_hint":state_hint,
+        "machine_readiness":readiness,
+        "needs_definition":unsupported,
+        "raw_evidence":list(dict.fromkeys(raw))[:6],
+        "source_derived_only":True,
+    }
+
 def explicit_rule_from_operation(op):
     fields={}
     for k in ("entry_1","entry_2","entry_below","exit_line","sell_put_strike"):
@@ -192,7 +250,8 @@ def record_memory(row):
     # Prose extraction is intentionally conservative. It never creates numeric
     # thresholds unless they already appear in structured operations above.
     prose="\n".join([str(row.get("title") or ""),str(row.get("excerpt") or "")])
-    for sent in sentence_candidates(prose):
+    prose_sentences=sentence_candidates(prose)
+    for sent in prose_sentences:
         low=sent.lower()
         classified=False
         if any(k in low for k in INVALID_HINTS):
@@ -210,7 +269,15 @@ def record_memory(row):
             # receives invented thresholds or hidden intent.
             add(props,sid,"non_testable_view",sent,"low",False,{"source_field":"prose","classification":"residual_context"})
 
+    candidate=prose_candidate_rule(row,prose_sentences)
+    if candidate:
+        evidence_text=" / ".join(candidate.get("raw_evidence") or [])
+        add(props,sid,"candidate_rule",
+            f"{'/'.join(candidate['symbols'])}：来源叙述形成候选规则 {evidence_text}",
+            "medium",False,{"candidate_rule":candidate})
+
     testable=[x for x in props if x["kind"]=="testable_rule"]
+    candidates=[x for x in props if x["kind"]=="candidate_rule"]
     return {
         "source_id":sid,
         "extractor_input_hash":extractor_input_hash(row),
@@ -229,7 +296,8 @@ def record_memory(row):
         "rule_candidate_allowed":row.get("rule_candidate_allowed"),
         "propositions":props,
         "testable_rule_count":len(testable),
-        "reading_state":"testable" if testable else ("structured_context" if props else "insufficient_content"),
+        "candidate_rule_count":len(candidates),
+        "reading_state":"testable" if testable else ("candidate_rule" if candidates else ("structured_context" if props else "insufficient_content")),
     }
 
 def build(source):
@@ -261,6 +329,8 @@ def build(source):
             "source_records":len(memories),
             "records_with_testable_rules":sum(1 for m in memories if m["testable_rule_count"]),
             "testable_rules":sum(m["testable_rule_count"] for m in memories),
+            "records_with_candidate_rules":sum(1 for m in memories if m.get("candidate_rule_count")),
+            "candidate_rules":sum(m.get("candidate_rule_count",0) for m in memories),
             "propositions":sum(len(m["propositions"]) for m in memories),
             "by_kind":dict(kind_counts),
         },
@@ -275,6 +345,8 @@ def build(source):
             "Article topic alone never becomes a testable rule.",
             "Only explicit structured operations owned by the author can create testable_rule records.",
             "Sources explicitly marked rule_candidate_allowed=false can never create testable_rule records.",
+            "Prose candidate rules are source-derived Research/Shadow artifacts only; they never enter Rule Registry or Promotion until separately compiled and validated.",
+            "Unsupported indicators such as source-specific TCDS/PPO definitions remain needs_definition and cannot be treated as machine-ready conditions.",
             "Prose triggers, invalidations and views remain context until later structured validation.",
             "Unclassified source prose is preserved as non_testable_view instead of being discarded or promoted.",
             "Every source record carries a hash of the exact normalized fields consumed by this extractor.",

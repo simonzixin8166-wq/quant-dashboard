@@ -259,3 +259,36 @@ amb=srm.record_memory({
 })
 assert amb["candidate_rule_count"]==0
 print("PASS primary-subject-scoped prose candidates")
+
+
+# Parameterized indicators unlock only from explicit source-authored parameters
+# plus calculation basis. Defaults are never substituted.
+explicit=srm.record_memory({
+ "id":"param1","source":"wenxuecity","source_kind":"blog","author":"A",
+ "published_at":"2026-10-07","title":"明确参数","url":"param1","symbols":["AAA"],
+ "topics":["趋势确认"],
+ "excerpt":"MACD(12,26,9) 使用 EMA，柱状图转正；PPO(12,26,9) 使用 EMA，上穿 Signal；Supertrend 采用 ATR10、3倍、Wilder，当前翻多。",
+ "operations":[],"portfolio_rules":[],"lessons":[]
+})
+pc=next(x for x in explicit["propositions"] if x["kind"]=="candidate_rule")
+pr=pc["evidence"]["candidate_rule"]
+defs={x["condition_id"]:x.get("explicit_definition") for x in pr["conditions"]}
+assert defs["macd_hist_positive"]["formula_id"]=="ema_macd"
+assert defs["macd_hist_positive"]["fast_period"]==12
+assert defs["ppo_above_signal"]["formula_id"]=="ema_ppo"
+assert defs["supertrend_bullish"]["formula_id"]=="supertrend_atr_band"
+assert defs["supertrend_bullish"]["atr_smoothing"]=="Wilder_RMA"
+assert pr["machine_readiness"]=="machine_ready"
+
+no_basis=srm.record_memory({
+ "id":"param2","source":"wenxuecity","source_kind":"blog","author":"A",
+ "published_at":"2026-10-07","title":"只有参数","url":"param2","symbols":["AAA"],
+ "topics":["趋势确认"],"excerpt":"MACD(12,26,9) 柱状图转正。","operations":[],"portfolio_rules":[],"lessons":[]
+})
+nc=next(x for x in no_basis["propositions"] if x["kind"]=="candidate_rule")
+nr=nc["evidence"]["candidate_rule"]
+macd=next(x for x in nr["conditions"] if x["condition_id"]=="macd_hist_positive")
+assert macd.get("explicit_definition") is None
+assert macd["machine_ready"] is False
+assert "macd_hist_positive" in nr["needs_definition"]
+print("PASS explicit-only parameterized indicator parsing")

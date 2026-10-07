@@ -159,7 +159,8 @@ prose_reading={
        "raw_evidence":["同一方法重复发布"],
        "source_derived_only":True
      }}
-   }],
+   }]
+  },
   {
    "source_id":"p4","author":"yifan99","title":"TCDS参数说明","symbols":["AMZN"],
    "propositions":[{

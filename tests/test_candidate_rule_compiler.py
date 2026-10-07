@@ -54,3 +54,12 @@ assert r["candidates"][0]["forward_observation_eligible"] is False
 assert r["counts"]["production_eligible"]==0
 
 print("PASS candidate rule compiler guardrails")
+
+# Supertrend without explicit ATR period/multiplier must fail closed.
+r=build(memory("supertrend_bullish",True),store("genuine_forward","high"))
+c=r["candidates"][0]
+assert c["reproducibility_status"]=="blocked_needs_definition"
+assert c["forward_observation_eligible"] is False
+assert "period/multiplier" in c["unresolved_inputs"][0]["reason"]
+
+print("PASS parameterized-indicator fail-closed semantics")

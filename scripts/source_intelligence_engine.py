@@ -305,6 +305,8 @@ def normalize(row):
         "timestamp_evidence": bool(row.get("timestamp_evidence")),
         "rule_candidate_allowed": row.get("rule_candidate_allowed"),
         "captured_at": row.get("captured_at"),
+        "intake_class_hint": row.get("intake_class_hint"),
+        "capture_mode": row.get("capture_mode"),
         "myalpha_validation": "needs_independent_validation",
     }
 

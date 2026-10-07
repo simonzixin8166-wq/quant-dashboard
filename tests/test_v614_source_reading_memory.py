@@ -311,3 +311,28 @@ assert st.get("explicit_definition") is None
 assert ur["machine_readiness"]=="partial_needs_definition"
 assert "supertrend_bullish" in ur["needs_definition"]
 print("PASS parameterized upstream machine-ready claims fail closed")
+
+
+# Busy source feeds must not evict older candidate/testable research from the
+# bounded public Source Reading window.
+many=[]
+for i in range(805):
+    many.append({
+        "id":f"ctx-{i}","source":"wenxuecity","source_kind":"forum","author":"ctx",
+        "published_at":f"2026-10-{(i%28)+1:02d}","title":f"context {i}","url":f"ctx-{i}",
+        "symbols":[],"topics":["其他研究"],"excerpt":"普通上下文",
+        "operations":[],"portfolio_rules":[],"lessons":[]
+    })
+many.append({
+    "id":"lite-yifan","source":"wenxuecity","source_kind":"forum","author":"yifan99",
+    "published_at":"2026-09-30","title":"LITE 适合 Sell Put 的理由(结合图)","url":"lite-yifan",
+    "symbols":["LITE"],"primary_symbols":["LITE"],"topics":["Sell Put","趋势确认"],
+    "excerpt":"LITE 波动大，权利金厚。价格在 MA50 之上；Supertrend 已翻多。",
+    "operations":[],"portfolio_rules":[],"lessons":[]
+})
+busy=srm.build({"version":2,"records":many})
+assert busy["counts"]["source_records"]==806
+assert len(busy["records"])==800
+lite=next(x for x in busy["records"] if x["source_id"]=="lite-yifan")
+assert lite["candidate_rule_count"]>=1
+print("PASS bounded Source Reading retains older candidate research")

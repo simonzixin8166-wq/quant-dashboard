@@ -207,10 +207,10 @@ def condition_series(df,cond):
         signal=ema(ppo,expr.get("signal_period"))
         if cid=="ppo_above_signal":return ppo>signal
         return (ppo-signal)>0
-    if cid=="supertrend_bullish" and formula=="supertrend_atr_band":
-        return supertrend_bullish_series(
-            df,expr.get("atr_period"),expr.get("multiplier"),expr.get("atr_smoothing")
-        )
+    if cid=="supertrend_bullish":
+        # Fail closed: period/multiplier/smoothing alone do not uniquely define
+        # Supertrend band carry/flip semantics across implementations.
+        return None
     return None
 
 def direction(candidate):

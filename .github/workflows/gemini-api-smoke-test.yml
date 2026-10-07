@@ -1,0 +1,40 @@
+name: Gemini API Smoke Test
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/gemini-api-smoke-test.yml"
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  gemini-api-smoke-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Validate GEMINI_API_KEY secret and API access
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          python - <<'PY'
+          import os, urllib.request, urllib.error
+          key=os.environ.get("GEMINI_API_KEY","").strip()
+          if not key:
+              raise SystemExit("GEMINI_API_KEY is missing or empty")
+          req=urllib.request.Request(
+              "https://generativelanguage.googleapis.com/v1beta/models",
+              headers={"x-goog-api-key":key,"User-Agent":"MyAlphaView-Gemini-Smoke-Test/1.0"},
+          )
+          try:
+              with urllib.request.urlopen(req,timeout=20) as r:
+                  if r.status != 200:
+                      raise SystemExit(f"Gemini API returned HTTP {r.status}")
+              print("PASS Gemini API secret is configured and accepted")
+          except urllib.error.HTTPError as e:
+              raise SystemExit(f"Gemini API rejected the configured secret: HTTP {e.code}")
+          except Exception as e:
+              raise SystemExit("Gemini API connectivity test failed: "+str(e))
+          PY

@@ -147,6 +147,7 @@ def maybe_state_entry(candidate,store,obs_map,rows,now):
     close=finite(df.iloc[i]["close"])
     if close is None:return None,"invalid_close"
     qqq=store.get("QQQ")
+    source_obs=obs_map.get(str(candidate.get("source_id"))) or {}
     snapshot={
         "candidate_id":candidate.get("candidate_id"),
         "family_signature":candidate.get("family_signature"),
@@ -173,6 +174,9 @@ def maybe_state_entry(candidate,store,obs_map,rows,now):
         "author":(candidate.get("source") or {}).get("author"),
         "source_title":(candidate.get("source") or {}).get("title"),
         "source_url":(candidate.get("source") or {}).get("url"),
+        "candidate_first_compiler_seen_at":source_obs.get("first_candidate_compiler_seen_at"),
+        "source_first_fetched_at":source_obs.get("source_first_fetched_at"),
+        "source_admission_class":source_obs.get("source_admission_class"),
         "symbol":symbol,
         "signal_date":latest_date.isoformat(),
         "signal_close":close,

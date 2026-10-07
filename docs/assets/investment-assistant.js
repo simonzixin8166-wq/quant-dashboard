@@ -2,7 +2,7 @@
 'use strict';
 const playbook=()=>global.MYALPHA_STRATEGY_PLAYBOOK||{strategies:[]};
 const registry=()=>global.MYALPHA_RULE_REGISTRY||{rules:[]};
-const state={last:null,lastSnapshot:null,lastAlertKey:null,lastAlertAt:0,optionIdeas:[],optionScanAt:0,scanning:false,lastScanAt:0};
+const state={last:null,lastSnapshot:null,lastAlertKey:null,lastAlertAt:0,optionIdeas:[],optionContext:null,optionContextAt:0,optionScanAt:0,scanning:false,lastScanAt:0};
 const n=v=>Number.isFinite(Number(v))?Number(v):null;
 const pct=v=>v===null?'—':`${v>=0?'+':''}${(v*100).toFixed(2)}%`;
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -23,6 +23,33 @@ function learningForStage(stage){try{return global.MAVDecisionJournal?.learningF
 function learningNote(x){const l=learningForStage(x.stage);if(!l||!l.stats||!l.stats.n)return '';const s=l.stats;return `历史同类60日：${s.n}样本 · 正收益${s.positive_rate==null?'—':Math.round(s.positive_rate*100)+'%'} · 平均${s.avg==null?'—':pct(s.avg)} · ${l.label||''}`;}
 function candidates(mode){try{const rows=global.StockWatchlist?.assistantCandidates?.(mode)||[];return [...rows].sort((a,b)=>{const la=learningForStage(a.stage)?.research_adjustment||0,lb=learningForStage(b.stage)?.research_adjustment||0;return (b.hasThesis-a.hasThesis)||(lb-la)||((b.score??-999)-(a.score??-999));})}catch{return []}}
 function stockStatus(){try{return global.StockWatchlist?.assistantStatus?.()||{count:0,researchCount:0,risk:[],improving:[],hot:[],loaded:false}}catch{return {count:0,researchCount:0,risk:[],improving:[],hot:[],loaded:false}}}
+async function loadOptionContext(){
+  if(state.optionContext&&Date.now()-state.optionContextAt<30*60*1000)return state.optionContext;
+  try{
+    const r=await fetch('research/options_opportunity_context.json?v='+Date.now(),{cache:'no-store'});
+    const body=r.ok?await r.json():null;
+    state.optionContext=body&&body.records?body:null;state.optionContextAt=Date.now();
+  }catch{state.optionContext=null;state.optionContextAt=Date.now()}
+  return state.optionContext;
+}
+function focusedOptionCandidates(list,context){
+  const bySymbol=new Map((list||[]).map(x=>[String(x.symbol||'').toUpperCase(),x]));
+  const order=context?.ranked_scan_order||[];
+  const records=context?.records||{};
+  const out=[];
+  for(const symbol of order){
+    const ctx=records[symbol];if(!ctx||ctx.status!=='scan_context_ready')continue;
+    let row=bySymbol.get(symbol);
+    if(!row&&symbol==='QQQ'){
+      const tp=(global.MAV_TREND_PULSE||{}).QQQ||{};
+      row={symbol:'QQQ',stage:tp.state||'',score:n(tp.score),hasThesis:true,why:'正式核心策略 + Market Regime 门控'};
+    }
+    if(!row)continue;
+    if(symbol!=='QQQ'&&!row.hasThesis)continue;
+    out.push({...row,optionContext:ctx});
+  }
+  return out;
+}
 function usRegular(){const p=new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',weekday:'short',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts(new Date());const v=Object.fromEntries(p.map(x=>[x.type,x.value])),m=Number(v.hour)*60+Number(v.minute);return !['Sat','Sun'].includes(v.weekday)&&m>=570&&m<960}
 function scanCadence(){return usRegular()?'盘中约5分钟自动复查':'当前休市；页面打开时检查，盘前盘后约30分钟复查'}
 function nextScanAt(){const ms=usRegular()?5*60*1000:30*60*1000;return clock((state.lastScanAt||Date.now())+ms)}
@@ -106,6 +133,7 @@ function render(snapshot){
   if(c.mode==='normal'){
     const top=topThree(snapshot,c);
     root.innerHTML=`<div class="assistant-duty-head"><div><span>AI INVESTMENT ASSISTANT · 自动值守</span><h2>AI 投资助手 · 正常值守</h2><p>没有重要触发也会持续扫描；只有状态变化时才升级提醒。</p></div><div class="assistant-scan-time"><b>最近扫描 ${clock(state.lastScanAt)}</b><small>${esc(scanCadence())} · 下一次约 ${nextScanAt()}</small></div></div><div class="agent-strip">${agents.map(a=>`<div><span>${esc(a.name)}</span><b>${esc(a.status)}</b><small>${esc(a.detail)}</small></div>`).join('')}</div><div class="assistant-top3"><div class="agent-section-title"><b>今天最重要的 3 件事</b><small>系统先替你看完，再告诉你什么值得处理。</small></div><div class="assistant-top3-grid">${top.map((x,i)=>`<article class="${esc(x.tone)}"><span>0${i+1}</span><div><b>${esc(x.title)}</b><p>${esc(x.text)}</p>${actionHtml(x)}</div></article>`).join('')}</div></div><p class="market-option-disclaimer">正常值守不等于“没有扫描”。Market / Stock / Options / Risk Agent 会持续复查；仅在条件变化时提高提醒等级。</p>`;
+    scheduleOptionScan(list,c);
     return;
   }
   const candidateHtml=list.length?list.slice(0,6).map(x=>{const d=stockDecision(x,c);return `<article class="agent-stock ${d.tone}"><div><b>${esc(x.symbol)}</b><span>${esc(x.zone||'')}</span></div><strong>${esc(d.label)}</strong><p>${esc(d.text)}</p><small>${esc(x.why||'')} ${x.hasThesis?'· 已有研究卡':'· Thesis未填写'}${learningNote(x)?`<br>${esc(learningNote(x))}`:''}</small><div class="assistant-inline-actions"><button type="button" onclick="StockWatchlist.focus('${esc(x.symbol)}')">研究卡</button><button type="button" onclick="openDashboardTab('tab-trend-pulse')">趋势</button><button type="button" onclick="OptionV2.openForSymbol('${esc(x.symbol)}','SELL_PUT')">期权方案</button></div></article>`}).join(''):'<article class="agent-stock wait"><div><b>暂无个股候选</b></div><p>市场条件已触发，但观察池还没有满足多条件过滤的标的。</p></article>';
@@ -115,12 +143,25 @@ function render(snapshot){
   if(c.mode==='fear')scheduleOptionScan(list,c);
 }
 async function scheduleOptionScan(list,c){
-  if(state.scanning||!list.length||!global.OptionV2?.autoScreenOpportunity)return;
-  if(Date.now()-state.optionScanAt<10*60*1000)return;
+  if(state.scanning||!global.OptionV2?.autoScreenOpportunity)return;
+  const interval=c?.mode==='fear'?10*60*1000:30*60*1000;
+  if(Date.now()-state.optionScanAt<interval)return;
+  const context=await loadOptionContext(),scanList=focusedOptionCandidates(list,context);
+  if(!scanList.length)return;
   state.scanning=true;state.optionScanAt=Date.now();
   try{
-    const picks=[];for(const x of list.slice(0,3)){try{const r=await global.OptionV2.autoScreenOpportunity(x.symbol,{marketLevel:c.level,stage:x.stage,hasThesis:x.hasThesis});if(Array.isArray(r))picks.push(...r)}catch(_){} }
-    state.optionIdeas=picks.slice(0,8);
+    const picks=[];
+    for(const x of scanList.slice(0,3)){
+      try{
+        const ctx=x.optionContext||{},r=await global.OptionV2.autoScreenOpportunity(x.symbol,{
+          marketLevel:c.level,stage:x.stage,hasThesis:x.hasThesis,
+          allowedModes:ctx.research_modes||[],supportContext:ctx
+        });
+        if(Array.isArray(r))picks.push(...r);
+      }catch(_){}
+    }
+    state.optionIdeas=picks.filter(x=>x?.action==='WATCH'&&x?.researchOnly===true).slice(0,6);
+    global.dispatchEvent?.(new CustomEvent('mav:option-opportunities',{detail:{ideas:state.optionIdeas,at:Date.now()}}));
   }finally{state.scanning=false;if(state.lastSnapshot)render(state.lastSnapshot)}
 }
 function updateFromMarket(body){

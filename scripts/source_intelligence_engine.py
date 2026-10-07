@@ -9,7 +9,7 @@ The engine preserves provenance and separates:
 It never changes core trading thresholds and never issues automatic orders.
 """
 from __future__ import annotations
-import json, os, re, urllib.request
+import base64, json, os, re, urllib.request
 from collections import Counter, defaultdict
 from datetime import datetime, timezone
 from pathlib import Path
@@ -73,10 +73,32 @@ def load(path: Path, default):
         return default
 
 def fetch_feed():
+    """Fetch the latest wxc-bot research feed from GitHub's contents API.
+
+    The contents API is used as the primary path because raw.githubusercontent.com
+    may briefly serve a stale CDN copy immediately after a source-feed push.
+    """
+    api_url = "https://api.github.com/repos/simonzixin8166-wq/wxc-bot/contents/state/research_feed.json?ref=main"
+    headers = {
+        "User-Agent": "MyAlphaView/SourceIntelligence",
+        "Accept": "application/vnd.github+json",
+        "Cache-Control": "no-cache",
+        "Pragma": "no-cache",
+    }
     try:
-        # Cross-repository raw.githubusercontent responses can briefly lag a just-pushed
-        # source feed. Add a cache-busting query and explicit no-cache headers so the
-        # same-cycle Source Intelligence run sees the latest wxc-bot main content.
+        req = urllib.request.Request(api_url, headers=headers)
+        with urllib.request.urlopen(req, timeout=15) as r:
+            payload = json.loads(r.read().decode("utf-8"))
+        if isinstance(payload, dict) and payload.get("content"):
+            raw = base64.b64decode(str(payload["content"]).replace("\\n", "")).decode("utf-8")
+            data = json.loads(raw)
+            if isinstance(data, dict):
+                return data
+    except Exception as e:
+        print("contents api source feed unavailable:", e)
+
+    # Free public fallback. Keep it no-cache, but do not rely on it for same-cycle freshness.
+    try:
         sep = "&" if "?" in FEED_URL else "?"
         live_url = FEED_URL + sep + "myalpha_cache_bust=" + datetime.now(timezone.utc).strftime("%Y%m%d%H%M%S")
         req = urllib.request.Request(live_url, headers={

@@ -17,6 +17,7 @@ PATHS={
  "evidence":ROOT/"docs/research/evidence_attribution.json",
  "method":ROOT/"docs/research/method_memory.json",
  "source":ROOT/"docs/data/source_intelligence.json",
+ "source_reading":ROOT/"docs/research/source_reading_memory.json",
  "previous":ROOT/"docs/research/research_planner.json",
  "modules":ROOT/"docs/research/module_intelligence.json",
  "cross_asset":ROOT/"docs/research/cross_asset_divergence.json",
@@ -43,7 +44,7 @@ def task(kind,key,title,priority,why,questions,sources,expires=2):
       "guardrail":"研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。"
     }
 
-def build(agent,learning,evidence,method,source,previous,modules=None,cross_asset=None,breadth_intelligence=None,regime_memory=None,data=None,controlled_policy=None):
+def build(agent,learning,evidence,method,source,previous,modules=None,cross_asset=None,breadth_intelligence=None,regime_memory=None,data=None,controlled_policy=None,source_reading=None):
     tasks=[]
     seen=set()
     legacy_method=method.get("evidence_role")=="legacy_descriptive_only"
@@ -96,6 +97,55 @@ def build(agent,learning,evidence,method,source,previous,modules=None,cross_asse
         t["testable_rule_candidates"]=candidates
         t["direct_validated_events"]=direct
         if t["task_id"] not in seen:tasks.append(t);seen.add(t["task_id"])
+
+    # Narrative candidate rules: prose-derived source methods sit below
+    # structured testable_rule strength. They receive their own autonomous
+    # research tasks and can never enter Rule Registry/Promotion directly.
+    source_reading=source_reading or {}
+    for record in source_reading.get("records") or []:
+        for prop in record.get("propositions") or []:
+            if prop.get("kind")!="candidate_rule":
+                continue
+            candidate=((prop.get("evidence") or {}).get("candidate_rule") or {})
+            symbols=candidate.get("symbols") or record.get("symbols") or []
+            if len(symbols)!=1:
+                continue
+            pid=str(prop.get("proposition_id") or uid("prose_candidate",str(record.get("source_id"))))
+            readiness=candidate.get("machine_readiness") or "partial_needs_definition"
+            needs=list(candidate.get("needs_definition") or [])
+            if readiness=="machine_ready":
+                kind="prose_candidate_validation"
+                priority=64
+                title=f"{symbols[0]} · 叙述候选规则验证"
+                why="Source Reading 从原文中提取到可机器复现的叙述条件；先建立验证设计和历史/Forward边界，不进入正式规则。"
+                questions=[
+                    "这些条件是否能由现有行情数据逐日复现？",
+                    "事件定义如何避免同一状态连续多日重复计数？",
+                    "历史回放与真实Forward应如何分开？",
+                    "哪些失败条件会否定这条候选方法？",
+                ]
+            else:
+                kind="prose_candidate_definition"
+                priority=70
+                title=f"{symbols[0]} · 候选方法定义补全"
+                why=f"来源明确提出方法条件，但 {', '.join(needs) or '部分指标'} 的机器定义尚未验证；先补定义，不允许猜测或晋升。"
+                questions=[
+                    "原作者是否给出这些指标的精确定义/参数？",
+                    "能否从同作者其他文章或一手材料交叉确认定义？",
+                    "哪些条件已有独立可计算替代证据，哪些必须保持未知？",
+                    "定义补齐后怎样预注册历史与Forward验证？",
+                ]
+            t=task(kind,pid,title,priority,why,questions,
+              ["source_reading_memory","source_intelligence","method_memory","market_history"],14)
+            t["source_id"]=record.get("source_id")
+            t["proposition_id"]=prop.get("proposition_id")
+            t["symbol"]=symbols[0]
+            t["author"]=record.get("author")
+            t["source_title"]=record.get("title")
+            t["machine_readiness"]=readiness
+            t["needs_definition"]=needs
+            t["candidate_conditions"]=candidate.get("conditions") or []
+            if t["task_id"] not in seen:tasks.append(t);seen.add(t["task_id"])
 
     # Method-evidence follow-up loop. Method Memory owns the state taxonomy;
     # Planner only converts that state into research work, never into trading.
@@ -256,7 +306,7 @@ def build(agent,learning,evidence,method,source,previous,modules=None,cross_asse
 
 def main():
     d={k:load(v) for k,v in PATHS.items()}
-    out=build(d["agent"],d["learning"],d["evidence"],d["method"],d["source"],d["previous"],d["modules"],d["cross_asset"],d["breadth_intelligence"],d["regime_memory"],d["data"],d["controlled_policy"])
+    out=build(d["agent"],d["learning"],d["evidence"],d["method"],d["source"],d["previous"],d["modules"],d["cross_asset"],d["breadth_intelligence"],d["regime_memory"],d["data"],d["controlled_policy"],d["source_reading"])
     OUT.parent.mkdir(parents=True,exist_ok=True)
     OUT.write_text(json.dumps(out,ensure_ascii=False,indent=2),encoding="utf-8")
     print(json.dumps(out["counts"],ensure_ascii=False))

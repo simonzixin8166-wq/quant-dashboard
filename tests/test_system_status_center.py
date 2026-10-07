@@ -19,7 +19,7 @@ print("PASS autonomous system status center")
 assert result["overall"]=="attention"  # unknown critical workflow state must not look healthy
 src=(ROOT/"scripts"/"system_status_center.py").read_text(encoding="utf-8")
 assert "per_page=100&page={page}" in src
-assert "max_pages=5" in src
+assert "max_pages=20" in src
 assert '"market_dashboard": ROOT/"docs"/"data.json"' in src
 assert "research_planner" in result["artifacts"]
 assert "self_improvement" in result["artifacts"]
@@ -76,3 +76,11 @@ assert ssc.expected_completed_us_session(datetime(2026,1,5,21,30,tzinfo=timezone
 
 assert "Autonomous QA & Security" in ssc.WATCH_WORKFLOWS["quant-dashboard"]
 assert "decision_data_contract" in result
+
+
+# Very busy repos can push low-frequency workflows beyond the first 500 runs;
+# the default search window must remain deeper than that false-negative boundary.
+import inspect
+sig=inspect.signature(ssc.github_runs)
+assert sig.parameters["max_pages"].default>=10
+print("PASS low-frequency workflow pagination depth")

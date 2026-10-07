@@ -30,6 +30,7 @@ HORIZONS = (5, 20, 60)
 sys.path.insert(0, str(ROOT / "scripts"))
 from local_history_agent import read_archive  # noqa: E402
 from source_history_cache import read_cache  # noqa: E402
+from source_intelligence_engine import collect_full_records  # noqa: E402
 
 BULLISH = {"buy", "add", "hold", "sell_put"}
 BEARISH = {"sell", "trim", "trim_half", "clear"}
@@ -333,6 +334,13 @@ def build(source: dict, store: dict[str,pd.DataFrame], price_provenance: dict|No
 
 def main():
     source=load(SOURCE,{"operation_cases":[]})
+    try:
+        full=collect_full_records()
+        source=dict(source)
+        source["operation_cases"]=[r for r in full if r.get("operations") or r.get("actions")]
+        source["full_stream_learning"]=True
+    except Exception:
+        pass
     core=read_archive()
     fallback=read_cache()
     store={**fallback, **core}  # Whole-symbol precedence only; never splice sources inside one event.

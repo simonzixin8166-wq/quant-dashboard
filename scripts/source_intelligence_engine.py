@@ -185,7 +185,12 @@ def _symbol_present(sym: str, text: str) -> bool:
 def _near_hint(sym: str, text: str, hints, radius=36) -> bool:
     raw=str(text or "")
     for m in re.finditer(rf"(?<![A-Za-z0-9])\$?{re.escape(str(sym))}(?![A-Za-z0-9])",raw,re.I):
-        lo=max(0,m.start()-radius);hi=min(len(raw),m.end()+radius)
+        # Keep attribution inside the same sentence/semicolon-delimited clause.
+        # This prevents "holding NVDA; for example AMD" from making AMD a holding.
+        left=max(raw.rfind(ch,0,m.start()) for ch in ("。","！","？","!","?","；",";","\n"))+1
+        rights=[p for ch in ("。","！","？","!","?","；",";","\n") if (p:=raw.find(ch,m.end()))!=-1]
+        right=min(rights) if rights else len(raw)
+        lo=max(left,m.start()-radius);hi=min(right,m.end()+radius)
         window=raw[lo:hi].lower()
         if any(str(h).lower() in window for h in hints):
             return True

@@ -1391,21 +1391,21 @@ def trend_pulse_band(score, slope5=0, weekly="-"):
     weekly=str(weekly or "-")
     if score >= 75:
         if slope5 < 0:
-            return {"zone":"强势高位","action":"持有观察 / 不追高","tone":"caution","summary":"趋势仍强，但短期动能已回落；已有仓位以跟踪为主，新仓等待回踩或重新转强。"}
-        return {"zone":"强势高位","action":"持有为主 / 不追高","tone":"caution","summary":"趋势很强但位置偏高；更适合持有和等待回踩，不把高分直接当作追涨信号。"}
+            return {"zone":"强势高位","action":"强势高位 · 动能回落","tone":"caution","summary":"趋势仍强，但短期动能已回落；已有仓位以跟踪为主，新仓等待回踩或重新转强。"}
+        return {"zone":"强势高位","action":"强势高位 · 不作动作结论","tone":"caution","summary":"趋势很强但位置偏高；更适合持有和等待回踩，不把高分直接当作追涨信号。"}
     if score >= 50:
-        return {"zone":"上升确认","action":"持有 / 回踩关注","tone":"good","summary":"趋势处于较健康的上升区间；已有仓位可顺势跟踪，新仓优先等待回踩而非追涨。"}
+        return {"zone":"上升确认","action":"上升确认 · 仅作状态解释","tone":"good","summary":"趋势处于较健康的上升区间；已有仓位可顺势跟踪，新仓优先等待回踩而非追涨。"}
     if score >= 20:
         if slope5 > 0 and weekly not in ("空头","偏空"):
-            return {"zone":"转强区","action":"可重点观察 / 小仓试探","tone":"watch","summary":"趋势正在转强，且短期动能改善；若数据校验通过，可进入重点观察或小仓试探阶段。"}
-        return {"zone":"转强区","action":"等待确认","tone":"wait","summary":"分数已回到正区，但短期或中期方向仍未完全一致；先等待确认。"}
+            return {"zone":"转强区","action":"趋势转强 · 等待统一Action判断","tone":"watch","summary":"趋势正在转强，且短期动能改善；若数据校验通过，可进入重点观察或小仓试探阶段。"}
+        return {"zone":"转强区","action":"转强未确认","tone":"wait","summary":"分数已回到正区，但短期或中期方向仍未完全一致；先等待确认。"}
     if score > -20:
-        return {"zone":"震荡区","action":"观察 / 等待方向","tone":"neutral","summary":"趋势方向不明确，容易反复；不急于入仓或减仓，等待离开震荡区。"}
+        return {"zone":"震荡区","action":"震荡未确认","tone":"neutral","summary":"趋势方向不明确，容易反复；不急于入仓或减仓，等待离开震荡区。"}
     if score > -60:
         if slope5 > 0:
-            return {"zone":"弱势修复","action":"观察修复","tone":"warn","summary":"整体仍偏弱，但短期开始改善；暂不把反弹当成趋势反转，等待重新站上正区。"}
-        return {"zone":"弱势区","action":"避免新开仓","tone":"warn","summary":"趋势偏弱且尚未改善；新仓以等待为主，已有仓位重点关注风险。"}
-    return {"zone":"风险区","action":"风险控制 / 考虑减仓","tone":"risk","summary":"趋势处于明显弱势区；若周线也偏空且5日继续下降，应优先控制风险并重新评估仓位。"}
+            return {"zone":"弱势修复","action":"弱势修复中","tone":"warn","summary":"整体仍偏弱，但短期开始改善；暂不把反弹当成趋势反转，等待重新站上正区。"}
+        return {"zone":"弱势区","action":"弱势未修复","tone":"warn","summary":"趋势偏弱且尚未改善；新仓以等待为主，已有仓位重点关注风险。"}
+    return {"zone":"风险区","action":"高风险弱势 · 等待统一Action判断","tone":"risk","summary":"趋势处于明显弱势区；若周线也偏空且5日继续下降，应优先控制风险并重新评估仓位。"}
 
 
 def trend_direction_text(score, slope5):
@@ -1442,15 +1442,15 @@ def core_action_summary(core):
         if not row.get("ath_is_true") or row.get("ath_validation")=="CHECK":
             action,tone="仅观察 · 等待ATH校验","neutral"
         elif level>=3:
-            action,tone="三级加仓区 · 极端回撤","risk"
+            action,tone="三级回撤区 · 规则状态","risk"
         elif level==2:
-            action,tone="二级加仓区 · 按规则执行","risk"
+            action,tone="二级回撤区 · 规则状态","risk"
         elif level==1:
-            action,tone="一级加仓区 · 按规则执行","watch"
+            action,tone="一级回撤区 · 规则状态","watch"
         elif isinstance(dist,(int,float)) and dist<=0.03:
-            action,tone="接近一级 · 准备备用资金","warn"
+            action,tone="接近一级回撤区","warn"
         else:
-            action,tone="正常定投 · 暂不额外加仓","good"
+            action,tone="常规区 · 未触发额外回撤档","good"
         cards.append({"symbol":sym,"role":role,"dd":dd,"distance":dist,"level":level,"action":action,"tone":tone})
     return cards
 
@@ -1494,12 +1494,12 @@ def build_daily_action_html(data, trend_data):
     html_out=(
         '<section class="section private-console agent-attention-section"><div id="agentAttentionRoot" class="agent-attention-root"><div class="agent-empty">自主研究助手正在汇总今日变化…</div></div></section>'
         '<section class="section private-console daily-action-section">'
-        '<div class="section-head daily-action-head"><div><h2>今日行动摘要</h2><p>先看核心ETF，再看个股机会和期权风险；不展示任何账户金额。</p></div>'
+        '<div class="section-head daily-action-head"><div><h2>决策证据快照</h2><p>这里只展示市场、核心ETF、个股和期权的状态证据；正式 Action 统一由页面上方「今日行动与组合智能」发布。</p></div>'
         f'<span class="daily-asof">收盘确认 · {html.escape(str(data.get("spy_date","-")))}</span></div>'
         '<div class="daily-action-grid">'
         f'<div class="daily-action-panel"><div class="daily-action-title"><strong>市场环境</strong><span>{html.escape(str(market_label))}</span></div><div class="daily-market-main">{html.escape(str(market_label))}</div><small>{market_note} · 以完整收盘数据确认</small></div>'
         f'<div class="daily-action-panel daily-core-panel"><div class="daily-action-title"><strong>核心ETF</strong><span>QQQM / VGT / QLD</span></div><div class="daily-core-grid">{"".join(core_html)}</div></div>'
-        f'<div class="daily-action-panel"><div class="daily-action-title"><strong>个股关注</strong><span>Trend Pulse</span></div><div class="daily-stock-list">{"".join(stock_rows)}</div></div>'
+        f'<div class="daily-action-panel"><div class="daily-action-title"><strong>个股状态</strong><span>Trend Pulse · 非正式动作</span></div><div class="daily-stock-list">{"".join(stock_rows)}</div></div>'
         '<div class="daily-action-panel"><div class="daily-action-title"><strong>期权风险</strong><span>私有持仓</span></div><div class="daily-option-callout">登录后由“今日风险待办”自动检查临期、缺失报价与宏观事件。</div><button type="button" class="daily-jump" onclick="openDashboardTab(\'tab-options\')">查看期权持仓</button></div>'
         '</div></section>'
     )

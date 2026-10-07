@@ -129,9 +129,25 @@
     const row=state.supportVol[symbol]||{};
     if(row.status!=='ok')return '<div class="stock-intel-card stock-intel-muted"><span>支撑 / 波动率</span><b>等待研究数据</b><small>数据缺失时不推断支撑位或波动率。</small></div>';
     const sr=row.support_resistance||{},vol=row.volatility||{},sup=sr.nearest_support,res=sr.nearest_resistance,g=vol.garch20||{};
-    const zone=x=>x?('
+    const zone=x=>x?('$'+Number(x.low).toFixed(2)+'–$'+Number(x.high).toFixed(2)+' · '+String(x.strength||'')):'—';
+    const dist=x=>x&&Number.isFinite(Number(x.distance_pct))?((Number(x.distance_pct)>=0?'+':'')+Number(x.distance_pct).toFixed(1)+'%'):'—';
+    const garch=g.status==='ok'&&Number.isFinite(Number(g.ann_vol_pct_avg))?Number(g.ann_vol_pct_avg).toFixed(1)+'%':'—';
+    const rv20=vol.rv20_ann_pct==null?'—':Number(vol.rv20_ann_pct).toFixed(1)+'%';
+    const rv60=vol.rv60_ann_pct==null?'—':Number(vol.rv60_ann_pct).toFixed(1)+'%';
+    return '<div class="stock-intel-card"><span>支撑 / 压力 · Volume Profile</span><b>支撑 '+esc(zone(sup))+' <em>'+esc(dist(sup))+'</em></b><small>最近压力 '+esc(zone(res))+' · '+esc(dist(res))+'</small></div>'+
+      '<div class="stock-intel-card"><span>波动率 · Research</span><b>RV20 '+esc(rv20)+' · GARCH20 '+esc(garch)+'</b><small>RV60 '+esc(rv60)+' · 仅作研究证据</small></div>';
+  }
+  async function loadResearch(symbols){
     state.research={};state.researchReady=true;await loadAutoThesis();if(!symbols.length)return;
-    try{const {data,error}=await supabaseClient.from('stock_research_notes').select('*').in('symbol',symbols);if(error)throw error;(data||[]).forEach(r=>state.research[r.symbol]=r)}catch(error){state.researchReady=false;const msg=String(error?.message||error);if(!/stock_research_notes|schema cache|does not exist|PGRST/i.test(msg))global.MAV?.toast(`研究卡读取失败：${msg}`,'warn')}
+    try{
+      const {data,error}=await supabaseClient.from('stock_research_notes').select('*').in('symbol',symbols);
+      if(error)throw error;
+      (data||[]).forEach(r=>state.research[r.symbol]=r);
+    }catch(error){
+      state.researchReady=false;
+      const msg=String(error?.message||error);
+      if(!/stock_research_notes|schema cache|does not exist|PGRST/i.test(msg))global.MAV?.toast(`研究卡读取失败：${msg}`,'warn');
+    }
   }
   function ensureResearchModal(){
     let modal=document.getElementById('stockResearchModal');if(modal)return modal;modal=document.createElement('div');modal.id='stockResearchModal';modal.className='option-modal-backdrop';modal.style.display='none';modal.innerHTML=`<div class="option-modal-card stock-research-modal"><div class="option-modal-head"><div><h3 id="stockResearchTitle">个股研究卡</h3><p>先写论点、反证和下一核验；不记录真实持仓金额。</p></div><button type="button" onclick="StockWatchlist.closeResearch()">×</button></div><p class="stock-research-help">普通投资者模板：不会的指标可以不填。重点是“为什么关注、什么会证明我错、下一步看什么证据”。</p><div class="stock-research-form"><label>我的 Edge / 为什么不是直接买指数<textarea id="researchEdge"></textarea></label><label>下一核验日期<input id="researchNextReview" type="date"></label><label class="wide">投资论点 Thesis<textarea id="researchThesis"></textarea></label><label>主要催化剂<textarea id="researchCatalysts"></textarea></label><label>最大风险<textarea id="researchRisks"></textarea></label><label class="wide">失效条件 / 什么事实说明判断错了<textarea id="researchInvalidation"></textarea></label><label>估值 / 价格位置<textarea id="researchValuation"></textarea></label><label>下一步研究方案<textarea id="researchPlan"></textarea></label></div><div class="option-modal-actions"><button type="button" onclick="StockWatchlist.closeResearch()">取消</button><button class="primary" type="button" onclick="StockWatchlist.saveResearch()">保存研究卡</button></div><input id="researchSymbol" type="hidden"></div>`;document.body.appendChild(modal);return modal;

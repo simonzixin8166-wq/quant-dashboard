@@ -224,8 +224,8 @@ function render(){
    ${card('今日高优先级',urgent,!authority.decision_eligible?'数据不足，不能下“无需操作”结论':urgent?'优先处理风险事项':'暂无高优先级触发',!authority.decision_eligible?'bad':urgent?'bad':'good','group:urgent','查看今日高优先级事项')}
    ${card('待复核',watch,watch?'今日或次日处理':'当前无 L2 提醒',watch?'warn':'neutral','group:review','查看待复核事项')}
    ${card('期权持仓',opts.length,opts.length?'按账户独立监控':'等待私有持仓','neutral','tab:tab-options','进入期权持仓')}
-   ${card('观察池',s.loaded?s.count:'—',s.loaded?`${s.researchCount} 只有完整 Thesis`:'登录后自动扫描','neutral','tab:tab-stocks','进入观察池')}
-   ${card('机会候选',opps.filter(x=>['EARLY_ENTRY','CONFIRMED_ENTRY','WATCH','WAIT'].includes(x.action)).length,'三轴：机会 / 风险 / 置信','good','group:entry','查看机会候选')}
+   ${card('观察池',s.loaded?s.count:'—',s.loaded?`${s.researchBasisCount??s.researchCount??0} 只有研究依据`:'登录后自动扫描','neutral','tab:tab-stocks','进入观察池')}
+   ${card('机会候选',opps.filter(x=>['EARLY_ENTRY','CONFIRMED_ENTRY','WATCH','WAIT'].includes(x.action)).length+(state.optionIdeas||[]).length,'个股 + 期权研究候选','good','group:review','查看机会候选')}
   </div>
   <div class="pi-grid">
    <section class="pi-panel pi-actions"><div class="pi-panel-head"><div><span>01 / ACTION</span><h3>需要关注</h3></div><button data-pi-target="tab-agent-center">全部依据</button></div><div class="pi-action-groups">${groupedActionsHtml(actions)}</div></section>

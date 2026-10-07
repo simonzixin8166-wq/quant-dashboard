@@ -276,9 +276,9 @@ defs={x["condition_id"]:x.get("explicit_definition") for x in pr["conditions"]}
 assert defs["macd_hist_positive"]["formula_id"]=="ema_macd"
 assert defs["macd_hist_positive"]["fast_period"]==12
 assert defs["ppo_above_signal"]["formula_id"]=="ema_ppo"
-assert defs["supertrend_bullish"]["formula_id"]=="supertrend_atr_band"
-assert defs["supertrend_bullish"]["atr_smoothing"]=="Wilder_RMA"
-assert pr["machine_readiness"]=="machine_ready"
+assert defs["supertrend_bullish"] is None
+assert pr["machine_readiness"]=="partial_needs_definition"
+assert "supertrend_bullish" in pr["needs_definition"]
 
 no_basis=srm.record_memory({
  "id":"param2","source":"wenxuecity","source_kind":"blog","author":"A",

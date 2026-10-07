@@ -23,3 +23,10 @@ assert c["zero_forward_is_valid"] is True
 assert c["state"]=="engineering_closed_forward_evidence_accumulating"
 assert c["evidence_state"] in {"awaiting_first_genuine_forward_candidate","forward_evidence_accumulating"}
 print("PASS Milestone C engineering-closed / evidence-accumulating state")
+
+out=build()
+a=out["milestones"]["A_source_reliability"]
+assert a["metrics"]["primary_subject_attribution_active"] is True
+assert a["state"]=="operational_continuous_audit"
+assert "primary_subject_attribution" not in a["remaining"]
+print("PASS Milestone A Primary Subject Attribution completion state")

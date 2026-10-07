@@ -3,7 +3,7 @@
 const $=id=>document.getElementById(id);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const rank={l3:3,l2:2,l1:1,unknown:0};
-const state={timer:null,lastAt:0,systemStatus:null,serverAction:null,strategyData:null,systemLoaded:false,serverLoaded:false,strategyLoaded:false};
+const state={timer:null,lastAt:0,systemStatus:null,serverAction:null,strategyData:null,optionIdeas:[],systemLoaded:false,serverLoaded:false,strategyLoaded:false};
 const HOME_TEXT_LIMIT=52;
 function compactText(value,limit=HOME_TEXT_LIMIT){
  const text=String(value||'').replace(/\s+/g,' ').trim();
@@ -170,6 +170,7 @@ function formalStrategyActions(data=state.strategyData){
 }
 function actionItems(){
  const opt=optionActions(),s=stockStatus(),rows=formalStrategyActions();
+ (state.optionIdeas||[]).slice(0,3).forEach(x=>rows.push({priority:x.strategy==='SELL_PUT'?58:x.strategy==='LEAPS_CALL'?55:52,tone:'good',when:'WATCH',title:`${x.symbol} · ${x.kind||'期权机会'}`,text:x.reason||'期权链研究候选已通过运行时门控。',target:'tab-options'}));
  opt.filter(x=>x.risk==='l3').forEach(x=>rows.push({priority:100,tone:'bad',when:'今日',title:`${x.symbol} 期权需处理`,text:x.reason,target:'tab-options'}));
  opt.filter(x=>x.risk==='l2').forEach(x=>rows.push({priority:80,tone:'warn',when:'今日 / 次日',title:`${x.symbol} 期权复核`,text:x.reason,target:'tab-options'}));
  opt.filter(x=>x.timing.includes('止盈')).forEach(x=>rows.push({priority:70,tone:'good',when:'今日',title:`${x.symbol} 可评估止盈`,text:x.reason,target:'tab-options'}));
@@ -285,7 +286,7 @@ async function loadSystemStatus(){
  recordDecisionState();
 }
 function schedule(){clearInterval(state.timer);state.timer=setInterval(()=>{if(document.visibilityState==='visible')render()},120000)}
-function init(){loadSystemStatus().finally(render);render();schedule();window.addEventListener('mav:options-updated',render);document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')render()});setTimeout(render,1200);setTimeout(render,3500)}
+function init(){loadSystemStatus().finally(render);render();schedule();window.addEventListener('mav:options-updated',render);window.addEventListener('mav:option-opportunities',e=>{state.optionIdeas=Array.isArray(e?.detail?.ideas)?e.detail.ideas:[];render()});document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')render()});setTimeout(render,1200);setTimeout(render,3500)}
 global.MAVProductIntelligence={render,optionActions,opportunities,dataHealth,decisionAuthority,formalStrategyActions,explicitSignal};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })(window);

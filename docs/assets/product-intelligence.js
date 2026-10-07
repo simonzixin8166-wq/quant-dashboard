@@ -3,7 +3,7 @@
 const $=id=>document.getElementById(id);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const rank={l3:3,l2:2,l1:1,unknown:0};
-const state={timer:null,lastAt:0,systemStatus:null,serverAction:null,systemLoaded:false,serverLoaded:false};
+const state={timer:null,lastAt:0,systemStatus:null,serverAction:null,strategyData:null,systemLoaded:false,serverLoaded:false,strategyLoaded:false};
 
 function optionRows(){
  const api=global.OptionV2;if(!api?.getPositions)return[];
@@ -28,9 +28,13 @@ function optionActions(){
  }).sort((a,b)=>(rank[b.risk]||0)-(rank[a.risk]||0)||String(a.expiry).localeCompare(String(b.expiry)));
 }
 function stockStatus(){try{return global.StockWatchlist?.assistantStatus?.()||{count:0,researchCount:0,risk:[],improving:[],hot:[],loaded:false}}catch{return{count:0,researchCount:0,risk:[],improving:[],hot:[],loaded:false}}}
-function explicitSignal(x,authority,held=false){
+function stockHeld(x){
+ const qty=Number(x?.position_qty??x?.quantity??x?.shares??0);
+ return x?.held===true||x?.isHeld===true||(Number.isFinite(qty)&&qty!==0);
+}
+function explicitSignal(x,authority,held=stockHeld(x)){
  const base=global.MAVSignalPolicy?.classify?.({
-   score:x?.score,stage:x?.stage,held,
+   symbol:x?.symbol,score:x?.score,stage:x?.stage,held,
    decisionEligible:authority?.decision_eligible!==false,
    hasThesis:x?.hasThesis
  });
@@ -45,7 +49,7 @@ function opportunityAxes(x,kind,authority){
  if(Number.isFinite(pulse)&&pulse>=60&&kind==='improving')opportunity='高';
  if(Number.isFinite(pulse)&&pulse<20)opportunity='低';
  confidence=x?.hasThesis?'中':'低';
- const signal=explicitSignal(x,authority,false);
+ const signal=explicitSignal(x,authority);
  return{opportunity,risk,confidence,action:signal.action,tone:signal.tone,actionZh:signal.zh,reason:signal.reason,nextConfirmation:signal.next_confirmation};
 }
 function opportunities(){
@@ -108,13 +112,42 @@ function dataHealth(){
  if(guard)rows.push({name:'免费额度守门',status:guard.mode==='normal'?'ok':guard.mode==='watch'?'warn':'bad',detail:`${guard.mode==='normal'?'正常':'已进入'+guard.mode} · 缓存优先/事件驱动`});
  return rows.slice(0,6);
 }
+
+function formalStrategyActions(data=state.strategyData){
+ const rows=[];
+ if(!data||typeof data!=='object')return rows;
+ const core=data.core||{};
+ Object.entries(core).forEach(([symbol,row])=>{
+   const level=Number(row?.level||0),dd=Number(row?.strategy_drawdown);
+   if(level>0){
+     rows.push({priority:85,tone:'warn',when:'正式策略',title:`${symbol} · CORE TIER ${level}`,text:`正式核心 ETF 回撤档位已触发${Number.isFinite(dd)?` · 当前回撤 ${(dd*100).toFixed(1)}%`:``}；仅提示进入对应档位，不自动下单。`,target:'tab-engine'});
+   }else{
+     rows.push({priority:20,tone:'neutral',when:'HOLD',title:`${symbol} · HOLD`,text:'正式核心 ETF Tier 未触发；Trend / 新闻 / 外部研究不得提前升级为介入。',target:'tab-engine'});
+   }
+ });
+ const x2=data.tqqq_x2||{};
+ if(x2.available){
+   if(x2.changed===true){
+     rows.push({priority:88,tone:x2.snapshot?.hard_exit?'bad':'warn',when:'正式策略',title:'TQQQ X2 · ACTION',text:`${x2.action||x2.status_label||`正式状态变化`}；正式 X2 规则优先于技术/外部研究。`,target:'tab-engine'});
+   }else{
+     rows.push({priority:22,tone:'neutral',when:'HOLD',title:'TQQQ X2 · HOLD',text:`当前正式状态：${x2.status_label||`无变化`}；未发生正式状态迁移。`,target:'tab-engine'});
+   }
+ }
+ const radar=data.leaps_radar||{};
+ (radar.assets||[]).forEach(r=>{
+   const triggered=String(r?.status||'normal')!=='normal';
+   rows.push({priority:triggered?40:18,tone:triggered?'warn':'neutral',when:triggered?'WATCH':'HOLD',title:`${r.symbol||`LEAPS`} LEAPS · ${triggered?`WATCH`:`HOLD`}`,text:triggered?`LEAPS Radar：${r.status_label||r.status}；仍需 IV / Bid-Ask / DTE / Delta / 风险预算核验。`:'LEAPS Radar 未触发；外部文章或趋势信号不得升级为介入。',target:'tab-engine'});
+ });
+ return rows;
+}
 function actionItems(){
- const opt=optionActions(),s=stockStatus(),rows=[];
+ const opt=optionActions(),s=stockStatus(),rows=formalStrategyActions();
  opt.filter(x=>x.risk==='l3').forEach(x=>rows.push({priority:100,tone:'bad',when:'今日',title:`${x.symbol} 期权需处理`,text:x.reason,target:'tab-options'}));
  opt.filter(x=>x.risk==='l2').forEach(x=>rows.push({priority:80,tone:'warn',when:'今日 / 次日',title:`${x.symbol} 期权复核`,text:x.reason,target:'tab-options'}));
  opt.filter(x=>x.timing.includes('止盈')).forEach(x=>rows.push({priority:70,tone:'good',when:'今日',title:`${x.symbol} 可评估止盈`,text:x.reason,target:'tab-options'}));
- (s.risk||[]).forEach(x=>{const sig=explicitSignal(x,decisionAuthority(),false);rows.push({priority:sig.action==='NO_SIGNAL'?120:sig.action==='REDUCE'||sig.action==='EXIT'?90:65,tone:sig.tone,when:sig.action==='NO_SIGNAL'?'当前':'今日',title:`${x.symbol} · ${sig.label}`,text:`${sig.zh}。 ${sig.reason}`,target:'tab-stocks'})});
- (s.improving||[]).forEach(x=>{const sig=explicitSignal(x,decisionAuthority(),false);rows.push({priority:sig.action==='CONFIRMED_ENTRY'?75:sig.action==='EARLY_ENTRY'?65:45,tone:sig.tone,when:/ENTRY/.test(sig.action)?'介入机会':'观察',title:`${x.symbol} · ${sig.label}`,text:`${sig.zh}。 ${sig.reason}`,target:'tab-stocks'})});
+ (s.risk||[]).forEach(x=>{const sig=explicitSignal(x,decisionAuthority());rows.push({priority:sig.action==='NO_SIGNAL'?120:sig.action==='REDUCE'||sig.action==='EXIT'?90:65,tone:sig.tone,when:sig.action==='NO_SIGNAL'?'当前':'今日',title:`${x.symbol} · ${sig.label}`,text:`${sig.zh}。 ${sig.reason}`,target:'tab-stocks'})});
+ (s.improving||[]).forEach(x=>{const sig=explicitSignal(x,decisionAuthority());rows.push({priority:sig.action==='CONFIRMED_ENTRY'?75:sig.action==='EARLY_ENTRY'?65:45,tone:sig.tone,when:/ENTRY/.test(sig.action)?'介入机会':'观察',title:`${x.symbol} · ${sig.label}`,text:`${sig.zh}。 ${sig.reason}`,target:'tab-stocks'})});
+ if(state.strategyLoaded&&!state.strategyData)rows.push({priority:110,tone:'bad',when:'当前',title:'正式策略数据缺失',text:'Core Tier / TQQQ X2 / LEAPS Radar 无法可靠判断，禁止用技术信号代替正式策略。',target:'tab-system-health'});
  const authority=decisionAuthority();
  if(!authority.decision_eligible){
    return [{priority:120,tone:'bad',when:'当前',title:authority.title,text:authority.detail,target:'tab-system-health'}];
@@ -151,7 +184,7 @@ function render(){
  const opts=optionRows(),actions=actionItems(),s=stockStatus(),opps=opportunities(),health=dataHealth(),server=state.serverAction,authority=decisionAuthority();
  const urgent=actions.filter(x=>x.tone==='bad').length,watch=actions.filter(x=>x.tone==='warn').length;
  root.innerHTML=`<section class="pi-shell">
-  <div class="pi-head"><div><span>MYALPHA TODAY COCKPIT · SOLE ACTION OUTLET</span><h2>今日行动 · 唯一正式出口</h2><p>市场、个股、期权、策略及经 Promotion Gate 放行的学习信号统一在这里排序；其他页面只提供证据与解释。</p></div><div class="pi-head-state"><b>${esc(authority.title)}</b><small>${server?.generated_at?'服务端 '+new Date(server.generated_at).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):'等待服务端状态'}</small></div></div>
+  <div class="pi-head"><div><span>MYALPHA TODAY COCKPIT · SOLE ACTION OUTLET</span><h2>今日行动 · 唯一正式出口</h2><p>市场、个股、期权、已接入的正式策略触发及经 Promotion Gate 放行的学习证据统一在这里排序；其他页面只提供证据与解释。</p></div><div class="pi-head-state"><b>${esc(authority.title)}</b><small>${server?.generated_at?'服务端 '+new Date(server.generated_at).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):'等待服务端状态'}</small></div></div>
   <div class="pi-stats">
    ${card('今日高优先级',urgent,!authority.decision_eligible?'数据不足，不能下“无需操作”结论':urgent?'优先处理风险事项':'暂无高优先级触发',!authority.decision_eligible?'bad':urgent?'bad':'good','group:urgent','查看今日高优先级事项')}
    ${card('待复核',watch,watch?'今日或次日处理':'当前无 L2 提醒',watch?'warn':'neutral','group:review','查看待复核事项')}
@@ -213,11 +246,12 @@ function recordDecisionState(){
 async function loadSystemStatus(){
  try{const r=await fetch('research/system_status.json?v='+Date.now(),{cache:'no-store'});state.systemStatus=r.ok?await r.json():null}catch{state.systemStatus=null}finally{state.systemLoaded=true}
  try{const r=await fetch('research/server_action_status.json?v='+Date.now(),{cache:'no-store'});state.serverAction=r.ok?await r.json():null}catch{state.serverAction=null}finally{state.serverLoaded=true}
+ try{const r=await fetch('data.json?v='+Date.now(),{cache:'no-store'});state.strategyData=r.ok?await r.json():null}catch{state.strategyData=null}finally{state.strategyLoaded=true}
  window.dispatchEvent(new CustomEvent('mav:decision-authority',{detail:decisionAuthority()}));
  recordDecisionState();
 }
 function schedule(){clearInterval(state.timer);state.timer=setInterval(()=>{if(document.visibilityState==='visible')render()},120000)}
 function init(){loadSystemStatus().finally(render);render();schedule();window.addEventListener('mav:options-updated',render);document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')render()});setTimeout(render,1200);setTimeout(render,3500)}
-global.MAVProductIntelligence={render,optionActions,opportunities,dataHealth,decisionAuthority};
+global.MAVProductIntelligence={render,optionActions,opportunities,dataHealth,decisionAuthority,formalStrategyActions,explicitSignal};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })(window);

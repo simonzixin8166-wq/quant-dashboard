@@ -1,0 +1,272 @@
+{
+  "version": "1.0",
+  "generated_at": "2026-10-07T13:28:07.440271+00:00",
+  "principle": "Collection success is not learning success. Permanent storage and learning inputs must not be record-count capped; only per-run processing and UI presentation may be bounded.",
+  "counts": {
+    "learning_active": 2,
+    "partial_learning": 6,
+    "not_implemented": 1,
+    "context_only": 1
+  },
+  "domains": [
+    {
+      "domain": "market_price_history",
+      "collected": true,
+      "persistent_history": "full_local_archive",
+      "structured_analysis": true,
+      "reusable_memory": true,
+      "outcome_feedback": true,
+      "decision_context": true,
+      "learning_status": "learning_active",
+      "gaps": [
+        "Historical Journal exposes only a presentation subset of event rows; aggregates use the full local history. A separate full event archive is still preferable for event-level replay."
+      ],
+      "evidence": {
+        "symbols": 24,
+        "events": 4540,
+        "mature_60": 4294
+      }
+    },
+    {
+      "domain": "blog_forum_video_sources",
+      "collected": true,
+      "persistent_history": "persistent_source_store",
+      "structured_analysis": true,
+      "reusable_memory": true,
+      "outcome_feedback": true,
+      "decision_context": true,
+      "learning_status": "learning_active",
+      "gaps": [
+        "Historical video archive is intentionally non-gating; this is a governance boundary, not a missing-learning error."
+      ],
+      "evidence": {
+        "source_records": 1315,
+        "source_reading_records": 1315,
+        "persistent_source_records": 1370,
+        "testable_rules": 46,
+        "eligible_triggered_events": 49
+      }
+    },
+    {
+      "domain": "official_sec_filings",
+      "collected": true,
+      "persistent_history": "current_snapshot_only",
+      "structured_analysis": true,
+      "reusable_memory": true,
+      "outcome_feedback": true,
+      "decision_context": true,
+      "learning_status": "partial_learning",
+      "gaps": [
+        "Official Evidence keeps a recent filing snapshot per symbol rather than a canonical append-only filing archive.",
+        "No structured SEC XBRL financial-statement time series is present."
+      ],
+      "evidence": {
+        "symbols": 14,
+        "filings": 42,
+        "linked_direct_events": 27,
+        "mature_20": 21
+      }
+    },
+    {
+      "domain": "financial_fundamentals_xbrl",
+      "collected": false,
+      "persistent_history": "missing",
+      "structured_analysis": false,
+      "reusable_memory": false,
+      "outcome_feedback": false,
+      "decision_context": false,
+      "learning_status": "not_implemented",
+      "gaps": [
+        "No SEC XBRL/companyfacts ingestion found.",
+        "Revenue, margins, FCF, cash, debt, dilution and per-share fundamentals are not maintained as longitudinal learning series."
+      ],
+      "evidence": {}
+    },
+    {
+      "domain": "news_event_evidence",
+      "collected": true,
+      "persistent_history": "current_snapshot_only",
+      "structured_analysis": true,
+      "reusable_memory": true,
+      "outcome_feedback": true,
+      "decision_context": true,
+      "learning_status": "partial_learning",
+      "gaps": [
+        "Event Evidence keeps a small current news set per symbol; no append-only news/event archive is the canonical learning source.",
+        "Current news limits are appropriate for UI/current context but not for permanent learning retention."
+      ],
+      "evidence": {
+        "symbols": 16,
+        "news_items": 80,
+        "event_window_rows": 20
+      }
+    },
+    {
+      "domain": "macro_fred_alfred",
+      "collected": true,
+      "persistent_history": "current_plus_cached_series",
+      "structured_analysis": true,
+      "reusable_memory": true,
+      "outcome_feedback": false,
+      "decision_context": true,
+      "learning_status": "partial_learning",
+      "gaps": [
+        "Macro context is used in regime/context reasoning, but there is no explicit macro-state -> outcome memory comparable to Trend Pulse.",
+        "ALFRED point-in-time handling reduces revision leakage but does not by itself constitute learned macro efficacy."
+      ],
+      "evidence": {
+        "version": "5.4.0",
+        "series": 15
+      }
+    },
+    {
+      "domain": "breadth_cross_asset_regime",
+      "collected": true,
+      "persistent_history": "append_history",
+      "structured_analysis": true,
+      "reusable_memory": true,
+      "outcome_feedback": false,
+      "decision_context": true,
+      "learning_status": "partial_learning",
+      "gaps": [
+        "History is now retained without hard row eviction, but the series are still young and lack mature outcome scoring."
+      ],
+      "evidence": {
+        "cross_asset_history": 4,
+        "breadth_history": 2,
+        "regime_history": 3
+      }
+    },
+    {
+      "domain": "support_resistance_volatility",
+      "collected": true,
+      "persistent_history": "current_research_artifact",
+      "structured_analysis": true,
+      "reusable_memory": false,
+      "outcome_feedback": false,
+      "decision_context": true,
+      "learning_status": "context_only",
+      "gaps": [
+        "Support/Resistance and GARCH are calculated and reused by Options Opportunity, but their predictions/signals are not yet stored as dated observations with later outcome evaluation."
+      ],
+      "evidence": {
+        "universe": [
+          "QQQ",
+          "SOFI",
+          "LITE",
+          "IREN",
+          "NVDA",
+          "TSLA"
+        ]
+      }
+    },
+    {
+      "domain": "options_opportunity",
+      "collected": true,
+      "persistent_history": "current_research_artifact_plus_private_positions",
+      "structured_analysis": true,
+      "reusable_memory": true,
+      "outcome_feedback": false,
+      "decision_context": true,
+      "learning_status": "partial_learning",
+      "gaps": [
+        "Opportunity screening is research-only. Strategy candidate outcomes need persistent opportunity snapshots, rejected/no-trade cases, and later premium/assignment/MAE/MFE outcomes."
+      ],
+      "evidence": {
+        "universe": [
+          "QQQ",
+          "SOFI",
+          "LITE",
+          "IREN",
+          "NVDA",
+          "TSLA"
+        ],
+        "observations": 3,
+        "mature_outcomes": 0
+      }
+    },
+    {
+      "domain": "decision_journal_user_actions",
+      "collected": true,
+      "persistent_history": "private_or_browser_managed",
+      "structured_analysis": true,
+      "reusable_memory": true,
+      "outcome_feedback": false,
+      "decision_context": true,
+      "learning_status": "partial_learning",
+      "gaps": [
+        "Public repository cannot verify completeness of private/user decision records or whether every decision is later reconciled to outcomes."
+      ],
+      "evidence": {}
+    }
+  ],
+  "priority_gaps": [
+    {
+      "domain": "official_sec_filings",
+      "status": "partial_learning",
+      "gaps": [
+        "Official Evidence keeps a recent filing snapshot per symbol rather than a canonical append-only filing archive.",
+        "No structured SEC XBRL financial-statement time series is present."
+      ]
+    },
+    {
+      "domain": "financial_fundamentals_xbrl",
+      "status": "not_implemented",
+      "gaps": [
+        "No SEC XBRL/companyfacts ingestion found.",
+        "Revenue, margins, FCF, cash, debt, dilution and per-share fundamentals are not maintained as longitudinal learning series."
+      ]
+    },
+    {
+      "domain": "news_event_evidence",
+      "status": "partial_learning",
+      "gaps": [
+        "Event Evidence keeps a small current news set per symbol; no append-only news/event archive is the canonical learning source.",
+        "Current news limits are appropriate for UI/current context but not for permanent learning retention."
+      ]
+    },
+    {
+      "domain": "macro_fred_alfred",
+      "status": "partial_learning",
+      "gaps": [
+        "Macro context is used in regime/context reasoning, but there is no explicit macro-state -> outcome memory comparable to Trend Pulse.",
+        "ALFRED point-in-time handling reduces revision leakage but does not by itself constitute learned macro efficacy."
+      ]
+    },
+    {
+      "domain": "breadth_cross_asset_regime",
+      "status": "partial_learning",
+      "gaps": [
+        "History is now retained without hard row eviction, but the series are still young and lack mature outcome scoring."
+      ]
+    },
+    {
+      "domain": "support_resistance_volatility",
+      "status": "context_only",
+      "gaps": [
+        "Support/Resistance and GARCH are calculated and reused by Options Opportunity, but their predictions/signals are not yet stored as dated observations with later outcome evaluation."
+      ]
+    },
+    {
+      "domain": "options_opportunity",
+      "status": "partial_learning",
+      "gaps": [
+        "Opportunity screening is research-only. Strategy candidate outcomes need persistent opportunity snapshots, rejected/no-trade cases, and later premium/assignment/MAE/MFE outcomes."
+      ]
+    },
+    {
+      "domain": "decision_journal_user_actions",
+      "status": "partial_learning",
+      "gaps": [
+        "Public repository cannot verify completeness of private/user decision records or whether every decision is later reconciled to outcomes."
+      ]
+    }
+  ],
+  "required_contract": {
+    "canonical_storage": "append-only or sharded; no destructive record-count eviction",
+    "learning_input": "complete canonical history or cursor-backed exhaustive processing",
+    "batch_processing": "bounded is allowed only with persistent backlog/cursor",
+    "presentation": "bounded views are allowed and must never be reused as the canonical learning source",
+    "reconciliation": "captured = deduplicated + excluded; deduplicated = processed + explicit backlog/error"
+  }
+}

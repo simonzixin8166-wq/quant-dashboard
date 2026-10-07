@@ -32,6 +32,8 @@ assert rows[0]["record_type"]=="state_entry"
 assert rows[0]["evidence_class"]=="genuine_forward_state_entry"
 assert rows[0]["scoreable_for_forward"] is False
 assert rows[0]["production_eligible"] is False
+assert len(rows[0]["candidate_snapshot_hash"])==64
+assert rows[0]["candidate_snapshot"]["candidate_id"]=="c1"
 assert status["counts"]["evaluation_baselines"]==0
 assert verify_chain(rows)
 

@@ -78,10 +78,23 @@ def evidence_role(store_row):
     return "historical_or_nonforward"
 
 def compile_condition(item):
-    cid=str((item or {}).get("condition_id") or "")
-    role=str((item or {}).get("semantic_role") or "unspecified")
+    item=item or {}
+    cid=str(item.get("condition_id") or "")
+    role=str(item.get("semantic_role") or "unspecified")
     if cid in MACHINE_CONDITIONS:
         return {"condition_id":cid,"semantic_role":role,"machine_ready":True,"expression":MACHINE_CONDITIONS[cid],"unresolved_reason":None}
+    explicit=item.get("explicit_definition") if isinstance(item.get("explicit_definition"),dict) else None
+    if explicit and explicit.get("definition_source")=="explicit_source_text":
+        formula=str(explicit.get("formula_id") or "")
+        allowed={
+            "macd_hist_positive":{"ema_macd"},
+            "ppo_above_signal":{"ema_ppo"},
+            "ppo_hist_positive":{"ema_ppo"},
+            "supertrend_bullish":{"supertrend_atr_band"},
+        }
+        if formula in allowed.get(cid,set()):
+            expression={"indicator":cid,"operator":"source_defined","formula_id":formula,**explicit}
+            return {"condition_id":cid,"semantic_role":role,"machine_ready":True,"expression":expression,"unresolved_reason":None}
     reason=UNRESOLVED_KNOWN.get(cid,"Condition definition is not machine-reproducible")
     return {"condition_id":cid,"semantic_role":role,"machine_ready":False,"expression":None,"unresolved_reason":reason}
 

@@ -1,0 +1,37 @@
+name: Claude Audit Package
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/claude-audit-package.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Create complete main ZIP
+        run: |
+          SHA="$(git rev-parse HEAD)"
+          git archive --format=zip --prefix="MyAlpha-View-main-${SHA}/" -o MyAlpha_View_main_Claude_Audit.zip HEAD
+          printf '%s\n' "$SHA" > CLAUDE_AUDIT_COMMIT.txt
+          unzip -t MyAlpha_View_main_Claude_Audit.zip >/dev/null
+
+      - name: Upload Claude audit package
+        uses: actions/upload-artifact@v4
+        with:
+          name: MyAlpha-View-main-Claude-Audit
+          path: |
+            MyAlpha_View_main_Claude_Audit.zip
+            CLAUDE_AUDIT_COMMIT.txt
+          if-no-files-found: error
+          retention-days: 14

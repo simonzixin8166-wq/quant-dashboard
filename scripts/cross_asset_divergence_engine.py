@@ -55,7 +55,7 @@ def mature_history(history,dash):
                 px=prices.get(dates[j])
                 if px is not None:
                     outcomes[str(h)]={"date":dates[j],"return":px/anchor-1}
-    return {"version":"6.7.0","records":rows[-240:]}
+    return {"version":"6.7.0","records":rows}
 
 def build(dash,macro):
     mkt=dash.get("market_regime") or {}
@@ -164,7 +164,7 @@ def main():
             records[records.index(existing)]=snap
         else:
             records.append(snap)
-        history["records"]=records[-240:]
+        history["records"]=records
     OUT.parent.mkdir(parents=True,exist_ok=True)
     OUT.write_text(json.dumps(out,ensure_ascii=False,indent=2),encoding="utf-8")
     HISTORY.write_text(json.dumps(history,ensure_ascii=False,indent=2),encoding="utf-8")

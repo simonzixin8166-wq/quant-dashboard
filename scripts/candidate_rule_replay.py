@@ -139,12 +139,13 @@ def sma(series,window):
 def condition_series(df,cond):
     cid=str(cond.get("condition_id") or "")
     close=df["close"].astype(float)
-    ma50=sma(close,50)
-    if cid=="price_above_ma50":return close>ma50
-    if cid=="price_below_ma50":return close<ma50
-    if cid=="ma50_hold_two_sessions":
-        above=close>ma50
-        return above & above.shift(1).fillna(False)
+    for window in (20,50,200):
+        ma=sma(close,window)
+        if cid==f"price_above_ma{window}":return close>ma
+        if cid==f"price_below_ma{window}":return close<ma
+        if cid==f"ma{window}_hold_two_sessions":
+            above=close>ma
+            return above & above.shift(1).fillna(False)
     return None
 
 def direction(candidate):

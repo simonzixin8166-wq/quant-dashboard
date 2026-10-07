@@ -236,6 +236,18 @@ def build(reading,store,prior=None,now=None):
             "production_eligible":0,
         },
         "by_family":dict(fam),
+        "capabilities":{
+            "machine_conditions":sorted(MACHINE_CONDITIONS.keys()),
+            "generic_moving_average_windows":[20,50,200],
+            "generic_moving_average_support_complete":all(
+                key in MACHINE_CONDITIONS for key in (
+                    "price_above_ma20","price_below_ma20","ma20_hold_two_sessions",
+                    "price_above_ma50","price_below_ma50","ma50_hold_two_sessions",
+                    "price_above_ma200","price_below_ma200","ma200_hold_two_sessions",
+                )
+            ),
+            "parameterized_indicators_fail_closed":sorted(UNRESOLVED_KNOWN.keys()),
+        },
         "source_observations":observations,
         "candidates":rows,
         "guardrails":[
@@ -269,6 +281,7 @@ def public_status(reg):
         "generated_at":reg.get("generated_at"),
         "counts":reg.get("counts"),
         "by_family":reg.get("by_family"),
+        "capabilities":reg.get("capabilities") or {},
         "sample":samples[:40],
         "production_effect":"none",
         "guardrails":reg.get("guardrails"),

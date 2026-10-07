@@ -32,10 +32,11 @@ MACHINE_CONDITIONS={
     "price_above_ma50":{"indicator":"price_vs_ma50","operator":"above","threshold":"MA50"},
     "price_below_ma50":{"indicator":"price_vs_ma50","operator":"below","threshold":"MA50"},
     "ma50_hold_two_sessions":{"indicator":"price_vs_ma50","operator":"hold_above","sessions":2},
-    "supertrend_bullish":{"indicator":"supertrend","operator":"bullish"},
-    "macd_hist_positive":{"indicator":"macd_histogram","operator":"positive"},
+
 }
 UNRESOLVED_KNOWN={
+    "supertrend_bullish":"Supertrend ATR period/multiplier not verified",
+    "macd_hist_positive":"MACD fast/slow/signal periods not verified",
     "ppo_above_signal":"PPO periods/definition not verified",
     "ppo_hist_positive":"PPO periods/definition not verified",
     "tcds_cross_zero":"TCDS formula/parameters not defined in source",

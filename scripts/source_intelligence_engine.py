@@ -180,7 +180,7 @@ def sanitize_declared_symbols(values, text: str):
 
 
 def _symbol_present(sym: str, text: str) -> bool:
-    return bool(re.search(rf"(?<![A-Za-z0-9])\\$?{re.escape(str(sym))}(?![A-Za-z0-9])", str(text or ""), re.I))
+    return bool(re.search(rf"(?<![A-Za-z0-9])\$?{re.escape(str(sym))}(?![A-Za-z0-9])", str(text or ""), re.I))
 
 def _near_hint(sym: str, text: str, hints, radius=36) -> bool:
     raw=str(text or "")

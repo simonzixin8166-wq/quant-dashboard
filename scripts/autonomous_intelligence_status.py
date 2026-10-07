@@ -30,6 +30,7 @@ def build():
     forward=load("docs/research/candidate_forward_status.json",{})
     candidate_score=load("docs/research/candidate_eventscore_status.json",{})
     candidate_family=load("docs/research/candidate_family_scorecard_status.json",{})
+    candidate_promotion=load("docs/research/candidate_evidence_promotion_status.json",{})
     evidence=load("docs/research/evidence_status.json",{})
     system=load("docs/research/system_status.json",{})
     signal=load("docs/research/signal_governance.json",{})
@@ -55,6 +56,7 @@ def build():
     scounts=candidate_score.get("counts") or {}
     bridge=(candidate_score.get("promotion_gate_bridge") or {})
     cfcounts=candidate_family.get("counts") or {}
+    cpcounts=candidate_promotion.get("counts") or {}
     promo=evidence.get("promotion") or {}
     outlet=(
         "唯一行动出口" in html
@@ -148,13 +150,16 @@ def build():
             "candidate_direction_conflict":ccounts.get("direction_conflict",0),
             "candidate_shadow_families":cfcounts.get("families",0),
             "candidate_shadow_statistically_reviewable":cfcounts.get("statistically_reviewable",0),
-            "promotion_families_passed":promo.get("families_passed",0),
+            "candidate_evidence_promotion_state":candidate_promotion.get("state","not_initialized"),
+            "candidate_evidence_families_passed":cpcounts.get("passed",0),
+            "candidate_decision_fusion_eligible_families":cpcounts.get("decision_fusion_eligible",0),
+            "legacy_rule_promotion_families_passed":promo.get("families_passed",0),
         },
         "remaining":[
             "first_genuine_forward_candidate_state_entry",
             "natural_20d_60d_maturity",
-            "candidate_evidence_promotion_requires_forward_statistics_and_separate_non_action_governance"
-        ] if direction_governance_ready else [
+            "first_candidate_family_to_pass_evidence_promotion_gate"
+        ] if direction_governance_ready and candidate_promotion.get("state")=="evidence_gate_ready" else [
             "first_genuine_forward_candidate_state_entry",
             "natural_20d_60d_maturity",
             "explicit_candidate_signal_direction_governance"
@@ -179,7 +184,7 @@ def build():
     if not milestones["E_single_action_outlet"]["pass"]:blockers.append("single_action_outlet")
     active="B_autonomous_learning_core"
     if milestones["B_autonomous_learning_core"]["pass"]:active="C_validation_evidence"
-    if milestones["C_validation_evidence"]["pass"] and int(fcounts.get("outcomes_20") or 0)>0 and int(promo.get("families_passed") or 0)>0:active="D_decision_fusion_watchlist"
+    if milestones["C_validation_evidence"]["pass"] and int(fcounts.get("outcomes_20") or 0)>0 and int(cpcounts.get("passed") or 0)>0:active="D_decision_fusion_watchlist"
     auto_wake={
       "parameter_definition_queue_rebuilt_each_source_cycle":"Build Candidate Parameter Definition Queue" in source_workflow,
       "forward_observer_runs_each_source_cycle":"Observe Genuine Forward Candidate State Entries" in source_workflow,
@@ -187,10 +192,10 @@ def build():
       "manual_open_required":False,
       "d_unlock_rule":{
         "requires_forward_20d_outcomes":True,
-        "requires_promotion_family_pass":True,
+        "requires_candidate_evidence_family_pass":True,
         "current_forward_20d_outcomes":int(fcounts.get("outcomes_20") or 0),
-        "current_promotion_families_passed":int(promo.get("families_passed") or 0),
-        "unlocked":bool(int(fcounts.get("outcomes_20") or 0)>0 and int(promo.get("families_passed") or 0)>0),
+        "current_candidate_evidence_families_passed":int(cpcounts.get("passed") or 0),
+        "unlocked":bool(int(fcounts.get("outcomes_20") or 0)>0 and int(cpcounts.get("passed") or 0)>0),
       },
     }
     return {

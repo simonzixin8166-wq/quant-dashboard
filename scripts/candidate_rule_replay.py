@@ -60,7 +60,7 @@ def normalize_history(df):
     for c in need+["volume"]:x[c]=pd.to_numeric(x[c],errors="coerce")
     x=x.dropna(subset=need)
     x=x[(x[need]>0).all(axis=1)]
-    return x.sort_index().drop_duplicates(keep="last")
+    x=x.sort_index()\n    return x[~x.index.duplicated(keep="last")]
 
 def fetch_stooq_history(symbol):
     """Research-only fallback. Failure is explicit and fail-closed."""

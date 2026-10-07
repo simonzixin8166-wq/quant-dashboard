@@ -74,7 +74,16 @@ def load(path: Path, default):
 
 def fetch_feed():
     try:
-        req = urllib.request.Request(FEED_URL, headers={"User-Agent":"MyAlphaView/SourceIntelligence"})
+        # Cross-repository raw.githubusercontent responses can briefly lag a just-pushed
+        # source feed. Add a cache-busting query and explicit no-cache headers so the
+        # same-cycle Source Intelligence run sees the latest wxc-bot main content.
+        sep = "&" if "?" in FEED_URL else "?"
+        live_url = FEED_URL + sep + "myalpha_cache_bust=" + datetime.now(timezone.utc).strftime("%Y%m%d%H%M%S")
+        req = urllib.request.Request(live_url, headers={
+            "User-Agent":"MyAlphaView/SourceIntelligence",
+            "Cache-Control":"no-cache",
+            "Pragma":"no-cache",
+        })
         with urllib.request.urlopen(req, timeout=15) as r:
             data = json.loads(r.read().decode("utf-8"))
         return data if isinstance(data, dict) else {"records":[]}

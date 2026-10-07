@@ -1,6 +1,6 @@
 {
   "version": "6.13.2",
-  "generated_at": "2026-10-06T11:39:42.966028+00:00",
+  "generated_at": "2026-10-07T00:48:42.951029+00:00",
   "title": "Learning Evaluation · 自我评估中心",
   "learning_health": {
     "score": 76.5,
@@ -65,22 +65,22 @@
     },
     "decision": {
       "evidence_state": "private_ledger_ready",
-      "validation_state": "private_ledger_ready_no_samples",
+      "validation_state": "persisted_samples_present",
       "feedback_state": "human_attribution_required",
       "external_review_samples": 5,
       "forward_attribution_reviews": 0,
-      "persisted_operator_decisions": 0,
+      "persisted_operator_decisions": 1,
       "with_user_action": 0,
       "attributed_operator_decisions": 0,
-      "gap": "私有 Decision Ledger 已上线；等待真实 Operator Decision、用户动作与人工归因逐步成熟。",
+      "gap": "已开始后台持久化真实 Operator Decision；仍需人工归因，不能因结果好坏自动改核心规则。",
       "safe_effect": "错误归因/研究流程复盘；不因结果好坏自动改核心规则"
     },
     "principle": "五个引擎统一披露 Evidence→Validation→Feedback；没有成熟结果时明确写 missing/unproven，不用活动量冒充学习质量。"
   },
   "research_scorecard": {
     "analyzed": 8,
-    "high_confidence": 4,
-    "medium_confidence": 4,
+    "high_confidence": 3,
+    "medium_confidence": 5,
     "low_confidence": 0,
     "with_counter_evidence": 7,
     "with_unknowns": 8,
@@ -181,7 +181,7 @@
     },
     {
       "category": "官方/一手证据",
-      "count": 7,
+      "count": 8,
       "examples": [
         "已读取 5 条相关一般媒体线索，但暂无 Reuters/AP/新闻稿等高优先级事件源确认",
         "公司IR官网全文仍待专用连接；当前已使用SEC官方披露与分级媒体事件线索"
@@ -223,7 +223,7 @@
     "principle": "错误记忆只用于定位研究流程问题；不因单一样本自动修改交易规则。"
   },
   "lessons": [
-    "本轮自动完成 8 项研究，其中高置信度 4 项；所有结论继续区分支持证据、反证和未知项。",
+    "本轮自动完成 8 项研究，其中高置信度 3 项；所有结论继续区分支持证据、反证和未知项。",
     "历史库已有 4289 个60日成熟状态样本，可用于相似情境先验；实时前瞻样本仍单独验证。",
     "Method Memory 已吸收 1282 条来源记录，但直接方法验证仍需继续积累。",
     "当前最大证据缺口是“前瞻成熟样本”（9 项），下一轮研究应优先补齐而不是猜测。",
@@ -239,7 +239,7 @@
     {
       "priority": 2,
       "focus": "官方/一手证据",
-      "reason": "本轮出现 7 个未完成验证项。",
+      "reason": "本轮出现 8 个未完成验证项。",
       "action": "优先补证据并记录结果；不得用推测填补缺失事实。"
     },
     {

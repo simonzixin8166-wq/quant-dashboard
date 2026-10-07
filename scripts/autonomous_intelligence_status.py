@@ -27,6 +27,7 @@ def build():
     replay=load("docs/research/candidate_rule_replay.json",{})
     forward=load("docs/research/candidate_forward_status.json",{})
     candidate_score=load("docs/research/candidate_eventscore_status.json",{})
+    candidate_family=load("docs/research/candidate_family_scorecard_status.json",{})
     evidence=load("docs/research/evidence_status.json",{})
     system=load("docs/research/system_status.json",{})
     signal=load("docs/research/signal_governance.json",{})
@@ -42,6 +43,7 @@ def build():
     fcounts=forward.get("counts") or {}
     scounts=candidate_score.get("counts") or {}
     bridge=(candidate_score.get("promotion_gate_bridge") or {})
+    cfcounts=candidate_family.get("counts") or {}
     promo=evidence.get("promotion") or {}
     outlet=(
         "唯一行动出口" in html
@@ -78,6 +80,8 @@ def build():
             "candidate_eventscore_events":scounts.get("events",0),
             "candidate_eventscore_scoreable":scounts.get("scoreable",0),
             "candidate_promotion_bridge_state":bridge.get("state","not_initialized"),
+            "candidate_shadow_families":cfcounts.get("families",0),
+            "candidate_shadow_statistically_reviewable":cfcounts.get("statistically_reviewable",0),
             "promotion_families_passed":promo.get("families_passed",0),
         },
         "remaining":[

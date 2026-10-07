@@ -303,6 +303,107 @@
         }
       ],
       "outcomes": {}
+    },
+    {
+      "as_of": "2026-10-06",
+      "anchor_spy": 779.090027,
+      "level": "high",
+      "label": "高位跨资产背离",
+      "risk_hits": 4,
+      "high_hits": 3,
+      "signals": [
+        {
+          "key": "equity_near_high",
+          "label": "指数接近高位",
+          "hit": true,
+          "severity": "context",
+          "value": -0.0032621299564902025,
+          "reason": "距52周高点 -0.3%"
+        },
+        {
+          "key": "rates_pressure",
+          "label": "10年期美债收益率压力",
+          "hit": true,
+          "severity": "high",
+          "value": {
+            "latest": 5.31,
+            "date": "2026-10-05",
+            "chg3": 0.019999999999999574,
+            "chg20": 0.5299999999999994,
+            "chg60": 0.75
+          },
+          "reason": "10Y=5.31，20日变化=+0.53"
+        },
+        {
+          "key": "real_yield_pressure",
+          "label": "实际利率压力",
+          "hit": true,
+          "severity": "high",
+          "value": {
+            "latest": 2.95,
+            "date": "2026-10-05",
+            "chg3": 0.020000000000000018,
+            "chg20": 0.52,
+            "chg60": 0.6300000000000003
+          },
+          "reason": "10Y real=2.95，20日变化=+0.52"
+        },
+        {
+          "key": "credit_widening",
+          "label": "高收益信用利差走阔",
+          "hit": true,
+          "severity": "medium",
+          "value": {
+            "latest": 3.12,
+            "date": "2026-10-05",
+            "chg3": 0.0,
+            "chg20": 0.43999999999999995,
+            "chg60": 0.43000000000000016
+          },
+          "reason": "HY OAS=3.12，20日变化=+0.44"
+        },
+        {
+          "key": "vix_disconnect",
+          "label": "VIX未同步确认风险",
+          "hit": true,
+          "severity": "context",
+          "value": {
+            "latest": 15.52,
+            "date": "2026-10-05",
+            "chg3": -0.8200000000000003,
+            "chg20": 0.21999999999999886,
+            "chg60": -1.6400000000000006
+          },
+          "reason": "VIX=15.52：股票波动仍低，不足以否定债券/信用压力"
+        },
+        {
+          "key": "breadth_divergence",
+          "label": "市场宽度弱于指数",
+          "hit": true,
+          "severity": "high",
+          "value": {
+            "w20": 0.352,
+            "w50": 0.278,
+            "w200": 0.47
+          },
+          "reason": "20/50/200日宽度=35%/28%/47%"
+        },
+        {
+          "key": "financial_conditions_cushion",
+          "label": "金融条件仍有缓冲",
+          "hit": true,
+          "severity": "offset",
+          "value": {
+            "latest": -0.548,
+            "date": "2026-09-25",
+            "chg3": 0.01200000000000001,
+            "chg20": -0.038000000000000034,
+            "chg60": -0.027000000000000024
+          },
+          "reason": "NFCI=-0.548，尚未进入系统性紧缩"
+        }
+      ],
+      "outcomes": {}
     }
   ]
 }

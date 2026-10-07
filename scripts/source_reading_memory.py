@@ -395,6 +395,18 @@ def record_memory(row):
         "reading_state":"testable" if testable else ("candidate_rule" if candidates else ("structured_context" if props else "insufficient_content")),
     }
 
+def _learning_window(memories, limit=800):
+    """Keep the public artifact bounded without dropping older actionable research.
+
+    Candidate/testable rule records are retained before plain context rows, so
+    a busy source feed cannot erase useful learning solely because it is older
+    than the latest presentation window.
+    """
+    important=[m for m in memories if m.get("testable_rule_count") or m.get("candidate_rule_count")]
+    rest=[m for m in memories if not (m.get("testable_rule_count") or m.get("candidate_rule_count"))]
+    return (important+rest)[:limit]
+
+
 def build(source):
     memories=[record_memory(r) for r in (source.get("records") or [])]
     kind_counts=Counter()
@@ -433,7 +445,7 @@ def build(source):
         "testable_by_topic":dict(testable_by_topic),
         "testable_by_method":dict(testable_by_method),
         "topic_record_counts":dict(topic_counts),
-        "records":memories[:800],
+        "records":_learning_window(memories,800),
         "guardrails":[
             "No paid LLM API is used by this module.",
             "Only source text and existing structured fields are transformed.",
@@ -451,6 +463,20 @@ def build(source):
 
 def main():
     source=load(SRC,{"records":[]})
+    # Source Intelligence keeps `records` bounded for presentation. Source
+    # Reading must consume the complete normalized upstream stream so older
+    # research does not disappear merely because newer posts pushed it beyond
+    # the public window. Fall back to the persisted artifact if the live source
+    # is temporarily unavailable.
+    try:
+        import source_intelligence_engine as sie
+        full_records=sie.collect_full_records()
+        if len(full_records)>len(source.get("records") or []):
+            source=dict(source)
+            source["records"]=full_records
+            source["full_stream_learning"]=True
+    except Exception:
+        pass
     out=build(source)
     OUT.parent.mkdir(parents=True,exist_ok=True)
     OUT.write_text(json.dumps(out,ensure_ascii=False,indent=2),encoding="utf-8")

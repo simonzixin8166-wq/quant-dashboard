@@ -230,3 +230,32 @@ assert roles["price_below_ma50"]=="invalidation"
 assert roles["ma50_hold_two_sessions"]=="confirmation"
 assert roles["price_above_ma50"]=="prior_observation"
 print("PASS false-break temporal roles preserved")
+
+
+# Multi-symbol prose uses only Source Intelligence primary_subject scope.
+multi=srm.record_memory({
+ "id":"multi1","source":"wenxuecity","source_kind":"forum","author":"A",
+ "published_at":"2026-10-07","title":"AMZN 与 QQQ 对比","url":"multi1",
+ "symbols":["AMZN","QQQ"],"primary_symbols":["AMZN"],
+ "symbol_attribution":[
+   {"symbol":"AMZN","role":"primary_subject","confidence":"high"},
+   {"symbol":"QQQ","role":"comparison_peer","confidence":"medium"}
+ ],
+ "topics":["趋势确认"],
+ "excerpt":"AMZN 价格站上 MA50，相比 QQQ 仍偏弱。",
+ "operations":[],"portfolio_rules":[],"lessons":[]
+})
+mc=next(x for x in multi["propositions"] if x["kind"]=="candidate_rule")
+mr=mc["evidence"]["candidate_rule"]
+assert mr["symbols"]==["AMZN"]
+assert multi["primary_symbols"]==["AMZN"]
+
+# Ambiguous multi-symbol prose without a primary stays context-only.
+amb=srm.record_memory({
+ "id":"multi2","source":"wenxuecity","source_kind":"forum","author":"A",
+ "published_at":"2026-10-07","title":"AMZN QQQ 趋势","url":"multi2",
+ "symbols":["AMZN","QQQ"],"primary_symbols":[],
+ "topics":["趋势确认"],"excerpt":"价格站上 MA50。","operations":[],"portfolio_rules":[],"lessons":[]
+})
+assert amb["candidate_rule_count"]==0
+print("PASS primary-subject-scoped prose candidates")

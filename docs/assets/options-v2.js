@@ -417,7 +417,10 @@
   function spreadRatio(row){const bid=Number(row.bid),ask=Number(row.ask),mid=Number(row.mid);if(!(bid>0&&ask>0&&mid>0))return 99;return Math.max(0,ask-bid)/mid}
   function rowMetrics(row){const parts=[];if(Number.isFinite(Number(row.delta)))parts.push(`Δ ${Number(row.delta).toFixed(2)}`);if(Number.isFinite(Number(row.iv)))parts.push(`IV ${(Number(row.iv)*100).toFixed(1)}%`);if(Number.isFinite(Number(row.bid))&&Number.isFinite(Number(row.ask)))parts.push(`Bid/Ask ${Number(row.bid).toFixed(2)}/${Number(row.ask).toFixed(2)}`);return parts.join(' · ')}
   function relativeIvContext(row,context){
-    const iv=Number(row?.iv)*100,rv20=Number(context?.rv20_ann_pct),garch=Number(context?.garch20?.ann_vol_pct_avg);
+    const rawIv=row?.iv,rawRv20=context?.rv20_ann_pct,rawGarch=context?.garch20?.ann_vol_pct_avg;
+    const iv=rawIv===null||rawIv===undefined||rawIv===''?NaN:Number(rawIv)*100;
+    const rv20=rawRv20===null||rawRv20===undefined||rawRv20===''?NaN:Number(rawRv20);
+    const garch=rawGarch===null||rawGarch===undefined||rawGarch===''?NaN:Number(rawGarch);
     const refs=[rv20,garch].filter(Number.isFinite),ref=refs.length?Math.max(...refs):NaN;
     return{ivPct:Number.isFinite(iv)?iv:null,referencePct:Number.isFinite(ref)?ref:null,ratio:Number.isFinite(iv)&&Number.isFinite(ref)&&ref>0?iv/ref:null};
   }

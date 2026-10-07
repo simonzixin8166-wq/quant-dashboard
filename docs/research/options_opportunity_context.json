@@ -1,6 +1,6 @@
 {
   "version": "options-opportunity-context-1.1",
-  "generated_at": "2026-10-07T10:59:26.750106+00:00",
+  "generated_at": "2026-10-07T11:01:01.363740+00:00",
   "universe": [
     "QQQ",
     "SOFI",
@@ -23,6 +23,7 @@
       "status": "scan_context_ready",
       "state": "chain_scan_candidate",
       "scan_priority": "high",
+      "strategy_preference": null,
       "scan_lanes": [
         "SELL_PUT_CHAIN_SCAN"
       ],
@@ -44,9 +45,9 @@
         "ann_vol_pct_avg": 97.18,
         "ann_vol_pct_day1": 93.59,
         "ann_vol_pct_day20": 100.16,
-        "omega": 1.27271311,
-        "alpha1": 0.0264951,
-        "beta1": 0.94655896
+        "omega": 1.27270424,
+        "alpha1": 0.02649515,
+        "beta1": 0.9465591
       },
       "context": {
         "price": 41.28,
@@ -88,6 +89,7 @@
       "status": "scan_context_ready",
       "state": "chain_scan_candidate",
       "scan_priority": "high",
+      "strategy_preference": null,
       "scan_lanes": [
         "SELL_PUT_CHAIN_SCAN",
         "LEAPS_CALL_IV_CHECK"
@@ -111,9 +113,9 @@
         "ann_vol_pct_avg": 50.77,
         "ann_vol_pct_day1": 49.99,
         "ann_vol_pct_day20": 51.5,
-        "omega": 0.13708973,
+        "omega": 0.13708961,
         "alpha1": 0.02109905,
-        "beta1": 0.96861059
+        "beta1": 0.9686106
       },
       "context": {
         "price": 380.67999,
@@ -156,6 +158,7 @@
       "status": "scan_context_ready",
       "state": "chain_scan_candidate",
       "scan_priority": "medium",
+      "strategy_preference": null,
       "scan_lanes": [
         "LEAPS_CALL_CHAIN_SCAN"
       ],
@@ -177,9 +180,9 @@
         "ann_vol_pct_avg": 17.31,
         "ann_vol_pct_day1": 15.48,
         "ann_vol_pct_day20": 18.53,
-        "omega": 0.08956426,
-        "alpha1": 0.09775137,
-        "beta1": 0.84491011
+        "omega": 0.08956425,
+        "alpha1": 0.09775136,
+        "beta1": 0.84491012
       },
       "context": {
         "price": 759.65997,
@@ -221,6 +224,7 @@
       "status": "scan_context_ready",
       "state": "chain_scan_candidate",
       "scan_priority": "medium",
+      "strategy_preference": null,
       "scan_lanes": [
         "SELL_PUT_CHAIN_SCAN"
       ],
@@ -242,9 +246,9 @@
         "ann_vol_pct_avg": 53.87,
         "ann_vol_pct_day1": 51.25,
         "ann_vol_pct_day20": 55.82,
-        "omega": 0.60764936,
-        "alpha1": 0.02848161,
-        "beta1": 0.92748255
+        "omega": 0.6076504,
+        "alpha1": 0.02848162,
+        "beta1": 0.92748246
       },
       "context": {
         "price": 15.76,
@@ -287,10 +291,17 @@
       "status": "scan_context_ready",
       "state": "chain_scan_candidate",
       "scan_priority": "medium",
+      "strategy_preference": {
+        "primary": "SELL_PUT",
+        "source": "user_strategy_preference",
+        "note": "High-volatility name; prioritize premium-selling research before long-call expressions."
+      },
       "scan_lanes": [
+        "SELL_PUT_CHAIN_SCAN",
         "LEAPS_CALL_IV_CHECK"
       ],
       "research_modes": [
+        "SELL_PUT_SCREEN",
         "LEAPS_SCREEN"
       ],
       "nearest_support": {
@@ -308,9 +319,9 @@
         "ann_vol_pct_avg": 72.84,
         "ann_vol_pct_day1": 66.61,
         "ann_vol_pct_day20": 77.21,
-        "omega": 1.38045432,
-        "alpha1": 0.12847995,
-        "beta1": 0.8208424
+        "omega": 1.38045558,
+        "alpha1": 0.12848,
+        "beta1": 0.82084229
       },
       "context": {
         "price": 1133.40002,
@@ -333,6 +344,7 @@
         "structurally_weak": false
       },
       "reasons": [
+        "preferred_sell_put_research",
         "constructive_trend_but_volatility_elevated"
       ],
       "required_before_strategy_candidate": [
@@ -352,10 +364,17 @@
       "status": "scan_context_ready",
       "state": "chain_scan_candidate",
       "scan_priority": "medium",
+      "strategy_preference": {
+        "primary": "SELL_PUT",
+        "source": "user_strategy_preference",
+        "note": "Prioritize cash-secured Sell Put research; live chain, support and event gates still apply."
+      },
       "scan_lanes": [
+        "SELL_PUT_CHAIN_SCAN",
         "LEAPS_CALL_CHAIN_SCAN"
       ],
       "research_modes": [
+        "SELL_PUT_SCREEN",
         "LEAPS_SCREEN"
       ],
       "nearest_support": {
@@ -373,9 +392,9 @@
         "ann_vol_pct_avg": 43.67,
         "ann_vol_pct_day1": 33.37,
         "ann_vol_pct_day20": 48.3,
-        "omega": 1.11069537,
-        "alpha1": 0.18527638,
-        "beta1": 0.70144328
+        "omega": 1.11069386,
+        "alpha1": 0.18527624,
+        "beta1": 0.70144358
       },
       "context": {
         "price": 239.24001,
@@ -398,6 +417,7 @@
         "structurally_weak": false
       },
       "reasons": [
+        "preferred_sell_put_research",
         "constructive_trend_plus_non_extreme_realized_vol"
       ],
       "required_before_strategy_candidate": [
@@ -419,6 +439,7 @@
       "status": "scan_context_ready",
       "state": "chain_scan_candidate",
       "scan_priority": "high",
+      "strategy_preference": null,
       "scan_lanes": [
         "SELL_PUT_CHAIN_SCAN"
       ],
@@ -440,9 +461,9 @@
         "ann_vol_pct_avg": 97.18,
         "ann_vol_pct_day1": 93.59,
         "ann_vol_pct_day20": 100.16,
-        "omega": 1.27271311,
-        "alpha1": 0.0264951,
-        "beta1": 0.94655896
+        "omega": 1.27270424,
+        "alpha1": 0.02649515,
+        "beta1": 0.9465591
       },
       "context": {
         "price": 41.28,
@@ -484,6 +505,7 @@
       "status": "scan_context_ready",
       "state": "chain_scan_candidate",
       "scan_priority": "high",
+      "strategy_preference": null,
       "scan_lanes": [
         "SELL_PUT_CHAIN_SCAN",
         "LEAPS_CALL_IV_CHECK"
@@ -507,9 +529,9 @@
         "ann_vol_pct_avg": 50.77,
         "ann_vol_pct_day1": 49.99,
         "ann_vol_pct_day20": 51.5,
-        "omega": 0.13708973,
+        "omega": 0.13708961,
         "alpha1": 0.02109905,
-        "beta1": 0.96861059
+        "beta1": 0.9686106
       },
       "context": {
         "price": 380.67999,
@@ -552,6 +574,7 @@
       "status": "scan_context_ready",
       "state": "chain_scan_candidate",
       "scan_priority": "medium",
+      "strategy_preference": null,
       "scan_lanes": [
         "LEAPS_CALL_CHAIN_SCAN"
       ],
@@ -573,9 +596,9 @@
         "ann_vol_pct_avg": 17.31,
         "ann_vol_pct_day1": 15.48,
         "ann_vol_pct_day20": 18.53,
-        "omega": 0.08956426,
-        "alpha1": 0.09775137,
-        "beta1": 0.84491011
+        "omega": 0.08956425,
+        "alpha1": 0.09775136,
+        "beta1": 0.84491012
       },
       "context": {
         "price": 759.65997,
@@ -617,6 +640,7 @@
       "status": "scan_context_ready",
       "state": "chain_scan_candidate",
       "scan_priority": "medium",
+      "strategy_preference": null,
       "scan_lanes": [
         "SELL_PUT_CHAIN_SCAN"
       ],
@@ -638,9 +662,9 @@
         "ann_vol_pct_avg": 53.87,
         "ann_vol_pct_day1": 51.25,
         "ann_vol_pct_day20": 55.82,
-        "omega": 0.60764936,
-        "alpha1": 0.02848161,
-        "beta1": 0.92748255
+        "omega": 0.6076504,
+        "alpha1": 0.02848162,
+        "beta1": 0.92748246
       },
       "context": {
         "price": 15.76,
@@ -683,10 +707,17 @@
       "status": "scan_context_ready",
       "state": "chain_scan_candidate",
       "scan_priority": "medium",
+      "strategy_preference": {
+        "primary": "SELL_PUT",
+        "source": "user_strategy_preference",
+        "note": "High-volatility name; prioritize premium-selling research before long-call expressions."
+      },
       "scan_lanes": [
+        "SELL_PUT_CHAIN_SCAN",
         "LEAPS_CALL_IV_CHECK"
       ],
       "research_modes": [
+        "SELL_PUT_SCREEN",
         "LEAPS_SCREEN"
       ],
       "nearest_support": {
@@ -704,9 +735,9 @@
         "ann_vol_pct_avg": 72.84,
         "ann_vol_pct_day1": 66.61,
         "ann_vol_pct_day20": 77.21,
-        "omega": 1.38045432,
-        "alpha1": 0.12847995,
-        "beta1": 0.8208424
+        "omega": 1.38045558,
+        "alpha1": 0.12848,
+        "beta1": 0.82084229
       },
       "context": {
         "price": 1133.40002,
@@ -729,6 +760,7 @@
         "structurally_weak": false
       },
       "reasons": [
+        "preferred_sell_put_research",
         "constructive_trend_but_volatility_elevated"
       ],
       "required_before_strategy_candidate": [
@@ -748,10 +780,17 @@
       "status": "scan_context_ready",
       "state": "chain_scan_candidate",
       "scan_priority": "medium",
+      "strategy_preference": {
+        "primary": "SELL_PUT",
+        "source": "user_strategy_preference",
+        "note": "Prioritize cash-secured Sell Put research; live chain, support and event gates still apply."
+      },
       "scan_lanes": [
+        "SELL_PUT_CHAIN_SCAN",
         "LEAPS_CALL_CHAIN_SCAN"
       ],
       "research_modes": [
+        "SELL_PUT_SCREEN",
         "LEAPS_SCREEN"
       ],
       "nearest_support": {
@@ -769,9 +808,9 @@
         "ann_vol_pct_avg": 43.67,
         "ann_vol_pct_day1": 33.37,
         "ann_vol_pct_day20": 48.3,
-        "omega": 1.11069537,
-        "alpha1": 0.18527638,
-        "beta1": 0.70144328
+        "omega": 1.11069386,
+        "alpha1": 0.18527624,
+        "beta1": 0.70144358
       },
       "context": {
         "price": 239.24001,
@@ -794,6 +833,7 @@
         "structurally_weak": false
       },
       "reasons": [
+        "preferred_sell_put_research",
         "constructive_trend_plus_non_extreme_realized_vol"
       ],
       "required_before_strategy_candidate": [

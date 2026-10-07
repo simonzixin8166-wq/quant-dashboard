@@ -141,12 +141,52 @@ try{
     report.server_action={status:'FAIL',error:'server action status unavailable'};
   }
 }catch(e){report.business_data={status:'FAIL',error:String(e.message).slice(0,200)}}
+report.learning_guardrails={status:'FAIL'};
+try{
+  const nonce=Date.now();
+  const [fr,er,cr]=await Promise.all([
+    fetch(base+'/research/candidate_forward_status.json?qa='+nonce,{cache:'no-store'}),
+    fetch(base+'/research/candidate_eventscore_status.json?qa='+nonce,{cache:'no-store'}),
+    fetch(base+'/research/candidate_family_scorecard_status.json?qa='+nonce,{cache:'no-store'})
+  ]);
+  if(fr.ok&&er.ok&&cr.ok){
+    const forward=await fr.json(),eventscore=await er.json(),family=await cr.json();
+    const forwardOk=forward?.status==='running'
+      &&forward?.historical_backfill_allowed===false
+      &&forward?.production_effect==='none'
+      &&forward?.promotion_effect==='none'
+      &&String(forward?.ledger_mode||'').includes('next_open_baseline');
+    const eventOk=eventscore?.production_effect==='none'
+      &&eventscore?.promotion_effect==='none'
+      &&eventscore?.promotion_gate_bridge?.state==='blocked_by_frozen_family_semantics'
+      &&Number(eventscore?.counts?.promotion_gate_compatible||0)===0;
+    const familyOk=family?.state==='shadow_statistics_ready'
+      &&family?.production_effect==='none'
+      &&family?.promotion_effect==='none'
+      &&family?.promotion_bridge==='blocked_by_frozen_rule_family_semantics'
+      &&Number(family?.counts?.promotion_gate_compatible||0)===0;
+    report.learning_guardrails={
+      status:forwardOk&&eventOk&&familyOk?'PASS':'FAIL',
+      forward_status:forward?.status||'unknown',
+      forward_historical_backfill_allowed:forward?.historical_backfill_allowed,
+      forward_ledger_mode:forward?.ledger_mode||null,
+      candidate_eventscore_bridge:eventscore?.promotion_gate_bridge?.state||'unknown',
+      candidate_family_state:family?.state||'unknown',
+      candidate_family_bridge:family?.promotion_bridge||'unknown',
+      production_effects:[forward?.production_effect,eventscore?.production_effect,family?.production_effect],
+      promotion_effects:[forward?.promotion_effect,eventscore?.promotion_effect,family?.promotion_effect]
+    };
+  }else{
+    report.learning_guardrails={status:'FAIL',error:`candidate guardrail status unavailable ${fr.status}/${er.status}/${cr.status}`};
+  }
+}catch(e){report.learning_guardrails={status:'FAIL',error:String(e.message).slice(0,200)}}
+
 const engineeringBaseHealthy=Object.values(report.public).every(x=>Boolean(x.version)&&x.version===x.body_version&&x.assistant&&x.journal&&x.historical_learning&&x.autonomous_agent&&x.single_action_outlet&&!x.negative_zero)&&report.private.status!=='FAIL'&&report.interaction.status==='PASS';
 report.engineering_qa={status:engineeringBaseHealthy?'PASS':'FAIL',public_surfaces:Object.keys(report.public),private_status:report.private.status,interaction_status:report.interaction.status};
 const investmentDataPass=report.business_data.status==='PASS'&&report.server_action?.status==='PASS';
 report.investment_data_qa={status:investmentDataPass?'PASS':'FAIL',market_as_of:report.business_data.market_as_of||null,expected_market_date:report.business_data.expected_market_date||null,business_freshness:report.business_data.business_freshness||'unknown',decision_eligible:Boolean(report.business_data.decision_eligible),server_action:report.server_action};
 report.decision_readiness={status:(engineeringBaseHealthy&&investmentDataPass)?'PASS':'FAIL',rule:'Engineering QA and Investment Data QA must both PASS; market freshness and server action must fail closed when unknown.'};
-const coreHealthy=engineeringBaseHealthy&&report.investment_data_qa.status==='PASS'&&report.decision_readiness.status==='PASS';
+const coreHealthy=engineeringBaseHealthy&&report.investment_data_qa.status==='PASS'&&report.learning_guardrails.status==='PASS'&&report.decision_readiness.status==='PASS';
 let baseRetryHealthy=false;
 try{
   const retry=await fetch(base+'/?qa-retry='+Date.now(),{cache:'no-store'});
@@ -156,5 +196,5 @@ const transientResourcePattern=/Failed to load resource: the server responded wi
 const fatalConsoleErrors=report.console_errors.filter(x=>!(report.http_errors.length===0&&coreHealthy&&baseRetryHealthy&&transientResourcePattern.test(x)));
 report.fatal_console_errors=fatalConsoleErrors;
 report.engineering_qa.status=(engineeringBaseHealthy&&report.fatal_console_errors.length===0&&report.http_errors.length===0)?'PASS':'FAIL';
-report.decision_readiness.status=(report.engineering_qa.status==='PASS'&&report.investment_data_qa.status==='PASS')?'PASS':'FAIL';
+report.decision_readiness.status=(report.engineering_qa.status==='PASS'&&report.investment_data_qa.status==='PASS'&&report.learning_guardrails.status==='PASS')?'PASS':'FAIL';
 report.overall=report.decision_readiness.status;fs.writeFileSync(`${out}/report.json`,JSON.stringify(report,null,2));console.log(JSON.stringify(report,null,2));if(report.overall!=='PASS')process.exit(1);

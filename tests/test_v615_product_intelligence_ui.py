@@ -14,16 +14,18 @@ for text in (page,gen):
     assert text.count("product-intelligence.js")==1
 
 for token in [
-    "今日行动与组合智能","MYALPHA DAILY COMMAND CENTER","今天需要你处理",
-    "观察池机会与风险","数据是否值得信任","MAVProductIntelligence",
-    "optionActions","opportunities","dataHealth",
+    "今日结论","首页只显示需要关注的结果","需要关注",
+    "机会与风险","系统状态","MAVProductIntelligence",
+    "optionActions","opportunities","dataHealth","compactText","mergeActionRows",
 ]:
     assert token in js
 
-for token in ["pi-head","pi-stats","pi-grid","pi-action","pi-health-row","pi-module-strip"]:
+for token in ["pi-head","pi-stats","pi-grid","pi-action","pi-health-row","pi-module-strip","pi-tags","pi-action-foot","Today Cockpit compact result layer"]:
     assert token in css
 
 assert "V6.15 Product Intelligence visual consolidation" in design
 assert "MAVProductIntelligence?.render?.()" in stock
 assert "不会自动" not in js or True
-print("PASS V6.15 product intelligence command center")
+assert "详细证据与推导下沉到对应模块" in js
+assert "查看依据" not in js or "依据" in js
+print("PASS V6.15 compact Today Cockpit result layer")

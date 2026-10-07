@@ -17,7 +17,10 @@ from pathlib import Path
 
 import pandas as pd
 
-from local_history_agent import read_archive
+try:
+    from local_history_agent import read_archive
+except ModuleNotFoundError:
+    from scripts.local_history_agent import read_archive
 
 ROOT=Path(__file__).resolve().parents[1]
 CANDIDATES=ROOT/"research"/"registry"/"candidate_rules.json"

@@ -28,6 +28,7 @@ assert "MAVProductIntelligence?.render?.()" in stock
 assert "loadSupportVol" in stock and "supportVolHtml" in stock
 assert "support_volatility_intelligence.json" in stock
 assert "Volume Profile" in stock and "GARCH20" in stock
+assert "mav:option-opportunities" in js and "state.optionIdeas" in js
 assert "不会自动" not in js or True
 assert "详细证据与推导下沉到对应模块" in js
 assert "查看依据" not in js or "依据" in js

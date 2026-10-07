@@ -252,7 +252,8 @@ def public_status(reg):
     }
 
 def main():
-    prior=load(REGISTRY,{})\n    reg=build(load(READING,{"records":[]}),load(STORE,{"records":[]}),prior=prior)
+    prior=load(REGISTRY,{})
+    reg=build(load(READING,{"records":[]}),load(STORE,{"records":[]}),prior=prior)
     REGISTRY.parent.mkdir(parents=True,exist_ok=True)
     STATUS.parent.mkdir(parents=True,exist_ok=True)
     REGISTRY.write_text(json.dumps(reg,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")

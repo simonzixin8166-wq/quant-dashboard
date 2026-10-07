@@ -123,7 +123,7 @@ function actionItems(){
  return rows.sort((a,b)=>(b.priority||0)-(a.priority||0)).slice(0,5);
 }
 function card(title,value,detail,tone='neutral'){return `<article class="pi-stat ${tone}"><span>${esc(title)}</span><b>${esc(value)}</b><small>${esc(detail)}</small></article>`}
-function actionHtml(x,i){return `<article class="pi-action ${esc(x.tone)}"><span class="pi-seq">0${i+1}</span><div><div class="pi-action-top"><b>${esc(x.title)}</b><span>${esc(x.when)}</span></div><p>${esc(x.text)}</p><button type="button" data-pi-target="${esc(x.target)}">打开处理</button></div></article>`}
+function actionHtml(x,i){return `<article class="pi-action ${esc(x.tone)}"><span class="pi-seq">0${i+1}</span><div><div class="pi-action-top"><b>${esc(x.title)}</b><span>${esc(x.when)}</span></div><p>${esc(x.text)}</p><button type="button" data-pi-target="${esc(x.target)}">查看依据</button></div></article>`}
 function opportunityHtml(x){return `<button type="button" class="pi-opportunity ${esc(x.tone)}" data-pi-symbol="${esc(x.symbol)}"><span>${esc(x.symbol)}</span><b>${esc(x.action)} <em>${esc(x.actionZh||'')}</em></b><small>${esc(x.why)}</small>${x.nextConfirmation?`<small>下一条件：${esc(x.nextConfirmation)}</small>`:''}<div class="pi-axes"><i>机会 ${esc(x.opportunity)}</i><i>风险 ${esc(x.risk)}</i><i>置信 ${esc(x.confidence)}</i></div></button>`}
 function healthHtml(x){return `<div class="pi-health-row"><i class="${esc(x.status)}"></i><div><b>${esc(x.name)}</b><small>${esc(x.detail)}</small></div></div>`}
 
@@ -132,7 +132,7 @@ function render(){
  const opts=optionRows(),actions=actionItems(),s=stockStatus(),opps=opportunities(),health=dataHealth(),server=state.serverAction,authority=decisionAuthority();
  const urgent=actions.filter(x=>x.tone==='bad').length,watch=actions.filter(x=>x.tone==='warn').length;
  root.innerHTML=`<section class="pi-shell">
-  <div class="pi-head"><div><span>MYALPHA DAILY COMMAND CENTER</span><h2>今日行动与组合智能</h2><p>先判断数据是否足够可信，再判断今天是否需要行动；风险、事件与机会统一排序。</p></div><div class="pi-head-state"><b>${esc(authority.title)}</b><small>${server?.generated_at?'服务端 '+new Date(server.generated_at).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):'等待服务端状态'}</small></div></div>
+  <div class="pi-head"><div><span>MYALPHA TODAY COCKPIT · SOLE ACTION OUTLET</span><h2>今日行动 · 唯一正式出口</h2><p>市场、个股、期权、策略及经 Promotion Gate 放行的学习信号统一在这里排序；其他页面只提供证据与解释。</p></div><div class="pi-head-state"><b>${esc(authority.title)}</b><small>${server?.generated_at?'服务端 '+new Date(server.generated_at).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):'等待服务端状态'}</small></div></div>
   <div class="pi-stats">
    ${card('今日高优先级',urgent,!authority.decision_eligible?'数据不足，不能下“无需操作”结论':urgent?'优先处理风险事项':'暂无高优先级触发',!authority.decision_eligible?'bad':urgent?'bad':'good')}
    ${card('待复核',watch,watch?'今日或次日处理':'当前无 L2 提醒',watch?'warn':'neutral')}
@@ -141,9 +141,9 @@ function render(){
    ${card('机会候选',opps.filter(x=>x.action==='ACT'||x.action==='WATCH').length,'三轴：机会 / 风险 / 置信','good')}
   </div>
   <div class="pi-grid">
-   <section class="pi-panel pi-actions"><div class="pi-panel-head"><div><span>01 / ACTIONS</span><h3>今天需要你处理</h3></div><button data-pi-target="tab-agent-center">完整 AI 中心</button></div><div class="pi-action-list">${actions.map(actionHtml).join('')}</div></section>
-   <section class="pi-panel"><div class="pi-panel-head"><div><span>02 / OPPORTUNITY</span><h3>观察池机会与风险</h3></div><button data-pi-target="tab-stocks">个股研究</button></div><div class="pi-opportunity-list">${opps.length?opps.map(opportunityHtml).join(''):'<div class="pi-empty">当前没有需要升级的个股状态。</div>'}</div></section>
-   <section class="pi-panel"><div class="pi-panel-head"><div><span>03 / DATA HEALTH</span><h3>数据是否值得信任</h3></div><button data-pi-target="tab-system-health">系统状态</button></div><div class="pi-health-list">${health.map(healthHtml).join('')}</div></section>
+   <section class="pi-panel pi-actions"><div class="pi-panel-head"><div><span>01 / ACTIONS</span><h3>今天需要你处理</h3></div><button data-pi-target="tab-agent-center">查看研究过程</button></div><div class="pi-action-list">${actions.map(actionHtml).join('')}</div></section>
+   <section class="pi-panel"><div class="pi-panel-head"><div><span>02 / OPPORTUNITY</span><h3>观察池机会与风险</h3></div><button data-pi-target="tab-stocks">查看个股依据</button></div><div class="pi-opportunity-list">${opps.length?opps.map(opportunityHtml).join(''):'<div class="pi-empty">当前没有需要升级的个股状态。</div>'}</div></section>
+   <section class="pi-panel"><div class="pi-panel-head"><div><span>03 / DATA HEALTH</span><h3>数据是否值得信任</h3></div><button data-pi-target="tab-system-health">查看数据依据</button></div><div class="pi-health-list">${health.map(healthHtml).join('')}</div></section>
   </div>
   <div class="pi-module-strip">
    <button data-pi-target="tab-overview"><span>市场</span><b>Regime / VIX / Breadth</b></button>

@@ -160,6 +160,10 @@ def maybe_state_entry(candidate,store,obs_map,rows,now):
         "scope":candidate.get("scope"),
     }
     snapshot_hash=hashlib.sha256(canonical(snapshot).encode("utf-8")).hexdigest()
+    direction=str(candidate.get("expected_direction") or "")
+    governance=candidate.get("signal_direction_governance") or {}
+    if direction not in {"bullish","bearish"} or governance.get("state")!="direction_governed":
+        return None,"direction_unresolved_or_ungoverned"
     rec={
         "ledger_version":VERSION,
         "record_type":"state_entry",
@@ -180,7 +184,9 @@ def maybe_state_entry(candidate,store,obs_map,rows,now):
         "symbol":symbol,
         "signal_date":latest_date.isoformat(),
         "signal_close":close,
-        "expected_direction":"bearish" if candidate.get("state_role")=="invalidation_or_risk" else "bullish",
+        "expected_direction":direction,
+        "signal_direction_governance_version":governance.get("version"),
+        "signal_direction_basis":governance.get("basis") or [],
         "regime_at_signal":event_regime(qqq,latest_date.isoformat()),
         "data_source":"local_stooq_archive",
         "evidence_class":"genuine_forward_state_entry",
@@ -329,7 +335,8 @@ def build(registry,store,prior_rows=None,now=None):
             "Each state-entry freezes an immutable hash of the exact candidate definition being observed.",
             "5/20/60 outcomes append from that next-open baseline and never rewrite earlier records.",
             "Hash-chain failure closes the ledger.",
-            "This observer cannot alter Promotion Gate, protected rules, positions, sizing or orders.",
+            "Forward scoring direction must be explicitly governed from reproducible Candidate condition semantics; state_role is never used as a default direction.",
+            "Research outcome direction is not a BUY/SELL action and cannot alter Promotion Gate, protected rules, positions, sizing or orders.",
         ],
     }
     return rows,status

@@ -129,15 +129,19 @@ function actionGroup(x){
  if(/HOLD|NO ADD/.test(t))return '持有 / 停止加仓';
  return '观察 / 复核';
 }
+function groupKey(name){return {'立即处理':'urgent','介入机会':'entry','持有 / 停止加仓':'hold','观察 / 复核':'review'}[name]||'review'}
 function groupedActionsHtml(rows){
  const order=['立即处理','介入机会','持有 / 停止加仓','观察 / 复核'];
  return order.map(name=>{
    const xs=rows.filter(x=>actionGroup(x)===name);
    if(!xs.length)return '';
-   return `<div class="pi-action-group"><div class="pi-action-group-head"><b>${esc(name)}</b><span>${xs.length} 项</span></div><div class="pi-action-list">${xs.map(actionHtml).join('')}</div></div>`;
+   return `<div class="pi-action-group" data-pi-group="${groupKey(name)}"><div class="pi-action-group-head"><b>${esc(name)}</b><span>${xs.length} 项</span></div><div class="pi-action-list">${xs.map(actionHtml).join('')}</div></div>`;
  }).join('');
 }
-function card(title,value,detail,tone='neutral'){return `<article class="pi-stat ${tone}"><span>${esc(title)}</span><b>${esc(value)}</b><small>${esc(detail)}</small></article>`}
+function card(title,value,detail,tone='neutral',jump='',aria=''){
+ const attrs=jump?` role="button" tabindex="0" data-pi-jump="${esc(jump)}" aria-label="${esc(aria||title)}"`:'';
+ return `<article class="pi-stat ${tone}${jump?' clickable':''}"${attrs}><span>${esc(title)}</span><b>${esc(value)}</b><small>${esc(detail)}</small>${jump?'<em>点击查看 →</em>':''}</article>`;
+}
 function actionHtml(x,i){return `<article class="pi-action ${esc(x.tone)}"><span class="pi-seq">0${i+1}</span><div><div class="pi-action-top"><b>${esc(x.title)}</b><span>${esc(x.when)}</span></div><p>${esc(x.text)}</p><button type="button" data-pi-target="${esc(x.target)}">查看依据</button></div></article>`}
 function opportunityHtml(x){return `<button type="button" class="pi-opportunity ${esc(x.tone)}" data-pi-symbol="${esc(x.symbol)}"><span>${esc(x.symbol)}</span><b>${esc(x.action)} <em>${esc(x.actionZh||'')}</em></b><small>${esc(x.why)}</small>${x.nextConfirmation?`<small>下一条件：${esc(x.nextConfirmation)}</small>`:''}<div class="pi-axes"><i>机会 ${esc(x.opportunity)}</i><i>风险 ${esc(x.risk)}</i><i>置信 ${esc(x.confidence)}</i></div></button>`}
 function healthHtml(x){return `<div class="pi-health-row"><i class="${esc(x.status)}"></i><div><b>${esc(x.name)}</b><small>${esc(x.detail)}</small></div></div>`}
@@ -149,11 +153,11 @@ function render(){
  root.innerHTML=`<section class="pi-shell">
   <div class="pi-head"><div><span>MYALPHA TODAY COCKPIT · SOLE ACTION OUTLET</span><h2>今日行动 · 唯一正式出口</h2><p>市场、个股、期权、策略及经 Promotion Gate 放行的学习信号统一在这里排序；其他页面只提供证据与解释。</p></div><div class="pi-head-state"><b>${esc(authority.title)}</b><small>${server?.generated_at?'服务端 '+new Date(server.generated_at).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):'等待服务端状态'}</small></div></div>
   <div class="pi-stats">
-   ${card('今日高优先级',urgent,!authority.decision_eligible?'数据不足，不能下“无需操作”结论':urgent?'优先处理风险事项':'暂无高优先级触发',!authority.decision_eligible?'bad':urgent?'bad':'good')}
-   ${card('待复核',watch,watch?'今日或次日处理':'当前无 L2 提醒',watch?'warn':'neutral')}
-   ${card('期权持仓',opts.length,opts.length?'按账户独立监控':'等待私有持仓','neutral')}
-   ${card('观察池',s.loaded?s.count:'—',s.loaded?`${s.researchCount} 只有完整 Thesis`:'登录后自动扫描','neutral')}
-   ${card('机会候选',opps.filter(x=>x.action==='ACT'||x.action==='WATCH').length,'三轴：机会 / 风险 / 置信','good')}
+   ${card('今日高优先级',urgent,!authority.decision_eligible?'数据不足，不能下“无需操作”结论':urgent?'优先处理风险事项':'暂无高优先级触发',!authority.decision_eligible?'bad':urgent?'bad':'good','group:urgent','查看今日高优先级事项')}
+   ${card('待复核',watch,watch?'今日或次日处理':'当前无 L2 提醒',watch?'warn':'neutral','group:review','查看待复核事项')}
+   ${card('期权持仓',opts.length,opts.length?'按账户独立监控':'等待私有持仓','neutral','tab:tab-options','进入期权持仓')}
+   ${card('观察池',s.loaded?s.count:'—',s.loaded?`${s.researchCount} 只有完整 Thesis`:'登录后自动扫描','neutral','tab:tab-stocks','进入观察池')}
+   ${card('机会候选',opps.filter(x=>['EARLY_ENTRY','CONFIRMED_ENTRY','WATCH','WAIT'].includes(x.action)).length,'三轴：机会 / 风险 / 置信','good','group:entry','查看机会候选')}
   </div>
   <div class="pi-grid">
    <section class="pi-panel pi-actions"><div class="pi-panel-head"><div><span>01 / ACTIONS</span><h3>今天需要你处理</h3></div><button data-pi-target="tab-agent-center">查看研究过程</button></div><div class="pi-action-groups">${groupedActionsHtml(actions)}</div></section>
@@ -168,8 +172,18 @@ function render(){
    <button data-pi-target="tab-wenxuecity"><span>Research</span><b>Source / Evidence / Authors</b></button>
   </div>
  </section>`;
+ function jumpStat(el){
+   const jump=el?.dataset?.piJump||'';
+   if(jump.startsWith('tab:')){global.openDashboardTab?.(jump.slice(4));return}
+   if(jump.startsWith('group:')){
+     const key=jump.slice(6),target=root.querySelector('[data-pi-group="'+key+'"]')||root.querySelector('.pi-actions');
+     target?.scrollIntoView?.({behavior:'smooth',block:'start'});
+     target?.classList?.add('pi-focus-flash');setTimeout(()=>target?.classList?.remove('pi-focus-flash'),1400);
+   }
+ }
  root.querySelectorAll('[data-pi-target]').forEach(b=>b.addEventListener('click',()=>global.openDashboardTab?.(b.dataset.piTarget)));
  root.querySelectorAll('[data-pi-symbol]').forEach(b=>b.addEventListener('click',()=>global.StockWatchlist?.focus?.(b.dataset.piSymbol)));
+ root.querySelectorAll('[data-pi-jump]').forEach(el=>{el.addEventListener('click',()=>jumpStat(el));el.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();jumpStat(el)}})});
  state.lastAt=Date.now();
 }
 function recordDecisionState(){

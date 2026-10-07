@@ -247,9 +247,15 @@
     global.openDashboardTab?.('tab-stocks');
     setTimeout(()=>{const row=document.querySelector(`[data-stock-row][data-symbol="${CSS.escape(symbol)}"]`);if(!row)return;row.scrollIntoView({behavior:'smooth',block:'center'});row.classList.add('assistant-focus-row');setTimeout(()=>row.classList.remove('assistant-focus-row'),2200);if(expand){const id=row.dataset.detailId,detail=id&&document.getElementById(id);if(detail)detail.hidden=false}},80);
   }
-  function assistantSnapshot(symbol){
-    symbol=String(symbol||'').toUpperCase();const item=state.items.find(x=>String(x.symbol).toUpperCase()===symbol);if(!item)return null;const q=combined(symbol),tp=(global.MAV_TREND_PULSE||{})[symbol]||{},r=state.research[symbol]||{};return {symbol,name:item.display_name||symbol,price:num(q.price)??num(q.dailyClose),dailyClose:num(q.dailyClose),dailyAsOf:q.dailyAsOf||null,changePct:num(q.changePct),score:num(tp.score),stage:tp.state||'',zone:trendZone(tp.score),hasThesis:Boolean((r.thesis||'').trim())};
+  function supportVolSnapshot(symbol){
+    symbol=String(symbol||'').toUpperCase();
+    const row=state.supportVol[symbol]||{};
+    if(row.status!=='ok')return null;
+    return row;
   }
-  global.StockWatchlist={load,refresh,openAdd,openEdit,close,save,remove,openResearch,closeResearch,saveResearch,assistantCandidates,assistantStatus,assistantSnapshot,focus};
+  function assistantSnapshot(symbol){
+    symbol=String(symbol||'').toUpperCase();const item=state.items.find(x=>String(x.symbol).toUpperCase()===symbol);if(!item)return null;const q=combined(symbol),tp=(global.MAV_TREND_PULSE||{})[symbol]||{},r=state.research[symbol]||{};return {symbol,name:item.display_name||symbol,price:num(q.price)??num(q.dailyClose),dailyClose:num(q.dailyClose),dailyAsOf:q.dailyAsOf||null,changePct:num(q.changePct),score:num(tp.score),stage:tp.state||'',zone:trendZone(tp.score),hasThesis:Boolean((r.thesis||'').trim()),supportVol:supportVolSnapshot(symbol)};
+  }
+  global.StockWatchlist={load,refresh,openAdd,openEdit,close,save,remove,openResearch,closeResearch,saveResearch,assistantCandidates,assistantStatus,assistantSnapshot,supportVolSnapshot,focus};
   document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&state.items.length)refresh()});
 })(window);

@@ -82,3 +82,23 @@ for cid in ("price_above_ma20","ma20_hold_two_sessions","price_above_ma200","ma2
     assert row["status"]=="replayed", (cid,row)
     assert row["raw_events"]>=1, (cid,row["raw_events"])
 print("PASS generic MA20/MA200 historical replay")
+
+
+# Explicit source-defined MACD/PPO/Supertrend formulas replay without defaults.
+long_vals=[100+i*0.05 for i in range(420)]
+hist=frame(long_vals)
+param_cases=[
+ ("macd_hist_positive",{"formula_id":"ema_macd","fast_period":12,"slow_period":26,"signal_period":9,"smoothing":"EMA"}),
+ ("ppo_above_signal",{"formula_id":"ema_ppo","fast_period":12,"slow_period":26,"signal_period":9,"smoothing":"EMA"}),
+ ("ppo_hist_positive",{"formula_id":"ema_ppo","fast_period":12,"slow_period":26,"signal_period":9,"smoothing":"EMA"}),
+ ("supertrend_bullish",{"formula_id":"supertrend_atr_band","atr_period":10,"multiplier":3.0,"atr_smoothing":"Wilder_RMA"}),
+]
+for cid,expr in param_cases:
+    x=dict(cand)
+    x["candidate_id"]="param_"+cid
+    x["conditions"]=[{"condition_id":cid,"machine_ready":True,"expression":expr}]
+    res=build({"candidates":[x]},{"AAA":hist,"QQQ":frame([100+i*.03 for i in range(420)])})
+    row=res["candidates"][0]
+    assert row["status"]=="replayed", (cid,row)
+    assert row["raw_events"]>=1, (cid,row["raw_events"])
+print("PASS source-explicit parameterized indicator replay")

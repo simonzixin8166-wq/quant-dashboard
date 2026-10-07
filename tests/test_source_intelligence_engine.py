@@ -138,6 +138,26 @@ assert yr["rule_candidate_allowed"] is False
 assert yr["captured_at"]=="2026-10-05T09:00:00Z"
 print("PASS YouTube source provenance preservation")
 
+# Bounded full-text method signals survive Source Intelligence without
+# becoming operations or production evidence.
+ms=si.build([{
+ "id":"ms1","source":"wenxuecity","source_kind":"blog","author":"yifan99",
+ "published_at":"2026-10-06","title":"Amazon，要突破了？","url":"https://example/ms1",
+ "excerpt":"TCDS终于回到0","symbols":["AMZN"],"themes_hint":["趋势确认"],
+ "method_signals":[
+   {"condition_id":"tcds_cross_zero","machine_ready":False,"evidence_excerpt":"TCDS 从负值持续回升到 0","evidence_hash":"a"*64,"source_derived_only":True,"state_hint":"EARLY_ENTRY"},
+   {"condition_id":"ppo_above_signal","machine_ready":False,"evidence_excerpt":"PPO 向上交叉 Signal","evidence_hash":"b"*64,"source_derived_only":True,"state_hint":"EARLY_ENTRY"},
+   {"condition_id":"price_above_ma50","machine_ready":True,"evidence_excerpt":"价格站上 MA50","evidence_hash":"c"*64,"source_derived_only":True,"state_hint":"EARLY_ENTRY"},
+ ],
+}])
+mr=ms["records"][0]
+assert [x["condition_id"] for x in mr["method_signals"]]==["tcds_cross_zero","ppo_above_signal","price_above_ma50"]
+assert mr["method_signals"][1]["machine_ready"] is False
+assert mr["method_signals"][2]["machine_ready"] is True
+assert mr["operations"]==[]
+assert all(len(x["evidence_excerpt"])<=180 for x in mr["method_signals"])
+print("PASS bounded full-text method-signal provenance")
+
 
 # Historical YouTube learning is exposed at top level only and must never join
 # source records / Source Store forward intake.

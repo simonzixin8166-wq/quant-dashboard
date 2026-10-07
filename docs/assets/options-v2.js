@@ -425,9 +425,9 @@
     return{ivPct:Number.isFinite(iv)?iv:null,referencePct:Number.isFinite(ref)?ref:null,ratio:Number.isFinite(iv)&&Number.isFinite(ref)&&ref>0?iv/ref:null};
   }
   function modeAllowed(modes,name){return !Array.isArray(modes)||!modes.length||modes.includes(name)}
-  async function autoScreenOpportunity(symbol,{marketLevel='fear',stage='',hasThesis=false,allowedModes=null,supportContext=null}={}){
+  async function autoScreenOpportunity(symbol,{marketLevel='fear',stage='',hasThesis=false,researchBasis=false,researchBasisType='none',allowedModes=null,supportContext=null}={}){
     symbol=String(symbol||'').toUpperCase();
-    const thesisGate=hasThesis||symbol==='QQQ';
+    const thesisGate=hasThesis||researchBasis||symbol==='QQQ';
     const jwt=await token();if(!jwt||!thesisGate)return[];
     const rawExp=await api({action:'expirations',symbol});const exps=rawExp?.expirations||[];const out=[];
     const putExp=modeAllowed(allowedModes,'SELL_PUT_SCREEN')?bestExpiry(exps,30,45,37):null;
@@ -437,7 +437,7 @@
       const x=rows[0],ivc=relativeIvContext(x,supportContext);
       if(x&&ivc.ratio!==null&&ivc.ratio>=1.05){
         const sd=Number(supportContext?.nearest_support?.distance_pct),supportNote=Number.isFinite(sd)?`支撑距现价 ${sd.toFixed(1)}%`:'支撑已通过后台筛选';
-        out.push({symbol,action:'WATCH',strategy:'SELL_PUT',kind:'SELL PUT WATCH',contract:`${putExp.exp} · ${Number(x.strike).toFixed(2)} Put`,reason:`${supportNote}；IV约为RV/GARCH参考的 ${ivc.ratio.toFixed(2)}×，进入权利金比较。`,metrics:`DTE ${putExp.dte} · ${rowMetrics(x)}`,relativeIvRatio:ivc.ratio,researchOnly:true});
+        out.push({symbol,action:'WATCH',strategy:'SELL_PUT',kind:'SELL PUT WATCH',researchBasisType,contract:`${putExp.exp} · ${Number(x.strike).toFixed(2)} Put`,reason:`${supportNote}；IV约为RV/GARCH参考的 ${ivc.ratio.toFixed(2)}×，进入权利金比较。`,metrics:`DTE ${putExp.dte} · ${rowMetrics(x)}`,relativeIvRatio:ivc.ratio,researchOnly:true});
       }
     }
     if(modeAllowed(allowedModes,'LEAPS_SCREEN')&&!/退潮|恶化/.test(String(stage))){
@@ -446,7 +446,7 @@
         const raw=await api({action:'chain',symbol,expiration:leapExp.exp,side:'call'}),rows=normalizeColumnar(raw).filter(x=>Number(x.bid)>0&&Number(x.ask)>0&&Number.isFinite(Number(x.delta))&&Number.isFinite(Number(x.iv))&&spreadRatio(x)<=.12);
         rows.sort((a,b)=>(spreadRatio(a)+Math.abs(Number(a.delta)-.70)*.5)-(spreadRatio(b)+Math.abs(Number(b.delta)-.70)*.5));
         const x=rows[0],ivc=relativeIvContext(x,supportContext);
-        if(x&&ivc.ratio!==null&&ivc.ratio<=1.20)out.push({symbol,action:'WATCH',strategy:'LEAPS_CALL',kind:'LEAPS WATCH',contract:`${leapExp.exp} · ${Number(x.strike).toFixed(2)} Call`,reason:`长期结构通过初筛；IV约为RV/GARCH参考的 ${ivc.ratio.toFixed(2)}×，未见明显波动率溢价。`,metrics:`DTE ${leapExp.dte} · ${rowMetrics(x)}`,relativeIvRatio:ivc.ratio,researchOnly:true});
+        if(x&&ivc.ratio!==null&&ivc.ratio<=1.20)out.push({symbol,action:'WATCH',strategy:'LEAPS_CALL',kind:'LEAPS WATCH',researchBasisType,contract:`${leapExp.exp} · ${Number(x.strike).toFixed(2)} Call`,reason:`长期结构通过初筛；IV约为RV/GARCH参考的 ${ivc.ratio.toFixed(2)}×，未见明显波动率溢价。`,metrics:`DTE ${leapExp.dte} · ${rowMetrics(x)}`,relativeIvRatio:ivc.ratio,researchOnly:true});
       }
     }
     if(modeAllowed(allowedModes,'LEAPS_SCREEN')&&/二次启动|启动|重新/.test(String(stage))){
@@ -455,7 +455,7 @@
         const raw=await api({action:'chain',symbol,expiration:callExp.exp,side:'call'}),rows=normalizeColumnar(raw).filter(x=>Number(x.bid)>0&&Number(x.ask)>0&&Number.isFinite(Number(x.delta))&&Number(x.delta)>=.45&&Number(x.delta)<=.65&&Number.isFinite(Number(x.iv))&&spreadRatio(x)<=.12);
         rows.sort((a,b)=>(spreadRatio(a)+Math.abs(Number(a.delta)-.55))-(spreadRatio(b)+Math.abs(Number(b.delta)-.55)));
         const x=rows[0],ivc=relativeIvContext(x,supportContext);
-        if(x&&ivc.ratio!==null&&ivc.ratio<=1.25)out.push({symbol,action:'WATCH',strategy:'BUY_CALL',kind:'BUY CALL WATCH',contract:`${callExp.exp} · ${Number(x.strike).toFixed(2)} Call`,reason:`趋势修复 + 45–90 DTE；IV约为RV/GARCH参考的 ${ivc.ratio.toFixed(2)}×，仅作为比较候选。`,metrics:`DTE ${callExp.dte} · ${rowMetrics(x)}`,relativeIvRatio:ivc.ratio,researchOnly:true});
+        if(x&&ivc.ratio!==null&&ivc.ratio<=1.25)out.push({symbol,action:'WATCH',strategy:'BUY_CALL',kind:'BUY CALL WATCH',researchBasisType,contract:`${callExp.exp} · ${Number(x.strike).toFixed(2)} Call`,reason:`趋势修复 + 45–90 DTE；IV约为RV/GARCH参考的 ${ivc.ratio.toFixed(2)}×，仅作为比较候选。`,metrics:`DTE ${callExp.dte} · ${rowMetrics(x)}`,relativeIvRatio:ivc.ratio,researchOnly:true});
       }
     }
     return out;

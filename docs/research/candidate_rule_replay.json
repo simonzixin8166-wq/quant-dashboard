@@ -1,6 +1,6 @@
 {
   "version": "1.1",
-  "generated_at": "2026-10-07T03:58:33.372908+00:00",
+  "generated_at": "2026-10-07T04:01:49.644785+00:00",
   "mode": "research_shadow_historical_only",
   "evidence_provenance": "historical_replay_post_candidate_compilation",
   "forward_evidence_mixed": false,
@@ -8,8 +8,8 @@
   "production_effect": "none",
   "summary": {
     "candidates": 3,
-    "replayed": 0,
-    "blocked": 3,
+    "replayed": 1,
+    "blocked": 2,
     "raw_events": 0,
     "effective_clusters": 0
   },
@@ -135,9 +135,9 @@
       "rows": 4038
     },
     "AMZN": {
-      "source": "stooq_on_demand_research_only",
-      "status": "blocked",
-      "reason": "stooq_history_insufficient"
+      "source": "yfinance_on_demand_research_only",
+      "status": "ready",
+      "rows": 2512
     }
   },
   "candidates": [
@@ -149,12 +149,57 @@
     },
     {
       "candidate_id": "cand_5fac5eeecdc248ffb0d46218",
-      "status": "blocked",
-      "reason": "historical_symbol_missing",
+      "status": "replayed",
+      "symbol": "AMZN",
+      "method_family": "trend_confirmation",
+      "expected_direction": "bullish",
       "data_provenance": {
-        "source": "stooq_on_demand_research_only",
-        "status": "blocked",
-        "reason": "stooq_history_insufficient"
+        "source": "yfinance_on_demand_research_only",
+        "status": "ready",
+        "rows": 2512
+      },
+      "raw_events": 0,
+      "effective_clusters": 0,
+      "statistics": {
+        "5": {
+          "raw_n": 0,
+          "effective_n": 0,
+          "aligned_rate": null,
+          "avg_return": null,
+          "avg_mae": null,
+          "avg_mfe": null,
+          "avg_excess_vs_qqq": null
+        },
+        "20": {
+          "raw_n": 0,
+          "effective_n": 0,
+          "aligned_rate": null,
+          "avg_return": null,
+          "avg_mae": null,
+          "avg_mfe": null,
+          "avg_excess_vs_qqq": null
+        },
+        "60": {
+          "raw_n": 0,
+          "effective_n": 0,
+          "aligned_rate": null,
+          "avg_return": null,
+          "avg_mae": null,
+          "avg_mfe": null,
+          "avg_excess_vs_qqq": null
+        }
+      },
+      "regime_split": {},
+      "walk_forward": {
+        "mode": "fixed_rule_chronological_no_fitting",
+        "folds": [],
+        "note": "insufficient events for temporal folds"
+      },
+      "no_lookahead": {
+        "signal_inputs": "same_day_or_prior_only",
+        "rolling_indicators": "trailing_only",
+        "future_bars_used_only_for_outcomes": true,
+        "candidate_definition_frozen_before_replay": true
       },
       "events": []
     },
@@ -187,7 +232,7 @@
   "guardrails": [
     "Historical replay is post-candidate-compilation evidence and never Forward evidence.",
     "Only fully reproducible candidate conditions are replayed.",
-    "On-demand STOOQ history is Research/Shadow-only and cannot become a Production data dependency.",
+    "On-demand STOOQ/yfinance history is Research/Shadow-only and cannot become a Production data dependency.",
     "Signals use same-day/past inputs; future bars are used only to calculate later outcomes.",
     "State-entry events are counted; repeated days inside one state are not new events.",
     "Signals within five sessions are clustered for effective-N reporting.",

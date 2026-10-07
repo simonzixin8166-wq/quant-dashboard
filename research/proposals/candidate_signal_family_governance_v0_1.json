@@ -1,0 +1,73 @@
+{
+  "version": "0.1-draft",
+  "status": "proposal_only_not_active",
+  "created_at": "2026-10-07",
+  "problem": {
+    "summary": "Compiled Candidate signals can accumulate point-in-time Forward evidence, but frozen Rule Family v1.3 derives direction from explicit operation actions. Candidate signals may carry source-derived bullish/bearish state semantics without a source-defined buy/sell action.",
+    "current_blocker": "candidate EventScore and Candidate Family Shadow Scorecards must remain promotion_gate_compatible=false under Evaluation Spec 1.7."
+  },
+  "principles": [
+    "Do not infer buy/sell actions from a signal.",
+    "Keep signal direction separate from action direction.",
+    "Do not change existing Rule Family v1.3 assignments in place.",
+    "A future signal-family definition must create a new immutable family-definition version and a new Evaluation Spec version.",
+    "All accumulated Candidate Forward evidence before activation remains archived under the spec/version that governed it and is not silently relabeled.",
+    "Promotion thresholds, FDR, MAE noninferiority, author independence, time clustering and symbol concentration must not be relaxed to admit Candidate signals."
+  ],
+  "proposed_future_identity": {
+    "name": "Signal Family",
+    "separate_from": "Rule Family v1.3",
+    "immutable_dimensions": [
+      "method_family",
+      "signal_state_role",
+      "expected_direction",
+      "instrument_type",
+      "normalized_machine_condition_template"
+    ],
+    "explicitly_excluded": [
+      "author",
+      "source_id",
+      "published_at",
+      "url",
+      "numeric realized outcomes",
+      "performance statistics",
+      "promotion result"
+    ],
+    "direction_semantics": {
+      "source": "source-derived signal state only",
+      "allowed": [
+        "bullish",
+        "bearish"
+      ],
+      "forbidden": "automatic conversion to buy/sell/position sizing/order action"
+    }
+  },
+  "proposed_evidence_contract": {
+    "event_baseline": "next trading session open after a completed daily signal state-entry",
+    "canonical_price_source": "STOOQ archive",
+    "horizons_trading_days": [
+      5,
+      20,
+      60
+    ],
+    "primary_metric": "unconditional_lift_vs_same_symbol_same_horizon",
+    "secondary_metric": "excess_vs_qqq",
+    "dependence": "symbol x overlap-connected realized-horizon cluster",
+    "multiple_testing": "Benjamini-Hochberg across the full frozen signal-family x horizon hypothesis set",
+    "mae_noninferiority": "same paired cluster-bootstrap contract as Spec 1.7",
+    "concentration": "same maximum single-symbol effective-unit share as Spec 1.7"
+  },
+  "activation_requirements": [
+    "No genuine Forward Candidate event has been scored under a contradictory family definition.",
+    "Reviewed governance decision explicitly approves Signal Family as a separate promotion unit or explicitly maps it into a new Rule Family definition.",
+    "New immutable family definition file and hash.",
+    "New Evaluation Spec version; do not edit Spec 1.7 in place.",
+    "Evidence lock/update documenting the semantic change.",
+    "Regression tests proving historical/backfill sources cannot become Forward evidence.",
+    "Regression tests proving signal direction cannot create trading actions.",
+    "Re-run statistical controls under the new spec before any Promotion activation."
+  ],
+  "current_action": "none",
+  "promotion_effect": "none",
+  "production_effect": "none"
+}

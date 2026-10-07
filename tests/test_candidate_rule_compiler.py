@@ -119,3 +119,19 @@ assert tc["logic"]["invalidation_conditions"]==["price_below_ma50"]
 assert tc["logic"]["confirmation_conditions"]==["ma50_hold_two_sessions"]
 assert any(x["condition_id"]=="temporal_sequence_window" for x in tc["unresolved_inputs"])
 print("PASS temporal sequence fail-closed semantics")
+
+
+# Generic moving-average conditions are source-defined and machine reproducible.
+for cid,indicator in [
+ ("price_above_ma20","price_vs_ma20"),
+ ("ma20_hold_two_sessions","price_vs_ma20"),
+ ("price_above_ma200","price_vs_ma200"),
+ ("ma200_hold_two_sessions","price_vs_ma200"),
+]:
+    rr=build(memory(cid),store("backfill"))
+    x=rr["candidates"][0]
+    assert x["reproducibility_status"]=="machine_ready_shadow", (cid,x)
+    assert x["conditions"][0]["expression"]["indicator"]==indicator
+    assert x["historical_replay_eligible"] is True
+    assert x["production_eligible"] is False
+print("PASS generic MA20/MA200 compiler coverage")

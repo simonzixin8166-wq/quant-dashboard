@@ -15,6 +15,8 @@ assert result["version"]==4
 assert "quant-dashboard" in result["workflows"]
 assert "wxc-bot" in result["workflows"]
 assert "source_intelligence" in result["artifacts"]
+assert "support_volatility_intelligence" in result["artifacts"]
+assert "options_opportunity_context" in result["artifacts"]
 assert result["principle"]
 print("PASS autonomous system status center")
 
@@ -55,6 +57,10 @@ with tempfile.TemporaryDirectory() as td:
     assert research["freshness"]=="fresh"
     assert research["decision_eligible"] is False
     assert research["participation"]=="research_only"
+    for research_name in ("support_volatility_intelligence","options_opportunity_context"):
+        extra=ssc.artifact_health(research_name,p,now)
+        assert extra["decision_eligible"] is False
+        assert extra["participation"]=="research_only"
     old_business=(datetime.fromisoformat(expected)-timedelta(days=3)).date().isoformat()
     p.write_text(json.dumps({"generated_at":now.isoformat(),"spy_date":old_business}),encoding="utf-8")
     stale_business=ssc.artifact_health("market_dashboard",p,now)

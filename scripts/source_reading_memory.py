@@ -137,6 +137,22 @@ def explicit_method_candidates(op,row=None):
     return out
 
 
+def condition_semantic_role(condition_id, evidence_text, article_text=""):
+    """Classify only explicit temporal/lifecycle language from the source.
+
+    This does not invent a lookback window. It preserves whether a condition is
+    described as a prior observation, current invalidation/failure, or future
+    confirmation so downstream replay cannot flatten them into one AND clause.
+    """
+    text=(" ".join([str(evidence_text or ""),str(article_text or "")])).lower()
+    if condition_id=="price_below_ma50" and any(k in text for k in ("随后","又跌回","重新回到偏弱","false break","假突破","失败")):
+        return "invalidation"
+    if condition_id in {"price_above_ma50","supertrend_bullish","macd_hist_positive","ppo_above_signal","ppo_hist_positive","tcds_cross_zero"} and any(k in text for k in ("前几天","此前","一度","曾经")):
+        return "prior_observation"
+    if condition_id in {"price_above_ma50","ma50_hold_two_sessions","supertrend_bullish","macd_hist_positive","ppo_above_signal","ppo_hist_positive","tcds_cross_zero"} and any(k in text for k in ("如果接下来","若接下来","接下来","必须重新","才算","才考虑","等待确认","确认")):
+        return "confirmation"
+    return "unspecified"
+
 def prose_candidate_rule(row, sentences):
     """Build a source-derived candidate rule from bounded structured signals + prose.
 
@@ -174,13 +190,24 @@ def prose_candidate_rule(row, sentences):
                 raw.append(sent)
     if not found:
         return None
+    article_text=" ".join(sentences)
+    for item in found:
+        cid=item["condition_id"]
+        matching=[x for x in raw if cid.replace("_"," ")[:8] in str(x).lower()]
+        # Pattern-specific matching is more reliable than token matching for MA50.
+        if "ma50" in cid:
+            matching=[x for x in raw if re.search(r"ma\s*50",str(x),re.I)]
+        evidence_text=" ".join(matching or raw)
+        item["semantic_role"]=condition_semantic_role(cid,evidence_text,article_text)
     state_hint=upstream_state
-    prose=" ".join(sentences).lower()
-    if not state_hint and ("early entry" in prose or "早期介入" in prose or "早期阶段" in prose):
+    prose=article_text.lower()
+    if "false break" in prose or "假突破" in prose or "early entry 失败" in prose:
+        state_hint="RISK"
+    elif not state_hint and ("early entry" in prose or "早期介入" in prose or "早期阶段" in prose):
         state_hint="EARLY_ENTRY"
     elif not state_hint and ("confirmed entry" in prose or "趋势确认" in prose or "确认突破" in prose):
         state_hint="CONFIRMATION"
-    elif not state_hint and ("false break" in prose or "假突破" in prose or "失效" in prose):
+    elif not state_hint and "失效" in prose:
         state_hint="RISK"
     unsupported=[x["condition_id"] for x in found if not x["machine_ready"]]
     readiness="machine_ready" if not unsupported else "partial_needs_definition"

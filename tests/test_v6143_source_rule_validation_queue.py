@@ -159,6 +159,12 @@ prose_reading={
        "raw_evidence":["同一方法重复发布"],
        "source_derived_only":True
      }}
+   }],
+  {
+   "source_id":"p4","author":"yifan99","title":"TCDS参数说明","symbols":["AMZN"],
+   "propositions":[{
+     "proposition_id":"clue1","kind":"author_view",
+     "text":"TCDS 参数与计算周期定义需要结合原公式核对。","evidence":{}
    }]
   }
  ]
@@ -184,6 +190,9 @@ assert any("2 条来源记录" in x and "去重" in x for x in support)
 assert any("来源状态语义：EARLY_ENTRY" in x for x in support)
 assert any("tcds_cross_zero" in x and "猜测" in x for x in counter)
 assert any("ppo_above_signal" in x for x in unknowns)
+assert any("tcds_cross_zero" in x and "自动回查" in x for x in support)
+assert any("TCDS参数说明" in x for x in support)
+assert any("疑似定义线索" in x for x in unknowns)
 assert any("Rule Registry" in x and "Promotion" in x for x in counter)
 
 prose_artifacts=dict(artifacts)

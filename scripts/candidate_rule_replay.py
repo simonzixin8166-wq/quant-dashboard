@@ -388,7 +388,7 @@ def replay_candidate(candidate,store,provenance=None):
             "future_bars_used_only_for_outcomes":True,
             "candidate_definition_frozen_before_replay":True,
         },
-        "events":events[:80],
+        "events":events,
     }
 
 def build(registry,store,provenance=None):

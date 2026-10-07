@@ -21,7 +21,7 @@ function classify(spx,ixic,vix){
 function strategy(id){return (playbook().strategies||[]).find(x=>x.id===id)}
 function learningForStage(stage){try{return global.MAVDecisionJournal?.learningForStage?.(stage)||null}catch{return null}}
 function learningNote(x){const l=learningForStage(x.stage);if(!l||!l.stats||!l.stats.n)return '';const s=l.stats;return `历史同类60日：${s.n}样本 · 正收益${s.positive_rate==null?'—':Math.round(s.positive_rate*100)+'%'} · 平均${s.avg==null?'—':pct(s.avg)} · ${l.label||''}`;}
-function candidates(mode){try{const rows=global.StockWatchlist?.assistantCandidates?.(mode)||[];return [...rows].sort((a,b)=>{const la=learningForStage(a.stage)?.research_adjustment||0,lb=learningForStage(b.stage)?.research_adjustment||0;return (b.hasThesis-a.hasThesis)||(lb-la)||((b.score??-999)-(a.score??-999));})}catch{return []}}
+function candidates(mode){try{const rows=global.StockWatchlist?.assistantCandidates?.(mode)||[];return [...rows].sort((a,b)=>{const la=learningForStage(a.stage)?.research_adjustment||0,lb=learningForStage(b.stage)?.research_adjustment||0;return (b.hasResearchBasis-a.hasResearchBasis)||(b.hasThesis-a.hasThesis)||(lb-la)||((b.score??-999)-(a.score??-999));})}catch{return []}}
 function stockStatus(){try{return global.StockWatchlist?.assistantStatus?.()||{count:0,researchCount:0,risk:[],improving:[],hot:[],loaded:false}}catch{return {count:0,researchCount:0,risk:[],improving:[],hot:[],loaded:false}}}
 async function loadOptionContext(){
   if(state.optionContext&&Date.now()-state.optionContextAt<30*60*1000)return state.optionContext;
@@ -45,7 +45,7 @@ function focusedOptionCandidates(list,context){
       row={symbol:'QQQ',stage:tp.state||'',score:n(tp.score),hasThesis:true,why:'正式核心策略 + Market Regime 门控'};
     }
     if(!row)continue;
-    if(symbol!=='QQQ'&&!row.hasThesis)continue;
+    if(symbol!=='QQQ'&&!row.hasResearchBasis)continue;
     out.push({...row,optionContext:ctx});
   }
   return out;
@@ -136,7 +136,7 @@ function render(snapshot){
     scheduleOptionScan(list,c);
     return;
   }
-  const candidateHtml=list.length?list.slice(0,6).map(x=>{const d=stockDecision(x,c);return `<article class="agent-stock ${d.tone}"><div><b>${esc(x.symbol)}</b><span>${esc(x.zone||'')}</span></div><strong>${esc(d.label)}</strong><p>${esc(d.text)}</p><small>${esc(x.why||'')} ${x.hasThesis?'· 已有研究卡':'· Thesis未填写'}${learningNote(x)?`<br>${esc(learningNote(x))}`:''}</small><div class="assistant-inline-actions"><button type="button" onclick="StockWatchlist.focus('${esc(x.symbol)}')">研究卡</button><button type="button" onclick="openDashboardTab('tab-trend-pulse')">趋势</button><button type="button" onclick="OptionV2.openForSymbol('${esc(x.symbol)}','SELL_PUT')">期权方案</button></div></article>`}).join(''):'<article class="agent-stock wait"><div><b>暂无个股候选</b></div><p>市场条件已触发，但观察池还没有满足多条件过滤的标的。</p></article>';
+  const candidateHtml=list.length?list.slice(0,6).map(x=>{const d=stockDecision(x,c);return `<article class="agent-stock ${d.tone}"><div><b>${esc(x.symbol)}</b><span>${esc(x.zone||'')}</span></div><strong>${esc(d.label)}</strong><p>${esc(d.text)}</p><small>${esc(x.why||'')} ${x.hasThesis?'· 已有研究卡':x.hasAutoEvidence?'· 系统证据草稿':'· Thesis未填写'}${learningNote(x)?`<br>${esc(learningNote(x))}`:''}</small><div class="assistant-inline-actions"><button type="button" onclick="StockWatchlist.focus('${esc(x.symbol)}')">研究卡</button><button type="button" onclick="openDashboardTab('tab-trend-pulse')">趋势</button><button type="button" onclick="OptionV2.openForSymbol('${esc(x.symbol)}','SELL_PUT')">期权方案</button></div></article>`}).join(''):'<article class="agent-stock wait"><div><b>暂无个股候选</b></div><p>市场条件已触发，但观察池还没有满足多条件过滤的标的。</p></article>';
   const strategyHtml=c.mode==='fear'?`<article><strong>Sell Put</strong><p>${esc(sp?.plain||'')}</p><small>${esc(sp?.params||'')}</small></article><article><strong>Buy Call</strong><p>${esc(bc?.plain||'')}</p><small>先等修复确认，再检查IV与到期时间。</small></article><article><strong>LEAPS Call</strong><p>${esc(leaps?.plain||'')}</p><small>${esc(leaps?.params||'')}</small></article>`:`<article><strong>Covered Call</strong><p>${esc(cc?.plain||'')}</p></article><article><strong>Protective Put</strong><p>${esc(pp?.plain||'')}</p></article>`;
   root.innerHTML=`<div class="market-option-alert-head"><div><span>AUTONOMOUS INVESTMENT ASSISTANT · 最近 ${clock(state.lastScanAt)} · ${esc(scanCadence())} · 下次约 ${nextScanAt()}</span><h2>${esc(c.title)}</h2></div><div class="market-option-alert-numbers"><b>NASDAQ ${pct(snapshot.ixic)}</b><b>S&P 500 ${pct(snapshot.spx)}</b><b>VIX ${snapshot.vix===null?'—':snapshot.vix.toFixed(1)}</b></div></div><p class="market-option-alert-lead">${esc(plainMarket(snapshot,c))}</p><div class="agent-strip">${agents.map(a=>`<div><span>${esc(a.name)}</span><b>${esc(a.status)}</b><small>${esc(a.detail)}</small></div>`).join('')}</div><div class="agent-section-title"><b>关注池自动筛选</b><small>先过滤冲突，再给研究优先级；不会自动下单。</small></div><div class="agent-stock-grid">${candidateHtml}</div><div class="agent-section-title"><b>可研究的期权表达</b><small>策略经验先作为候选，不把单一市场跌幅机械转换为交易。</small></div><div class="market-option-strategies">${strategyHtml}</div>${c.mode==='fear'?`<div class="agent-section-title"><b>自动期权链初筛</b><small>Sell Put 按30–45 DTE、|Delta| 0.16–0.20；LEAPS 只做长期期限与流动性比较。</small></div>${optionIdeasHtml()}`:''}<div class="market-option-actions">${button('打开个股观察池','tab-stocks')}${button('进入期权决策与推演','tab-sandbox')}${button('查看决策复盘','tab-journal')}</div><details class="agent-rules"><summary>查看本次用到的策略规则</summary><div>${(registry().rules||[]).filter(r=>['首页','个股观察池','期权','全站'].includes(r.module)).map(r=>`<p><b>${esc(r.agent)} · ${esc(r.id)}</b> ${esc(r.trigger)}<br><span>${esc(r.action)}</span></p>`).join('')}</div></details><p class="market-option-disclaimer">自动扫描 ≠ 自动交易。AI只负责发现、解释、排序和冲突检查；核心ETF阈值不会自行学习修改，所有交易由投资者决定。</p>`;
   root.hidden=false;
@@ -154,7 +154,8 @@ async function scheduleOptionScan(list,c){
     for(const x of scanList.slice(0,3)){
       try{
         const ctx=x.optionContext||{},r=await global.OptionV2.autoScreenOpportunity(x.symbol,{
-          marketLevel:c.level,stage:x.stage,hasThesis:x.hasThesis,
+          marketLevel:c.level,stage:x.stage,hasThesis:x.hasThesis,researchBasis:x.hasResearchBasis,
+          researchBasisType:x.researchBasisType||'none',
           allowedModes:ctx.research_modes||[],supportContext:ctx
         });
         if(Array.isArray(r))picks.push(...r);

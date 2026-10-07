@@ -1,10 +1,13 @@
 {
   "version": "1.0",
-  "generated_at": "2026-10-07T06:08:10.028537+00:00",
+  "generated_at": "2026-10-07T10:03:40.338267+00:00",
   "formal_app_version": "6.9.0",
   "north_star": "Collect -> Understand -> Structure -> Validate -> Promote -> Scan -> Decide -> Explain -> Learn Again",
   "active_milestone": "C_validation_evidence",
-  "blockers": [],
+  "blockers": [
+    "system_health",
+    "single_action_outlet"
+  ],
   "automatic_resume_contract": {
     "parameter_definition_queue_rebuilt_each_source_cycle": true,
     "forward_observer_runs_each_source_cycle": true,
@@ -25,10 +28,10 @@
       "metrics": {
         "source_records": 1315,
         "source_reading_records": 800,
-        "records_with_primary_subject": 215,
+        "records_with_primary_subject": 216,
         "ambiguous_multi_symbol_records": 69,
         "symbol_role_counts": {
-          "primary_subject": 236,
+          "primary_subject": 238,
           "contextual_mention": 204,
           "comparison_peer": 31,
           "holding_mention": 3,
@@ -129,12 +132,14 @@
       ]
     },
     "E_single_action_outlet": {
-      "state": "implemented_qa_gated",
-      "pass": true,
+      "state": "attention_required",
+      "pass": false,
       "metrics": {
-        "today_cockpit_sole_outlet": true
+        "today_cockpit_sole_outlet": false
       },
-      "remaining": []
+      "remaining": [
+        "restore single outlet contract"
+      ]
     }
   },
   "development_policy": {

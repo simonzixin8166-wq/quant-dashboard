@@ -42,6 +42,8 @@ def build():
     subject_roles=src_counts.get("symbol_role_counts") or {}
     subject_attribution_active="symbol_role_counts" in src_counts
     ccounts=cand.get("counts") or {}
+    ccap=cand.get("capabilities") or {}
+    generic_ma_ready=bool(ccap.get("generic_moving_average_support_complete"))
     rsum=replay.get("summary") or {}
     ev_forward=((evidence.get("evidence_layers") or {}).get("forward_evidence_candidates") or {})
     fcounts=forward.get("counts") or {}
@@ -73,10 +75,15 @@ def build():
         "remaining":[] if subject_attribution_active and coverage.get("version") else (["continuous_source_coverage_audit"] if subject_attribution_active else ["primary_subject_attribution","continuous_source_coverage_audit"]),
       },
       "B_autonomous_learning_core":{
-        "state":"active" if int(ccounts.get("candidates") or 0)>=0 else "blocked",
-        "pass":bool(cand.get("version")) and ccounts.get("production_eligible",0)==0,
-        "metrics":ccounts,
-        "remaining":["increase generic candidate coverage","resolve only source-defined indicator parameters"],
+        "state":"engineering_operational_source_defined_parameters_pending" if generic_ma_ready else "active",
+        "pass":bool(cand.get("version")) and ccounts.get("production_eligible",0)==0 and generic_ma_ready,
+        "metrics":{
+            **ccounts,
+            "generic_moving_average_support_complete":generic_ma_ready,
+            "generic_moving_average_windows":ccap.get("generic_moving_average_windows") or [],
+            "parameterized_indicators_fail_closed":ccap.get("parameterized_indicators_fail_closed") or [],
+        },
+        "remaining":["resolve only source-defined indicator parameters"] if generic_ma_ready else ["increase generic candidate coverage","resolve only source-defined indicator parameters"],
       },
       "C_validation_evidence":{
         "state":"engineering_closed_forward_evidence_accumulating",

@@ -54,3 +54,15 @@ if b["metrics"]["parameter_definition_queue_items"]>0:
 else:
     assert b["remaining"]==[]
 print("PASS Milestone B engineering-closed / source-definition-wait state")
+
+
+out=build()
+wake=out["automatic_resume_contract"]
+assert wake["parameter_definition_queue_rebuilt_each_source_cycle"] is True
+assert wake["forward_observer_runs_each_source_cycle"] is True
+assert wake["source_validation_schedule_present"] is True
+assert wake["manual_open_required"] is False
+assert wake["d_unlock_rule"]["requires_forward_20d_outcomes"] is True
+assert wake["d_unlock_rule"]["requires_promotion_family_pass"] is True
+assert wake["d_unlock_rule"]["unlocked"] is False
+print("PASS automatic wait-state resume / D unlock contract")

@@ -102,6 +102,7 @@ def build(agent,learning,evidence,method,source,previous,modules=None,cross_asse
     # structured testable_rule strength. They receive their own autonomous
     # research tasks and can never enter Rule Registry/Promotion directly.
     source_reading=source_reading or {}
+    prose_groups={}
     for record in source_reading.get("records") or []:
         for prop in record.get("propositions") or []:
             if prop.get("kind")!="candidate_rule":
@@ -110,42 +111,65 @@ def build(agent,learning,evidence,method,source,previous,modules=None,cross_asse
             symbols=candidate.get("symbols") or record.get("symbols") or []
             if len(symbols)!=1:
                 continue
-            pid=str(prop.get("proposition_id") or uid("prose_candidate",str(record.get("source_id"))))
             readiness=candidate.get("machine_readiness") or "partial_needs_definition"
-            needs=list(candidate.get("needs_definition") or [])
-            if readiness=="machine_ready":
-                kind="prose_candidate_validation"
-                priority=64
-                title=f"{symbols[0]} · 叙述候选规则验证"
-                why="Source Reading 从原文中提取到可机器复现的叙述条件；先建立验证设计和历史/Forward边界，不进入正式规则。"
-                questions=[
-                    "这些条件是否能由现有行情数据逐日复现？",
-                    "事件定义如何避免同一状态连续多日重复计数？",
-                    "历史回放与真实Forward应如何分开？",
-                    "哪些失败条件会否定这条候选方法？",
-                ]
-            else:
-                kind="prose_candidate_definition"
-                priority=70
-                title=f"{symbols[0]} · 候选方法定义补全"
-                why=f"来源明确提出方法条件，但 {', '.join(needs) or '部分指标'} 的机器定义尚未验证；先补定义，不允许猜测或晋升。"
-                questions=[
-                    "原作者是否给出这些指标的精确定义/参数？",
-                    "能否从同作者其他文章或一手材料交叉确认定义？",
-                    "哪些条件已有独立可计算替代证据，哪些必须保持未知？",
-                    "定义补齐后怎样预注册历史与Forward验证？",
-                ]
-            t=task(kind,pid,title,priority,why,questions,
-              ["source_reading_memory","source_intelligence","method_memory","market_history"],14)
-            t["source_id"]=record.get("source_id")
-            t["proposition_id"]=prop.get("proposition_id")
-            t["symbol"]=symbols[0]
-            t["author"]=record.get("author")
-            t["source_title"]=record.get("title")
-            t["machine_readiness"]=readiness
-            t["needs_definition"]=needs
-            t["candidate_conditions"]=candidate.get("conditions") or []
-            if t["task_id"] not in seen:tasks.append(t);seen.add(t["task_id"])
+            conditions=candidate.get("conditions") or []
+            condition_ids=sorted({str(x.get("condition_id")) for x in conditions if x.get("condition_id")})
+            semantic_key="|".join([
+                str(symbols[0]),readiness,str(candidate.get("state_hint") or ""),
+                ",".join(condition_ids),
+            ])
+            group=prose_groups.setdefault(semantic_key,{
+                "candidate":candidate,"symbol":symbols[0],"readiness":readiness,
+                "provenance":[],"representative_record":record,"representative_prop":prop,
+            })
+            group["provenance"].append({
+                "source_id":record.get("source_id"),"proposition_id":prop.get("proposition_id"),
+                "author":record.get("author"),"title":record.get("title"),"url":record.get("url"),
+            })
+
+    for semantic_key,group in prose_groups.items():
+        candidate=group["candidate"]
+        record=group["representative_record"]
+        prop=group["representative_prop"]
+        symbol=group["symbol"]
+        readiness=group["readiness"]
+        needs=list(candidate.get("needs_definition") or [])
+        if readiness=="machine_ready":
+            kind="prose_candidate_validation"
+            priority=64
+            title=f"{symbol} · 叙述候选规则验证"
+            why="Source Reading 从原文中提取到可机器复现的叙述条件；先建立验证设计和历史/Forward边界，不进入正式规则。"
+            questions=[
+                "这些条件是否能由现有行情数据逐日复现？",
+                "事件定义如何避免同一状态连续多日重复计数？",
+                "历史回放与真实Forward应如何分开？",
+                "哪些失败条件会否定这条候选方法？",
+            ]
+        else:
+            kind="prose_candidate_definition"
+            priority=70
+            title=f"{symbol} · 候选方法定义补全"
+            why=f"来源明确提出方法条件，但 {', '.join(needs) or '部分指标'} 的机器定义尚未验证；先补定义，不允许猜测或晋升。"
+            questions=[
+                "原作者是否给出这些指标的精确定义/参数？",
+                "能否从同作者其他文章或一手材料交叉确认定义？",
+                "哪些条件已有独立可计算替代证据，哪些必须保持未知？",
+                "定义补齐后怎样预注册历史与Forward验证？",
+            ]
+        stable_key=hashlib.sha1(semantic_key.encode("utf-8")).hexdigest()[:18]
+        t=task(kind,stable_key,title,priority,why,questions,
+          ["source_reading_memory","source_intelligence","method_memory","market_history"],14)
+        t["source_id"]=record.get("source_id")
+        t["proposition_id"]=prop.get("proposition_id")
+        t["symbol"]=symbol
+        t["author"]=record.get("author")
+        t["source_title"]=record.get("title")
+        t["machine_readiness"]=readiness
+        t["needs_definition"]=needs
+        t["candidate_conditions"]=candidate.get("conditions") or []
+        t["provenance"]=group["provenance"]
+        t["source_count"]=len(group["provenance"])
+        if t["task_id"] not in seen:tasks.append(t);seen.add(t["task_id"])
 
     # Method-evidence follow-up loop. Method Memory owns the state taxonomy;
     # Planner only converts that state into research work, never into trading.

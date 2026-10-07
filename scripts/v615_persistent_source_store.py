@@ -215,6 +215,7 @@ def migrate_sources(source,prior=None,now=None,full_records=None,upstream_accoun
             "author":r.get("author"),"published_at":r.get("published_at"),"title":r.get("title"),
             "url":r.get("url"),"symbols":r.get("symbols") or [],"topics":r.get("topics") or [],
             "operations":r.get("operations") or [],
+            "method_signals":r.get("method_signals") or [],
             "content_chars":r.get("content_chars"),
             "captured_at":r.get("captured_at"),
             "intake_class_hint":r.get("intake_class_hint"),

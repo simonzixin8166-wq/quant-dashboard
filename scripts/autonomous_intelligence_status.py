@@ -66,8 +66,24 @@ def build():
         "remaining":["increase generic candidate coverage","resolve only source-defined indicator parameters"],
       },
       "C_validation_evidence":{
-        "state":"engineering_active_evidence_maturing",
-        "pass":bool(replay.get("version")) and replay.get("forward_evidence_mixed") is False and replay.get("production_effect")=="none",
+        "state":"engineering_closed_forward_evidence_accumulating",
+        "pass":(
+            bool(replay.get("version"))
+            and replay.get("forward_evidence_mixed") is False
+            and replay.get("production_effect")=="none"
+            and forward.get("status")=="running"
+            and forward.get("historical_backfill_allowed") is False
+            and candidate_score.get("promotion_effect")=="none"
+            and candidate_family.get("promotion_effect")=="none"
+        ),
+        "engineering_chain_complete":(
+            bool(cand.get("version"))
+            and bool(replay.get("version"))
+            and bool(forward.get("version"))
+            and bool(candidate_score.get("version"))
+            and bool(candidate_family.get("version"))
+        ),
+        "evidence_state":"awaiting_first_genuine_forward_candidate" if int(fcounts.get("state_entries") or 0)==0 else "forward_evidence_accumulating",
         "metrics":{
             "replayed_candidates":rsum.get("replayed",0),
             "historical_replay_events":rsum.get("raw_events",0),
@@ -89,6 +105,7 @@ def build():
             "natural_20d_60d_maturity",
             "promotion_bridge_requires_explicit_signal_direction_governance_under_frozen_family_semantics"
         ],
+        "zero_forward_is_valid":True,
       },
       "D_decision_fusion_watchlist":{
         "state":"partial",

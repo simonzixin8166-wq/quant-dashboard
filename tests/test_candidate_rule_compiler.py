@@ -135,3 +135,14 @@ for cid,indicator in [
     assert x["historical_replay_eligible"] is True
     assert x["production_eligible"] is False
 print("PASS generic MA20/MA200 compiler coverage")
+
+
+# Capability manifest keeps generic MA support machine-readable.
+cap=build(memory("price_above_ma50"),store("backfill"))["capabilities"]
+assert cap["generic_moving_average_support_complete"] is True
+assert cap["generic_moving_average_windows"]==[20,50,200]
+for cid in ("price_above_ma20","price_above_ma50","price_above_ma200"):
+    assert cid in cap["machine_conditions"]
+for cid in ("tcds_cross_zero","ppo_above_signal","supertrend_bullish"):
+    assert cid in cap["parameterized_indicators_fail_closed"]
+print("PASS generic candidate capability manifest")

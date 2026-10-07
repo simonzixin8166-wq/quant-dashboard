@@ -144,13 +144,14 @@ try{
 report.learning_guardrails={status:'FAIL'};
 try{
   const nonce=Date.now();
-  const [fr,er,cr]=await Promise.all([
+  const [fr,er,cr,pr]=await Promise.all([
     fetch(base+'/research/candidate_forward_status.json?qa='+nonce,{cache:'no-store'}),
     fetch(base+'/research/candidate_eventscore_status.json?qa='+nonce,{cache:'no-store'}),
-    fetch(base+'/research/candidate_family_scorecard_status.json?qa='+nonce,{cache:'no-store'})
+    fetch(base+'/research/candidate_family_scorecard_status.json?qa='+nonce,{cache:'no-store'}),
+    fetch(base+'/research/candidate_evidence_promotion_status.json?qa='+nonce,{cache:'no-store'})
   ]);
-  if(fr.ok&&er.ok&&cr.ok){
-    const forward=await fr.json(),eventscore=await er.json(),family=await cr.json();
+  if(fr.ok&&er.ok&&cr.ok&&pr.ok){
+    const forward=await fr.json(),eventscore=await er.json(),family=await cr.json(),promotion=await pr.json();
     const forwardOk=forward?.status==='running'
       &&forward?.historical_backfill_allowed===false
       &&forward?.production_effect==='none'
@@ -158,26 +159,34 @@ try{
       &&String(forward?.ledger_mode||'').includes('next_open_baseline');
     const eventOk=eventscore?.production_effect==='none'
       &&eventscore?.promotion_effect==='none'
-      &&eventscore?.promotion_gate_bridge?.state==='blocked_by_frozen_family_semantics'
+      &&eventscore?.promotion_gate_bridge?.state==='legacy_rule_promotion_bridge_frozen'
+      &&eventscore?.promotion_gate_bridge?.candidate_evidence_promotion_path==='independent_ready'
       &&Number(eventscore?.counts?.promotion_gate_compatible||0)===0;
     const familyOk=family?.state==='shadow_statistics_ready'
       &&family?.production_effect==='none'
       &&family?.promotion_effect==='none'
       &&family?.promotion_bridge==='blocked_by_frozen_rule_family_semantics'
       &&Number(family?.counts?.promotion_gate_compatible||0)===0;
+    const promotionOk=promotion?.state==='evidence_gate_ready'
+      &&promotion?.production_effect==='none'
+      &&promotion?.promotion_effect==='evidence_tier_only'
+      &&Number(promotion?.counts?.passed||0)>=0
+      &&Number(promotion?.counts?.decision_fusion_eligible||0)>=0;
     report.learning_guardrails={
-      status:forwardOk&&eventOk&&familyOk?'PASS':'FAIL',
+      status:forwardOk&&eventOk&&familyOk&&promotionOk?'PASS':'FAIL',
       forward_status:forward?.status||'unknown',
       forward_historical_backfill_allowed:forward?.historical_backfill_allowed,
       forward_ledger_mode:forward?.ledger_mode||null,
       candidate_eventscore_bridge:eventscore?.promotion_gate_bridge?.state||'unknown',
       candidate_family_state:family?.state||'unknown',
       candidate_family_bridge:family?.promotion_bridge||'unknown',
-      production_effects:[forward?.production_effect,eventscore?.production_effect,family?.production_effect],
-      promotion_effects:[forward?.promotion_effect,eventscore?.promotion_effect,family?.promotion_effect]
+      candidate_evidence_promotion_state:promotion?.state||'unknown',
+      candidate_evidence_promotion_passed:Number(promotion?.counts?.passed||0),
+      production_effects:[forward?.production_effect,eventscore?.production_effect,family?.production_effect,promotion?.production_effect],
+      promotion_effects:[forward?.promotion_effect,eventscore?.promotion_effect,family?.promotion_effect,promotion?.promotion_effect]
     };
   }else{
-    report.learning_guardrails={status:'FAIL',error:`candidate guardrail status unavailable ${fr.status}/${er.status}/${cr.status}`};
+    report.learning_guardrails={status:'FAIL',error:`candidate guardrail status unavailable ${fr.status}/${er.status}/${cr.status}/${pr.status}`};
   }
 }catch(e){report.learning_guardrails={status:'FAIL',error:String(e.message).slice(0,200)}}
 

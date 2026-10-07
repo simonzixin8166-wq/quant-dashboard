@@ -65,6 +65,25 @@ def stable_id(*parts):
     raw="|".join(str(x or "") for x in parts).encode("utf-8")
     return hashlib.sha256(raw).hexdigest()[:24]
 
+def candidate_definition_hash(candidate):
+    """Hash only the reproducible candidate definition, not run-time eligibility.
+
+    This lets a genuinely forward candidate keep its original formation status
+    across later compiler runs while still failing closed if parsing changes the
+    actual rule definition.
+    """
+    payload={
+        "scope":candidate.get("scope") or {},
+        "method_family":candidate.get("method_family"),
+        "state_role":candidate.get("state_role"),
+        "logic":candidate.get("logic") or {},
+        "conditions":candidate.get("conditions") or [],
+        "reproducibility_status":candidate.get("reproducibility_status"),
+        "expected_direction":candidate.get("expected_direction"),
+    }
+    raw=json.dumps(payload,ensure_ascii=False,sort_keys=True,separators=(",",":"))
+    return hashlib.sha256(raw.encode("utf-8")).hexdigest()
+
 def store_index(store):
     out={}
     for row in store.get("records") or []:
@@ -152,7 +171,7 @@ def compile_candidate(memory,prop,store_row,forward_formation_allowed=False):
         "horizon:unknown"
     )
     direction_governance=govern_signal_direction({"conditions":conditions})
-    return {
+    candidate={
         "candidate_id":"cand_"+stable_id(VERSION,sid,pid),
         "compiler_version":VERSION,
         "source_id":sid,
@@ -192,6 +211,8 @@ def compile_candidate(memory,prop,store_row,forward_formation_allowed=False):
             "This candidate cannot alter protected production rules or place trades.",
         ],
     }
+    candidate["candidate_definition_hash"]=candidate_definition_hash(candidate)
+    return candidate
 
 def build(reading,store,prior=None,now=None):
     """Compile candidates with a source-observation lock.
@@ -205,6 +226,7 @@ def build(reading,store,prior=None,now=None):
     prior=prior or {}
     idx=store_index(store)
     prior_obs={str(x.get("source_id")):x for x in (prior.get("source_observations") or []) if x.get("source_id")}
+    prior_candidates={str(x.get("candidate_id")):x for x in (prior.get("candidates") or []) if x.get("candidate_id")}
     observation_feature_preexisting="source_observations" in prior
     observations=[]
     seen=set()
@@ -231,10 +253,23 @@ def build(reading,store,prior=None,now=None):
             if prop.get("kind")!="candidate_rule":continue
             candidate=compile_candidate(memory,prop,meta,forward_formation_allowed)
             if candidate:
-                candidate["formation_mode"]=(
-                    "forward_initial" if candidate["forward_observation_eligible"]
-                    else ("migration_baseline" if not observation_feature_preexisting else "historical_or_retroactive")
+                old_candidate=prior_candidates.get(candidate["candidate_id"])
+                inherited_forward=bool(
+                    old_candidate
+                    and old_candidate.get("formation_mode")=="forward_initial"
+                    and old_candidate.get("forward_observation_eligible") is True
+                    and old_candidate.get("candidate_definition_hash")==candidate.get("candidate_definition_hash")
+                    and candidate.get("evidence_role")=="genuine_forward_observation"
+                    and candidate.get("reproducibility_status")=="machine_ready_shadow"
                 )
+                if inherited_forward:
+                    candidate["forward_observation_eligible"]=True
+                    candidate["formation_mode"]="forward_initial"
+                else:
+                    candidate["formation_mode"]=(
+                        "forward_initial" if candidate["forward_observation_eligible"]
+                        else ("migration_baseline" if not observation_feature_preexisting else "historical_or_retroactive")
+                    )
                 rows.append(candidate)
     for sid,old_obs in prior_obs.items():
         if sid not in seen:observations.append(dict(old_obs))
@@ -280,6 +315,7 @@ def build(reading,store,prior=None,now=None):
             "It never writes research/registry/rules.json or Promotion Gate outputs.",
             "Undefined source-specific indicators remain unresolved.",
             "Forward observation eligibility requires genuine_forward, high timestamp confidence, full reproducibility, and candidate formation on the source's first compiler observation.",
+            "A forward_initial candidate keeps eligibility across later compiler runs only while its candidate_definition_hash is unchanged.",
             "Already-seen sources cannot become Forward evidence because of later extraction improvements.",
             "The first migration cycle is non-forward by construction.",
             "Production eligibility is always false in this compiler.",

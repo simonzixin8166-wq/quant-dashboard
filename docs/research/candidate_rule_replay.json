@@ -1,6 +1,6 @@
 {
   "version": "1.1",
-  "generated_at": "2026-10-07T04:42:18.745790+00:00",
+  "generated_at": "2026-10-07T04:44:43.824429+00:00",
   "mode": "research_shadow_historical_only",
   "evidence_provenance": "historical_replay_post_candidate_compilation",
   "forward_evidence_mixed": false,
@@ -11,6 +11,9 @@
     "replayed": 2,
     "blocked": 5,
     "raw_events": 344,
+    "cross_candidate_unique_state_entries": 172,
+    "cross_candidate_duplicate_event_instances": 172,
+    "cross_candidate_overlap_rate": 0.5,
     "effective_clusters": 260
   },
   "data_provenance": {
@@ -140,25 +143,29 @@
       "candidate_id": "cand_2bee0d9f5e047ed0f58dd3ed",
       "status": "blocked",
       "reason": "candidate_not_fully_reproducible",
-      "events": []
+      "events": [],
+      "cross_candidate_overlap_events": 0
     },
     {
       "candidate_id": "cand_2dbc916b6207538ac9b46a1b",
       "status": "blocked",
       "reason": "candidate_not_fully_reproducible",
-      "events": []
+      "events": [],
+      "cross_candidate_overlap_events": 0
     },
     {
       "candidate_id": "cand_5fac5eeecdc248ffb0d46218",
       "status": "blocked",
       "reason": "candidate_not_fully_reproducible",
-      "events": []
+      "events": [],
+      "cross_candidate_overlap_events": 0
     },
     {
       "candidate_id": "cand_6fc930b6f5709890c2336106",
       "status": "blocked",
       "reason": "candidate_not_fully_reproducible",
-      "events": []
+      "events": [],
+      "cross_candidate_overlap_events": 0
     },
     {
       "candidate_id": "cand_91aa2e8842e7f457026481d4",
@@ -3477,13 +3484,15 @@
             }
           }
         }
-      ]
+      ],
+      "cross_candidate_overlap_events": 172
     },
     {
       "candidate_id": "cand_ce8cac2e84406a07490a2eb9",
       "status": "blocked",
       "reason": "candidate_not_fully_reproducible",
-      "events": []
+      "events": [],
+      "cross_candidate_overlap_events": 0
     },
     {
       "candidate_id": "cand_dc32848a68802a4661351fea",
@@ -6802,7 +6811,8 @@
             }
           }
         }
-      ]
+      ],
+      "cross_candidate_overlap_events": 172
     }
   ],
   "validation_contract": {
@@ -6830,7 +6840,8 @@
     "On-demand STOOQ/yfinance history is Research/Shadow-only and cannot become a Production data dependency.",
     "Signals use same-day/past inputs; future bars are used only to calculate later outcomes.",
     "State-entry events are counted; repeated days inside one state are not new events.",
-    "Signals within five sessions are clustered for effective-N reporting.",
+    "Signals within five sessions are clustered for per-candidate effective-N reporting.",
+    "System-level raw event totals are accompanied by cross-candidate unique state-entry and overlap metrics; overlapping Candidate instances are not represented as independent evidence.",
     "Replay cannot write Promotion Gate, protected rules, positions, sizing or orders."
   ]
 }

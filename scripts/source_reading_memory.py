@@ -74,6 +74,8 @@ def extractor_input_payload(row):
         "author":row.get("author"),
         "published_at":row.get("published_at"),
         "symbols":row.get("symbols") or [],
+        "primary_symbols":row.get("primary_symbols") or [],
+        "symbol_attribution":row.get("symbol_attribution") or [],
         "topics":row.get("topics") or [],
         "operations":row.get("operations") or [],
         "portfolio_rules":row.get("portfolio_rules") or [],
@@ -162,7 +164,9 @@ def prose_candidate_rule(row, sentences):
     """
     if row.get("rule_candidate_allowed") is False:
         return None
-    symbols=[str(x) for x in (row.get("symbols") or []) if str(x)]
+    declared_primary=[str(x) for x in (row.get("primary_symbols") or []) if str(x)]
+    all_symbols=[str(x) for x in (row.get("symbols") or []) if str(x)]
+    symbols=declared_primary if declared_primary else (all_symbols if len(all_symbols)==1 else [])
     if len(symbols)!=1:
         return None
     found=[]
@@ -328,6 +332,8 @@ def record_memory(row):
         "title":row.get("title"),
         "url":row.get("url"),
         "symbols":row.get("symbols") or [],
+        "primary_symbols":row.get("primary_symbols") or [],
+        "symbol_attribution":row.get("symbol_attribution") or [],
         "topics":row.get("topics") or [],
         "content_quality":row.get("content_quality"),
         "content_provider":row.get("content_provider"),

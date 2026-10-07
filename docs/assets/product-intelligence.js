@@ -28,25 +28,34 @@ function optionActions(){
  }).sort((a,b)=>(rank[b.risk]||0)-(rank[a.risk]||0)||String(a.expiry).localeCompare(String(b.expiry)));
 }
 function stockStatus(){try{return global.StockWatchlist?.assistantStatus?.()||{count:0,researchCount:0,risk:[],improving:[],hot:[],loaded:false}}catch{return{count:0,researchCount:0,risk:[],improving:[],hot:[],loaded:false}}}
-function opportunityAxes(x,kind){
+function explicitSignal(x,authority,held=false){
+ const base=global.MAVSignalPolicy?.classify?.({
+   score:x?.score,stage:x?.stage,held,
+   decisionEligible:authority?.decision_eligible!==false,
+   hasThesis:x?.hasThesis
+ });
+ return base||{action:'WATCH',label:'WATCH',zh:'观察，不介入',tone:'neutral',reason:'等待统一信号策略加载',next_confirmation:''};
+}
+function opportunityAxes(x,kind,authority){
  const pulse=Number(x?.score);
- let opportunity='中',risk='中',confidence='低',action='WATCH',tone='warn';
- if(kind==='improving'){opportunity='高';risk='中';action='WATCH';tone='good'}
- if(kind==='hot'){opportunity='中';risk='高';action='WATCH';tone='warn'}
- if(kind==='risk'){opportunity='低';risk='高';action='IGNORE';tone='bad'}
+ let opportunity='中',risk='中',confidence='低';
+ if(kind==='improving')opportunity='高';
+ if(kind==='hot'){opportunity='中';risk='高'}
+ if(kind==='risk'){opportunity='低';risk='高'}
  if(Number.isFinite(pulse)&&pulse>=60&&kind==='improving')opportunity='高';
  if(Number.isFinite(pulse)&&pulse<20)opportunity='低';
  confidence=x?.hasThesis?'中':'低';
- return{opportunity,risk,confidence,action,tone};
+ const signal=explicitSignal(x,authority,false);
+ return{opportunity,risk,confidence,action:signal.action,tone:signal.tone,actionZh:signal.zh,reason:signal.reason,nextConfirmation:signal.next_confirmation};
 }
 function opportunities(){
- const s=stockStatus(),seen=new Set(),rows=[];
- const add=(x,label,why,kind)=>{if(!x?.symbol||seen.has(x.symbol))return;seen.add(x.symbol);const axes=opportunityAxes(x,kind);rows.push({symbol:x.symbol,label,why,kind,...axes})};
- (s.improving||[]).forEach(x=>add(x,'修复 / 转强','趋势改善，下一步核对 Thesis、策略价与事件风险','improving'));
- (s.hot||[]).forEach(x=>add(x,'强势但偏热','保持关注，不因高分追涨；等待更好的风险收益位置','hot'));
- (s.risk||[]).forEach(x=>add(x,'风险优先','趋势退潮或恶化，优先复核原始逻辑与失效条件','risk'));
- const order={ACT:3,WATCH:2,IGNORE:1};
- return rows.sort((a,b)=>(order[b.action]||0)-(order[a.action]||0)).slice(0,4);
+ const s=stockStatus(),seen=new Set(),rows=[],authority=decisionAuthority();
+ const add=(x,label,why,kind)=>{if(!x?.symbol||seen.has(x.symbol))return;seen.add(x.symbol);const axes=opportunityAxes(x,kind,authority);rows.push({symbol:x.symbol,label,why:axes.reason||why,kind,...axes})};
+ (s.improving||[]).forEach(x=>add(x,'趋势形成','趋势改善，等待系统动作判断','improving'));
+ (s.hot||[]).forEach(x=>add(x,'强势区','强势不等于追涨，等待系统动作判断','hot'));
+ (s.risk||[]).forEach(x=>add(x,'风险状态','系统将风险状态翻译为明确动作','risk'));
+ const order={EXIT:8,REDUCE:7,CONFIRMED_ENTRY:6,EARLY_ENTRY:5,NO_ADD:4,HOLD:3,WAIT:2,WATCH:1,NO_SIGNAL:0};
+ return rows.sort((a,b)=>(order[b.action]||0)-(order[a.action]||0)).slice(0,6);
 }
 function decisionAuthority(){
  const sys=state.systemStatus,server=state.serverAction,market=sys?.artifacts?.market_dashboard;
@@ -104,8 +113,8 @@ function actionItems(){
  opt.filter(x=>x.risk==='l3').slice(0,2).forEach(x=>rows.push({priority:100,tone:'bad',when:'今日',title:`${x.symbol} 期权需处理`,text:x.reason,target:'tab-options'}));
  opt.filter(x=>x.risk==='l2').slice(0,2).forEach(x=>rows.push({priority:80,tone:'warn',when:'今日 / 次日',title:`${x.symbol} 期权复核`,text:x.reason,target:'tab-options'}));
  opt.filter(x=>x.timing.includes('止盈')).slice(0,2).forEach(x=>rows.push({priority:70,tone:'good',when:'今日',title:`${x.symbol} 可评估止盈`,text:x.reason,target:'tab-options'}));
- (s.risk||[]).slice(0,2).forEach(x=>rows.push({priority:85,tone:'bad',when:'今日',title:`${x.symbol} 趋势风险复核`,text:'趋势转弱/退潮仅表示需要复核；不能直接等同 Thesis 已失效。',target:'tab-stocks'}));
- (s.improving||[]).slice(0,2).forEach(x=>rows.push({priority:50,tone:'good',when:'观察',title:`${x.symbol} 出现修复`,text:'趋势改善，继续检查策略价、基本面与事件条件。',target:'tab-stocks'}));
+ (s.risk||[]).slice(0,3).forEach(x=>{const sig=explicitSignal(x,decisionAuthority(),false);rows.push({priority:sig.action==='NO_SIGNAL'?120:sig.action==='REDUCE'||sig.action==='EXIT'?90:65,tone:sig.tone,when:sig.action==='NO_SIGNAL'?'当前':'今日',title:`${x.symbol} · ${sig.label}`,text:`${sig.zh}。 ${sig.reason}`,target:'tab-stocks'})});
+ (s.improving||[]).slice(0,3).forEach(x=>{const sig=explicitSignal(x,decisionAuthority(),false);rows.push({priority:sig.action==='CONFIRMED_ENTRY'?75:sig.action==='EARLY_ENTRY'?65:45,tone:sig.tone,when:/ENTRY/.test(sig.action)?'介入机会':'观察',title:`${x.symbol} · ${sig.label}`,text:`${sig.zh}。 ${sig.reason}`,target:'tab-stocks'})});
  const authority=decisionAuthority();
  if(!authority.decision_eligible){
    return [{priority:120,tone:'bad',when:'当前',title:authority.title,text:authority.detail,target:'tab-system-health'}];
@@ -115,7 +124,7 @@ function actionItems(){
 }
 function card(title,value,detail,tone='neutral'){return `<article class="pi-stat ${tone}"><span>${esc(title)}</span><b>${esc(value)}</b><small>${esc(detail)}</small></article>`}
 function actionHtml(x,i){return `<article class="pi-action ${esc(x.tone)}"><span class="pi-seq">0${i+1}</span><div><div class="pi-action-top"><b>${esc(x.title)}</b><span>${esc(x.when)}</span></div><p>${esc(x.text)}</p><button type="button" data-pi-target="${esc(x.target)}">打开处理</button></div></article>`}
-function opportunityHtml(x){return `<button type="button" class="pi-opportunity ${esc(x.tone)}" data-pi-symbol="${esc(x.symbol)}"><span>${esc(x.symbol)}</span><b>${esc(x.label)} <em>${esc(x.action)}</em></b><small>${esc(x.why)}</small><div class="pi-axes"><i>机会 ${esc(x.opportunity)}</i><i>风险 ${esc(x.risk)}</i><i>置信 ${esc(x.confidence)}</i></div></button>`}
+function opportunityHtml(x){return `<button type="button" class="pi-opportunity ${esc(x.tone)}" data-pi-symbol="${esc(x.symbol)}"><span>${esc(x.symbol)}</span><b>${esc(x.action)} <em>${esc(x.actionZh||'')}</em></b><small>${esc(x.why)}</small>${x.nextConfirmation?`<small>下一条件：${esc(x.nextConfirmation)}</small>`:''}<div class="pi-axes"><i>机会 ${esc(x.opportunity)}</i><i>风险 ${esc(x.risk)}</i><i>置信 ${esc(x.confidence)}</i></div></button>`}
 function healthHtml(x){return `<div class="pi-health-row"><i class="${esc(x.status)}"></i><div><b>${esc(x.name)}</b><small>${esc(x.detail)}</small></div></div>`}
 
 function render(){

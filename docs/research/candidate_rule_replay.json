@@ -1,0 +1,43 @@
+{
+  "version": "1.0",
+  "generated_at": "2026-10-07T03:45:20.297417+00:00",
+  "mode": "research_shadow_historical_only",
+  "evidence_provenance": "historical_replay_post_candidate_compilation",
+  "forward_evidence_mixed": false,
+  "automatic_promotion": false,
+  "production_effect": "none",
+  "summary": {
+    "candidates": 3,
+    "replayed": 0,
+    "blocked": 3,
+    "raw_events": 0,
+    "effective_clusters": 0
+  },
+  "candidates": [
+    {
+      "candidate_id": "cand_2dbc916b6207538ac9b46a1b",
+      "status": "blocked",
+      "reason": "candidate_not_fully_reproducible",
+      "events": []
+    },
+    {
+      "candidate_id": "cand_5fac5eeecdc248ffb0d46218",
+      "status": "blocked",
+      "reason": "historical_symbol_missing",
+      "events": []
+    },
+    {
+      "candidate_id": "cand_ce8cac2e84406a07490a2eb9",
+      "status": "blocked",
+      "reason": "candidate_not_fully_reproducible",
+      "events": []
+    }
+  ],
+  "guardrails": [
+    "Historical replay is post-candidate-compilation evidence and never Forward evidence.",
+    "Only fully reproducible candidate conditions are replayed.",
+    "State-entry events are counted; repeated days inside one state are not new events.",
+    "Signals within five sessions are clustered for effective-N reporting.",
+    "Replay cannot write Promotion Gate, protected rules, positions, sizing or orders."
+  ]
+}

@@ -1,0 +1,291 @@
+{
+  "version": "1.0",
+  "generated_at": "2026-10-07T03:45:19.767445+00:00",
+  "mode": "research_shadow_only",
+  "counts": {
+    "candidates": 3,
+    "machine_ready_shadow": 1,
+    "partial_needs_definition": 1,
+    "blocked_needs_definition": 1,
+    "historical_replay_eligible": 2,
+    "forward_observation_eligible": 0,
+    "production_eligible": 0
+  },
+  "by_family": {
+    "trend_confirmation": 3
+  },
+  "candidates": [
+    {
+      "candidate_id": "cand_2dbc916b6207538ac9b46a1b",
+      "compiler_version": "1.0",
+      "source_id": "79c31059d07fa06e5aec",
+      "proposition_id": "e8da60ecbd9f0a48e4",
+      "source": {
+        "author": "yifan99",
+        "source": "wenxuecity",
+        "source_kind": "blog",
+        "published_at": "2026-10-06",
+        "title": "Amazon，要突破了？",
+        "url": "https://blog.wenxuecity.com/myblog/31983/202610/3830.html",
+        "content_quality": null
+      },
+      "scope": {
+        "symbols": [
+          "AMZN"
+        ],
+        "subject_attribution": "single_symbol_source_scope"
+      },
+      "method_family": "trend_confirmation",
+      "family_signature": "family_3504a7e5bb488911d1da5ec1",
+      "state_hint": "EARLY_ENTRY",
+      "state_role": "trigger",
+      "logic": {
+        "trigger_conditions": [
+          "tcds_cross_zero",
+          "ppo_above_signal",
+          "ppo_hist_positive",
+          "price_above_ma50",
+          "ma50_hold_two_sessions"
+        ],
+        "confirmation_conditions": [],
+        "invalidation_conditions": []
+      },
+      "conditions": [
+        {
+          "condition_id": "tcds_cross_zero",
+          "machine_ready": false,
+          "expression": null,
+          "unresolved_reason": "TCDS formula/parameters not defined in source"
+        },
+        {
+          "condition_id": "ppo_above_signal",
+          "machine_ready": false,
+          "expression": null,
+          "unresolved_reason": "PPO periods/definition not verified"
+        },
+        {
+          "condition_id": "ppo_hist_positive",
+          "machine_ready": false,
+          "expression": null,
+          "unresolved_reason": "PPO periods/definition not verified"
+        },
+        {
+          "condition_id": "price_above_ma50",
+          "machine_ready": true,
+          "expression": {
+            "indicator": "price_vs_ma50",
+            "operator": "above",
+            "threshold": "MA50"
+          },
+          "unresolved_reason": null
+        },
+        {
+          "condition_id": "ma50_hold_two_sessions",
+          "machine_ready": true,
+          "expression": {
+            "indicator": "price_vs_ma50",
+            "operator": "hold_above",
+            "sessions": 2
+          },
+          "unresolved_reason": null
+        }
+      ],
+      "machine_ready_conditions": [
+        "price_above_ma50",
+        "ma50_hold_two_sessions"
+      ],
+      "unresolved_inputs": [
+        {
+          "condition_id": "tcds_cross_zero",
+          "reason": "TCDS formula/parameters not defined in source"
+        },
+        {
+          "condition_id": "ppo_above_signal",
+          "reason": "PPO periods/definition not verified"
+        },
+        {
+          "condition_id": "ppo_hist_positive",
+          "reason": "PPO periods/definition not verified"
+        }
+      ],
+      "reproducibility_status": "partial_needs_definition",
+      "evidence_role": "historical_or_nonforward",
+      "forward_observation_eligible": false,
+      "historical_replay_eligible": true,
+      "production_eligible": false,
+      "promotion_eligible": false,
+      "horizon": "unknown_until_explicitly_defined",
+      "raw_evidence": [
+        "。不过真正让我注意的，并不是这 1.95%，而是价格背后的几个信号开始同时转向。 Amazon DeepWave：价格、MA21/MA50、Supertrend、TCDS-D/MACD 与 PPO TCDS终于回到0",
+        "PPO = -0.532 ｜ Signal = -0.768 ｜ Histogram = +0.237 PPO 本身还在零轴以下，所以 Amazon 还不能算真正进入强趋势。但是一个重要变化已经出现： PPO 已经向上超过 Signal，Histogram 也由负转正。",
+        "。这也是为什么我还不会说：“Amazon 已经突破，可以追了。” Early Entry → 等待 MA50 确认 如果接下来价格真正站上 MA50，而且能够连续两天守住，同时 TCDS 从 0 继续转正、PPO Histogram 继续扩大，那么性质就不一样了。",
+        "TCDS终于回到0"
+      ],
+      "guardrails": [
+        "Research/Shadow only.",
+        "No missing formula, parameter, threshold or horizon is inferred.",
+        "Backfill/historical evidence cannot become Forward evidence by relabeling.",
+        "This candidate cannot alter protected production rules or place trades."
+      ]
+    },
+    {
+      "candidate_id": "cand_5fac5eeecdc248ffb0d46218",
+      "compiler_version": "1.0",
+      "source_id": "d5b6b9842d3e2a1cd49f",
+      "proposition_id": "e91466da1ab1c15270",
+      "source": {
+        "author": "yifan99",
+        "source": "wenxuecity",
+        "source_kind": "blog",
+        "published_at": "2026-09-29",
+        "title": "AMZN 一次向上 False Break（假突破），目前重新回到偏弱区间",
+        "url": "https://blog.wenxuecity.com/myblog/31983/202609/22036.html",
+        "content_quality": null
+      },
+      "scope": {
+        "symbols": [
+          "AMZN"
+        ],
+        "subject_attribution": "single_symbol_source_scope"
+      },
+      "method_family": "trend_confirmation",
+      "family_signature": "family_e8aacc22fd58fbb10884eb1e",
+      "state_hint": "EARLY_ENTRY",
+      "state_role": "trigger",
+      "logic": {
+        "trigger_conditions": [
+          "price_above_ma50",
+          "ma50_hold_two_sessions",
+          "price_below_ma50"
+        ],
+        "confirmation_conditions": [],
+        "invalidation_conditions": []
+      },
+      "conditions": [
+        {
+          "condition_id": "price_above_ma50",
+          "machine_ready": true,
+          "expression": {
+            "indicator": "price_vs_ma50",
+            "operator": "above",
+            "threshold": "MA50"
+          },
+          "unresolved_reason": null
+        },
+        {
+          "condition_id": "ma50_hold_two_sessions",
+          "machine_ready": true,
+          "expression": {
+            "indicator": "price_vs_ma50",
+            "operator": "hold_above",
+            "sessions": 2
+          },
+          "unresolved_reason": null
+        },
+        {
+          "condition_id": "price_below_ma50",
+          "machine_ready": true,
+          "expression": {
+            "indicator": "price_vs_ma50",
+            "operator": "below",
+            "threshold": "MA50"
+          },
+          "unresolved_reason": null
+        }
+      ],
+      "machine_ready_conditions": [
+        "price_above_ma50",
+        "ma50_hold_two_sessions",
+        "price_below_ma50"
+      ],
+      "unresolved_inputs": [],
+      "reproducibility_status": "machine_ready_shadow",
+      "evidence_role": "historical_or_nonforward",
+      "forward_observation_eligible": false,
+      "historical_replay_eligible": true,
+      "production_eligible": false,
+      "promotion_eligible": false,
+      "horizon": "unknown_until_explicitly_defined",
+      "raw_evidence": [
+        "从这张 AMZN 截至 9/29 的日线图看，把最近这一段更新为： AMZN：更像是一次向上 False Break（假突破），目前重新回到偏弱区间。 关键原因是：前几天价格一度重新站上 MA21 / MA50 附近，并出现绿色 E / E+ 信号，但随后没有形成持续上攻，反而又跌回两条均线下方。今天收在 246.67，而短期均线大约仍在 250–253 区",
+        "同时下面的动量指标也没有确认突破。图中 TCDS = -65，MACD = -0.657，MACD 柱仍在零轴下方，说明这次上穿并没有得到动量配合。因此目前不能把前面的 E/E+ 当成有效趋势反转，更合理的是把它看成一次 early entry 失败。 我现在会重点看三个区域： - 250–253：第一道确认区。AMZN 必须重新站回 MA21/MA50，并",
+        "这套系统里，暂时把 AMZN 的信号写成： AMZN 9/29: FALSE BREAK ? Price 246.67 | Below MA21/MA50 | TCDS -65 | MACD 0",
+        "关键原因是：前几天价格一度重新站上 MA21 / MA50 附近，并出现绿色 E / E+ 信号，但随后没有形成持续上攻，反而又跌回两条均线下方。"
+      ],
+      "guardrails": [
+        "Research/Shadow only.",
+        "No missing formula, parameter, threshold or horizon is inferred.",
+        "Backfill/historical evidence cannot become Forward evidence by relabeling.",
+        "This candidate cannot alter protected production rules or place trades."
+      ]
+    },
+    {
+      "candidate_id": "cand_ce8cac2e84406a07490a2eb9",
+      "compiler_version": "1.0",
+      "source_id": "a688f62cf1568381701a",
+      "proposition_id": "3c9a83bc25efab6d74",
+      "source": {
+        "author": "yifan99",
+        "source": "wenxuecity",
+        "source_kind": "forum",
+        "published_at": "2026-10-06 14:04:20",
+        "title": "Amazon，要突破了？",
+        "url": "https://bbs.wenxuecity.com/cfzh/113918.html",
+        "content_quality": null
+      },
+      "scope": {
+        "symbols": [
+          "AMZN"
+        ],
+        "subject_attribution": "single_symbol_source_scope"
+      },
+      "method_family": "trend_confirmation",
+      "family_signature": "family_afb0f4c913db552a57812e0e",
+      "state_hint": null,
+      "state_role": "unspecified",
+      "logic": {
+        "trigger_conditions": [],
+        "confirmation_conditions": [],
+        "invalidation_conditions": []
+      },
+      "conditions": [
+        {
+          "condition_id": "tcds_cross_zero",
+          "machine_ready": false,
+          "expression": null,
+          "unresolved_reason": "TCDS formula/parameters not defined in source"
+        }
+      ],
+      "machine_ready_conditions": [],
+      "unresolved_inputs": [
+        {
+          "condition_id": "tcds_cross_zero",
+          "reason": "TCDS formula/parameters not defined in source"
+        }
+      ],
+      "reproducibility_status": "blocked_needs_definition",
+      "evidence_role": "historical_or_nonforward",
+      "forward_observation_eligible": false,
+      "historical_replay_eligible": false,
+      "production_eligible": false,
+      "promotion_eligible": false,
+      "horizon": "unknown_until_explicitly_defined",
+      "raw_evidence": [
+        "TCDS终于回到0"
+      ],
+      "guardrails": [
+        "Research/Shadow only.",
+        "No missing formula, parameter, threshold or horizon is inferred.",
+        "Backfill/historical evidence cannot become Forward evidence by relabeling.",
+        "This candidate cannot alter protected production rules or place trades."
+      ]
+    }
+  ],
+  "guardrails": [
+    "Candidate Rule Compiler writes only the Research/Shadow candidate registry.",
+    "It never writes research/registry/rules.json or Promotion Gate outputs.",
+    "Undefined source-specific indicators remain unresolved.",
+    "Forward observation eligibility requires genuine_forward plus high timestamp confidence and a fully reproducible candidate.",
+    "Production eligibility is always false in this compiler."
+  ]
+}

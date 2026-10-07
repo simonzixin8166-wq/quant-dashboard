@@ -1,0 +1,86 @@
+{
+  "version": "1.0",
+  "generated_at": "2026-10-07T03:45:19.767445+00:00",
+  "counts": {
+    "candidates": 3,
+    "machine_ready_shadow": 1,
+    "partial_needs_definition": 1,
+    "blocked_needs_definition": 1,
+    "historical_replay_eligible": 2,
+    "forward_observation_eligible": 0,
+    "production_eligible": 0
+  },
+  "by_family": {
+    "trend_confirmation": 3
+  },
+  "sample": [
+    {
+      "candidate_id": "cand_2dbc916b6207538ac9b46a1b",
+      "author": "yifan99",
+      "title": "Amazon，要突破了？",
+      "symbols": [
+        "AMZN"
+      ],
+      "method_family": "trend_confirmation",
+      "reproducibility_status": "partial_needs_definition",
+      "unresolved_inputs": [
+        {
+          "condition_id": "tcds_cross_zero",
+          "reason": "TCDS formula/parameters not defined in source"
+        },
+        {
+          "condition_id": "ppo_above_signal",
+          "reason": "PPO periods/definition not verified"
+        },
+        {
+          "condition_id": "ppo_hist_positive",
+          "reason": "PPO periods/definition not verified"
+        }
+      ],
+      "evidence_role": "historical_or_nonforward",
+      "forward_observation_eligible": false,
+      "production_eligible": false
+    },
+    {
+      "candidate_id": "cand_5fac5eeecdc248ffb0d46218",
+      "author": "yifan99",
+      "title": "AMZN 一次向上 False Break（假突破），目前重新回到偏弱区间",
+      "symbols": [
+        "AMZN"
+      ],
+      "method_family": "trend_confirmation",
+      "reproducibility_status": "machine_ready_shadow",
+      "unresolved_inputs": [],
+      "evidence_role": "historical_or_nonforward",
+      "forward_observation_eligible": false,
+      "production_eligible": false
+    },
+    {
+      "candidate_id": "cand_ce8cac2e84406a07490a2eb9",
+      "author": "yifan99",
+      "title": "Amazon，要突破了？",
+      "symbols": [
+        "AMZN"
+      ],
+      "method_family": "trend_confirmation",
+      "reproducibility_status": "blocked_needs_definition",
+      "unresolved_inputs": [
+        {
+          "condition_id": "tcds_cross_zero",
+          "reason": "TCDS formula/parameters not defined in source"
+        }
+      ],
+      "evidence_role": "historical_or_nonforward",
+      "forward_observation_eligible": false,
+      "production_eligible": false
+    }
+  ],
+  "production_effect": "none",
+  "guardrails": [
+    "Candidate Rule Compiler writes only the Research/Shadow candidate registry.",
+    "It never writes research/registry/rules.json or Promotion Gate outputs.",
+    "Undefined source-specific indicators remain unresolved.",
+    "Forward observation eligibility requires genuine_forward plus high timestamp confidence and a fully reproducible candidate.",
+    "Production eligibility is always false in this compiler."
+  ]
+}

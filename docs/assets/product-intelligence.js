@@ -55,7 +55,7 @@ function opportunities(){
  (s.hot||[]).forEach(x=>add(x,'强势区','强势不等于追涨，等待系统动作判断','hot'));
  (s.risk||[]).forEach(x=>add(x,'风险状态','系统将风险状态翻译为明确动作','risk'));
  const order={EXIT:8,REDUCE:7,CONFIRMED_ENTRY:6,EARLY_ENTRY:5,NO_ADD:4,HOLD:3,WAIT:2,WATCH:1,NO_SIGNAL:0};
- return rows.sort((a,b)=>(order[b.action]||0)-(order[a.action]||0)).slice(0,6);
+ return rows.sort((a,b)=>(order[b.action]||0)-(order[a.action]||0));
 }
 function decisionAuthority(){
  const sys=state.systemStatus,server=state.serverAction,market=sys?.artifacts?.market_dashboard;
@@ -110,17 +110,32 @@ function dataHealth(){
 }
 function actionItems(){
  const opt=optionActions(),s=stockStatus(),rows=[];
- opt.filter(x=>x.risk==='l3').slice(0,2).forEach(x=>rows.push({priority:100,tone:'bad',when:'今日',title:`${x.symbol} 期权需处理`,text:x.reason,target:'tab-options'}));
- opt.filter(x=>x.risk==='l2').slice(0,2).forEach(x=>rows.push({priority:80,tone:'warn',when:'今日 / 次日',title:`${x.symbol} 期权复核`,text:x.reason,target:'tab-options'}));
- opt.filter(x=>x.timing.includes('止盈')).slice(0,2).forEach(x=>rows.push({priority:70,tone:'good',when:'今日',title:`${x.symbol} 可评估止盈`,text:x.reason,target:'tab-options'}));
- (s.risk||[]).slice(0,3).forEach(x=>{const sig=explicitSignal(x,decisionAuthority(),false);rows.push({priority:sig.action==='NO_SIGNAL'?120:sig.action==='REDUCE'||sig.action==='EXIT'?90:65,tone:sig.tone,when:sig.action==='NO_SIGNAL'?'当前':'今日',title:`${x.symbol} · ${sig.label}`,text:`${sig.zh}。 ${sig.reason}`,target:'tab-stocks'})});
- (s.improving||[]).slice(0,3).forEach(x=>{const sig=explicitSignal(x,decisionAuthority(),false);rows.push({priority:sig.action==='CONFIRMED_ENTRY'?75:sig.action==='EARLY_ENTRY'?65:45,tone:sig.tone,when:/ENTRY/.test(sig.action)?'介入机会':'观察',title:`${x.symbol} · ${sig.label}`,text:`${sig.zh}。 ${sig.reason}`,target:'tab-stocks'})});
+ opt.filter(x=>x.risk==='l3').forEach(x=>rows.push({priority:100,tone:'bad',when:'今日',title:`${x.symbol} 期权需处理`,text:x.reason,target:'tab-options'}));
+ opt.filter(x=>x.risk==='l2').forEach(x=>rows.push({priority:80,tone:'warn',when:'今日 / 次日',title:`${x.symbol} 期权复核`,text:x.reason,target:'tab-options'}));
+ opt.filter(x=>x.timing.includes('止盈')).forEach(x=>rows.push({priority:70,tone:'good',when:'今日',title:`${x.symbol} 可评估止盈`,text:x.reason,target:'tab-options'}));
+ (s.risk||[]).forEach(x=>{const sig=explicitSignal(x,decisionAuthority(),false);rows.push({priority:sig.action==='NO_SIGNAL'?120:sig.action==='REDUCE'||sig.action==='EXIT'?90:65,tone:sig.tone,when:sig.action==='NO_SIGNAL'?'当前':'今日',title:`${x.symbol} · ${sig.label}`,text:`${sig.zh}。 ${sig.reason}`,target:'tab-stocks'})});
+ (s.improving||[]).forEach(x=>{const sig=explicitSignal(x,decisionAuthority(),false);rows.push({priority:sig.action==='CONFIRMED_ENTRY'?75:sig.action==='EARLY_ENTRY'?65:45,tone:sig.tone,when:/ENTRY/.test(sig.action)?'介入机会':'观察',title:`${x.symbol} · ${sig.label}`,text:`${sig.zh}。 ${sig.reason}`,target:'tab-stocks'})});
  const authority=decisionAuthority();
  if(!authority.decision_eligible){
    return [{priority:120,tone:'bad',when:'当前',title:authority.title,text:authority.detail,target:'tab-system-health'}];
  }
  if(!rows.length)rows.push({priority:10,tone:'neutral',when:'当前',title:'当前无需操作',text:'已完成当前可用数据检查，未发现需要升级处理的事项。',target:'tab-agent-center'});
- return rows.sort((a,b)=>(b.priority||0)-(a.priority||0)).slice(0,5);
+ return rows.sort((a,b)=>(b.priority||0)-(a.priority||0));
+}
+function actionGroup(x){
+ const t=String(x.title||'');
+ if(/EXIT|REDUCE|需处理|高风险|止盈/.test(t)||x.tone==='bad')return '立即处理';
+ if(/CONFIRMED ENTRY|EARLY ENTRY|介入机会/.test(t))return '介入机会';
+ if(/HOLD|NO ADD/.test(t))return '持有 / 停止加仓';
+ return '观察 / 复核';
+}
+function groupedActionsHtml(rows){
+ const order=['立即处理','介入机会','持有 / 停止加仓','观察 / 复核'];
+ return order.map(name=>{
+   const xs=rows.filter(x=>actionGroup(x)===name);
+   if(!xs.length)return '';
+   return `<div class="pi-action-group"><div class="pi-action-group-head"><b>${esc(name)}</b><span>${xs.length} 项</span></div><div class="pi-action-list">${xs.map(actionHtml).join('')}</div></div>`;
+ }).join('');
 }
 function card(title,value,detail,tone='neutral'){return `<article class="pi-stat ${tone}"><span>${esc(title)}</span><b>${esc(value)}</b><small>${esc(detail)}</small></article>`}
 function actionHtml(x,i){return `<article class="pi-action ${esc(x.tone)}"><span class="pi-seq">0${i+1}</span><div><div class="pi-action-top"><b>${esc(x.title)}</b><span>${esc(x.when)}</span></div><p>${esc(x.text)}</p><button type="button" data-pi-target="${esc(x.target)}">查看依据</button></div></article>`}
@@ -141,7 +156,7 @@ function render(){
    ${card('机会候选',opps.filter(x=>x.action==='ACT'||x.action==='WATCH').length,'三轴：机会 / 风险 / 置信','good')}
   </div>
   <div class="pi-grid">
-   <section class="pi-panel pi-actions"><div class="pi-panel-head"><div><span>01 / ACTIONS</span><h3>今天需要你处理</h3></div><button data-pi-target="tab-agent-center">查看研究过程</button></div><div class="pi-action-list">${actions.map(actionHtml).join('')}</div></section>
+   <section class="pi-panel pi-actions"><div class="pi-panel-head"><div><span>01 / ACTIONS</span><h3>今天需要你处理</h3></div><button data-pi-target="tab-agent-center">查看研究过程</button></div><div class="pi-action-groups">${groupedActionsHtml(actions)}</div></section>
    <section class="pi-panel"><div class="pi-panel-head"><div><span>02 / OPPORTUNITY</span><h3>观察池机会与风险</h3></div><button data-pi-target="tab-stocks">查看个股依据</button></div><div class="pi-opportunity-list">${opps.length?opps.map(opportunityHtml).join(''):'<div class="pi-empty">当前没有需要升级的个股状态。</div>'}</div></section>
    <section class="pi-panel"><div class="pi-panel-head"><div><span>03 / DATA HEALTH</span><h3>数据是否值得信任</h3></div><button data-pi-target="tab-system-health">查看数据依据</button></div><div class="pi-health-list">${health.map(healthHtml).join('')}</div></section>
   </div>

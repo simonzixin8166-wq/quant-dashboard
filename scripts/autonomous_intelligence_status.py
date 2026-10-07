@@ -35,8 +35,11 @@ def build():
     product=text("docs/assets/product-intelligence.js")
     qa=text("scripts/autonomous_site_qa.mjs")
 
-    source_count=int((src.get("counts") or {}).get("records") or len(src.get("records") or []))
+    src_counts=src.get("counts") or {}
+    source_count=int(src_counts.get("records") or len(src.get("records") or []))
     read_count=int((reading.get("counts") or {}).get("source_records") or len(reading.get("records") or []))
+    subject_roles=src_counts.get("symbol_role_counts") or {}
+    subject_attribution_active="symbol_role_counts" in src_counts
     ccounts=cand.get("counts") or {}
     rsum=replay.get("summary") or {}
     ev_forward=((evidence.get("evidence_layers") or {}).get("forward_evidence_candidates") or {})
@@ -54,10 +57,17 @@ def build():
 
     milestones={
       "A_source_reliability":{
-        "state":"active_quality_hardening",
-        "pass":source_count>0 and read_count>0,
-        "metrics":{"source_records":source_count,"source_reading_records":read_count},
-        "remaining":["primary_subject_attribution","continuous_source_coverage_audit"],
+        "state":"operational_continuous_audit" if subject_attribution_active else "active_quality_hardening",
+        "pass":source_count>0 and read_count>0 and subject_attribution_active,
+        "metrics":{
+            "source_records":source_count,
+            "source_reading_records":read_count,
+            "records_with_primary_subject":int(src_counts.get("records_with_primary_subject") or 0),
+            "ambiguous_multi_symbol_records":int(src_counts.get("ambiguous_multi_symbol_records") or 0),
+            "symbol_role_counts":subject_roles,
+            "primary_subject_attribution_active":subject_attribution_active,
+        },
+        "remaining":["continuous_source_coverage_audit"] if subject_attribution_active else ["primary_subject_attribution","continuous_source_coverage_audit"],
       },
       "B_autonomous_learning_core":{
         "state":"active" if int(ccounts.get("candidates") or 0)>=0 else "blocked",

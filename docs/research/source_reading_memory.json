@@ -1,6 +1,6 @@
 {
   "version": "6.14.7",
-  "generated_at": "2026-10-07T03:25:07.338553+00:00",
+  "generated_at": "2026-10-07T03:36:04.530870+00:00",
   "mode": "research_only_free_first",
   "source_intelligence_version": 2,
   "counts": {
@@ -2638,7 +2638,7 @@
     },
     {
       "source_id": "d5a969e48a644b3510e8",
-      "extractor_input_hash": "bbd32baff61888f1a0930386b7f1d237ac84f9fce83c92785d5c69f8668eee09",
+      "extractor_input_hash": "f1d54dcb5dd4ba6c3720806493ff54e0a1edf00f5b447bd4427813db383ad381",
       "extractor_input_scope": "exact_fields_consumed_by_source_reading_memory",
       "source": "wenxuecity",
       "source_kind": "forum",
@@ -2648,8 +2648,8 @@
       "url": "https://bbs.wenxuecity.com/cfzh/113867.html",
       "symbols": [
         "CIEN",
-        "AAOI",
-        "AMAT"
+        "AMAT",
+        "AAOI"
       ],
       "topics": [
         "估值与价格",
@@ -3861,7 +3861,7 @@
     },
     {
       "source_id": "79c31059d07fa06e5aec",
-      "extractor_input_hash": "c5ed6cbcd998027e022da18891b9f5950581d6377860a618925966aee8e6ebc8",
+      "extractor_input_hash": "acfea59878504634eca5d8c4a2943fbb0ceffad0c3ea3573a6f80acc86708b7f",
       "extractor_input_scope": "exact_fields_consumed_by_source_reading_memory",
       "source": "wenxuecity",
       "source_kind": "blog",
@@ -4080,9 +4080,9 @@
           }
         },
         {
-          "proposition_id": "6cf8377c0de0c580bf",
+          "proposition_id": "e8da60ecbd9f0a48e4",
           "kind": "candidate_rule",
-          "text": "AMZN：来源叙述形成候选规则 TCDS终于回到0",
+          "text": "AMZN：来源叙述形成候选规则 。不过真正让我注意的，并不是这 1.95%，而是价格背后的几个信号开始同时转向。 Amazon DeepWave：价格、MA21/MA50、Supertrend、TCDS-D/MACD 与 PPO TCDS终于回到0 / PPO = -0.532 ｜ Signal = -0.768 ｜ Histogram = +0.237 PPO 本身还在零轴以下，所以 Amazon 还不能算真正进入强趋势。但是一个重要变化已经出现： PPO 已经向上超过 Signal，Histogram 也由负转",
           "confidence": "medium",
           "testable": false,
           "evidence": {
@@ -4094,14 +4094,26 @@
                 {
                   "condition_id": "tcds_cross_zero",
                   "machine_ready": false
+                },
+                {
+                  "condition_id": "ppo_hist_positive",
+                  "machine_ready": false
+                },
+                {
+                  "condition_id": "price_above_ma50",
+                  "machine_ready": true
                 }
               ],
-              "state_hint": null,
+              "state_hint": "EARLY_ENTRY",
               "machine_readiness": "partial_needs_definition",
               "needs_definition": [
-                "tcds_cross_zero"
+                "tcds_cross_zero",
+                "ppo_hist_positive"
               ],
               "raw_evidence": [
+                "。不过真正让我注意的，并不是这 1.95%，而是价格背后的几个信号开始同时转向。 Amazon DeepWave：价格、MA21/MA50、Supertrend、TCDS-D/MACD 与 PPO TCDS终于回到0",
+                "PPO = -0.532 ｜ Signal = -0.768 ｜ Histogram = +0.237 PPO 本身还在零轴以下，所以 Amazon 还不能算真正进入强趋势。但是一个重要变化已经出现： PPO 已经向上超过 Signal，Histogram 也由负转正。",
+                "。这也是为什么我还不会说：“Amazon 已经突破，可以追了。” Early Entry → 等待 MA50 确认 如果接下来价格真正站上 MA50，而且能够连续两天守住，同时 TCDS 从 0 继续转正、PPO Histogram 继续扩大，那么性质就不一样了。",
                 "TCDS终于回到0"
               ],
               "source_derived_only": true
@@ -4115,7 +4127,7 @@
     },
     {
       "source_id": "5377eb61a5db0e089b1c",
-      "extractor_input_hash": "ca201650175e4f8748ea2983e2ba1468fa2d74092085c46073775e7f8e71f748",
+      "extractor_input_hash": "3a7da52f2a97d9bf88fa80918d1ab4c8cd06f34a624b7993891d2e6c91e91dd7",
       "extractor_input_scope": "exact_fields_consumed_by_source_reading_memory",
       "source": "wenxuecity",
       "source_kind": "blog",
@@ -4125,8 +4137,8 @@
       "url": "https://blog.wenxuecity.com/myblog/31983/202610/3715.html",
       "symbols": [
         "CIEN",
-        "AAOI",
-        "AMAT"
+        "AMAT",
+        "AAOI"
       ],
       "topics": [
         "估值与价格",
@@ -6390,7 +6402,7 @@
     },
     {
       "source_id": "8d9e6281e5fe0a41bf7f",
-      "extractor_input_hash": "7b438bea531586435d8d0bc66797f2ec3cb82d4f3a77d90c6c68b51384ee8f0a",
+      "extractor_input_hash": "b7760e5c7af53ccb694f3e96af82f8c5a58072698181253706019f09742c6a34",
       "extractor_input_scope": "exact_fields_consumed_by_source_reading_memory",
       "source": "wenxuecity",
       "source_kind": "blog",
@@ -14579,7 +14591,7 @@
     },
     {
       "source_id": "bced53383a2d1aed7e7d",
-      "extractor_input_hash": "09c2e812bf4ff1fb6c7331f1af31e81e3ba094808d2a4c814f3543e74daab135",
+      "extractor_input_hash": "ed7ef8a2e99ad188886f1ba268e6463c8ec15f313702ecab3c37259324f848af",
       "extractor_input_scope": "exact_fields_consumed_by_source_reading_memory",
       "source": "wenxuecity",
       "source_kind": "blog",
@@ -16820,7 +16832,7 @@
     },
     {
       "source_id": "d35833c7f9b63bde523b",
-      "extractor_input_hash": "b6b08ec882c88e1cfcb4a329b9c767420108659cbf660c623ea6b08859f64605",
+      "extractor_input_hash": "864b29cc5beb00f63624caded82852c8a89990f00ca6f4e5063bf37553d91f00",
       "extractor_input_scope": "exact_fields_consumed_by_source_reading_memory",
       "source": "wenxuecity",
       "source_kind": "forum",
@@ -16832,8 +16844,8 @@
         "MRVL",
         "GOOG",
         "SMH",
-        "LITE",
         "AMAT",
+        "LITE",
         "BE"
       ],
       "topics": [
@@ -17520,7 +17532,7 @@
     },
     {
       "source_id": "9ae79b7468ca2e7f8f75",
-      "extractor_input_hash": "897217a61bb917240a378d2f0774bad5d6319ffc772dab9897de39cfa0238587",
+      "extractor_input_hash": "535dffefb25d3f5edfa2518be6c7b41656652e58221cc00badce911b3cbe3664",
       "extractor_input_scope": "exact_fields_consumed_by_source_reading_memory",
       "source": "wenxuecity",
       "source_kind": "blog",
@@ -17892,7 +17904,7 @@
     },
     {
       "source_id": "d5b6b9842d3e2a1cd49f",
-      "extractor_input_hash": "b68c2d7b5556792ab4bce90674002a28ad72eda76e62167356bdccbcf7a30eaf",
+      "extractor_input_hash": "9863accc94f3df434bafc5f12aafad2965d1a8c3283c2f2cece1c03a4df7e9b1",
       "extractor_input_scope": "exact_fields_consumed_by_source_reading_memory",
       "source": "wenxuecity",
       "source_kind": "blog",
@@ -18013,9 +18025,9 @@
           }
         },
         {
-          "proposition_id": "52ecda5dc80267fe14",
+          "proposition_id": "a15fe484799638411a",
           "kind": "candidate_rule",
-          "text": "AMZN：来源叙述形成候选规则 关键原因是：前几天价格一度重新站上 MA21 / MA50 附近，并出现绿色 E / E+ 信号，但随后没有形成持续上攻，反而又跌回两条均线下方。",
+          "text": "AMZN：来源叙述形成候选规则 从这张 AMZN 截至 9/29 的日线图看，把最近这一段更新为： AMZN：更像是一次向上 False Break（假突破），目前重新回到偏弱区间。 关键原因是：前几天价格一度重新站上 MA21 / MA50 附近，并出现绿色 E / E+ 信号，但随后没有形成持续上攻，反而又跌回两条均线下方。今天收在 246.67，而短期均线大约仍在 250–253 区 / 这套系统里，暂时把 AMZN 的信号写成： AMZN 9/29: FALSE BREAK ? Price 246.67 |",
           "confidence": "medium",
           "testable": false,
           "evidence": {
@@ -18027,12 +18039,18 @@
                 {
                   "condition_id": "price_above_ma50",
                   "machine_ready": true
+                },
+                {
+                  "condition_id": "price_below_ma50",
+                  "machine_ready": true
                 }
               ],
               "state_hint": "EARLY_ENTRY",
               "machine_readiness": "machine_ready",
               "needs_definition": [],
               "raw_evidence": [
+                "从这张 AMZN 截至 9/29 的日线图看，把最近这一段更新为： AMZN：更像是一次向上 False Break（假突破），目前重新回到偏弱区间。 关键原因是：前几天价格一度重新站上 MA21 / MA50 附近，并出现绿色 E / E+ 信号，但随后没有形成持续上攻，反而又跌回两条均线下方。今天收在 246.67，而短期均线大约仍在 250–253 区",
+                "这套系统里，暂时把 AMZN 的信号写成： AMZN 9/29: FALSE BREAK ? Price 246.67 | Below MA21/MA50 | TCDS -65 | MACD 0",
                 "关键原因是：前几天价格一度重新站上 MA21 / MA50 附近，并出现绿色 E / E+ 信号，但随后没有形成持续上攻，反而又跌回两条均线下方。"
               ],
               "source_derived_only": true
@@ -18559,7 +18577,7 @@
     },
     {
       "source_id": "e115e9890dd8407ffaac",
-      "extractor_input_hash": "b71d532e093aeceffcbd7053f755b2936822ab0907d613ca5d76d9124a41af1d",
+      "extractor_input_hash": "4694d5e3eb716aeac608111615f77366bcea202d6801f8902b6490a3487df05c",
       "extractor_input_scope": "exact_fields_consumed_by_source_reading_memory",
       "source": "wenxuecity",
       "source_kind": "blog",
@@ -18782,7 +18800,7 @@
     },
     {
       "source_id": "05ad2b7fa3b169d67736",
-      "extractor_input_hash": "9566e7eab93c972b3c00d8e979a99a1df9514e259ab7a6909d8415df4d07dc4a",
+      "extractor_input_hash": "5cc2346f86a01296e0531b0ed84e73a61c9c27ffb14d06aefefbb37bea7425fd",
       "extractor_input_scope": "exact_fields_consumed_by_source_reading_memory",
       "source": "wenxuecity",
       "source_kind": "blog",
@@ -23710,7 +23728,7 @@
     },
     {
       "source_id": "61357cf0eb89b7c47552",
-      "extractor_input_hash": "367609adfae3a9dc090d5015eda4213c1860bc7606dfd841827fd7def8925601",
+      "extractor_input_hash": "369f3e71e18c311b0c3404b6132c55f7dbfefa721e3bb4ccfa6f9daf697e7425",
       "extractor_input_scope": "exact_fields_consumed_by_source_reading_memory",
       "source": "wenxuecity",
       "source_kind": "forum",
@@ -23720,8 +23738,8 @@
       "url": "https://bbs.wenxuecity.com/cfzh/109394.html",
       "symbols": [
         "MU",
-        "AAOI",
-        "SNDK"
+        "SNDK",
+        "AAOI"
       ],
       "topics": [
         "其他研究"

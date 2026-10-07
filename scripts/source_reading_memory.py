@@ -145,6 +145,54 @@ def explicit_method_candidates(op,row=None):
     return out
 
 
+def explicit_indicator_definition(condition_id, evidence_text):
+    """Parse only source-explicit parameter definitions.
+
+    No industry defaults are substituted. A definition becomes machine-ready
+    only when the text supplies both numeric parameters and the calculation
+    basis required to reproduce the indicator.
+    """
+    text=str(evidence_text or "")
+    low=text.lower()
+    if condition_id in {"macd_hist_positive","ppo_above_signal","ppo_hist_positive"}:
+        name="macd" if condition_id=="macd_hist_positive" else "ppo"
+        m=re.search(rf"\b{name}\s*[（(]\s*(\d{{1,3}})\s*[,，/]\s*(\d{{1,3}})\s*[,，/]\s*(\d{{1,3}})\s*[)）]",low,re.I)
+        if not m:
+            return None
+        # Require the source to state EMA explicitly; do not infer the smoothing convention.
+        if "ema" not in low and "指数移动平均" not in text:
+            return None
+        fast,slow,signal=map(int,m.groups())
+        if not (1<=fast<slow<=300 and 1<=signal<=100):
+            return None
+        return {
+            "definition_source":"explicit_source_text",
+            "formula_id":"ema_macd" if name=="macd" else "ema_ppo",
+            "fast_period":fast,"slow_period":slow,"signal_period":signal,
+            "smoothing":"EMA",
+        }
+    if condition_id=="supertrend_bullish":
+        # Example accepted wording: Supertrend(ATR10, 3x, Wilder)
+        m=re.search(r"supertrend.{0,32}atr\s*[（(]?\s*(\d{1,3})\s*[)）]?.{0,20}?(\d+(?:\.\d+)?)\s*(?:x|倍)",low,re.I)
+        if not m:
+            return None
+        method=None
+        if "wilder" in low or "rma" in low: method="Wilder_RMA"
+        elif "ema" in low or "指数移动平均" in text: method="EMA"
+        elif "sma" in low or "简单移动平均" in text: method="SMA"
+        if not method:
+            return None
+        period=int(m.group(1));mult=float(m.group(2))
+        if not (1<=period<=300 and 0<mult<=20):
+            return None
+        return {
+            "definition_source":"explicit_source_text",
+            "formula_id":"supertrend_atr_band",
+            "atr_period":period,"multiplier":mult,"atr_smoothing":method,
+        }
+    # TCDS remains unresolved unless a future parser can reproduce its full formula.
+    return None
+
 def condition_semantic_role(condition_id, evidence_text, article_text=""):
     """Classify only explicit temporal/lifecycle language from the source.
 
@@ -210,6 +258,10 @@ def prose_candidate_rule(row, sentences):
             matching=[x for x in raw if re.search(rf"ma\s*{ma_match.group(1)}",str(x),re.I)]
         evidence_text=" ".join(matching or raw)
         item["semantic_role"]=condition_semantic_role(cid,evidence_text,article_text)
+        explicit_def=explicit_indicator_definition(cid,evidence_text)
+        if explicit_def:
+            item["explicit_definition"]=explicit_def
+            item["machine_ready"]=True
     state_hint=upstream_state
     prose=article_text.lower()
     if "false break" in prose or "假突破" in prose or "early entry 失败" in prose:

@@ -34,11 +34,36 @@ assert c["forward_observation_eligible"] is False
 assert c["production_eligible"] is False
 assert c["promotion_eligible"] is False
 
-# Genuine-forward + high timestamp can be observed prospectively, still not production.
-r=build(memory("price_above_ma50"),store("genuine_forward","high"))
+# First migration cycle is deliberately non-forward even for a genuine source.
+r=build(memory("price_above_ma50"),store("genuine_forward","high"),prior={})
+c=r["candidates"][0]
+assert c["forward_observation_eligible"] is False
+assert c["formation_mode"]=="migration_baseline"
+
+# Once source-observation tracking exists, a new genuine-forward source may
+# form a Forward-observation candidate only on its first compiler observation.
+feature_prior={"source_observations":[{
+  "source_id":"other","first_candidate_compiler_seen_at":"2026-10-01T00:00:00Z",
+  "last_candidate_compiler_seen_at":"2026-10-01T00:00:00Z"
+}]}
+r=build(memory("price_above_ma50"),store("genuine_forward","high"),prior=feature_prior,now="2026-10-07T00:00:00Z")
 c=r["candidates"][0]
 assert c["forward_observation_eligible"] is True
+assert c["formation_mode"]=="forward_initial"
 assert c["production_eligible"] is False
+
+# Hindsight guard: if a source was already observed without a candidate, a
+# later extraction improvement must remain historical/retroactive.
+empty={"records":[{
+  "source_id":"s1","author":"tester","source":"wenxuecity","source_kind":"blog",
+  "published_at":"2026-10-01","title":"test","url":"https://example.test/x",
+  "symbols":["AAA"],"content_quality":"Q2","propositions":[]
+}]}
+seen=build(empty,store("genuine_forward","high"),prior=feature_prior,now="2026-10-07T00:00:00Z")
+later=build(memory("price_above_ma50"),store("genuine_forward","high"),prior=seen,now="2026-10-08T00:00:00Z")
+lc=later["candidates"][0]
+assert lc["forward_observation_eligible"] is False
+assert lc["formation_mode"]=="historical_or_retroactive"
 
 # Undefined TCDS must remain unresolved; formula is never invented.
 r=build(memory("tcds_cross_zero",False),store("genuine_forward","high"))

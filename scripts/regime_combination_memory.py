@@ -52,7 +52,7 @@ def mature_history(history,dash):
                       "date":dates[j],"return":px/anchor-1,
                       "mae":min(path_px)/anchor-1,"mfe":max(path_px)/anchor-1
                     }
-    return {"version":"6.8.0","records":rows[-360:]}
+    return {"version":"6.8.0","records":rows}
 
 def build(dash,cross,breadth,history=None):
     cross_level=str(cross.get("level") or "unknown")
@@ -136,7 +136,7 @@ def main():
             snap["outcomes"]=old.get("outcomes") or {}
             records[records.index(old)]=snap
         else: records.append(snap)
-        history["records"]=records[-360:]
+        history["records"]=records
     OUT.parent.mkdir(parents=True,exist_ok=True)
     OUT.write_text(json.dumps(out,ensure_ascii=False,indent=2),encoding="utf-8")
     HISTORY.write_text(json.dumps(history,ensure_ascii=False,indent=2),encoding="utf-8")

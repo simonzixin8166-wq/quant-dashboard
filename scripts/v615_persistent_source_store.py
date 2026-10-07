@@ -6,9 +6,10 @@ time. Publication dates are never reused as fake first_fetched_at timestamps.
 """
 from __future__ import annotations
 import argparse, hashlib, json, re, sys
-from datetime import datetime,timezone
+from datetime import datetime,time,timezone
 from pathlib import Path
 from urllib.parse import urlsplit,urlunsplit,parse_qsl,urlencode
+from zoneinfo import ZoneInfo
 
 ROOT=Path(__file__).resolve().parents[1]
 SOURCE=ROOT/"docs"/"data"/"source_intelligence.json"
@@ -20,6 +21,7 @@ VERSION="6.15.8l"
 sys.path.insert(0,str(ROOT/"scripts"))
 from source_intelligence_engine import collect_full_records,collect_full_records_with_accounting
 from evaluation_spec import load_spec
+from local_history_agent import read_archive
 
 def load(path,default):
     try:return json.loads(path.read_text(encoding="utf-8"))
@@ -94,6 +96,34 @@ def parse_aware(v):
         return dt if dt.tzinfo is not None else None
     except Exception:return None
 
+_MARKET_SESSION_DATES=None
+
+def market_session_dates():
+    """Use the local STOOQ archive as the exchange-session calendar.
+
+    This keeps source admission aligned with the same completed daily sessions
+    used by MyAlpha research, including weekends and exchange holidays.
+    """
+    global _MARKET_SESSION_DATES
+    if _MARKET_SESSION_DATES is not None:
+        return _MARKET_SESSION_DATES
+    try:
+        store=read_archive()
+        frame=store.get("SPY") or store.get("QQQ")
+        _MARKET_SESSION_DATES=sorted({x.date() for x in frame.index}) if frame is not None else []
+    except Exception:
+        _MARKET_SESSION_DATES=[]
+    return _MARKET_SESSION_DATES
+
+def first_session_open_after_publication(pub_date):
+    try:
+        next_day=next((d for d in market_session_dates() if d>pub_date),None)
+        if next_day is None:return None
+        eastern=ZoneInfo("America/New_York")
+        return datetime.combine(next_day,time(9,30),tzinfo=eastern).astimezone(timezone.utc)
+    except Exception:
+        return None
+
 def late_discovery_veto(r,ts,now,spec):
     cfg=((((spec or {}).get("definitions") or {}).get("point_in_time_eligibility") or {}).get("source_admission") or {})
     trusted=set(cfg.get("high_confidence_published_at_semantics") or [])
@@ -105,7 +135,17 @@ def late_discovery_veto(r,ts,now,spec):
     except Exception:return False,None
     days=(seen.astimezone(timezone.utc).date()-pub_date).days
     limit=int(cfg.get("late_discovery_calendar_days_max",3))
-    return days>limit,days
+    if days>limit:
+        return True,days
+
+    # A recent article can still be late for Forward Evidence. If MyAlpha first
+    # observed it only after the first real market session following publication
+    # had already opened, the historical next-session baseline is no longer
+    # point-in-time reproducible and the source must fail closed as late discovery.
+    session_open=first_session_open_after_publication(pub_date)
+    if session_open is not None and seen.astimezone(timezone.utc)>=session_open:
+        return True,days
+    return False,days
 
 def timestamp_metadata(r):
     source=str(r.get("source") or "").lower()

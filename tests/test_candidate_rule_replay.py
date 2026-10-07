@@ -45,7 +45,7 @@ def fake_fetch(symbol):
     return frame(vals)
 store,prov=resolve_store({"candidates":[cand]}, {"QQQ":qqq}, fetcher=fake_fetch)
 assert "AAA" in store and calls==["AAA"]
-assert prov["AAA"]["source"]=="stooq_on_demand_research_only"
+assert prov["AAA"]["source"]=="test_or_custom_research_provider"
 assert prov["AAA"]["status"]=="ready"
 
 # Fetch failure remains explicit and fail-closed.

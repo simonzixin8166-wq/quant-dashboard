@@ -171,7 +171,7 @@ cond2["explicit_definition"]={
 }
 r2=build(m2,store("backfill"))
 x2=r2["candidates"][0]
-assert x2["reproducibility_status"]=="machine_ready_shadow"
-assert x2["conditions"][0]["expression"]["atr_period"]==10
-assert x2["historical_replay_eligible"] is True
-print("PASS explicit source-defined parameter compiler unlock")
+assert x2["reproducibility_status"]=="blocked_needs_definition"
+assert x2["conditions"][0]["expression"] is None
+assert x2["historical_replay_eligible"] is False
+print("PASS explicit MACD unlock / incomplete Supertrend remains closed")

@@ -46,7 +46,7 @@ source={
 }
 
 out=srm.build(source)
-assert out["version"]=="6.14.6"
+assert out["version"]==srm.VERSION
 by={x["source_id"]:x for x in out["records"]}
 
 # Explicit exit language is an invalidation, not a generic residual view.
@@ -92,4 +92,4 @@ ui=(ROOT/"docs"/"assets"/"knowledge.js").read_text(encoding="utf-8")
 for label in ("Fact","Author View","Trigger","Invalidation","Testable Rule","Non-testable View"):
     assert label in ui
 
-print("PASS V6.14.6 six-way Source Reading semantics / no prose promotion / research-only boundary")
+print(f"PASS {srm.VERSION} six-way Source Reading semantics / no prose promotion / research-only boundary")

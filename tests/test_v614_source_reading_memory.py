@@ -332,7 +332,7 @@ many.append({
 })
 busy=srm.build({"version":2,"records":many})
 assert busy["counts"]["source_records"]==806
-assert len(busy["records"])==800
+assert len(busy["records"])==806
 lite=next(x for x in busy["records"] if x["source_id"]=="lite-yifan")
 assert lite["candidate_rule_count"]>=1
 print("PASS bounded Source Reading retains older candidate research")

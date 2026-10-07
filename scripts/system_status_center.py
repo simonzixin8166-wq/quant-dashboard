@@ -103,11 +103,12 @@ def iso_from_file(path:Path):
         if data.get(k):return str(data[k])
     return datetime.fromtimestamp(path.stat().st_mtime,timezone.utc).isoformat()
 
-def github_runs(repo:str,names=None,max_pages=5):
+def github_runs(repo:str,names=None,max_pages=20):
     """Fetch enough Actions pages to resolve all watched workflow names.
 
-    Busy repositories can exceed 100 runs quickly because Pages/QA workflows
-    create many entries. Stop as soon as every requested workflow has been seen.
+    Busy repositories can exceed 500 runs quickly because Pages/QA workflows
+    create many entries. Search a deeper bounded window for low-frequency
+    workflows, but stop as soon as every requested workflow has been seen.
     """
     wanted=set(names or [])
     rows=[]

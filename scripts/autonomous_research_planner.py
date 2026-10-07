@@ -353,7 +353,7 @@ def build(agent,learning,evidence,method,source,previous,modules=None,cross_asse
     now=datetime.now(timezone.utc).isoformat()
     return {
       "version":"6.14.3","generated_at":now,"mode":"autonomous_research_planner",
-      "queue":tasks[:30],
+      "queue":tasks,
       "today":[x for x in tasks if x["priority"]>=70][:10],
       "counts":{"open":len(tasks),"high_priority":sum(x["priority"]>=70 for x in tasks),"persistent":sum(x["run_count"]>1 for x in tasks)},
       "planner_policy":{

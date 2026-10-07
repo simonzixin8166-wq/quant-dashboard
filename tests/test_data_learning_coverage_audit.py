@@ -13,6 +13,15 @@ assert "financial_fundamentals_xbrl" in rows
 assert "news_event_evidence" in rows
 assert "market_price_history" in rows
 assert "options_opportunity" in rows
+
+assert "auto_thesis_revision_memory" in rows
+assert "candidate_shadow_forward" in rows
+assert "production_playbook_forward_replay" in rows
+assert "operational_system_learning" in rows
+assert "regional_cn_hk_learning" in rows
+assert "curated_knowledge_base" in rows
+assert rows["production_playbook_forward_replay"]["learning_status"]=="learning_active"
+assert rows["regional_cn_hk_learning"]["learning_status"]=="context_only"
 assert rows["financial_fundamentals_xbrl"]["learning_status"]=="not_implemented"
 assert rows["official_sec_filings"]["learning_status"] in {"partial_learning","learning_active"}
 assert "canonical_storage" in out["required_contract"]

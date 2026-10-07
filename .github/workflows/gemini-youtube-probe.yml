@@ -100,7 +100,7 @@ jobs:
           - This is historical research only. Never output a trading recommendation for the platform.
           """
           body={
-            "model":"gemini-2.5-flash",
+            "model":"gemini-3.8-flash",
             "input":[
               {"type":"video","uri":video_url},
               {"type":"text","text":prompt}
@@ -140,7 +140,7 @@ jobs:
             "version":"gemini-youtube-probe-1",
             "generated_at":datetime.now(timezone.utc).isoformat(),
             "provider":"gemini",
-            "model":"gemini-2.5-flash",
+            "model":"gemini-3.8-flash",
             "source":{
               "source":"youtube",
               "author":os.environ["VIDEO_AUTHOR"],

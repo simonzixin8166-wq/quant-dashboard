@@ -20,7 +20,9 @@ async function publicRun(viewport,name){
   try{const h=await page.request.get(base+'/research/historical_journal.json?qa='+Date.now());history=h.ok()&&Boolean((await h.json())?.summary?.events)}catch{}
   try{const a=await page.request.get(base+'/research/autonomous_agent.json?qa='+Date.now());agent=a.ok()&&String((await a.json())?.version||'').startsWith('5.5.')}catch{}
   const txt=(await page.locator('body').innerText()).slice(0,250000);
-  report.public[name]={version:v,body_version:bodyv,assistant:Boolean(assistant),journal:Boolean(journal),historical_learning:history,autonomous_agent:Boolean(agentRoot)&&agent,negative_zero:/(^|[^\d])-0(?:\.0+)?(?=\s|%|$|｜|·)/m.test(txt)};
+  const soleOutletTitle=await page.locator('#tab-overview h1').first().innerText().catch(()=> '');
+  const singleOutletLoaded=await page.evaluate(()=>Boolean(window.MAVSingleActionOutlet));
+  report.public[name]={version:v,body_version:bodyv,assistant:Boolean(assistant),journal:Boolean(journal),historical_learning:history,autonomous_agent:Boolean(agentRoot)&&agent,negative_zero:/(^|[^\d])-0(?:\.0+)?(?=\s|%|$|｜|·)/m.test(txt),single_action_outlet:singleOutletLoaded&&/唯一行动出口/.test(soleOutletTitle)};
   await page.screenshot({path:`${out}/${name}-home.png`,fullPage:true});
   if(name==='desktop'){
     // Read-only synthetic private mode: verifies tab routing/layout even when CI has no private QA credentials.
@@ -43,7 +45,10 @@ async function publicRun(viewport,name){
     const fontSpecs=[['nav','.nav-menu li',12],['system_module_copy','#tab-system-health .qa-note .qa-grid article p',12]];
     const fontChecks=[];
     for(const [label,selector,minPx] of fontSpecs){const loc=page.locator(selector);if(await loc.count()){const px=await loc.first().evaluate(el=>parseFloat(getComputedStyle(el).fontSize));fontChecks.push({name:label,font_px:px,min_px:minPx,ok:px>=minPx})}}
-    report.interaction={status:tabChecks.every(x=>x.exists&&x.active&&Boolean(x.breadcrumb)&&Math.abs(x.body_overflow_px||0)<=4)&&fontChecks.every(x=>x.ok)&&!moduleEnglishLeak?'PASS':'FAIL',mode:'synthetic-read-only',tabs:tabChecks,controls:[],font_checks:fontChecks,module_english_leak:moduleEnglishLeak,bad_canonical_names:[],stock_name_sample:[]};
+    const singleOutletBanners={};
+    for(const id of ['tab-agent-center','tab-stocks','tab-options','tab-engine','tab-wenxuecity']) singleOutletBanners[id]=await page.locator('#'+id+' [data-single-action-banner="true"]').count()>0;
+    const singleOutletPass=Object.values(singleOutletBanners).every(Boolean);
+    report.interaction={status:tabChecks.every(x=>x.exists&&x.active&&Boolean(x.breadcrumb)&&Math.abs(x.body_overflow_px||0)<=4)&&fontChecks.every(x=>x.ok)&&!moduleEnglishLeak&&singleOutletPass?'PASS':'FAIL',mode:'synthetic-read-only',tabs:tabChecks,controls:[],font_checks:fontChecks,module_english_leak:moduleEnglishLeak,bad_canonical_names:[],stock_name_sample:[],single_action_outlet_banners:singleOutletBanners};
     await page.screenshot({path:`${out}/desktop-system-health.png`,fullPage:true});
   }
   await page.close();
@@ -74,7 +79,10 @@ if(pm&&session){
   const canonicalChecks={AVGO:'博通',ORCL:'甲骨文',TSM:'台积电',MRVL:'迈威尔科技',AMD:'美国超微公司'};
   const badCanonical=[];
   for(const [symbol,name] of Object.entries(canonicalChecks)){const row=page.locator(`#stocksTableBody tr[data-symbol="${symbol}"] .stock-name`);if(await row.count()){const txt=(await row.first().innerText()).trim();if(txt!==name)badCanonical.push({symbol,expected:name,actual:txt})}}
-  report.interaction={status:tabChecks.every(x=>x.exists&&x.active&&Math.abs(x.body_overflow_px||0)<=4)&&controlChecks.every(x=>x.ok)&&fontChecks.every(x=>x.ok)&&!moduleEnglishLeak&&!badCanonical.length?'PASS':'FAIL',mode:'authenticated-private',tabs:tabChecks,controls:controlChecks,font_checks:fontChecks,module_english_leak:moduleEnglishLeak,bad_canonical_names:badCanonical,stock_name_sample:stockNames.slice(0,12)};
+  const singleOutletBanners={};
+  for(const id of ['tab-agent-center','tab-stocks','tab-options','tab-engine','tab-wenxuecity']) singleOutletBanners[id]=await page.locator('#'+id+' [data-single-action-banner="true"]').count()>0;
+  const singleOutletPass=Object.values(singleOutletBanners).every(Boolean);
+  report.interaction={status:tabChecks.every(x=>x.exists&&x.active&&Math.abs(x.body_overflow_px||0)<=4)&&controlChecks.every(x=>x.ok)&&fontChecks.every(x=>x.ok)&&!moduleEnglishLeak&&!badCanonical.length&&singleOutletPass?'PASS':'FAIL',mode:'authenticated-private',tabs:tabChecks,controls:controlChecks,font_checks:fontChecks,module_english_leak:moduleEnglishLeak,bad_canonical_names:badCanonical,stock_name_sample:stockNames.slice(0,12),single_action_outlet_banners:singleOutletBanners};
 }
 await page.close();}catch(e){report.private={status:'WARNING',error:String(e.message).slice(0,250)}}}
 await browser.close();
@@ -127,7 +135,7 @@ try{
     report.server_action={status:'FAIL',error:'server action status unavailable'};
   }
 }catch(e){report.business_data={status:'FAIL',error:String(e.message).slice(0,200)}}
-const engineeringBaseHealthy=Object.values(report.public).every(x=>Boolean(x.version)&&x.version===x.body_version&&x.assistant&&x.journal&&x.historical_learning&&x.autonomous_agent&&!x.negative_zero)&&report.private.status!=='FAIL'&&report.interaction.status==='PASS';
+const engineeringBaseHealthy=Object.values(report.public).every(x=>Boolean(x.version)&&x.version===x.body_version&&x.assistant&&x.journal&&x.historical_learning&&x.autonomous_agent&&x.single_action_outlet&&!x.negative_zero)&&report.private.status!=='FAIL'&&report.interaction.status==='PASS';
 report.engineering_qa={status:engineeringBaseHealthy?'PASS':'FAIL',public_surfaces:Object.keys(report.public),private_status:report.private.status,interaction_status:report.interaction.status};
 const investmentDataPass=report.business_data.status==='PASS'&&report.server_action?.status==='PASS';
 report.investment_data_qa={status:investmentDataPass?'PASS':'FAIL',market_as_of:report.business_data.market_as_of||null,expected_market_date:report.business_data.expected_market_date||null,business_freshness:report.business_data.business_freshness||'unknown',decision_eligible:Boolean(report.business_data.decision_eligible),server_action:report.server_action};

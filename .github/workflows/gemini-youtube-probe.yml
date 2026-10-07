@@ -1,0 +1,188 @@
+name: Gemini YouTube Single Video Probe
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/gemini-youtube-probe.yml"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: myalpha-gemini-youtube-probe
+  cancel-in-progress: false
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      VIDEO_URL: https://www.youtube.com/watch?v=qVSoCX8pVDg
+      VIDEO_ID: qVSoCX8pVDg
+      VIDEO_AUTHOR: 老李玩钱
+      VIDEO_TITLE: 10月必买3支股票
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Analyze one public YouTube video with Gemini
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          python - <<'PY'
+          import json, os, re, urllib.request, urllib.error
+          from datetime import datetime, timezone
+          from pathlib import Path
+
+          key=os.environ.get("GEMINI_API_KEY","").strip()
+          if not key:
+              raise SystemExit("GEMINI_API_KEY missing")
+          video_url=os.environ["VIDEO_URL"]
+          prompt=r"""
+          You are a source-reading subsystem for an investment research platform.
+          Analyze the PUBLIC YouTube video itself, including spoken content and visible charts/text when useful.
+          Return ONLY valid JSON, no markdown.
+
+          Required schema:
+          {
+            "summary_zh": "concise Chinese summary",
+            "symbols": ["explicitly discussed tickers only"],
+            "claims": [
+              {
+                "claim": "what the author explicitly says",
+                "timestamp": "MM:SS or HH:MM:SS if identifiable, otherwise null",
+                "evidence_mode": "spoken_explicit|onscreen_explicit|spoken_plus_onscreen|visual_inference",
+                "confidence": "high|medium|low"
+              }
+            ],
+            "methods": [
+              {
+                "name": "method/indicator/strategy name",
+                "explicit_parameters": {},
+                "missing_parameters": [],
+                "timestamp": null
+              }
+            ],
+            "actions_mentioned": [
+              {
+                "symbol": "ticker or null",
+                "author_action": "buy|sell|hold|watch|other",
+                "timestamp": null,
+                "is_author_statement": true
+              }
+            ],
+            "invalidations": [
+              {"symbol": "ticker or null", "condition": "explicit invalidation/exit/failure condition", "timestamp": null}
+            ],
+            "visual_only_observations": [
+              {"observation": "chart/screen-derived observation not explicitly spoken", "timestamp": null}
+            ],
+            "uncertainties": ["anything not clear enough to treat as explicit source fact"],
+            "safety": {
+              "historical_only": true,
+              "forward_evidence_eligible": false,
+              "promotion_eligible": false,
+              "production_action": null
+            }
+          }
+
+          Rules:
+          - Do NOT invent indicator periods, thresholds, prices, dates, tickers or formulas.
+          - If a parameter is not explicitly stated in the video, put it in missing_parameters.
+          - Distinguish explicit spoken/onscreen statements from your own visual inference.
+          - Include timestamps whenever you can identify them from the video.
+          - This is historical research only. Never output a trading recommendation for the platform.
+          """
+          body={
+            "model":"gemini-2.5-flash",
+            "input":[
+              {"type":"video","uri":video_url},
+              {"type":"text","text":prompt}
+            ]
+          }
+          req=urllib.request.Request(
+            "https://generativelanguage.googleapis.com/v1beta/interactions",
+            data=json.dumps(body,ensure_ascii=False).encode("utf-8"),
+            headers={"x-goog-api-key":key,"Content-Type":"application/json","User-Agent":"MyAlphaView-Gemini-YouTube-Probe/1.0"},
+            method="POST",
+          )
+          try:
+              with urllib.request.urlopen(req,timeout=240) as r:
+                  raw=json.loads(r.read().decode("utf-8"))
+          except urllib.error.HTTPError as e:
+              detail=e.read().decode("utf-8","replace")[:2000]
+              raise SystemExit(f"Gemini YouTube request failed HTTP {e.code}: {detail}")
+
+          texts=[]
+          def walk(x):
+              if isinstance(x,dict):
+                  if isinstance(x.get("text"),str): texts.append(x["text"])
+                  for v in x.values(): walk(v)
+              elif isinstance(x,list):
+                  for v in x: walk(v)
+          walk(raw)
+          joined="\n".join(dict.fromkeys(t for t in texts if t.strip()))
+          m=re.search(r"\{.*\}",joined,re.S)
+          if not m:
+              raise SystemExit("Gemini returned no JSON object in text output")
+          parsed=json.loads(m.group(0))
+          safety=parsed.get("safety") or {}
+          if safety.get("historical_only") is not True or safety.get("forward_evidence_eligible") is not False or safety.get("promotion_eligible") is not False or safety.get("production_action") is not None:
+              raise SystemExit("Gemini output violated MyAlpha research-only safety contract")
+
+          report={
+            "version":"gemini-youtube-probe-1",
+            "generated_at":datetime.now(timezone.utc).isoformat(),
+            "provider":"gemini",
+            "model":"gemini-2.5-flash",
+            "source":{
+              "source":"youtube",
+              "author":os.environ["VIDEO_AUTHOR"],
+              "title":os.environ["VIDEO_TITLE"],
+              "video_id":os.environ["VIDEO_ID"],
+              "url":video_url,
+            },
+            "mode":"historical_research_probe_only",
+            "gemini_result":parsed,
+            "myalpha_guardrails":{
+              "historical_only":True,
+              "forward_evidence_eligible":False,
+              "promotion_eligible":False,
+              "production_effect":"none",
+              "trade_action":None,
+            }
+          }
+          out=Path("research/reports/gemini_youtube_probe.json")
+          out.parent.mkdir(parents=True,exist_ok=True)
+          out.write_text(json.dumps(report,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
+          print("PASS Gemini analyzed public YouTube video and returned guarded structured JSON")
+          print("symbols=",parsed.get("symbols"))
+          print("claims=",len(parsed.get("claims") or []),"methods=",len(parsed.get("methods") or []),"timestamps=",sum(1 for x in (parsed.get("claims") or []) if x.get("timestamp")))
+          PY
+      - name: Validate sanitized probe output
+        run: |
+          python - <<'PY'
+          import json
+          p=json.load(open("research/reports/gemini_youtube_probe.json",encoding="utf-8"))
+          assert p["mode"]=="historical_research_probe_only"
+          assert p["myalpha_guardrails"]["forward_evidence_eligible"] is False
+          assert p["myalpha_guardrails"]["promotion_eligible"] is False
+          assert p["myalpha_guardrails"]["trade_action"] is None
+          assert isinstance(p["gemini_result"].get("symbols"),list)
+          assert isinstance(p["gemini_result"].get("claims"),list)
+          print("PASS sanitized Gemini YouTube probe contract")
+          PY
+      - name: Commit sanitized probe result
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add research/reports/gemini_youtube_probe.json
+          git commit -m "Record Gemini YouTube single-video probe" || exit 0
+          git pull --rebase origin main
+          git push origin HEAD:main

@@ -1,6 +1,6 @@
 {
-  "version": "1.0",
-  "generated_at": "2026-10-07T03:45:20.297417+00:00",
+  "version": "1.1",
+  "generated_at": "2026-10-07T03:58:33.372908+00:00",
   "mode": "research_shadow_historical_only",
   "evidence_provenance": "historical_replay_post_candidate_compilation",
   "forward_evidence_mixed": false,
@@ -13,6 +13,133 @@
     "raw_events": 0,
     "effective_clusters": 0
   },
+  "data_provenance": {
+    "AMD": {
+      "source": "local_stooq_archive",
+      "status": "ready",
+      "rows": 10971
+    },
+    "AVGO": {
+      "source": "local_stooq_archive",
+      "status": "ready",
+      "rows": 4317
+    },
+    "DRAM": {
+      "source": "local_stooq_archive",
+      "status": "ready",
+      "rows": 127
+    },
+    "GOOG": {
+      "source": "local_stooq_archive",
+      "status": "ready",
+      "rows": 3150
+    },
+    "HOOD": {
+      "source": "local_stooq_archive",
+      "status": "ready",
+      "rows": 1302
+    },
+    "IREN": {
+      "source": "local_stooq_archive",
+      "status": "ready",
+      "rows": 1224
+    },
+    "LITE": {
+      "source": "local_stooq_archive",
+      "status": "ready",
+      "rows": 2808
+    },
+    "MRVL": {
+      "source": "local_stooq_archive",
+      "status": "ready",
+      "rows": 6597
+    },
+    "MSFT": {
+      "source": "local_stooq_archive",
+      "status": "ready",
+      "rows": 10211
+    },
+    "NBIS": {
+      "source": "local_stooq_archive",
+      "status": "ready",
+      "rows": 489
+    },
+    "NVDA": {
+      "source": "local_stooq_archive",
+      "status": "ready",
+      "rows": 6967
+    },
+    "ORCL": {
+      "source": "local_stooq_archive",
+      "status": "ready",
+      "rows": 9718
+    },
+    "QLD": {
+      "source": "local_stooq_archive",
+      "status": "ready",
+      "rows": 5100
+    },
+    "QQQ": {
+      "source": "local_stooq_archive",
+      "status": "ready",
+      "rows": 6935
+    },
+    "QQQM": {
+      "source": "local_stooq_archive",
+      "status": "ready",
+      "rows": 1500
+    },
+    "SMH": {
+      "source": "local_stooq_archive",
+      "status": "ready",
+      "rows": 6624
+    },
+    "SOFI": {
+      "source": "local_stooq_archive",
+      "status": "ready",
+      "rows": 1467
+    },
+    "SPCX": {
+      "source": "local_stooq_archive",
+      "status": "ready",
+      "rows": 79
+    },
+    "TQQQ": {
+      "source": "local_stooq_archive",
+      "status": "ready",
+      "rows": 4188
+    },
+    "TSLA": {
+      "source": "local_stooq_archive",
+      "status": "ready",
+      "rows": 4092
+    },
+    "TSM": {
+      "source": "local_stooq_archive",
+      "status": "ready",
+      "rows": 5435
+    },
+    "VGT": {
+      "source": "local_stooq_archive",
+      "status": "ready",
+      "rows": 5435
+    },
+    "VIX": {
+      "source": "local_stooq_archive",
+      "status": "ready",
+      "rows": 9260
+    },
+    "VOO": {
+      "source": "local_stooq_archive",
+      "status": "ready",
+      "rows": 4038
+    },
+    "AMZN": {
+      "source": "stooq_on_demand_research_only",
+      "status": "blocked",
+      "reason": "stooq_history_insufficient"
+    }
+  },
   "candidates": [
     {
       "candidate_id": "cand_2dbc916b6207538ac9b46a1b",
@@ -24,6 +151,11 @@
       "candidate_id": "cand_5fac5eeecdc248ffb0d46218",
       "status": "blocked",
       "reason": "historical_symbol_missing",
+      "data_provenance": {
+        "source": "stooq_on_demand_research_only",
+        "status": "blocked",
+        "reason": "stooq_history_insufficient"
+      },
       "events": []
     },
     {
@@ -33,9 +165,30 @@
       "events": []
     }
   ],
+  "validation_contract": {
+    "horizons": [
+      5,
+      20,
+      60
+    ],
+    "baseline": "QQQ same-date return when available",
+    "metrics": [
+      "raw_n",
+      "effective_n",
+      "aligned_rate",
+      "avg_return",
+      "avg_mae",
+      "avg_mfe",
+      "avg_excess_vs_qqq"
+    ],
+    "regime": "QQQ above/below trailing MA200",
+    "walk_forward": "chronological fixed-rule temporal folds; no parameter fitting"
+  },
   "guardrails": [
     "Historical replay is post-candidate-compilation evidence and never Forward evidence.",
     "Only fully reproducible candidate conditions are replayed.",
+    "On-demand STOOQ history is Research/Shadow-only and cannot become a Production data dependency.",
+    "Signals use same-day/past inputs; future bars are used only to calculate later outcomes.",
     "State-entry events are counted; repeated days inside one state are not new events.",
     "Signals within five sessions are clustered for effective-N reporting.",
     "Replay cannot write Promotion Gate, protected rules, positions, sizing or orders."

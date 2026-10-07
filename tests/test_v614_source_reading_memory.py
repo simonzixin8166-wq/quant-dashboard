@@ -292,3 +292,22 @@ assert macd.get("explicit_definition") is None
 assert macd["machine_ready"] is False
 assert "macd_hist_positive" in nr["needs_definition"]
 print("PASS explicit-only parameterized indicator parsing")
+
+
+# Upstream machine_ready claims cannot bypass parameterized-indicator guardrails.
+upstream_param=srm.record_memory({
+ "id":"param3","source":"wenxuecity","source_kind":"blog","author":"A",
+ "published_at":"2026-10-07","title":"Supertrend claim","url":"param3","symbols":["AAA"],
+ "topics":["趋势确认"],"excerpt":"Supertrend 当前翻多。","operations":[],"portfolio_rules":[],"lessons":[],
+ "method_signals":[
+   {"condition_id":"supertrend_bullish","machine_ready":True,"evidence_excerpt":"Supertrend 当前翻多","source_derived_only":True}
+ ]
+})
+uc=next(x for x in upstream_param["propositions"] if x["kind"]=="candidate_rule")
+ur=uc["evidence"]["candidate_rule"]
+st=next(x for x in ur["conditions"] if x["condition_id"]=="supertrend_bullish")
+assert st["machine_ready"] is False
+assert st.get("explicit_definition") is None
+assert ur["machine_readiness"]=="partial_needs_definition"
+assert "supertrend_bullish" in ur["needs_definition"]
+print("PASS parameterized upstream machine-ready claims fail closed")

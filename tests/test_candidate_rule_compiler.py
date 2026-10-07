@@ -146,3 +146,32 @@ for cid in ("price_above_ma20","price_above_ma50","price_above_ma200"):
 for cid in ("tcds_cross_zero","ppo_above_signal","supertrend_bullish"):
     assert cid in cap["parameterized_indicators_fail_closed"]
 print("PASS generic candidate capability manifest")
+
+
+# Explicit source-authored parameter definitions may unlock parameterized
+# conditions; absent definitions remain blocked.
+m=memory("macd_hist_positive")
+cond=m["records"][0]["propositions"][0]["evidence"]["candidate_rule"]["conditions"][0]
+cond["explicit_definition"]={
+ "definition_source":"explicit_source_text","formula_id":"ema_macd",
+ "fast_period":12,"slow_period":26,"signal_period":9,"smoothing":"EMA"
+}
+r=build(m,store("backfill"))
+x=r["candidates"][0]
+assert x["reproducibility_status"]=="machine_ready_shadow"
+assert x["conditions"][0]["expression"]["formula_id"]=="ema_macd"
+assert x["unresolved_inputs"]==[]
+assert x["production_eligible"] is False
+
+m2=memory("supertrend_bullish")
+cond2=m2["records"][0]["propositions"][0]["evidence"]["candidate_rule"]["conditions"][0]
+cond2["explicit_definition"]={
+ "definition_source":"explicit_source_text","formula_id":"supertrend_atr_band",
+ "atr_period":10,"multiplier":3.0,"atr_smoothing":"Wilder_RMA"
+}
+r2=build(m2,store("backfill"))
+x2=r2["candidates"][0]
+assert x2["reproducibility_status"]=="machine_ready_shadow"
+assert x2["conditions"][0]["expression"]["atr_period"]==10
+assert x2["historical_replay_eligible"] is True
+print("PASS explicit source-defined parameter compiler unlock")

@@ -259,6 +259,18 @@ jobs:
           if [ -f data/history/source_validation_history.zip ]; then git add data/history/source_validation_history.zip; fi
           if ! git diff --cached --quiet; then
             git commit -m "update source intelligence validation"
-            git pull --rebase origin main
-            git push origin HEAD:main
+            # A developer/manual commit can advance main between pull and push.
+            # Retry a bounded number of times instead of reporting a false
+            # validation failure after all tests/builds have already passed.
+            pushed=0
+            for attempt in 1 2 3; do
+              git pull --rebase origin main
+              if git push origin HEAD:main; then
+                pushed=1
+                break
+              fi
+              echo "Generated-output push raced with main (attempt $attempt/3); retrying..."
+              sleep 2
+            done
+            test "$pushed" -eq 1
           fi

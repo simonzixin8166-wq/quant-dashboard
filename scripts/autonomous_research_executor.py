@@ -266,6 +266,8 @@ def prose_candidate_brief(task,source_reading):
     author=record_match.get("author") or "未知作者"
     title=record_match.get("title") or "未命名来源"
     add_unique(support,f"{author} · {title} · {symbol}：已形成来源叙述候选规则。")
+    if int(task.get("source_count") or 1)>1:
+        add_unique(support,f"同一语义候选来自 {int(task.get('source_count') or 1)} 条来源记录；按一个研究假设去重处理，不把重复发布计为独立证据。")
 
     conditions=candidate.get("conditions") or []
     ready=[x.get("condition_id") for x in conditions if x.get("machine_ready")]

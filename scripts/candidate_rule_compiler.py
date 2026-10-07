@@ -87,14 +87,14 @@ def infer_family(compiled):
         return "trend_confirmation"
     return "unclassified_method"
 
-def compile_candidate(memory,prop,store_row):
+def compile_candidate(memory,prop,store_row,forward_formation_allowed=False):
     ev=(prop.get("evidence") or {}).get("candidate_rule") or {}
     conditions=[compile_condition(x) for x in (ev.get("conditions") or []) if isinstance(x,dict)]
     if not conditions:return None
     unresolved=[x for x in conditions if not x["machine_ready"]]
     ready=[x for x in conditions if x["machine_ready"]]
     role=evidence_role(store_row)
-    forward_observation_eligible=(role=="genuine_forward_observation" and not unresolved and bool(ready))
+    forward_observation_eligible=(role=="genuine_forward_observation" and forward_formation_allowed and not unresolved and bool(ready))
     status="machine_ready_shadow" if ready and not unresolved else "partial_needs_definition"
     if not ready:status="blocked_needs_definition"
     sid=str(memory.get("source_id") or "")
@@ -150,21 +150,58 @@ def compile_candidate(memory,prop,store_row):
         ],
     }
 
-def build(reading,store):
+def build(reading,store,prior=None,now=None):
+    """Compile candidates with a source-observation lock.
+
+    A source can create a Forward-observation-eligible candidate only on the
+    first compiler observation of that source, after the observation feature
+    already exists. This prevents a later parser improvement from converting
+    an already-seen source into hindsight Forward evidence.
+    """
+    now=now or datetime.now(timezone.utc).isoformat()
+    prior=prior or {}
     idx=store_index(store)
+    prior_obs={str(x.get("source_id")):x for x in (prior.get("source_observations") or []) if x.get("source_id")}
+    observation_feature_preexisting="source_observations" in prior
+    observations=[]
+    seen=set()
     rows=[]
     for memory in reading.get("records") or []:
         sid=str(memory.get("source_id") or "")
+        if not sid:continue
+        old_obs=prior_obs.get(sid)
+        meta=idx.get(sid) or {}
+        seen.add(sid)
+        observations.append({
+            "source_id":sid,
+            "first_candidate_compiler_seen_at":(old_obs or {}).get("first_candidate_compiler_seen_at") or now,
+            "last_candidate_compiler_seen_at":now,
+            "source_admission_class":meta.get("admission_class"),
+            "source_first_fetched_at":meta.get("first_fetched_at"),
+        })
+        forward_formation_allowed=(
+            observation_feature_preexisting
+            and old_obs is None
+            and evidence_role(meta)=="genuine_forward_observation"
+        )
         for prop in memory.get("propositions") or []:
             if prop.get("kind")!="candidate_rule":continue
-            c=compile_candidate(memory,prop,idx.get(sid))
-            if c:rows.append(c)
+            candidate=compile_candidate(memory,prop,meta,forward_formation_allowed)
+            if candidate:
+                candidate["formation_mode"]=(
+                    "forward_initial" if candidate["forward_observation_eligible"]
+                    else ("migration_baseline" if not observation_feature_preexisting else "historical_or_retroactive")
+                )
+                rows.append(candidate)
+    for sid,old_obs in prior_obs.items():
+        if sid not in seen:observations.append(dict(old_obs))
     rows=sorted(rows,key=lambda x:x["candidate_id"])
+    observations=sorted(observations,key=lambda x:x["source_id"])
     counts=Counter(x["reproducibility_status"] for x in rows)
     fam=Counter(x["method_family"] for x in rows)
     return {
         "version":VERSION,
-        "generated_at":datetime.now(timezone.utc).isoformat(),
+        "generated_at":now,
         "mode":"research_shadow_only",
         "counts":{
             "candidates":len(rows),
@@ -176,12 +213,15 @@ def build(reading,store):
             "production_eligible":0,
         },
         "by_family":dict(fam),
+        "source_observations":observations,
         "candidates":rows,
         "guardrails":[
             "Candidate Rule Compiler writes only the Research/Shadow candidate registry.",
             "It never writes research/registry/rules.json or Promotion Gate outputs.",
             "Undefined source-specific indicators remain unresolved.",
-            "Forward observation eligibility requires genuine_forward plus high timestamp confidence and a fully reproducible candidate.",
+            "Forward observation eligibility requires genuine_forward, high timestamp confidence, full reproducibility, and candidate formation on the source's first compiler observation.",
+            "Already-seen sources cannot become Forward evidence because of later extraction improvements.",
+            "The first migration cycle is non-forward by construction.",
             "Production eligibility is always false in this compiler.",
         ],
     }
@@ -212,7 +252,7 @@ def public_status(reg):
     }
 
 def main():
-    reg=build(load(READING,{"records":[]}),load(STORE,{"records":[]}))
+    prior=load(REGISTRY,{})\n    reg=build(load(READING,{"records":[]}),load(STORE,{"records":[]}),prior=prior)
     REGISTRY.parent.mkdir(parents=True,exist_ok=True)
     STATUS.parent.mkdir(parents=True,exist_ok=True)
     REGISTRY.write_text(json.dumps(reg,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")

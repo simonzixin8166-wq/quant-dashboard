@@ -27,8 +27,8 @@ VERSION="1.0"
 
 PARAMETERIZED={
     "supertrend_bullish":{
-        "needed":["atr_period","multiplier"],
-        "definition_requirement":"Source must explicitly define Supertrend ATR period and multiplier."
+        "needed":["atr_period","multiplier","atr_smoothing","band_basis","band_carry_rule","trend_flip_rule"],
+        "definition_requirement":"Source must explicitly define Supertrend ATR period/multiplier/smoothing plus band basis, carry-forward, and trend-flip rules."
     },
     "macd_hist_positive":{
         "needed":["fast_period","slow_period","signal_period"],

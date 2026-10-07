@@ -109,7 +109,9 @@ def market_session_dates():
         return _MARKET_SESSION_DATES
     try:
         store=read_archive()
-        frame=store.get("SPY") or store.get("QQQ")
+        frame=store.get("SPY")
+        if frame is None:
+            frame=store.get("QQQ")
         _MARKET_SESSION_DATES=sorted({x.date() for x in frame.index}) if frame is not None else []
     except Exception:
         _MARKET_SESSION_DATES=[]

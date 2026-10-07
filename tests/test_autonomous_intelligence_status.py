@@ -45,6 +45,12 @@ b=out["milestones"]["B_autonomous_learning_core"]
 assert b["metrics"]["generic_moving_average_support_complete"] is True
 assert b["metrics"]["generic_moving_average_windows"]==[20,50,200]
 assert "increase generic candidate coverage" not in b["remaining"]
-assert "resolve only source-defined indicator parameters" in b["remaining"]
-assert b["state"]=="engineering_operational_source_defined_parameters_pending"
-print("PASS Milestone B generic MA engineering-complete state")
+assert b["engineering_chain_complete"] is True
+assert b["state"]=="engineering_closed_waiting_for_source_definitions"
+assert b["evidence_dependency_state"] in {"waiting_for_source_definitions","all_parameterized_conditions_resolved"}
+assert b["metrics"]["parameter_definition_queue_items"]>=0
+if b["metrics"]["parameter_definition_queue_items"]>0:
+    assert b["remaining"]==["await explicit source-defined indicator parameters"]
+else:
+    assert b["remaining"]==[]
+print("PASS Milestone B engineering-closed / source-definition-wait state")

@@ -253,6 +253,9 @@ def build(reading,store,prior=None,now=None):
             "blocked_needs_definition":counts["blocked_needs_definition"],
             "historical_replay_eligible":sum(1 for x in rows if x["historical_replay_eligible"]),
             "forward_observation_eligible":sum(1 for x in rows if x["forward_observation_eligible"]),
+            "direction_governed":sum(1 for x in rows if (x.get("signal_direction_governance") or {}).get("state")=="direction_governed"),
+            "direction_unresolved":sum(1 for x in rows if (x.get("signal_direction_governance") or {}).get("state")=="direction_unresolved"),
+            "direction_conflict":sum(1 for x in rows if (x.get("signal_direction_governance") or {}).get("state")=="direction_conflict"),
             "production_eligible":0,
         },
         "by_family":dict(fam),
@@ -267,6 +270,8 @@ def build(reading,store,prior=None,now=None):
                 )
             ),
             "parameterized_indicators_fail_closed":sorted(UNRESOLVED_KNOWN.keys()),
+            "signal_direction_governance_version":"1.0",
+            "signal_direction_is_trade_action":False,
         },
         "source_observations":observations,
         "candidates":rows,
@@ -293,6 +298,8 @@ def public_status(reg):
             "reproducibility_status":x["reproducibility_status"],
             "unresolved_inputs":x["unresolved_inputs"],
             "evidence_role":x["evidence_role"],
+            "expected_direction":x.get("expected_direction"),
+            "signal_direction_state":(x.get("signal_direction_governance") or {}).get("state"),
             "forward_observation_eligible":x["forward_observation_eligible"],
             "production_eligible":False,
         })

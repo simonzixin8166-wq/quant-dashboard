@@ -74,10 +74,11 @@ def evidence_role(store_row):
 
 def compile_condition(item):
     cid=str((item or {}).get("condition_id") or "")
+    role=str((item or {}).get("semantic_role") or "unspecified")
     if cid in MACHINE_CONDITIONS:
-        return {"condition_id":cid,"machine_ready":True,"expression":MACHINE_CONDITIONS[cid],"unresolved_reason":None}
+        return {"condition_id":cid,"semantic_role":role,"machine_ready":True,"expression":MACHINE_CONDITIONS[cid],"unresolved_reason":None}
     reason=UNRESOLVED_KNOWN.get(cid,"Condition definition is not machine-reproducible")
-    return {"condition_id":cid,"machine_ready":False,"expression":None,"unresolved_reason":reason}
+    return {"condition_id":cid,"semantic_role":role,"machine_ready":False,"expression":None,"unresolved_reason":reason}
 
 def infer_family(compiled):
     ids={x["condition_id"] for x in compiled}
@@ -93,19 +94,36 @@ def compile_candidate(memory,prop,store_row,forward_formation_allowed=False):
     if not conditions:return None
     unresolved=[x for x in conditions if not x["machine_ready"]]
     ready=[x for x in conditions if x["machine_ready"]]
+    semantic_roles={x.get("semantic_role") for x in conditions if x.get("semantic_role") not in {None,"unspecified"}}
+    temporal_unresolved=None
+    if "prior_observation" in semantic_roles and "invalidation" in semantic_roles:
+        temporal_unresolved={
+            "condition_id":"temporal_sequence_window",
+            "reason":"Source describes a prior-state -> invalidation transition but does not define an exact replay lookback/window."
+        }
     role=evidence_role(store_row)
-    forward_observation_eligible=(role=="genuine_forward_observation" and forward_formation_allowed and not unresolved and bool(ready))
-    status="machine_ready_shadow" if ready and not unresolved else "partial_needs_definition"
+    status="machine_ready_shadow" if ready and not unresolved and temporal_unresolved is None else "partial_needs_definition"
     if not ready:status="blocked_needs_definition"
+    forward_observation_eligible=(role=="genuine_forward_observation" and forward_formation_allowed and status=="machine_ready_shadow")
     sid=str(memory.get("source_id") or "")
     pid=str(prop.get("proposition_id") or "")
     family=infer_family(conditions)
     state_role=STATE_TO_ROLE.get(str(ev.get("state_hint") or ""),"unspecified")
-    logic={
-        "trigger_conditions":[x["condition_id"] for x in conditions] if state_role=="trigger" else [],
-        "confirmation_conditions":[x["condition_id"] for x in conditions] if state_role=="confirmation" else [],
-        "invalidation_conditions":[x["condition_id"] for x in conditions] if state_role=="invalidation_or_risk" else [],
-    }
+    explicit_roles=any(x.get("semantic_role") not in {None,"unspecified"} for x in conditions)
+    if explicit_roles:
+        logic={
+            "prior_observation_conditions":[x["condition_id"] for x in conditions if x.get("semantic_role")=="prior_observation"],
+            "trigger_conditions":[x["condition_id"] for x in conditions if x.get("semantic_role")=="trigger"],
+            "confirmation_conditions":[x["condition_id"] for x in conditions if x.get("semantic_role")=="confirmation"],
+            "invalidation_conditions":[x["condition_id"] for x in conditions if x.get("semantic_role")=="invalidation"],
+        }
+    else:
+        logic={
+            "prior_observation_conditions":[],
+            "trigger_conditions":[x["condition_id"] for x in conditions] if state_role=="trigger" else [],
+            "confirmation_conditions":[x["condition_id"] for x in conditions] if state_role=="confirmation" else [],
+            "invalidation_conditions":[x["condition_id"] for x in conditions] if state_role=="invalidation_or_risk" else [],
+        }
     family_signature=stable_id(
         family,state_role,
         ",".join(sorted(x["condition_id"] for x in conditions)),
@@ -133,11 +151,11 @@ def compile_candidate(memory,prop,store_row,forward_formation_allowed=False):
         "logic":logic,
         "conditions":conditions,
         "machine_ready_conditions":[x["condition_id"] for x in ready],
-        "unresolved_inputs":[{"condition_id":x["condition_id"],"reason":x["unresolved_reason"]} for x in unresolved],
+        "unresolved_inputs":[{"condition_id":x["condition_id"],"reason":x["unresolved_reason"]} for x in unresolved] + ([temporal_unresolved] if temporal_unresolved else []),
         "reproducibility_status":status,
         "evidence_role":role,
         "forward_observation_eligible":forward_observation_eligible,
-        "historical_replay_eligible":bool(ready),
+        "historical_replay_eligible":status=="machine_ready_shadow",
         "production_eligible":False,
         "promotion_eligible":False,
         "horizon":"unknown_until_explicitly_defined",

@@ -147,6 +147,18 @@ def maybe_state_entry(candidate,store,obs_map,rows,now):
     close=finite(df.iloc[i]["close"])
     if close is None:return None,"invalid_close"
     qqq=store.get("QQQ")
+    snapshot={
+        "candidate_id":candidate.get("candidate_id"),
+        "family_signature":candidate.get("family_signature"),
+        "source_id":candidate.get("source_id"),
+        "proposition_id":candidate.get("proposition_id"),
+        "method_family":candidate.get("method_family"),
+        "state_role":candidate.get("state_role"),
+        "logic":candidate.get("logic"),
+        "conditions":candidate.get("conditions"),
+        "scope":candidate.get("scope"),
+    }
+    snapshot_hash=hashlib.sha256(canonical(snapshot).encode("utf-8")).hexdigest()
     rec={
         "ledger_version":VERSION,
         "record_type":"state_entry",
@@ -156,6 +168,11 @@ def maybe_state_entry(candidate,store,obs_map,rows,now):
         "family_signature":candidate.get("family_signature"),
         "source_id":candidate.get("source_id"),
         "proposition_id":candidate.get("proposition_id"),
+        "candidate_snapshot_hash":snapshot_hash,
+        "candidate_snapshot":snapshot,
+        "author":(candidate.get("source") or {}).get("author"),
+        "source_title":(candidate.get("source") or {}).get("title"),
+        "source_url":(candidate.get("source") or {}).get("url"),
         "symbol":symbol,
         "signal_date":latest_date.isoformat(),
         "signal_close":close,
@@ -305,6 +322,7 @@ def build(registry,store,prior_rows=None,now=None):
             "Only the latest completed canonical STOOQ bar may create a state-entry; historical state entries are never backfilled.",
             "Candidate formation must predate the observed trading date.",
             "A completed daily signal is evaluated from the next trading session open, never the same-day close.",
+            "Each state-entry freezes an immutable hash of the exact candidate definition being observed.",
             "5/20/60 outcomes append from that next-open baseline and never rewrite earlier records.",
             "Hash-chain failure closes the ledger.",
             "This observer cannot alter Promotion Gate, protected rules, positions, sizing or orders.",

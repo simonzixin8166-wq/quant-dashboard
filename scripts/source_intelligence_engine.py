@@ -30,7 +30,7 @@ YOUTUBE_ARCHIVE_URL = os.getenv(
 SYMBOLS = {
     "INTC","IREN","TSLA","QQQ","QQQM","VGT","QLD","TQQQ","NVDA","MU","AMZN",
     "NOW","META","SMH","SPY","VOO","ORCL","IBIT","BTC","COIN","NBIS","CRWV","SNDK",
-    "PYPL","GOOG","GOOGL","AAPL","MSFT","JPM","AMAT","LITE","BE","MRVL","RSP","QCOM","AAOI","CIEN",
+    "PYPL","GOOG","GOOGL","AAPL","MSFT","AMD","TSM","AVGO","JPM","AMAT","LITE","BE","MRVL","RSP","QCOM","AAOI","CIEN",
 }
 # Uppercase tokens from forum titles are useful ticker candidates, but a conservative
 # blocklist prevents common English abbreviations from becoming symbols.

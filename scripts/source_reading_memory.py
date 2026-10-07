@@ -172,24 +172,10 @@ def explicit_indicator_definition(condition_id, evidence_text):
             "smoothing":"EMA",
         }
     if condition_id=="supertrend_bullish":
-        # Example accepted wording: Supertrend(ATR10, 3x, Wilder)
-        m=re.search(r"supertrend.{0,32}atr\s*[（(]?\s*(\d{1,3})\s*[)）]?.{0,20}?(\d+(?:\.\d+)?)\s*(?:x|倍)",low,re.I)
-        if not m:
-            return None
-        method=None
-        if "wilder" in low or "rma" in low: method="Wilder_RMA"
-        elif "ema" in low or "指数移动平均" in text: method="EMA"
-        elif "sma" in low or "简单移动平均" in text: method="SMA"
-        if not method:
-            return None
-        period=int(m.group(1));mult=float(m.group(2))
-        if not (1<=period<=300 and 0<mult<=20):
-            return None
-        return {
-            "definition_source":"explicit_source_text",
-            "formula_id":"supertrend_atr_band",
-            "atr_period":period,"multiplier":mult,"atr_smoothing":method,
-        }
+        # Period/multiplier/smoothing are not enough to uniquely reproduce
+        # Supertrend across platforms. Require a future parser for the full
+        # source-authored band basis, carry-forward and trend-flip rules.
+        return None
     # TCDS remains unresolved unless a future parser can reproduce its full formula.
     return None
 

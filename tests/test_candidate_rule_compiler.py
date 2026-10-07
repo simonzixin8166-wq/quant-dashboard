@@ -97,3 +97,25 @@ assert c["state_role"]=="trigger"
 assert c["logic"]["trigger_conditions"]==["price_above_ma50"]
 assert c["scope"]["subject_attribution"]=="single_symbol_source_scope"
 print("PASS candidate family identity / lifecycle role")
+
+
+# A source-supported prior-state -> invalidation sequence without an exact
+# lookback window must remain partial, not be replayed as an impossible AND.
+temporal=memory("price_above_ma50")
+rule=temporal["records"][0]["propositions"][0]["evidence"]["candidate_rule"]
+rule["state_hint"]="RISK"
+rule["conditions"]=[
+ {"condition_id":"price_above_ma50","semantic_role":"prior_observation"},
+ {"condition_id":"price_below_ma50","semantic_role":"invalidation"},
+ {"condition_id":"ma50_hold_two_sessions","semantic_role":"confirmation"},
+]
+tr=build(temporal,store("backfill"),prior={"source_observations":[]})
+tc=tr["candidates"][0]
+assert tc["reproducibility_status"]=="partial_needs_definition"
+assert tc["historical_replay_eligible"] is False
+assert tc["forward_observation_eligible"] is False
+assert tc["logic"]["prior_observation_conditions"]==["price_above_ma50"]
+assert tc["logic"]["invalidation_conditions"]==["price_below_ma50"]
+assert tc["logic"]["confirmation_conditions"]==["ma50_hold_two_sessions"]
+assert any(x["condition_id"]=="temporal_sequence_window" for x in tc["unresolved_inputs"])
+print("PASS temporal sequence fail-closed semantics")

@@ -29,10 +29,15 @@ STATUS=ROOT/"docs"/"research"/"candidate_rule_status.json"
 VERSION="1.0"
 
 MACHINE_CONDITIONS={
+    "price_above_ma20":{"indicator":"price_vs_ma20","operator":"above","threshold":"MA20"},
+    "price_below_ma20":{"indicator":"price_vs_ma20","operator":"below","threshold":"MA20"},
+    "ma20_hold_two_sessions":{"indicator":"price_vs_ma20","operator":"hold_above","sessions":2},
     "price_above_ma50":{"indicator":"price_vs_ma50","operator":"above","threshold":"MA50"},
     "price_below_ma50":{"indicator":"price_vs_ma50","operator":"below","threshold":"MA50"},
     "ma50_hold_two_sessions":{"indicator":"price_vs_ma50","operator":"hold_above","sessions":2},
-
+    "price_above_ma200":{"indicator":"price_vs_ma200","operator":"above","threshold":"MA200"},
+    "price_below_ma200":{"indicator":"price_vs_ma200","operator":"below","threshold":"MA200"},
+    "ma200_hold_two_sessions":{"indicator":"price_vs_ma200","operator":"hold_above","sessions":2},
 }
 UNRESOLVED_KNOWN={
     "supertrend_bullish":"Supertrend ATR period/multiplier not verified",
@@ -84,7 +89,7 @@ def infer_family(compiled):
     ids={x["condition_id"] for x in compiled}
     if any(x.startswith("tcds_") or x.startswith("ppo_") for x in ids):
         return "trend_confirmation"
-    if any("ma50" in x or x.startswith("supertrend") or x.startswith("macd") for x in ids):
+    if any(("ma20" in x or "ma50" in x or "ma200" in x) or x.startswith("supertrend") or x.startswith("macd") for x in ids):
         return "trend_confirmation"
     return "unclassified_method"
 

@@ -508,10 +508,14 @@ def build(records, youtube_historical_learning=None):
             if t in {"Sell Put","LEAPS","风险管理","失败复盘","长期持有纪律","仓位与加减仓","估值与价格","趋势确认"}:
                 method_counts[t] += 1
 
+    subject_role_counts=Counter(
+        a.get("role") or "unknown"
+        for r in rows for a in (r.get("symbol_attribution") or [])
+    )
     evolutions = []
     histories = defaultdict(list)
     for r in rows:
-        for sym in r["symbols"]:
+        for sym in r.get("primary_symbols") or []:
             histories[(r["author"],sym)].append(r)
     for (author,sym), items in histories.items():
         items = sorted(items, key=lambda x: x.get("published_at",""))
@@ -531,7 +535,7 @@ def build(records, youtube_historical_learning=None):
     thesis_candidates = []
     by_symbol = defaultdict(list)
     for r in rows:
-        for sym in r["symbols"]:
+        for sym in r.get("primary_symbols") or []:
             by_symbol[sym].append(r)
     for sym, items in by_symbol.items():
         items = sorted(items, key=lambda x: x.get("published_at",""), reverse=True)
@@ -569,6 +573,7 @@ def build(records, youtube_historical_learning=None):
                 if fields: price_ops.append((sym + " " + " / ".join(fields)).strip())
             if price_ops: reason.append("具体条件：" + "；".join(price_ops))
         if r["portfolio_rules"]: reason.append("组合规则：" + " / ".join(r["portfolio_rules"]))
+        if r.get("primary_symbols"): reason.append("主研究标的：" + " / ".join(r["primary_symbols"]))
         if r["symbols"]: reason.append("涉及：" + " / ".join(r["symbols"]))
         if r["failure_candidate"]: reason.append("可进入失败复盘")
         alerts.append({
@@ -577,6 +582,8 @@ def build(records, youtube_historical_learning=None):
             "url": r["url"],
             "published_at": r["published_at"],
             "symbols": r["symbols"],
+            "primary_symbols": r.get("primary_symbols") or [],
+            "symbol_attribution": r.get("symbol_attribution") or [],
             "topics": r["topics"],
             "source_view": "；".join(reason),
             "myalpha_view": "先核对行情、估值、事件与现有 Thesis；外部作者观点不能单独触发买卖。",
@@ -599,6 +606,9 @@ def build(records, youtube_historical_learning=None):
             "portfolio_rule_records": sum(1 for r in rows if r["portfolio_rules"]),
             "lesson_records": sum(1 for r in rows if r["lessons"]),
             "historically_reparsed": len(rows),
+            "records_with_primary_subject": sum(1 for r in rows if r.get("primary_symbols")),
+            "ambiguous_multi_symbol_records": sum(1 for r in rows if len(r.get("symbols") or [])>1 and not r.get("primary_symbols")),
+            "symbol_role_counts": dict(subject_role_counts),
         },
         "topic_groups": {k: v[:80] for k,v in sorted(by_topic.items(), key=lambda x: -len(x[1]))},
         "repeated_methods": [{"name":k,"records":v,"status":"research_candidate"} for k,v in method_counts.most_common()],
@@ -628,6 +638,8 @@ def build(records, youtube_historical_learning=None):
         "guardrails": [
             "每条外部内容保留作者、日期、原文链接和来源类型。",
             "作者观点与MyAlpha独立分析必须分开展示。",
+            "Primary Subject Attribution 区分主研究标的、比较标的、持仓提及、举例股票；无法明确主标的时不强行归因。",
+            "Thesis候选与观点演变只使用 primary_subject；比较/持仓/举例股票仅保留研究上下文。",
             "外部作者的买卖、价格、仓位或期权操作不自动成为本站交易规则。",
             "只有后续独立验证和成熟结果样本才可影响Breadcrumb/Failure Attribution学习层。",
             "系统不自动下单，不因单一外部观点修改QQQM/VGT/QLD核心规则。",

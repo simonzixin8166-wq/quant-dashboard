@@ -181,3 +181,33 @@ assert hr["rule_registry_eligible"] is False
 assert hr["non_gating"] is True
 assert h["counts"]["records"]==2
 print("PASS historical YouTube learning top-level isolation")
+
+
+# Primary Subject Attribution: unique title ticker is primary; comparison,
+# holdings and examples stay distinct and cannot all become formal signal scope.
+ps=si.build([
+ {"id":"ps1","source":"wenxuecity","source_kind":"forum","author":"A","published_at":"2026-10-07",
+  "title":"AMZN 趋势修复，和 QQQ 对比","url":"https://example/ps1",
+  "excerpt":"AMZN 重新站上 MA50；相比 QQQ 仍偏弱。"},
+ {"id":"ps2","source":"wenxuecity","source_kind":"forum","author":"A","published_at":"2026-10-07",
+  "title":"组合更新","url":"https://example/ps2",
+  "excerpt":"我目前持有 NVDA，成本附近继续观察；例如 AMD 只是举例，不是这次主研究对象。"},
+ {"id":"ps3","source":"wenxuecity","source_kind":"blog","author":"A","published_at":"2026-10-07",
+  "title":"今天的计划","url":"https://example/ps3",
+  "excerpt":"QQQ 和 VGT 都有提到。",
+  "symbols":["QQQ","VGT"],
+  "operations":[{"symbols":["QQQ"],"actions":["planned_buy"],"entry_1":700,"attribution":"author_plan"}]}
+])
+pm={x["id"]:x for x in ps["records"]}
+assert pm["ps1"]["primary_symbols"]==["AMZN"], pm["ps1"]["primary_symbols"]
+roles1={x["symbol"]:x["role"] for x in pm["ps1"]["symbol_attribution"]}
+assert roles1["AMZN"]=="primary_subject"
+assert roles1["QQQ"]=="comparison_peer"
+roles2={x["symbol"]:x["role"] for x in pm["ps2"]["symbol_attribution"]}
+assert roles2["NVDA"]=="holding_mention"
+assert roles2["AMD"]=="example_mention"
+assert pm["ps2"]["primary_symbols"]==[]
+assert pm["ps3"]["primary_symbols"]==["QQQ"]
+roles3={x["symbol"]:x["role"] for x in pm["ps3"]["symbol_attribution"]}
+assert roles3["QQQ"]=="primary_subject"
+print("PASS Primary Subject Attribution roles")

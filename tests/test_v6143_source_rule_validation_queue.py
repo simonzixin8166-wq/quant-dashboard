@@ -142,6 +142,24 @@ prose_reading={
        "source_derived_only":True
      }}
    }]
+  },
+  {
+   "source_id":"p3","author":"yifan99","title":"AMZN趋势形成（论坛镜像）","symbols":["AMZN"],
+   "propositions":[{
+     "proposition_id":"pc3","kind":"candidate_rule","text":"AMZN候选镜像",
+     "evidence":{"candidate_rule":{
+       "symbols":["AMZN"],
+       "conditions":[
+         {"condition_id":"price_above_ma50","machine_ready":True},
+         {"condition_id":"ppo_above_signal","machine_ready":False},
+         {"condition_id":"tcds_cross_zero","machine_ready":False}
+       ],
+       "state_hint":"EARLY_ENTRY","machine_readiness":"partial_needs_definition",
+       "needs_definition":["tcds_cross_zero","ppo_above_signal"],
+       "raw_evidence":["同一方法重复发布"],
+       "source_derived_only":True
+     }}
+   }]
   }
  ]
 }
@@ -152,6 +170,9 @@ planner2=arp.build(
 )
 pval=next(x for x in planner2["queue"] if x["kind"]=="prose_candidate_validation")
 pdef=next(x for x in planner2["queue"] if x["kind"]=="prose_candidate_definition")
+assert sum(1 for x in planner2["queue"] if x["kind"]=="prose_candidate_definition")==1
+assert pdef["source_count"]==2
+assert len(pdef["provenance"])==2
 assert pval["symbol"]=="AMD" and pval["machine_readiness"]=="machine_ready"
 assert pdef["symbol"]=="AMZN"
 assert set(pdef["needs_definition"])=={"tcds_cross_zero","ppo_above_signal"}
@@ -159,6 +180,7 @@ assert "不允许猜测" in pdef["why_now"]
 
 support,counter,unknowns=are.prose_candidate_brief(pdef,prose_reading)
 assert any("yifan99" in x and "AMZN" in x for x in support)
+assert any("2 条来源记录" in x and "去重" in x for x in support)
 assert any("来源状态语义：EARLY_ENTRY" in x for x in support)
 assert any("tcds_cross_zero" in x and "猜测" in x for x in counter)
 assert any("ppo_above_signal" in x for x in unknowns)

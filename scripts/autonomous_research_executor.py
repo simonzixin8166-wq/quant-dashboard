@@ -240,6 +240,41 @@ def method_rule_candidate_brief(task,source_reading,method):
     add_unique(counter,"文章主题与作者观点不能替代结构化规则归属；只有明确 author_action / author_plan 才可进入后续验证")
     return support,counter,unknowns
 
+def candidate_definition_clues(condition_id,author,source_reading,exclude_proposition_id=None,limit=4):
+    tokens={
+        "tcds_cross_zero":["tcds"],
+        "ppo_above_signal":["ppo","signal"],
+        "ppo_hist_positive":["ppo","hist"],
+        "price_above_ma50":["ma50"],
+        "price_below_ma50":["ma50"],
+        "ma50_hold_two_sessions":["ma50"],
+        "supertrend_bullish":["supertrend"],
+        "macd_hist_positive":["macd"],
+    }.get(str(condition_id),[str(condition_id)])
+    rows=[]
+    for record in source_reading.get("records") or []:
+        if author and str(record.get("author") or "")!=str(author):
+            continue
+        for p in record.get("propositions") or []:
+            if exclude_proposition_id and str(p.get("proposition_id") or "")==str(exclude_proposition_id):
+                continue
+            text=str(p.get("text") or "")
+            low=text.lower()
+            if not all(tok.lower() in low for tok in tokens):
+                continue
+            explicit_definition=bool(
+                any(mark in low for mark in ["公式","计算","参数","周期","定义","formula","parameter","period"])
+                or "=" in text
+            )
+            rows.append({
+                "source_id":record.get("source_id"),"author":record.get("author"),
+                "title":record.get("title"),"url":record.get("url"),
+                "proposition_id":p.get("proposition_id"),"kind":p.get("kind"),
+                "text":text[:260],"explicit_definition_candidate":explicit_definition,
+            })
+            if len(rows)>=limit:return rows
+    return rows
+
 def prose_candidate_brief(task,source_reading):
     pid=str(task.get("proposition_id") or "")
     source_id=str(task.get("source_id") or "")
@@ -279,7 +314,23 @@ def prose_candidate_brief(task,source_reading):
 
     if unresolved:
         add_unique(counter,"以下条件定义尚未核实，禁止用通用指标或猜测参数替代："+ " / ".join(map(str,unresolved)))
-        add_unique(unknowns,"需要从作者原始材料或可审计定义中补齐："+ " / ".join(map(str,unresolved)))
+        for condition_id in unresolved:
+            clues=candidate_definition_clues(
+                condition_id,record_match.get("author"),source_reading,
+                exclude_proposition_id=match.get("proposition_id")
+            )
+            if clues:
+                explicit=sum(1 for x in clues if x.get("explicit_definition_candidate"))
+                add_unique(support,f"{condition_id}：自动回查同作者资料发现 {len(clues)} 条相关线索，其中 {explicit} 条疑似包含定义/参数信息。")
+                for clue in clues[:2]:
+                    add_unique(support,f"定义线索 · {clue.get('title') or '未命名'}：{clue.get('text')}")
+                if explicit:
+                    add_unique(unknowns,f"{condition_id}：存在疑似定义线索，但需逐项核实公式、参数、周期和原文语义后才能编译。")
+                else:
+                    add_unique(unknowns,f"{condition_id}：现有同作者资料只有概念/使用线索，尚无可审计公式或参数定义。")
+            else:
+                add_unique(unknowns,f"{condition_id}：现有 Source Reading 未找到同作者可用定义线索。")
+        add_unique(unknowns,"任何缺失定义必须从作者原始材料或可审计定义中补齐，不能用通用指标默认参数替代。")
     else:
         add_unique(unknowns,"机器可复现不等于方法有效；仍需预注册触发事件、历史回放和真实 Forward 结果。")
 

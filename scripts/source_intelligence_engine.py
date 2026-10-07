@@ -179,6 +179,85 @@ def sanitize_declared_symbols(values, text: str):
     return out[:12]
 
 
+def _symbol_present(sym: str, text: str) -> bool:
+    return bool(re.search(rf"(?<![A-Za-z0-9])\\$?{re.escape(str(sym))}(?![A-Za-z0-9])", str(text or ""), re.I))
+
+def _near_hint(sym: str, text: str, hints, radius=36) -> bool:
+    raw=str(text or "")
+    for m in re.finditer(rf"(?<![A-Za-z0-9])\\$?{re.escape(str(sym))}(?![A-Za-z0-9])",raw,re.I):
+        lo=max(0,m.start()-radius);hi=min(len(raw),m.end()+radius)
+        window=raw[lo:hi].lower()
+        if any(str(h).lower() in window for h in hints):
+            return True
+    return False
+
+def attribute_symbol_roles(row, syms, title, excerpt, learned_ops):
+    """Conservative Primary Subject Attribution.
+
+    Roles are descriptive provenance only. A primary subject is assigned only
+    when the source itself provides a strong anchor; ambiguous multi-symbol
+    articles remain contextual instead of forcing a false primary.
+    """
+    syms=[str(x).upper() for x in syms or [] if str(x)]
+    title_syms=[s for s in syms if _symbol_present(s,title)]
+    roles={s:{
+        "symbol":s,"role":"contextual_mention","confidence":"low",
+        "evidence_basis":["detected_in_source"]
+    } for s in syms}
+
+    def promote(sym,role,confidence,basis):
+        if sym not in roles:return
+        rank={"contextual_mention":0,"example_mention":1,"holding_mention":2,"comparison_peer":2,"primary_subject":3}
+        cur=roles[sym]
+        if rank.get(role,0)>=rank.get(cur.get("role"),0):
+            cur["role"]=role;cur["confidence"]=confidence
+        if basis not in cur["evidence_basis"]:cur["evidence_basis"].append(basis)
+
+    # Explicit upstream primary metadata, when present, is still constrained to
+    # the sanitized symbol universe.
+    declared=[]
+    for key in ("primary_symbol","primary_symbols"):
+        value=row.get(key)
+        vals=value if isinstance(value,list) else ([value] if value else [])
+        for s in vals:
+            sym=str(s).upper().strip().lstrip("$")
+            if sym in syms and sym not in declared:declared.append(sym)
+    for s in declared:promote(s,"primary_subject","high","upstream_explicit_primary")
+
+    # Author-owned structured operations are the strongest local evidence.
+    for op in learned_ops or []:
+        if (op.get("attribution") or "") not in {"author_action","author_plan"}:continue
+        for s in op.get("symbols") or []:
+            sym=str(s).upper().strip().lstrip("$")
+            if sym in syms:promote(sym,"primary_subject","high","author_owned_structured_operation")
+
+    # A single title ticker is a strong subject anchor. Multiple title tickers
+    # are not forced into primary/secondary unless the prose itself distinguishes them.
+    if len(title_syms)==1:
+        promote(title_syms[0],"primary_subject","high","unique_title_symbol")
+
+    text=(str(title or "")+"\n"+str(excerpt or "")).strip()
+    comparison_hints=(" vs "," versus ","对比","相比","比较","还是","相较")
+    example_hints=("例如","比如","举例","example","e.g.","for example")
+    holding_hints=("持有","持仓","仓位","成本","holding","position","own ")
+
+    for s in syms:
+        if _near_hint(s,text,example_hints):
+            promote(s,"example_mention","medium","example_language")
+        if _near_hint(s,text,holding_hints):
+            promote(s,"holding_mention","medium","holding_language")
+
+    # Comparison language only marks non-primary peers; it never demotes an
+    # already explicit primary subject.
+    if len(syms)>=2 and any(h.lower() in text.lower() for h in comparison_hints):
+        primaries={s for s,v in roles.items() if v["role"]=="primary_subject"}
+        for s in syms:
+            if s not in primaries and _symbol_present(s,text):
+                promote(s,"comparison_peer","medium","comparison_language")
+
+    primary=[s for s in syms if roles[s]["role"]=="primary_subject"]
+    return [roles[s] for s in syms],primary[:4]
+
 def topics(text: str, hints=None):
     low = (text or "").lower()
     out = []
@@ -281,6 +360,7 @@ def normalize(row):
             "state_hint":str(sig.get("state_hint") or "")[:40] or None,
         })
     syms = list(dict.fromkeys(sanitize_declared_symbols(row.get("symbols"), text) + symbols(text)))
+    symbol_attribution, primary_symbols = attribute_symbol_roles(row, syms, title, excerpt, learned_ops)
     tps = topics(text, row.get("themes_hint"))
     acts = actions(text)
     for op in learned_ops:
@@ -299,6 +379,8 @@ def normalize(row):
         "excerpt": excerpt[:900],
         "content_chars": row.get("content_chars",0),
         "symbols": syms,
+        "primary_symbols": primary_symbols,
+        "symbol_attribution": symbol_attribution,
         "topics": tps,
         "actions": acts,
         "operations": learned_ops,

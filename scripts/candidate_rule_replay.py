@@ -214,10 +214,10 @@ def condition_series(df,cond):
     return None
 
 def direction(candidate):
-    role=str(candidate.get("state_role") or "")
-    if role in {"trigger","confirmation"}:return "bullish"
-    if role=="invalidation_or_risk":return "bearish"
-    return None
+    governance=candidate.get("signal_direction_governance") or {}
+    if governance.get("state")!="direction_governed":return None
+    expected=governance.get("expected_direction")
+    return expected if expected in {"bullish","bearish"} else None
 
 def qqq_return(qqq,event_date,h):
     if qqq is None or qqq.empty:return None
@@ -240,6 +240,7 @@ def event_regime(qqq,event_date):
     return "qqq_above_ma200" if close>=ma200 else "qqq_below_ma200"
 
 def outcomes(df,pos,entry,qqq,event_date,expected):
+    if expected not in {"bullish","bearish"}:return None
     out={}
     for h in HORIZONS:
         if pos+h>=len(df):out[str(h)]=None;continue
@@ -342,7 +343,7 @@ def replay_candidate(candidate,store,provenance=None):
         return {"candidate_id":candidate.get("candidate_id"),"status":"blocked","reason":"candidate_not_fully_reproducible","events":[]}
     if len(syms)!=1:return {"candidate_id":candidate.get("candidate_id"),"status":"blocked","reason":"single_symbol_scope_required","events":[]}
     expected=direction(candidate)
-    if expected is None:return {"candidate_id":candidate.get("candidate_id"),"status":"blocked","reason":"direction_not_explicit","events":[]}
+    if expected is None:return {"candidate_id":candidate.get("candidate_id"),"status":"blocked","reason":"direction_unresolved_or_ungoverned","events":[]}
     symbol=str(syms[0]).upper(); df=store.get(symbol)
     if df is None or df.empty:
         return {"candidate_id":candidate.get("candidate_id"),"status":"blocked","reason":"historical_symbol_missing","data_provenance":(provenance or {}).get(symbol),"events":[]}
@@ -424,7 +425,7 @@ def build(registry,store,provenance=None):
         },
         "guardrails":[
             "Historical replay is post-candidate-compilation evidence and never Forward evidence.",
-            "Only fully reproducible candidate conditions are replayed.",
+            "Only fully reproducible candidate conditions with governed research direction are replayed.",
             "On-demand STOOQ/yfinance history is Research/Shadow-only and cannot become a Production data dependency.",
             "Signals use same-day/past inputs; future bars are used only to calculate later outcomes.",
             "State-entry events are counted; repeated days inside one state are not new events.",

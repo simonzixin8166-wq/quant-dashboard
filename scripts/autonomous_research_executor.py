@@ -526,6 +526,12 @@ def execute_task(task,artifacts):
     score=min(100,20+12*len(support)+8*len(counter)-10*len(unknowns))
     if not support:score=min(score,30)
     confidence="low" if score<40 else "medium" if score<70 else "high"
+    if kind in {"prose_candidate_definition","prose_candidate_validation"}:
+        # This score is confidence in the research brief, not confidence that
+        # the candidate method works. Until compilation + validation, do not
+        # present narrative candidates as high-confidence methods.
+        score=min(score,65)
+        confidence="medium" if support else "low"
     if counter:
         conclusion="证据存在分歧，保持研究状态并优先验证反证。"
     elif support and unknowns:
@@ -539,7 +545,9 @@ def execute_task(task,artifacts):
       "task_id":task.get("task_id"),"kind":kind,"key":task.get("key"),"title":task.get("title"),
       "priority":task.get("priority"),"research_status":"analyzed",
       "supporting_evidence":support[:8],"counter_evidence":counter[:8],"unknowns":unknowns[:8],
-      "evidence_score":max(0,score),"confidence":confidence,"provisional_conclusion":conclusion,
+      "evidence_score":max(0,score),"confidence":confidence,
+      "confidence_scope":"research_brief_not_method_validity" if kind in {"prose_candidate_definition","prose_candidate_validation"} else "research_result",
+      "provisional_conclusion":conclusion,
       "next_validation":(task.get("questions") or [])[:4],
       "source_requirements":task.get("evidence_sources") or [],
       "guardrail":"该研究结果不能自动下单；未知项不得由模型猜测补全。"

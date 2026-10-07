@@ -18,7 +18,13 @@ cand={
  "formation_mode":"forward_initial","forward_observation_eligible":True,
  "reproducibility_status":"machine_ready_shadow","unresolved_inputs":[],
  "scope":{"symbols":["AAA"]},"state_role":"trigger",
- "conditions":[{"condition_id":"ma50_hold_two_sessions","semantic_role":"confirmation","machine_ready":True}]
+ "conditions":[{"condition_id":"ma50_hold_two_sessions","semantic_role":"confirmation","machine_ready":True}],
+ "expected_direction":"bullish",
+ "signal_direction_governance":{
+   "version":"1.0","state":"direction_governed","expected_direction":"bullish",
+   "basis":[{"condition_id":"ma50_hold_two_sessions","direction":"bullish"}],
+   "trade_action":None
+ }
 }
 registry={"candidates":[cand],"source_observations":[{"source_id":"s1","first_candidate_compiler_seen_at":formed}]}
 
@@ -32,6 +38,9 @@ assert rows[0]["record_type"]=="state_entry"
 assert rows[0]["evidence_class"]=="genuine_forward_state_entry"
 assert rows[0]["scoreable_for_forward"] is False
 assert rows[0]["production_eligible"] is False
+assert rows[0]["expected_direction"]=="bullish"
+assert rows[0]["signal_direction_governance_version"]=="1.0"
+assert rows[0]["signal_direction_basis"]==[{"condition_id":"ma50_hold_two_sessions","direction":"bullish"}]
 assert len(rows[0]["candidate_snapshot_hash"])==64
 assert rows[0]["candidate_snapshot"]["candidate_id"]=="c1"
 assert status["counts"]["evaluation_baselines"]==0
@@ -77,3 +86,15 @@ assert bad_status["status"]=="fail_closed_hash_chain_invalid"
 assert bad_status["production_effect"]=="none"
 
 print("PASS candidate forward observer append-only / state-entry / maturity / hash-chain")
+
+
+# Missing/ungoverned direction cannot create a Forward event.
+ungoverned=dict(cand)
+ungoverned["candidate_id"]="c3"
+ungoverned["expected_direction"]=None
+ungoverned["signal_direction_governance"]={"version":"1.0","state":"direction_unresolved","expected_direction":None}
+rows6,status6=build({"candidates":[ungoverned],"source_observations":[{"source_id":"s1","first_candidate_compiler_seen_at":formed}]},store,[],now="2026-04-01T00:00:00+00:00")
+assert rows6==[]
+diag=next(x for x in status6["diagnostics"] if x["candidate_id"]=="c3")
+assert diag["observation"]=="direction_unresolved_or_ungoverned"
+print("PASS governed Forward direction / no state-role default")

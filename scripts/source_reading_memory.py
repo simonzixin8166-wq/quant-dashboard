@@ -40,6 +40,8 @@ TRIGGER_HINTS=(
     "above ma","below ma","if ","when ","entry",
 )
 
+PARAMETERIZED_CONDITIONS={"supertrend_bullish","macd_hist_positive","ppo_above_signal","ppo_hist_positive","tcds_cross_zero"}
+
 PROSE_CONDITION_PATTERNS=(
     ("price_above_ma20", r"(?:股价|价格|price)?.{0,12}(?:站上|突破|above).{0,8}ma\s*20", True),
     ("price_below_ma20", r"(?:股价|价格|price)?.{0,16}(?:跌破|跌回|回落到|below).{0,10}ma\s*20", True),
@@ -217,7 +219,10 @@ def prose_candidate_rule(row, sentences):
             continue
         cid=str(sig.get("condition_id"))
         if cid not in [x["condition_id"] for x in found]:
-            found.append({"condition_id":cid,"machine_ready":bool(sig.get("machine_ready"))})
+            found.append({
+                "condition_id":cid,
+                "machine_ready":False if cid in PARAMETERIZED_CONDITIONS else bool(sig.get("machine_ready")),
+            })
         snippet=clean_text(sig.get("evidence_excerpt"),180)
         if snippet:raw.append(snippet)
         if not upstream_state and sig.get("state_hint"):

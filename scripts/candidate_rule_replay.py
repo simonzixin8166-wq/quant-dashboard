@@ -20,6 +20,7 @@ from pathlib import Path
 from urllib.request import Request, urlopen
 
 import pandas as pd
+import yfinance as yf
 
 try:
     from local_history_agent import read_archive
@@ -63,17 +64,46 @@ def normalize_history(df):
     x=x.sort_index()
     return x[~x.index.duplicated(keep="last")]
 
+def fetch_research_history(symbol):
+    """Research-only fallback chain: STOOQ first, yfinance second.
+
+    Neither provider becomes a Production dependency. The exact provider is
+    returned for audit provenance. Failure remains explicit and fail-closed.
+    """
+    errors=[]
+    try:
+        url=STOOQ_URL.format(symbol=str(symbol).lower().replace(".","-"))
+        req=Request(url,headers={"User-Agent":"MyAlphaView/6.9 research-shadow replay"})
+        with urlopen(req,timeout=20) as resp:
+            raw=resp.read()
+        out=normalize_history(pd.read_csv(io.BytesIO(raw)))
+        if out is not None and len(out)>=220:
+            return out,"stooq_on_demand_research_only"
+        errors.append("stooq_history_insufficient")
+    except Exception as exc:
+        errors.append("stooq:"+str(exc)[:100])
+    try:
+        raw=yf.download(symbol,period="10y",auto_adjust=False,progress=False,threads=False,actions=False)
+        if isinstance(raw.columns,pd.MultiIndex):
+            try:
+                if symbol in raw.columns.get_level_values(-1):
+                    raw=raw.xs(symbol,axis=1,level=-1,drop_level=True)
+                elif symbol in raw.columns.get_level_values(0):
+                    raw=raw.xs(symbol,axis=1,level=0,drop_level=True)
+            except Exception:
+                pass
+        out=normalize_history(raw)
+        if out is not None and len(out)>=220:
+            return out,"yfinance_on_demand_research_only"
+        errors.append("yfinance_history_insufficient")
+    except Exception as exc:
+        errors.append("yfinance:"+str(exc)[:100])
+    raise ValueError("; ".join(errors)[:240])
+
 def fetch_stooq_history(symbol):
-    """Research-only fallback. Failure is explicit and fail-closed."""
-    url=STOOQ_URL.format(symbol=str(symbol).lower().replace(".","-"))
-    req=Request(url,headers={"User-Agent":"MyAlphaView/6.9 research-shadow replay"})
-    with urlopen(req,timeout=20) as resp:
-        raw=resp.read()
-    df=pd.read_csv(io.BytesIO(raw))
-    out=normalize_history(df)
-    if out is None or len(out)<80:
-        raise ValueError("stooq_history_insufficient")
-    return out
+    """Backward-compatible helper retained for tests/importers."""
+    df,_=fetch_research_history(symbol)
+    return df
 
 def required_symbols(registry):
     syms={"QQQ"}
@@ -83,7 +113,7 @@ def required_symbols(registry):
             if s:syms.add(str(s).upper())
     return sorted(syms)
 
-def resolve_store(registry,base_store=None,fetcher=fetch_stooq_history):
+def resolve_store(registry,base_store=None,fetcher=fetch_research_history):
     store={str(k).upper():normalize_history(v) for k,v in (base_store or {}).items()}
     provenance={}
     for s in list(store):
@@ -92,11 +122,15 @@ def resolve_store(registry,base_store=None,fetcher=fetch_stooq_history):
     for symbol in required_symbols(registry):
         if store.get(symbol) is not None and not store[symbol].empty:continue
         try:
-            df=fetcher(symbol)
+            fetched=fetcher(symbol)
+            if isinstance(fetched,tuple):
+                df,provider=fetched
+            else:
+                df,provider=fetched,"test_or_custom_research_provider"
             store[symbol]=df
-            provenance[symbol]={"source":"stooq_on_demand_research_only","status":"ready","rows":len(df)}
+            provenance[symbol]={"source":provider,"status":"ready","rows":len(df)}
         except Exception as exc:
-            provenance[symbol]={"source":"stooq_on_demand_research_only","status":"blocked","reason":str(exc)[:160]}
+            provenance[symbol]={"source":"research_on_demand_fallback_chain","status":"blocked","reason":str(exc)[:240]}
     return store,provenance
 
 def sma(series,window):
@@ -312,7 +346,7 @@ def build(registry,store,provenance=None):
         "guardrails":[
             "Historical replay is post-candidate-compilation evidence and never Forward evidence.",
             "Only fully reproducible candidate conditions are replayed.",
-            "On-demand STOOQ history is Research/Shadow-only and cannot become a Production data dependency.",
+            "On-demand STOOQ/yfinance history is Research/Shadow-only and cannot become a Production data dependency.",
             "Signals use same-day/past inputs; future bars are used only to calculate later outcomes.",
             "State-entry events are counted; repeated days inside one state are not new events.",
             "Signals within five sessions are clustered for effective-N reporting.",

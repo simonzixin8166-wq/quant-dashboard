@@ -34,6 +34,12 @@ assert all(rows[s]["status"] in {"scan_context_ready","context_only"} for s in r
 assert "SELL_PUT_CHAIN_SCAN" in rows["IREN"]["scan_lanes"]
 assert "SELL_PUT_SCREEN" in rows["IREN"]["research_modes"]
 assert "SELL_PUT_CHAIN_SCAN" in rows["SOFI"]["scan_lanes"]
+assert rows["LITE"]["strategy_preference"]["primary"]=="SELL_PUT"
+assert "SELL_PUT_CHAIN_SCAN" in rows["LITE"]["scan_lanes"]
+assert "SELL_PUT_SCREEN" in rows["LITE"]["research_modes"]
+assert rows["NVDA"]["strategy_preference"]["primary"]=="SELL_PUT"
+assert "SELL_PUT_CHAIN_SCAN" in rows["NVDA"]["scan_lanes"]
+assert "SELL_PUT_SCREEN" in rows["NVDA"]["research_modes"]
 assert "LEAPS_CALL_CHAIN_SCAN" in rows["QQQ"]["scan_lanes"]
 assert "LEAPS_SCREEN" in rows["QQQ"]["research_modes"]
 assert rows["TSLA"]["context"]["structurally_weak"] is True

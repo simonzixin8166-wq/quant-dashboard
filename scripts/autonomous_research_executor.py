@@ -240,6 +240,50 @@ def method_rule_candidate_brief(task,source_reading,method):
     add_unique(counter,"文章主题与作者观点不能替代结构化规则归属；只有明确 author_action / author_plan 才可进入后续验证")
     return support,counter,unknowns
 
+def prose_candidate_brief(task,source_reading):
+    pid=str(task.get("proposition_id") or "")
+    source_id=str(task.get("source_id") or "")
+    match=None
+    record_match=None
+    for record in source_reading.get("records") or []:
+        if source_id and str(record.get("source_id") or "")!=source_id:
+            continue
+        for p in record.get("propositions") or []:
+            if p.get("kind")!="candidate_rule":
+                continue
+            if pid and str(p.get("proposition_id") or "")!=pid:
+                continue
+            match=p;record_match=record;break
+        if match:break
+
+    support=[];counter=[];unknowns=[]
+    if not match:
+        add_unique(unknowns,"候选规则在当前 Source Reading 中不可复现；检查 artifact 新鲜度或 proposition identity。")
+        return support,counter,unknowns
+
+    candidate=((match.get("evidence") or {}).get("candidate_rule") or {})
+    symbol=(candidate.get("symbols") or record_match.get("symbols") or ["未指明"])[0]
+    author=record_match.get("author") or "未知作者"
+    title=record_match.get("title") or "未命名来源"
+    add_unique(support,f"{author} · {title} · {symbol}：已形成来源叙述候选规则。")
+
+    conditions=candidate.get("conditions") or []
+    ready=[x.get("condition_id") for x in conditions if x.get("machine_ready")]
+    unresolved=list(candidate.get("needs_definition") or [])
+    if ready:add_unique(support,"当前可机器复现条件："+ " / ".join(map(str,ready)))
+    if candidate.get("state_hint"):add_unique(support,f"来源状态语义：{candidate.get('state_hint')}（仅来源语义，不是生产信号）")
+    for raw in (candidate.get("raw_evidence") or [])[:3]:
+        add_unique(support,"原文证据："+str(raw))
+
+    if unresolved:
+        add_unique(counter,"以下条件定义尚未核实，禁止用通用指标或猜测参数替代："+ " / ".join(map(str,unresolved)))
+        add_unique(unknowns,"需要从作者原始材料或可审计定义中补齐："+ " / ".join(map(str,unresolved)))
+    else:
+        add_unique(unknowns,"机器可复现不等于方法有效；仍需预注册触发事件、历史回放和真实 Forward 结果。")
+
+    add_unique(counter,"prose candidate_rule 不进入 Rule Registry、Promotion 或正式 Action；只有后续独立编译和验证后的新结构规则才有资格继续晋升。")
+    return support,counter,unknowns
+
 def method_validation_brief(task,method):
     name=task.get("key")
     m=method_map(method).get(name) or {}
@@ -419,6 +463,8 @@ def execute_task(task,artifacts):
         support,counter,unknowns=method_validation_brief(task,artifacts["method"])
     elif kind=="method_rule_candidate":
         support,counter,unknowns=method_rule_candidate_brief(task,artifacts["source_reading"],artifacts["method"])
+    elif kind in {"prose_candidate_definition","prose_candidate_validation"}:
+        support,counter,unknowns=prose_candidate_brief(task,artifacts["source_reading"])
     elif kind in {"module_learning_review","architecture_gap"}:
         support,counter,unknowns=module_brief(task,artifacts["modules"])
     else:
@@ -458,7 +504,7 @@ def select_tasks(planner,limit=8):
     selected=today[:limit]
     existing={x.get("task_id") for x in selected}
 
-    candidates=[x for x in queue if x.get("kind")=="method_rule_candidate"]
+    candidates=[x for x in queue if x.get("kind") in {"method_rule_candidate","prose_candidate_definition","prose_candidate_validation"}]
     candidates.sort(key=lambda x:(float(x.get("priority") or 0),int(x.get("run_count") or 0)),reverse=True)
     candidate=next((x for x in candidates if x.get("task_id") not in existing),None)
     if candidate:

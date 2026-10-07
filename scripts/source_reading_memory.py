@@ -395,18 +395,6 @@ def record_memory(row):
         "reading_state":"testable" if testable else ("candidate_rule" if candidates else ("structured_context" if props else "insufficient_content")),
     }
 
-def _learning_window(memories, limit=800):
-    """Keep the public artifact bounded without dropping older actionable research.
-
-    Candidate/testable rule records are retained before plain context rows, so
-    a busy source feed cannot erase useful learning solely because it is older
-    than the latest presentation window.
-    """
-    important=[m for m in memories if m.get("testable_rule_count") or m.get("candidate_rule_count")]
-    rest=[m for m in memories if not (m.get("testable_rule_count") or m.get("candidate_rule_count"))]
-    return (important+rest)[:limit]
-
-
 def build(source):
     memories=[record_memory(r) for r in (source.get("records") or [])]
     kind_counts=Counter()
@@ -445,7 +433,7 @@ def build(source):
         "testable_by_topic":dict(testable_by_topic),
         "testable_by_method":dict(testable_by_method),
         "topic_record_counts":dict(topic_counts),
-        "records":_learning_window(memories,800),
+        "records":memories,
         "guardrails":[
             "No paid LLM API is used by this module.",
             "Only source text and existing structured fields are transformed.",

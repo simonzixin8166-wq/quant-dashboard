@@ -312,6 +312,7 @@ def replay_candidate(candidate,store,provenance=None):
         "method_family":candidate.get("method_family"),"expected_direction":expected,
         "data_provenance":(provenance or {}).get(symbol),
         "raw_events":len(events),"effective_clusters":len(clusters),
+        "_all_event_keys":[f"{symbol}|{e['event_date']}|{expected}" for e in events],
         "statistics":stats,"regime_split":regime_stats(events),
         "walk_forward":walk_forward_stats(events),
         "no_lookahead":{
@@ -325,6 +326,15 @@ def replay_candidate(candidate,store,provenance=None):
 
 def build(registry,store,provenance=None):
     rows=[replay_candidate(c,store,provenance) for c in (registry.get("candidates") or [])]
+    all_keys=[k for x in rows for k in (x.get("_all_event_keys") or [])]
+    key_counts={}
+    for k in all_keys:key_counts[k]=key_counts.get(k,0)+1
+    raw_events=sum(int(x.get("raw_events") or 0) for x in rows)
+    unique_events=len(key_counts)
+    duplicate_instances=max(0,raw_events-unique_events)
+    for x in rows:
+        keys=x.pop("_all_event_keys",[])
+        x["cross_candidate_overlap_events"]=sum(1 for k in keys if key_counts.get(k,0)>1)
     return {
         "version":VERSION,"generated_at":datetime.now(timezone.utc).isoformat(),
         "mode":"research_shadow_historical_only","evidence_provenance":PROVENANCE,
@@ -332,7 +342,10 @@ def build(registry,store,provenance=None):
         "summary":{
             "candidates":len(rows),"replayed":sum(1 for x in rows if x.get("status")=="replayed"),
             "blocked":sum(1 for x in rows if x.get("status")=="blocked"),
-            "raw_events":sum(int(x.get("raw_events") or 0) for x in rows),
+            "raw_events":raw_events,
+            "cross_candidate_unique_state_entries":unique_events,
+            "cross_candidate_duplicate_event_instances":duplicate_instances,
+            "cross_candidate_overlap_rate":(duplicate_instances/raw_events if raw_events else 0.0),
             "effective_clusters":sum(int(x.get("effective_clusters") or 0) for x in rows),
         },
         "data_provenance":provenance or {},
@@ -349,7 +362,8 @@ def build(registry,store,provenance=None):
             "On-demand STOOQ/yfinance history is Research/Shadow-only and cannot become a Production data dependency.",
             "Signals use same-day/past inputs; future bars are used only to calculate later outcomes.",
             "State-entry events are counted; repeated days inside one state are not new events.",
-            "Signals within five sessions are clustered for effective-N reporting.",
+            "Signals within five sessions are clustered for per-candidate effective-N reporting.",
+            "System-level raw event totals are accompanied by cross-candidate unique state-entry and overlap metrics; overlapping Candidate instances are not represented as independent evidence.",
             "Replay cannot write Promotion Gate, protected rules, positions, sizing or orders.",
         ],
     }

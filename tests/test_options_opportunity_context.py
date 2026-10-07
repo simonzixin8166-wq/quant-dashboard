@@ -27,17 +27,22 @@ svi={"records":{
 }}
 
 out=m.build(market,svi)
-rows={x["symbol"]:x for x in out["records"]}
+rows=out["records"]
 assert set(rows)==set(m.UNIVERSE)
+assert out["ranked_scan_order"]
+assert all(rows[s]["status"] in {"scan_context_ready","context_only"} for s in rows)
 assert "SELL_PUT_CHAIN_SCAN" in rows["IREN"]["scan_lanes"]
+assert "SELL_PUT_SCREEN" in rows["IREN"]["research_modes"]
 assert "SELL_PUT_CHAIN_SCAN" in rows["SOFI"]["scan_lanes"]
 assert "LEAPS_CALL_CHAIN_SCAN" in rows["QQQ"]["scan_lanes"]
+assert "LEAPS_SCREEN" in rows["QQQ"]["research_modes"]
 assert rows["TSLA"]["context"]["structurally_weak"] is True
 assert all(x["trade_action"] is None for x in rows.values())
 assert all(x["production_effect"]=="none" for x in rows.values())
 assert all("live_option_chain" in x["required_before_strategy_candidate"] for x in rows.values())
 
 bad=m.build(market,{"records":{}})
-assert all(x["scan_priority"]=="blocked" for x in bad["records"])
-assert all(x["trade_action"] is None for x in bad["records"])
+assert all(x["scan_priority"]=="blocked" for x in bad["records"].values())
+assert all(x["trade_action"] is None for x in bad["records"].values())
+assert bad["ranked_scan_order"]==[]
 print("PASS options opportunity research context / no trade action / fail closed")

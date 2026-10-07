@@ -21,6 +21,10 @@ MARKET=ROOT/"docs"/"data.json"
 SUPPORT_VOL=ROOT/"docs"/"research"/"support_volatility_intelligence.json"
 OUT=ROOT/"docs"/"research"/"options_opportunity_context.json"
 UNIVERSE=["QQQ","SOFI","LITE","IREN","NVDA","TSLA"]
+STRATEGY_PREFERENCES={
+    "LITE":{"primary":"SELL_PUT","source":"user_strategy_preference","note":"High-volatility name; prioritize premium-selling research before long-call expressions."},
+    "NVDA":{"primary":"SELL_PUT","source":"user_strategy_preference","note":"Prioritize cash-secured Sell Put research; live chain, support and event gates still apply."},
+}
 
 
 def load(path):
@@ -70,7 +74,11 @@ def build_symbol(symbol,market,svi):
     oversold=(rsi is not None and rsi<35)
     structurally_weak=(dist200 is not None and dist200<-0.12)
 
+    preference=STRATEGY_PREFERENCES.get(symbol) or {}
     lanes=[]; reasons=[]
+    if preference.get("primary")=="SELL_PUT":
+        lanes.append("SELL_PUT_CHAIN_SCAN")
+        reasons.append("preferred_sell_put_research")
     if near_support and (forecast_expanding or high_realized):
         lanes.append("SELL_PUT_CHAIN_SCAN")
         reasons.append("strong_support_plus_volatility")
@@ -104,7 +112,8 @@ def build_symbol(symbol,market,svi):
         "status":"scan_context_ready" if lanes else "context_only",
         "state":"chain_scan_candidate" if lanes else "context_only",
         "scan_priority":priority,
-        "scan_lanes":lanes,
+        "strategy_preference":preference or None,
+        "scan_lanes":list(dict.fromkeys(lanes)),
         "research_modes":research_modes,
         "nearest_support":sup or None,
         "rv20_ann_pct":rv20,

@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "generated_at": "2026-10-07T05:20:56.524723+00:00",
+  "generated_at": "2026-10-07T05:22:09.672570+00:00",
   "counts": {
     "candidates": 7,
     "machine_ready_shadow": 2,
@@ -8,6 +8,9 @@
     "blocked_needs_definition": 1,
     "historical_replay_eligible": 2,
     "forward_observation_eligible": 0,
+    "direction_governed": 2,
+    "direction_unresolved": 4,
+    "direction_conflict": 1,
     "production_eligible": 0
   },
   "by_family": {
@@ -37,7 +40,9 @@
       "ppo_hist_positive",
       "supertrend_bullish",
       "tcds_cross_zero"
-    ]
+    ],
+    "signal_direction_governance_version": "1.0",
+    "signal_direction_is_trade_action": false
   },
   "sample": [
     {
@@ -56,6 +61,8 @@
         }
       ],
       "evidence_role": "historical_or_nonforward",
+      "expected_direction": null,
+      "signal_direction_state": "direction_unresolved",
       "forward_observation_eligible": false,
       "production_eligible": false
     },
@@ -83,6 +90,8 @@
         }
       ],
       "evidence_role": "historical_or_nonforward",
+      "expected_direction": null,
+      "signal_direction_state": "direction_unresolved",
       "forward_observation_eligible": false,
       "production_eligible": false
     },
@@ -102,6 +111,8 @@
         }
       ],
       "evidence_role": "historical_or_nonforward",
+      "expected_direction": null,
+      "signal_direction_state": "direction_conflict",
       "forward_observation_eligible": false,
       "production_eligible": false
     },
@@ -129,6 +140,8 @@
         }
       ],
       "evidence_role": "historical_or_nonforward",
+      "expected_direction": null,
+      "signal_direction_state": "direction_unresolved",
       "forward_observation_eligible": false,
       "production_eligible": false
     },
@@ -143,6 +156,8 @@
       "reproducibility_status": "machine_ready_shadow",
       "unresolved_inputs": [],
       "evidence_role": "historical_or_nonforward",
+      "expected_direction": "bullish",
+      "signal_direction_state": "direction_governed",
       "forward_observation_eligible": false,
       "production_eligible": false
     },
@@ -162,6 +177,8 @@
         }
       ],
       "evidence_role": "historical_or_nonforward",
+      "expected_direction": null,
+      "signal_direction_state": "direction_unresolved",
       "forward_observation_eligible": false,
       "production_eligible": false
     },
@@ -176,6 +193,8 @@
       "reproducibility_status": "machine_ready_shadow",
       "unresolved_inputs": [],
       "evidence_role": "historical_or_nonforward",
+      "expected_direction": "bullish",
+      "signal_direction_state": "direction_governed",
       "forward_observation_eligible": false,
       "production_eligible": false
     }

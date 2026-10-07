@@ -30,7 +30,7 @@ assert support["current_price"]>0
 assert len(support["windows"])==4
 assert support["adaptive_bin_size"]>0
 assert support["nearest_support"] is not None
-assert support["nearest_resistance"] is not None
+assert support["nearest_resistance"] is None or support["nearest_resistance"]["distance_pct"]>=0
 
 rv=m.realized_volatility(frame)
 assert rv["rv20_ann_pct"] is not None

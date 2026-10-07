@@ -174,6 +174,9 @@ def migrate_sources(source,prior=None,now=None,full_records=None,upstream_accoun
             "url":r.get("url"),"symbols":r.get("symbols") or [],"topics":r.get("topics") or [],
             "operations":r.get("operations") or [],
             "content_chars":r.get("content_chars"),
+            "captured_at":r.get("captured_at"),
+            "intake_class_hint":r.get("intake_class_hint"),
+            "capture_mode":r.get("capture_mode"),
         }
         normalized_text_payload={"title":r.get("title") or "","excerpt":r.get("excerpt") or ""}
         operation_anchors=[
@@ -219,6 +222,15 @@ def migrate_sources(source,prior=None,now=None,full_records=None,upstream_accoun
             admission_class="identity_ambiguous"
             ingest_type="backfill_ingest"
             admission_origin="identity_collision_fail_closed"
+            identity_parent_source_key=None
+            first_source=None
+        elif str(r.get("intake_class_hint") or "").lower()=="backfill":
+            # Upstream collector provenance is authoritative for rollout/recovery
+            # batches. A newly enabled author/source can surface recent articles,
+            # but that does not make those pre-existing articles Genuine Forward.
+            admission_class="backfill"
+            ingest_type="backfill_ingest"
+            admission_origin="upstream_explicit_backfill_provenance"
             identity_parent_source_key=None
             first_source=None
         elif not old:

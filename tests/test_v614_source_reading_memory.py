@@ -61,7 +61,7 @@ source={
 }
 
 out=srm.build(source)
-assert out["version"]=="6.14.6"
+assert out["version"]=="6.14.7"
 assert out["mode"]=="research_only_free_first"
 assert out["counts"]["source_records"]==5
 assert out["counts"]["records_with_testable_rules"]==1
@@ -102,6 +102,13 @@ r4=next(x for x in out["records"] if x["source_id"]=="r4")
 tr=next(x for x in r4["propositions"] if x["kind"]=="trigger")
 assert tr["testable"] is False
 assert r4["testable_rule_count"]==0
+assert r4["candidate_rule_count"]==1
+cand=next(x for x in r4["propositions"] if x["kind"]=="candidate_rule")
+assert cand["testable"] is False
+cr=cand["evidence"]["candidate_rule"]
+assert cr["symbols"]==["AMD"]
+assert any(x["condition_id"]=="price_above_ma50" and x["machine_ready"] for x in cr["conditions"])
+assert cr["machine_readiness"]=="machine_ready"
 
 # A Q3/Q4/Q5 source explicitly marked rule_candidate_allowed=false remains
 # context-only even if an upstream feed accidentally supplies an author_plan operation.
@@ -161,4 +168,23 @@ assert "module_failure_marker.py source_reading_memory" in workflow
 manifest=(ROOT/"scripts/generate_build_manifest.py").read_text(encoding="utf-8")
 assert "research/source_reading_memory.json" in manifest
 
-print("PASS V6.14.6 source reading propositions / explicit method attribution / six-way semantics / research-only")
+# Narrative methods become explicit candidate rules without inventing the
+# source-specific indicator definition. They remain Research/Shadow only.
+narrative=srm.record_memory({
+ "id":"n1","source":"wenxuecity","source_kind":"blog","author":"yifan99",
+ "published_at":"2026-10-06","title":"AMZN趋势形成","url":"n1","symbols":["AMZN"],
+ "topics":["趋势确认"],
+ "excerpt":"TCDS由负值回升并转正，PPO上穿Signal，价格站上MA50。仍处于Early Entry，等待确认。",
+ "operations":[],"portfolio_rules":[],"lessons":[]
+})
+nc=next(x for x in narrative["propositions"] if x["kind"]=="candidate_rule")
+nr=nc["evidence"]["candidate_rule"]
+ids={x["condition_id"] for x in nr["conditions"]}
+assert {"tcds_cross_zero","ppo_above_signal","price_above_ma50"} <= ids
+assert nr["machine_readiness"]=="partial_needs_definition"
+assert set(nr["needs_definition"])=={"tcds_cross_zero","ppo_above_signal"}
+assert nr["state_hint"]=="EARLY_ENTRY"
+assert narrative["testable_rule_count"]==0
+assert narrative["candidate_rule_count"]==1
+
+print("PASS V6.14.7 source reading propositions / prose candidate rules / research-only")

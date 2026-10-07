@@ -187,4 +187,27 @@ assert nr["state_hint"]=="EARLY_ENTRY"
 assert narrative["testable_rule_count"]==0
 assert narrative["candidate_rule_count"]==1
 
-print("PASS V6.14.7 source reading propositions / prose candidate rules / research-only")
+# Full-text method_signals can supply later article conditions even when the
+# public excerpt ends before PPO/MA50. They remain candidate_rule only.
+bounded=srm.record_memory({
+ "id":"n2","source":"wenxuecity","source_kind":"blog","author":"yifan99",
+ "published_at":"2026-10-06","title":"Amazon，要突破了？","url":"n2","symbols":["AMZN"],
+ "topics":["趋势确认"],"excerpt":"TCDS终于回到0","operations":[],"portfolio_rules":[],"lessons":[],
+ "method_signals":[
+   {"condition_id":"tcds_cross_zero","machine_ready":False,"evidence_excerpt":"TCDS 从负值持续回升到 0","evidence_hash":"a"*64,"source_derived_only":True,"state_hint":"EARLY_ENTRY"},
+   {"condition_id":"ppo_above_signal","machine_ready":False,"evidence_excerpt":"PPO 向上交叉 Signal","evidence_hash":"b"*64,"source_derived_only":True,"state_hint":"EARLY_ENTRY"},
+   {"condition_id":"ppo_hist_positive","machine_ready":False,"evidence_excerpt":"Histogram 从负值转正","evidence_hash":"c"*64,"source_derived_only":True,"state_hint":"EARLY_ENTRY"},
+   {"condition_id":"price_above_ma50","machine_ready":True,"evidence_excerpt":"价格站上 MA50","evidence_hash":"d"*64,"source_derived_only":True,"state_hint":"EARLY_ENTRY"},
+   {"condition_id":"ma50_hold_two_sessions","machine_ready":True,"evidence_excerpt":"连续两个交易日守住 MA50","evidence_hash":"e"*64,"source_derived_only":True,"state_hint":"EARLY_ENTRY"},
+ ]
+})
+bc=next(x for x in bounded["propositions"] if x["kind"]=="candidate_rule")
+br=bc["evidence"]["candidate_rule"]
+bids={x["condition_id"] for x in br["conditions"]}
+assert {"tcds_cross_zero","ppo_above_signal","ppo_hist_positive","price_above_ma50","ma50_hold_two_sessions"} <= bids
+assert set(br["needs_definition"]) >= {"tcds_cross_zero","ppo_above_signal","ppo_hist_positive"}
+assert br["state_hint"]=="EARLY_ENTRY"
+assert any("PPO 向上交叉 Signal" in x for x in br["raw_evidence"])
+assert bounded["testable_rule_count"]==0
+
+print("PASS V6.14.7 source reading propositions / bounded full-text signals / research-only")

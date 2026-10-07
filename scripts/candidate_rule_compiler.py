@@ -90,7 +90,6 @@ def compile_condition(item):
             "macd_hist_positive":{"ema_macd"},
             "ppo_above_signal":{"ema_ppo"},
             "ppo_hist_positive":{"ema_ppo"},
-            "supertrend_bullish":{"supertrend_atr_band"},
         }
         if formula in allowed.get(cid,set()):
             expression={"indicator":cid,"operator":"source_defined","formula_id":formula,**explicit}

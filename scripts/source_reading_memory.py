@@ -41,9 +41,15 @@ TRIGGER_HINTS=(
 )
 
 PROSE_CONDITION_PATTERNS=(
+    ("price_above_ma20", r"(?:股价|价格|price)?.{0,12}(?:站上|突破|above).{0,8}ma\s*20", True),
+    ("price_below_ma20", r"(?:股价|价格|price)?.{0,16}(?:跌破|跌回|回落到|below).{0,10}ma\s*20", True),
+    ("ma20_hold_two_sessions", r"(?:连续\s*(?:两|2)\s*(?:个)?(?:交易日|天).{0,16}(?:站上|守住|高于).{0,8}ma\s*20|ma\s*20.{0,24}连续\s*(?:两|2)\s*(?:个)?(?:交易日|天).{0,12}(?:站上|守住|高于|不破)?)", True),
     ("price_above_ma50", r"(?:股价|价格|price)?.{0,12}(?:站上|突破|above).{0,8}ma\s*50", True),
     ("price_below_ma50", r"(?:股价|价格|price)?.{0,16}(?:跌破|跌回|回落到|below).{0,10}ma\s*50", True),
     ("ma50_hold_two_sessions", r"(?:连续\s*(?:两|2)\s*(?:个)?(?:交易日|天).{0,16}(?:站上|守住|高于).{0,8}ma\s*50|ma\s*50.{0,24}连续\s*(?:两|2)\s*(?:个)?(?:交易日|天).{0,12}(?:站上|守住|高于|不破)?)", True),
+    ("price_above_ma200", r"(?:股价|价格|price)?.{0,12}(?:站上|突破|above).{0,8}ma\s*200", True),
+    ("price_below_ma200", r"(?:股价|价格|price)?.{0,16}(?:跌破|跌回|回落到|below).{0,10}ma\s*200", True),
+    ("ma200_hold_two_sessions", r"(?:连续\s*(?:两|2)\s*(?:个)?(?:交易日|天).{0,16}(?:站上|守住|高于).{0,8}ma\s*200|ma\s*200.{0,24}连续\s*(?:两|2)\s*(?:个)?(?:交易日|天).{0,12}(?:站上|守住|高于|不破)?)", True),
     ("supertrend_bullish", r"supertrend.{0,16}(?:翻多|转多|bull)", True),
     ("macd_hist_positive", r"(?:macd.{0,12}(?:柱|hist)|(?:柱状图|histogram).{0,12}macd).{0,16}(?:转正|正值|positive)", True),
     ("ppo_above_signal", r"ppo.{0,20}(?:上穿|高于|超过|cross(?:es|ed)?\s+above).{0,12}signal", False),
@@ -147,11 +153,11 @@ def condition_semantic_role(condition_id, evidence_text, article_text=""):
     confirmation so downstream replay cannot flatten them into one AND clause.
     """
     text=(" ".join([str(evidence_text or ""),str(article_text or "")])).lower()
-    if condition_id=="price_below_ma50" and any(k in text for k in ("随后","又跌回","重新回到偏弱","false break","假突破","失败")):
+    if condition_id in {"price_below_ma20","price_below_ma50","price_below_ma200"} and any(k in text for k in ("随后","又跌回","重新回到偏弱","false break","假突破","失败")):
         return "invalidation"
-    if condition_id in {"price_above_ma50","supertrend_bullish","macd_hist_positive","ppo_above_signal","ppo_hist_positive","tcds_cross_zero"} and any(k in text for k in ("前几天","此前","一度","曾经")):
+    if condition_id in {"price_above_ma20","price_above_ma50","price_above_ma200","supertrend_bullish","macd_hist_positive","ppo_above_signal","ppo_hist_positive","tcds_cross_zero"} and any(k in text for k in ("前几天","此前","一度","曾经")):
         return "prior_observation"
-    if condition_id in {"price_above_ma50","ma50_hold_two_sessions","supertrend_bullish","macd_hist_positive","ppo_above_signal","ppo_hist_positive","tcds_cross_zero"} and any(k in text for k in ("如果接下来","若接下来","接下来","必须重新","才算","才考虑","等待确认","确认")):
+    if condition_id in {"price_above_ma20","ma20_hold_two_sessions","price_above_ma50","ma50_hold_two_sessions","price_above_ma200","ma200_hold_two_sessions","supertrend_bullish","macd_hist_positive","ppo_above_signal","ppo_hist_positive","tcds_cross_zero"} and any(k in text for k in ("如果接下来","若接下来","接下来","必须重新","才算","才考虑","等待确认","确认")):
         return "confirmation"
     return "unspecified"
 
@@ -198,9 +204,10 @@ def prose_candidate_rule(row, sentences):
     for item in found:
         cid=item["condition_id"]
         matching=[x for x in raw if cid.replace("_"," ")[:8] in str(x).lower()]
-        # Pattern-specific matching is more reliable than token matching for MA50.
-        if "ma50" in cid:
-            matching=[x for x in raw if re.search(r"ma\s*50",str(x),re.I)]
+        # Pattern-specific matching is more reliable than token matching for moving averages.
+        ma_match=re.search(r"ma(20|50|200)",cid)
+        if ma_match:
+            matching=[x for x in raw if re.search(rf"ma\s*{ma_match.group(1)}",str(x),re.I)]
         evidence_text=" ".join(matching or raw)
         item["semantic_role"]=condition_semantic_role(cid,evidence_text,article_text)
     state_hint=upstream_state

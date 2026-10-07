@@ -21,6 +21,11 @@ from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
 
+try:
+    from candidate_signal_direction import govern as govern_signal_direction
+except ModuleNotFoundError:
+    from scripts.candidate_signal_direction import govern as govern_signal_direction
+
 ROOT=Path(__file__).resolve().parents[1]
 READING=ROOT/"docs"/"research"/"source_reading_memory.json"
 STORE=ROOT/"research"/"store"/"source_store.json"
@@ -146,6 +151,7 @@ def compile_candidate(memory,prop,store_row,forward_formation_allowed=False):
         ",".join(sorted(x["condition_id"] for x in conditions)),
         "horizon:unknown"
     )
+    direction_governance=govern_signal_direction({"conditions":conditions})
     return {
         "candidate_id":"cand_"+stable_id(VERSION,sid,pid),
         "compiler_version":VERSION,
@@ -167,6 +173,8 @@ def compile_candidate(memory,prop,store_row,forward_formation_allowed=False):
         "state_role":state_role,
         "logic":logic,
         "conditions":conditions,
+        "signal_direction_governance":direction_governance,
+        "expected_direction":direction_governance.get("expected_direction"),
         "machine_ready_conditions":[x["condition_id"] for x in ready],
         "unresolved_inputs":[{"condition_id":x["condition_id"],"reason":x["unresolved_reason"]} for x in unresolved] + ([temporal_unresolved] if temporal_unresolved else []),
         "reproducibility_status":status,

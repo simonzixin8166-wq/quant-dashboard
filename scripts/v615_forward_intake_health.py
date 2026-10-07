@@ -151,11 +151,42 @@ def main():
     out=build(d["store"],d["rules"],d["families"],d["events"],d["spec"])
     OUT.parent.mkdir(parents=True,exist_ok=True)
     OUT.write_text(json.dumps(out,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
+    live_diag=[]
+    source_by_id={}
+    for row in d["store"].get("records") or []:
+        rec=row.get("record") or {}
+        sid=str(rec.get("id") or row.get("source_key") or "")
+        if sid:
+            source_by_id[sid]=row
+    active_live_ids=set()
+    for detail in out.get("details",{}).get("noneligible_forward_events",[]):
+        if detail.get("rule_id"):
+            active_live_ids.add(str(detail["rule_id"]))
+    for rule in d["rules"].get("rules") or []:
+        if str(rule.get("rule_id") or "") not in active_live_ids:
+            continue
+        sid=str(rule.get("source_id") or "")
+        meta=source_by_id.get(sid) or {}
+        rec=meta.get("record") or {}
+        live_diag.append({
+            "rule_id":rule.get("rule_id"),
+            "source_id":sid,
+            "author":rule.get("author"),
+            "published_at":rule.get("published_at"),
+            "title":rule.get("title"),
+            "admission_class":meta.get("admission_class"),
+            "admission_origin":meta.get("admission_origin"),
+            "ingest_type":meta.get("ingest_type"),
+            "capture_mode":rec.get("capture_mode"),
+            "intake_class_hint":rec.get("intake_class_hint"),
+            "first_fetched_at":meta.get("first_fetched_at"),
+        })
     print(json.dumps({
         "status":out["status"],
         "integrity_pass":out["integrity_pass"],
         "genuine_forward_rules":out["counts"]["genuine_forward_rules"],
         "scoreable_forward_events":out["counts"]["scoreable_forward_events"],
+        "live_rule_diagnostics":live_diag,
     },ensure_ascii=False))
     if not out["integrity_pass"]:
         raise SystemExit("forward intake integrity failure: "+",".join(out["blockers"]))

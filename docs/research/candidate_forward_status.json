@@ -1,0 +1,28 @@
+{
+  "version": "1.0",
+  "generated_at": "2026-10-07T04:10:56.106301+00:00",
+  "status": "running",
+  "ledger_mode": "append_only_hash_chained_state_entry",
+  "counts": {
+    "eligible_candidates": 0,
+    "state_entries": 0,
+    "outcomes_5": 0,
+    "outcomes_20": 0,
+    "outcomes_60": 0
+  },
+  "diagnostics": [],
+  "forward_evidence_mixed": false,
+  "historical_backfill_allowed": false,
+  "canonical_score_source": "local_stooq_archive",
+  "promotion_bridge": "existing_spec_1_7_governance_only_after_mature_forward_outcomes",
+  "production_effect": "none",
+  "promotion_effect": "none",
+  "guardrails": [
+    "Only forward_initial, fully reproducible candidates may be observed.",
+    "Only the latest completed canonical STOOQ bar may create a state-entry; historical state entries are never backfilled.",
+    "Candidate formation must predate the observed trading date.",
+    "5/20/60 outcomes append later and never rewrite the state-entry.",
+    "Hash-chain failure closes the ledger.",
+    "This observer cannot alter Promotion Gate, protected rules, positions, sizing or orders."
+  ]
+}

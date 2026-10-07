@@ -22,6 +22,7 @@ def text(rel):
 
 def build():
     src=load("docs/data/source_intelligence.json",{})
+    coverage=load("docs/research/source_coverage_audit.json",{})
     reading=load("docs/research/source_reading_memory.json",{})
     cand=load("docs/research/candidate_rule_status.json",{})
     replay=load("docs/research/candidate_rule_replay.json",{})
@@ -57,8 +58,8 @@ def build():
 
     milestones={
       "A_source_reliability":{
-        "state":"operational_continuous_audit" if subject_attribution_active else "active_quality_hardening",
-        "pass":source_count>0 and read_count>0 and subject_attribution_active,
+        "state":"operational_continuous_audit" if subject_attribution_active and coverage.get("version") else "active_quality_hardening",
+        "pass":source_count>0 and read_count>0 and subject_attribution_active and bool(coverage.get("version")),
         "metrics":{
             "source_records":source_count,
             "source_reading_records":read_count,
@@ -66,8 +67,10 @@ def build():
             "ambiguous_multi_symbol_records":int(src_counts.get("ambiguous_multi_symbol_records") or 0),
             "symbol_role_counts":subject_roles,
             "primary_subject_attribution_active":subject_attribution_active,
+            "source_coverage_audit_state":coverage.get("state","not_initialized"),
+            "source_coverage_alerts":len(coverage.get("alerts") or []),
         },
-        "remaining":["continuous_source_coverage_audit"] if subject_attribution_active else ["primary_subject_attribution","continuous_source_coverage_audit"],
+        "remaining":[] if subject_attribution_active and coverage.get("version") else (["continuous_source_coverage_audit"] if subject_attribution_active else ["primary_subject_attribution","continuous_source_coverage_audit"]),
       },
       "B_autonomous_learning_core":{
         "state":"active" if int(ccounts.get("candidates") or 0)>=0 else "blocked",

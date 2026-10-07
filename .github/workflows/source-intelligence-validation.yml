@@ -127,6 +127,9 @@ jobs:
       - name: Prebuild source coverage audit for validation
         run: python scripts/source_coverage_audit.py
 
+      - name: Prebuild candidate parameter queue for validation
+        run: python scripts/candidate_parameter_queue.py
+
       - name: Validate source-learning code
         run: |
           python -m py_compile scripts/research_program_status.py scripts/v615_author_intelligence.py scripts/cross_asset_divergence_engine.py scripts/breadth_intelligence_engine.py scripts/regime_combination_memory.py scripts/source_intelligence_engine.py scripts/source_coverage_audit.py scripts/source_reading_memory.py scripts/candidate_rule_compiler.py scripts/candidate_parameter_queue.py scripts/candidate_rule_replay.py scripts/candidate_forward_observer.py scripts/candidate_event_score.py scripts/candidate_family_scorecard.py scripts/candidate_rule_families.py scripts/autonomous_intelligence_status.py scripts/source_history_cache.py scripts/source_outcome_validation.py scripts/public_research_evidence_status.py scripts/evidence_attribution_engine.py scripts/method_memory_engine.py scripts/module_intelligence_engine.py scripts/autonomous_research_planner.py scripts/official_evidence_engine.py scripts/event_evidence_engine.py scripts/event_window_attribution.py scripts/autonomous_research_executor.py scripts/self_improvement_engine.py scripts/learning_evaluation_engine.py scripts/system_status_center.py scripts/autonomous_signal_governance.py

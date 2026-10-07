@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "generated_at": "2026-10-07T05:02:47.900518+00:00",
+  "generated_at": "2026-10-07T05:03:58.709394+00:00",
   "formal_app_version": "6.9.0",
   "north_star": "Collect -> Understand -> Structure -> Validate -> Promote -> Scan -> Decide -> Explain -> Learn Again",
   "active_milestone": "C_validation_evidence",
@@ -28,8 +28,10 @@
       "remaining": []
     },
     "B_autonomous_learning_core": {
-      "state": "engineering_operational_source_defined_parameters_pending",
+      "state": "engineering_closed_waiting_for_source_definitions",
       "pass": true,
+      "engineering_chain_complete": true,
+      "evidence_dependency_state": "waiting_for_source_definitions",
       "metrics": {
         "candidates": 7,
         "machine_ready_shadow": 2,
@@ -50,10 +52,13 @@
           "ppo_hist_positive",
           "supertrend_bullish",
           "tcds_cross_zero"
-        ]
+        ],
+        "parameter_definition_queue_items": 8,
+        "parameter_definition_conditions_waiting": 5,
+        "parameter_definition_candidates_affected": 4
       },
       "remaining": [
-        "resolve only source-defined indicator parameters"
+        "await explicit source-defined indicator parameters"
       ]
     },
     "C_validation_evidence": {

@@ -1,12 +1,12 @@
 {
-  "version": "1.0",
-  "generated_at": "2026-10-07T13:28:07.440271+00:00",
+  "version": "1.1",
+  "generated_at": "2026-10-07T13:32:25.869705+00:00",
   "principle": "Collection success is not learning success. Permanent storage and learning inputs must not be record-count capped; only per-run processing and UI presentation may be bounded.",
   "counts": {
-    "learning_active": 2,
-    "partial_learning": 6,
+    "learning_active": 3,
+    "partial_learning": 10,
     "not_implemented": 1,
-    "context_only": 1
+    "context_only": 2
   },
   "domains": [
     {
@@ -186,6 +186,119 @@
       }
     },
     {
+      "domain": "auto_thesis_revision_memory",
+      "collected": true,
+      "persistent_history": "current_draft_artifact",
+      "structured_analysis": true,
+      "reusable_memory": true,
+      "outcome_feedback": true,
+      "decision_context": true,
+      "learning_status": "partial_learning",
+      "gaps": [
+        "Auto Thesis is evidence-grounded, but a canonical immutable thesis revision history with prior thesis, change reason and evidence delta is not present."
+      ],
+      "evidence": {
+        "symbols": 17,
+        "linked_direct_events": 27
+      }
+    },
+    {
+      "domain": "candidate_shadow_forward",
+      "collected": true,
+      "persistent_history": "candidate_registry_plus_forward_artifacts",
+      "structured_analysis": true,
+      "reusable_memory": true,
+      "outcome_feedback": false,
+      "decision_context": true,
+      "learning_status": "partial_learning",
+      "gaps": [
+        "Candidate/Shadow pipeline is governed and Forward-separated, but promotion remains intentionally locked until genuine forward evidence matures."
+      ],
+      "evidence": {
+        "forward_counts": {
+          "eligible_candidates": 0,
+          "state_entries": 0,
+          "evaluation_baselines": 0,
+          "outcomes_5": 0,
+          "outcomes_20": 0,
+          "outcomes_60": 0
+        },
+        "promotion": {
+          "families": 0,
+          "passed": 0,
+          "closed": 0,
+          "decision_fusion_eligible": 0
+        }
+      }
+    },
+    {
+      "domain": "production_playbook_forward_replay",
+      "collected": true,
+      "persistent_history": "private_forward_ledger_plus_local_replay",
+      "structured_analysis": true,
+      "reusable_memory": true,
+      "outcome_feedback": true,
+      "decision_context": true,
+      "learning_status": "learning_active",
+      "gaps": [
+        "Forward maturity may still be sparse; this affects statistical confidence, not the existence of the learning loop."
+      ],
+      "evidence": {
+        "mode": "silent_forward",
+        "forward_clock_active": true,
+        "mature_total": {
+          "5": 0,
+          "20": 0,
+          "60": 0
+        }
+      }
+    },
+    {
+      "domain": "operational_system_learning",
+      "collected": true,
+      "persistent_history": "status_snapshots_and_failure_markers",
+      "structured_analysis": true,
+      "reusable_memory": true,
+      "outcome_feedback": false,
+      "decision_context": true,
+      "learning_status": "partial_learning",
+      "gaps": [
+        "System health and failures influence confidence/research attention, but there is no clearly audited append-only operational incident outcome memory covering every failure and remediation."
+      ],
+      "evidence": {
+        "overall": "ok",
+        "self_improvement_version": "7.2.1"
+      }
+    },
+    {
+      "domain": "regional_cn_hk_learning",
+      "collected": true,
+      "persistent_history": "market_snapshot_only",
+      "structured_analysis": true,
+      "reusable_memory": false,
+      "outcome_feedback": false,
+      "decision_context": true,
+      "learning_status": "context_only",
+      "gaps": [
+        "A/H market data is available for observation, but no dedicated cross-market state/outcome memory comparable to US Trend Pulse is established."
+      ],
+      "evidence": {}
+    },
+    {
+      "domain": "curated_knowledge_base",
+      "collected": true,
+      "persistent_history": "curated_reference",
+      "structured_analysis": true,
+      "reusable_memory": true,
+      "outcome_feedback": false,
+      "decision_context": true,
+      "learning_status": "partial_learning",
+      "gaps": [
+        "Curated knowledge may consume validated method evidence, but it is intentionally not an autonomous weight-changing learner."
+      ],
+      "evidence": {}
+    },
+    {
       "domain": "decision_journal_user_actions",
       "collected": true,
       "persistent_history": "private_or_browser_managed",
@@ -252,6 +365,41 @@
       "status": "partial_learning",
       "gaps": [
         "Opportunity screening is research-only. Strategy candidate outcomes need persistent opportunity snapshots, rejected/no-trade cases, and later premium/assignment/MAE/MFE outcomes."
+      ]
+    },
+    {
+      "domain": "auto_thesis_revision_memory",
+      "status": "partial_learning",
+      "gaps": [
+        "Auto Thesis is evidence-grounded, but a canonical immutable thesis revision history with prior thesis, change reason and evidence delta is not present."
+      ]
+    },
+    {
+      "domain": "candidate_shadow_forward",
+      "status": "partial_learning",
+      "gaps": [
+        "Candidate/Shadow pipeline is governed and Forward-separated, but promotion remains intentionally locked until genuine forward evidence matures."
+      ]
+    },
+    {
+      "domain": "operational_system_learning",
+      "status": "partial_learning",
+      "gaps": [
+        "System health and failures influence confidence/research attention, but there is no clearly audited append-only operational incident outcome memory covering every failure and remediation."
+      ]
+    },
+    {
+      "domain": "regional_cn_hk_learning",
+      "status": "context_only",
+      "gaps": [
+        "A/H market data is available for observation, but no dedicated cross-market state/outcome memory comparable to US Trend Pulse is established."
+      ]
+    },
+    {
+      "domain": "curated_knowledge_base",
+      "status": "partial_learning",
+      "gaps": [
+        "Curated knowledge may consume validated method evidence, but it is intentionally not an autonomous weight-changing learner."
       ]
     },
     {

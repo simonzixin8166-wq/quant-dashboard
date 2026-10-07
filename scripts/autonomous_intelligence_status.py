@@ -46,6 +46,7 @@ def build():
     ccounts=cand.get("counts") or {}
     ccap=cand.get("capabilities") or {}
     generic_ma_ready=bool(ccap.get("generic_moving_average_support_complete"))
+    direction_governance_ready=bool(ccap.get("signal_direction_governance_version")) and ccap.get("signal_direction_is_trade_action") is False
     pcounts=parameter_queue.get("counts") or {}
     parameter_queue_ready=bool(parameter_queue.get("version"))
     rsum=replay.get("summary") or {}
@@ -141,6 +142,10 @@ def build():
             "candidate_eventscore_events":scounts.get("events",0),
             "candidate_eventscore_scoreable":scounts.get("scoreable",0),
             "candidate_promotion_bridge_state":bridge.get("state","not_initialized"),
+            "candidate_signal_direction_governance_complete":direction_governance_ready,
+            "candidate_direction_governed":ccounts.get("direction_governed",0),
+            "candidate_direction_unresolved":ccounts.get("direction_unresolved",0),
+            "candidate_direction_conflict":ccounts.get("direction_conflict",0),
             "candidate_shadow_families":cfcounts.get("families",0),
             "candidate_shadow_statistically_reviewable":cfcounts.get("statistically_reviewable",0),
             "promotion_families_passed":promo.get("families_passed",0),
@@ -148,7 +153,11 @@ def build():
         "remaining":[
             "first_genuine_forward_candidate_state_entry",
             "natural_20d_60d_maturity",
-            "promotion_bridge_requires_explicit_signal_direction_governance_under_frozen_family_semantics"
+            "candidate_evidence_promotion_requires_forward_statistics_and_separate_non_action_governance"
+        ] if direction_governance_ready else [
+            "first_genuine_forward_candidate_state_entry",
+            "natural_20d_60d_maturity",
+            "explicit_candidate_signal_direction_governance"
         ],
         "zero_forward_is_valid":True,
       },

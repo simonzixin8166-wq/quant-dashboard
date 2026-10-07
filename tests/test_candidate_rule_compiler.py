@@ -35,7 +35,7 @@ assert c["production_eligible"] is False
 assert c["promotion_eligible"] is False
 
 # Genuine-forward + high timestamp can be observed prospectively, still not production.
-r=build(memory("supertrend_bullish"),store("genuine_forward","high"))
+r=build(memory("price_above_ma50"),store("genuine_forward","high"))
 c=r["candidates"][0]
 assert c["forward_observation_eligible"] is True
 assert c["production_eligible"] is False

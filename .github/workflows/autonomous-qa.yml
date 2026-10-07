@@ -99,6 +99,11 @@ jobs:
           python tests/test_v6145_source_rule_lifecycle.py
           python tests/test_v6146_source_reading_semantics.py
           python tests/test_v6147_source_reading_ui.py
+          python tests/test_candidate_rule_compiler.py
+          python tests/test_candidate_rule_replay.py
+          python tests/test_candidate_forward_observer.py
+          python tests/test_candidate_event_score.py
+          python tests/test_candidate_family_scorecard.py
       - name: Public static privacy guard
         run: |
           if grep -R -n -E '"(option_positions|private_positions|broker_account_id)"' docs/research docs/data.json 2>/dev/null; then

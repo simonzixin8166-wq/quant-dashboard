@@ -177,6 +177,15 @@ jobs:
       - name: Build V6.14 Source Reading Memory
         run: python scripts/source_reading_memory.py
 
+      - name: Compile Research Shadow Candidate Rules
+        run: python scripts/candidate_rule_compiler.py
+
+      - name: Replay Research Shadow Candidate Rules
+        run: python scripts/candidate_rule_replay.py
+
+      - name: Build Research Shadow Rule Families
+        run: python scripts/candidate_rule_families.py
+
       - name: Autofill missing source-validation history
         run: python scripts/source_history_cache.py
 

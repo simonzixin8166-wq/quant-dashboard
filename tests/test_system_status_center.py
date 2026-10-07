@@ -7,6 +7,8 @@ ssc=importlib.util.module_from_spec(spec);spec.loader.exec_module(ssc)
 
 assert ssc.health("success","completed")=="ok"
 assert ssc.health("failure","completed")=="bad"
+assert ssc.health("cancelled","completed")=="neutral"
+assert ssc.health("timed_out","completed")=="bad"
 assert ssc.health(None,"in_progress")=="running"
 result=ssc.build(fetch_runs=False)
 assert result["version"]==4

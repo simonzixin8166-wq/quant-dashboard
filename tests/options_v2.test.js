@@ -58,3 +58,13 @@ assert(Math.abs(globalThis.OptionV2.assignmentBasis(lifecycleBase,1.3)-656.513)<
 assert(Math.abs(globalThis.OptionV2.assignmentBasis({...lifecycleBase,opt_type:'Call'},1.3)-663.487)<.001,'Assigned short call effective sale price must include premium and fees');
 
 console.log('options_v2.test.js: all assertions passed');
+
+
+const ivctx=globalThis.OptionV2.relativeIvContext(
+  {iv:.60},
+  {rv20_ann_pct:40,garch20:{ann_vol_pct_avg:50}}
+);
+assert(Math.abs(ivctx.ratio-1.2)<1e-9,'Relative IV must compare option IV with the higher RV/GARCH reference');
+const missingIvCtx=globalThis.OptionV2.relativeIvContext({iv:null},{rv20_ann_pct:40});
+assert.strictEqual(missingIvCtx.ratio,null,'Missing option IV must fail closed');
+console.log('PASS option opportunity IV/RV context');

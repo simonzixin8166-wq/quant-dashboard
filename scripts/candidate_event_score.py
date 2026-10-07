@@ -184,7 +184,7 @@ def adapt(rows,histories,spec):
             "STOOQ remains canonical; cache-only or conflicting histories are unscored.",
             "Candidate EventScore does not create or infer a Rule Registry action.",
             "Frozen Rule Family direction is action-derived; compiled signal direction cannot be silently mapped to buy/sell.",
-            "Promotion Gate compatibility therefore remains false until an explicit reviewed governance change or source-defined operation semantics exists.",
+            "Legacy Rule Promotion compatibility remains false; Candidate Evidence Promotion is handled by a separate evidence-only gate with no trade-action semantics.",
             "No Production mutation or automatic trading is possible from this adapter.",
         ],
     }
@@ -196,9 +196,10 @@ def public_status(out):
         "spec_version":out.get("spec_version"),
         "counts":out.get("counts"),
         "promotion_gate_bridge":{
-            "state":"blocked_by_frozen_family_semantics",
-            "blocker":"Rule Family v1.3 direction is derived from explicit operation actions; Candidate signals carry source-derived direction but no explicit buy/sell action.",
-            "required_resolution":"reviewed governance/spec decision; do not infer action semantics",
+            "state":"legacy_rule_promotion_bridge_frozen",
+            "blocker":"Frozen Rule Family v1.3 remains action-derived and is intentionally not used for Candidate evidence promotion.",
+            "required_resolution":"none for Candidate evidence tier; use candidate_evidence_promotion_status.json. Any future mapping to Production actions requires separate reviewed governance.",
+            "candidate_evidence_promotion_path":"independent_ready",
         },
         "production_effect":"none",
         "promotion_effect":"none",

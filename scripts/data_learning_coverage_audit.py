@@ -59,6 +59,12 @@ def build():
     optctx=load("docs/research/options_opportunity_context.json")
     server=load("docs/research/server_action_status.json")
     source_store=load("research/store/source_store.json")
+    candidate_forward=load("docs/research/candidate_forward_status.json")
+    candidate_promotion=load("docs/research/candidate_evidence_promotion_status.json")
+    playbook=load("docs/research/playbook_status.json")
+    forward_outcomes=load("docs/research/playbook_outcome_shadow.json")
+    self_improvement=load("docs/research/self_improvement.json")
+    system_status=load("docs/research/system_status.json")
 
     source_total=int((method.get("counts") or {}).get("source_records") or (source.get("counts") or {}).get("records") or 0)
     reading_total=int((reading.get("counts") or {}).get("source_records") or 0)
@@ -115,6 +121,36 @@ def build():
           "partial_learning" if not option_learning.get("mature_outcomes") else "learning_active",
           ["Opportunity screening is research-only. Strategy candidate outcomes need persistent opportunity snapshots, rejected/no-trade cases, and later premium/assignment/MAE/MFE outcomes."],
           {"universe":optctx.get("universe"),"observations":option_learning.get("observations"),"mature_outcomes":option_learning.get("mature_outcomes")}),
+      row("auto_thesis_revision_memory", bool(thesis.get("symbols")), "current_draft_artifact",
+          True, True, bool(fsum.get("linked_direct_events")), True,
+          "partial_learning",
+          ["Auto Thesis is evidence-grounded, but a canonical immutable thesis revision history with prior thesis, change reason and evidence delta is not present."],
+          {"symbols":count_map(thesis.get("symbols")),"linked_direct_events":fsum.get("linked_direct_events")}),
+      row("candidate_shadow_forward", bool(candidate_forward or candidate_promotion), "candidate_registry_plus_forward_artifacts",
+          True, True, bool((candidate_forward.get("counts") or {}).get("events") or (candidate_forward.get("summary") or {}).get("events")), True,
+          "partial_learning",
+          ["Candidate/Shadow pipeline is governed and Forward-separated, but promotion remains intentionally locked until genuine forward evidence matures."],
+          {"forward_counts":candidate_forward.get("counts") or candidate_forward.get("summary"),"promotion":candidate_promotion.get("summary") or candidate_promotion.get("counts")}),
+      row("production_playbook_forward_replay", bool(playbook), "private_forward_ledger_plus_local_replay",
+          True, True, bool((forward_outcomes.get("mature_total") or {})), True,
+          "learning_active",
+          ["Forward maturity may still be sparse; this affects statistical confidence, not the existence of the learning loop."],
+          {"mode":playbook.get("mode"),"forward_clock_active":((playbook.get("storage") or {}).get("forward_clock_active")),"mature_total":forward_outcomes.get("mature_total")}),
+      row("operational_system_learning", bool(system_status), "status_snapshots_and_failure_markers",
+          True, bool(self_improvement), False, True,
+          "partial_learning",
+          ["System health and failures influence confidence/research attention, but there is no clearly audited append-only operational incident outcome memory covering every failure and remediation."],
+          {"overall":system_status.get("overall"),"self_improvement_version":self_improvement.get("version")}),
+      row("regional_cn_hk_learning", exists("docs/data.json"), "market_snapshot_only",
+          True, False, False, True,
+          "context_only",
+          ["A/H market data is available for observation, but no dedicated cross-market state/outcome memory comparable to US Trend Pulse is established."],
+          {}),
+      row("curated_knowledge_base", exists("docs/assets/knowledge.js"), "curated_reference",
+          True, True, False, True,
+          "partial_learning",
+          ["Curated knowledge may consume validated method evidence, but it is intentionally not an autonomous weight-changing learner."],
+          {}),
       row("decision_journal_user_actions", exists("docs/assets/decision-journal.js"), "private_or_browser_managed",
           True, True, False, True,
           "partial_learning",
@@ -126,7 +162,7 @@ def build():
     for x in rows:counts[x["learning_status"]]=counts.get(x["learning_status"],0)+1
     gaps=[{"domain":x["domain"],"status":x["learning_status"],"gaps":x["gaps"]} for x in rows if rank.get(x["learning_status"],0)<3]
     return {
-      "version":"1.0",
+      "version":"1.1",
       "generated_at":datetime.now(timezone.utc).isoformat(),
       "principle":"Collection success is not learning success. Permanent storage and learning inputs must not be record-count capped; only per-run processing and UI presentation may be bounded.",
       "counts":counts,

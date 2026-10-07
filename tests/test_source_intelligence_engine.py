@@ -211,3 +211,22 @@ assert pm["ps3"]["primary_symbols"]==["QQQ"]
 roles3={x["symbol"]:x["role"] for x in pm["ps3"]["symbol_attribution"]}
 assert roles3["QQQ"]=="primary_subject"
 print("PASS Primary Subject Attribution roles")
+
+
+# Thesis/evolution aggregation must use primary subjects only.
+scope=si.build([
+ {"id":"sc1","source":"wenxuecity","source_kind":"forum","author":"A","published_at":"2026-10-07",
+  "title":"AMZN 趋势修复","url":"https://example/sc1",
+  "excerpt":"AMZN 重新站上 MA50，相比 QQQ 仍偏弱。"},
+ {"id":"sc2","source":"wenxuecity","source_kind":"forum","author":"A","published_at":"2026-10-08",
+  "title":"AMZN 再更新","url":"https://example/sc2",
+  "excerpt":"AMZN 继续观察；相比 QQQ 仍然更弱。"}
+])
+assert any(x["symbol"]=="AMZN" for x in scope["thesis_candidates"])
+assert not any(x["symbol"]=="QQQ" for x in scope["thesis_candidates"])
+assert any(x["symbol"]=="AMZN" for x in scope["viewpoint_evolution"])
+assert not any(x["symbol"]=="QQQ" for x in scope["viewpoint_evolution"])
+assert scope["counts"]["records_with_primary_subject"]==2
+assert scope["counts"]["symbol_role_counts"]["primary_subject"]>=2
+assert scope["counts"]["symbol_role_counts"]["comparison_peer"]>=2
+print("PASS Primary Subject scoped Thesis/evolution aggregation")

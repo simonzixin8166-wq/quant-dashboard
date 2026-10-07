@@ -26,6 +26,7 @@ def build():
     cand=load("docs/research/candidate_rule_status.json",{})
     replay=load("docs/research/candidate_rule_replay.json",{})
     forward=load("docs/research/candidate_forward_status.json",{})
+    candidate_score=load("docs/research/candidate_eventscore_status.json",{})
     evidence=load("docs/research/evidence_status.json",{})
     system=load("docs/research/system_status.json",{})
     signal=load("docs/research/signal_governance.json",{})
@@ -39,6 +40,8 @@ def build():
     rsum=replay.get("summary") or {}
     ev_forward=((evidence.get("evidence_layers") or {}).get("forward_evidence_candidates") or {})
     fcounts=forward.get("counts") or {}
+    scounts=candidate_score.get("counts") or {}
+    bridge=(candidate_score.get("promotion_gate_bridge") or {})
     promo=evidence.get("promotion") or {}
     outlet=(
         "唯一行动出口" in html
@@ -72,9 +75,16 @@ def build():
             "compiled_forward_outcomes_5":fcounts.get("outcomes_5",0),
             "compiled_forward_outcomes_20":fcounts.get("outcomes_20",0),
             "compiled_forward_outcomes_60":fcounts.get("outcomes_60",0),
+            "candidate_eventscore_events":scounts.get("events",0),
+            "candidate_eventscore_scoreable":scounts.get("scoreable",0),
+            "candidate_promotion_bridge_state":bridge.get("state","not_initialized"),
             "promotion_families_passed":promo.get("families_passed",0),
         },
-        "remaining":["first_genuine_forward_candidate_state_entry","natural_20d_60d_maturity","bridge_mature_candidate_family_to_existing_spec_1_7_promotion_gate"],
+        "remaining":[
+            "first_genuine_forward_candidate_state_entry",
+            "natural_20d_60d_maturity",
+            "promotion_bridge_requires_explicit_signal_direction_governance_under_frozen_family_semantics"
+        ],
       },
       "D_decision_fusion_watchlist":{
         "state":"partial",

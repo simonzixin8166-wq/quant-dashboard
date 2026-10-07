@@ -43,6 +43,8 @@ ARTIFACTS={
     "challenger_experiments": ROOT/"docs"/"research"/"challenger_experiments.json",
     "source_reading_memory": ROOT/"docs"/"research"/"source_reading_memory.json",
     "source_rule_lifecycle": ROOT/"docs"/"research"/"source_rule_lifecycle.json",
+    "support_volatility_intelligence": ROOT/"docs"/"research"/"support_volatility_intelligence.json",
+    "options_opportunity_context": ROOT/"docs"/"research"/"options_opportunity_context.json",
 }
 
 WATCH_WORKFLOWS={
@@ -86,6 +88,8 @@ FRESHNESS_HOURS={
     "challenger_experiments": 168,
     "source_reading_memory": 168,
     "source_rule_lifecycle": 168,
+    "support_volatility_intelligence": 96,
+    "options_opportunity_context": 96,
 }
 CRITICAL_DECISION_ARTIFACTS={
     "market_dashboard","learning_engine","autonomous_agent",
@@ -200,7 +204,7 @@ def artifact_health(name,path,now=None):
     else:
         freshness="expired"
     freshness_eligible=available and freshness=="fresh"
-    research_only=name in {"range_intelligence","playbook_outcome_shadow","walk_forward_replay","controlled_learning_policy","forward_learning_feedback","challenger_experiments","source_reading_memory","source_rule_lifecycle"}
+    research_only=name in {"range_intelligence","playbook_outcome_shadow","walk_forward_replay","controlled_learning_policy","forward_learning_feedback","challenger_experiments","source_reading_memory","source_rule_lifecycle","support_volatility_intelligence","options_opportunity_context"}
     business={}
     if name=="market_dashboard" and available:
         business=market_business_freshness(path,now)

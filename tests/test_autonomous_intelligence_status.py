@@ -15,3 +15,11 @@ assert set(out["milestones"])=={
  "D_decision_fusion_watchlist","E_single_action_outlet"
 }
 print("PASS autonomous intelligence master status")
+
+out=build()
+c=out["milestones"]["C_validation_evidence"]
+assert c["engineering_chain_complete"] is True
+assert c["zero_forward_is_valid"] is True
+assert c["state"]=="engineering_closed_forward_evidence_accumulating"
+assert c["evidence_state"] in {"awaiting_first_genuine_forward_candidate","forward_evidence_accumulating"}
+print("PASS Milestone C engineering-closed / evidence-accumulating state")

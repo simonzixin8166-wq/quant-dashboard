@@ -14,7 +14,9 @@ vals=[100.0]*55+[99.0]*3+[101.0,102.0,103.0,104.0,105.0]+[106.0]*265
 cand={
  "candidate_id":"cand1","reproducibility_status":"machine_ready_shadow",
  "scope":{"symbols":["AAA"]},"state_role":"trigger","method_family":"trend_confirmation",
- "conditions":[{"condition_id":"price_above_ma50","machine_ready":True}]
+ "conditions":[{"condition_id":"price_above_ma50","machine_ready":True}],
+ "signal_direction_governance":{"state":"direction_governed","expected_direction":"bullish"},
+ "expected_direction":"bullish"
 }
 qqq=frame([100+i*.1 for i in range(len(vals))])
 out=build({"candidates":[cand]},{"AAA":frame(vals),"QQQ":qqq})
@@ -112,3 +114,27 @@ sres=build({"candidates":[sx]},{"AAA":hist,"QQQ":frame([100+i*.03 for i in range
 assert sres["candidates"][0]["status"]=="blocked"
 assert sres["candidates"][0]["reason"]=="unsupported_replay_condition"
 print("PASS incomplete Supertrend replay fails closed")
+
+
+# Replay direction must come from governance, never from state_role. A bearish
+# reproducible condition remains bearish even when lifecycle role says confirmation.
+bear=dict(cand)
+bear["candidate_id"]="cand_bear_governed"
+bear["state_role"]="confirmation"
+bear["conditions"]=[{"condition_id":"price_below_ma50","machine_ready":True}]
+bear["signal_direction_governance"]={"state":"direction_governed","expected_direction":"bearish"}
+bear["expected_direction"]="bearish"
+bres=build({"candidates":[bear]},{"AAA":frame(vals),"QQQ":qqq})
+brow=bres["candidates"][0]
+assert brow["status"]=="replayed"
+assert brow["expected_direction"]=="bearish"
+
+# Ungoverned direction fails closed even if state_role would formerly imply one.
+ung=dict(cand)
+ung["candidate_id"]="cand_ungoverned"
+ung.pop("signal_direction_governance",None)
+ung["expected_direction"]="bullish"
+ures=build({"candidates":[ung]},{"AAA":frame(vals),"QQQ":qqq})
+assert ures["candidates"][0]["status"]=="blocked"
+assert ures["candidates"][0]["reason"]=="direction_unresolved_or_ungoverned"
+print("PASS governed replay direction / state_role fallback removed")

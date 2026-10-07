@@ -25,6 +25,7 @@ def build():
     coverage=load("docs/research/source_coverage_audit.json",{})
     reading=load("docs/research/source_reading_memory.json",{})
     cand=load("docs/research/candidate_rule_status.json",{})
+    parameter_queue=load("docs/research/candidate_parameter_queue.json",{})
     replay=load("docs/research/candidate_rule_replay.json",{})
     forward=load("docs/research/candidate_forward_status.json",{})
     candidate_score=load("docs/research/candidate_eventscore_status.json",{})
@@ -44,6 +45,8 @@ def build():
     ccounts=cand.get("counts") or {}
     ccap=cand.get("capabilities") or {}
     generic_ma_ready=bool(ccap.get("generic_moving_average_support_complete"))
+    pcounts=parameter_queue.get("counts") or {}
+    parameter_queue_ready=bool(parameter_queue.get("version"))
     rsum=replay.get("summary") or {}
     ev_forward=((evidence.get("evidence_layers") or {}).get("forward_evidence_candidates") or {})
     fcounts=forward.get("counts") or {}
@@ -75,15 +78,33 @@ def build():
         "remaining":[] if subject_attribution_active and coverage.get("version") else (["continuous_source_coverage_audit"] if subject_attribution_active else ["primary_subject_attribution","continuous_source_coverage_audit"]),
       },
       "B_autonomous_learning_core":{
-        "state":"engineering_operational_source_defined_parameters_pending" if generic_ma_ready else "active",
-        "pass":bool(cand.get("version")) and ccounts.get("production_eligible",0)==0 and generic_ma_ready,
+        "state":(
+            "engineering_closed_waiting_for_source_definitions"
+            if generic_ma_ready and parameter_queue_ready
+            else ("engineering_operational_source_defined_parameters_pending" if generic_ma_ready else "active")
+        ),
+        "pass":(
+            bool(cand.get("version"))
+            and ccounts.get("production_eligible",0)==0
+            and generic_ma_ready
+            and parameter_queue_ready
+            and parameter_queue.get("production_effect")=="none"
+            and parameter_queue.get("promotion_effect")=="none"
+        ),
+        "engineering_chain_complete":bool(cand.get("version")) and generic_ma_ready and parameter_queue_ready,
+        "evidence_dependency_state":parameter_queue.get("state","not_initialized"),
         "metrics":{
             **ccounts,
             "generic_moving_average_support_complete":generic_ma_ready,
             "generic_moving_average_windows":ccap.get("generic_moving_average_windows") or [],
             "parameterized_indicators_fail_closed":ccap.get("parameterized_indicators_fail_closed") or [],
+            "parameter_definition_queue_items":int(pcounts.get("queue_items") or 0),
+            "parameter_definition_conditions_waiting":int(pcounts.get("conditions_waiting") or 0),
+            "parameter_definition_candidates_affected":int(pcounts.get("candidates_affected") or 0),
         },
-        "remaining":["resolve only source-defined indicator parameters"] if generic_ma_ready else ["increase generic candidate coverage","resolve only source-defined indicator parameters"],
+        "remaining":[
+            "await explicit source-defined indicator parameters"
+        ] if generic_ma_ready and parameter_queue_ready and int(pcounts.get("queue_items") or 0)>0 else ([] if generic_ma_ready and parameter_queue_ready else ["resolve only source-defined indicator parameters"]),
       },
       "C_validation_evidence":{
         "state":"engineering_closed_forward_evidence_accumulating",

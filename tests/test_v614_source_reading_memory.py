@@ -211,3 +211,22 @@ assert any("PPO 向上交叉 Signal" in x for x in br["raw_evidence"])
 assert bounded["testable_rule_count"]==0
 
 print("PASS V6.14.7 source reading propositions / bounded full-text signals / research-only")
+
+
+# False Break prose must preserve lifecycle roles instead of flattening prior,
+# current invalidation, and future confirmation into one simultaneous AND rule.
+false_break=srm.record_memory({
+ "id":"fb1","source":"wenxuecity","source_kind":"blog","author":"yifan99",
+ "published_at":"2026-09-29","title":"AMZN 一次向上 False Break（假突破）","url":"fb1","symbols":["AMZN"],
+ "topics":["趋势确认"],
+ "excerpt":"前几天价格一度重新站上 MA50，随后没有形成持续上攻，反而又跌回 MA50 下方。如果接下来价格重新站上 MA50，而且能够连续两天守住，才算重新确认。",
+ "operations":[],"portfolio_rules":[],"lessons":[]
+})
+fc=next(x for x in false_break["propositions"] if x["kind"]=="candidate_rule")
+fr=fc["evidence"]["candidate_rule"]
+roles={x["condition_id"]:x.get("semantic_role") for x in fr["conditions"]}
+assert fr["state_hint"]=="RISK"
+assert roles["price_below_ma50"]=="invalidation"
+assert roles["ma50_hold_two_sessions"]=="confirmation"
+assert roles["price_above_ma50"]=="prior_observation"
+print("PASS false-break temporal roles preserved")

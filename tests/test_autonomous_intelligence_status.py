@@ -39,3 +39,12 @@ assert "historical_replay_duplicate_event_instances" in cm
 assert "historical_replay_overlap_rate" in cm
 assert "historical_replay_events" not in cm
 print("PASS honest historical replay overlap metrics in master status")
+
+out=build()
+b=out["milestones"]["B_autonomous_learning_core"]
+assert b["metrics"]["generic_moving_average_support_complete"] is True
+assert b["metrics"]["generic_moving_average_windows"]==[20,50,200]
+assert "increase generic candidate coverage" not in b["remaining"]
+assert "resolve only source-defined indicator parameters" in b["remaining"]
+assert b["state"]=="engineering_operational_source_defined_parameters_pending"
+print("PASS Milestone B generic MA engineering-complete state")

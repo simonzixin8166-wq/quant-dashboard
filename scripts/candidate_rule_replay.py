@@ -135,6 +135,54 @@ def resolve_store(registry,base_store=None,fetcher=fetch_research_history):
 
 def sma(series,window):
     return series.rolling(window,min_periods=window).mean()
+def ema(series,span):
+    return series.ewm(span=int(span),adjust=False,min_periods=int(span)).mean()
+
+def atr_series(df,period,method):
+    high=df["high"].astype(float);low=df["low"].astype(float);close=df["close"].astype(float)
+    prev=close.shift(1)
+    tr=pd.concat([(high-low).abs(),(high-prev).abs(),(low-prev).abs()],axis=1).max(axis=1)
+    p=int(period)
+    if method=="Wilder_RMA":
+        return tr.ewm(alpha=1.0/p,adjust=False,min_periods=p).mean()
+    if method=="EMA":
+        return tr.ewm(span=p,adjust=False,min_periods=p).mean()
+    if method=="SMA":
+        return tr.rolling(p,min_periods=p).mean()
+    return None
+
+def supertrend_bullish_series(df,period,multiplier,method):
+    atr=atr_series(df,period,method)
+    if atr is None:return None
+    high=df["high"].astype(float);low=df["low"].astype(float);close=df["close"].astype(float)
+    hl2=(high+low)/2.0
+    basic_upper=hl2+float(multiplier)*atr
+    basic_lower=hl2-float(multiplier)*atr
+    final_upper=basic_upper.copy();final_lower=basic_lower.copy()
+    trend=pd.Series(False,index=df.index,dtype=bool)
+    started=False
+    prev_fu=prev_fl=None
+    prev_close=None
+    prev_trend=False
+    for i,idx in enumerate(df.index):
+        bu=basic_upper.iloc[i];bl=basic_lower.iloc[i];cl=close.iloc[i]
+        if pd.isna(bu) or pd.isna(bl):
+            prev_close=cl
+            continue
+        if not started:
+            fu=bu;fl=bl
+            cur=cl>=fl
+            started=True
+        else:
+            fu=bu if (bu<prev_fu or prev_close>prev_fu) else prev_fu
+            fl=bl if (bl>prev_fl or prev_close<prev_fl) else prev_fl
+            if prev_trend:
+                cur=cl>=fl
+            else:
+                cur=cl>fu
+        final_upper.iloc[i]=fu;final_lower.iloc[i]=fl;trend.iloc[i]=bool(cur)
+        prev_fu,prev_fl,prev_close,prev_trend=fu,fl,cl,bool(cur)
+    return trend
 
 def condition_series(df,cond):
     cid=str(cond.get("condition_id") or "")
@@ -146,6 +194,23 @@ def condition_series(df,cond):
         if cid==f"ma{window}_hold_two_sessions":
             above=close>ma
             return above & above.shift(1).fillna(False)
+    expr=cond.get("expression") or {}
+    formula=str(expr.get("formula_id") or "")
+    if cid=="macd_hist_positive" and formula=="ema_macd":
+        fast=ema(close,expr.get("fast_period"));slow=ema(close,expr.get("slow_period"))
+        macd=fast-slow
+        signal=ema(macd,expr.get("signal_period"))
+        return (macd-signal)>0
+    if cid in {"ppo_above_signal","ppo_hist_positive"} and formula=="ema_ppo":
+        fast=ema(close,expr.get("fast_period"));slow=ema(close,expr.get("slow_period"))
+        ppo=(fast-slow)/slow*100.0
+        signal=ema(ppo,expr.get("signal_period"))
+        if cid=="ppo_above_signal":return ppo>signal
+        return (ppo-signal)>0
+    if cid=="supertrend_bullish" and formula=="supertrend_atr_band":
+        return supertrend_bullish_series(
+            df,expr.get("atr_period"),expr.get("multiplier"),expr.get("atr_smoothing")
+        )
     return None
 
 def direction(candidate):

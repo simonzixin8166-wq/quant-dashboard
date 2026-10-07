@@ -10,7 +10,7 @@ Rules:
 - no historical backfill: only the latest completed bar can create a state-entry;
 - candidate formation must predate the observed trading date;
 - state-entry only, not repeated daily snapshots;
-- 5/20/60 outcomes append as separate immutable records;
+- next-session open is appended as the point-in-time evaluation baseline;\n- 5/20/60 outcomes append as separate immutable records;
 - hash chain makes accidental rewriting detectable;
 - no Promotion/Production mutation and no orders.
 """
@@ -35,7 +35,7 @@ ROOT=Path(__file__).resolve().parents[1]
 REGISTRY=ROOT/"research"/"registry"/"candidate_rules.json"
 LEDGER=ROOT/"research"/"history"/"candidate_forward_events.jsonl"
 STATUS=ROOT/"docs"/"research"/"candidate_forward_status.json"
-VERSION="1.0"
+VERSION="1.1"
 HORIZONS=(5,20,60)
 
 def load_json(path,default):
@@ -111,8 +111,9 @@ def event_id(candidate,symbol,event_date):
 
 def existing_keys(rows):
     entries={x.get("event_id") for x in rows if x.get("record_type")=="state_entry"}
+    baselines={x.get("event_id") for x in rows if x.get("record_type")=="baseline"}
     outcomes={(x.get("event_id"),int(x.get("horizon"))) for x in rows if x.get("record_type")=="outcome" and x.get("horizon") is not None}
-    return entries,outcomes
+    return entries,baselines,outcomes
 
 def formation_date(candidate,obs_map):
     obs=obs_map.get(str(candidate.get("source_id"))) or {}
@@ -141,7 +142,7 @@ def maybe_state_entry(candidate,store,obs_map,rows,now):
     previous=bool(active.iloc[i-1]) if i>0 else False
     if not current or previous:return None,"no_new_state_entry"
     eid=event_id(candidate,symbol,latest_date.isoformat())
-    entries,_=existing_keys(rows)
+    entries,_,_=existing_keys(rows)
     if eid in entries:return None,"already_recorded"
     close=finite(df.iloc[i]["close"])
     if close is None:return None,"invalid_close"
@@ -156,53 +157,95 @@ def maybe_state_entry(candidate,store,obs_map,rows,now):
         "source_id":candidate.get("source_id"),
         "proposition_id":candidate.get("proposition_id"),
         "symbol":symbol,
-        "event_date":latest_date.isoformat(),
-        "baseline_close":close,
+        "signal_date":latest_date.isoformat(),
+        "signal_close":close,
         "expected_direction":"bearish" if candidate.get("state_role")=="invalidation_or_risk" else "bullish",
-        "regime":event_regime(qqq,latest_date.isoformat()),
+        "regime_at_signal":event_regime(qqq,latest_date.isoformat()),
         "data_source":"local_stooq_archive",
         "evidence_class":"genuine_forward_state_entry",
-        "scoreable_for_forward":True,
+        "scoreable_for_forward":False,
+        "scoreability_reason":"awaiting_next_session_open_baseline",
         "production_eligible":False,
     }
     return append_record(rows,rec),None
 
-def mature_outcome(entry,h,store,now):
+def maybe_baseline(entry,store,rows,now):
     symbol=str(entry.get("symbol") or "")
     df=store.get(symbol)
-    if df is None or df.empty:return None
+    if df is None or df.empty:return None,"canonical_stooq_history_missing"
     df=df.sort_index();df=df[~df.index.duplicated(keep="last")]
-    ts=pd.Timestamp(entry.get("event_date"))
-    if ts not in df.index:return None
-    pos=df.index.get_loc(ts)
-    if not isinstance(pos,int) or pos+h>=len(df):return None
-    baseline=finite(entry.get("baseline_close"))
-    if baseline in (None,0):return None
-    end=finite(df.iloc[pos+h]["close"])
-    if end is None:return None
-    path=df.iloc[pos+1:pos+h+1]
-    lows=[finite(x) for x in path["low"].tolist()]; lows=[x for x in lows if x is not None]
-    highs=[finite(x) for x in path["high"].tolist()]; highs=[x for x in highs if x is not None]
-    ret=end/baseline-1.0
-    qqq=store.get("QQQ")
-    bench=qqq_return(qqq,entry.get("event_date"),h)
-    expected=entry.get("expected_direction")
-    return {
+    signal_ts=pd.Timestamp(entry.get("signal_date"))
+    if signal_ts not in df.index:return None,"signal_date_missing"
+    pos=df.index.get_loc(signal_ts)
+    if not isinstance(pos,int) or pos+1>=len(df):return None,"awaiting_next_session_open"
+    baseline_pos=pos+1
+    baseline_open=finite(df.iloc[baseline_pos]["open"])
+    if baseline_open in (None,0):return None,"invalid_next_session_open"
+    baseline_date=df.index[baseline_pos].date().isoformat()
+    rec={
         "ledger_version":VERSION,
-        "record_type":"outcome",
+        "record_type":"baseline",
         "recorded_at":now,
         "event_id":entry.get("event_id"),
         "candidate_id":entry.get("candidate_id"),
         "family_signature":entry.get("family_signature"),
         "symbol":symbol,
+        "signal_date":entry.get("signal_date"),
+        "baseline_date":baseline_date,
+        "baseline_open":baseline_open,
+        "entry_semantics":"next_session_open_after_completed_daily_signal",
+        "data_source":"local_stooq_archive",
+        "evidence_class":"genuine_forward_evaluation_baseline",
+        "scoreable_for_forward":True,
+        "production_eligible":False,
+    }
+    return append_record(rows,rec),None
+
+def qqq_open_to_close_return(qqq,baseline_date,h):
+    if qqq is None or qqq.empty:return None
+    qqq=qqq.sort_index();qqq=qqq[~qqq.index.duplicated(keep="last")]
+    ts=pd.Timestamp(baseline_date)
+    if ts not in qqq.index:return None
+    pos=qqq.index.get_loc(ts)
+    if not isinstance(pos,int) or pos+h>=len(qqq):return None
+    a=finite(qqq.iloc[pos]["open"]);b=finite(qqq.iloc[pos+h]["close"])
+    return None if a in (None,0) or b is None else b/a-1.0
+
+def mature_outcome(baseline,h,store,now):
+    symbol=str(baseline.get("symbol") or "")
+    df=store.get(symbol)
+    if df is None or df.empty:return None
+    df=df.sort_index();df=df[~df.index.duplicated(keep="last")]
+    ts=pd.Timestamp(baseline.get("baseline_date"))
+    if ts not in df.index:return None
+    pos=df.index.get_loc(ts)
+    if not isinstance(pos,int) or pos+h>=len(df):return None
+    entry=finite(baseline.get("baseline_open"))
+    if entry in (None,0):return None
+    end=finite(df.iloc[pos+h]["close"])
+    if end is None:return None
+    path=df.iloc[pos:pos+h+1]
+    lows=[finite(x) for x in path["low"].tolist()]; lows=[x for x in lows if x is not None]
+    highs=[finite(x) for x in path["high"].tolist()]; highs=[x for x in highs if x is not None]
+    ret=end/entry-1.0
+    qqq=store.get("QQQ")
+    bench=qqq_open_to_close_return(qqq,baseline.get("baseline_date"),h)
+    return {
+        "ledger_version":VERSION,
+        "record_type":"outcome",
+        "recorded_at":now,
+        "event_id":baseline.get("event_id"),
+        "candidate_id":baseline.get("candidate_id"),
+        "family_signature":baseline.get("family_signature"),
+        "symbol":symbol,
+        "baseline_date":baseline.get("baseline_date"),
         "horizon":h,
         "maturity_date":df.index[pos+h].date().isoformat(),
         "return":ret,
-        "mae":min(lows)/baseline-1.0 if lows else None,
-        "mfe":max(highs)/baseline-1.0 if highs else None,
+        "mae":min(lows)/entry-1.0 if lows else None,
+        "mfe":max(highs)/entry-1.0 if highs else None,
         "benchmark_return":bench,
         "excess_vs_qqq":ret-bench if bench is not None else None,
-        "aligned":ret>0 if expected=="bullish" else ret<0,
         "evidence_class":"genuine_forward_outcome",
         "scoreable_for_forward":True,
         "production_eligible":False,
@@ -214,7 +257,7 @@ def build(registry,store,prior_rows=None,now=None):
     if rows and not verify_chain(rows):
         return rows,{
             "version":VERSION,"generated_at":now,"status":"fail_closed_hash_chain_invalid",
-            "counts":{"eligible_candidates":0,"state_entries":0,"outcomes_5":0,"outcomes_20":0,"outcomes_60":0},
+            "counts":{"eligible_candidates":0,"state_entries":0,"evaluation_baselines":0,"outcomes_5":0,"outcomes_20":0,"outcomes_60":0},
             "production_effect":"none","promotion_effect":"none",
         }
     obs_map=source_observation_map(registry)
@@ -223,17 +266,23 @@ def build(registry,store,prior_rows=None,now=None):
     for candidate in elig:
         _,reason=maybe_state_entry(candidate,store,obs_map,rows,now)
         diagnostics.append({"candidate_id":candidate.get("candidate_id"),"observation":reason or "state_entry_appended"})
-    entries,outcomes=existing_keys(rows)
+    entries,baselines,outcomes=existing_keys(rows)
     for entry in [x for x in rows if x.get("record_type")=="state_entry"]:
+        if entry.get("event_id") not in baselines:
+            rec,_=maybe_baseline(entry,store,rows,now)
+            if rec:baselines.add(entry.get("event_id"))
+    baseline_by={x.get("event_id"):x for x in rows if x.get("record_type")=="baseline"}
+    for baseline in baseline_by.values():
         for h in HORIZONS:
-            if (entry.get("event_id"),h) in outcomes:continue
-            rec=mature_outcome(entry,h,store,now)
+            if (baseline.get("event_id"),h) in outcomes:continue
+            rec=mature_outcome(baseline,h,store,now)
             if rec:
                 append_record(rows,rec)
-                outcomes.add((entry.get("event_id"),h))
+                outcomes.add((baseline.get("event_id"),h))
     counts={
         "eligible_candidates":len(elig),
         "state_entries":sum(1 for x in rows if x.get("record_type")=="state_entry"),
+        "evaluation_baselines":sum(1 for x in rows if x.get("record_type")=="baseline"),
         "outcomes_5":sum(1 for x in rows if x.get("record_type")=="outcome" and x.get("horizon")==5),
         "outcomes_20":sum(1 for x in rows if x.get("record_type")=="outcome" and x.get("horizon")==20),
         "outcomes_60":sum(1 for x in rows if x.get("record_type")=="outcome" and x.get("horizon")==60),
@@ -242,7 +291,7 @@ def build(registry,store,prior_rows=None,now=None):
         "version":VERSION,
         "generated_at":now,
         "status":"running",
-        "ledger_mode":"append_only_hash_chained_state_entry",
+        "ledger_mode":"append_only_hash_chained_state_entry_next_open_baseline",
         "counts":counts,
         "diagnostics":diagnostics[:40],
         "forward_evidence_mixed":False,
@@ -255,7 +304,8 @@ def build(registry,store,prior_rows=None,now=None):
             "Only forward_initial, fully reproducible candidates may be observed.",
             "Only the latest completed canonical STOOQ bar may create a state-entry; historical state entries are never backfilled.",
             "Candidate formation must predate the observed trading date.",
-            "5/20/60 outcomes append later and never rewrite the state-entry.",
+            "A completed daily signal is evaluated from the next trading session open, never the same-day close.",
+            "5/20/60 outcomes append from that next-open baseline and never rewrite earlier records.",
             "Hash-chain failure closes the ledger.",
             "This observer cannot alter Promotion Gate, protected rules, positions, sizing or orders.",
         ],

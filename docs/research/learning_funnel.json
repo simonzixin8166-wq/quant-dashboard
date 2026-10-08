@@ -1,6 +1,6 @@
 {
  "version": "p3-12.1",
- "generated_at": "2026-10-08T13:55:54.033771+00:00",
+ "generated_at": "2026-10-08T15:41:38.992559+00:00",
  "layers": [
   "discovered",
   "canonical_persisted",
@@ -15,7 +15,7 @@
   "null_means": "not provable from persisted artifacts (reason given); never silently 0",
   "historical_separate": "historical/backfill/descriptive outcomes live under 'historical' and never feed forward layers",
   "maturity_rule": "proven requires forward matured AND benchmark_evaluated AND downstream_reused > 0; outcomes alone are not learning",
-  "privacy": "decision/private options: aggregate counts already published by the sanitized server status only"
+  "privacy": "decision/private options: presence-only flags from the sanitized server status; exact counts stay private"
  },
  "summary": {
   "market": {
@@ -45,9 +45,9 @@
   "event": {
    "learning_maturity": "context_only",
    "funnel_issues": [],
-   "discovered": 158,
-   "canonical_persisted": 158,
-   "interpretable": 158,
+   "discovered": 193,
+   "canonical_persisted": 193,
+   "interpretable": 193,
    "candidate_claim_or_state": 0,
    "effective_forward_eligible": 0,
    "independently_matured": 0,
@@ -69,11 +69,11 @@
   "decision": {
    "learning_maturity": "context_only",
    "funnel_issues": [],
-   "discovered": 7,
-   "canonical_persisted": 7,
-   "interpretable": 4,
-   "candidate_claim_or_state": 0,
-   "effective_forward_eligible": 0,
+   "discovered": null,
+   "canonical_persisted": null,
+   "interpretable": null,
+   "candidate_claim_or_state": null,
+   "effective_forward_eligible": null,
    "independently_matured": null,
    "benchmark_evaluated": null,
    "downstream_reused": 0
@@ -205,19 +205,19 @@
   },
   "event": {
    "discovered": {
-    "count": 158,
+    "count": 193,
     "definition": "news/event items archived",
     "evidence": "research/archive/events",
     "dedup_key": "uuid"
    },
    "canonical_persisted": {
-    "count": 158,
+    "count": 193,
     "definition": "append-only monthly event shards",
     "evidence": "research/archive/events",
     "dedup_key": "uuid"
    },
    "interpretable": {
-    "count": 158,
+    "count": 193,
     "definition": "items with title, url and event date",
     "evidence": "research/archive/events",
     "dedup_key": "uuid"
@@ -303,45 +303,53 @@
     "dedup_key": "consumer script"
    },
    "shadow_or_private": {
-    "private_position_state_entries": 3,
-    "private_mature_outcomes": 0,
+    "private_position_state_entries_present": true,
+    "private_mature_outcomes_present": false,
     "superseded_legacy_observations": 14,
     "note": "private option positions: aggregate only, from the sanitized server status"
    }
   },
   "decision": {
    "discovered": {
-    "count": 7,
-    "definition": "operator decisions recorded by the cockpit (private, aggregate)",
+    "count": null,
+    "presence": true,
+    "definition": "operator decisions recorded by the cockpit",
     "evidence": "docs/research/server_action_status.json",
-    "dedup_key": "decision fingerprint"
+    "reason": "private engine: public snapshot is presence-only (exact counts stay in the RLS domain)"
    },
    "canonical_persisted": {
-    "count": 7,
+    "count": null,
+    "presence": true,
     "definition": "persisted in private operator_decisions (RLS)",
     "evidence": "docs/research/server_action_status.json",
-    "dedup_key": "decision fingerprint"
+    "reason": "private engine: public snapshot is presence-only (exact counts stay in the RLS domain)"
    },
    "interpretable": {
-    "count": 4,
+    "count": null,
+    "presence": true,
     "definition": "decisions with an attribution label",
-    "evidence": "docs/research/server_action_status.json"
+    "evidence": "docs/research/server_action_status.json",
+    "reason": "private engine: public snapshot is presence-only (exact counts stay in the RLS domain)"
    },
    "candidate_claim_or_state": {
-    "count": 0,
+    "count": null,
+    "presence": false,
     "definition": "decisions with a recorded user action",
-    "evidence": "docs/research/server_action_status.json"
+    "evidence": "docs/research/server_action_status.json",
+    "reason": "private engine: public snapshot is presence-only (exact counts stay in the RLS domain)"
    },
    "effective_forward_eligible": {
-    "count": 0,
+    "count": null,
+    "presence": false,
     "definition": "user-confirmed actions timestamped before outcomes",
-    "evidence": "docs/research/server_action_status.json"
+    "evidence": "docs/research/server_action_status.json",
+    "reason": "private engine: public snapshot is presence-only (exact counts stay in the RLS domain)"
    },
    "independently_matured": {
     "count": null,
     "definition": "user actions with matured outcomes",
     "evidence": "docs/research/server_action_status.json",
-    "reason": "decision outcome maturation not yet instrumented; no user actions recorded"
+    "reason": "decision outcome maturation not yet instrumented"
    },
    "benchmark_evaluated": {
     "count": null,

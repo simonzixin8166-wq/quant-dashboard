@@ -13,6 +13,7 @@ const pass={overall:'PASS',decision_readiness:{status:'PASS'},engineering_qa:{st
 emitQaAnnotations(pass);
 assert.strictEqual(lines.length,1);
 assert(lines[0].startsWith('::notice title=MyAlpha QA verdict::QA_VERDICT overall=PASS'));
+assert(lines[0].includes('deploy_matches_head='));
 for(const k of ['business_data=PASS','server_action=PASS','engineering_qa=PASS','investment_data_qa=PASS','market_as_of=2026-10-07','judgment_basis=evaluated','server_snapshot_current=true'])
   assert(lines[0].includes(k),k);
 lines.length=0;

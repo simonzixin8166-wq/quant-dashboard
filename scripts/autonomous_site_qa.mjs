@@ -212,6 +212,15 @@ report.engineering_qa.status=(engineeringBaseHealthy&&report.fatal_console_error
 report.decision_readiness.status=(report.engineering_qa.status==='PASS'&&report.investment_data_qa.status==='PASS'&&report.learning_guardrails.status==='PASS')?'PASS':'FAIL';
 // Machine-readable verdict as GitHub check-run annotations (readable through the REST
 // checks API even when log/artifact downloads are unavailable). Sanitized fields only.
+// P1-4: cancelled Pages/QA runs are normal supersession, but the latest QA must prove the site
+// serves the build of the commit it checked (report-only; Pages can lag a minute).
+try{
+  const local=JSON.parse(fs.readFileSync('docs/build-manifest.json','utf8'));
+  const res=await fetch(base+'/build-manifest.json?qa='+Date.now(),{cache:'no-store'});
+  const dep=res.ok?await res.json():null;
+  report.deployment={head_sha:process.env.GITHUB_SHA||null,repo_build_id:local.build_id||null,deployed_build_id:dep?.build_id||null,
+    deployed_generated_at:dep?.generated_at||null,matches:!!dep&&dep.build_id===local.build_id};
+}catch(e){report.deployment={error:String(e).slice(0,160),matches:null}}
 function qaVerdictLines(r){
   const s=x=>String(x===undefined||x===null?'-':x);
   const b=r.business_data||{},sa=r.server_action||{};
@@ -224,6 +233,8 @@ function qaVerdictLines(r){
     ['server_market_as_of',sa.server_market_as_of],['server_snapshot_current',sa.server_snapshot_current],
     ['investment_data_qa',(r.investment_data_qa||{}).status],['learning_guardrails',(r.learning_guardrails||{}).status],
     ['fatal_console_errors',(r.fatal_console_errors||[]).length],['http_errors',(r.http_errors||[]).length],
+    ['deploy_matches_head',(r.deployment||{}).matches],['head_sha',String((r.deployment||{}).head_sha||'').slice(0,7)],
+    ['deployed_build_id',(r.deployment||{}).deployed_build_id],
   ];
   return fields.map(([k,v])=>`${k}=${s(v)}`);
 }

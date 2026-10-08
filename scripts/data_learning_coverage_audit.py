@@ -51,6 +51,85 @@ def row(domain, collected, persisted, structured, memory, outcomes, decision_con
         "evidence":evidence,
     }
 
+# L6 (reuse) evidence: a domain's learned outcome artifact must be read by at least
+# one research/decision script other than its own producer. Registry/health/QA
+# tooling and this audit only list artifacts; they are not learning reuse.
+OUTCOME_ARTIFACTS={
+    "market_price_history":("historical_journal.json","local_history_agent.py"),
+    "blog_forum_video_sources":("source_reading_memory.json","source_reading_memory.py"),
+    "official_sec_filings":("official_evidence.json","official_evidence_engine.py"),
+    "financial_fundamentals_xbrl":("company_fundamental_outcome_memory.json","company_fundamental_outcome_memory.py"),
+    "news_event_evidence":("event_outcome_memory.json","event_outcome_memory.py"),
+    "macro_fred_alfred":("macro_outcome_memory.json","macro_outcome_memory.py"),
+    "breadth_cross_asset_regime":("market_state_outcome_scorecards.json","market_state_outcome_scorecards.py"),
+    "support_resistance_volatility":("support_volatility_outcome_memory.json","support_volatility_outcome_memory.py"),
+    "options_opportunity":("options_opportunity_outcome_memory.json","options_opportunity_outcome_memory.py"),
+    "auto_thesis_revision_memory":("thesis_revision_outcome_memory.json","thesis_revision_outcome_memory.py"),
+    "candidate_shadow_forward":("candidate_forward_status.json","candidate_forward_observer.py"),
+    "production_playbook_forward_replay":("playbook_outcome_shadow.json","playbook_outcome_engine.py"),
+    "operational_system_learning":("operational_incident_memory.json","operational_incident_memory.py"),
+}
+NON_REUSE_CONSUMERS={
+    "data_learning_coverage_audit.py","system_status_center.py","module_intelligence_engine.py",
+    "generate_build_manifest.py","private_guardrail.py","verify_deployment.py","research_storage_health.py",
+    "autonomous_site_qa.mjs","public_research_evidence_status.py","research_program_status.py",
+    "autonomous_intelligence_status.py","v615_component_manifest.py",
+}
+
+def downstream_consumers(artifact,producer,scripts_dir=None):
+    scripts_dir=Path(scripts_dir or ROOT/"scripts")
+    out=[]
+    for f in sorted(scripts_dir.glob("*.py")):
+        if f.name==producer or f.name in NON_REUSE_CONSUMERS:continue
+        try:
+            if artifact in f.read_text(encoding="utf-8"):out.append(f.name)
+        except Exception:
+            pass
+    return out
+
+def apply_reuse_gate(rows,scripts_dir=None):
+    """Never upgrades; downgrades learning_active without L6 downstream reuse."""
+    for x in rows:
+        art=OUTCOME_ARTIFACTS.get(x["domain"])
+        consumers=downstream_consumers(*art,scripts_dir=scripts_dir) if art else []
+        x["downstream_reused"]=bool(consumers)
+        x["reused_by"]=consumers
+        if x["learning_status"]=="learning_active" and not consumers:
+            x["learning_status"]="partial_learning"
+            x["gaps"]=list(x.get("gaps") or [])+[
+                "Outcomes exist but no research/decision component reads them yet (L6 reuse missing); outcome count alone is not learning."
+            ]
+    return rows
+
+def reconciliation(source_total,source_persist,reading,collector):
+    """Layered, non-tautological source accounting.
+
+    seen (upstream, incl. YouTube) -> canonical store -> read -> text-enriched.
+    Errors are counted, never hard-coded; semantic backlog is reported separately
+    and keeps the domain partial without unbalancing source accounting.
+    """
+    yt=(collector or {}).get("youtube") or {}
+    enrich=(reading or {}).get("text_enrichment") or {}
+    reading_total=int(((reading or {}).get("counts") or {}).get("source_records") or 0)
+    text_unavailable=enrich.get("text_unavailable_records")
+    errors=int(text_unavailable or 0)
+    collector_known=(collector or {}).get("fetch_status")=="ok" or int((collector or {}).get("version") or 0)>0
+    return {
+        "upstream_collector_known":bool(collector_known),
+        "youtube_seen":yt.get("seen"),
+        "youtube_semantically_learned":(None if not yt else int(yt.get("feed_records") or 0)+int(yt.get("historical_semantic_learned") or 0)),
+        "youtube_semantic_backlog":yt.get("unresolved_semantic"),
+        "captured":source_total,
+        "canonical":source_persist,
+        "processed":reading_total,
+        "text_enriched":enrich.get("text_enriched_records"),
+        "source_offline":enrich.get("source_offline_records"),
+        "backlog":max(0,source_persist-reading_total),
+        "errors":errors,
+        "errors_known":text_unavailable is not None,
+        "balanced":source_total>0 and source_persist>=source_total and reading_total>=source_persist and errors==0,
+    }
+
 def build():
     hist=load("docs/research/historical_journal.json")
     source=load("docs/data/source_intelligence.json")
@@ -191,25 +270,19 @@ def build():
           ["Public repository cannot verify completeness of private/user decision records or whether every decision is later reconciled to outcomes."],
           {}),
     ]
+    apply_reuse_gate(rows)
     rank={"learning_active":3,"partial_learning":2,"context_only":1,"collected_only":0,"not_implemented":0}
     counts={}
     for x in rows:counts[x["learning_status"]]=counts.get(x["learning_status"],0)+1
     gaps=[{"domain":x["domain"],"status":x["learning_status"],"gaps":x["gaps"]} for x in rows if rank.get(x["learning_status"],0)<3]
     return {
-      "version":"2.2",
+      "version":"2.3",
       "generated_at":datetime.now(timezone.utc).isoformat(),
       "principle":"Collection success is not learning success. Permanent storage and learning inputs must not be record-count capped; only per-run processing and UI presentation may be bounded.",
       "counts":counts,
       "domains":rows,
       "priority_gaps":gaps,
-      "reconciliation":{
-        "captured":source_total,
-        "canonical":source_persist,
-        "processed":reading_total,
-        "backlog":source_backlog,
-        "errors":0,
-        "balanced":source_total>0 and source_persist>=source_total and reading_total+source_backlog>=source_total,
-      },
+      "reconciliation":reconciliation(source_total,source_persist,reading,collector),
       "required_contract":{
         "canonical_storage":"append-only or sharded; no destructive record-count eviction",
         "learning_input":"complete canonical history or cursor-backed exhaustive processing",

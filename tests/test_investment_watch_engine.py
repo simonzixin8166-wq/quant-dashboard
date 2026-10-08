@@ -138,18 +138,52 @@ assert e.dca_events({"status": "completed", "notified_events": ["DCA_DUE"]}, w10
 assert e.dca_events({"status": "completed", "notified_events": ["DCA_COMPLETED"]}, w10, date(2026, 10, 9)) == []
 assert e.dca_events({"status": "skipped", "notified_events": []}, w10, date(2026, 10, 8)) == ["DCA_SKIPPED"]
 
-# Journal: state entries only, live forward captures; outcomes only when mature.
+# Journal: state entries only; observation vs scoreable prediction are separate; outcomes need
+# completed sessions anchored on the 17:00 ET gold session; proxy daily → never "verified".
 rows = []
 dec = e.decide(4020, "LIVE", STABLE, RY, DXY, CFG)
+assert dec["state"] == "BUY"
 assert e.should_journal(rows, dec)
-rows.append(e.journal_entry(dec, {"price": 4020, "basis": "spot", "source": "t", "as_of": "x"},
-                            datetime(2026, 9, 1, tzinfo=timezone.utc), CFG))
+t0 = datetime(2026, 9, 1, 15, tzinfo=timezone.utc)  # Tue 11:00 ET → session 2026-09-01
+rows.append(e.journal_entry(dec, {"price": 4020, "basis": "spot", "source": "t", "as_of": "x"}, t0, CFG, "LIVE", "spot"))
 assert not e.should_journal(rows, dec) and not e.should_journal(rows, stale)
-assert rows[0]["capture_mode"] == "live_forward" and "budget" not in json.dumps(rows[0])
-long = bars([4020 + i for i in range(130)])
-oc = e.evaluate_outcomes(rows, long)[0]
-assert oc["mature_20d"] and oc["mature_120d"] and oc["ret_20d_pct"] > 0
-assert not e.evaluate_outcomes(rows, long[:30])[0]["mature_60d"]
+r0 = rows[0]
+assert r0["schema"] == 2 and r0["capture_mode"] == "live_observation" and r0["session_date"] == "2026-09-01"
+assert r0["observation_eligible"] and r0["scoreable"] and r0["claim"] == "forward_return_positive"
+assert "budget" not in json.dumps(r0)
+watch = e.journal_entry(e.decide(4020, "LIVE", FALLING, RY, DXY, CFG), {"price": 4020, "basis": "spot"}, t0, CFG, "LIVE", "spot")
+assert watch["observation_eligible"] and not watch["scoreable"] and not watch["forward_evidence_eligible"]
+closed = e.journal_entry(dec, {"price": 4020, "basis": "spot"}, t0, CFG, "CLOSED", "spot")
+assert not closed["observation_eligible"] and not closed["scoreable"]
+proxyq = e.journal_entry(dec, {"price": 4020, "basis": "futures_proxy"}, t0, CFG, "DELAYED", "spot")
+assert not proxyq["scoreable"]
+# 17:00 ET roll: Fri 18:00 ET belongs to Monday's session.
+assert e.gold_session_date(datetime(2026, 9, 4, 22, tzinfo=timezone.utc)).isoformat() == "2026-09-07"
+long = bars([4020 + i for i in range(130)], start=date(2026, 9, 1))
+oc = e.evaluate_outcomes(rows, long, "spot")[0]
+assert oc["mature_20d"] and oc["verified_20d"] and oc["mature_120d"] and oc["ret_20d_pct"] > 0
+assert oc["horizon_20d_date"] == long[20]["date"]  # anchor = signal session (idx 0) → h-th completed after it
+assert not e.evaluate_outcomes(rows, long[:30], "spot")[0]["mature_60d"]
+px = e.evaluate_outcomes(rows, long, "spot_estimate_from_futures")[0]
+assert px["mature_20d"] and not px["verified_20d"] and px["outcome_basis"] == "proxy_estimate_unverified"
+# Missing entry session (data hole) → no anchor rather than a shifted one.
+gap = [r for r in long if r["date"] >= "2026-09-10"]
+assert e.evaluate_outcomes(rows, gap, "spot")[0].get("anchor_issue") == "entry_session_missing"
+# Legacy schema-1 WAIT row (already in production) is read as observation-only, never rewritten.
+legacy = {"capture_mode": "live_forward", "forward_evidence_eligible": True, "price": 4121.1, "price_basis": "spot",
+          "recorded_at": "2026-10-08T07:34:09Z", "signal_id": "7604e4a7e0881413", "state": "WAIT", "state_key": "WAIT|None|None"}
+assert e.journal_flags(legacy) == (True, False, "2026-10-08")
+summ = e.learning_summary([legacy] + rows, e.evaluate_outcomes([legacy] + rows, long, "spot_estimate_from_futures"))
+assert summ["scoreable_predictions"] == 1 and summ["verified_scoreable"]["20d"] == 0 and summ["mature_any"]["20d"] == 2
+
+# Date-aware macro windows: a data hole is not compressed into a "5-day" change.
+holey = [{"date": d, "value": v} for d, v in [("2026-09-01", 1.0), ("2026-09-02", 1.0), ("2026-09-03", 1.0),
+                                                ("2026-09-04", 1.0), ("2026-09-18", 1.5), ("2026-09-21", 1.6)]]
+assert e.window_change(holey, "value", 5) is None
+assert e.window_change(RY, "value", 5) == 0.0
+assert e.consecutive_sessions(STABLE, 2) and not e.consecutive_sessions([{"date": "2026-09-01"}, {"date": "2026-09-15"}], 2)
+pc_hole = e.pause_checks(STABLE, holey, DXY, CFG)
+assert pc_hole["checks"][1]["met"] is None
 
 # Public status never carries budget/DCA amounts.
 data = {"live": {"ok": True, "price": 4020.0, "as_of": e.iso(wed - timedelta(minutes=3)), "source": "t",

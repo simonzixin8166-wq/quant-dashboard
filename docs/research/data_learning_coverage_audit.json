@@ -1,10 +1,10 @@
 {
-  "version": "1.9",
-  "generated_at": "2026-10-08T03:56:39.994528+00:00",
+  "version": "2.0",
+  "generated_at": "2026-10-08T04:02:23.296452+00:00",
   "principle": "Collection success is not learning success. Permanent storage and learning inputs must not be record-count capped; only per-run processing and UI presentation may be bounded.",
   "counts": {
-    "learning_active": 3,
-    "partial_learning": 12,
+    "learning_active": 2,
+    "partial_learning": 13,
     "context_only": 1
   },
   "domains": [
@@ -29,13 +29,14 @@
     {
       "domain": "blog_forum_video_sources",
       "collected": true,
-      "persistent_history": "persistent_source_store",
+      "persistent_history": "persistent_source_store_plus_upstream_completeness_contract",
       "structured_analysis": true,
       "reusable_memory": true,
       "outcome_feedback": true,
       "decision_context": true,
-      "learning_status": "learning_active",
+      "learning_status": "partial_learning",
       "gaps": [
+        "Upstream forum/blog/YouTube completeness is not yet proven; collector completeness contract is false or unavailable.",
         "Historical video archive is intentionally non-gating; this is a governance boundary, not a missing-learning error."
       ],
       "evidence": {
@@ -43,6 +44,13 @@
         "source_reading_records": 1419,
         "persistent_source_records": 1419,
         "backlog": 0,
+        "collector_complete": false,
+        "collector": {
+          "version": 0,
+          "complete": false,
+          "status": "unavailable",
+          "reason": "collector_completeness_unavailable"
+        },
         "testable_rules": 46,
         "eligible_triggered_events": 51
       }
@@ -104,21 +112,39 @@
     {
       "domain": "news_event_evidence",
       "collected": true,
-      "persistent_history": "current_view_plus_append_only_monthly_archive",
+      "persistent_history": "current_view_plus_append_only_archive_plus_benchmark_adjusted_outcomes",
       "structured_analysis": true,
       "reusable_memory": true,
-      "outcome_feedback": true,
+      "outcome_feedback": false,
       "decision_context": true,
       "learning_status": "partial_learning",
       "gaps": [
-        "Canonical Event archive now preserves acquired news items; causal attribution and long-horizon reuse remain partial.",
-        "Current Top-N news stays a view, not the canonical learning store."
+        "Canonical Event archive is retained; waiting for 5/20/60 benchmark-adjusted outcomes to mature."
       ],
       "evidence": {
         "symbols": 16,
         "news_items": 80,
-        "archive_total": 91,
-        "event_window_rows": 20
+        "archive_total": 92,
+        "event_window_rows": 20,
+        "mature_outcomes": 0,
+        "benchmark": "QQQ",
+        "horizons": {
+          "5": {
+            "n": 0,
+            "avg_excess_return_pct": null,
+            "positive_excess_rate": null
+          },
+          "20": {
+            "n": 0,
+            "avg_excess_return_pct": null,
+            "positive_excess_rate": null
+          },
+          "60": {
+            "n": 0,
+            "avg_excess_return_pct": null,
+            "positive_excess_rate": null
+          }
+        }
       }
     },
     {
@@ -347,6 +373,14 @@
   ],
   "priority_gaps": [
     {
+      "domain": "blog_forum_video_sources",
+      "status": "partial_learning",
+      "gaps": [
+        "Upstream forum/blog/YouTube completeness is not yet proven; collector completeness contract is false or unavailable.",
+        "Historical video archive is intentionally non-gating; this is a governance boundary, not a missing-learning error."
+      ]
+    },
+    {
       "domain": "official_sec_filings",
       "status": "partial_learning",
       "gaps": [
@@ -357,8 +391,7 @@
       "domain": "news_event_evidence",
       "status": "partial_learning",
       "gaps": [
-        "Canonical Event archive now preserves acquired news items; causal attribution and long-horizon reuse remain partial.",
-        "Current Top-N news stays a view, not the canonical learning store."
+        "Canonical Event archive is retained; waiting for 5/20/60 benchmark-adjusted outcomes to mature."
       ]
     },
     {

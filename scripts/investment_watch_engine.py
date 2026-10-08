@@ -354,25 +354,33 @@ def fx_on(fx_rows, d):
     return best
 
 
-def year_stats(daily, fx_rows, year, cfg, price=None, price_fx=None):
+def year_stats(daily, fx_rows, year, cfg, price=None, price_fx=None, basis="spot"):
+    """Year high/low. Verified provenance values win over estimates; a futures-derived spot
+    estimate is only used for the period after the verified data and is labelled as such."""
     rows = [r for r in daily if r["date"].startswith(str(year))]
     prov = cfg.get("provenance", {})
-    out = {"year": year, "basis": None, "high": None, "low": None}
+    ph, pl = prov.get("spot_high_2026"), prov.get("verified_spot_low_h1_2026")
+    estimate = basis != "spot"
+    out = {"year": year, "basis": basis if rows else None, "high": None, "low": None, "low_estimate_after_verified": None}
     if rows:
         hi = max(rows, key=lambda r: r.get("high") or r["close"])
         lo = min(rows, key=lambda r: r.get("low") or r["close"])
-        out["basis"] = "daily_bars"
-        out["high"] = {"value": rnd(hi.get("high") or hi["close"]), "date": hi["date"]}
-        out["low"] = {"value": rnd(lo.get("low") or lo["close"]), "date": lo["date"]}
         out["coverage"] = {"from": rows[0]["date"], "to": rows[-1]["date"], "sessions": len(rows)}
-    ph = prov.get("spot_high_2026")
-    if ph and (out["high"] is None or ph["value"] > (out["high"]["value"] or 0)):
-        out["high"] = {"value": ph["value"], "date": ph["date"], "source": ph["source"], "intraday": True}
-    pl = prov.get("verified_spot_low_h1_2026")
-    if pl and (out["low"] is None or pl["value"] < (out["low"]["value"] or 1e9)) and out.get("coverage") is None:
-        out["low"] = {"value": pl["value"], "date": pl["date"], "source": pl["source"], "intraday": True}
+        if not estimate:
+            out["high"] = {"value": rnd(hi.get("high") or hi["close"]), "date": hi["date"]}
+            out["low"] = {"value": rnd(lo.get("low") or lo["close"]), "date": lo["date"]}
+    if ph and (out["high"] is None or ph["value"] >= (out["high"]["value"] or 0)):
+        out["high"] = {"value": ph["value"], "date": ph["date"], "source": ph["source"], "intraday": True, "verified": True}
+    if pl and (out["low"] is None or estimate or pl["value"] <= (out["low"]["value"] or 1e9)):
+        out["low"] = {"value": pl["value"], "date": pl["date"], "source": pl["source"], "intraday": True, "verified": True}
+    if estimate and rows and pl:
+        later = [r for r in rows if r["date"] > pl["date"]]
+        if later:
+            lo2 = min(later, key=lambda r: r.get("low") or r["close"])
+            out["low_estimate_after_verified"] = {"value": rnd(lo2.get("low") or lo2["close"]), "date": lo2["date"],
+                                                  "basis": basis, "note": "期货基差估算，未经核实"}
     out["low_is_full_year_confirmed"] = False  # year not complete; never label as 全年最低
-    for key in ("high", "low"):
+    for key in ("high", "low", "low_estimate_after_verified"):
         x = out.get(key)
         if x:
             fx = fx_on(fx_rows, x["date"])
@@ -676,7 +684,19 @@ def send_telegram(text):
         return f"failed:{type(e).__name__}"
 
 
-def gold_message(event, decision, live, cfg, etf):
+def private_gold_context():
+    """Owner budget + executed stages via service role (private; only used inside Telegram text)."""
+    try:
+        st = sb_request("GET", "investment_plan_settings?select=gold_budget_usd") or []
+        ex = sb_request("GET", "investment_executions?select=gold_stage,shares,price_usd,fee_usd&program=eq.gold") or []
+    except Exception:
+        return None
+    budget = next((float(x["gold_budget_usd"]) for x in st if x.get("gold_budget_usd") is not None), None)
+    spent = sum(float(x["shares"]) * float(x["price_usd"]) + float(x.get("fee_usd") or 0) for x in ex)
+    return {"budget": budget, "spent": spent, "stages": sorted({int(x["gold_stage"]) for x in ex if x.get("gold_stage")})}
+
+
+def gold_message(event, decision, live, cfg, etf, private=None):
     p = live.get("price")
     head = {
         "ENTER_WATCH_ZONE": "⚠ 黄金已进入观察区",
@@ -696,7 +716,15 @@ def gold_message(event, decision, live, cfg, etf):
         nb = next_band(decision.get("stage"), cfg)
         if nb:
             lines.append(f"下一档观察：${nb['max']:,}–{nb['min']:,}")
-        lines.append("金额按网站私有黄金预算计算；仅提醒，不自动下单。")
+        stage = decision.get("stage")
+        if private and private.get("budget"):
+            amt = private["budget"] * decision["stage_budget_pct"] / 100
+            lines.append(f"建议金额 ≈ ${amt:,.0f}（黄金预算 ${private['budget']:,.0f} × {decision['stage_budget_pct']}%）")
+            if stage in private.get("stages", []):
+                lines.append("注意：本档已记录执行，不重复扣减预算。")
+        else:
+            lines.append("未设置黄金预算：不输出建议金额（网站私有设置中填写）。")
+        lines.append("仅提醒，不自动下单。")
     return "\n".join(lines)
 
 
@@ -830,7 +858,7 @@ def build_status(data, cfg, dca_cfg, prev, at):
                 {"usd": v, "cny_per_gram": rnd(cny_per_gram(v, usdcny))}
                 for v in sorted({s["max"] for s in cfg["stages"]} | {s["min"] for s in cfg["stages"]}, reverse=True)
             ] if usdcny else [],
-            "year_stats": year_stats(daily, fx_rows, at.year, cfg, price),
+            "year_stats": year_stats(daily, fx_rows, at.year, cfg, price, basis=data["daily"].get("basis") or "spot"),
             "etf_quotes": data.get("etf", {}),
             "rules": {"pause": decision["pause"], "deep_review": decision["deep_review"],
                       "confirmation": decision["confirmation"]},
@@ -901,8 +929,9 @@ def main(argv=None):
 
     deliveries = []
     live = data["live"] if data["live"].get("ok") else {}
+    private = private_gold_context() if "BUY_CONDITIONAL" in events else None
     for ev in events:
-        deliveries.append(send_telegram(gold_message(ev, decision, live, cfg, data.get("etf"))))
+        deliveries.append(send_telegram(gold_message(ev, decision, live, cfg, data.get("etf"), private)))
     # A failed send (channel configured but Telegram error) keeps the previous
     # arming so the next run retries; not_configured advances (site still shows it).
     if any(str(d).startswith("failed") for d in deliveries) and (prev or {}).get("alert_state") is not None:

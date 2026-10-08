@@ -175,3 +175,18 @@ assert adj["basis"] == "spot_estimate_from_futures" and adj["rows"][0]["close"] 
 assert e.basis_adjust(fut, {"basis": "spot", "price": 4000.0}, futures_now=4400.0)["basis"] == "futures_proxy"
 assert e.basis_adjust(fut, {"basis": "futures_proxy", "price": 4000.0}, futures_now=4025.0) is fut
 print("PASS basis adjustment")
+
+# Year stats: verified provenance low wins over a futures estimate; later estimate is labelled separately.
+est_rows = [{"date": "2026-06-30", "close": 3940.0, "high": 3950.0, "low": 3932.0}, {"date": "2026-10-07", "close": 4120.0, "high": 4130.0, "low": 4100.0}]
+ys2 = e.year_stats(est_rows, fx, 2026, CFG, price=4126, basis="spot_estimate_from_futures")
+assert ys2["low"]["value"] == 3959.33 and ys2["low"]["verified"] and ys2["low_estimate_after_verified"]["value"] == 3932.0
+assert ys2["high"]["value"] == 5595.47
+print("PASS year stats provenance")
+
+# Telegram text: amounts only from the private budget; no budget → explicitly no amount.
+d_buy = e.decide(4020, "LIVE", STABLE, RY, DXY, CFG)
+m1 = e.gold_message("BUY_CONDITIONAL", d_buy, {"price": 4020.0, "source": "t", "as_of": "x"}, CFG, {}, None)
+assert "不输出建议金额" in m1 and "下一档观察：$4,000–3,950" in m1
+m2 = e.gold_message("BUY_CONDITIONAL", d_buy, {"price": 4020.0, "source": "t", "as_of": "x"}, CFG, {}, {"budget": 20000, "spent": 2000, "stages": [1]})
+assert "≈ $2,000" in m2 and "不重复扣减" in m2
+print("PASS telegram text")

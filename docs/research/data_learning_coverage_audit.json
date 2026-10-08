@@ -1,12 +1,11 @@
 {
-  "version": "1.1",
-  "generated_at": "2026-10-08T01:58:34.492359+00:00",
+  "version": "1.4",
+  "generated_at": "2026-10-08T03:21:21.233233+00:00",
   "principle": "Collection success is not learning success. Permanent storage and learning inputs must not be record-count capped; only per-run processing and UI presentation may be bounded.",
   "counts": {
-    "learning_active": 3,
-    "partial_learning": 10,
-    "not_implemented": 1,
-    "context_only": 2
+    "learning_active": 2,
+    "partial_learning": 13,
+    "context_only": 1
   },
   "domains": [
     {
@@ -40,9 +39,10 @@
         "Historical video archive is intentionally non-gating; this is a governance boundary, not a missing-learning error."
       ],
       "evidence": {
-        "source_records": 1375,
-        "source_reading_records": 1375,
-        "persistent_source_records": 1370,
+        "source_records": 1415,
+        "source_reading_records": 1415,
+        "persistent_source_records": 1418,
+        "backlog": 0,
         "testable_rules": 46,
         "eligible_triggered_events": 51
       }
@@ -50,54 +50,59 @@
     {
       "domain": "official_sec_filings",
       "collected": true,
-      "persistent_history": "current_snapshot_only",
+      "persistent_history": "current_view_plus_append_only_monthly_archive",
       "structured_analysis": true,
       "reusable_memory": true,
       "outcome_feedback": true,
       "decision_context": true,
       "learning_status": "partial_learning",
       "gaps": [
-        "Official Evidence keeps a recent filing snapshot per symbol rather than a canonical append-only filing archive.",
-        "No structured SEC XBRL financial-statement time series is present."
+        "Canonical SEC filing archive now preserves filing evidence, but full filing-to-thesis/outcome reuse remains partial."
       ],
       "evidence": {
         "symbols": 14,
         "filings": 42,
+        "archive_total": 42,
         "linked_direct_events": 27,
         "mature_20": 21
       }
     },
     {
       "domain": "financial_fundamentals_xbrl",
-      "collected": false,
-      "persistent_history": "missing",
-      "structured_analysis": false,
-      "reusable_memory": false,
+      "collected": true,
+      "persistent_history": "sec_companyfacts_append_only_series",
+      "structured_analysis": true,
+      "reusable_memory": true,
       "outcome_feedback": false,
       "decision_context": false,
-      "learning_status": "not_implemented",
+      "learning_status": "partial_learning",
       "gaps": [
-        "No SEC XBRL/companyfacts ingestion found.",
-        "Revenue, margins, FCF, cash, debt, dilution and per-share fundamentals are not maintained as longitudinal learning series."
+        "SEC CompanyFacts/XBRL longitudinal fact memory is now present when the artifact has been built.",
+        "Derived quarter-over-quarter/YoY, thesis-change and future-outcome evaluation still need explicit closed-loop scoring."
       ],
-      "evidence": {}
+      "evidence": {
+        "symbols": 14,
+        "archive_total": 15015,
+        "archive_added": 15015
+      }
     },
     {
       "domain": "news_event_evidence",
       "collected": true,
-      "persistent_history": "current_snapshot_only",
+      "persistent_history": "current_view_plus_append_only_monthly_archive",
       "structured_analysis": true,
       "reusable_memory": true,
       "outcome_feedback": true,
       "decision_context": true,
       "learning_status": "partial_learning",
       "gaps": [
-        "Event Evidence keeps a small current news set per symbol; no append-only news/event archive is the canonical learning source.",
-        "Current news limits are appropriate for UI/current context but not for permanent learning retention."
+        "Canonical Event archive now preserves acquired news items; causal attribution and long-horizon reuse remain partial.",
+        "Current Top-N news stays a view, not the canonical learning store."
       ],
       "evidence": {
         "symbols": 16,
         "news_items": 80,
+        "archive_total": 80,
         "event_window_rows": 20
       }
     },
@@ -140,14 +145,14 @@
     {
       "domain": "support_resistance_volatility",
       "collected": true,
-      "persistent_history": "current_research_artifact",
+      "persistent_history": "append_only_observation_and_outcome_archive",
       "structured_analysis": true,
-      "reusable_memory": false,
+      "reusable_memory": true,
       "outcome_feedback": false,
       "decision_context": true,
-      "learning_status": "context_only",
+      "learning_status": "partial_learning",
       "gaps": [
-        "Support/Resistance and GARCH are calculated and reused by Options Opportunity, but their predictions/signals are not yet stored as dated observations with later outcome evaluation."
+        "Dated Support/GARCH observations are now retained; waiting for real 20-session outcomes to mature."
       ],
       "evidence": {
         "universe": [
@@ -157,7 +162,10 @@
           "IREN",
           "NVDA",
           "TSLA"
-        ]
+        ],
+        "observations": 6,
+        "mature20": 0,
+        "garch_mae_pct_points": null
       }
     },
     {
@@ -188,17 +196,18 @@
     {
       "domain": "auto_thesis_revision_memory",
       "collected": true,
-      "persistent_history": "current_draft_artifact",
+      "persistent_history": "current_draft_plus_append_only_revision_history",
       "structured_analysis": true,
       "reusable_memory": true,
       "outcome_feedback": true,
       "decision_context": true,
       "learning_status": "partial_learning",
       "gaps": [
-        "Auto Thesis is evidence-grounded, but a canonical immutable thesis revision history with prior thesis, change reason and evidence delta is not present."
+        "Thesis revisions are now retained by evidence-hash change; outcome attribution and evidence-delta effectiveness are still partial."
       ],
       "evidence": {
         "symbols": 17,
+        "revision_rows": 17,
         "linked_direct_events": 27
       }
     },
@@ -237,11 +246,11 @@
       "persistent_history": "private_forward_ledger_plus_local_replay",
       "structured_analysis": true,
       "reusable_memory": true,
-      "outcome_feedback": true,
+      "outcome_feedback": false,
       "decision_context": true,
-      "learning_status": "learning_active",
+      "learning_status": "partial_learning",
       "gaps": [
-        "Forward maturity may still be sparse; this affects statistical confidence, not the existence of the learning loop."
+        "Pipeline exists, but Learning Active requires at least one real mature Forward outcome."
       ],
       "evidence": {
         "mode": "silent_forward",
@@ -318,24 +327,23 @@
       "domain": "official_sec_filings",
       "status": "partial_learning",
       "gaps": [
-        "Official Evidence keeps a recent filing snapshot per symbol rather than a canonical append-only filing archive.",
-        "No structured SEC XBRL financial-statement time series is present."
+        "Canonical SEC filing archive now preserves filing evidence, but full filing-to-thesis/outcome reuse remains partial."
       ]
     },
     {
       "domain": "financial_fundamentals_xbrl",
-      "status": "not_implemented",
+      "status": "partial_learning",
       "gaps": [
-        "No SEC XBRL/companyfacts ingestion found.",
-        "Revenue, margins, FCF, cash, debt, dilution and per-share fundamentals are not maintained as longitudinal learning series."
+        "SEC CompanyFacts/XBRL longitudinal fact memory is now present when the artifact has been built.",
+        "Derived quarter-over-quarter/YoY, thesis-change and future-outcome evaluation still need explicit closed-loop scoring."
       ]
     },
     {
       "domain": "news_event_evidence",
       "status": "partial_learning",
       "gaps": [
-        "Event Evidence keeps a small current news set per symbol; no append-only news/event archive is the canonical learning source.",
-        "Current news limits are appropriate for UI/current context but not for permanent learning retention."
+        "Canonical Event archive now preserves acquired news items; causal attribution and long-horizon reuse remain partial.",
+        "Current Top-N news stays a view, not the canonical learning store."
       ]
     },
     {
@@ -355,9 +363,9 @@
     },
     {
       "domain": "support_resistance_volatility",
-      "status": "context_only",
+      "status": "partial_learning",
       "gaps": [
-        "Support/Resistance and GARCH are calculated and reused by Options Opportunity, but their predictions/signals are not yet stored as dated observations with later outcome evaluation."
+        "Dated Support/GARCH observations are now retained; waiting for real 20-session outcomes to mature."
       ]
     },
     {
@@ -371,7 +379,7 @@
       "domain": "auto_thesis_revision_memory",
       "status": "partial_learning",
       "gaps": [
-        "Auto Thesis is evidence-grounded, but a canonical immutable thesis revision history with prior thesis, change reason and evidence delta is not present."
+        "Thesis revisions are now retained by evidence-hash change; outcome attribution and evidence-delta effectiveness are still partial."
       ]
     },
     {
@@ -379,6 +387,13 @@
       "status": "partial_learning",
       "gaps": [
         "Candidate/Shadow pipeline is governed and Forward-separated, but promotion remains intentionally locked until genuine forward evidence matures."
+      ]
+    },
+    {
+      "domain": "production_playbook_forward_replay",
+      "status": "partial_learning",
+      "gaps": [
+        "Pipeline exists, but Learning Active requires at least one real mature Forward outcome."
       ]
     },
     {
@@ -410,6 +425,14 @@
       ]
     }
   ],
+  "reconciliation": {
+    "captured": 1415,
+    "canonical": 1418,
+    "processed": 1415,
+    "backlog": 0,
+    "errors": 0,
+    "balanced": true
+  },
   "required_contract": {
     "canonical_storage": "append-only or sharded; no destructive record-count eviction",
     "learning_input": "complete canonical history or cursor-backed exhaustive processing",

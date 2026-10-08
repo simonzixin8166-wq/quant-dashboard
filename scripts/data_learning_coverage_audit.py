@@ -27,6 +27,15 @@ def load(rel, default=None):
 def exists(rel): return (ROOT/rel).exists()
 def count_map(x): return len(x) if isinstance(x,dict) else 0
 def count_list(x): return len(x) if isinstance(x,list) else 0
+def jsonl_rows(rel):
+    p=ROOT/rel
+    if not p.exists():return 0
+    paths=[p] if p.is_file() else list(p.glob("*.jsonl"))
+    total=0
+    for path in paths:
+        try:total+=sum(1 for line in path.read_text(encoding="utf-8").splitlines() if line.strip())
+        except Exception:pass
+    return total
 
 def row(domain, collected, persisted, structured, memory, outcomes, decision_context, status, gaps, evidence):
     return {
@@ -58,6 +67,7 @@ def build():
     breadth_hist=load("docs/research/breadth_intelligence_history.json")
     regime_hist=load("docs/research/regime_combination_history.json")
     support=load("docs/research/support_volatility_intelligence.json")
+    support_outcomes=load("docs/research/support_volatility_outcome_memory.json")
     optctx=load("docs/research/options_opportunity_context.json")
     server=load("docs/research/server_action_status.json")
     source_store=load("research/store/source_store.json")
@@ -114,21 +124,21 @@ def build():
           "partial_learning",
           ["History is now retained without hard row eviction, but the series are still young and lack mature outcome scoring."],
           {"cross_asset_history":count_list(cross_hist.get("records")),"breadth_history":count_list(breadth_hist.get("records")),"regime_history":count_list(regime_hist.get("records"))}),
-      row("support_resistance_volatility", bool(support), "current_research_artifact",
-          True, False, False, True,
-          "context_only",
-          ["Support/Resistance and GARCH are calculated and reused by Options Opportunity, but their predictions/signals are not yet stored as dated observations with later outcome evaluation."],
-          {"universe":support.get("universe")}),
+      row("support_resistance_volatility", bool(support), "append_only_observation_and_outcome_archive",
+          True, bool((support_outcomes.get("counts") or {}).get("observations")), bool((support_outcomes.get("counts") or {}).get("mature20")), True,
+          "learning_active" if int((support_outcomes.get("counts") or {}).get("mature20") or 0)>0 else "partial_learning",
+          ([] if int((support_outcomes.get("counts") or {}).get("mature20") or 0)>0 else ["Dated Support/GARCH observations are now retained; waiting for real 20-session outcomes to mature."]),
+          {"universe":support.get("universe"),"observations":(support_outcomes.get("counts") or {}).get("observations"),"mature20":(support_outcomes.get("counts") or {}).get("mature20"),"garch_mae_pct_points":(support_outcomes.get("metrics") or {}).get("garch_mae_pct_points")}),
       row("options_opportunity", bool(optctx), "current_research_artifact_plus_private_positions",
           True, bool(option_learning.get("observations")), bool(option_learning.get("mature_outcomes")), True,
           "partial_learning" if not option_learning.get("mature_outcomes") else "learning_active",
           ["Opportunity screening is research-only. Strategy candidate outcomes need persistent opportunity snapshots, rejected/no-trade cases, and later premium/assignment/MAE/MFE outcomes."],
           {"universe":optctx.get("universe"),"observations":option_learning.get("observations"),"mature_outcomes":option_learning.get("mature_outcomes")}),
-      row("auto_thesis_revision_memory", bool(thesis.get("symbols")), "current_draft_artifact",
-          True, True, bool(fsum.get("linked_direct_events")), True,
+      row("auto_thesis_revision_memory", bool(thesis.get("symbols")), "current_draft_plus_append_only_revision_history",
+          True, jsonl_rows("research/archive/thesis_revisions")>0, bool(fsum.get("linked_direct_events")), True,
           "partial_learning",
-          ["Auto Thesis is evidence-grounded, but a canonical immutable thesis revision history with prior thesis, change reason and evidence delta is not present."],
-          {"symbols":count_map(thesis.get("symbols")),"linked_direct_events":fsum.get("linked_direct_events")}),
+          ["Thesis revisions are now retained by evidence-hash change; outcome attribution and evidence-delta effectiveness are still partial."],
+          {"symbols":count_map(thesis.get("symbols")),"revision_rows":jsonl_rows("research/archive/thesis_revisions"),"linked_direct_events":fsum.get("linked_direct_events")}),
       row("candidate_shadow_forward", bool(candidate_forward or candidate_promotion), "candidate_registry_plus_forward_artifacts",
           True, True, bool((candidate_forward.get("counts") or {}).get("events") or (candidate_forward.get("summary") or {}).get("events")), True,
           "partial_learning",
@@ -167,7 +177,7 @@ def build():
     for x in rows:counts[x["learning_status"]]=counts.get(x["learning_status"],0)+1
     gaps=[{"domain":x["domain"],"status":x["learning_status"],"gaps":x["gaps"]} for x in rows if rank.get(x["learning_status"],0)<3]
     return {
-      "version":"1.3",
+      "version":"1.4",
       "generated_at":datetime.now(timezone.utc).isoformat(),
       "principle":"Collection success is not learning success. Permanent storage and learning inputs must not be record-count capped; only per-run processing and UI presentation may be bounded.",
       "counts":counts,

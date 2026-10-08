@@ -136,6 +136,22 @@ def fetch_feed():
 
     raise RuntimeError("research feed unavailable; fail closed: "+" | ".join(errors))
 
+def fetch_intake_completeness():
+    """Best-effort collector completeness status.
+
+    Feed availability is a hard dependency; this status is a governance input.
+    If unavailable, completeness remains unknown/false rather than being guessed.
+    """
+    try:
+        req=urllib.request.Request(INTAKE_STATUS_URL,headers={"User-Agent":"MyAlphaView/SourceIntelligence","Cache-Control":"no-cache"})
+        with urllib.request.urlopen(req,timeout=12) as resp:
+            data=json.loads(resp.read().decode("utf-8"))
+        if isinstance(data,dict):
+            return data
+    except Exception:
+        pass
+    return {"version":0,"complete":False,"status":"unavailable","reason":"collector_completeness_unavailable"}
+
 def fetch_youtube_learning_archive():
     try:
         req = urllib.request.Request(YOUTUBE_ARCHIVE_URL, headers={"User-Agent":"MyAlphaView/SourceIntelligence"})
@@ -675,6 +691,7 @@ def main():
     feed=fetch_feed()
     records=seed_brightline()+list(feed.get("records") or [])
     result=build(records,youtube_historical_learning=fetch_youtube_learning_archive())
+    result["collector_completeness"]=fetch_intake_completeness()
     current_count=int((result.get("counts") or {}).get("records") or 0)
     if previous_count and current_count < previous_count:
         raise RuntimeError(

@@ -58,6 +58,7 @@ def build():
     method=load("docs/research/method_memory.json")
     official=load("docs/research/official_evidence.json")
     fundamentals=load("docs/research/company_fundamental_memory.json")
+    fundamental_outcomes=load("docs/research/company_fundamental_outcome_memory.json")
     evidence_archive=load("research/archive/evidence_archive_manifest.json")
     events=load("docs/research/event_evidence.json")
     thesis=load("docs/research/auto_thesis_drafts.json")
@@ -108,11 +109,13 @@ def build():
           "partial_learning",
           ["Canonical SEC filing archive now preserves filing evidence, but full filing-to-thesis/outcome reuse remains partial."],
           {"symbols":count_map(official.get("symbols")),"filings":(official.get("counts") or {}).get("filings"),"archive_total":(evidence_archive.get("sec") or {}).get("total"),"linked_direct_events":fsum.get("linked_direct_events"),"mature_20":fsum.get("mature_20")}),
-      row("financial_fundamentals_xbrl", bool(fundamentals.get("symbols")), "sec_companyfacts_append_only_series",
-          bool((fundamentals.get("counts") or {}).get("archive_total")), True, False, False,
-          "partial_learning" if fundamentals.get("symbols") else "not_implemented",
-          ["SEC CompanyFacts/XBRL longitudinal fact memory is now present when the artifact has been built.","Derived quarter-over-quarter/YoY, thesis-change and future-outcome evaluation still need explicit closed-loop scoring."],
-          {"symbols":count_map(fundamentals.get("symbols")),"archive_total":(fundamentals.get("counts") or {}).get("archive_total"),"archive_added":(fundamentals.get("counts") or {}).get("archive_added")}),
+      row("financial_fundamentals_xbrl", bool(fundamentals.get("symbols")), "sec_companyfacts_append_only_series_plus_point_in_time_outcomes",
+          bool((fundamentals.get("counts") or {}).get("archive_total")), True,
+          int((fundamental_outcomes.get("counts") or {}).get("outcomes") or 0)>0,
+          True,
+          "learning_active" if int((fundamental_outcomes.get("counts") or {}).get("outcomes") or 0)>0 else ("partial_learning" if fundamentals.get("symbols") else "not_implemented"),
+          ([] if int((fundamental_outcomes.get("counts") or {}).get("outcomes") or 0)>0 else ["SEC CompanyFacts/XBRL longitudinal fact memory is present; waiting for point-in-time filing outcomes to mature."]),
+          {"symbols":count_map(fundamentals.get("symbols")),"archive_total":(fundamentals.get("counts") or {}).get("archive_total"),"archive_added":(fundamentals.get("counts") or {}).get("archive_added"),"filing_observations":(fundamental_outcomes.get("counts") or {}).get("observations"),"mature_outcomes":(fundamental_outcomes.get("counts") or {}).get("outcomes"),"horizons":fundamental_outcomes.get("horizons")}),
       row("news_event_evidence", bool(events.get("symbols")), "current_view_plus_append_only_monthly_archive",
           bool((evidence_archive.get("events") or {}).get("total")), True, bool(load("docs/research/event_window_attribution.json").get("rows")), True,
           "partial_learning",
@@ -184,7 +187,7 @@ def build():
     for x in rows:counts[x["learning_status"]]=counts.get(x["learning_status"],0)+1
     gaps=[{"domain":x["domain"],"status":x["learning_status"],"gaps":x["gaps"]} for x in rows if rank.get(x["learning_status"],0)<3]
     return {
-      "version":"1.8",
+      "version":"1.9",
       "generated_at":datetime.now(timezone.utc).isoformat(),
       "principle":"Collection success is not learning success. Permanent storage and learning inputs must not be record-count capped; only per-run processing and UI presentation may be bounded.",
       "counts":counts,

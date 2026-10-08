@@ -63,4 +63,8 @@ with tempfile.TemporaryDirectory() as td:
         assert len(m.SUPERSESSIONS.read_text(encoding="utf-8").splitlines())==1
     finally:
         m.OBS,m.OUTCOMES,m.OUT,m.SUPERSESSIONS=old_obs,old_out,old_summary,old_sup
+# The supersession audit trail must be committed by both writers of this archive.
+wf=(ROOT/".github"/"workflows"/"source-intelligence-validation.yml").read_text(encoding="utf-8")
+assert "git add research/archive/options_opportunity_supersessions.jsonl" in wf
+assert "git add docs/ research/archive/" in (ROOT/".github"/"workflows"/"daily.yml").read_text(encoding="utf-8")
 print("PASS options opportunity observation/outcome memory")

@@ -282,6 +282,11 @@ jobs:
       - name: Audit whole-site data learning coverage
         run: python scripts/data_learning_coverage_audit.py
 
+      - name: Build five-engine learning funnel contract (P3-12)
+        # Diagnostic measurement only; never blocks the dashboard publish.
+        continue-on-error: true
+        run: python scripts/learning_funnel_contract.py
+
       - name: Validate assistant market alert rules
         continue-on-error: true
         run: python scripts/backtest_assistant_rules.py --period 5y --skip-if-no-new-data
@@ -353,6 +358,7 @@ jobs:
           python tests/test_v690_learning_evaluation.py
           python tests/test_data_learning_coverage_audit.py
           python tests/test_coverage_truth.py
+          python tests/test_learning_funnel_contract.py
           python tests/test_v615_fundamental_outcome_context.py
           python tests/test_support_volatility_outcome_memory.py
           python tests/test_v690_ui_hardening.py

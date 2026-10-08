@@ -109,10 +109,12 @@ ys = e.year_stats([], fx, 2026, CFG, price=4000)
 assert ys["high"]["usdcny"] == 7.10 and ys["low"]["usdcny"] == 6.95 and ys["low_is_full_year_confirmed"] is False
 assert ys["drawdown_from_high_pct"] < -28
 
-# 6. DCA ¥5,000 at 4:2:4.
-split = e.dca_split(5000, DCA["weights"])
-assert [(x["symbol"], x["amount_cny"]) for x in split] == [("QQQM", 2000), ("QLD", 1000), ("VGT", 2000)]
-assert sum(x["amount_cny"] for x in split) == 5000
+# 6. DCA $5,000 (USD) at 4:2:4, always ordered QQQM / QLD / VGT even when jsonb reorders keys.
+split = e.dca_split(5000, {"QLD": 0.2, "VGT": 0.4, "QQQM": 0.4})
+assert [(x["symbol"], x["amount_usd"]) for x in split] == [("QQQM", 2000), ("QLD", 1000), ("VGT", 2000)]
+assert sum(x["amount_usd"] for x in split) == 5000
+msg = e.dca_message("DCA_DUE", {"amount_usd": 5000}, e.dca_window(2026, 10, DCA), split)
+assert "计划 $5,000：QQQM $2,000 / QLD $1,000 / VGT $2,000" in msg and "¥" not in msg
 
 # 7. Window: 7th–10th rolled to US sessions. 2026-11-07 is Saturday → due Mon 11-09.
 w = e.dca_window(2026, 11, DCA)

@@ -115,3 +115,13 @@ html[data-theme="dark"] .ias-state.buy,html[data-theme="dark"] .ias-advice.buy{b
 #iasDrawer .ias-form input,#iasDrawer .ias-form select{font-size:12.5px!important;padding:7px 9px!important;height:auto!important;min-height:34px!important;line-height:1.3!important;border-radius:7px!important}
 #iasDrawer .ias-form button{min-height:34px!important;font-size:11.5px!important;padding:7px 12px!important}
 #iasDrawer .ias-table th,#iasDrawer .ias-table td{text-align:left!important}
+/* 到达区间时的醒目提示（网站内提醒；不增加行数、不闪烁） */
+.ias-alert{font-size:12px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:2px 9px;border-radius:999px}
+.ias-alert.watch,.ias-alert.buy{color:#7a5600;background:#f6e6b8}
+.ias-alert.buy{background:#a87b14;color:#fff}
+.ias-alert.pause,.ias-alert.review{color:#9a3d00;background:#fde3bf}
+.ias-gold.watch .ias-mid strong,.ias-gold.buy .ias-mid strong{font-size:13.5px;font-weight:800;color:var(--ias-gold-strong)}
+.ias-gold.watch .ias-val,.ias-gold.buy .ias-val{color:var(--ias-gold-strong);font-weight:800}
+.ias-gold.pause .ias-mid strong{font-size:13.5px;font-weight:800}
+html[data-theme="dark"] .ias-alert.watch{background:rgba(212,170,70,.22);color:#e3bf62}
+@media(max-width:760px){.ias-alert{font-size:11px;max-width:62%}}

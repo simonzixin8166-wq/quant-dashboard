@@ -33,7 +33,9 @@ assert.equal(api.quoteFreshness(Date.parse('2026-10-09T20:55:00Z'), sat, true, {
 assert.equal(api.goldMarketOpen(new Date('2026-10-11T23:00:00Z')), true);
 // CNY/gram and DCA split.
 assert.equal(Math.round(api.cnyPerGram(4050, 6.703)), 873);
-assert.deepStrictEqual(api.dcaSplit(5000, { QQQM: .4, QLD: .2, VGT: .4 }).map(x => x.amount_cny), [2000, 1000, 2000]);
+// USD amounts, canonical order even when jsonb returns QLD/VGT/QQQM.
+assert.deepStrictEqual(api.dcaSplit(5000, { QLD: .2, VGT: .4, QQQM: .4 }).map(x => [x.symbol, x.amount_usd]), [['QQQM', 2000], ['QLD', 1000], ['VGT', 2000]]);
+assert.deepStrictEqual(Object.keys(api.orderedWeights({ QLD: .2, VGT: .4, QQQM: .4 })), ['QQQM', 'QLD', 'VGT']);
 const win = { month: '2026-10', due_date: '2026-10-07', window_end: '2026-10-12' };
 assert.equal(api.dcaLabel({ status: 'pending' }, win, '2026-10-06').key, 'upcoming');
 assert.equal(api.dcaLabel({ status: 'pending' }, win, '2026-10-08').text, '待执行');

@@ -267,13 +267,16 @@ jobs:
       - name: Build Options Opportunity Outcome Memory
         run: python scripts/options_opportunity_outcome_memory.py
 
-      - name: Audit whole-site data learning coverage
-        run: python scripts/data_learning_coverage_audit.py
-
       - name: Build autonomous system status
         env:
           GITHUB_TOKEN: ${{ github.token }}
         run: python scripts/system_status_center.py
+
+      - name: Build operational incident memory
+        run: python scripts/operational_incident_memory.py
+
+      - name: Audit whole-site data learning coverage
+        run: python scripts/data_learning_coverage_audit.py
 
       - name: Validate assistant market alert rules
         continue-on-error: true
@@ -384,7 +387,9 @@ jobs:
           git config user.name "github-actions"
           git config user.email "actions@github.com"
           git add docs/ research/archive/ research/store/source_store.json data/history/stooq_watchlist.zip
+          if [ -f docs/research/operational_incident_memory.json ]; then git add docs/research/operational_incident_memory.json; fi
           if [ -f research/store/operational_incident_state.json ]; then git add research/store/operational_incident_state.json; fi
+          if [ -f research/archive/operational_incidents.jsonl ]; then git add research/archive/operational_incidents.jsonl; fi
           if [ -f data/history/source_validation_history.zip ]; then git add data/history/source_validation_history.zip; fi
           git commit -m "Daily update $(date -u +%Y-%m-%d)" || echo "No changes"
           git pull --rebase origin main

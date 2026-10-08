@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "generated_at": "2026-10-08T03:56:21.781003+00:00",
+  "status": "learning_active",
+  "counts": {
+    "observations": 542,
+    "observations_added": 542,
+    "outcomes": 683,
+    "outcomes_added": 683
+  },
+  "horizons": {
+    "20": {
+      "n": 346,
+      "avg_return_pct": 2.316688584909931,
+      "positive_rate": 0.5491329479768786,
+      "avg_mae_pct": -8.494367413354349,
+      "avg_mfe_pct": 12.187538650329717
+    },
+    "60": {
+      "n": 337,
+      "avg_return_pct": 12.536883749706956,
+      "positive_rate": 0.629080118694362,
+      "avg_mae_pct": -13.30570079636445,
+      "avg_mfe_pct": 27.836475120375244
+    }
+  },
+  "guardrails": [
+    "All financial facts retain SEC filed-date availability; no later filing is allowed into an earlier observation.",
+    "Future-price evaluation starts strictly after filing date to avoid filing-time look-ahead.",
+    "This evaluates fundamental evidence/outcomes only and cannot mutate Production rules."
+  ]
+}

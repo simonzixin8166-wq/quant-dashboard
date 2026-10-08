@@ -1,10 +1,10 @@
 {
-  "version": "1.8",
-  "generated_at": "2026-10-08T03:55:02.245177+00:00",
+  "version": "1.9",
+  "generated_at": "2026-10-08T03:56:39.994528+00:00",
   "principle": "Collection success is not learning success. Permanent storage and learning inputs must not be record-count capped; only per-run processing and UI presentation may be bounded.",
   "counts": {
-    "learning_active": 2,
-    "partial_learning": 13,
+    "learning_active": 3,
+    "partial_learning": 12,
     "context_only": 1
   },
   "domains": [
@@ -70,20 +70,35 @@
     {
       "domain": "financial_fundamentals_xbrl",
       "collected": true,
-      "persistent_history": "sec_companyfacts_append_only_series",
+      "persistent_history": "sec_companyfacts_append_only_series_plus_point_in_time_outcomes",
       "structured_analysis": true,
       "reusable_memory": true,
-      "outcome_feedback": false,
-      "decision_context": false,
-      "learning_status": "partial_learning",
-      "gaps": [
-        "SEC CompanyFacts/XBRL longitudinal fact memory is now present when the artifact has been built.",
-        "Derived quarter-over-quarter/YoY, thesis-change and future-outcome evaluation still need explicit closed-loop scoring."
-      ],
+      "outcome_feedback": true,
+      "decision_context": true,
+      "learning_status": "learning_active",
+      "gaps": [],
       "evidence": {
         "symbols": 14,
         "archive_total": 15015,
-        "archive_added": 0
+        "archive_added": 0,
+        "filing_observations": 542,
+        "mature_outcomes": 683,
+        "horizons": {
+          "20": {
+            "n": 346,
+            "avg_return_pct": 2.316688584909931,
+            "positive_rate": 0.5491329479768786,
+            "avg_mae_pct": -8.494367413354349,
+            "avg_mfe_pct": 12.187538650329717
+          },
+          "60": {
+            "n": 337,
+            "avg_return_pct": 12.536883749706956,
+            "positive_rate": 0.629080118694362,
+            "avg_mae_pct": -13.30570079636445,
+            "avg_mfe_pct": 27.836475120375244
+          }
+        }
       }
     },
     {
@@ -336,14 +351,6 @@
       "status": "partial_learning",
       "gaps": [
         "Canonical SEC filing archive now preserves filing evidence, but full filing-to-thesis/outcome reuse remains partial."
-      ]
-    },
-    {
-      "domain": "financial_fundamentals_xbrl",
-      "status": "partial_learning",
-      "gaps": [
-        "SEC CompanyFacts/XBRL longitudinal fact memory is now present when the artifact has been built.",
-        "Derived quarter-over-quarter/YoY, thesis-change and future-outcome evaluation still need explicit closed-loop scoring."
       ]
     },
     {

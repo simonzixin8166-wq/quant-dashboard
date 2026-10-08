@@ -402,6 +402,7 @@ jobs:
           if [ -f research/store/operational_incident_state.json ]; then git add research/store/operational_incident_state.json; fi
           if [ -f research/archive/operational_incidents.jsonl ]; then git add research/archive/operational_incidents.jsonl; fi
           if [ -f data/history/source_validation_history.zip ]; then git add data/history/source_validation_history.zip; fi
+          if [ -f research/state/feed_id_ledger.json ]; then git add research/state/feed_id_ledger.json; fi
           git commit -m "Daily update $(date -u +%Y-%m-%d)" || echo "No changes"
           git pull --rebase origin main
           git push origin HEAD:main

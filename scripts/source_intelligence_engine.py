@@ -107,7 +107,56 @@ def _get_bytes(url, headers, timeout=20, attempts=3, sleep=None):
     raise last
 
 
-def validate_feed(payload, manifest=None, baseline=None):
+# Production requires a verified manifest (feed + manifest describing exactly the same bytes).
+# FEED_MANIFEST_LEGACY_OK=1 is only for replaying pre-manifest history.
+MANIFEST_REQUIRED = os.getenv("FEED_MANIFEST_LEGACY_OK") != "1"
+ID_LEDGER = ROOT / "research" / "state" / "feed_id_ledger.json"
+IMMUTABLE_FIELDS = ("id", "source", "source_kind", "author", "published_at", "url", "captured_at",
+                    "intake_class_hint", "capture_mode")
+
+
+def _empty(v):
+    return v is None or v == "" or v == [] or v == {}
+
+
+def provenance_digest(rec, keys=None):
+    """Digest over the non-empty immutable fields (or the given key set)."""
+    import hashlib
+    keys = sorted(keys if keys is not None else [k for k in IMMUTABLE_FIELDS if not _empty(rec.get(k))])
+    raw = json.dumps({k: rec.get(k) for k in keys}, ensure_ascii=False, sort_keys=True)
+    return keys, hashlib.sha1(raw.encode("utf-8")).hexdigest()[:16]
+
+
+def check_id_ledger(records, ledger):
+    """Every id seen before must still exist with unchanged provenance (fill-empty and explicit
+    revisions allowed). Returns (lost, rewritten)."""
+    by_id = {r.get("id"): r for r in records}
+    lost, rewritten = [], []
+    for rid, entry in ((ledger or {}).get("ids") or {}).items():
+        rec = by_id.get(rid)
+        if rec is None:
+            lost.append(rid)
+            continue
+        declared = set(((rec.get("revision") or {}).get("fields")) or [])
+        keys = [k for k in entry.get("k") or [] if k not in declared]
+        if keys != list(entry.get("k") or []):
+            continue  # an explicit revision of a provenance field supersedes the old digest
+        if provenance_digest(rec, keys)[1] != entry.get("d"):
+            rewritten.append(rid)
+    return lost, rewritten
+
+
+def update_id_ledger(records, ledger):
+    ids = dict((ledger or {}).get("ids") or {})
+    for r in records:
+        keys, d = provenance_digest(r)
+        prev = ids.get(r["id"])
+        if prev is None or len(keys) > len(prev.get("k") or []) or (r.get("revision") or {}).get("fields"):
+            ids[r["id"]] = {"k": keys, "d": d}
+    return {"version": 1, "record_count": len(ids), "ids": dict(sorted(ids.items()))}
+
+
+def validate_feed(payload, manifest=None, baseline=None, require_manifest=False, ledger=None):
     """Structural + manifest + append-only checks. Raises FeedIntegrityError; never repairs."""
     import hashlib
     try:
@@ -131,14 +180,22 @@ def validate_feed(payload, manifest=None, baseline=None):
             status = "verified"
         else:
             status = "stale"  # manifest from another snapshot; structural checks still apply
+    if require_manifest and status != "verified":
+        raise FeedIntegrityError(f"manifest_{status}")  # never silently use an unverified feed
     if baseline and len(records) < int(baseline):
         raise FeedIntegrityError(f"shrink:{baseline}->{len(records)}")
+    if ledger:
+        lost, rewritten = check_id_ledger(records, ledger)
+        if lost:
+            raise FeedIntegrityError(f"lost_ids:{len(lost)} e.g. {lost[:3]}")
+        if rewritten:
+            raise FeedIntegrityError(f"provenance_rewritten:{len(rewritten)} e.g. {rewritten[:3]}")
     feed["_integrity"] = {"record_count": len(records), "bytes": len(payload), "content_sha256": sha,
                           "manifest_status": status, "baseline": baseline}
     return feed
 
 
-def fetch_feed(baseline=None, get=None):
+def fetch_feed(baseline=None, get=None, require_manifest=None, ledger=None):
     """Fetch the complete upstream research feed with fail-closed semantics.
 
     raw.githubusercontent.com is the primary path because the Contents API omits inline
@@ -148,6 +205,7 @@ def fetch_feed(baseline=None, get=None):
     previous artifacts.
     """
     get = get or _get_bytes
+    require_manifest = MANIFEST_REQUIRED if require_manifest is None else require_manifest
     headers = {"User-Agent": "MyAlphaView/SourceIntelligence", "Cache-Control": "no-cache", "Pragma": "no-cache"}
     errors = []
     try:
@@ -158,7 +216,9 @@ def fetch_feed(baseline=None, get=None):
             manifest = json.loads(get(MANIFEST_URL + ("&" if "?" in MANIFEST_URL else "?") + bust, headers).decode("utf-8"))
         except Exception:
             manifest = None
-        data = validate_feed(payload, manifest, baseline)
+        # raw feed and raw manifest may come from different CDN snapshots: a stale/absent manifest
+        # here falls through to the pinned-commit blob path instead of being accepted.
+        data = validate_feed(payload, manifest, baseline, require_manifest, ledger)
         data["_fetch_path"] = "raw"
         return data
     except Exception as e:
@@ -185,7 +245,7 @@ def fetch_feed(baseline=None, get=None):
             raise RuntimeError("research_feed blob not found")
         mraw = blob("state/research_feed_manifest.json")
         manifest = json.loads(mraw.decode("utf-8")) if mraw else None
-        data = validate_feed(payload, manifest, baseline)
+        data = validate_feed(payload, manifest, baseline, require_manifest, ledger)
         data["_fetch_path"] = "git_blob"
         data["_integrity"]["commit"] = commit_sha
         return data
@@ -750,8 +810,9 @@ def main():
     previous=load(OUT,{})
     previous_count=int((previous.get("counts") or {}).get("records") or 0)
     baseline=(previous.get("feed_integrity") or {}).get("record_count")
+    ledger=load(ID_LEDGER,{})
     try:
-        feed=fetch_feed(baseline=baseline)
+        feed=fetch_feed(baseline=baseline,ledger=ledger)
     except Exception as exc:
         # Fail closed: write nothing, so the previous good artifacts stay in place.
         print(f"::error title=Research feed integrity::{exc}"[:900])
@@ -770,6 +831,10 @@ def main():
         )
     result["feed_fetch_path"]=feed.get("_fetch_path")
     result["feed_integrity"]=feed.get("_integrity")
+    new_ledger=update_id_ledger(feed.get("records") or [],ledger)
+    result["feed_integrity"]["id_ledger_records"]=new_ledger["record_count"]
+    ID_LEDGER.parent.mkdir(parents=True,exist_ok=True)
+    ID_LEDGER.write_text(json.dumps(new_ledger,ensure_ascii=False,separators=(",",":")),encoding="utf-8")
     OUT.parent.mkdir(parents=True,exist_ok=True)
     OUT.write_text(json.dumps(result,ensure_ascii=False,indent=2),encoding="utf-8")
     print(json.dumps(result["counts"],ensure_ascii=False))

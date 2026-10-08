@@ -118,7 +118,7 @@ with tempfile.TemporaryDirectory() as td:
     out.write_text(json.dumps({"counts": {"records": 5}, "feed_integrity": {"record_count": 700}}))
     before = out.read_text()
     si.OUT, real_fetch = out, si.fetch_feed
-    si.fetch_feed = lambda baseline=None, get=None: (_ for _ in ()).throw(RuntimeError("research feed unavailable; fail closed: x"))
+    si.fetch_feed = lambda baseline=None, get=None, **kw: (_ for _ in ()).throw(RuntimeError("research feed unavailable; fail closed: x"))
     try:
         try:
             si.main(); raise AssertionError("hard mode must raise")
@@ -130,5 +130,48 @@ with tempfile.TemporaryDirectory() as td:
     finally:
         os.environ.pop("SOURCE_FEED_SOFT_FAIL", None)
         si.fetch_feed = real_fetch
+
+# 10. Strict production: a raw feed whose manifest is stale/absent is NOT accepted; the pinned
+#     commit pair must verify, otherwise fail closed.
+STALE_MAN = json.dumps({"feed_updated_at": "2026-10-07T00:00:00Z", "record_count": 1, "content_sha256": "x"}).encode()
+d = si.fetch_feed(require_manifest=True, get=Net({"raw.githubusercontent.com/simonzixin8166-wq/wxc-bot/main/state/research_feed_manifest": STALE_MAN,
+                                                  "raw.githubusercontent.com/simonzixin8166-wq/wxc-bot/main/state/research_feed.json": GOOD,
+                                                  **blob_routes(GOOD)}))
+assert d["_fetch_path"] == "git_blob" and d["_integrity"]["manifest_status"] == "verified"
+try:
+    si.fetch_feed(require_manifest=True, get=Net({"raw.githubusercontent.com/simonzixin8166-wq/wxc-bot/main/state/research_feed.json": GOOD,
+                                                  **blob_routes(GOOD, man=None)}))
+    raise AssertionError("no verifiable manifest anywhere must fail closed")
+except RuntimeError as e:
+    assert "manifest_absent" in str(e)
+# Cross-commit mismatch: blob manifest from another commit (same ts, other sha) -> rejected.
+other = manifest_for(feed_bytes(700, extra=[{"id": "zz"}]))
+other = json.dumps(dict(json.loads(other), feed_updated_at="2026-10-08T00:00:00Z")).encode()
+try:
+    si.fetch_feed(require_manifest=True, get=Net({"raw.githubusercontent.com": urllib.error.URLError("down"), **blob_routes(GOOD, other)}))
+    raise AssertionError("cross-commit manifest must fail")
+except RuntimeError as e:
+    assert "manifest_mismatch" in str(e)
+
+# 11. Record-level append-only via the id ledger.
+recs = json.loads(GOOD)["records"]
+for r in recs[:3]:
+    r.update({"author": "a", "url": f"https://x/{r['id']}", "captured_at": "2026-10-01T00:00:00Z"})
+ledger = si.update_id_ledger(recs, {})
+swap = recs[:-1] + [{"id": "new1"}]  # same count, one id lost
+assert si.check_id_ledger(swap, ledger)[0] == [recs[-1]["id"]]
+tamper = [dict(recs[0], url="https://evil")] + recs[1:]
+assert si.check_id_ledger(tamper, ledger)[1] == [recs[0]["id"]]
+filled = [dict(recs[3], intake_class_hint="backfill")] + recs[:3] + recs[4:]
+assert si.check_id_ledger(filled, ledger) == ([], [])  # filling an empty field is fine
+revised = [dict(recs[0], url="https://fixed", revision={"fields": ["url"], "reason": "redirect"})] + recs[1:]
+assert si.check_id_ledger(revised, ledger) == ([], [])
+pay = json.dumps({"version": 1, "updated_at": "u", "records": tamper}).encode()
+try:
+    si.validate_feed(pay, ledger=ledger); raise AssertionError("rewrite must fail")
+except si.FeedIntegrityError as e:
+    assert "provenance_rewritten" in str(e)
+nl = si.update_id_ledger(filled, ledger)
+assert nl["record_count"] == len(recs) and nl["ids"][recs[3]["id"]]["k"].count("intake_class_hint") == 1
 
 print("PASS P2-11 consumer: >1MiB raw/blob, manifest verify, shrink/dup guard, retry, fail-closed keeps last good")

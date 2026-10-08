@@ -885,6 +885,16 @@ def main(argv=None):
                   f"errors={d.get('errors') or d.get('fallback_errors') or d.get('error') or d.get('basis_adjust_error')}")
         print("::notice title=Investment watch source probe::etf " + json.dumps(
             {k: (v.get('price'), v.get('currency'), v.get('error')) for k, v in data['etf'].items()}))
+        st, _, ev = build_status(data, cfg, dca_cfg, {}, at)  # dry run: nothing written or sent
+        g = st["gold"]
+        print("::notice title=Investment watch dry run::" + json.dumps({
+            "state": g["state"], "zone": g["zone"], "stage": g["stage"], "price": g["quote"]["price"],
+            "freshness": g["quote"]["freshness"], "cny_per_gram": g["cny_per_gram"], "fx": g["fx"]["usdcny"],
+            "reasons": g["reasons"], "blockers": g["blockers"], "pause_met": g["rules"]["pause"]["met"],
+            "ry_bp_5d": g["rules"]["pause"]["ry_change_bp_5d"], "dxy_pct_5d": g["rules"]["pause"]["dxy_change_pct_5d"],
+            "confirmation": g["rules"]["confirmation"].get("detail"), "year_high": g["year_stats"].get("high"),
+            "year_low": g["year_stats"].get("low"), "events_if_first_run": ev,
+            "dca_window": st["dca_calendar"]["months"][0]}, ensure_ascii=False))
         return 0
     prev = load_json(OUT)
     status, decision, events = build_status(data, cfg, dca_cfg, prev, at)

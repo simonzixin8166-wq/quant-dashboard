@@ -22,6 +22,7 @@ sys.path.insert(0,str(ROOT/"scripts"))
 from source_intelligence_engine import collect_full_records,collect_full_records_with_accounting
 from evaluation_spec import load_spec
 from local_history_agent import read_archive
+from trading_calendar import next_session
 
 def load(path,default):
     try:return json.loads(path.read_text(encoding="utf-8"))
@@ -118,9 +119,12 @@ def market_session_dates():
     return _MARKET_SESSION_DATES
 
 def first_session_open_after_publication(pub_date):
+    """Use the deterministic exchange calendar, never the lagging price archive.
+
+    A stale local archive must not make a late-discovered article look Forward.
+    """
     try:
-        next_day=next((d for d in market_session_dates() if d>pub_date),None)
-        if next_day is None:return None
+        next_day=next_session(pub_date)
         eastern=ZoneInfo("America/New_York")
         return datetime.combine(next_day,time(9,30),tzinfo=eastern).astimezone(timezone.utc)
     except Exception:
@@ -253,6 +257,16 @@ def migrate_sources(source,prior=None,now=None,full_records=None,upstream_accoun
             )
             ingest_type=prev.get("ingest_type") or "initial_migration"
             admission_origin=prev.get("admission_origin") or "legacy_persisted_record"
+            # Fail-closed correction only: an existing forward classification
+            # may be demoted when its real first observation was already after
+            # the first tradable session following publication. Never promote
+            # historical/backfill rows here.
+            if admission_class=="genuine_forward":
+                veto,_=late_discovery_veto(r,ts,prev.get("first_fetched_at") or now,spec)
+                if veto:
+                    admission_class="late_discovery"
+                    ingest_type="backfill_ingest"
+                    admission_origin="corrected_late_discovery_exchange_calendar"
             identity_parent_source_key=prev.get("identity_parent_source_key")
             first_source=prev
         elif inherited and not ambiguous:

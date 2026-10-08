@@ -66,7 +66,7 @@ function goldView(status,live,nowMs=Date.now()){
  if(zone==='breakout')return{...base,state:'REVIEW',review_kind:'BREAKOUT_REVIEW',reasons:['突破 $4,275：趋势复核，不追高']};
  if(zone==='below_plan')return{...base,state:'REVIEW',review_kind:'BELOW_PLAN',reasons:['跌破全部计划档位：不机械越跌越买，等待复核']};
  if(zone==='above_plan')return{...base,state:'WAIT'};
- const serverBuy=g.state==='BUY'&&g.stage===stage?.stage&&serverAgeH<=2&&basis==='spot'&&['LIVE','DELAYED'].includes(fresh);
+ const serverBuy=g.state==='BUY'&&g.buy_data_gate?.trusted_spot_daily===true&&g.stage===stage?.stage&&serverAgeH<=2&&basis==='spot'&&['LIVE','DELAYED'].includes(fresh);
  if(serverBuy)return{...base,state:'BUY'};
  const blockers=g.state==='WATCH'&&g.stage===stage?.stage?g.blockers:['等待服务端按最新日线/宏观数据确认'];
  return{...base,state:'WATCH',blockers};
@@ -217,7 +217,7 @@ function goldDrawer(){
   const etf=Object.entries(g.etf_quotes||{}).filter(([,q])=>q.price).map(([k,q])=>`${k} ${q.price} ${q.currency||''}`).join(' · ');
   advice=`<section class="ias-advice buy"><h4>BUY · 第${st.stage}阶段</h4><p>黄金现货 ${usd(v.price,2)}；第${st.stage}档条件已确认。建议投入黄金预算的 <b>${st.budget_pct}%</b>${amt!==null?`，约 <b>${usd(amt)}</b>`:'（未设置黄金预算，不输出金额）'}${ex.stages.has(st.stage)?'；<b>本档已记录执行，不重复扣减</b>':''}。</p><p>理由：${esc(v.reasons.join('；'))}</p><p>ETF 最新有效报价：${esc(etf||'暂缺')}</p><p>${nb?`下一档观察：${usd(nb.max)}–${Number(nb.min).toLocaleString('en-US')}`:'已是最后一档'} · 数据时间 ${esc(t)}</p></section>`;
  }else if(v.state==='WATCH'){
-  advice=`<section class="ias-advice watch"><h4>已进入观察区 · 第${esc(v.stage?.stage)}档（计划 ${esc(v.stage?.budget_pct)}%）</h4><p>尚未满足 BUY：${esc((v.blockers||[]).join('；')||'等待确认')}</p><p>此时不建议仅凭到价买入；条件确认后首页会升级为 BUY。</p></section>`;
+  advice=`<section class="ias-advice watch"><h4>已进入观察区 · 第${esc(v.stage?.stage)}档（计划 ${esc(v.stage?.budget_pct)}%）</h4><p>尚未满足 BUY：${esc((v.blockers||[]).join('；')||'等待确认')}</p><p>此时不建议仅凭到价买入；条件确认后首页会升级为 BUY。${g.buy_data_gate&&g.buy_data_gate.trusted_spot_daily===false?'<br><b>数据门控：</b>目前没有可信的现货日线（仅期货估算），本系统在此情况下最多提示 WATCH，不生成 BUY。':''}</p></section>`;
  }else if(v.state==='PAUSE'||v.state==='REVIEW'){
   advice=`<section class="ias-advice pause"><h4>${esc(STATE_LABEL[v.state])}${v.review_kind?' · '+esc(v.review_kind):''}</h4><p>${esc(v.reasons.join('；'))}</p><p>风险暂停优先于价格买入信号，直到风险重新评估通过。</p></section>`;
  }else if(v.state==='DATA_STALE'){
@@ -234,7 +234,7 @@ function goldDrawer(){
  <p class="ias-note">止跌/趋势：${esc(conf.detail||'—')}${conf.as_of?`（日线 ${esc(conf.as_of)}）`:''} · 深度复核：${dr.triggered?'已触发':'未触发'} · 全球黄金 ETF 资金流：无免费可靠数据源，暂不参与判断</p>
  <h4 class="ias-h">ETF / ETC 最新报价</h4><ul class="ias-etf">${etfList||'<li>暂缺</li>'}</ul>
  <h4 class="ias-h">我的执行</h4>${priv}
- <p class="ias-foot">数据：${esc(g.quote?.source||'')} / ${esc(g.inputs?.daily?.source||'')} / ${esc(g.inputs?.real_yield?.source||'')} / ${esc(g.inputs?.dxy?.source||'')} · 规则生成 ${esc(s?.generated_at?new Date(s.generated_at).toLocaleString():'—')}。档位为用户确认的初始资金规划，未经回测验证为支撑位；仅研究与购买提醒，绝不自动下单。</p>`;
+ <p class="ias-foot">数据：${esc(g.quote?.source||'')} / ${esc(g.inputs?.daily?.source||'')} / ${esc(g.inputs?.real_yield?.source||'')} / ${esc(g.inputs?.dxy?.source||'')} · 规则生成 ${esc(s?.generated_at?new Date(s.generated_at).toLocaleString():'—')}。档位为用户确认的初始资金规划，未经回测验证为支撑位；仅研究与购买提醒，绝不自动下单。<br>提醒方式：仅在打开本网站时可见（首页高亮与标签页标题）；当前未启用离线推送，关闭网站后不能依赖它做即时到价提醒。</p>`;
 }
 function dcaDrawer(){
  const s=state.settings,plan=state.plan,win=currentWindow(),today=shanghaiDate(),q=state.status?.dca_calendar?.quotes||{};

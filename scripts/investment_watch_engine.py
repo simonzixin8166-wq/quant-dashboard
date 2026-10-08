@@ -33,7 +33,9 @@ OZ_GRAMS = 31.1034768
 ET = ZoneInfo("America/New_York")
 SH = ZoneInfo("Asia/Shanghai")
 UA = {"User-Agent": "Mozilla/5.0 MyAlpha-Investment-Watch", "Accept": "application/json,text/csv,*/*"}
-VERSION = "6.11-p1"
+VERSION = "6.11-p2"
+# Daily-bar bases trusted to generate BUY. Futures-derived estimates are deliberately excluded.
+TRUSTED_SPOT_DAILY_BASES = frozenset({"spot"})
 HORIZONS = (20, 60, 120)
 
 
@@ -833,9 +835,17 @@ def build_status(data, cfg, dca_cfg, prev, at):
     if live.get("basis") == "futures_proxy" and decision["state"] == "BUY":
         decision["state"] = "WATCH"
         decision.setdefault("blockers", []).append("仅有期货代理报价，非现货：不生成 BUY")
-    if data["daily"].get("basis") == "futures_proxy" and decision["state"] == "BUY":
+    # Source-quality gate (GPT review 2026-10-08): a real-money BUY needs a *trusted spot daily*
+    # series. A constant futures−spot basis shift cannot prove each day's spot close/low/high,
+    # so estimated or proxy daily bars cap the state at WATCH (risk states are unaffected).
+    trusted_daily = data["daily"].get("basis") in TRUSTED_SPOT_DAILY_BASES
+    buy_gate = {"trusted_spot_daily": trusted_daily, "daily_basis": data["daily"].get("basis"),
+                "rule": "BUY 仅在可信现货日线下生成；估算/代理日线最多 WATCH"}
+    if not trusted_daily and decision["state"] == "BUY":
         decision["state"] = "WATCH"
-        decision.setdefault("blockers", []).append("日线仅有未校正的期货代理：不生成 BUY")
+        decision.setdefault("blockers", []).append(
+            "缺少可信现货日线（当前为期货代理/估算）：只提示观察，不生成 BUY")
+        buy_gate["downgraded_buy"] = True
     fx_rows = data["fx"].get("rows", [])
     usdcny = data["fx"].get("live") or (fx_rows[-1]["close"] if fx_rows else None)
     fx_at = data["fx"].get("live_at") or (fx_rows[-1]["date"] if fx_rows else None)
@@ -858,6 +868,7 @@ def build_status(data, cfg, dca_cfg, prev, at):
             "reasons": decision.get("reasons", []),
             "blockers": decision.get("blockers", []),
             "next_band": {"min": nb["min"], "max": nb["max"], "stage": nb["stage"]} if nb else None,
+            "buy_data_gate": buy_gate,
             "quote": {
                 "price": rnd(price), "basis": live.get("basis"), "source": live.get("source"),
                 "as_of": live.get("as_of"), "freshness": fresh, "age_minutes": rnd(age, 1),

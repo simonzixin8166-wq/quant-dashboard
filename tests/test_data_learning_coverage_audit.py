@@ -25,7 +25,9 @@ mature_n=sum(int(v or 0) for v in mature.values()) if isinstance(mature,dict) el
 assert rows["production_playbook_forward_replay"]["learning_status"]==("learning_active" if mature_n>0 else "partial_learning")
 assert rows["production_playbook_forward_replay"]["outcome"] is (mature_n>0)
 assert rows["regional_cn_hk_learning"]["learning_status"]=="context_only"
-assert rows["financial_fundamentals_xbrl"]["learning_status"]=="not_implemented"
+assert rows["financial_fundamentals_xbrl"]["learning_status"] in {"not_implemented","partial_learning"}
+if rows["financial_fundamentals_xbrl"]["collected"]:
+    assert rows["financial_fundamentals_xbrl"]["learning_status"]=="partial_learning"
 assert rows["official_sec_filings"]["learning_status"] in {"partial_learning","learning_active"}
 assert "canonical_storage" in out["required_contract"]
 assert "reconciliation" in out["required_contract"]

@@ -161,8 +161,11 @@ def build(reading,source,prior=None,now=None,source_store=None):
             elif meta.get("admission_class")=="genuine_forward" and meta.get("timestamp_confidence")=="high" and prior_obs is None:
                 extraction_mode="forward_initial"
                 forward_eligible=True
+            elif meta.get("admission_class")=="genuine_forward" and meta.get("timestamp_confidence")=="high":
+                extraction_mode="retroactive"
+                forward_eligible=False
             elif meta.get("admission_class")=="genuine_forward":
-                extraction_mode="retroactive_or_unverified_timestamp"
+                extraction_mode="unverified_timestamp"
                 forward_eligible=False
             else:
                 extraction_mode="historical_or_nonforward"

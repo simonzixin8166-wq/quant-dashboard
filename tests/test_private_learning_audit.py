@@ -1,5 +1,6 @@
 """Private learning audit emits aggregates only and detects integrity problems."""
 from __future__ import annotations
+import json
 import importlib.util, json
 from pathlib import Path
 
@@ -32,6 +33,9 @@ text = "\n".join(pla.annotation_lines(out))
 for s in SECRETS:
     assert s not in text, s
 assert text.startswith("::notice title=MyAlpha private learning audit (aggregate only)::PRIVATE_LEARNING_AUDIT {")
+# Public annotations carry PASS/FAIL only: no counts that could reveal private positions/decisions.
+pub = json.loads(text.split("PRIVATE_LEARNING_AUDIT ", 1)[1].split("\n")[0])
+assert set(pub) <= set(pla.PUBLIC_KEYS) and not any(isinstance(v, int) for v in pub.values()), pub
 
 # Consecutive duplicate state (daily delta noise recorded as a new sample) is detected.
 dup = clean + [obs(5, 9001, "a", 4242, "2026-10-09T00:00Z")]

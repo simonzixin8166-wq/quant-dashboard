@@ -122,8 +122,16 @@ def assert_sanitized(out):
             raise ValueError(f"unsanitized value for {k}")
 
 
+PUBLIC_KEYS = ("credentials", "check_account_isolation", "check_consecutive_dedup", "check_outcome_independence", "overall")
+
+
+def public_view(out):
+    """Annotations and step summaries are public on a public repo: PASS/FAIL only, no counts."""
+    return {k: out[k] for k in PUBLIC_KEYS if k in out}
+
+
 def annotation_lines(out):
-    body = "PRIVATE_LEARNING_AUDIT " + json.dumps(out, sort_keys=True, separators=(",", ":"))
+    body = "PRIVATE_LEARNING_AUDIT " + json.dumps(public_view(out), sort_keys=True, separators=(",", ":"))
     lines = [f"::notice title=MyAlpha private learning audit (aggregate only)::{body}"]
     if out.get("overall") == "FAIL":
         failing = [k for k in ("check_account_isolation", "check_consecutive_dedup") if out.get(k) == "FAIL"]
@@ -145,7 +153,7 @@ def main():
     summary = os.getenv("GITHUB_STEP_SUMMARY")
     if summary:
         with open(summary, "a", encoding="utf-8") as f:
-            f.write("### Private learning audit (aggregate only)\n\n```json\n" + json.dumps(out, indent=2, sort_keys=True) + "\n```\n")
+            f.write("### Private learning audit (PASS/FAIL only)\n\n```json\n" + json.dumps(public_view(out), indent=2, sort_keys=True) + "\n```\n")
     return 0
 
 

@@ -136,4 +136,7 @@ assert '"Server Action Watch"' in qa_wf
 qa = (ROOT / "scripts" / "autonomous_site_qa.mjs").read_text(encoding="utf-8")
 assert "serverMarketAsOf===expected" in qa and "&&serverCurrent" in qa
 
+# Privacy minimisation: private-derived counts are presence-only in the public snapshot.
+assert sa.presence(0) == 0 and sa.presence(3) == 1 and sa.presence(None) == 0
+assert sa.presence_map({"persisted": 7, "attributed": 0}, ("persisted", "with_user_action", "attributed")) == {"persisted": 1, "with_user_action": 0, "attributed": 0}
 print("PASS Issue #134 server action snapshot freshness / fail-closed / privacy")

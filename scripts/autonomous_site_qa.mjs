@@ -134,8 +134,12 @@ try{
       system_status_age_hours:Number.isFinite(statusAgeHours)?Number(statusAgeHours.toFixed(2)):null
     };
     const unknown=Number(server?.action_counts?.unknown||0);
-    const serverOk=['clear','action_required'].includes(String(server?.status||''))&&unknown===0&&server?.data_trust?.ok===true;
-    report.server_action={status:serverOk?'PASS':'FAIL',server_status:server?.status||'unknown',unknown_actions:unknown,data_trust_ok:server?.data_trust?.ok===true,last_checked_at:server?.last_checked_at||server?.generated_at||null};
+    // The server snapshot must have judged the same completed session the site shows;
+    // an older "clear" snapshot is stale evidence, not a current judgment.
+    const serverMarketAsOf=String(server?.data_trust?.market_as_of||'');
+    const serverCurrent=Boolean(expected)&&serverMarketAsOf===expected;
+    const serverOk=['clear','action_required'].includes(String(server?.status||''))&&unknown===0&&server?.data_trust?.ok===true&&serverCurrent;
+    report.server_action={status:serverOk?'PASS':'FAIL',server_status:server?.status||'unknown',judgment_basis:server?.judgment_basis||null,unknown_actions:unknown,data_trust_ok:server?.data_trust?.ok===true,server_market_as_of:serverMarketAsOf||null,server_snapshot_current:serverCurrent,last_checked_at:server?.last_checked_at||server?.generated_at||null};
   }else{
     report.business_data={status:'FAIL',error:`status ${sr.status}/${dr.status}/${ar.status}`};
     report.server_action={status:'FAIL',error:'server action status unavailable'};

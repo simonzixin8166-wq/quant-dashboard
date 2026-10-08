@@ -157,6 +157,25 @@ def system_trust(now=None):
         "system_status_age_hours":None if age_hours is None else round(age_hours,2),
     }
 
+def judgment_basis(trust, credentials_configured=True, actions=None):
+    """Why the sanitized status is what it is.
+
+    Separates "the server never evaluated positions" (missing private
+    credentials) from "positions were evaluated against stale/untrusted market
+    data". Neither case may be presented as a judgment; both stay cannot_judge.
+    """
+    trust=trust or {}
+    if not credentials_configured:
+        return "credentials_not_configured"
+    market_as_of=trust.get("market_as_of")
+    if not market_as_of or market_as_of!=trust.get("expected_market_date"):
+        return "market_data_stale"
+    if not trust.get("ok"):
+        return "system_status_untrusted"
+    if any((a or {}).get("level")=="unknown" for a in (actions or [])):
+        return "position_quote_unknown"
+    return "evaluated"
+
 def thesis_review_actions(notes):
     drafts=(load(AUTO_THESIS).get("symbols") or {})
     out=[]
@@ -248,7 +267,8 @@ def build():
     operator_rows=supabase_rows("operator_decisions")
     usage_rows.append({"provider":"supabase","request_kind":"operator_decisions_read","request_count":1,"paid":False,"source":"server_action_engine"})
     if positions is None:
-        return {"status":"cannot_judge","trust":trust,"reason":"Supabase credentials unavailable","actions":[],"quote_failures":0}
+        return {"status":"cannot_judge","trust":trust,"reason":"Supabase credentials unavailable","actions":[],"quote_failures":0,
+                "judgment_basis":judgment_basis(trust,credentials_configured=False)}
     open_rows=[p for p in positions if str(p.get("status") or "open") in {"open","pending_settlement"}]
     events=upcoming_events(48);actions=[];quote_failures=0;learning_rows=[]
     latest_states=latest_option_states(learning_observations or [])
@@ -295,7 +315,8 @@ def build():
     operator_total=len(operator_rows or [])
     operator_attributed=sum(1 for x in (operator_rows or []) if x.get("attribution") not in {None,"","pending"})
     operator_actions=sum(1 for x in (operator_rows or []) if x.get("user_action") not in {None,"","unrecorded"})
-    return {"status":status,"trust":trust,"positions_checked":len(open_rows),"event_count_48h":len(events),"actions":actions,"quote_failures":quote_failures,
+    return {"status":status,"trust":trust,"judgment_basis":judgment_basis(trust,True,actions),
+            "positions_checked":len(open_rows),"event_count_48h":len(events),"actions":actions,"quote_failures":quote_failures,
             "option_learning":{"observations":learning_rows_count,"mature_outcomes":mature_outcomes},
             "decision_learning":{"persisted":operator_total,"with_user_action":operator_actions,"attributed":operator_attributed}}
 
@@ -344,6 +365,7 @@ def main():
       "generated_at":checked_at.isoformat(),
       "last_checked_at":checked_at.isoformat(),
       "status":result["status"],
+      "judgment_basis":result.get("judgment_basis") or judgment_basis(result.get("trust")),
       "positions_checked":result.get("positions_checked",0),
       "action_counts":{
         "l3":sum(1 for x in result["actions"] if x["level"]=="l3"),
@@ -361,7 +383,7 @@ def main():
       "privacy":"sanitized public summary only; symbols/accounts/private position details are never written here",
     }
     PUBLIC_OUT.parent.mkdir(parents=True,exist_ok=True)
-    same=bool(previous and previous.get("alert_fingerprint")==fp and previous.get("status")==public.get("status") and previous.get("action_counts")==public.get("action_counts") and previous.get("option_learning")==public.get("option_learning") and previous.get("decision_learning")==public.get("decision_learning") and stable_trust(previous.get("data_trust"))==stable_trust(public.get("data_trust")))
+    same=bool(previous and previous.get("alert_fingerprint")==fp and previous.get("status")==public.get("status") and previous.get("judgment_basis")==public.get("judgment_basis") and previous.get("action_counts")==public.get("action_counts") and previous.get("option_learning")==public.get("option_learning") and previous.get("decision_learning")==public.get("decision_learning") and stable_trust(previous.get("data_trust"))==stable_trust(public.get("data_trust")))
     if same:
         prior_checked=parse_dt(previous.get("last_checked_at") or previous.get("generated_at"))
         if prior_checked and checked_at-prior_checked<timedelta(hours=6):

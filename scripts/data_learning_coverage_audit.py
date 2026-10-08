@@ -61,6 +61,7 @@ def build():
     fundamental_outcomes=load("docs/research/company_fundamental_outcome_memory.json")
     evidence_archive=load("research/archive/evidence_archive_manifest.json")
     events=load("docs/research/event_evidence.json")
+    event_outcomes=load("docs/research/event_outcome_memory.json")
     thesis=load("docs/research/auto_thesis_drafts.json")
     fundamental=load("docs/research/fundamental_outcome_context.json")
     macro=load("docs/research/macro_context.json")
@@ -119,11 +120,13 @@ def build():
           "learning_active" if int((fundamental_outcomes.get("counts") or {}).get("outcomes") or 0)>0 else ("partial_learning" if fundamentals.get("symbols") else "not_implemented"),
           ([] if int((fundamental_outcomes.get("counts") or {}).get("outcomes") or 0)>0 else ["SEC CompanyFacts/XBRL longitudinal fact memory is present; waiting for point-in-time filing outcomes to mature."]),
           {"symbols":count_map(fundamentals.get("symbols")),"archive_total":(fundamentals.get("counts") or {}).get("archive_total"),"archive_added":(fundamentals.get("counts") or {}).get("archive_added"),"filing_observations":(fundamental_outcomes.get("counts") or {}).get("observations"),"mature_outcomes":(fundamental_outcomes.get("counts") or {}).get("outcomes"),"horizons":fundamental_outcomes.get("horizons")}),
-      row("news_event_evidence", bool(events.get("symbols")), "current_view_plus_append_only_monthly_archive",
-          bool((evidence_archive.get("events") or {}).get("total")), True, bool(load("docs/research/event_window_attribution.json").get("rows")), True,
-          "partial_learning",
-          ["Canonical Event archive now preserves acquired news items; causal attribution and long-horizon reuse remain partial.","Current Top-N news stays a view, not the canonical learning store."],
-          {"symbols":count_map(events.get("symbols")),"news_items":(events.get("counts") or {}).get("news_items"),"archive_total":(evidence_archive.get("events") or {}).get("total"),"event_window_rows":count_list(load("docs/research/event_window_attribution.json").get("rows"))}),
+      row("news_event_evidence", bool(events.get("symbols")), "current_view_plus_append_only_archive_plus_benchmark_adjusted_outcomes",
+          bool((evidence_archive.get("events") or {}).get("total")), True,
+          int((event_outcomes.get("counts") or {}).get("outcomes") or 0)>0,
+          True,
+          "learning_active" if int((event_outcomes.get("counts") or {}).get("outcomes") or 0)>0 else "partial_learning",
+          ([] if int((event_outcomes.get("counts") or {}).get("outcomes") or 0)>0 else ["Canonical Event archive is retained; waiting for 5/20/60 benchmark-adjusted outcomes to mature."]),
+          {"symbols":count_map(events.get("symbols")),"news_items":(events.get("counts") or {}).get("news_items"),"archive_total":(evidence_archive.get("events") or {}).get("total"),"event_window_rows":count_list(load("docs/research/event_window_attribution.json").get("rows")),"mature_outcomes":(event_outcomes.get("counts") or {}).get("outcomes"),"benchmark":event_outcomes.get("benchmark"),"horizons":event_outcomes.get("horizons")}),
       row("macro_fred_alfred", bool(macro), "point_in_time_context_plus_macro_regime_outcome_memory",
           True, True, bool((macro_outcomes.get("counts") or {}).get("outcomes")), True,
           "learning_active" if int((macro_outcomes.get("counts") or {}).get("outcomes") or 0)>0 else "partial_learning",
@@ -190,7 +193,7 @@ def build():
     for x in rows:counts[x["learning_status"]]=counts.get(x["learning_status"],0)+1
     gaps=[{"domain":x["domain"],"status":x["learning_status"],"gaps":x["gaps"]} for x in rows if rank.get(x["learning_status"],0)<3]
     return {
-      "version":"1.9",
+      "version":"2.0",
       "generated_at":datetime.now(timezone.utc).isoformat(),
       "principle":"Collection success is not learning success. Permanent storage and learning inputs must not be record-count capped; only per-run processing and UI presentation may be bounded.",
       "counts":counts,

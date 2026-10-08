@@ -384,6 +384,9 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         run: python scripts/system_status_center.py
 
+      - name: Build operational incident memory
+        run: python scripts/operational_incident_memory.py
+
       - name: Build autonomous intelligence master status
         run: python scripts/autonomous_intelligence_status.py
 

@@ -73,6 +73,7 @@ def build():
     support=load("docs/research/support_volatility_intelligence.json")
     support_outcomes=load("docs/research/support_volatility_outcome_memory.json")
     optctx=load("docs/research/options_opportunity_context.json")
+    options_outcomes=load("docs/research/options_opportunity_outcome_memory.json")
     optout=load("docs/research/options_opportunity_outcome_memory.json")
     server=load("docs/research/server_action_status.json")
     source_store=load("research/store/source_store.json")
@@ -193,7 +194,7 @@ def build():
     for x in rows:counts[x["learning_status"]]=counts.get(x["learning_status"],0)+1
     gaps=[{"domain":x["domain"],"status":x["learning_status"],"gaps":x["gaps"]} for x in rows if rank.get(x["learning_status"],0)<3]
     return {
-      "version":"2.0",
+      "version":"2.1",
       "generated_at":datetime.now(timezone.utc).isoformat(),
       "principle":"Collection success is not learning success. Permanent storage and learning inputs must not be record-count capped; only per-run processing and UI presentation may be bounded.",
       "counts":counts,

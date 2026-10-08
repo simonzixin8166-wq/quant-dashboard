@@ -63,6 +63,7 @@ def build():
     thesis=load("docs/research/auto_thesis_drafts.json")
     fundamental=load("docs/research/fundamental_outcome_context.json")
     macro=load("docs/research/macro_context.json")
+    macro_outcomes=load("docs/research/macro_outcome_memory.json")
     cross_hist=load("docs/research/cross_asset_divergence_history.json")
     breadth_hist=load("docs/research/breadth_intelligence_history.json")
     regime_hist=load("docs/research/regime_combination_history.json")
@@ -117,11 +118,11 @@ def build():
           "partial_learning",
           ["Canonical Event archive now preserves acquired news items; causal attribution and long-horizon reuse remain partial.","Current Top-N news stays a view, not the canonical learning store."],
           {"symbols":count_map(events.get("symbols")),"news_items":(events.get("counts") or {}).get("news_items"),"archive_total":(evidence_archive.get("events") or {}).get("total"),"event_window_rows":count_list(load("docs/research/event_window_attribution.json").get("rows"))}),
-      row("macro_fred_alfred", bool(macro), "current_plus_cached_series",
-          True, True, False, True,
-          "partial_learning",
-          ["Macro context is used in regime/context reasoning, but there is no explicit macro-state -> outcome memory comparable to Trend Pulse.","ALFRED point-in-time handling reduces revision leakage but does not by itself constitute learned macro efficacy."],
-          {"version":macro.get("version"),"series":count_map(macro.get("series"))}),
+      row("macro_fred_alfred", bool(macro), "point_in_time_context_plus_macro_regime_outcome_memory",
+          True, True, bool((macro_outcomes.get("counts") or {}).get("outcomes")), True,
+          "learning_active" if int((macro_outcomes.get("counts") or {}).get("outcomes") or 0)>0 else "partial_learning",
+          ([] if int((macro_outcomes.get("counts") or {}).get("outcomes") or 0)>0 else ["Point-in-time macro regime observations are retained; waiting for future 5/20/60-session outcomes to mature."]),
+          {"version":macro.get("version"),"series":count_map(macro.get("series")),"observations":(macro_outcomes.get("counts") or {}).get("observations"),"outcomes":(macro_outcomes.get("counts") or {}).get("outcomes"),"scorecards":(macro_outcomes.get("counts") or {}).get("scorecards")}),
       row("breadth_cross_asset_regime", bool(cross_hist or breadth_hist or regime_hist), "append_history_plus_5_20_60_outcome_scorecards",
           True, True, bool((market_state_outcomes.get("counts") or {}).get("outcomes")), True,
           "learning_active" if int((market_state_outcomes.get("counts") or {}).get("outcomes") or 0)>0 else "partial_learning",
@@ -183,7 +184,7 @@ def build():
     for x in rows:counts[x["learning_status"]]=counts.get(x["learning_status"],0)+1
     gaps=[{"domain":x["domain"],"status":x["learning_status"],"gaps":x["gaps"]} for x in rows if rank.get(x["learning_status"],0)<3]
     return {
-      "version":"1.7",
+      "version":"1.8",
       "generated_at":datetime.now(timezone.utc).isoformat(),
       "principle":"Collection success is not learning success. Permanent storage and learning inputs must not be record-count capped; only per-run processing and UI presentation may be bounded.",
       "counts":counts,

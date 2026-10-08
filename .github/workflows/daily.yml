@@ -170,6 +170,9 @@ jobs:
       - name: Reconcile persistent canonical Source Store
         run: python scripts/v615_persistent_source_store.py --sources-only
 
+      - name: Build cross-channel duplicate evidence map
+        run: python scripts/source_duplicate_audit.py
+
       - name: Build V6.14 Source Reading Memory
         id: source_reading_memory
         continue-on-error: true
@@ -311,6 +314,7 @@ jobs:
           python tests/test_source_history_cache.py
           python tests/test_source_outcome_validation.py
           python tests/test_v570_evidence_attribution.py
+          python tests/test_source_duplicate_audit.py
           python tests/test_method_memory_engine.py
           python tests/test_v610_module_intelligence.py
           python tests/test_v660_information_architecture.py

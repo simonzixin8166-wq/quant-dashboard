@@ -237,6 +237,9 @@ jobs:
       - name: Archive SEC and Event evidence canonically
         run: python scripts/evidence_archive.py
 
+      - name: Build benchmark-adjusted Event Outcome Memory
+        run: python scripts/event_outcome_memory.py
+
       - name: Build Event Window Attribution
         run: python scripts/event_window_attribution.py
 
@@ -335,6 +338,7 @@ jobs:
           python tests/test_company_fundamental_memory.py
           python tests/test_company_fundamental_outcome_memory.py
           python tests/test_v640_event_evidence.py
+          python tests/test_event_outcome_memory.py
           python tests/test_evidence_archive.py
           python tests/test_v650_event_window_attribution.py
           python tests/test_v620_research_executor.py

@@ -1,96 +1,8 @@
 {
   "version": "6.9.0",
-  "generated_at": "2026-10-08T16:23:24.154808+00:00",
+  "generated_at": "2026-10-08T23:39:12.776727+00:00",
   "planner_version": "6.14.3",
   "results": [
-    {
-      "task_id": "9dd02d7dc13f4e",
-      "kind": "regime_combination",
-      "key": "US_REGIME",
-      "title": "美股 · 跨资产压力 + 宽度脆弱共振",
-      "priority": 92.0,
-      "research_status": "analyzed",
-      "supporting_evidence": [
-        "当前组合状态：CROSS_HIGH|BREADTH_FRAGILE|VIX_LOW",
-        "跨资产层：高位跨资产背离；风险信号 4",
-        "宽度层：参与度脆弱 · 权重股主导；参与度评分 29.7",
-        "跨资产压力与脆弱宽度当前同时出现，应优先验证是否继续共振"
-      ],
-      "counter_evidence": [
-        "VIX=15.08，分区 low；波动率尚未确认风险升级"
-      ],
-      "unknowns": [
-        "同组合 5 日成熟样本仍不足",
-        "同组合 20 日成熟样本仍不足",
-        "同组合 60 日成熟样本仍不足"
-      ],
-      "evidence_score": 46,
-      "confidence": "medium",
-      "confidence_scope": "research_result",
-      "provisional_conclusion": "证据存在分歧，保持研究状态并优先验证反证。",
-      "next_validation": [
-        "同类组合状态历史5/20/60日结果如何？",
-        "宽度还是利率/信用哪一侧先修复？",
-        "VIX是否从低波动补涨确认风险？",
-        "什么变化足以让组合状态降级？"
-      ],
-      "source_requirements": [
-        "regime_combination_memory",
-        "breadth_intelligence",
-        "cross_asset_divergence",
-        "SPY",
-        "VIX"
-      ],
-      "guardrail": "该研究结果不能自动下单；未知项不得由模型猜测补全。",
-      "analysis_runs": 263,
-      "first_analyzed_at": "2026-10-03T03:17:04.415215+00:00",
-      "last_analyzed_at": "2026-10-08T16:23:24.154808+00:00"
-    },
-    {
-      "task_id": "ff2fe8dce9c4c9",
-      "kind": "breadth_intelligence",
-      "key": "US_BREADTH",
-      "title": "美股 · 参与度脆弱 · 权重股主导",
-      "priority": 88.0,
-      "research_status": "analyzed",
-      "supporting_evidence": [
-        "20日参与度偏弱：仅 38% 成分股站上20日线",
-        "50日参与度偏弱：仅 29% 成分股站上50日线",
-        "长期参与度不足：46% 成分股站上200日线",
-        "SPY领先RSP：20日SPY相对RSP领先 +3.8%",
-        "QQQ领先QQQE：20日QQQ相对QQQE领先 +3.2%",
-        "A/D累计线偏弱：20日标准化A/D累计 -1.51",
-        "52周新高参与不足：仅 1.6% 成分股处于52周新高",
-        "市场参与度评分：29.7/100"
-      ],
-      "counter_evidence": [],
-      "unknowns": [
-        "弱宽度 5 日成熟样本仍不足",
-        "弱宽度 20 日成熟样本仍不足",
-        "弱宽度 60 日成熟样本仍不足"
-      ],
-      "evidence_score": 98,
-      "confidence": "high",
-      "confidence_scope": "research_result",
-      "provisional_conclusion": "已有初步支持证据，但关键外部事实仍缺失，暂不升级为结论。",
-      "next_validation": [
-        "20/50日宽度是否连续修复？",
-        "RSP是否开始追上SPY？",
-        "QQQE是否开始追上QQQ？",
-        "长期200日宽度是否重回50%以上？"
-      ],
-      "source_requirements": [
-        "breadth_intelligence",
-        "market_breadth",
-        "SPY/RSP",
-        "QQQ/QQQE",
-        "cross_asset_divergence"
-      ],
-      "guardrail": "该研究结果不能自动下单；未知项不得由模型猜测补全。",
-      "analysis_runs": 263,
-      "first_analyzed_at": "2026-10-03T03:17:04.415215+00:00",
-      "last_analyzed_at": "2026-10-08T16:23:24.154808+00:00"
-    },
     {
       "task_id": "dc139bb52a1e29",
       "kind": "cross_asset_divergence",
@@ -99,12 +11,12 @@
       "priority": 86.0,
       "research_status": "analyzed",
       "supporting_evidence": [
-        "指数接近高位：距52周高点 -0.5%",
-        "10年期美债收益率压力：10Y=5.27，20日变化=+0.47",
-        "实际利率压力：10Y real=2.91，20日变化=+0.48",
+        "指数接近高位：距52周高点 -1.0%",
+        "10年期美债收益率压力：10Y=5.28，20日变化=+0.45",
+        "实际利率压力：10Y real=2.92，20日变化=+0.46",
         "高收益信用利差走阔：HY OAS=3.09，20日变化=+0.38",
         "VIX未同步确认风险：VIX=15.08：股票波动仍低，不足以否定债券/信用压力",
-        "市场宽度弱于指数：20/50/200日宽度=38%/29%/46%",
+        "市场宽度弱于指数：20/50/200日宽度=49%/33%/50%",
         "当前状态：高位跨资产背离；风险信号 4 项，其中高等级 3 项",
         "股指价格趋势仍强，但折现率上升会压缩估值容忍度。"
       ],
@@ -113,13 +25,12 @@
         "若收益率回落、信用利差重新收窄且市场宽度改善，当前背离可通过基本面/流动性消化。"
       ],
       "unknowns": [
-        "跨资产背离 5 日成熟样本仍不足",
         "跨资产背离 20 日成熟样本仍不足",
         "跨资产背离 60 日成熟样本仍不足",
         "MOVE 尚未进入免费官方/稳定内部数据源，当前不把外部单点数值写入 Production Brain。",
         "ERP 暂不使用非稳定网页估算；后续接入可审计盈利收益率来源后再计算。"
       ],
-      "evidence_score": 94,
+      "evidence_score": 100,
       "confidence": "high",
       "confidence_scope": "research_result",
       "provisional_conclusion": "证据存在分歧，保持研究状态并优先验证反证。",
@@ -137,38 +48,78 @@
         "credit"
       ],
       "guardrail": "该研究结果不能自动下单；未知项不得由模型猜测补全。",
-      "analysis_runs": 264,
+      "analysis_runs": 265,
       "first_analyzed_at": "2026-10-03T02:34:39.186035+00:00",
-      "last_analyzed_at": "2026-10-08T16:23:24.154808+00:00"
+      "last_analyzed_at": "2026-10-08T23:39:12.776727+00:00"
+    },
+    {
+      "task_id": "9dd02d7dc13f4e",
+      "kind": "regime_combination",
+      "key": "US_REGIME",
+      "title": "美股 · 风险环境存在组合分化",
+      "priority": 82.0,
+      "research_status": "analyzed",
+      "supporting_evidence": [
+        "当前组合状态：CROSS_HIGH|BREADTH_WEAKENING|VIX_LOW",
+        "跨资产层：高位跨资产背离；风险信号 4",
+        "宽度层：市场宽度走弱；参与度评分 45.1"
+      ],
+      "counter_evidence": [
+        "VIX=15.41，分区 low；波动率尚未确认风险升级"
+      ],
+      "unknowns": [
+        "同组合 5 日成熟样本仍不足",
+        "同组合 20 日成熟样本仍不足",
+        "同组合 60 日成熟样本仍不足"
+      ],
+      "evidence_score": 34,
+      "confidence": "low",
+      "confidence_scope": "research_result",
+      "provisional_conclusion": "证据存在分歧，保持研究状态并优先验证反证。",
+      "next_validation": [
+        "同类组合状态历史5/20/60日结果如何？",
+        "宽度还是利率/信用哪一侧先修复？",
+        "VIX是否从低波动补涨确认风险？",
+        "什么变化足以让组合状态降级？"
+      ],
+      "source_requirements": [
+        "regime_combination_memory",
+        "breadth_intelligence",
+        "cross_asset_divergence",
+        "SPY",
+        "VIX"
+      ],
+      "guardrail": "该研究结果不能自动下单；未知项不得由模型猜测补全。",
+      "analysis_runs": 264,
+      "first_analyzed_at": "2026-10-03T03:17:04.415215+00:00",
+      "last_analyzed_at": "2026-10-08T23:39:12.776727+00:00"
     },
     {
       "task_id": "320b47e4133735",
       "kind": "market_anomaly",
       "key": "MSFT",
       "title": "MSFT · 异动/趋势专项研究",
-      "priority": 75.0,
+      "priority": 78.0,
       "research_status": "analyzed",
       "supporting_evidence": [
         "Trend Pulse / Situation 当前阶段：二次启动",
-        "Learning Engine 研究优先级：75/100",
+        "Learning Engine 研究优先级：78/100",
         "相同阶段60日历史样本：871，中位收益 4.8%",
-        "Source Intelligence 有 5 条与 MSFT 相关研究记录；最近 3 条已进入独立验证层",
+        "Source Intelligence 有 4 条与 MSFT 相关研究记录；最近 3 条已进入独立验证层",
         "SEC官方披露：最近 8-K，提交日 2026-09-02",
         "SEC文档已抓取官方原文证据片段，可用于下一步事件核验",
-        "高优先级事件源：The Wall Street Journal · Vance Says U.S. Will Suspend Microsoft And Other Firms From Green Card Program"
+        "Trend Pulse 数据校验状态：双源校验通过",
+        "同业联动：2 个可比标的，方向 broad_negative，平均日变动 -3.9%"
       ],
-      "counter_evidence": [
-        "个股趋势偏强，但大盘宽度出现背离。",
-        "Trend Pulse 数据校验状态：有限校验"
-      ],
+      "counter_evidence": [],
       "unknowns": [
-        "同业样本已读取但未形成一致共振：2 个，方向 mixed",
+        "已读取 5 条相关一般媒体线索，但暂无 Reuters/AP/新闻稿等高优先级事件源确认",
         "公司IR官网全文仍待专用连接；当前已使用SEC官方披露与分级媒体事件线索"
       ],
-      "evidence_score": 100,
+      "evidence_score": 96,
       "confidence": "high",
       "confidence_scope": "research_result",
-      "provisional_conclusion": "证据存在分歧，保持研究状态并优先验证反证。",
+      "provisional_conclusion": "已有初步支持证据，但关键外部事实仍缺失，暂不升级为结论。",
       "next_validation": [
         "这次变化由公司事件、行业共振还是市场因素驱动？",
         "支持原 Thesis 的证据是什么？",
@@ -183,26 +134,70 @@
         "industry_peers"
       ],
       "guardrail": "该研究结果不能自动下单；未知项不得由模型猜测补全。",
-      "analysis_runs": 140,
+      "analysis_runs": 141,
       "first_analyzed_at": "2026-10-07T00:57:35.813479+00:00",
-      "last_analyzed_at": "2026-10-08T16:23:24.154808+00:00"
+      "last_analyzed_at": "2026-10-08T23:39:12.776727+00:00"
+    },
+    {
+      "task_id": "ff2fe8dce9c4c9",
+      "kind": "breadth_intelligence",
+      "key": "US_BREADTH",
+      "title": "美股 · 市场宽度走弱",
+      "priority": 78.0,
+      "research_status": "analyzed",
+      "supporting_evidence": [
+        "50日参与度偏弱：仅 33% 成分股站上50日线",
+        "长期参与度不足：50% 成分股站上200日线",
+        "SPY领先RSP：20日SPY相对RSP领先 +2.7%",
+        "QQQ领先QQQE：20日QQQ相对QQQE领先 +2.5%",
+        "A/D累计线偏弱：20日标准化A/D累计 -0.82",
+        "52周新高参与不足：仅 1.0% 成分股处于52周新高",
+        "市场参与度评分：45.1/100",
+        "宽度组合状态：B20_OK|B50_LOW|B200_LOW|SLOPE_UP|SPY_RSP_GAP|QQQ_QQQE_GAP|AD_NEG|NH52_THIN"
+      ],
+      "counter_evidence": [],
+      "unknowns": [
+        "弱宽度 5 日成熟样本仍不足",
+        "弱宽度 20 日成熟样本仍不足",
+        "弱宽度 60 日成熟样本仍不足"
+      ],
+      "evidence_score": 86,
+      "confidence": "high",
+      "confidence_scope": "research_result",
+      "provisional_conclusion": "已有初步支持证据，但关键外部事实仍缺失，暂不升级为结论。",
+      "next_validation": [
+        "20/50日宽度是否连续修复？",
+        "RSP是否开始追上SPY？",
+        "QQQE是否开始追上QQQ？",
+        "长期200日宽度是否重回50%以上？"
+      ],
+      "source_requirements": [
+        "breadth_intelligence",
+        "market_breadth",
+        "SPY/RSP",
+        "QQQ/QQQE",
+        "cross_asset_divergence"
+      ],
+      "guardrail": "该研究结果不能自动下单；未知项不得由模型猜测补全。",
+      "analysis_runs": 264,
+      "first_analyzed_at": "2026-10-03T03:17:04.415215+00:00",
+      "last_analyzed_at": "2026-10-08T23:39:12.776727+00:00"
     },
     {
       "task_id": "18388d1182a7d7",
       "kind": "market_anomaly",
       "key": "SPCX",
       "title": "SPCX · 异动/趋势专项研究",
-      "priority": 75.0,
+      "priority": 78.0,
       "research_status": "analyzed",
       "supporting_evidence": [
         "Trend Pulse / Situation 当前阶段：二次启动",
-        "Learning Engine 研究优先级：75/100",
+        "Learning Engine 研究优先级：78/100",
         "相同阶段60日历史样本：871，中位收益 4.8%",
         "SEC官方披露：最近 8-K，提交日 2026-08-14",
         "SEC文档已抓取官方原文证据片段，可用于下一步事件核验"
       ],
       "counter_evidence": [
-        "个股趋势偏强，但大盘宽度出现背离。",
         "Trend Pulse 数据校验状态：有限校验"
       ],
       "unknowns": [
@@ -211,7 +206,7 @@
         "行业同业联动样本暂不足",
         "公司IR官网全文仍待专用连接；当前已使用SEC官方披露与分级媒体事件线索"
       ],
-      "evidence_score": 56,
+      "evidence_score": 48,
       "confidence": "medium",
       "confidence_scope": "research_result",
       "provisional_conclusion": "证据存在分歧，保持研究状态并优先验证反证。",
@@ -229,75 +224,72 @@
         "industry_peers"
       ],
       "guardrail": "该研究结果不能自动下单；未知项不得由模型猜测补全。",
-      "analysis_runs": 252,
-      "first_analyzed_at": "2026-10-03T06:09:53.166307+00:00",
-      "last_analyzed_at": "2026-10-08T16:23:24.154808+00:00"
-    },
-    {
-      "task_id": "970cd03ca29c6a",
-      "kind": "market_anomaly",
-      "key": "AMD",
-      "title": "AMD · 异动/趋势专项研究",
-      "priority": 75.0,
-      "research_status": "analyzed",
-      "supporting_evidence": [
-        "Trend Pulse / Situation 当前阶段：二次启动",
-        "Learning Engine 研究优先级：75/100",
-        "相同阶段60日历史样本：871，中位收益 4.8%",
-        "Source Intelligence 有 12 条与 AMD 相关研究记录；最近 3 条已进入独立验证层",
-        "SEC官方披露：最近 8-K，提交日 2026-09-28",
-        "SEC文档已抓取官方原文证据片段，可用于下一步事件核验",
-        "高优先级事件源：Reuters · Wall St slips as climbing oil, yields amplify inflation fears"
-      ],
-      "counter_evidence": [
-        "个股趋势偏强，但大盘宽度出现背离。",
-        "Trend Pulse 数据校验状态：有限校验"
-      ],
-      "unknowns": [
-        "行业同业联动样本暂不足",
-        "公司IR官网全文仍待专用连接；当前已使用SEC官方披露与分级媒体事件线索"
-      ],
-      "evidence_score": 100,
-      "confidence": "high",
-      "confidence_scope": "research_result",
-      "provisional_conclusion": "证据存在分歧，保持研究状态并优先验证反证。",
-      "next_validation": [
-        "这次变化由公司事件、行业共振还是市场因素驱动？",
-        "支持原 Thesis 的证据是什么？",
-        "最强反证是什么？",
-        "明日需要验证什么？"
-      ],
-      "source_requirements": [
-        "market_data",
-        "trend_pulse",
-        "SEC/IR",
-        "company_news",
-        "industry_peers"
-      ],
-      "guardrail": "该研究结果不能自动下单；未知项不得由模型猜测补全。",
       "analysis_runs": 253,
-      "first_analyzed_at": "2026-10-03T05:28:23.488384+00:00",
-      "last_analyzed_at": "2026-10-08T16:23:24.154808+00:00"
+      "first_analyzed_at": "2026-10-03T06:09:53.166307+00:00",
+      "last_analyzed_at": "2026-10-08T23:39:12.776727+00:00"
     },
     {
-      "task_id": "cc5c623eb18172",
+      "task_id": "dd80a50c241fb6",
       "kind": "market_anomaly",
-      "key": "MRVL",
-      "title": "MRVL · 异动/趋势专项研究",
-      "priority": 75.0,
+      "key": "VOO",
+      "title": "VOO · 异动/趋势专项研究",
+      "priority": 78.0,
       "research_status": "analyzed",
       "supporting_evidence": [
         "Trend Pulse / Situation 当前阶段：二次启动",
-        "Learning Engine 研究优先级：75/100",
+        "Learning Engine 研究优先级：78/100",
         "相同阶段60日历史样本：871，中位收益 4.8%",
-        "Source Intelligence 有 11 条与 MRVL 相关研究记录；最近 3 条已进入独立验证层",
-        "SEC官方披露：最近 8-K，提交日 2026-09-25",
+        "该标的是ETF/基金工具，单一公司SEC披露不适用；应使用成分股、基金文件和行业证据。",
+        "Trend Pulse 数据校验状态：双源校验通过"
+      ],
+      "counter_evidence": [],
+      "unknowns": [
+        "暂无可用外部研究记录",
+        "已读取 5 条相关一般媒体线索，但暂无 Reuters/AP/新闻稿等高优先级事件源确认",
+        "行业同业联动样本暂不足",
+        "公司IR官网全文仍待专用连接；当前已使用SEC官方披露与分级媒体事件线索"
+      ],
+      "evidence_score": 40,
+      "confidence": "medium",
+      "confidence_scope": "research_result",
+      "provisional_conclusion": "已有初步支持证据，但关键外部事实仍缺失，暂不升级为结论。",
+      "next_validation": [
+        "这次变化由公司事件、行业共振还是市场因素驱动？",
+        "支持原 Thesis 的证据是什么？",
+        "最强反证是什么？",
+        "明日需要验证什么？"
+      ],
+      "source_requirements": [
+        "market_data",
+        "trend_pulse",
+        "SEC/IR",
+        "company_news",
+        "industry_peers"
+      ],
+      "guardrail": "该研究结果不能自动下单；未知项不得由模型猜测补全。",
+      "analysis_runs": 1,
+      "first_analyzed_at": "2026-10-08T23:39:12.776727+00:00",
+      "last_analyzed_at": "2026-10-08T23:39:12.776727+00:00"
+    },
+    {
+      "task_id": "93fef0534ec6db",
+      "kind": "market_anomaly",
+      "key": "GOOG",
+      "title": "GOOG · 异动/趋势专项研究",
+      "priority": 73.0,
+      "research_status": "analyzed",
+      "supporting_evidence": [
+        "Trend Pulse / Situation 当前阶段：二次启动",
+        "Learning Engine 研究优先级：73/100",
+        "相同阶段60日历史样本：871，中位收益 4.8%",
+        "Source Intelligence 有 5 条与 GOOG 相关研究记录；最近 3 条已进入独立验证层",
+        "SEC官方披露：最近 8-K，提交日 2026-08-10",
         "SEC文档已抓取官方原文证据片段，可用于下一步事件核验",
-        "高优先级事件源：Reuters · Wall St slips as climbing oil, yields amplify inflation fears"
+        "Trend Pulse 数据校验状态：双源校验通过",
+        "高优先级事件源：Reuters · Lawmakers raise alarm at Google plan to acquire Spirit Airlines data for AI models"
       ],
       "counter_evidence": [
-        "个股趋势偏强，但大盘宽度出现背离。",
-        "Trend Pulse 数据校验状态：有限校验"
+        "Failure Attribution 中存在 1 个该标的外部研究反例/失效样本"
       ],
       "unknowns": [
         "行业同业联动样本暂不足",
@@ -321,9 +313,9 @@
         "industry_peers"
       ],
       "guardrail": "该研究结果不能自动下单；未知项不得由模型猜测补全。",
-      "analysis_runs": 140,
-      "first_analyzed_at": "2026-10-07T00:57:35.813479+00:00",
-      "last_analyzed_at": "2026-10-08T16:23:24.154808+00:00"
+      "analysis_runs": 1,
+      "first_analyzed_at": "2026-10-08T23:39:12.776727+00:00",
+      "last_analyzed_at": "2026-10-08T23:39:12.776727+00:00"
     },
     {
       "task_id": "c410a3ecd36ea1",
@@ -354,17 +346,17 @@
         "market_history"
       ],
       "guardrail": "该研究结果不能自动下单；未知项不得由模型猜测补全。",
-      "analysis_runs": 115,
+      "analysis_runs": 116,
       "first_analyzed_at": "2026-10-07T03:37:20.911333+00:00",
-      "last_analyzed_at": "2026-10-08T16:23:24.154808+00:00"
+      "last_analyzed_at": "2026-10-08T23:39:12.776727+00:00"
     }
   ],
   "summary": {
     "analyzed": 8,
-    "high_confidence": 5,
+    "high_confidence": 4,
     "medium_confidence": 2,
-    "low_confidence": 1,
-    "with_counter_evidence": 6,
+    "low_confidence": 2,
+    "with_counter_evidence": 4,
     "with_unknowns": 8
   },
   "policy": {

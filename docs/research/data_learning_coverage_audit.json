@@ -1,10 +1,10 @@
 {
-  "version": "2.2",
-  "generated_at": "2026-10-08T06:19:29.660327+00:00",
+  "version": "2.3",
+  "generated_at": "2026-10-08T06:25:08.718270+00:00",
   "principle": "Collection success is not learning success. Permanent storage and learning inputs must not be record-count capped; only per-run processing and UI presentation may be bounded.",
   "counts": {
-    "learning_active": 3,
-    "partial_learning": 12,
+    "learning_active": 1,
+    "partial_learning": 14,
     "context_only": 1
   },
   "domains": [
@@ -24,7 +24,14 @@
         "symbols": 24,
         "events": 4556,
         "mature_60": 4299
-      }
+      },
+      "downstream_reused": true,
+      "reused_by": [
+        "evidence_attribution_engine.py",
+        "learning_engine_core.py",
+        "learning_evaluation_engine.py",
+        "playbook_engine.py"
+      ]
     },
     {
       "domain": "blog_forum_video_sources",
@@ -36,7 +43,6 @@
       "decision_context": true,
       "learning_status": "partial_learning",
       "gaps": [
-        "Upstream source coverage is not fully accounted; at least one discovered item is missing from feed/archive/pending/backlog or collector status is unavailable.",
         "Source coverage may be complete, but explicit YouTube pending/backlog/provider-blocked items still lack Q1/Q2 semantic learning; they are not counted as learned.",
         "Historical video archive is intentionally non-gating; this is a governance boundary, not a missing-learning error."
       ],
@@ -45,17 +51,80 @@
         "source_reading_records": 1423,
         "persistent_source_records": 1423,
         "backlog": 0,
-        "collector_coverage_complete": false,
+        "collector_coverage_complete": true,
         "collector_semantic_complete": false,
         "collector": {
-          "version": 0,
-          "complete": false,
-          "status": "unavailable",
-          "reason": "collector_completeness_unavailable"
+          "version": 2,
+          "generated_at": "2026-10-08T06:01:04.197876+00:00",
+          "complete": true,
+          "coverage_complete": true,
+          "semantic_learning_complete": false,
+          "forum": {
+            "complete": true,
+            "continuity_proven": true,
+            "anchor_id": "114182",
+            "previous_anchor_id": "114182",
+            "status": "complete"
+          },
+          "blogs": {
+            "complete": true,
+            "authors": {
+              "BrightLine": {
+                "complete": true,
+                "scan_complete": true,
+                "missing_from_feed": 0,
+                "unique_article_ids": 11,
+                "feed_present_urls": 11,
+                "archive_failures": []
+              },
+              "yifan99": {
+                "complete": true,
+                "scan_complete": true,
+                "missing_from_feed": 0,
+                "unique_article_ids": 12,
+                "feed_present_urls": 12,
+                "archive_failures": []
+              }
+            }
+          },
+          "youtube": {
+            "complete": true,
+            "coverage_complete": true,
+            "semantic_learning_complete": false,
+            "discovery_complete": true,
+            "accounting_balanced": true,
+            "seen": 170,
+            "feed_records": 5,
+            "historical_archive_records": 23,
+            "historical_semantic_learned": 4,
+            "pending": 115,
+            "historical_backlog": 49,
+            "unaccounted": 0,
+            "unaccounted_video_ids": [],
+            "unresolved_semantic": 164,
+            "status": "ok"
+          },
+          "guardrails": [
+            "coverage_complete proves every discovered source is durably accounted; it does not claim every external item yielded learnable text.",
+            "semantic_learning_complete additionally requires every discovered YouTube item to have formal-feed or Q1/Q2 historical semantic learning.",
+            "Pending/backlog/provider-blocked items remain explicit and keep the external-source learning domain partial; they are never silently counted as learned."
+          ],
+          "fetch_status": "ok"
         },
         "testable_rules": 46,
         "eligible_triggered_events": 52
-      }
+      },
+      "downstream_reused": true,
+      "reused_by": [
+        "autonomous_research_executor.py",
+        "autonomous_research_planner.py",
+        "candidate_rule_compiler.py",
+        "method_memory_engine.py",
+        "source_rule_lifecycle.py",
+        "v615_method_attribution.py",
+        "v615_rule_registry.py",
+        "v615_source_rule_funnel.py"
+      ]
     },
     {
       "domain": "official_sec_filings",
@@ -75,7 +144,15 @@
         "archive_total": 42,
         "linked_direct_events": 27,
         "mature_20": 21
-      }
+      },
+      "downstream_reused": true,
+      "reused_by": [
+        "autonomous_research_executor.py",
+        "company_fundamental_memory.py",
+        "event_window_attribution.py",
+        "evidence_archive.py",
+        "v615_auto_thesis_engine.py"
+      ]
     },
     {
       "domain": "financial_fundamentals_xbrl",
@@ -85,8 +162,10 @@
       "reusable_memory": true,
       "outcome_feedback": true,
       "decision_context": true,
-      "learning_status": "learning_active",
-      "gaps": [],
+      "learning_status": "partial_learning",
+      "gaps": [
+        "Outcomes exist but no research/decision component reads them yet (L6 reuse missing); outcome count alone is not learning."
+      ],
       "evidence": {
         "symbols": 14,
         "archive_total": 15015,
@@ -109,7 +188,9 @@
             "avg_mfe_pct": 27.836475120375244
           }
         }
-      }
+      },
+      "downstream_reused": false,
+      "reused_by": []
     },
     {
       "domain": "news_event_evidence",
@@ -126,7 +207,7 @@
       "evidence": {
         "symbols": 16,
         "news_items": 80,
-        "archive_total": 104,
+        "archive_total": 106,
         "event_window_rows": 20,
         "mature_outcomes": 0,
         "benchmark": "QQQ",
@@ -147,7 +228,9 @@
             "positive_excess_rate": null
           }
         }
-      }
+      },
+      "downstream_reused": false,
+      "reused_by": []
     },
     {
       "domain": "macro_fred_alfred",
@@ -167,7 +250,9 @@
         "observations": 2,
         "outcomes": 0,
         "scorecards": 0
-      }
+      },
+      "downstream_reused": false,
+      "reused_by": []
     },
     {
       "domain": "breadth_cross_asset_regime",
@@ -187,7 +272,9 @@
         "regime_history": 4,
         "outcomes": 0,
         "scorecards": 0
-      }
+      },
+      "downstream_reused": false,
+      "reused_by": []
     },
     {
       "domain": "support_resistance_volatility",
@@ -213,7 +300,9 @@
         "observations": 6,
         "mature20": 0,
         "garch_mae_pct_points": null
-      }
+      },
+      "downstream_reused": false,
+      "reused_by": []
     },
     {
       "domain": "options_opportunity",
@@ -240,7 +329,9 @@
         "research_matured": 0,
         "private_observations": 3,
         "private_mature_outcomes": 0
-      }
+      },
+      "downstream_reused": false,
+      "reused_by": []
     },
     {
       "domain": "auto_thesis_revision_memory",
@@ -258,7 +349,9 @@
         "symbols": 16,
         "revision_rows": 42,
         "linked_direct_events": 27
-      }
+      },
+      "downstream_reused": false,
+      "reused_by": []
     },
     {
       "domain": "candidate_shadow_forward",
@@ -287,7 +380,9 @@
           "closed": 0,
           "decision_fusion_eligible": 0
         }
-      }
+      },
+      "downstream_reused": false,
+      "reused_by": []
     },
     {
       "domain": "production_playbook_forward_replay",
@@ -309,7 +404,12 @@
           "20": 0,
           "60": 0
         }
-      }
+      },
+      "downstream_reused": true,
+      "reused_by": [
+        "controlled_learning_policy.py",
+        "forward_learning_feedback.py"
+      ]
     },
     {
       "domain": "operational_system_learning",
@@ -319,14 +419,18 @@
       "reusable_memory": true,
       "outcome_feedback": true,
       "decision_context": true,
-      "learning_status": "learning_active",
-      "gaps": [],
+      "learning_status": "partial_learning",
+      "gaps": [
+        "Outcomes exist but no research/decision component reads them yet (L6 reuse missing); outcome count alone is not learning."
+      ],
       "evidence": {
-        "overall": "ok",
+        "overall": "running",
         "open_incidents": 1,
         "resolved_total": 5,
         "self_improvement_version": "7.2.1"
-      }
+      },
+      "downstream_reused": false,
+      "reused_by": []
     },
     {
       "domain": "regional_cn_hk_learning",
@@ -340,7 +444,9 @@
       "gaps": [
         "A/H market data is available for observation, but no dedicated cross-market state/outcome memory comparable to US Trend Pulse is established."
       ],
-      "evidence": {}
+      "evidence": {},
+      "downstream_reused": false,
+      "reused_by": []
     },
     {
       "domain": "curated_knowledge_base",
@@ -354,7 +460,9 @@
       "gaps": [
         "Curated knowledge may consume validated method evidence, but it is intentionally not an autonomous weight-changing learner."
       ],
-      "evidence": {}
+      "evidence": {},
+      "downstream_reused": false,
+      "reused_by": []
     },
     {
       "domain": "decision_journal_user_actions",
@@ -368,7 +476,9 @@
       "gaps": [
         "Public repository cannot verify completeness of private/user decision records or whether every decision is later reconciled to outcomes."
       ],
-      "evidence": {}
+      "evidence": {},
+      "downstream_reused": false,
+      "reused_by": []
     }
   ],
   "priority_gaps": [
@@ -376,7 +486,6 @@
       "domain": "blog_forum_video_sources",
       "status": "partial_learning",
       "gaps": [
-        "Upstream source coverage is not fully accounted; at least one discovered item is missing from feed/archive/pending/backlog or collector status is unavailable.",
         "Source coverage may be complete, but explicit YouTube pending/backlog/provider-blocked items still lack Q1/Q2 semantic learning; they are not counted as learned.",
         "Historical video archive is intentionally non-gating; this is a governance boundary, not a missing-learning error."
       ]
@@ -386,6 +495,13 @@
       "status": "partial_learning",
       "gaps": [
         "Canonical SEC filing archive now preserves filing evidence, but full filing-to-thesis/outcome reuse remains partial."
+      ]
+    },
+    {
+      "domain": "financial_fundamentals_xbrl",
+      "status": "partial_learning",
+      "gaps": [
+        "Outcomes exist but no research/decision component reads them yet (L6 reuse missing); outcome count alone is not learning."
       ]
     },
     {
@@ -445,6 +561,13 @@
       ]
     },
     {
+      "domain": "operational_system_learning",
+      "status": "partial_learning",
+      "gaps": [
+        "Outcomes exist but no research/decision component reads them yet (L6 reuse missing); outcome count alone is not learning."
+      ]
+    },
+    {
       "domain": "regional_cn_hk_learning",
       "status": "context_only",
       "gaps": [
@@ -467,11 +590,18 @@
     }
   ],
   "reconciliation": {
+    "upstream_collector_known": true,
+    "youtube_seen": 170,
+    "youtube_semantically_learned": 9,
+    "youtube_semantic_backlog": 164,
     "captured": 1423,
     "canonical": 1423,
     "processed": 1423,
+    "text_enriched": 1423,
+    "source_offline": 0,
     "backlog": 0,
     "errors": 0,
+    "errors_known": true,
     "balanced": true
   },
   "required_contract": {

@@ -69,7 +69,8 @@ def build():
     source_total=int((method.get("counts") or {}).get("source_records") or (source.get("counts") or {}).get("records") or 0)
     reading_total=int((reading.get("counts") or {}).get("source_records") or 0)
     source_persist=count_list(source_store.get("records"))
-    source_learning_ok=source_total>0 and (reading_total>=source_total or source_persist>=source_total)
+    source_backlog=max(0,source_total-reading_total)
+    source_learning_ok=source_total>0 and reading_total>=source_total and source_persist>=source_total
 
     fsum=fundamental.get("summary") or {}
     option_learning=server.get("option_learning") or {}
@@ -85,7 +86,7 @@ def build():
           "learning_active" if source_learning_ok else "partial_learning",
           ([] if source_learning_ok else ["Captured/source records are not fully reconciled with Source Reading/Persistent Source Store."]) +
           ["Historical video archive is intentionally non-gating; this is a governance boundary, not a missing-learning error."],
-          {"source_records":source_total,"source_reading_records":reading_total,"persistent_source_records":source_persist,"testable_rules":(reading.get("counts") or {}).get("testable_rules"),"eligible_triggered_events":(method.get("counts") or {}).get("eligible_triggered_events")}),
+          {"source_records":source_total,"source_reading_records":reading_total,"persistent_source_records":source_persist,"backlog":source_backlog,"testable_rules":(reading.get("counts") or {}).get("testable_rules"),"eligible_triggered_events":(method.get("counts") or {}).get("eligible_triggered_events")}),
       row("official_sec_filings", bool(official.get("symbols")), "current_snapshot_only",
           True, True, int(fsum.get("linked_direct_events") or 0)>0, True,
           "partial_learning",
@@ -132,9 +133,11 @@ def build():
           ["Candidate/Shadow pipeline is governed and Forward-separated, but promotion remains intentionally locked until genuine forward evidence matures."],
           {"forward_counts":candidate_forward.get("counts") or candidate_forward.get("summary"),"promotion":candidate_promotion.get("summary") or candidate_promotion.get("counts")}),
       row("production_playbook_forward_replay", bool(playbook), "private_forward_ledger_plus_local_replay",
-          True, True, bool((forward_outcomes.get("mature_total") or {})), True,
-          "learning_active",
-          ["Forward maturity may still be sparse; this affects statistical confidence, not the existence of the learning loop."],
+          True, True,
+          sum(int(v or 0) for v in ((forward_outcomes.get("mature_total") or {}).values() if isinstance(forward_outcomes.get("mature_total"),dict) else []))>0,
+          True,
+          "learning_active" if sum(int(v or 0) for v in ((forward_outcomes.get("mature_total") or {}).values() if isinstance(forward_outcomes.get("mature_total"),dict) else []))>0 else "partial_learning",
+          ["Pipeline exists, but Learning Active requires at least one real mature Forward outcome."],
           {"mode":playbook.get("mode"),"forward_clock_active":((playbook.get("storage") or {}).get("forward_clock_active")),"mature_total":forward_outcomes.get("mature_total")}),
       row("operational_system_learning", bool(system_status), "status_snapshots_and_failure_markers",
           True, bool(self_improvement), False, True,
@@ -162,12 +165,20 @@ def build():
     for x in rows:counts[x["learning_status"]]=counts.get(x["learning_status"],0)+1
     gaps=[{"domain":x["domain"],"status":x["learning_status"],"gaps":x["gaps"]} for x in rows if rank.get(x["learning_status"],0)<3]
     return {
-      "version":"1.1",
+      "version":"1.2",
       "generated_at":datetime.now(timezone.utc).isoformat(),
       "principle":"Collection success is not learning success. Permanent storage and learning inputs must not be record-count capped; only per-run processing and UI presentation may be bounded.",
       "counts":counts,
       "domains":rows,
       "priority_gaps":gaps,
+      "reconciliation":{
+        "captured":source_total,
+        "canonical":source_persist,
+        "processed":reading_total,
+        "backlog":source_backlog,
+        "errors":0,
+        "balanced":source_total>0 and source_persist>=source_total and reading_total+source_backlog>=source_total,
+      },
       "required_contract":{
         "canonical_storage":"append-only or sharded; no destructive record-count eviction",
         "learning_input":"complete canonical history or cursor-backed exhaustive processing",
@@ -181,6 +192,8 @@ def main():
     out=build()
     OUT.parent.mkdir(parents=True,exist_ok=True)
     OUT.write_text(json.dumps(out,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
-    print(json.dumps({"counts":out["counts"],"domains":len(out["domains"]),"output":str(OUT.relative_to(ROOT))},ensure_ascii=False))
+    print(json.dumps({"counts":out["counts"],"domains":len(out["domains"]),"reconciliation":out["reconciliation"],"output":str(OUT.relative_to(ROOT))},ensure_ascii=False))
+    if not (out.get("reconciliation") or {}).get("balanced"):
+        raise SystemExit("LEARNING_COVERAGE_GAP: source accounting is not reconciled")
 
 if __name__=="__main__":main()

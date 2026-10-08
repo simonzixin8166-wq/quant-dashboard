@@ -47,7 +47,8 @@ assert bad["errors"] == 3 and bad["balanced"] is False           # title-only re
 yt = cov.reconciliation(10, 10, {"counts": {"source_records": 10}},
                         {"fetch_status": "ok", "youtube": {"seen": 170, "feed_records": 4, "historical_semantic_learned": 4, "unresolved_semantic": 165}})
 assert yt["upstream_collector_known"] is True and yt["youtube_seen"] == 170
-assert yt["youtube_semantically_learned"] == 8 and yt["youtube_semantic_backlog"] == 165
+assert yt["youtube_text_admitted"] == 8 and yt["youtube_semantic_backlog"] == 165
+assert yt["youtube_semantically_learned"] is None  # admission with text is not semantic learning
 assert yt["balanced"] is True  # semantic backlog is reported, not hidden, and does not fake an accounting gap
 
 # 3. Upstream completeness contract is actually fetched (INTAKE_STATUS_URL defined) and errors are visible.

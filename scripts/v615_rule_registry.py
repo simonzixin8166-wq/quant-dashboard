@@ -158,11 +158,11 @@ def build(reading,source,prior=None,now=None,source_store=None):
                 # tracking existed.
                 extraction_mode="legacy_baseline"
                 forward_eligible=None
-            elif meta.get("admission_class")=="genuine_forward" and prior_obs is None:
+            elif meta.get("admission_class")=="genuine_forward" and meta.get("timestamp_confidence")=="high" and prior_obs is None:
                 extraction_mode="forward_initial"
                 forward_eligible=True
             elif meta.get("admission_class")=="genuine_forward":
-                extraction_mode="retroactive"
+                extraction_mode="retroactive_or_unverified_timestamp"
                 forward_eligible=False
             else:
                 extraction_mode="historical_or_nonforward"
@@ -210,7 +210,7 @@ def build(reading,source,prior=None,now=None,source_store=None):
             "Exact duplicate semantic rules remain separate via deterministic duplicate_rank.",
             "Prior registry rows are never deleted; absent rules become inactive.",
             "Exact extractor-input hashes are retained, and changed inputs append their prior hash to revision history.",
-            "A genuine-forward source may create forward-eligible rules only on its first registry observation; later newly-created rules are retroactive and forward_eligible=false.",
+            "A genuine-forward source may create forward-eligible rules only on its first registry observation and only with high timestamp confidence; later or unverified rules are non-forward.",
             "Registry cannot modify production rules or orders."
         ]
     }

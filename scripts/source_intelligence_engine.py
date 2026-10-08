@@ -73,45 +73,68 @@ def load(path: Path, default):
         return default
 
 def fetch_feed():
-    """Fetch the latest wxc-bot research feed from GitHub's contents API.
+    """Fetch the complete upstream research feed with fail-closed semantics.
 
-    The contents API is used as the primary path because raw.githubusercontent.com
-    may briefly serve a stale CDN copy immediately after a source-feed push.
+    raw.githubusercontent.com is the primary path because GitHub Contents API
+    omits inline content for files larger than 1 MiB. Git Data blob API is an
+    independent fallback. A total failure raises instead of silently returning
+    an empty feed and collapsing learning to seed-only data.
     """
-    api_url = "https://api.github.com/repos/simonzixin8166-wq/wxc-bot/contents/state/research_feed.json?ref=main"
-    headers = {
-        "User-Agent": "MyAlphaView/SourceIntelligence",
-        "Accept": "application/vnd.github+json",
-        "Cache-Control": "no-cache",
-        "Pragma": "no-cache",
+    headers={
+        "User-Agent":"MyAlphaView/SourceIntelligence",
+        "Cache-Control":"no-cache",
+        "Pragma":"no-cache",
     }
+    errors=[]
     try:
-        req = urllib.request.Request(api_url, headers=headers)
-        with urllib.request.urlopen(req, timeout=15) as r:
-            payload = json.loads(r.read().decode("utf-8"))
-        if isinstance(payload, dict) and payload.get("content"):
-            raw = base64.b64decode(str(payload["content"]).replace("\\n", "")).decode("utf-8")
-            data = json.loads(raw)
-            if isinstance(data, dict):
-                return data
+        sep="&" if "?" in FEED_URL else "?"
+        live_url=FEED_URL+sep+"myalpha_cache_bust="+datetime.now(timezone.utc).strftime("%Y%m%d%H%M%S")
+        req=urllib.request.Request(live_url,headers=headers)
+        with urllib.request.urlopen(req,timeout=20) as resp:
+            data=json.loads(resp.read().decode("utf-8"))
+        if isinstance(data,dict) and isinstance(data.get("records"),list):
+            data["_fetch_path"]="raw"
+            return data
+        errors.append("raw returned invalid feed")
     except Exception as e:
-        print("contents api source feed unavailable:", e)
+        errors.append(f"raw: {e}")
 
-    # Free public fallback. Keep it no-cache, but do not rely on it for same-cycle freshness.
     try:
-        sep = "&" if "?" in FEED_URL else "?"
-        live_url = FEED_URL + sep + "myalpha_cache_bust=" + datetime.now(timezone.utc).strftime("%Y%m%d%H%M%S")
-        req = urllib.request.Request(live_url, headers={
-            "User-Agent":"MyAlphaView/SourceIntelligence",
-            "Cache-Control":"no-cache",
-            "Pragma":"no-cache",
-        })
-        with urllib.request.urlopen(req, timeout=15) as r:
-            data = json.loads(r.read().decode("utf-8"))
-        return data if isinstance(data, dict) else {"records":[]}
+        api_headers={"User-Agent":"MyAlphaView/SourceIntelligence","Accept":"application/vnd.github+json"}
+        req=urllib.request.Request(
+            "https://api.github.com/repos/simonzixin8166-wq/wxc-bot/git/ref/heads/main",
+            headers=api_headers,
+        )
+        with urllib.request.urlopen(req,timeout=20) as resp:
+            ref=json.loads(resp.read().decode("utf-8"))
+        commit_sha=((ref.get("object") or {}).get("sha"))
+        if not commit_sha:
+            raise RuntimeError("missing main commit sha")
+        req=urllib.request.Request(
+            f"https://api.github.com/repos/simonzixin8166-wq/wxc-bot/git/trees/{commit_sha}?recursive=1",
+            headers=api_headers,
+        )
+        with urllib.request.urlopen(req,timeout=20) as resp:
+            tree=json.loads(resp.read().decode("utf-8"))
+        node=next((x for x in tree.get("tree") or [] if x.get("path")=="state/research_feed.json"),None)
+        if not node or not node.get("sha"):
+            raise RuntimeError("research_feed blob not found")
+        req=urllib.request.Request(
+            f"https://api.github.com/repos/simonzixin8166-wq/wxc-bot/git/blobs/{node['sha']}",
+            headers=api_headers,
+        )
+        with urllib.request.urlopen(req,timeout=20) as resp:
+            blob=json.loads(resp.read().decode("utf-8"))
+        raw=base64.b64decode(str(blob.get("content") or "").replace("\\n","")).decode("utf-8")
+        data=json.loads(raw)
+        if isinstance(data,dict) and isinstance(data.get("records"),list):
+            data["_fetch_path"]="git_blob"
+            return data
+        errors.append("git blob returned invalid feed")
     except Exception as e:
-        print("source feed unavailable:", e)
-        return {"records":[]}
+        errors.append(f"git_blob: {e}")
+
+    raise RuntimeError("research feed unavailable; fail closed: "+" | ".join(errors))
 
 def fetch_youtube_learning_archive():
     try:
@@ -647,12 +670,20 @@ def build(records, youtube_historical_learning=None):
     }
 
 def main():
-    feed = fetch_feed()
-    records = seed_brightline() + list(feed.get("records") or [])
-    result = build(records, youtube_historical_learning=fetch_youtube_learning_archive())
-    OUT.parent.mkdir(parents=True, exist_ok=True)
-    OUT.write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
-    print(json.dumps(result["counts"], ensure_ascii=False))
+    previous=load(OUT,{})
+    previous_count=int((previous.get("counts") or {}).get("records") or 0)
+    feed=fetch_feed()
+    records=seed_brightline()+list(feed.get("records") or [])
+    result=build(records,youtube_historical_learning=fetch_youtube_learning_archive())
+    current_count=int((result.get("counts") or {}).get("records") or 0)
+    if previous_count and current_count < previous_count:
+        raise RuntimeError(
+            f"source intelligence regression blocked: current={current_count} < previous={previous_count}"
+        )
+    result["feed_fetch_path"]=feed.get("_fetch_path")
+    OUT.parent.mkdir(parents=True,exist_ok=True)
+    OUT.write_text(json.dumps(result,ensure_ascii=False,indent=2),encoding="utf-8")
+    print(json.dumps(result["counts"],ensure_ascii=False))
     return 0
 
 if __name__ == "__main__":

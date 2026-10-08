@@ -69,6 +69,7 @@ def build():
     support=load("docs/research/support_volatility_intelligence.json")
     support_outcomes=load("docs/research/support_volatility_outcome_memory.json")
     optctx=load("docs/research/options_opportunity_context.json")
+    optout=load("docs/research/options_opportunity_outcome_memory.json")
     server=load("docs/research/server_action_status.json")
     source_store=load("research/store/source_store.json")
     candidate_forward=load("docs/research/candidate_forward_status.json")
@@ -129,11 +130,14 @@ def build():
           "learning_active" if int((support_outcomes.get("counts") or {}).get("mature20") or 0)>0 else "partial_learning",
           ([] if int((support_outcomes.get("counts") or {}).get("mature20") or 0)>0 else ["Dated Support/GARCH observations are now retained; waiting for real 20-session outcomes to mature."]),
           {"universe":support.get("universe"),"observations":(support_outcomes.get("counts") or {}).get("observations"),"mature20":(support_outcomes.get("counts") or {}).get("mature20"),"garch_mae_pct_points":(support_outcomes.get("metrics") or {}).get("garch_mae_pct_points")}),
-      row("options_opportunity", bool(optctx), "current_research_artifact_plus_private_positions",
-          True, bool(option_learning.get("observations")), bool(option_learning.get("mature_outcomes")), True,
-          "partial_learning" if not option_learning.get("mature_outcomes") else "learning_active",
-          ["Opportunity screening is research-only. Strategy candidate outcomes need persistent opportunity snapshots, rejected/no-trade cases, and later premium/assignment/MAE/MFE outcomes."],
-          {"universe":optctx.get("universe"),"observations":option_learning.get("observations"),"mature_outcomes":option_learning.get("mature_outcomes")}),
+      row("options_opportunity", bool(optctx), "current_context_plus_append_only_research_outcomes_plus_private_positions",
+          True,
+          bool((optout.get("counts") or {}).get("observations") or option_learning.get("observations")),
+          bool((optout.get("counts") or {}).get("matured") or option_learning.get("mature_outcomes")),
+          True,
+          "learning_active" if int((optout.get("counts") or {}).get("matured") or 0)>0 or option_learning.get("mature_outcomes") else "partial_learning",
+          ["Research scan/reject/no-trade snapshots now retain underlying 5D/20D outcomes. True option PnL/assignment learning still requires private executed-position outcomes and live-chain fields such as IV rank/skew/term structure."],
+          {"universe":optctx.get("universe"),"research_observations":(optout.get("counts") or {}).get("observations"),"research_matured":(optout.get("counts") or {}).get("matured"),"private_observations":option_learning.get("observations"),"private_mature_outcomes":option_learning.get("mature_outcomes")}),
       row("auto_thesis_revision_memory", bool(thesis.get("symbols")), "current_draft_plus_append_only_revision_history",
           True, jsonl_rows("research/archive/thesis_revisions")>0, bool(fsum.get("linked_direct_events")), True,
           "partial_learning",
@@ -177,7 +181,7 @@ def build():
     for x in rows:counts[x["learning_status"]]=counts.get(x["learning_status"],0)+1
     gaps=[{"domain":x["domain"],"status":x["learning_status"],"gaps":x["gaps"]} for x in rows if rank.get(x["learning_status"],0)<3]
     return {
-      "version":"1.4",
+      "version":"1.5",
       "generated_at":datetime.now(timezone.utc).isoformat(),
       "principle":"Collection success is not learning success. Permanent storage and learning inputs must not be record-count capped; only per-run processing and UI presentation may be bounded.",
       "counts":counts,

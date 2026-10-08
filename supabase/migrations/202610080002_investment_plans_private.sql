@@ -69,3 +69,6 @@ end $$;
 comment on table public.investment_plan_settings is 'V6.11 private gold budget / monthly DCA settings (owner-only RLS).';
 comment on table public.dca_monthly_plans is 'V6.11 one DCA plan per user per month (unique), reminder de-dup state.';
 comment on table public.investment_executions is 'V6.11 manual DCA / gold stage executions recorded by the owner. No automatic orders.';
+
+-- Make the new tables visible to PostgREST immediately (avoids a 404 race on first use).
+notify pgrst, 'reload schema';

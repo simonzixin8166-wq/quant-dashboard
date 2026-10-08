@@ -340,8 +340,7 @@ def notify(result, previous=None):
     fp=fingerprint(result)
     if previous and previous.get("alert_fingerprint")==fp:
         return "suppressed_duplicate"
-    token=os.getenv("MYALPHA_TG_BOT_TOKEN");chat=os.getenv("MYALPHA_TG_CHAT_ID")
-    if not token or not chat:return "not_configured"
+    if not telegram_configured():return "not_configured"
     if result["status"]=="cannot_judge":
         title="MyAlpha：今日无法可靠判断"
     else:title="MyAlpha：有需要处理的事项"
@@ -349,9 +348,22 @@ def notify(result, previous=None):
     for a in result["actions"][:8]:
         lines.append(f"- {a['level'].upper()} {a.get('symbol','?')} {a.get('expiry','')}：{a.get('reason','')}")
     if result.get("event_count_48h"):lines.append(f"- 48小时内宏观事件：{result['event_count_48h']} 项")
-    body=urllib.parse.urlencode({"chat_id":chat,"text":"\n".join(lines)}).encode()
+    return send_telegram("\n".join(lines),raise_errors=True)
+
+def telegram_configured():
+    return bool(os.getenv("MYALPHA_TG_BOT_TOKEN") and os.getenv("MYALPHA_TG_CHAT_ID"))
+
+def send_telegram(text,raise_errors=False):
+    """Single MyAlpha Telegram sender shared by the action engine and Investment Watch."""
+    token=os.getenv("MYALPHA_TG_BOT_TOKEN");chat=os.getenv("MYALPHA_TG_CHAT_ID")
+    if not token or not chat:return "not_configured"
+    body=urllib.parse.urlencode({"chat_id":chat,"text":text}).encode()
     req=urllib.request.Request(f"https://api.telegram.org/bot{token}/sendMessage",data=body,method="POST")
-    with urllib.request.urlopen(req,timeout=12) as r:r.read()
+    try:
+        with urllib.request.urlopen(req,timeout=12) as r:r.read()
+    except Exception as e:
+        if raise_errors:raise
+        return f"failed:{type(e).__name__}"
     return "sent"
 
 def main():

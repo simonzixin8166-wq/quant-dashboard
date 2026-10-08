@@ -22,6 +22,9 @@ PUBLIC_JSON_ROOT_ALLOWLIST = {
         "event_count_48h","quote_failures","option_learning","decision_learning",
         "data_trust","delivery","alert_fingerprint","privacy",
     },
+    "docs/research/investment_actions_status.json": {
+        "version","generated_at","module","freshness","gold","dca_calendar","alert_state","guardrails","learning",
+    },
     "docs/research/auto_thesis_drafts.json": {
         "version","generated_at","mode","external_requests","symbols","counts","guardrails","revision_history_added",
     },

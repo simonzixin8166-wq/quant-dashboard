@@ -1,80 +1,75 @@
 {
-  "schema_version": "1.0",
+  "schema_version": "2.0",
+  "module_version": "v6.11-gold-dca",
   "strategy_id": "gold-etf-long-term-watch",
-  "name_zh": "黄金ETF长期配置观察",
+  "name_zh": "黄金ETF长期配置观察 · 分阶段建仓提醒",
   "status": "research_only_not_execution",
   "as_of": "2026-10-08",
   "horizon_years": "3-5+",
+  "execution": "alerts_only_no_auto_trading",
   "universe": {
     "reference_symbol": "XAUUSD",
-    "ibkr_candidates": [
-      "GLDM",
-      "IAU",
-      "GLD",
-      "SGLN"
-    ],
-    "note": "ETF/ETC报价不得使用现货金价直接下单"
+    "reference_basis": "spot_usd_per_troy_ounce",
+    "ibkr_candidates": ["GLDM", "IAU", "GLD", "SGLN"],
+    "note": "ETF/ETC 报价不得使用现货金价直接下单；BUY 提醒同时展示 ETF 最新有效报价"
   },
   "provenance": {
-    "spot_high_2026": {
-      "value": 5595.47,
-      "date": "2026-01-29",
-      "source": "World Gold Council 2026 Mid-Year Outlook"
-    },
-    "verified_spot_low_h1_2026": {
-      "value": 3959.33,
-      "date": "2026-06-24",
-      "source": "World Gold Council 2026 Mid-Year Outlook"
-    },
+    "spot_high_2026": {"value": 5595.47, "date": "2026-01-29", "source": "World Gold Council 2026 Mid-Year Outlook"},
+    "verified_spot_low_h1_2026": {"value": 3959.33, "date": "2026-06-24", "source": "World Gold Council 2026 Mid-Year Outlook"},
     "full_year_low_confirmed": false
   },
-  "watch_bands_usd_oz": [
-    {
-      "min": 3980,
-      "max": 4050,
-      "role": "historically_grounded_zone",
-      "target_allocation_pct": 25
-    },
-    {
-      "min": 3850,
-      "max": 3900,
-      "role": "conditional_stress_band_not_confirmed_support",
-      "target_allocation_pct": 25
-    },
-    {
-      "min": 3650,
-      "max": 3750,
-      "role": "deep_drawdown_scenario_not_confirmed_support",
-      "target_allocation_pct": 20
-    }
+  "core_watch_zone_usd_oz": {"min": 3950, "max": 4050},
+  "stages": [
+    {"stage": 1, "min": 4000, "max": 4050, "budget_pct": 10, "label_zh": "第一阶段观察及试仓"},
+    {"stage": 2, "min": 3950, "max": 4000, "budget_pct": 25, "label_zh": "止跌确认后考虑第二阶段"},
+    {"stage": 3, "min": 3850, "max": 3950, "budget_pct": 25, "label_zh": "跌破历史低点后风险复核"},
+    {"stage": 4, "min": 3650, "max": 3850, "budget_pct": 20, "label_zh": "深度调整下有条件建仓"}
   ],
-  "initial_probe_pct": 10,
   "reserved_pct": 20,
-  "portfolio_gold_allocation_guidance_pct": {
-    "initial": 5,
-    "maximum_review": 10
+  "rules": {
+    "buy_confirmation": {
+      "stabilization": "最近两个完整交易日未创新低，或最新收盘高于前一日最高价（反转）",
+      "trend": "最新收盘不低于 5 日均线",
+      "macro": "DXY 5日涨幅 < 1.5% 且 10Y TIPS 实际收益率 5日上升 < 20bp",
+      "requires_open_market_and_fresh_quote": true
+    },
+    "pause": {
+      "min_conditions": 2,
+      "close_below": 4000,
+      "close_below_sessions": 2,
+      "real_yield_rise_bp_5d": 20,
+      "dxy_rise_pct_5d": 1.5
+    },
+    "deep_review": {"weekly_close_below": 3650, "weeks": 2, "requires_real_yield_worsening": true},
+    "breakout_review": {"above": 4275, "rearm_below": 4225},
+    "rearm_hysteresis_usd": 20
   },
-  "conditions": {
-    "buy": "Within watch band, wait for reversal or 2 sessions without lower low and no material USD/real-yield deterioration",
-    "pause": "At least 2 of: close below 4000 for 2 sessions; US10Y real yield rises >=20bps/5d; DXY gains >=1.5%/5d",
-    "review": "2 consecutive weekly closes below 3650 plus worsening real yields and persistent global gold ETF outflows",
-    "breakout_watch": "Above 4275 with evidence of sustainable breakout/retest"
+  "freshness": {
+    "live_max_age_minutes": 20,
+    "delayed_max_age_minutes": 90,
+    "daily_max_age_days": 5,
+    "real_yield_max_age_days": 7
   },
-  "outputs": [
-    "BUY",
-    "WAIT",
-    "REVIEW"
-  ],
-  "required_fields": [
-    "source",
-    "as_of",
-    "freshness",
-    "used_in_decision"
-  ],
-  "execution": "alerts_only_no_auto_trading",
   "pricing": {
     "cny_per_gram_formula": "XAUUSD * USDCNY / 31.1034768",
-    "fx_must_be_timestamped": true
+    "troy_ounce_grams": 31.1034768,
+    "fx_must_be_timestamped": true,
+    "historical_dates_use_historical_fx": true,
+    "note": "理论国际金价折算，不含国内交易溢价、手续费或产品管理费"
   },
-  "disclaimer": "Rule bands are proposed risk-budget scenarios, not validated technical support; no backtest or autonomous execution."
+  "budget_policy": "黄金总预算只保存在私有设置中；未设置预算时不输出建议金额",
+  "change_log": [
+    {
+      "date": "2026-10-08",
+      "change": "按用户确认的初始资金规划改为五档：4050–4000 10% / 4000–3950 25% / 3950–3850 25% / 3850–3650 20% / 预留 20%",
+      "previous_bands": [
+        {"min": 3980, "max": 4050, "pct": 25},
+        {"min": 3850, "max": 3900, "pct": 25},
+        {"min": 3650, "max": 3750, "pct": 20},
+        {"initial_probe_pct": 10, "reserved_pct": 20}
+      ],
+      "authority": "user_confirmed_plan_not_backtested"
+    }
+  ],
+  "disclaimer": "档位为用户确认的资金规划情景，不代表已被回测验证的支撑位；仅研究与购买提醒，绝不自动连接 IBKR 下单。阈值为初始假设，需样本成熟后经影子策略验证才可调整。"
 }

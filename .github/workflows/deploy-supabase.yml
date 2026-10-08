@@ -7,6 +7,7 @@ on:
     paths:
       - 'supabase/functions/**'
       - 'supabase/config.toml'
+      - 'supabase/migrations/202610080002_investment_plans_private.sql'
 
 permissions:
   contents: read
@@ -31,3 +32,23 @@ jobs:
           supabase functions deploy options-market --project-ref "$SUPABASE_PROJECT_REF"
           supabase functions deploy stock-market --project-ref "$SUPABASE_PROJECT_REF"
           supabase functions deploy market-snapshot --project-ref "$SUPABASE_PROJECT_REF" --no-verify-jwt
+      - name: Apply V6.11 private investment-plan migration (idempotent, owner-only RLS)
+        # Only this explicitly listed, idempotent file is applied; earlier migrations were applied
+        # manually in the SQL Editor and are never re-run from here.
+        run: |
+          python3 - <<'PY'
+          import json, os, urllib.request
+          ref = os.environ["SUPABASE_PROJECT_REF"]; tok = os.environ["SUPABASE_ACCESS_TOKEN"]
+          def q(sql):
+              req = urllib.request.Request(f"https://api.supabase.com/v1/projects/{ref}/database/query",
+                  data=json.dumps({"query": sql}).encode(), method="POST",
+                  headers={"Authorization": f"Bearer {tok}", "Content-Type": "application/json",
+                           "User-Agent": "MyAlpha-Deploy"})
+              with urllib.request.urlopen(req, timeout=60) as r:
+                  return json.loads(r.read().decode() or "null")
+          q(open("supabase/migrations/202610080002_investment_plans_private.sql", encoding="utf-8").read())
+          rows = q("select c.relname as t, c.relrowsecurity as rls from pg_class c join pg_namespace n on n.oid=c.relnamespace "
+                   "where n.nspname='public' and c.relname in ('investment_plan_settings','dca_monthly_plans','investment_executions') order by 1")
+          print("::notice title=V6.11 migration::" + json.dumps(rows))
+          assert len(rows) == 3 and all(r["rls"] for r in rows), rows
+          PY

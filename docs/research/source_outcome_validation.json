@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "generated_at": "2026-10-08T05:09:31.519869+00:00",
+  "generated_at": "2026-10-08T05:18:12.486606+00:00",
   "methodology": {
     "executed_action_baseline": "first trading session open strictly after source date when no reliable intraday timestamp exists",
     "planned_entry_baseline": "explicit stock-entry plans begin only on the first later session whose low touches the stated level; each tranche is validated separately",
@@ -16,12 +16,12 @@
     "attribution_limit": "third-party examples are excluded; unconfirmed source context is visible but excluded from aggregate method memory"
   },
   "counts": {
-    "events": 118,
-    "author_owned": 62,
+    "events": 119,
+    "author_owned": 63,
     "unconfirmed": 56,
-    "triggered_author_owned": 51,
+    "triggered_author_owned": 52,
     "untriggered_plans": 11,
-    "mature60": 25,
+    "mature60": 26,
     "developing": 26,
     "symbols": 19
   },
@@ -43,11 +43,11 @@
         "alignment_rate": 0.6666666666666666
       },
       "60": {
-        "n": 5,
-        "avg_return": -0.09202767215115397,
-        "median_return": -0.09423327743618415,
-        "avg_excess_vs_qqq": -0.1542878127531126,
-        "alignment_rate": 0.2
+        "n": 6,
+        "avg_return": -0.05356866288802168,
+        "median_return": -0.09071898328795563,
+        "avg_excess_vs_qqq": -0.1147431043053313,
+        "alignment_rate": 0.3333333333333333
       }
     },
     "buy": {
@@ -85,7 +85,7 @@
         "n": 7,
         "avg_return": -0.03984545532591921,
         "median_return": -0.0008683382177357979,
-        "avg_excess_vs_qqq": -0.05857748140590383,
+        "avg_excess_vs_qqq": -0.04092418007111905,
         "alignment_rate": 0.42857142857142855
       },
       "60": {
@@ -225,7 +225,7 @@
         "n": 35,
         "avg_return": -0.030622127451962137,
         "median_return": -0.060356263028235824,
-        "avg_excess_vs_qqq": -0.038366029829799496,
+        "avg_excess_vs_qqq": -0.03541283960787409,
         "alignment_rate": 0.43333333333333335
       },
       "60": {
@@ -252,11 +252,11 @@
         "alignment_rate": 1.0
       },
       "60": {
-        "n": 0,
-        "avg_return": null,
-        "median_return": null,
-        "avg_excess_vs_qqq": null,
-        "alignment_rate": null
+        "n": 1,
+        "avg_return": 0.13872638342763977,
+        "median_return": 0.13872638342763977,
+        "avg_excess_vs_qqq": 0.08298043793357524,
+        "alignment_rate": 1.0
       }
     },
     "yifan99": {
@@ -284,6 +284,56 @@
     }
   },
   "events": [
+    {
+      "event_id": "091e103b50dfc7e60232:0:MRVL:0",
+      "author": "BrightLine",
+      "title": "投资逻辑写好了，剩下的就是等：三周纹丝不动，两天暴涨15%，熬不住的人正好完美错过",
+      "url": "https://blog.wenxuecity.com/myblog/82458/202610/4050.html",
+      "published_at": "2026-10-06",
+      "symbol": "MRVL",
+      "operation": {
+        "symbols": [
+          "CRWV",
+          "MRVL"
+        ],
+        "actions": [
+          "sell"
+        ],
+        "attribution": "author_plan",
+        "attribution_confidence": "high"
+      },
+      "actions": [
+        "sell"
+      ],
+      "attribution": "author_plan",
+      "attribution_confidence": "high",
+      "baseline_kind": "next_session",
+      "baseline_assumption": "next trading session open because source date has no reliable intraday timestamp",
+      "planned_level": null,
+      "triggered": true,
+      "baseline_date": "2026-10-07",
+      "baseline_price": 281.29999,
+      "price_provenance": {
+        "price_source": "stooq_archive",
+        "adjustment_basis": "stooq_archive_native_series",
+        "baseline_source": "stooq_archive",
+        "horizon_source": "stooq_archive",
+        "same_source": true
+      },
+      "outcomes": {
+        "5": null,
+        "20": null,
+        "60": null
+      },
+      "alignment": {
+        "direction": "bearish",
+        "5": null,
+        "20": null,
+        "60": null
+      },
+      "level_checks": {},
+      "status": "developing"
+    },
     {
       "event_id": "091e103b50dfc7e60232:0:CRWV:0",
       "author": "BrightLine",
@@ -1154,7 +1204,9 @@
           "date": "2026-10-06",
           "return": 0.1160713947819485,
           "mae": -0.06230164899366919,
-          "mfe": 0.26428570022929065
+          "mfe": 0.26428570022929065,
+          "benchmark_return": 0.05107576684435888,
+          "excess_vs_qqq": 0.06499562793758962
         },
         "60": null
       },
@@ -1212,13 +1264,20 @@
           "benchmark_return": -0.022706055826741012,
           "excess_vs_qqq": -0.0671227803450235
         },
-        "20": null,
+        "20": {
+          "date": "2026-10-07",
+          "return": 0.01870361631847617,
+          "mae": -0.1037278538029257,
+          "mfe": 0.0440135558320105,
+          "benchmark_return": 0.05107576684435888,
+          "excess_vs_qqq": -0.032372150525882715
+        },
         "60": null
       },
       "alignment": {
         "direction": "bullish",
         "5": "not_aligned",
-        "20": null,
+        "20": "aligned",
         "60": null
       },
       "level_checks": {},
@@ -1273,7 +1332,9 @@
           "date": "2026-10-06",
           "return": 0.008838319146958984,
           "mae": -0.12910077737963188,
-          "mfe": 0.06977995425072403
+          "mfe": 0.06977995425072403,
+          "benchmark_return": 0.05107576684435888,
+          "excess_vs_qqq": -0.0422374476973999
         },
         "60": null
       },
@@ -4247,16 +4308,23 @@
           "benchmark_return": 0.004388898177562162,
           "excess_vs_qqq": 0.038816242323061356
         },
-        "60": null
+        "60": {
+          "date": "2026-10-07",
+          "return": 0.13872638342763977,
+          "mae": -0.08885585499184812,
+          "mfe": 0.1670183178287139,
+          "benchmark_return": 0.05574594549406453,
+          "excess_vs_qqq": 0.08298043793357524
+        }
       },
       "alignment": {
         "direction": "bullish",
         "5": "not_aligned",
         "20": "aligned",
-        "60": null
+        "60": "aligned"
       },
       "level_checks": {},
-      "status": "developing"
+      "status": "mature"
     },
     {
       "event_id": "cdf6fa7c797c07f29afb:0:MRVL:0",

@@ -1,35 +1,79 @@
 {
   "version": "6.14.5",
-  "generated_at": "2026-10-07T01:05:10.257091+00:00",
+  "generated_at": "2026-10-08T05:18:12.604495+00:00",
   "mode": "research_only_rule_lifecycle",
-  "source_reading_version": "6.14.6",
+  "source_reading_version": "6.14.7",
   "source_outcome_version": 2,
   "counts": {
-    "rules": 13,
+    "rules": 46,
     "by_state": {
-      "triggered_pending": 2,
-      "mature_5": 2,
-      "mature_20": 4,
+      "triggered_pending": 3,
+      "mature_5": 3,
+      "mature_20": 13,
       "awaiting_trigger": 4,
-      "option_outcome_unscored": 1
+      "option_outcome_unscored": 2,
+      "mature_60": 21
     },
-    "scoreable_stock_rules": 5,
-    "option_unscored": 1,
+    "scoreable_stock_rules": 33,
+    "option_unscored": 2,
     "mapping_missing": 0
   },
   "by_method": {
     "仓位与加减仓": {
-      "triggered_pending": 2,
-      "mature_5": 1,
-      "mature_20": 4,
+      "triggered_pending": 3,
+      "mature_5": 3,
+      "mature_20": 11,
       "awaiting_trigger": 4,
-      "option_outcome_unscored": 1
+      "option_outcome_unscored": 1,
+      "mature_60": 17
     },
     "Sell Put": {
-      "option_outcome_unscored": 1
+      "option_outcome_unscored": 2
+    },
+    "LEAPS": {
+      "mature_60": 2
     }
   },
   "rules": [
+    {
+      "rule_id": "4581927d4ec6f2abbf",
+      "source_id": "091e103b50dfc7e60232",
+      "operation_index": 0,
+      "author": "BrightLine",
+      "published_at": "2026-10-06",
+      "title": "投资逻辑写好了，剩下的就是等：三周纹丝不动，两天暴涨15%，熬不住的人正好完美错过",
+      "url": "https://blog.wenxuecity.com/myblog/82458/202610/4050.html",
+      "method_candidates": [
+        "仓位与加减仓"
+      ],
+      "rule": {
+        "fields": {},
+        "conditions": [],
+        "actions": [
+          "sell"
+        ]
+      },
+      "mapped_event_count": 2,
+      "mapped_event_ids": [
+        "091e103b50dfc7e60232:0:MRVL:0",
+        "091e103b50dfc7e60232:0:CRWV:0"
+      ],
+      "scoreable_as_method_performance": false,
+      "eligible_for_production": false,
+      "state": "triggered_pending",
+      "reason": "Stock-entry lifecycle derived from existing Source Outcome events.",
+      "maturity": {
+        "5": 0,
+        "20": 0,
+        "60": 0
+      },
+      "scored_alignment": {
+        "5": 0,
+        "20": 0,
+        "60": 0
+      },
+      "underlying_strike_context": []
+    },
     {
       "rule_id": "a254c00226e3a16c8c",
       "source_id": "b69e8e9034ba83ad2444",
@@ -48,9 +92,10 @@
           "add"
         ]
       },
-      "mapped_event_count": 1,
+      "mapped_event_count": 2,
       "mapped_event_ids": [
-        "b69e8e9034ba83ad2444:0:IREN:0"
+        "b69e8e9034ba83ad2444:0:IREN:0",
+        "b69e8e9034ba83ad2444:0:CRWV:0"
       ],
       "scoreable_as_method_performance": false,
       "eligible_for_production": false,
@@ -101,6 +146,87 @@
       },
       "scored_alignment": {
         "5": 0,
+        "20": 0,
+        "60": 0
+      },
+      "underlying_strike_context": []
+    },
+    {
+      "rule_id": "069fcaa77d2dbe7598",
+      "source_id": "31d67da43d6cc50d16cb",
+      "operation_index": 0,
+      "author": "yifan99",
+      "published_at": "2026-09-25",
+      "title": "不预测股价，而是学会跟随趋势",
+      "url": "https://blog.wenxuecity.com/myblog/31983/202609/19300.html",
+      "method_candidates": [
+        "仓位与加减仓"
+      ],
+      "rule": {
+        "fields": {},
+        "conditions": [],
+        "actions": [
+          "buy",
+          "sell",
+          "hold"
+        ]
+      },
+      "mapped_event_count": 4,
+      "mapped_event_ids": [
+        "31d67da43d6cc50d16cb:0:QCOM:0",
+        "31d67da43d6cc50d16cb:0:GOOG:0",
+        "31d67da43d6cc50d16cb:0:AMZN:0",
+        "31d67da43d6cc50d16cb:0:AAPL:0"
+      ],
+      "scoreable_as_method_performance": false,
+      "eligible_for_production": false,
+      "state": "mature_5",
+      "reason": "Stock-entry lifecycle derived from existing Source Outcome events.",
+      "maturity": {
+        "5": 4,
+        "20": 0,
+        "60": 0
+      },
+      "scored_alignment": {
+        "5": 0,
+        "20": 0,
+        "60": 0
+      },
+      "underlying_strike_context": []
+    },
+    {
+      "rule_id": "2486df0fc54a74e539",
+      "source_id": "4e9807fbebe47c32a5f4",
+      "operation_index": 0,
+      "author": "yifan99",
+      "published_at": "2026-09-25",
+      "title": "MU与SNDK：TCDS提示趋势转强，但仍需关注财报风险",
+      "url": "https://blog.wenxuecity.com/myblog/31983/202609/19491.html",
+      "method_candidates": [
+        "仓位与加减仓"
+      ],
+      "rule": {
+        "fields": {},
+        "conditions": [],
+        "actions": [
+          "buy"
+        ]
+      },
+      "mapped_event_count": 1,
+      "mapped_event_ids": [
+        "4e9807fbebe47c32a5f4:0:MU:0"
+      ],
+      "scoreable_as_method_performance": true,
+      "eligible_for_production": false,
+      "state": "mature_5",
+      "reason": "Stock-entry lifecycle derived from existing Source Outcome events.",
+      "maturity": {
+        "5": 1,
+        "20": 0,
+        "60": 0
+      },
+      "scored_alignment": {
+        "5": 1,
         "20": 0,
         "60": 0
       },
@@ -166,16 +292,16 @@
       ],
       "scoreable_as_method_performance": true,
       "eligible_for_production": false,
-      "state": "mature_5",
+      "state": "mature_20",
       "reason": "Stock-entry lifecycle derived from existing Source Outcome events.",
       "maturity": {
         "5": 1,
-        "20": 0,
+        "20": 1,
         "60": 0
       },
       "scored_alignment": {
         "5": 1,
-        "20": 0,
+        "20": 1,
         "60": 0
       },
       "underlying_strike_context": []
@@ -583,6 +709,1147 @@
         "5": 0,
         "20": 0,
         "60": 0
+      },
+      "underlying_strike_context": []
+    },
+    {
+      "rule_id": "e3cd65d1bf029d6600",
+      "source_id": "brightline-blog-wenxuecity-com-myblog-82458-202607-18322-html",
+      "operation_index": 0,
+      "author": "BrightLine",
+      "published_at": "2026-07-25",
+      "title": "为什么我逢低买进特斯拉",
+      "url": "https://blog.wenxuecity.com/myblog/82458/202607/18322.html",
+      "method_candidates": [
+        "仓位与加减仓"
+      ],
+      "rule": {
+        "fields": {},
+        "conditions": [],
+        "actions": [
+          "add"
+        ]
+      },
+      "mapped_event_count": 1,
+      "mapped_event_ids": [
+        "brightline-blog-wenxuecity-com-myblog-82458-202607-18322-html:0:TSLA:0"
+      ],
+      "scoreable_as_method_performance": true,
+      "eligible_for_production": false,
+      "state": "mature_20",
+      "reason": "Stock-entry lifecycle derived from existing Source Outcome events.",
+      "maturity": {
+        "5": 1,
+        "20": 1,
+        "60": 0
+      },
+      "scored_alignment": {
+        "5": 1,
+        "20": 1,
+        "60": 0
+      },
+      "underlying_strike_context": []
+    },
+    {
+      "rule_id": "e30e1c7144a605a903",
+      "source_id": "brightline-blog-wenxuecity-com-myblog-82458-202607-18322-html",
+      "operation_index": 1,
+      "author": "BrightLine",
+      "published_at": "2026-07-25",
+      "title": "为什么我逢低买进特斯拉",
+      "url": "https://blog.wenxuecity.com/myblog/82458/202607/18322.html",
+      "method_candidates": [
+        "仓位与加减仓"
+      ],
+      "rule": {
+        "fields": {},
+        "conditions": [],
+        "actions": [
+          "buy"
+        ]
+      },
+      "mapped_event_count": 1,
+      "mapped_event_ids": [
+        "brightline-blog-wenxuecity-com-myblog-82458-202607-18322-html:1:TSLA:0"
+      ],
+      "scoreable_as_method_performance": true,
+      "eligible_for_production": false,
+      "state": "mature_20",
+      "reason": "Stock-entry lifecycle derived from existing Source Outcome events.",
+      "maturity": {
+        "5": 1,
+        "20": 1,
+        "60": 0
+      },
+      "scored_alignment": {
+        "5": 1,
+        "20": 1,
+        "60": 0
+      },
+      "underlying_strike_context": []
+    },
+    {
+      "rule_id": "1adce55244f7fb1e50",
+      "source_id": "brightline-blog-wenxuecity-com-myblog-82458-202607-18322-html",
+      "operation_index": 2,
+      "author": "BrightLine",
+      "published_at": "2026-07-25",
+      "title": "为什么我逢低买进特斯拉",
+      "url": "https://blog.wenxuecity.com/myblog/82458/202607/18322.html",
+      "method_candidates": [],
+      "rule": {
+        "fields": {},
+        "conditions": [],
+        "actions": [
+          "hold"
+        ]
+      },
+      "mapped_event_count": 1,
+      "mapped_event_ids": [
+        "brightline-blog-wenxuecity-com-myblog-82458-202607-18322-html:2:TSLA:0"
+      ],
+      "scoreable_as_method_performance": true,
+      "eligible_for_production": false,
+      "state": "mature_20",
+      "reason": "Stock-entry lifecycle derived from existing Source Outcome events.",
+      "maturity": {
+        "5": 1,
+        "20": 1,
+        "60": 0
+      },
+      "scored_alignment": {
+        "5": 1,
+        "20": 1,
+        "60": 0
+      },
+      "underlying_strike_context": []
+    },
+    {
+      "rule_id": "66a48a8bcab09261f1",
+      "source_id": "a3d9ca55a0550d74ed40",
+      "operation_index": 0,
+      "author": "bogbog",
+      "published_at": "2026-07-23 08:56:12",
+      "title": "我觉得google, tsla等也快进入了值得加仓的range",
+      "url": "https://bbs.wenxuecity.com/cfzh/98894.html",
+      "method_candidates": [
+        "仓位与加减仓"
+      ],
+      "rule": {
+        "fields": {},
+        "conditions": [],
+        "actions": [
+          "add"
+        ]
+      },
+      "mapped_event_count": 1,
+      "mapped_event_ids": [
+        "a3d9ca55a0550d74ed40:0:TSLA:0"
+      ],
+      "scoreable_as_method_performance": true,
+      "eligible_for_production": false,
+      "state": "mature_20",
+      "reason": "Stock-entry lifecycle derived from existing Source Outcome events.",
+      "maturity": {
+        "5": 1,
+        "20": 1,
+        "60": 0
+      },
+      "scored_alignment": {
+        "5": 1,
+        "20": 1,
+        "60": 0
+      },
+      "underlying_strike_context": []
+    },
+    {
+      "rule_id": "2dd8f63c2011c5be1a",
+      "source_id": "8bc3bb44ed3ada090b2b",
+      "operation_index": 0,
+      "author": "bogbog",
+      "published_at": "2026-07-22 09:13:56",
+      "title": "我觉得这个等机会慢慢买入，有的是机会。 他的盘子已经比较大，不太像早期的TSLA",
+      "url": "https://bbs.wenxuecity.com/cfzh/98536.html",
+      "method_candidates": [
+        "仓位与加减仓"
+      ],
+      "rule": {
+        "fields": {},
+        "conditions": [],
+        "actions": [
+          "buy"
+        ]
+      },
+      "mapped_event_count": 1,
+      "mapped_event_ids": [
+        "8bc3bb44ed3ada090b2b:0:TSLA:0"
+      ],
+      "scoreable_as_method_performance": true,
+      "eligible_for_production": false,
+      "state": "mature_20",
+      "reason": "Stock-entry lifecycle derived from existing Source Outcome events.",
+      "maturity": {
+        "5": 1,
+        "20": 1,
+        "60": 0
+      },
+      "scored_alignment": {
+        "5": 1,
+        "20": 1,
+        "60": 0
+      },
+      "underlying_strike_context": []
+    },
+    {
+      "rule_id": "216d044bea14710615",
+      "source_id": "3d512f18166afbbf6b5d",
+      "operation_index": 0,
+      "author": "bogbog",
+      "published_at": "2026-07-17 03:13:19",
+      "title": "我刚刚又加仓了MU@807  & RKLB @64",
+      "url": "https://bbs.wenxuecity.com/cfzh/97437.html",
+      "method_candidates": [
+        "仓位与加减仓"
+      ],
+      "rule": {
+        "fields": {},
+        "conditions": [],
+        "actions": [
+          "add"
+        ]
+      },
+      "mapped_event_count": 1,
+      "mapped_event_ids": [
+        "3d512f18166afbbf6b5d:0:MU:0"
+      ],
+      "scoreable_as_method_performance": true,
+      "eligible_for_production": false,
+      "state": "mature_20",
+      "reason": "Stock-entry lifecycle derived from existing Source Outcome events.",
+      "maturity": {
+        "5": 1,
+        "20": 1,
+        "60": 0
+      },
+      "scored_alignment": {
+        "5": 1,
+        "20": 1,
+        "60": 0
+      },
+      "underlying_strike_context": []
+    },
+    {
+      "rule_id": "e4f33922dd4b842281",
+      "source_id": "c86f0c70f65e76dfa62b",
+      "operation_index": 0,
+      "author": "bogbog",
+      "published_at": "2026-07-15 16:41:48",
+      "title": "我今天加仓了MU & NBIS,  有可能更低，但是又在我愿意买的价格范围内我就又加了",
+      "url": "https://bbs.wenxuecity.com/cfzh/97063.html",
+      "method_candidates": [
+        "仓位与加减仓"
+      ],
+      "rule": {
+        "fields": {},
+        "conditions": [],
+        "actions": [
+          "add"
+        ]
+      },
+      "mapped_event_count": 2,
+      "mapped_event_ids": [
+        "c86f0c70f65e76dfa62b:0:NBIS:0",
+        "c86f0c70f65e76dfa62b:0:MU:0"
+      ],
+      "scoreable_as_method_performance": true,
+      "eligible_for_production": false,
+      "state": "mature_20",
+      "reason": "Stock-entry lifecycle derived from existing Source Outcome events.",
+      "maturity": {
+        "5": 2,
+        "20": 2,
+        "60": 0
+      },
+      "scored_alignment": {
+        "5": 2,
+        "20": 2,
+        "60": 0
+      },
+      "underlying_strike_context": []
+    },
+    {
+      "rule_id": "64ce4e5463630b1fbb",
+      "source_id": "03d8673a1c3b5985b11c",
+      "operation_index": 0,
+      "author": "bogbog",
+      "published_at": "2026-07-12 16:44:56",
+      "title": "AMD现在短期不便宜了，我记得两个月前您说过有个网红说AMD不好，但当时还是值得买的。",
+      "url": "https://bbs.wenxuecity.com/cfzh/96265.html",
+      "method_candidates": [
+        "仓位与加减仓"
+      ],
+      "rule": {
+        "fields": {},
+        "conditions": [],
+        "actions": [
+          "add"
+        ]
+      },
+      "mapped_event_count": 1,
+      "mapped_event_ids": [
+        "03d8673a1c3b5985b11c:0:NVDA:0"
+      ],
+      "scoreable_as_method_performance": true,
+      "eligible_for_production": false,
+      "state": "mature_60",
+      "reason": "Stock-entry lifecycle derived from existing Source Outcome events.",
+      "maturity": {
+        "5": 1,
+        "20": 1,
+        "60": 1
+      },
+      "scored_alignment": {
+        "5": 1,
+        "20": 1,
+        "60": 1
+      },
+      "underlying_strike_context": []
+    },
+    {
+      "rule_id": "05e86ca49ac2786eac",
+      "source_id": "brightline-blog-wenxuecity-com-myblog-82458-202605-18645-html",
+      "operation_index": 0,
+      "author": "BrightLine",
+      "published_at": "2026-05-30",
+      "title": "AI还在早期,但大回撤一定会来:我的答案不是逃顶,而是摔不死",
+      "url": "https://blog.wenxuecity.com/myblog/82458/202605/18645.html",
+      "method_candidates": [],
+      "rule": {
+        "fields": {},
+        "conditions": [],
+        "actions": [
+          "hold"
+        ]
+      },
+      "mapped_event_count": 2,
+      "mapped_event_ids": [
+        "brightline-blog-wenxuecity-com-myblog-82458-202605-18645-html:0:SMH:0",
+        "brightline-blog-wenxuecity-com-myblog-82458-202605-18645-html:0:QQQ:0"
+      ],
+      "scoreable_as_method_performance": true,
+      "eligible_for_production": false,
+      "state": "mature_60",
+      "reason": "Stock-entry lifecycle derived from existing Source Outcome events.",
+      "maturity": {
+        "5": 2,
+        "20": 2,
+        "60": 2
+      },
+      "scored_alignment": {
+        "5": 2,
+        "20": 2,
+        "60": 2
+      },
+      "underlying_strike_context": []
+    },
+    {
+      "rule_id": "59349b9217419b04a9",
+      "source_id": "brightline-blog-wenxuecity-com-myblog-82458-202605-16902-html",
+      "operation_index": 0,
+      "author": "BrightLine",
+      "published_at": "2026-05-27",
+      "title": "IREN 最新更新：继续做 AI 基础设施产能的长期持有者",
+      "url": "https://blog.wenxuecity.com/myblog/82458/202605/16902.html",
+      "method_candidates": [],
+      "rule": {
+        "fields": {},
+        "conditions": [],
+        "actions": [
+          "hold"
+        ]
+      },
+      "mapped_event_count": 1,
+      "mapped_event_ids": [
+        "brightline-blog-wenxuecity-com-myblog-82458-202605-16902-html:0:IREN:0"
+      ],
+      "scoreable_as_method_performance": true,
+      "eligible_for_production": false,
+      "state": "mature_60",
+      "reason": "Stock-entry lifecycle derived from existing Source Outcome events.",
+      "maturity": {
+        "5": 1,
+        "20": 1,
+        "60": 1
+      },
+      "scored_alignment": {
+        "5": 1,
+        "20": 1,
+        "60": 1
+      },
+      "underlying_strike_context": []
+    },
+    {
+      "rule_id": "c205dc1cd6087ebbcb",
+      "source_id": "brightline-blog-wenxuecity-com-myblog-82458-202605-13819-html",
+      "operation_index": 0,
+      "author": "BrightLine",
+      "published_at": "2026-05-22",
+      "title": "IREN：重复 INTC 的 LEAPS 逻辑，我买的不是矿股，而是 NVIDIA AI Factory 产能",
+      "url": "https://blog.wenxuecity.com/myblog/82458/202605/13819.html",
+      "method_candidates": [
+        "仓位与加减仓",
+        "LEAPS"
+      ],
+      "rule": {
+        "fields": {},
+        "conditions": [],
+        "actions": [
+          "sell"
+        ]
+      },
+      "mapped_event_count": 1,
+      "mapped_event_ids": [
+        "brightline-blog-wenxuecity-com-myblog-82458-202605-13819-html:0:IREN:0"
+      ],
+      "scoreable_as_method_performance": true,
+      "eligible_for_production": false,
+      "state": "mature_60",
+      "reason": "Stock-entry lifecycle derived from existing Source Outcome events.",
+      "maturity": {
+        "5": 1,
+        "20": 1,
+        "60": 1
+      },
+      "scored_alignment": {
+        "5": 1,
+        "20": 1,
+        "60": 1
+      },
+      "underlying_strike_context": []
+    },
+    {
+      "rule_id": "1bd7dfe87d6b6eec97",
+      "source_id": "brightline--blog-wenxuecity-com-myblog-82458-202605-4789-html",
+      "operation_index": 0,
+      "author": "BrightLine",
+      "published_at": "2026-05-08",
+      "title": "财富的逻辑：从搏一搏到敢再搏，再到工程化的复利 — 我的投资哲学、方法论与实战案例",
+      "url": "https://blog.wenxuecity.com/myblog/82458/202605/4789.html",
+      "method_candidates": [
+        "仓位与加减仓"
+      ],
+      "rule": {
+        "fields": {},
+        "conditions": [],
+        "actions": [
+          "buy"
+        ]
+      },
+      "mapped_event_count": 1,
+      "mapped_event_ids": [
+        "brightline--blog-wenxuecity-com-myblog-82458-202605-4789-html:0:INTC:0"
+      ],
+      "scoreable_as_method_performance": true,
+      "eligible_for_production": false,
+      "state": "mature_60",
+      "reason": "Stock-entry lifecycle derived from existing Source Outcome events.",
+      "maturity": {
+        "5": 1,
+        "20": 1,
+        "60": 1
+      },
+      "scored_alignment": {
+        "5": 1,
+        "20": 1,
+        "60": 1
+      },
+      "underlying_strike_context": []
+    },
+    {
+      "rule_id": "0a1c8690b5dcef734a",
+      "source_id": "brightline--blog-wenxuecity-com-myblog-82458-202605-4789-html",
+      "operation_index": 1,
+      "author": "BrightLine",
+      "published_at": "2026-05-08",
+      "title": "财富的逻辑：从搏一搏到敢再搏，再到工程化的复利 — 我的投资哲学、方法论与实战案例",
+      "url": "https://blog.wenxuecity.com/myblog/82458/202605/4789.html",
+      "method_candidates": [],
+      "rule": {
+        "fields": {},
+        "conditions": [],
+        "actions": [
+          "hold"
+        ]
+      },
+      "mapped_event_count": 1,
+      "mapped_event_ids": [
+        "brightline--blog-wenxuecity-com-myblog-82458-202605-4789-html:1:INTC:0"
+      ],
+      "scoreable_as_method_performance": true,
+      "eligible_for_production": false,
+      "state": "mature_60",
+      "reason": "Stock-entry lifecycle derived from existing Source Outcome events.",
+      "maturity": {
+        "5": 1,
+        "20": 1,
+        "60": 1
+      },
+      "scored_alignment": {
+        "5": 1,
+        "20": 1,
+        "60": 1
+      },
+      "underlying_strike_context": []
+    },
+    {
+      "rule_id": "2b5bf8666c5c7f03d6",
+      "source_id": "brightline--blog-wenxuecity-com-myblog-82458-202605-4789-html",
+      "operation_index": 2,
+      "author": "BrightLine",
+      "published_at": "2026-05-08",
+      "title": "财富的逻辑：从搏一搏到敢再搏，再到工程化的复利 — 我的投资哲学、方法论与实战案例",
+      "url": "https://blog.wenxuecity.com/myblog/82458/202605/4789.html",
+      "method_candidates": [
+        "仓位与加减仓"
+      ],
+      "rule": {
+        "fields": {},
+        "conditions": [],
+        "actions": [
+          "add"
+        ]
+      },
+      "mapped_event_count": 1,
+      "mapped_event_ids": [
+        "brightline--blog-wenxuecity-com-myblog-82458-202605-4789-html:2:GOOG:0"
+      ],
+      "scoreable_as_method_performance": true,
+      "eligible_for_production": false,
+      "state": "mature_60",
+      "reason": "Stock-entry lifecycle derived from existing Source Outcome events.",
+      "maturity": {
+        "5": 1,
+        "20": 1,
+        "60": 1
+      },
+      "scored_alignment": {
+        "5": 1,
+        "20": 1,
+        "60": 1
+      },
+      "underlying_strike_context": []
+    },
+    {
+      "rule_id": "a7dc9a139929585933",
+      "source_id": "brightline--blog-wenxuecity-com-myblog-82458-202605-4789-html",
+      "operation_index": 3,
+      "author": "BrightLine",
+      "published_at": "2026-05-08",
+      "title": "财富的逻辑：从搏一搏到敢再搏，再到工程化的复利 — 我的投资哲学、方法论与实战案例",
+      "url": "https://blog.wenxuecity.com/myblog/82458/202605/4789.html",
+      "method_candidates": [
+        "仓位与加减仓"
+      ],
+      "rule": {
+        "fields": {},
+        "conditions": [],
+        "actions": [
+          "buy"
+        ]
+      },
+      "mapped_event_count": 2,
+      "mapped_event_ids": [
+        "brightline--blog-wenxuecity-com-myblog-82458-202605-4789-html:3:TSLA:0",
+        "brightline--blog-wenxuecity-com-myblog-82458-202605-4789-html:3:INTC:0"
+      ],
+      "scoreable_as_method_performance": true,
+      "eligible_for_production": false,
+      "state": "mature_60",
+      "reason": "Stock-entry lifecycle derived from existing Source Outcome events.",
+      "maturity": {
+        "5": 2,
+        "20": 2,
+        "60": 2
+      },
+      "scored_alignment": {
+        "5": 2,
+        "20": 2,
+        "60": 2
+      },
+      "underlying_strike_context": []
+    },
+    {
+      "rule_id": "231b58d27a1921f244",
+      "source_id": "brightline--blog-wenxuecity-com-myblog-82458-202605-4789-html",
+      "operation_index": 4,
+      "author": "BrightLine",
+      "published_at": "2026-05-08",
+      "title": "财富的逻辑：从搏一搏到敢再搏，再到工程化的复利 — 我的投资哲学、方法论与实战案例",
+      "url": "https://blog.wenxuecity.com/myblog/82458/202605/4789.html",
+      "method_candidates": [
+        "仓位与加减仓"
+      ],
+      "rule": {
+        "fields": {},
+        "conditions": [],
+        "actions": [
+          "add"
+        ]
+      },
+      "mapped_event_count": 1,
+      "mapped_event_ids": [
+        "brightline--blog-wenxuecity-com-myblog-82458-202605-4789-html:4:TSLA:0"
+      ],
+      "scoreable_as_method_performance": true,
+      "eligible_for_production": false,
+      "state": "mature_60",
+      "reason": "Stock-entry lifecycle derived from existing Source Outcome events.",
+      "maturity": {
+        "5": 1,
+        "20": 1,
+        "60": 1
+      },
+      "scored_alignment": {
+        "5": 1,
+        "20": 1,
+        "60": 1
+      },
+      "underlying_strike_context": []
+    },
+    {
+      "rule_id": "56dc2f25cf2ada4a3f",
+      "source_id": "brightline--blog-wenxuecity-com-myblog-82458-202605-4789-html",
+      "operation_index": 5,
+      "author": "BrightLine",
+      "published_at": "2026-05-08",
+      "title": "财富的逻辑：从搏一搏到敢再搏，再到工程化的复利 — 我的投资哲学、方法论与实战案例",
+      "url": "https://blog.wenxuecity.com/myblog/82458/202605/4789.html",
+      "method_candidates": [],
+      "rule": {
+        "fields": {},
+        "conditions": [],
+        "actions": [
+          "hold"
+        ]
+      },
+      "mapped_event_count": 1,
+      "mapped_event_ids": [
+        "brightline--blog-wenxuecity-com-myblog-82458-202605-4789-html:5:TSLA:0"
+      ],
+      "scoreable_as_method_performance": true,
+      "eligible_for_production": false,
+      "state": "mature_60",
+      "reason": "Stock-entry lifecycle derived from existing Source Outcome events.",
+      "maturity": {
+        "5": 1,
+        "20": 1,
+        "60": 1
+      },
+      "scored_alignment": {
+        "5": 1,
+        "20": 1,
+        "60": 1
+      },
+      "underlying_strike_context": []
+    },
+    {
+      "rule_id": "59d5c4f05ccd62b4e9",
+      "source_id": "brightline--blog-wenxuecity-com-myblog-82458-202605-4789-html",
+      "operation_index": 6,
+      "author": "BrightLine",
+      "published_at": "2026-05-08",
+      "title": "财富的逻辑：从搏一搏到敢再搏，再到工程化的复利 — 我的投资哲学、方法论与实战案例",
+      "url": "https://blog.wenxuecity.com/myblog/82458/202605/4789.html",
+      "method_candidates": [
+        "Sell Put"
+      ],
+      "rule": {
+        "fields": {},
+        "conditions": [],
+        "actions": [
+          "sell_put"
+        ]
+      },
+      "mapped_event_count": 1,
+      "mapped_event_ids": [
+        "brightline--blog-wenxuecity-com-myblog-82458-202605-4789-html:6:TSLA:0"
+      ],
+      "scoreable_as_method_performance": false,
+      "eligible_for_production": false,
+      "state": "option_outcome_unscored",
+      "reason": "Option strategy outcome requires premium/expiry/option-P&L data; stock return is context only.",
+      "maturity": {
+        "5": 0,
+        "20": 0,
+        "60": 0
+      },
+      "underlying_strike_context": [],
+      "underlying_strike_touched": false,
+      "required_evidence": [
+        "option premium at entry",
+        "expiry / contract terms",
+        "close / assignment outcome or option mark history",
+        "fees where available"
+      ]
+    },
+    {
+      "rule_id": "84fba5be4de35620df",
+      "source_id": "brightline--blog-wenxuecity-com-myblog-82458-202605-4789-html",
+      "operation_index": 7,
+      "author": "BrightLine",
+      "published_at": "2026-05-08",
+      "title": "财富的逻辑：从搏一搏到敢再搏，再到工程化的复利 — 我的投资哲学、方法论与实战案例",
+      "url": "https://blog.wenxuecity.com/myblog/82458/202605/4789.html",
+      "method_candidates": [
+        "仓位与加减仓"
+      ],
+      "rule": {
+        "fields": {},
+        "conditions": [],
+        "actions": [
+          "trim"
+        ]
+      },
+      "mapped_event_count": 3,
+      "mapped_event_ids": [
+        "brightline--blog-wenxuecity-com-myblog-82458-202605-4789-html:7:NBIS:0",
+        "brightline--blog-wenxuecity-com-myblog-82458-202605-4789-html:7:IREN:0",
+        "brightline--blog-wenxuecity-com-myblog-82458-202605-4789-html:7:CRWV:0"
+      ],
+      "scoreable_as_method_performance": true,
+      "eligible_for_production": false,
+      "state": "mature_60",
+      "reason": "Stock-entry lifecycle derived from existing Source Outcome events.",
+      "maturity": {
+        "5": 3,
+        "20": 3,
+        "60": 3
+      },
+      "scored_alignment": {
+        "5": 3,
+        "20": 3,
+        "60": 3
+      },
+      "underlying_strike_context": []
+    },
+    {
+      "rule_id": "8886031f53fe0562f8",
+      "source_id": "brightline-s-blog-wenxuecity-com-myblog-82458-202605-385-html",
+      "operation_index": 0,
+      "author": "BrightLine",
+      "published_at": "2026-05-01",
+      "title": "这轮建仓和清仓复盘，开始大力减仓",
+      "url": "https://blog.wenxuecity.com/myblog/82458/202605/385.html",
+      "method_candidates": [
+        "仓位与加减仓"
+      ],
+      "rule": {
+        "fields": {},
+        "conditions": [],
+        "actions": [
+          "buy"
+        ]
+      },
+      "mapped_event_count": 1,
+      "mapped_event_ids": [
+        "brightline-s-blog-wenxuecity-com-myblog-82458-202605-385-html:0:CRWV:0"
+      ],
+      "scoreable_as_method_performance": true,
+      "eligible_for_production": false,
+      "state": "mature_60",
+      "reason": "Stock-entry lifecycle derived from existing Source Outcome events.",
+      "maturity": {
+        "5": 1,
+        "20": 1,
+        "60": 1
+      },
+      "scored_alignment": {
+        "5": 1,
+        "20": 1,
+        "60": 1
+      },
+      "underlying_strike_context": []
+    },
+    {
+      "rule_id": "99f2c0ee99d5571b6a",
+      "source_id": "brightline-s-blog-wenxuecity-com-myblog-82458-202605-385-html",
+      "operation_index": 1,
+      "author": "BrightLine",
+      "published_at": "2026-05-01",
+      "title": "这轮建仓和清仓复盘，开始大力减仓",
+      "url": "https://blog.wenxuecity.com/myblog/82458/202605/385.html",
+      "method_candidates": [
+        "仓位与加减仓"
+      ],
+      "rule": {
+        "fields": {},
+        "conditions": [],
+        "actions": [
+          "buy",
+          "sell"
+        ]
+      },
+      "mapped_event_count": 1,
+      "mapped_event_ids": [
+        "brightline-s-blog-wenxuecity-com-myblog-82458-202605-385-html:1:NBIS:0"
+      ],
+      "scoreable_as_method_performance": false,
+      "eligible_for_production": false,
+      "state": "mature_60",
+      "reason": "Stock-entry lifecycle derived from existing Source Outcome events.",
+      "maturity": {
+        "5": 1,
+        "20": 1,
+        "60": 1
+      },
+      "scored_alignment": {
+        "5": 0,
+        "20": 0,
+        "60": 0
+      },
+      "underlying_strike_context": []
+    },
+    {
+      "rule_id": "17dbf5c5326a19eb2f",
+      "source_id": "brightline-s-blog-wenxuecity-com-myblog-82458-202605-385-html",
+      "operation_index": 2,
+      "author": "BrightLine",
+      "published_at": "2026-05-01",
+      "title": "这轮建仓和清仓复盘，开始大力减仓",
+      "url": "https://blog.wenxuecity.com/myblog/82458/202605/385.html",
+      "method_candidates": [
+        "仓位与加减仓"
+      ],
+      "rule": {
+        "fields": {},
+        "conditions": [],
+        "actions": [
+          "buy",
+          "sell"
+        ]
+      },
+      "mapped_event_count": 1,
+      "mapped_event_ids": [
+        "brightline-s-blog-wenxuecity-com-myblog-82458-202605-385-html:2:CRWV:0"
+      ],
+      "scoreable_as_method_performance": false,
+      "eligible_for_production": false,
+      "state": "mature_60",
+      "reason": "Stock-entry lifecycle derived from existing Source Outcome events.",
+      "maturity": {
+        "5": 1,
+        "20": 1,
+        "60": 1
+      },
+      "scored_alignment": {
+        "5": 0,
+        "20": 0,
+        "60": 0
+      },
+      "underlying_strike_context": []
+    },
+    {
+      "rule_id": "593a1312c227eca6c5",
+      "source_id": "brightline-s-blog-wenxuecity-com-myblog-82458-202605-385-html",
+      "operation_index": 3,
+      "author": "BrightLine",
+      "published_at": "2026-05-01",
+      "title": "这轮建仓和清仓复盘，开始大力减仓",
+      "url": "https://blog.wenxuecity.com/myblog/82458/202605/385.html",
+      "method_candidates": [
+        "仓位与加减仓"
+      ],
+      "rule": {
+        "fields": {},
+        "conditions": [],
+        "actions": [
+          "buy"
+        ]
+      },
+      "mapped_event_count": 1,
+      "mapped_event_ids": [
+        "brightline-s-blog-wenxuecity-com-myblog-82458-202605-385-html:3:INTC:0"
+      ],
+      "scoreable_as_method_performance": true,
+      "eligible_for_production": false,
+      "state": "mature_60",
+      "reason": "Stock-entry lifecycle derived from existing Source Outcome events.",
+      "maturity": {
+        "5": 1,
+        "20": 1,
+        "60": 1
+      },
+      "scored_alignment": {
+        "5": 1,
+        "20": 1,
+        "60": 1
+      },
+      "underlying_strike_context": []
+    },
+    {
+      "rule_id": "812aed475b20160dd8",
+      "source_id": "brightline-s-blog-wenxuecity-com-myblog-82458-202605-385-html",
+      "operation_index": 4,
+      "author": "BrightLine",
+      "published_at": "2026-05-01",
+      "title": "这轮建仓和清仓复盘，开始大力减仓",
+      "url": "https://blog.wenxuecity.com/myblog/82458/202605/385.html",
+      "method_candidates": [
+        "仓位与加减仓"
+      ],
+      "rule": {
+        "fields": {},
+        "conditions": [],
+        "actions": [
+          "add"
+        ]
+      },
+      "mapped_event_count": 1,
+      "mapped_event_ids": [
+        "brightline-s-blog-wenxuecity-com-myblog-82458-202605-385-html:4:AMZN:0"
+      ],
+      "scoreable_as_method_performance": true,
+      "eligible_for_production": false,
+      "state": "mature_20",
+      "reason": "Stock-entry lifecycle derived from existing Source Outcome events.",
+      "maturity": {
+        "5": 1,
+        "20": 1,
+        "60": 0
+      },
+      "scored_alignment": {
+        "5": 1,
+        "20": 1,
+        "60": 0
+      },
+      "underlying_strike_context": []
+    },
+    {
+      "rule_id": "9a5fee901464ffc996",
+      "source_id": "brightline-s-blog-wenxuecity-com-myblog-82458-202605-385-html",
+      "operation_index": 5,
+      "author": "BrightLine",
+      "published_at": "2026-05-01",
+      "title": "这轮建仓和清仓复盘，开始大力减仓",
+      "url": "https://blog.wenxuecity.com/myblog/82458/202605/385.html",
+      "method_candidates": [
+        "仓位与加减仓"
+      ],
+      "rule": {
+        "fields": {},
+        "conditions": [],
+        "actions": [
+          "buy"
+        ]
+      },
+      "mapped_event_count": 1,
+      "mapped_event_ids": [
+        "brightline-s-blog-wenxuecity-com-myblog-82458-202605-385-html:5:META:0"
+      ],
+      "scoreable_as_method_performance": true,
+      "eligible_for_production": false,
+      "state": "mature_60",
+      "reason": "Stock-entry lifecycle derived from existing Source Outcome events.",
+      "maturity": {
+        "5": 1,
+        "20": 1,
+        "60": 1
+      },
+      "scored_alignment": {
+        "5": 1,
+        "20": 1,
+        "60": 1
+      },
+      "underlying_strike_context": []
+    },
+    {
+      "rule_id": "73d06999e3e187ed73",
+      "source_id": "brightline-s-blog-wenxuecity-com-myblog-82458-202605-385-html",
+      "operation_index": 6,
+      "author": "BrightLine",
+      "published_at": "2026-05-01",
+      "title": "这轮建仓和清仓复盘，开始大力减仓",
+      "url": "https://blog.wenxuecity.com/myblog/82458/202605/385.html",
+      "method_candidates": [
+        "仓位与加减仓"
+      ],
+      "rule": {
+        "fields": {},
+        "conditions": [],
+        "actions": [
+          "add"
+        ]
+      },
+      "mapped_event_count": 1,
+      "mapped_event_ids": [
+        "brightline-s-blog-wenxuecity-com-myblog-82458-202605-385-html:6:TSLA:0"
+      ],
+      "scoreable_as_method_performance": true,
+      "eligible_for_production": false,
+      "state": "mature_60",
+      "reason": "Stock-entry lifecycle derived from existing Source Outcome events.",
+      "maturity": {
+        "5": 1,
+        "20": 1,
+        "60": 1
+      },
+      "scored_alignment": {
+        "5": 1,
+        "20": 1,
+        "60": 1
+      },
+      "underlying_strike_context": []
+    },
+    {
+      "rule_id": "eade839a6f8d78abd3",
+      "source_id": "brightline-blog-wenxuecity-com-myblog-82458-202604-15958-html",
+      "operation_index": 0,
+      "author": "BrightLine",
+      "published_at": "2026-04-24",
+      "title": "我的 INTC  LEAPS 期权更新",
+      "url": "https://blog.wenxuecity.com/myblog/82458/202604/15958.html",
+      "method_candidates": [
+        "仓位与加减仓",
+        "LEAPS"
+      ],
+      "rule": {
+        "fields": {},
+        "conditions": [],
+        "actions": [
+          "buy"
+        ]
+      },
+      "mapped_event_count": 1,
+      "mapped_event_ids": [
+        "brightline-blog-wenxuecity-com-myblog-82458-202604-15958-html:0:INTC:0"
+      ],
+      "scoreable_as_method_performance": true,
+      "eligible_for_production": false,
+      "state": "mature_60",
+      "reason": "Stock-entry lifecycle derived from existing Source Outcome events.",
+      "maturity": {
+        "5": 1,
+        "20": 1,
+        "60": 1
+      },
+      "scored_alignment": {
+        "5": 1,
+        "20": 1,
+        "60": 1
+      },
+      "underlying_strike_context": []
+    },
+    {
+      "rule_id": "fc95e276e9ed1daf10",
+      "source_id": "brightline-blog-wenxuecity-com-myblog-82458-202604-15204-html",
+      "operation_index": 0,
+      "author": "BrightLine",
+      "published_at": "2026-04-23",
+      "title": "今天认错。ServiceNow 这笔交易，我看错了。",
+      "url": "https://blog.wenxuecity.com/myblog/82458/202604/15204.html",
+      "method_candidates": [
+        "仓位与加减仓"
+      ],
+      "rule": {
+        "fields": {},
+        "conditions": [],
+        "actions": [
+          "buy"
+        ]
+      },
+      "mapped_event_count": 1,
+      "mapped_event_ids": [
+        "brightline-blog-wenxuecity-com-myblog-82458-202604-15204-html:0:NOW:0"
+      ],
+      "scoreable_as_method_performance": true,
+      "eligible_for_production": false,
+      "state": "mature_60",
+      "reason": "Stock-entry lifecycle derived from existing Source Outcome events.",
+      "maturity": {
+        "5": 1,
+        "20": 1,
+        "60": 1
+      },
+      "scored_alignment": {
+        "5": 1,
+        "20": 1,
+        "60": 1
+      },
+      "underlying_strike_context": []
+    },
+    {
+      "rule_id": "229fd87e9d54f99822",
+      "source_id": "brightline-s-blog-wenxuecity-com-myblog-82458-202604-985-html",
+      "operation_index": 0,
+      "author": "BrightLine",
+      "published_at": "2026-04-02",
+      "title": "为什么今天我加仓特斯拉",
+      "url": "https://blog.wenxuecity.com/myblog/82458/202604/985.html",
+      "method_candidates": [
+        "仓位与加减仓"
+      ],
+      "rule": {
+        "fields": {},
+        "conditions": [],
+        "actions": [
+          "add"
+        ]
+      },
+      "mapped_event_count": 1,
+      "mapped_event_ids": [
+        "brightline-s-blog-wenxuecity-com-myblog-82458-202604-985-html:0:TSLA:0"
+      ],
+      "scoreable_as_method_performance": true,
+      "eligible_for_production": false,
+      "state": "mature_60",
+      "reason": "Stock-entry lifecycle derived from existing Source Outcome events.",
+      "maturity": {
+        "5": 1,
+        "20": 1,
+        "60": 1
+      },
+      "scored_alignment": {
+        "5": 1,
+        "20": 1,
+        "60": 1
+      },
+      "underlying_strike_context": []
+    },
+    {
+      "rule_id": "7a1c13de9b4a42d7f9",
+      "source_id": "brightline-blog-wenxuecity-com-myblog-82458-202601-16824-html",
+      "operation_index": 0,
+      "author": "BrightLine",
+      "published_at": "2026-01-19",
+      "title": "把体力劳动交给机器人，这是我想要的未来",
+      "url": "https://blog.wenxuecity.com/myblog/82458/202601/16824.html",
+      "method_candidates": [
+        "仓位与加减仓"
+      ],
+      "rule": {
+        "fields": {},
+        "conditions": [],
+        "actions": [
+          "add"
+        ]
+      },
+      "mapped_event_count": 1,
+      "mapped_event_ids": [
+        "brightline-blog-wenxuecity-com-myblog-82458-202601-16824-html:0:TSLA:0"
+      ],
+      "scoreable_as_method_performance": true,
+      "eligible_for_production": false,
+      "state": "mature_60",
+      "reason": "Stock-entry lifecycle derived from existing Source Outcome events.",
+      "maturity": {
+        "5": 1,
+        "20": 1,
+        "60": 1
+      },
+      "scored_alignment": {
+        "5": 1,
+        "20": 1,
+        "60": 1
       },
       "underlying_strike_context": []
     }

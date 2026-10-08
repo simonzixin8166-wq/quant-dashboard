@@ -13,6 +13,7 @@ from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
 OFFICIAL=ROOT/"docs"/"research"/"official_evidence.json"
 EVENTS=ROOT/"docs"/"research"/"event_evidence.json"
+THESIS_ARCHIVE=ROOT/"research"/"archive"/"thesis_revisions"
 OUT=ROOT/"docs"/"research"/"auto_thesis_drafts.json"
 VERSION="6.15.1"
 
@@ -95,9 +96,45 @@ def build():
       ]
     }
 
+def append_thesis_revisions(out):
+    THESIS_ARCHIVE.mkdir(parents=True,exist_ok=True)
+    added=0
+    for symbol,row in (out.get("symbols") or {}).items():
+        path=THESIS_ARCHIVE/f"{symbol}.jsonl"
+        prior=[]
+        if path.exists():
+            for line in path.read_text(encoding="utf-8").splitlines():
+                try:prior.append(json.loads(line))
+                except Exception:continue
+        last=prior[-1] if prior else None
+        if last and last.get("evidence_hash")==row.get("evidence_hash"):
+            continue
+        revision={
+          "symbol":symbol,
+          "revision_at":out.get("generated_at"),
+          "evidence_hash":row.get("evidence_hash"),
+          "previous_evidence_hash":(last or {}).get("evidence_hash"),
+          "evidence_summary":row.get("evidence_summary"),
+          "catalysts":row.get("catalysts"),
+          "risks":row.get("risks"),
+          "invalidation":row.get("invalidation"),
+          "valuation_note":row.get("valuation_note"),
+          "change_reason":"initial_thesis" if not last else "evidence_hash_changed",
+          "source_urls":[
+            x.get("url") for bucket in ("official","events")
+            for x in ((row.get("sources") or {}).get(bucket) or []) if x.get("url")
+          ],
+          "production_effect":"none",
+        }
+        with path.open("a",encoding="utf-8") as f:
+            f.write(json.dumps(revision,ensure_ascii=False,sort_keys=True)+"\n")
+        added+=1
+    return added
+
 def main():
     out=build();OUT.parent.mkdir(parents=True,exist_ok=True)
+    out["revision_history_added"]=append_thesis_revisions(out)
     OUT.write_text(json.dumps(out,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
-    print(json.dumps(out["counts"],ensure_ascii=False))
+    print(json.dumps({**out["counts"],"revision_history_added":out["revision_history_added"]},ensure_ascii=False))
 
 if __name__=="__main__":main()

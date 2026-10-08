@@ -1,11 +1,11 @@
 {
   "version": "1.0",
-  "generated_at": "2026-10-08T06:03:54.098737+00:00",
+  "generated_at": "2026-10-08T06:18:46.916783+00:00",
   "evaluation_spec_version": "1.7",
   "scoring_engine_version": "event_score@6.15.8l",
   "evidence_layers": {
     "legacy_observational_archive": {
-      "count": 55,
+      "count": 119,
       "label": "历史观察归档",
       "description": "历史/迁移事件，仅供复盘和方法线索，不参与 Promotion。"
     },
@@ -33,14 +33,14 @@
   "source_rule_funnel": {
     "schema_version": "1.0",
     "status": "ok",
-    "generated_at": "2026-10-07T01:39:01.166156+00:00",
-    "new_sources_total": 0,
+    "generated_at": "2026-10-08T06:13:11.809128+00:00",
+    "new_sources_total": 53,
     "terminal_reason_counts": {
-      "backfill": 0,
+      "backfill": 4,
       "rekeyed_duplicate": 0,
       "identity_ambiguous": 0,
-      "late_discovery": 0,
-      "admission_integrity_rejected": 0,
+      "late_discovery": 1,
+      "admission_integrity_rejected": 48,
       "no_operations": 0,
       "operation_missing_symbol": 0,
       "no_testable_proposition": 0,
@@ -49,33 +49,46 @@
       "reason_not_recorded": 0
     },
     "terminal_reason_share": {
-      "backfill": null,
-      "rekeyed_duplicate": null,
-      "identity_ambiguous": null,
-      "late_discovery": null,
-      "admission_integrity_rejected": null,
-      "no_operations": null,
-      "operation_missing_symbol": null,
-      "no_testable_proposition": null,
-      "testable_rule_without_registry_rule": null,
-      "rule_formed": null,
-      "reason_not_recorded": null
+      "backfill": 0.07547169811320754,
+      "rekeyed_duplicate": 0.0,
+      "identity_ambiguous": 0.0,
+      "late_discovery": 0.018867924528301886,
+      "admission_integrity_rejected": 0.9056603773584906,
+      "no_operations": 0.0,
+      "operation_missing_symbol": 0.0,
+      "no_testable_proposition": 0.0,
+      "testable_rule_without_registry_rule": 0.0,
+      "rule_formed": 0.0,
+      "reason_not_recorded": 0.0
     },
     "conservation": {
-      "terminal_total": 0,
-      "expected_total": 0,
+      "terminal_total": 53,
+      "expected_total": 53,
       "pass": true
     },
     "downstream": {
-      "operations_total": 0,
-      "propositions_total": 0,
+      "operations_total": 5,
+      "propositions_total": 74,
       "new_forward_rules_total": 0,
       "independent_authors": 0,
       "largest_author_rule_share": null,
       "cumulative_forward_rules": 0,
       "cumulative_forward_authors": 0,
       "cumulative_largest_author_rule_share": null,
-      "admission_sources_with_operations": {},
+      "admission_sources_with_operations": {
+        "backfill": {
+          "sources": 4,
+          "sources_with_operations": 1
+        },
+        "late_discovery": {
+          "sources": 1,
+          "sources_with_operations": 1
+        },
+        "timestamp_unverified": {
+          "sources": 48,
+          "sources_with_operations": 1
+        }
+      },
       "no_operations_context_split": {
         "with_symbols_or_topics": 0,
         "without_symbols_or_topics": 0
@@ -106,7 +119,6 @@
   "readiness": {
     "ready_for_v616": false,
     "blockers": [
-      "production_boundary_clean_runs",
       "production_boundary_clean_span",
       "point_in_time_mature_20_effective_units",
       "point_in_time_mature_60_effective_units",

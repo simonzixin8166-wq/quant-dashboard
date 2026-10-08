@@ -1,0 +1,331 @@
+{
+ "version": "6.11-p1",
+ "generated_at": "2026-10-08T07:34:09.741371Z",
+ "module": "v6.11-gold-dca",
+ "freshness": {
+  "live_max_age_minutes": 20,
+  "delayed_max_age_minutes": 90,
+  "daily_max_age_days": 5,
+  "real_yield_max_age_days": 7
+ },
+ "gold": {
+  "state": "WAIT",
+  "review_kind": null,
+  "zone": "above_plan",
+  "stage": null,
+  "stage_budget_pct": null,
+  "reasons": [
+   "高于观察区；等待 $3,950–4,050"
+  ],
+  "blockers": [],
+  "next_band": {
+   "min": 4000,
+   "max": 4050,
+   "stage": 1
+  },
+  "quote": {
+   "price": 4121.1,
+   "basis": "spot",
+   "source": "gold-api.com 现货",
+   "as_of": "2026-10-08T07:34:06Z",
+   "freshness": "LIVE",
+   "age_minutes": 0.1,
+   "market_open": true,
+   "errors": null
+  },
+  "fx": {
+   "usdcny": 6.7019,
+   "as_of": "2026-10-08T07:34:02Z",
+   "source": "Yahoo CNY=X"
+  },
+  "cny_per_gram": 887.98,
+  "band_cny_per_gram": [
+   {
+    "usd": 4050,
+    "cny_per_gram": 872.66
+   },
+   {
+    "usd": 4000,
+    "cny_per_gram": 861.88
+   },
+   {
+    "usd": 3950,
+    "cny_per_gram": 851.11
+   },
+   {
+    "usd": 3850,
+    "cny_per_gram": 829.56
+   },
+   {
+    "usd": 3650,
+    "cny_per_gram": 786.47
+   }
+  ],
+  "year_stats": {
+   "year": 2026,
+   "basis": "spot_estimate_from_futures",
+   "high": {
+    "value": 5595.47,
+    "date": "2026-01-29",
+    "source": "World Gold Council 2026 Mid-Year Outlook",
+    "intraday": true,
+    "verified": true,
+    "usdcny": 6.9545,
+    "usdcny_date": "2026-01-29",
+    "cny_per_gram": 1251.1
+   },
+   "low": {
+    "value": 3959.33,
+    "date": "2026-06-24",
+    "source": "World Gold Council 2026 Mid-Year Outlook",
+    "intraday": true,
+    "verified": true,
+    "usdcny": 6.79,
+    "usdcny_date": "2026-06-24",
+    "cny_per_gram": 864.34
+   },
+   "low_estimate_after_verified": {
+    "value": 3923.0,
+    "date": "2026-06-30",
+    "basis": "spot_estimate_from_futures",
+    "note": "期货基差估算，未经核实",
+    "usdcny": 6.7936,
+    "usdcny_date": "2026-06-30",
+    "cny_per_gram": 856.86
+   },
+   "coverage": {
+    "from": "2026-01-02",
+    "to": "2026-10-08",
+    "sessions": 193
+   },
+   "low_is_full_year_confirmed": false,
+   "drawdown_from_high_pct": -26.35,
+   "above_low_pct": 4.09
+  },
+  "etf_quotes": {
+   "GLDM": {
+    "price": 81.11,
+    "currency": "USD",
+    "as_of": "2026-10-07T20:00:00Z",
+    "source": "Yahoo GLDM",
+    "delayed": true
+   },
+   "IAU": {
+    "price": 77.06,
+    "currency": "USD",
+    "as_of": "2026-10-07T20:00:00Z",
+    "source": "Yahoo IAU",
+    "delayed": true
+   },
+   "GLD": {
+    "price": 375.88,
+    "currency": "USD",
+    "as_of": "2026-10-07T20:00:00Z",
+    "source": "Yahoo GLD",
+    "delayed": true
+   },
+   "SGLN": {
+    "price": 6061.0,
+    "currency": "GBp",
+    "as_of": "2026-10-08T07:18:58Z",
+    "source": "Yahoo SGLN.L",
+    "delayed": true
+   }
+  },
+  "rules": {
+   "pause": {
+    "checks": [
+     {
+      "id": "gold_close_below",
+      "met": false,
+      "value": [
+       4154.70019565625,
+       4108.3002933125
+      ],
+      "rule": "连续2个交易日收在 $4,000 以下"
+     },
+     {
+      "id": "real_yield_rise",
+      "met": false,
+      "value_bp": 0.0,
+      "rule": "10Y 实际收益率 5 日上升 ≥ 20bp"
+     },
+     {
+      "id": "dxy_rise",
+      "met": false,
+      "value_pct": 0.19,
+      "rule": "DXY 5 日涨幅 > 1.5%"
+     }
+    ],
+    "met": 0,
+    "unknown": 0,
+    "pause": false,
+    "complete": true,
+    "ry_change_bp_5d": 0.0,
+    "dxy_change_pct_5d": 0.19
+   },
+   "deep_review": {
+    "triggered": false,
+    "weekly_closes_below": false,
+    "real_yield_worsening": false,
+    "etf_flows": "unavailable_free_source",
+    "weeks": [
+     {
+      "date": "2026-10-02",
+      "close": 4129.9
+     },
+     {
+      "date": "2026-10-07",
+      "close": 4108.3
+     }
+    ]
+   },
+   "confirmation": {
+    "ok": false,
+    "stabilized": false,
+    "trend": false,
+    "sma5": 4137.44,
+    "detail": "仍在创新低；收盘 4,108 < 5日均线 4,137",
+    "as_of": "2026-10-07"
+   }
+  },
+  "inputs": {
+   "daily": {
+    "source": "COMEX期货日线 − 实时基差 +32.4（现货估算）",
+    "basis": "spot_estimate_from_futures",
+    "futures_spot_basis": 32.4,
+    "last_date": "2026-10-08",
+    "fresh": true
+   },
+   "real_yield": {
+    "source": "FRED DFII10 (10Y TIPS)",
+    "last_date": "2026-10-06",
+    "last": 2.91
+   },
+   "dxy": {
+    "source": "Yahoo DX-Y.NYB",
+    "last_date": "2026-10-08",
+    "last": 102.29
+   },
+   "macro_fresh": true,
+   "etf_flows": "unavailable_free_source"
+  },
+  "stages": [
+   {
+    "stage": 1,
+    "min": 4000,
+    "max": 4050,
+    "budget_pct": 10,
+    "label_zh": "第一阶段观察及试仓"
+   },
+   {
+    "stage": 2,
+    "min": 3950,
+    "max": 4000,
+    "budget_pct": 25,
+    "label_zh": "止跌确认后考虑第二阶段"
+   },
+   {
+    "stage": 3,
+    "min": 3850,
+    "max": 3950,
+    "budget_pct": 25,
+    "label_zh": "跌破历史低点后风险复核"
+   },
+   {
+    "stage": 4,
+    "min": 3650,
+    "max": 3850,
+    "budget_pct": 20,
+    "label_zh": "深度调整下有条件建仓"
+   }
+  ],
+  "reserved_pct": 20,
+  "core_watch_zone": {
+   "min": 3950,
+   "max": 4050
+  },
+  "events_this_run": [],
+  "delivery": [],
+  "signal_id": "7604e4a7e0881413"
+ },
+ "dca_calendar": {
+  "timezone": "Asia/Shanghai",
+  "rule": "每月 7–10 日；遇周末/美股休市顺延至下一美股交易日",
+  "symbols": [
+   "QQQM",
+   "QLD",
+   "VGT"
+  ],
+  "months": [
+   {
+    "month": "2026-10",
+    "nominal": "2026-10-07~2026-10-10",
+    "due_date": "2026-10-07",
+    "window_end": "2026-10-12",
+    "rolled": true
+   },
+   {
+    "month": "2026-11",
+    "nominal": "2026-11-07~2026-11-10",
+    "due_date": "2026-11-09",
+    "window_end": "2026-11-10",
+    "rolled": true
+   },
+   {
+    "month": "2026-12",
+    "nominal": "2026-12-07~2026-12-10",
+    "due_date": "2026-12-07",
+    "window_end": "2026-12-10",
+    "rolled": false
+   }
+  ],
+  "quotes": {
+   "QQQM": {
+    "price": 311.94,
+    "currency": "USD",
+    "as_of": "2026-10-07T20:00:00Z",
+    "source": "Yahoo QQQM",
+    "delayed": true
+   },
+   "QLD": {
+    "price": 100.23,
+    "currency": "USD",
+    "as_of": "2026-10-07T20:00:00Z",
+    "source": "Yahoo QLD",
+    "delayed": true
+   },
+   "VGT": {
+    "price": 129.37,
+    "currency": "USD",
+    "as_of": "2026-10-07T20:00:00Z",
+    "source": "Yahoo VGT",
+    "delayed": true
+   }
+  }
+ },
+ "alert_state": {
+  "armed_watch": true,
+  "armed_breakout": true,
+  "buy_sent_stages": [],
+  "last_state": "WAIT",
+  "last_review_kind": null
+ },
+ "guardrails": {
+  "automatic_orders": false,
+  "private_allocations_published": false,
+  "buy_requires_fresh_spot_and_rules": true,
+  "risk_pause_precedes_buy": true,
+  "thresholds_are_initial_hypotheses": true
+ },
+ "learning": {
+  "journal_entries": 1,
+  "mature": {
+   "20d": 0,
+   "60d": 0,
+   "120d": 0
+  },
+  "capture_mode": "live_forward_state_entries",
+  "rule_changes_from_immature_outcomes": false
+ }
+}

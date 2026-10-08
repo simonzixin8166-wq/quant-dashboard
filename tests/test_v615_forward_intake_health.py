@@ -16,7 +16,8 @@ assert waiting["status"]=="waiting_for_first_genuine_forward_rule"
 assert waiting["counts"]["genuine_forward_rules"]==0
 
 live_store={"records":base_store["records"]+[{"source_key":"s1","ingest_type":"live_ingest","first_fetched_at":"2026-10-05T12:00:00+00:00","first_fetched_at_origin":"source_store_first_observation","admission_class":"genuine_forward","timestamp_confidence":"high","effective_forward_eligible":True,"record":{"id":"s1"}}]}
-live_rules={"rules":base_rules["rules"]+[{"rule_id":"r1","source_id":"s1","author":"new-author","active":True}]}
+# The registry marks a rule effective only when its source is effective-forward (v615_rule_registry.py).
+live_rules={"rules":base_rules["rules"]+[{"rule_id":"r1","source_id":"s1","author":"new-author","active":True,"forward_eligible":True,"effective_forward_eligible":True}]}
 live_families={"assignments":base_families["assignments"]+[{"rule_id":"r1","definition_hash":"defhash","active":True}]}
 live_events={"scoring_engine_version":"event_score@6.15.8j","events":base_events["events"]+[{
  "event_id":"e1","rule_id":"r1","point_in_time_status":"eligible","scoreable":True,"primary_exclusion_reason":None
@@ -55,8 +56,11 @@ assert "live_ingest_missing_immutable_forward_provenance" in forged["blockers"]
 old_live_store={"records":base_store["records"]+[{"source_key":"s3","ingest_type":"live_ingest","first_fetched_at":"2026-10-03T23:59:59+00:00","first_fetched_at_origin":"source_store_first_observation","admission_class":"genuine_forward","record":{"id":"s3"}}]}
 old_live_rules={"rules":base_rules["rules"]+[{"rule_id":"r3","source_id":"s3","author":"x","active":True}]}
 old_live=build(old_live_store,old_live_rules,base_families,base_events,spec,now="2026-10-06T00:00:00Z")
-assert old_live["integrity_pass"] is False
-assert "live_ingest_missing_immutable_forward_provenance" in old_live["blockers"]
+# Since 22b3121 a legacy genuine_forward label that fails the effective gate is excluded
+# (fail-closed for Forward counting) and reported, rather than blocking health forever.
+assert old_live["counts"]["genuine_forward_rules"]==0
+assert old_live["counts"]["forward_eventscore_events"]==0
+assert old_live["counts"]["legacy_ineligible_live_sources"]==1
 print("PASS Spec 1.7 genuine-forward admission lock")
 
 
@@ -84,7 +88,7 @@ assert rekey_out["counts"]["genuine_forward_rules"]==0
 assert rekey_out["counts"]["forward_eventscore_events"]==0
 assert "s-rekey" in rekey_out["details"]["rekeyed_live_inherited_source_ids"]
 
-# Genuine forward with invalid provenance remains a blocker.
+# Genuine forward with invalid provenance never counts as Forward evidence.
 bad_genuine_store={"records":base_store["records"]+[{
  "source_key":"s-bad-genuine","ingest_type":"live_ingest",
  "first_fetched_at":"2026-10-05T12:00:00+00:00",
@@ -94,8 +98,8 @@ bad_genuine_store={"records":base_store["records"]+[{
 }]}
 bad_genuine_rules={"rules":base_rules["rules"]+[{"rule_id":"r-bg","source_id":"s-bad-genuine","author":"x","active":True}]}
 bad_genuine=build(bad_genuine_store,bad_genuine_rules,base_families,base_events,spec,now="2026-10-06T00:00:00Z")
-assert bad_genuine["integrity_pass"] is False
-assert "live_ingest_missing_immutable_forward_provenance" in bad_genuine["blockers"]
+assert bad_genuine["counts"]["genuine_forward_rules"]==0
+assert bad_genuine["counts"]["legacy_ineligible_live_sources"]==1
 
 # Missing admission class + live_ingest is suspicious.
 missing_class_store={"records":base_store["records"]+[{

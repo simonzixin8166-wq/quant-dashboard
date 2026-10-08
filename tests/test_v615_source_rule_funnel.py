@@ -20,7 +20,9 @@ def mem(sid,testable=False,props=None):
     return {"source_id":sid,"propositions":ps,"testable_rule_count":sum(1 for p in ps if p.get("kind")=="testable_rule")}
 
 def rule(sid,rid="r1",author="a",eligible=True):
-    return {"source_id":sid,"rule_id":rid,"author":author,"active":True,"forward_eligible":eligible}
+    # Downstream Forward consumers read only effective_forward_eligible; the funnel
+    # additionally requires the source to be genuine_forward in the store.
+    return {"source_id":sid,"rule_id":rid,"author":author,"active":True,"forward_eligible":eligible,"effective_forward_eligible":eligible}
 
 # 1. First run is baseline only, never backfills the current store into "new".
 store={"records":[srow("old",cls="initial_migration",ingest="initial_migration")]}

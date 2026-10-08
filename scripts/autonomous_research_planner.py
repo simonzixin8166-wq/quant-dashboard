@@ -341,25 +341,72 @@ def build(agent,learning,evidence,method,source,previous,modules=None,cross_asse
         t["controlled_learning_delta"]=round(delta,2)
         t["priority"]=max(0,min(100,round(base+delta,1)))
 
-    old={x.get("task_id"):x for x in previous.get("queue") or []}
+    now_dt=datetime.now(timezone.utc)
+    now=now_dt.isoformat()
+    old={x.get("task_id"):x for x in previous.get("queue") or [] if x.get("task_id")}
+    generated_ids={t["task_id"] for t in tasks}
+
     for t in tasks:
         if t["task_id"] in old:
             t["first_seen_at"]=old[t["task_id"]].get("first_seen_at")
             t["run_count"]=(old[t["task_id"]].get("run_count") or 0)+1
+            t["carry_forward"]=False
         else:
-            t["first_seen_at"]=datetime.now(timezone.utc).isoformat()
+            t["first_seen_at"]=now
             t["run_count"]=1
+            t["carry_forward"]=False
+
+    # Persistent backlog contract: an open task does not disappear merely
+    # because the current snapshot did not regenerate it. Keep unresolved
+    # tasks until their review window expires or another component explicitly
+    # marks them completed/superseded.
+    carried=0
+    expired=0
+    for tid,prior in old.items():
+        if tid in generated_ids:
+            continue
+        status=str(prior.get("status") or "open")
+        if status in {"completed","superseded","cancelled"}:
+            continue
+        first=prior.get("first_seen_at")
+        try:
+            first_dt=datetime.fromisoformat(str(first).replace("Z","+00:00"))
+            if first_dt.tzinfo is None:first_dt=first_dt.replace(tzinfo=timezone.utc)
+        except Exception:
+            first_dt=now_dt
+        window=max(1,int(prior.get("review_window_days") or 2))
+        age_days=(now_dt-first_dt).total_seconds()/86400.0
+        if age_days>window:
+            expired+=1
+            continue
+        carry=dict(prior)
+        carry["status"]="open"
+        carry["carry_forward"]=True
+        carry["last_carried_at"]=now
+        carry["run_count"]=(prior.get("run_count") or 0)+1
+        carry["carry_reason"]="persistent_backlog_not_regenerated_this_snapshot"
+        tasks.append(carry)
+        carried+=1
+
+    # De-duplicate defensively by task_id and prefer freshly generated tasks.
+    dedup={}
+    for t in tasks:
+        tid=t.get("task_id")
+        if not tid:continue
+        if tid not in dedup or not t.get("carry_forward"):
+            dedup[tid]=t
+    tasks=list(dedup.values())
     tasks.sort(key=lambda x:(x["priority"],x["run_count"]),reverse=True)
-    now=datetime.now(timezone.utc).isoformat()
     return {
       "version":"6.14.3","generated_at":now,"mode":"autonomous_research_planner",
       "queue":tasks,
       "today":[x for x in tasks if x["priority"]>=70][:10],
-      "counts":{"open":len(tasks),"high_priority":sum(x["priority"]>=70 for x in tasks),"persistent":sum(x["run_count"]>1 for x in tasks)},
+      "counts":{"open":len(tasks),"high_priority":sum(x["priority"]>=70 for x in tasks),"persistent":sum(x["run_count"]>1 for x in tasks),"carried_backlog":carried,"expired_backlog":expired},
       "planner_policy":{
         "objective":"优先研究可能改变 Thesis、风险暴露或方法可信度的问题。",
         "required_output":["supporting_evidence","counter_evidence","unknowns","next_validation"],
         "controlled_learning":"bounded research-only priority/evidence adjustments; max +/-5 points; no production-rule mutation",
+        "backlog_contract":"open tasks persist across snapshots until completed/superseded/cancelled or review_window_days expires; executor batching never deletes backlog",
         "forbidden":["automatic_order","silent_production_rule_change","single-source conclusion"]
       }
     }

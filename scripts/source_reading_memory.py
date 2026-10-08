@@ -520,7 +520,12 @@ def semantic_regression_guard(previous,current,allow_drop=False):
         return None
     if int(cur_counts.get("source_records") or 0)<int(prev_counts.get("source_records") or 0):
         return None
-    for key in ("propositions","candidate_rules","testable_rules"):
+    keys=("propositions","candidate_rules","testable_rules")
+    # Newly recognised duplicate copies legitimately remove rule candidates
+    # (one independent claim, not two); text volume must still not collapse.
+    if int((current or {}).get("duplicate_evidence_records") or 0)>int((previous or {}).get("duplicate_evidence_records") or 0):
+        keys=("propositions",)
+    for key in keys:
         before=int(prev_counts.get(key) or 0);after=int(cur_counts.get(key) or 0)
         if before>0 and after<before*(1-MAX_SEMANTIC_DROP):
             return f"{key} {before}->{after}"
@@ -567,7 +572,7 @@ def main():
         row["content_hash"]=meta.get("content_hash")
         if row.get("duplicate_of"):
             row["rule_candidate_allowed"]=False
-            row["duplicate_notice"]="Exact normalized cross-channel copy; retained for provenance but excluded from independent candidate/method evidence."
+            row["duplicate_notice"]="Cross-channel copy of the same claim ("+str(meta.get("match_basis") or "exact_text")+"); retained for provenance but excluded from independent candidate/method evidence."
 
     source=dict(source)
     source["records"]=full_records

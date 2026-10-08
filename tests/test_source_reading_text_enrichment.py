@@ -131,6 +131,16 @@ with tempfile.TemporaryDirectory() as d:
         {"text_enrichment": {}, "counts": {"source_records": 5, "propositions": 999}},
         {"counts": {"source_records": 4, "propositions": 1}}) is None
 
+# Newly recognised duplicates may reduce rule candidates, but text volume may not collapse.
+prev_doc={"text_enrichment": {"x": 1}, "duplicate_evidence_records": 0,
+          "counts": {"source_records": 10, "propositions": 100, "candidate_rules": 8, "testable_rules": 46}}
+assert srm.semantic_regression_guard(prev_doc, {"duplicate_evidence_records": 6,
+          "counts": {"source_records": 10, "propositions": 99, "candidate_rules": 5, "testable_rules": 30}}) is None
+assert "propositions" in srm.semantic_regression_guard(prev_doc, {"duplicate_evidence_records": 6,
+          "counts": {"source_records": 10, "propositions": 50, "candidate_rules": 5, "testable_rules": 30}})
+assert "candidate_rules" in srm.semantic_regression_guard(prev_doc, {"duplicate_evidence_records": 0,
+          "counts": {"source_records": 10, "propositions": 99, "candidate_rules": 5, "testable_rules": 46}})
+
 # Unit: identity/provenance fields are never taken from the normalized stream.
 rows, stats = srm.enrich_with_source_text(
     [{"id": "x", "url": "u", "intake_class_hint": "backfill", "captured_at": "A"}],

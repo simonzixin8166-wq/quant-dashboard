@@ -156,6 +156,18 @@ def update_id_ledger(records, ledger):
     return {"version": 1, "record_count": len(ids), "ids": dict(sorted(ids.items()))}
 
 
+def text_depth(records):
+    """How much source text the feed actually carries (honest denominator for 'interpretable')."""
+    out = {"title_only": 0, "excerpt": 0, "full_text": 0, "original_length_known": 0}
+    for r in records:
+        body = len(str(r.get("text") or r.get("full_text") or r.get("transcript") or ""))
+        ex = len(str(r.get("excerpt") or ""))
+        out["full_text" if body >= 1000 else ("excerpt" if (body or ex) else "title_only")] += 1
+        if (r.get("content_chars") or 0) > 0:
+            out["original_length_known"] += 1
+    return out
+
+
 def validate_feed(payload, manifest=None, baseline=None, require_manifest=False, ledger=None):
     """Structural + manifest + append-only checks. Raises FeedIntegrityError; never repairs."""
     import hashlib
@@ -191,7 +203,7 @@ def validate_feed(payload, manifest=None, baseline=None, require_manifest=False,
         if rewritten:
             raise FeedIntegrityError(f"provenance_rewritten:{len(rewritten)} e.g. {rewritten[:3]}")
     feed["_integrity"] = {"record_count": len(records), "bytes": len(payload), "content_sha256": sha,
-                          "manifest_status": status, "baseline": baseline}
+                          "manifest_status": status, "baseline": baseline, "text_depth": text_depth(records)}
     return feed
 
 

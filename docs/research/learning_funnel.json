@@ -1,6 +1,6 @@
 {
  "version": "p3-12.1",
- "generated_at": "2026-10-08T15:41:38.992559+00:00",
+ "generated_at": "2026-10-08T16:06:17.181836+00:00",
  "layers": [
   "discovered",
   "canonical_persisted",
@@ -9,12 +9,14 @@
   "effective_forward_eligible",
   "independently_matured",
   "benchmark_evaluated",
-  "downstream_reused"
+  "downstream_consumer_count",
+  "validated_learning_applied"
  ],
  "contract": {
   "null_means": "not provable from persisted artifacts (reason given); never silently 0",
   "historical_separate": "historical/backfill/descriptive outcomes live under 'historical' and never feed forward layers",
-  "maturity_rule": "proven requires forward matured AND benchmark_evaluated AND downstream_reused > 0; outcomes alone are not learning",
+  "maturity_rule": "proven requires forward matured AND benchmark_evaluated AND validated_learning_applied > 0; outcomes or readers alone are not learning",
+  "engines": "five engines (market, fundamental, event, options, decision) + external_research reported separately",
   "privacy": "decision/private options: presence-only flags from the sanitized server status; exact counts stay private"
  },
  "summary": {
@@ -28,7 +30,8 @@
    "effective_forward_eligible": 2,
    "independently_matured": 0,
    "benchmark_evaluated": 0,
-   "downstream_reused": 1
+   "downstream_consumer_count": 1,
+   "validated_learning_applied": null
   },
   "fundamental": {
    "learning_maturity": "unproven_no_forward_samples",
@@ -40,7 +43,8 @@
    "effective_forward_eligible": null,
    "independently_matured": null,
    "benchmark_evaluated": null,
-   "downstream_reused": 0
+   "downstream_consumer_count": 0,
+   "validated_learning_applied": null
   },
   "event": {
    "learning_maturity": "context_only",
@@ -52,7 +56,8 @@
    "effective_forward_eligible": 0,
    "independently_matured": 0,
    "benchmark_evaluated": 0,
-   "downstream_reused": 1
+   "downstream_consumer_count": 1,
+   "validated_learning_applied": null
   },
   "options": {
    "learning_maturity": "forward_collecting",
@@ -64,7 +69,8 @@
    "effective_forward_eligible": 6,
    "independently_matured": 0,
    "benchmark_evaluated": null,
-   "downstream_reused": 1
+   "downstream_consumer_count": 1,
+   "validated_learning_applied": null
   },
   "decision": {
    "learning_maturity": "context_only",
@@ -76,19 +82,21 @@
    "effective_forward_eligible": null,
    "independently_matured": null,
    "benchmark_evaluated": null,
-   "downstream_reused": 0
+   "downstream_consumer_count": 0,
+   "validated_learning_applied": null
   },
   "external_research": {
    "learning_maturity": "forward_collecting",
    "funnel_issues": [],
    "discovered": 1434,
    "canonical_persisted": 1434,
-   "interpretable": 1434,
+   "interpretable": null,
    "candidate_claim_or_state": 23,
    "effective_forward_eligible": 2,
    "independently_matured": 0,
    "benchmark_evaluated": 0,
-   "downstream_reused": 9
+   "downstream_consumer_count": 9,
+   "validated_learning_applied": null
   }
  },
  "engines": {
@@ -135,11 +143,20 @@
     "evidence": "docs/research/market_state_outcome_scorecards.json",
     "dedup_key": "scorecard_id"
    },
-   "downstream_reused": {
+   "downstream_consumer_count": {
     "count": 1,
-    "definition": "distinct downstream consumers that read this engine's learned state (coverage audit)",
+    "definition": "distinct downstream scripts that READ this engine's state (readability, not proof of applied learning)",
     "evidence": "docs/research/data_learning_coverage_audit.json",
-    "dedup_key": "consumer script"
+    "dedup_key": "consumer script",
+    "readable_by_downstream": [
+     "learning_funnel_contract.py"
+    ]
+   },
+   "validated_learning_applied": {
+    "count": null,
+    "definition": "forward-validated methods that actually changed a research ranking or decision",
+    "evidence": "docs/research/learning_funnel.json",
+    "reason": "no forward-validated method exists yet (genuine forward matured = 0); not provable"
    },
    "historical": {
     "market_price_history_mature_60": 4298,
@@ -191,11 +208,18 @@
     "evidence": "research/archive/fundamental_outcomes.jsonl",
     "reason": "outcome rows carry raw return_pct only; no benchmark excess recorded"
    },
-   "downstream_reused": {
+   "downstream_consumer_count": {
     "count": 0,
-    "definition": "distinct downstream consumers that read this engine's learned state (coverage audit)",
+    "definition": "distinct downstream scripts that READ this engine's state (readability, not proof of applied learning)",
     "evidence": "docs/research/data_learning_coverage_audit.json",
-    "dedup_key": "consumer script"
+    "dedup_key": "consumer script",
+    "readable_by_downstream": []
+   },
+   "validated_learning_applied": {
+    "count": null,
+    "definition": "forward-validated methods that actually changed a research ranking or decision",
+    "evidence": "docs/research/learning_funnel.json",
+    "reason": "no forward-validated method exists yet (genuine forward matured = 0); not provable"
    },
    "historical": {
     "descriptive_outcome_rows": 683,
@@ -246,11 +270,20 @@
     "evidence": "docs/research/event_outcome_memory.json",
     "dedup_key": "uuid×horizon"
    },
-   "downstream_reused": {
+   "downstream_consumer_count": {
     "count": 1,
-    "definition": "distinct downstream consumers that read this engine's learned state (coverage audit)",
+    "definition": "distinct downstream scripts that READ this engine's state (readability, not proof of applied learning)",
     "evidence": "docs/research/data_learning_coverage_audit.json",
-    "dedup_key": "consumer script"
+    "dedup_key": "consumer script",
+    "readable_by_downstream": [
+     "learning_funnel_contract.py"
+    ]
+   },
+   "validated_learning_applied": {
+    "count": null,
+    "definition": "forward-validated methods that actually changed a research ranking or decision",
+    "evidence": "docs/research/learning_funnel.json",
+    "reason": "no forward-validated method exists yet (genuine forward matured = 0); not provable"
    }
   },
   "options": {
@@ -296,11 +329,20 @@
     "evidence": "docs/research/options_opportunity_outcome_memory.json",
     "reason": "no matured outcomes yet; benchmark comparison not instrumented"
    },
-   "downstream_reused": {
+   "downstream_consumer_count": {
     "count": 1,
-    "definition": "distinct downstream consumers that read this engine's learned state (coverage audit)",
+    "definition": "distinct downstream scripts that READ this engine's state (readability, not proof of applied learning)",
     "evidence": "docs/research/data_learning_coverage_audit.json",
-    "dedup_key": "consumer script"
+    "dedup_key": "consumer script",
+    "readable_by_downstream": [
+     "learning_funnel_contract.py"
+    ]
+   },
+   "validated_learning_applied": {
+    "count": null,
+    "definition": "forward-validated methods that actually changed a research ranking or decision",
+    "evidence": "docs/research/learning_funnel.json",
+    "reason": "no forward-validated method exists yet (genuine forward matured = 0); not provable"
    },
    "shadow_or_private": {
     "private_position_state_entries_present": true,
@@ -357,11 +399,18 @@
     "evidence": "docs/research/server_action_status.json",
     "reason": "not_instrumented"
    },
-   "downstream_reused": {
+   "downstream_consumer_count": {
     "count": 0,
-    "definition": "distinct downstream consumers that read this engine's learned state (coverage audit)",
+    "definition": "distinct downstream scripts that READ this engine's state (readability, not proof of applied learning)",
     "evidence": "docs/research/data_learning_coverage_audit.json",
-    "dedup_key": "consumer script"
+    "dedup_key": "consumer script",
+    "readable_by_downstream": []
+   },
+   "validated_learning_applied": {
+    "count": null,
+    "definition": "forward-validated methods that actually changed a research ranking or decision",
+    "evidence": "docs/research/learning_funnel.json",
+    "reason": "no forward-validated method exists yet (genuine forward matured = 0); not provable"
    },
    "note": "No user actions are inferred; Decision Learning waits for explicit owner confirmation."
   },
@@ -379,10 +428,13 @@
     "dedup_key": "source_key"
    },
    "interpretable": {
-    "count": 1434,
-    "definition": "records read by Source Reading (full text or excerpt)",
-    "evidence": "docs/research/source_reading_memory.json",
-    "dedup_key": "source_key"
+    "count": null,
+    "definition": "records with body text (excerpt or full text) available to Source Reading",
+    "evidence": "docs/data/source_intelligence.json",
+    "dedup_key": "feed id",
+    "reason": "text depth not yet recorded by source_intelligence_engine",
+    "records_processed_by_source_reading": 1434,
+    "note": "processed ≠ understood: most forum rows reach Source Reading as title/excerpt only"
    },
    "candidate_claim_or_state": {
     "count": 23,
@@ -408,11 +460,28 @@
     "evidence": "research/reports/forward_intake_health.json",
     "dedup_key": "event_id"
    },
-   "downstream_reused": {
+   "downstream_consumer_count": {
     "count": 9,
-    "definition": "distinct downstream consumers that read this engine's learned state (coverage audit)",
+    "definition": "distinct downstream scripts that READ this engine's state (readability, not proof of applied learning)",
     "evidence": "docs/research/data_learning_coverage_audit.json",
-    "dedup_key": "consumer script"
+    "dedup_key": "consumer script",
+    "readable_by_downstream": [
+     "autonomous_research_executor.py",
+     "autonomous_research_planner.py",
+     "candidate_rule_compiler.py",
+     "learning_funnel_contract.py",
+     "method_memory_engine.py",
+     "source_rule_lifecycle.py",
+     "v615_method_attribution.py",
+     "v615_rule_registry.py",
+     "v615_source_rule_funnel.py"
+    ]
+   },
+   "validated_learning_applied": {
+    "count": null,
+    "definition": "forward-validated methods that actually changed a research ranking or decision",
+    "evidence": "docs/research/learning_funnel.json",
+    "reason": "no forward-validated method exists yet (genuine forward matured = 0); not provable"
    },
    "historical": {
     "lifecycle_rules_mature_60": 21,

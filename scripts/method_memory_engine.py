@@ -27,6 +27,8 @@ VALIDATION = ROOT / "docs" / "research" / "source_outcome_validation.json"
 EVIDENCE = ROOT / "docs" / "research" / "evidence_attribution.json"
 READING = ROOT / "docs" / "research" / "source_reading_memory.json"
 OUT = ROOT / "docs" / "research" / "method_memory.json"
+STORE = ROOT / "research" / "store" / "source_store.json"
+DUPMAP = ROOT / "docs" / "research" / "source_duplicate_map.json"
 HORIZONS = ("5","20","60")
 METHOD_TOPICS = {
     "Sell Put","LEAPS","风险管理","失败复盘","长期持有纪律",
@@ -338,14 +340,31 @@ def build(source: dict, validation: dict, histories: dict|None=None, evidence: d
 
 def main():
     source=load(SOURCE,{})
-    try:
-        full=collect_full_records()
-        source=dict(source)
-        source["records"]=full
-        source.setdefault("counts",{})["records"]=len(full)
-        source["full_stream_learning"]=True
-    except Exception:
-        pass
+    store=load(STORE,{})
+    stored_rows=store.get("records") or []
+    if not stored_rows:
+        raise RuntimeError("canonical Source Store unavailable; Method Memory fails closed")
+    full=[dict(x.get("record") or {}) for x in stored_rows if isinstance(x,dict) and isinstance(x.get("record"),dict)]
+    if len(full)!=len(stored_rows):
+        raise RuntimeError(f"canonical Source Store malformed: rows={len(stored_rows)} records={len(full)}")
+    dup=load(DUPMAP,{})
+    mapping=dup.get("mapping") or {}
+    independent=[]
+    duplicate_count=0
+    for row in full:
+        sid=str(row.get("id") or row.get("url") or "")
+        meta=mapping.get(sid) or {}
+        if meta.get("duplicate_of"):
+            duplicate_count+=1
+            continue
+        independent.append(row)
+    source=dict(source)
+    source["records"]=independent
+    source.setdefault("counts",{})["records"]=len(independent)
+    source["raw_canonical_records"]=len(full)
+    source["duplicate_evidence_excluded"]=duplicate_count
+    source["full_stream_learning"]=True
+    source["canonical_store_consumed"]=True
     validation=load(VALIDATION,{})
     evidence=load(EVIDENCE,{})
     reading=load(READING,{})

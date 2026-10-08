@@ -23,7 +23,7 @@ PUBLIC_JSON_ROOT_ALLOWLIST = {
         "data_trust","delivery","alert_fingerprint","privacy",
     },
     "docs/research/auto_thesis_drafts.json": {
-        "version","generated_at","mode","external_requests","symbols","counts","guardrails",
+        "version","generated_at","mode","external_requests","symbols","counts","guardrails","revision_history_added",
     },
     "docs/research/system_status.json": {
         "version","generated_at","overall","principle","workflows","artifacts",

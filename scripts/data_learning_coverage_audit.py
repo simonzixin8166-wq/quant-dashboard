@@ -117,7 +117,11 @@ def reconciliation(source_total,source_persist,reading,collector):
     return {
         "upstream_collector_known":bool(collector_known),
         "youtube_seen":yt.get("seen"),
-        "youtube_semantically_learned":(None if not yt else int(yt.get("feed_records") or 0)+int(yt.get("historical_semantic_learned") or 0)),
+        # P2-9: admitted with text is not "semantically learned" (wxc-bot youtube_learning_reconciliation
+        # separates text_available / semantically_understood / claims / matured).
+        "youtube_text_admitted":(None if not yt else int(yt.get("feed_records") or 0)+int(yt.get("historical_semantic_learned") or 0)),
+        "youtube_semantically_learned":None,
+        "youtube_semantic_note":"not inferred from admission; see wxc-bot state/youtube_learning_reconciliation.json",
         "youtube_semantic_backlog":yt.get("unresolved_semantic"),
         "captured":source_total,
         "canonical":source_persist,

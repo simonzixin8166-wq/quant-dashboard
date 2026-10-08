@@ -41,7 +41,7 @@ assert "CORE_TIERS" in playbook_config and "rule_hash" in playbook_config
 assert "from playbook_config import CORE_TIERS" in generator
 assert ".qa-empty{{padding:28px" in generator
 assert ".qa-empty{padding:28px" not in generator
-assert "市场与风险驾驶舱" in generator and "市场与风险驾驶舱" in page
+assert "今日驾驶舱 · 唯一行动出口" in generator and "今日驾驶舱 · 唯一行动出口" in page
 assert "卫星及杠杆" in generator and "卫星及杠杆" in page
 assert "不参与核心ETF加仓信号" in generator and "不参与核心ETF加仓信号" in page
 assert "收盘日线截至：" in generator and "收盘日线截至：" in page

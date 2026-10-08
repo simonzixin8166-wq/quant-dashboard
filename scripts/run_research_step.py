@@ -10,6 +10,7 @@ sys.path.insert(0,str(ROOT/"scripts"))
 from research_boundary_guard import snapshot, assert_allowed, git_worktree_paths, check_evidence_lock
 
 AUDIT=ROOT/"research"/"audit"/"step_boundary_log.json"
+AUDIT_ARCHIVE=ROOT/"research"/"audit"/"step_boundary"
 
 def snapshot_digest(value):
     raw=json.dumps(value,sort_keys=True,separators=(",",":"),ensure_ascii=False).encode("utf-8")
@@ -69,6 +70,28 @@ def main():
     prior.setdefault("records",[]).append(record)
     AUDIT.parent.mkdir(parents=True,exist_ok=True)
     AUDIT.write_text(json.dumps(prior,ensure_ascii=False,indent=2),encoding="utf-8")
+
+    # Canonical append-only monthly audit archive. The compatibility JSON above
+    # remains readable by existing tooling, while this shard is the retention
+    # contract and must never be truncated.
+    month=str(record["completed_at"])[:7]
+    AUDIT_ARCHIVE.mkdir(parents=True,exist_ok=True)
+    shard=AUDIT_ARCHIVE/f"{month}.jsonl"
+    audit_id=snapshot_digest({
+        "workflow_run_id":record["workflow_run_id"],
+        "workflow_run_attempt":record["workflow_run_attempt"],
+        "step":record["step"],
+        "started_at":record["started_at"],
+    })[:24]
+    archive_row={**record,"audit_id":audit_id}
+    known=set()
+    if shard.exists():
+        for line in shard.read_text(encoding="utf-8").splitlines():
+            try:known.add(str(json.loads(line).get("audit_id") or ""))
+            except Exception:continue
+    if audit_id not in known:
+        with shard.open("a",encoding="utf-8") as fh:
+            fh.write(json.dumps(archive_row,ensure_ascii=False,sort_keys=True)+"\n")
     if proc.returncode!=0:
         return proc.returncode
     if lock_after:

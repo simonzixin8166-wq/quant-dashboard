@@ -210,4 +210,31 @@ const fatalConsoleErrors=report.console_errors.filter(x=>!(report.http_errors.le
 report.fatal_console_errors=fatalConsoleErrors;
 report.engineering_qa.status=(engineeringBaseHealthy&&report.fatal_console_errors.length===0&&report.http_errors.length===0)?'PASS':'FAIL';
 report.decision_readiness.status=(report.engineering_qa.status==='PASS'&&report.investment_data_qa.status==='PASS'&&report.learning_guardrails.status==='PASS')?'PASS':'FAIL';
-report.overall=report.decision_readiness.status;fs.writeFileSync(`${out}/report.json`,JSON.stringify(report,null,2));console.log(JSON.stringify(report,null,2));if(report.overall!=='PASS')process.exit(1);
+// Machine-readable verdict as GitHub check-run annotations (readable through the REST
+// checks API even when log/artifact downloads are unavailable). Sanitized fields only.
+function qaVerdictLines(r){
+  const s=x=>String(x===undefined||x===null?'-':x);
+  const b=r.business_data||{},sa=r.server_action||{};
+  const fields=[
+    ['overall',r.overall],['decision_readiness',(r.decision_readiness||{}).status],
+    ['engineering_qa',(r.engineering_qa||{}).status],['interaction',(r.interaction||{}).status],
+    ['business_data',b.status],['market_as_of',b.market_as_of],['expected_market_date',b.expected_market_date],
+    ['business_freshness',b.business_freshness],['decision_eligible',b.decision_eligible],
+    ['server_action',sa.status],['server_status',sa.server_status],['judgment_basis',sa.judgment_basis],
+    ['server_market_as_of',sa.server_market_as_of],['server_snapshot_current',sa.server_snapshot_current],
+    ['investment_data_qa',(r.investment_data_qa||{}).status],['learning_guardrails',(r.learning_guardrails||{}).status],
+    ['fatal_console_errors',(r.fatal_console_errors||[]).length],['http_errors',(r.http_errors||[]).length],
+  ];
+  return fields.map(([k,v])=>`${k}=${s(v)}`);
+}
+function emitQaAnnotations(r){
+  const esc=x=>String(x).replace(/%/g,'%25').replace(/\r/g,'%0D').replace(/\n/g,'%0A');
+  const line=qaVerdictLines(r).join(' ');
+  console.log(`::notice title=MyAlpha QA verdict::${esc('QA_VERDICT '+line)}`);
+  if(r.overall!=='PASS'){
+    const failing=['engineering_qa','interaction','business_data','server_action','investment_data_qa','learning_guardrails','decision_readiness']
+      .filter(k=>((r[k]||{}).status)&&(r[k]||{}).status!=='PASS');
+    console.log(`::error title=MyAlpha QA failing sections::${esc('QA_FAILING '+(failing.join(',')||'unknown'))}`);
+  }
+}
+report.overall=report.decision_readiness.status;fs.writeFileSync(`${out}/report.json`,JSON.stringify(report,null,2));console.log(JSON.stringify(report,null,2));emitQaAnnotations(report);if(report.overall!=='PASS')process.exit(1);

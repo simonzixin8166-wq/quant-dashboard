@@ -23,6 +23,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 ROOT=Path(__file__).resolve().parents[1]
+STORE=ROOT/"research"/"store"/"source_store.json"
+DUPMAP=ROOT/"docs"/"research"/"source_duplicate_map.json"
 SRC=ROOT/"docs"/"data"/"source_intelligence.json"
 OUT=ROOT/"docs"/"research"/"source_reading_memory.json"
 VERSION="6.14.7"
@@ -451,21 +453,33 @@ def build(source):
 
 def main():
     source=load(SRC,{"records":[]})
-    # Source Intelligence keeps `records` bounded for presentation. Source
-    # Reading must consume the complete normalized upstream stream so older
-    # research does not disappear merely because newer posts pushed it beyond
-    # the public window. Fall back to the persisted artifact if the live source
-    # is temporarily unavailable.
-    try:
-        import source_intelligence_engine as sie
-        full_records=sie.collect_full_records()
-        if len(full_records)>len(source.get("records") or []):
-            source=dict(source)
-            source["records"]=full_records
-            source["full_stream_learning"]=True
-    except Exception:
-        pass
+    store=load(STORE,{})
+    stored_rows=store.get("records") or []
+    if not stored_rows:
+        raise RuntimeError("canonical Source Store unavailable; Source Reading fails closed")
+    full_records=[dict(x.get("record") or {}) for x in stored_rows if isinstance(x,dict) and isinstance(x.get("record"),dict)]
+    if len(full_records)!=len(stored_rows):
+        raise RuntimeError(f"canonical Source Store malformed: rows={len(stored_rows)} records={len(full_records)}")
+
+    dup=load(DUPMAP,{"mapping":{}})
+    mapping=dup.get("mapping") or {}
+    for row in full_records:
+        sid=str(row.get("id") or row.get("url") or "")
+        meta=mapping.get(sid) or {}
+        row["duplicate_of"]=meta.get("duplicate_of")
+        row["evidence_weight_class"]=meta.get("evidence_weight_class") or "independent_evidence"
+        row["content_hash"]=meta.get("content_hash")
+        if row.get("duplicate_of"):
+            row["rule_candidate_allowed"]=False
+            row["duplicate_notice"]="Exact normalized cross-channel copy; retained for provenance but excluded from independent candidate/method evidence."
+
+    source=dict(source)
+    source["records"]=full_records
+    source.setdefault("counts",{})["records"]=len(full_records)
+    source["full_stream_learning"]=True
+    source["canonical_store_consumed"]=True
     out=build(source)
+    out["duplicate_evidence_records"]=sum(1 for r in full_records if r.get("duplicate_of"))
     OUT.parent.mkdir(parents=True,exist_ok=True)
     OUT.write_text(json.dumps(out,ensure_ascii=False,indent=2),encoding="utf-8")
     print(json.dumps({"version":out["version"],"counts":out["counts"]},ensure_ascii=False))

@@ -4,17 +4,9 @@
 alter table public.option_learning_observations
   drop constraint if exists option_learning_observations_user_id_position_id_state_fing_key;
 
-with ranked as (
-  select id,
-         row_number() over (
-           partition by user_id, position_id, risk_level, risk_reason
-           order by observed_at desc, id desc
-         ) as rn
-  from public.option_learning_observations
-)
-delete from public.option_learning_observations o
-using ranked r
-where o.id=r.id and r.rn>1;
+-- IMPORTANT: Do not collapse historical re-entry states.
+-- A -> B -> A is three distinct state-entry observations. The application
+-- suppresses only unchanged consecutive states; historical rows stay append-only.
 
 create index if not exists option_learning_state_entry_idx
   on public.option_learning_observations(user_id, position_id, observed_at desc, state_fingerprint);

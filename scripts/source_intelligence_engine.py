@@ -22,6 +22,10 @@ FEED_URL = os.getenv(
     "WXC_RESEARCH_FEED_URL",
     "https://raw.githubusercontent.com/simonzixin8166-wq/wxc-bot/main/state/research_feed.json",
 )
+INTAKE_STATUS_URL = os.getenv(
+    "WXC_INTAKE_STATUS_URL",
+    "https://raw.githubusercontent.com/simonzixin8166-wq/wxc-bot/main/state/source_intake_completeness.json",
+)
 YOUTUBE_ARCHIVE_URL = os.getenv(
     "YOUTUBE_LEARNING_ARCHIVE_URL",
     "https://raw.githubusercontent.com/simonzixin8166-wq/wxc-bot/main/state/youtube_learning_archive.json",
@@ -147,10 +151,12 @@ def fetch_intake_completeness():
         with urllib.request.urlopen(req,timeout=12) as resp:
             data=json.loads(resp.read().decode("utf-8"))
         if isinstance(data,dict):
+            data=dict(data);data["fetch_status"]="ok"
             return data
-    except Exception:
-        pass
-    return {"version":0,"complete":False,"status":"unavailable","reason":"collector_completeness_unavailable"}
+        error="non_object_payload"
+    except Exception as exc:
+        error=f"{type(exc).__name__}: {exc}"[:200]
+    return {"version":0,"complete":False,"status":"unavailable","reason":"collector_completeness_unavailable","fetch_error":error}
 
 def fetch_youtube_learning_archive():
     try:

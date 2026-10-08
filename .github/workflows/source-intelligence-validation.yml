@@ -18,6 +18,7 @@ on:
       - "tests/test_source_intelligence_engine.py"
       - "scripts/v615_author_intelligence.py"
       - "scripts/v615_auto_thesis_engine.py"
+      - "tests/test_thesis_revision_memory.py"
       - "scripts/research_program_status.py"
       - "scripts/source_reading_memory.py"
       - "scripts/candidate_rule_compiler.py"
@@ -210,6 +211,7 @@ jobs:
           node --check docs/assets/signal-policy.js
           node tests/signal_policy.test.js
           python tests/test_v615_auto_thesis_engine.py
+          python tests/test_thesis_revision_memory.py
           python tests/test_v615_operator_decision_persistence.py
           python tests/test_v615_server_action_engine.py
           python tests/test_v615_option_learning_observations.py

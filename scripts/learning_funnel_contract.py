@@ -19,7 +19,7 @@ Rules of the contract
   block and never flow into effective_forward_eligible or independently_matured.
 - Shadow / candidate state is reported separately from Production.
 - "Has outcomes" is not "learning active": learning_maturity is `proven` only when forward
-  matured AND benchmark_evaluated AND downstream_reused are all > 0.
+  matured AND benchmark_evaluated AND validated_learning_applied are all > 0 (reader counts never qualify).
 - Private engines (Decision, private Options) contribute aggregate counts that are already
   published by the sanitized server status; no ids, symbols or amounts are read here.
 

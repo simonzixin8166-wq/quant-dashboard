@@ -9,6 +9,8 @@ on:
       - "scripts/server_action_engine.py"
       - "tests/test_v615_server_action_engine.py"
       - "tests/test_server_action_snapshot_freshness.py"
+      - "scripts/private_learning_audit.py"
+      - "tests/test_private_learning_audit.py"
       - ".github/workflows/server-action-watch.yml"
   # Refresh the sanitized snapshot as soon as a new completed-session dashboard
   # is published. The cron below is best-effort and GitHub throttles it heavily,
@@ -49,6 +51,7 @@ jobs:
           python -m py_compile scripts/server_action_engine.py
           python tests/test_v615_server_action_engine.py
           python tests/test_server_action_snapshot_freshness.py
+          python tests/test_private_learning_audit.py
 
       - name: Build server-side action status and deliver alerts
         env:
@@ -58,6 +61,14 @@ jobs:
           MYALPHA_TG_BOT_TOKEN: ${{ secrets.MYALPHA_TG_BOT_TOKEN }}
           MYALPHA_TG_CHAT_ID: ${{ secrets.MYALPHA_TG_CHAT_ID }}
         run: python scripts/server_action_engine.py
+
+      - name: Private learning audit (aggregate-only annotations, no files)
+        # Diagnostic only: never blocks the action snapshot, never writes docs/.
+        continue-on-error: true
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+        run: python scripts/private_learning_audit.py
 
       - name: Save sanitized action health only
         run: |

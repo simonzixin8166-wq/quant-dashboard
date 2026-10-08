@@ -12,6 +12,9 @@ on:
       - "scripts/private_learning_audit.py"
       - "tests/test_private_learning_audit.py"
       - ".github/workflows/server-action-watch.yml"
+      - "scripts/investment_watch_engine.py"
+      - "config/gold_etf_long_term_watch.json"
+      - "config/monthly_dca_plan.json"
   # Refresh the sanitized snapshot as soon as a new completed-session dashboard
   # is published. The cron below is best-effort and GitHub throttles it heavily,
   # which previously left the snapshot judging the prior session for many hours.
@@ -21,6 +24,9 @@ on:
   schedule:
     # US trading-day watch. Covers EDT/EST regular-session windows with some buffer.
     - cron: "*/30 13-22 * * 1-5"
+    # V6.11 gold watch outside US hours (Asia/Europe gold session). Option action engine is skipped on this schedule.
+    - cron: "20 0-12,23 * * 1-5"
+    - cron: "20 23 * * 0"
   workflow_dispatch:
 
 permissions:
@@ -52,8 +58,10 @@ jobs:
           python tests/test_v615_server_action_engine.py
           python tests/test_server_action_snapshot_freshness.py
           python tests/test_private_learning_audit.py
+          python tests/test_investment_watch_engine.py
 
       - name: Build server-side action status and deliver alerts
+        if: ${{ github.event_name != 'schedule' || github.event.schedule == '*/30 13-22 * * 1-5' }}
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
@@ -70,11 +78,25 @@ jobs:
           SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
         run: python scripts/private_learning_audit.py
 
+      - name: Investment watch (gold staged buying + monthly DCA reminders)
+        # Research/reminders only; never orders. Never blocks the action snapshot.
+        continue-on-error: true
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          MYALPHA_TG_BOT_TOKEN: ${{ secrets.MYALPHA_TG_BOT_TOKEN }}
+          MYALPHA_TG_CHAT_ID: ${{ secrets.MYALPHA_TG_CHAT_ID }}
+        run: python scripts/investment_watch_engine.py
+
       - name: Save sanitized action health only
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
           git add docs/research/server_action_status.json
+          for f in docs/research/investment_actions_status.json research/archive/gold_signal_journal.jsonl research/archive/gold_signal_outcomes.json; do
+            [ -f "$f" ] && git add "$f"
+          done
+          python scripts/private_guardrail.py
           if ! git diff --cached --quiet; then
             git commit -m "update server action status"
             git pull --rebase origin main

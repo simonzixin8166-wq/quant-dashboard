@@ -85,6 +85,38 @@ async function yahooMinuteQuote(symbol) {
   };
 }
 
+// V6.11 gold: real-time spot first (free, no key); COMEX futures only as a labelled proxy.
+async function goldSpot() {
+  try {
+    const response = await fetchWithTimeout('https://api.gold-api.com/price/XAU', { headers: { Accept: 'application/json' } }, 8000);
+    if (!response.ok) throw new Error(`gold-api ${response.status}`);
+    const raw = await response.json();
+    const price = Number(raw?.price);
+    if (!Number.isFinite(price) || price <= 0) throw new Error('gold-api empty');
+    const updated = Math.floor((Date.parse(raw?.updatedAt || '') || Date.now()) / 1000);
+    return { symbol: 'XAUUSD', price, updated, source: 'gold-api.com 现货', basis: 'spot', realtime: true };
+  } catch (error) {
+    const url = 'https://query1.finance.yahoo.com/v8/finance/chart/GC%3DF?range=1d&interval=1m';
+    const response = await fetchWithTimeout(url, { headers: { 'User-Agent': 'Mozilla/5.0', Accept: 'application/json' } });
+    if (!response.ok) throw new Error(`spot unavailable; Yahoo GC=F ${response.status}`);
+    const meta = (await response.json())?.chart?.result?.[0]?.meta || {};
+    const price = Number(meta.regularMarketPrice);
+    if (!Number.isFinite(price) || price <= 0) throw new Error('gold quote unavailable');
+    return { symbol: 'GC=F', price, updated: Number(meta.regularMarketTime || 0), source: 'Yahoo COMEX期货(GC=F)代理', basis: 'futures_proxy', realtime: false,
+      spotError: error instanceof Error ? error.message : String(error) };
+  }
+}
+
+async function usdCny() {
+  const url = 'https://query1.finance.yahoo.com/v8/finance/chart/CNY%3DX?range=1d&interval=5m';
+  const response = await fetchWithTimeout(url, { headers: { 'User-Agent': 'Mozilla/5.0', Accept: 'application/json' } });
+  if (!response.ok) throw new Error(`Yahoo CNY=X ${response.status}`);
+  const meta = (await response.json())?.chart?.result?.[0]?.meta || {};
+  const price = Number(meta.regularMarketPrice);
+  if (!Number.isFinite(price) || price <= 0) throw new Error('USD/CNY empty');
+  return { symbol: 'USDCNY', price, updated: Number(meta.regularMarketTime || 0), source: 'Yahoo CNY=X' };
+}
+
 async function marketDataProxies() {
   const token = Deno.env.get('MARKETDATA_API_TOKEN');
   if (!token) return {};
@@ -113,10 +145,14 @@ Deno.serve(async (request) => {
   if (request.method !== 'GET') return new Response(JSON.stringify({ error: 'Method not allowed' }), { status: 405, headers: corsHeaders });
   if (cache.body && Date.now() - cache.at < cache.ttlMs) return new Response(cache.body, { headers: responseHeaders(cache.ttlMs, { 'X-Cache': 'HIT' }) });
 
-  const entries = await Promise.all(Object.entries(exactSymbols).map(async ([key, symbol]) => {
-    try { return [key, await yahooMinuteQuote(symbol)]; }
-    catch (error) { return [key, { error: error instanceof Error ? error.message : String(error), symbol }]; }
-  }));
+  const settle = async (fn: () => Promise<any>, symbol: string) => {
+    try { return await fn(); } catch (error) { return { error: error instanceof Error ? error.message : String(error), symbol }; }
+  };
+  const [entries, gold, usdcny] = await Promise.all([
+    Promise.all(Object.entries(exactSymbols).map(async ([key, symbol]) => [key, await settle(() => yahooMinuteQuote(symbol), symbol)])),
+    settle(goldSpot, 'XAUUSD'),
+    settle(usdCny, 'USDCNY'),
+  ]);
   const exact = Object.fromEntries(entries);
   // Yahoo真实指数完整时不再请求备用行情，避免无意义消耗MarketData额度。
   const needsProxy = Object.values(exact).some((item: any) => Boolean(item?.error));
@@ -125,7 +161,7 @@ Deno.serve(async (request) => {
   if (ok) {
     const marketState = String((exact.spx as any)?.marketState || (exact.ixic as any)?.marketState || '');
     const ttlMs = responseTtl(marketState);
-    const body = JSON.stringify({ s: 'ok', exact, proxies, marketState, fetchedAt: Math.floor(Date.now() / 1000), stale: false });
+    const body = JSON.stringify({ s: 'ok', exact, proxies, gold, usdcny, marketState, fetchedAt: Math.floor(Date.now() / 1000), stale: false });
     cache = { at: Date.now(), body, ttlMs };
     lastGood = cache;
     return new Response(body, { status: 200, headers: responseHeaders(ttlMs, { 'X-Cache': 'MISS' }) });

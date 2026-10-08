@@ -89,7 +89,15 @@ def build_scorecards(rows):
 
 def run(hist=None):
     hist=hist or read_archive();spy=hist.get("SPY")
-    if spy is None: raise SystemExit("SPY history missing")
+    if spy is None:
+        rows=all_outcomes()
+        out={"version":1,"generated_at":datetime.now(timezone.utc).isoformat(),
+             "status":"waiting_for_market_history",
+             "counts":{"outcomes":len(rows),"added":0,"scorecards":len(build_scorecards(rows))},
+             "scorecards":build_scorecards(rows),
+             "guardrails":["Missing local market history fails closed for maturation without blocking unrelated source learning.","No synthetic outcomes are created.","Research evaluation only; no Production rule mutation."]}
+        OUT.parent.mkdir(parents=True,exist_ok=True);OUT.write_text(json.dumps(out,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
+        return out
     candidates=[]
     for kind,path in (("cross_asset",CROSS),("breadth",BREADTH),("regime",REGIME)):
         for row in load(path).get("records") or []:

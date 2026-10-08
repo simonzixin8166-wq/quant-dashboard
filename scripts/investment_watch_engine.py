@@ -1055,7 +1055,10 @@ def main(argv=None):
     print(f"::notice title=Investment watch::gold state={g['state']} zone={g['zone']} stage={g['stage']} "
           f"price={g['quote']['price']} freshness={g['quote']['freshness']} basis={g['quote']['basis']} "
           f"events={events} delivery={deliveries} journal={len(rows)}")
-    print("::notice title=Investment watch DCA (aggregate)::" + json.dumps(dca, sort_keys=True))
+    # Public Actions log: presence/status only (no user counts, no reminder timeline).
+    dca_public = {"dca": dca.get("dca"), "plans_configured": bool(dca.get("users")),
+                  "delivery_ok": all(d in ("sent",) for d in dca.get("delivery") or []) if dca.get("delivery") else None}
+    print("::notice title=Investment watch DCA (presence only)::" + json.dumps(dca_public, sort_keys=True))
     return 0
 
 

@@ -178,26 +178,30 @@ def options():
         "benchmark_evaluated": layer(None, "matured outcomes compared with a benchmark", rel(D / "options_opportunity_outcome_memory.json"),
                                      reason="no matured outcomes yet; benchmark comparison not instrumented"),
         "downstream_reused": reuse_layer("options_opportunity"),
-        "shadow_or_private": {"private_position_state_entries": priv.get("observations"),
-                              "private_mature_outcomes": priv.get("mature_outcomes"),
+        "shadow_or_private": {"private_position_state_entries_present": bool(priv.get("observations")),
+                              "private_mature_outcomes_present": bool(priv.get("mature_outcomes")),
                               "superseded_legacy_observations": len(sup),
                               "note": "private option positions: aggregate only, from the sanitized server status"},
     }
 
 
+def presence_layer(flag, definition, evidence):
+    """Private engines: the public snapshot only says whether something exists (0/1)."""
+    return {"count": None, "presence": bool(flag), "definition": definition, "evidence": evidence,
+            "reason": "private engine: public snapshot is presence-only (exact counts stay in the RLS domain)"}
+
+
 def decision():
     dl = load(D / "server_action_status.json").get("decision_learning") or {}
     ev = rel(D / "server_action_status.json")
-    persisted = dl.get("persisted")
     return {
-        "discovered": layer(persisted, "operator decisions recorded by the cockpit (private, aggregate)", ev, "decision fingerprint"),
-        "canonical_persisted": layer(persisted, "persisted in private operator_decisions (RLS)", ev, "decision fingerprint"),
-        "interpretable": layer(dl.get("attributed"), "decisions with an attribution label", ev),
-        "candidate_claim_or_state": layer(dl.get("with_user_action"), "decisions with a recorded user action", ev),
-        "effective_forward_eligible": layer(dl.get("with_user_action"), "user-confirmed actions timestamped before outcomes", ev,
-                                            reason=None if dl.get("with_user_action") is not None else "not_published"),
+        "discovered": presence_layer(dl.get("persisted"), "operator decisions recorded by the cockpit", ev),
+        "canonical_persisted": presence_layer(dl.get("persisted"), "persisted in private operator_decisions (RLS)", ev),
+        "interpretable": presence_layer(dl.get("attributed"), "decisions with an attribution label", ev),
+        "candidate_claim_or_state": presence_layer(dl.get("with_user_action"), "decisions with a recorded user action", ev),
+        "effective_forward_eligible": presence_layer(dl.get("with_user_action"), "user-confirmed actions timestamped before outcomes", ev),
         "independently_matured": layer(None, "user actions with matured outcomes", ev,
-                                       reason="decision outcome maturation not yet instrumented; no user actions recorded"),
+                                       reason="decision outcome maturation not yet instrumented"),
         "benchmark_evaluated": layer(None, "decision outcomes vs do-nothing baseline", ev, reason="not_instrumented"),
         "downstream_reused": reuse_layer("decision_journal_user_actions"),
         "note": "No user actions are inferred; Decision Learning waits for explicit owner confirmation.",
@@ -272,7 +276,7 @@ def build():
             "null_means": "not provable from persisted artifacts (reason given); never silently 0",
             "historical_separate": "historical/backfill/descriptive outcomes live under 'historical' and never feed forward layers",
             "maturity_rule": "proven requires forward matured AND benchmark_evaluated AND downstream_reused > 0; outcomes alone are not learning",
-            "privacy": "decision/private options: aggregate counts already published by the sanitized server status only",
+            "privacy": "decision/private options: presence-only flags from the sanitized server status; exact counts stay private",
         },
         "summary": summary,
         "engines": engines,

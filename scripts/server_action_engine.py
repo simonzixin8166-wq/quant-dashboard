@@ -366,6 +366,15 @@ def send_telegram(text,raise_errors=False):
         return f"failed:{type(e).__name__}"
     return "sent"
 
+def presence(n):
+    """Public repo + public Actions logs: private counts are published as presence only (0/1)."""
+    try:return 1 if int(n or 0)>0 else 0
+    except Exception:return 0
+
+def presence_map(d,keys):
+    d=d or {}
+    return {k:presence(d.get(k)) for k in keys}
+
 def main():
     result=build()
     previous=load(PUBLIC_OUT)
@@ -378,21 +387,23 @@ def main():
       "last_checked_at":checked_at.isoformat(),
       "status":result["status"],
       "judgment_basis":result.get("judgment_basis") or judgment_basis(result.get("trust")),
-      "positions_checked":result.get("positions_checked",0),
+      # Privacy minimisation (#133): everything derived from private positions/decisions is
+      # presence-only (0 = none, 1 = at least one); exact small counts stay in the RLS domain.
+      "positions_checked":presence(result.get("positions_checked",0)),
       "action_counts":{
-        "l3":sum(1 for x in result["actions"] if x["level"]=="l3"),
-        "l2":sum(1 for x in result["actions"] if x["level"]=="l2"),
-        "unknown":sum(1 for x in result["actions"] if x["level"]=="unknown"),
-        "thesis_review":sum(1 for x in result["actions"] if x["level"]=="review"),
+        "l3":presence(sum(1 for x in result["actions"] if x["level"]=="l3")),
+        "l2":presence(sum(1 for x in result["actions"] if x["level"]=="l2")),
+        "unknown":presence(sum(1 for x in result["actions"] if x["level"]=="unknown")),
+        "thesis_review":presence(sum(1 for x in result["actions"] if x["level"]=="review")),
       },
       "event_count_48h":result.get("event_count_48h",0),
-      "quote_failures":result.get("quote_failures",0),
-      "option_learning":result.get("option_learning") or {"observations":0,"mature_outcomes":0},
-      "decision_learning":result.get("decision_learning") or {"persisted":0,"with_user_action":0,"attributed":0},
+      "quote_failures":presence(result.get("quote_failures",0)),
+      "option_learning":presence_map(result.get("option_learning"),("observations","mature_outcomes")),
+      "decision_learning":presence_map(result.get("decision_learning"),("persisted","with_user_action","attributed")),
       "data_trust":result["trust"],
       "delivery":delivery,
       "alert_fingerprint":fp,
-      "privacy":"sanitized public summary only; symbols/accounts/private position details are never written here",
+      "privacy":"sanitized public summary only; symbols/accounts/private position details are never written here; private counts are presence-only (0/1)",
     }
     PUBLIC_OUT.parent.mkdir(parents=True,exist_ok=True)
     same=bool(previous and previous.get("alert_fingerprint")==fp and previous.get("status")==public.get("status") and previous.get("judgment_basis")==public.get("judgment_basis") and previous.get("action_counts")==public.get("action_counts") and previous.get("option_learning")==public.get("option_learning") and previous.get("decision_learning")==public.get("decision_learning") and stable_trust(previous.get("data_trust"))==stable_trust(public.get("data_trust")))

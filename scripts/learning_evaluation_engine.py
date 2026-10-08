@@ -190,6 +190,7 @@ def five_engine_scorecard(learning, history, auto_thesis=None, event_window=None
         "validation_state":"outcome_maturing" if option_mature else ("state_observations_started" if option_observations else "outcome_learning_missing"),
         "feedback_state":"risk_monitoring_plus_outcomes" if option_observations else "risk_monitoring_only",
         "positions_checked":checked,
+        "private_counts":"presence_only_0_or_1",
         "unknown_actions":option_unknown,
         "quote_failures":int(server_action.get("quote_failures") or 0),
         "state_observations":option_observations,

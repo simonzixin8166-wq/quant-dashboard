@@ -1,6 +1,6 @@
 {
-  "version": "1.4",
-  "generated_at": "2026-10-08T03:33:26.155340+00:00",
+  "version": "1.8",
+  "generated_at": "2026-10-08T03:51:08.767395+00:00",
   "principle": "Collection success is not learning success. Permanent storage and learning inputs must not be record-count capped; only per-run processing and UI presentation may be bounded.",
   "counts": {
     "learning_active": 2,
@@ -39,8 +39,8 @@
         "Historical video archive is intentionally non-gating; this is a governance boundary, not a missing-learning error."
       ],
       "evidence": {
-        "source_records": 1416,
-        "source_reading_records": 1416,
+        "source_records": 1419,
+        "source_reading_records": 1419,
         "persistent_source_records": 1419,
         "backlog": 0,
         "testable_rules": 46,
@@ -101,45 +101,49 @@
       ],
       "evidence": {
         "symbols": 16,
-        "news_items": 80,
-        "archive_total": 81,
+        "news_items": 75,
+        "archive_total": 86,
         "event_window_rows": 20
       }
     },
     {
       "domain": "macro_fred_alfred",
       "collected": true,
-      "persistent_history": "current_plus_cached_series",
+      "persistent_history": "point_in_time_context_plus_macro_regime_outcome_memory",
       "structured_analysis": true,
       "reusable_memory": true,
       "outcome_feedback": false,
       "decision_context": true,
       "learning_status": "partial_learning",
       "gaps": [
-        "Macro context is used in regime/context reasoning, but there is no explicit macro-state -> outcome memory comparable to Trend Pulse.",
-        "ALFRED point-in-time handling reduces revision leakage but does not by itself constitute learned macro efficacy."
+        "Point-in-time macro regime observations are retained; waiting for future 5/20/60-session outcomes to mature."
       ],
       "evidence": {
         "version": "5.4.0",
-        "series": 15
+        "series": 15,
+        "observations": 1,
+        "outcomes": 0,
+        "scorecards": 0
       }
     },
     {
       "domain": "breadth_cross_asset_regime",
       "collected": true,
-      "persistent_history": "append_history",
+      "persistent_history": "append_history_plus_5_20_60_outcome_scorecards",
       "structured_analysis": true,
       "reusable_memory": true,
       "outcome_feedback": false,
       "decision_context": true,
       "learning_status": "partial_learning",
       "gaps": [
-        "History is now retained without hard row eviction, but the series are still young and lack mature outcome scoring."
+        "Append histories are intact; waiting for future 5/20/60-session outcomes to mature."
       ],
       "evidence": {
         "cross_asset_history": 4,
         "breadth_history": 2,
-        "regime_history": 3
+        "regime_history": 3,
+        "outcomes": 0,
+        "scorecards": 0
       }
     },
     {
@@ -171,14 +175,14 @@
     {
       "domain": "options_opportunity",
       "collected": true,
-      "persistent_history": "current_research_artifact_plus_private_positions",
+      "persistent_history": "current_context_plus_append_only_research_outcomes_plus_private_positions",
       "structured_analysis": true,
       "reusable_memory": true,
       "outcome_feedback": false,
       "decision_context": true,
       "learning_status": "partial_learning",
       "gaps": [
-        "Opportunity screening is research-only. Strategy candidate outcomes need persistent opportunity snapshots, rejected/no-trade cases, and later premium/assignment/MAE/MFE outcomes."
+        "Research scan/reject/no-trade snapshots now retain underlying 5D/20D outcomes. True option PnL/assignment learning still requires private executed-position outcomes and live-chain fields such as IV rank/skew/term structure."
       ],
       "evidence": {
         "universe": [
@@ -189,8 +193,10 @@
           "NVDA",
           "TSLA"
         ],
-        "observations": 3,
-        "mature_outcomes": 0
+        "research_observations": 6,
+        "research_matured": 0,
+        "private_observations": 3,
+        "private_mature_outcomes": 0
       }
     },
     {
@@ -207,7 +213,7 @@
       ],
       "evidence": {
         "symbols": 17,
-        "revision_rows": 21,
+        "revision_rows": 22,
         "linked_direct_events": 27
       }
     },
@@ -265,17 +271,19 @@
     {
       "domain": "operational_system_learning",
       "collected": true,
-      "persistent_history": "status_snapshots_and_failure_markers",
+      "persistent_history": "status_snapshots_plus_append_only_incident_transitions",
       "structured_analysis": true,
-      "reusable_memory": true,
+      "reusable_memory": false,
       "outcome_feedback": false,
       "decision_context": true,
       "learning_status": "partial_learning",
       "gaps": [
-        "System health and failures influence confidence/research attention, but there is no clearly audited append-only operational incident outcome memory covering every failure and remediation."
+        "Append-only incident tracking is active; waiting for at least one opened incident to be observed resolved in a later status snapshot."
       ],
       "evidence": {
-        "overall": "running",
+        "overall": "attention",
+        "open_incidents": null,
+        "resolved_total": null,
         "self_improvement_version": "7.2.1"
       }
     },
@@ -350,15 +358,14 @@
       "domain": "macro_fred_alfred",
       "status": "partial_learning",
       "gaps": [
-        "Macro context is used in regime/context reasoning, but there is no explicit macro-state -> outcome memory comparable to Trend Pulse.",
-        "ALFRED point-in-time handling reduces revision leakage but does not by itself constitute learned macro efficacy."
+        "Point-in-time macro regime observations are retained; waiting for future 5/20/60-session outcomes to mature."
       ]
     },
     {
       "domain": "breadth_cross_asset_regime",
       "status": "partial_learning",
       "gaps": [
-        "History is now retained without hard row eviction, but the series are still young and lack mature outcome scoring."
+        "Append histories are intact; waiting for future 5/20/60-session outcomes to mature."
       ]
     },
     {
@@ -372,7 +379,7 @@
       "domain": "options_opportunity",
       "status": "partial_learning",
       "gaps": [
-        "Opportunity screening is research-only. Strategy candidate outcomes need persistent opportunity snapshots, rejected/no-trade cases, and later premium/assignment/MAE/MFE outcomes."
+        "Research scan/reject/no-trade snapshots now retain underlying 5D/20D outcomes. True option PnL/assignment learning still requires private executed-position outcomes and live-chain fields such as IV rank/skew/term structure."
       ]
     },
     {
@@ -400,7 +407,7 @@
       "domain": "operational_system_learning",
       "status": "partial_learning",
       "gaps": [
-        "System health and failures influence confidence/research attention, but there is no clearly audited append-only operational incident outcome memory covering every failure and remediation."
+        "Append-only incident tracking is active; waiting for at least one opened incident to be observed resolved in a later status snapshot."
       ]
     },
     {
@@ -426,9 +433,9 @@
     }
   ],
   "reconciliation": {
-    "captured": 1416,
+    "captured": 1419,
     "canonical": 1419,
-    "processed": 1416,
+    "processed": 1419,
     "backlog": 0,
     "errors": 0,
     "balanced": true

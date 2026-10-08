@@ -92,7 +92,14 @@ def run(doc=None,hist=None):
     row=snapshot(doc);added_obs=0
     if row:added_obs=int(append(OBS,row,"observation_id"))
     hist=hist if hist is not None else read_archive();spy=hist.get("SPY")
-    if spy is None:raise SystemExit("SPY history missing")
+    if spy is None:
+        out={"version":1,"generated_at":datetime.now(timezone.utc).isoformat(),
+             "status":"waiting_for_market_history",
+             "counts":{"observations":len(read_all(OBS)),"observations_added":added_obs,"outcomes":len(read_all(OUTCOMES)),"outcomes_added":0,"scorecards":len(scorecards(read_all(OUTCOMES)))},
+             "scorecards":scorecards(read_all(OUTCOMES)),
+             "guardrails":["Missing local market history fails closed for outcome maturation without blocking unrelated source learning.","No synthetic future prices are created.","Research evaluation only; no Production rule mutation."]}
+        OUT.parent.mkdir(parents=True,exist_ok=True);OUT.write_text(json.dumps(out,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
+        return out
     known={x["outcome_id"] for x in read_all(OUTCOMES) if x.get("outcome_id")}
     added=0
     for obs in read_all(OBS):

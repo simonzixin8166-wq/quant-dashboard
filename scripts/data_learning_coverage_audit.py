@@ -91,7 +91,8 @@ def build():
     source_backlog=max(0,source_total-reading_total)
     source_learning_ok=source_total>0 and reading_total>=source_total and source_persist>=source_total
     collector=source.get("collector_completeness") or {}
-    collector_complete=collector.get("complete") is True
+    collector_coverage_complete=(collector.get("coverage_complete") if "coverage_complete" in collector else collector.get("complete")) is True
+    collector_semantic_complete=collector.get("semantic_learning_complete") is True
 
     fsum=fundamental.get("summary") or {}
     option_learning=server.get("option_learning") or {}
@@ -102,13 +103,14 @@ def build():
           "learning_active",
           ["Historical Journal exposes only a presentation subset of event rows; aggregates use the full local history. A separate full event archive is still preferable for event-level replay."],
           {"symbols":(hist.get("summary") or {}).get("symbols"),"events":(hist.get("summary") or {}).get("events"),"mature_60":(hist.get("summary") or {}).get("mature_60")}),
-      row("blog_forum_video_sources", source_total>0, "persistent_source_store_plus_upstream_completeness_contract" if source_persist else "upstream_feed_plus_generated_artifact",
+      row("blog_forum_video_sources", source_total>0, "persistent_source_store_plus_upstream_coverage_and_semantic_contract" if source_persist else "upstream_feed_plus_generated_artifact",
           reading_total>0, reading_total>0, int((method.get("counts") or {}).get("eligible_triggered_events") or 0)>0, True,
-          "learning_active" if (source_learning_ok and collector_complete) else "partial_learning",
+          "learning_active" if (source_learning_ok and collector_coverage_complete and collector_semantic_complete) else "partial_learning",
           ([] if source_learning_ok else ["Captured/source records are not fully reconciled with Source Reading/Persistent Source Store."]) +
-          ([] if collector_complete else ["Upstream forum/blog/YouTube completeness is not yet proven; collector completeness contract is false or unavailable."]) +
+          ([] if collector_coverage_complete else ["Upstream source coverage is not fully accounted; at least one discovered item is missing from feed/archive/pending/backlog or collector status is unavailable."]) +
+          ([] if collector_semantic_complete else ["Source coverage may be complete, but explicit YouTube pending/backlog/provider-blocked items still lack Q1/Q2 semantic learning; they are not counted as learned."]) +
           ["Historical video archive is intentionally non-gating; this is a governance boundary, not a missing-learning error."],
-          {"source_records":source_total,"source_reading_records":reading_total,"persistent_source_records":source_persist,"backlog":source_backlog,"collector_complete":collector_complete,"collector":collector,"testable_rules":(reading.get("counts") or {}).get("testable_rules"),"eligible_triggered_events":(method.get("counts") or {}).get("eligible_triggered_events")}),
+          {"source_records":source_total,"source_reading_records":reading_total,"persistent_source_records":source_persist,"backlog":source_backlog,"collector_coverage_complete":collector_coverage_complete,"collector_semantic_complete":collector_semantic_complete,"collector":collector,"testable_rules":(reading.get("counts") or {}).get("testable_rules"),"eligible_triggered_events":(method.get("counts") or {}).get("eligible_triggered_events")}),
       row("official_sec_filings", bool(official.get("symbols")), "current_view_plus_append_only_monthly_archive",
           bool((evidence_archive.get("sec") or {}).get("total")), True, int(fsum.get("linked_direct_events") or 0)>0, True,
           "partial_learning",
@@ -194,7 +196,7 @@ def build():
     for x in rows:counts[x["learning_status"]]=counts.get(x["learning_status"],0)+1
     gaps=[{"domain":x["domain"],"status":x["learning_status"],"gaps":x["gaps"]} for x in rows if rank.get(x["learning_status"],0)<3]
     return {
-      "version":"2.1",
+      "version":"2.2",
       "generated_at":datetime.now(timezone.utc).isoformat(),
       "principle":"Collection success is not learning success. Permanent storage and learning inputs must not be record-count capped; only per-run processing and UI presentation may be bounded.",
       "counts":counts,

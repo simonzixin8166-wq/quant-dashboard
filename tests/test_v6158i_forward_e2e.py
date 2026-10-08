@@ -59,7 +59,7 @@ assert forward_row["admission_class"]=="genuine_forward"
 assert forward_row["ingest_type"]=="live_ingest"
 assert forward_row["effective_forward_eligible"] is True
 
-registry=build_registry(reading,source,{},now="2026-10-06T00:00:01+00:00",source_store=source_store)
+registry=build_registry(reading,source,{"source_observations":[]},now="2026-10-06T00:00:01+00:00",source_store=source_store)
 assert registry["counts"]["active"]==1
 assert registry["rules"][0]["effective_forward_eligible"] is True
 families=build_families(registry,spec,definition,{},now="2026-10-06T00:00:02+00:00")

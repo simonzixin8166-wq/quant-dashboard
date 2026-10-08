@@ -48,6 +48,8 @@ def build():
     reading=load("docs/research/source_reading_memory.json")
     method=load("docs/research/method_memory.json")
     official=load("docs/research/official_evidence.json")
+    fundamentals=load("docs/research/company_fundamental_memory.json")
+    evidence_archive=load("research/archive/evidence_archive_manifest.json")
     events=load("docs/research/event_evidence.json")
     thesis=load("docs/research/auto_thesis_drafts.json")
     fundamental=load("docs/research/fundamental_outcome_context.json")
@@ -87,21 +89,21 @@ def build():
           ([] if source_learning_ok else ["Captured/source records are not fully reconciled with Source Reading/Persistent Source Store."]) +
           ["Historical video archive is intentionally non-gating; this is a governance boundary, not a missing-learning error."],
           {"source_records":source_total,"source_reading_records":reading_total,"persistent_source_records":source_persist,"backlog":source_backlog,"testable_rules":(reading.get("counts") or {}).get("testable_rules"),"eligible_triggered_events":(method.get("counts") or {}).get("eligible_triggered_events")}),
-      row("official_sec_filings", bool(official.get("symbols")), "current_snapshot_only",
-          True, True, int(fsum.get("linked_direct_events") or 0)>0, True,
+      row("official_sec_filings", bool(official.get("symbols")), "current_view_plus_append_only_monthly_archive",
+          bool((evidence_archive.get("sec") or {}).get("total")), True, int(fsum.get("linked_direct_events") or 0)>0, True,
           "partial_learning",
-          ["Official Evidence keeps a recent filing snapshot per symbol rather than a canonical append-only filing archive.","No structured SEC XBRL financial-statement time series is present."],
-          {"symbols":count_map(official.get("symbols")),"filings":(official.get("counts") or {}).get("filings"),"linked_direct_events":fsum.get("linked_direct_events"),"mature_20":fsum.get("mature_20")}),
-      row("financial_fundamentals_xbrl", False, "missing",
-          False, False, False, False,
-          "not_implemented",
-          ["No SEC XBRL/companyfacts ingestion found.","Revenue, margins, FCF, cash, debt, dilution and per-share fundamentals are not maintained as longitudinal learning series."],
-          {}),
-      row("news_event_evidence", bool(events.get("symbols")), "current_snapshot_only",
-          True, True, bool(load("docs/research/event_window_attribution.json").get("rows")), True,
+          ["Canonical SEC filing archive now preserves filing evidence, but full filing-to-thesis/outcome reuse remains partial."],
+          {"symbols":count_map(official.get("symbols")),"filings":(official.get("counts") or {}).get("filings"),"archive_total":(evidence_archive.get("sec") or {}).get("total"),"linked_direct_events":fsum.get("linked_direct_events"),"mature_20":fsum.get("mature_20")}),
+      row("financial_fundamentals_xbrl", bool(fundamentals.get("symbols")), "sec_companyfacts_append_only_series",
+          bool((fundamentals.get("counts") or {}).get("archive_total")), True, False, False,
+          "partial_learning" if fundamentals.get("symbols") else "not_implemented",
+          ["SEC CompanyFacts/XBRL longitudinal fact memory is now present when the artifact has been built.","Derived quarter-over-quarter/YoY, thesis-change and future-outcome evaluation still need explicit closed-loop scoring."],
+          {"symbols":count_map(fundamentals.get("symbols")),"archive_total":(fundamentals.get("counts") or {}).get("archive_total"),"archive_added":(fundamentals.get("counts") or {}).get("archive_added")}),
+      row("news_event_evidence", bool(events.get("symbols")), "current_view_plus_append_only_monthly_archive",
+          bool((evidence_archive.get("events") or {}).get("total")), True, bool(load("docs/research/event_window_attribution.json").get("rows")), True,
           "partial_learning",
-          ["Event Evidence keeps a small current news set per symbol; no append-only news/event archive is the canonical learning source.","Current news limits are appropriate for UI/current context but not for permanent learning retention."],
-          {"symbols":count_map(events.get("symbols")),"news_items":(events.get("counts") or {}).get("news_items"),"event_window_rows":count_list(load("docs/research/event_window_attribution.json").get("rows"))}),
+          ["Canonical Event archive now preserves acquired news items; causal attribution and long-horizon reuse remain partial.","Current Top-N news stays a view, not the canonical learning store."],
+          {"symbols":count_map(events.get("symbols")),"news_items":(events.get("counts") or {}).get("news_items"),"archive_total":(evidence_archive.get("events") or {}).get("total"),"event_window_rows":count_list(load("docs/research/event_window_attribution.json").get("rows"))}),
       row("macro_fred_alfred", bool(macro), "current_plus_cached_series",
           True, True, False, True,
           "partial_learning",
@@ -165,7 +167,7 @@ def build():
     for x in rows:counts[x["learning_status"]]=counts.get(x["learning_status"],0)+1
     gaps=[{"domain":x["domain"],"status":x["learning_status"],"gaps":x["gaps"]} for x in rows if rank.get(x["learning_status"],0)<3]
     return {
-      "version":"1.2",
+      "version":"1.3",
       "generated_at":datetime.now(timezone.utc).isoformat(),
       "principle":"Collection success is not learning success. Permanent storage and learning inputs must not be record-count capped; only per-run processing and UI presentation may be bounded.",
       "counts":counts,

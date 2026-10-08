@@ -607,14 +607,25 @@ def dca_events(plan_row, window, today_sh):
     return ev
 
 
-def dca_split(amount_cny, weights):
+DCA_ORDER = ("QQQM", "QLD", "VGT")
+
+
+def ordered_weights(weights):
+    """Postgres jsonb reorders keys; always present the plan as QQQM / QLD / VGT."""
+    w = dict(weights or {})
+    return {k: w[k] for k in sorted(w, key=lambda k: (DCA_ORDER.index(k) if k in DCA_ORDER else 99, k))}
+
+
+def dca_split(amount_usd, weights):
+    """Monthly DCA amount is USD (owner-confirmed)."""
+    weights = ordered_weights(weights)
     total = sum(float(v) for v in weights.values()) or 1.0
     rows, acc = [], 0.0
     items = list(weights.items())
     for i, (sym, w) in enumerate(items):
-        amt = round(float(amount_cny) * float(w) / total, 2) if i < len(items) - 1 else round(float(amount_cny) - acc, 2)
+        amt = round(float(amount_usd) * float(w) / total, 2) if i < len(items) - 1 else round(float(amount_usd) - acc, 2)
         acc += amt
-        rows.append({"symbol": sym, "weight": float(w) / total, "amount_cny": amt})
+        rows.append({"symbol": sym, "weight": float(w) / total, "amount_usd": amt})
     return rows
 
 
@@ -733,10 +744,10 @@ def dca_message(event, plan_row, window, split):
     head = {"DCA_DUE": "📅 本月定投提醒", "DCA_PENDING": "⏳ 本月定投尚未完成",
             "DCA_PARTIAL": "◐ 本月定投部分完成", "DCA_COMPLETED": "✅ 本月定投已完成",
             "DCA_SKIPPED": "⏭ 本月定投已跳过"}[base]
-    amt = plan_row.get("amount_cny")
+    amt = plan_row.get("amount_usd")
     lines = [f"MyAlpha｜{head}（{window['month']}）"]
     if base in ("DCA_DUE", "DCA_PENDING", "DCA_PARTIAL") and amt:
-        lines.append(f"计划 ¥{float(amt):,.0f}：" + " / ".join(f"{x['symbol']} ¥{x['amount_cny']:,.0f}" for x in split))
+        lines.append(f"计划 ${float(amt):,.0f}：" + " / ".join(f"{x['symbol']} ${x['amount_usd']:,.0f}" for x in split))
         lines.append(f"窗口：{window['due_date']} ~ {window['window_end']}（Asia/Shanghai，按美股交易日顺延）")
         lines.append("在网站标记 已完成 / 部分完成 / 跳过 后停止本月提醒。")
     return "\n".join(lines)
@@ -772,11 +783,11 @@ def run_dca(today_sh, dca_cfg):
     month_key = f"{win['month']}-01"
     for s in settings:
         uid = s.get("user_id")
-        amount, weights = s.get("dca_monthly_cny"), s.get("dca_weights") or {}
+        amount, weights = s.get("dca_monthly_usd"), ordered_weights(s.get("dca_weights"))
         if not uid or not amount or not weights or s.get("dca_enabled") is False:
             continue
         sb_request("POST", "dca_monthly_plans?on_conflict=user_id,plan_month",
-                   [{"user_id": uid, "plan_month": month_key, "amount_cny": amount, "weights": weights,
+                   [{"user_id": uid, "plan_month": month_key, "amount_usd": amount, "weights": weights,
                      "due_date": win["due_date"], "window_end": win["window_end"]}],
                    prefer="resolution=ignore-duplicates,return=minimal")
         rows = sb_request("GET", f"dca_monthly_plans?select=*&user_id=eq.{uid}&plan_month=eq.{month_key}") or []
@@ -786,7 +797,7 @@ def run_dca(today_sh, dca_cfg):
         events = dca_events(plan, win, today_sh)
         sent = list(plan.get("notified_events") or [])
         for ev in events:
-            msg = dca_message(ev, plan, win, dca_split(plan["amount_cny"], plan.get("weights") or weights))
+            msg = dca_message(ev, plan, win, dca_split(plan["amount_usd"], plan.get("weights") or weights))
             res = send_telegram(msg)
             summary["events"].append(ev.split(":")[0])
             summary["delivery"].append(res)

@@ -72,9 +72,13 @@ function goldView(status,live,nowMs=Date.now()){
  return{...base,state:'WATCH',blockers};
 }
 function cnyPerGram(usdOz,fx){return num(usdOz)!==null&&num(fx)!==null?usdOz*fx/OZ_G:null}
+const DCA_ORDER=['QQQM','QLD','VGT'];
+/** jsonb reorders keys (QLD, VGT, QQQM); the plan is always shown as QQQM / QLD / VGT. */
+function orderedWeights(w){const r=k=>{const i=DCA_ORDER.indexOf(k);return i<0?99:i};return Object.fromEntries(Object.entries(w||{}).sort((a,b)=>r(a[0])-r(b[0])||a[0].localeCompare(b[0])))}
+/** Monthly DCA amount is USD (owner-confirmed 2026-10-08). */
 function dcaSplit(amount,weights){
- const items=Object.entries(weights||{}),total=items.reduce((a,[,w])=>a+Number(w||0),0)||1;let acc=0;
- return items.map(([symbol,w],i)=>{const amt=i<items.length-1?Math.round(amount*Number(w)/total*100)/100:Math.round((amount-acc)*100)/100;acc+=amt;return{symbol,weight:Number(w)/total,amount_cny:amt}});
+ const items=Object.entries(orderedWeights(weights)),total=items.reduce((a,[,w])=>a+Number(w||0),0)||1;let acc=0;
+ return items.map(([symbol,w],i)=>{const amt=i<items.length-1?Math.round(amount*Number(w)/total*100)/100:Math.round((amount-acc)*100)/100;acc+=amt;return{symbol,weight:Number(w)/total,amount_usd:amt}});
 }
 function shanghaiDate(at=new Date()){return new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Shanghai',year:'numeric',month:'2-digit',day:'2-digit'}).format(at)}
 function dcaPhase(today,win){if(!win)return'unknown';if(today<win.due_date)return'upcoming';if(today<=win.window_end)return'due';return'after'}
@@ -122,12 +126,12 @@ async function loadPrivate(){
 }
 async function ensureMonthPlan(){
  const client=sb(),s=state.settings,win=currentWindow();
- if(!client||!state.session||!s?.dca_monthly_cny||s.dca_enabled===false||!win)return;
+ if(!client||!state.session||!s?.dca_monthly_usd||s.dca_enabled===false||!win)return;
  const month=win.month+'-01';
  state.plan=state.plans.find(p=>p.plan_month===month)||null;
  if(state.plan)return;
  // One plan per user per month: the (user_id, plan_month) unique key makes this idempotent.
- const {error}=await client.from('dca_monthly_plans').upsert({user_id:state.session.user.id,plan_month:month,amount_cny:s.dca_monthly_cny,weights:s.dca_weights,due_date:win.due_date,window_end:win.window_end},{onConflict:'user_id,plan_month',ignoreDuplicates:true});
+ const {error}=await client.from('dca_monthly_plans').upsert({user_id:state.session.user.id,plan_month:month,amount_usd:s.dca_monthly_usd,weights:orderedWeights(s.dca_weights),due_date:win.due_date,window_end:win.window_end},{onConflict:'user_id,plan_month',ignoreDuplicates:true});
  if(error){state.privateError=error.message;return}
  const {data}=await client.from('dca_monthly_plans').select('*').eq('plan_month',month).maybeSingle();
  if(data){state.plan=data;state.plans=[data,...state.plans.filter(p=>p.id!==data.id)]}
@@ -155,14 +159,14 @@ function goldRow(v){
  return `<button type="button" class="ias-row ias-gold ${cls}" data-ias-open="gold" aria-label="黄金 ${esc(price)} ${esc(STATE_LABEL[v.state]||v.state)}，查看详情"><i class="ias-icon">${icon}</i><span class="ias-name">黄金</span><span class="ias-val">${esc(price)}${fresh}</span><span class="ias-sep">｜</span><span class="ias-mid">${mid}</span><span class="ias-end">${badge}${cta}<i class="ias-chev">›</i></span></button>`;
 }
 function dcaRow(){
- const cfgW=state.settings?.dca_weights||{QQQM:.4,QLD:.2,VGT:.4};
+ const cfgW=orderedWeights(state.settings?.dca_weights||{QQQM:.4,QLD:.2,VGT:.4});
  const mix=Object.entries(cfgW).map(([k,w])=>`${k} ${Math.round(Number(w)*100)}%`).join(' / ');
  const win=currentWindow(),today=shanghaiDate();
- const amount=num(state.plan?.amount_cny??state.settings?.dca_monthly_cny);
+ const amount=num(state.plan?.amount_usd??state.settings?.dca_monthly_usd);
  let val='—',lab={key:'idle',text:windowText(win),tone:'idle'},cls='normal';
  if(!state.session){val='登录查看'}
  else if(amount===null){val='未设置';lab={key:'setup',text:'设置月度金额',tone:'idle'}}
- else{val=cny(amount);lab=dcaLabel(state.plan,win,today)}
+ else{val=usd(amount);lab=dcaLabel(state.plan,win,today)}
  if(lab.tone==='due')cls='due';else if(lab.tone==='done')cls='done';
  const badge=lab.tone==='idle'?`<span class="ias-soft">${esc(lab.text)}</span>`:`<b class="ias-badge">${esc(lab.text)}</b>`;
  return `<button type="button" class="ias-row ias-dca ${cls}" data-ias-open="dca" aria-label="月度定投 ${esc(val)} ${esc(lab.text)}，查看详情"><i class="ias-icon">◷</i><span class="ias-name"><span class="ias-wide">月度</span>定投</span><span class="ias-val">${esc(val)}</span><span class="ias-sep">｜</span><span class="ias-mid"><span class="ias-wide">${esc(mix)}</span><span class="ias-narrow">${esc(lab.text)}</span></span><span class="ias-end"><span class="ias-wide">${badge}</span><i class="ias-chev">›</i></span></button>`;
@@ -172,8 +176,12 @@ function render(){
  const v=goldView(state.status,state.live);
  const gen=state.status?.generated_at?new Date(state.status.generated_at).toLocaleString('zh-CN',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit',hour12:false}):'';
  const src=v.basis==='futures_proxy'?'期货代理':v.basis==='spot'?'现货':'';
- root.innerHTML=`<div class="ias-head"><span class="ias-title">投资行动速览</span><span class="ias-meta">${esc(src)}${src&&gen?' · ':''}${gen?'规则 '+esc(gen):''}</span></div>${goldRow(v)}${dcaRow()}`;
+ // While Telegram is not configured the site itself is the alert: a bold header notice + tab title, no extra rows.
+ const alert={WATCH:`⚠ 黄金已进入观察区 · 第${v.stage?.stage}档`,BUY:`▲ 黄金 BUY · 第${v.stage?.stage}阶段 ${v.stage?.budget_pct}%`,PAUSE:'⛔ 黄金暂停买入 · 风险升高',REVIEW:'◎ 黄金需复核'}[v.state];
+ const meta=alert?`<b class="ias-alert ${esc(v.state.toLowerCase())}">${esc(alert)}</b>`:`<span class="ias-meta">${esc(src)}${src&&gen?' · ':''}${gen?'规则 '+esc(gen):''}</span>`;
+ root.innerHTML=`<div class="ias-head"><span class="ias-title">投资行动速览</span>${meta}</div>${goldRow(v)}${dcaRow()}`;
  root.dataset.goldState=v.state;
+ if(typeof document!=='undefined'){const base=document.title.replace(/^【[^】]*】/,'');document.title=alert&&v.state!=='REVIEW'?`【${v.state==='BUY'?'黄金BUY':v.state==='PAUSE'?'黄金暂停':'黄金观察区'}】${base}`:base}
  root.querySelectorAll('[data-ias-open]').forEach(b=>b.addEventListener('click',()=>openDrawer(b.dataset.iasOpen)));
  if(state.drawer)renderDrawer();
 }
@@ -234,19 +242,19 @@ function dcaDrawer(){
  const head=`<header class="ias-dh dca"><div><span>MONTHLY DCA · IBKR</span><h3 id="iasDrawerTitle">每月 ETF 定投</h3></div><button class="ias-close" data-ias-close aria-label="关闭">×</button></header>`;
  const cal=(state.status?.dca_calendar?.months||[]).map(m=>`<li><b>${esc(m.month)}</b><span>${esc(m.due_date)} ~ ${esc(m.window_end)}</span>${m.rolled?'<i class="ias-pill na">已顺延</i>':''}</li>`).join('');
  if(!state.session)return head+`<p class="ias-note">定投金额与执行记录属于私有数据，登录后显示。</p><h4 class="ias-h">提醒窗口（Asia/Shanghai，遇美股休市顺延）</h4><ul class="ias-cal">${cal}</ul>`;
- const amount=num(plan?.amount_cny??s?.dca_monthly_cny),weights=plan?.weights||s?.dca_weights||{QQQM:.4,QLD:.2,VGT:.4};
- const settings=`<form class="ias-form" data-ias-form="dca-settings"><label>每月金额（CNY）<input name="dca_monthly_cny" type="number" min="0" step="100" value="${amount??''}" placeholder="例如 5000"></label><button type="submit">保存</button></form><p class="ias-note">比例 ${esc(Object.entries(weights).map(([k,w])=>`${k} ${Math.round(w*100)}%`).join(' / '))} 由你设定，系统不会自动修改。QLD 为每日 2 倍杠杆 ETF，需定期评估波动与回撤。</p>`;
+ const amount=num(plan?.amount_usd??s?.dca_monthly_usd),weights=orderedWeights(plan?.weights||s?.dca_weights||{QQQM:.4,QLD:.2,VGT:.4});
+ const settings=`<form class="ias-form" data-ias-form="dca-settings"><label>每月金额（USD）<input name="dca_monthly_usd" type="number" min="0" step="100" value="${amount??''}" placeholder="例如 5000"></label><button type="submit">保存</button></form><p class="ias-note">比例 ${esc(Object.entries(weights).map(([k,w])=>`${k} ${Math.round(w*100)}%`).join(' / '))} 由你设定，系统不会自动修改。QLD 为每日 2 倍杠杆 ETF，需定期评估波动与回撤。</p>`;
  if(amount===null)return head+'<p class="ias-note">尚未设置月度定投金额。</p>'+settings+`<h4 class="ias-h">提醒窗口</h4><ul class="ias-cal">${cal}</ul>`;
  const lab=dcaLabel(plan,win,today),split=dcaSplit(amount,weights);
  const done=sym=>state.execs.filter(x=>x.program==='dca'&&x.plan_id===plan?.id&&x.symbol===sym).reduce((a,x)=>a+Number(x.shares),0);
- const rows=split.map(x=>{const u=fx?x.amount_cny/fx:null,p=num(q[x.symbol]?.price),sh=u&&p?u/p:null;return `<tr><td><b>${esc(x.symbol)}</b></td><td>${Math.round(x.weight*100)}%</td><td>${cny(x.amount_cny)}</td><td>${u?usd(u,2):'—'}</td><td class="ias-hide-sm">${p?usd(p,2):'—'}</td><td>${sh?sh.toFixed(4):'—'}</td><td class="ias-hide-sm">${done(x.symbol)?Number(done(x.symbol)).toFixed(4):''}</td></tr>`}).join('');
+ const rows=split.map(x=>{const u=x.amount_usd,c=fx?u*fx:null,p=num(q[x.symbol]?.price),sh=p?u/p:null;return `<tr><td><b>${esc(x.symbol)}</b></td><td>${Math.round(x.weight*100)}%</td><td>${usd(u)}</td><td class="ias-hide-sm">${c?cny(c):'—'}</td><td class="ias-hide-sm">${p?usd(p,2):'—'}</td><td>${sh?sh.toFixed(4):'—'}</td><td class="ias-hide-sm">${done(x.symbol)?Number(done(x.symbol)).toFixed(4):''}</td></tr>`}).join('');
  const cum={};let investedUsd=0,investedCny=0;
  state.execs.filter(x=>x.program==='dca').forEach(x=>{const c=Number(x.shares)*Number(x.price_usd)+Number(x.fee_usd||0);investedUsd+=c;investedCny+=x.usdcny?c*Number(x.usdcny):0;cum[x.symbol]=(cum[x.symbol]||0)+Number(x.shares)});
  const mv=Object.entries(cum).map(([k,sh])=>({k,sh,v:num(q[k]?.price)?sh*q[k].price:null})),mvTotal=mv.reduce((a,x)=>a+(x.v||0),0);
  const alloc=mv.map(x=>`<li><b>${esc(x.k)}</b><span>${x.sh.toFixed(4)} 股</span><small>${x.v!=null?usd(x.v,0)+' · '+(mvTotal?Math.round(x.v/mvTotal*100):0)+'%':'报价暂缺'}</small></li>`).join('');
- const hist=state.plans.map(p=>{const ex=state.execs.filter(x=>x.plan_id===p.id),c=ex.reduce((a,x)=>a+Number(x.shares)*Number(x.price_usd)+Number(x.fee_usd||0),0);return `<tr><td>${esc(String(p.plan_month).slice(0,7))}</td><td>${cny(p.amount_cny)}</td><td><i class="ias-pill ${p.status==='completed'?'ok':p.status==='skipped'?'na':p.status==='partial'?'cur':'bad'}">${esc({pending:'待执行',partial:'部分完成',completed:'已完成',skipped:'已跳过'}[p.status]||p.status)}</i></td><td>${ex.length?usd(c,2):'—'}</td></tr>`}).join('');
- return head+`<div class="ias-state dca-${esc(lab.key)}"><b>${esc(win?.month||'')} · ${esc(lab.text)}</b><span>${cny(amount)} · 窗口 ${esc(win?`${win.due_date} ~ ${win.window_end}`:'—')}</span><small>Asia/Shanghai；遇周末/美股休市顺延至下一交易日。按 USD/CNY ${fx?fx.toFixed(4):'—'} 换算美元，IBKR 支持碎股。</small></div>
- <div class="ias-table-wrap"><table class="ias-table"><thead><tr><th>ETF</th><th>比例</th><th>人民币</th><th>约美元</th><th class="ias-hide-sm">最新价</th><th>约股数</th><th class="ias-hide-sm">已买</th></tr></thead><tbody>${rows}</tbody></table></div>
+ const hist=state.plans.map(p=>{const ex=state.execs.filter(x=>x.plan_id===p.id),c=ex.reduce((a,x)=>a+Number(x.shares)*Number(x.price_usd)+Number(x.fee_usd||0),0);return `<tr><td>${esc(String(p.plan_month).slice(0,7))}</td><td>${usd(p.amount_usd??p.amount_cny)}</td><td><i class="ias-pill ${p.status==='completed'?'ok':p.status==='skipped'?'na':p.status==='partial'?'cur':'bad'}">${esc({pending:'待执行',partial:'部分完成',completed:'已完成',skipped:'已跳过'}[p.status]||p.status)}</i></td><td>${ex.length?usd(c,2):'—'}</td></tr>`}).join('');
+ return head+`<div class="ias-state dca-${esc(lab.key)}"><b>${esc(win?.month||'')} · ${esc(lab.text)}</b><span>${usd(amount)} / 月 · 窗口 ${esc(win?`${win.due_date} ~ ${win.window_end}`:'—')}</span><small>Asia/Shanghai；遇周末/美股休市顺延至下一交易日。IBKR 以美元买入，支持碎股；人民币为按 USD/CNY ${fx?fx.toFixed(4):'—'} 的参考折算。</small></div>
+ <div class="ias-table-wrap"><table class="ias-table"><thead><tr><th>ETF</th><th>比例</th><th>美元</th><th class="ias-hide-sm">约人民币</th><th class="ias-hide-sm">最新价</th><th>约股数</th><th class="ias-hide-sm">已买</th></tr></thead><tbody>${rows}</tbody></table></div>
  ${plan?`<div class="ias-actions"><button data-ias-plan="completed" class="${plan.status==='completed'?'on':''}">标记已完成</button><button data-ias-plan="partial" class="${plan.status==='partial'?'on':''}">部分完成</button><button data-ias-plan="skipped" class="${plan.status==='skipped'?'on':''}">跳过本月</button>${plan.status!=='pending'?'<button data-ias-plan="pending" class="ghost">恢复待执行</button>':''}</div>`:''}
  <details class="ias-details"><summary>录入实际成交（股数 / 成交价 / 费用）</summary><form class="ias-form grid" data-ias-form="dca-exec"><label>ETF<select name="symbol">${split.map(x=>`<option>${esc(x.symbol)}</option>`).join('')}</select></label><label>股数<input name="shares" type="number" step="0.0001" min="0" required></label><label>成交价 USD<input name="price_usd" type="number" step="0.0001" min="0" required></label><label>费用 USD<input name="fee_usd" type="number" step="0.01" min="0" value="0"></label><label>USD/CNY<input name="usdcny" type="number" step="0.0001" min="0" value="${fx?fx.toFixed(4):''}"></label><label>日期<input name="executed_at" type="date" value="${today}"></label><button type="submit">保存成交</button></form></details>
  <h4 class="ias-h">累计与当前配置</h4><div class="ias-kvs">${kv('累计投入（USD）',usd(investedUsd,2),'含费用')}${kv('累计投入（CNY）',investedCny?cny(investedCny):'—','按成交时录入汇率')}${kv('当前市值',mvTotal?usd(mvTotal,0):'—','按最新收盘报价')}</div><ul class="ias-etf">${alloc||'<li>尚无成交记录</li>'}</ul>
@@ -268,7 +276,7 @@ async function onSubmit(ev){
  const uid=state.session.user.id,n=k=>fd[k]===''||fd[k]==null?null:Number(fd[k]);
  let res;
  if(kind==='gold-budget')res=await client.from('investment_plan_settings').upsert({user_id:uid,gold_budget_usd:n('gold_budget_usd'),updated_at:new Date().toISOString()},{onConflict:'user_id'});
- else if(kind==='dca-settings')res=await client.from('investment_plan_settings').upsert({user_id:uid,dca_monthly_cny:n('dca_monthly_cny'),updated_at:new Date().toISOString()},{onConflict:'user_id'});
+ else if(kind==='dca-settings')res=await client.from('investment_plan_settings').upsert({user_id:uid,dca_monthly_usd:n('dca_monthly_usd'),updated_at:new Date().toISOString()},{onConflict:'user_id'});
  else if(kind==='gold-exec')res=await client.from('investment_executions').insert({user_id:uid,program:'gold',gold_stage:n('gold_stage'),gold_signal_id:state.status?.gold?.signal_id||null,symbol:fd.symbol,shares:n('shares'),price_usd:n('price_usd'),fee_usd:n('fee_usd')||0,usdcny:num(state.status?.gold?.fx?.usdcny),executed_at:fd.executed_at||null});
  else if(kind==='dca-exec'){if(!state.plan){toast('本月计划尚未生成','warn');return}res=await client.from('investment_executions').insert({user_id:uid,program:'dca',plan_id:state.plan.id,symbol:fd.symbol,shares:n('shares'),price_usd:n('price_usd'),fee_usd:n('fee_usd')||0,usdcny:n('usdcny'),executed_at:fd.executed_at||null})}
  if(res?.error){toast('保存失败：'+res.error.message,'bad');return}
@@ -292,7 +300,7 @@ async function init(){
  if(sb()?.auth?.onAuthStateChange)sb().auth.onAuthStateChange(()=>{loadPrivate().then(render)});
  setInterval(()=>{if(document.visibilityState==='visible')loadStatus().then(render)},10*60*1000);
 }
-const api={render,updateFromMarket,goldView,quoteFreshness,goldMarketOpen,stageFor,zoneFor,dcaSplit,dcaLabel,dcaPhase,windowText,cnyPerGram,_state:state};
+const api={render,updateFromMarket,goldView,quoteFreshness,goldMarketOpen,stageFor,zoneFor,dcaSplit,orderedWeights,dcaLabel,dcaPhase,windowText,cnyPerGram,_state:state};
 global.MAVInvestActions=api;
 if(typeof module!=='undefined'&&module.exports)module.exports=api;
 else if(typeof document!=='undefined'){if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init()}

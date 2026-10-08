@@ -8,6 +8,7 @@ on:
       - 'supabase/functions/**'
       - 'supabase/config.toml'
       - 'supabase/migrations/202610080002_investment_plans_private.sql'
+      - 'supabase/migrations/202610080003_dca_amount_usd.sql'
 
 permissions:
   contents: read
@@ -32,7 +33,7 @@ jobs:
           supabase functions deploy options-market --project-ref "$SUPABASE_PROJECT_REF"
           supabase functions deploy stock-market --project-ref "$SUPABASE_PROJECT_REF"
           supabase functions deploy market-snapshot --project-ref "$SUPABASE_PROJECT_REF" --no-verify-jwt
-      - name: Apply V6.11 private investment-plan migration (idempotent, owner-only RLS)
+      - name: Apply V6.11 private investment-plan migrations (idempotent, owner-only RLS)
         # Only this explicitly listed, idempotent file is applied; earlier migrations were applied
         # manually in the SQL Editor and are never re-run from here.
         run: |
@@ -46,9 +47,15 @@ jobs:
                            "User-Agent": "MyAlpha-Deploy"})
               with urllib.request.urlopen(req, timeout=60) as r:
                   return json.loads(r.read().decode() or "null")
-          q(open("supabase/migrations/202610080002_investment_plans_private.sql", encoding="utf-8").read())
+          for f in ("supabase/migrations/202610080002_investment_plans_private.sql",
+                    "supabase/migrations/202610080003_dca_amount_usd.sql"):
+              q(open(f, encoding="utf-8").read())
           rows = q("select c.relname as t, c.relrowsecurity as rls from pg_class c join pg_namespace n on n.oid=c.relnamespace "
                    "where n.nspname='public' and c.relname in ('investment_plan_settings','dca_monthly_plans','investment_executions') order by 1")
           print("::notice title=V6.11 migration::" + json.dumps(rows))
           assert len(rows) == 3 and all(r["rls"] for r in rows), rows
+          cols = q("select table_name, column_name from information_schema.columns where table_schema='public' "
+                   "and column_name in ('dca_monthly_usd','amount_usd') order by 1")
+          print("::notice title=V6.11 USD columns::" + json.dumps(cols))
+          assert len(cols) == 2, cols
           PY

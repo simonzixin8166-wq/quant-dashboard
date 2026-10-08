@@ -236,6 +236,15 @@ jobs:
       - name: Build V6.9 Learning Evaluation
         run: python scripts/learning_evaluation_engine.py
 
+      - name: Build Support & Volatility Intelligence
+        run: python scripts/support_volatility_intelligence.py
+
+      - name: Build Support & GARCH Outcome Memory
+        run: python scripts/support_volatility_outcome_memory.py
+
+      - name: Build Options Opportunity Research Context
+        run: python scripts/options_opportunity_context.py
+
       - name: Audit whole-site data learning coverage
         run: python scripts/data_learning_coverage_audit.py
 
@@ -310,6 +319,7 @@ jobs:
           python tests/test_v690_learning_evaluation.py
           python tests/test_data_learning_coverage_audit.py
           python tests/test_v615_fundamental_outcome_context.py
+          python tests/test_support_volatility_outcome_memory.py
           python tests/test_v690_ui_hardening.py
           python tests/test_ui_controls.py
           python tests/test_system_status_center.py

@@ -28,6 +28,11 @@ on:
     - cron: "20 0-12,23 * * 1-5"
     - cron: "20 23 * * 0"
   workflow_dispatch:
+    inputs:
+      notify_test:
+        description: "Send one MyAlpha Telegram channel test message (V6.11 gold/DCA reminders)"
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -77,6 +82,20 @@ jobs:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
         run: python scripts/private_learning_audit.py
+
+      - name: Notification channel test (manual only)
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.notify_test }}
+        continue-on-error: true
+        env:
+          MYALPHA_TG_BOT_TOKEN: ${{ secrets.MYALPHA_TG_BOT_TOKEN }}
+          MYALPHA_TG_CHAT_ID: ${{ secrets.MYALPHA_TG_CHAT_ID }}
+        run: |
+          python - <<'PY'
+          import sys; sys.path.insert(0, "scripts")
+          import server_action_engine as sa
+          r = sa.send_telegram("MyAlpha｜V6.11 通知通道测试\n黄金分阶段建仓与月度定投提醒将通过此通道发送。此消息仅用于验证，无需操作。")
+          print(f"::notice title=Notification channel test::delivery={r}")
+          PY
 
       - name: Investment watch (gold staged buying + monthly DCA reminders)
         # Research/reminders only; never orders. Never blocks the action snapshot.

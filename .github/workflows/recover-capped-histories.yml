@@ -1,0 +1,57 @@
+name: Recover Capped Histories
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "scripts/recover_destructive_histories.py"
+      - ".github/workflows/recover-capped-histories.yml"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: recover-capped-histories
+  cancel-in-progress: false
+
+jobs:
+  recover:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Recover capped histories from all Git versions
+        run: python scripts/recover_destructive_histories.py
+
+      - name: Validate recovery
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          b=json.loads(Path("research/audit/step_boundary_log.json").read_text(encoding="utf-8"))
+          r=json.loads(Path("research/audit/destructive_history_recovery_report.json").read_text(encoding="utf-8"))
+          assert b.get("retention_policy")=="append_only_no_record_count_cap"
+          assert len(b.get("records") or [])==r["boundary_log"]["after"]
+          assert r["boundary_log"]["after"]>=r["boundary_log"]["before"]
+          assert r["opportunity_history"]["after"]>=r["opportunity_history"]["before"]
+          print(r)
+          PY
+
+      - name: Commit recovered histories
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add research/audit/step_boundary_log.json research/audit/destructive_history_recovery_report.json docs/data.json
+          if ! git diff --cached --quiet; then
+            git commit -m "recover previously capped research histories"
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi

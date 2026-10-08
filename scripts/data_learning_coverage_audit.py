@@ -78,6 +78,7 @@ def build():
     forward_outcomes=load("docs/research/playbook_outcome_shadow.json")
     self_improvement=load("docs/research/self_improvement.json")
     system_status=load("docs/research/system_status.json")
+    operational=load("docs/research/operational_incident_memory.json")
 
     source_total=int((method.get("counts") or {}).get("source_records") or (source.get("counts") or {}).get("records") or 0)
     reading_total=int((reading.get("counts") or {}).get("source_records") or 0)
@@ -155,11 +156,11 @@ def build():
           "learning_active" if sum(int(v or 0) for v in ((forward_outcomes.get("mature_total") or {}).values() if isinstance(forward_outcomes.get("mature_total"),dict) else []))>0 else "partial_learning",
           ["Pipeline exists, but Learning Active requires at least one real mature Forward outcome."],
           {"mode":playbook.get("mode"),"forward_clock_active":((playbook.get("storage") or {}).get("forward_clock_active")),"mature_total":forward_outcomes.get("mature_total")}),
-      row("operational_system_learning", bool(system_status), "status_snapshots_and_failure_markers",
-          True, bool(self_improvement), False, True,
-          "partial_learning",
-          ["System health and failures influence confidence/research attention, but there is no clearly audited append-only operational incident outcome memory covering every failure and remediation."],
-          {"overall":system_status.get("overall"),"self_improvement_version":self_improvement.get("version")}),
+      row("operational_system_learning", bool(system_status), "status_snapshots_plus_append_only_incident_transitions",
+          True, bool(operational), bool((operational.get("counts") or {}).get("resolved_total")), True,
+          "learning_active" if int((operational.get("counts") or {}).get("resolved_total") or 0)>0 else "partial_learning",
+          ([] if int((operational.get("counts") or {}).get("resolved_total") or 0)>0 else ["Append-only incident tracking is active; waiting for at least one opened incident to be observed resolved in a later status snapshot."]),
+          {"overall":system_status.get("overall"),"open_incidents":(operational.get("counts") or {}).get("open"),"resolved_total":(operational.get("counts") or {}).get("resolved_total"),"self_improvement_version":self_improvement.get("version")}),
       row("regional_cn_hk_learning", exists("docs/data.json"), "market_snapshot_only",
           True, False, False, True,
           "context_only",
@@ -181,7 +182,7 @@ def build():
     for x in rows:counts[x["learning_status"]]=counts.get(x["learning_status"],0)+1
     gaps=[{"domain":x["domain"],"status":x["learning_status"],"gaps":x["gaps"]} for x in rows if rank.get(x["learning_status"],0)<3]
     return {
-      "version":"1.5",
+      "version":"1.6",
       "generated_at":datetime.now(timezone.utc).isoformat(),
       "principle":"Collection success is not learning success. Permanent storage and learning inputs must not be record-count capped; only per-run processing and UI presentation may be bounded.",
       "counts":counts,

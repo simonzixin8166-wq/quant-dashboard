@@ -30,8 +30,17 @@ if out["tracks"]["genuine_forward_matured_total"] == 0:
 # Synthetic: outcomes alone are not learning; proven needs matured+benchmark+reuse.
 def f(**counts):
     return {k: {"count": counts.get(k)} for k in lf.LAYERS}
-assert lf.maturity(f(candidate_claim_or_state=5, independently_matured=10, downstream_reused=0)) == "unproven_no_forward_samples"
+assert lf.maturity(f(candidate_claim_or_state=5, independently_matured=10, downstream_consumer_count=9)) == "unproven_no_forward_samples"
 assert lf.maturity(f(effective_forward_eligible=3)) == "forward_collecting"
-assert lf.maturity(f(effective_forward_eligible=3, independently_matured=2, benchmark_evaluated=2, downstream_reused=1)) == "proven_candidate"
+assert lf.maturity(f(effective_forward_eligible=3, independently_matured=2, benchmark_evaluated=2, downstream_consumer_count=5)) == "forward_collecting"  # readers are not applied learning
+assert lf.maturity(f(effective_forward_eligible=3, independently_matured=2, benchmark_evaluated=2, validated_learning_applied=1)) == "proven_candidate"
+# validated_learning_applied is null (with reason) until provable; consumer counts are readability only.
+for name, eng in out["engines"].items():
+    assert eng["validated_learning_applied"]["count"] is None and eng["validated_learning_applied"]["reason"], name
+    assert "READ" in eng["downstream_consumer_count"]["definition"]
+# External research 'interpretable' excludes title-only rows and exposes the text depth split.
+ext = out["engines"]["external_research"]["interpretable"]
+assert "title-only excluded" in ext["definition"] or ext["count"] is None
+assert ext["records_processed_by_source_reading"] >= 0 and "processed ≠ understood" in ext["note"]
 assert lf.check("x", f(effective_forward_eligible=1, independently_matured=4)) == ["independently_matured(4) > effective_forward_eligible(1)"]
 print("PASS P3-12 learning funnel contract")

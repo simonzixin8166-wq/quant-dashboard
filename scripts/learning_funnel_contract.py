@@ -1,11 +1,17 @@
 #!/usr/bin/env python3
-"""P3-12 Five-engine learning funnel contract (plus External Research).
+"""P3-12 learning funnel contract: five engines (Market, Fundamental, Event, Options, Decision)
+plus External Research as a sixth, separately reported pipeline.
 
 One fixed, layered funnel per engine, counted from the persisted artifacts that already
 exist, with a de-duplication key and an evidence path for every layer:
 
   discovered → canonical_persisted → interpretable → candidate_claim_or_state →
-  effective_forward_eligible → independently_matured → benchmark_evaluated → downstream_reused
+  effective_forward_eligible → independently_matured → benchmark_evaluated →
+  downstream_consumer_count → validated_learning_applied
+
+downstream_consumer_count only says which scripts *read* the engine's state; it is not proof
+that learning changed anything. validated_learning_applied counts forward-validated methods
+that actually changed a ranking/decision; null until provable.
 
 Rules of the contract
 - A layer that no artifact can prove is `null` with a reason (not_instrumented), never 0.
@@ -29,7 +35,8 @@ R = ROOT / "research"
 D = ROOT / "docs" / "research"
 OUT = D / "learning_funnel.json"
 LAYERS = ("discovered", "canonical_persisted", "interpretable", "candidate_claim_or_state",
-          "effective_forward_eligible", "independently_matured", "benchmark_evaluated", "downstream_reused")
+          "effective_forward_eligible", "independently_matured", "benchmark_evaluated",
+          "downstream_consumer_count", "validated_learning_applied")
 
 
 def load(path, default=None):
@@ -73,9 +80,17 @@ def reuse_layer(*domains):
     rows = [coverage_domain(d) for d in domains]
     used = sorted({c for r in rows for c in (r.get("reused_by") or [])})
     known = any(r for r in rows)
-    return layer(len(used) if known else None,
-                 "distinct downstream consumers that read this engine's learned state (coverage audit)",
-                 rel(D / "data_learning_coverage_audit.json"), "consumer script", None if known else "coverage_domain_missing")
+    out = layer(len(used) if known else None,
+                "distinct downstream scripts that READ this engine's state (readability, not proof of applied learning)",
+                rel(D / "data_learning_coverage_audit.json"), "consumer script", None if known else "coverage_domain_missing")
+    out["readable_by_downstream"] = used
+    return out
+
+
+def applied_layer():
+    return layer(None, "forward-validated methods that actually changed a research ranking or decision",
+                 rel(D / "learning_funnel.json"),
+                 reason="no forward-validated method exists yet (genuine forward matured = 0); not provable")
 
 
 def market():
@@ -96,7 +111,8 @@ def market():
                                        rel(D / "macro_outcome_memory.json"), "observation_id×horizon"),
         "benchmark_evaluated": layer(int(sc.get("scorecards") or 0), "outcome scorecards vs benchmark",
                                      rel(D / "market_state_outcome_scorecards.json"), "scorecard_id"),
-        "downstream_reused": reuse_layer("macro_fred_alfred", "breadth_cross_asset_regime"),
+        "downstream_consumer_count": reuse_layer("macro_fred_alfred", "breadth_cross_asset_regime"),
+        "validated_learning_applied": applied_layer(),
         "historical": {"market_price_history_mature_60": (coverage_domain("market_price_history").get("evidence") or {}).get("mature_60"),
                        "note": "historical price-event replay; descriptive, not forward learning"},
     }
@@ -120,7 +136,8 @@ def fundamental():
                                        "depends on effective_forward_eligible, which is not provable"),
         "benchmark_evaluated": layer(None, "outcomes measured against a benchmark", rel(R / "archive" / "fundamental_outcomes.jsonl"),
                                      reason="outcome rows carry raw return_pct only; no benchmark excess recorded"),
-        "downstream_reused": reuse_layer("financial_fundamentals_xbrl"),
+        "downstream_consumer_count": reuse_layer("financial_fundamentals_xbrl"),
+        "validated_learning_applied": applied_layer(),
         "historical": {"descriptive_outcome_rows": len(outs),
                        "descriptive_matured_observations": len({o.get("observation_id") for o in outs if o.get("matured_at")}),
                        "note": "historical XBRL filings → descriptive/history outcomes, not Forward Edge"},
@@ -153,7 +170,8 @@ def event():
         "benchmark_evaluated": layer(int(mem.get("outcomes") or 0) if load(D / "event_outcome_memory.json").get("benchmark") else None,
                                      "event outcomes scored against the recorded benchmark", rel(D / "event_outcome_memory.json"),
                                      "uuid×horizon", "event outcome memory has no benchmark definition"),
-        "downstream_reused": reuse_layer("news_event_evidence"),
+        "downstream_consumer_count": reuse_layer("news_event_evidence"),
+        "validated_learning_applied": applied_layer(),
     }
 
 
@@ -177,7 +195,8 @@ def options():
                                        rel(D / "options_opportunity_outcome_memory.json"), "observation_id×horizon"),
         "benchmark_evaluated": layer(None, "matured outcomes compared with a benchmark", rel(D / "options_opportunity_outcome_memory.json"),
                                      reason="no matured outcomes yet; benchmark comparison not instrumented"),
-        "downstream_reused": reuse_layer("options_opportunity"),
+        "downstream_consumer_count": reuse_layer("options_opportunity"),
+        "validated_learning_applied": applied_layer(),
         "shadow_or_private": {"private_position_state_entries_present": bool(priv.get("observations")),
                               "private_mature_outcomes_present": bool(priv.get("mature_outcomes")),
                               "superseded_legacy_observations": len(sup),
@@ -203,9 +222,27 @@ def decision():
         "independently_matured": layer(None, "user actions with matured outcomes", ev,
                                        reason="decision outcome maturation not yet instrumented"),
         "benchmark_evaluated": layer(None, "decision outcomes vs do-nothing baseline", ev, reason="not_instrumented"),
-        "downstream_reused": reuse_layer("decision_journal_user_actions"),
+        "downstream_consumer_count": reuse_layer("decision_journal_user_actions"),
+        "validated_learning_applied": applied_layer(),
         "note": "No user actions are inferred; Decision Learning waits for explicit owner confirmation.",
     }
+
+
+def interpretable_layer(reading):
+    """Only records that carry body text count; title-only rows are 'read' but not understood."""
+    depth = (load(ROOT / "docs" / "data" / "source_intelligence.json").get("feed_integrity") or {}).get("text_depth")
+    if not depth:
+        out = layer(None, "records with body text (excerpt or full text) available to Source Reading",
+                    rel(ROOT / "docs" / "data" / "source_intelligence.json"), "feed id",
+                    "text depth not yet recorded by source_intelligence_engine")
+    else:
+        out = layer(int(depth.get("excerpt", 0)) + int(depth.get("full_text", 0)),
+                    "records with body text available (excerpt ≤360 chars or full text ≥1000); title-only excluded",
+                    rel(ROOT / "docs" / "data" / "source_intelligence.json"), "feed id")
+        out["text_depth"] = depth
+    out["records_processed_by_source_reading"] = int(reading.get("source_records") or 0)
+    out["note"] = "processed ≠ understood: most forum rows reach Source Reading as title/excerpt only"
+    return out
 
 
 def external_research():
@@ -219,8 +256,7 @@ def external_research():
     return {
         "discovered": layer(len(keys), "distinct canonical source keys (forum/blog/YouTube)", ev, "source_key"),
         "canonical_persisted": layer(len(rows), "Source Store records (append-only)", ev, "source_key"),
-        "interpretable": layer(int(reading.get("source_records") or 0), "records read by Source Reading (full text or excerpt)",
-                               rel(D / "source_reading_memory.json"), "source_key"),
+        "interpretable": interpretable_layer(reading),
         "candidate_claim_or_state": layer(int(reading.get("records_with_testable_rules") or 0), "records yielding a testable rule/claim",
                                           rel(D / "source_reading_memory.json"), "source_key"),
         "effective_forward_eligible": layer(sum(1 for r in rows if r.get("effective_forward_eligible") is True),
@@ -231,7 +267,8 @@ def external_research():
                                      "forward events with benchmark excess (0 while nothing has matured)",
                                      rel(R / "reports" / "forward_intake_health.json"), "event_id",
                                      "benchmark excess for forward source events not instrumented"),
-        "downstream_reused": reuse_layer("blog_forum_video_sources"),
+        "downstream_consumer_count": reuse_layer("blog_forum_video_sources"),
+        "validated_learning_applied": applied_layer(),
         "historical": {"lifecycle_rules_mature_60": (life.get("by_state") or {}).get("mature_60"),
                        "lifecycle_rules_mature_20": (life.get("by_state") or {}).get("mature_20"),
                        "note": "author-rule outcomes on backfill/legacy sources: historical/descriptive, not Genuine Forward"},
@@ -250,8 +287,8 @@ def check(engine, f):
 
 
 def maturity(f):
-    m, b, r = (f[k]["count"] for k in ("independently_matured", "benchmark_evaluated", "downstream_reused"))
-    if m and b and r:
+    m, b, a = (f[k]["count"] for k in ("independently_matured", "benchmark_evaluated", "validated_learning_applied"))
+    if m and b and a:
         return "proven_candidate"  # still needs independent review before any production use
     if any(f[k]["count"] for k in ("effective_forward_eligible",)):
         return "forward_collecting"
@@ -275,7 +312,8 @@ def build():
         "contract": {
             "null_means": "not provable from persisted artifacts (reason given); never silently 0",
             "historical_separate": "historical/backfill/descriptive outcomes live under 'historical' and never feed forward layers",
-            "maturity_rule": "proven requires forward matured AND benchmark_evaluated AND downstream_reused > 0; outcomes alone are not learning",
+            "maturity_rule": "proven requires forward matured AND benchmark_evaluated AND validated_learning_applied > 0; outcomes or readers alone are not learning",
+            "engines": "five engines (market, fundamental, event, options, decision) + external_research reported separately",
             "privacy": "decision/private options: presence-only flags from the sanitized server status; exact counts stay private",
         },
         "summary": summary,

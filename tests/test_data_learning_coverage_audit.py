@@ -23,7 +23,7 @@ assert "curated_knowledge_base" in rows
 mature=(rows["production_playbook_forward_replay"].get("counts") or {}).get("mature_total") or {}
 mature_n=sum(int(v or 0) for v in mature.values()) if isinstance(mature,dict) else 0
 assert rows["production_playbook_forward_replay"]["learning_status"]==("learning_active" if mature_n>0 else "partial_learning")
-assert rows["production_playbook_forward_replay"]["outcome"] is (mature_n>0)
+assert rows["production_playbook_forward_replay"]["outcome_feedback"] is (mature_n>0)
 assert rows["regional_cn_hk_learning"]["learning_status"]=="context_only"
 assert rows["financial_fundamentals_xbrl"]["learning_status"] in {"not_implemented","partial_learning"}
 if rows["financial_fundamentals_xbrl"]["collected"]:

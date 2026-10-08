@@ -1,43 +1,24 @@
 {
   "version": "6.15.8d",
-  "generated_at": "2026-10-07T01:39:55.642742+00:00",
+  "generated_at": "2026-10-08T06:13:25.243015+00:00",
   "policy": "diagnostic_only_no_fallback_selection",
   "control_symbol": "AAPL",
   "control_probe": {
-    "status": "access_failure",
-    "error": "<urlopen error timed out>",
+    "status": "no_valid_rows",
+    "rows": 0,
+    "http_status": 200,
+    "content_type": "text/html; charset=utf-8",
+    "content_length_header": null,
+    "response_bytes": 796,
+    "response_prefix": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"robots\" content=\"noindex,nofollow\"></head><body><noscript>This site requires JavaScript to verify y",
     "symbol_mapping": "aapl.us"
   },
   "counts": {
-    "symbols": 1,
-    "events": 1,
-    "by_classification": {
-      "access_failure": 1
-    }
+    "symbols": 0,
+    "events": 0,
+    "by_classification": {}
   },
-  "symbols": [
-    {
-      "symbol": "NOW",
-      "event_count": 1,
-      "event_ids": [
-        "brightline-blog-wenxuecity-com-myblog-82458-202608-22905-html:0:NOW:0"
-      ],
-      "authors": [
-        "BrightLine"
-      ],
-      "entry_types": [
-        "next_session"
-      ],
-      "local_stooq_archive_present": false,
-      "cache_present": true,
-      "upstream_stooq_probe": {
-        "status": "access_failure",
-        "error": "<urlopen error timed out>",
-        "symbol_mapping": "now.us"
-      },
-      "classification": "access_failure"
-    }
-  ],
+  "symbols": [],
   "guardrails": [
     "A known-control symbol is probed in the same run; raw HTTP metadata and response prefix are retained for diagnosis.",
     "Absence from the local STOOQ watchlist archive does not imply absence from the STOOQ service.",

@@ -39,7 +39,7 @@ prior_task={
     "questions":["q"],"evidence_sources":["x"],"status":"open",
     "review_window_days":30,"first_seen_at":"2026-10-01T00:00:00+00:00","run_count":2,
 }
-carry=build({}, {}, {}, {}, {}, {"queue":[prior_task]}, {}, {}, {}, {}, {}, {}, {})
+carry=p.build({}, {}, {}, {}, {}, {"queue":[prior_task]}, {}, {}, {}, {}, {}, {}, {})
 row=next(x for x in carry["queue"] if x["task_id"]=="legacy-open-1")
 assert row["carry_forward"] is True
 assert row["status"]=="open"

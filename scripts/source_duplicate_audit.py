@@ -21,10 +21,14 @@ def norm(v):
 def signature(row):
     title=norm(row.get("title"))
     excerpt=norm(row.get("excerpt"))
-    author=norm(row.get("author"))
-    # Exact evidence copy only. Require enough text to avoid collapsing short
-    # generic replies such as "agree" or repeated ticker-only titles.
-    payload="|".join([author,title,excerpt])
+    # Cross-channel evidence identity must be author-independent. Otherwise the
+    # same copied/reposted text attributed through a different channel/author
+    # would incorrectly count as independent corroboration.
+    #
+    # Keep this deliberately exact/conservative: title + excerpt must match
+    # after whitespace/case normalization, and very short generic replies are
+    # never deduplicated.
+    payload="|".join([title,excerpt])
     if len(title)+len(excerpt)<60:
         return ""
     return hashlib.sha256(payload.encode("utf-8")).hexdigest()
@@ -58,10 +62,10 @@ def build(rows):
                 "channels":sorted(channels),
             }
     return {
-      "version":1,
+      "version":2,
       "counts":{"records_scanned":len(rows),"duplicate_groups":duplicate_groups,"duplicate_records":duplicate_records},
       "mapping":mapping,
-      "policy":"All raw sources are retained. Exact normalized cross-channel copies may not count as independent method/candidate evidence.",
+      "policy":"All raw sources are retained. Exact normalized cross-channel copies are author-independent and may not count as independent method/candidate evidence.",
     }
 
 def main():

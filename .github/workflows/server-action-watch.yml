@@ -8,7 +8,14 @@ on:
     paths:
       - "scripts/server_action_engine.py"
       - "tests/test_v615_server_action_engine.py"
+      - "tests/test_server_action_snapshot_freshness.py"
       - ".github/workflows/server-action-watch.yml"
+  # Refresh the sanitized snapshot as soon as a new completed-session dashboard
+  # is published. The cron below is best-effort and GitHub throttles it heavily,
+  # which previously left the snapshot judging the prior session for many hours.
+  workflow_run:
+    workflows: ["Daily Dashboard Update"]
+    types: [completed]
   schedule:
     # US trading-day watch. Covers EDT/EST regular-session windows with some buffer.
     - cron: "*/30 13-22 * * 1-5"
@@ -23,6 +30,8 @@ concurrency:
 
 jobs:
   action-watch:
+    # A failed/cancelled Daily publishes no new market data; keep the previous fail-closed snapshot.
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     timeout-minutes: 12
     steps:
@@ -39,6 +48,7 @@ jobs:
         run: |
           python -m py_compile scripts/server_action_engine.py
           python tests/test_v615_server_action_engine.py
+          python tests/test_server_action_snapshot_freshness.py
 
       - name: Build server-side action status and deliver alerts
         env:

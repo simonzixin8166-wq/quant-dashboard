@@ -167,6 +167,7 @@ def build(reading,source,prior=None,now=None,source_store=None):
             else:
                 extraction_mode="historical_or_nonforward"
                 forward_eligible=False
+            effective_forward_eligible=bool(forward_eligible is True and meta.get("effective_forward_eligible") is True)
             out.update({
                 "rule_id":rid,
                 "semantic_hash":semhash,
@@ -177,6 +178,8 @@ def build(reading,source,prior=None,now=None,source_store=None):
                 "last_seen_at":now,
                 "extraction_mode":extraction_mode,
                 "forward_eligible":forward_eligible,
+                "effective_forward_eligible":effective_forward_eligible,
+                "effective_forward_reason":meta.get("effective_forward_reason"),
                 "supersedes":(old or {}).get("supersedes"),
                 "superseded_by":(old or {}).get("superseded_by"),
                 "active":True,
@@ -210,7 +213,7 @@ def build(reading,source,prior=None,now=None,source_store=None):
             "Exact duplicate semantic rules remain separate via deterministic duplicate_rank.",
             "Prior registry rows are never deleted; absent rules become inactive.",
             "Exact extractor-input hashes are retained, and changed inputs append their prior hash to revision history.",
-            "A genuine-forward source may create forward-eligible rules only on its first registry observation and only with high timestamp confidence; later or unverified rules are non-forward.",
+            "Historical forward_eligible is retained for audit; effective_forward_eligible additionally requires current fail-closed source provenance and is the only field downstream Forward consumers should use.",
             "Registry cannot modify production rules or orders."
         ]
     }

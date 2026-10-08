@@ -1,0 +1,88 @@
+{
+  "version": "0.1-spec",
+  "id": "jenning-lrs-leveraged-etf-shadow",
+  "status": "shadow_candidate_spec_only_not_active",
+  "created_at": "2026-10-08",
+  "request": "quant-dashboard#133 comment 6060923178 (item B)",
+  "production_effect": "none",
+  "promotion_effect": "none",
+  "automatic_orders": false,
+  "home_page_effect": "none (no BUY/SELL, no change to X2 / TQQQ Hard Exit / CORE_TIERS / LEAPS)",
+  "source": {
+    "author": "jenning",
+    "title": "长持倍数基金的方法探讨",
+    "url": "https://bbs.wenxuecity.com/tzlc/2138962.html",
+    "published_at": "2025-07-19 19:39:15",
+    "ingest": {
+      "repo": "simonzixin8166-wq/wxc-bot",
+      "feed_record_id": "fd98325a7b0276ca38d8",
+      "workflow_run": 37787797958,
+      "commit": "15f9b44",
+      "intake_class": "historical_backfill",
+      "capture_mode": "single_post_research_backfill",
+      "forward_evidence_eligible": false,
+      "content_scope": "author_original_post_only (replies excluded, never treated as author signals)"
+    },
+    "evidence_role": "external_research_hypothesis — not a MyAlpha conclusion"
+  },
+  "method_elements": {
+    "summary": "Compare a moving-average trend filter on leveraged index ETFs (LRS, Leverage Rotation Strategy) with a static leveraged stock/bond rebalanced portfolio (HFEA: UPRO + TMF).",
+    "lrs_rule": "Hold the leveraged ETF while the UNLEVERAGED index closes above its N-day simple moving average; otherwise hold Treasuries/cash.",
+    "parameters_as_stated_by_author": {"SPX_MA": 200, "NDX_MA": "about 220 (author suggests may be better)"},
+    "leverage_range_as_stated_by_author": "best long-hold multiple roughly between 2x and 3x depending on index/period; inverse/short and >3x long funds not suited to long holding; narrow (non-broad) leveraged index funds cautioned",
+    "author_claims_unverified": [
+      "QQQ-based leveraged long-hold could reach at least ~10x over 30 years (author's claim, NOT verified, not a MyAlpha result)"
+    ],
+    "verification_status": "excerpt + #133 summary only; full-text method details must be re-read from the ingested source before the experiment is frozen"
+  },
+  "references_to_check_against_original": [
+    {"ref": "Gayed & Bilello, Leverage for the Long Run (SSRN 2741701)", "url": "https://papers.ssrn.com/sol3/papers.cfm?abstract_id=2741701", "note": "verify the original assumptions (index, MA length, financing, costs) rather than the forum paraphrase"},
+    {"ref": "Bogleheads HFEA thread", "url": "https://www.bogleheads.org/forum/viewtopic.php?t=272007", "note": "HFEA is a separate risk-control comparator, not a default recommendation"}
+  ],
+  "experiment": {
+    "variants": {
+      "A": "QQQM (or QQQ proxy before QQQM inception) buy & hold",
+      "B": "QLD long hold + annual rebalance to a pre-declared target weight against a pre-declared unleveraged/cash sleeve",
+      "C": "QLD while unleveraged NDX/QQQ close > MA200, else short Treasuries/cash",
+      "D": "Same as C with MA220",
+      "E": "TQQQ with MA200 and MA220 filters (two pre-declared runs)",
+      "F": "Read-only replay of the current MyAlpha TQQQ VIX/MA production strategy (no parameter changes)",
+      "optional_control": "HFEA (UPRO + non-leveraged/long Treasury sleeve) as an independent risk-control comparator"
+    },
+    "no_lookahead": [
+      "signal = unleveraged index close vs MA computed on data up to that close",
+      "execution at the next tradable point (next session open or close, pre-declared), never the signal bar",
+      "exchange trading-day calendar; no holiday fills"
+    ],
+    "synthetic_history": {
+      "rule": "before ETF inception, use daily-reset synthetic leverage of the total-return index",
+      "must_disclose": ["expense ratio", "financing cost (cash rate + spread)", "tracking error / model error", "dividends handling"],
+      "label": "synthetic samples are never reported as real ETF performance"
+    },
+    "costs": ["dividends/total return", "Treasury/cash yield while out", "commission and spread/impact per switch", "tax drag (stated separately)", "cash interest"],
+    "anti_overfitting": [
+      "MA200/MA220 are pre-declared; no post-hoc optimal window",
+      "walk-forward / out-of-sample split declared before running",
+      "regime slices where data allow: 2000-02, 2008, 2020, 2022",
+      "threshold sensitivity grid reported in full (not just the best)",
+      "whipsaw count, extreme-day behaviour"
+    ],
+    "metrics": ["CAGR", "max drawdown", "Sharpe", "Sortino", "worst 3y and 5y", "longest underwater period", "turnover", "cost drag"],
+    "questions": [
+      "Does an MA filter improve the risk/return of the current QLD annual-rebalance DCA leg?",
+      "Does it add genuine out-of-sample value relative to the existing TQQQ production rules (F)?"
+    ]
+  },
+  "sequencing": {
+    "priority": "P3/P4 candidate; must not take resources from P2-11, P3-12, P2-9, P2-10",
+    "now": "method recorded as historical research (this spec + backfill source record)",
+    "backtest_gate": "run only after data-quality prerequisites pass and the experiment is frozen in a separate PR",
+    "if_data_not_reproducible": "BLOCKED/UNVERIFIED — never invent backtest numbers or repeat the author's return claims as results"
+  },
+  "guardrails": [
+    "historical_backfill: never Genuine Forward",
+    "Shadow only: no Production activation, no automatic promotion",
+    "no change to live ETF rules, DCA weights (4:2:4) or any production threshold",
+    "no trading"
+  ]
+}

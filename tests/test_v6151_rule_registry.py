@@ -43,6 +43,10 @@ def source_store_for(sid,cls="genuine_forward"):
       "source_key":sid,"admission_class":cls,
       "ingest_type":"live_ingest" if cls=="genuine_forward" else "backfill_ingest",
       "first_fetched_at":"2026-10-10T00:00:00+00:00",
+      "first_fetched_at_origin":"source_store_first_observation",
+      "timestamp_confidence":"high" if cls=="genuine_forward" else "unverified",
+      "effective_forward_eligible":True if cls=="genuine_forward" else False,
+      "effective_forward_reason":"eligible" if cls=="genuine_forward" else "not_genuine_live_admission",
       "record":{"id":sid}
     }]}
 
@@ -63,6 +67,7 @@ initial=build(
 ir=[x for x in initial["rules"] if x.get("source_id")=="s1" and x.get("active")][0]
 assert ir["extraction_mode"]=="forward_initial"
 assert ir["forward_eligible"] is True
+assert ir["effective_forward_eligible"] is True
 
 # A genuine source observed once with no rule cannot later create a new forward-eligible rule.
 empty_reading={"version":"x","records":[{
@@ -83,6 +88,7 @@ later=build(later_reading,later_source,seen,now="2026-11-10T00:00:00Z",source_st
 lr=[x for x in later["rules"] if x.get("source_id")=="s1" and x.get("active")][0]
 assert lr["extraction_mode"]=="retroactive"
 assert lr["forward_eligible"] is False
+assert lr["effective_forward_eligible"] is False
 
 # Source-observation lifecycle survives reading-window eviction.
 evicted=build({"version":"x","records":[]},{"records":[],"operation_cases":[]},later,

@@ -44,6 +44,7 @@ def build(store,rules,families,events,spec,now=None):
         if (meta or {}).get("admission_class")!=required_class:return False
         if (meta or {}).get("ingest_type")!="live_ingest": return False
         if (meta or {}).get("first_fetched_at_origin")!="source_store_first_observation": return False
+        if (meta or {}).get("timestamp_confidence")!="high": return False
         try:
             from datetime import datetime
             first=datetime.fromisoformat(str(meta.get("first_fetched_at")).replace("Z","+00:00"))
@@ -137,7 +138,7 @@ def build(store,rules,families,events,spec,now=None):
             "rekeyed_live_inherited_source_ids":sorted(rekeyed_live_inherited)[:50],
         },
         "guardrails":[
-            "A genuine forward rule requires persisted admission_class=genuine_forward, live_ingest, immutable first observation provenance, and the Spec-defined Evidence Foundation start.",
+            "A genuine forward rule requires persisted admission_class=genuine_forward, live_ingest, immutable first observation provenance, high timestamp confidence, and the Spec-defined Evidence Foundation start.",
             "No live rule is fabricated to make the forward count non-zero.",
             "Waiting for the first genuine live rule is healthy and distinct from a broken path.",
             "A genuine live rule must map to the current Rule Family definition and an EventScore event.",

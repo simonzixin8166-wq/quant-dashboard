@@ -146,6 +146,9 @@ jobs:
       - name: Build V6.7 Cross-Asset Divergence
         run: python scripts/cross_asset_divergence_engine.py
 
+      - name: Build Macro Regime Outcome Memory
+        run: python scripts/macro_outcome_memory.py
+
       - name: Build V6.8 Breadth Intelligence
         run: python scripts/breadth_intelligence_engine.py
 
@@ -314,6 +317,7 @@ jobs:
           python tests/test_v661_ui_consistency.py
           python tests/test_v663_completed_daily_guard.py
           python tests/test_v670_cross_asset_divergence.py
+          python tests/test_macro_outcome_memory.py
           python tests/test_v680_breadth_intelligence.py
           python tests/test_v681_regime_combination_memory.py
           python tests/test_market_state_outcome_scorecards.py

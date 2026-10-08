@@ -35,12 +35,13 @@ def build(store,rules,families,events,spec,now=None):
         if sid:
             source_meta[sid]=row
 
-    active_rules=[r for r in rules.get("rules") or [] if r.get("active",True) and r.get("forward_eligible") is not False]
+    active_rules=[r for r in rules.get("rules") or [] if r.get("active",True) and r.get("effective_forward_eligible") is True]
     pit_cfg=((spec.get("definitions") or {}).get("point_in_time_eligibility") or {})
     admission_cfg=pit_cfg.get("source_admission") or {}
     required_class=admission_cfg.get("genuine_forward_required_class","genuine_forward")
     foundation_value=pit_cfg.get("evidence_foundation_start_utc")
     def genuine_forward_source(meta):
+        if (meta or {}).get("effective_forward_eligible") is not True:return False
         if (meta or {}).get("admission_class")!=required_class:return False
         if (meta or {}).get("ingest_type")!="live_ingest": return False
         if (meta or {}).get("first_fetched_at_origin")!="source_store_first_observation": return False
@@ -84,16 +85,18 @@ def build(store,rules,families,events,spec,now=None):
         and (meta or {}).get("ingest_type")=="live_ingest"
     ]
     suspicious_live_sources=[]
+    legacy_ineligible_live_sources=[]
     for sid,meta in source_meta.items():
         admission=(meta or {}).get("admission_class")
         ingest=(meta or {}).get("ingest_type")
         if admission=="rekeyed_duplicate" and ingest=="live_ingest":
             continue
-        if admission=="genuine_forward":
-            if not genuine_forward_source(meta):
-                suspicious_live_sources.append(sid)
+        if admission=="genuine_forward" and ingest=="live_ingest":
+            if genuine_forward_source(meta):
+                continue
+            legacy_ineligible_live_sources.append(sid)
             continue
-        if ingest=="live_ingest":
+        if ingest=="live_ingest" and admission!="genuine_forward":
             suspicious_live_sources.append(sid)
     blockers=[]
     if suspicious_live_sources: blockers.append("live_ingest_missing_immutable_forward_provenance")
@@ -127,6 +130,7 @@ def build(store,rules,families,events,spec,now=None):
             "point_in_time_eligible_events":len(eligible_forward),
             "scoreable_forward_events":len(scoreable_forward),
             "rekeyed_live_inherited_sources":len(rekeyed_live_inherited),
+            "legacy_ineligible_live_sources":len(legacy_ineligible_live_sources),
         },
         "eligible_event_primary_outcomes":dict(sorted(exclusions.items())),
         "blockers":blockers,
@@ -135,10 +139,11 @@ def build(store,rules,families,events,spec,now=None):
             "missing_event_rule_ids":missing_event,
             "noneligible_forward_events":noneligible[:50],
             "suspicious_live_source_ids":sorted(suspicious_live_sources)[:50],
+            "legacy_ineligible_live_source_ids":sorted(legacy_ineligible_live_sources)[:50],
             "rekeyed_live_inherited_source_ids":sorted(rekeyed_live_inherited)[:50],
         },
         "guardrails":[
-            "A genuine forward rule requires persisted admission_class=genuine_forward, live_ingest, immutable first observation provenance, high timestamp confidence, and the Spec-defined Evidence Foundation start.",
+            "A genuine forward rule requires effective_forward_eligible=true plus persisted immutable provenance; legacy misclassifications remain auditable but are excluded rather than rewritten.",
             "No live rule is fabricated to make the forward count non-zero.",
             "Waiting for the first genuine live rule is healthy and distinct from a broken path.",
             "A genuine live rule must map to the current Rule Family definition and an EventScore event.",

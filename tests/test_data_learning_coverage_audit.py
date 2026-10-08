@@ -20,10 +20,16 @@ assert "production_playbook_forward_replay" in rows
 assert "operational_system_learning" in rows
 assert "regional_cn_hk_learning" in rows
 assert "curated_knowledge_base" in rows
-assert rows["production_playbook_forward_replay"]["learning_status"]=="learning_active"
+mature=(rows["production_playbook_forward_replay"].get("counts") or {}).get("mature_total") or {}
+mature_n=sum(int(v or 0) for v in mature.values()) if isinstance(mature,dict) else 0
+assert rows["production_playbook_forward_replay"]["learning_status"]==("learning_active" if mature_n>0 else "partial_learning")
+assert rows["production_playbook_forward_replay"]["outcome"] is (mature_n>0)
 assert rows["regional_cn_hk_learning"]["learning_status"]=="context_only"
 assert rows["financial_fundamentals_xbrl"]["learning_status"]=="not_implemented"
 assert rows["official_sec_filings"]["learning_status"] in {"partial_learning","learning_active"}
 assert "canonical_storage" in out["required_contract"]
 assert "reconciliation" in out["required_contract"]
+assert "reconciliation" in out
+assert out["reconciliation"]["balanced"] is True
+assert out["reconciliation"]["processed"] + out["reconciliation"]["backlog"] >= out["reconciliation"]["captured"]
 print("PASS whole-site data learning coverage audit")

@@ -67,6 +67,7 @@ jobs:
           audit = q(open("supabase/tests/v611_rls_isolation.sql", encoding="utf-8").read())
           print("::notice title=V6.11 RLS isolation (other user + anon, counts only)::PASS " + json.dumps(audit))
           a = (audit or [{}])[-1]
+          assert a.get("audited_as") not in ("anon", "authenticated"), a  # counts must not be RLS-filtered
           assert a.get("duplicate_month_plans") == 0 and a.get("settings_unmigrated_cny") == 0 \
               and a.get("plans_unmigrated_cny") == 0 and a.get("executions_cross_user_or_orphan") == 0 \
               and a.get("policies") == 12, a

@@ -201,8 +201,8 @@ assert '怎样理解 Trend Pulse' in page and '技术细节（可选）' in page
 assert 'tab-core-execution' not in page and '核心资产执行中心' not in page
 assert 'core-execution.js' not in page and 'core-execution.css' not in page
 
-# V4.7 action dashboard
-assert "今日行动摘要" in page
+# Today Cockpit is the sole action surface
+assert "今日驾驶舱 · 唯一行动出口" in page
 assert "核心ETF状态中心" in page
 
 # V4.7.2 daily action / interaction audit

@@ -11,8 +11,8 @@ rows=[
 ]
 out=build(rows)
 assert out["counts"]["duplicate_groups"]==1
-assert out["counts"]["duplicate_records"]==1
+assert out["counts"]["duplicate_records"]==2
 assert out["mapping"]["a"]["duplicate_of"] is None
 assert out["mapping"]["b"]["duplicate_of"]=="a"
-assert "c" not in out["mapping"]
-print("PASS cross-channel exact duplicate evidence audit")
+assert out["mapping"]["c"]["duplicate_of"]=="a"
+print("PASS cross-channel/author-independent exact duplicate evidence audit")

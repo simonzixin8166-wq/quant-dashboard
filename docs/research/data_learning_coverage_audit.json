@@ -1,6 +1,6 @@
 {
   "version": "2.3",
-  "generated_at": "2026-10-08T13:42:03.028930+00:00",
+  "generated_at": "2026-10-08T13:46:44.814638+00:00",
   "principle": "Collection success is not learning success. Permanent storage and learning inputs must not be record-count capped; only per-run processing and UI presentation may be bounded.",
   "counts": {
     "learning_active": 1,
@@ -119,6 +119,7 @@
         "autonomous_research_executor.py",
         "autonomous_research_planner.py",
         "candidate_rule_compiler.py",
+        "learning_funnel_contract.py",
         "method_memory_engine.py",
         "source_rule_lifecycle.py",
         "v615_method_attribution.py",
@@ -207,7 +208,7 @@
       "evidence": {
         "symbols": 16,
         "news_items": 80,
-        "archive_total": 187,
+        "archive_total": 190,
         "event_window_rows": 20,
         "mature_outcomes": 0,
         "benchmark": "QQQ",
@@ -229,8 +230,10 @@
           }
         }
       },
-      "downstream_reused": false,
-      "reused_by": []
+      "downstream_reused": true,
+      "reused_by": [
+        "learning_funnel_contract.py"
+      ]
     },
     {
       "domain": "macro_fred_alfred",
@@ -251,8 +254,10 @@
         "outcomes": 0,
         "scorecards": 0
       },
-      "downstream_reused": false,
-      "reused_by": []
+      "downstream_reused": true,
+      "reused_by": [
+        "learning_funnel_contract.py"
+      ]
     },
     {
       "domain": "breadth_cross_asset_regime",
@@ -273,8 +278,10 @@
         "outcomes": 0,
         "scorecards": 0
       },
-      "downstream_reused": false,
-      "reused_by": []
+      "downstream_reused": true,
+      "reused_by": [
+        "learning_funnel_contract.py"
+      ]
     },
     {
       "domain": "support_resistance_volatility",
@@ -330,8 +337,10 @@
         "private_observations": 3,
         "private_mature_outcomes": 0
       },
-      "downstream_reused": false,
-      "reused_by": []
+      "downstream_reused": true,
+      "reused_by": [
+        "learning_funnel_contract.py"
+      ]
     },
     {
       "domain": "auto_thesis_revision_memory",
@@ -347,7 +356,7 @@
       ],
       "evidence": {
         "symbols": 16,
-        "revision_rows": 73,
+        "revision_rows": 79,
         "linked_direct_events": 27
       },
       "downstream_reused": false,
@@ -424,7 +433,7 @@
         "Outcomes exist but no research/decision component reads them yet (L6 reuse missing); outcome count alone is not learning."
       ],
       "evidence": {
-        "overall": "ok",
+        "overall": "running",
         "open_incidents": 1,
         "resolved_total": 5,
         "self_improvement_version": "7.2.1"

@@ -167,6 +167,17 @@ def timestamp_metadata(r):
         "timestamp_confidence":"unverified" if published else "missing",
     }
 
+def effective_forward_status(r, ts, admission_class, ingest_type, first_fetched_at, spec):
+    """Derived fail-closed Forward eligibility; never rewrites immutable admission history."""
+    if admission_class!="genuine_forward" or ingest_type!="live_ingest":
+        return False,"not_genuine_live_admission"
+    if ts.get("timestamp_confidence")!="high":
+        return False,"timestamp_not_high_confidence"
+    veto,_=late_discovery_veto(r,ts,first_fetched_at,spec)
+    if veto:
+        return False,"late_discovery_after_first_tradable_session"
+    return True,"eligible"
+
 def migrate_sources(source,prior=None,now=None,full_records=None,upstream_accounting=None,spec=None):
     """Persist the full pre-window source stream.
 
@@ -261,17 +272,6 @@ def migrate_sources(source,prior=None,now=None,full_records=None,upstream_accoun
             # may be demoted when its real first observation was already after
             # the first tradable session following publication. Never promote
             # historical/backfill rows here.
-            if admission_class=="genuine_forward":
-                if ts.get("timestamp_confidence")!="high":
-                    admission_class="timestamp_unverified"
-                    ingest_type="backfill_ingest"
-                    admission_origin="corrected_unverified_timestamp_fail_closed"
-                else:
-                    veto,_=late_discovery_veto(r,ts,prev.get("first_fetched_at") or now,spec)
-                    if veto:
-                        admission_class="late_discovery"
-                        ingest_type="backfill_ingest"
-                        admission_origin="corrected_late_discovery_exchange_calendar"
             identity_parent_source_key=prev.get("identity_parent_source_key")
             first_source=prev
         elif inherited and not ambiguous:
@@ -319,6 +319,10 @@ def migrate_sources(source,prior=None,now=None,full_records=None,upstream_accoun
                 admission_origin="high_confidence_late_discovery_veto" if veto else "new_visible_source_no_prior_identity_match"
             identity_parent_source_key=None
             first_source=None
+        first_fetched_at=(first_source or {}).get("first_fetched_at") or now
+        effective_forward_eligible,effective_forward_reason=effective_forward_status(
+            r,ts,admission_class,ingest_type,first_fetched_at,spec
+        )
         current_snapshot_hash=digest(snap)
         snapshot_history=list((prev or {}).get("snapshot_history") or [])
         if prev and prev.get("snapshot_hash") and prev.get("snapshot_hash")!=current_snapshot_hash:
@@ -326,12 +330,14 @@ def migrate_sources(source,prior=None,now=None,full_records=None,upstream_accoun
             if old_hash not in snapshot_history:snapshot_history.append(old_hash)
         rows.append({
             "source_key":k,
-            "first_fetched_at":(first_source or {}).get("first_fetched_at") or now,
+            "first_fetched_at":first_fetched_at,
             "first_fetched_at_origin":(first_source or {}).get("first_fetched_at_origin") or "source_store_first_observation",
             "last_seen_at":now,
             "ingest_type":ingest_type,
             "admission_class":admission_class,
             "admission_origin":admission_origin,
+            "effective_forward_eligible":effective_forward_eligible,
+            "effective_forward_reason":effective_forward_reason,
             "admission_classified_at":(prev or inherited or {}).get("admission_classified_at") or now,
             "identity_parent_source_key":identity_parent_source_key,
             "identity_match_basis":identity_match_basis,

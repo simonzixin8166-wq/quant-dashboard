@@ -144,7 +144,7 @@ def compute(store,reading,rules,state=None,history=None,now=None):
     reading_by_id={str(r.get("source_id")):r for r in (reading.get("records") or []) if r.get("source_id")}
     active_forward_rules=[
         r for r in (rules.get("rules") or [])
-        if r.get("active",True) and r.get("forward_eligible") is True
+        if r.get("active",True) and r.get("effective_forward_eligible") is True
     ]
 
     reasons=Counter()

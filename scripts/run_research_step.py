@@ -67,7 +67,6 @@ def main():
         old_record.pop("before",None)
         old_record.pop("after",None)
     prior.setdefault("records",[]).append(record)
-    prior["records"]=prior["records"][-80:]
     AUDIT.parent.mkdir(parents=True,exist_ok=True)
     AUDIT.write_text(json.dumps(prior,ensure_ascii=False,indent=2),encoding="utf-8")
     if proc.returncode!=0:

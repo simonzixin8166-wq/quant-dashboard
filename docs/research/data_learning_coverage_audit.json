@@ -1,6 +1,6 @@
 {
-  "version": "2.1",
-  "generated_at": "2026-10-08T04:21:19.882411+00:00",
+  "version": "2.2",
+  "generated_at": "2026-10-08T04:32:29.854570+00:00",
   "principle": "Collection success is not learning success. Permanent storage and learning inputs must not be record-count capped; only per-run processing and UI presentation may be bounded.",
   "counts": {
     "learning_active": 3,
@@ -29,22 +29,24 @@
     {
       "domain": "blog_forum_video_sources",
       "collected": true,
-      "persistent_history": "persistent_source_store_plus_upstream_completeness_contract",
+      "persistent_history": "persistent_source_store_plus_upstream_coverage_and_semantic_contract",
       "structured_analysis": true,
       "reusable_memory": true,
       "outcome_feedback": true,
       "decision_context": true,
       "learning_status": "partial_learning",
       "gaps": [
-        "Upstream forum/blog/YouTube completeness is not yet proven; collector completeness contract is false or unavailable.",
+        "Upstream source coverage is not fully accounted; at least one discovered item is missing from feed/archive/pending/backlog or collector status is unavailable.",
+        "Source coverage may be complete, but explicit YouTube pending/backlog/provider-blocked items still lack Q1/Q2 semantic learning; they are not counted as learned.",
         "Historical video archive is intentionally non-gating; this is a governance boundary, not a missing-learning error."
       ],
       "evidence": {
-        "source_records": 1420,
-        "source_reading_records": 1420,
-        "persistent_source_records": 1420,
+        "source_records": 1422,
+        "source_reading_records": 1422,
+        "persistent_source_records": 1422,
         "backlog": 0,
-        "collector_complete": false,
+        "collector_coverage_complete": false,
+        "collector_semantic_complete": false,
         "collector": {
           "version": 0,
           "complete": false,
@@ -123,8 +125,8 @@
       ],
       "evidence": {
         "symbols": 16,
-        "news_items": 75,
-        "archive_total": 93,
+        "news_items": 70,
+        "archive_total": 94,
         "event_window_rows": 20,
         "mature_outcomes": 0,
         "benchmark": "QQQ",
@@ -254,7 +256,7 @@
       ],
       "evidence": {
         "symbols": 17,
-        "revision_rows": 30,
+        "revision_rows": 32,
         "linked_direct_events": 27
       }
     },
@@ -374,7 +376,8 @@
       "domain": "blog_forum_video_sources",
       "status": "partial_learning",
       "gaps": [
-        "Upstream forum/blog/YouTube completeness is not yet proven; collector completeness contract is false or unavailable.",
+        "Upstream source coverage is not fully accounted; at least one discovered item is missing from feed/archive/pending/backlog or collector status is unavailable.",
+        "Source coverage may be complete, but explicit YouTube pending/backlog/provider-blocked items still lack Q1/Q2 semantic learning; they are not counted as learned.",
         "Historical video archive is intentionally non-gating; this is a governance boundary, not a missing-learning error."
       ]
     },
@@ -464,9 +467,9 @@
     }
   ],
   "reconciliation": {
-    "captured": 1420,
-    "canonical": 1420,
-    "processed": 1420,
+    "captured": 1422,
+    "canonical": 1422,
+    "processed": 1422,
     "backlog": 0,
     "errors": 0,
     "balanced": true

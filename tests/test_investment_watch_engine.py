@@ -167,3 +167,11 @@ data["live"]["basis"] = "spot"; data["fx"] = {"ok": False, "rows": []}
 assert e.build_status(data, CFG, DCA, {}, wed)[0]["gold"]["state"] == "DATA_STALE"
 
 print("PASS V6.11 investment watch: gold rules/dedup/freshness/CNY + DCA calendar/reminders/journal")
+
+# Futures daily bars are shifted by the measured futures−spot basis; implausible basis keeps the raw proxy.
+fut = {"ok": True, "basis": "futures_proxy", "source": "f", "rows": [{"date": "2026-10-07", "close": 4030.0, "high": 4040.0, "low": 4020.0}]}
+adj = e.basis_adjust(fut, {"basis": "spot", "price": 4000.0}, futures_now=4025.0)
+assert adj["basis"] == "spot_estimate_from_futures" and adj["rows"][0]["close"] == 4005.0 and adj["futures_spot_basis"] == 25.0
+assert e.basis_adjust(fut, {"basis": "spot", "price": 4000.0}, futures_now=4400.0)["basis"] == "futures_proxy"
+assert e.basis_adjust(fut, {"basis": "futures_proxy", "price": 4000.0}, futures_now=4025.0) is fut
+print("PASS basis adjustment")

@@ -473,6 +473,27 @@ def fetch_spot_daily():
     return {"ok": False, "rows": [], "errors": errors}
 
 
+def basis_adjust(daily, live, futures_now=None):
+    """Free spot daily bars are unavailable on runners (Stooq needs a key, Yahoo XAUUSD=X is gone).
+    When only COMEX futures bars exist, shift them by the *measured* futures−spot basis so level
+    rules (e.g. closes below $4,000) are evaluated on a spot estimate. Shape rules (no lower low,
+    close vs SMA5) are unaffected by a constant shift. Labelled; never presented as true spot."""
+    if daily.get("basis") != "futures_proxy" or not daily.get("rows") or live.get("basis") != "spot":
+        return daily
+    try:
+        fut = futures_now if futures_now is not None else float(yahoo_chart("GC=F", "5d", "1d")[0]["regularMarketPrice"])
+    except Exception as e:
+        return {**daily, "basis_adjust_error": type(e).__name__}
+    basis = fut - float(live["price"])
+    if abs(basis) > 150:  # implausible (contract roll / bad print): keep raw proxy, label it
+        return {**daily, "basis_adjust_error": f"implausible_basis_{basis:.0f}"}
+    rows = [{**r, "close": r["close"] - basis,
+             "high": (r["high"] - basis) if r.get("high") is not None else None,
+             "low": (r["low"] - basis) if r.get("low") is not None else None} for r in daily["rows"]]
+    return {**daily, "rows": rows, "basis": "spot_estimate_from_futures", "futures_spot_basis": round(basis, 2),
+            "source": f"COMEX期货日线 − 实时基差 {basis:+.1f}（现货估算）"}
+
+
 def fetch_fred(series):
     text = http_get(f"https://fred.stlouisfed.org/graph/fredgraph.csv?id={series}", 20)
     rows = []
@@ -502,7 +523,7 @@ def fetch_etf_quotes(symbols):
 def collect():
     data = {"errors": {}}
     data["live"] = fetch_spot_live()
-    data["daily"] = fetch_spot_daily()
+    data["daily"] = basis_adjust(fetch_spot_daily(), data["live"])
     try:
         data["real_yield"] = {"ok": True, "rows": fetch_fred("DFII10"), "source": "FRED DFII10 (10Y TIPS)"}
     except Exception as e:
@@ -773,6 +794,9 @@ def build_status(data, cfg, dca_cfg, prev, at):
     if live.get("basis") == "futures_proxy" and decision["state"] == "BUY":
         decision["state"] = "WATCH"
         decision.setdefault("blockers", []).append("仅有期货代理报价，非现货：不生成 BUY")
+    if data["daily"].get("basis") == "futures_proxy" and decision["state"] == "BUY":
+        decision["state"] = "WATCH"
+        decision.setdefault("blockers", []).append("日线仅有未校正的期货代理：不生成 BUY")
     fx_rows = data["fx"].get("rows", [])
     usdcny = data["fx"].get("live") or (fx_rows[-1]["close"] if fx_rows else None)
     fx_at = data["fx"].get("live_at") or (fx_rows[-1]["date"] if fx_rows else None)
@@ -812,6 +836,7 @@ def build_status(data, cfg, dca_cfg, prev, at):
                       "confirmation": decision["confirmation"]},
             "inputs": {
                 "daily": {"source": data["daily"].get("source"), "basis": data["daily"].get("basis"),
+                          "futures_spot_basis": data["daily"].get("futures_spot_basis"),
                           "last_date": daily[-1]["date"] if daily else None, "fresh": daily_fresh},
                 "real_yield": {"source": data["real_yield"].get("source"),
                                "last_date": ry[-1]["date"] if ry else None, "last": rnd(ry[-1]["value"]) if ry else None},
@@ -856,7 +881,8 @@ def main(argv=None):
             print(f"::notice title=Investment watch source probe::{k} ok={d.get('ok')} "
                   f"source={d.get('source')} basis={d.get('basis')} rows={n} "
                   f"last={(d.get('rows') or [{}])[-1].get('date') if n else d.get('as_of')} "
-                  f"errors={d.get('errors') or d.get('fallback_errors') or d.get('error')}")
+                  f"adj_basis={d.get('futures_spot_basis')} "
+                  f"errors={d.get('errors') or d.get('fallback_errors') or d.get('error') or d.get('basis_adjust_error')}")
         print("::notice title=Investment watch source probe::etf " + json.dumps(
             {k: (v.get('price'), v.get('currency'), v.get('error')) for k, v in data['etf'].items()}))
         return 0

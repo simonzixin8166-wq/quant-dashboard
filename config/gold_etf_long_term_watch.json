@@ -1,0 +1,80 @@
+{
+  "schema_version": "1.0",
+  "strategy_id": "gold-etf-long-term-watch",
+  "name_zh": "黄金ETF长期配置观察",
+  "status": "research_only_not_execution",
+  "as_of": "2026-10-08",
+  "horizon_years": "3-5+",
+  "universe": {
+    "reference_symbol": "XAUUSD",
+    "ibkr_candidates": [
+      "GLDM",
+      "IAU",
+      "GLD",
+      "SGLN"
+    ],
+    "note": "ETF/ETC报价不得使用现货金价直接下单"
+  },
+  "provenance": {
+    "spot_high_2026": {
+      "value": 5595.47,
+      "date": "2026-01-29",
+      "source": "World Gold Council 2026 Mid-Year Outlook"
+    },
+    "verified_spot_low_h1_2026": {
+      "value": 3959.33,
+      "date": "2026-06-24",
+      "source": "World Gold Council 2026 Mid-Year Outlook"
+    },
+    "full_year_low_confirmed": false
+  },
+  "watch_bands_usd_oz": [
+    {
+      "min": 3980,
+      "max": 4050,
+      "role": "historically_grounded_zone",
+      "target_allocation_pct": 25
+    },
+    {
+      "min": 3850,
+      "max": 3900,
+      "role": "conditional_stress_band_not_confirmed_support",
+      "target_allocation_pct": 25
+    },
+    {
+      "min": 3650,
+      "max": 3750,
+      "role": "deep_drawdown_scenario_not_confirmed_support",
+      "target_allocation_pct": 20
+    }
+  ],
+  "initial_probe_pct": 10,
+  "reserved_pct": 20,
+  "portfolio_gold_allocation_guidance_pct": {
+    "initial": 5,
+    "maximum_review": 10
+  },
+  "conditions": {
+    "buy": "Within watch band, wait for reversal or 2 sessions without lower low and no material USD/real-yield deterioration",
+    "pause": "At least 2 of: close below 4000 for 2 sessions; US10Y real yield rises >=20bps/5d; DXY gains >=1.5%/5d",
+    "review": "2 consecutive weekly closes below 3650 plus worsening real yields and persistent global gold ETF outflows",
+    "breakout_watch": "Above 4275 with evidence of sustainable breakout/retest"
+  },
+  "outputs": [
+    "BUY",
+    "WAIT",
+    "REVIEW"
+  ],
+  "required_fields": [
+    "source",
+    "as_of",
+    "freshness",
+    "used_in_decision"
+  ],
+  "execution": "alerts_only_no_auto_trading",
+  "pricing": {
+    "cny_per_gram_formula": "XAUUSD * USDCNY / 31.1034768",
+    "fx_must_be_timestamped": true
+  },
+  "disclaimer": "Rule bands are proposed risk-budget scenarios, not validated technical support; no backtest or autonomous execution."
+}

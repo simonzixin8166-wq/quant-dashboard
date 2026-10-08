@@ -1,6 +1,6 @@
 {
  "version": "p3-12.1",
- "generated_at": "2026-10-08T13:42:31.282938+00:00",
+ "generated_at": "2026-10-08T13:55:54.033771+00:00",
  "layers": [
   "discovered",
   "canonical_persisted",
@@ -28,7 +28,7 @@
    "effective_forward_eligible": 2,
    "independently_matured": 0,
    "benchmark_evaluated": 0,
-   "downstream_reused": 0
+   "downstream_reused": 1
   },
   "fundamental": {
    "learning_maturity": "unproven_no_forward_samples",
@@ -45,14 +45,14 @@
   "event": {
    "learning_maturity": "context_only",
    "funnel_issues": [],
-   "discovered": 148,
-   "canonical_persisted": 148,
-   "interpretable": 148,
+   "discovered": 158,
+   "canonical_persisted": 158,
+   "interpretable": 158,
    "candidate_claim_or_state": 0,
    "effective_forward_eligible": 0,
    "independently_matured": 0,
    "benchmark_evaluated": 0,
-   "downstream_reused": 0
+   "downstream_reused": 1
   },
   "options": {
    "learning_maturity": "forward_collecting",
@@ -64,7 +64,7 @@
    "effective_forward_eligible": 6,
    "independently_matured": 0,
    "benchmark_evaluated": null,
-   "downstream_reused": 0
+   "downstream_reused": 1
   },
   "decision": {
    "learning_maturity": "context_only",
@@ -81,14 +81,14 @@
   "external_research": {
    "learning_maturity": "forward_collecting",
    "funnel_issues": [],
-   "discovered": 1426,
-   "canonical_persisted": 1426,
-   "interpretable": 1426,
+   "discovered": 1434,
+   "canonical_persisted": 1434,
+   "interpretable": 1434,
    "candidate_claim_or_state": 23,
    "effective_forward_eligible": 2,
    "independently_matured": 0,
    "benchmark_evaluated": 0,
-   "downstream_reused": 8
+   "downstream_reused": 9
   }
  },
  "engines": {
@@ -136,7 +136,7 @@
     "dedup_key": "scorecard_id"
    },
    "downstream_reused": {
-    "count": 0,
+    "count": 1,
     "definition": "distinct downstream consumers that read this engine's learned state (coverage audit)",
     "evidence": "docs/research/data_learning_coverage_audit.json",
     "dedup_key": "consumer script"
@@ -205,19 +205,19 @@
   },
   "event": {
    "discovered": {
-    "count": 148,
+    "count": 158,
     "definition": "news/event items archived",
     "evidence": "research/archive/events",
     "dedup_key": "uuid"
    },
    "canonical_persisted": {
-    "count": 148,
+    "count": 158,
     "definition": "append-only monthly event shards",
     "evidence": "research/archive/events",
     "dedup_key": "uuid"
    },
    "interpretable": {
-    "count": 148,
+    "count": 158,
     "definition": "items with title, url and event date",
     "evidence": "research/archive/events",
     "dedup_key": "uuid"
@@ -247,7 +247,7 @@
     "dedup_key": "uuid×horizon"
    },
    "downstream_reused": {
-    "count": 0,
+    "count": 1,
     "definition": "distinct downstream consumers that read this engine's learned state (coverage audit)",
     "evidence": "docs/research/data_learning_coverage_audit.json",
     "dedup_key": "consumer script"
@@ -297,7 +297,7 @@
     "reason": "no matured outcomes yet; benchmark comparison not instrumented"
    },
    "downstream_reused": {
-    "count": 0,
+    "count": 1,
     "definition": "distinct downstream consumers that read this engine's learned state (coverage audit)",
     "evidence": "docs/research/data_learning_coverage_audit.json",
     "dedup_key": "consumer script"
@@ -359,19 +359,19 @@
   },
   "external_research": {
    "discovered": {
-    "count": 1426,
+    "count": 1434,
     "definition": "distinct canonical source keys (forum/blog/YouTube)",
     "evidence": "research/store/source_store.json",
     "dedup_key": "source_key"
    },
    "canonical_persisted": {
-    "count": 1426,
+    "count": 1434,
     "definition": "Source Store records (append-only)",
     "evidence": "research/store/source_store.json",
     "dedup_key": "source_key"
    },
    "interpretable": {
-    "count": 1426,
+    "count": 1434,
     "definition": "records read by Source Reading (full text or excerpt)",
     "evidence": "docs/research/source_reading_memory.json",
     "dedup_key": "source_key"
@@ -401,7 +401,7 @@
     "dedup_key": "event_id"
    },
    "downstream_reused": {
-    "count": 8,
+    "count": 9,
     "definition": "distinct downstream consumers that read this engine's learned state (coverage audit)",
     "evidence": "docs/research/data_learning_coverage_audit.json",
     "dedup_key": "consumer script"

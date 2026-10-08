@@ -192,3 +192,28 @@ assert "不输出建议金额" in m1 and "下一档观察：$4,000–3,950" in m
 m2 = e.gold_message("BUY_CONDITIONAL", d_buy, {"price": 4020.0, "source": "t", "as_of": "x"}, CFG, {}, {"budget": 20000, "spent": 2000, "stages": [1]})
 assert "≈ $2,000" in m2 and "不重复扣减" in m2
 print("PASS telegram text")
+
+# Source-quality gate: LIVE spot + estimated daily + macro OK + confirmation OK must NOT be BUY.
+def _with_daily_basis(basis):
+    d2 = json.loads(json.dumps(data)); d2["daily"]["basis"] = basis
+    d2["live"]["basis"] = "spot"; d2["fx"] = {"ok": True, "rows": fx, "live": 6.70, "live_at": "2026-10-07"}
+    return e.build_status(d2, CFG, DCA, {}, wed)
+st_spot, _, ev_spot = _with_daily_basis("spot")
+assert st_spot["gold"]["state"] == "BUY" and st_spot["gold"]["buy_data_gate"]["trusted_spot_daily"] is True
+for basis in ("spot_estimate_from_futures", "futures_proxy", None):
+    st_x, dec_x, ev_x = _with_daily_basis(basis)
+    g = st_x["gold"]
+    assert g["state"] == "WATCH", (basis, g["state"])
+    assert g["buy_data_gate"]["trusted_spot_daily"] is False and g["buy_data_gate"].get("downgraded_buy") is True
+    assert any("可信现货日线" in b for b in g["blockers"])
+    assert "BUY_CONDITIONAL" not in ev_x and "ENTER_WATCH_ZONE" in ev_x
+# Risk states are not masked by the gate: PAUSE still PAUSE on estimated bars.
+d3 = json.loads(json.dumps(data)); d3["daily"]["basis"] = "spot_estimate_from_futures"
+d3["fx"] = {"ok": True, "rows": fx, "live": 6.70, "live_at": "2026-10-07"}
+d3["live"]["price"] = 3990.0
+d3["daily"]["rows"] = [dict(r, close=c, low=c - 10) for r, c in zip(d3["daily"]["rows"], [4010, 4005, 3990, 3985, 3995, 3990, 3980])]
+d3["real_yield"]["rows"] = [dict(r, value=1.8 + (0.05 * i if i >= 6 else 0)) for i, r in enumerate(d3["real_yield"]["rows"])]
+assert e.build_status(d3, CFG, DCA, {}, wed)[0]["gold"]["state"] == "PAUSE"
+# Implausible basis (contract roll / reversal) leaves raw futures_proxy → still no BUY.
+assert e.basis_adjust(fut, {"basis": "spot", "price": 4000.0}, futures_now=3700.0)["basis"] == "futures_proxy"
+print("PASS gold BUY source-quality gate")

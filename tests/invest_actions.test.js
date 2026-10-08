@@ -15,8 +15,11 @@ let v = api.goldView(status({ state: 'WAIT' }), live(4050), wed);
 assert.equal(v.state, 'WATCH'); assert.equal(v.stage.stage, 1);
 assert.equal(api.goldView(status({ state: 'WAIT' }), live(4020), wed).state, 'WATCH');
 assert.equal(api.goldView(status({ state: 'WAIT' }), live(3950), wed).stage.stage, 2);
-// BUY only when the server confirmed BUY for the same stage on a fresh spot quote.
-assert.equal(api.goldView(status({ state: 'BUY', stage: 1 }), live(4020), wed).state, 'BUY');
+// BUY only when the server confirmed BUY for the same stage on a fresh spot quote AND trusted spot daily bars.
+const gateOk = { trusted_spot_daily: true };
+assert.equal(api.goldView(status({ state: 'BUY', stage: 1, buy_data_gate: gateOk }), live(4020), wed).state, 'BUY');
+assert.equal(api.goldView(status({ state: 'BUY', stage: 1 }), live(4020), wed).state, 'WATCH');
+assert.equal(api.goldView(status({ state: 'BUY', stage: 1, buy_data_gate: { trusted_spot_daily: false } }), live(4020), wed).state, 'WATCH');
 assert.equal(api.goldView(status({ state: 'BUY', stage: 1 }), live(3990), wed).state, 'WATCH');
 assert.equal(api.goldView(status({ state: 'BUY', stage: 1 }), live(4020, 2, 'futures_proxy'), wed).state, 'WATCH');
 const old = status({ state: 'BUY', stage: 1 }); old.generated_at = new Date(wed - 3 * 36e5).toISOString();

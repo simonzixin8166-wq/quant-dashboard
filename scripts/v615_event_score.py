@@ -134,7 +134,7 @@ def historical_unconditional_metrics(df,baseline_date,horizon,direction,max_samp
 
 def registry_map(registry):
     out={}
-    rule_ok={str(r.get("rule_id")):r.get("forward_eligible") is not False for r in registry.get("rules") or [] if r.get("rule_id")}
+    rule_ok={str(r.get("rule_id")):r.get("effective_forward_eligible") is True for r in registry.get("rules") or [] if r.get("rule_id")}
     for m in registry.get("legacy_mapping") or []:
         rid=str(m.get("rule_id") or "")
         if rid and rule_ok.get(rid,True):

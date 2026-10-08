@@ -212,6 +212,9 @@ jobs:
       - name: Build Official Evidence Layer
         run: python scripts/official_evidence_engine.py
 
+      - name: Build SEC XBRL Fundamental Memory
+        run: python scripts/company_fundamental_memory.py
+
       - name: Build Event & Peer Evidence Layer
         run: python scripts/event_evidence_engine.py
 
@@ -298,6 +301,7 @@ jobs:
           python tests/test_v680_breadth_ui.py
           python tests/test_v600_research_planner.py
           python tests/test_v630_official_evidence.py
+          python tests/test_company_fundamental_memory.py
           python tests/test_v640_event_evidence.py
           python tests/test_evidence_archive.py
           python tests/test_v650_event_window_attribution.py

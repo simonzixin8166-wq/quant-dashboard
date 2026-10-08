@@ -34,6 +34,7 @@ jobs:
       - name: V6.11 investment watch regression
         run: |
           python tests/test_investment_watch_engine.py
+          python tests/test_v611_private_migrations.py
           python scripts/private_guardrail.py
       - name: V6.11 gold data source probe (diagnostic annotations only)
         continue-on-error: true

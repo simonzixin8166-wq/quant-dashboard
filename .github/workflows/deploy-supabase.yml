@@ -9,6 +9,7 @@ on:
       - 'supabase/config.toml'
       - 'supabase/migrations/202610080002_investment_plans_private.sql'
       - 'supabase/migrations/202610080003_dca_amount_usd.sql'
+      - 'supabase/tests/v611_rls_isolation.sql'
 
 permissions:
   contents: read
@@ -38,15 +39,19 @@ jobs:
         # manually in the SQL Editor and are never re-run from here.
         run: |
           python3 - <<'PY'
-          import json, os, urllib.request
+          import json, os, urllib.error, urllib.request
           ref = os.environ["SUPABASE_PROJECT_REF"]; tok = os.environ["SUPABASE_ACCESS_TOKEN"]
           def q(sql):
               req = urllib.request.Request(f"https://api.supabase.com/v1/projects/{ref}/database/query",
                   data=json.dumps({"query": sql}).encode(), method="POST",
                   headers={"Authorization": f"Bearer {tok}", "Content-Type": "application/json",
                            "User-Agent": "MyAlpha-Deploy"})
-              with urllib.request.urlopen(req, timeout=60) as r:
-                  return json.loads(r.read().decode() or "null")
+              try:
+                  with urllib.request.urlopen(req, timeout=60) as r:
+                      return json.loads(r.read().decode() or "null")
+              except urllib.error.HTTPError as e:
+                  # Postgres error text only (RLS_LEAK / RLS_WRITE_NOT_BLOCKED …); never row data.
+                  print("::error title=V6.11 SQL::" + e.read().decode()[:400]); raise
           for f in ("supabase/migrations/202610080002_investment_plans_private.sql",
                     "supabase/migrations/202610080003_dca_amount_usd.sql"):
               q(open(f, encoding="utf-8").read())
@@ -58,4 +63,11 @@ jobs:
                    "and column_name in ('dca_monthly_usd','amount_usd') order by 1")
           print("::notice title=V6.11 USD columns::" + json.dumps(cols))
           assert len(cols) == 2, cols
+          # Re-running both migrations above is the idempotency check; then audit isolation.
+          audit = q(open("supabase/tests/v611_rls_isolation.sql", encoding="utf-8").read())
+          print("::notice title=V6.11 RLS isolation (other user + anon, counts only)::PASS " + json.dumps(audit))
+          a = (audit or [{}])[-1]
+          assert a.get("duplicate_month_plans") == 0 and a.get("settings_unmigrated_cny") == 0 \
+              and a.get("plans_unmigrated_cny") == 0 and a.get("executions_cross_user_or_orphan") == 0 \
+              and a.get("policies") == 12, a
           PY

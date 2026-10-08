@@ -251,13 +251,14 @@ function dcaDrawer(){
  const cum={};let investedUsd=0,investedCny=0;
  state.execs.filter(x=>x.program==='dca').forEach(x=>{const c=Number(x.shares)*Number(x.price_usd)+Number(x.fee_usd||0);investedUsd+=c;investedCny+=x.usdcny?c*Number(x.usdcny):0;cum[x.symbol]=(cum[x.symbol]||0)+Number(x.shares)});
  const mv=Object.entries(cum).map(([k,sh])=>({k,sh,v:num(q[k]?.price)?sh*q[k].price:null})),mvTotal=mv.reduce((a,x)=>a+(x.v||0),0);
+ const recent=state.execs.filter(x=>x.program==='dca').slice(0,12).map(x=>`<li><b>${esc(x.symbol)}</b><span>${esc(x.executed_at)} · ${Number(x.shares).toFixed(4)} 股 @ ${usd(x.price_usd,2)}${Number(x.fee_usd)?` + ${usd(x.fee_usd,2)}`:''}</span><button type="button" class="ias-link" data-ias-del="${esc(x.id)}" aria-label="删除这条成交记录">删除</button></li>`).join('');
  const alloc=mv.map(x=>`<li><b>${esc(x.k)}</b><span>${x.sh.toFixed(4)} 股</span><small>${x.v!=null?usd(x.v,0)+' · '+(mvTotal?Math.round(x.v/mvTotal*100):0)+'%':'报价暂缺'}</small></li>`).join('');
  const hist=state.plans.map(p=>{const ex=state.execs.filter(x=>x.plan_id===p.id),c=ex.reduce((a,x)=>a+Number(x.shares)*Number(x.price_usd)+Number(x.fee_usd||0),0);return `<tr><td>${esc(String(p.plan_month).slice(0,7))}</td><td>${usd(p.amount_usd??p.amount_cny)}</td><td><i class="ias-pill ${p.status==='completed'?'ok':p.status==='skipped'?'na':p.status==='partial'?'cur':'bad'}">${esc({pending:'待执行',partial:'部分完成',completed:'已完成',skipped:'已跳过'}[p.status]||p.status)}</i></td><td>${ex.length?usd(c,2):'—'}</td></tr>`}).join('');
  return head+`<div class="ias-state dca-${esc(lab.key)}"><b>${esc(win?.month||'')} · ${esc(lab.text)}</b><span>${usd(amount)} / 月 · 窗口 ${esc(win?`${win.due_date} ~ ${win.window_end}`:'—')}</span><small>Asia/Shanghai；遇周末/美股休市顺延至下一交易日。IBKR 以美元买入，支持碎股；人民币为按 USD/CNY ${fx?fx.toFixed(4):'—'} 的参考折算。</small></div>
  <div class="ias-table-wrap"><table class="ias-table"><thead><tr><th>ETF</th><th>比例</th><th>美元</th><th class="ias-hide-sm">约人民币</th><th class="ias-hide-sm">最新价</th><th>约股数</th><th class="ias-hide-sm">已买</th></tr></thead><tbody>${rows}</tbody></table></div>
- ${plan?`<div class="ias-actions"><button data-ias-plan="completed" class="${plan.status==='completed'?'on':''}">标记已完成</button><button data-ias-plan="partial" class="${plan.status==='partial'?'on':''}">部分完成</button><button data-ias-plan="skipped" class="${plan.status==='skipped'?'on':''}">跳过本月</button>${plan.status!=='pending'?'<button data-ias-plan="pending" class="ghost">恢复待执行</button>':''}</div>`:''}
+ ${plan?`<div class="ias-actions"><button data-ias-plan="completed" class="${plan.status==='completed'?'on':''}">标记已完成</button><button data-ias-plan="partial" class="${plan.status==='partial'?'on':''}">部分完成</button><button data-ias-plan="skipped" class="${plan.status==='skipped'?'on':''}">跳过本月</button>${plan.status!=='pending'?'<button data-ias-plan="pending" class="ghost">恢复待执行</button>':''}</div><p class="ias-note">以上为你的人工记录，不是 IBKR 成交对账；标记"已完成"不会自动推断已买入，实际股数与成交价请在下方录入，录错可删除或恢复待执行。</p>`:''}
  <details class="ias-details"><summary>录入实际成交（股数 / 成交价 / 费用）</summary><form class="ias-form grid" data-ias-form="dca-exec"><label>ETF<select name="symbol">${split.map(x=>`<option>${esc(x.symbol)}</option>`).join('')}</select></label><label>股数<input name="shares" type="number" step="0.0001" min="0" required></label><label>成交价 USD<input name="price_usd" type="number" step="0.0001" min="0" required></label><label>费用 USD<input name="fee_usd" type="number" step="0.01" min="0" value="0"></label><label>USD/CNY<input name="usdcny" type="number" step="0.0001" min="0" value="${fx?fx.toFixed(4):''}"></label><label>日期<input name="executed_at" type="date" value="${today}"></label><button type="submit">保存成交</button></form></details>
- <h4 class="ias-h">累计与当前配置</h4><div class="ias-kvs">${kv('累计投入（USD）',usd(investedUsd,2),'含费用')}${kv('累计投入（CNY）',investedCny?cny(investedCny):'—','按成交时录入汇率')}${kv('当前市值',mvTotal?usd(mvTotal,0):'—','按最新收盘报价')}</div><ul class="ias-etf">${alloc||'<li>尚无成交记录</li>'}</ul>
+ <h4 class="ias-h">累计与当前配置</h4><div class="ias-kvs">${kv('累计投入（USD）',usd(investedUsd,2),'含费用')}${kv('累计投入（CNY）',investedCny?cny(investedCny):'—','按成交时录入汇率')}${kv('当前市值',mvTotal?usd(mvTotal,0):'—','按最新收盘报价')}</div><ul class="ias-etf">${alloc||'<li>尚无成交记录</li>'}</ul>${recent?`<h4 class="ias-h">最近成交记录</h4><ul class="ias-etf ias-execs">${recent}</ul>`:''}
  <h4 class="ias-h">每月历史</h4><div class="ias-table-wrap"><table class="ias-table"><thead><tr><th>月份</th><th>计划</th><th>状态</th><th>实际</th></tr></thead><tbody>${hist||'<tr><td colspan="4">暂无</td></tr>'}</tbody></table></div>
  <h4 class="ias-h">设置</h4>${settings}<h4 class="ias-h">提醒窗口</h4><ul class="ias-cal">${cal}</ul>
  <p class="ias-foot">每月只生成一个计划；确认完成/跳过后本月停止提醒。仅提醒与记录，不自动下单。${state.privateError?' · 私有数据读取异常：'+esc(state.privateError):''}</p>`;
@@ -268,6 +269,7 @@ function renderDrawer(){
  body.innerHTML=state.drawer==='gold'?goldDrawer():dcaDrawer();
  body.querySelectorAll('form[data-ias-form]').forEach(f=>f.addEventListener('submit',onSubmit));
  body.querySelectorAll('[data-ias-plan]').forEach(b=>b.addEventListener('click',()=>setPlanStatus(b.dataset.iasPlan)));
+ body.querySelectorAll('[data-ias-del]').forEach(b=>b.addEventListener('click',()=>deleteExecution(b.dataset.iasDel,b)));
 }
 function toast(msg,tone='good'){global.MAV?.toast?.(msg,tone)}
 async function onSubmit(ev){
@@ -281,6 +283,14 @@ async function onSubmit(ev){
  else if(kind==='dca-exec'){if(!state.plan){toast('本月计划尚未生成','warn');return}res=await client.from('investment_executions').insert({user_id:uid,program:'dca',plan_id:state.plan.id,symbol:fd.symbol,shares:n('shares'),price_usd:n('price_usd'),fee_usd:n('fee_usd')||0,usdcny:n('usdcny'),executed_at:fd.executed_at||null})}
  if(res?.error){toast('保存失败：'+res.error.message,'bad');return}
  toast('已保存');await loadPrivate();render();
+}
+async function deleteExecution(id,btn){
+ // Two-step confirm inside the drawer (no browser dialog); deletes only the owner's own manual record (RLS).
+ const client=sb();if(!client||!state.session||!id)return;
+ if(btn.dataset.armed!=='1'){btn.dataset.armed='1';btn.textContent='再次点击确认删除';setTimeout(()=>{if(btn.isConnected){btn.dataset.armed='';btn.textContent='删除'}},4000);return}
+ const {error}=await client.from('investment_executions').delete().eq('id',id);
+ if(error){toast('删除失败：'+error.message,'bad');return}
+ toast('已删除该成交记录');await loadPrivate();render();
 }
 async function setPlanStatus(status){
  const client=sb();if(!client||!state.plan)return;

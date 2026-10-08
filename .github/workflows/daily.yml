@@ -166,6 +166,10 @@ jobs:
         run: python scripts/autonomous_research_agent.py
 
       - name: Build Source Intelligence Learning
+        # P2-11: a bad upstream feed keeps the last good source artifacts (::error annotation)
+        # instead of blocking the market dashboard publish; Source Intelligence Validation stays hard-fail.
+        env:
+          SOURCE_FEED_SOFT_FAIL: "1"
         run: python scripts/source_intelligence_engine.py
 
       - name: Reconcile persistent canonical Source Store

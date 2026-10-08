@@ -76,69 +76,124 @@ def load(path: Path, default):
     except Exception:
         return default
 
-def fetch_feed():
+MANIFEST_URL = os.getenv(
+    "WXC_RESEARCH_FEED_MANIFEST_URL",
+    "https://raw.githubusercontent.com/simonzixin8166-wq/wxc-bot/main/state/research_feed_manifest.json",
+)
+GH_API = "https://api.github.com/repos/simonzixin8166-wq/wxc-bot"
+
+
+class FeedIntegrityError(RuntimeError):
+    """A downloaded feed that must not be used (corrupt, torn, shrunk or inconsistent)."""
+
+
+def _get_bytes(url, headers, timeout=20, attempts=3, sleep=None):
+    """GET with bounded retries on timeouts / transient errors (P2-11)."""
+    import time, urllib.error
+    sleep = sleep or time.sleep
+    last = None
+    for i in range(attempts):
+        try:
+            with urllib.request.urlopen(urllib.request.Request(url, headers=headers), timeout=timeout) as resp:
+                return resp.read()
+        except urllib.error.HTTPError as e:
+            last = e
+            if e.code < 500 and e.code != 429:
+                break  # 4xx (except rate limit) will not heal by retrying
+        except Exception as e:  # URLError, timeout, connection reset
+            last = e
+        if i < attempts - 1:
+            sleep(2 * (i + 1))
+    raise last
+
+
+def validate_feed(payload, manifest=None, baseline=None):
+    """Structural + manifest + append-only checks. Raises FeedIntegrityError; never repairs."""
+    import hashlib
+    try:
+        feed = json.loads(payload.decode("utf-8"))
+    except Exception as e:
+        raise FeedIntegrityError(f"invalid_json: {type(e).__name__}")
+    records = feed.get("records") if isinstance(feed, dict) else None
+    if not isinstance(records, list):
+        raise FeedIntegrityError("records_not_list")
+    ids = [r.get("id") if isinstance(r, dict) else None for r in records]
+    if any(not i for i in ids):
+        raise FeedIntegrityError("record_without_id")
+    if len(set(ids)) != len(ids):
+        raise FeedIntegrityError(f"duplicate_ids:{len(ids) - len(set(ids))}")
+    sha = hashlib.sha256(payload).hexdigest()
+    status = "absent"
+    if isinstance(manifest, dict) and manifest.get("record_count") is not None:
+        if manifest.get("feed_updated_at") == feed.get("updated_at"):
+            if manifest.get("record_count") != len(records) or manifest.get("content_sha256") != sha:
+                raise FeedIntegrityError("manifest_mismatch")
+            status = "verified"
+        else:
+            status = "stale"  # manifest from another snapshot; structural checks still apply
+    if baseline and len(records) < int(baseline):
+        raise FeedIntegrityError(f"shrink:{baseline}->{len(records)}")
+    feed["_integrity"] = {"record_count": len(records), "bytes": len(payload), "content_sha256": sha,
+                          "manifest_status": status, "baseline": baseline}
+    return feed
+
+
+def fetch_feed(baseline=None, get=None):
     """Fetch the complete upstream research feed with fail-closed semantics.
 
-    raw.githubusercontent.com is the primary path because GitHub Contents API
-    omits inline content for files larger than 1 MiB. Git Data blob API is an
-    independent fallback. A total failure raises instead of silently returning
-    an empty feed and collapsing learning to seed-only data.
+    raw.githubusercontent.com is the primary path because the Contents API omits inline
+    content above 1 MiB; the Git Data blob API at one pinned main commit is an independent
+    fallback (feed + manifest from the same commit). Each path must pass validate_feed.
+    A total failure raises instead of returning a partial/empty feed, so callers keep the
+    previous artifacts.
     """
-    headers={
-        "User-Agent":"MyAlphaView/SourceIntelligence",
-        "Cache-Control":"no-cache",
-        "Pragma":"no-cache",
-    }
-    errors=[]
+    get = get or _get_bytes
+    headers = {"User-Agent": "MyAlphaView/SourceIntelligence", "Cache-Control": "no-cache", "Pragma": "no-cache"}
+    errors = []
     try:
-        sep="&" if "?" in FEED_URL else "?"
-        live_url=FEED_URL+sep+"myalpha_cache_bust="+datetime.now(timezone.utc).strftime("%Y%m%d%H%M%S")
-        req=urllib.request.Request(live_url,headers=headers)
-        with urllib.request.urlopen(req,timeout=20) as resp:
-            data=json.loads(resp.read().decode("utf-8"))
-        if isinstance(data,dict) and isinstance(data.get("records"),list):
-            data["_fetch_path"]="raw"
-            return data
-        errors.append("raw returned invalid feed")
+        bust = "myalpha_cache_bust=" + datetime.now(timezone.utc).strftime("%Y%m%d%H%M%S")
+        sep = "&" if "?" in FEED_URL else "?"
+        payload = get(FEED_URL + sep + bust, headers)
+        try:
+            manifest = json.loads(get(MANIFEST_URL + ("&" if "?" in MANIFEST_URL else "?") + bust, headers).decode("utf-8"))
+        except Exception:
+            manifest = None
+        data = validate_feed(payload, manifest, baseline)
+        data["_fetch_path"] = "raw"
+        return data
     except Exception as e:
-        errors.append(f"raw: {e}")
+        errors.append(f"raw: {type(e).__name__}: {e}"[:240])
 
     try:
-        api_headers={"User-Agent":"MyAlphaView/SourceIntelligence","Accept":"application/vnd.github+json"}
-        req=urllib.request.Request(
-            "https://api.github.com/repos/simonzixin8166-wq/wxc-bot/git/ref/heads/main",
-            headers=api_headers,
-        )
-        with urllib.request.urlopen(req,timeout=20) as resp:
-            ref=json.loads(resp.read().decode("utf-8"))
-        commit_sha=((ref.get("object") or {}).get("sha"))
+        api = {"User-Agent": "MyAlphaView/SourceIntelligence", "Accept": "application/vnd.github+json"}
+        ref = json.loads(get(f"{GH_API}/git/ref/heads/main", api).decode("utf-8"))
+        commit_sha = (ref.get("object") or {}).get("sha")
         if not commit_sha:
             raise RuntimeError("missing main commit sha")
-        req=urllib.request.Request(
-            f"https://api.github.com/repos/simonzixin8166-wq/wxc-bot/git/trees/{commit_sha}?recursive=1",
-            headers=api_headers,
-        )
-        with urllib.request.urlopen(req,timeout=20) as resp:
-            tree=json.loads(resp.read().decode("utf-8"))
-        node=next((x for x in tree.get("tree") or [] if x.get("path")=="state/research_feed.json"),None)
-        if not node or not node.get("sha"):
-            raise RuntimeError("research_feed blob not found")
-        req=urllib.request.Request(
-            f"https://api.github.com/repos/simonzixin8166-wq/wxc-bot/git/blobs/{node['sha']}",
-            headers=api_headers,
-        )
-        with urllib.request.urlopen(req,timeout=20) as resp:
-            blob=json.loads(resp.read().decode("utf-8"))
-        raw=base64.b64decode(str(blob.get("content") or "").replace("\\n","")).decode("utf-8")
-        data=json.loads(raw)
-        if isinstance(data,dict) and isinstance(data.get("records"),list):
-            data["_fetch_path"]="git_blob"
-            return data
-        errors.append("git blob returned invalid feed")
-    except Exception as e:
-        errors.append(f"git_blob: {e}")
+        tree = json.loads(get(f"{GH_API}/git/trees/{commit_sha}?recursive=1", api).decode("utf-8"))
+        nodes = {x.get("path"): x for x in tree.get("tree") or []}
 
-    raise RuntimeError("research feed unavailable; fail closed: "+" | ".join(errors))
+        def blob(path):
+            node = nodes.get(path)
+            if not node or not node.get("sha"):
+                return None
+            doc = json.loads(get(f"{GH_API}/git/blobs/{node['sha']}", api).decode("utf-8"))
+            return base64.b64decode(str(doc.get("content") or "").replace("\n", ""))
+
+        payload = blob("state/research_feed.json")
+        if payload is None:
+            raise RuntimeError("research_feed blob not found")
+        mraw = blob("state/research_feed_manifest.json")
+        manifest = json.loads(mraw.decode("utf-8")) if mraw else None
+        data = validate_feed(payload, manifest, baseline)
+        data["_fetch_path"] = "git_blob"
+        data["_integrity"]["commit"] = commit_sha
+        return data
+    except Exception as e:
+        errors.append(f"git_blob: {type(e).__name__}: {e}"[:240])
+
+    raise RuntimeError("research feed unavailable; fail closed: " + " | ".join(errors))
+
 
 def fetch_intake_completeness():
     """Best-effort collector completeness status.
@@ -694,7 +749,17 @@ def build(records, youtube_historical_learning=None):
 def main():
     previous=load(OUT,{})
     previous_count=int((previous.get("counts") or {}).get("records") or 0)
-    feed=fetch_feed()
+    baseline=(previous.get("feed_integrity") or {}).get("record_count")
+    try:
+        feed=fetch_feed(baseline=baseline)
+    except Exception as exc:
+        # Fail closed: write nothing, so the previous good artifacts stay in place.
+        print(f"::error title=Research feed integrity::{exc}"[:900])
+        if os.getenv("SOURCE_FEED_SOFT_FAIL")=="1":
+            # Daily Dashboard: keep publishing market data; source artifacts stay at last good.
+            print("::warning title=Research feed integrity::kept previous source_intelligence.json (soft-fail mode)")
+            return 0
+        raise
     records=seed_brightline()+list(feed.get("records") or [])
     result=build(records,youtube_historical_learning=fetch_youtube_learning_archive())
     result["collector_completeness"]=fetch_intake_completeness()
@@ -704,6 +769,7 @@ def main():
             f"source intelligence regression blocked: current={current_count} < previous={previous_count}"
         )
     result["feed_fetch_path"]=feed.get("_fetch_path")
+    result["feed_integrity"]=feed.get("_integrity")
     OUT.parent.mkdir(parents=True,exist_ok=True)
     OUT.write_text(json.dumps(result,ensure_ascii=False,indent=2),encoding="utf-8")
     print(json.dumps(result["counts"],ensure_ascii=False))

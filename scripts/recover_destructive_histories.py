@@ -15,6 +15,7 @@ from pathlib import Path
 
 ROOT=Path(__file__).resolve().parents[1]
 BOUNDARY=ROOT/"research"/"audit"/"step_boundary_log.json"
+BOUNDARY_ARCHIVE=ROOT/"research"/"audit"/"step_boundary"
 DATA=ROOT/"docs"/"data.json"
 REPORT=ROOT/"research"/"audit"/"destructive_history_recovery_report.json"
 
@@ -63,6 +64,18 @@ def recover():
     BOUNDARY.parent.mkdir(parents=True,exist_ok=True)
     BOUNDARY.write_text(json.dumps(current_boundary,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
 
+    # Rebuild canonical monthly shards from the recovered full union.
+    BOUNDARY_ARCHIVE.mkdir(parents=True,exist_ok=True)
+    grouped={}
+    for row in brows:
+        month=str(row.get("completed_at") or row.get("started_at") or "unknown")[:7]
+        if len(month)!=7 or month[4]!="-":month="unknown"
+        audit_id=boundary_key(row)
+        grouped.setdefault(month,[]).append({**row,"audit_id":audit_id})
+    for month,items in grouped.items():
+        path=BOUNDARY_ARCHIVE/f"{month}.jsonl"
+        path.write_text("".join(json.dumps(x,ensure_ascii=False,sort_keys=True)+"\n" for x in items),encoding="utf-8")
+
     current_data=load_text(DATA.read_text(encoding="utf-8")) if DATA.exists() else {}
     omap={opportunity_key(r):dict(r) for r in (current_data.get("opportunity_history") or [])}
     before_o=len(omap)
@@ -87,6 +100,7 @@ def recover():
       "version":1,"generated_at":datetime.now(timezone.utc).isoformat(),
       "boundary_log":{
         "git_commits_scanned":len(bcommits),"before":before_b,"after":len(brows),"recovered":len(brows)-before_b,
+        "monthly_archive_rows":sum(len(x) for x in grouped.values()),"monthly_archive_shards":len(grouped),
       },
       "opportunity_history":{
         "git_commits_scanned":len(dcommits),"versions_with_records":versions_with_o,

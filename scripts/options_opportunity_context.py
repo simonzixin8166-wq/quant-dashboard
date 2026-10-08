@@ -54,6 +54,8 @@ def build_symbol(symbol,market,svi):
         }
 
     price=finite(m.get("close"))
+    price_as_of=str(m.get("date") or market.get("spy_date") or "")[:10] or None
+    support_as_of=str(v.get("as_of") or "")[:10] or None
     rsi=finite(m.get("rsi"))
     dist200=finite(m.get("dist_200ma"))
     drawdown=finite(m.get("window_drawdown"))
@@ -109,7 +111,12 @@ def build_symbol(symbol,market,svi):
 
     return {
         "symbol":symbol,
-        "as_of":v.get("as_of") or m.get("as_of"),
+        # as_of is the completed session of the price used below (the outcome
+        # baseline); the support/volatility input date is carried separately.
+        "as_of":price_as_of,
+        "price_as_of":price_as_of,
+        "support_as_of":support_as_of,
+        "inputs_aligned":bool(price_as_of) and price_as_of==support_as_of,
         "status":"scan_context_ready" if lanes else "context_only",
         "state":"chain_scan_candidate" if lanes else "context_only",
         "scan_priority":priority,

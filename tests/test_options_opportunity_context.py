@@ -47,6 +47,17 @@ assert all(x["trade_action"] is None for x in rows.values())
 assert all(x["production_effect"]=="none" for x in rows.values())
 assert all("live_option_chain" in x["required_before_strategy_candidate"] for x in rows.values())
 
+# as_of follows the session of the price used (the outcome baseline), never the support artifact date.
+import copy
+dated=copy.deepcopy(market);dated["spy_date"]="2026-10-07"
+for row in list(dated["core"].values())+list(dated["stocks"].values()):row["date"]="2026-10-06"
+svi_dated={"records":{k:dict(v,as_of="2026-10-07") for k,v in svi["records"].items()}}
+d_rows=m.build(dated,svi_dated)["records"]
+assert all(r["as_of"]=="2026-10-06" and r["price_as_of"]=="2026-10-06" for r in d_rows.values())
+assert all(r["support_as_of"]=="2026-10-07" and r["inputs_aligned"] is False for r in d_rows.values())
+for row in list(dated["core"].values())+list(dated["stocks"].values()):row["date"]="2026-10-07"
+assert all(r["inputs_aligned"] is True for r in m.build(dated,svi_dated)["records"].values())
+
 bad=m.build(market,{"records":{}})
 assert all(x["scan_priority"]=="blocked" for x in bad["records"].values())
 assert all(x["trade_action"] is None for x in bad["records"].values())

@@ -451,6 +451,50 @@ def build(source):
         ],
     }
 
+# Fields Source Reading parses that the canonical Source Store snapshot does not
+# persist. They are re-attached from the normalized upstream stream; identity and
+# admission/provenance fields always come from the canonical store.
+TEXT_ENRICHMENT_FIELDS=(
+    "excerpt","primary_symbols","symbol_attribution","portfolio_rules","lessons","actions",
+    "failure_candidate","source_role","transcript_status","content_quality","content_provider",
+    "content_origin","timestamp_evidence","rule_candidate_allowed",
+)
+
+def _identity(row):
+    return str((row or {}).get("id") or (row or {}).get("url") or "")
+
+def enrich_with_source_text(store_records,normalized_records):
+    """Attach parseable text/attribution to canonical store records.
+
+    The canonical store decides WHICH sources exist; the normalized stream only
+    supplies the text fields the store snapshot omits. A store record without a
+    normalized counterpart is kept and marked, never silently parsed as if its
+    title were the whole source.
+    """
+    by_id={}
+    for n in normalized_records or []:
+        for key in {str(n.get("id") or ""),str(n.get("url") or "")}:
+            if key and key not in by_id:by_id[key]=n
+    enriched=unavailable=0
+    out=[]
+    for row in store_records:
+        row=dict(row)
+        match=by_id.get(str(row.get("id") or "")) or by_id.get(str(row.get("url") or ""))
+        if match:
+            for field in TEXT_ENRICHMENT_FIELDS:
+                if field in match:row[field]=match[field]
+            row["text_enrichment"]="normalized_stream"
+            enriched+=1
+        else:
+            row["text_enrichment"]="unavailable_title_only"
+            unavailable+=1
+        out.append(row)
+    return out,{"text_enriched_records":enriched,"text_unavailable_records":unavailable}
+
+def load_normalized_stream():
+    import source_intelligence_engine as sie
+    return sie.collect_full_records()
+
 def main():
     source=load(SRC,{"records":[]})
     store=load(STORE,{})
@@ -460,6 +504,13 @@ def main():
     full_records=[dict(x.get("record") or {}) for x in stored_rows if isinstance(x,dict) and isinstance(x.get("record"),dict)]
     if len(full_records)!=len(stored_rows):
         raise RuntimeError(f"canonical Source Store malformed: rows={len(stored_rows)} records={len(full_records)}")
+    # Fail closed: without the source text, reading only titles would silently
+    # shrink semantic learning (the #133 regression). Keep the previous artifact.
+    try:
+        normalized=load_normalized_stream()
+    except Exception as exc:
+        raise RuntimeError(f"normalized source text unavailable; Source Reading fails closed: {exc}") from exc
+    full_records,enrichment=enrich_with_source_text(full_records,normalized)
 
     dup=load(DUPMAP,{"mapping":{}})
     mapping=dup.get("mapping") or {}
@@ -480,6 +531,7 @@ def main():
     source["canonical_store_consumed"]=True
     out=build(source)
     out["duplicate_evidence_records"]=sum(1 for r in full_records if r.get("duplicate_of"))
+    out["text_enrichment"]=enrichment
     OUT.parent.mkdir(parents=True,exist_ok=True)
     OUT.write_text(json.dumps(out,ensure_ascii=False,indent=2),encoding="utf-8")
     print(json.dumps({"version":out["version"],"counts":out["counts"]},ensure_ascii=False))

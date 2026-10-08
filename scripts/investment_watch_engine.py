@@ -153,19 +153,31 @@ def zone_for(price, cfg):
     return "deep_plan"
 
 
-def pct_change_n(values, n):
-    vals = [v for v in values if v is not None]
-    if len(vals) <= n:
+def window_change(rows, key, n, pct=False, max_span_days=10):
+    """Change over the last n *observations*, but only if those observations are dated and
+    contiguous enough (≤ max_span_days calendar days) — a gap of missing prints must not be
+    silently compressed into a '5-day' change. Returns None when incomplete."""
+    pts = [(r.get("date"), r.get(key)) for r in rows if r.get(key) is not None and r.get("date")]
+    if len(pts) <= n:
         return None
-    a, b = vals[-1 - n], vals[-1]
-    return (b / a - 1) * 100 if a else None
+    (d0, a), (d1, b) = pts[-1 - n], pts[-1]
+    try:
+        span = (date.fromisoformat(d1) - date.fromisoformat(d0)).days
+    except Exception:
+        return None
+    if span > max_span_days or span <= 0:
+        return None
+    if pct:
+        return (b / a - 1) * 100 if a else None
+    return b - a
 
 
-def diff_n(values, n):
-    vals = [v for v in values if v is not None]
-    if len(vals) <= n:
-        return None
-    return vals[-1] - vals[-1 - n]
+def consecutive_sessions(rows, n, max_gap_days=4):
+    """Last n rows are adjacent sessions (weekend/holiday gaps allowed, data holes are not)."""
+    if len(rows) < n:
+        return False
+    ds = [date.fromisoformat(r["date"]) for r in rows[-n:]]
+    return all(0 < (b - a).days <= max_gap_days for a, b in zip(ds, ds[1:]))
 
 
 def weekly_closes(daily):
@@ -181,10 +193,10 @@ def pause_checks(daily, real_yield, dxy, cfg):
     p = cfg["rules"]["pause"]
     closes = [r["close"] for r in daily]
     n = p["close_below_sessions"]
-    c1 = None if len(closes) < n else all(c < p["close_below"] for c in closes[-n:])
-    ry = diff_n([r["value"] for r in real_yield], 5)
+    c1 = None if not consecutive_sessions(daily, n) else all(c < p["close_below"] for c in closes[-n:])
+    ry = window_change(real_yield, "value", 5)
     c2 = None if ry is None else ry * 100 >= p["real_yield_rise_bp_5d"]
-    dx = pct_change_n([r["close"] for r in dxy], 5)
+    dx = window_change(dxy, "close", 5, pct=True)
     c3 = None if dx is None else dx > p["dxy_rise_pct_5d"]
     checks = [
         {"id": "gold_close_below", "met": c1, "value": closes[-n:] if len(closes) >= n else None,
@@ -213,7 +225,7 @@ def deep_review_check(daily, real_yield, cfg):
     weeks = weekly_closes(daily)
     last = weeks[-r["weeks"]:] if len(weeks) >= r["weeks"] else []
     below = bool(last) and all(w["close"] < r["weekly_close_below"] for w in last)
-    ry = diff_n([x["value"] for x in real_yield], 5)
+    ry = window_change(real_yield, "value", 5)
     worsening = ry is not None and ry > 0
     return {
         "triggered": below and (worsening or not r.get("requires_real_yield_worsening", True)),
@@ -644,20 +656,58 @@ def journal_rows(path=JOURNAL):
     return rows
 
 
-def journal_entry(decision, live, at, cfg):
+# A directional claim that can be scored later. WATCH/WAIT are observations, not predictions.
+SCOREABLE_STATES = {"BUY": "forward_return_positive", "PAUSE": "avoid_new_buys_risk_elevated"}
+SCOREABLE_REVIEW = {"DEEP_REVIEW": "drawdown_risk_elevated"}
+JOURNAL_SCHEMA = 2
+
+
+def gold_session_date(at):
+    """Gold trading-session date (17:00 ET roll): after 17:00 ET belongs to the next session."""
+    et = at.astimezone(ET)
+    d = et.date() + (timedelta(days=1) if et.hour >= 17 else timedelta())
+    while d.weekday() >= 5:
+        d += timedelta(days=1)
+    return d
+
+
+def journal_entry(decision, live, at, cfg, freshness=None, daily_basis=None):
     key = f"{decision['state']}|{decision.get('stage')}|{decision.get('review_kind')}"
     sid = hashlib.sha256(f"{key}|{iso(at)}".encode()).hexdigest()[:16]
+    observed = live.get("basis") == "spot" and freshness in ("LIVE", "DELAYED")
+    claim = SCOREABLE_STATES.get(decision["state"]) or SCOREABLE_REVIEW.get(decision.get("review_kind") or "")
+    scoreable = bool(observed and claim)
     return {
-        "signal_id": sid, "state_key": key, "recorded_at": iso(at),
+        "schema": JOURNAL_SCHEMA,
+        "signal_id": sid, "state_key": key,
+        "recorded_at": iso(at), "prediction_timestamp": iso(at),
+        "session_date": gold_session_date(at).isoformat(),
+        "market_session": "open" if gold_market_open(at) else "closed",
         "state": decision["state"], "stage": decision.get("stage"), "zone": decision["zone"],
         "review_kind": decision.get("review_kind"),
-        "price": rnd(live.get("price")), "price_basis": live.get("basis"),
-        "quote_source": live.get("source"), "quote_as_of": live.get("as_of"),
+        "price": rnd(live.get("price")),
+        "price_provenance": {"source": live.get("source"), "basis": live.get("basis"),
+                             "quote_as_of": live.get("as_of"), "freshness": freshness,
+                             "daily_basis": daily_basis},
         "rules": decision.get("reasons", []) + decision.get("blockers", []),
         "config_version": cfg.get("schema_version"),
-        "capture_mode": "live_forward", "forward_evidence_eligible": True,
+        "capture_mode": "live_observation",
+        "observation_eligible": observed,
+        "claim": claim,
+        "scoreable": scoreable,
+        "forward_evidence_eligible": scoreable,
         "user_execution": "private_ledger_only",
     }
+
+
+def journal_flags(rec):
+    """Schema-1 rows are read, never rewritten: derive flags conservatively."""
+    if rec.get("schema", 1) >= 2:
+        return rec.get("observation_eligible", False), rec.get("scoreable", False), rec.get("session_date")
+    observed = rec.get("price_basis") == "spot"
+    claim = SCOREABLE_STATES.get(rec.get("state")) or SCOREABLE_REVIEW.get(rec.get("review_kind") or "")
+    sd = parse_dt(rec.get("recorded_at"))
+    return observed, bool(observed and claim), gold_session_date(sd).isoformat() if sd else None
 
 
 def should_journal(prev_rows, decision):
@@ -667,24 +717,46 @@ def should_journal(prev_rows, decision):
     return not prev_rows or prev_rows[-1].get("state_key") != key
 
 
-def evaluate_outcomes(rows, daily):
-    """Forward spot returns after 20/60/120 completed sessions (only when mature)."""
-    dates = [r["date"] for r in daily]
-    closes = {r["date"]: r["close"] for r in daily}
+def evaluate_outcomes(rows, completed_daily, daily_basis="spot"):
+    """h-session outcomes. Anchor = the signal's gold session (17:00 ET roll); horizon = close of
+    the h-th *completed* session after it. No lookahead: only completed bars are passed in.
+    Outcomes on a non-spot daily basis are proxy estimates and never count as verified."""
+    dates = [r["date"] for r in completed_daily]
+    closes = {r["date"]: r["close"] for r in completed_daily}
+    verified_basis = daily_basis == "spot"
     out = []
     for s in rows:
-        d0 = (s.get("recorded_at") or "")[:10]
-        idx = next((i for i, d in enumerate(dates) if d >= d0), None)
-        rec = {"signal_id": s["signal_id"], "state": s["state"], "stage": s.get("stage"), "price": s.get("price")}
+        observed, scoreable, sess = journal_flags(s)
+        rec = {"signal_id": s["signal_id"], "state": s["state"], "stage": s.get("stage"), "price": s.get("price"),
+               "session_date": sess, "observation_eligible": observed, "scoreable": scoreable,
+               "outcome_basis": "spot" if verified_basis else "proxy_estimate_unverified"}
+        idx = next((i for i, d in enumerate(dates) if sess and d >= sess), None)
+        if idx is not None and sess and (date.fromisoformat(dates[idx]) - date.fromisoformat(sess)).days > 4:
+            idx = None
+            rec["anchor_issue"] = "entry_session_missing"
         for h in HORIZONS:
-            if idx is not None and idx + h < len(dates) and s.get("price"):
-                c = closes[dates[idx + h]]
-                rec[f"ret_{h}d_pct"] = rnd((c / s["price"] - 1) * 100)
-                rec[f"mature_{h}d"] = True
-            else:
-                rec[f"mature_{h}d"] = False
+            ok = idx is not None and idx + h < len(dates) and s.get("price")
+            rec[f"mature_{h}d"] = bool(ok)
+            rec[f"verified_{h}d"] = bool(ok and verified_basis and scoreable)
+            if ok:
+                rec[f"ret_{h}d_pct"] = rnd((closes[dates[idx + h]] / s["price"] - 1) * 100)
+                rec[f"horizon_{h}d_date"] = dates[idx + h]
         out.append(rec)
     return out
+
+
+def learning_summary(rows, outcomes):
+    flags = [journal_flags(r) for r in rows]
+    return {
+        "journal_entries": len(rows),
+        "observation_eligible": sum(1 for f in flags if f[0]),
+        "scoreable_predictions": sum(1 for f in flags if f[1]),
+        "mature_any": {f"{h}d": sum(1 for o in outcomes if o.get(f"mature_{h}d")) for h in HORIZONS},
+        "verified_scoreable": {f"{h}d": sum(1 for o in outcomes if o.get(f"verified_{h}d")) for h in HORIZONS},
+        "outcome_basis_note": "期货估算日线上的结果为 proxy_estimate_unverified，不计为已验证",
+        "capture_mode": "live_observation_state_entries",
+        "rule_changes_from_immature_outcomes": False,
+    }
 
 
 # --------------------------------------------------------------------- telegram
@@ -964,18 +1036,18 @@ def main(argv=None):
     if should_journal(rows, decision):
         JOURNAL.parent.mkdir(parents=True, exist_ok=True)
         with JOURNAL.open("a", encoding="utf-8") as f:
-            f.write(json.dumps(journal_entry(decision, live, at, cfg), ensure_ascii=False, sort_keys=True) + "\n")
+            f.write(json.dumps(journal_entry(decision, live, at, cfg, status["gold"]["quote"]["freshness"],
+                                             data["daily"].get("basis")),
+                               ensure_ascii=False, sort_keys=True) + "\n")
         rows = journal_rows()
     status["gold"]["signal_id"] = rows[-1]["signal_id"] if rows else None
-    outcomes = evaluate_outcomes(rows, data["daily"].get("rows", []))
+    session_today = gold_session_date(at).isoformat()
+    completed_daily = [r for r in data["daily"].get("rows", []) if r["date"] < session_today]
+    outcomes = evaluate_outcomes(rows, completed_daily, data["daily"].get("basis") or "spot")
     OUTCOMES.write_text(json.dumps({"generated_at": iso(at), "horizons": HORIZONS, "rows": outcomes},
                                    ensure_ascii=False, indent=1), encoding="utf-8")
-    status["learning"] = {
-        "journal_entries": len(rows),
-        "mature": {f"{h}d": sum(1 for o in outcomes if o.get(f"mature_{h}d")) for h in HORIZONS},
-        "capture_mode": "live_forward_state_entries",
-        "rule_changes_from_immature_outcomes": False,
-    }
+    status["learning"] = learning_summary(rows, outcomes)
+    status["learning"]["daily_basis"] = data["daily"].get("basis")
     OUT.write_text(json.dumps(status, ensure_ascii=False, indent=1), encoding="utf-8")
 
     dca = run_dca(at.astimezone(SH).date(), dca_cfg)

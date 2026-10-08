@@ -209,7 +209,7 @@ def build_leaps_radar(asset_rows, vix_value=None):
     }
 
 
-def merge_alert_history(previous, tqqq, leaps, limit=240):
+def merge_alert_history(previous, tqqq, leaps, limit=None):
     items = [dict(item) for item in (previous or []) if isinstance(item, dict)]
     if tqqq.get("available") and (tqqq.get("changed") or tqqq.get("target_position") != 67):
         items.append({
@@ -228,7 +228,8 @@ def merge_alert_history(previous, tqqq, leaps, limit=240):
     for item in items:
         key = (item.get("date"), item.get("kind"), item.get("symbol"))
         deduped[key] = item
-    return sorted(deduped.values(), key=lambda row: (row.get("date", ""), row.get("kind", ""), row.get("symbol", "")), reverse=True)[:limit]
+    rows=sorted(deduped.values(), key=lambda row: (row.get("date", ""), row.get("kind", ""), row.get("symbol", "")), reverse=True)
+    return rows if limit is None else rows[:limit]
 
 
 def build_leverage_rebound_signal(qqq_rows, vix_rows=None, tqqq_x2=None, leaps_radar=None, breadth=None):

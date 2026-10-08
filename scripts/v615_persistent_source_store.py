@@ -262,11 +262,16 @@ def migrate_sources(source,prior=None,now=None,full_records=None,upstream_accoun
             # the first tradable session following publication. Never promote
             # historical/backfill rows here.
             if admission_class=="genuine_forward":
-                veto,_=late_discovery_veto(r,ts,prev.get("first_fetched_at") or now,spec)
-                if veto:
-                    admission_class="late_discovery"
+                if ts.get("timestamp_confidence")!="high":
+                    admission_class="timestamp_unverified"
                     ingest_type="backfill_ingest"
-                    admission_origin="corrected_late_discovery_exchange_calendar"
+                    admission_origin="corrected_unverified_timestamp_fail_closed"
+                else:
+                    veto,_=late_discovery_veto(r,ts,prev.get("first_fetched_at") or now,spec)
+                    if veto:
+                        admission_class="late_discovery"
+                        ingest_type="backfill_ingest"
+                        admission_origin="corrected_late_discovery_exchange_calendar"
             identity_parent_source_key=prev.get("identity_parent_source_key")
             first_source=prev
         elif inherited and not ambiguous:
@@ -304,9 +309,14 @@ def migrate_sources(source,prior=None,now=None,full_records=None,upstream_accoun
             first_source=None
         else:
             veto,age_days=late_discovery_veto(r,ts,now,spec)
-            admission_class="late_discovery" if veto else "genuine_forward"
-            ingest_type="backfill_ingest" if veto else "live_ingest"
-            admission_origin="high_confidence_late_discovery_veto" if veto else "new_visible_source_no_prior_identity_match"
+            if ts.get("timestamp_confidence")!="high":
+                admission_class="timestamp_unverified"
+                ingest_type="backfill_ingest"
+                admission_origin="unverified_timestamp_fail_closed"
+            else:
+                admission_class="late_discovery" if veto else "genuine_forward"
+                ingest_type="backfill_ingest" if veto else "live_ingest"
+                admission_origin="high_confidence_late_discovery_veto" if veto else "new_visible_source_no_prior_identity_match"
             identity_parent_source_key=None
             first_source=None
         current_snapshot_hash=digest(snap)

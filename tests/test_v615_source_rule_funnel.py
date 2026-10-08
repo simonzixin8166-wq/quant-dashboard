@@ -9,6 +9,7 @@ def srow(key,cls="genuine_forward",ingest="live_ingest",ops=None,symbols=None,to
     return {
       "source_key":key,"admission_class":cls,"ingest_type":ingest,
       "timestamp_confidence":confidence,
+      "effective_forward_eligible":cls=="genuine_forward" and ingest=="live_ingest" and confidence=="high",
       "record":{"id":sid,"operations":ops or [],"symbols":symbols or [],"topics":topics or []},
     }
 

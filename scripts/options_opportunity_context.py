@@ -109,6 +109,7 @@ def build_symbol(symbol,market,svi):
 
     return {
         "symbol":symbol,
+        "as_of":v.get("as_of") or m.get("as_of"),
         "status":"scan_context_ready" if lanes else "context_only",
         "state":"chain_scan_candidate" if lanes else "context_only",
         "scan_priority":priority,

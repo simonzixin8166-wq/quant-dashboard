@@ -161,6 +161,9 @@ jobs:
       - name: Build Source Intelligence Learning
         run: python scripts/source_intelligence_engine.py
 
+      - name: Reconcile persistent canonical Source Store
+        run: python scripts/v615_persistent_source_store.py --sources-only
+
       - name: Build V6.14 Source Reading Memory
         id: source_reading_memory
         continue-on-error: true
@@ -355,7 +358,7 @@ jobs:
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
-          git add docs/ research/archive/ data/history/stooq_watchlist.zip
+          git add docs/ research/archive/ research/store/source_store.json data/history/stooq_watchlist.zip
           if [ -f data/history/source_validation_history.zip ]; then git add data/history/source_validation_history.zip; fi
           git commit -m "Daily update $(date -u +%Y-%m-%d)" || echo "No changes"
           git pull --rebase origin main

@@ -1,0 +1,420 @@
+{
+ "version": "p3-12.1",
+ "generated_at": "2026-10-08T13:42:31.282938+00:00",
+ "layers": [
+  "discovered",
+  "canonical_persisted",
+  "interpretable",
+  "candidate_claim_or_state",
+  "effective_forward_eligible",
+  "independently_matured",
+  "benchmark_evaluated",
+  "downstream_reused"
+ ],
+ "contract": {
+  "null_means": "not provable from persisted artifacts (reason given); never silently 0",
+  "historical_separate": "historical/backfill/descriptive outcomes live under 'historical' and never feed forward layers",
+  "maturity_rule": "proven requires forward matured AND benchmark_evaluated AND downstream_reused > 0; outcomes alone are not learning",
+  "privacy": "decision/private options: aggregate counts already published by the sanitized server status only"
+ },
+ "summary": {
+  "market": {
+   "learning_maturity": "forward_collecting",
+   "funnel_issues": [],
+   "discovered": 2,
+   "canonical_persisted": 2,
+   "interpretable": 2,
+   "candidate_claim_or_state": 2,
+   "effective_forward_eligible": 2,
+   "independently_matured": 0,
+   "benchmark_evaluated": 0,
+   "downstream_reused": 0
+  },
+  "fundamental": {
+   "learning_maturity": "unproven_no_forward_samples",
+   "funnel_issues": [],
+   "discovered": 15015,
+   "canonical_persisted": 542,
+   "interpretable": 542,
+   "candidate_claim_or_state": 282,
+   "effective_forward_eligible": null,
+   "independently_matured": null,
+   "benchmark_evaluated": null,
+   "downstream_reused": 0
+  },
+  "event": {
+   "learning_maturity": "context_only",
+   "funnel_issues": [],
+   "discovered": 148,
+   "canonical_persisted": 148,
+   "interpretable": 148,
+   "candidate_claim_or_state": 0,
+   "effective_forward_eligible": 0,
+   "independently_matured": 0,
+   "benchmark_evaluated": 0,
+   "downstream_reused": 0
+  },
+  "options": {
+   "learning_maturity": "forward_collecting",
+   "funnel_issues": [],
+   "discovered": 6,
+   "canonical_persisted": 20,
+   "interpretable": 6,
+   "candidate_claim_or_state": 6,
+   "effective_forward_eligible": 6,
+   "independently_matured": 0,
+   "benchmark_evaluated": null,
+   "downstream_reused": 0
+  },
+  "decision": {
+   "learning_maturity": "context_only",
+   "funnel_issues": [],
+   "discovered": 7,
+   "canonical_persisted": 7,
+   "interpretable": 4,
+   "candidate_claim_or_state": 0,
+   "effective_forward_eligible": 0,
+   "independently_matured": null,
+   "benchmark_evaluated": null,
+   "downstream_reused": 0
+  },
+  "external_research": {
+   "learning_maturity": "forward_collecting",
+   "funnel_issues": [],
+   "discovered": 1426,
+   "canonical_persisted": 1426,
+   "interpretable": 1426,
+   "candidate_claim_or_state": 23,
+   "effective_forward_eligible": 2,
+   "independently_matured": 0,
+   "benchmark_evaluated": 0,
+   "downstream_reused": 8
+  }
+ },
+ "engines": {
+  "market": {
+   "discovered": {
+    "count": 2,
+    "definition": "macro/regime observations captured",
+    "evidence": "research/archive/macro_regime_observations.jsonl",
+    "dedup_key": "observation_id"
+   },
+   "canonical_persisted": {
+    "count": 2,
+    "definition": "append-only archived observations",
+    "evidence": "research/archive/macro_regime_observations.jsonl",
+    "dedup_key": "observation_id"
+   },
+   "interpretable": {
+    "count": 2,
+    "definition": "observations with a regime and acceptable input quality",
+    "evidence": "research/archive/macro_regime_observations.jsonl",
+    "dedup_key": "observation_id"
+   },
+   "candidate_claim_or_state": {
+    "count": 2,
+    "definition": "distinct regime state entries",
+    "evidence": "research/archive/macro_regime_observations.jsonl",
+    "dedup_key": "regime_key"
+   },
+   "effective_forward_eligible": {
+    "count": 2,
+    "definition": "point-in-time capable live observations (observed_at recorded)",
+    "evidence": "research/archive/macro_regime_observations.jsonl",
+    "dedup_key": "observation_id"
+   },
+   "independently_matured": {
+    "count": 0,
+    "definition": "matured macro outcomes on forward observations",
+    "evidence": "docs/research/macro_outcome_memory.json",
+    "dedup_key": "observation_id×horizon"
+   },
+   "benchmark_evaluated": {
+    "count": 0,
+    "definition": "outcome scorecards vs benchmark",
+    "evidence": "docs/research/market_state_outcome_scorecards.json",
+    "dedup_key": "scorecard_id"
+   },
+   "downstream_reused": {
+    "count": 0,
+    "definition": "distinct downstream consumers that read this engine's learned state (coverage audit)",
+    "evidence": "docs/research/data_learning_coverage_audit.json",
+    "dedup_key": "consumer script"
+   },
+   "historical": {
+    "market_price_history_mature_60": 4298,
+    "note": "historical price-event replay; descriptive, not forward learning"
+   }
+  },
+  "fundamental": {
+   "discovered": {
+    "count": 15015,
+    "definition": "XBRL facts captured (company_fundamental_memory archive)",
+    "evidence": "docs/research/company_fundamental_memory.json",
+    "dedup_key": "fact"
+   },
+   "canonical_persisted": {
+    "count": 542,
+    "definition": "filing-level observations persisted",
+    "evidence": "research/archive/fundamental_observations.jsonl",
+    "dedup_key": "observation_id (accn)"
+   },
+   "interpretable": {
+    "count": 542,
+    "definition": "observations with parsed metrics",
+    "evidence": "research/archive/fundamental_observations.jsonl",
+    "dedup_key": "observation_id"
+   },
+   "candidate_claim_or_state": {
+    "count": 282,
+    "definition": "observations with a derived fundamental state",
+    "evidence": "research/archive/fundamental_observations.jsonl",
+    "dedup_key": "observation_id"
+   },
+   "effective_forward_eligible": {
+    "count": null,
+    "definition": "observations captured before their outcome window began",
+    "evidence": "research/archive/fundamental_observations.jsonl",
+    "dedup_key": "observation_id",
+    "reason": "no capture timestamp on XBRL observations; historical filings are descriptive only"
+   },
+   "independently_matured": {
+    "count": null,
+    "definition": "forward-eligible observations with matured outcomes",
+    "evidence": "research/archive/fundamental_outcomes.jsonl",
+    "dedup_key": "observation_id",
+    "reason": "depends on effective_forward_eligible, which is not provable"
+   },
+   "benchmark_evaluated": {
+    "count": null,
+    "definition": "outcomes measured against a benchmark",
+    "evidence": "research/archive/fundamental_outcomes.jsonl",
+    "reason": "outcome rows carry raw return_pct only; no benchmark excess recorded"
+   },
+   "downstream_reused": {
+    "count": 0,
+    "definition": "distinct downstream consumers that read this engine's learned state (coverage audit)",
+    "evidence": "docs/research/data_learning_coverage_audit.json",
+    "dedup_key": "consumer script"
+   },
+   "historical": {
+    "descriptive_outcome_rows": 683,
+    "descriptive_matured_observations": 346,
+    "note": "historical XBRL filings → descriptive/history outcomes, not Forward Edge"
+   }
+  },
+  "event": {
+   "discovered": {
+    "count": 148,
+    "definition": "news/event items archived",
+    "evidence": "research/archive/events",
+    "dedup_key": "uuid"
+   },
+   "canonical_persisted": {
+    "count": 148,
+    "definition": "append-only monthly event shards",
+    "evidence": "research/archive/events",
+    "dedup_key": "uuid"
+   },
+   "interpretable": {
+    "count": 148,
+    "definition": "items with title, url and event date",
+    "evidence": "research/archive/events",
+    "dedup_key": "uuid"
+   },
+   "candidate_claim_or_state": {
+    "count": 0,
+    "definition": "items admitted as decision context",
+    "evidence": "research/archive/events",
+    "dedup_key": "uuid"
+   },
+   "effective_forward_eligible": {
+    "count": 0,
+    "definition": "decision-context items archived within 48h of publication (live, not backfilled)",
+    "evidence": "research/archive/events",
+    "dedup_key": "uuid"
+   },
+   "independently_matured": {
+    "count": 0,
+    "definition": "event outcomes matured",
+    "evidence": "docs/research/event_outcome_memory.json",
+    "dedup_key": "uuid×horizon"
+   },
+   "benchmark_evaluated": {
+    "count": 0,
+    "definition": "event outcomes scored against the recorded benchmark",
+    "evidence": "docs/research/event_outcome_memory.json",
+    "dedup_key": "uuid×horizon"
+   },
+   "downstream_reused": {
+    "count": 0,
+    "definition": "distinct downstream consumers that read this engine's learned state (coverage audit)",
+    "evidence": "docs/research/data_learning_coverage_audit.json",
+    "dedup_key": "consumer script"
+   }
+  },
+  "options": {
+   "discovered": {
+    "count": 6,
+    "definition": "symbols scanned for option opportunity context",
+    "evidence": "docs/research/options_opportunity_context.json",
+    "dedup_key": "symbol"
+   },
+   "canonical_persisted": {
+    "count": 20,
+    "definition": "opportunity observations persisted (incl. superseded)",
+    "evidence": "research/archive/options_opportunity_observations",
+    "dedup_key": "observation_id"
+   },
+   "interpretable": {
+    "count": 6,
+    "definition": "observations with aligned price/support inputs (not superseded)",
+    "evidence": "research/archive/options_opportunity_observations",
+    "dedup_key": "observation_id"
+   },
+   "candidate_claim_or_state": {
+    "count": 6,
+    "definition": "distinct symbol×state entries",
+    "evidence": "research/archive/options_opportunity_observations",
+    "dedup_key": "symbol×state"
+   },
+   "effective_forward_eligible": {
+    "count": 6,
+    "definition": "aligned forward observations eligible for outcome tracking",
+    "evidence": "docs/research/options_opportunity_outcome_memory.json",
+    "dedup_key": "observation_id"
+   },
+   "independently_matured": {
+    "count": 0,
+    "definition": "matured opportunity outcomes",
+    "evidence": "docs/research/options_opportunity_outcome_memory.json",
+    "dedup_key": "observation_id×horizon"
+   },
+   "benchmark_evaluated": {
+    "count": null,
+    "definition": "matured outcomes compared with a benchmark",
+    "evidence": "docs/research/options_opportunity_outcome_memory.json",
+    "reason": "no matured outcomes yet; benchmark comparison not instrumented"
+   },
+   "downstream_reused": {
+    "count": 0,
+    "definition": "distinct downstream consumers that read this engine's learned state (coverage audit)",
+    "evidence": "docs/research/data_learning_coverage_audit.json",
+    "dedup_key": "consumer script"
+   },
+   "shadow_or_private": {
+    "private_position_state_entries": 3,
+    "private_mature_outcomes": 0,
+    "superseded_legacy_observations": 14,
+    "note": "private option positions: aggregate only, from the sanitized server status"
+   }
+  },
+  "decision": {
+   "discovered": {
+    "count": 7,
+    "definition": "operator decisions recorded by the cockpit (private, aggregate)",
+    "evidence": "docs/research/server_action_status.json",
+    "dedup_key": "decision fingerprint"
+   },
+   "canonical_persisted": {
+    "count": 7,
+    "definition": "persisted in private operator_decisions (RLS)",
+    "evidence": "docs/research/server_action_status.json",
+    "dedup_key": "decision fingerprint"
+   },
+   "interpretable": {
+    "count": 4,
+    "definition": "decisions with an attribution label",
+    "evidence": "docs/research/server_action_status.json"
+   },
+   "candidate_claim_or_state": {
+    "count": 0,
+    "definition": "decisions with a recorded user action",
+    "evidence": "docs/research/server_action_status.json"
+   },
+   "effective_forward_eligible": {
+    "count": 0,
+    "definition": "user-confirmed actions timestamped before outcomes",
+    "evidence": "docs/research/server_action_status.json"
+   },
+   "independently_matured": {
+    "count": null,
+    "definition": "user actions with matured outcomes",
+    "evidence": "docs/research/server_action_status.json",
+    "reason": "decision outcome maturation not yet instrumented; no user actions recorded"
+   },
+   "benchmark_evaluated": {
+    "count": null,
+    "definition": "decision outcomes vs do-nothing baseline",
+    "evidence": "docs/research/server_action_status.json",
+    "reason": "not_instrumented"
+   },
+   "downstream_reused": {
+    "count": 0,
+    "definition": "distinct downstream consumers that read this engine's learned state (coverage audit)",
+    "evidence": "docs/research/data_learning_coverage_audit.json",
+    "dedup_key": "consumer script"
+   },
+   "note": "No user actions are inferred; Decision Learning waits for explicit owner confirmation."
+  },
+  "external_research": {
+   "discovered": {
+    "count": 1426,
+    "definition": "distinct canonical source keys (forum/blog/YouTube)",
+    "evidence": "research/store/source_store.json",
+    "dedup_key": "source_key"
+   },
+   "canonical_persisted": {
+    "count": 1426,
+    "definition": "Source Store records (append-only)",
+    "evidence": "research/store/source_store.json",
+    "dedup_key": "source_key"
+   },
+   "interpretable": {
+    "count": 1426,
+    "definition": "records read by Source Reading (full text or excerpt)",
+    "evidence": "docs/research/source_reading_memory.json",
+    "dedup_key": "source_key"
+   },
+   "candidate_claim_or_state": {
+    "count": 23,
+    "definition": "records yielding a testable rule/claim",
+    "evidence": "docs/research/source_reading_memory.json",
+    "dedup_key": "source_key"
+   },
+   "effective_forward_eligible": {
+    "count": 2,
+    "definition": "genuine forward sources (timestamp-verified live capture)",
+    "evidence": "research/store/source_store.json",
+    "dedup_key": "source_key"
+   },
+   "independently_matured": {
+    "count": 0,
+    "definition": "matured, scoreable genuine-forward events",
+    "evidence": "research/reports/forward_intake_health.json",
+    "dedup_key": "event_id"
+   },
+   "benchmark_evaluated": {
+    "count": 0,
+    "definition": "forward events with benchmark excess (0 while nothing has matured)",
+    "evidence": "research/reports/forward_intake_health.json",
+    "dedup_key": "event_id"
+   },
+   "downstream_reused": {
+    "count": 8,
+    "definition": "distinct downstream consumers that read this engine's learned state (coverage audit)",
+    "evidence": "docs/research/data_learning_coverage_audit.json",
+    "dedup_key": "consumer script"
+   },
+   "historical": {
+    "lifecycle_rules_mature_60": 21,
+    "lifecycle_rules_mature_20": 13,
+    "note": "author-rule outcomes on backfill/legacy sources: historical/descriptive, not Genuine Forward"
+   }
+  }
+ },
+ "tracks": {
+  "learning_maturity": "UNPROVEN",
+  "genuine_forward_matured_total": 0
+ }
+}

@@ -25,6 +25,9 @@ PUBLIC_JSON_ROOT_ALLOWLIST = {
     "docs/research/investment_actions_status.json": {
         "version","generated_at","module","freshness","gold","dca_calendar","alert_state","guardrails","learning",
     },
+    "docs/research/learning_funnel.json": {
+        "version","generated_at","layers","contract","summary","engines","tracks",
+    },
     "docs/research/auto_thesis_drafts.json": {
         "version","generated_at","mode","external_requests","symbols","counts","guardrails","revision_history_added",
     },

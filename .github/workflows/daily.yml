@@ -380,6 +380,7 @@ jobs:
           git config user.name "github-actions"
           git config user.email "actions@github.com"
           git add docs/ research/archive/ research/store/source_store.json data/history/stooq_watchlist.zip
+          if [ -f research/store/operational_incident_state.json ]; then git add research/store/operational_incident_state.json; fi
           if [ -f data/history/source_validation_history.zip ]; then git add data/history/source_validation_history.zip; fi
           git commit -m "Daily update $(date -u +%Y-%m-%d)" || echo "No changes"
           git pull --rebase origin main

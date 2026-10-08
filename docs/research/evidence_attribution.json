@@ -1,6 +1,6 @@
 {
   "version": "5.7.0",
-  "generated_at": "2026-10-08T07:35:14.964116+00:00",
+  "generated_at": "2026-10-08T07:56:50.746469+00:00",
   "external_outcome_evidence_role": "legacy_descriptive_only",
   "as_of": "2026-10-08",
   "architecture": [
@@ -682,15 +682,37 @@
     "note": "V5.7 首版只用已有可验证数据形成技术/市场 Breadcrumb；不会假装已经抓取到 SEC/FDA/论坛等外部事实。"
   },
   "failure_attribution": {
-    "mature_samples_scanned": 512,
-    "review_samples": 196,
+    "mature_samples_scanned": 513,
+    "review_samples": 197,
     "tag_counts": {
-      "trend_false_positive": 50,
-      "timeframe_confirmation_missing": 62,
-      "large_adverse_move": 118,
+      "trend_false_positive": 51,
+      "timeframe_confirmation_missing": 63,
+      "large_adverse_move": 119,
       "missed_upside": 47
     },
     "recent": [
+      {
+        "symbol": "VIX",
+        "date": "2026-09-10",
+        "source_stage": "趋势启动",
+        "weekly": "空头",
+        "score": 22.3,
+        "return_20": -0.12500002672854005,
+        "mae_20": -0.20347534099736797,
+        "mfe_20": -0.007287055325298053,
+        "severity": "review",
+        "tags": [
+          "trend_false_positive",
+          "timeframe_confirmation_missing",
+          "large_adverse_move"
+        ],
+        "attribution_hypotheses": [
+          "当时趋势状态偏多，但20个交易日结果明显为负：优先检查趋势确认是否过早。",
+          "日线偏强而周线未确认，多周期冲突可能是误判来源之一。",
+          "入档后经历较大不利波动，风险识别和无效条件应被单独复盘。"
+        ],
+        "guardrail": "这是可检验的归因假设，不是已经证明的因果关系；只有重复成熟样本才允许影响 Learning Policy。"
+      },
       {
         "symbol": "SOFI",
         "date": "2026-09-04",
@@ -1044,26 +1066,6 @@
         ],
         "attribution_hypotheses": [
           "当时趋势状态偏多，但20个交易日结果明显为负：优先检查趋势确认是否过早。",
-          "日线偏强而周线未确认，多周期冲突可能是误判来源之一。",
-          "入档后经历较大不利波动，风险识别和无效条件应被单独复盘。"
-        ],
-        "guardrail": "这是可检验的归因假设，不是已经证明的因果关系；只有重复成熟样本才允许影响 Learning Policy。"
-      },
-      {
-        "symbol": "IREN",
-        "date": "2026-08-13",
-        "source_stage": "趋势启动",
-        "weekly": "空头",
-        "score": 25.24,
-        "return_20": -0.020777479892761352,
-        "mae_20": -0.2079982126899016,
-        "mfe_20": 0.04848078641644338,
-        "severity": "review",
-        "tags": [
-          "timeframe_confirmation_missing",
-          "large_adverse_move"
-        ],
-        "attribution_hypotheses": [
           "日线偏强而周线未确认，多周期冲突可能是误判来源之一。",
           "入档后经历较大不利波动，风险识别和无效条件应被单独复盘。"
         ],

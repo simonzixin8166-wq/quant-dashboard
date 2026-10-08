@@ -30,4 +30,5 @@ for needle in ("set local role authenticated", "set local role anon", "RLS_LEAK"
                "RLS_UPDATE_LEAK", "duplicate_month_plans", "executions_cross_user_or_orphan"):
     assert needle in audit, needle
 assert not re.search(r"select\s+(dca_monthly_usd|amount_usd|gold_budget_usd|price_usd|shares)\b", audit)
+assert "execute 'reset role'" in audit and "current_user as audited_as" in audit
 print("PASS V6.11 private migrations idempotent + isolation audit coverage")

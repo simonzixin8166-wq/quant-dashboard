@@ -35,10 +35,15 @@ begin
     exception when insufficient_privilege then null;
     end;
   end loop;
+  -- Restore the privileged role so the aggregate counts below see every row (set local would
+  -- otherwise keep 'anon' for the rest of the transaction and report zeros).
+  execute 'reset role';
+  perform set_config('request.jwt.claims', '', true);
 end $$;
 
 -- Aggregate integrity (counts only, no amounts, no ids).
 select
+  current_user as audited_as,
   (select count(*) from public.investment_plan_settings) as settings_rows,
   (select count(*) from public.investment_plan_settings where dca_monthly_usd is null and dca_monthly_cny is not null) as settings_unmigrated_cny,
   (select count(*) from public.dca_monthly_plans) as plan_rows,

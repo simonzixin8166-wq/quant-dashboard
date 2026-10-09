@@ -47,6 +47,15 @@ function optionRows(){
 function optionActions(){
  return optionRows().map(x=>{
    const p=x.p,r=x.risk,m=x.metrics,dte=Number(r.dte),side=String(p.side||'').toLowerCase();
+   // P0-2: prefer the contract-level primary next step over the generic risk label.
+   const sum=global.MAVAutonomousAgent?.optionDecisionSummary?.(p,x.quote,x.fresh);
+   if(sum){
+     const tone=sum.primary==='URGENT'?'bad':sum.primary==='HOLD'?'neutral':'warn';
+     const timing=sum.primary==='URGENT'?'今日处理':sum.primary==='CANNOT_JUDGE'?'补数据':sum.primary==='HOLD'?'继续观察':'今日 / 次日评估';
+     const reason=sum.primary==='CANNOT_JUDGE'?`暂不能判定：缺 ${sum.missing.slice(0,3).join('、')}`:`${sum.primary_zh}：${sum.reasons.slice(0,2).join('；')}`;
+     return{symbol:p.symbol||'—',expiry:p.expiry||'',timing,tone,reason,risk:sum.primary==='URGENT'?'l3':['CLOSE','ROLL'].includes(sum.primary)?'l2':(r.level||'unknown'),id:p.id,primary:sum.primary,primary_zh:sum.primary_zh,
+       contract:`${p.symbol} ${Number(p.strike)}${String(p.opt_type).toLowerCase()==='put'?'P':'C'} ${p.expiry}`};
+   }
    let timing='继续观察',tone='neutral',reason=r.label||'等待有效报价';
    if(r.level==='l3'){timing='今日处理';tone='bad'}
    else if(r.level==='l2'){timing=dte<=7?'今日处理':'次日复核';tone='warn'}
@@ -171,8 +180,9 @@ function formalStrategyActions(data=state.strategyData){
 function actionItems(){
  const opt=optionActions(),s=stockStatus(),rows=formalStrategyActions();
  (state.optionIdeas||[]).slice(0,3).forEach(x=>rows.push({priority:x.strategy==='SELL_PUT'?58:x.strategy==='LEAPS_CALL'?55:52,tone:'good',when:'WATCH',title:`${x.symbol} · ${x.kind||'期权机会'}`,text:x.reason||'期权链研究候选已通过运行时门控。',target:'tab-options'}));
- opt.filter(x=>x.risk==='l3').forEach(x=>rows.push({priority:100,tone:'bad',when:'今日',title:`${x.symbol} 期权需处理`,text:x.reason,target:'tab-options'}));
- opt.filter(x=>x.risk==='l2').forEach(x=>rows.push({priority:80,tone:'warn',when:'今日 / 次日',title:`${x.symbol} 期权复核`,text:x.reason,target:'tab-options'}));
+ opt.filter(x=>x.risk==='l3').forEach(x=>rows.push({priority:100,tone:'bad',when:'今日',title:`${x.contract||x.symbol} · ${x.primary_zh||'期权需处理'}`,text:x.reason,target:'tab-options'}));
+ opt.filter(x=>x.risk==='l2').forEach(x=>rows.push({priority:80,tone:'warn',when:'今日 / 次日',title:`${x.contract||x.symbol} · ${x.primary_zh||'期权复核'}`,text:x.reason,target:'tab-options'}));
+ opt.filter(x=>x.primary==='CANNOT_JUDGE').forEach(x=>rows.push({priority:60,tone:'warn',when:'补数据',title:`${x.contract||x.symbol} · 暂不能判定`,text:x.reason,target:'tab-options'}));
  opt.filter(x=>x.timing.includes('止盈')).forEach(x=>rows.push({priority:70,tone:'good',when:'今日',title:`${x.symbol} 可评估止盈`,text:x.reason,target:'tab-options'}));
  (s.risk||[]).forEach(x=>{const sig=explicitSignal(x,decisionAuthority());rows.push({priority:sig.action==='NO_SIGNAL'?120:sig.action==='REDUCE'||sig.action==='EXIT'?90:65,tone:sig.tone,when:sig.action==='NO_SIGNAL'?'当前':'今日',title:`${x.symbol} · ${sig.label}`,text:`${sig.zh}。 ${sig.reason}`,target:'tab-stocks'})});
  (s.improving||[]).forEach(x=>{const sig=explicitSignal(x,decisionAuthority());rows.push({priority:sig.action==='CONFIRMED_ENTRY'?75:sig.action==='EARLY_ENTRY'?65:45,tone:sig.tone,when:/ENTRY/.test(sig.action)?'介入机会':'观察',title:`${x.symbol} · ${sig.label}`,text:`${sig.zh}。 ${sig.reason}`,target:'tab-stocks'})});

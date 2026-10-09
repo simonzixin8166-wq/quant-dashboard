@@ -57,11 +57,14 @@ assert.notStrictEqual(JSON.stringify(a1.reasons), JSON.stringify(a2.reasons));
 events = [{ type: 'CPI', datetime: new Date(Date.now() + 5 * 86400000).toISOString() }];
 const iren = pos({ strike: 40, cost: 2.64, open_fee: 1.04, expiry: day(42), assignment_mode: 'accept' });
 const irenQ = q({ bid: 6.40, ask: 6.73, mid: 6.57, delta: -0.584, iv: 0.852, underlyingPrice: 35.73 });
-s = A.optionDecisionSummary(iren, irenQ, null);
-assert.strictEqual(s.primary, 'HOLD', JSON.stringify(s));                       // explicit, never vague 观察等待
-assert(/准备接货/.test(s.primary_zh) && /37\.3[0-9]/.test(s.action) && /展期|平仓/.test(s.action), s.action);
+s = A.optionDecisionSummary(iren, irenQ, null);                                 // 'accept' is only the DB default
+assert.strictEqual(s.primary, 'WAIT', JSON.stringify(s));
+assert.strictEqual(s.primary_zh, '需人工确认接货意愿');
+assert(/37\.3[0-9]/.test(s.action) && /愿意 → 继续持有/.test(s.action) && /不愿意 → 考虑展期/.test(s.action), s.action);
+assert(s.missing.some(m => /接货意愿确认/.test(m)) && s.missing.some(m => /购买力/.test(m)));
 assert(s.reasons.some(r => /已价内 10\.7%/.test(r)), s.reasons);               // unambiguous moneyness
-assert(s.reasons.some(r => /接货偏好/.test(r)));
+s = A.optionDecisionSummary({ ...iren, assignment_confirmed: true }, irenQ, null);
+assert.strictEqual(s.primary, 'HOLD'); assert(/准备接货/.test(s.primary_zh));
 s = A.optionDecisionSummary({ ...iren, assignment_mode: 'avoid' }, irenQ, null);
 assert.strictEqual(s.primary, 'ROLL'); assert(/展期/.test(s.primary_zh) && /Roll down/.test(s.action));
 // card markup must not reuse the red button class

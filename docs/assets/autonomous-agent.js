@@ -691,11 +691,17 @@
         primaryOut='ROLL';primaryZh='考虑展期（不愿接货）';
         action=`按你记录的偏好「避免指派」：今天优先比较 Roll down & out（更低行权价/更远到期、净收权利金）与直接平仓止损；${effTxt}。`;
         nextCheck='Delta ≥ 0.70 或进入 21 DTE；或你改为愿意接货';
-      }else{
+      }else if(position.assignment_confirmed===true){
         primaryOut='HOLD';primaryZh='继续持有 · 准备接货';
-        action=`按你记录的偏好「愿意接货」：继续持有，按 $${strike===null?'—':strike.toFixed(2)} 接货作为预案；${effTxt}。若不再愿意接货或公司逻辑变化 → 改为考虑展期（Roll down & out）或平仓止损。`;
-        reasons.push(`接货偏好：愿意接货（如需改为「避免指派」，在期权页「编辑」中修改）`);
+        action=`你已确认愿意接货：继续持有，按 $${strike===null?'—':strike.toFixed(2)} 接货作为预案；${effTxt}。若不再愿意接货或公司逻辑变化 → 改为考虑展期（Roll down & out）或平仓止损。`;
         nextCheck='Thesis 失效或不再愿意接货 → 展期/平仓；Delta ≥ 0.70 或进入 21 DTE 再复核';
+      }else{
+        // "accept" is the database default, not a confirmed choice: never present it as the user's decision.
+        primaryOut='WAIT';primaryZh='需人工确认接货意愿';
+        action=`本合约已价内且亏损，下一步取决于你是否愿意按 $${strike===null?'—':strike.toFixed(2)} 接货：愿意 → 继续持有至到期并准备资金（${effTxt}）；不愿意 → 考虑展期（Roll down & out，争取净收权利金）或平仓止损。系统中的「愿意接货」只是默认值，未经你确认。`;
+        reasons.push('接货偏好为系统默认值（未经你确认）');
+        extraMissing.push('接货意愿确认（在期权页「编辑」中选择愿意接货 / 避免指派）','账户购买力 / 现金担保余额（未接入券商，请在券商核对）');
+        nextCheck='确认接货意愿后自动给出 继续持有 或 考虑展期；Delta ≥ 0.70 或进入 21 DTE 前必须确认';
       }
     }
     if(short&&assign==='avoid'&&!reasons.some(r=>/接货|指派/.test(r)))reasons.push('你的偏好：收权利金、尽量避免被指派');

@@ -14,6 +14,8 @@ on:
       - 'supabase/tests/forward_journal_isolation.sql'
       - 'supabase/migrations/202610100001_option_assignment_preference.sql'
       - 'supabase/tests/option_assignment_preference_audit.sql'
+      - 'supabase/migrations/202610100002_stock_positions_private.sql'
+      - 'supabase/tests/stock_positions_isolation.sql'
 
 permissions:
   contents: read
@@ -125,4 +127,27 @@ jobs:
           print("::notice title=Assignment preference audit::" + json.dumps(a))
           assert a.get("new_columns") == 2 and a.get("constraints") == 2 and a.get("rls_enabled") is True \
               and a.get("unconfirmed_claims") == 0 and (a.get("policies") or 0) >= 1, a
+          PY
+      - name: Apply private stock ledger (owner-only RLS, per-account isolation) + negative probes
+        run: |
+          python3 - <<'PY'
+          import json, os, urllib.error, urllib.request
+          ref = os.environ["SUPABASE_PROJECT_REF"]; tok = os.environ["SUPABASE_ACCESS_TOKEN"]
+          def q(sql):
+              req = urllib.request.Request(f"https://api.supabase.com/v1/projects/{ref}/database/query",
+                  data=json.dumps({"query": sql}).encode(), method="POST",
+                  headers={"Authorization": f"Bearer {tok}", "Content-Type": "application/json", "User-Agent": "MyAlpha-Deploy"})
+              try:
+                  with urllib.request.urlopen(req, timeout=60) as r:
+                      return json.loads(r.read().decode() or "null")
+              except urllib.error.HTTPError as e:
+                  print("::error title=Stock ledger SQL::" + e.read().decode()[:400]); raise
+          mig = open("supabase/migrations/202610100002_stock_positions_private.sql", encoding="utf-8").read()
+          q(mig); q(mig)  # second run = idempotency check
+          a = (q(open("supabase/tests/stock_positions_isolation.sql", encoding="utf-8").read()) or [{}])[-1]
+          # integrity facts only; never row data or counts of private rows
+          shown = {k: a.get(k) for k in ("audited_as", "rls_enabled", "policies", "cross_account_rows", "duplicate_open")}
+          print("::notice title=Stock ledger RLS / isolation audit::PASS " + json.dumps(shown))
+          assert a.get("rls_enabled") is True and a.get("policies") == 4 \
+              and a.get("cross_account_rows") == 0 and a.get("duplicate_open") == 0, a
           PY

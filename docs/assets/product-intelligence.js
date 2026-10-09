@@ -262,10 +262,10 @@ function collapseSame(rows){
 }
 function lanesHtml(rows){
  return LANES.map(([key,name])=>{
-   const all=collapseSame(rows.filter(x=>laneOf(x)===key));if(!all.length)return '';
+   const raw=rows.filter(x=>laneOf(x)===key),all=collapseSame(raw);if(!all.length)return '';
    const limit=key==='urgent'?6:key==='research'?3:4,head=all.slice(0,limit),rest=all.slice(limit);
    const more=rest.length?`<details class="pi-more"><summary>查看全部（另 ${rest.length} 项）</summary>${rest.map(compactActionHtml).join('')}</details>`:'';
-   return `<div class="pi-lane" data-pi-group="${key}"><div class="pi-lane-head"><b>${esc(name)}</b><span>${all.length}</span></div>${head.map(compactActionHtml).join('')}${more}</div>`;
+   return `<div class="pi-lane" data-pi-group="${key}"><div class="pi-lane-head"><b>${esc(name)}</b><span>${raw.length} 项${all.length<raw.length?` · 合并为 ${all.length} 行`:''}</span></div>${head.map(compactActionHtml).join('')}${more}</div>`;
  }).join('');
 }
 function groupKey(name){return {'立即处理':'urgent','介入机会':'entry','持有 / 停止加仓':'hold','观察 / 复核':'review'}[name]||'review'}

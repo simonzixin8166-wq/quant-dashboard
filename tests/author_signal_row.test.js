@@ -12,6 +12,8 @@ api._state.authorSignals = { records: [rec({ published_at: new Date().toISOStrin
 const html = api.authorRow();
 assert(/计划减仓（非成交）/.test(html) && /计划·非成交/.test(html) && /作者信号/.test(html) && /href="https:\/\/bbs\.wenxuecity\.com\/tzlc\/1\.html"/.test(html), html);
 assert(!/BUY|SELL<|ACTION/.test(html.replace(/SELL_PLANNED/g, '')), 'no MyAlpha action wording');
+api._state.authorSignals = { records: [rec({ captured_at: '2026-10-09T06:03:00Z', published_at: new Date().toISOString().slice(0, 10) + ' 09:00:00' })] };
+assert(/采集 10-09 14:03/.test(api.authorRow()), 'capture time shown in Shanghai time');
 api._state.authorSignals = null;
 assert.equal(api.authorRow(), '');
 console.log('PASS author signal row');

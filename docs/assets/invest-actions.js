@@ -187,7 +187,7 @@ function authorRow(){
  const r=latestAuthorSignal(state.authorSignals);if(!r)return '';
  const tone={executed:'author-exec',planned:'author-plan',hold:'author-hold'}[r.headline.kind]||'author-hold';
  const tag={executed:'已成交',planned:'计划·非成交',hold:'持有'}[r.headline.kind]||'观点';
- const seen=r.captured_at?String(r.captured_at).replace('T',' ').slice(5,16):'';
+ const seen=r.captured_at&&Number.isFinite(Date.parse(r.captured_at))?new Date(r.captured_at).toLocaleString('zh-CN',{timeZone:'Asia/Shanghai',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false}).replace(/\//g,'-'):'';
  return `<a class="ias-row ias-author ${tone}" href="${esc(r.url)}" target="_blank" rel="noopener noreferrer" aria-label="博主${esc(r.author)} ${esc(r.headline.text)}，作者信号，打开原文"><i class="ias-icon">✎</i><span class="ias-name">博主${esc(r.author)}</span><span class="ias-val">${esc(r.headline.symbol||'')}</span><span class="ias-sep">｜</span><span class="ias-mid"><strong>${esc(String(r.headline.text).replace(/^[A-Z]+：/,''))}</strong><span class="ias-wide"> · 发帖 ${esc(r.day.slice(5))}${seen?' · 采集 '+esc(seen):''}</span></span><span class="ias-end"><b class="ias-badge">${esc(tag)}</b><span class="ias-wide ias-soft">作者信号</span><i class="ias-chev">↗</i></span></a>`;
 }
 function render(){

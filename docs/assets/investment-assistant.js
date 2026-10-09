@@ -80,7 +80,7 @@ function plainMarket(snapshot,c){
 }
 function stockDecision(x,c){
   const stage=String(x.stage||''),has=x.hasThesis;
-  if(!has&&c.mode==='fear')return {tone:'wait',label:'先补研究论点',text:'没有 Thesis，不把技术反弹直接升级为期权机会。'};
+  if(!has&&c.mode==='fear'){const g=global.MAVSignalPolicy?.thesisGap?.(x);return {tone:'wait',label:'先补研究论点',text:g?`${g.reason} 不把技术反弹直接升级为期权机会。`:'没有 Thesis，不把技术反弹直接升级为期权机会。'};}
   if(/退潮|恶化/.test(stage))return {tone:'risk',label:'等待修复',text:'分数可能仍高，但动态方向在转弱；Long Call/LEAPS 暂不优先。'};
   if(/二次启动|启动|重新/.test(stage))return {tone:'good',label:'优先研究',text:'趋势出现修复/重新转强，可进一步比较股票、Sell Put、Buy Call 或 LEAPS。'};
   if(/钝化|高位/.test(stage))return {tone:'watch',label:'谨慎观察',text:'仍然强，但上涨速度放慢；不因为高分继续追涨。'};

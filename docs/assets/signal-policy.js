@@ -17,6 +17,28 @@ function result(action,reason,next,meta={}){
   const a=ACTIONS[action]||ACTIONS.WATCH;
   return {action,...a,reason,next_confirmation:next||'',...meta};
 }
+function thesisGap(input={}){
+  const sym=String(input.symbol||'该标的').toUpperCase(),r=input.readiness&&typeof input.readiness==='object'?input.readiness:null;
+  const list=a=>Array.isArray(a)?a.filter(Boolean).map(String):[];
+  const trend=/趋势启动|二次启动|趋势延续|修复中/.test(String(input.stage||''))?'趋势有改善':'当前趋势不构成理由';
+  if(!input.autoCovered&&!r){
+    return {status:'no_coverage',have:[],missing:['你的研究卡（上涨理由）','失效条件','官方披露/直接证据'],
+      reason:`${sym} 未进入自动研究覆盖，也没有你的研究卡：${trend}，但没有任何已核实的上涨理由；暂不介入。`,
+      next:`把 ${sym} 加入自动研究覆盖，或写研究卡（含失效条件）`};
+  }
+  if(!r){
+    return {status:'draft_only',have:['系统证据草稿（未经你核实）'],missing:['你确认的上涨理由','失效条件'],
+      reason:`${sym} ${trend}，但上涨理由尚未核实；已有系统证据草稿（未经你核实）；仍缺少：你确认的上涨理由、失效条件；暂不介入。`,
+      next:'打开研究卡核对草稿并写入失效条件'};
+  }
+  const have=list(r.have),missing=list(r.missing),ex=Number(r.excluded_tagged_only_news)||0;
+  const parts=[`${sym} ${trend}，但上涨理由尚未核实`];
+  parts.push(have.length?`已具备：${have.join('、')}`:'尚无可用证据');
+  if(missing.length)parts.push(`仍缺少：${missing.join('、')}`);
+  if(r.last_evidence_date)parts.push(`最近证据 ${r.last_evidence_date}`);
+  if(ex>0)parts.push(`已排除 ${ex} 条仅被标签关联、标题未提及该公司的新闻`);
+  return {status:r.status||'draft_only',have,missing,reason:parts.join('；')+'；暂不介入。',next:r.next_trigger||'新的官方披露或你更新研究卡后再评估'};
+}
 function classify(input={}){
   const score=n(input.score),stage=String(input.stage||''),held=input.held===true,symbol=String(input.symbol||'').toUpperCase();
   const authority=input.decisionEligible!==false;
@@ -29,7 +51,7 @@ function classify(input={}){
     return result('HOLD','当前未触发减仓或退出条件。','持续监控趋势、事件与 Thesis 失效条件');
   }
   if(PROTECTED_TECHNICAL_ENTRY_SYMBOLS.has(symbol))return result('WATCH','该标的受正式策略规则保护，Trend Pulse 不能单独产生介入结论。','等待 Core Tier / TQQQ X2 / 正式策略触发');
-  if(input.hasThesis!==true)return result('WATCH','缺少可验证 Thesis，趋势改善只能进入观察，不能升级为介入信号。','补充 Thesis、失效条件与直接证据后再评估');
+  if(input.hasThesis!==true){const g=thesisGap(input);return result('WATCH',g.reason,g.next,{thesis_status:g.status,thesis_have:g.have,thesis_missing:g.missing});}
   if(/趋势启动/.test(stage)&&score!==null&&score>=0)return result('EARLY_ENTRY','趋势由弱转强，已进入早期介入观察区。','关键均线/价格结构继续确认后升级 CONFIRMED ENTRY');
   if(/二次启动/.test(stage)&&score!==null&&score>=30)return result('CONFIRMED_ENTRY','回踩后重新转强，趋势结构得到进一步确认。','持续验证量价、事件与风险条件');
   if(/趋势延续/.test(stage)&&score!==null&&score>=50)return result('CONFIRMED_ENTRY','趋势延续且强度达到确认区。','避免追高，等待风险收益合适的执行位置');
@@ -45,5 +67,5 @@ function applyLearnedEvidence(base,governance){
   }
   return {...base,learned_overlay:'eligible',learned_note:'仅已通过 Promotion Gate 的方法允许作为正式 Action 的附加证据；保护规则仍优先。'};
 }
-global.MAVSignalPolicy={ACTIONS,PROTECTED_TECHNICAL_ENTRY_SYMBOLS,classify,applyLearnedEvidence};
+global.MAVSignalPolicy={ACTIONS,PROTECTED_TECHNICAL_ENTRY_SYMBOLS,classify,thesisGap,applyLearnedEvidence};
 })(window);

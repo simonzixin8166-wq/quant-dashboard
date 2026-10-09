@@ -15,7 +15,7 @@ OFFICIAL=ROOT/"docs"/"research"/"official_evidence.json"
 EVENTS=ROOT/"docs"/"research"/"event_evidence.json"
 THESIS_ARCHIVE=ROOT/"research"/"archive"/"thesis_revisions"
 OUT=ROOT/"docs"/"research"/"auto_thesis_drafts.json"
-VERSION="6.15.1"
+VERSION="6.15.2"
 
 def load(path):
     try:return json.loads(path.read_text(encoding="utf-8"))
@@ -29,11 +29,67 @@ def digest(obj):
     raw=json.dumps(obj,ensure_ascii=False,sort_keys=True).encode()
     return hashlib.sha256(raw).hexdigest()[:16]
 
+ALIASES={"SPCX":["spacex"],"GOOG":["google","alphabet"],"GOOGL":["google","alphabet"],"META":["meta","facebook"],
+         "AMZN":["amazon"],"TSLA":["tesla"],"NBIS":["nebius"],"CRWV":["coreweave"],"NOW":["servicenow"],"MU":["micron"],
+         "INTC":["intel"],"LITE":["lumentum"],"IREN":["iren"],"SOFI":["sofi"],"MSFT":["microsoft"]}
+
+
+def news_relevance(symbol,company_name,title):
+    """'direct' only when the headline names the company/ticker; Yahoo related_tickers tagging
+    alone (e.g. an AMD-vs-ASML piece tagged MSFT) is not evidence about this company."""
+    raw=f" {str(title or '')} "
+    # Ticker must appear in upper case (NOW/MU/META are ordinary words in lower case).
+    if re.search(rf"(?<![A-Za-z0-9]){re.escape(symbol.upper())}(?![A-Za-z0-9])",raw):return "direct"
+    # Company names must be capitalised as proper nouns ("Meta", not "the meta trade").
+    t=raw
+    names={n[:1].upper()+n[1:] for n in ALIASES.get(symbol,[])}
+    first=str(company_name or "").split(" ")[0]
+    if len(first)>=4 and first.lower() not in {"the","first","global","american","united"}:names.add(first[:1].upper()+first[1:].lower())
+    return "direct" if any(re.search(rf"(?<![A-Za-z0-9]){re.escape(n)}(?![A-Za-z0-9])",t,flags=0) or
+                           re.search(rf"(?<![A-Za-z0-9]){re.escape(n.upper())}(?![A-Za-z0-9])",t) for n in names) else "tagged_only"
+
+
+def readiness(symbol,latest_filings,direct_news,excluded_news,risks,today=None):
+    """Per-symbol 'what we have / what is missing' for an explainable WATCH (never a verified Thesis)."""
+    today=today or datetime.now(timezone.utc).date()
+    have,missing=[],[]
+    periodic=[f for f in latest_filings if f.get("form") in ("10-Q","10-K")]
+    if latest_filings:
+        f=latest_filings[0];have.append(f"官方披露 {f.get('form')} {f.get('filing_date')}")
+    else:
+        missing.append("任何官方披露（未进入自动研究覆盖）")
+    recent_periodic=None
+    for f in periodic:
+        try:
+            age=(today-datetime.fromisoformat(str(f.get("filing_date"))).date()).days
+        except Exception:
+            continue
+        recent_periodic=(f,age);break
+    if recent_periodic and recent_periodic[1]<=120:
+        have.append(f"本季/年度业务数据（{recent_periodic[0].get('form')} {recent_periodic[0].get('filing_date')}）")
+    else:
+        missing.append("近 120 天内的季报/年报业务数据")
+    if risks:have.append("年报含 Risk Factors（尚未提炼成具体风险条目）")
+    missing.append("具体风险条目（需从原文提炼）")
+    missing.append("失效条件（何种情况证明上涨理由错误，需你确认）")
+    if direct_news:have.append(f"直接相关新闻 {len(direct_news)} 条")
+    else:missing.append("直接相关的近期催化剂")
+    dates=[str(f.get("filing_date") or "") for f in latest_filings]+[str(x.get("published_at") or "")[:10] for x in direct_news]
+    return {"verified":False,"status":"draft_only" if latest_filings else "no_coverage","have":have,"missing":missing,
+            "last_evidence_date":max([d for d in dates if d] or [None]) if dates else None,
+            "excluded_tagged_only_news":len(excluded_news),
+            "next_trigger":"新的 10-Q/10-K/8-K、直接相关重大新闻，或你写入/更新研究卡"}
+
+
 def build_symbol(symbol,off,event):
     filings=(off or {}).get("filings") or []
     news=(event or {}).get("news") or []
     latest_filings=filings[:3]
-    latest_news=news[:4]
+    company=(off or {}).get("company_name") or ""
+    tagged=[(x,news_relevance(symbol,company,x.get("title"))) for x in news]
+    direct_news=[x for x,r in tagged if r=="direct"]
+    excluded_news=[x for x,r in tagged if r!="direct"]
+    latest_news=direct_news[:4]
     official_bits=[]
     catalysts=[]
     risks=[]
@@ -71,6 +127,7 @@ def build_symbol(symbol,off,event):
         "events":[{"title":clean(x.get("title"),180),"publisher":x.get("publisher"),"published_at":x.get("published_at"),"url":x.get("url"),"evidence_class":"media","source_type":x.get("source_type")} for x in latest_news],
         "peer_context":{"evidence_class":"peer","direction":peer.get("direction"),"peer_count":peer.get("peer_count",0)}
       },
+      "readiness":readiness(symbol,latest_filings,direct_news,excluded_news,risks),
       "evidence_policy":"Only direct_company evidence may directly trigger thesis review; media/peer/sector/macro remain supporting context.",
       "guardrail":"Evidence-grounded draft only. Never overwrites user notes; missing evidence stays explicit.",
     }

@@ -3,7 +3,8 @@
 const KEY='mavDecisionJournalV56', OPERATOR_KEY='mavOperatorDecisionsV615', OLD_KEYS=['mavDecisionJournalV53','mavDecisionJournalV52','mavDecisionJournalV51'];
 const endpoint='https://rhielbkvhgqbthcgztci.supabase.co/functions/v1/stock-market';
 const H=[20,60,120];
-const state={history:null,historyLoaded:false,lastAuthError:'',refreshing:false,operatorRemoteReady:false};
+const state={history:null,historyLoaded:false,lastAuthError:'',refreshing:false,operatorRemoteReady:false,showAllJournal:false};
+const JOURNAL_VISIBLE=40;
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const num=v=>Number.isFinite(Number(v))?Number(v):null;
 const pct=v=>num(v)===null?'—':`${Number(v)>=0?'+':''}${(Number(v)*100).toFixed(1)}%`;
@@ -321,7 +322,19 @@ function selfReviewHtml(rows){
   return `<div class="learning-summary"><article><span>成熟样本</span><b>${r.sample}</b><small>最近40条20日样本</small></article><article><span>判断有效</span><b>${r.effective}</b><small>符合当时判断方向</small></article><article><span>噪音候选</span><b>${r.noisy}</b><small>频繁变化但结果有限</small></article><article><span>错过上涨</span><b>${r.missed}</b><small>谨慎后20日涨幅≥12%</small></article></div><div class="learning-grid">${r.lessons.map((x,i)=>`<article class="learning-card"><div><b>What I learned #${i+1}</b><span>自动复盘</span></div><p>${esc(x)}</p><small>只影响研究优先级与提醒权重；不会自动改变核心ETF规则或下单。</small></article>`).join('')}</div>`;
 }
 function marketLabel(e){return e.level==='panic'?'极端':e.level==='fear'?'大跌':e.level==='watch'?'观察':e.mode==='greed'?'强势高位':'正常'}
-function candidateRows(rows){const out=[];for(const e of[...rows].reverse())for(const c of(e.candidates||[]))out.push({e,c});return out.slice(0,40)}
+function candidateRows(rows,all=false){const out=[];for(const e of[...rows].reverse())for(const c of(e.candidates||[]))out.push({e,c});return all?out:out.slice(0,JOURNAL_VISIBLE)}
+// Coverage of what this browser actually holds, so a truncated table is never mistaken for missing history.
+function journalCoverage(rows){
+  const dates=rows.map(e=>String(e.date||e.at||'').slice(0,10)).filter(Boolean).sort();
+  const candidates=rows.reduce((n,e)=>n+(e.candidates||[]).length,0);
+  return{snapshots:rows.length,candidates,earliest:dates[0]||null,latest:dates[dates.length-1]||null,visible:Math.min(candidates,JOURNAL_VISIBLE),storage:'browser_local_only'};
+}
+function coverageHtml(cov){
+  if(!cov.candidates)return '';
+  const more=cov.candidates>cov.visible;
+  return `<p class="journal-coverage">本浏览器保存 <b>${cov.snapshots}</b> 个快照 / <b>${cov.candidates}</b> 条候选 · 最早 <b>${esc(cov.earliest||'—')}</b> · 最新 <b>${esc(cov.latest||'—')}</b> · ${state.showAllJournal?`当前显示全部`:`当前显示最近 ${cov.visible} 条`}${more?` <button type="button" class="journal-toggle" onclick="MAVDecisionJournal.toggleAll()">${state.showAllJournal?'只看最近':'查看全部'}</button>`:''}<small>记录只存在于本浏览器（localStorage），尚未同步到服务器；换浏览器或清缓存会丢失。</small></p>`;
+}
+function toggleAll(){state.showAllJournal=!state.showAllJournal;render()}
 async function loadJson(url){try{const r=await fetch(`${url}?v=${Date.now()}`,{cache:'no-store'});if(!r.ok)return null;return await r.json()}catch{return null}}
 async function ensureHistory(){if(state.historyLoaded)return state.history;state.historyLoaded=true;state.history=await loadJson('research/historical_journal.json');setTimeout(()=>global.MAVInvestmentAssistant?.rescan?.(),0);return state.history}
 function maturityHint(c,h){
@@ -346,14 +359,14 @@ function recentHistoryHtml(history){const rows=(history?.recent_events||[]).slic
 let backtestCache=null;
 async function render(error=''){
   const root=document.getElementById('decisionJournalRoot');if(!root)return;
-  const rows=read(),candidateCount=rows.reduce((n,e)=>n+(e.candidates||[]).length,0),s20=matureStats(rows,20),s60=matureStats(rows,60),recent=candidateRows(rows),pending=pendingCount(rows);
+  const rows=read(),candidateCount=rows.reduce((n,e)=>n+(e.candidates||[]).length,0),s20=matureStats(rows,20),s60=matureStats(rows,60),recent=candidateRows(rows,state.showAllJournal),coverage=journalCoverage(rows),pending=pendingCount(rows);
   if(backtestCache===null)backtestCache=await loadJson('research/assistant_rule_validation.json');
   const history=await ensureHistory();
   root.innerHTML=`<section class="hero compact-hero"><div><h1>Decision Journal · 决策复盘</h1><p>两条证据链：历史回填立即学习 + 从今天起实时留痕。系统负责记录、验证和排序；投资者负责最终操作。</p></div><div class="journal-actions"><button type="button" onclick="MAVDecisionJournal.refreshOutcomes()">↻ 补齐实时成熟结果</button></div></section>
   <section class="journal-summary"><article><span>决策日</span><b>${rows.length}</b><small>同日同标的只保留一条主记录</small></article><article><span>等待成熟</span><b>${pending}</b><small>每条从首次入档日起算</small></article><article><span>实时20日成熟</span><b>${s20.n}</b><small>平均 ${pct(s20.avg)}</small></article><article><span>实时60日成熟</span><b>${s60.n}</b><small>平均 ${pct(s60.avg)}</small></article></section>
   ${error||state.lastAuthError?`<div class="journal-warning">${esc(error||state.lastAuthError)}。历史学习不依赖登录，仍可正常使用。</div>`:''}
   <section class="journal-panel"><div class="journal-head"><div><h2>自主学习 · 历史回填</h2><p>使用你提供的 STOOQ OHLCV，本地因果重放 Trend Pulse；不重复下载多年历史，也不使用未来数据。</p></div></div>${stageProfileHtml(history)}${recentHistoryHtml(history)}</section>
-  <section class="journal-panel"><div class="journal-head"><div><h2>实时决策日志</h2><p>保存系统当时真实看到的环境和候选，防止事后改写。20 / 60 / 120均按各自入档交易日起算。</p></div><small>当前可补齐 ${pending===0?0:'部分'} 条</small></div>${recent.length?`<div class="journal-table-wrap"><table class="journal-table"><thead><tr><th>交易日</th><th>环境</th><th>标的 / 当时判断</th><th>收盘入档价</th><th>20日</th><th>60日</th><th>120日</th></tr></thead><tbody>${recent.map(({e,c})=>`<tr><td>${esc(e.date)}</td><td>${esc(marketLabel(e))}<small>VIX ${e.vix==null?'—':Number(e.vix).toFixed(1)}</small></td><td><b>${esc(c.symbol)}</b><small>${esc(c.decision)} · ${esc(c.stage||c.zone||'')}${(c.transitions||[]).length?` · 日内变化 ${(c.transitions||[]).length}次`:''}</small></td><td>${c.price==null?'—':'$'+Number(c.price).toFixed(2)}</td>${H.map(h=>`<td>${outcomeCell(c,e,h)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`:`<div class="journal-empty"><b>还没有实时记录</b><p>市场状态或候选发生有意义变化后会自动留下快照，不需要手工记录。</p></div>`}</section>
+  <section class="journal-panel"><div class="journal-head"><div><h2>实时决策日志</h2><p>保存系统当时真实看到的环境和候选，防止事后改写。20 / 60 / 120均按各自入档交易日起算。</p></div><small>当前可补齐 ${pending===0?0:'部分'} 条</small></div>${coverageHtml(coverage)}${recent.length?`<div class="journal-table-wrap"><table class="journal-table"><thead><tr><th>交易日</th><th>环境</th><th>标的 / 当时判断</th><th>收盘入档价</th><th>20日</th><th>60日</th><th>120日</th></tr></thead><tbody>${recent.map(({e,c})=>`<tr><td>${esc(e.date)}</td><td>${esc(marketLabel(e))}<small>VIX ${e.vix==null?'—':Number(e.vix).toFixed(1)}</small></td><td><b>${esc(c.symbol)}</b><small>${esc(c.decision)} · ${esc(c.stage||c.zone||'')}${(c.transitions||[]).length?` · 日内变化 ${(c.transitions||[]).length}次`:''}</small></td><td>${c.price==null?'—':'$'+Number(c.price).toFixed(2)}</td>${H.map(h=>`<td>${outcomeCell(c,e,h)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`:`<div class="journal-empty"><b>还没有实时记录</b><p>市场状态或候选发生有意义变化后会自动留下快照，不需要手工记录。</p></div>`}</section>
   <section class="journal-panel"><div class="journal-head"><div><h2>历史市场规则验证</h2><p>单独检查观察 / 大跌 / 极端市场触发，不与个股 Trend Pulse 样本混在一起。</p></div></div>${validationHtml(backtestCache)}</section>
   <section class="journal-panel"><div class="journal-head"><div><h2>Weekly Self Review · 每周自主复盘</h2><p>系统评价自己的历史判断、重复提醒和漏掉的行情，并把结论用于后续研究优先级。</p></div></div>${selfReviewHtml(rows)}</section>
   <section class="journal-panel"><div class="journal-head"><div><h2>Agent Error Memory · 错误记忆</h2><p>只记录已经有成熟结果的误报、漏掉上涨和大幅不利波动；它只调整研究权重，不自动修改核心策略。</p></div></div>${(()=>{const errs=errorMemory(rows);return errs.length?`<div class="learning-grid">${errs.slice(0,8).map(x=>`<article class="learning-card"><div><b>${esc(x.symbol)} · ${esc(x.type)}</b><span>${esc(x.date)}</span></div><strong>20日 ${pct(x.return20)}</strong><p>${esc(x.note)}</p><small>当时判断：${esc(x.decision)}</small></article>`).join('')}</div>`:'<div class="journal-empty"><b>暂无成熟错误样本</b><p>待20日结果成熟后自动归类，不会用未成熟样本提前“学习”。</p></div>'})()}</section>
@@ -363,6 +376,6 @@ async function render(error=''){
 }
 function learningForStage(stage){const p=state.history?.profiles?.[stage];if(!p)return null;return {...p.evidence,stats:p.horizons?.['60']||null}}
 async function init(){render();loadOperatorDecisionsRemote();setTimeout(()=>refreshOutcomes({silent:true}),4500)}
-global.MAVDecisionJournal={recordAssistantEvent,recordOperatorDecision,updateOperatorDecision,refreshOutcomes,render,getJournal:read,getOperatorDecisions:readOperatorDecisions,getHistorical:()=>state.history,learningForStage,getErrorMemory:()=>errorMemory(read()),getSelfReview:()=>weeklySelfReview(read()),state};
+global.MAVDecisionJournal={toggleAll,journalCoverage,recordAssistantEvent,recordOperatorDecision,updateOperatorDecision,refreshOutcomes,render,getJournal:read,getOperatorDecisions:readOperatorDecisions,getHistorical:()=>state.history,learningForStage,getErrorMemory:()=>errorMemory(read()),getSelfReview:()=>weeklySelfReview(read()),state};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })(window);

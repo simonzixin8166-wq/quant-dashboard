@@ -132,4 +132,5 @@ html[data-theme="dark"] .ias-alert.watch{background:rgba(212,170,70,.22);color:#
 /* Tracked author signal row (author research signal, not a MyAlpha action) */
 .ias-author{text-decoration:none;color:inherit}.ias-author.author-exec .ias-badge{background:#fdecea;color:#b3261e}.ias-author.author-plan .ias-badge{background:#fff4e0;color:#8a5300}.ias-author.author-hold .ias-badge{background:#eef2f7;color:#334155}
 /* the strip is capped at 3 rows (150px); the optional author row needs a 4th row */
-#investActionStrip:has(.ias-author){max-height:200px}
+#investActionStrip:has(.ias-author){max-height:none}
+@media (max-width:560px){#investActionStrip .ias-author .ias-mid{white-space:normal;overflow:visible;text-overflow:clip}}

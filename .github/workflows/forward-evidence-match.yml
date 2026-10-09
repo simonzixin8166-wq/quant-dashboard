@@ -1,0 +1,28 @@
+name: Forward Evidence Match
+
+# Manual, read-only: compares uploaded browser journal rows (private table, grade C by default) with the
+# independent reconstructions in research/archive/forward_evidence_audit.jsonl. Emits enums per session
+# (present / match / first_seen) — no symbols, prices, counts or ids. Never writes the repo or the table.
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  match:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - name: Unit tests
+        run: |
+          python tests/test_forward_journal_audit.py
+          python tests/test_forward_evidence_forensics.py
+      - name: Match (enums only)
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+        run: python scripts/forward_journal_audit.py --match

@@ -71,10 +71,18 @@ def decide_server(now_utc: datetime, generated_at: str | None, runs: list[dict])
     At most one guard dispatch per clock hour; never while a run is queued/in progress."""
     if not us_session_open(now_utc):
         return {"action": "ok", "reason": "outside_us_session"}
-    try:
-        age = (now_utc - datetime.fromisoformat(str(generated_at).replace("Z", "+00:00"))).total_seconds() / 60
-    except Exception:
-        age = None
+    # server_action_status.json is only rewritten when its content changes (or every 6 h), so its
+    # generated_at is not a liveness signal on its own. The last *successful* Server Action Watch run
+    # (GitHub's own clock) proves the server checked; use whichever is newer.
+    stamps = [generated_at] + [r.get("updated_at") or r.get("created_at") for r in runs
+                               if r.get("status") == "completed" and r.get("conclusion") == "success"]
+    ages = []
+    for t in stamps:
+        try:
+            ages.append((now_utc - datetime.fromisoformat(str(t).replace("Z", "+00:00"))).total_seconds() / 60)
+        except Exception:
+            pass
+    age = min(ages) if ages else None
     if age is not None and age <= SERVER_MAX_AGE_MIN:
         return {"action": "ok", "age_min": round(age)}
     if any(r.get("status") in ("queued", "in_progress", "waiting", "pending", "requested") for r in runs):

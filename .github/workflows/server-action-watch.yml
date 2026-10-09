@@ -63,6 +63,7 @@ jobs:
           python tests/test_v615_server_action_engine.py
           python tests/test_server_action_snapshot_freshness.py
           python tests/test_private_learning_audit.py
+          python tests/test_forward_journal_audit.py
           python tests/test_investment_watch_engine.py
 
       - name: Build server-side action status and deliver alerts
@@ -82,6 +83,13 @@ jobs:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
         run: python scripts/private_learning_audit.py
+
+      - name: Forward journal continuity audit (enums only, no files)
+        continue-on-error: true
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+        run: python scripts/forward_journal_audit.py
 
       - name: Notification channel test (manual only)
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.notify_test }}

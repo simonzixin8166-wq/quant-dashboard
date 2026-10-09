@@ -39,6 +39,8 @@ jobs:
           node tests/invest_actions.test.js
           node tests/option_decision.test.js
           node tests/option_scenarios.test.js
+          node tests/stock_positions.test.js
+          node --check docs/assets/stock-positions.js
       - name: V6.11 investment watch regression
         run: |
           python tests/test_investment_watch_engine.py
@@ -52,6 +54,7 @@ jobs:
           python tests/test_fear_greed_boundary.py
           python tests/test_author_action_signals.py
           python tests/test_option_assignment_preference.py
+          python tests/test_stock_positions_contract.py
           python tests/test_learning_funnel_contract.py
           python tests/test_research_proposals.py
           python scripts/private_guardrail.py

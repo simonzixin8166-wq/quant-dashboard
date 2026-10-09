@@ -7,3 +7,20 @@
 .roll-account-section{grid-column:1/-1;display:grid;gap:10px}.roll-account-section>h4{display:flex;justify-content:space-between;align-items:center;margin:0;padding:8px 11px;border-radius:9px;background:var(--navy);color:#fff;font-size:12px}.roll-account-section>h4 span{color:#d7dbea;font-size:9px;font-weight:500}.roll-underlying-inner{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.roll-position-inner{display:grid;gap:10px}.account-row.inactive{opacity:.62}.account-actions{display:flex!important;grid-auto-flow:column;gap:6px!important}.roll-undo{white-space:nowrap;border:1px solid var(--amber);background:var(--amber-soft);color:var(--amber);border-radius:7px;padding:5px 8px;font-size:9px;font-weight:700;cursor:pointer}
 .roll-observation-actions{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}
 @media(max-width:900px){.roll-underlyings,.roll-underlying-inner{grid-template-columns:1fr}.roll-summary{grid-template-columns:repeat(2,1fr)}.roll-position-main{grid-template-columns:1fr}}@media(max-width:600px){.roll-manager-head{display:grid}.roll-manager-actions{justify-content:flex-start}.roll-summary{grid-template-columns:1fr 1fr}.coverage-grid{grid-template-columns:1fr}.roll-form-grid{grid-template-columns:1fr}.roll-form-grid .wide{grid-column:auto}.roll-preview{grid-template-columns:1fr}.roll-preview>div:last-child{grid-column:auto}}
+
+/* Private stock ledger (stock-positions.js) */
+#stockLedgerRoot{display:grid;gap:10px;min-width:0}
+#stockLedgerRoot>*{min-width:0}
+#stockLedgerRoot .sp-head{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+#stockLedgerRoot .sp-muted{color:var(--muted,#8a8f98);font-size:12px}
+#stockLedgerRoot .sp-warn{padding:8px 10px;border-radius:8px;background:rgba(245,158,11,.12);color:#b45309;font-size:13px}
+#stockLedgerRoot .sp-form{display:flex;flex-wrap:wrap;gap:6px}
+#stockLedgerRoot .sp-form input,#stockLedgerRoot .sp-form select{min-width:0;flex:1 1 120px;padding:6px 8px}
+#stockLedgerRoot .sp-account-name{font-weight:600;margin:6px 0 4px}
+#stockLedgerRoot .sp-table-wrap{overflow-x:auto}
+#stockLedgerRoot .sp-table{width:100%;border-collapse:collapse;font-size:13px}
+#stockLedgerRoot .sp-table th,#stockLedgerRoot .sp-table td{padding:6px 8px;border-bottom:1px solid rgba(127,127,127,.18);text-align:left;white-space:nowrap}
+#stockLedgerRoot .sp-note{white-space:normal;max-width:220px}
+#stockLedgerRoot .sp-actions button{margin-right:4px;font-size:12px}
+#stockLedgerRoot .sp-badge{display:inline-block;padding:1px 6px;border-radius:6px;background:rgba(245,158,11,.18);color:#b45309;font-size:11px}
+#stockLedgerRoot tr.sp-archived{opacity:.55}

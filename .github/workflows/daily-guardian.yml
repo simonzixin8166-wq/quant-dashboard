@@ -1,0 +1,43 @@
+name: Daily Guardian
+
+# Independent health guard: GitHub cron can delay or skip the 21:30 UTC Daily run.
+# Checks published market_as_of against the expected NYSE session and dispatches Daily at most
+# twice per session (idempotent, no loops). Runs several times before the next US open so a
+# recovered Daily still produces forward-attested observations.
+on:
+  schedule:
+    - cron: '20 23 * * 1-5'
+    - cron: '20 1 * * 2-6'
+    - cron: '20 3 * * 2-6'
+    - cron: '20 12 * * 2-6'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Evaluate only, never dispatch"
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+  actions: write
+
+concurrency:
+  group: daily-guardian
+  cancel-in-progress: false
+
+jobs:
+  guard:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - name: Guardian unit tests
+        run: python tests/test_daily_guardian.py
+      - name: Evaluate and (if needed) dispatch Daily
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          GUARD_DRY_RUN: ${{ inputs.dry_run && '1' || '0' }}
+        run: python scripts/daily_guardian.py

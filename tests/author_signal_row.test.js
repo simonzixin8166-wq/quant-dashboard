@@ -16,4 +16,6 @@ api._state.authorSignals = { records: [rec({ captured_at: '2026-10-09T06:03:00Z'
 assert(/采集 10-09 14:03/.test(api.authorRow()), 'capture time shown in Shanghai time');
 api._state.authorSignals = null;
 assert.equal(api.authorRow(), '');
+const css = require('fs').readFileSync(__dirname + '/../docs/assets/invest-actions.css', 'utf8');
+assert(/#investActionStrip:has\(\.ias-author\)\{max-height:200px\}/.test(css), 'strip must grow so the author row is not clipped');
 console.log('PASS author signal row');

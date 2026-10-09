@@ -3,12 +3,14 @@
 'use strict';
 const OZ_G=31.1034768;
 const STATUS_URL='research/investment_actions_status.json';
+const AUTHOR_URL='research/author_action_signals.json';
+const AUTHOR_FRESH_DAYS=14;
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const num=v=>{const n=Number(v);return Number.isFinite(n)?n:null};
 const usd=(v,d=0)=>num(v)===null?'—':'$'+Number(v).toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d});
 const cny=(v,d=0)=>num(v)===null?'—':'¥'+Number(v).toLocaleString('zh-CN',{minimumFractionDigits:d,maximumFractionDigits:d});
 const pct=(v,d=1)=>num(v)===null?'—':`${v>0?'+':''}${Number(v).toFixed(d)}%`;
-const state={status:null,live:null,liveFx:null,session:null,settings:null,plan:null,plans:[],execs:[],drawer:null,loaded:false,privateError:null};
+const state={status:null,live:null,liveFx:null,session:null,settings:null,plan:null,plans:[],execs:[],drawer:null,loaded:false,privateError:null,authorSignals:null};
 
 /* ---------- pure helpers (mirrored by tests/invest_actions.test.js) ---------- */
 function etParts(at){
@@ -102,6 +104,7 @@ const STATE_LABEL={WAIT:'WAIT',WATCH:'已进入观察区',BUY:'BUY',PAUSE:'PAUSE
 /* ---------- data ---------- */
 async function loadStatus(){
  try{const r=await fetch(STATUS_URL+'?v='+Date.now(),{cache:'no-store'});state.status=r.ok?await r.json():null}catch{state.status=null}
+ try{const r=await fetch(AUTHOR_URL+'?v='+Date.now(),{cache:'no-store'});state.authorSignals=r.ok?await r.json():null}catch{state.authorSignals=null}
  state.loaded=true;
 }
 function sb(){return typeof supabaseClient!=='undefined'?supabaseClient:null}
@@ -171,6 +174,22 @@ function dcaRow(){
  const badge=lab.tone==='idle'?`<span class="ias-soft">${esc(lab.text)}</span>`:`<b class="ias-badge">${esc(lab.text)}</b>`;
  return `<button type="button" class="ias-row ias-dca ${cls}" data-ias-open="dca" aria-label="月度定投 ${esc(val)} ${esc(lab.text)}，查看详情"><i class="ias-icon">◷</i><span class="ias-name"><span class="ias-wide">月度</span>定投</span><span class="ias-val">${esc(val)}</span><span class="ias-sep">｜</span><span class="ias-mid"><span class="ias-wide">${esc(mix)}</span><span class="ias-narrow">${esc(lab.text)}</span></span><span class="ias-end"><span class="ias-wide">${badge}</span><i class="ias-chev">›</i></span></button>`;
 }
+/* Tracked author signal (e.g. 博主麻你 · VGT): one row only when a recent post states a position action.
+   Author research signal — never a MyAlpha ACTION; plans are labelled 非成交. Opens the original post. */
+function latestAuthorSignal(data,today=shanghaiDate()){
+ const rows=(data?.records||[]).filter(r=>r?.headline?.text&&r.headline.kind!=='view'&&r.url);
+ const r=rows[0];if(!r)return null;
+ const d=String(r.published_at||'').slice(0,10);
+ const age=Math.round((Date.parse(today)-Date.parse(d))/86400000);
+ return Number.isFinite(age)&&age<=AUTHOR_FRESH_DAYS?{...r,age,day:d}:null;
+}
+function authorRow(){
+ const r=latestAuthorSignal(state.authorSignals);if(!r)return '';
+ const tone={executed:'author-exec',planned:'author-plan',hold:'author-hold'}[r.headline.kind]||'author-hold';
+ const tag={executed:'已成交',planned:'计划·非成交',hold:'持有'}[r.headline.kind]||'观点';
+ const seen=r.captured_at?String(r.captured_at).replace('T',' ').slice(5,16):'';
+ return `<a class="ias-row ias-author ${tone}" href="${esc(r.url)}" target="_blank" rel="noopener noreferrer" aria-label="博主${esc(r.author)} ${esc(r.headline.text)}，作者信号，打开原文"><i class="ias-icon">✎</i><span class="ias-name">博主${esc(r.author)}</span><span class="ias-val">${esc(r.headline.symbol||'')}</span><span class="ias-sep">｜</span><span class="ias-mid"><strong>${esc(String(r.headline.text).replace(/^[A-Z]+：/,''))}</strong><span class="ias-wide"> · 发帖 ${esc(r.day.slice(5))}${seen?' · 采集 '+esc(seen):''}</span></span><span class="ias-end"><b class="ias-badge">${esc(tag)}</b><span class="ias-wide ias-soft">作者信号</span><i class="ias-chev">↗</i></span></a>`;
+}
 function render(){
  const root=document.getElementById('investActionStrip');if(!root)return;
  const v=goldView(state.status,state.live);
@@ -179,7 +198,7 @@ function render(){
  // While Telegram is not configured the site itself is the alert: a bold header notice + tab title, no extra rows.
  const alert={WATCH:`⚠ 黄金已进入观察区 · 第${v.stage?.stage}档`,BUY:`▲ 黄金 BUY · 第${v.stage?.stage}阶段 ${v.stage?.budget_pct}%`,PAUSE:'⛔ 黄金暂停买入 · 风险升高',REVIEW:'◎ 黄金需复核'}[v.state];
  const meta=alert?`<b class="ias-alert ${esc(v.state.toLowerCase())}">${esc(alert)}</b>`:`<span class="ias-meta">${esc(src)}${src&&gen?' · ':''}${gen?'规则 '+esc(gen):''}</span>`;
- root.innerHTML=`<div class="ias-head"><span class="ias-title">投资行动速览</span>${meta}</div>${goldRow(v)}${dcaRow()}`;
+ root.innerHTML=`<div class="ias-head"><span class="ias-title">投资行动速览</span>${meta}</div>${goldRow(v)}${dcaRow()}${authorRow()}`;
  root.dataset.goldState=v.state;
  if(typeof document!=='undefined'){const base=document.title.replace(/^【[^】]*】/,'');document.title=alert&&v.state!=='REVIEW'?`【${v.state==='BUY'?'黄金BUY':v.state==='PAUSE'?'黄金暂停':'黄金观察区'}】${base}`:base}
  root.querySelectorAll('[data-ias-open]').forEach(b=>b.addEventListener('click',()=>openDrawer(b.dataset.iasOpen)));
@@ -310,7 +329,7 @@ async function init(){
  if(sb()?.auth?.onAuthStateChange)sb().auth.onAuthStateChange(()=>{loadPrivate().then(render)});
  setInterval(()=>{if(document.visibilityState==='visible')loadStatus().then(render)},10*60*1000);
 }
-const api={render,updateFromMarket,goldView,quoteFreshness,goldMarketOpen,stageFor,zoneFor,dcaSplit,orderedWeights,dcaLabel,dcaPhase,windowText,cnyPerGram,_state:state};
+const api={latestAuthorSignal,authorRow,render,updateFromMarket,goldView,quoteFreshness,goldMarketOpen,stageFor,zoneFor,dcaSplit,orderedWeights,dcaLabel,dcaPhase,windowText,cnyPerGram,_state:state};
 global.MAVInvestActions=api;
 if(typeof module!=='undefined'&&module.exports)module.exports=api;
 else if(typeof document!=='undefined'){if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init()}

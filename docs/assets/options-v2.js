@@ -286,7 +286,7 @@
   }
   function editPosition(id){
     const p=state.positions.get(String(id));if(!p)return;if(p.rolled_from_id||p.rolled_to_id){global.MAV?.toast('展期链仓位不能直接改写成交信息；请使用展期或平仓流程。','warn');return}
-    const strategy=`${String(p.side).toLowerCase()==='short'?'SELL':'BUY'} ${String(p.opt_type).toLowerCase()==='call'?'CALL':'PUT'}`;global.openAddOptionModal?.({edit_id:p.id,broker_account_id:p.broker_account_id,symbol:p.symbol,strategy,strike:p.strike,expiry:p.expiry,cost:p.cost,qty:p.qty,multiplier:p.multiplier,open_fee:p.open_fee,entry_date:p.entry_date,collateral_mode:p.collateral_mode,assignment_mode:p.assignment_mode});
+    const strategy=`${String(p.side).toLowerCase()==='short'?'SELL':'BUY'} ${String(p.opt_type).toLowerCase()==='call'?'CALL':'PUT'}`;global.openAddOptionModal?.({edit_id:p.id,broker_account_id:p.broker_account_id,symbol:p.symbol,strategy,strike:p.strike,expiry:p.expiry,cost:p.cost,qty:p.qty,multiplier:p.multiplier,open_fee:p.open_fee,entry_date:p.entry_date,collateral_mode:p.collateral_mode,assignment_mode:p.assignment_mode,assignment_preference:p.assignment_preference,assignment_confirmed_at:p.assignment_confirmed_at});
   }
   function realizedPnl(position,{status='closed',exitPrice=0,closeFee=0}={}){
     const qty=Math.max(1,Number(position.qty)||1),multiplier=Math.max(1,Number(position.multiplier)||MULTIPLIER),entry=Number(position.cost)||0,openFee=Math.max(0,Number(position.open_fee)||0),fee=Math.max(0,Number(closeFee)||0),short=String(position.side).toLowerCase()==='short';
@@ -394,7 +394,7 @@
     const hold='继续持有并等待当前退出/风险条件';
     const close='按当前买回/卖出报价评估锁定已实现的风险收益';
     const roll=String(p.side).toLowerCase()==='short'?'若临期、Delta升高或不愿被指派，比较展期成本与新合约条件':'Long仓位仅在原始催化仍成立且期限不足时比较延长到期日';
-    const assign=String(p.side).toLowerCase()==='short'&&String(p.opt_type).toLowerCase()==='put'?(String(p.assignment_mode||'accept').toLowerCase()==='avoid'?'当前偏好是不接货，触发行权风险时优先比较平仓/展期':'如仍愿按有效成本接货，可把指派作为备选路径'):'不适用';
+    const assign=String(p.side).toLowerCase()==='short'&&String(p.opt_type).toLowerCase()==='put'?(!p.assignment_confirmed_at||!p.assignment_preference||p.assignment_preference==='undecided'?'接货意愿尚未确认：请在「编辑」中选择愿意接货 / 尽量避免接货':p.assignment_preference==='avoid'?'已确认尽量避免接货，触发行权风险时优先比较平仓/展期':'已确认愿意接货：仍需核对有效成本与账户可用资金'):'不适用';
     const block='<div class="option-decision-callout neutral"><span>POSITION DECISION LAB · V5.6</span><strong>'+String(a.decision||'继续评估')+'</strong><p>'+String(a.action||'')+'</p></div>'+
       '<div class="option-decision-grid"><article><span>HOLD</span><h3>'+hold+'</h3><p>'+(a.edge||'等待更明确触发条件。')+'</p></article><article><span>CLOSE</span><h3>'+close+'</h3><p>重点比较已兑现收益、剩余权利金和当前Bid/Ask成本。</p></article><article><span>ROLL</span><h3>'+roll+'</h3><p>只有当展期后的风险收益更合理时才值得继续比较。</p></article><article><span>ASSIGN / EXIT PATH</span><h3>'+assign+'</h3><p>指派偏好会直接影响Sell Put临期处理逻辑。</p></article></div>'+
       (e?'<div class="option-decision-bottom"><b>Remaining Edge '+e.score+'/100 · '+e.label+'</b>｜支持：'+(e.positives||[]).slice(0,3).join(' · ')+'｜风险：'+(e.risks||[]).slice(0,3).join(' · ')+'</div>':'')+

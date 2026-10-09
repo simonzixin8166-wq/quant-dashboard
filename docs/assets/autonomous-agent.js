@@ -662,6 +662,14 @@
     if(a.level==='action')return 'URGENT';
     return a.level==='review'?'WAIT':'HOLD';  // e.g. "继续持有" but an exposed event/wide spread needs watching
   }
+  // Owner-confirmed assignment preference (#133 6083661059 A). Legacy assignment_mode='avoid' was a deliberate
+  // non-default choice and is honoured; legacy 'accept' is only the column default and counts as undecided.
+  function assignmentPreference(p){
+    const v=String(p?.assignment_preference||'').toLowerCase();
+    if((v==='accept'||v==='avoid')&&p?.assignment_confirmed_at)return{value:v,confirmed:true,label:v==='accept'?'你已确认愿意接货':'你已确认尽量避免接货'};
+    if(String(p?.assignment_mode||'').toLowerCase()==='avoid')return{value:'avoid',confirmed:false,label:'按旧版设置「尽量避免被指派」'};
+    return{value:'undecided',confirmed:false,label:'接货意愿尚未确认'};
+  }
   function optionDecisionSummary(position,quote,freshness=null){
     const usable=quote&&!(freshness&&freshness.usable===false)?quote:null;
     const missing=optionMissingFields(position,quote,freshness);
@@ -677,34 +685,42 @@
     const extraMissing=[...missing];
     if(short&&type==='call'&&a.metrics?.spot!==null&&n(position.strike)!==null&&a.metrics.spot>=Number(position.strike)*0.97)
       extraMissing.push('除息日（实值 Short Call 提前指派风险，数据未接入，请在券商核对）');
-    const assign=String(position.assignment_mode||'accept').toLowerCase();
     const reasons=(a.reasons||[]).slice(0,3);
     let primaryOut=primary,primaryZh=PRIMARY_ZH[primary],action=a.action,nextCheck=(a.changeConditions||[]).slice(0,2).join('；');
     // Losing, high-Delta Short Put: never a vague "观察等待" — decide by the recorded assignment preference.
     if(short&&type==='put'&&/确认接货逻辑|展期\/减风险/.test(String(a.decision||''))){
       const strike=n(position.strike),units=(n(position.qty)||1)*(n(position.multiplier)||100);
       const net=n(position.cost)!==null?Number(position.cost)-(n(position.open_fee)||0)/units:null;
-      const eff=strike!==null&&net!==null?strike-net:null,spot=a.metrics?.spot;
+      const eff=strike!==null&&net!==null?strike-net:null,spot=a.metrics?.spot,dte=a.metrics?.dte;
       const under=eff!==null&&spot!==null?spot/eff-1:null;
       const effTxt=eff===null?'有效接货成本未知':`有效接货成本 $${eff.toFixed(2)}${under===null?'':`（按现价接货后约 ${under>=0?'+':''}${pct(under,1)}）`}`;
-      if(assign==='avoid'){
-        primaryOut='ROLL';primaryZh='考虑展期（不愿接货）';
-        action=`按你记录的偏好「避免指派」：今天优先比较 Roll down & out（更低行权价/更远到期、净收权利金）与直接平仓止损；${effTxt}。`;
+      const buyback=n(usable.ask)!==null?`买回成本约 $${(Number(usable.ask)*units).toFixed(0)}（Ask）`:'买回成本未知';
+      const cash=strike!==null?`接货需现金约 $${(strike*units).toLocaleString('en-US')}`:'接货所需现金未知';
+      const pref=assignmentPreference(position);
+      extraMissing.push('账户可用资金 / 购买力（未接入券商，请在 IBKR 自行核对）');
+      if(pref.value==='avoid'){
+        primaryOut='ROLL';primaryZh='考虑展期（尽量避免接货）';
+        action=`${pref.label}：今天比较 Roll down & out（更低行权价 / 更远到期、尽量净收权利金）与直接平仓止损（${buyback}）；${effTxt}。`;
         nextCheck='Delta ≥ 0.70 或进入 21 DTE；或你改为愿意接货';
-      }else if(position.assignment_confirmed===true){
-        primaryOut='HOLD';primaryZh='继续持有 · 准备接货';
-        action=`你已确认愿意接货：继续持有，按 $${strike===null?'—':strike.toFixed(2)} 接货作为预案；${effTxt}。若不再愿意接货或公司逻辑变化 → 改为考虑展期（Roll down & out）或平仓止损。`;
-        nextCheck='Thesis 失效或不再愿意接货 → 展期/平仓；Delta ≥ 0.70 或进入 21 DTE 再复核';
+      }else if(pref.value==='accept'){
+        if(dte!==null&&dte<=7){
+          primaryOut='URGENT';primaryZh='临近到期 · 今天确认接货资金或展期';
+          action=`${pref.label}，但只剩 ${dte} 天：今天确认 ${cash} 是否可用；不可用则展期或平仓（${buyback}）。${effTxt}。`;
+        }else{
+          primaryOut='HOLD';primaryZh='继续持有 · 准备接货';
+          action=`${pref.label}：继续持有并把指派作为预案；${cash}，${effTxt}；若公司逻辑变化或不再愿意接货 → 考虑展期或平仓（${buyback}）。`;
+        }
+        if(a.metrics?.spread!==null&&a.metrics?.spread>0.15)reasons.push(`Bid/Ask 价差约 ${pct(a.metrics.spread,0)}，如需操作避免市价`);
+        nextCheck='进入 7 DTE 前确认资金；Thesis 失效或不再愿意接货 → 展期/平仓';
       }else{
-        // "accept" is the database default, not a confirmed choice: never present it as the user's decision.
+        // DB default 'accept' is not a decision; an unconfirmed preference never yields "准备接货".
         primaryOut='WAIT';primaryZh='需人工确认接货意愿';
-        action=`本合约已价内且亏损，下一步取决于你是否愿意按 $${strike===null?'—':strike.toFixed(2)} 接货：愿意 → 继续持有至到期并准备资金（${effTxt}）；不愿意 → 考虑展期（Roll down & out，争取净收权利金）或平仓止损。系统中的「愿意接货」只是默认值，未经你确认。`;
-        reasons.push('接货偏好为系统默认值（未经你确认）');
-        extraMissing.push('接货意愿确认（在期权页「编辑」中选择愿意接货 / 避免指派）','账户购买力 / 现金担保余额（未接入券商，请在券商核对）');
+        action=`本合约已价内且亏损，下一步取决于你是否愿意按 $${strike===null?'—':strike.toFixed(2)} 接货：愿意 → 继续持有至到期并准备资金（${cash}，${effTxt}）；不愿意 → 考虑展期（Roll down & out）或平仓止损（${buyback}）。`;
+        reasons.push('接货意愿：尚未确认（系统默认值不代表你的选择）');
+        extraMissing.push('接货意愿确认（期权页「编辑」→ 接货意愿）');
         nextCheck='确认接货意愿后自动给出 继续持有 或 考虑展期；Delta ≥ 0.70 或进入 21 DTE 前必须确认';
       }
     }
-    if(short&&assign==='avoid'&&!reasons.some(r=>/接货|指派/.test(r)))reasons.push('你的偏好：收权利金、尽量避免被指派');
     return{primary:primaryOut,primary_zh:primaryZh,tone:primaryOut==='URGENT'?'bad':primaryOut==='HOLD'?'good':'warn',
       reasons:reasons.slice(0,4),missing:extraMissing,
       next_check:nextCheck||'下一交易日收盘后复核',
@@ -801,7 +817,7 @@
   }
 
   async function init(){await loadPublic();render();setTimeout(render,2500);setTimeout(render,7000)}
-  global.MAVAutonomousAgent={render,loadPublic,optionAdvice,optionDecisionSummary,optionMissingFields,primaryFromAdvice,privateAttention,remainingEdge,readMemory,decisionHistory,buildLearningPolicy,resetLearningPolicy,resumeLearningPolicy,decisionDataBlock,state};
+  global.MAVAutonomousAgent={assignmentPreference,render,loadPublic,optionAdvice,optionDecisionSummary,optionMissingFields,primaryFromAdvice,privateAttention,remainingEdge,readMemory,decisionHistory,buildLearningPolicy,resetLearningPolicy,resumeLearningPolicy,decisionDataBlock,state};
   if(typeof document!=='undefined'){
     window.addEventListener('mav:options-updated',()=>render());
     window.addEventListener('mav:decision-authority',()=>render());

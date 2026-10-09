@@ -3,7 +3,7 @@
 const KEY='mavDecisionJournalV56', OPERATOR_KEY='mavOperatorDecisionsV615', OLD_KEYS=['mavDecisionJournalV53','mavDecisionJournalV52','mavDecisionJournalV51'];
 const endpoint='https://rhielbkvhgqbthcgztci.supabase.co/functions/v1/stock-market';
 const H=[20,60,120];
-const state={history:null,historyLoaded:false,lastAuthError:'',refreshing:false,operatorRemoteReady:false,showAllJournal:false,syncing:false,serverJournal:null};
+const state={history:null,historyLoaded:false,lastAuthError:'',refreshing:false,operatorRemoteReady:false,showAllJournal:false,syncing:false,serverJournal:null,serverObs:null,serverObsLoaded:false};
 const JOURNAL_VISIBLE=40;
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const num=v=>Number.isFinite(Number(v))?Number(v):null;
@@ -268,6 +268,13 @@ async function syncForwardJournal(){
     return state.serverJournal;
   }finally{state.syncing=false}
 }
+async function loadServerObservations(){if(state.serverObsLoaded)return state.serverObs;state.serverObsLoaded=true;state.serverObs=await loadJson('research/forward_observation_status.json');return state.serverObs}
+function serverObservationHtml(){
+  const s=state.serverObs;if(!s||!s.sessions)return '<small>服务器独立观察：等待首个交易日写入（每日后台自动生成，不依赖打开网站）。</small>';
+  const cont={ok:'连续',gap:'有缺口',stale:'未更新',empty:'空'}[s.continuity]||s.continuity;
+  const h20=s.horizons?.['20']||{};
+  return `<small>服务器独立观察：${s.sessions} 个交易日 · ${s.observations} 条（实时认证 ${s.attested_observations}）· ${esc(s.first_session)} → ${esc(s.latest_session)} · ${esc(cont)}${(s.gaps||[]).length?`（缺 ${s.gaps.length} 天）`:''} · 20日最早成熟 ${esc(h20.earliest_maturity||'—')}（已成熟 ${h20.matured_attested||0}）</small>`;
+}
 function serverJournalHtml(){
   const s=state.serverJournal;
   if(!s)return '<small>服务器副本：登录后自动同步（只增不删，仅你可见）。</small>';
@@ -381,9 +388,9 @@ function journalCoverage(rows){
   return{snapshots:rows.length,candidates,earliest:dates[0]||null,latest:dates[dates.length-1]||null,visible:Math.min(candidates,JOURNAL_VISIBLE),storage:'browser_local_only'};
 }
 function coverageHtml(cov){
-  if(!cov.candidates)return '';
+  if(!cov.candidates)return `<p class="journal-coverage">${serverJournalHtml()}${serverObservationHtml()}</p>`;
   const more=cov.candidates>cov.visible;
-  return `<p class="journal-coverage">本浏览器保存 <b>${cov.snapshots}</b> 个快照 / <b>${cov.candidates}</b> 条候选 · 最早 <b>${esc(cov.earliest||'—')}</b> · 最新 <b>${esc(cov.latest||'—')}</b> · ${state.showAllJournal?`当前显示全部`:`当前显示最近 ${cov.visible} 条`}${more?` <button type="button" class="journal-toggle" onclick="MAVDecisionJournal.toggleAll()">${state.showAllJournal?'只看最近':'查看全部'}</button>`:''}<small>本浏览器是缓存；登录后会同步到服务器私有副本。</small>${serverJournalHtml()}</p>`;
+  return `<p class="journal-coverage">本浏览器保存 <b>${cov.snapshots}</b> 个快照 / <b>${cov.candidates}</b> 条候选 · 最早 <b>${esc(cov.earliest||'—')}</b> · 最新 <b>${esc(cov.latest||'—')}</b> · ${state.showAllJournal?`当前显示全部`:`当前显示最近 ${cov.visible} 条`}${more?` <button type="button" class="journal-toggle" onclick="MAVDecisionJournal.toggleAll()">${state.showAllJournal?'只看最近':'查看全部'}</button>`:''}<small>本浏览器是缓存；登录后会同步到服务器私有副本。</small>${serverJournalHtml()}${serverObservationHtml()}</p>`;
 }
 function toggleAll(){state.showAllJournal=!state.showAllJournal;render()}
 async function loadJson(url){try{const r=await fetch(`${url}?v=${Date.now()}`,{cache:'no-store'});if(!r.ok)return null;return await r.json()}catch{return null}}
@@ -426,7 +433,7 @@ async function render(error=''){
   bindOperatorDecisionControls(root);
 }
 function learningForStage(stage){const p=state.history?.profiles?.[stage];if(!p)return null;return {...p.evidence,stats:p.horizons?.['60']||null}}
-async function init(){render();loadOperatorDecisionsRemote();setTimeout(()=>refreshOutcomes({silent:true}),4500);setTimeout(()=>syncForwardJournal().then(()=>render()),6000)}
+async function init(){render();loadOperatorDecisionsRemote();setTimeout(()=>refreshOutcomes({silent:true}),4500);setTimeout(()=>syncForwardJournal().then(()=>render()),6000);loadServerObservations().then(()=>render())}
 global.MAVDecisionJournal={toggleAll,journalCoverage,journalEntryRows,syncForwardJournal,recordAssistantEvent,recordOperatorDecision,updateOperatorDecision,refreshOutcomes,render,getJournal:read,getOperatorDecisions:readOperatorDecisions,getHistorical:()=>state.history,learningForStage,getErrorMemory:()=>errorMemory(read()),getSelfReview:()=>weeklySelfReview(read()),state};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })(window);

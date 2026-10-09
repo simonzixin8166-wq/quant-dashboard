@@ -57,6 +57,11 @@ jobs:
           SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
         run: python scripts/fetch_and_build.py
 
+      - name: Server forward observations (append-only, independent of browser visits)
+        # Never blocks the market update; an append-only violation leaves the ledger untouched and is annotated.
+        continue-on-error: true
+        run: python scripts/forward_observation_engine.py
+
       - name: Bootstrap / refresh Replay history dependencies
         id: replay_history_bootstrap
         continue-on-error: true
@@ -367,6 +372,7 @@ jobs:
           python tests/test_operational_incident_memory.py
           python tests/test_v615_decision_authority.py
           python tests/test_v615_auto_thesis_engine.py
+          python tests/test_forward_observation_engine.py
           python tests/test_thesis_revision_memory.py
           python tests/test_v610a_playbook_engine.py
           python tests/test_v610b_parallel_safety.py

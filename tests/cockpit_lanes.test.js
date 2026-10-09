@@ -21,4 +21,7 @@ const src=fs.readFileSync(__dirname+'/../docs/assets/product-intelligence.js','u
 assert(/key==='urgent'\?6/.test(src),'urgent lane shows up to 6 before folding');
 assert(/查看全部（另/.test(src)&&/details class="pi-more"/.test(src),'folded rows stay reachable');
 assert(/class="pi-link" data-pi-target/.test(src),'evidence is a small text link, not a big button');
+// production QA contract (scripts/autonomous_site_qa.mjs): ≥5 summary jumps incl. tab:tab-options
+assert((src.match(/chip\('(?:group|tab):/g)||[]).length>=5,'at least 5 summary jumps');
+assert(/chip\('tab:tab-options'/.test(src),'options jump present');
 console.log('PASS cockpit lanes');

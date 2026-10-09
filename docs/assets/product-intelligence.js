@@ -243,8 +243,10 @@ function laneCounts(rows,authority){
 }
 function summaryHtml(rows,authority){
  const c=laneCounts(rows,authority);
- const chip=(k,label,n,tone)=>`<button type="button" class="pi-chip ${tone}${n?'':' zero'}" data-pi-jump="group:${k}" aria-label="${esc(label)} ${n} 项"><span>${esc(label)}</span><b>${n}</b></button>`;
- return `<div class="pi-stats pi-summary" role="group" aria-label="今日概览">${chip('urgent','需处理',c.urgent,'bad')}${chip('holdings','持仓/期权',c.holdings,'warn')}${chip('core','核心规则',c.core,'neutral')}${chip('research','研究观察',c.research,'neutral')}${c.blocked?chip('other','数据阻断',1,'bad'):''}</div>`;
+ const chip=(jump,label,n,tone)=>`<button type="button" class="pi-chip ${tone}${n?'':' zero'}" data-pi-jump="${jump}" aria-label="${esc(label)} ${n} 项"><span>${esc(label)}</span><b>${n}</b></button>`;
+ const s=stockStatus();
+ // holdings/watchlist chips open their modules (QA summary-navigation contract: ≥5 jumps incl. tab:tab-options)
+ return `<div class="pi-stats pi-summary" role="group" aria-label="今日概览">${chip('group:urgent','需处理',c.urgent,'bad')}${chip('tab:tab-options','持仓/期权',c.holdings,'warn')}${chip('group:core','核心规则',c.core,'neutral')}${chip('group:research','研究观察',c.research,'neutral')}${chip('tab:tab-stocks','观察池',s.loaded?s.count:0,'neutral')}${c.blocked?chip('group:other','数据阻断',1,'bad'):''}</div>`;
 }
 function compactActionHtml(x){
  const tag=actionBadges(x).find(v=>v!==x.when&&!String(x.title||'').endsWith(v))||'';

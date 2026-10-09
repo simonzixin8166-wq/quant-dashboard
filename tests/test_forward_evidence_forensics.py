@@ -43,4 +43,7 @@ assert m["2026-09-29"] == {"present": "no", "match": "n/a", "first_seen": "n/a"}
 assert m["2026-10-01"]["first_seen"] == "before_publication"
 assert rows[0]["capture_mode"] == "late_upload"   # never changed
 assert "LITE" not in json.dumps(m)
+# a pre-open commit whose browser rule files did not exist yet cannot be eligible (no retroactive rule)
+assert g["2026-09-28"]["review_class"] == "ineligible" and "not deployed" in g["2026-09-28"]["review_reason"]
+assert g["2026-10-01"]["review_class"] == "ineligible" and g["2026-09-29"]["review_class"] == "ineligible"
 print("PASS forward evidence forensics")

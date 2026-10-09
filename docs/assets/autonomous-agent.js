@@ -463,6 +463,12 @@
     return Math.ceil((d-new Date())/86400000);
   }
 
+  // "已价内 10.7%（现价 35.73 < 行权价 40）" instead of an ambiguous signed distance.
+  function moneyness(type,spot,strike){
+    if(spot===null||!strike)return '—';
+    const d=spot/strike-1,put=type==='put',itm=put?spot<strike:spot>strike;
+    return `${itm?'已价内':'价外'} ${pct(Math.abs(d),1)}（现价 ${Number(spot).toFixed(2)} ${spot<strike?'<':'>'} 行权价 ${Number(strike).toFixed(2)}）`;
+  }
   function optionAdvice(position,quote){
     const m=optionMetrics(position,quote),side=String(position.side||'').toLowerCase(),type=String(position.opt_type||'').toLowerCase();
     const short=side==='short',absDelta=m.delta===null?null:Math.abs(m.delta),strike=n(position.strike),events=global.OptionV2?.getEvents?.()||[];
@@ -607,15 +613,15 @@
     if(immediateEvents.length&&eventExposed){
       if(rank(level)<3)level='action';
       timing='今天';
-      reasons.push(`未来2天内存在 ${eventTypes(immediateEvents)} 事件，且本合约距行权价 ${nearStrike===null?'—':pct(nearStrike,1)}${deltaHigh?'、|Delta| 偏高':''}`);
+      reasons.push(`未来2天内存在 ${eventTypes(immediateEvents)} 事件，本合约${moneyness(type,m.spot,strike)}${deltaHigh?'、|Delta| 偏高':''}`);
       action+=' 由于事件已非常接近且本合约暴露较大，今天必须把事件风险纳入最终决定。';
     }else if(nearEvents.length&&eventExposed){
       if(rank(level)<2)level='review';
       if(timing==='无需处理')timing='今天';
-      reasons.push(`未来7天内存在 ${eventTypes(nearEvents)} 事件，本合约距行权价 ${nearStrike===null?'—':pct(nearStrike,1)}`);
+      reasons.push(`未来7天内存在 ${eventTypes(nearEvents)} 事件，本合约${moneyness(type,m.spot,strike)}`);
       if(decision==='继续持有')action+=' 同时需要确认是否愿意跨越该事件继续持仓。';
     }else if(nearEvents.length||immediateEvents.length){
-      reasons.push(`到期前有 ${eventTypes(immediateEvents.length?immediateEvents:nearEvents)}，但本合约距行权价 ${nearStrike===null?'—':pct(nearStrike,1)}${absDelta===null?'':'、|Delta| '+absDelta.toFixed(2)}，事件影响有限`);
+      reasons.push(`到期前有 ${eventTypes(immediateEvents.length?immediateEvents:nearEvents)}，但本合约${moneyness(type,m.spot,strike)}${absDelta===null?'':'、|Delta| '+absDelta.toFixed(2)}，事件影响有限`);
     }
 
     if(spreadWide){
@@ -673,11 +679,30 @@
       extraMissing.push('除息日（实值 Short Call 提前指派风险，数据未接入，请在券商核对）');
     const assign=String(position.assignment_mode||'accept').toLowerCase();
     const reasons=(a.reasons||[]).slice(0,3);
+    let primaryOut=primary,primaryZh=PRIMARY_ZH[primary],action=a.action,nextCheck=(a.changeConditions||[]).slice(0,2).join('；');
+    // Losing, high-Delta Short Put: never a vague "观察等待" — decide by the recorded assignment preference.
+    if(short&&type==='put'&&/确认接货逻辑|展期\/减风险/.test(String(a.decision||''))){
+      const strike=n(position.strike),units=(n(position.qty)||1)*(n(position.multiplier)||100);
+      const net=n(position.cost)!==null?Number(position.cost)-(n(position.open_fee)||0)/units:null;
+      const eff=strike!==null&&net!==null?strike-net:null,spot=a.metrics?.spot;
+      const under=eff!==null&&spot!==null?spot/eff-1:null;
+      const effTxt=eff===null?'有效接货成本未知':`有效接货成本 $${eff.toFixed(2)}${under===null?'':`（按现价接货后约 ${under>=0?'+':''}${pct(under,1)}）`}`;
+      if(assign==='avoid'){
+        primaryOut='ROLL';primaryZh='考虑展期（不愿接货）';
+        action=`按你记录的偏好「避免指派」：今天优先比较 Roll down & out（更低行权价/更远到期、净收权利金）与直接平仓止损；${effTxt}。`;
+        nextCheck='Delta ≥ 0.70 或进入 21 DTE；或你改为愿意接货';
+      }else{
+        primaryOut='HOLD';primaryZh='继续持有 · 准备接货';
+        action=`按你记录的偏好「愿意接货」：继续持有，按 $${strike===null?'—':strike.toFixed(2)} 接货作为预案；${effTxt}。若不再愿意接货或公司逻辑变化 → 改为考虑展期（Roll down & out）或平仓止损。`;
+        reasons.push(`接货偏好：愿意接货（如需改为「避免指派」，在期权页「编辑」中修改）`);
+        nextCheck='Thesis 失效或不再愿意接货 → 展期/平仓；Delta ≥ 0.70 或进入 21 DTE 再复核';
+      }
+    }
     if(short&&assign==='avoid'&&!reasons.some(r=>/接货|指派/.test(r)))reasons.push('你的偏好：收权利金、尽量避免被指派');
-    return{primary,primary_zh:PRIMARY_ZH[primary],tone:primary==='URGENT'?'bad':primary==='HOLD'?'good':primary==='CANNOT_JUDGE'?'warn':'warn',
-      reasons:reasons.slice(0,3),missing:extraMissing,
-      next_check:(a.changeConditions||[]).slice(0,2).join('；')||'下一交易日收盘后复核',
-      action:a.action,advice:a};
+    return{primary:primaryOut,primary_zh:primaryZh,tone:primaryOut==='URGENT'?'bad':primaryOut==='HOLD'?'good':'warn',
+      reasons:reasons.slice(0,4),missing:extraMissing,
+      next_check:nextCheck||'下一交易日收盘后复核',
+      action,advice:a};
   }
 
   function privateAttention(){

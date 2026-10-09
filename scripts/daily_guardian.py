@@ -57,6 +57,34 @@ def decide(now_utc: datetime, market_as_of: str | None, runs: list[dict]) -> dic
     return {"action": "dispatch", "reason": "stale_and_idle", "attempt": len(guard) + 1, **base}
 
 
+SERVER_MAX_AGE_MIN = 75
+SERVER_MARK = "server-guardian"
+
+
+def us_session_open(now_utc: datetime) -> bool:
+    local = now_utc.astimezone(ET)
+    return tc.is_session(local.date()) and time(9, 30) <= local.time() <= time(16, 15)
+
+
+def decide_server(now_utc: datetime, generated_at: str | None, runs: list[dict]) -> dict:
+    """Server Action Watch freshness during the US session (its cron is heavily throttled).
+    At most one guard dispatch per clock hour; never while a run is queued/in progress."""
+    if not us_session_open(now_utc):
+        return {"action": "ok", "reason": "outside_us_session"}
+    try:
+        age = (now_utc - datetime.fromisoformat(str(generated_at).replace("Z", "+00:00"))).total_seconds() / 60
+    except Exception:
+        age = None
+    if age is not None and age <= SERVER_MAX_AGE_MIN:
+        return {"action": "ok", "age_min": round(age)}
+    if any(r.get("status") in ("queued", "in_progress", "waiting", "pending", "requested") for r in runs):
+        return {"action": "wait", "reason": "server_watch_running"}
+    hour = now_utc.strftime("%Y-%m-%dT%H")
+    if any(SERVER_MARK in str(r.get("display_title") or "") and str(r.get("created_at") or "").startswith(hour) for r in runs):
+        return {"action": "wait", "reason": "already_dispatched_this_hour"}
+    return {"action": "dispatch", "age_min": None if age is None else round(age)}
+
+
 def gh(method, path, body=None):
     tok, repo = os.environ["GITHUB_TOKEN"], os.environ["GITHUB_REPOSITORY"]
     req = urllib.request.Request(f"https://api.github.com/repos/{repo}/{path}", method=method,
@@ -71,6 +99,11 @@ def gh(method, path, body=None):
 def main():
     data = json.loads((ROOT / "docs" / "data.json").read_text(encoding="utf-8"))
     runs = (gh("GET", "actions/workflows/daily.yml/runs?per_page=30") or {}).get("workflow_runs", [])
+    inject = os.getenv("GUARD_INJECT_MARKET_AS_OF")  # fault injection: evaluate as if data were stale (dry run only)
+    if inject:
+        os.environ["GUARD_DRY_RUN"] = "1"
+        data = {"trend_pulse": {"X": {"available": True, "date": inject}}}
+        print(f"::notice title=Daily guardian::FAULT_INJECTION market_as_of={inject} (dry run, no dispatch)")
     # Guard-dispatched runs carry the guard marker in their run-name (daily.yml run-name uses inputs.run_reason).
     d = decide(datetime.now(timezone.utc), published_market_as_of(data), runs)
     print(f"::notice title=Daily guardian::DAILY_GUARD {json.dumps(d, sort_keys=True)}")
@@ -79,6 +112,13 @@ def main():
         print(f"::warning title=Daily guardian::DAILY_MISSED dispatched Daily for {d['expected']} (attempt {d['attempt']}/{MAX_DISPATCH})")
     elif d["action"] == "give_up":
         print(f"::error title=Daily guardian::DAILY_STILL_STALE {d['expected']} after {MAX_DISPATCH} guard dispatches; explicit GAP, no backfill")
+    srv = json.loads((ROOT / "docs" / "research" / "server_action_status.json").read_text(encoding="utf-8"))
+    sruns = (gh("GET", "actions/workflows/server-action-watch.yml/runs?per_page=20") or {}).get("workflow_runs", [])
+    sd = decide_server(datetime.now(timezone.utc), srv.get("generated_at"), sruns)
+    print(f"::notice title=Daily guardian::SERVER_GUARD {json.dumps(sd, sort_keys=True)}")
+    if sd["action"] == "dispatch" and os.getenv("GUARD_DRY_RUN") != "1":
+        gh("POST", "actions/workflows/server-action-watch.yml/dispatches", {"ref": "main", "inputs": {"run_reason": f"{SERVER_MARK} {datetime.now(timezone.utc):%Y-%m-%dT%H}"}})
+        print(f"::warning title=Daily guardian::SERVER_WATCH_STALE dispatched Server Action Watch (age {sd.get('age_min')} min)")
     return 0
 
 

@@ -28,4 +28,12 @@ assert dg.decide(now, "2026-10-08", [old, old, manual, manual])["action"] == "di
 sat = datetime(2026, 10, 10, 12, 20, tzinfo=timezone.utc)
 assert dg.decide(sat, "2026-10-09", [])["action"] == "ok"
 assert dg.published_market_as_of({"trend_pulse": {"A": {"available": True, "date": "2026-10-08"}, "B": {"available": False, "date": "2026-10-09"}}}) == "2026-10-08"
+# Server Action Watch freshness during the US session
+mid = datetime(2026, 10, 9, 15, 0, tzinfo=timezone.utc)                 # 11:00 ET Fri
+assert dg.decide_server(mid, "2026-10-09T14:30:00Z", [])["action"] == "ok"
+assert dg.decide_server(mid, "2026-10-09T10:39:00Z", [])["action"] == "dispatch"
+assert dg.decide_server(mid, "2026-10-09T10:39:00Z", [{"status": "in_progress"}])["reason"] == "server_watch_running"
+assert dg.decide_server(mid, "2026-10-09T10:39:00Z", [{"status": "completed", "display_title": "Server Action Watch · server-guardian 2026-10-09T15", "created_at": "2026-10-09T15:00:05Z"}])["reason"] == "already_dispatched_this_hour"
+assert dg.decide_server(datetime(2026, 10, 10, 15, 0, tzinfo=timezone.utc), "2026-10-09T10:39:00Z", [])["action"] == "ok"   # Saturday
+assert dg.decide_server(datetime(2026, 10, 9, 22, 0, tzinfo=timezone.utc), None, [])["action"] == "ok"                    # after close
 print("PASS daily guardian")

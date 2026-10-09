@@ -17,6 +17,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 
+MATCH_ENUMS = {"present": {"yes", "no"}, "match": {"all", "partial", "none", "n/a"},
+               "first_seen": {"before_publication", "pre_open", "after_open", "unknown", "n/a"}}
 ENUMS = {"continuity": {"empty", "ok", "gap", "stale", "not_configured"},
          "attestation": {"PASS", "FAIL", "n/a"}, "provenance": {"PASS", "FAIL", "n/a"}}
 STALE_WEEKDAYS = 5
@@ -56,6 +58,48 @@ def summarize(rows, today: date | None = None):
             "provenance": "FAIL" if prov_bad else "PASS"}
 
 
+def match_sessions(rows, proposals):
+    """Per session, compare uploaded browser rows (grade C by default) with the independent
+    reconstruction from forward_evidence_audit.jsonl. Enums only; never changes capture_mode."""
+    from datetime import datetime as _dt
+    by = {}
+    for r in rows or []:
+        by.setdefault(str(r.get("journal_date"))[:10], []).append(r)
+    out = {}
+    for p in proposals:
+        s = p["session"]
+        recon = {o["symbol"]: o for o in ((p.get("reconstruction") or {}).get("observations") or [])}
+        mine = by.get(s, [])
+        if not mine:
+            out[s] = {"present": "no", "match": "n/a", "first_seen": "n/a"}
+            continue
+        ok = 0
+        for r in mine:
+            pay = r.get("payload") or {}
+            o = recon.get(str(r.get("symbol") or "").upper())
+            if o and o["stage"] == pay.get("stage") and o["decision"] == pay.get("decision"):
+                ok += 1
+        match = "n/a" if not recon else ("all" if ok == len(mine) else "partial" if ok else "none")
+        seen = sorted(str(r.get("original_first_seen_at") or "") for r in mine if r.get("original_first_seen_at"))
+        ev = p.get("evidence") or {}
+        first = "unknown"
+        if seen and ev.get("commit_time"):
+            t0 = seen[0].replace("Z", "+00:00")
+            nopen = str(p.get("next_open") or "").replace("Z", "+00:00")
+            if t0 < ev["commit_time"].replace("Z", "+00:00"):
+                first = "before_publication"
+            elif not nopen or t0 < nopen:
+                first = "pre_open"
+            else:
+                first = "after_open"
+        out[s] = {"present": "yes", "match": match, "first_seen": first}
+    for v in out.values():
+        for k, x in v.items():
+            if x not in MATCH_ENUMS[k]:
+                raise ValueError("unsanitized match value")
+    return out
+
+
 def assert_sanitized(out):
     for k, v in out.items():
         if k not in ENUMS or v not in ENUMS[k]:
@@ -93,7 +137,37 @@ def fetch_rows():
         start += page
 
 
+def fetch_match_rows():
+    import urllib.request
+    base, key = os.getenv("SUPABASE_URL"), os.getenv("SUPABASE_KEY")
+    if not base or not key:
+        return None
+    cols = "journal_date,symbol,payload,original_first_seen_at,capture_mode"
+    out, start = [], 0
+    while True:
+        req = urllib.request.Request(f"{base.rstrip('/')}/rest/v1/forward_journal_entries?select={cols}&order=journal_date.asc",
+                                     headers={"apikey": key, "Authorization": f"Bearer {key}", "Range-Unit": "items",
+                                              "Range": f"{start}-{start + 999}", "User-Agent": "MyAlpha-Forward-Audit"})
+        with urllib.request.urlopen(req, timeout=20) as r:
+            batch = json.loads(r.read().decode("utf-8"))
+        out.extend(batch)
+        if len(batch) < 1000:
+            return out
+        start += 1000
+
+
 def main():
+    if "--match" in sys.argv:
+        path = ROOT / "research" / "archive" / "forward_evidence_audit.jsonl"
+        proposals = [json.loads(x) for x in path.read_text(encoding="utf-8").splitlines() if x.strip()]
+        latest = {}
+        for p in proposals:
+            latest[p["session"]] = p
+        res = match_sessions(fetch_match_rows() or [], list(latest.values()))
+        for s in sorted(res):
+            print(f"::notice title=Forward evidence match::FORWARD_MATCH {s} grade={latest[s].get('proposed_grade')} "
+                  + " ".join(f"{k}={v}" for k, v in res[s].items()))
+        return 0
     try:
         rows = fetch_rows()
     except Exception:

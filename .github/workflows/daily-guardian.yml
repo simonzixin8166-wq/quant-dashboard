@@ -6,8 +6,11 @@ name: Daily Guardian
 # recovered Daily still produces forward-attested observations.
 on:
   schedule:
+    - cron: '50 22 * * 1-5'
     - cron: '20 23 * * 1-5'
+    - cron: '40 0 * * 2-6'
     - cron: '20 1 * * 2-6'
+    - cron: '40 2 * * 2-6'
     - cron: '20 3 * * 2-6'
     - cron: '20 12 * * 2-6'
     # US session: keep Server Action Watch fresh (its own cron is heavily throttled)

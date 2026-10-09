@@ -4,7 +4,7 @@
   const state={publicData:null,evidenceData:null,systemStatus:null,plannerData:null,researchData:null,selfImproveData:null,learningEvalData:null,weeklyQuality:null,crossAssetData:null,breadthData:null,regimeData:null,rangeData:null,playbookData:null,ledgerAnchor:null,outcomeData:null,replayData:null,controlledPolicy:null,forwardFeedback:null,challengerExperiments:null,lastRender:0};
   const MEMORY_KEY='mavAgentDecisionMemoryV562', LEGACY_MEMORY_KEY='mavAgentDecisionMemoryV56', POLICY_KEY='mavLearningPolicyV1';
 
-  function n(v){const x=Number(v);return Number.isFinite(x)?x:null}
+  function n(v){if(v===null||v===undefined||v==='')return null;const x=Number(v);return Number.isFinite(x)?x:null}  // null/'' are missing, not 0
   function pct(v,d=0){return Number.isFinite(Number(v))?(Number(v)*100).toFixed(d)+'%':'—'}
   function money(v){return Number.isFinite(Number(v))?'$'+Number(v).toFixed(2):'—'}
   function num(v,d=2){return Number.isFinite(Number(v))?Number(v).toFixed(d):'—'}
@@ -598,16 +598,22 @@
       edge='Long仓位的核心判断仍然是方向、催化兑现时间与IV是否匹配。';
     }
 
-    if(immediateEvents.length){
+    // Macro events only change the action for THIS contract when it is actually exposed
+    // (near the strike or high |Delta|); otherwise they are context, not a generic L2 for every position.
+    const eventExposed=deltaHigh||(nearStrike!==null&&Math.abs(nearStrike)<=0.05);
+    const eventTypes=rows=>[...new Set(rows.map(x=>x.event.type))].join('/');
+    if(immediateEvents.length&&eventExposed){
       if(rank(level)<3)level='action';
       timing='今天';
-      reasons.push(`未来2天内存在 ${[...new Set(immediateEvents.map(x=>x.event.type))].join('/')} 事件`);
-      action+=' 由于事件已非常接近，今天必须把事件风险纳入最终决定。';
-    }else if(nearEvents.length){
+      reasons.push(`未来2天内存在 ${eventTypes(immediateEvents)} 事件，且本合约距行权价 ${nearStrike===null?'—':pct(nearStrike,1)}${deltaHigh?'、|Delta| 偏高':''}`);
+      action+=' 由于事件已非常接近且本合约暴露较大，今天必须把事件风险纳入最终决定。';
+    }else if(nearEvents.length&&eventExposed){
       if(rank(level)<2)level='review';
       if(timing==='无需处理')timing='今天';
-      reasons.push(`未来7天内存在 ${[...new Set(nearEvents.map(x=>x.event.type))].join('/')} 事件`);
+      reasons.push(`未来7天内存在 ${eventTypes(nearEvents)} 事件，本合约距行权价 ${nearStrike===null?'—':pct(nearStrike,1)}`);
       if(decision==='继续持有')action+=' 同时需要确认是否愿意跨越该事件继续持仓。';
+    }else if(nearEvents.length||immediateEvents.length){
+      reasons.push(`到期前有 ${eventTypes(immediateEvents.length?immediateEvents:nearEvents)}，但本合约距行权价 ${nearStrike===null?'—':pct(nearStrike,1)}${absDelta===null?'':'、|Delta| '+absDelta.toFixed(2)}，事件影响有限`);
     }
 
     if(spreadWide){
@@ -618,6 +624,58 @@
     if(purpose)reasons.push(`策略备注：${purpose}`);
 
     return{level,timing,decision,action,reasons,changeConditions,edge,remainingEdge:edgeScore,metrics:m};
+  }
+
+  // P0-2: one primary next step per real option position (manual confirmation only; never an order).
+  const PRIMARY_ZH={HOLD:'继续持有',WAIT:'观察等待',CLOSE:'考虑提前平仓',ROLL:'考虑展期',URGENT:'需立即人工复核',CANNOT_JUDGE:'关键行情不足 · 暂不能判定'};
+  function optionMissingFields(position,quote,freshness){
+    const miss=[],q=quote||{};
+    if(!quote)miss.push('期权报价（Bid/Ask/Mid）');
+    else{
+      if(n(q.bid)===null&&n(q.ask)===null&&n(q.mid)===null)miss.push('期权 Bid/Ask/Mid');
+      if(n(q.underlyingPrice)===null)miss.push('正股现价');
+      if(n(q.delta)===null&&n(position.monitor_delta)===null)miss.push('Delta');
+      if(n(q.iv)===null)miss.push('IV');
+    }
+    if(freshness&&freshness.usable===false)miss.unshift(`报价已过期（${freshness.label||freshness.status||'stale'}）`);
+    if(n(position.cost)===null||Number(position.cost)<=0)miss.push('原始权利金/建仓价');
+    if(!position.expiry)miss.push('到期日');
+    if(n(position.strike)===null)miss.push('行权价');
+    return miss;
+  }
+  function primaryFromAdvice(a){
+    const d=String(a.decision||''),dte=a.metrics?.dte;
+    if(/完成结算|确认是否接受接货/.test(d))return 'URGENT';
+    if(a.level==='action'&&/展期/.test(d)&&dte!==null&&dte<=7)return 'URGENT';
+    if(/展期|减风险|重新评估是否继续持有/.test(d))return 'ROLL';
+    if(/平仓|锁定利润/.test(d))return 'CLOSE';
+    if(/不追价|明日复查|确认接货逻辑/.test(d))return 'WAIT';
+    if(/先刷新报价/.test(d))return 'CANNOT_JUDGE';
+    if(a.level==='action')return 'URGENT';
+    return a.level==='review'?'WAIT':'HOLD';  // e.g. "继续持有" but an exposed event/wide spread needs watching
+  }
+  function optionDecisionSummary(position,quote,freshness=null){
+    const usable=quote&&!(freshness&&freshness.usable===false)?quote:null;
+    const missing=optionMissingFields(position,quote,freshness);
+    const critical=missing.filter(x=>/报价|Bid|正股现价|权利金|到期日|行权价/.test(x));
+    if(!usable||critical.length){
+      return{primary:'CANNOT_JUDGE',primary_zh:PRIMARY_ZH.CANNOT_JUDGE,tone:'warn',
+        reasons:['缺少判断本合约所需的关键数据，系统不给出持有/平仓/展期结论'],
+        missing,next_check:'补齐上述数据后自动重新判断（期权页点“刷新”）',advice:null};
+    }
+    const a=optionAdvice(position,usable);
+    const primary=primaryFromAdvice(a);
+    const type=String(position.opt_type||'').toLowerCase(),short=String(position.side||'').toLowerCase()==='short';
+    const extraMissing=[...missing];
+    if(short&&type==='call'&&a.metrics?.spot!==null&&n(position.strike)!==null&&a.metrics.spot>=Number(position.strike)*0.97)
+      extraMissing.push('除息日（实值 Short Call 提前指派风险，数据未接入，请在券商核对）');
+    const assign=String(position.assignment_mode||'accept').toLowerCase();
+    const reasons=(a.reasons||[]).slice(0,3);
+    if(short&&assign==='avoid'&&!reasons.some(r=>/接货|指派/.test(r)))reasons.push('你的偏好：收权利金、尽量避免被指派');
+    return{primary,primary_zh:PRIMARY_ZH[primary],tone:primary==='URGENT'?'bad':primary==='HOLD'?'good':primary==='CANNOT_JUDGE'?'warn':'warn',
+      reasons:reasons.slice(0,3),missing:extraMissing,
+      next_check:(a.changeConditions||[]).slice(0,2).join('；')||'下一交易日收盘后复核',
+      action:a.action,advice:a};
   }
 
   function privateAttention(){
@@ -710,7 +768,7 @@
   }
 
   async function init(){await loadPublic();render();setTimeout(render,2500);setTimeout(render,7000)}
-  global.MAVAutonomousAgent={render,loadPublic,optionAdvice,privateAttention,remainingEdge,readMemory,decisionHistory,buildLearningPolicy,resetLearningPolicy,resumeLearningPolicy,decisionDataBlock,state};
+  global.MAVAutonomousAgent={render,loadPublic,optionAdvice,optionDecisionSummary,optionMissingFields,primaryFromAdvice,privateAttention,remainingEdge,readMemory,decisionHistory,buildLearningPolicy,resetLearningPolicy,resumeLearningPolicy,decisionDataBlock,state};
   if(typeof document!=='undefined'){
     window.addEventListener('mav:options-updated',()=>render());
     window.addEventListener('mav:decision-authority',()=>render());

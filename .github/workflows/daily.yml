@@ -1,4 +1,5 @@
 name: Daily Dashboard Update
+run-name: ${{ github.event_name == 'workflow_dispatch' && inputs.run_reason != '' && format('Daily Dashboard Update · {0}', inputs.run_reason) || 'Daily Dashboard Update' }}
 # Manual production refresh marker: 2026-10-08T03:51Z post-audit-rebuild
 
 on:
@@ -15,7 +16,13 @@ on:
     # 对应北京时间：周一到周五 下午 16:15 (UTC 时间 08:15)
     - cron: '15 8 * * 1-5'
     
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      run_reason:
+        description: "Optional label (the daily guardian sets 'daily-guardian <session> #n')"
+        required: false
+        default: ""
+        type: string
 
 permissions:
   contents: write

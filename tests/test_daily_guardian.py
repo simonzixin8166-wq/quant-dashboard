@@ -34,6 +34,10 @@ assert dg.decide_server(mid, "2026-10-09T14:30:00Z", [])["action"] == "ok"
 assert dg.decide_server(mid, "2026-10-09T10:39:00Z", [])["action"] == "dispatch"
 assert dg.decide_server(mid, "2026-10-09T10:39:00Z", [{"status": "in_progress"}])["reason"] == "server_watch_running"
 assert dg.decide_server(mid, "2026-10-09T10:39:00Z", [{"status": "completed", "display_title": "Server Action Watch · server-guardian 2026-10-09T15", "created_at": "2026-10-09T15:00:05Z"}])["reason"] == "already_dispatched_this_hour"
+# unchanged-content file (stale generated_at) but a successful run 30 min ago → fresh, no dispatch
+assert dg.decide_server(mid, "2026-10-09T10:39:00Z", [{"status": "completed", "conclusion": "success", "created_at": "2026-10-09T14:58:00Z", "updated_at": "2026-10-09T15:00:00Z"}])["action"] == "ok"
+# a failed recent run does not count as liveness
+assert dg.decide_server(mid, "2026-10-09T10:39:00Z", [{"status": "completed", "conclusion": "failure", "created_at": "2026-10-09T14:00:00Z"}])["action"] == "dispatch"
 assert dg.decide_server(datetime(2026, 10, 10, 15, 0, tzinfo=timezone.utc), "2026-10-09T10:39:00Z", [])["action"] == "ok"   # Saturday
 assert dg.decide_server(datetime(2026, 10, 9, 22, 0, tzinfo=timezone.utc), None, [])["action"] == "ok"                    # after close
 print("PASS daily guardian")

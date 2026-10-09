@@ -3,7 +3,7 @@
 const KEY='mavDecisionJournalV56', OPERATOR_KEY='mavOperatorDecisionsV615', OLD_KEYS=['mavDecisionJournalV53','mavDecisionJournalV52','mavDecisionJournalV51'];
 const endpoint='https://rhielbkvhgqbthcgztci.supabase.co/functions/v1/stock-market';
 const H=[20,60,120];
-const state={history:null,historyLoaded:false,lastAuthError:'',refreshing:false,operatorRemoteReady:false,showAllJournal:false};
+const state={history:null,historyLoaded:false,lastAuthError:'',refreshing:false,operatorRemoteReady:false,showAllJournal:false,syncing:false,serverJournal:null};
 const JOURNAL_VISIBLE=40;
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const num=v=>Number.isFinite(Number(v))?Number(v):null;
@@ -52,7 +52,7 @@ function read(){
     return cleaned;
   }catch{return []}
 }
-function write(rows){try{localStorage.setItem(KEY,JSON.stringify(consolidate(rows).slice(-300)))}catch{}}
+function write(rows){try{localStorage.setItem(KEY,JSON.stringify(consolidate(rows).slice(-300)))}catch{}clearTimeout(state.syncTimer);state.syncTimer=setTimeout(()=>syncForwardJournal(),3000)}
 function candidateDecision(c,classification){
   const stage=String(c.stage||'');
   if(/退潮|恶化/.test(stage))return '等待修复';
@@ -224,6 +224,57 @@ function bindOperatorDecisionControls(root){
 }
 
 function supabase(){return global.mavSupabase||global.supabaseClient||null}
+// Forward journal → private append-only server copy (forward_journal_entries, owner-only RLS).
+// The server stamps received time / capture_mode / forward_attested; the browser's own timestamps are
+// kept as claims only. Rows uploaded after the next session opened are 'late_upload' and never Genuine Forward.
+const SYNC_KEY='mavForwardJournalSyncV1',JOURNAL_CLIENT_VERSION='fj-1';
+function journalEntryRows(rows){
+  const out=[];
+  for(const e of rows||[]){
+    const day=dateOnly(e.date||e.at);if(!/^\d{4}-\d{2}-\d{2}$/.test(day||''))continue;
+    const market={level:e.level||null,mode:e.mode||null,vix:num(e.vix),spx:num(e.spx),ixic:num(e.ixic)};
+    for(const c of e.candidates||[]){
+      const symbol=String(c?.symbol||'').toUpperCase();if(!/^[A-Z0-9.^=-]{1,16}$/.test(symbol))continue;
+      const payload={decision:c.decision||null,stage:c.stage||null,zone:c.zone||null,score:num(c.score),price:num(c.price),
+        priceSource:c.priceSource||null,dailyAsOf:c.dailyAsOf||null,hasThesis:Boolean(c.hasThesis)};
+      out.push({journal_date:day,symbol,payload,market,original_first_seen_at:c.firstSeenAt||e.at||null,client_version:JOURNAL_CLIENT_VERSION});
+    }
+  }
+  return out;
+}
+function syncKey(r){return `${r.journal_date}|${r.symbol}|${JSON.stringify(r.payload)}|${JSON.stringify(r.market)}`}
+function readSynced(){try{const a=JSON.parse(localStorage.getItem(SYNC_KEY)||'[]');return new Set(Array.isArray(a)?a:[])}catch{return new Set()}}
+function writeSynced(set){try{localStorage.setItem(SYNC_KEY,JSON.stringify([...set].slice(-6000)))}catch{}}
+async function syncForwardJournal(){
+  if(state.syncing)return state.serverJournal;state.syncing=true;
+  try{
+    const sb=supabase();if(!sb?.auth?.getSession)return null;
+    const {data:{session}}=await sb.auth.getSession();if(!session)return null;
+    const synced=readSynced(),pending=journalEntryRows(read()).filter(r=>!synced.has(syncKey(r)));
+    for(let i=0;i<pending.length;i+=200){
+      const batch=pending.slice(i,i+200).map(r=>({...r,user_id:session.user.id}));
+      const {error}=await sb.from('forward_journal_entries').upsert(batch,{onConflict:'user_id,journal_date,symbol,content_sha',ignoreDuplicates:true});
+      if(error)throw error;
+      pending.slice(i,i+200).forEach(r=>synced.add(syncKey(r)));writeSynced(synced);
+    }
+    const {data,error}=await sb.from('forward_journal_entries').select('journal_date,capture_mode').order('journal_date',{ascending:true}).limit(20000);
+    if(error)throw error;
+    const rows=data||[],dates=rows.map(r=>r.journal_date).sort();
+    state.serverJournal={rows:rows.length,live:rows.filter(r=>r.capture_mode==='live_sync').length,late:rows.filter(r=>r.capture_mode==='late_upload').length,earliest:dates[0]||null,latest:dates[dates.length-1]||null,pending_uploaded:pending.length,at:new Date().toISOString()};
+    return state.serverJournal;
+  }catch(error){
+    const msg=String(error?.message||error);
+    state.serverJournal={error:/forward_journal_entries|schema cache|does not exist|PGRST/i.test(msg)?'服务器表尚未启用':'同步失败，稍后自动重试'};
+    return state.serverJournal;
+  }finally{state.syncing=false}
+}
+function serverJournalHtml(){
+  const s=state.serverJournal;
+  if(!s)return '<small>服务器副本：登录后自动同步（只增不删，仅你可见）。</small>';
+  if(s.error)return `<small>服务器副本：${esc(s.error)}。</small>`;
+  return `<small>服务器副本：${s.rows} 条（实时同步 ${s.live} · 后补上传 ${s.late}，后补不计入真实前瞻）· ${esc(s.earliest||'—')} → ${esc(s.latest||'—')}</small>`;
+}
+
 async function waitForAuth(timeout=10000){
   const start=Date.now();let sb=null;
   while(Date.now()-start<timeout){
@@ -332,7 +383,7 @@ function journalCoverage(rows){
 function coverageHtml(cov){
   if(!cov.candidates)return '';
   const more=cov.candidates>cov.visible;
-  return `<p class="journal-coverage">本浏览器保存 <b>${cov.snapshots}</b> 个快照 / <b>${cov.candidates}</b> 条候选 · 最早 <b>${esc(cov.earliest||'—')}</b> · 最新 <b>${esc(cov.latest||'—')}</b> · ${state.showAllJournal?`当前显示全部`:`当前显示最近 ${cov.visible} 条`}${more?` <button type="button" class="journal-toggle" onclick="MAVDecisionJournal.toggleAll()">${state.showAllJournal?'只看最近':'查看全部'}</button>`:''}<small>记录只存在于本浏览器（localStorage），尚未同步到服务器；换浏览器或清缓存会丢失。</small></p>`;
+  return `<p class="journal-coverage">本浏览器保存 <b>${cov.snapshots}</b> 个快照 / <b>${cov.candidates}</b> 条候选 · 最早 <b>${esc(cov.earliest||'—')}</b> · 最新 <b>${esc(cov.latest||'—')}</b> · ${state.showAllJournal?`当前显示全部`:`当前显示最近 ${cov.visible} 条`}${more?` <button type="button" class="journal-toggle" onclick="MAVDecisionJournal.toggleAll()">${state.showAllJournal?'只看最近':'查看全部'}</button>`:''}<small>本浏览器是缓存；登录后会同步到服务器私有副本。</small>${serverJournalHtml()}</p>`;
 }
 function toggleAll(){state.showAllJournal=!state.showAllJournal;render()}
 async function loadJson(url){try{const r=await fetch(`${url}?v=${Date.now()}`,{cache:'no-store'});if(!r.ok)return null;return await r.json()}catch{return null}}
@@ -375,7 +426,7 @@ async function render(error=''){
   bindOperatorDecisionControls(root);
 }
 function learningForStage(stage){const p=state.history?.profiles?.[stage];if(!p)return null;return {...p.evidence,stats:p.horizons?.['60']||null}}
-async function init(){render();loadOperatorDecisionsRemote();setTimeout(()=>refreshOutcomes({silent:true}),4500)}
-global.MAVDecisionJournal={toggleAll,journalCoverage,recordAssistantEvent,recordOperatorDecision,updateOperatorDecision,refreshOutcomes,render,getJournal:read,getOperatorDecisions:readOperatorDecisions,getHistorical:()=>state.history,learningForStage,getErrorMemory:()=>errorMemory(read()),getSelfReview:()=>weeklySelfReview(read()),state};
+async function init(){render();loadOperatorDecisionsRemote();setTimeout(()=>refreshOutcomes({silent:true}),4500);setTimeout(()=>syncForwardJournal().then(()=>render()),6000)}
+global.MAVDecisionJournal={toggleAll,journalCoverage,journalEntryRows,syncForwardJournal,recordAssistantEvent,recordOperatorDecision,updateOperatorDecision,refreshOutcomes,render,getJournal:read,getOperatorDecisions:readOperatorDecisions,getHistorical:()=>state.history,learningForStage,getErrorMemory:()=>errorMemory(read()),getSelfReview:()=>weeklySelfReview(read()),state};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })(window);

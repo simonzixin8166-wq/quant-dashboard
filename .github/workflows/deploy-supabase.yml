@@ -10,6 +10,8 @@ on:
       - 'supabase/migrations/202610080002_investment_plans_private.sql'
       - 'supabase/migrations/202610080003_dca_amount_usd.sql'
       - 'supabase/tests/v611_rls_isolation.sql'
+      - 'supabase/migrations/202610090001_forward_journal_private.sql'
+      - 'supabase/tests/forward_journal_isolation.sql'
 
 permissions:
   contents: read
@@ -74,4 +76,29 @@ jobs:
           assert a.get("duplicate_month_plans") == 0 and a.get("settings_unmigrated_cny") == 0 \
               and a.get("plans_unmigrated_cny") == 0 and a.get("executions_cross_user_or_orphan") == 0 \
               and a.get("policies") == 12, a
+          PY
+      - name: Apply forward-journal private table (idempotent, owner-only, append-only)
+        run: |
+          python3 - <<'PY'
+          import json, os, urllib.error, urllib.request
+          ref = os.environ["SUPABASE_PROJECT_REF"]; tok = os.environ["SUPABASE_ACCESS_TOKEN"]
+          def q(sql):
+              req = urllib.request.Request(f"https://api.supabase.com/v1/projects/{ref}/database/query",
+                  data=json.dumps({"query": sql}).encode(), method="POST",
+                  headers={"Authorization": f"Bearer {tok}", "Content-Type": "application/json",
+                           "User-Agent": "MyAlpha-Deploy"})
+              try:
+                  with urllib.request.urlopen(req, timeout=60) as r:
+                      return json.loads(r.read().decode() or "null")
+              except urllib.error.HTTPError as e:
+                  print("::error title=Forward journal SQL::" + e.read().decode()[:400]); raise
+          mig = open("supabase/migrations/202610090001_forward_journal_private.sql", encoding="utf-8").read()
+          q(mig); q(mig)  # second run = idempotency check
+          a = (q(open("supabase/tests/forward_journal_isolation.sql", encoding="utf-8").read()) or [{}])[-1]
+          # Public log: integrity checks only, never row counts of the private table.
+          shown = {k: a.get(k) for k in ("audited_as", "attested_not_live", "missing_sha", "policies", "triggers")}
+          print("::notice title=Forward journal RLS / append-only audit::PASS " + json.dumps(shown))
+          assert a.get("audited_as") not in ("anon", "authenticated"), a
+          assert a.get("attested_not_live") == 0 and a.get("missing_sha") == 0 \
+              and a.get("policies") == 2 and a.get("triggers") == 2, a
           PY

@@ -1,6 +1,6 @@
 {
  "version": "p3-12.1",
- "generated_at": "2026-10-09T04:59:24.666316+00:00",
+ "generated_at": "2026-10-09T15:24:14.818312+00:00",
  "layers": [
   "discovered",
   "canonical_persisted",
@@ -36,10 +36,10 @@
   "fundamental": {
    "learning_maturity": "unproven_no_forward_samples",
    "funnel_issues": [],
-   "discovered": 15988,
-   "canonical_persisted": 668,
-   "interpretable": 668,
-   "candidate_claim_or_state": 348,
+   "discovered": 16014,
+   "canonical_persisted": 669,
+   "interpretable": 669,
+   "candidate_claim_or_state": 349,
    "effective_forward_eligible": null,
    "independently_matured": null,
    "benchmark_evaluated": null,
@@ -49,9 +49,9 @@
   "event": {
    "learning_maturity": "context_only",
    "funnel_issues": [],
-   "discovered": 295,
-   "canonical_persisted": 295,
-   "interpretable": 295,
+   "discovered": 392,
+   "canonical_persisted": 392,
+   "interpretable": 392,
    "candidate_claim_or_state": 0,
    "effective_forward_eligible": 0,
    "independently_matured": 0,
@@ -88,9 +88,9 @@
   "external_research": {
    "learning_maturity": "forward_collecting",
    "funnel_issues": [],
-   "discovered": 1483,
-   "canonical_persisted": 1483,
-   "interpretable": 438,
+   "discovered": 1685,
+   "canonical_persisted": 1685,
+   "interpretable": 499,
    "candidate_claim_or_state": 23,
    "effective_forward_eligible": 3,
    "independently_matured": 0,
@@ -159,31 +159,31 @@
     "reason": "no forward-validated method exists yet (genuine forward matured = 0); not provable"
    },
    "historical": {
-    "market_price_history_mature_60": 4300,
+    "market_price_history_mature_60": 4301,
     "note": "historical price-event replay; descriptive, not forward learning"
    }
   },
   "fundamental": {
    "discovered": {
-    "count": 15988,
+    "count": 16014,
     "definition": "XBRL facts captured (company_fundamental_memory archive)",
     "evidence": "docs/research/company_fundamental_memory.json",
     "dedup_key": "fact"
    },
    "canonical_persisted": {
-    "count": 668,
+    "count": 669,
     "definition": "filing-level observations persisted",
     "evidence": "research/archive/fundamental_observations.jsonl",
     "dedup_key": "observation_id (accn)"
    },
    "interpretable": {
-    "count": 668,
+    "count": 669,
     "definition": "observations with parsed metrics",
     "evidence": "research/archive/fundamental_observations.jsonl",
     "dedup_key": "observation_id"
    },
    "candidate_claim_or_state": {
-    "count": 348,
+    "count": 349,
     "definition": "observations with a derived fundamental state",
     "evidence": "research/archive/fundamental_observations.jsonl",
     "dedup_key": "observation_id"
@@ -229,19 +229,19 @@
   },
   "event": {
    "discovered": {
-    "count": 295,
+    "count": 392,
     "definition": "news/event items archived",
     "evidence": "research/archive/events",
     "dedup_key": "uuid"
    },
    "canonical_persisted": {
-    "count": 295,
+    "count": 392,
     "definition": "append-only monthly event shards",
     "evidence": "research/archive/events",
     "dedup_key": "uuid"
    },
    "interpretable": {
-    "count": 295,
+    "count": 392,
     "definition": "items with title, url and event date",
     "evidence": "research/archive/events",
     "dedup_key": "uuid"
@@ -416,29 +416,29 @@
   },
   "external_research": {
    "discovered": {
-    "count": 1483,
+    "count": 1685,
     "definition": "distinct canonical source keys (forum/blog/YouTube)",
     "evidence": "research/store/source_store.json",
     "dedup_key": "source_key"
    },
    "canonical_persisted": {
-    "count": 1483,
+    "count": 1685,
     "definition": "Source Store records (append-only)",
     "evidence": "research/store/source_store.json",
     "dedup_key": "source_key"
    },
    "interpretable": {
-    "count": 438,
+    "count": 499,
     "definition": "records with body text available (excerpt ≤360 chars or full text ≥1000); title-only excluded",
     "evidence": "docs/data/source_intelligence.json",
     "dedup_key": "feed id",
     "text_depth": {
-     "title_only": 927,
-     "excerpt": 438,
+     "title_only": 1068,
+     "excerpt": 499,
      "full_text": 0,
-     "original_length_known": 438
+     "original_length_known": 499
     },
-    "records_processed_by_source_reading": 1483,
+    "records_processed_by_source_reading": 1685,
     "note": "processed ≠ understood: most forum rows reach Source Reading as title/excerpt only"
    },
    "candidate_claim_or_state": {

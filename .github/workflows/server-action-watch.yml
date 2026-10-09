@@ -1,6 +1,7 @@
 # Latest-main verification: V6.15 post-audit session-aware quote freshness + QA chain
 # Manual recovery trigger: 2026-10-07
 name: Server Action Watch
+run-name: ${{ github.event_name == 'workflow_dispatch' && inputs.run_reason != '' && format('Server Action Watch · {0}', inputs.run_reason) || 'Server Action Watch' }}
 
 on:
   push:
@@ -33,6 +34,11 @@ on:
         description: "Send one MyAlpha Telegram channel test message (V6.11 gold/DCA reminders)"
         type: boolean
         default: false
+      run_reason:
+        description: "Optional label (the guardian sets 'server-guardian <hour>')"
+        required: false
+        default: ""
+        type: string
 
 permissions:
   contents: write

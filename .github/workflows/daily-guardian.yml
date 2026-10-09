@@ -10,6 +10,8 @@ on:
     - cron: '20 1 * * 2-6'
     - cron: '20 3 * * 2-6'
     - cron: '20 12 * * 2-6'
+    # US session: keep Server Action Watch fresh (its own cron is heavily throttled)
+    - cron: '47 13-21 * * 1-5'
   workflow_dispatch:
     inputs:
       dry_run:
@@ -17,6 +19,11 @@ on:
         required: false
         default: false
         type: boolean
+      inject_market_as_of:
+        description: "Fault injection: evaluate as if published market_as_of were this date (forces dry run)"
+        required: false
+        default: ""
+        type: string
 
 permissions:
   contents: read
@@ -40,4 +47,5 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
           GUARD_DRY_RUN: ${{ inputs.dry_run && '1' || '0' }}
+          GUARD_INJECT_MARKET_AS_OF: ${{ inputs.inject_market_as_of }}
         run: python scripts/daily_guardian.py

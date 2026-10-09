@@ -39,7 +39,7 @@ assert(s.advice.reasons.some(r => r.includes('事件影响有限')));
 // Same event but the contract sits near the strike -> watch (not a blanket L2 for every position).
 s = A.optionDecisionSummary(pos(), q({ underlyingPrice: 41.2, delta: -0.30 }), null);
 assert.strictEqual(s.primary, 'WAIT', JSON.stringify(s));
-assert(s.advice.reasons.some(r => r.includes('FOMC') && r.includes('距行权价')));
+assert(s.advice.reasons.some(r => r.includes('FOMC') && (r.includes('价内')||r.includes('价外'))));
 events = [];
 // Short call near/in the money -> ex-dividend early-assignment data explicitly listed as missing.
 s = A.optionDecisionSummary(pos({ opt_type: 'call', strike: 45, assignment_mode: 'accept' }), q({ underlyingPrice: 46, delta: 0.55 }), null);
@@ -53,4 +53,20 @@ assert(s.reasons.length <= 3 && s.next_check);
 // Different contracts produce different texts (no template reused across positions).
 const a1 = A.optionDecisionSummary(pos(), q(), null), a2 = A.optionDecisionSummary(pos({ symbol: 'SOFI', strike: 20, expiry: day(12) }), q({ underlyingPrice: 20.4, delta: -0.4, bid: 0.9, ask: 1.0, mid: 0.95 }), null);
 assert.notStrictEqual(JSON.stringify(a1.reasons), JSON.stringify(a2.reasons));
+// Real case reported 2026-10-09: IREN 40P, cost 2.64, 42 DTE, mid 6.57, Delta -0.584, spot 35.73, CPI in 5 days.
+events = [{ type: 'CPI', datetime: new Date(Date.now() + 5 * 86400000).toISOString() }];
+const iren = pos({ strike: 40, cost: 2.64, open_fee: 1.04, expiry: day(42), assignment_mode: 'accept' });
+const irenQ = q({ bid: 6.40, ask: 6.73, mid: 6.57, delta: -0.584, iv: 0.852, underlyingPrice: 35.73 });
+s = A.optionDecisionSummary(iren, irenQ, null);
+assert.strictEqual(s.primary, 'HOLD', JSON.stringify(s));                       // explicit, never vague 观察等待
+assert(/准备接货/.test(s.primary_zh) && /37\.3[0-9]/.test(s.action) && /展期|平仓/.test(s.action), s.action);
+assert(s.reasons.some(r => /已价内 10\.7%/.test(r)), s.reasons);               // unambiguous moneyness
+assert(s.reasons.some(r => /接货偏好/.test(r)));
+s = A.optionDecisionSummary({ ...iren, assignment_mode: 'avoid' }, irenQ, null);
+assert.strictEqual(s.primary, 'ROLL'); assert(/展期/.test(s.primary_zh) && /Roll down/.test(s.action));
+// card markup must not reuse the red button class
+const fs = require('fs');
+const ov = fs.readFileSync(__dirname + '/../docs/assets/options-v2.js', 'utf8');
+assert(!/option-card-decision option-primary/.test(ov) && /option-card-decision option-next/.test(ov));
+events = [];
 console.log('PASS P0-2 option contract-level decision');

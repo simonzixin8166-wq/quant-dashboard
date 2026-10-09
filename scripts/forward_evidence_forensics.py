@@ -31,7 +31,14 @@ import trading_calendar as tc  # noqa: E402
 ET = ZoneInfo("America/New_York")
 OUT = ROOT / "research" / "archive" / "forward_evidence_audit.jsonl"
 RULE_FILES = ("docs/assets/decision-journal.js", "docs/assets/stock-watchlist.js", "docs/assets/investment-assistant.js")
-PROPOSAL_VERSION = "forensics-1"
+PROPOSAL_VERSION = "forensics-2"
+
+
+def blob(commit, path):
+    """git blob id of path at commit, or None when the file did not exist there."""
+    r = subprocess.run(["git", "rev-parse", "--verify", "-q", f"{commit}:{path}"], cwd=ROOT, capture_output=True, text=True)
+    out = r.stdout.strip()
+    return out if r.returncode == 0 and len(out) == 40 else None
 
 
 def git(*args):
@@ -114,7 +121,8 @@ def build(sessions, commits, runs_fn=github_runs, now=None):
                 "proposed_grade": "A_pending_review" if corroborated else "B",
                 "evidence": {"commit": h, "commit_time": ct.isoformat().replace("+00:00", "Z"), "author": author,
                              "github_runs_on_commit": corroborated or runs[:3],
-                             "rule_file_blobs": {f: git("rev-parse", f"{h}:{f}").strip() or None for f in RULE_FILES}},
+                             "data_json_blob": blob(h, "docs/data.json"),
+                             "rule_file_blobs": {f: blob(h, f) for f in RULE_FILES}},
                 "reconstruction": {"mode": mode, "level": level,
                                    "observations": rows, "eligible": [r["symbol"] for r in rows if r["eligible"]],
                                    "payload_sha": hashlib.sha256(json.dumps(rows, ensure_ascii=False, sort_keys=True).encode()).hexdigest()[:16]},
@@ -127,6 +135,20 @@ def build(sessions, commits, runs_fn=github_runs, now=None):
                           "reconstruction": {"mode": mode, "level": level, "eligible": [r["symbol"] for r in rows if r["eligible"]]}})
         else:
             entry.update({"proposed_grade": "none", "evidence": None, "reason": "no publication for this session (explicit GAP)"})
+        blobs = ((entry.get("evidence") or {}).get("rule_file_blobs")) or {}
+        if entry.get("proposed_grade") == "A_pending_review" and not all(blobs.get(f) for f in RULE_FILES):
+            entry["review_class"] = "ineligible"
+            entry["review_reason"] = "browser rule code was not deployed at that commit: reconstruction would apply a later rule retroactively"
+        elif entry.get("proposed_grade") == "A_pending_review":
+            entry["review_class"] = "needs_evidence"
+            entry["review_reason"] = "inputs and time are independently evidenced; equivalence of the rule version at that commit with rule_hash still has to be shown by a reviewer"
+        elif entry.get("proposed_grade") == "B":
+            entry["review_class"] = "ineligible"
+            entry["review_reason"] = "inputs published only intraday or after the next open (historical observation, scored separately)"
+        else:
+            entry["review_class"] = "ineligible"
+            entry["review_reason"] = "no publication (explicit GAP)"
+        entry["supersedes_version"] = "forensics-1"
         entry["audit_id"] = hashlib.sha256(f"{s}|{PROPOSAL_VERSION}|{foe.RULE_HASH}|{(entry.get('evidence') or {}).get('commit')}".encode()).hexdigest()[:20]
         out.append(entry)
     return out

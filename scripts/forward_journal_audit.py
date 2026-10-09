@@ -162,7 +162,8 @@ def main():
         proposals = [json.loads(x) for x in path.read_text(encoding="utf-8").splitlines() if x.strip()]
         latest = {}
         for p in proposals:
-            latest[p["session"]] = p
+            if str(p.get("proposal_version", "")).startswith("forensics"):   # reconstruction proposals only
+                latest[p["session"]] = p
         res = match_sessions(fetch_match_rows() or [], list(latest.values()))
         for s in sorted(res):
             print(f"::notice title=Forward evidence match::FORWARD_MATCH {s} grade={latest[s].get('proposed_grade')} "

@@ -1,6 +1,6 @@
 {
  "version": "p3-12.1",
- "generated_at": "2026-10-09T15:24:14.818312+00:00",
+ "generated_at": "2026-10-09T23:50:14.451697+00:00",
  "layers": [
   "discovered",
   "canonical_persisted",
@@ -49,9 +49,9 @@
   "event": {
    "learning_maturity": "context_only",
    "funnel_issues": [],
-   "discovered": 392,
-   "canonical_persisted": 392,
-   "interpretable": 392,
+   "discovered": 442,
+   "canonical_persisted": 442,
+   "interpretable": 442,
    "candidate_claim_or_state": 0,
    "effective_forward_eligible": 0,
    "independently_matured": 0,
@@ -63,10 +63,10 @@
    "learning_maturity": "forward_collecting",
    "funnel_issues": [],
    "discovered": 6,
-   "canonical_persisted": 26,
-   "interpretable": 12,
+   "canonical_persisted": 32,
+   "interpretable": 18,
    "candidate_claim_or_state": 7,
-   "effective_forward_eligible": 12,
+   "effective_forward_eligible": 18,
    "independently_matured": 0,
    "benchmark_evaluated": null,
    "downstream_consumer_count": 1,
@@ -88,9 +88,9 @@
   "external_research": {
    "learning_maturity": "forward_collecting",
    "funnel_issues": [],
-   "discovered": 1685,
-   "canonical_persisted": 1685,
-   "interpretable": 499,
+   "discovered": 1689,
+   "canonical_persisted": 1689,
+   "interpretable": 503,
    "candidate_claim_or_state": 23,
    "effective_forward_eligible": 3,
    "independently_matured": 0,
@@ -159,7 +159,7 @@
     "reason": "no forward-validated method exists yet (genuine forward matured = 0); not provable"
    },
    "historical": {
-    "market_price_history_mature_60": 4301,
+    "market_price_history_mature_60": 4304,
     "note": "historical price-event replay; descriptive, not forward learning"
    }
   },
@@ -229,19 +229,19 @@
   },
   "event": {
    "discovered": {
-    "count": 392,
+    "count": 442,
     "definition": "news/event items archived",
     "evidence": "research/archive/events",
     "dedup_key": "uuid"
    },
    "canonical_persisted": {
-    "count": 392,
+    "count": 442,
     "definition": "append-only monthly event shards",
     "evidence": "research/archive/events",
     "dedup_key": "uuid"
    },
    "interpretable": {
-    "count": 392,
+    "count": 442,
     "definition": "items with title, url and event date",
     "evidence": "research/archive/events",
     "dedup_key": "uuid"
@@ -294,13 +294,13 @@
     "dedup_key": "symbol"
    },
    "canonical_persisted": {
-    "count": 26,
+    "count": 32,
     "definition": "opportunity observations persisted (incl. superseded)",
     "evidence": "research/archive/options_opportunity_observations",
     "dedup_key": "observation_id"
    },
    "interpretable": {
-    "count": 12,
+    "count": 18,
     "definition": "observations with aligned price/support inputs (not superseded)",
     "evidence": "research/archive/options_opportunity_observations",
     "dedup_key": "observation_id"
@@ -312,7 +312,7 @@
     "dedup_key": "symbol×state"
    },
    "effective_forward_eligible": {
-    "count": 12,
+    "count": 18,
     "definition": "aligned forward observations eligible for outcome tracking",
     "evidence": "docs/research/options_opportunity_outcome_memory.json",
     "dedup_key": "observation_id"
@@ -416,29 +416,29 @@
   },
   "external_research": {
    "discovered": {
-    "count": 1685,
+    "count": 1689,
     "definition": "distinct canonical source keys (forum/blog/YouTube)",
     "evidence": "research/store/source_store.json",
     "dedup_key": "source_key"
    },
    "canonical_persisted": {
-    "count": 1685,
+    "count": 1689,
     "definition": "Source Store records (append-only)",
     "evidence": "research/store/source_store.json",
     "dedup_key": "source_key"
    },
    "interpretable": {
-    "count": 499,
+    "count": 503,
     "definition": "records with body text available (excerpt ≤360 chars or full text ≥1000); title-only excluded",
     "evidence": "docs/data/source_intelligence.json",
     "dedup_key": "feed id",
     "text_depth": {
      "title_only": 1068,
-     "excerpt": 499,
+     "excerpt": 503,
      "full_text": 0,
-     "original_length_known": 499
+     "original_length_known": 503
     },
-    "records_processed_by_source_reading": 1685,
+    "records_processed_by_source_reading": 1689,
     "note": "processed ≠ understood: most forum rows reach Source Reading as title/excerpt only"
    },
    "candidate_claim_or_state": {

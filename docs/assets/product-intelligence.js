@@ -73,7 +73,7 @@ function explicitSignal(x,authority,held=stockHeld(x)){
  const base=global.MAVSignalPolicy?.classify?.({
    symbol:x?.symbol,score:x?.score,stage:x?.stage,held,
    decisionEligible:authority?.decision_eligible!==false,
-   hasThesis:x?.hasThesis
+   hasThesis:x?.hasThesis,autoCovered:x?.autoCovered,readiness:x?.readiness
  });
  return base||{action:'WATCH',label:'WATCH',zh:'观察，不介入',tone:'neutral',reason:'等待统一信号策略加载',next_confirmation:''};
 }

@@ -69,13 +69,33 @@ function stockHeld(x){
  const qty=Number(x?.position_qty??x?.quantity??x?.shares??0);
  return x?.held===true||x?.isHeld===true||(Number.isFinite(qty)&&qty!==0);
 }
+// P0-3: what the system actually knows about the user's exposure to a symbol.
+// No private stock-holdings ledger exists, so share ownership is never assumed; option exposure is derived
+// from the user's private option positions (client-side only, never published).
+function positionContext(symbol){
+ const sym=String(symbol||'').toUpperCase(),api=global.OptionV2;
+ const loaded=Boolean(api?.positionsLoaded?.());
+ if(!loaded)return{kind:'unknown',held_shares:null,options:[],label:'未登录或期权仓位未加载：无法核对你是否在该标的有敞口'};
+ const open=(api.getPositions?.()||[]).filter(p=>String(p.symbol||'').toUpperCase()===sym);
+ const assigned=(api.getHistory?.()||[]).filter(p=>String(p.symbol||'').toUpperCase()===sym&&p.status==='assigned');
+ const desc=p=>`${String(p.side||'').toLowerCase()==='short'?'卖出':'买入'} ${Number(p.strike)}${String(p.opt_type).toLowerCase()==='put'?'P':'C'} ${p.expiry||''}`.trim();
+ if(open.length)return{kind:'option_exposure',held_shares:null,options:open.map(desc),assigned_history:assigned.length,
+   label:`你在 ${sym} 有 ${open.length} 个期权仓位（${open.slice(0,2).map(desc).join('；')}${open.length>2?'…':''}）：下一步以期权卡为准`};
+ if(assigned.length)return{kind:'assigned_history',held_shares:null,options:[],assigned_history:assigned.length,
+   label:`${sym} 曾有期权被行权（${assigned.length} 笔）：是否仍持有正股需你确认，系统不推断`};
+ return{kind:'none',held_shares:false,options:[],label:'未持仓（无期权仓位；股票持仓未录入系统）'};
+}
 function explicitSignal(x,authority,held=stockHeld(x)){
  const base=global.MAVSignalPolicy?.classify?.({
    symbol:x?.symbol,score:x?.score,stage:x?.stage,held,
    decisionEligible:authority?.decision_eligible!==false,
    hasThesis:x?.hasThesis,autoCovered:x?.autoCovered,readiness:x?.readiness
  });
- return base||{action:'WATCH',label:'WATCH',zh:'观察，不介入',tone:'neutral',reason:'等待统一信号策略加载',next_confirmation:''};
+ const out=base||{action:'WATCH',label:'WATCH',zh:'观察，不介入',tone:'neutral',reason:'等待统一信号策略加载',next_confirmation:''};
+ const ctx=positionContext(x?.symbol);
+ // Non-held symbols may only be WATCH / WAIT / ENTRY research states; never HOLD/NO_ADD/REDUCE/EXIT.
+ if(!held&&['HOLD','NO_ADD','REDUCE','EXIT'].includes(out.action))return{...out,action:'WATCH',label:'WATCH',zh:'观察，不介入',tone:'neutral',position_context:ctx,research_only:true};
+ return{...out,position_context:ctx,research_only:!held};
 }
 function opportunityAxes(x,kind,authority){
  const pulse=Number(x?.score);
@@ -177,6 +197,13 @@ function formalStrategyActions(data=state.strategyData){
  });
  return rows;
 }
+function stockActionText(sig){
+ const ctx=sig.position_context||{};
+ const body=`${sig.zh}。 ${sig.reason}`;
+ if(!sig.research_only)return body;
+ if(ctx.kind==='option_exposure')return `${ctx.label}。 ${body}`;
+ return `${body} 〔${ctx.label||'未持仓'}；WATCH 是研究态，不是持仓建议〕`;
+}
 function actionItems(){
  const opt=optionActions(),s=stockStatus(),rows=formalStrategyActions();
  (state.optionIdeas||[]).slice(0,3).forEach(x=>rows.push({priority:x.strategy==='SELL_PUT'?58:x.strategy==='LEAPS_CALL'?55:52,tone:'good',when:'WATCH',title:`${x.symbol} · ${x.kind||'期权机会'}`,text:x.reason||'期权链研究候选已通过运行时门控。',target:'tab-options'}));
@@ -184,8 +211,8 @@ function actionItems(){
  opt.filter(x=>x.risk==='l2').forEach(x=>rows.push({priority:80,tone:'warn',when:'今日 / 次日',title:`${x.contract||x.symbol} · ${x.primary_zh||'期权复核'}`,text:x.reason,target:'tab-options'}));
  opt.filter(x=>x.primary==='CANNOT_JUDGE').forEach(x=>rows.push({priority:60,tone:'warn',when:'补数据',title:`${x.contract||x.symbol} · 暂不能判定`,text:x.reason,target:'tab-options'}));
  opt.filter(x=>x.timing.includes('止盈')).forEach(x=>rows.push({priority:70,tone:'good',when:'今日',title:`${x.symbol} 可评估止盈`,text:x.reason,target:'tab-options'}));
- (s.risk||[]).forEach(x=>{const sig=explicitSignal(x,decisionAuthority());rows.push({priority:sig.action==='NO_SIGNAL'?120:sig.action==='REDUCE'||sig.action==='EXIT'?90:65,tone:sig.tone,when:sig.action==='NO_SIGNAL'?'当前':'今日',title:`${x.symbol} · ${sig.label}`,text:`${sig.zh}。 ${sig.reason}`,target:'tab-stocks'})});
- (s.improving||[]).forEach(x=>{const sig=explicitSignal(x,decisionAuthority());rows.push({priority:sig.action==='CONFIRMED_ENTRY'?75:sig.action==='EARLY_ENTRY'?65:45,tone:sig.tone,when:/ENTRY/.test(sig.action)?'介入机会':'观察',title:`${x.symbol} · ${sig.label}`,text:`${sig.zh}。 ${sig.reason}`,target:'tab-stocks'})});
+ (s.risk||[]).forEach(x=>{const sig=explicitSignal(x,decisionAuthority());rows.push({priority:sig.action==='NO_SIGNAL'?120:sig.action==='REDUCE'||sig.action==='EXIT'?90:65,tone:sig.tone,when:sig.action==='NO_SIGNAL'?'当前':'今日',title:`${x.symbol} · ${sig.label}${sig.research_only?'（研究态）':''}`,text:stockActionText(sig),target:'tab-stocks'})});
+ (s.improving||[]).forEach(x=>{const sig=explicitSignal(x,decisionAuthority());rows.push({priority:sig.action==='CONFIRMED_ENTRY'?75:sig.action==='EARLY_ENTRY'?65:45,tone:sig.tone,when:/ENTRY/.test(sig.action)?'介入机会':'观察',title:`${x.symbol} · ${sig.label}${sig.research_only?'（研究态）':''}`,text:stockActionText(sig),target:'tab-stocks'})});
  if(state.strategyLoaded&&!state.strategyData)rows.push({priority:110,tone:'bad',when:'当前',title:'正式策略数据缺失',text:'Core Tier / TQQQ X2 / LEAPS Radar 无法可靠判断，禁止用技术信号代替正式策略。',target:'tab-system-health'});
  const authority=decisionAuthority();
  if(!authority.decision_eligible){
@@ -297,6 +324,6 @@ async function loadSystemStatus(){
 }
 function schedule(){clearInterval(state.timer);state.timer=setInterval(()=>{if(document.visibilityState==='visible')render()},120000)}
 function init(){loadSystemStatus().finally(render);render();schedule();window.addEventListener('mav:options-updated',render);window.addEventListener('mav:option-opportunities',e=>{state.optionIdeas=Array.isArray(e?.detail?.ideas)?e.detail.ideas:[];render()});document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')render()});setTimeout(render,1200);setTimeout(render,3500)}
-global.MAVProductIntelligence={render,optionActions,opportunities,dataHealth,decisionAuthority,formalStrategyActions,explicitSignal};
+global.MAVProductIntelligence={render,optionActions,opportunities,dataHealth,decisionAuthority,formalStrategyActions,explicitSignal,positionContext,stockActionText};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })(window);

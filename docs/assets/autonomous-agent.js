@@ -87,6 +87,8 @@
   function resetLearningPolicy(){const store=readPolicyStore();writePolicyStore({...store,forceBaseline:true});render()}
   function resumeLearningPolicy(){const store=readPolicyStore();writePolicyStore({...store,forceBaseline:false});render()}
   function levelLabel(level){return({quiet:'无需处理',watch:'观察',review:'需要复查',action:'需要处理'})[level]||level}
+  // P0-3: public watchlist items are research states, never position instructions.
+  function watchLevelLabel(level){return({quiet:'无需处理',watch:'研究观察',review:'研究复查（非持仓建议）',action:'重大异动·待研究（非持仓建议）'})[level]||level}
 
   async function loadPublic(){
     try{
@@ -712,11 +714,11 @@
     const metrics=item.kind==='option'
       ?[`P/L ${m.pnlPct===null?'—':pct(m.pnlPct,0)}`,`DTE ${m.dte??'—'}`,`Δ ${m.delta===null?'—':Number(m.delta).toFixed(2)}`,`IV ${m.iv===null?'—':pct(m.iv,0)}`,`价差 ${m.spread===null?'—':pct(m.spread,0)}`]
       :[`当日 ${m.day_change===null||m.day_change===undefined?'—':pct(m.day_change,1)}`,`研究优先级 ${m.research_priority??'—'}`,`学习调整 ${m.learning_adjustment>0?'+':''}${m.learning_adjustment||0}`];
-    const decision=item.decision||levelLabel(item.level);
+    const decision=item.decision||(item.kind==='option'?levelLabel(item.level):watchLevelLabel(item.level));
     const change=item.changeConditions?.length?`<div class="agent-change"><b>改变判断的条件</b><span>${item.changeConditions.slice(0,4).map(esc).join(' · ')}</span></div>`:'';
     const edge=item.edge?`<div class="agent-edge"><b>剩余风险收益：</b>${esc(item.edge)}</div>`:'';
     const edgeScore=item.remainingEdge?'<div class="agent-edge"><b>Remaining Edge：</b>'+item.remainingEdge.score+'/100 · '+esc(item.remainingEdge.label)+(item.remainingEdge.positives?.length?'<br><span>支持：'+item.remainingEdge.positives.slice(0,3).map(esc).join(' · ')+'</span>':'')+(item.remainingEdge.risks?.length?'<br><span>风险：'+item.remainingEdge.risks.slice(0,3).map(esc).join(' · ')+'</span>':'')+'</div>':'';
-    return `<article class="agent-card agent-${esc(item.level)}"><div class="agent-card-head"><div><span>${item.kind==='option'?'PRIVATE POSITION':'WATCHLIST'}</span><h3>${esc(item.symbol)} · ${esc(item.label)}</h3></div><b>${esc(levelLabel(item.level))} · ${esc(item.timing)}</b></div><div class="agent-decision">${esc(decision)}</div><div class="agent-metrics">${metrics.map(x=>`<span>${esc(x)}</span>`).join('')}</div><p><strong>当前方案：</strong>${esc(item.action)}</p>${edgeScore}${edge}${item.reasons?.length?`<ul>${item.reasons.slice(0,5).map(r=>`<li>${esc(r)}</li>`).join('')}</ul>`:''}${change}${item.kind==='option'?'<small>系统不会自动下单；若执行，请以券商实时报价、保证金与公司事件为最终确认。</small>':''}</article>`;
+    return `<article class="agent-card agent-${esc(item.level)}"><div class="agent-card-head"><div><span>${item.kind==='option'?'PRIVATE POSITION':'WATCHLIST'}</span><h3>${esc(item.symbol)} · ${esc(item.label)}</h3></div><b>${esc(item.kind==='option'?levelLabel(item.level):watchLevelLabel(item.level))} · ${esc(item.timing)}</b></div><div class="agent-decision">${esc(decision)}</div><div class="agent-metrics">${metrics.map(x=>`<span>${esc(x)}</span>`).join('')}</div><p><strong>当前方案：</strong>${esc(item.action)}</p>${edgeScore}${edge}${item.reasons?.length?`<ul>${item.reasons.slice(0,5).map(r=>`<li>${esc(r)}</li>`).join('')}</ul>`:''}${change}${item.kind==='option'?'<small>系统不会自动下单；若执行，请以券商实时报价、保证金与公司事件为最终确认。</small>':''}</article>`;
   }
 
   function render(){

@@ -818,6 +818,44 @@ def build(records, youtube_historical_learning=None):
         ],
     }
 
+AUTHOR_SIGNALS_OUT = ROOT / "docs" / "research" / "author_action_signals.json"
+_ACTION_ORDER = ["SELL_EXECUTED", "BUY_EXECUTED", "REBALANCE", "SELL_PLANNED", "BUY_PLANNED", "HOLD", "UNCLEAR", "COMMENTARY"]
+_ACTION_ZH = {"SELL_EXECUTED": "已卖出", "BUY_EXECUTED": "已买入", "REBALANCE": "调仓", "SELL_PLANNED": "计划减仓（非成交）",
+              "BUY_PLANNED": "计划买入（非成交）", "HOLD": "继续持有", "UNCLEAR": "表述不明确", "COMMENTARY": "仅观点"}
+
+
+def author_headline(actions):
+    acts = [a for a in actions or [] if a.get("action_type") in _ACTION_ORDER]
+    if not acts:
+        return None
+    a = sorted(acts, key=lambda x: _ACTION_ORDER.index(x["action_type"]))[0]
+    extra = f" {a['size_pct']:g}%" if a.get("size_pct") else ""
+    extra += f" @ {a['price']:g}" if a.get("price") else ""
+    alloc = a.get("allocation_pct") or {}
+    if a["action_type"] == "HOLD" and alloc:
+        extra = " " + " / ".join(f"{k} {v:g}%" for k, v in alloc.items())
+    kind = "executed" if a["action_type"].endswith("EXECUTED") or a["action_type"] == "REBALANCE" else \
+        "planned" if a["action_type"].endswith("PLANNED") else "hold" if a["action_type"] == "HOLD" else "view"
+    return {"symbol": a.get("symbol"), "action_type": a["action_type"], "kind": kind, "text": f"{a.get('symbol')}：{_ACTION_ZH[a['action_type']]}{extra}"}
+
+
+def author_action_signals(records, limit=20):
+    """Tracked authors' own position statements (research signal, never a MyAlpha action)."""
+    rows = []
+    for r in records or []:
+        acts = r.get("author_actions") or []
+        h = author_headline(acts)
+        if not h:
+            continue
+        rows.append({"author": r.get("author"), "source_kind": r.get("source_kind"), "published_at": r.get("published_at"),
+                     "captured_at": r.get("captured_at"), "url": r.get("url"), "title": str(r.get("title") or "")[:60],
+                     "headline": h, "actions": [{k: a.get(k) for k in ("symbol", "action_type", "size_pct", "price", "allocation_pct", "confidence", "evidence_quote")} for a in acts][:6],
+                     "intake": r.get("intake_class_hint"), "forward_evidence_eligible": r.get("forward_evidence_eligible", None)})
+    rows.sort(key=lambda x: (str(x.get("published_at") or ""), str(x.get("captured_at") or "")), reverse=True)
+    return {"generated_at": datetime.now(timezone.utc).isoformat(), "records": rows[:limit],
+            "notice": "作者本人仓位表述，仅作研究来源；不是 MyAlpha 的操作建议，也不改变你的定投或任何正式规则。计划/挂单不等于成交。"}
+
+
 def main():
     previous=load(OUT,{})
     previous_count=int((previous.get("counts") or {}).get("records") or 0)
@@ -849,6 +887,7 @@ def main():
     ID_LEDGER.write_text(json.dumps(new_ledger,ensure_ascii=False,separators=(",",":")),encoding="utf-8")
     OUT.parent.mkdir(parents=True,exist_ok=True)
     OUT.write_text(json.dumps(result,ensure_ascii=False,indent=2),encoding="utf-8")
+    AUTHOR_SIGNALS_OUT.write_text(json.dumps(author_action_signals(feed.get("records") or []),ensure_ascii=False,indent=1),encoding="utf-8")
     print(json.dumps(result["counts"],ensure_ascii=False))
     return 0
 

@@ -328,7 +328,7 @@ body{font-size:15px;background:linear-gradient(180deg,#f7f9fc 0,#f3f6fa 100%);le
         </select>
       </div>
       <div id="optAssignmentWrap">
-        <label style="font-size:11.5px;color:var(--muted)">Sell Put到期偏好</label><select id="optAssignmentMode" style="width:100%;padding:8px;border:1px solid var(--line);border-radius:6px;margin-top:4px"><option value="accept">愿意按计划接货</option><option value="avoid">尽量避免被指派</option></select>
+        <label style="font-size:11.5px;color:var(--muted)">接货意愿（本合约、本账户；须你明确选择）</label><select id="optAssignmentPref" style="width:100%;padding:8px;border:1px solid var(--line);border-radius:6px;margin-top:4px"><option value="undecided">尚未决定（默认）</option><option value="accept">愿意接货</option><option value="avoid">尽量避免接货</option></select><input type="hidden" id="optAssignmentMode" value="accept"><small id="optAssignmentConfirmed" style="display:block;color:var(--muted);font-size:11px;margin-top:3px"></small>
       </div>
       <div id="optEntryHint" class="option-note"></div>
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
@@ -448,7 +448,7 @@ async function openAddOptionModal(preset={}) {
   document.getElementById('optionEntryDesc').textContent=editId?'仅用于修正手工录入内容；展期链仓位不能直接修改。':'按券商成交单录入；权利金为每股价格，盈亏自动按张数×合约乘数计算。';
   document.getElementById('saveOptionPositionBtn').textContent=editId?'保存修改':'保存到云端';
   ['optSym','optStrike','optExpiry','optCost'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('optStrategy').value='SELL PUT';document.getElementById('optQty').value='1';document.getElementById('optMultiplier').value='100';document.getElementById('optOpenFee').value='0';document.getElementById('optEntryDate').value=new Date().toISOString().slice(0,10);document.getElementById('optCollateralMode').value='cash_secured';document.getElementById('optAssignmentMode').value='accept';
+  document.getElementById('optStrategy').value='SELL PUT';document.getElementById('optQty').value='1';document.getElementById('optMultiplier').value='100';document.getElementById('optOpenFee').value='0';document.getElementById('optEntryDate').value=new Date().toISOString().slice(0,10);document.getElementById('optCollateralMode').value='cash_secured';document.getElementById('optAssignmentMode').value='accept';document.getElementById('optAssignmentPref').value='undecided';document.getElementById('optAssignmentPref').dataset.prior='undecided';document.getElementById('optAssignmentPref').dataset.confirmedAt='';document.getElementById('optAssignmentConfirmed').textContent='';
   if (window.OptionV2?.populateAccountSelect) await window.OptionV2.populateAccountSelect('optBrokerAccount', preset.broker_account_id || preset.accountId);
   if (preset.symbol) document.getElementById('optSym').value = preset.symbol;
   if (preset.strategy) document.getElementById('optStrategy').value = preset.strategy;
@@ -461,6 +461,7 @@ async function openAddOptionModal(preset={}) {
   if (preset.open_fee!==undefined) document.getElementById('optOpenFee').value=preset.open_fee;
   if (preset.entry_date) document.getElementById('optEntryDate').value=preset.entry_date;
   if (preset.assignment_mode) document.getElementById('optAssignmentMode').value=preset.assignment_mode;
+  { const pref=preset.assignment_preference||'undecided',el=document.getElementById('optAssignmentPref'); el.value=pref; el.dataset.prior=pref; el.dataset.confirmedAt=preset.assignment_confirmed_at||''; document.getElementById('optAssignmentConfirmed').textContent=preset.assignment_confirmed_at?('已于 '+new Date(preset.assignment_confirmed_at).toLocaleString('zh-CN',{timeZone:'Asia/Shanghai'})+' 确认'):'尚未确认：系统不会据此建议“准备接货”'; }
   updateOptionEntryFields();
   document.getElementById('addOptionModal').style.display = 'grid';
 }
@@ -486,7 +487,10 @@ async function saveNewOptionPosition() {
   const multiplier = parseInt(document.getElementById('optMultiplier').value) || 100;
   const open_fee = parseFloat(document.getElementById('optOpenFee').value) || 0;
   const broker_account_id = parseInt(document.getElementById('optBrokerAccount').value);
-  const assignment_mode = document.getElementById('optAssignmentMode').value;
+  const prefEl = document.getElementById('optAssignmentPref');
+  const assignment_preference = prefEl ? prefEl.value : 'undecided';
+  const assignment_confirmed_at = assignment_preference==='undecided' ? null : (prefEl.dataset.prior===assignment_preference && prefEl.dataset.confirmedAt ? prefEl.dataset.confirmedAt : new Date().toISOString());
+  const assignment_mode = assignment_preference==='avoid' ? 'avoid' : 'accept';
 
   if (!broker_account_id) { alert('请先选择这笔成交所属的券商账户。'); return; }
   if (!symbol || isNaN(strike) || !expiry || isNaN(cost) || isNaN(qty) || qty<=0 || !entry_date) { alert('请完整填写所有期权参数和真实建仓日期！'); return; }
@@ -507,9 +511,14 @@ async function saveNewOptionPosition() {
     if(qty*multiplier>available){alert(`该账户可用覆盖股数仅 ${available} 股，本次需要 ${qty*multiplier} 股。请调整张数、账户或担保方式。`);return;}
   }
   const premium_chain_per_share = side==='Short' ? Math.max(0,cost-open_fee/(qty*multiplier)) : null;
-  const payload = { broker_account_id, symbol, opt_type, side, strike, expiry, cost, qty, multiplier, open_fee, entry_date, collateral_mode, assignment_mode, premium_chain_per_share, user_id: session.user.id };
+  let payload = { broker_account_id, symbol, opt_type, side, strike, expiry, cost, qty, multiplier, open_fee, entry_date, collateral_mode, assignment_mode, assignment_preference, assignment_confirmed_at, premium_chain_per_share, user_id: session.user.id };
   const query=editId?supabaseClient.from('options_positions').update(payload).eq('id',editId):supabaseClient.from('options_positions').insert([payload]);
-  const { data: saved, error } = await query.select().single();
+  let { data: saved, error } = await query.select().single();
+  if (error && /assignment_preference|assignment_confirmed_at/.test(error.message||'')) {
+    delete payload.assignment_preference; delete payload.assignment_confirmed_at;
+    const retry=editId?supabaseClient.from('options_positions').update(payload).eq('id',editId):supabaseClient.from('options_positions').insert([payload]);
+    ({ data: saved, error } = await retry.select().single());
+  }
   if (error) { 
       const migrationHint = /user_id|row-level security|policy/i.test(error.message)
         ? '\n\n请先在 Supabase SQL Editor 执行项目根目录 SUPABASE_FIX_OPTIONS.sql。'

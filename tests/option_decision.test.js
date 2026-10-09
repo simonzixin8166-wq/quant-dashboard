@@ -63,7 +63,7 @@ assert.strictEqual(s.primary_zh, '需人工确认接货意愿');
 assert(/37\.3[0-9]/.test(s.action) && /愿意 → 继续持有/.test(s.action) && /不愿意 → 考虑展期/.test(s.action), s.action);
 assert(s.missing.some(m => /接货意愿确认/.test(m)) && s.missing.some(m => /购买力/.test(m)));
 assert(s.reasons.some(r => /已价内 10\.7%/.test(r)), s.reasons);               // unambiguous moneyness
-s = A.optionDecisionSummary({ ...iren, assignment_confirmed: true }, irenQ, null);
+s = A.optionDecisionSummary({ ...iren, assignment_preference: 'accept', assignment_confirmed_at: '2026-10-09T15:00:00Z' }, irenQ, null);
 assert.strictEqual(s.primary, 'HOLD'); assert(/准备接货/.test(s.primary_zh));
 s = A.optionDecisionSummary({ ...iren, assignment_mode: 'avoid' }, irenQ, null);
 assert.strictEqual(s.primary, 'ROLL'); assert(/展期/.test(s.primary_zh) && /Roll down/.test(s.action));

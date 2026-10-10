@@ -41,3 +41,10 @@ assert dg.decide_server(mid, "2026-10-09T10:39:00Z", [{"status": "completed", "c
 assert dg.decide_server(datetime(2026, 10, 10, 15, 0, tzinfo=timezone.utc), "2026-10-09T10:39:00Z", [])["action"] == "ok"   # Saturday
 assert dg.decide_server(datetime(2026, 10, 9, 22, 0, tzinfo=timezone.utc), None, [])["action"] == "ok"                    # after close
 print("PASS daily guardian")
+
+# server chain after a guardian-dispatched Daily: snapshot behind market → dispatch even after hours
+night = datetime(2026, 10, 9, 23, 55, tzinfo=timezone.utc)
+assert dg.decide_server(night, "2026-10-09T23:04:00Z", [], "2026-10-08", "2026-10-09")["reason"] == "server_snapshot_behind_market"
+assert dg.decide_server(night, "2026-10-09T23:04:00Z", [{"status": "in_progress"}], "2026-10-08", "2026-10-09")["reason"] == "server_watch_running"
+assert dg.decide_server(night, "2026-10-09T23:04:00Z", [], "2026-10-09", "2026-10-09")["action"] == "ok"
+print("PASS server chain")

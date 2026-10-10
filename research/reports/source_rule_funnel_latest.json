@@ -2,17 +2,17 @@
   "schema_version": "1.0",
   "window": {
     "definition": "current persistent Source Store keys minus previous successful funnel-state keys",
-    "previous_key_count": 1472,
-    "current_key_count": 1483
+    "previous_key_count": 1483,
+    "current_key_count": 1689
   },
   "status": "ok",
-  "new_sources_total": 11,
+  "new_sources_total": 206,
   "terminal_reason_counts": {
-    "backfill": 0,
+    "backfill": 169,
     "rekeyed_duplicate": 0,
-    "identity_ambiguous": 0,
+    "identity_ambiguous": 28,
     "late_discovery": 0,
-    "admission_integrity_rejected": 11,
+    "admission_integrity_rejected": 9,
     "no_operations": 0,
     "operation_missing_symbol": 0,
     "no_testable_proposition": 0,
@@ -21,11 +21,11 @@
     "reason_not_recorded": 0
   },
   "terminal_reason_share": {
-    "backfill": 0.0,
+    "backfill": 0.8203883495145631,
     "rekeyed_duplicate": 0.0,
-    "identity_ambiguous": 0.0,
+    "identity_ambiguous": 0.13592233009708737,
     "late_discovery": 0.0,
-    "admission_integrity_rejected": 1.0,
+    "admission_integrity_rejected": 0.043689320388349516,
     "no_operations": 0.0,
     "operation_missing_symbol": 0.0,
     "no_testable_proposition": 0.0,
@@ -34,14 +34,22 @@
     "reason_not_recorded": 0.0
   },
   "conservation": {
-    "terminal_total": 11,
-    "expected_total": 11,
+    "terminal_total": 206,
+    "expected_total": 206,
     "pass": true
   },
   "downstream_counts": {
     "admission_sources_with_operations": {
+      "backfill": {
+        "sources": 169,
+        "sources_with_operations": 8
+      },
+      "identity_ambiguous": {
+        "sources": 28,
+        "sources_with_operations": 6
+      },
       "timestamp_unverified": {
-        "sources": 11,
+        "sources": 9,
         "sources_with_operations": 0
       }
     },
@@ -49,8 +57,8 @@
       "with_symbols_or_topics": 0,
       "without_symbols_or_topics": 0
     },
-    "operations_total": 0,
-    "propositions_total": 24,
+    "operations_total": 17,
+    "propositions_total": 542,
     "new_forward_rules_total": 0,
     "independent_authors": 0,
     "largest_author_rule_count": 0,
@@ -66,70 +74,1240 @@
   },
   "assignments": [
     {
-      "source_key": "0ae66b716c316fbfbb02",
-      "source_id": "0ae66b716c316fbfbb02",
+      "source_key": "006aa5ae6b8aca5f764c",
+      "source_id": "006aa5ae6b8aca5f764c",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "00bee742baf8bdd14f92",
+      "source_id": "00bee742baf8bdd14f92",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "00df7439ff78b3080d32",
+      "source_id": "00df7439ff78b3080d32",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "02360c6ea5d87cd2af84",
+      "source_id": "02360c6ea5d87cd2af84",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "02b36982364b2227d48a",
+      "source_id": "02b36982364b2227d48a",
+      "admission_class": "identity_ambiguous",
+      "terminal_reason": "identity_ambiguous"
+    },
+    {
+      "source_key": "03eee28e86e8fb0477af",
+      "source_id": "03eee28e86e8fb0477af",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "04425955b662024f7a1f",
+      "source_id": "04425955b662024f7a1f",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "048014f4e0c39b55895a",
+      "source_id": "048014f4e0c39b55895a",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "06aeb5cd5d7a97d374e7",
+      "source_id": "06aeb5cd5d7a97d374e7",
+      "admission_class": "identity_ambiguous",
+      "terminal_reason": "identity_ambiguous"
+    },
+    {
+      "source_key": "077cece34e018b3fd615",
+      "source_id": "077cece34e018b3fd615",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "07f9feee9795b1e4efa9",
+      "source_id": "07f9feee9795b1e4efa9",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "0a4fe66d7c130faba5f3",
+      "source_id": "0a4fe66d7c130faba5f3",
+      "admission_class": "identity_ambiguous",
+      "terminal_reason": "identity_ambiguous"
+    },
+    {
+      "source_key": "0b19bb7b7afab5f12823",
+      "source_id": "0b19bb7b7afab5f12823",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "0b885fc1650de7c1d499",
+      "source_id": "0b885fc1650de7c1d499",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "0bf0e9e1e0b565c9405d",
+      "source_id": "0bf0e9e1e0b565c9405d",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "0d6f0b4f52da296a27d4",
+      "source_id": "0d6f0b4f52da296a27d4",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "0e20c128346d7105ba6e",
+      "source_id": "0e20c128346d7105ba6e",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "114c52721cee95e67c0a",
+      "source_id": "114c52721cee95e67c0a",
       "admission_class": "timestamp_unverified",
       "terminal_reason": "admission_integrity_rejected"
     },
     {
-      "source_key": "0d9f23be85ab778703ef",
-      "source_id": "0d9f23be85ab778703ef",
+      "source_key": "12316491487d9c035113",
+      "source_id": "12316491487d9c035113",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "12b077990e2b8de1385a",
+      "source_id": "12b077990e2b8de1385a",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "13ea19529f9b9bdaefce",
+      "source_id": "13ea19529f9b9bdaefce",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "1511485a426b65b6066b",
+      "source_id": "1511485a426b65b6066b",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "1756bb940a4382fd71ac",
+      "source_id": "1756bb940a4382fd71ac",
+      "admission_class": "identity_ambiguous",
+      "terminal_reason": "identity_ambiguous"
+    },
+    {
+      "source_key": "1761d87b3f2c6feb6f10",
+      "source_id": "1761d87b3f2c6feb6f10",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "1844fca2ce8a4b000046",
+      "source_id": "1844fca2ce8a4b000046",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "184d77d571fa7b99dac3",
+      "source_id": "184d77d571fa7b99dac3",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "1b9fef0e2f66bde9fb1d",
+      "source_id": "1b9fef0e2f66bde9fb1d",
+      "admission_class": "identity_ambiguous",
+      "terminal_reason": "identity_ambiguous"
+    },
+    {
+      "source_key": "1c842a21ed8b3285ba6f",
+      "source_id": "1c842a21ed8b3285ba6f",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "1d0e31bb0aca84ecc1b2",
+      "source_id": "1d0e31bb0aca84ecc1b2",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "1d404062ff1149e6dba6",
+      "source_id": "1d404062ff1149e6dba6",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "1db671d9e650c462b752",
+      "source_id": "1db671d9e650c462b752",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "1ddaab7b570c0d40eebd",
+      "source_id": "1ddaab7b570c0d40eebd",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "1e1d21b502f4c8f41dbe",
+      "source_id": "1e1d21b502f4c8f41dbe",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "1eb344e64b54ab2a0e11",
+      "source_id": "1eb344e64b54ab2a0e11",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "1f0af530730d1afb6e98",
+      "source_id": "1f0af530730d1afb6e98",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "1f781fdd0d6c650a4e8e",
+      "source_id": "1f781fdd0d6c650a4e8e",
       "admission_class": "timestamp_unverified",
       "terminal_reason": "admission_integrity_rejected"
     },
     {
-      "source_key": "4bbad2a409313a81606f",
-      "source_id": "4bbad2a409313a81606f",
+      "source_key": "24cd83e39160f7d027f9",
+      "source_id": "24cd83e39160f7d027f9",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "25c0de1cb3e72c120df4",
+      "source_id": "25c0de1cb3e72c120df4",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "25f52953b4115d282877",
+      "source_id": "25f52953b4115d282877",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "2721f750fde54237084b",
+      "source_id": "2721f750fde54237084b",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "2888804ec3eb2f78bf75",
+      "source_id": "2888804ec3eb2f78bf75",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "28f180926179ba482834",
+      "source_id": "28f180926179ba482834",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "2a1f8aeb4d8f28ba53f5",
+      "source_id": "2a1f8aeb4d8f28ba53f5",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "2a6620e4bcf8cd2ed775",
+      "source_id": "2a6620e4bcf8cd2ed775",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "2c000814378d9d707fd7",
+      "source_id": "2c000814378d9d707fd7",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "2df9e8885ee0843c085a",
+      "source_id": "2df9e8885ee0843c085a",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "3076ca3212163695a783",
+      "source_id": "3076ca3212163695a783",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "339bd5ff6e59464e5894",
+      "source_id": "339bd5ff6e59464e5894",
       "admission_class": "timestamp_unverified",
       "terminal_reason": "admission_integrity_rejected"
     },
     {
-      "source_key": "52b00d5fe8565b43fd93",
-      "source_id": "52b00d5fe8565b43fd93",
+      "source_key": "33a892728be60a2a745e",
+      "source_id": "33a892728be60a2a745e",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "34be2d181d497dbd2a50",
+      "source_id": "34be2d181d497dbd2a50",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "36adb1d809d69b7164f1",
+      "source_id": "36adb1d809d69b7164f1",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "372ae8407a67cbcda24d",
+      "source_id": "372ae8407a67cbcda24d",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "3758c8e25a8a4dbcf1b3",
+      "source_id": "3758c8e25a8a4dbcf1b3",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "3856a6aedf17b1f3c723",
+      "source_id": "3856a6aedf17b1f3c723",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "385ea8c9002fc4036a1a",
+      "source_id": "385ea8c9002fc4036a1a",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "38d39f5717ddcf0b2528",
+      "source_id": "38d39f5717ddcf0b2528",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "39484364ef639bad9296",
+      "source_id": "39484364ef639bad9296",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "3a1623f63373387406d4",
+      "source_id": "3a1623f63373387406d4",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "3a24e2ec6308c832a04b",
+      "source_id": "3a24e2ec6308c832a04b",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "3bcdb7b46fe09ce89b09",
+      "source_id": "3bcdb7b46fe09ce89b09",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "3c72616c5f838a9d634b",
+      "source_id": "3c72616c5f838a9d634b",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "42cc80928154fc823f9c",
+      "source_id": "42cc80928154fc823f9c",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "471f526712eaa4594ebf",
+      "source_id": "471f526712eaa4594ebf",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "48bd19b7a10e992f90e5",
+      "source_id": "48bd19b7a10e992f90e5",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "49728f9567a4664f0635",
+      "source_id": "49728f9567a4664f0635",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "49ba6e4afc8a016bb050",
+      "source_id": "49ba6e4afc8a016bb050",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "4b02ce84bb158cf09844",
+      "source_id": "4b02ce84bb158cf09844",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "4c0474069785abd12808",
+      "source_id": "4c0474069785abd12808",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "4c1e617ffd554c0d4798",
+      "source_id": "4c1e617ffd554c0d4798",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "4e43e0d477fb55b68d18",
+      "source_id": "4e43e0d477fb55b68d18",
       "admission_class": "timestamp_unverified",
       "terminal_reason": "admission_integrity_rejected"
     },
     {
-      "source_key": "534631d9cfaed7f2853b",
-      "source_id": "534631d9cfaed7f2853b",
+      "source_key": "4e550ddd2c534477b84b",
+      "source_id": "4e550ddd2c534477b84b",
+      "admission_class": "identity_ambiguous",
+      "terminal_reason": "identity_ambiguous"
+    },
+    {
+      "source_key": "51b4abb5aaadd965d32b",
+      "source_id": "51b4abb5aaadd965d32b",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "540e5cf4f37276afcd20",
+      "source_id": "540e5cf4f37276afcd20",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "54581b3824771130ef93",
+      "source_id": "54581b3824771130ef93",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "54c14e80de6f6ccb7cd2",
+      "source_id": "54c14e80de6f6ccb7cd2",
       "admission_class": "timestamp_unverified",
       "terminal_reason": "admission_integrity_rejected"
     },
     {
-      "source_key": "88529805a770a660f91b",
-      "source_id": "88529805a770a660f91b",
+      "source_key": "56350d191dbe51c99705",
+      "source_id": "56350d191dbe51c99705",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "56a27834801b68ea4ddd",
+      "source_id": "56a27834801b68ea4ddd",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "58028ff0b4d2ba250a01",
+      "source_id": "58028ff0b4d2ba250a01",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "585626b7f7d119129f86",
+      "source_id": "585626b7f7d119129f86",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "5a330513fed18b42700f",
+      "source_id": "5a330513fed18b42700f",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "5bdc4f36d5d143997c17",
+      "source_id": "5bdc4f36d5d143997c17",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "5bf908aad33e41f65cad",
+      "source_id": "5bf908aad33e41f65cad",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "5c2bbca241f6a41ec546",
+      "source_id": "5c2bbca241f6a41ec546",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "5e3a18b811e1fc9dd4c7",
+      "source_id": "5e3a18b811e1fc9dd4c7",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "5e780c20a74de85bac61",
+      "source_id": "5e780c20a74de85bac61",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "60fe1bf6f0a4268d0ead",
+      "source_id": "60fe1bf6f0a4268d0ead",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "6797785c06a17093914e",
+      "source_id": "6797785c06a17093914e",
+      "admission_class": "identity_ambiguous",
+      "terminal_reason": "identity_ambiguous"
+    },
+    {
+      "source_key": "690586b2a48873fdc925",
+      "source_id": "690586b2a48873fdc925",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "6aa48ef42539270a6648",
+      "source_id": "6aa48ef42539270a6648",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "6c6d96f34660dc768adf",
+      "source_id": "6c6d96f34660dc768adf",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "6e541c21bd3458f526e1",
+      "source_id": "6e541c21bd3458f526e1",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "6fd768dd4355d849d92d",
+      "source_id": "6fd768dd4355d849d92d",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "70326d8f6267a9c1584f",
+      "source_id": "70326d8f6267a9c1584f",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "7045f53766e385dcdfdf",
+      "source_id": "7045f53766e385dcdfdf",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "72f75c3ddce25a6b5c2b",
+      "source_id": "72f75c3ddce25a6b5c2b",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "73062dd13388c3c71549",
+      "source_id": "73062dd13388c3c71549",
       "admission_class": "timestamp_unverified",
       "terminal_reason": "admission_integrity_rejected"
     },
     {
-      "source_key": "8a4b38e952064def7920",
-      "source_id": "8a4b38e952064def7920",
+      "source_key": "76565711ea184b32c483",
+      "source_id": "76565711ea184b32c483",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "78022a4dd98e4ec0dbf8",
+      "source_id": "78022a4dd98e4ec0dbf8",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "78b1799c1d1da353d19a",
+      "source_id": "78b1799c1d1da353d19a",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "7b479ac3d1bb5d185dcd",
+      "source_id": "7b479ac3d1bb5d185dcd",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "7bcba0fdb0f05f2a3ab5",
+      "source_id": "7bcba0fdb0f05f2a3ab5",
+      "admission_class": "identity_ambiguous",
+      "terminal_reason": "identity_ambiguous"
+    },
+    {
+      "source_key": "804dd453b73bb615c40c",
+      "source_id": "804dd453b73bb615c40c",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "80866244486721c0d978",
+      "source_id": "80866244486721c0d978",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "81468d85a07adf4c663a",
+      "source_id": "81468d85a07adf4c663a",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "81fa7d638d5ab605eafa",
+      "source_id": "81fa7d638d5ab605eafa",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "842ce1ff1c136e23d949",
+      "source_id": "842ce1ff1c136e23d949",
+      "admission_class": "identity_ambiguous",
+      "terminal_reason": "identity_ambiguous"
+    },
+    {
+      "source_key": "84dec39797ef2d743649",
+      "source_id": "84dec39797ef2d743649",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "870c627e0a497188edbd",
+      "source_id": "870c627e0a497188edbd",
       "admission_class": "timestamp_unverified",
       "terminal_reason": "admission_integrity_rejected"
     },
     {
-      "source_key": "939be4cc71a083925d1c",
-      "source_id": "939be4cc71a083925d1c",
+      "source_key": "899a8355126ebba90a81",
+      "source_id": "899a8355126ebba90a81",
+      "admission_class": "identity_ambiguous",
+      "terminal_reason": "identity_ambiguous"
+    },
+    {
+      "source_key": "89ef97c4172e54edd2af",
+      "source_id": "89ef97c4172e54edd2af",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "8b843ebebdf8c5cec2aa",
+      "source_id": "8b843ebebdf8c5cec2aa",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "8c461e25e17965532006",
+      "source_id": "8c461e25e17965532006",
+      "admission_class": "identity_ambiguous",
+      "terminal_reason": "identity_ambiguous"
+    },
+    {
+      "source_key": "8d2844248064b42b8e3a",
+      "source_id": "8d2844248064b42b8e3a",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "8d40d6148b67e2ba1916",
+      "source_id": "8d40d6148b67e2ba1916",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "8f6ec73c7d07f330c592",
+      "source_id": "8f6ec73c7d07f330c592",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "8fe0f2b06c2505c4855e",
+      "source_id": "8fe0f2b06c2505c4855e",
+      "admission_class": "identity_ambiguous",
+      "terminal_reason": "identity_ambiguous"
+    },
+    {
+      "source_key": "902cd4d4e79823e20b77",
+      "source_id": "902cd4d4e79823e20b77",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "90a6fa68e53056c1d2e6",
+      "source_id": "90a6fa68e53056c1d2e6",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "90c2df2f006999f76501",
+      "source_id": "90c2df2f006999f76501",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "91719c07d968b1b9bcfb",
+      "source_id": "91719c07d968b1b9bcfb",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "918ad2de66239e367464",
+      "source_id": "918ad2de66239e367464",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "97019f05c53baad5b207",
+      "source_id": "97019f05c53baad5b207",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "986a4f4543d762fccd19",
+      "source_id": "986a4f4543d762fccd19",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "98fece281b90c67cd569",
+      "source_id": "98fece281b90c67cd569",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "9941151ab536eeb7967c",
+      "source_id": "9941151ab536eeb7967c",
+      "admission_class": "identity_ambiguous",
+      "terminal_reason": "identity_ambiguous"
+    },
+    {
+      "source_key": "9c9010f4d7652ecad8e8",
+      "source_id": "9c9010f4d7652ecad8e8",
+      "admission_class": "identity_ambiguous",
+      "terminal_reason": "identity_ambiguous"
+    },
+    {
+      "source_key": "9f867838a9d5f59d3efc",
+      "source_id": "9f867838a9d5f59d3efc",
+      "admission_class": "identity_ambiguous",
+      "terminal_reason": "identity_ambiguous"
+    },
+    {
+      "source_key": "9f8cbfffabaf96764706",
+      "source_id": "9f8cbfffabaf96764706",
+      "admission_class": "identity_ambiguous",
+      "terminal_reason": "identity_ambiguous"
+    },
+    {
+      "source_key": "a136e0ed5c36779a592a",
+      "source_id": "a136e0ed5c36779a592a",
+      "admission_class": "identity_ambiguous",
+      "terminal_reason": "identity_ambiguous"
+    },
+    {
+      "source_key": "a1bba64adc47d5c1026e",
+      "source_id": "a1bba64adc47d5c1026e",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "a1edf244915d8d109932",
+      "source_id": "a1edf244915d8d109932",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "a2f8451c377135c72d78",
+      "source_id": "a2f8451c377135c72d78",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "a349ebed89c4b0d54c2a",
+      "source_id": "a349ebed89c4b0d54c2a",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "a66df1526794a7a22485",
+      "source_id": "a66df1526794a7a22485",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "a699d1239b6b16f22df8",
+      "source_id": "a699d1239b6b16f22df8",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "a7291e43393fdaf7d064",
+      "source_id": "a7291e43393fdaf7d064",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "a7bd8c67b50dcca22c69",
+      "source_id": "a7bd8c67b50dcca22c69",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "ab96adde9e8039cbe224",
+      "source_id": "ab96adde9e8039cbe224",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "aba2350d26546c5b7f82",
+      "source_id": "aba2350d26546c5b7f82",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "acf62919c93d06c8c3f9",
+      "source_id": "acf62919c93d06c8c3f9",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "add93ac427bee882d525",
+      "source_id": "add93ac427bee882d525",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "afb1a6065dfcc72d3b3d",
+      "source_id": "afb1a6065dfcc72d3b3d",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "b140f2b2e31a0460a85b",
+      "source_id": "b140f2b2e31a0460a85b",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "b217c4fde7b4f6cd936a",
+      "source_id": "b217c4fde7b4f6cd936a",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "b3b60fc03b26da4a2edd",
+      "source_id": "b3b60fc03b26da4a2edd",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "b49840ba1c8fa7ebb65c",
+      "source_id": "b49840ba1c8fa7ebb65c",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "b498b387f757ae0b1683",
+      "source_id": "b498b387f757ae0b1683",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "b4dfc585cfe95d62bdb3",
+      "source_id": "b4dfc585cfe95d62bdb3",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "b50fe39a965bc4fb3f1f",
+      "source_id": "b50fe39a965bc4fb3f1f",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "ba534f48c2036800017a",
+      "source_id": "ba534f48c2036800017a",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "bab0aed9018df7f215c4",
+      "source_id": "bab0aed9018df7f215c4",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "bc254c87e269b6271f28",
+      "source_id": "bc254c87e269b6271f28",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "bca1d18ee5474b779cd6",
+      "source_id": "bca1d18ee5474b779cd6",
+      "admission_class": "identity_ambiguous",
+      "terminal_reason": "identity_ambiguous"
+    },
+    {
+      "source_key": "bce4450d16d98c2e8ba1",
+      "source_id": "bce4450d16d98c2e8ba1",
+      "admission_class": "identity_ambiguous",
+      "terminal_reason": "identity_ambiguous"
+    },
+    {
+      "source_key": "bdbadf4d56e4903fc8dc",
+      "source_id": "bdbadf4d56e4903fc8dc",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "bf38f2a025121b97a773",
+      "source_id": "bf38f2a025121b97a773",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "bf62eb5d8ccf5cf6cf30",
+      "source_id": "bf62eb5d8ccf5cf6cf30",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "bf8a1998474f37d1f423",
+      "source_id": "bf8a1998474f37d1f423",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "c094e39396e2565100b7",
+      "source_id": "c094e39396e2565100b7",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "c146f1886c54373bb778",
+      "source_id": "c146f1886c54373bb778",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "c225f5606d92fc4a4e77",
+      "source_id": "c225f5606d92fc4a4e77",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "c23df1257e16be4ee281",
+      "source_id": "c23df1257e16be4ee281",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "c2f65918632b81548c4f",
+      "source_id": "c2f65918632b81548c4f",
+      "admission_class": "identity_ambiguous",
+      "terminal_reason": "identity_ambiguous"
+    },
+    {
+      "source_key": "c352ed97596ce552773b",
+      "source_id": "c352ed97596ce552773b",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "c900453ee1c4e211a74e",
+      "source_id": "c900453ee1c4e211a74e",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "cb28019a1db27d889f5c",
+      "source_id": "cb28019a1db27d889f5c",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "cd2435567a2edf9dd75d",
+      "source_id": "cd2435567a2edf9dd75d",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "cd4acb0ae8add96d734e",
+      "source_id": "cd4acb0ae8add96d734e",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "cdee3a346a7c503e65ad",
+      "source_id": "cdee3a346a7c503e65ad",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "d009aa3aa7ba13af7bfa",
+      "source_id": "d009aa3aa7ba13af7bfa",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "d18a3ba6b781af7fd429",
+      "source_id": "d18a3ba6b781af7fd429",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "d223349fe25254ca2f31",
+      "source_id": "d223349fe25254ca2f31",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "d2cf004917b4de7f8ed0",
+      "source_id": "d2cf004917b4de7f8ed0",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "d37969d4442843963b16",
+      "source_id": "d37969d4442843963b16",
+      "admission_class": "identity_ambiguous",
+      "terminal_reason": "identity_ambiguous"
+    },
+    {
+      "source_key": "d42bd11efa2dcb364874",
+      "source_id": "d42bd11efa2dcb364874",
+      "admission_class": "identity_ambiguous",
+      "terminal_reason": "identity_ambiguous"
+    },
+    {
+      "source_key": "d45dd33388f3dd2f1f52",
+      "source_id": "d45dd33388f3dd2f1f52",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "d4855847c24e2f15c3f4",
+      "source_id": "d4855847c24e2f15c3f4",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "dcb938407a0c1550dea3",
+      "source_id": "dcb938407a0c1550dea3",
+      "admission_class": "identity_ambiguous",
+      "terminal_reason": "identity_ambiguous"
+    },
+    {
+      "source_key": "df7f6d4f29b4cf225c23",
+      "source_id": "df7f6d4f29b4cf225c23",
+      "admission_class": "identity_ambiguous",
+      "terminal_reason": "identity_ambiguous"
+    },
+    {
+      "source_key": "e1bf821e9354ef847c8b",
+      "source_id": "e1bf821e9354ef847c8b",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "e25654eaabfce8e56b99",
+      "source_id": "e25654eaabfce8e56b99",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "e45dc9a009715118c827",
+      "source_id": "e45dc9a009715118c827",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "e635eb241c5db2b8c9a8",
+      "source_id": "e635eb241c5db2b8c9a8",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "e66eedf7e1cc581290b9",
+      "source_id": "e66eedf7e1cc581290b9",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "e742242e66794dd91679",
+      "source_id": "e742242e66794dd91679",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "e85a3685f135527582bd",
+      "source_id": "e85a3685f135527582bd",
       "admission_class": "timestamp_unverified",
       "terminal_reason": "admission_integrity_rejected"
     },
     {
-      "source_key": "b62cbc7a54a4eca23098",
-      "source_id": "b62cbc7a54a4eca23098",
+      "source_key": "ebcceb2bb1aaea2b5eab",
+      "source_id": "ebcceb2bb1aaea2b5eab",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "f0518ba7b4999606e7ae",
+      "source_id": "f0518ba7b4999606e7ae",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "f098afd0cf5fde7f0045",
+      "source_id": "f098afd0cf5fde7f0045",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "f1236a29b26569474b9b",
+      "source_id": "f1236a29b26569474b9b",
+      "admission_class": "identity_ambiguous",
+      "terminal_reason": "identity_ambiguous"
+    },
+    {
+      "source_key": "f14924d4131dacbce653",
+      "source_id": "f14924d4131dacbce653",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "f23c3b98043c24de3800",
+      "source_id": "f23c3b98043c24de3800",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "f3f42c6a42bcb6742584",
+      "source_id": "f3f42c6a42bcb6742584",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "f432bc291dbd26df2a62",
+      "source_id": "f432bc291dbd26df2a62",
+      "admission_class": "identity_ambiguous",
+      "terminal_reason": "identity_ambiguous"
+    },
+    {
+      "source_key": "f44b8d7ca3f797b1be00",
+      "source_id": "f44b8d7ca3f797b1be00",
+      "admission_class": "identity_ambiguous",
+      "terminal_reason": "identity_ambiguous"
+    },
+    {
+      "source_key": "f4f96ef53661b5120bc1",
+      "source_id": "f4f96ef53661b5120bc1",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "f67138f6972484f0a6a9",
+      "source_id": "f67138f6972484f0a6a9",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "f7794082cda0ad08c29b",
+      "source_id": "f7794082cda0ad08c29b",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "f88e85ee3b830378ab18",
+      "source_id": "f88e85ee3b830378ab18",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "f93bd40f721e30255565",
+      "source_id": "f93bd40f721e30255565",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "fb18f1ad9c7cce9d2ae5",
+      "source_id": "fb18f1ad9c7cce9d2ae5",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "fb1de53256334d5b6d46",
+      "source_id": "fb1de53256334d5b6d46",
+      "admission_class": "identity_ambiguous",
+      "terminal_reason": "identity_ambiguous"
+    },
+    {
+      "source_key": "fe2d075b82a058751c03",
+      "source_id": "fe2d075b82a058751c03",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "fe457951787f901e9049",
+      "source_id": "fe457951787f901e9049",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
+    },
+    {
+      "source_key": "ff30da39a580afde9e26",
+      "source_id": "ff30da39a580afde9e26",
       "admission_class": "timestamp_unverified",
       "terminal_reason": "admission_integrity_rejected"
     },
     {
-      "source_key": "e7fbaecd132a526ef4d0",
-      "source_id": "e7fbaecd132a526ef4d0",
-      "admission_class": "timestamp_unverified",
-      "terminal_reason": "admission_integrity_rejected"
-    },
-    {
-      "source_key": "feb1a100fb2f8414cbc0",
-      "source_id": "feb1a100fb2f8414cbc0",
-      "admission_class": "timestamp_unverified",
-      "terminal_reason": "admission_integrity_rejected"
+      "source_key": "ffae6edfc54dc68902db",
+      "source_id": "ffae6edfc54dc68902db",
+      "admission_class": "backfill",
+      "terminal_reason": "backfill"
     }
   ],
   "guardrails": [
@@ -137,6 +1315,6 @@
     "Source-level terminal reasons conserve new source identities; downstream counts are intentionally non-conserving.",
     "No realized performance or outcome fields are read by this funnel."
   ],
-  "generated_at": "2026-10-09T03:49:20.623451+00:00",
-  "snapshot_id": "cea41099452457317f1de0e1eda37c96d652d341bf026c1f3e2572a6ef10de7a"
+  "generated_at": "2026-10-10T01:42:10.164686+00:00",
+  "snapshot_id": "e6b331737ac18e80c6d1e255ab4ce508609df6be4bfa62f2869fe6711cd3db5e"
 }

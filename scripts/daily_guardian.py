@@ -66,9 +66,26 @@ def us_session_open(now_utc: datetime) -> bool:
     return tc.is_session(local.date()) and time(9, 30) <= local.time() <= time(16, 15)
 
 
-def decide_server(now_utc: datetime, generated_at: str | None, runs: list[dict]) -> dict:
-    """Server Action Watch freshness during the US session (its cron is heavily throttled).
+def _hour_guard(now_utc, runs):
+    if any(r.get("status") in ("queued", "in_progress", "waiting", "pending", "requested") for r in runs):
+        return {"action": "wait", "reason": "server_watch_running"}
+    hour = now_utc.strftime("%Y-%m-%dT%H")
+    if any(SERVER_MARK in str(r.get("display_title") or "") and str(r.get("created_at") or "").startswith(hour) for r in runs):
+        return {"action": "wait", "reason": "already_dispatched_this_hour"}
+    return None
+
+
+def decide_server(now_utc: datetime, generated_at: str | None, runs: list[dict],
+                  server_market_as_of: str | None = None, published_market_as_of: str | None = None) -> dict:
+    """Server Action Watch freshness (its cron is heavily throttled).
+    - any time: the server snapshot lags the published market date (e.g. a guardian-dispatched Daily,
+      whose completion does not fire workflow_run, so the server chain never ran) → dispatch;
+    - US session: no successful run / status refresh for > SERVER_MAX_AGE_MIN → dispatch.
     At most one guard dispatch per clock hour; never while a run is queued/in progress."""
+    if server_market_as_of and published_market_as_of and str(server_market_as_of) < str(published_market_as_of):
+        g = _hour_guard(now_utc, runs)
+        return g or {"action": "dispatch", "reason": "server_snapshot_behind_market",
+                     "server_market_as_of": server_market_as_of, "market_as_of": published_market_as_of}
     if not us_session_open(now_utc):
         return {"action": "ok", "reason": "outside_us_session"}
     # server_action_status.json is only rewritten when its content changes (or every 6 h), so its
@@ -85,12 +102,8 @@ def decide_server(now_utc: datetime, generated_at: str | None, runs: list[dict])
     age = min(ages) if ages else None
     if age is not None and age <= SERVER_MAX_AGE_MIN:
         return {"action": "ok", "age_min": round(age)}
-    if any(r.get("status") in ("queued", "in_progress", "waiting", "pending", "requested") for r in runs):
-        return {"action": "wait", "reason": "server_watch_running"}
-    hour = now_utc.strftime("%Y-%m-%dT%H")
-    if any(SERVER_MARK in str(r.get("display_title") or "") and str(r.get("created_at") or "").startswith(hour) for r in runs):
-        return {"action": "wait", "reason": "already_dispatched_this_hour"}
-    return {"action": "dispatch", "age_min": None if age is None else round(age)}
+    g = _hour_guard(now_utc, runs)
+    return g or {"action": "dispatch", "age_min": None if age is None else round(age)}
 
 
 def gh(method, path, body=None):
@@ -122,7 +135,8 @@ def main():
         print(f"::error title=Daily guardian::DAILY_STILL_STALE {d['expected']} after {MAX_DISPATCH} guard dispatches; explicit GAP, no backfill")
     srv = json.loads((ROOT / "docs" / "research" / "server_action_status.json").read_text(encoding="utf-8"))
     sruns = (gh("GET", "actions/workflows/server-action-watch.yml/runs?per_page=20") or {}).get("workflow_runs", [])
-    sd = decide_server(datetime.now(timezone.utc), srv.get("generated_at"), sruns)
+    sd = decide_server(datetime.now(timezone.utc), srv.get("generated_at"), sruns,
+                       (srv.get("data_trust") or {}).get("market_as_of"), published_market_as_of(data))
     print(f"::notice title=Daily guardian::SERVER_GUARD {json.dumps(sd, sort_keys=True)}")
     if sd["action"] == "dispatch" and os.getenv("GUARD_DRY_RUN") != "1":
         gh("POST", "actions/workflows/server-action-watch.yml/dispatches", {"ref": "main", "inputs": {"run_reason": f"{SERVER_MARK} {datetime.now(timezone.utc):%Y-%m-%dT%H}"}})

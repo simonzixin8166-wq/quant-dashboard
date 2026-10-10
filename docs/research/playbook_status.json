@@ -1,22 +1,22 @@
 {
   "version": "6.10a.0",
   "schema_version": "1.0",
-  "generated_at": "2026-10-09T23:49:07.436146+00:00",
+  "generated_at": "2026-10-10T01:12:36.294122+00:00",
   "market_date": "2026-10-09",
   "expected_market_date": "2026-10-09",
   "mode": "silent_forward",
   "heartbeat": {
     "status": "pass",
     "scan_completed": true,
-    "scan_completed_at": "2026-10-09T23:49:07.436146+00:00",
+    "scan_completed_at": "2026-10-10T01:12:36.294122+00:00",
     "observed_market_date": "2026-10-09",
     "expected_market_date": "2026-10-09",
     "missing_sessions": []
   },
   "data_quality": {
-    "status": "pass",
+    "status": "attention",
     "global_reasons": [],
-    "undetermined_count": 0,
+    "undetermined_count": 1,
     "split_adjustment_gate": true,
     "missing_session_gate": true,
     "freshness_gate": true
@@ -65,10 +65,10 @@
   },
   "counts": {
     "entities": 7,
-    "triggered": 1,
+    "triggered": 0,
     "near_trigger": 0,
-    "undetermined": 0,
-    "transitions": 0,
+    "undetermined": 1,
+    "transitions": 1,
     "private_trigger_events_pending": 0,
     "late_detected_entities": 0
   },
@@ -117,7 +117,7 @@
         "detection_window_start": null,
         "detection_window_end": null,
         "previous_valid_state_key": "IDLE:normal",
-        "previous_valid_market_date": "2026-10-08",
+        "previous_valid_market_date": "2026-10-09",
         "prior_unknown_since_market_date": null
       },
       "last_valid_state_key": "IDLE:normal",
@@ -177,7 +177,7 @@
         "detection_window_start": null,
         "detection_window_end": null,
         "previous_valid_state_key": "IDLE:normal",
-        "previous_valid_market_date": "2026-10-08",
+        "previous_valid_market_date": "2026-10-09",
         "prior_unknown_since_market_date": null
       },
       "last_valid_state_key": "IDLE:normal",
@@ -237,7 +237,7 @@
         "detection_window_start": null,
         "detection_window_end": null,
         "previous_valid_state_key": "IDLE:normal",
-        "previous_valid_market_date": "2026-10-08",
+        "previous_valid_market_date": "2026-10-09",
         "prior_unknown_since_market_date": null
       },
       "last_valid_state_key": "IDLE:normal",
@@ -257,30 +257,29 @@
       "entity_key": "CP-02:TQQQ",
       "playbook_id": "CP-02",
       "symbol": "TQQQ",
-      "state": "TRIGGERED",
-      "detail": "full_restore",
-      "state_key": "TRIGGERED:full_restore",
+      "state": "UNDETERMINED",
+      "detail": "tqqq_snapshot_date_mismatch|tqqq_strategy_date_mismatch",
+      "state_key": "UNDETERMINED:tqqq_snapshot_date_mismatch|tqqq_strategy_date_mismatch",
       "market_date": "2026-10-09",
       "rule_version": "1.0.0",
       "rule_hash": "f89277cd0b6f80aa2682799ee45d3c02a0cd76633d855cb0621557bc18db8fb5",
       "lifecycle": "active",
       "evidence": "unverified",
       "quality": {
-        "eligible": true,
-        "reasons": [],
+        "eligible": false,
+        "reasons": [
+          "tqqq_snapshot_date_mismatch",
+          "tqqq_strategy_date_mismatch"
+        ],
         "date": "2026-10-09",
         "source": "docs/data.json",
         "as_of": "2026-10-09",
-        "freshness": "fresh",
+        "freshness": "failed",
         "split_adjustment_check": "pass"
       },
-      "baseline_close": 751.27002,
+      "baseline_close": null,
       "benchmark": "QQQ",
-      "metrics": {
-        "target_position": 67,
-        "target_daily_exposure": 2.01,
-        "vix": 14.84000015258789
-      },
+      "metrics": {},
       "runtime": {
         "enabled": true,
         "ledger_enabled": true,
@@ -291,27 +290,24 @@
       "continuity": {
         "last_valid_state_key": "TRIGGERED:full_restore",
         "last_valid_market_date": "2026-10-09",
-        "unknown_since_market_date": null,
+        "unknown_since_market_date": "2026-10-09",
         "detection_delay_sessions": 0,
         "late_detected": false,
         "timing_uncertain": false,
         "detection_window_start": null,
-        "detection_window_end": null,
-        "previous_valid_state_key": "TRIGGERED:full_restore",
-        "previous_valid_market_date": "2026-10-08",
-        "prior_unknown_since_market_date": null
+        "detection_window_end": null
       },
       "last_valid_state_key": "TRIGGERED:full_restore",
       "last_valid_market_date": "2026-10-09",
-      "unknown_since_market_date": null,
+      "unknown_since_market_date": "2026-10-09",
       "late_detected": false,
       "detection_delay_sessions": 0,
       "timing_uncertain": false,
       "previous_state_key": "TRIGGERED:full_restore",
-      "transition_detected": false,
+      "transition_detected": true,
       "suppressed_by_kill_switch": false,
       "bootstrap": false,
-      "committed_state_key": "TRIGGERED:full_restore",
+      "committed_state_key": "UNDETERMINED:tqqq_snapshot_date_mismatch|tqqq_strategy_date_mismatch",
       "pending_transition": false
     },
     {
@@ -360,7 +356,7 @@
         "detection_window_start": null,
         "detection_window_end": null,
         "previous_valid_state_key": "IDLE:normal",
-        "previous_valid_market_date": "2026-10-08",
+        "previous_valid_market_date": "2026-10-09",
         "prior_unknown_since_market_date": null
       },
       "last_valid_state_key": "IDLE:normal",
@@ -422,7 +418,7 @@
         "detection_window_start": null,
         "detection_window_end": null,
         "previous_valid_state_key": "IDLE:normal",
-        "previous_valid_market_date": "2026-10-08",
+        "previous_valid_market_date": "2026-10-09",
         "prior_unknown_since_market_date": null
       },
       "last_valid_state_key": "IDLE:normal",
@@ -484,7 +480,7 @@
         "detection_window_start": null,
         "detection_window_end": null,
         "previous_valid_state_key": "IDLE:normal",
-        "previous_valid_market_date": "2026-10-08",
+        "previous_valid_market_date": "2026-10-09",
         "prior_unknown_since_market_date": null
       },
       "last_valid_state_key": "IDLE:normal",

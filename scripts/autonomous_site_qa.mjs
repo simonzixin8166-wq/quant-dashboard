@@ -22,7 +22,8 @@ async function publicRun(viewport,name){
   const txt=(await page.locator('body').innerText()).slice(0,250000);
   const soleOutletTitle=await page.locator('#tab-overview h1').first().innerText().catch(()=> '');
   const singleOutletLoaded=await page.evaluate(()=>Boolean(window.MAVSingleActionOutlet));
-  report.public[name]={version:v,body_version:bodyv,assistant:Boolean(assistant),journal:Boolean(journal),historical_learning:history,autonomous_agent:Boolean(agentRoot)&&agent,negative_zero:/(^|[^\d])-0(?:\.0+)?(?=\s|%|$|｜|·)/m.test(txt),single_action_outlet:singleOutletLoaded&&/唯一行动出口/.test(soleOutletTitle)};
+  const vendor=await page.evaluate(()=>{const V=window.MAV_VENDOR||null;return {chart:Boolean(window.Chart&&!window.Chart.__mavStub),supabase:Boolean(window.supabase&&typeof window.supabase.createClient==='function'&&!window.supabase.__mavStub),guard_present:Boolean(V),degraded:V&&V.degraded?Array.from(V.degraded):null,chart_version:(window.Chart&&window.Chart.version)||null}});
+  report.public[name]={version:v,body_version:bodyv,assistant:Boolean(assistant),journal:Boolean(journal),historical_learning:history,autonomous_agent:Boolean(agentRoot)&&agent,negative_zero:/(^|[^\d])-0(?:\.0+)?(?=\s|%|$|｜|·)/m.test(txt),single_action_outlet:singleOutletLoaded&&/唯一行动出口/.test(soleOutletTitle),vendor};
   await page.screenshot({path:`${out}/${name}-home.png`,fullPage:true});
   if(name==='desktop'){
     // Read-only synthetic private mode: verifies tab routing/layout even when CI has no private QA credentials.
@@ -194,7 +195,7 @@ try{
   }
 }catch(e){report.learning_guardrails={status:'FAIL',error:String(e.message).slice(0,200)}}
 
-const engineeringBaseHealthy=Object.values(report.public).every(x=>Boolean(x.version)&&x.version===x.body_version&&x.assistant&&x.journal&&x.historical_learning&&x.autonomous_agent&&x.single_action_outlet&&!x.negative_zero)&&report.private.status!=='FAIL'&&report.interaction.status==='PASS';
+const engineeringBaseHealthy=Object.values(report.public).every(x=>Boolean(x.version)&&x.version===x.body_version&&x.assistant&&x.journal&&x.historical_learning&&x.autonomous_agent&&x.single_action_outlet&&!x.negative_zero&&x.vendor&&x.vendor.chart&&x.vendor.supabase)&&report.private.status!=='FAIL'&&report.interaction.status==='PASS';
 report.engineering_qa={status:engineeringBaseHealthy?'PASS':'FAIL',public_surfaces:Object.keys(report.public),private_status:report.private.status,interaction_status:report.interaction.status};
 const investmentDataPass=report.business_data.status==='PASS'&&report.server_action?.status==='PASS';
 report.investment_data_qa={status:investmentDataPass?'PASS':'FAIL',market_as_of:report.business_data.market_as_of||null,expected_market_date:report.business_data.expected_market_date||null,business_freshness:report.business_data.business_freshness||'unknown',decision_eligible:Boolean(report.business_data.decision_eligible),server_action:report.server_action};
@@ -232,6 +233,7 @@ function qaVerdictLines(r){
     ['server_action',sa.status],['server_status',sa.server_status],['judgment_basis',sa.judgment_basis],
     ['server_market_as_of',sa.server_market_as_of],['server_snapshot_current',sa.server_snapshot_current],
     ['investment_data_qa',(r.investment_data_qa||{}).status],['learning_guardrails',(r.learning_guardrails||{}).status],
+    ['vendor_libs',Object.entries(r.public||{}).map(([k,x])=>`${k}:${x.vendor?(x.vendor.chart&&x.vendor.supabase?'ok':'degraded'):'-'}`).join('/')],
     ['fatal_console_errors',(r.fatal_console_errors||[]).length],['http_errors',(r.http_errors||[]).length],
     ['deploy_matches_head',(r.deployment||{}).matches],['head_sha',String((r.deployment||{}).head_sha||'').slice(0,7)],
     ['deployed_build_id',(r.deployment||{}).deployed_build_id],

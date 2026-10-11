@@ -30,16 +30,6 @@
     return { key: 'stale', why: '研究停留在 ' + d.latest_session + '，页面行情已到 ' + pageMarketAsOf };
   }
 
-  // a failure marker written after the digest's last successful run (e.g. the Daily step failed before rebuilding the digest)
-  function mergeFailure(d, f) {
-    var m = f && f.modules && f.modules.auto_research;
-    var last = d && d.last_run && d.last_run.at;
-    if (d && m && m.failed_at && (!last || Date.parse(m.failed_at) > Date.parse(last))) {
-      d.run_failure = { failed_after_last_success: true, failed_at: m.failed_at, run_id: m.run_id };
-    }
-    return d;
-  }
-
   function fmtTime(iso) {
     if (!iso) return '-';
     var t = new Date(iso);
@@ -106,13 +96,14 @@
     if (!el || typeof fetch !== 'function') return;
     var marketAsOf = el.getAttribute('data-market-as-of') || '';
     var get = function (u) { return fetch(u + '?v=' + Date.now(), { cache: 'no-store' }).then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); }); };
-    var failures = get('research/module_failures.json').catch(function () { return null; }); // absent = no failure recorded
+    // failure state comes from the digest itself (Daily rebuilds it right after writing a failure marker);
+    // module_failures.json is event-only and normally absent, so it is never requested here (no 404 noise)
     get('research/auto_research_digest.json')
-      .then(function (d) { return failures.then(function (f) { render(el, d, computeState(mergeFailure(d, f), marketAsOf)); }); })
+      .then(function (d) { render(el, d, computeState(d, marketAsOf)); })
       .catch(function () { render(el, null, computeState(null, marketAsOf)); });
   }
 
-  root.MAVAutoResearchRow = { _test: { computeState: computeState, mergeFailure: mergeFailure, esc: esc, itemHtml: itemHtml } };
+  root.MAVAutoResearchRow = { _test: { computeState: computeState, esc: esc, itemHtml: itemHtml } };
   if (typeof document !== 'undefined' && document.addEventListener) {
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
   }

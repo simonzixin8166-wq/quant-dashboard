@@ -11,10 +11,9 @@ assert.strictEqual(T.computeState(d, '2026-10-13', new Date('2026-10-14T02:00:00
 assert.strictEqual(T.computeState(d, '2026-10-13', new Date('2026-10-14T16:00:00Z')).key, 'stale');
 assert.strictEqual(T.computeState({ latest_session: null }, '2026-10-13').key, 'pending');
 assert.strictEqual(T.computeState({ ...d, run_failure: { failed_after_last_success: true } }, '2026-10-12').key, 'failed');
-// failure marker merge: newer than last run → failed, older → untouched
-assert.strictEqual(T.computeState(T.mergeFailure({ ...d }, { modules: { auto_research: { failed_at: '2026-10-13T05:00:00Z' } } }), '2026-10-12').key, 'failed');
-assert.strictEqual(T.computeState(T.mergeFailure({ ...d }, { modules: { auto_research: { failed_at: '2026-10-12T05:00:00Z' } } }), '2026-10-12').key, 'ok');
-assert.strictEqual(T.computeState(T.mergeFailure({ ...d }, null), '2026-10-12').key, 'ok');
+// the row never requests the event-only module_failures.json (normally absent → 404 noise in production QA)
+const src = require('fs').readFileSync(__dirname + '/../docs/assets/auto-research-row.js', 'utf8');
+assert(!/get\(['"]research\/module_failures/.test(src) && !/fetch\(['"][^'"]*module_failures/.test(src), 'no module_failures request');
 // escaping and pre-gate flag in the detail
 const html = T.itemHtml({ symbol: '<b>X', stance: 'bearish', research_date: 'r', market_as_of: 'm', decision_reason: '<script>', pre_sec_gate: true,
   supporting: [{ note: 'a<b', source: 's', as_of: 'd', pre_sec_gate: true }], opposing: [], invalidation: ['x<y'], inputs: ['price_archive'] });

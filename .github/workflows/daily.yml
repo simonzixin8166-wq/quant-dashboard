@@ -172,7 +172,9 @@ jobs:
 
       - name: Record automatic research failure without blocking website
         if: steps.auto_research.outcome == 'failure'
-        run: python scripts/module_failure_marker.py auto_research
+        run: |
+          python scripts/module_failure_marker.py auto_research
+          python scripts/auto_research_digest.py || true  # carry the failure into the homepage row
 
       - name: Build V6.7 Cross-Asset Divergence
         run: python scripts/cross_asset_divergence_engine.py

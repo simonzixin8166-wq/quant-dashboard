@@ -32,7 +32,7 @@ sys.path.insert(0, str(ROOT / "scripts"))
 import trading_calendar as tc  # noqa: E402
 import knowledge_contract as kc  # noqa: E402
 
-GENERATOR = "auto-research-3"  # v3: v2 + working SEC facts (UA fix, annual fallback) + new-evidence on revisits
+GENERATOR = "auto-research-4"  # v4: SEC period-consistency + freshness gate; corrections for earlier SEC evidence
 JOURNAL = ROOT / "research" / "knowledge" / "auto_research_journal.jsonl"
 STATUS = ROOT / "docs" / "research" / "auto_research_status.json"
 MACRO = ROOT / "docs" / "research" / "macro_context.json"
@@ -116,26 +116,32 @@ def fundamental_evidence(sym, sec, generated_at):
     if not f:
         return {"available": False, "reason": "not an operating company in the SEC fact set (ETF) or not fetched"}, []
     if not f.get("available"):
-        return {"available": False, "reason": f.get("reason"), "cik": f.get("cik")}, []
+        return {"available": False, "reason": f.get("reason"), "cik": f.get("cik"), "metrics_status": f.get("metrics_status"),
+                "freshness": f.get("freshness")}, []
     rq = f["revenue_q"]
     if str(rq.get("filed")) > generated_at[:10]:
         return {"available": False, "reason": f"latest filing {rq.get('filed')} is after the lock time"}, []
     ev = []
     src = f"SEC XBRL {f.get('revenue_concept')} {rq.get('form')} accn {rq.get('accn')}"
-    yoy = f.get("revenue_yoy")
+    ms = f.get("metrics_status") or {}
+    fr = f.get("freshness") or {}
+    yoy = f.get("revenue_yoy") if ms.get("revenue_yoy", "current") == "current" else None
     if yoy is not None:
         ev.append({"name": "sec_revenue_yoy", "value": round(yoy, 4), "sign": 1 if yoy > 0.10 else (-1 if yoy < 0 else 0),
                    "source": src, "as_of": rq.get("end"), "available_at": rq.get("filed"), "group": "fundamental",
                    "note": f"{'annual' if f.get('period_type') == 'fiscal_year' else 'quarterly'} revenue {rq['val']/1e6:,.0f}M for {rq.get('start')}–{rq.get('end')} ({rq.get('fp')} FY{rq.get('fy')}), "
-                           f"{yoy:+.1%} YoY; filed {rq.get('filed')}"})
-    ni = f.get("net_income_q")
+                           f"{yoy:+.1%} YoY; filed {rq.get('filed')}; freshness {fr.get('status', 'n/a')} (period end {fr.get('period_end_age_days', '?')}d ago)"})
+    ni = f.get("net_income_q") if ms.get("net_income", "current") == "current" else None
+    if ni and (ni.get("end") != rq.get("end") or ni.get("start") != rq.get("start")):
+        ni = None  # never mix periods (e.g. 2019 net income with 2026 revenue)
     if ni:
         ev.append({"name": "sec_net_income_q", "value": ni["val"], "sign": -1 if ni["val"] < 0 else 0,
                    "source": f"SEC XBRL {f.get('net_income_concept')} {ni.get('form')} accn {ni.get('accn')}", "as_of": ni.get("end"),
                    "available_at": ni.get("filed"), "group": "fundamental",
                    "note": f"{'annual' if f.get('period_type') == 'fiscal_year' else 'quarterly'} net income {ni['val']/1e6:,.0f}M ({'loss' if ni['val'] < 0 else 'profit'}) for period ending {ni.get('end')}"})
     summary = {"available": True, "cik": f.get("cik"), "entity": f.get("entity"), "revenue_q": rq, "revenue_yoy": yoy,
-               "net_income_q": ni, "source": f.get("source"), "restated": (f.get("consistency") or {}).get("restated")}
+               "net_income_q": ni, "source": f.get("source"), "restated": (f.get("consistency") or {}).get("restated"),
+               "metrics_status": ms, "freshness": fr, "period_type": f.get("period_type")}
     return summary, ev
 
 
@@ -305,6 +311,34 @@ def annotate_legacy(journal, gen_at, run_id):
     return out
 
 
+def annotate_sec_corrections(journal, sec, gen_at, run_id):
+    """Earlier records whose SEC evidence mixed periods or used stale periods get one append-only correction."""
+    done = {j.get("annotates") for j in journal if j.get("type") == "annotation" and j.get("kind") == "sec_correction"}
+    out = []
+    for j in journal:
+        f = j.get("fundamentals") or {}
+        if j.get("type") != "hypothesis" or not f.get("available") or j["record_id"] in done:
+            continue
+        rq, ni = f.get("revenue_q") or {}, f.get("net_income_q") or {}
+        issues = []
+        if ni and (ni.get("end") != rq.get("end")):
+            issues.append(f"net income period ending {ni.get('end')} mixed with revenue period ending {rq.get('end')}")
+        now_f = (sec or {}).get(j["symbol"]) or {}
+        if rq.get("end") and (now_f.get("revenue_q") or {}).get("end") and now_f["revenue_q"]["end"] != rq.get("end"):
+            issues.append(f"revenue period {rq.get('end')} was not the latest; corrected latest is {now_f['revenue_q']['end']}")
+        if rq.get("end") and not f.get("freshness"):
+            age = (datetime.fromisoformat(gen_at.replace("Z", "+00:00")).date() - date.fromisoformat(rq["end"])).days
+            if age > 150:
+                issues.append(f"revenue period ending {rq['end']} is {age} days old (stale; not current evidence)")
+        if issues:
+            out.append({"type": "annotation", "kind": "sec_correction", "record_id": f"{j['record_id']}-sec-correction",
+                        "annotates": j["record_id"], "symbol": j["symbol"], "market_as_of": j["market_as_of"],
+                        "generator_version": GENERATOR, "generated_at": gen_at, "run_id": run_id, "forward_eligible": False,
+                        "production_use": False, "shadow": True, "issues": issues,
+                        "note": "SEC evidence in the annotated record is unreliable for the listed reasons; it must not be used; see later records"})
+    return out
+
+
 def read_journal():
     return [json.loads(x) for x in JOURNAL.read_text(encoding="utf-8").splitlines() if x.strip()] if JOURNAL.exists() else []
 
@@ -348,6 +382,7 @@ def run(now=None, fetch_claims=True, run_id=None):
     run_event = os.getenv("GITHUB_EVENT_NAME") or "local"
     new, log = [], []
     new.extend(annotate_legacy(journal, gen_at, run_id))
+    new.extend(annotate_sec_corrections(journal, inputs.get("_sec"), gen_at, run_id))
     for sym in [s for s in archive_symbols() if s not in EXCLUDE]:
         rows = kc.history(sym)
         rel = [c for c in claims if c.get("symbol") == sym]

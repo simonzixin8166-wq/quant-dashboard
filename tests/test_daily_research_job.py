@@ -64,3 +64,12 @@ rep = wr.build(now)
 assert rep["window"]["to_session"] == "2026-10-09" and rep["maturity"]["matured"] == 0 and rep["learning_state"] == "UNPROVEN"
 assert "2026-10-05" in rep["window"]["before_job_existed"] and rep["window"]["gaps"] == []
 print("PASS weekly report")
+bad = {"type": "hypothesis", "record_id": "AVGO-x-h", "symbol": "AVGO", "market_as_of": "2026-10-09",
+       "fundamentals": {"available": True, "revenue_q": {"end": "2026-08-02"}, "net_income_q": {"end": "2019-08-04"}}}
+c = drj.annotate_sec_corrections([bad], {}, "2026-10-12T00:00:00Z", "t5")
+assert len(c) == 1 and "mixed" in c[0]["issues"][0] and c[0]["kind"] == "sec_correction"
+assert drj.annotate_sec_corrections([bad] + c, {}, "2026-10-12T00:00:00Z", "t6") == []
+stale = {"type": "hypothesis", "record_id": "NVDA-x-h", "symbol": "NVDA", "market_as_of": "2026-10-09",
+         "fundamentals": {"available": True, "revenue_q": {"end": "2022-01-30"}}}
+assert "stale" in " ".join(drj.annotate_sec_corrections([stale], {}, "2026-10-12T00:00:00Z", "t7")[0]["issues"])
+print("PASS sec corrections")

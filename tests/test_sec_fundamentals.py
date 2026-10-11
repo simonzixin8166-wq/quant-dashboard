@@ -44,3 +44,16 @@ sf.get = lambda url: iren
 r = sf.facts_for("IREN", 1878848, TODAY)
 assert r["period_type"] == "fiscal_year" and r["net_income_q"]["val"] == -702 and r["available"]
 print("PASS sec fundamentals quality gate")
+sofi = {"entityName": "SoFi", "facts": {"us-gaap": {
+    "RevenueFromContractWithCustomerExcludingAssessedTax": {"units": {"USD": [u("2026-04-01", "2026-06-30", 153e6, "2026-07-30")]}},
+    "NetIncomeLoss": {"units": {"USD": [u("2026-04-01", "2026-06-30", 156e6, "2026-07-30")]}}}}}
+sf.get = lambda url: sofi
+r = sf.facts_for("SOFI", 1818874, TODAY)
+assert r["available"] is False and r["metrics_status"]["revenue"].startswith("anomaly_review")
+goog2 = {"entityName": "Alphabet", "facts": {"us-gaap": {
+    "Revenues": {"units": {"USD": [u("2026-04-01", "2026-06-30", 120e9, "2026-07-23")]}},
+    "NetIncomeLoss": {"units": {"USD": [u("2026-04-01", "2026-06-30", 112e9, "2026-07-23")]}}}}}
+sf.get = lambda url: goog2
+r = sf.facts_for("GOOG", 1652044, TODAY)
+assert r["available"] and r["metrics_status"]["net_income"].startswith("anomaly_review")
+print("PASS sec sanity")

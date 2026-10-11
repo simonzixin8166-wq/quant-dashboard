@@ -50,8 +50,10 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: python scripts/weekly_research_report.py
+      - name: Homepage research digest (reads the journal; no network)
+        run: python scripts/auto_research_digest.py
       - name: Save shadow journal only
         run: |
           git config user.name "github-actions"; git config user.email "actions@github.com"
-          git add research/knowledge/auto_research_journal.jsonl docs/research/auto_research_status.json docs/research/sec_fundamentals.json docs/research/weekly_research_report.json
+          git add research/knowledge/auto_research_journal.jsonl docs/research/auto_research_status.json docs/research/sec_fundamentals.json docs/research/weekly_research_report.json docs/research/auto_research_digest.json
           git diff --cached --quiet || (git commit -m "auto research shadow journal" && git pull --rebase origin main && git push)

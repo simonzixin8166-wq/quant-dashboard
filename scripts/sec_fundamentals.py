@@ -104,9 +104,21 @@ def facts_for(sym, cik, today=None):
                 "consistency": {"period_days": days(last["start"], last["end"]), "net_income_same_period": bool(ni),
                                 "prior_year_same_length": bool(prior), "restated": bool(last.get("restated_from")),
                                 "filed_after_period_end": str(last.get("filed")) >= last["end"]}})
-    out["available"] = fr["status"] == "current"
+    # internal consistency: |net income| above 80% of revenue is implausible for most operating companies →
+    # either a partial revenue concept (e.g. fintech/bank 'revenue from contracts' excludes interest income) or a
+    # one-off item; such metrics are held for review instead of being used as evidence
+    if ni and last["val"]:
+        ratio = ni[-1]["val"] / last["val"]
+        out["consistency"]["net_income_to_revenue"] = round(ratio, 3)
+        if abs(ratio) > 0.8:
+            out["metrics_status"]["net_income"] = "anomaly_review (|net income| > 80% of revenue)"
+        if ratio > 1.0:
+            out["metrics_status"]["revenue"] = "anomaly_review (revenue concept may be partial: net income exceeds it)"
+            out["metrics_status"]["revenue_yoy"] = out["metrics_status"]["revenue"]
+    out["available"] = fr["status"] == "current" and out["metrics_status"]["revenue"] == "current"
     if not out["available"]:
-        out["reason"] = f"latest revenue period ends {last['end']} ({fr['period_end_age_days']} days ago > {fr['max_days']}): stale, not current evidence"
+        out["reason"] = (f"latest revenue period ends {last['end']} ({fr['period_end_age_days']} days ago > {fr['max_days']}): stale, not current evidence"
+                         if fr["status"] != "current" else out["metrics_status"]["revenue"])
     return out
 
 

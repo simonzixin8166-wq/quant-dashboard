@@ -1,0 +1,52 @@
+{
+ "case_id": "k-2026-10-11-mani-vgt-01",
+ "analyst": "claude (view computed by rule_view; narrative drafted from computed evidence)",
+ "symbol": "VGT",
+ "horizon_sessions": 20,
+ "sources": [
+  {"record_id": "d37969d4442843963b16", "author": "麻你", "url": "https://bbs.wenxuecity.com/tzlc/2357083.html", "published_at": "2026-08-21 16:09:21", "provenance": "forum_author_backfill", "text_sha256": "fc85ed9dd73f48f9e19da3916aa8181fcde981184bf727948a73cf7f8222b7cc", "locator": "下个星期设117.57止盈，卖出VGT总仓位的4%。"},
+  {"record_id": "a349ebed89c4b0d54c2a", "author": "麻你", "url": "https://bbs.wenxuecity.com/tzlc/2357140.html", "published_at": "2026-08-21 20:09:30", "provenance": "forum_author_backfill", "text_sha256": "2b5dcb22b6e127b99399cb3009161be96151ee655f4518d8ed83f4e315113faa", "locator": "设的是stop loss order"},
+  {"record_id": "e45dc9a009715118c827", "author": "麻你", "url": "https://bbs.wenxuecity.com/tzlc/2358508.html", "published_at": "2026-08-24 20:16:34", "provenance": "forum_author_backfill", "text_sha256": "43e1dfa349c5881cf5f2ba0d5acd904b41101de10ba255e63e25577ae802cda5", "locator": "今天卖出了部分VGT在117.57，大约占VGT总仓位的4%"},
+  {"record_id": "1756bb940a4382fd71ac", "author": "麻你", "url": "https://bbs.wenxuecity.com/tzlc/2372727.html", "published_at": "2026-09-25 10:50:27", "provenance": "forum_author_backfill", "text_sha256": "5996767be1a62b6e5994bef4c0ebcd2d6b09bfee189b7584ee84b68cfbb86579", "locator": "VGT year to date 涨了33%，账户在四月底部加仓成全仓，涨幅更好"}
+ ],
+ "author_claims": [
+  {"source": "d37969d4442843963b16", "stance": "trim", "status": "planned", "instrument": "stock", "holder": "author", "quote_locator": "下个星期设117.57止盈，卖出VGT总仓位的4%。"},
+  {"source": "a349ebed89c4b0d54c2a", "stance": "trim", "status": "conditional", "instrument": "stock", "holder": "author", "quote_locator": "设的是stop loss order（低于该价自动卖出）"},
+  {"source": "e45dc9a009715118c827", "stance": "trim", "status": "executed", "instrument": "stock", "holder": "author", "quote_locator": "今天卖出了部分VGT在117.57"},
+  {"source": "1756bb940a4382fd71ac", "stance": "hold", "status": "opinion", "instrument": "stock", "holder": "author", "quote_locator": "VGT YTD 涨了33%；继续保持87%在VGT"}
+ ],
+ "checks": [
+  {"claim": "stop level 117.57 was a traded price in the week the plan was posted", "check": "price_in_range", "args": {"day": "2026-08-21", "price": 117.57}},
+  {"claim": "reported sale at 117.57 on 2026-08-24 (author statement; no broker confirmation)", "check": "price_in_range", "args": {"day": "2026-08-24", "price": 117.57}},
+  {"claim": "VGT year-to-date +33% stated on 2026-09-25 (prior close)", "check": "ytd_return", "args": {"day": "2026-09-24", "pct": 0.33}},
+  {"claim": "87% VGT / 13% SGOV allocation", "check": "no_price", "args": {"note": "private account allocation: not observable in market data"}}
+ ],
+ "agrees_with_author": "partial",
+ "view_summary": "MyAlpha 独立判断（规则）：{stance}。VGT 收盘 {close}（{as_of}），高于 MA50 {ma50} 与 MA200 {ma200}，周线{weekly}，但距 MA200 已 +{dist_ma200_pct}（>15% 视为偏离过大），趋势脉冲为「{trend_pulse_state}」、ADX {adx}（趋势强度弱）。结论：上升趋势仍在，但不支持在此位置新增多头；作者『跌破设定价自动减仓 4%、其余继续持有』属于风控规则而非看空预测，与 MyAlpha 的『持有、不追高』在方向上部分一致。作者 08-24 减仓价 117.57 之后 VGT 上涨至 {close}，单次事后看减仓有机会成本，但 1 次样本不能评价该方法。",
+ "supporting": [
+  {"point": "价格结构多头：收盘 > MA50 > MA200，周线多头", "evidence": ["close", "ma50", "ma200", "weekly"]},
+  {"point": "作者陈述的 3 个可检验事实与行情相容（117.57 在 08-21/08-24 成交区间内；YTD +33% 与 09-24 收盘一致）", "evidence": ["claim_checks"]},
+  {"point": "市场波动低：VIX 处于低位", "evidence": ["VIX close"]}
+ ],
+ "opposing": [
+  {"point": "偏离 MA200 约 19%，动量钝化（高位钝化、ADX < 20），追高风险上升", "evidence": ["dist_ma200", "trend_pulse_state", "adx"]},
+  {"point": "近 60 日最高点附近，回撤至 MA50 的空间约 5%", "evidence": ["high_60", "ma50"]},
+  {"point": "作者自身规则在上方继续减仓取利（计划卖出信号），说明其仓位视角偏向逐步降低", "evidence": ["author_claims"]}
+ ],
+ "applies_when": [
+  {"metric": "close", "op": ">", "ref": "ma50", "note": "价格保持在 MA50 之上"},
+  {"metric": "weekly", "op": "==", "value": "多头", "note": "周线多头"}
+ ],
+ "invalidation": [
+  {"metric": "close", "op": "<", "ref": "ma50", "note": "收盘跌破 MA50：中性判断降级为偏空复核"},
+  {"metric": "close", "op": "<", "value": 115.91, "note": "跌破 2026-08-24 低点：作者减仓后的支撑失效"},
+  {"metric": "close", "op": ">", "value": 130.66, "note": "有效突破年内高点且动量不再钝化：重新评估是否转为看多"}
+ ],
+ "unknowns": [
+  "作者的真实成交与仓位比例无券商凭证，只能判断与行情相容，不能证明成交",
+  "文学城时间戳时区未确认（按美股当地日期解读）",
+  "VGT 估值（P/E）与前十大持仓集中度不在免费数据管线中",
+  "宏观（实际利率、美元）未纳入本案例证据",
+  "这些帖子是 backfill（事后采集），不是同期锁定的观察"
+ ]
+}

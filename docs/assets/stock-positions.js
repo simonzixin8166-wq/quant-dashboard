@@ -34,7 +34,7 @@
     const cost=num(input.cost_basis);if(cost!==null&&cost<0)errs.push('成本不能为负');
     if(!input.broker_account_id)errs.push('请选择账户');
     const note=String(input.note||'').trim();if(note.length>300)errs.push('备注不超过 300 字');
-    return {ok:!errs.length,errs,payload:{broker_account_id:Number(input.broker_account_id),symbol,shares,cost_basis:cost,opened_at:input.opened_at||null,note:note||null}};
+    return {ok:!errs.length,errs,payload:{broker_account_id:Number(input.broker_account_id),symbol,shares,cost_basis:cost,opened_at:input.opened_at||null,note}};
   }
 
   async function load(){

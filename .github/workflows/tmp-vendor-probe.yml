@@ -1,0 +1,22 @@
+name: TMP vendor probe (delete after use)
+on:
+  push:
+    branches: [tmp/vendor-probe]
+permissions: {contents: read}
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          for spec in chart.js@4 @supabase/supabase-js@2; do
+            echo "== $spec"
+            curl -sSI "https://cdn.jsdelivr.net/npm/$spec" | grep -i -E '^(x-jsd-version|content-type|content-length|location)' || true
+            name=${spec%@*}
+            curl -sS "https://data.jsdelivr.com/v1/packages/npm/$name/resolved?specifier=${spec##*@}"; echo
+          done
+          for p in chart.js @supabase/supabase-js; do
+            v=$(curl -sS "https://data.jsdelivr.com/v1/packages/npm/$p/resolved?specifier=$([ $p = chart.js ] && echo 4 || echo 2)" | python3 -c 'import json,sys;print(json.load(sys.stdin)["version"])')
+            curl -sS "https://data.jsdelivr.com/v1/packages/npm/$p@$v/entrypoints"; echo
+            body=$(mktemp); curl -sS "https://cdn.jsdelivr.net/npm/$p@$v" -o $body
+            echo "::notice title=$p::version=$v bytes=$(wc -c <$body) sri=sha384-$(openssl dgst -sha384 -binary $body | base64 -w0) head=$(head -c 120 $body | tr -d '\n')"
+          done

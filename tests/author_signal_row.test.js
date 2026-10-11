@@ -19,3 +19,9 @@ assert.equal(api.authorRow(), '');
 const css = require('fs').readFileSync(__dirname + '/../docs/assets/invest-actions.css', 'utf8');
 assert(/#investActionStrip:has\(\.ias-author\)\{max-height:none\}/.test(css), 'strip must grow so the author row is not clipped');
 console.log('PASS author signal row');
+// Charter: author self-reported trades are never shown as verified executions.
+{
+  const src = require('fs').readFileSync(require('path').join(__dirname, '../docs/assets/invest-actions.js'), 'utf8');
+  if (/executed:'已成交'/.test(src) || !/作者自述成交·未核实/.test(src)) throw new Error('author executed label must say self-reported / unverified');
+  console.log('PASS author executed label is unverified');
+}

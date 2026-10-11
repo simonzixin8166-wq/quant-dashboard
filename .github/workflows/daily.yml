@@ -168,6 +168,7 @@ jobs:
         run: |
           python scripts/daily_research_job.py
           python scripts/weekly_research_report.py
+          python scripts/auto_research_digest.py
 
       - name: Record automatic research failure without blocking website
         if: steps.auto_research.outcome == 'failure'

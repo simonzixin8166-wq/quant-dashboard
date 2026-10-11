@@ -156,10 +156,18 @@ jobs:
           FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
         run: python scripts/update_fred_macro.py
 
+      - name: SEC XBRL fundamentals for automatic research (official, free; failures → unavailable)
+        continue-on-error: true
+        run: python scripts/sec_fundamentals.py
+
       - name: MyAlpha automatic research (shadow; ingestion → evidence → analysis → shadow-write → revisit)
         id: auto_research
         continue-on-error: true
-        run: python scripts/daily_research_job.py
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          python scripts/daily_research_job.py
+          python scripts/weekly_research_report.py
 
       - name: Record automatic research failure without blocking website
         if: steps.auto_research.outcome == 'failure'

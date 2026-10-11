@@ -32,10 +32,11 @@ sys.path.insert(0, str(ROOT / "scripts"))
 import trading_calendar as tc  # noqa: E402
 import knowledge_contract as kc  # noqa: E402
 
-GENERATOR = "auto-research-1"
+GENERATOR = "auto-research-2"  # v2: input timing integrity, claim dedupe, opposing coverage note, SEC facts
 JOURNAL = ROOT / "research" / "knowledge" / "auto_research_journal.jsonl"
 STATUS = ROOT / "docs" / "research" / "auto_research_status.json"
 MACRO = ROOT / "docs" / "research" / "macro_context.json"
+SEC = ROOT / "docs" / "research" / "sec_fundamentals.json"
 CLAIMS_URL = "https://raw.githubusercontent.com/simonzixin8166-wq/wxc-bot/main/state/author_claims_hp.json"
 EXCLUDE = {"VIX"}
 GROWTH = {"QQQ", "QQQM", "QLD", "TQQQ", "VGT", "SMH", "NVDA", "AMD", "MSFT", "TSM", "LITE", "AVGO", "MRVL", "NBIS",
@@ -57,6 +58,15 @@ def archive_symbols():
         return sorted(n.split("_")[0].upper() for n in z.namelist() if n.endswith("_us_d.csv"))
 
 
+def close_time(day):
+    """16:00 New York on `day` in UTC: a daily bar cannot exist before this moment."""
+    return datetime.combine(date.fromisoformat(day), datetime.min.time().replace(hour=16), kc_tz()).astimezone(timezone.utc)
+
+
+def iso(dt):
+    return dt.replace(microsecond=0).isoformat().replace("+00:00", "Z") if dt else None
+
+
 def load_inputs(fetch_claims=True):
     inputs = {"price_archive": {"source": "data/history/stooq_watchlist.zip", "sha256": sha_bytes(kc.ARCHIVE.read_bytes())},
               "trend_pulse": {"source": "docs/data.json", "sha256": sha_bytes(kc.DATA.read_bytes())}}
@@ -64,12 +74,27 @@ def load_inputs(fetch_claims=True):
     if MACRO.exists():
         raw = MACRO.read_bytes()
         macro = json.loads(raw)
-        inputs["fred_macro"] = {"source": "docs/research/macro_context.json", "sha256": sha_bytes(raw), "as_of": macro.get("as_of")}
+        rs = sorted(str(v["latest"].get("realtime_start")) for v in (macro.get("series") or {}).values() if (v or {}).get("latest"))
+        inputs["fred_macro"] = {"source": "docs/research/macro_context.json", "sha256": sha_bytes(raw), "as_of": macro.get("as_of"),
+                                "available_at": (rs[-1] + "T00:00:00Z") if rs else None,
+                                "available_at_basis": "latest ALFRED realtime_start among series (vintage publication date)"}
     else:
         inputs["fred_macro"] = {"source": "docs/research/macro_context.json", "status": "unavailable"}
     filings_raw = kc.DRAFTS.read_bytes() if kc.DRAFTS.exists() else b""
     inputs["sec_filings_list"] = {"source": "docs/research/auto_thesis_drafts.json", "sha256": sha_bytes(filings_raw),
                                   "note": "filing list only; financial facts not extracted (unavailable)"}
+    sec = {}
+    if SEC.exists():
+        raw = SEC.read_bytes()
+        doc = json.loads(raw)
+        sec = doc.get("symbols") or {}
+        inputs["sec_facts"] = {"source": "docs/research/sec_fundamentals.json (SEC XBRL companyfacts)", "sha256": sha_bytes(raw),
+                               "as_of": doc.get("generated_at"),
+                               "available_at": max((str((v.get("revenue_q") or {}).get("filed")) + "T00:00:00Z" for v in sec.values()
+                                                    if v.get("available")), default=None),
+                               "available_at_basis": "latest XBRL filed date used"}
+    else:
+        inputs["sec_facts"] = {"source": "docs/research/sec_fundamentals.json", "status": "unavailable"}
     claims = []
     if fetch_claims:
         try:
@@ -81,7 +106,37 @@ def load_inputs(fetch_claims=True):
                                        "as_of": doc.get("generated_at"), "extractor": doc.get("extractor"), "status": "experimental_unvalidated"}
         except Exception as e:
             inputs["author_claims"] = {"source": "wxc-bot state/author_claims_hp.json", "status": f"unavailable ({type(e).__name__})"}
+    inputs["_sec"] = sec
     return inputs, macro, claims
+
+
+def fundamental_evidence(sym, sec, generated_at):
+    """Signed evidence from SEC XBRL facts that were filed before the lock time; separate group."""
+    f = (sec or {}).get(sym)
+    if not f:
+        return {"available": False, "reason": "not an operating company in the SEC fact set (ETF) or not fetched"}, []
+    if not f.get("available"):
+        return {"available": False, "reason": f.get("reason"), "cik": f.get("cik")}, []
+    rq = f["revenue_q"]
+    if str(rq.get("filed")) > generated_at[:10]:
+        return {"available": False, "reason": f"latest filing {rq.get('filed')} is after the lock time"}, []
+    ev = []
+    src = f"SEC XBRL {f.get('revenue_concept')} {rq.get('form')} accn {rq.get('accn')}"
+    yoy = f.get("revenue_yoy")
+    if yoy is not None:
+        ev.append({"name": "sec_revenue_yoy", "value": round(yoy, 4), "sign": 1 if yoy > 0.10 else (-1 if yoy < 0 else 0),
+                   "source": src, "as_of": rq.get("end"), "available_at": rq.get("filed"), "group": "fundamental",
+                   "note": f"quarterly revenue {rq['val']/1e6:,.0f}M for {rq.get('start')}–{rq.get('end')} ({rq.get('fp')} FY{rq.get('fy')}), "
+                           f"{yoy:+.1%} YoY; filed {rq.get('filed')}"})
+    ni = f.get("net_income_q")
+    if ni:
+        ev.append({"name": "sec_net_income_q", "value": ni["val"], "sign": -1 if ni["val"] < 0 else 0,
+                   "source": f"SEC XBRL {f.get('net_income_concept')} {ni.get('form')} accn {ni.get('accn')}", "as_of": ni.get("end"),
+                   "available_at": ni.get("filed"), "group": "fundamental",
+                   "note": f"quarterly net income {ni['val']/1e6:,.0f}M ({'loss' if ni['val'] < 0 else 'profit'}) for period ending {ni.get('end')}"})
+    summary = {"available": True, "cik": f.get("cik"), "entity": f.get("entity"), "revenue_q": rq, "revenue_yoy": yoy,
+               "net_income_q": ni, "source": f.get("source"), "restated": (f.get("consistency") or {}).get("restated")}
+    return summary, ev
 
 
 def macro_evidence(macro):
@@ -150,7 +205,7 @@ def hint(stance):
             "neutral": "Hold/Watch (research: no new thesis; not an order)", "cannot_judge": "No hint (insufficient data)"}[stance]
 
 
-def analyse(sym, rows, macro_ev, claims, vix, expected):
+def analyse(sym, rows, macro_ev, claims, vix, expected, sec=None, generated_at="9999"):
     if rows is None or len(rows) < 200:
         return {"stance": "cannot_judge", "reason": "insufficient canonical history"}, None
     if rows[-1]["d"] != expected:
@@ -158,6 +213,10 @@ def analyse(sym, rows, macro_ev, claims, vix, expected):
     m = kc.trend_metrics(sym, rows)
     stance = kc.rule_view(m)
     ev = signed_evidence(sym, m, macro_ev, claims, vix)
+    for e in ev:
+        e.setdefault("group", "author_context" if e["name"] == "author_claim" else ("macro" if e["name"] in ("real_yield_20d_change", "vix") else "trend"))
+    fund, fev = fundamental_evidence(sym, sec, generated_at)
+    ev += fev
     up = [e for e in ev if e["sign"] > 0]
     down = [e for e in ev if e["sign"] < 0]
     if stance == "bullish":
@@ -168,7 +227,82 @@ def analyse(sym, rows, macro_ev, claims, vix, expected):
         sup, opp = up, down  # neutral: upside items vs downside items, both shown
     reason = (f"rule_view={stance}: close {m['close']:.2f} vs MA50 {m['ma50']:.2f} / MA200 {m['ma200']:.2f}, weekly {m.get('weekly')}, "
               f"dist MA200 {m['dist_ma200']:+.1%}, pulse {m.get('trend_pulse_state')}; +{len(up)} / -{len(down)} signed evidence")
-    return {"stance": stance, "reason": reason, "metrics": m, "evidence": ev, "supporting": sup, "opposing": opp}, m
+    reason += f"; fundamentals {'+%d/-%d' % (sum(1 for e in fev if e['sign'] > 0), sum(1 for e in fev if e['sign'] < 0)) if fund.get('available') else 'unavailable'} (shown separately; stance from trend rules)"
+    return {"stance": stance, "reason": reason, "metrics": m, "evidence": ev, "supporting": sup, "opposing": opp, "fundamentals": fund}, m
+
+
+def timing_check(inputs, claims, market_as_of, generated_at):
+    """Every input used at lock time must have been available by then; unknown timestamps are listed, never assumed."""
+    gen = datetime.fromisoformat(generated_at.replace("Z", "+00:00"))
+    close = close_time(market_as_of)
+    unknown, late, post_session = [], [], []
+    for name, v in inputs.items():
+        if not v.get("sha256"):
+            continue
+        av = v.get("available_at")
+        if name in ("price_archive", "trend_pulse"):
+            av = iso(close)
+        if not av:
+            unknown.append(name); continue
+        avd = datetime.fromisoformat(str(av).replace("Z", "+00:00"))
+        if avd > gen:
+            late.append(name)
+        if avd > close:
+            post_session.append(name)
+    for c in claims:
+        ts = c.get("first_seen") or c.get("published_at")
+        try:
+            t = datetime.fromisoformat(str(ts).replace("Z", "+00:00").replace(" ", "T"))
+            t = t if t.tzinfo else t.replace(tzinfo=timezone.utc)
+        except Exception:
+            unknown.append(f"claim:{c['record_id']}"); continue
+        if t > gen:
+            late.append(f"claim:{c['record_id']}")
+        elif t > close:
+            post_session.append(f"claim:{c['record_id']}")
+    return {"all_inputs_available_before_lock": not late and not unknown, "late_inputs": late, "unknown_timestamps": unknown,
+            "inputs_after_market_close": post_session,
+            "note": "inputs after the market_as_of close make this a later-dated research note, never a signal locked at that close"}
+
+
+def dedupe_claims(claims):
+    out, seen = [], set()
+    for c in claims:
+        k = (c.get("author"), c.get("symbol"), c.get("stance"), c.get("sentence_sha256"))
+        k2 = (c.get("author"), c.get("symbol"), c.get("stance"), str(c.get("published_at"))[:10])
+        if k in seen or k2 in seen:
+            continue
+        seen.update({k, k2}); out.append(c)
+    return out
+
+
+def opposing_note(stance, opposing, inputs, sym):
+    if opposing:
+        return None
+    checked = ["trend vs MA50/MA200", "weekly trend", "RSI", "stretch vs MA200", "VIX"] + (["real-yield change"] if sym in GROWTH else [])
+    missing = [k for k, v in inputs.items() if not v.get("sha256") or "unavailable" in str(v.get("status", ""))]
+    if not inputs.get("sec_facts", {}).get("sha256"):
+        missing.append("SEC financial facts")
+    missing.append("valuation (not in free pipeline)")
+    return {"why_empty": f"no counter-evidence to '{stance}' among the checks that ran; this is not evidence that no risk exists",
+            "checks_run": checked, "not_checked_or_unavailable": sorted(set(missing))}
+
+
+def annotate_legacy(journal, gen_at, run_id):
+    """auto-research-1 records lacked input timing; add one append-only annotation per record (once)."""
+    done = {j.get("annotates") for j in journal if j.get("type") == "annotation"}
+    out = []
+    for j in journal:
+        if j.get("generator_version") == "auto-research-1" and j["type"] in ("hypothesis", "abstain") and j["record_id"] not in done:
+            day = str(j["generated_at"])[:10]
+            out.append({"type": "annotation", "record_id": f"{j['record_id']}-annotation", "annotates": j["record_id"],
+                        "symbol": j["symbol"], "market_as_of": j["market_as_of"], "generator_version": GENERATOR,
+                        "generated_at": gen_at, "run_id": run_id, "research_date": day, "forward_eligible": False,
+                        "production_use": False, "shadow": True,
+                        "note": f"research generated {day} (run {j['run_id']}, workflow_dispatch) from bars of {j['market_as_of']} "
+                                f"with inputs first available up to {day}; it is a {day} research note, not a signal locked at the "
+                                f"{j['market_as_of']} close; excluded from Genuine Forward and maturity denominators"})
+    return out
 
 
 def read_journal():
@@ -176,7 +310,7 @@ def read_journal():
 
 
 def latest_active(journal, sym):
-    hyps = [j for j in journal if j["symbol"] == sym and j["type"] == "hypothesis"]
+    hyps = [j for j in journal if j.get("symbol") == sym and j["type"] == "hypothesis"]
     if not hyps:
         return None
     h = hyps[-1]
@@ -207,53 +341,70 @@ def run(now=None, fetch_claims=True, run_id=None):
     macro_ev = macro_evidence(macro)
     vix = kc.market_context()
     journal = read_journal()
-    keys = {(j["symbol"], j["market_as_of"], j["generator_version"], j["type"]) for j in journal}
-    gen_at = now.replace(microsecond=0).isoformat().replace("+00:00", "Z")
+    keys = {(j.get("symbol"), j["market_as_of"], j["generator_version"], j["type"]) for j in journal}
+    gen_at = iso(now)
+    research_date = now.date().isoformat()
+    claims = dedupe_claims(claims)
+    run_event = os.getenv("GITHUB_EVENT_NAME") or "local"
     new, log = [], []
+    new.extend(annotate_legacy(journal, gen_at, run_id))
     for sym in [s for s in archive_symbols() if s not in EXCLUDE]:
         rows = kc.history(sym)
         rel = [c for c in claims if c.get("symbol") == sym]
-        res, m = analyse(sym, rows, macro_ev, rel, vix, expected)
-        base = {"generator_version": GENERATOR, "rule_hash": RULE_HASH, "run_id": run_id, "generated_at": gen_at,
-                "market_as_of": expected, "symbol": sym, "production_use": False, "shadow": True,
-                "locked_before_next_open": now < next_open}
+        res, m = analyse(sym, rows, macro_ev, rel, vix, expected, inputs.get("_sec"), gen_at)
+        timing = timing_check({k: v for k, v in inputs.items() if not k.startswith("_")}, rel, expected, gen_at)
+        base = {"generator_version": GENERATOR, "rule_hash": RULE_HASH, "run_id": run_id, "run_event": run_event,
+                "generated_at": gen_at, "lock_at": gen_at, "research_date": research_date, "market_as_of": expected,
+                "symbol": sym, "production_use": False, "shadow": True, "forward_eligible": False,
+                "forward_note": f"shadow research generated {research_date} from bars of {expected}; "
+                                f"not a signal locked at the {expected} close; never counted as Genuine Forward",
+                "timing_check": timing}
         prev = latest_active(journal + new, sym)
         if res["stance"] == "cannot_judge":
             if (sym, expected, GENERATOR, "abstain") not in keys:
-                rec = {**base, "type": "abstain", "record_id": f"{sym}-{expected}-abstain", "stance": "cannot_judge",
+                rec = {**base, "type": "abstain", "record_id": f"{sym}-{expected}-{GENERATOR}-abstain", "stance": "cannot_judge",
                        "decision_reason": res["reason"], "inputs": {k: v for k, v in inputs.items() if k in ("price_archive",)}}
                 new.append(rec); log.append(f"{sym}: abstain ({res['reason']})")
             continue
-        if prev:  # revisit the active hypothesis on today's bar
+        if prev and prev["market_as_of"] != expected:  # revisit the active hypothesis on the new bar
             hit = check_invalidation(prev, rows)
             due = rows[-1]["d"] >= prev["next_review"]
             status = "invalidated" if hit else ("review_due" if due else "still_valid")
             if res["stance"] != prev["stance"] and status == "still_valid":
                 status = "superseded"
-            if (sym, expected, GENERATOR, "revisit") not in keys and prev["market_as_of"] != expected:
-                new.append({**base, "type": "revisit", "record_id": f"{sym}-{expected}-revisit", "hypothesis_id": prev["record_id"],
+            if (sym, expected, GENERATOR, "revisit") not in keys:
+                new.append({**base, "type": "revisit", "record_id": f"{sym}-{expected}-{GENERATOR}-revisit", "hypothesis_id": prev["record_id"],
                             "status": status, "trigger": hit, "close": rows[-1]["c"], "decision_reason": res["reason"]})
                 log.append(f"{sym}: revisit {prev['record_id']} → {status}")
-            if status == "still_valid" or status == "review_due" and res["stance"] == prev["stance"]:
+            if status == "still_valid" or (status == "review_due" and res["stance"] == prev["stance"]):
                 continue
         if (sym, expected, GENERATOR, "hypothesis") in keys:
             continue
+        if prev and prev["market_as_of"] == expected and prev.get("generator_version") != GENERATOR:
+            # same session, newer generator: close the older hypothesis explicitly (append-only)
+            new.append({**base, "type": "revisit", "record_id": f"{sym}-{expected}-{GENERATOR}-supersede", "hypothesis_id": prev["record_id"],
+                        "status": "superseded", "trigger": {"reason": f"generator upgrade {prev.get('generator_version')} → {GENERATOR}"},
+                        "close": rows[-1]["c"], "decision_reason": res["reason"]})
         rel_claims = [{"record_id": c["record_id"], "author": c["author"], "stance": c["stance"], "status": c["status"],
                        "hp_gate": c["hp_gate"], "published_at": c.get("published_at"), "first_seen": c.get("first_seen"),
                        "provenance": c.get("provenance"), "sentence_sha256": c["sentence_sha256"],
                        "check": "compatibility only; author statement is not a verified trade"} for c in rel]
-        rec = {**base, "type": "hypothesis", "record_id": f"{sym}-{expected}-h", "stance": res["stance"],
+        fundamentals = res.get("fundamentals")
+        rec = {**base, "type": "hypothesis", "record_id": f"{sym}-{expected}-{GENERATOR}-h", "stance": res["stance"],
                "decision_reason": res["reason"], "research_hint": hint(res["stance"]),
                "metrics": {k: (round(v, 4) if isinstance(v, float) else v) for k, v in m.items()},
-               "supporting": res["supporting"], "opposing": res["opposing"], "author_claims": rel_claims,
+               "supporting": res["supporting"], "opposing": res["opposing"],
+               "opposing_note": opposing_note(res["stance"], res["opposing"], {k: v for k, v in inputs.items() if not k.startswith("_")}, sym),
+               "fundamentals": fundamentals, "author_claims": rel_claims,
                "invalidation": invalidation(res["stance"], m), "horizon_sessions": HORIZON,
                "next_review": tc.add_sessions(date.fromisoformat(expected), HORIZON).isoformat(),
-               "risks": ["rule-based trend view only; fundamentals not extracted (SEC facts unavailable)",
-                         "author claims are experimental (ce-5) and not evidence of trades"],
-               "unknowns": ["SEC financial facts not extracted", "valuation not in free pipeline"] +
+               "risks": ["rule-based view; valuation not in the free pipeline",
+                         "author claims are experimental (ce-5), context only, not evidence of trades"],
+               "unknowns": (["SEC financial facts unavailable"] if not (fundamentals or {}).get("available") else []) +
+                           ["valuation not in free pipeline"] +
                            ([] if inputs["fred_macro"].get("sha256") else ["FRED macro unavailable"]) +
                            ([] if inputs.get("author_claims", {}).get("sha256") else ["author claims unavailable"]),
-               "supersedes": prev["record_id"] if prev else None, "inputs": inputs,
+               "supersedes": prev["record_id"] if prev else None, "inputs": {k: v for k, v in inputs.items() if not k.startswith("_")},
                "outcome": {"status": "pending", "matures": tc.add_sessions(date.fromisoformat(expected), HORIZON).isoformat()}}
         rec["record_sha256"] = sha_bytes(json.dumps(rec, ensure_ascii=False, sort_keys=True).encode())
         new.append(rec); log.append(f"{sym}: hypothesis {res['stance']}")
@@ -272,7 +423,7 @@ def run(now=None, fetch_claims=True, run_id=None):
                               "invalidated": sum(1 for j in week if j["type"] == "revisit" and j["status"] == "invalidated"),
                               "superseded": sum(1 for j in week if j["type"] == "revisit" and j["status"] == "superseded"),
                               "abstained": sum(1 for j in week if j["type"] == "abstain")},
-          "inputs": {k: {kk: vv for kk, vv in v.items() if kk != "sha256"} for k, v in inputs.items()},
+          "inputs": {k: {kk: vv for kk, vv in v.items() if kk != "sha256"} for k, v in inputs.items() if not k.startswith("_")},
           "outcomes": "pending (first 20-session maturity after the first hypothesis session)",
           "learning_state": "UNPROVEN", "production_use": False, "log": log[:60]}
     STATUS.write_text(json.dumps(st, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")

@@ -8,15 +8,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: |
-          for spec in chart.js@4 @supabase/supabase-js@2; do
-            echo "== $spec"
-            curl -sSI "https://cdn.jsdelivr.net/npm/$spec" | grep -i -E '^(x-jsd-version|content-type|content-length|location)' || true
-            name=${spec%@*}
-            curl -sS "https://data.jsdelivr.com/v1/packages/npm/$name/resolved?specifier=${spec##*@}"; echo
-          done
-          for p in chart.js @supabase/supabase-js; do
-            v=$(curl -sS "https://data.jsdelivr.com/v1/packages/npm/$p/resolved?specifier=$([ $p = chart.js ] && echo 4 || echo 2)" | python3 -c 'import json,sys;print(json.load(sys.stdin)["version"])')
-            curl -sS "https://data.jsdelivr.com/v1/packages/npm/$p@$v/entrypoints"; echo
-            body=$(mktemp); curl -sS "https://cdn.jsdelivr.net/npm/$p@$v" -o $body
-            echo "::notice title=$p::version=$v bytes=$(wc -c <$body) sri=sha384-$(openssl dgst -sha384 -binary $body | base64 -w0) head=$(head -c 120 $body | tr -d '\n')"
+          for p in chart.js@4.5.1 @supabase/supabase-js@2.117.3; do
+            files=$(curl -sS "https://data.jsdelivr.com/v1/packages/npm/$p?structure=flat" | python3 -c 'import json,sys;print(" ".join(f["name"] for f in json.load(sys.stdin)["files"] if f["name"].endswith(".js") and ("umd" in f["name"])))')
+            echo "::notice title=files $p::$files"
+            for f in $files; do
+              b=$(mktemp); curl -sS "https://cdn.jsdelivr.net/npm/$p$f" -o $b
+              b2=$(mktemp); curl -sS "https://unpkg.com/$p$f" -L -o $b2
+              echo "::notice title=$p$f::bytes=$(wc -c <$b) jsd=sha384-$(openssl dgst -sha384 -binary $b | base64 -w0) unpkg_same=$(cmp -s $b $b2 && echo yes || echo no) cors=$(curl -sSI "https://cdn.jsdelivr.net/npm/$p$f" | grep -i access-control-allow-origin | tr -d '\r')"
+            done
           done

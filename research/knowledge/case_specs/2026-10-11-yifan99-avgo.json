@@ -1,0 +1,47 @@
+{
+ "case_id": "k-2026-10-11-yifan99-avgo-01",
+ "analyst": "claude (view computed by rule_view; narrative drafted from computed evidence)",
+ "symbol": "AVGO",
+ "horizon_sessions": 20,
+ "sources": [
+  {"record_id": "d5a969e48a644b3510e8", "author": "yifan99", "url": "https://bbs.wenxuecity.com/cfzh/113867.html", "published_at": "2026-10-06 11:25:52", "provenance": "forum (capture mode not recorded)", "text_sha256": "abfa9dddaf0c1413fbcb1efff6176d9e2a0283fb333500c69243457662a45c64", "locator": "AVGO 已经出现明显的底部修复信号，但与已经突破 MA50 的 CI"},
+  {"record_id": "5b4d12b41cc819a26c10", "author": "yifan99", "url": "https://bbs.wenxuecity.com/cfzh/113972.html", "published_at": "2026-10-06 17:20:13", "provenance": "forum (capture mode not recorded)", "text_sha256": "b4ce363479216ad6291a6da880fe6018b1523ca7398bf17a4060844e852cb4b4", "locator": "AVGO>AMZN>GOOG 其实AVGOj今天已经confirmed"},
+  {"record_id": "56dda4e36d20dce5d5e6", "author": "yifan99", "url": "https://bbs.wenxuecity.com/cfzh/114315.html", "published_at": "2026-10-08 13:10:50", "provenance": "live_candidate", "text_sha256": "edce03b4d9a2643d688aff1cd20ed57c87a33e37ad1a0b73eb3bcb3aa148de33", "locator": "昨晚盘后卖掉了的短期AVGO 和两倍股AVL，看情况是否买回。"}
+ ],
+ "author_claims": [
+  {"source": "d5a969e48a644b3510e8", "stance": "bullish", "status": "conditional", "instrument": "stock", "holder": "author", "quote_locator": "底部修复已开始，但尚未站稳 MA50（10/5 数据，价约 362.5）"},
+  {"source": "5b4d12b41cc819a26c10", "stance": "bullish", "status": "opinion", "instrument": "stock", "holder": "author", "quote_locator": "AVGO 今天已经 confirmed"},
+  {"source": "56dda4e36d20dce5d5e6", "stance": "sell", "status": "executed", "instrument": "stock", "holder": "author", "quote_locator": "昨晚盘后卖掉了的短期AVGO"}
+ ],
+ "checks": [
+  {"claim": "AVGO price about 362.5 on 2026-10-05", "check": "close_near", "args": {"day": "2026-10-05", "price": 362.5}},
+  {"claim": "not yet above MA50 on 2026-10-05", "check": "close_vs_ma", "args": {"day": "2026-10-05", "n": 50, "side": "below"}},
+  {"claim": "'confirmed' on 2026-10-06 (close above MA50)", "check": "close_vs_ma", "args": {"day": "2026-10-06", "n": 50, "side": "above"}},
+  {"claim": "short-term position sold after hours 2026-10-07 (author statement)", "check": "no_price", "args": {"note": "no price stated; after-hours trades are not in the daily archive"}}
+ ],
+ "agrees_with_author": "partial",
+ "view_summary": "MyAlpha 独立判断（规则）：{stance}。AVGO 收盘 {close}（{as_of}），低于 MA50 {ma50} 与 MA200 {ma200}，周线{weekly}、结构 {structure}，趋势脉冲「{trend_pulse_state}」。作者 10/5 的事实描述（价约 362.5、未站上 MA50）与行情一致；10/6 收盘 375.81 站上 MA50，『confirmed』当日成立，但随后两个交易日收盘回到 MA50 和 MA200 之下（10/8 360.14、10/9 361.54），突破未能维持。MyAlpha 不同意继续把它视为已确认的上升趋势，与作者 10/7 盘后卖出短线仓位的行为方向一致。",
+ "supporting": [
+  {"point": "突破 2 个交易日内失败：收盘重新跌破 MA50 与 MA200", "evidence": ["close", "ma50", "ma200"]},
+  {"point": "周线空头、结构 LH/LL（更低的高点和低点）", "evidence": ["weekly", "structure"]},
+  {"point": "作者本人 10/7 已卖出短线仓位（自述，无凭证）", "evidence": ["author_claims"]}
+ ],
+ "opposing": [
+  {"point": "价格仍高于 MA21，底部修复的早期信号未完全消失", "evidence": ["ma21"]},
+  {"point": "最新 10-Q（2026-09-10）与 8-K（2026-09-02）已披露，但基本面内容尚未提取，可能存在支持上涨的业绩信息", "evidence": ["SEC filings on record"]},
+  {"point": "趋势强度弱（ADX < 20），空头趋势同样未确立", "evidence": ["adx"]}
+ ],
+ "applies_when": [
+  {"metric": "close", "op": "<", "ref": "ma50", "note": "价格在 MA50 之下"}
+ ],
+ "invalidation": [
+  {"metric": "close", "op": ">", "ref": "ma50", "note": "收盘重新站上 MA50：偏空判断失效，需复核是否转为中性/看多"},
+  {"metric": "close", "op": ">", "value": 380.84, "note": "突破 2026-10-06 高点：作者的 confirmed 判断重新成立"}
+ ],
+ "unknowns": [
+  "SEC 10-Q/8-K 的具体业绩与指引尚未结构化提取",
+  "作者卖出价格与仓位大小未知（无凭证）",
+  "文学城时间戳时区未确认",
+  "估值（前瞻 P/E）与同行对比不在当前免费管线中"
+ ]
+}

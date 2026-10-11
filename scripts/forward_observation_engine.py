@@ -200,18 +200,24 @@ def read_promoted(path=PROMOTED):
 
 
 def promoted_status(live_rows, promoted_rows):
-    """Owner-approved reconstructions: scored with the same outcome rule but always reported apart from live."""
+    """Owner-approved historical research: same outcome rule, separate denominators per evidence group,
+    never merged into live (server_daily) counts or genuine-forward performance."""
     if not promoted_rows:
         return None
-    oc = [o for o in outcomes(live_rows + promoted_rows) if o["promoted"]]
-    sess = sorted({r["session"] for r in promoted_rows})
-    return {"capture": "owner_approved_reconstruction", "sessions": sess, "observations": len(promoted_rows),
-            "eligible_observations": sum(1 for r in promoted_rows if (r.get("payload") or {}).get("eligible")),
-            "with_residual_dependencies": sum(1 for r in promoted_rows if r.get("residual_dependencies")),
-            "horizons": {str(h): {"matured": sum(1 for o in oc if o["h"] == h),
-                                  "earliest_maturity": min((r["matures"][str(h)] for r in promoted_rows), default=None)}
-                         for h in HORIZONS},
-            "note": "approved by owner 2026-10-11; not server-captured before the open; never merged into live counts"}
+    allo = [o for o in outcomes(live_rows + promoted_rows) if o["promoted"]]
+    groups = {}
+    for g in ("owner_approved_attested", "owner_approved_needs_evidence"):
+        rows = [r for r in promoted_rows if r.get("stats_group") == g]
+        ids = {r["event_id"] for r in rows}
+        groups[g] = {"observations": len(rows),
+                     "eligible_observations": sum(1 for r in rows if (r.get("payload") or {}).get("eligible")),
+                     "horizons": {str(h): {"matured": sum(1 for o in allo if o["h"] == h and o["event_id"] in ids),
+                                           "earliest_maturity": min((r["matures"][str(h)] for r in rows), default=None)}
+                                  for h in HORIZONS}}
+    return {"capture": "owner_approved_historical_research", "sessions": sorted({r["session"] for r in promoted_rows}),
+            "observations": len(promoted_rows), "groups": groups,
+            "note": "owner-approved historical research (2026-10-11); reconstructed, not captured before the open; "
+                    "not genuine forward; separate denominators; needs_evidence group is reference only"}
 
 
 def status(rows, today=None, promoted_rows=None):

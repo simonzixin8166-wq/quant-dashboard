@@ -5,7 +5,9 @@
 10-08 already has server_daily observations captured before the next open, so nothing is promoted for
 it. For the other six sessions every reviewed candidate (forward_candidate_review.jsonl) is copied into a
 separate promoted ledger, append-only, with:
-  capture = "owner_approved_reconstruction", promoted = true, attested_forward = false
+  capture = "owner_approved_historical_research", promoted = true, attested_forward = false,
+  evidence_grade kept from the review (historically_attested_reconstruction → owner_approved_attested group,
+  needs_evidence → owner_approved_needs_evidence reference group)
 so promoted rows are scored but always reported separately from live server_daily rows; the original
 records, late uploads, residual dependencies and the review file are never modified.
 """
@@ -23,7 +25,12 @@ APPROVALS = ROOT / "research" / "archive" / "forward_promotions.jsonl"
 PROMOTED = ROOT / "research" / "archive" / "forward_observations_promoted.jsonl"
 SESSIONS = ("2026-09-29", "2026-09-30", "2026-10-02", "2026-10-05", "2026-10-06", "2026-10-07")
 DECISION = {"approver": "owner", "decided_at": "2026-10-11T07:44:00Z", "channel": "chat",
-            "statement": "9/29–10/08 的 7 天直接晋升吧，我确认没问题"}
+            "statement": "9/29–10/08 的 7 天直接晋升吧，我确认没问题",
+            "recorded_in": "https://github.com/simonzixin8166-wq/quant-dashboard/issues/133#issuecomment-6106815337"}
+CLASS = "owner_approved_historical_research"
+# evidence grade is kept from the review; it decides which statistics group a row may enter
+GROUP = {"historically_attested_reconstruction": "owner_approved_attested",   # user-approved historical research sample
+         "needs_evidence": "owner_approved_needs_evidence"}                   # reference only, explicit uncertainty
 
 
 def build(review_rows):
@@ -39,7 +46,7 @@ def build(review_rows):
         approvals.append({"kind": "forward_promotion", "promotion_id": pid, "session": s, **DECISION,
                           "scope": "all reviewed candidates of the session", "candidates": len(cands),
                           "review_ids": [r["review_id"] for r in cands], "proposed_classes_at_approval": cls,
-                          "promoted_class": "owner_approved_reconstruction",
+                          "promoted_class": CLASS,
                           "limitations": sorted({d for r in cands for d in r["residual_dependencies"]}) +
                                          ["no independently saved contemporaneous signal content"],
                           "reported_separately_from_live": True})
@@ -51,7 +58,8 @@ def build(review_rows):
                 "engine": foe.ENGINE_VERSION, "market": {"mode": r["market_mode"]},
                 "market_as_of": r["input"]["market_as_of"], "source_sha": r["input"]["commit"],
                 "data_json_blob": r["input"]["data_json_blob"], "published_at": r["published_at"],
-                "capture": "owner_approved_reconstruction", "promoted": True, "attested_forward": False,
+                "capture": CLASS, "promoted": True, "attested_forward": False, "genuine_forward": False,
+                "evidence_grade": r["proposed_class"], "stats_group": GROUP[r["proposed_class"]],
                 "promotion_id": pid, "review_id": r["review_id"],
                 "residual_dependencies": r["residual_dependencies"], "matures": r["matures"]})
     return approvals, promoted

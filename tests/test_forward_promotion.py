@@ -9,7 +9,7 @@ import forward_observation_engine as foe
 rows = [json.loads(x) for x in fp.REVIEW.read_text(encoding="utf-8").splitlines() if x.strip()]
 approvals, promoted = fp.build(rows)
 assert {a["session"] for a in approvals} == set(fp.SESSIONS) and "2026-10-08" not in {p["session"] for p in promoted}
-assert all(p["capture"] == "owner_approved_reconstruction" and p["promoted"] and p["attested_forward"] is False for p in promoted)
+assert all(p["capture"] == "owner_approved_historical_research" and p["genuine_forward"] is False and p["promoted"] and p["attested_forward"] is False for p in promoted)
 assert all(a["approver"] == "owner" and a["reported_separately_from_live"] for a in approvals)
 # review file untouched: tool proposals stay approved=false
 assert all(r["approved"] is False for r in rows)

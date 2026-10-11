@@ -32,6 +32,7 @@ import trading_calendar as tc  # noqa: E402
 DATA = ROOT / "docs" / "data.json"
 LEDGER = ROOT / "research" / "archive" / "forward_observations.jsonl"
 STATUS = ROOT / "docs" / "research" / "forward_observation_status.json"
+PROMOTED = ROOT / "research" / "archive" / "forward_observations_promoted.jsonl"  # owner-approved reconstructions
 ET = ZoneInfo("America/New_York")
 ENGINE_VERSION = "fo-1.0"
 HORIZONS = (20, 60, 120)
@@ -188,11 +189,38 @@ def outcomes(rows):
             excess = (ret - (bend / bench0 - 1)) if bench0 and bend else None
             out.append({"event_id": r["event_id"], "h": h, "matured_on": md, "ret": round(ret, 6),
                         "excess_vs_qqq": None if excess is None else round(excess, 6),
-                        "attested_forward": bool(r.get("attested_forward"))})
+                        "attested_forward": bool(r.get("attested_forward")), "promoted": bool(r.get("promoted"))})
     return out
 
 
-def status(rows, today=None):
+def read_promoted(path=PROMOTED):
+    if not path.exists():
+        return []
+    return [json.loads(x) for x in path.read_text(encoding="utf-8").splitlines() if x.strip()]
+
+
+def promoted_status(live_rows, promoted_rows):
+    """Owner-approved historical research: same outcome rule, separate denominators per evidence group,
+    never merged into live (server_daily) counts or genuine-forward performance."""
+    if not promoted_rows:
+        return None
+    allo = [o for o in outcomes(live_rows + promoted_rows) if o["promoted"]]
+    groups = {}
+    for g in ("owner_approved_attested", "owner_approved_needs_evidence"):
+        rows = [r for r in promoted_rows if r.get("stats_group") == g]
+        ids = {r["event_id"] for r in rows}
+        groups[g] = {"observations": len(rows),
+                     "eligible_observations": sum(1 for r in rows if (r.get("payload") or {}).get("eligible")),
+                     "horizons": {str(h): {"matured": sum(1 for o in allo if o["h"] == h and o["event_id"] in ids),
+                                           "earliest_maturity": min((r["matures"][str(h)] for r in rows), default=None)}
+                                  for h in HORIZONS}}
+    return {"capture": "owner_approved_historical_research", "sessions": sorted({r["session"] for r in promoted_rows}),
+            "observations": len(promoted_rows), "groups": groups,
+            "note": "owner-approved historical research (2026-10-11); reconstructed, not captured before the open; "
+                    "not genuine forward; separate denominators; needs_evidence group is reference only"}
+
+
+def status(rows, today=None, promoted_rows=None):
     today = today or datetime.now(timezone.utc).date()
     sessions = sorted({r["session"] for r in rows})
     gaps = []
@@ -217,6 +245,7 @@ def status(rows, today=None):
         "eligible_observations": sum(1 for r in rows if (r.get("payload") or {}).get("eligible")),
         "continuity": continuity, "gaps": gaps,
         "horizons": by_h,
+        "promoted": promoted_status(rows, promoted_rows or []),
         "learning_state": "UNPROVEN",
         "notes": ["server-generated from public inputs; independent of browser visits",
                   "gaps are explicit and never backfilled as forward",
@@ -241,7 +270,7 @@ def main(argv=None):
         print(f"::error title=Forward observations::APPEND_ONLY_VIOLATION {why}")
         return 1
     rows = existing + add
-    st = status(rows)
+    st = status(rows, promoted_rows=read_promoted())
     print(f"::notice title=Forward observations::FORWARD_OBS reason={reason} added={len(add)} sessions={st['sessions']} "
           f"continuity={st['continuity']} gaps={len(st['gaps'])} latest={st['latest_session']}")
     if st["continuity"] in ("gap", "stale"):

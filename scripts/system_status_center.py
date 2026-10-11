@@ -186,6 +186,11 @@ def market_business_freshness(path,now=None):
         status="future"
     return {"market_as_of":market_as_of or None,"expected_market_date":expected,"business_freshness":status}
 
+# Event-only artifacts are written only when something happens (module_failure_marker.py writes
+# module_failures.json only when a module fails). Absence means "none recorded", not a missing product.
+EVENT_ONLY_ARTIFACTS={"module_failures"}
+
+
 def artifact_health(name,path,now=None):
     now=now or datetime.now(timezone.utc)
     updated=iso_from_file(path)
@@ -193,7 +198,9 @@ def artifact_health(name,path,now=None):
     max_age=FRESHNESS_HOURS.get(name,168)
     age_hours=None if dt is None else round(max(0.0,(now-dt.astimezone(timezone.utc)).total_seconds()/3600),1)
     available=path.exists()
-    if not available:
+    if not available and name in EVENT_ONLY_ARTIFACTS:
+        freshness="none_recorded"
+    elif not available:
         freshness="missing"
     elif age_hours is None:
         freshness="unknown"

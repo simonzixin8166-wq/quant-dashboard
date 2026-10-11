@@ -92,3 +92,19 @@ import inspect
 sig=inspect.signature(ssc.github_runs)
 assert sig.parameters["max_pages"].default>=10
 print("PASS low-frequency workflow pagination depth")
+
+# #133 6109957428 P1-4: module_failures.json is event-only (written only on a failure) — absence is not "missing"
+import tempfile
+with tempfile.TemporaryDirectory() as tmp:
+    absent=Path(tmp)/"module_failures.json"
+    h=ssc.artifact_health("module_failures",absent)
+    assert h["freshness"]=="none_recorded" and h["available"] is False, h
+    assert ssc.artifact_health("learning_engine",Path(tmp)/"x.json")["freshness"]=="missing", "regular artifacts still report missing"
+    absent.write_text('{"version":1,"generated_at":"2026-10-11T00:00:00+00:00","modules":{}}',encoding="utf-8")
+    assert ssc.artifact_health("module_failures",absent)["freshness"]!="none_recorded"
+spec2=importlib.util.spec_from_file_location("oim",ROOT/"scripts"/"operational_incident_memory.py")
+oim=importlib.util.module_from_spec(spec2);spec2.loader.exec_module(oim)
+issues=oim.current_issues({"artifacts":{"module_failures":{"freshness":"none_recorded"},"learning_engine":{"freshness":"missing"}}})
+names={i["name"] for i in issues.values()}
+assert "module_failures" not in names and "learning_engine" in names, names
+print("PASS module_failures event-only")

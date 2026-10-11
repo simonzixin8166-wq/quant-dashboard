@@ -35,55 +35,78 @@ def days(a, b):
     return (date.fromisoformat(b) - date.fromisoformat(a)).days
 
 
-def quarterly(facts, concepts, lo=80, hi=100):
-    """USD duration facts (default 3-month, 80–100 days) for the first concept that has them."""
+FRESH_DAYS = {"quarter": 150, "fiscal_year": 460}  # period end must be this recent to count as *current* evidence
+NET_INCOME_ALL = NET_INCOME + ("NetIncomeLossAvailableToCommonStockholdersBasic", "NetIncomeLossAttributableToParent")
+
+
+def series(facts, concepts, lo, hi):
+    """Merge USD duration facts across ALL candidate concepts (companies switch concepts over time).
+    One value per (start, end): the latest filed wins; a differing earlier value is kept as restated_from."""
     usg = (facts.get("facts") or {}).get("us-gaap") or {}
+    rows = []
     for c in concepts:
-        units = ((usg.get(c) or {}).get("units") or {}).get("USD") or []
-        q = [u for u in units if u.get("start") and u.get("end") and lo <= days(u["start"], u["end"]) <= hi and u.get("form") in FORMS]
-        if not q:
-            continue
-        by_period = {}
-        for u in sorted(q, key=lambda u: u.get("filed", "")):
-            key = (u["start"], u["end"])
-            prev = by_period.get(key)
-            if prev and prev["val"] != u["val"]:
-                u = {**u, "restated_from": prev["val"]}
-            by_period[key] = u
-        return c, sorted(by_period.values(), key=lambda u: u["end"])
-    return None, []
+        for u in ((usg.get(c) or {}).get("units") or {}).get("USD") or []:
+            if u.get("start") and u.get("end") and lo <= days(u["start"], u["end"]) <= hi and u.get("form") in FORMS \
+                    and str(u.get("filed", "")) >= str(u["end"]):
+                rows.append({**u, "concept": c})
+    by_period = {}
+    for u in sorted(rows, key=lambda u: (u.get("filed", ""), concepts.index(u["concept"]) * -1)):
+        key = (u["start"], u["end"])
+        prev = by_period.get(key)
+        if prev and prev["val"] != u["val"] and prev["concept"] == u["concept"]:
+            u = {**u, "restated_from": prev["val"]}
+        by_period[key] = u
+    return sorted(by_period.values(), key=lambda u: (u["end"], u.get("filed", "")))
+
+
+def quarterly(facts, concepts, lo=80, hi=100):  # kept for compatibility (first concept wins)
+    rows = series(facts, concepts, lo, hi)
+    return (rows[-1]["concept"], rows) if rows else (None, [])
 
 
 def pick(u):
-    return {k: u.get(k) for k in ("val", "start", "end", "fy", "fp", "form", "filed", "accn", "restated_from") if u.get(k) is not None}
+    return {k: u.get(k) for k in ("val", "start", "end", "fy", "fp", "form", "filed", "accn", "concept", "restated_from") if u.get(k) is not None}
 
 
-def facts_for(sym, cik):
+def freshness(period_type, end, today):
+    age = (today - date.fromisoformat(end)).days
+    return {"period_end_age_days": age, "max_days": FRESH_DAYS[period_type],
+            "status": "current" if age <= FRESH_DAYS[period_type] else "stale"}
+
+
+def facts_for(sym, cik, today=None):
+    today = today or datetime.now(timezone.utc).date()
     f = get(f"https://data.sec.gov/api/xbrl/companyfacts/CIK{int(cik):010d}.json")
     out = {"available": False, "cik": f"{int(cik):010d}", "entity": f.get("entityName"),
            "source": f"https://data.sec.gov/api/xbrl/companyfacts/CIK{int(cik):010d}.json"}
-    rc, rq = quarterly(f, REVENUE)
-    nc, nq = quarterly(f, NET_INCOME)
-    ac, aq = quarterly(f, REVENUE, 330, 380)
-    anc, anq = quarterly(f, NET_INCOME, 330, 380)
-    period = "quarter"
-    # use the annual period when it is the most recently filed (e.g. 10-K with no separate Q4 fact)
-    if aq and (not rq or str(aq[-1].get("filed")) > str(rq[-1].get("filed"))):
-        rc, rq, nc, nq, period = ac, aq, anc, anq, "fiscal_year"
-    if not rq:
+    rq, aq = series(f, REVENUE, 80, 100), series(f, REVENUE, 330, 380)
+    if not rq and not aq:
         out["reason"] = "no USD revenue facts in us-gaap (e.g. IFRS/foreign filer or no XBRL)"
+        out["metrics_status"] = {"revenue": "unavailable", "net_income": "unavailable"}
         return out
-    last = rq[-1]
-    out["period_type"] = period
-    prior = [u for u in rq if 350 <= days(u["end"], last["end"]) <= 380]
-    out.update({"available": True, "revenue_concept": rc, "revenue_q": pick(last),
+    # latest period by END date; annual only when it ends later than the latest quarter (e.g. Q4 inside a 10-K)
+    period, rows, nlo, nhi = "quarter", rq, 80, 100
+    if aq and (not rq or aq[-1]["end"] > rq[-1]["end"]):
+        period, rows, nlo, nhi = "fiscal_year", aq, 330, 380
+    last = rows[-1]
+    fr = freshness(period, last["end"], today)
+    prior = [u for u in rows if 350 <= days(u["end"], last["end"]) <= 380]
+    ni = [u for u in series(f, NET_INCOME_ALL, nlo, nhi) if u["start"] == last["start"] and u["end"] == last["end"]]
+    out.update({"period_type": period, "revenue_concept": last["concept"], "revenue_q": pick(last),
                 "revenue_q_prior_year": pick(prior[-1]) if prior else None,
-                "revenue_yoy": (last["val"] / prior[-1]["val"] - 1) if prior and prior[-1]["val"] else None})
-    if nq:
-        nl = [u for u in nq if u["end"] == last["end"]] or [nq[-1]]
-        out.update({"net_income_concept": nc, "net_income_q": pick(nl[-1])})
-    out["consistency"] = {"entity_matches_ticker_map": True, "period_days": days(last["start"], last["end"]),
-                          "restated": bool(last.get("restated_from"))}
+                "revenue_yoy": (last["val"] / prior[-1]["val"] - 1) if prior and prior[-1]["val"] else None,
+                "net_income_q": pick(ni[-1]) if ni else None,
+                "net_income_concept": ni[-1]["concept"] if ni else None,
+                "freshness": fr,
+                "metrics_status": {"revenue": fr["status"],
+                                   "revenue_yoy": fr["status"] if prior else "unavailable (no comparable prior-year period)",
+                                   "net_income": fr["status"] if ni else "unavailable (no net income for the same period)"},
+                "consistency": {"period_days": days(last["start"], last["end"]), "net_income_same_period": bool(ni),
+                                "prior_year_same_length": bool(prior), "restated": bool(last.get("restated_from")),
+                                "filed_after_period_end": str(last.get("filed")) >= last["end"]}})
+    out["available"] = fr["status"] == "current"
+    if not out["available"]:
+        out["reason"] = f"latest revenue period ends {last['end']} ({fr['period_end_age_days']} days ago > {fr['max_days']}): stale, not current evidence"
     return out
 
 
@@ -115,8 +138,14 @@ def main():
             rep["symbols"][s] = {"available": False, "reason": f"companyfacts fetch failed: {type(e).__name__}"}
         time.sleep(0.25)  # well under SEC's 10 requests/second
     ok = sum(1 for v in rep["symbols"].values() if v.get("available"))
+    anyh = sum(1 for v in rep["symbols"].values() if v.get("revenue_q"))
+    rep["coverage"] = {"operating_symbols": len(rep["symbols"]), "any_historical_revenue": anyh,
+                       "current_and_period_consistent_revenue": ok,
+                       "net_income_same_period_current": sum(1 for v in rep["symbols"].values()
+                                                             if v.get("available") and v.get("net_income_q"))}
     OUT.write_text(json.dumps(rep, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
-    print(f"::notice title=SEC fundamentals::available {ok}/{len(rep['symbols'])}")
+    print(f"::notice title=SEC fundamentals::current+consistent {ok}/{len(rep['symbols'])}; any history {anyh}; "
+          f"net income same period {rep['coverage']['net_income_same_period_current']}")
     return 0
 
 

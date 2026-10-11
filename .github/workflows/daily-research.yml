@@ -12,6 +12,10 @@ on:
         description: "Why this run was started"
         required: false
         default: ""
+      sec_only:
+        description: "Refresh SEC fundamentals only (no research records)"
+        required: false
+        default: "false"
 
 run-name: ${{ github.event_name == 'workflow_dispatch' && inputs.run_reason != '' && format('MyAlpha Auto Research · {0}', inputs.run_reason) || 'MyAlpha Auto Research' }}
 
@@ -32,13 +36,17 @@ jobs:
         with:
           python-version: "3.11"
       - run: pip install pandas
-      - run: python tests/test_daily_research_job.py
+      - run: |
+          python tests/test_daily_research_job.py
+          python tests/test_sec_fundamentals.py
       - name: SEC XBRL fundamentals (official, free; failures → unavailable)
         continue-on-error: true
         run: python scripts/sec_fundamentals.py
       - name: Automatic research (ingestion → eligibility → evidence → analysis → shadow-write → revisit)
+        if: ${{ github.event_name != 'workflow_dispatch' || inputs.sec_only != 'true' }}
         run: python scripts/daily_research_job.py
       - name: Weekly research report (trailing five sessions)
+        if: ${{ github.event_name != 'workflow_dispatch' || inputs.sec_only != 'true' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: python scripts/weekly_research_report.py

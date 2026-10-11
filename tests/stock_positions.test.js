@@ -26,4 +26,7 @@ const now = Date.parse('2026-10-09T00:00:00Z');
 assert(!T.isStale({ data_as_of: '2026-10-05T00:00:00Z' }, now));
 assert(T.isStale({ data_as_of: '2026-09-30T00:00:00Z' }, now));
 assert(T.isStale({ data_as_of: null }, now), 'missing as_of is stale');
+// note column is NOT NULL default '': an empty note must be sent as '' (production error 2026-10-11)
+assert.strictEqual(T.validate({ broker_account_id: '1', symbol: 'ZZA', shares: '1', note: '' }).payload.note, '');
+assert.strictEqual(T.validate({ broker_account_id: '1', symbol: 'ZZA', shares: '1' }).payload.note, '');
 console.log('stock_positions.test.js PASS');

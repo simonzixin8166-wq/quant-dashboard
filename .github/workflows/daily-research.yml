@@ -1,0 +1,42 @@
+name: MyAlpha Auto Research
+
+# Idempotent fallback / recovery for the automatic research job (normally run inside Daily Dashboard Update).
+# Writes nothing if the session was already researched. Shadow-only; zero paid APIs.
+on:
+  schedule:
+    - cron: '35 0 * * 2-6'
+    - cron: '35 12 * * 2-6'
+  workflow_dispatch:
+    inputs:
+      run_reason:
+        description: "Why this run was started"
+        required: false
+        default: ""
+
+run-name: ${{ github.event_name == 'workflow_dispatch' && inputs.run_reason != '' && format('MyAlpha Auto Research · {0}', inputs.run_reason) || 'MyAlpha Auto Research' }}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: myalpha-production-writer
+  cancel-in-progress: false
+
+jobs:
+  research:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install pandas
+      - run: python tests/test_daily_research_job.py
+      - name: Automatic research (ingestion → eligibility → evidence → analysis → shadow-write → revisit)
+        run: python scripts/daily_research_job.py
+      - name: Save shadow journal only
+        run: |
+          git config user.name "github-actions"; git config user.email "actions@github.com"
+          git add research/knowledge/auto_research_journal.jsonl docs/research/auto_research_status.json
+          git diff --cached --quiet || (git commit -m "auto research shadow journal" && git pull --rebase origin main && git push)

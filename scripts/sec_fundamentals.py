@@ -17,7 +17,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 ARCHIVE = ROOT / "data" / "history" / "stooq_watchlist.zip"
 OUT = ROOT / "docs" / "research" / "sec_fundamentals.json"
-UA = {"User-Agent": "MyAlpha View research (github.com/simonzixin8166-wq/quant-dashboard) contact via GitHub issues"}
+import os
+UA = {"User-Agent": os.getenv("SEC_USER_AGENT", "MyAlphaView/6.9 research-agent myalphaview.com"), "Accept": "application/json"}  # same identity as company_fundamental_memory
 NON_OPERATING = {"QQQ", "QQQM", "QLD", "TQQQ", "VGT", "VOO", "SMH", "SPY", "VIX", "DRAM"}
 REVENUE = ("RevenueFromContractWithCustomerExcludingAssessedTax", "Revenues", "SalesRevenueNet",
            "RevenueFromContractWithCustomerIncludingAssessedTax")
@@ -34,12 +35,12 @@ def days(a, b):
     return (date.fromisoformat(b) - date.fromisoformat(a)).days
 
 
-def quarterly(facts, concepts):
-    """Latest 3-month (80–100 day) USD facts for the first concept that has them."""
+def quarterly(facts, concepts, lo=80, hi=100):
+    """USD duration facts (default 3-month, 80–100 days) for the first concept that has them."""
     usg = (facts.get("facts") or {}).get("us-gaap") or {}
     for c in concepts:
         units = ((usg.get(c) or {}).get("units") or {}).get("USD") or []
-        q = [u for u in units if u.get("start") and u.get("end") and 80 <= days(u["start"], u["end"]) <= 100 and u.get("form") in FORMS]
+        q = [u for u in units if u.get("start") and u.get("end") and lo <= days(u["start"], u["end"]) <= hi and u.get("form") in FORMS]
         if not q:
             continue
         by_period = {}
@@ -63,10 +64,17 @@ def facts_for(sym, cik):
            "source": f"https://data.sec.gov/api/xbrl/companyfacts/CIK{int(cik):010d}.json"}
     rc, rq = quarterly(f, REVENUE)
     nc, nq = quarterly(f, NET_INCOME)
+    ac, aq = quarterly(f, REVENUE, 330, 380)
+    anc, anq = quarterly(f, NET_INCOME, 330, 380)
+    period = "quarter"
+    # use the annual period when it is the most recently filed (e.g. 10-K with no separate Q4 fact)
+    if aq and (not rq or str(aq[-1].get("filed")) > str(rq[-1].get("filed"))):
+        rc, rq, nc, nq, period = ac, aq, anc, anq, "fiscal_year"
     if not rq:
-        out["reason"] = "no 3-month USD revenue facts in us-gaap (e.g. IFRS/foreign filer or no XBRL)"
+        out["reason"] = "no USD revenue facts in us-gaap (e.g. IFRS/foreign filer or no XBRL)"
         return out
     last = rq[-1]
+    out["period_type"] = period
     prior = [u for u in rq if 350 <= days(u["end"], last["end"]) <= 380]
     out.update({"available": True, "revenue_concept": rc, "revenue_q": pick(last),
                 "revenue_q_prior_year": pick(prior[-1]) if prior else None,

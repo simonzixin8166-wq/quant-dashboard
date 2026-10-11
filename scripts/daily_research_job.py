@@ -32,7 +32,7 @@ sys.path.insert(0, str(ROOT / "scripts"))
 import trading_calendar as tc  # noqa: E402
 import knowledge_contract as kc  # noqa: E402
 
-GENERATOR = "auto-research-2"  # v2: input timing integrity, claim dedupe, opposing coverage note, SEC facts
+GENERATOR = "auto-research-3"  # v3: v2 + working SEC facts (UA fix, annual fallback) + new-evidence on revisits
 JOURNAL = ROOT / "research" / "knowledge" / "auto_research_journal.jsonl"
 STATUS = ROOT / "docs" / "research" / "auto_research_status.json"
 MACRO = ROOT / "docs" / "research" / "macro_context.json"
@@ -126,14 +126,14 @@ def fundamental_evidence(sym, sec, generated_at):
     if yoy is not None:
         ev.append({"name": "sec_revenue_yoy", "value": round(yoy, 4), "sign": 1 if yoy > 0.10 else (-1 if yoy < 0 else 0),
                    "source": src, "as_of": rq.get("end"), "available_at": rq.get("filed"), "group": "fundamental",
-                   "note": f"quarterly revenue {rq['val']/1e6:,.0f}M for {rq.get('start')}–{rq.get('end')} ({rq.get('fp')} FY{rq.get('fy')}), "
+                   "note": f"{'annual' if f.get('period_type') == 'fiscal_year' else 'quarterly'} revenue {rq['val']/1e6:,.0f}M for {rq.get('start')}–{rq.get('end')} ({rq.get('fp')} FY{rq.get('fy')}), "
                            f"{yoy:+.1%} YoY; filed {rq.get('filed')}"})
     ni = f.get("net_income_q")
     if ni:
         ev.append({"name": "sec_net_income_q", "value": ni["val"], "sign": -1 if ni["val"] < 0 else 0,
                    "source": f"SEC XBRL {f.get('net_income_concept')} {ni.get('form')} accn {ni.get('accn')}", "as_of": ni.get("end"),
                    "available_at": ni.get("filed"), "group": "fundamental",
-                   "note": f"quarterly net income {ni['val']/1e6:,.0f}M ({'loss' if ni['val'] < 0 else 'profit'}) for period ending {ni.get('end')}"})
+                   "note": f"{'annual' if f.get('period_type') == 'fiscal_year' else 'quarterly'} net income {ni['val']/1e6:,.0f}M ({'loss' if ni['val'] < 0 else 'profit'}) for period ending {ni.get('end')}"})
     summary = {"available": True, "cik": f.get("cik"), "entity": f.get("entity"), "revenue_q": rq, "revenue_yoy": yoy,
                "net_income_q": ni, "source": f.get("source"), "restated": (f.get("consistency") or {}).get("restated")}
     return summary, ev
@@ -373,8 +373,13 @@ def run(now=None, fetch_claims=True, run_id=None):
             if res["stance"] != prev["stance"] and status == "still_valid":
                 status = "superseded"
             if (sym, expected, GENERATOR, "revisit") not in keys:
+                prev_names = {(e["name"], str(e.get("value"))) for e in prev.get("supporting", []) + prev.get("opposing", [])}
+                fresh = [e for e in res["supporting"] + res["opposing"] if (e["name"], str(e.get("value"))) not in prev_names
+                         and e.get("group") in ("fundamental", "macro")]
                 new.append({**base, "type": "revisit", "record_id": f"{sym}-{expected}-{GENERATOR}-revisit", "hypothesis_id": prev["record_id"],
-                            "status": status, "trigger": hit, "close": rows[-1]["c"], "decision_reason": res["reason"]})
+                            "status": status, "trigger": hit, "close": rows[-1]["c"], "decision_reason": res["reason"],
+                            "new_evidence": fresh, "fundamentals_now": res.get("fundamentals"),
+                            "author_claims_new": [c["record_id"] for c in rel if str(c.get("first_seen")) > str(prev.get("generated_at"))]})
                 log.append(f"{sym}: revisit {prev['record_id']} → {status}")
             if status == "still_valid" or (status == "review_due" and res["stance"] == prev["stance"]):
                 continue

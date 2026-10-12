@@ -2,7 +2,7 @@
  "version": 1,
  "title": "MyAlpha View — Master Execution Plan",
  "issue": "https://github.com/simonzixin8166-wq/quant-dashboard/issues/133",
- "last_updated": "2026-10-12T04:30:00Z",
+ "last_updated": "2026-10-12T04:45:00Z",
  "charter": "CLAUDE.md (owner-confirmed 2026-10-11)",
  "statuses": [
   "Done",
@@ -430,7 +430,7 @@
    "title": "STOOQ 19-symbol pack import (MyAlpha_STOOQ_19symbols_20261009.zip)",
    "area": "Data universe",
    "priority": 1,
-   "status": "Blocked",
+   "status": "Waiting",
    "stages": [
     "instruction_published",
     "claude_acked"
@@ -443,12 +443,15 @@
    ],
    "evidence": {
     "prs": [],
-    "runs": []
+    "runs": [
+     "pack received in this Claude chat 2026-10-12T04:24Z, sha256 ead9bb5f…; manifest sha256 19/19 match",
+     "research/audit/stooq_pack_validation.json: new clean 11 (AMZN, META, NOW, DIA, GLD, HYG, IWM, TLT, XLE, XLF, XLK); SPY identical to #207; review 7"
+    ]
    },
    "acceptance": "manifest SHA-256 re-verified; per-symbol checks; overlap vs existing archive; conflicts quarantined; append-only; provenance per file",
-   "next": "build validator (D-07) now; import after P0-05",
-   "blocked_by": "file handoff: the ZIP lives in ChatGPT, not readable from here — owner to upload it to this Claude chat; owner authorization to publish the data in the public repo",
-   "last_verified": "2026-10-12T04:25Z"
+   "next": "after P0-05: append 11 clean + AAOI/AAPL/CRWV/MU (large moves and early gaps are real/known — recorded as quality flags) + INTC (pre-1990 close-only bars flagged); TQQQ: replace only the 5 synthetic flat bars 2026-10-05..09 with pack OHLC (same closes; pack history uses a newer dividend-adjustment basis, ratio 0.956→1.000, so history is NOT replaced); LITE: 2026-09-29/30 differ (archive 994.78/948.84 vs pack 973.49/971.26) and 2026-10-01 is missing in the archive → logged correction, not silent overwrite",
+   "last_verified": "2026-10-12T04:45Z",
+   "waiting_for": "P0-05 (base archive unchanged before the first schedule) + owner authorization to publish the 19 files in the public repo"
   },
   {
    "id": "D-04",
@@ -542,12 +545,13 @@
    "evidence": {
     "prs": [],
     "runs": [
-     "missing list v0 on #133 6117638644 (INTC, AMZN, MU, META, NOW, CRWV)"
+     "missing list v0 on #133 6117638644 (INTC, AMZN, MU, META, NOW, CRWV)",
+     "scripts/stooq_pack_validate.py (read-only validator) run on the 19-symbol pack"
     ]
    },
    "acceptance": "manifest counts securities not events; use_case, source availability, priority, reason",
-   "next": "PR after this plan",
-   "last_verified": "2026-10-12T04:25Z"
+   "next": "merge validator PR; Missing Historical Symbols manifest (distinct securities) next",
+   "last_verified": "2026-10-12T04:45Z"
   },
   {
    "id": "B2-01",
@@ -1005,7 +1009,7 @@
   },
   {
    "id": "OWN-04",
-   "title": "Owner: upload the 19-symbol ZIP to this Claude chat and authorize publishing it in the public repo",
+   "title": "Owner: authorize publishing the 19-symbol pack in the public repo (file already received in this chat)",
    "area": "Owner decisions",
    "priority": 1,
    "status": "Waiting",
@@ -1023,7 +1027,7 @@
    "acceptance": "file received + explicit authorization",
    "next": "unblocks D-03",
    "waiting_for": "owner",
-   "last_verified": "2026-10-12T04:25Z"
+   "last_verified": "2026-10-12T04:45Z"
   }
  ]
 }

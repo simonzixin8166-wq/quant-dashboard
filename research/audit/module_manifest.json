@@ -1,0 +1,2408 @@
+{
+ "generated_at": "2026-10-12T02:53:16Z",
+ "method": "roles assigned per reader script after code review (ROLES); producer self-reads excluded; reachability = direct research/decision readers plus paths through learning transforms only (research→research hops are data selection, not learning content); monitor and display reads never count as learning",
+ "artifacts": [
+  {
+   "artifact": "docs/research/assistant_rule_validation.json",
+   "kind": "learning_or_outcome",
+   "producers": [
+    "backtest_assistant_rules.py"
+   ],
+   "producer_workflows": [
+    "daily.yml"
+   ],
+   "producer_scheduled": true,
+   "consumers": {
+    "display": [
+     "docs/assets/autonomous-qa.js:52",
+     "docs/assets/decision-journal.js:421"
+    ],
+    "monitor": [
+     "scripts/module_intelligence_engine.py:221",
+     "scripts/module_manifest_audit.py:92"
+    ]
+   },
+   "direct_research_or_decision_consumers": [],
+   "reaches_research_or_decision": [],
+   "flags": [
+    "monitor_or_display_only",
+    "outcome_without_research"
+   ],
+   "last_commit": "2026-10-10T01:14:02+00:00"
+  },
+  {
+   "artifact": "docs/research/author_action_signals.json",
+   "kind": "other",
+   "producers": [
+    "source_intelligence_engine.py"
+   ],
+   "producer_workflows": [
+    "autonomous-qa.yml",
+    "daily.yml",
+    "source-intelligence-validation.yml",
+    "v56-pr-validation.yml"
+   ],
+   "producer_scheduled": true,
+   "consumers": {
+    "display": [
+     "docs/assets/invest-actions.js:6"
+    ]
+   },
+   "direct_research_or_decision_consumers": [],
+   "reaches_research_or_decision": [],
+   "flags": [
+    "monitor_or_display_only"
+   ],
+   "last_commit": "2026-10-12T02:19:48+00:00"
+  },
+  {
+   "artifact": "docs/research/author_intelligence.json",
+   "kind": "other",
+   "producers": [
+    "v615_author_intelligence.py"
+   ],
+   "producer_workflows": [
+    "source-intelligence-validation.yml"
+   ],
+   "producer_scheduled": true,
+   "consumers": {
+    "display": [
+     "docs/assets/wenxuecity.js:202"
+    ],
+    "monitor": [
+     "scripts/research_program_status.py:23"
+    ]
+   },
+   "direct_research_or_decision_consumers": [],
+   "reaches_research_or_decision": [],
+   "flags": [
+    "monitor_or_display_only"
+   ],
+   "last_commit": "2026-10-12T02:19:48+00:00"
+  },
+  {
+   "artifact": "docs/research/auto_research_digest.json",
+   "kind": "owner_facing_output",
+   "producers": [
+    "auto_research_digest.py"
+   ],
+   "producer_workflows": [
+    "daily-research.yml",
+    "daily.yml",
+    "v56-pr-validation.yml"
+   ],
+   "producer_scheduled": true,
+   "consumers": {
+    "display": [
+     "docs/assets/auto-research-row.js:2"
+    ]
+   },
+   "direct_research_or_decision_consumers": [],
+   "reaches_research_or_decision": [],
+   "flags": [],
+   "last_commit": "2026-10-11T23:35:05+08:00"
+  },
+  {
+   "artifact": "docs/research/auto_research_status.json",
+   "kind": "other",
+   "producers": [
+    "daily_research_job.py"
+   ],
+   "producer_workflows": [
+    "daily-research.yml",
+    "daily.yml",
+    "v56-pr-validation.yml"
+   ],
+   "producer_scheduled": true,
+   "consumers": {
+    "display": [
+     "scripts/auto_research_digest.py:4"
+    ],
+    "monitor": [
+     "scripts/module_manifest_audit.py:96",
+     "scripts/weekly_research_report.py:22"
+    ]
+   },
+   "direct_research_or_decision_consumers": [],
+   "reaches_research_or_decision": [],
+   "flags": [
+    "monitor_or_display_only"
+   ],
+   "last_commit": "2026-10-11T13:34:50+00:00"
+  },
+  {
+   "artifact": "docs/research/auto_thesis_drafts.json",
+   "kind": "other",
+   "producers": [
+    "v615_auto_thesis_engine.py"
+   ],
+   "producer_workflows": [
+    "autonomous-qa.yml",
+    "daily.yml",
+    "source-intelligence-validation.yml"
+   ],
+   "producer_scheduled": true,
+   "consumers": {
+    "decision": [
+     "scripts/server_action_engine.py:20"
+    ],
+    "display": [
+     "docs/assets/stock-watchlist.js:116"
+    ],
+    "monitor": [
+     "scripts/data_learning_coverage_audit.py:148",
+     "scripts/learning_evaluation_engine.py:30",
+     "scripts/private_guardrail.py:31"
+    ],
+    "research": [
+     "scripts/daily_research_job.py:9",
+     "scripts/fundamental_outcome_context.py:9",
+     "scripts/knowledge_contract.py:10"
+    ]
+   },
+   "direct_research_or_decision_consumers": [
+    "daily_research_job.py",
+    "fundamental_outcome_context.py",
+    "knowledge_contract.py",
+    "server_action_engine.py"
+   ],
+   "reaches_research_or_decision": [
+    "daily_research_job.py",
+    "fundamental_outcome_context.py",
+    "knowledge_contract.py",
+    "server_action_engine.py"
+   ],
+   "flags": [],
+   "last_commit": "2026-10-12T02:19:48+00:00"
+  },
+  {
+   "artifact": "docs/research/autonomous_agent.json",
+   "kind": "other",
+   "producers": [
+    "autonomous_research_agent.py"
+   ],
+   "producer_workflows": [
+    "daily.yml"
+   ],
+   "producer_scheduled": true,
+   "consumers": {
+    "display": [
+     "docs/assets/autonomous-agent.js:96"
+    ],
+    "learning": [
+     "scripts/evidence_attribution_engine.py:12"
+    ],
+    "monitor": [
+     "scripts/autonomous_site_qa.mjs:21",
+     "scripts/generate_build_manifest.py:7",
+     "scripts/module_intelligence_engine.py:201",
+     "scripts/module_manifest_audit.py:92",
+     "scripts/private_guardrail.py:45",
+     "scripts/system_status_center.py:17"
+    ],
+    "research": [
+     "scripts/autonomous_research_planner.py:15"
+    ]
+   },
+   "direct_research_or_decision_consumers": [
+    "autonomous_research_planner.py"
+   ],
+   "reaches_research_or_decision": [
+    "autonomous_research_executor.py",
+    "autonomous_research_planner.py",
+    "event_evidence_engine.py",
+    "official_evidence_engine.py"
+   ],
+   "flags": [],
+   "last_commit": "2026-10-10T01:14:02+00:00"
+  },
+  {
+   "artifact": "docs/research/autonomous_intelligence_status.json",
+   "kind": "other",
+   "producers": [
+    "autonomous_intelligence_status.py"
+   ],
+   "producer_workflows": [
+    "source-intelligence-validation.yml"
+   ],
+   "producer_scheduled": true,
+   "consumers": {},
+   "direct_research_or_decision_consumers": [],
+   "reaches_research_or_decision": [],
+   "flags": [
+    "no_consumer"
+   ],
+   "last_commit": "2026-10-12T02:19:48+00:00"
+  },
+  {
+   "artifact": "docs/research/breadth_intelligence.json",
+   "kind": "other",
+   "producers": [
+    "breadth_intelligence_engine.py"
+   ],
+   "producer_workflows": [
+    "daily.yml",
+    "source-intelligence-validation.yml"
+   ],
+   "producer_scheduled": true,
+   "consumers": {
+    "display": [
+     "docs/assets/autonomous-agent.js:106"
+    ],
+    "monitor": [
+     "scripts/generate_build_manifest.py:7",
+     "scripts/module_intelligence_engine.py:209",
+     "scripts/system_status_center.py:31"
+    ],
+    "research": [
+     "scripts/autonomous_research_executor.py:34",
+     "scripts/autonomous_research_planner.py:24",
+     "scripts/regime_combination_memory.py:18"
+    ]
+   },
+   "direct_research_or_decision_consumers": [
+    "autonomous_research_executor.py",
+    "autonomous_research_planner.py",
+    "regime_combination_memory.py"
+   ],
+   "reaches_research_or_decision": [
+    "autonomous_research_executor.py",
+    "autonomous_research_planner.py",
+    "regime_combination_memory.py"
+   ],
+   "flags": [],
+   "last_commit": "2026-10-12T02:19:48+00:00"
+  },
+  {
+   "artifact": "docs/research/breadth_intelligence_history.json",
+   "kind": "other",
+   "producers": [
+    "breadth_intelligence_engine.py"
+   ],
+   "producer_workflows": [
+    "daily.yml",
+    "source-intelligence-validation.yml"
+   ],
+   "producer_scheduled": true,
+   "consumers": {
+    "learning": [
+     "scripts/market_state_outcome_scorecards.py:11",
+     "scripts/self_improvement_engine.py:20"
+    ],
+    "monitor": [
+     "scripts/data_learning_coverage_audit.py:153",
+     "scripts/generate_build_manifest.py:7",
+     "scripts/module_intelligence_engine.py:210",
+     "scripts/system_status_center.py:32"
+    ],
+    "research": [
+     "scripts/autonomous_research_executor.py:35"
+    ]
+   },
+   "direct_research_or_decision_consumers": [
+    "autonomous_research_executor.py"
+   ],
+   "reaches_research_or_decision": [
+    "autonomous_research_executor.py",
+    "autonomous_research_planner.py"
+   ],
+   "flags": [],
+   "last_commit": "2026-10-10T01:14:02+00:00"
+  },
+  {
+   "artifact": "docs/research/candidate_eventscore_status.json",
+   "kind": "learning_or_outcome",
+   "producers": [
+    "candidate_event_score.py"
+   ],
+   "producer_workflows": [
+    "autonomous-qa.yml",
+    "source-intelligence-validation.yml"
+   ],
+   "producer_scheduled": true,
+   "consumers": {
+    "monitor": [
+     "scripts/autonomous_intelligence_status.py:31",
+     "scripts/autonomous_site_qa.mjs:155"
+    ]
+   },
+   "direct_research_or_decision_consumers": [],
+   "reaches_research_or_decision": [],
+   "flags": [
+    "monitor_or_display_only",
+    "outcome_without_research"
+   ],
+   "last_commit": "2026-10-12T02:19:48+00:00"
+  },
+  {
+   "artifact": "docs/research/candidate_evidence_promotion_status.json",
+   "kind": "learning_or_outcome",
+   "producers": [
+    "candidate_evidence_promotion.py"
+   ],
+   "producer_workflows": [
+    "source-intelligence-validation.yml"
+   ],
+   "producer_scheduled": true,
+   "consumers": {
+    "learning": [
+     "scripts/candidate_event_score.py:201"
+    ],
+    "monitor": [
+     "scripts/autonomous_intelligence_status.py:33",
+     "scripts/autonomous_site_qa.mjs:157",
+     "scripts/data_learning_coverage_audit.py:164"
+    ]
+   },
+   "direct_research_or_decision_consumers": [],
+   "reaches_research_or_decision": [],
+   "flags": [
+    "outcome_without_research"
+   ],
+   "last_commit": "2026-10-12T02:19:48+00:00"
+  },
+  {
+   "artifact": "docs/research/candidate_family_scorecard_status.json",
+   "kind": "learning_or_outcome",
+   "producers": [
+    "candidate_family_scorecard.py"
+   ],
+   "producer_workflows": [
+    "autonomous-qa.yml",
+    "source-intelligence-validation.yml"
+   ],
+   "producer_scheduled": true,
+   "consumers": {
+    "monitor": [
+     "scripts/autonomous_intelligence_status.py:32",
+     "scripts/autonomous_site_qa.mjs:156"
+    ]
+   },
+   "direct_research_or_decision_consumers": [],
+   "reaches_research_or_decision": [],
+   "flags": [
+    "monitor_or_display_only",
+    "outcome_without_research"
+   ],
+   "last_commit": "2026-10-12T02:19:48+00:00"
+  },
+  {
+   "artifact": "docs/research/candidate_forward_status.json",
+   "kind": "learning_or_outcome",
+   "producers": [
+    "candidate_forward_observer.py"
+   ],
+   "producer_workflows": [
+    "autonomous-qa.yml",
+    "source-intelligence-validation.yml"
+   ],
+   "producer_scheduled": true,
+   "consumers": {
+    "monitor": [
+     "scripts/autonomous_intelligence_status.py:30",
+     "scripts/autonomous_site_qa.mjs:154",
+     "scripts/data_learning_coverage_audit.py:68"
+    ]
+   },
+   "direct_research_or_decision_consumers": [],
+   "reaches_research_or_decision": [],
+   "flags": [
+    "monitor_or_display_only",
+    "outcome_without_research"
+   ],
+   "last_commit": "2026-10-12T02:19:48+00:00"
+  },
+  {
+   "artifact": "docs/research/candidate_parameter_queue.json",
+   "kind": "learning_or_outcome",
+   "producers": [
+    "candidate_parameter_queue.py"
+   ],
+   "producer_workflows": [
+    "source-intelligence-validation.yml"
+   ],
+   "producer_scheduled": true,
+   "consumers": {
+    "monitor": [
+     "scripts/autonomous_intelligence_status.py:28"
+    ]
+   },
+   "direct_research_or_decision_consumers": [],
+   "reaches_research_or_decision": [],
+   "flags": [
+    "monitor_or_display_only",
+    "outcome_without_research"
+   ],
+   "last_commit": "2026-10-12T02:19:48+00:00"
+  },
+  {
+   "artifact": "docs/research/candidate_rule_family_status.json",
+   "kind": "learning_or_outcome",
+   "producers": [
+    "candidate_rule_families.py"
+   ],
+   "producer_workflows": [
+    "source-intelligence-validation.yml"
+   ],
+   "producer_scheduled": true,
+   "consumers": {},
+   "direct_research_or_decision_consumers": [],
+   "reaches_research_or_decision": [],
+   "flags": [
+    "no_consumer",
+    "outcome_without_research"
+   ],
+   "last_commit": "2026-10-12T02:19:48+00:00"
+  },
+  {
+   "artifact": "docs/research/candidate_rule_replay.json",
+   "kind": "learning_or_outcome",
+   "producers": [
+    "candidate_rule_replay.py"
+   ],
+   "producer_workflows": [
+    "autonomous-qa.yml",
+    "source-intelligence-validation.yml"
+   ],
+   "producer_scheduled": true,
+   "consumers": {
+    "learning": [
+     "scripts/candidate_rule_families.py:15"
+    ],
+    "monitor": [
+     "scripts/autonomous_intelligence_status.py:29"
+    ]
+   },
+   "direct_research_or_decision_consumers": [],
+   "reaches_research_or_decision": [],
+   "flags": [
+    "outcome_without_research"
+   ],
+   "last_commit": "2026-10-12T02:19:48+00:00"
+  },
+  {
+   "artifact": "docs/research/candidate_rule_status.json",
+   "kind": "learning_or_outcome",
+   "producers": [
+    "candidate_rule_compiler.py"
+   ],
+   "producer_workflows": [
+    "autonomous-qa.yml",
+    "source-intelligence-validation.yml"
+   ],
+   "producer_scheduled": true,
+   "consumers": {
+    "monitor": [
+     "scripts/autonomous_intelligence_status.py:27"
+    ]
+   },
+   "direct_research_or_decision_consumers": [],
+   "reaches_research_or_decision": [],
+   "flags": [
+    "monitor_or_display_only",
+    "outcome_without_research"
+   ],
+   "last_commit": "2026-10-12T02:19:48+00:00"
+  },
+  {
+   "artifact": "docs/research/challenger_experiments.json",
+   "kind": "learning_or_outcome",
+   "producers": [
+    "challenger_experiment_runner.py"
+   ],
+   "producer_workflows": [
+    "daily.yml"
+   ],
+   "producer_scheduled": true,
+   "consumers": {
+    "display": [
+     "docs/assets/autonomous-agent.js:115"
+    ],
+    "monitor": [
+     "scripts/generate_build_manifest.py:7",
+     "scripts/module_manifest_audit.py:93",
+     "scripts/system_status_center.py:43"
+    ]
+   },
+   "direct_research_or_decision_consumers": [],
+   "reaches_research_or_decision": [],
+   "flags": [
+    "monitor_or_display_only",
+    "outcome_without_research"
+   ],
+   "last_commit": "2026-10-10T01:14:02+00:00"
+  },
+  {
+   "artifact": "docs/research/company_fundamental_memory.json",
+   "kind": "learning_or_outcome",
+   "producers": [
+    "company_fundamental_memory.py"
+   ],
+   "producer_workflows": [
+    "daily.yml",
+    "source-intelligence-validation.yml"
+   ],
+   "producer_scheduled": true,
+   "consumers": {
+    "monitor": [
+     "scripts/data_learning_coverage_audit.py:143",
+     "scripts/learning_funnel_contract.py:124",
+     "scripts/module_manifest_audit.py:272",
+     "scripts/sec_fact_reconcile.py:5"
+    ]
+   },
+   "direct_research_or_decision_consumers": [],
+   "reaches_research_or_decision": [],
+   "flags": [
+    "monitor_or_display_only",
+    "outcome_without_research"
+   ],
+   "last_commit": "2026-10-12T02:19:48+00:00"
+  },
+  {
+   "artifact": "docs/research/company_fundamental_outcome_memory.json",
+   "kind": "learning_or_outcome",
+   "producers": [
+    "company_fundamental_outcome_memory.py"
+   ],
+   "producer_workflows": [
+    "daily.yml",
+    "source-intelligence-validation.yml"
+   ],
+   "producer_scheduled": true,
+   "consumers": {
+    "monitor": [
+     "scripts/data_learning_coverage_audit.py:61"
+    ]
+   },
+   "direct_research_or_decision_consumers": [],
+   "reaches_research_or_decision": [],
+   "flags": [
+    "monitor_or_display_only",
+    "outcome_without_research"
+   ],
+   "last_commit": "2026-10-12T02:19:48+00:00"
+  },
+  {
+   "artifact": "docs/research/controlled_learning_policy.json",
+   "kind": "learning_or_outcome",
+   "producers": [
+    "controlled_learning_policy.py"
+   ],
+   "producer_workflows": [
+    "daily.yml"
+   ],
+   "producer_scheduled": true,
+   "consumers": {
+    "display": [
+     "docs/assets/autonomous-agent.js:113"
+    ],
+    "monitor": [
+     "scripts/generate_build_manifest.py:7",
+     "scripts/module_manifest_audit.py:93",
+     "scripts/private_guardrail.py:52",
+     "scripts/research_boundary_guard.py:11",
+     "scripts/system_status_center.py:41"
+    ],
+    "research": [
+     "scripts/autonomous_research_planner.py:27"
+    ]
+   },
+   "direct_research_or_decision_consumers": [
+    "autonomous_research_planner.py"
+   ],
+   "reaches_research_or_decision": [
+    "autonomous_research_planner.py"
+   ],
+   "flags": [],
+   "last_commit": "2026-10-10T01:14:02+00:00"
+  },
+  {
+   "artifact": "docs/research/cross_asset_divergence.json",
+   "kind": "other",
+   "producers": [
+    "cross_asset_divergence_engine.py"
+   ],
+   "producer_workflows": [
+    "daily.yml",
+    "source-intelligence-validation.yml"
+   ],
+   "producer_scheduled": true,
+   "consumers": {
+    "display": [
+     "docs/assets/autonomous-agent.js:105"
+    ],
+    "monitor": [
+     "scripts/generate_build_manifest.py:7",
+     "scripts/module_intelligence_engine.py:207",
+     "scripts/system_status_center.py:29"
+    ],
+    "research": [
+     "scripts/autonomous_research_executor.py:32",
+     "scripts/autonomous_research_planner.py:23",
+     "scripts/regime_combination_memory.py:17"
+    ]
+   },
+   "direct_research_or_decision_consumers": [
+    "autonomous_research_executor.py",
+    "autonomous_research_planner.py",
+    "regime_combination_memory.py"
+   ],
+   "reaches_research_or_decision": [
+    "autonomous_research_executor.py",
+    "autonomous_research_planner.py",
+    "regime_combination_memory.py"
+   ],
+   "flags": [],
+   "last_commit": "2026-10-12T02:19:48+00:00"
+  },
+  {
+   "artifact": "docs/research/cross_asset_divergence_history.json",
+   "kind": "other",
+   "producers": [
+    "cross_asset_divergence_engine.py"
+   ],
+   "producer_workflows": [
+    "daily.yml",
+    "source-intelligence-validation.yml"
+   ],
+   "producer_scheduled": true,
+   "consumers": {
+    "learning": [
+     "scripts/market_state_outcome_scorecards.py:10",
+     "scripts/self_improvement_engine.py:19"
+    ],
+    "monitor": [
+     "scripts/data_learning_coverage_audit.py:152",
+     "scripts/generate_build_manifest.py:7",
+     "scripts/module_intelligence_engine.py:208",
+     "scripts/system_status_center.py:30"
+    ],
+    "research": [
+     "scripts/autonomous_research_executor.py:33"
+    ]
+   },
+   "direct_research_or_decision_consumers": [
+    "autonomous_research_executor.py"
+   ],
+   "reaches_research_or_decision": [
+    "autonomous_research_executor.py",
+    "autonomous_research_planner.py"
+   ],
+   "flags": [],
+   "last_commit": "2026-10-09T23:50:30+00:00"
+  },
+  {
+   "artifact": "docs/research/data_learning_coverage_audit.json",
+   "kind": "other",
+   "producers": [
+    "data_learning_coverage_audit.py"
+   ],
+   "producer_workflows": [
+    "daily.yml",
+    "source-intelligence-validation.yml"
+   ],
+   "producer_scheduled": true,
+   "consumers": {
+    "monitor": [
+     "scripts/learning_funnel_contract.py:73"
+    ]
+   },
+   "direct_research_or_decision_consumers": [],
+   "reaches_research_or_decision": [],
+   "flags": [
+    "monitor_or_display_only"
+   ],
+   "last_commit": "2026-10-12T02:19:48+00:00"
+  },
+  {
+   "artifact": "docs/research/event_evidence.json",
+   "kind": "other",
+   "producers": [
+    "event_evidence_engine.py"
+   ],
+   "producer_workflows": [
+    "daily.yml",
+    "source-intelligence-validation.yml"
+   ],
+   "producer_scheduled": true,
+   "consumers": {
+    "learning": [
+     "scripts/event_window_attribution.py:19",
+     "scripts/evidence_archive.py:14"
+    ],
+    "monitor": [
+     "scripts/data_learning_coverage_audit.py:146",
+     "scripts/generate_build_manifest.py:7",
+     "scripts/module_intelligence_engine.py:206",
+     "scripts/module_manifest_audit.py:94",
+     "scripts/private_guardrail.py:42",
+     "scripts/system_status_center.py:25"
+    ],
+    "research": [
+     "scripts/autonomous_research_executor.py:31",
+     "scripts/v615_auto_thesis_engine.py:15"
+    ]
+   },
+   "direct_research_or_decision_consumers": [
+    "autonomous_research_executor.py",
+    "v615_auto_thesis_engine.py"
+   ],
+   "reaches_research_or_decision": [
+    "autonomous_research_executor.py",
+    "v615_auto_thesis_engine.py"
+   ],
+   "flags": [],
+   "last_commit": "2026-10-12T02:19:48+00:00"
+  },
+  {
+   "artifact": "docs/research/event_outcome_memory.json",
+   "kind": "learning_or_outcome",
+   "producers": [
+    "event_outcome_memory.py"
+   ],
+   "producer_workflows": [
+    "daily.yml",
+    "source-intelligence-validation.yml"
+   ],
+   "producer_scheduled": true,
+   "consumers": {
+    "monitor": [
+     "scripts/data_learning_coverage_audit.py:62",
+     "scripts/learning_funnel_contract.py:149"
+    ]
+   },
+   "direct_research_or_decision_consumers": [],
+   "reaches_research_or_decision": [],
+   "flags": [
+    "monitor_or_display_only",
+    "outcome_without_research"
+   ],
+   "last_commit": "2026-10-12T02:19:48+00:00"
+  },
+  {
+   "artifact": "docs/research/event_window_attribution.json",
+   "kind": "learning_or_outcome",
+   "producers": [
+    "event_window_attribution.py"
+   ],
+   "producer_workflows": [
+    "autonomous-qa.yml",
+    "daily.yml",
+    "source-intelligence-validation.yml"
+   ],
+   "producer_scheduled": true,
+   "consumers": {
+    "monitor": [
+     "scripts/data_learning_coverage_audit.py:215",
+     "scripts/generate_build_manifest.py:7",
+     "scripts/learning_evaluation_engine.py:31",
+     "scripts/module_intelligence_engine.py:205",
+     "scripts/system_status_center.py:26"
+    ],
+    "research": [
+     "scripts/autonomous_research_executor.py:30"
+    ]
+   },
+   "direct_research_or_decision_consumers": [
+    "autonomous_research_executor.py"
+   ],
+   "reaches_research_or_decision": [
+    "autonomous_research_executor.py"
+   ],
+   "flags": [],
+   "last_commit": "2026-10-12T02:19:48+00:00"
+  },
+  {
+   "artifact": "docs/research/evidence_attribution.json",
+   "kind": "learning_or_outcome",
+   "producers": [
+    "evidence_attribution_engine.py"
+   ],
+   "producer_workflows": [
+    "daily.yml",
+    "source-intelligence-validation.yml"
+   ],
+   "producer_scheduled": true,
+   "consumers": {
+    "display": [
+     "docs/assets/autonomous-agent.js:97"
+    ],
+    "learning": [
+     "scripts/event_window_attribution.py:17",
+     "scripts/method_memory_engine.py:27",
+     "scripts/self_improvement_engine.py:14"
+    ],
+    "monitor": [
+     "scripts/learning_evaluation_engine.py:27",
+     "scripts/module_intelligence_engine.py:215",
+     "scripts/system_status_center.py:20"
+    ],
+    "research": [
+     "scripts/autonomous_research_executor.py:24",
+     "scripts/autonomous_research_planner.py:17",
+     "scripts/event_evidence_engine.py:20",
+     "scripts/official_evidence_engine.py:20"
+    ]
+   },
+   "direct_research_or_decision_consumers": [
+    "autonomous_research_executor.py",
+    "autonomous_research_planner.py",
+    "event_evidence_engine.py",
+    "official_evidence_engine.py"
+   ],
+   "reaches_research_or_decision": [
+    "autonomous_research_executor.py",
+    "autonomous_research_planner.py",
+    "event_evidence_engine.py",
+    "official_evidence_engine.py"
+   ],
+   "flags": [],
+   "last_commit": "2026-10-12T02:19:48+00:00"
+  },
+  {
+   "artifact": "docs/research/evidence_status.json",
+   "kind": "owner_facing_output",
+   "producers": [
+    "public_research_evidence_status.py"
+   ],
+   "producer_workflows": [
+    "daily.yml",
+    "source-intelligence-validation.yml"
+   ],
+   "producer_scheduled": true,
+   "consumers": {
+    "display": [
+     "docs/assets/wenxuecity.js:202"
+    ],
+    "monitor": [
+     "scripts/autonomous_intelligence_status.py:34",
+     "scripts/autonomous_signal_governance.py:14",
+     "scripts/research_program_status.py:32"
+    ]
+   },
+   "direct_research_or_decision_consumers": [],
+   "reaches_research_or_decision": [],
+   "flags": [],
+   "last_commit": "2026-10-12T02:19:48+00:00"
+  },
+  {
+   "artifact": "docs/research/forward_learning_feedback.json",
+   "kind": "learning_or_outcome",
+   "producers": [
+    "forward_learning_feedback.py"
+   ],
+   "producer_workflows": [
+    "autonomous-qa.yml",
+    "daily.yml",
+    "v56-pr-validation.yml"
+   ],
+   "producer_scheduled": true,
+   "consumers": {
+    "display": [
+     "docs/assets/autonomous-agent.js:114"
+    ],
+    "learning": [
+     "scripts/challenger_experiment_runner.py:22",
+     "scripts/controlled_learning_policy.py:24"
+    ],
+    "monitor": [
+     "scripts/generate_build_manifest.py:7",
+     "scripts/learning_evaluation_engine.py:33",
+     "scripts/module_manifest_audit.py:94",
+     "scripts/system_status_center.py:42"
+    ]
+   },
+   "direct_research_or_decision_consumers": [],
+   "reaches_research_or_decision": [
+    "autonomous_research_planner.py"
+   ],
+   "flags": [],
+   "last_commit": "2026-10-10T01:14:02+00:00"
+  },
+  {
+   "artifact": "docs/research/forward_observation_status.json",
+   "kind": "other",
+   "producers": [
+    "forward_observation_engine.py"
+   ],
+   "producer_workflows": [
+    "daily.yml",
+    "v56-pr-validation.yml"
+   ],
+   "producer_scheduled": true,
+   "consumers": {
+    "display": [
+     "docs/assets/decision-journal.js:271"
+    ]
+   },
+   "direct_research_or_decision_consumers": [],
+   "reaches_research_or_decision": [],
+   "flags": [
+    "monitor_or_display_only"
+   ],
+   "last_commit": "2026-10-11T15:50:10+08:00"
+  },
+  {
+   "artifact": "docs/research/fundamental_outcome_context.json",
+   "kind": "learning_or_outcome",
+   "producers": [
+    "fundamental_outcome_context.py"
+   ],
+   "producer_workflows": [
+    "daily.yml",
+    "source-intelligence-validation.yml"
+   ],
+   "producer_scheduled": true,
+   "consumers": {
+    "monitor": [
+     "scripts/data_learning_coverage_audit.py:149",
+     "scripts/learning_evaluation_engine.py:34"
+    ]
+   },
+   "direct_research_or_decision_consumers": [],
+   "reaches_research_or_decision": [],
+   "flags": [
+    "monitor_or_display_only",
+    "outcome_without_research"
+   ],
+   "last_commit": "2026-10-12T02:19:48+00:00"
+  },
+  {
+   "artifact": "docs/research/historical_journal.json",
+   "kind": "learning_or_outcome",
+   "producers": [
+    "local_history_agent.py"
+   ],
+   "producer_workflows": [
+    "autonomous-qa.yml",
+    "daily.yml",
+    "v56-pr-validation.yml"
+   ],
+   "producer_scheduled": true,
+   "consumers": {
+    "decision": [
+     "scripts/playbook_engine.py:21"
+    ],
+    "display": [
+     "docs/assets/autonomous-qa.js:49",
+     "docs/assets/decision-journal.js:397"
+    ],
+    "learning": [
+     "scripts/evidence_attribution_engine.py:13",
+     "scripts/learning_engine_core.py:13"
+    ],
+    "monitor": [
+     "scripts/autonomous_site_qa.mjs:20",
+     "scripts/data_learning_coverage_audit.py:58",
+     "scripts/generate_build_manifest.py:7",
+     "scripts/learning_evaluation_engine.py:28",
+     "scripts/module_intelligence_engine.py:216",
+     "scripts/module_manifest_audit.py:97"
+    ]
+   },
+   "direct_research_or_decision_consumers": [
+    "playbook_engine.py"
+   ],
+   "reaches_research_or_decision": [
+    "autonomous_research_agent.py",
+    "autonomous_research_executor.py",
+    "autonomous_research_planner.py",
+    "event_evidence_engine.py",
+    "official_evidence_engine.py",
+    "playbook_engine.py"
+   ],
+   "flags": [],
+   "last_commit": "2026-10-10T01:14:02+00:00"
+  },
+  {
+   "artifact": "docs/research/investment_actions_status.json",
+   "kind": "owner_facing_output",
+   "producers": [
+    "investment_watch_engine.py"
+   ],
+   "producer_workflows": [
+    "server-action-watch.yml",
+    "v56-pr-validation.yml"
+   ],
+   "producer_scheduled": true,
+   "consumers": {
+    "display": [
+     "docs/assets/invest-actions.js:5"
+    ],
+    "monitor": [
+     "scripts/private_guardrail.py:25"
+    ]
+   },
+   "direct_research_or_decision_consumers": [],
+   "reaches_research_or_decision": [],
+   "flags": [],
+   "last_commit": "2026-10-12T02:25:32+00:00"
+  },
+  {
+   "artifact": "docs/research/learning_engine.json",
+   "kind": "learning_or_outcome",
+   "producers": [
+    "learning_engine_core.py"
+   ],
+   "producer_workflows": [
+    "autonomous-qa.yml",
+    "daily.yml",
+    "v56-pr-validation.yml"
+   ],
+   "producer_scheduled": true,
+   "consumers": {
+    "learning": [
+     "scripts/evidence_attribution_engine.py:11"
+    ],
+    "monitor": [
+     "scripts/learning_evaluation_engine.py:25",
+     "scripts/module_intelligence_engine.py:200",
+     "scripts/system_status_center.py:16"
+    ],
+    "research": [
+     "scripts/autonomous_research_agent.py:12",
+     "scripts/autonomous_research_executor.py:23",
+     "scripts/autonomous_research_planner.py:16"
+    ]
+   },
+   "direct_research_or_decision_consumers": [
+    "autonomous_research_agent.py",
+    "autonomous_research_executor.py",
+    "autonomous_research_planner.py"
+   ],
+   "reaches_research_or_decision": [
+    "autonomous_research_agent.py",
+    "autonomous_research_executor.py",
+    "autonomous_research_planner.py",
+    "event_evidence_engine.py",
+    "official_evidence_engine.py"
+   ],
+   "flags": [],
+   "last_commit": "2026-10-10T01:14:02+00:00"
+  },
+  {
+   "artifact": "docs/research/learning_evaluation.json",
+   "kind": "other",
+   "producers": [
+    "learning_evaluation_engine.py"
+   ],
+   "producer_workflows": [
+    "daily.yml",
+    "source-intelligence-validation.yml"
+   ],
+   "producer_scheduled": true,
+   "consumers": {
+    "display": [
+     "docs/assets/autonomous-agent.js:103"
+    ],
+    "monitor": [
+     "scripts/generate_build_manifest.py:7",
+     "scripts/learning_quality_weekly.py:8",
+     "scripts/research_boundary_guard.py:11"
+    ]
+   },
+   "direct_research_or_decision_consumers": [],
+   "reaches_research_or_decision": [],
+   "flags": [
+    "monitor_or_display_only"
+   ],
+   "last_commit": "2026-10-12T02:19:48+00:00"
+  },
+  {
+   "artifact": "docs/research/learning_funnel.json",
+   "kind": "other",
+   "producers": [
+    "learning_funnel_contract.py"
+   ],
+   "producer_workflows": [
+    "daily.yml",
+    "v56-pr-validation.yml"
+   ],
+   "producer_scheduled": true,
+   "consumers": {
+    "monitor": [
+     "scripts/private_guardrail.py:28"
+    ]
+   },
+   "direct_research_or_decision_consumers": [],
+   "reaches_research_or_decision": [],
+   "flags": [
+    "monitor_or_display_only"
+   ],
+   "last_commit": "2026-10-10T01:14:02+00:00"
+  },
+  {
+   "artifact": "docs/research/learning_quality_weekly.json",
+   "kind": "other",
+   "producers": [
+    "learning_quality_weekly.py"
+   ],
+   "producer_workflows": [
+    "learning-quality-weekly.yml",
+    "source-intelligence-validation.yml"
+   ],
+   "producer_scheduled": true,
+   "consumers": {
+    "display": [
+     "docs/assets/autonomous-agent.js:104"
+    ]
+   },
+   "direct_research_or_decision_consumers": [],
+   "reaches_research_or_decision": [],
+   "flags": [
+    "monitor_or_display_only"
+   ],
+   "last_commit": "2026-10-12T02:38:39+00:00"
+  },
+  {
+   "artifact": "docs/research/ledger_anchor.json",
+   "kind": "owner_facing_output",
+   "producers": [
+    "playbook_engine.py"
+   ],
+   "producer_workflows": [
+    "autonomous-qa.yml",
+    "daily.yml",
+    "v56-pr-validation.yml"
+   ],
+   "producer_scheduled": true,
+   "consumers": {
+    "display": [
+     "docs/assets/autonomous-agent.js:110"
+    ],
+    "monitor": [
+     "scripts/generate_build_manifest.py:7",
+     "scripts/playbook_watchdog.py:16",
+     "scripts/system_status_center.py:36"
+    ]
+   },
+   "direct_research_or_decision_consumers": [],
+   "reaches_research_or_decision": [],
+   "flags": [],
+   "last_commit": "2026-10-10T01:14:02+00:00"
+  },
+  {
+   "artifact": "docs/research/macro_context.json",
+   "kind": "other",
+   "producers": [
+    "update_fred_macro.py"
+   ],
+   "producer_workflows": [
+    "daily.yml"
+   ],
+   "producer_scheduled": true,
+   "consumers": {
+    "learning": [
+     "scripts/learning_engine_core.py:14",
+     "scripts/macro_outcome_memory.py:10"
+    ],
+    "monitor": [
+     "scripts/data_learning_coverage_audit.py:150"
+    ],
+    "research": [
+     "scripts/cross_asset_divergence_engine.py:16",
+     "scripts/daily_research_job.py:8"
+    ]
+   },
+   "direct_research_or_decision_consumers": [
+    "cross_asset_divergence_engine.py",
+    "daily_research_job.py"
+   ],
+   "reaches_research_or_decision": [
+    "autonomous_research_agent.py",
+    "autonomous_research_executor.py",
+    "autonomous_research_planner.py",
+    "cross_asset_divergence_engine.py",
+    "daily_research_job.py",
+    "event_evidence_engine.py",
+    "official_evidence_engine.py"
+   ],
+   "flags": [],
+   "last_commit": "2026-10-10T01:14:02+00:00"
+  },
+  {
+   "artifact": "docs/research/macro_outcome_memory.json",
+   "kind": "learning_or_outcome",
+   "producers": [
+    "macro_outcome_memory.py"
+   ],
+   "producer_workflows": [
+    "daily.yml",
+    "source-intelligence-validation.yml"
+   ],
+   "producer_scheduled": true,
+   "consumers": {
+    "monitor": [
+     "scripts/data_learning_coverage_audit.py:63",
+     "scripts/learning_funnel_contract.py:100"
+    ]
+   },
+   "direct_research_or_decision_consumers": [],
+   "reaches_research_or_decision": [],
+   "flags": [
+    "monitor_or_display_only",
+    "outcome_without_research"
+   ],
+   "last_commit": "2026-10-12T02:19:48+00:00"
+  },
+  {
+   "artifact": "docs/research/market_state_outcome_scorecards.json",
+   "kind": "learning_or_outcome",
+   "producers": [
+    "market_state_outcome_scorecards.py"
+   ],
+   "producer_workflows": [
+    "daily.yml",
+    "source-intelligence-validation.yml"
+   ],
+   "producer_scheduled": true,
+   "consumers": {
+    "monitor": [
+     "scripts/data_learning_coverage_audit.py:64",
+     "scripts/learning_funnel_contract.py:99"
+    ]
+   },
+   "direct_research_or_decision_consumers": [],
+   "reaches_research_or_decision": [],
+   "flags": [
+    "monitor_or_display_only",
+    "outcome_without_research"
+   ],
+   "last_commit": "2026-10-12T02:19:48+00:00"
+  },
+  {
+   "artifact": "docs/research/method_memory.json",
+   "kind": "learning_or_outcome",
+   "producers": [
+    "method_memory_engine.py"
+   ],
+   "producer_workflows": [
+    "autonomous-qa.yml",
+    "daily.yml",
+    "source-intelligence-validation.yml"
+   ],
+   "producer_scheduled": true,
+   "consumers": {
+    "display": [
+     "docs/assets/knowledge.js:22",
+     "docs/assets/wenxuecity.js:202"
+    ],
+    "learning": [
+     "scripts/controlled_learning_policy.py:23",
+     "scripts/self_improvement_engine.py:15"
+    ],
+    "monitor": [
+     "scripts/data_learning_coverage_audit.py:141",
+     "scripts/learning_evaluation_engine.py:26",
+     "scripts/module_intelligence_engine.py:214",
+     "scripts/research_boundary_guard.py:11",
+     "scripts/system_status_center.py:21"
+    ],
+    "research": [
+     "scripts/autonomous_research_executor.py:25",
+     "scripts/autonomous_research_planner.py:18"
+    ]
+   },
+   "direct_research_or_decision_consumers": [
+    "autonomous_research_executor.py",
+    "autonomous_research_planner.py"
+   ],
+   "reaches_research_or_decision": [
+    "autonomous_research_executor.py",
+    "autonomous_research_planner.py"
+   ],
+   "flags": [],
+   "last_commit": "2026-10-12T02:19:48+00:00"
+  },
+  {
+   "artifact": "docs/research/module_intelligence.json",
+   "kind": "other",
+   "producers": [
+    "module_intelligence_engine.py"
+   ],
+   "producer_workflows": [
+    "daily.yml",
+    "source-intelligence-validation.yml"
+   ],
+   "producer_scheduled": true,
+   "consumers": {
+    "display": [
+     "docs/assets/autonomous-qa.js:54"
+    ],
+    "learning": [
+     "scripts/self_improvement_engine.py:17"
+    ],
+    "monitor": [
+     "scripts/generate_build_manifest.py:7",
+     "scripts/system_status_center.py:28"
+    ],
+    "research": [
+     "scripts/autonomous_research_executor.py:28",
+     "scripts/autonomous_research_planner.py:22"
+    ]
+   },
+   "direct_research_or_decision_consumers": [
+    "autonomous_research_executor.py",
+    "autonomous_research_planner.py"
+   ],
+   "reaches_research_or_decision": [
+    "autonomous_research_executor.py",
+    "autonomous_research_planner.py"
+   ],
+   "flags": [],
+   "last_commit": "2026-10-12T02:19:48+00:00"
+  },
+  {
+   "artifact": "docs/research/official_evidence.json",
+   "kind": "other",
+   "producers": [
+    "official_evidence_engine.py"
+   ],
+   "producer_workflows": [
+    "daily.yml",
+    "source-intelligence-validation.yml"
+   ],
+   "producer_scheduled": true,
+   "consumers": {
+    "learning": [
+     "scripts/event_window_attribution.py:18",
+     "scripts/evidence_archive.py:13"
+    ],
+    "monitor": [
+     "scripts/data_learning_coverage_audit.py:60",
+     "scripts/generate_build_manifest.py:7",
+     "scripts/module_intelligence_engine.py:204",
+     "scripts/module_manifest_audit.py:95",
+     "scripts/private_guardrail.py:38",
+     "scripts/system_status_center.py:24"
+    ],
+    "research": [
+     "scripts/autonomous_research_executor.py:29",
+     "scripts/company_fundamental_memory.py:13",
+     "scripts/v615_auto_thesis_engine.py:14"
+    ]
+   },
+   "direct_research_or_decision_consumers": [
+    "autonomous_research_executor.py",
+    "company_fundamental_memory.py",
+    "v615_auto_thesis_engine.py"
+   ],
+   "reaches_research_or_decision": [
+    "autonomous_research_executor.py",
+    "company_fundamental_memory.py",
+    "v615_auto_thesis_engine.py"
+   ],
+   "flags": [],
+   "last_commit": "2026-10-12T02:19:48+00:00"
+  },
+  {
+   "artifact": "docs/research/operational_incident_memory.json",
+   "kind": "learning_or_outcome",
+   "producers": [
+    "operational_incident_memory.py"
+   ],
+   "producer_workflows": [
+    "daily.yml",
+    "source-intelligence-validation.yml"
+   ],
+   "producer_scheduled": true,
+   "consumers": {
+    "monitor": [
+     "scripts/data_learning_coverage_audit.py:70"
+    ]
+   },
+   "direct_research_or_decision_consumers": [],
+   "reaches_research_or_decision": [],
+   "flags": [
+    "monitor_or_display_only",
+    "outcome_without_research"
+   ],
+   "last_commit": "2026-10-12T02:19:48+00:00"
+  },
+  {
+   "artifact": "docs/research/options_opportunity_context.json",
+   "kind": "other",
+   "producers": [
+    "options_opportunity_context.py"
+   ],
+   "producer_workflows": [
+    "daily.yml",
+    "source-intelligence-validation.yml"
+   ],
+   "producer_scheduled": true,
+   "consumers": {
+    "display": [
+     "docs/assets/investment-assistant.js:29"
+    ],
+    "learning": [
+     "scripts/options_opportunity_outcome_memory.py:15"
+    ],
+    "monitor": [
+     "scripts/data_learning_coverage_audit.py:158",
+     "scripts/learning_funnel_contract.py:183",
+     "scripts/system_status_center.py:47"
+    ]
+   },
+   "direct_research_or_decision_consumers": [],
+   "reaches_research_or_decision": [],
+   "flags": [],
+   "last_commit": "2026-10-12T02:19:48+00:00"
+  },
+  {
+   "artifact": "docs/research/options_opportunity_outcome_memory.json",
+   "kind": "learning_or_outcome",
+   "producers": [
+    "options_opportunity_outcome_memory.py"
+   ],
+   "producer_workflows": [
+    "daily.yml",
+    "source-intelligence-validation.yml"
+   ],
+   "producer_scheduled": true,
+   "consumers": {
+    "monitor": [
+     "scripts/data_learning_coverage_audit.py:66",
+     "scripts/learning_funnel_contract.py:182"
+    ]
+   },
+   "direct_research_or_decision_consumers": [],
+   "reaches_research_or_decision": [],
+   "flags": [
+    "monitor_or_display_only",
+    "outcome_without_research"
+   ],
+   "last_commit": "2026-10-12T02:19:48+00:00"
+  },
+  {
+   "artifact": "docs/research/playbook_outcome_shadow.json",
+   "kind": "learning_or_outcome",
+   "producers": [
+    "playbook_outcome_engine.py"
+   ],
+   "producer_workflows": [
+    "daily.yml"
+   ],
+   "producer_scheduled": true,
+   "consumers": {
+    "display": [
+     "docs/assets/autonomous-agent.js:111"
+    ],
+    "learning": [
+     "scripts/controlled_learning_policy.py:21",
+     "scripts/forward_learning_feedback.py:20"
+    ],
+    "monitor": [
+     "scripts/data_learning_coverage_audit.py:69",
+     "scripts/generate_build_manifest.py:7",
+     "scripts/system_status_center.py:39"
+    ]
+   },
+   "direct_research_or_decision_consumers": [],
+   "reaches_research_or_decision": [
+    "autonomous_research_planner.py"
+   ],
+   "flags": [],
+   "last_commit": "2026-10-10T01:14:02+00:00"
+  },
+  {
+   "artifact": "docs/research/playbook_status.json",
+   "kind": "owner_facing_output",
+   "producers": [
+    "playbook_engine.py"
+   ],
+   "producer_workflows": [
+    "autonomous-qa.yml",
+    "daily.yml",
+    "v56-pr-validation.yml"
+   ],
+   "producer_scheduled": true,
+   "consumers": {
+    "display": [
+     "docs/assets/autonomous-agent.js:109"
+    ],
+    "learning": [
+     "scripts/playbook_outcome_engine.py:28"
+    ],
+    "monitor": [
+     "scripts/data_learning_coverage_audit.py:165",
+     "scripts/generate_build_manifest.py:7",
+     "scripts/module_manifest_audit.py:97",
+     "scripts/playbook_watchdog.py:15",
+     "scripts/system_status_center.py:35"
+    ],
+    "research": [
+     "scripts/range_intelligence.py:19"
+    ]
+   },
+   "direct_research_or_decision_consumers": [
+    "range_intelligence.py"
+   ],
+   "reaches_research_or_decision": [
+    "autonomous_research_planner.py",
+    "range_intelligence.py"
+   ],
+   "flags": [],
+   "last_commit": "2026-10-10T01:14:02+00:00"
+  },
+  {
+   "artifact": "docs/research/range_intelligence.json",
+   "kind": "other",
+   "producers": [
+    "range_intelligence.py"
+   ],
+   "producer_workflows": [
+    "daily.yml",
+    "v56-pr-validation.yml"
+   ],
+   "producer_scheduled": true,
+   "consumers": {
+    "display": [
+     "docs/assets/autonomous-agent.js:108"
+    ],
+    "monitor": [
+     "scripts/generate_build_manifest.py:7",
+     "scripts/system_status_center.py:37"
+    ]
+   },
+   "direct_research_or_decision_consumers": [],
+   "reaches_research_or_decision": [],
+   "flags": [
+    "monitor_or_display_only"
+   ],
+   "last_commit": "2026-10-10T01:14:02+00:00"
+  },
+  {
+   "artifact": "docs/research/regime_combination_history.json",
+   "kind": "other",
+   "producers": [
+    "regime_combination_memory.py"
+   ],
+   "producer_workflows": [
+    "autonomous-qa.yml",
+    "daily.yml",
+    "source-intelligence-validation.yml"
+   ],
+   "producer_scheduled": true,
+   "consumers": {
+    "learning": [
+     "scripts/market_state_outcome_scorecards.py:12",
+     "scripts/self_improvement_engine.py:21"
+    ],
+    "monitor": [
+     "scripts/data_learning_coverage_audit.py:154",
+     "scripts/generate_build_manifest.py:7",
+     "scripts/module_intelligence_engine.py:212",
+     "scripts/system_status_center.py:34"
+    ],
+    "research": [
+     "scripts/autonomous_research_executor.py:37"
+    ]
+   },
+   "direct_research_or_decision_consumers": [
+    "autonomous_research_executor.py"
+   ],
+   "reaches_research_or_decision": [
+    "autonomous_research_executor.py",
+    "autonomous_research_planner.py"
+   ],
+   "flags": [],
+   "last_commit": "2026-10-10T01:14:02+00:00"
+  },
+  {
+   "artifact": "docs/research/regime_combination_memory.json",
+   "kind": "learning_or_outcome",
+   "producers": [
+    "regime_combination_memory.py"
+   ],
+   "producer_workflows": [
+    "autonomous-qa.yml",
+    "daily.yml",
+    "source-intelligence-validation.yml"
+   ],
+   "producer_scheduled": true,
+   "consumers": {
+    "display": [
+     "docs/assets/autonomous-agent.js:107"
+    ],
+    "monitor": [
+     "scripts/generate_build_manifest.py:7",
+     "scripts/module_intelligence_engine.py:211",
+     "scripts/system_status_center.py:33"
+    ],
+    "research": [
+     "scripts/autonomous_research_executor.py:36",
+     "scripts/autonomous_research_planner.py:25"
+    ]
+   },
+   "direct_research_or_decision_consumers": [
+    "autonomous_research_executor.py",
+    "autonomous_research_planner.py"
+   ],
+   "reaches_research_or_decision": [
+    "autonomous_research_executor.py",
+    "autonomous_research_planner.py"
+   ],
+   "flags": [],
+   "last_commit": "2026-10-12T02:19:48+00:00"
+  },
+  {
+   "artifact": "docs/research/research_execution.json",
+   "kind": "other",
+   "producers": [
+    "autonomous_research_executor.py"
+   ],
+   "producer_workflows": [
+    "daily.yml",
+    "source-intelligence-validation.yml"
+   ],
+   "producer_scheduled": true,
+   "consumers": {
+    "display": [
+     "docs/assets/autonomous-agent.js:101"
+    ],
+    "learning": [
+     "scripts/self_improvement_engine.py:18"
+    ],
+    "monitor": [
+     "scripts/generate_build_manifest.py:7",
+     "scripts/learning_evaluation_engine.py:23",
+     "scripts/module_intelligence_engine.py:203",
+     "scripts/module_manifest_audit.py:265",
+     "scripts/private_guardrail.py:49",
+     "scripts/system_status_center.py:23"
+    ]
+   },
+   "direct_research_or_decision_consumers": [],
+   "reaches_research_or_decision": [
+    "autonomous_research_planner.py"
+   ],
+   "flags": [],
+   "last_commit": "2026-10-12T02:19:48+00:00"
+  },
+  {
+   "artifact": "docs/research/research_planner.json",
+   "kind": "other",
+   "producers": [
+    "autonomous_research_planner.py"
+   ],
+   "producer_workflows": [
+    "daily.yml",
+    "source-intelligence-validation.yml"
+   ],
+   "producer_scheduled": true,
+   "consumers": {
+    "display": [
+     "docs/assets/autonomous-agent.js:100"
+    ],
+    "learning": [
+     "scripts/self_improvement_engine.py:16"
+    ],
+    "monitor": [
+     "scripts/generate_build_manifest.py:7",
+     "scripts/learning_evaluation_engine.py:24",
+     "scripts/module_intelligence_engine.py:202",
+     "scripts/system_status_center.py:22"
+    ],
+    "research": [
+     "scripts/autonomous_research_executor.py:22",
+     "scripts/event_evidence_engine.py:17",
+     "scripts/official_evidence_engine.py:18"
+    ]
+   },
+   "direct_research_or_decision_consumers": [
+    "autonomous_research_executor.py",
+    "event_evidence_engine.py",
+    "official_evidence_engine.py"
+   ],
+   "reaches_research_or_decision": [
+    "autonomous_research_executor.py",
+    "autonomous_research_planner.py",
+    "event_evidence_engine.py",
+    "official_evidence_engine.py"
+   ],
+   "flags": [],
+   "last_commit": "2026-10-12T02:19:48+00:00"
+  },
+  {
+   "artifact": "docs/research/sec_fundamentals.json",
+   "kind": "other",
+   "producers": [
+    "sec_fundamentals.py"
+   ],
+   "producer_workflows": [
+    "daily-research.yml",
+    "daily.yml",
+    "v56-pr-validation.yml"
+   ],
+   "producer_scheduled": true,
+   "consumers": {
+    "monitor": [
+     "scripts/module_manifest_audit.py:272",
+     "scripts/sec_fact_reconcile.py:6"
+    ],
+    "research": [
+     "scripts/daily_research_job.py:39"
+    ]
+   },
+   "direct_research_or_decision_consumers": [
+    "daily_research_job.py"
+   ],
+   "reaches_research_or_decision": [
+    "daily_research_job.py"
+   ],
+   "flags": [],
+   "last_commit": "2026-10-11T13:57:00+00:00"
+  },
+  {
+   "artifact": "docs/research/self_improvement.json",
+   "kind": "learning_or_outcome",
+   "producers": [
+    "self_improvement_engine.py"
+   ],
+   "producer_workflows": [
+    "daily.yml",
+    "source-intelligence-validation.yml"
+   ],
+   "producer_scheduled": true,
+   "consumers": {
+    "display": [
+     "docs/assets/autonomous-agent.js:102"
+    ],
+    "learning": [
+     "scripts/controlled_learning_policy.py:22"
+    ],
+    "monitor": [
+     "scripts/data_learning_coverage_audit.py:167",
+     "scripts/generate_build_manifest.py:7",
+     "scripts/learning_evaluation_engine.py:29",
+     "scripts/module_intelligence_engine.py:213",
+     "scripts/module_manifest_audit.py:95",
+     "scripts/system_status_center.py:27"
+    ]
+   },
+   "direct_research_or_decision_consumers": [],
+   "reaches_research_or_decision": [
+    "autonomous_research_planner.py"
+   ],
+   "flags": [],
+   "last_commit": "2026-10-12T02:19:48+00:00"
+  },
+  {
+   "artifact": "docs/research/server_action_status.json",
+   "kind": "owner_facing_output",
+   "producers": [
+    "server_action_engine.py"
+   ],
+   "producer_workflows": [
+    "server-action-watch.yml",
+    "source-intelligence-validation.yml"
+   ],
+   "producer_scheduled": true,
+   "consumers": {
+    "display": [
+     "docs/assets/product-intelligence.js:358"
+    ],
+    "monitor": [
+     "scripts/autonomous_site_qa.mjs:112",
+     "scripts/daily_guardian.py:91",
+     "scripts/data_learning_coverage_audit.py:161",
+     "scripts/learning_evaluation_engine.py:32",
+     "scripts/learning_funnel_contract.py:184",
+     "scripts/private_guardrail.py:20"
+    ]
+   },
+   "direct_research_or_decision_consumers": [],
+   "reaches_research_or_decision": [],
+   "flags": [],
+   "last_commit": "2026-10-10T01:14:35+00:00"
+  },
+  {
+   "artifact": "docs/research/signal_governance.json",
+   "kind": "other",
+   "producers": [
+    "autonomous_signal_governance.py"
+   ],
+   "producer_workflows": [
+    "source-intelligence-validation.yml"
+   ],
+   "producer_scheduled": true,
+   "consumers": {
+    "monitor": [
+     "scripts/autonomous_intelligence_status.py:36"
+    ]
+   },
+   "direct_research_or_decision_consumers": [],
+   "reaches_research_or_decision": [],
+   "flags": [
+    "monitor_or_display_only"
+   ],
+   "last_commit": "2026-10-12T02:19:48+00:00"
+  },
+  {
+   "artifact": "docs/research/source_coverage_audit.json",
+   "kind": "other",
+   "producers": [
+    "source_coverage_audit.py"
+   ],
+   "producer_workflows": [
+    "source-intelligence-validation.yml"
+   ],
+   "producer_scheduled": true,
+   "consumers": {
+    "monitor": [
+     "scripts/autonomous_intelligence_status.py:25"
+    ]
+   },
+   "direct_research_or_decision_consumers": [],
+   "reaches_research_or_decision": [],
+   "flags": [
+    "monitor_or_display_only"
+   ],
+   "last_commit": "2026-10-12T02:19:48+00:00"
+  },
+  {
+   "artifact": "docs/research/source_duplicate_map.json",
+   "kind": "other",
+   "producers": [
+    "source_duplicate_audit.py"
+   ],
+   "producer_workflows": [
+    "daily.yml",
+    "source-intelligence-validation.yml"
+   ],
+   "producer_scheduled": true,
+   "consumers": {
+    "learning": [
+     "scripts/method_memory_engine.py:31"
+    ],
+    "research": [
+     "scripts/source_reading_memory.py:28"
+    ]
+   },
+   "direct_research_or_decision_consumers": [
+    "source_reading_memory.py"
+   ],
+   "reaches_research_or_decision": [
+    "autonomous_research_executor.py",
+    "autonomous_research_planner.py",
+    "source_reading_memory.py"
+   ],
+   "flags": [],
+   "last_commit": "2026-10-12T02:19:48+00:00"
+  },
+  {
+   "artifact": "docs/research/source_outcome_validation.json",
+   "kind": "learning_or_outcome",
+   "producers": [
+    "source_outcome_validation.py"
+   ],
+   "producer_workflows": [
+    "autonomous-qa.yml",
+    "daily.yml",
+    "source-intelligence-validation.yml",
+    "v56-pr-validation.yml"
+   ],
+   "producer_scheduled": true,
+   "consumers": {
+    "display": [
+     "docs/assets/wenxuecity.js:202"
+    ],
+    "learning": [
+     "scripts/evidence_attribution_engine.py:15",
+     "scripts/method_memory_engine.py:26",
+     "scripts/source_rule_lifecycle.py:23",
+     "scripts/v615_event_score.py:17",
+     "scripts/v615_observational_events.py:15"
+    ],
+    "monitor": [
+     "scripts/module_intelligence_engine.py:220",
+     "scripts/system_status_center.py:19"
+    ]
+   },
+   "direct_research_or_decision_consumers": [],
+   "reaches_research_or_decision": [
+    "autonomous_research_executor.py",
+    "autonomous_research_planner.py",
+    "event_evidence_engine.py",
+    "official_evidence_engine.py"
+   ],
+   "flags": [],
+   "last_commit": "2026-10-12T02:19:48+00:00"
+  },
+  {
+   "artifact": "docs/research/source_reading_memory.json",
+   "kind": "learning_or_outcome",
+   "producers": [
+    "source_reading_memory.py"
+   ],
+   "producer_workflows": [
+    "autonomous-qa.yml",
+    "daily.yml",
+    "source-intelligence-validation.yml",
+    "v56-pr-validation.yml"
+   ],
+   "producer_scheduled": true,
+   "consumers": {
+    "display": [
+     "docs/assets/knowledge.js:57"
+    ],
+    "learning": [
+     "scripts/method_memory_engine.py:28",
+     "scripts/source_rule_lifecycle.py:22"
+    ],
+    "monitor": [
+     "scripts/autonomous_intelligence_status.py:26",
+     "scripts/data_learning_coverage_audit.py:59",
+     "scripts/generate_build_manifest.py:7",
+     "scripts/learning_funnel_contract.py:251",
+     "scripts/system_status_center.py:44",
+     "scripts/v615_source_rule_funnel.py:16"
+    ],
+    "research": [
+     "scripts/autonomous_research_executor.py:27",
+     "scripts/autonomous_research_planner.py:20",
+     "scripts/candidate_rule_compiler.py:30",
+     "scripts/v615_method_attribution.py:12",
+     "scripts/v615_rule_registry.py:14"
+    ]
+   },
+   "direct_research_or_decision_consumers": [
+    "autonomous_research_executor.py",
+    "autonomous_research_planner.py",
+    "candidate_rule_compiler.py",
+    "v615_method_attribution.py",
+    "v615_rule_registry.py"
+   ],
+   "reaches_research_or_decision": [
+    "autonomous_research_executor.py",
+    "autonomous_research_planner.py",
+    "candidate_rule_compiler.py",
+    "v615_method_attribution.py",
+    "v615_rule_registry.py"
+   ],
+   "flags": [],
+   "last_commit": "2026-10-12T02:19:48+00:00"
+  },
+  {
+   "artifact": "docs/research/source_rule_lifecycle.json",
+   "kind": "learning_or_outcome",
+   "producers": [
+    "source_rule_lifecycle.py"
+   ],
+   "producer_workflows": [
+    "autonomous-qa.yml",
+    "daily.yml",
+    "v56-pr-validation.yml"
+   ],
+   "producer_scheduled": true,
+   "consumers": {
+    "display": [
+     "docs/assets/knowledge.js:65"
+    ],
+    "monitor": [
+     "scripts/generate_build_manifest.py:7",
+     "scripts/learning_funnel_contract.py:253",
+     "scripts/private_guardrail.py:58",
+     "scripts/research_boundary_guard.py:12",
+     "scripts/system_status_center.py:45"
+    ]
+   },
+   "direct_research_or_decision_consumers": [],
+   "reaches_research_or_decision": [],
+   "flags": [
+    "monitor_or_display_only",
+    "outcome_without_research"
+   ],
+   "last_commit": "2026-10-10T01:14:02+00:00"
+  },
+  {
+   "artifact": "docs/research/support_volatility_intelligence.json",
+   "kind": "other",
+   "producers": [
+    "support_volatility_intelligence.py"
+   ],
+   "producer_workflows": [
+    "daily.yml",
+    "source-intelligence-validation.yml"
+   ],
+   "producer_scheduled": true,
+   "consumers": {
+    "display": [
+     "docs/assets/stock-watchlist.js:123"
+    ],
+    "learning": [
+     "scripts/support_volatility_outcome_memory.py:15"
+    ],
+    "monitor": [
+     "scripts/data_learning_coverage_audit.py:156",
+     "scripts/system_status_center.py:46"
+    ],
+    "research": [
+     "scripts/options_opportunity_context.py:21"
+    ]
+   },
+   "direct_research_or_decision_consumers": [
+    "options_opportunity_context.py"
+   ],
+   "reaches_research_or_decision": [
+    "options_opportunity_context.py"
+   ],
+   "flags": [],
+   "last_commit": "2026-10-12T02:19:48+00:00"
+  },
+  {
+   "artifact": "docs/research/support_volatility_outcome_memory.json",
+   "kind": "learning_or_outcome",
+   "producers": [
+    "support_volatility_outcome_memory.py"
+   ],
+   "producer_workflows": [
+    "daily.yml",
+    "source-intelligence-validation.yml"
+   ],
+   "producer_scheduled": true,
+   "consumers": {
+    "monitor": [
+     "scripts/data_learning_coverage_audit.py:65"
+    ]
+   },
+   "direct_research_or_decision_consumers": [],
+   "reaches_research_or_decision": [],
+   "flags": [
+    "monitor_or_display_only",
+    "outcome_without_research"
+   ],
+   "last_commit": "2026-10-12T02:19:48+00:00"
+  },
+  {
+   "artifact": "docs/research/system_status.json",
+   "kind": "other",
+   "producers": [
+    "system_status_center.py"
+   ],
+   "producer_workflows": [
+    "autonomous-qa.yml",
+    "daily.yml",
+    "source-intelligence-validation.yml",
+    "v56-pr-validation.yml"
+   ],
+   "producer_scheduled": true,
+   "consumers": {
+    "decision": [
+     "scripts/server_action_engine.py:19"
+    ],
+    "display": [
+     "docs/assets/autonomous-agent.js:99",
+     "docs/assets/product-intelligence.js:357"
+    ],
+    "monitor": [
+     "scripts/autonomous_intelligence_status.py:35",
+     "scripts/autonomous_site_qa.mjs:110",
+     "scripts/data_learning_coverage_audit.py:168",
+     "scripts/generate_build_manifest.py:7",
+     "scripts/module_intelligence_engine.py:217",
+     "scripts/module_manifest_audit.py:98",
+     "scripts/operational_incident_memory.py:13",
+     "scripts/private_guardrail.py:34"
+    ]
+   },
+   "direct_research_or_decision_consumers": [
+    "server_action_engine.py"
+   ],
+   "reaches_research_or_decision": [
+    "server_action_engine.py"
+   ],
+   "flags": [],
+   "last_commit": "2026-10-12T02:19:48+00:00"
+  },
+  {
+   "artifact": "docs/research/trend_pulse_backtest.json",
+   "kind": "learning_or_outcome",
+   "producers": [
+    "backtest_trend_pulse.py"
+   ],
+   "producer_workflows": [
+    "trend-pulse-backtest.yml"
+   ],
+   "producer_scheduled": true,
+   "consumers": {
+    "monitor": [
+     "scripts/module_intelligence_engine.py:218",
+     "scripts/module_manifest_audit.py:96"
+    ]
+   },
+   "direct_research_or_decision_consumers": [],
+   "reaches_research_or_decision": [],
+   "flags": [
+    "monitor_or_display_only",
+    "outcome_without_research"
+   ],
+   "last_commit": "2026-10-10T01:51:03+00:00"
+  },
+  {
+   "artifact": "docs/research/v615_program_status.json",
+   "kind": "other",
+   "producers": [
+    "research_program_status.py"
+   ],
+   "producer_workflows": [
+    "source-intelligence-validation.yml"
+   ],
+   "producer_scheduled": true,
+   "consumers": {
+    "display": [
+     "docs/assets/wenxuecity.js:202"
+    ]
+   },
+   "direct_research_or_decision_consumers": [],
+   "reaches_research_or_decision": [],
+   "flags": [
+    "monitor_or_display_only"
+   ],
+   "last_commit": "2026-10-12T02:19:48+00:00"
+  },
+  {
+   "artifact": "docs/research/walk_forward_replay.json",
+   "kind": "learning_or_outcome",
+   "producers": [
+    "walk_forward_replay.py"
+   ],
+   "producer_workflows": [
+    "autonomous-qa.yml",
+    "daily.yml",
+    "v56-pr-validation.yml"
+   ],
+   "producer_scheduled": true,
+   "consumers": {
+    "display": [
+     "docs/assets/autonomous-agent.js:112"
+    ],
+    "learning": [
+     "scripts/challenger_experiment_runner.py:23",
+     "scripts/controlled_learning_policy.py:20",
+     "scripts/forward_learning_feedback.py:21"
+    ],
+    "monitor": [
+     "scripts/generate_build_manifest.py:7",
+     "scripts/system_status_center.py:40"
+    ]
+   },
+   "direct_research_or_decision_consumers": [],
+   "reaches_research_or_decision": [
+    "autonomous_research_planner.py"
+   ],
+   "flags": [],
+   "last_commit": "2026-10-10T01:14:02+00:00"
+  },
+  {
+   "artifact": "docs/research/weekly_research_report.json",
+   "kind": "other",
+   "producers": [
+    "weekly_research_report.py"
+   ],
+   "producer_workflows": [
+    "daily-research.yml",
+    "daily.yml"
+   ],
+   "producer_scheduled": true,
+   "consumers": {},
+   "direct_research_or_decision_consumers": [],
+   "reaches_research_or_decision": [],
+   "flags": [
+    "no_consumer"
+   ],
+   "last_commit": "2026-10-11T13:34:50+00:00"
+  }
+ ],
+ "unclassified_readers": [],
+ "summary": {
+  "artifacts": 72,
+  "learning_or_outcome": 34,
+  "learning_reaching_research": 13,
+  "no_consumer": [
+   "autonomous_intelligence_status.json",
+   "candidate_rule_family_status.json",
+   "weekly_research_report.json"
+  ],
+  "monitor_or_display_only": [
+   "assistant_rule_validation.json",
+   "author_action_signals.json",
+   "author_intelligence.json",
+   "auto_research_status.json",
+   "candidate_eventscore_status.json",
+   "candidate_family_scorecard_status.json",
+   "candidate_forward_status.json",
+   "candidate_parameter_queue.json",
+   "candidate_rule_status.json",
+   "challenger_experiments.json",
+   "company_fundamental_memory.json",
+   "company_fundamental_outcome_memory.json",
+   "data_learning_coverage_audit.json",
+   "event_outcome_memory.json",
+   "forward_observation_status.json",
+   "fundamental_outcome_context.json",
+   "learning_evaluation.json",
+   "learning_funnel.json",
+   "learning_quality_weekly.json",
+   "macro_outcome_memory.json",
+   "market_state_outcome_scorecards.json",
+   "operational_incident_memory.json",
+   "options_opportunity_outcome_memory.json",
+   "range_intelligence.json",
+   "signal_governance.json",
+   "source_coverage_audit.json",
+   "source_rule_lifecycle.json",
+   "support_volatility_outcome_memory.json",
+   "trend_pulse_backtest.json",
+   "v615_program_status.json"
+  ],
+  "outcome_without_research": [
+   "assistant_rule_validation.json",
+   "candidate_eventscore_status.json",
+   "candidate_evidence_promotion_status.json",
+   "candidate_family_scorecard_status.json",
+   "candidate_forward_status.json",
+   "candidate_parameter_queue.json",
+   "candidate_rule_family_status.json",
+   "candidate_rule_replay.json",
+   "candidate_rule_status.json",
+   "challenger_experiments.json",
+   "company_fundamental_memory.json",
+   "company_fundamental_outcome_memory.json",
+   "event_outcome_memory.json",
+   "fundamental_outcome_context.json",
+   "macro_outcome_memory.json",
+   "market_state_outcome_scorecards.json",
+   "operational_incident_memory.json",
+   "options_opportunity_outcome_memory.json",
+   "source_rule_lifecycle.json",
+   "support_volatility_outcome_memory.json",
+   "trend_pulse_backtest.json"
+  ],
+  "producer_not_scheduled": [],
+  "no_producer_found": []
+ },
+ "tracks": {
+  "genuine_forward_fo10": {
+   "ledger": "research/archive/forward_observations.jsonl",
+   "observations": 48,
+   "sessions": [
+    "2026-10-08",
+    "2026-10-09"
+   ],
+   "earliest_20_session_maturity": "2026-11-05"
+  },
+  "promoted_forward_separate_group": {
+   "ledger": "research/archive/forward_observations_promoted.jsonl",
+   "observations": 130,
+   "sessions": [
+    "2026-09-29",
+    "2026-09-30",
+    "2026-10-02",
+    "2026-10-05",
+    "2026-10-06",
+    "2026-10-07"
+   ],
+   "earliest_20_session_maturity": "2026-10-27",
+   "note": "owner-approved promotions (forward_promotions.jsonl); reported as its own stats group"
+  },
+  "auto_research_shadow": {
+   "journal": "research/knowledge/auto_research_journal.jsonl",
+   "hypothesis_records": 63,
+   "distinct_symbol_sessions": 21,
+   "earliest_maturity": "2026-11-06",
+   "forward_eligible": false
+  },
+  "rule": "three groups are never summed; shadow is research, not Genuine Forward"
+ },
+ "experience_citation": {
+  "auto_research_records": 63,
+  "records_citing_past_cases": 0,
+  "daily_research_job_reads_memory_artifacts": [],
+  "status": "not yet wired",
+  "note": "the V6 planner/executor (research_execution.json) does use situation/method/regime memory for priorities and briefs, but those briefs are not the append-only, revisited, maturity-scored automatic research journal; the two are not connected"
+ },
+ "duplicates": {
+  "sec_companyfacts": {
+   "sources": [
+    "docs/research/company_fundamental_memory.json",
+    "docs/research/sec_fundamentals.json"
+   ],
+   "overlap_agreement": {
+    "revenue": 2,
+    "net_income": 2
+   },
+   "coverage": {
+    "old_symbols": [
+     "CRWV",
+     "GOOG",
+     "INTC",
+     "IREN",
+     "LITE",
+     "META",
+     "MU",
+     "NBIS",
+     "NOW",
+     "SOFI",
+     "SPCX",
+     "TSLA"
+    ],
+    "new_symbols": [
+     "AMD",
+     "AVGO",
+     "GOOG",
+     "HOOD",
+     "IREN",
+     "LITE",
+     "MRVL",
+     "MSFT",
+     "NBIS",
+     "NVDA",
+     "ORCL",
+     "SOFI",
+     "SPCX",
+     "TSLA",
+     "TSM"
+    ],
+    "overlap": [
+     "GOOG",
+     "IREN",
+     "LITE",
+     "NBIS",
+     "SOFI",
+     "SPCX",
+     "TSLA"
+    ],
+    "only_old": [
+     "CRWV",
+     "INTC",
+     "META",
+     "MU",
+     "NOW"
+    ],
+    "only_new": [
+     "AMD",
+     "AVGO",
+     "HOOD",
+     "MRVL",
+     "MSFT",
+     "NVDA",
+     "ORCL",
+     "TSM"
+    ]
+   },
+   "evidence": "research/audit/sec_fact_reconciliation.json (PR #203)"
+  },
+  "research_judgment_streams": {
+   "streams": [
+    "docs/research/research_execution.json (V6 executor briefs)",
+    "research/knowledge/auto_research_journal.jsonl (automatic shadow research)"
+   ],
+   "issue": "two research-judgment streams; only the executor uses memory, only the journal is revisited and maturity-scored"
+  }
+ },
+ "read_only": true,
+ "production_use": false,
+ "learning_state": "UNPROVEN"
+}

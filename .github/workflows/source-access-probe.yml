@@ -1,0 +1,30 @@
+name: Source Access Probe (non-production)
+on:
+  pull_request:
+    paths:
+      - scripts/source_access_probe.py
+      - .github/workflows/source-access-probe.yml
+  workflow_dispatch: {}
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install bounded YouTube subtitle tool
+        run: python -m pip install 'yt-dlp>=2026.07.04,<2027'
+      - name: Probe public sources without credentials
+        run: python scripts/source_access_probe.py --output source-probe-result.json
+      - name: Upload metadata-only diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: source-access-probe
+          path: source-probe-result.json
+          if-no-files-found: warn
+          retention-days: 7

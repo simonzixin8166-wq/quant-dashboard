@@ -1,0 +1,44 @@
+name: YouTube Transcript Safe One-Time Probe
+on:
+  pull_request:
+    paths:
+      - .github/workflows/youtube-transcript-safe-probe.yml
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install transcript library
+        run: python -m pip install 'youtube-transcript-api==1.2.3'
+      - name: Single-video request with no retries or credentials
+        timeout-minutes: 2
+        run: |
+          python - <<'PY'
+          import json, re
+          from youtube_transcript_api import YouTubeTranscriptApi
+          video='qVSoCX8pVDg'
+          result={'video_id':video,'method':'youtube-transcript-api','status':'FAIL','production_use':False}
+          try:
+              a=YouTubeTranscriptApi()
+              transcript=a.fetch(video,languages=['zh-Hans','zh-Hant','zh','en'])
+              segments=list(transcript)
+              valid=[s for s in segments if getattr(s,'text','').strip()]
+              result['status']='PASS' if valid else 'EMPTY'
+              result['segments']=len(valid)
+              result['duration_last_start_seconds']=round(float(valid[-1].start),1) if valid else None
+              # Short, redacted excerpt for manual quality check; no full copyrighted transcript retained.
+              sample=' '.join(s.text for s in valid[:3])
+              result['sample_excerpt']=re.sub(r'\s+',' ',sample)[:180]
+          except Exception as e:
+              result['error_type']=type(e).__name__
+              # Deliberately do not print exception string: upstream errors can include response data
+          print('YOUTUBE_TRANSCRIPT_SAFE_PROBE '+json.dumps(result,ensure_ascii=False))
+          PY

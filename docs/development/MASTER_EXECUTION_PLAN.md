@@ -1,8 +1,8 @@
 # MyAlpha View — Master Execution Plan
 
-Source of truth: `docs/development/master_plan.json` (this file is rendered by `scripts/master_plan.py render`). Last updated 2026-10-12T05:15:00Z. Issue: https://github.com/simonzixin8166-wq/quant-dashboard/issues/133. Charter: CLAUDE.md (owner-confirmed 2026-10-11).
+Source of truth: `docs/development/master_plan.json` (this file is rendered by `scripts/master_plan.py render`). Last updated 2026-10-12T05:40:00Z. Issue: https://github.com/simonzixin8166-wq/quant-dashboard/issues/133. Charter: CLAUDE.md (owner-confirmed 2026-10-11).
 
-Status counts: Done 14 · In progress 3 · Waiting 14 · Not started 4
+Status counts: Done 14 · In progress 4 · Waiting 13 · Not started 4
 
 Stages per task: instruction_published → claude_acked → code_merged → schedule_verified → oos_validated (oos_validated is never claimed while Learning is UNPROVEN).
 
@@ -78,7 +78,7 @@ Unified ledger → continuous development by dependency → batch acceptance →
 
 | ID | task | status | stages | depends on | evidence (PR / run) | acceptance | next / waiting / blocked | verified |
 |---|---|---|---|---|---|---|---|---|
-| B1-02 | precedents / error_attribution / experience_input_status in daily_research_job (used_in_decision=false) | **Waiting** | published, acked | P0-05, B1-01 | — | server-generated replayable records for MSFT, ORCL, VGT (AMD = none); counts by distinct symbol-session; experience_citation flips to wired in module_manifest | first item of Batch B after P0-05 (waiting: P0-05 (generator must not change before the first schedule)) | 2026-10-12T04:25Z |
+| B1-02 | precedents / error_attribution / experience_input_status in daily_research_job (used_in_decision=false) | **In progress** | published, acked | P0-05, B1-01 | #213 (DRAFT, not merged); research/audit/b1_replay_preview.json (local preview, not journal records): MSFT 10 precedents; ORCL 5, all conflicting with its bearish view; VGT 5; AMD 0 precedents + 2 market error cases | server-generated replayable records for MSFT, ORCL, VGT (AMD = none); counts by distinct symbol-session; experience_citation flips to wired in module_manifest | after P0-05: mark #213 ready, merge, let the server generate auto-research-5 records; verify module_manifest experience_citation flips to wired with server records (waiting: P0-05 (generator must not change before the first schedule)) | 2026-10-12T05:40Z |
 | B1-01 | Precedent data quality and timing audit | **Done** | published, acked, merged | — | #206 29913fb; research/audit/p1_readiness.json: 84 usable of 160, look-ahead 0 | usable precedents counted with no look-ahead; spec written | B1-02 | 2026-10-12T03:50Z |
 
 ## Data universe

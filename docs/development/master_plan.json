@@ -2,7 +2,7 @@
  "version": 1,
  "title": "MyAlpha View — Master Execution Plan",
  "issue": "https://github.com/simonzixin8166-wq/quant-dashboard/issues/133",
- "last_updated": "2026-10-12T05:15:00Z",
+ "last_updated": "2026-10-12T05:40:00Z",
  "charter": "CLAUDE.md (owner-confirmed 2026-10-11)",
  "statuses": [
   "Done",
@@ -348,7 +348,7 @@
    "title": "precedents / error_attribution / experience_input_status in daily_research_job (used_in_decision=false)",
    "area": "B1 experience",
    "priority": 1,
-   "status": "Waiting",
+   "status": "In progress",
    "stages": [
     "instruction_published",
     "claude_acked"
@@ -363,13 +363,17 @@
     "B1-01"
    ],
    "evidence": {
-    "prs": [],
-    "runs": []
+    "prs": [
+     "#213 (DRAFT, not merged)"
+    ],
+    "runs": [
+     "research/audit/b1_replay_preview.json (local preview, not journal records): MSFT 10 precedents; ORCL 5, all conflicting with its bearish view; VGT 5; AMD 0 precedents + 2 market error cases"
+    ]
    },
    "acceptance": "server-generated replayable records for MSFT, ORCL, VGT (AMD = none); counts by distinct symbol-session; experience_citation flips to wired in module_manifest",
-   "next": "first item of Batch B after P0-05",
+   "next": "after P0-05: mark #213 ready, merge, let the server generate auto-research-5 records; verify module_manifest experience_citation flips to wired with server records",
    "waiting_for": "P0-05 (generator must not change before the first schedule)",
-   "last_verified": "2026-10-12T04:25Z"
+   "last_verified": "2026-10-12T05:40Z"
   },
   {
    "id": "D-01",

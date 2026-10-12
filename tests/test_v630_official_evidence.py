@@ -55,8 +55,15 @@ assert out["policy"]["automatic_orders"] is False
 print("PASS V6.3 SEC official evidence layer")
 
 
+# #133 6117163110 P0-A: unverified author self-report reviews (no learning_eligible=true) never select symbols
 review_evidence={"failure_attribution":{"external_outcome_reviews":[{"symbol":"NOW"},{"symbol":"NBIS"},{"symbol":"CRWV"},{"symbol":"MU"}]}}
-expanded=oe.selected_symbols(planner,review_evidence)
+gated=oe.selected_symbols(planner,review_evidence)
+assert gated[:2]==["IREN","SOFI"]
+for sym in ["NOW","NBIS","CRWV","MU"]:
+    assert sym not in gated or sym in [str(x.get("key")) for x in (planner.get("today") or [])+(planner.get("queue") or [])]
+# independently verified reviews (learning_eligible=true) still expand the collection set
+verified={"failure_attribution":{"external_outcome_reviews":[{"symbol":s,"learning_eligible":True} for s in ("NOW","NBIS","CRWV","MU")]}}
+expanded=oe.selected_symbols(planner,verified)
 assert expanded[:2]==["IREN","SOFI"]
 for sym in ["MSFT","LITE","NOW","NBIS","CRWV","MU"]:
     assert sym in expanded
@@ -65,8 +72,9 @@ print("PASS V6.15 official evidence learning-review expansion")
 
 crowded_planner={"today":[{"kind":"market_anomaly","key":"MSFT"},{"kind":"market_anomaly","key":"LITE"}],
                  "queue":[{"kind":"market_anomaly","key":x} for x in ["AMD","NVDA","TSLA","ORCL","META","AMZN","AVGO","QCOM","JPM","PYPL"]]}
-crowded=oe.selected_symbols(crowded_planner,review_evidence)
+crowded=oe.selected_symbols(crowded_planner,verified)  # verified reviews keep priority over the backlog
 for sym in ["NOW","NBIS","CRWV","MU"]:
     assert sym in crowded, crowded
+assert not any(s in oe.selected_symbols(crowded_planner,review_evidence) for s in ["NOW","NBIS","CRWV","MU"]), "unverified reviews never jump the queue"
 assert len(crowded)<=14
 print("PASS learning-review priority over backlog queue")

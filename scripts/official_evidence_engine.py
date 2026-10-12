@@ -89,6 +89,8 @@ def selected_symbols(planner,evidence=None):
     # context and actually close the learning loop.
     add_rows(planner.get("today") or [])
     reviews=((evidence or {}).get("failure_attribution") or {}).get("external_outcome_reviews") or []
+    # #133 P0-A: unverified author self-reports do not decide which symbols get evidence collected
+    reviews=[r for r in reviews if r.get("learning_eligible") is True]
     for row in reviews:
         sym=str(row.get("symbol") or "").upper().strip()
         if not re.fullmatch(r"[A-Z]{1,5}",sym):continue

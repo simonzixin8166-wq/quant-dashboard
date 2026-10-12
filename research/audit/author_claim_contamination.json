@@ -1,0 +1,1645 @@
+{
+ "generated_at": "2026-10-12T03:27:52Z",
+ "rule": "author self-reported trades are never broker-verified; unverified attributions may be labelled background only",
+ "counts": {
+  "source_outcome_events": 138,
+  "events_by_attribution": {
+   "unconfirmed_author_context/needs_review": 75,
+   "author_plan/high": 2,
+   "author_action/high": 15,
+   "author_action/medium": 33,
+   "author_plan/medium": 13
+  },
+  "events_by_author": {
+   "三心三意": 1,
+   "麻你": 18,
+   "BrightLine": 86,
+   "老李玩钱": 3,
+   "bogbog": 24,
+   "yifan99": 6
+  },
+  "external_outcome_reviews": 20,
+  "external_failure_candidates": 20,
+  "v6_brief_citations_before_gate": 2,
+  "affected_records": 180
+ },
+ "gates": [
+  {
+   "path": "planner failure_review tasks",
+   "can_change": "research priority",
+   "gated": true,
+   "how": "evidence_attribution.external_outcome_evidence_role == legacy_descriptive_only → no tasks"
+  },
+  {
+   "path": "self_improvement process_guardrail",
+   "can_change": "research process policy",
+   "gated": true,
+   "how": "same flag → failure count treated as 0"
+  },
+  {
+   "path": "controlled_learning_policy / self_improvement method deltas",
+   "can_change": "planner ±5 priority",
+   "gated": true,
+   "how": "method_memory.evidence_role == legacy_descriptive_only → no deltas"
+  },
+  {
+   "path": "executor market/failure briefs",
+   "can_change": "counter-evidence / failure conclusions in V6 briefs",
+   "gated": true,
+   "how": "rows reported under unknowns as unverified background, never counter-evidence"
+  },
+  {
+   "path": "event/official evidence symbol selection",
+   "can_change": "which symbols get evidence collected",
+   "gated": true,
+   "how": "only rows with learning_eligible == true (none today)"
+  },
+  {
+   "path": "method_memory direct performance (display / knowledge page)",
+   "can_change": "displayed method performance only",
+   "gated": true,
+   "how": "evidence_role legacy_descriptive_only; consumers above ignore it for weights"
+  }
+ ],
+ "all_gated": true,
+ "case_brightline_7180": {
+  "record_id": "66b4cef06a84cd3de2eb",
+  "in_operation_cases": true,
+  "in_owned_operation_cases": true,
+  "in_failure_review": true,
+  "in_source_outcome_validation": false,
+  "in_external_failure_candidates": true,
+  "note": "legacy rule labelled TSLA sell author_action/high and NVDA sell needs_review; ce-5 high-precision extraction found 0 claims; the original page is not reachable by the audit tooling, so the author's actual trades are UNKNOWN — neither confirmed nor denied"
+ },
+ "v6_brief_citations": [
+  {
+   "task_id": "1e0c0f5a640215",
+   "symbol": "TSLA",
+   "line": "Failure Attribution 中存在 3 个该标的外部研究反例/失效样本"
+  },
+  {
+   "task_id": "93fef0534ec6db",
+   "symbol": "GOOG",
+   "line": "Failure Attribution 中存在 1 个该标的外部研究反例/失效样本"
+  }
+ ],
+ "affected": [
+  {
+   "kind": "source_outcome_event",
+   "id": "9fe36c8e2fd76710fff7:0:NVDA:0",
+   "author": "三心三意",
+   "symbol": "NVDA",
+   "attribution": "unconfirmed_author_context",
+   "attribution_confidence": "needs_review",
+   "published_at": "2026-10-08 12:52:54"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "dcb938407a0c1550dea3:0:VGT:0",
+   "author": "麻你",
+   "symbol": "VGT",
+   "attribution": "unconfirmed_author_context",
+   "attribution_confidence": "needs_review",
+   "published_at": "2026-10-07"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "dcb938407a0c1550dea3:1:VGT:0",
+   "author": "麻你",
+   "symbol": "VGT",
+   "attribution": "unconfirmed_author_context",
+   "attribution_confidence": "needs_review",
+   "published_at": "2026-10-07"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "091e103b50dfc7e60232:0:MRVL:0",
+   "author": "BrightLine",
+   "symbol": "MRVL",
+   "attribution": "author_plan",
+   "attribution_confidence": "high",
+   "published_at": "2026-10-06"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "091e103b50dfc7e60232:0:CRWV:0",
+   "author": "BrightLine",
+   "symbol": "CRWV",
+   "attribution": "author_plan",
+   "attribution_confidence": "high",
+   "published_at": "2026-10-06"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "e66eedf7e1cc581290b9:0:VOO:0",
+   "author": "麻你",
+   "symbol": "VOO",
+   "attribution": "unconfirmed_author_context",
+   "attribution_confidence": "needs_review",
+   "published_at": "2026-10-05 04:33:49"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "e66eedf7e1cc581290b9:0:VGT:0",
+   "author": "麻你",
+   "symbol": "VGT",
+   "attribution": "unconfirmed_author_context",
+   "attribution_confidence": "needs_review",
+   "published_at": "2026-10-05 04:33:49"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "e66eedf7e1cc581290b9:0:SPY:0",
+   "author": "麻你",
+   "symbol": "SPY",
+   "attribution": "unconfirmed_author_context",
+   "attribution_confidence": "needs_review",
+   "published_at": "2026-10-05 04:33:49"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "efbda19f1c2a3cae8c17:1:TSLA:0",
+   "author": "老李玩钱",
+   "symbol": "TSLA",
+   "attribution": "unconfirmed_author_context",
+   "attribution_confidence": "needs_review",
+   "published_at": "2026-10-05"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "efbda19f1c2a3cae8c17:0:NVDA:0",
+   "author": "老李玩钱",
+   "symbol": "NVDA",
+   "attribution": "unconfirmed_author_context",
+   "attribution_confidence": "needs_review",
+   "published_at": "2026-10-05"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "efbda19f1c2a3cae8c17:1:NVDA:0",
+   "author": "老李玩钱",
+   "symbol": "NVDA",
+   "attribution": "unconfirmed_author_context",
+   "attribution_confidence": "needs_review",
+   "published_at": "2026-10-05"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "b69e8e9034ba83ad2444:0:IREN:0",
+   "author": "BrightLine",
+   "symbol": "IREN",
+   "attribution": "author_action",
+   "attribution_confidence": "high",
+   "published_at": "2026-10-05"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "b69e8e9034ba83ad2444:1:IREN:0",
+   "author": "BrightLine",
+   "symbol": "IREN",
+   "attribution": "author_action",
+   "attribution_confidence": "high",
+   "published_at": "2026-10-05"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "b69e8e9034ba83ad2444:0:CRWV:0",
+   "author": "BrightLine",
+   "symbol": "CRWV",
+   "attribution": "author_action",
+   "attribution_confidence": "high",
+   "published_at": "2026-10-05"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "4c1e617ffd554c0d4798:0:VGT:0",
+   "author": "麻你",
+   "symbol": "VGT",
+   "attribution": "unconfirmed_author_context",
+   "attribution_confidence": "needs_review",
+   "published_at": "2026-10-04 19:38:45"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "879e8e156c950f26a728:0:MU:0",
+   "author": "bogbog",
+   "symbol": "MU",
+   "attribution": "unconfirmed_author_context",
+   "attribution_confidence": "needs_review",
+   "published_at": "2026-10-01 13:10:58"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "89ef97c4172e54edd2af:0:VGT:0",
+   "author": "麻你",
+   "symbol": "VGT",
+   "attribution": "unconfirmed_author_context",
+   "attribution_confidence": "needs_review",
+   "published_at": "2026-09-25 11:55:48"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "1756bb940a4382fd71ac:0:VGT:0",
+   "author": "麻你",
+   "symbol": "VGT",
+   "attribution": "unconfirmed_author_context",
+   "attribution_confidence": "needs_review",
+   "published_at": "2026-09-25 10:50:27"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "1756bb940a4382fd71ac:1:VGT:0",
+   "author": "麻你",
+   "symbol": "VGT",
+   "attribution": "unconfirmed_author_context",
+   "attribution_confidence": "needs_review",
+   "published_at": "2026-09-25 10:50:27"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "31d67da43d6cc50d16cb:0:QCOM:0",
+   "author": "yifan99",
+   "symbol": "QCOM",
+   "attribution": "author_action",
+   "attribution_confidence": "high",
+   "published_at": "2026-09-25"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "4e9807fbebe47c32a5f4:0:MU:0",
+   "author": "yifan99",
+   "symbol": "MU",
+   "attribution": "author_action",
+   "attribution_confidence": "high",
+   "published_at": "2026-09-25"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "31d67da43d6cc50d16cb:0:GOOG:0",
+   "author": "yifan99",
+   "symbol": "GOOG",
+   "attribution": "author_action",
+   "attribution_confidence": "high",
+   "published_at": "2026-09-25"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "31d67da43d6cc50d16cb:0:AMZN:0",
+   "author": "yifan99",
+   "symbol": "AMZN",
+   "attribution": "author_action",
+   "attribution_confidence": "high",
+   "published_at": "2026-09-25"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "31d67da43d6cc50d16cb:0:AAPL:0",
+   "author": "yifan99",
+   "symbol": "AAPL",
+   "attribution": "author_action",
+   "attribution_confidence": "high",
+   "published_at": "2026-09-25"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "31d67da43d6cc50d16cb:1:AAPL:0",
+   "author": "yifan99",
+   "symbol": "AAPL",
+   "attribution": "unconfirmed_author_context",
+   "attribution_confidence": "needs_review",
+   "published_at": "2026-09-25"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "0d6f0b4f52da296a27d4:0:SGOV:0",
+   "author": "麻你",
+   "symbol": "SGOV",
+   "attribution": "unconfirmed_author_context",
+   "attribution_confidence": "needs_review",
+   "published_at": "2026-09-18 12:07:40"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "a74e0e986cf7d729fbfc:0:SPY:0",
+   "author": "bogbog",
+   "symbol": "SPY",
+   "attribution": "author_action",
+   "attribution_confidence": "high",
+   "published_at": "2026-09-15 13:34:07"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "brightline--blog-wenxuecity-com-myblog-82458-202609-3770-html:0:INTC:0",
+   "author": "BrightLine",
+   "symbol": "INTC",
+   "attribution": "author_action",
+   "attribution_confidence": "medium",
+   "published_at": "2026-09-06"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "bccb33b4e644296e44a8:0:NVDA:0",
+   "author": "bogbog",
+   "symbol": "NVDA",
+   "attribution": "unconfirmed_author_context",
+   "attribution_confidence": "needs_review",
+   "published_at": "2026-09-04 16:58:53"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "bccb33b4e644296e44a8:0:MU:0",
+   "author": "bogbog",
+   "symbol": "MU",
+   "attribution": "unconfirmed_author_context",
+   "attribution_confidence": "needs_review",
+   "published_at": "2026-09-04 16:58:53"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "brightline-blog-wenxuecity-com-myblog-82458-202608-22905-html:0:NOW:0",
+   "author": "BrightLine",
+   "symbol": "NOW",
+   "attribution": "author_action",
+   "attribution_confidence": "medium",
+   "published_at": "2026-08-28"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "e45dc9a009715118c827:0:VGT:0",
+   "author": "麻你",
+   "symbol": "VGT",
+   "attribution": "unconfirmed_author_context",
+   "attribution_confidence": "needs_review",
+   "published_at": "2026-08-24 20:16:34"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "d37969d4442843963b16:0:VGT:0",
+   "author": "麻你",
+   "symbol": "VGT",
+   "attribution": "unconfirmed_author_context",
+   "attribution_confidence": "needs_review",
+   "published_at": "2026-08-21 16:09:21"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "a136e0ed5c36779a592a:0:VGT:0",
+   "author": "麻你",
+   "symbol": "VGT",
+   "attribution": "unconfirmed_author_context",
+   "attribution_confidence": "needs_review",
+   "published_at": "2026-08-21"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html:6:QCOM:0",
+   "author": "BrightLine",
+   "symbol": "QCOM",
+   "attribution": "author_plan",
+   "attribution_confidence": "medium",
+   "published_at": "2026-08-18"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html:0:NBIS:0",
+   "author": "BrightLine",
+   "symbol": "NBIS",
+   "attribution": "author_action",
+   "attribution_confidence": "medium",
+   "published_at": "2026-08-18"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html:1:NBIS:1",
+   "author": "BrightLine",
+   "symbol": "NBIS",
+   "attribution": "author_plan",
+   "attribution_confidence": "medium",
+   "published_at": "2026-08-18"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html:1:NBIS:0",
+   "author": "BrightLine",
+   "symbol": "NBIS",
+   "attribution": "author_plan",
+   "attribution_confidence": "medium",
+   "published_at": "2026-08-18"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html:7:MRVL:1",
+   "author": "BrightLine",
+   "symbol": "MRVL",
+   "attribution": "author_plan",
+   "attribution_confidence": "medium",
+   "published_at": "2026-08-18"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html:7:MRVL:0",
+   "author": "BrightLine",
+   "symbol": "MRVL",
+   "attribution": "author_plan",
+   "attribution_confidence": "medium",
+   "published_at": "2026-08-18"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html:5:META:1",
+   "author": "BrightLine",
+   "symbol": "META",
+   "attribution": "author_plan",
+   "attribution_confidence": "medium",
+   "published_at": "2026-08-18"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html:5:META:0",
+   "author": "BrightLine",
+   "symbol": "META",
+   "attribution": "author_plan",
+   "attribution_confidence": "medium",
+   "published_at": "2026-08-18"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html:3:IREN:1",
+   "author": "BrightLine",
+   "symbol": "IREN",
+   "attribution": "author_plan",
+   "attribution_confidence": "medium",
+   "published_at": "2026-08-18"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html:3:IREN:0",
+   "author": "BrightLine",
+   "symbol": "IREN",
+   "attribution": "author_plan",
+   "attribution_confidence": "medium",
+   "published_at": "2026-08-18"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html:4:INTC:1",
+   "author": "BrightLine",
+   "symbol": "INTC",
+   "attribution": "author_plan",
+   "attribution_confidence": "medium",
+   "published_at": "2026-08-18"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html:4:INTC:0",
+   "author": "BrightLine",
+   "symbol": "INTC",
+   "attribution": "author_plan",
+   "attribution_confidence": "medium",
+   "published_at": "2026-08-18"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html:0:CRWV:0",
+   "author": "BrightLine",
+   "symbol": "CRWV",
+   "attribution": "author_action",
+   "attribution_confidence": "medium",
+   "published_at": "2026-08-18"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html:2:CRWV:1",
+   "author": "BrightLine",
+   "symbol": "CRWV",
+   "attribution": "author_plan",
+   "attribution_confidence": "medium",
+   "published_at": "2026-08-18"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html:2:CRWV:0",
+   "author": "BrightLine",
+   "symbol": "CRWV",
+   "attribution": "author_plan",
+   "attribution_confidence": "medium",
+   "published_at": "2026-08-18"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "771de7f518806ab0b147:0:NBIS:0",
+   "author": "bogbog",
+   "symbol": "NBIS",
+   "attribution": "unconfirmed_author_context",
+   "attribution_confidence": "needs_review",
+   "published_at": "2026-08-17 01:33:28"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "88cfc9ca6f3649322fc8:0:NBIS:0",
+   "author": "bogbog",
+   "symbol": "NBIS",
+   "attribution": "unconfirmed_author_context",
+   "attribution_confidence": "needs_review",
+   "published_at": "2026-08-13 08:21:16"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "3c64dac3a6b884997697:0:NVDA:0",
+   "author": "bogbog",
+   "symbol": "NVDA",
+   "attribution": "unconfirmed_author_context",
+   "attribution_confidence": "needs_review",
+   "published_at": "2026-08-12 21:35:56"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "19428a899d48b8c5a83d:0:MU:0",
+   "author": "bogbog",
+   "symbol": "MU",
+   "attribution": "unconfirmed_author_context",
+   "attribution_confidence": "needs_review",
+   "published_at": "2026-08-05 20:09:24"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "06aeb5cd5d7a97d374e7:0:SGOV:0",
+   "author": "麻你",
+   "symbol": "SGOV",
+   "attribution": "unconfirmed_author_context",
+   "attribution_confidence": "needs_review",
+   "published_at": "2026-07-31 09:03:39"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "8fe0f2b06c2505c4855e:0:SGOV:0",
+   "author": "麻你",
+   "symbol": "SGOV",
+   "attribution": "unconfirmed_author_context",
+   "attribution_confidence": "needs_review",
+   "published_at": "2026-07-31"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "9815d1f17ae0d94149c5:0:NBIS:0",
+   "author": "bogbog",
+   "symbol": "NBIS",
+   "attribution": "unconfirmed_author_context",
+   "attribution_confidence": "needs_review",
+   "published_at": "2026-07-30 23:58:45"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "52b4ee1809fa9578beaa:0:NBIS:0",
+   "author": "bogbog",
+   "symbol": "NBIS",
+   "attribution": "unconfirmed_author_context",
+   "attribution_confidence": "needs_review",
+   "published_at": "2026-07-30 22:49:01"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "brightline-blog-wenxuecity-com-myblog-82458-202607-22473-html:0:NBIS:0",
+   "author": "BrightLine",
+   "symbol": "NBIS",
+   "attribution": "unconfirmed_author_context",
+   "attribution_confidence": "needs_review",
+   "published_at": "2026-07-30"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "brightline-blog-wenxuecity-com-myblog-82458-202607-22473-html:1:NBIS:0",
+   "author": "BrightLine",
+   "symbol": "NBIS",
+   "attribution": "unconfirmed_author_context",
+   "attribution_confidence": "needs_review",
+   "published_at": "2026-07-30"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "brightline-blog-wenxuecity-com-myblog-82458-202607-22473-html:0:IREN:0",
+   "author": "BrightLine",
+   "symbol": "IREN",
+   "attribution": "unconfirmed_author_context",
+   "attribution_confidence": "needs_review",
+   "published_at": "2026-07-30"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "brightline-blog-wenxuecity-com-myblog-82458-202607-22473-html:0:CRWV:0",
+   "author": "BrightLine",
+   "symbol": "CRWV",
+   "attribution": "unconfirmed_author_context",
+   "attribution_confidence": "needs_review",
+   "published_at": "2026-07-30"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "ee6efb43988ac6870ad1:0:NBIS:0",
+   "author": "bogbog",
+   "symbol": "NBIS",
+   "attribution": "unconfirmed_author_context",
+   "attribution_confidence": "needs_review",
+   "published_at": "2026-07-29 07:52:14"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "ee6efb43988ac6870ad1:0:MU:0",
+   "author": "bogbog",
+   "symbol": "MU",
+   "attribution": "unconfirmed_author_context",
+   "attribution_confidence": "needs_review",
+   "published_at": "2026-07-29 07:52:14"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "ee6efb43988ac6870ad1:0:MRVL:0",
+   "author": "bogbog",
+   "symbol": "MRVL",
+   "attribution": "unconfirmed_author_context",
+   "attribution_confidence": "needs_review",
+   "published_at": "2026-07-29 07:52:14"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "25f52953b4115d282877:0:VOO:0",
+   "author": "麻你",
+   "symbol": "VOO",
+   "attribution": "unconfirmed_author_context",
+   "attribution_confidence": "needs_review",
+   "published_at": "2026-07-29 06:02:27"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "25f52953b4115d282877:0:VGT:0",
+   "author": "麻你",
+   "symbol": "VGT",
+   "attribution": "unconfirmed_author_context",
+   "attribution_confidence": "needs_review",
+   "published_at": "2026-07-29 06:02:27"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "85218a5b87c635ac5d4f:0:NBIS:0",
+   "author": "bogbog",
+   "symbol": "NBIS",
+   "attribution": "unconfirmed_author_context",
+   "attribution_confidence": "needs_review",
+   "published_at": "2026-07-28 07:41:34"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "85218a5b87c635ac5d4f:0:MU:0",
+   "author": "bogbog",
+   "symbol": "MU",
+   "attribution": "unconfirmed_author_context",
+   "attribution_confidence": "needs_review",
+   "published_at": "2026-07-28 07:41:34"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "brightline-blog-wenxuecity-com-myblog-82458-202607-18322-html:0:TSLA:0",
+   "author": "BrightLine",
+   "symbol": "TSLA",
+   "attribution": "author_action",
+   "attribution_confidence": "medium",
+   "published_at": "2026-07-25"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "brightline-blog-wenxuecity-com-myblog-82458-202607-18322-html:1:TSLA:0",
+   "author": "BrightLine",
+   "symbol": "TSLA",
+   "attribution": "author_action",
+   "attribution_confidence": "medium",
+   "published_at": "2026-07-25"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "brightline-blog-wenxuecity-com-myblog-82458-202607-18322-html:2:TSLA:0",
+   "author": "BrightLine",
+   "symbol": "TSLA",
+   "attribution": "author_action",
+   "attribution_confidence": "medium",
+   "published_at": "2026-07-25"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "a3d9ca55a0550d74ed40:0:TSLA:0",
+   "author": "bogbog",
+   "symbol": "TSLA",
+   "attribution": "author_action",
+   "attribution_confidence": "high",
+   "published_at": "2026-07-23 08:56:12"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "8bc3bb44ed3ada090b2b:0:TSLA:0",
+   "author": "bogbog",
+   "symbol": "TSLA",
+   "attribution": "author_action",
+   "attribution_confidence": "high",
+   "published_at": "2026-07-22 09:13:56"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "0f7ad47b98cdb9eff1fa:0:NVDA:0",
+   "author": "bogbog",
+   "symbol": "NVDA",
+   "attribution": "unconfirmed_author_context",
+   "attribution_confidence": "needs_review",
+   "published_at": "2026-07-21 09:29:45"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "3d512f18166afbbf6b5d:0:MU:0",
+   "author": "bogbog",
+   "symbol": "MU",
+   "attribution": "author_action",
+   "attribution_confidence": "high",
+   "published_at": "2026-07-17 03:13:19"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "c86f0c70f65e76dfa62b:0:NBIS:0",
+   "author": "bogbog",
+   "symbol": "NBIS",
+   "attribution": "author_action",
+   "attribution_confidence": "high",
+   "published_at": "2026-07-15 16:41:48"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "c86f0c70f65e76dfa62b:0:MU:0",
+   "author": "bogbog",
+   "symbol": "MU",
+   "attribution": "author_action",
+   "attribution_confidence": "high",
+   "published_at": "2026-07-15 16:41:48"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "03d8673a1c3b5985b11c:0:NVDA:0",
+   "author": "bogbog",
+   "symbol": "NVDA",
+   "attribution": "author_action",
+   "attribution_confidence": "high",
+   "published_at": "2026-07-12 16:44:56"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "918ad2de66239e367464:0:SGOV:0",
+   "author": "麻你",
+   "symbol": "SGOV",
+   "attribution": "unconfirmed_author_context",
+   "attribution_confidence": "needs_review",
+   "published_at": "2026-07-10 13:37:25"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "cdf6fa7c797c07f29afb:0:MRVL:0",
+   "author": "bogbog",
+   "symbol": "MRVL",
+   "attribution": "unconfirmed_author_context",
+   "attribution_confidence": "needs_review",
+   "published_at": "2026-07-07 18:49:38"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "3a2e44e825eeb225993c:0:NVDA:0",
+   "author": "bogbog",
+   "symbol": "NVDA",
+   "attribution": "unconfirmed_author_context",
+   "attribution_confidence": "needs_review",
+   "published_at": "2026-07-07 17:25:22"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "brightline-blog-wenxuecity-com-myblog-82458-202606-22729-html:0:TSLA:0",
+   "author": "BrightLine",
+   "symbol": "TSLA",
+   "attribution": "unconfirmed_author_context",
+   "attribution_confidence": "needs_review",
+   "published_at": "2026-06-29"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "brightline-blog-wenxuecity-com-myblog-82458-202606-22729-html:1:TSLA:0",
+   "author": "BrightLine",
+   "symbol": "TSLA",
+   "attribution": "unconfirmed_author_context",
+   "attribution_confidence": "needs_review",
+   "published_at": "2026-06-29"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "brightline-blog-wenxuecity-com-myblog-82458-202606-16186-html:0:NVDA:0",
+   "author": "BrightLine",
+   "symbol": "NVDA",
+   "attribution": "unconfirmed_author_context",
+   "attribution_confidence": "needs_review",
+   "published_at": "2026-06-21"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "brightline--blog-wenxuecity-com-myblog-82458-202606-8509-html:0:TQQQ:0",
+   "author": "BrightLine",
+   "symbol": "TQQQ",
+   "attribution": "unconfirmed_author_context",
+   "attribution_confidence": "needs_review",
+   "published_at": "2026-06-12"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "brightline--blog-wenxuecity-com-myblog-82458-202606-5022-html:0:SPY:0",
+   "author": "BrightLine",
+   "symbol": "SPY",
+   "attribution": "unconfirmed_author_context",
+   "attribution_confidence": "needs_review",
+   "published_at": "2026-06-07"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "brightline--blog-wenxuecity-com-myblog-82458-202606-5022-html:0:QQQ:0",
+   "author": "BrightLine",
+   "symbol": "QQQ",
+   "attribution": "unconfirmed_author_context",
+   "attribution_confidence": "needs_review",
+   "published_at": "2026-06-07"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "brightline-blog-wenxuecity-com-myblog-82458-202605-19753-html:5:TSLA:0",
+   "author": "BrightLine",
+   "symbol": "TSLA",
+   "attribution": "unconfirmed_author_context",
+   "attribution_confidence": "needs_review",
+   "published_at": "2026-05-31"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "brightline-blog-wenxuecity-com-myblog-82458-202605-19753-html:6:TSLA:0",
+   "author": "BrightLine",
+   "symbol": "TSLA",
+   "attribution": "unconfirmed_author_context",
+   "attribution_confidence": "needs_review",
+   "published_at": "2026-05-31"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "brightline-blog-wenxuecity-com-myblog-82458-202605-19753-html:2:NBIS:0",
+   "author": "BrightLine",
+   "symbol": "NBIS",
+   "attribution": "unconfirmed_author_context",
+   "attribution_confidence": "needs_review",
+   "published_at": "2026-05-31"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "brightline-blog-wenxuecity-com-myblog-82458-202605-19753-html:0:MU:0",
+   "author": "BrightLine",
+   "symbol": "MU",
+   "attribution": "unconfirmed_author_context",
+   "attribution_confidence": "needs_review",
+   "published_at": "2026-05-31"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "brightline-blog-wenxuecity-com-myblog-82458-202605-19753-html:3:META:0",
+   "author": "BrightLine",
+   "symbol": "META",
+   "attribution": "unconfirmed_author_context",
+   "attribution_confidence": "needs_review",
+   "published_at": "2026-05-31"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "brightline-blog-wenxuecity-com-myblog-82458-202605-19753-html:4:META:0",
+   "author": "BrightLine",
+   "symbol": "META",
+   "attribution": "unconfirmed_author_context",
+   "attribution_confidence": "needs_review",
+   "published_at": "2026-05-31"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "brightline-blog-wenxuecity-com-myblog-82458-202605-19753-html:1:CRWV:0",
+   "author": "BrightLine",
+   "symbol": "CRWV",
+   "attribution": "unconfirmed_author_context",
+   "attribution_confidence": "needs_review",
+   "published_at": "2026-05-31"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "brightline-blog-wenxuecity-com-myblog-82458-202605-18645-html:0:SMH:0",
+   "author": "BrightLine",
+   "symbol": "SMH",
+   "attribution": "author_action",
+   "attribution_confidence": "medium",
+   "published_at": "2026-05-30"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "brightline-blog-wenxuecity-com-myblog-82458-202605-18645-html:0:QQQ:0",
+   "author": "BrightLine",
+   "symbol": "QQQ",
+   "attribution": "author_action",
+   "attribution_confidence": "medium",
+   "published_at": "2026-05-30"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "brightline-blog-wenxuecity-com-myblog-82458-202605-16902-html:0:IREN:0",
+   "author": "BrightLine",
+   "symbol": "IREN",
+   "attribution": "author_action",
+   "attribution_confidence": "medium",
+   "published_at": "2026-05-27"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "brightline-blog-wenxuecity-com-myblog-82458-202605-13819-html:0:IREN:0",
+   "author": "BrightLine",
+   "symbol": "IREN",
+   "attribution": "author_action",
+   "attribution_confidence": "medium",
+   "published_at": "2026-05-22"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "brightline--blog-wenxuecity-com-myblog-82458-202605-9470-html:0:IREN:0",
+   "author": "BrightLine",
+   "symbol": "IREN",
+   "attribution": "unconfirmed_author_context",
+   "attribution_confidence": "needs_review",
+   "published_at": "2026-05-15"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "brightline--blog-wenxuecity-com-myblog-82458-202605-9470-html:1:IREN:0",
+   "author": "BrightLine",
+   "symbol": "IREN",
+   "attribution": "unconfirmed_author_context",
+   "attribution_confidence": "needs_review",
+   "published_at": "2026-05-15"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "brightline--blog-wenxuecity-com-myblog-82458-202605-8868-html:0:QQQ:0",
+   "author": "BrightLine",
+   "symbol": "QQQ",
+   "attribution": "unconfirmed_author_context",
+   "attribution_confidence": "needs_review",
+   "published_at": "2026-05-14"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "brightline--blog-wenxuecity-com-myblog-82458-202605-8868-html:0:NVDA:0",
+   "author": "BrightLine",
+   "symbol": "NVDA",
+   "attribution": "unconfirmed_author_context",
+   "attribution_confidence": "needs_review",
+   "published_at": "2026-05-14"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "brightline--blog-wenxuecity-com-myblog-82458-202605-4789-html:3:TSLA:0",
+   "author": "BrightLine",
+   "symbol": "TSLA",
+   "attribution": "author_action",
+   "attribution_confidence": "medium",
+   "published_at": "2026-05-08"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "brightline--blog-wenxuecity-com-myblog-82458-202605-4789-html:4:TSLA:0",
+   "author": "BrightLine",
+   "symbol": "TSLA",
+   "attribution": "author_action",
+   "attribution_confidence": "medium",
+   "published_at": "2026-05-08"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "brightline--blog-wenxuecity-com-myblog-82458-202605-4789-html:5:TSLA:0",
+   "author": "BrightLine",
+   "symbol": "TSLA",
+   "attribution": "author_action",
+   "attribution_confidence": "medium",
+   "published_at": "2026-05-08"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "brightline--blog-wenxuecity-com-myblog-82458-202605-4789-html:6:TSLA:0",
+   "author": "BrightLine",
+   "symbol": "TSLA",
+   "attribution": "author_action",
+   "attribution_confidence": "medium",
+   "published_at": "2026-05-08"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "brightline--blog-wenxuecity-com-myblog-82458-202605-4789-html:7:NBIS:0",
+   "author": "BrightLine",
+   "symbol": "NBIS",
+   "attribution": "author_action",
+   "attribution_confidence": "medium",
+   "published_at": "2026-05-08"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "brightline--blog-wenxuecity-com-myblog-82458-202605-4789-html:7:IREN:0",
+   "author": "BrightLine",
+   "symbol": "IREN",
+   "attribution": "author_action",
+   "attribution_confidence": "medium",
+   "published_at": "2026-05-08"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "brightline--blog-wenxuecity-com-myblog-82458-202605-4789-html:0:INTC:0",
+   "author": "BrightLine",
+   "symbol": "INTC",
+   "attribution": "author_action",
+   "attribution_confidence": "medium",
+   "published_at": "2026-05-08"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "brightline--blog-wenxuecity-com-myblog-82458-202605-4789-html:1:INTC:0",
+   "author": "BrightLine",
+   "symbol": "INTC",
+   "attribution": "author_action",
+   "attribution_confidence": "medium",
+   "published_at": "2026-05-08"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "brightline--blog-wenxuecity-com-myblog-82458-202605-4789-html:3:INTC:0",
+   "author": "BrightLine",
+   "symbol": "INTC",
+   "attribution": "author_action",
+   "attribution_confidence": "medium",
+   "published_at": "2026-05-08"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "brightline--blog-wenxuecity-com-myblog-82458-202605-4789-html:2:GOOG:0",
+   "author": "BrightLine",
+   "symbol": "GOOG",
+   "attribution": "author_action",
+   "attribution_confidence": "medium",
+   "published_at": "2026-05-08"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "brightline--blog-wenxuecity-com-myblog-82458-202605-4789-html:7:CRWV:0",
+   "author": "BrightLine",
+   "symbol": "CRWV",
+   "attribution": "author_action",
+   "attribution_confidence": "medium",
+   "published_at": "2026-05-08"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "brightline-s-blog-wenxuecity-com-myblog-82458-202605-385-html:6:TSLA:0",
+   "author": "BrightLine",
+   "symbol": "TSLA",
+   "attribution": "author_action",
+   "attribution_confidence": "medium",
+   "published_at": "2026-05-01"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "brightline-s-blog-wenxuecity-com-myblog-82458-202605-385-html:1:NBIS:0",
+   "author": "BrightLine",
+   "symbol": "NBIS",
+   "attribution": "author_action",
+   "attribution_confidence": "medium",
+   "published_at": "2026-05-01"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "brightline-s-blog-wenxuecity-com-myblog-82458-202605-385-html:5:META:0",
+   "author": "BrightLine",
+   "symbol": "META",
+   "attribution": "author_action",
+   "attribution_confidence": "medium",
+   "published_at": "2026-05-01"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "brightline-s-blog-wenxuecity-com-myblog-82458-202605-385-html:3:INTC:0",
+   "author": "BrightLine",
+   "symbol": "INTC",
+   "attribution": "author_action",
+   "attribution_confidence": "medium",
+   "published_at": "2026-05-01"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "brightline-s-blog-wenxuecity-com-myblog-82458-202605-385-html:0:CRWV:0",
+   "author": "BrightLine",
+   "symbol": "CRWV",
+   "attribution": "author_action",
+   "attribution_confidence": "medium",
+   "published_at": "2026-05-01"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "brightline-s-blog-wenxuecity-com-myblog-82458-202605-385-html:2:CRWV:0",
+   "author": "BrightLine",
+   "symbol": "CRWV",
+   "attribution": "author_action",
+   "attribution_confidence": "medium",
+   "published_at": "2026-05-01"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "brightline-s-blog-wenxuecity-com-myblog-82458-202605-385-html:4:AMZN:0",
+   "author": "BrightLine",
+   "symbol": "AMZN",
+   "attribution": "author_action",
+   "attribution_confidence": "medium",
+   "published_at": "2026-05-01"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "brightline-blog-wenxuecity-com-myblog-82458-202604-15958-html:0:INTC:0",
+   "author": "BrightLine",
+   "symbol": "INTC",
+   "attribution": "author_action",
+   "attribution_confidence": "medium",
+   "published_at": "2026-04-24"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "brightline-blog-wenxuecity-com-myblog-82458-202604-15204-html:0:NOW:0",
+   "author": "BrightLine",
+   "symbol": "NOW",
+   "attribution": "author_action",
+   "attribution_confidence": "medium",
+   "published_at": "2026-04-23"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "brightline-blog-wenxuecity-com-myblog-82458-202604-12703-html:0:SNDK:0",
+   "author": "BrightLine",
+   "symbol": "SNDK",
+   "attribution": "unconfirmed_author_context",
+   "attribution_confidence": "needs_review",
+   "published_at": "2026-04-20"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "brightline-blog-wenxuecity-com-myblog-82458-202604-12428-html:0:TQQQ:0",
+   "author": "BrightLine",
+   "symbol": "TQQQ",
+   "attribution": "unconfirmed_author_context",
+   "attribution_confidence": "needs_review",
+   "published_at": "2026-04-19"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "brightline-blog-wenxuecity-com-myblog-82458-202604-12428-html:0:QQQ:0",
+   "author": "BrightLine",
+   "symbol": "QQQ",
+   "attribution": "unconfirmed_author_context",
+   "attribution_confidence": "needs_review",
+   "published_at": "2026-04-19"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "brightline-blog-wenxuecity-com-myblog-82458-202604-12428-html:1:QQQ:0",
+   "author": "BrightLine",
+   "symbol": "QQQ",
+   "attribution": "unconfirmed_author_context",
+   "attribution_confidence": "needs_review",
+   "published_at": "2026-04-19"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "brightline-blog-wenxuecity-com-myblog-82458-202604-11114-html:0:TQQQ:0",
+   "author": "BrightLine",
+   "symbol": "TQQQ",
+   "attribution": "unconfirmed_author_context",
+   "attribution_confidence": "needs_review",
+   "published_at": "2026-04-18"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "brightline-blog-wenxuecity-com-myblog-82458-202604-11114-html:0:QQQ:0",
+   "author": "BrightLine",
+   "symbol": "QQQ",
+   "attribution": "unconfirmed_author_context",
+   "attribution_confidence": "needs_review",
+   "published_at": "2026-04-18"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "brightline-s-blog-wenxuecity-com-myblog-82458-202604-985-html:0:TSLA:0",
+   "author": "BrightLine",
+   "symbol": "TSLA",
+   "attribution": "author_action",
+   "attribution_confidence": "medium",
+   "published_at": "2026-04-02"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "brightline-blog-wenxuecity-com-myblog-82458-202603-24121-html:0:TQQQ:0",
+   "author": "BrightLine",
+   "symbol": "TQQQ",
+   "attribution": "unconfirmed_author_context",
+   "attribution_confidence": "needs_review",
+   "published_at": "2026-03-30"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "brightline-blog-wenxuecity-com-myblog-82458-202603-24121-html:1:TQQQ:0",
+   "author": "BrightLine",
+   "symbol": "TQQQ",
+   "attribution": "unconfirmed_author_context",
+   "attribution_confidence": "needs_review",
+   "published_at": "2026-03-30"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "brightline-blog-wenxuecity-com-myblog-82458-202603-16712-html:0:TSLA:0",
+   "author": "BrightLine",
+   "symbol": "TSLA",
+   "attribution": "unconfirmed_author_context",
+   "attribution_confidence": "needs_review",
+   "published_at": "2026-03-21"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "brightline-blog-wenxuecity-com-myblog-82458-202601-16824-html:0:TSLA:0",
+   "author": "BrightLine",
+   "symbol": "TSLA",
+   "attribution": "author_action",
+   "attribution_confidence": "medium",
+   "published_at": "2026-01-19"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "brightline--blog-wenxuecity-com-myblog-82458-202601-5705-html:0:MU:0",
+   "author": "BrightLine",
+   "symbol": "MU",
+   "attribution": "unconfirmed_author_context",
+   "attribution_confidence": "needs_review",
+   "published_at": "2026-01-07"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "brightline--blog-wenxuecity-com-myblog-82458-202601-2150-html:0:NBIS:0",
+   "author": "BrightLine",
+   "symbol": "NBIS",
+   "attribution": "unconfirmed_author_context",
+   "attribution_confidence": "needs_review",
+   "published_at": "2026-01-03"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "brightline--blog-wenxuecity-com-myblog-82458-202601-2187-html:0:META:0",
+   "author": "BrightLine",
+   "symbol": "META",
+   "attribution": "unconfirmed_author_context",
+   "attribution_confidence": "needs_review",
+   "published_at": "2026-01-03"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "brightline--blog-wenxuecity-com-myblog-82458-202601-2187-html:1:META:0",
+   "author": "BrightLine",
+   "symbol": "META",
+   "attribution": "unconfirmed_author_context",
+   "attribution_confidence": "needs_review",
+   "published_at": "2026-01-03"
+  },
+  {
+   "kind": "source_outcome_event",
+   "id": "brightline--blog-wenxuecity-com-myblog-82458-202601-2150-html:0:IREN:0",
+   "author": "BrightLine",
+   "symbol": "IREN",
+   "attribution": "unconfirmed_author_context",
+   "attribution_confidence": "needs_review",
+   "published_at": "2026-01-03"
+  },
+  {
+   "kind": "external_outcome_review",
+   "id": "brightline-blog-wenxuecity-com-myblog-82458-202608-22905-html:0:NOW:0",
+   "author": "BrightLine",
+   "symbol": "NOW",
+   "attribution": "author_action",
+   "published_at": "2026-08-28"
+  },
+  {
+   "kind": "external_outcome_review",
+   "id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html:0:NBIS:0",
+   "author": "BrightLine",
+   "symbol": "NBIS",
+   "attribution": "author_action",
+   "published_at": "2026-08-18"
+  },
+  {
+   "kind": "external_outcome_review",
+   "id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html:0:CRWV:0",
+   "author": "BrightLine",
+   "symbol": "CRWV",
+   "attribution": "author_action",
+   "published_at": "2026-08-18"
+  },
+  {
+   "kind": "external_outcome_review",
+   "id": "3d512f18166afbbf6b5d:0:MU:0",
+   "author": "bogbog",
+   "symbol": "MU",
+   "attribution": "author_action",
+   "published_at": "2026-07-17 03:13:19"
+  },
+  {
+   "kind": "external_outcome_review",
+   "id": "c86f0c70f65e76dfa62b:0:NBIS:0",
+   "author": "bogbog",
+   "symbol": "NBIS",
+   "attribution": "author_action",
+   "published_at": "2026-07-15 16:41:48"
+  },
+  {
+   "kind": "external_outcome_review",
+   "id": "brightline-blog-wenxuecity-com-myblog-82458-202605-18645-html:0:QQQ:0",
+   "author": "BrightLine",
+   "symbol": "QQQ",
+   "attribution": "author_action",
+   "published_at": "2026-05-30"
+  },
+  {
+   "kind": "external_outcome_review",
+   "id": "brightline-blog-wenxuecity-com-myblog-82458-202605-16902-html:0:IREN:0",
+   "author": "BrightLine",
+   "symbol": "IREN",
+   "attribution": "author_action",
+   "published_at": "2026-05-27"
+  },
+  {
+   "kind": "external_outcome_review",
+   "id": "brightline-blog-wenxuecity-com-myblog-82458-202605-13819-html:0:IREN:0",
+   "author": "BrightLine",
+   "symbol": "IREN",
+   "attribution": "author_action",
+   "published_at": "2026-05-22"
+  },
+  {
+   "kind": "external_outcome_review",
+   "id": "brightline--blog-wenxuecity-com-myblog-82458-202605-4789-html:3:TSLA:0",
+   "author": "BrightLine",
+   "symbol": "TSLA",
+   "attribution": "author_action",
+   "published_at": "2026-05-08"
+  },
+  {
+   "kind": "external_outcome_review",
+   "id": "brightline--blog-wenxuecity-com-myblog-82458-202605-4789-html:4:TSLA:0",
+   "author": "BrightLine",
+   "symbol": "TSLA",
+   "attribution": "author_action",
+   "published_at": "2026-05-08"
+  },
+  {
+   "kind": "external_outcome_review",
+   "id": "brightline--blog-wenxuecity-com-myblog-82458-202605-4789-html:5:TSLA:0",
+   "author": "BrightLine",
+   "symbol": "TSLA",
+   "attribution": "author_action",
+   "published_at": "2026-05-08"
+  },
+  {
+   "kind": "external_outcome_review",
+   "id": "brightline--blog-wenxuecity-com-myblog-82458-202605-4789-html:7:NBIS:0",
+   "author": "BrightLine",
+   "symbol": "NBIS",
+   "attribution": "author_action",
+   "published_at": "2026-05-08"
+  },
+  {
+   "kind": "external_outcome_review",
+   "id": "brightline--blog-wenxuecity-com-myblog-82458-202605-4789-html:7:IREN:0",
+   "author": "BrightLine",
+   "symbol": "IREN",
+   "attribution": "author_action",
+   "published_at": "2026-05-08"
+  },
+  {
+   "kind": "external_outcome_review",
+   "id": "brightline--blog-wenxuecity-com-myblog-82458-202605-4789-html:0:INTC:0",
+   "author": "BrightLine",
+   "symbol": "INTC",
+   "attribution": "author_action",
+   "published_at": "2026-05-08"
+  },
+  {
+   "kind": "external_outcome_review",
+   "id": "brightline--blog-wenxuecity-com-myblog-82458-202605-4789-html:1:INTC:0",
+   "author": "BrightLine",
+   "symbol": "INTC",
+   "attribution": "author_action",
+   "published_at": "2026-05-08"
+  },
+  {
+   "kind": "external_outcome_review",
+   "id": "brightline--blog-wenxuecity-com-myblog-82458-202605-4789-html:3:INTC:0",
+   "author": "BrightLine",
+   "symbol": "INTC",
+   "attribution": "author_action",
+   "published_at": "2026-05-08"
+  },
+  {
+   "kind": "external_outcome_review",
+   "id": "brightline--blog-wenxuecity-com-myblog-82458-202605-4789-html:2:GOOG:0",
+   "author": "BrightLine",
+   "symbol": "GOOG",
+   "attribution": "author_action",
+   "published_at": "2026-05-08"
+  },
+  {
+   "kind": "external_outcome_review",
+   "id": "brightline--blog-wenxuecity-com-myblog-82458-202605-4789-html:7:CRWV:0",
+   "author": "BrightLine",
+   "symbol": "CRWV",
+   "attribution": "author_action",
+   "published_at": "2026-05-08"
+  },
+  {
+   "kind": "external_outcome_review",
+   "id": "brightline-s-blog-wenxuecity-com-myblog-82458-202605-385-html:5:META:0",
+   "author": "BrightLine",
+   "symbol": "META",
+   "attribution": "author_action",
+   "published_at": "2026-05-01"
+  },
+  {
+   "kind": "external_outcome_review",
+   "id": "brightline-s-blog-wenxuecity-com-myblog-82458-202605-385-html:3:INTC:0",
+   "author": "BrightLine",
+   "symbol": "INTC",
+   "attribution": "author_action",
+   "published_at": "2026-05-01"
+  },
+  {
+   "kind": "external_failure_candidate",
+   "id": "66b4cef06a84cd3de2eb",
+   "author": "BrightLine",
+   "symbol": "CRWV,NBIS,IREN,TSLA,NVDA",
+   "published_at": "2026-10-11"
+  },
+  {
+   "kind": "external_failure_candidate",
+   "id": "1e8bdac0655d45d20834",
+   "author": "BrightLine",
+   "symbol": "",
+   "published_at": "2026-10-10"
+  },
+  {
+   "kind": "external_failure_candidate",
+   "id": "1b75844ce30b950af011",
+   "author": "我是一只井底蛙",
+   "symbol": "INTC,AMD",
+   "published_at": "2026-10-09 06:10:48"
+  },
+  {
+   "kind": "external_failure_candidate",
+   "id": "e85a3685f135527582bd",
+   "author": "bogbog",
+   "symbol": "",
+   "published_at": "2026-10-08 20:46:50"
+  },
+  {
+   "kind": "external_failure_candidate",
+   "id": "8f047ce96706141c9220",
+   "author": "yifan99",
+   "symbol": "AAOI,AVGO,CIEN",
+   "published_at": "2026-10-08 08:45:43"
+  },
+  {
+   "kind": "external_failure_candidate",
+   "id": "392cce79376b77bf38a2",
+   "author": "yifan99",
+   "symbol": "",
+   "published_at": "2026-10-08"
+  },
+  {
+   "kind": "external_failure_candidate",
+   "id": "d8167fd5b25c275b8e8a",
+   "author": "我是一只井底蛙",
+   "symbol": "TSM",
+   "published_at": "2026-10-06 15:28:44"
+  },
+  {
+   "kind": "external_failure_candidate",
+   "id": "8b19ee3968b460230105",
+   "author": "三心三意",
+   "symbol": "MRVL",
+   "published_at": "2026-10-06 11:43:45"
+  },
+  {
+   "kind": "external_failure_candidate",
+   "id": "091e103b50dfc7e60232",
+   "author": "BrightLine",
+   "symbol": "CRWV,MRVL",
+   "published_at": "2026-10-06"
+  },
+  {
+   "kind": "external_failure_candidate",
+   "id": "b69e8e9034ba83ad2444",
+   "author": "BrightLine",
+   "symbol": "NBIS,IREN,CRWV",
+   "published_at": "2026-10-05"
+  },
+  {
+   "kind": "external_failure_candidate",
+   "id": "efbda19f1c2a3cae8c17",
+   "author": "老李玩钱",
+   "symbol": "TSLA,NVDA",
+   "published_at": "2026-10-05"
+  },
+  {
+   "kind": "external_failure_candidate",
+   "id": "4eedb09df4b018ff3139",
+   "author": "yifan99",
+   "symbol": "QQQ,SPY",
+   "published_at": "2026-10-03 19:01:46"
+  },
+  {
+   "kind": "external_failure_candidate",
+   "id": "d23bfa8dc30c4be429a1",
+   "author": "bogbog",
+   "symbol": "",
+   "published_at": "2026-10-03 15:37:26"
+  },
+  {
+   "kind": "external_failure_candidate",
+   "id": "2f5509961ee37fcef544",
+   "author": "三心三意",
+   "symbol": "",
+   "published_at": "2026-10-03 10:48:34"
+  },
+  {
+   "kind": "external_failure_candidate",
+   "id": "145610ca1869152dfa30",
+   "author": "BrightLine",
+   "symbol": "",
+   "published_at": "2026-10-03"
+  },
+  {
+   "kind": "external_failure_candidate",
+   "id": "a7dfad94fe1421b511f2",
+   "author": "BrightLine",
+   "symbol": "QQQ",
+   "published_at": "2026-10-03"
+  },
+  {
+   "kind": "external_failure_candidate",
+   "id": "9666f1f9a28236f6b04d",
+   "author": "yifan99",
+   "symbol": "SPY,QQQ",
+   "published_at": "2026-10-03"
+  },
+  {
+   "kind": "external_failure_candidate",
+   "id": "a4e1ef2750f4d09eaf84",
+   "author": "yifan99",
+   "symbol": "AAOI,CIEN",
+   "published_at": "2026-10-02 10:41:45"
+  },
+  {
+   "kind": "external_failure_candidate",
+   "id": "077cece34e018b3fd615",
+   "author": "麻你",
+   "symbol": "",
+   "published_at": "2026-10-02 05:46:29"
+  },
+  {
+   "kind": "external_failure_candidate",
+   "id": "b77ecf2012cb15d29eb0",
+   "author": "我是一只井底蛙",
+   "symbol": "",
+   "published_at": "2026-10-02 05:35:34"
+  },
+  {
+   "kind": "v6_brief_citation",
+   "id": "1e0c0f5a640215",
+   "symbol": "TSLA",
+   "line": "Failure Attribution 中存在 3 个该标的外部研究反例/失效样本"
+  },
+  {
+   "kind": "v6_brief_citation",
+   "id": "93fef0534ec6db",
+   "symbol": "GOOG",
+   "line": "Failure Attribution 中存在 1 个该标的外部研究反例/失效样本"
+  }
+ ],
+ "read_only": true,
+ "production_use": false,
+ "quarantine_appended": 0
+}

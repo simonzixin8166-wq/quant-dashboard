@@ -31,12 +31,16 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 import trading_calendar as tc  # noqa: E402
 import knowledge_contract as kc  # noqa: E402
+import experience_inputs as xp  # noqa: E402
 
-GENERATOR = "auto-research-4"  # v4: SEC period-consistency + freshness gate; corrections for earlier SEC evidence
+GENERATOR = "auto-research-5"  # v5: B1 historical experience as Shadow evidence (precedents / error_attribution; used_in_decision=false)
 JOURNAL = ROOT / "research" / "knowledge" / "auto_research_journal.jsonl"
 STATUS = ROOT / "docs" / "research" / "auto_research_status.json"
 MACRO = ROOT / "docs" / "research" / "macro_context.json"
 SEC = ROOT / "docs" / "research" / "sec_fundamentals.json"
+MEMORY = {"learning": ROOT / "docs" / "research" / "learning_engine.json",
+          "evidence": ROOT / "docs" / "research" / "evidence_attribution.json",
+          "method": ROOT / "docs" / "research" / "method_memory.json"}
 CLAIMS_URL = "https://raw.githubusercontent.com/simonzixin8166-wq/wxc-bot/main/state/author_claims_hp.json"
 EXCLUDE = {"VIX"}
 GROWTH = {"QQQ", "QQQM", "QLD", "TQQQ", "VGT", "SMH", "NVDA", "AMD", "MSFT", "TSM", "LITE", "AVGO", "MRVL", "NBIS",
@@ -107,7 +111,24 @@ def load_inputs(fetch_claims=True):
         except Exception as e:
             inputs["author_claims"] = {"source": "wxc-bot state/author_claims_hp.json", "status": f"unavailable ({type(e).__name__})"}
     inputs["_sec"] = sec
+    inputs["_experience"] = load_experience()
     return inputs, macro, claims
+
+
+def load_experience():
+    """Committed memory as it exists when research runs (previous run in Daily); as_of + sha256 recorded."""
+    mem, meta = {}, {}
+    for name, path in MEMORY.items():
+        if not path.exists():
+            meta[name] = {"source": str(path.relative_to(ROOT)), "status": "unavailable"}
+            continue
+        raw = path.read_bytes()
+        doc = json.loads(raw)
+        mem[name] = doc
+        meta[name] = {"source": str(path.relative_to(ROOT)), "sha256": sha_bytes(raw),
+                      "as_of": doc.get("as_of") or doc.get("generated_at"), "generated_at": doc.get("generated_at")}
+    mem["meta"] = meta
+    return mem
 
 
 def fundamental_evidence(sym, sec, generated_at):
@@ -430,12 +451,17 @@ def run(now=None, fetch_claims=True, run_id=None):
                        "provenance": c.get("provenance"), "sentence_sha256": c["sentence_sha256"],
                        "check": "compatibility only; author statement is not a verified trade"} for c in rel]
         fundamentals = res.get("fundamentals")
+        experience = xp.build(sym, res["stance"], expected, inputs.get("_experience") or {})
         rec = {**base, "type": "hypothesis", "record_id": f"{sym}-{expected}-{GENERATOR}-h", "stance": res["stance"],
                "decision_reason": res["reason"], "research_hint": hint(res["stance"]),
                "metrics": {k: (round(v, 4) if isinstance(v, float) else v) for k, v in m.items()},
                "supporting": res["supporting"], "opposing": res["opposing"],
                "opposing_note": opposing_note(res["stance"], res["opposing"], {k: v for k, v in inputs.items() if not k.startswith("_")}, sym),
                "fundamentals": fundamentals, "author_claims": rel_claims,
+               "precedents": experience["precedents"], "error_attribution": experience["error_attribution"],
+               "experience_input_status": experience["experience_input_status"],
+               "experience": {"used_in_decision": False, "summary": experience["summary"] if "summary" in experience else None,
+                              "excluded": experience["excluded"], "memory_inputs": experience["memory_inputs"]},
                "invalidation": invalidation(res["stance"], m), "horizon_sessions": HORIZON,
                "next_review": tc.add_sessions(date.fromisoformat(expected), HORIZON).isoformat(),
                "risks": ["rule-based view; valuation not in the free pipeline",

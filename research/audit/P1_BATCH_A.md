@@ -44,7 +44,9 @@
 | macro_outcome | 4 | 0 | **成熟计算需要 SPY 日线，规范行情库中没有 SPY** | **blocked**（不修就永远无法成熟） |
 | market_state_outcome_scorecards | 历史记录 7 / 5 / 6 | 0 | 同上：依赖 anchor_spy 和 SPY 未来收盘价 | **blocked** |
 
-B2 首批只接财报结果的干净子集，并在每条证据旁注明样本量。其余保持 `disconnected`，原因如上。SPY 缺失需要在行情库加入 SPY（免费，属数据管线改动 → 首验后做）。
+B2 首批只接财报结果的干净子集，并在每条证据旁注明样本量。其余保持 `disconnected`，原因如上。
+
+**更新（2026-10-12）**：owner 提供了 SPY 历史日线（2005-02-25 至 2026-10-09，5,439 行，已校验，来源记录见 `data/history/spy_provenance.json`），已加入行情库，macro / market_state 两类从 **blocked → pending**。本地试跑中，market_state 已有 4 个 5 日结果成熟。
 
 ## 3. B4 SEC 统一：消费者影响图与双跑设计
 
@@ -85,7 +87,8 @@ B2 首批只接财报结果的干净子集，并在每条证据旁注明样本�
 | P0-B 首个真实 schedule + 跨日 revisit | Waiting for market data | 10-12 收盘 → Daily 21:30 UTC / 兜底 00:35 UTC；10-13 01:30 UTC 云端核查 |
 | wxc-bot 新 cron 首次 schedule 证据 | Waiting | 10-12 13:10 UTC、22:30 UTC |
 | B1 precedents / error_attribution | Ready（规格见第 1 节） | 需在首验后合并（会改研究生成器） |
-| SPY 加入行情库（解锁 macro / market_state） | Ready | 数据管线改动 → 首验后 |
+| SPY 加入行情库（解锁 macro / market_state） | **Done**（owner 提供数据） | 每日增量来自 data.json stocks.SPY（完整 OHLC），10-13 核验 |
+| TQQQ 等仅 core/index 标的被合成平坦 K 线（H=L=C；TQQQ 近 30 日中有 5 根） | Ready | 修改 append_latest 或在 core 中补 OHLC → 首验后 |
 | B2 接线：财报结果干净子集 | Ready | 首验后，排在 B1 之后 |
 | event / options outcome | Waiting for market data | 10-13 / 10-14 首批 5 日成熟 |
 | B4 SEC 双跑（3 个 PR） | Ready（设计见第 3 节） | 首验后 |

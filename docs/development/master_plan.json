@@ -2,7 +2,7 @@
  "version": 1,
  "title": "MyAlpha View — Master Execution Plan",
  "issue": "https://github.com/simonzixin8166-wq/quant-dashboard/issues/133",
- "last_updated": "2026-10-12T04:40:00Z",
+ "last_updated": "2026-10-12T05:00:00Z",
  "charter": "CLAUDE.md (owner-confirmed 2026-10-11)",
  "statuses": [
   "Done",
@@ -455,25 +455,30 @@
   },
   {
    "id": "D-04",
-   "title": "Symbol registry: research_universe / data_collection_universe / display_watchlist",
+   "title": "Symbol registry generator: research_universe / data_collection_universe / display_watchlist (read-only)",
    "area": "Data universe",
    "priority": 1,
-   "status": "In progress",
+   "status": "Done",
    "stages": [
     "instruction_published",
-    "claude_acked"
+    "claude_acked",
+    "code_merged"
    ],
    "instructions": [
     "6117657723"
    ],
    "depends_on": [],
    "evidence": {
-    "prs": [],
-    "runs": []
+    "prs": [
+     "this PR (D-04/D-07/D-06 prep)"
+    ],
+    "runs": [
+     "research/audit/symbol_registry.json: display 28, research 30, collection 40, in archive 24 (fresh), missing 16 securities (all covered by the staged owner pack); 222 event rows without history reported separately; AAPL collected though not displayed; DRAM identity unverified; SPCX = SEC \"SPACE EXPLORATION TECHNOLOGIES CORP.\""
+    ]
    },
-   "acceptance": "one manifest (ticker, exchange, asset_type, source, as_of, refresh_status, quality_status, used_by, display flag); hiding a symbol on the site never stops collection or deletes history",
-   "next": "read-only registry generator before P0-05; wiring after",
-   "last_verified": "2026-10-12T04:25Z"
+   "acceptance": "three universes separated; hidden securities stay in the collection universe; identity never guessed; test_symbol_registry",
+   "next": "wiring into the daily collector is D-05",
+   "last_verified": "2026-10-12T05:00Z"
   },
   {
    "id": "D-05",
@@ -491,6 +496,7 @@
    ],
    "depends_on": [
     "D-04",
+    "D-06",
     "P0-05"
    ],
    "evidence": {
@@ -498,7 +504,7 @@
     "runs": []
    },
    "acceptance": "a symbol not shown on the site (e.g. AAPL) still updates after a real schedule; missing source → missing/stale, never synthesized; idempotent",
-   "next": "Batch B",
+   "next": "after P0-05: collector iterates symbol_registry data_collection_universe; full-OHLC sources only; missing/stale recorded; verify AAPL/AMZN update after a real schedule",
    "waiting_for": "P0-05 (no canonical-archive pipeline change before the first schedule)",
    "last_verified": "2026-10-12T04:25Z"
   },
@@ -507,7 +513,7 @@
    "title": "Stop synthetic flat bars from close-only rows (TQQQ 5 of last 30)",
    "area": "Data universe",
    "priority": 1,
-   "status": "Waiting",
+   "status": "In progress",
    "stages": [
     "instruction_published",
     "claude_acked"
@@ -519,23 +525,28 @@
     "P0-05"
    ],
    "evidence": {
-    "prs": [],
-    "runs": []
+    "prs": [
+     "this PR: scripts/ohlcv_merge.py + tests/test_ohlcv_merge.py (not wired)"
+    ],
+    "runs": [
+     "legacy dashboard_bar close-only back-fill pinned by test as the defect to remove"
+    ]
    },
    "acceptance": "close-only rows never written as full bars; existing H=L=C bars compared with source (real flat days possible) and corrected only via logged replacement",
-   "next": "Batch B",
-   "waiting_for": "P0-05",
-   "last_verified": "2026-10-12T04:25Z"
+   "next": "after P0-05: local_history_agent.append_latest uses ohlcv_merge for the data_collection_universe; flat bars fixed only via corrections.jsonl (TQQQ from owner pack)",
+   "waiting_for": "P0-05 (production pipeline change)",
+   "last_verified": "2026-10-12T05:00Z"
   },
   {
    "id": "D-07",
    "title": "Import validator + Missing Historical Symbols manifest (distinct securities; AAPL, AMZN, AAOI, INTC, MU, META, NOW, CRWV; identity checks for DRAM/SPCX)",
    "area": "Data universe",
    "priority": 1,
-   "status": "In progress",
+   "status": "Done",
    "stages": [
     "instruction_published",
-    "claude_acked"
+    "claude_acked",
+    "code_merged"
    ],
    "instructions": [
     "6117622847",
@@ -543,15 +554,17 @@
    ],
    "depends_on": [],
    "evidence": {
-    "prs": [],
+    "prs": [
+     "#209 de2460f",
+     "this PR"
+    ],
     "runs": [
-     "missing list v0 on #133 6117638644 (INTC, AMZN, MU, META, NOW, CRWV)",
-     "scripts/stooq_pack_validate.py (read-only validator) run on the 19-symbol pack"
+     "missing_historical_symbols in symbol_registry.json: 16 distinct securities (MU, INTC, AMZN, META, NOW, CRWV, AAOI, AAPL + 8 benchmark ETFs); all in the validated owner pack"
     ]
    },
-   "acceptance": "manifest counts securities not events; use_case, source availability, priority, reason",
-   "next": "merge validator PR; Missing Historical Symbols manifest (distinct securities) next",
-   "last_verified": "2026-10-12T04:45Z"
+   "acceptance": "distinct securities with use_case, source, priority, identity; event rows reported separately",
+   "next": "re-run after D-03 import (expected missing → 0)",
+   "last_verified": "2026-10-12T05:00Z"
   },
   {
    "id": "B2-01",

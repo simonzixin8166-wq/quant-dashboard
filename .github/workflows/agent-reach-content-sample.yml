@@ -1,0 +1,48 @@
+name: Agent Reach Wenxuecity content sample
+on:
+  pull_request:
+    paths:
+      - .github/workflows/agent-reach-content-sample.yml
+  workflow_dispatch: {}
+permissions:
+  contents: read
+jobs:
+  sample:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install pinned Agent Reach
+        run: python -m pip install 'git+https://github.com/Panniantong/Agent-Reach.git@94f06c1969dfc1834001269d79d3ad0972d9dee6'
+      - name: Read blog list and extract short verifiable samples
+        run: |
+          python - <<'PY'
+          from agent_reach.channels.web import WebChannel
+          import re,json
+          from pathlib import Path
+          url='https://blog.wenxuecity.com/myoverview/82458/'
+          out={'source':url,'items':[],'status':'FAIL'}
+          try:
+              raw=WebChannel().read(url)
+              print('Returned character count:',len(raw))
+              # Preserve only short link labels and target URLs, not third-party full text.
+              links=re.findall(r'\[([^\]\n]{6,110})\]\((https?://[^)\s]+)\)',raw)
+              for title,link in links:
+                  if 'wenxuecity.com' in link and ('/myblog/' in link or '/cfzh/' in link):
+                      out['items'].append({'title':title[:110],'url':link[:300]})
+                  if len(out['items'])>=10: break
+              out['status']='LINKS_EXTRACTED' if out['items'] else 'NO_ARTICLE_LINKS'
+              out['page_excerpt']=re.sub(r'\s+',' ',raw[:800])[:350]
+          except Exception as e:out['error']=type(e).__name__+': '+str(e)[:120]
+          Path('wxc-content-sample.json').write_text(json.dumps(out,ensure_ascii=False,indent=2))
+          print(json.dumps(out,ensure_ascii=False,indent=2))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: wxc-content-sample
+          path: wxc-content-sample.json
+          retention-days: 7

@@ -2,7 +2,7 @@
  "version": 1,
  "title": "MyAlpha View — Master Execution Plan",
  "issue": "https://github.com/simonzixin8166-wq/quant-dashboard/issues/133",
- "last_updated": "2026-10-12T04:45:00Z",
+ "last_updated": "2026-10-12T04:40:00Z",
  "charter": "CLAUDE.md (owner-confirmed 2026-10-11)",
  "statuses": [
   "Done",
@@ -450,8 +450,8 @@
    },
    "acceptance": "manifest SHA-256 re-verified; per-symbol checks; overlap vs existing archive; conflicts quarantined; append-only; provenance per file",
    "next": "after P0-05: append 11 clean + AAOI/AAPL/CRWV/MU (large moves and early gaps are real/known — recorded as quality flags) + INTC (pre-1990 close-only bars flagged); TQQQ: replace only the 5 synthetic flat bars 2026-10-05..09 with pack OHLC (same closes; pack history uses a newer dividend-adjustment basis, ratio 0.956→1.000, so history is NOT replaced); LITE: 2026-09-29/30 differ (archive 994.78/948.84 vs pack 973.49/971.26) and 2026-10-01 is missing in the archive → logged correction, not silent overwrite",
-   "last_verified": "2026-10-12T04:45Z",
-   "waiting_for": "P0-05 (base archive unchanged before the first schedule) + owner authorization to publish the 19 files in the public repo"
+   "last_verified": "2026-10-12T04:40Z",
+   "waiting_for": "P0-05 only (owner authorized publishing; pack staged on branch data-handoff/stooq-20261009)"
   },
   {
    "id": "D-04",
@@ -1012,9 +1012,10 @@
    "title": "Owner: authorize publishing the 19-symbol pack in the public repo (file already received in this chat)",
    "area": "Owner decisions",
    "priority": 1,
-   "status": "Waiting",
+   "status": "Done",
    "stages": [
-    "claude_acked"
+    "claude_acked",
+    "code_merged"
    ],
    "instructions": [
     "6117622847"
@@ -1022,12 +1023,15 @@
    "depends_on": [],
    "evidence": {
     "prs": [],
-    "runs": []
+    "runs": [
+     "owner authorization in the Claude chat 2026-10-12 12:33 (UTC+8); recorded on #133",
+     "pack staged on branch data-handoff/stooq-20261009 @ fe2af73 (sha256 ead9bb5f…)"
+    ]
    },
    "acceptance": "file received + explicit authorization",
-   "next": "unblocks D-03",
+   "next": "—",
    "waiting_for": "owner",
-   "last_verified": "2026-10-12T04:45Z"
+   "last_verified": "2026-10-12T04:40Z"
   }
  ]
 }

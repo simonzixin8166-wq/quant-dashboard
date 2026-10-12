@@ -1,0 +1,27 @@
+{
+ "symbol": "SPY",
+ "member": "spy_us_d.csv",
+ "added_at": "2026-10-12",
+ "source": "owner-supplied Stooq-format daily export (uploaded in chat 2026-10-12); prices adjusted as provided",
+ "sha256": "ad19384bbf8c74d6909ce57396641a6a1a4a7e353c9cf1a6c2c8e31bc844dadd",
+ "rows": 5439,
+ "first_date": "2005-02-25",
+ "last_date": "2026-10-09",
+ "validation": {
+  "duplicates": 0,
+  "ohlc_violations": 0,
+  "non_session_dates": 0,
+  "missing_vs_calendar": [
+   "2011-02-17 (data gap)",
+   "2007-01-02, 2012-10-29, 2012-10-30, 2025-01-09 (real market closures absent from trading_calendar)"
+  ],
+  "last_close_vs_site": "778.57 = docs/data.json index.SPY close for 2026-10-09",
+  "spy_voo_ratio_last_250d": [
+   1.0793,
+   1.0883
+  ]
+ },
+ "daily_updates": "local_history_agent.append_latest from docs/data.json stocks.SPY (owner added SPY to the watchlist 2026-10-12; full OHLC); index.SPY has close only and must not be used for OHLC",
+ "purpose": "benchmark history for macro_outcome_memory and market_state_outcome_scorecards maturation (#133 P1_BATCH_A §2); also a research symbol",
+ "existing_members_unchanged": true
+}

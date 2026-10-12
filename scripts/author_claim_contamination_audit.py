@@ -56,6 +56,10 @@ def gate_status():
         {"path": "event/official evidence symbol selection", "can_change": "which symbols get evidence collected",
          "gated": all('learning_eligible") is True' in t for t in (ee, oe)),
          "how": "only rows with learning_eligible == true (none today)"},
+        {"path": "event_window_attribution rows (executor failure briefs)", "can_change": "failure-review context",
+         "gated": "learning_eligible\":r.get(\"learning_eligible\") is True" in src_text("event_window_attribution.py")
+                  and "未经核实的作者自述样本" in ex,
+         "how": "rows carry verification_status / learning_eligible; executor reports them under unknowns"},
         {"path": "method_memory direct performance (display / knowledge page)", "can_change": "displayed method performance only",
          "gated": legacy_mm, "how": "evidence_role legacy_descriptive_only; consumers above ignore it for weights"},
     ]

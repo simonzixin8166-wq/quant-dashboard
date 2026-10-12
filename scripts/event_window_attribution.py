@@ -91,7 +91,10 @@ def build(evidence,official,event_evidence):
           "return_20":r.get("return_20"),"mae_20":r.get("mae_20"),"mfe_20":r.get("mfe_20"),
           "nearest_sec":sec_ctx,"nearest_event":news_ctx,
           "event_context_available":bool(sec_ctx or news_ctx),
-          "guardrail":"日期接近只用于生成复盘假设，不代表事件导致该研究结果。"
+          "guardrail":"日期接近只用于生成复盘假设，不代表事件导致该研究结果。",
+          # #133 P0-A: the underlying sample is an author's self-reported operation — never broker-verified
+          "verification_status":r.get("verification_status") or "unverified_author_self_report",
+          "learning_eligible":r.get("learning_eligible") is True,
         })
     with_sec=sum(bool(x["nearest_sec"]) for x in rows)
     with_event=sum(bool(x["nearest_event"]) for x in rows)

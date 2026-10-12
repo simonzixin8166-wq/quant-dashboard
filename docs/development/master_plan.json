@@ -2,7 +2,7 @@
  "version": 1,
  "title": "MyAlpha View — Master Execution Plan",
  "issue": "https://github.com/simonzixin8166-wq/quant-dashboard/issues/133",
- "last_updated": "2026-10-12T05:00:00Z",
+ "last_updated": "2026-10-12T05:15:00Z",
  "charter": "CLAUDE.md (owner-confirmed 2026-10-11)",
  "statuses": [
   "Done",
@@ -430,7 +430,7 @@
    "title": "STOOQ 19-symbol pack import (MyAlpha_STOOQ_19symbols_20261009.zip)",
    "area": "Data universe",
    "priority": 1,
-   "status": "Waiting",
+   "status": "In progress",
    "stages": [
     "instruction_published",
     "claude_acked"
@@ -442,15 +442,18 @@
     "P0-05"
    ],
    "evidence": {
-    "prs": [],
+    "prs": [
+     "this PR: scripts/stooq_pack_import.py (dry-run default, --apply) + tests/test_stooq_pack_import.py"
+    ],
     "runs": [
      "pack received in this Claude chat 2026-10-12T04:24Z, sha256 ead9bb5f…; manifest sha256 19/19 match",
-     "research/audit/stooq_pack_validation.json: new clean 11 (AMZN, META, NOW, DIA, GLD, HYG, IWM, TLT, XLE, XLF, XLK); SPY identical to #207; review 7"
+     "research/audit/stooq_pack_validation.json: new clean 11 (AMZN, META, NOW, DIA, GLD, HYG, IWM, TLT, XLE, XLF, XLK); SPY identical to #207; review 7",
+     "dry run on a copy of the real archive: 25→41 members, only TQQQ/LITE changed, 8 corrections (TQQQ 5 flat bars, LITE 09-29/30 + 10-01 inserted), re-run 0 changes; real archive untouched"
     ]
    },
    "acceptance": "manifest SHA-256 re-verified; per-symbol checks; overlap vs existing archive; conflicts quarantined; append-only; provenance per file",
-   "next": "after P0-05: append 11 clean + AAOI/AAPL/CRWV/MU (large moves and early gaps are real/known — recorded as quality flags) + INTC (pre-1990 close-only bars flagged); TQQQ: replace only the 5 synthetic flat bars 2026-10-05..09 with pack OHLC (same closes; pack history uses a newer dividend-adjustment basis, ratio 0.956→1.000, so history is NOT replaced); LITE: 2026-09-29/30 differ (archive 994.78/948.84 vs pack 973.49/971.26) and 2026-10-01 is missing in the archive → logged correction, not silent overwrite",
-   "last_verified": "2026-10-12T04:40Z",
+   "next": "after P0-05: git fetch data-handoff/stooq-20261009 → python -I scripts/stooq_pack_import.py <zip> --apply → python scripts/local_history_agent.py → symbol_registry.py (missing → 0) → PR",
+   "last_verified": "2026-10-12T05:15Z",
    "waiting_for": "P0-05 only (owner authorized publishing; pack staged on branch data-handoff/stooq-20261009)"
   },
   {

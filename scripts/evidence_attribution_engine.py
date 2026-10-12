@@ -370,6 +370,11 @@ def external_outcome_learning(source_outcomes: dict) -> dict:
             "alignment_20": alignment,
             "review_tags": tags,
             "maturity": "mature20",
+            # #133 6117163110 P0-A: an author's own account of a trade is never broker-verified; attribution comes
+            # from legacy keyword rules (e.g. BrightLine 202610/7180 "TSLA sell" with no ce-5 claim). Context only.
+            "attribution_confidence": event.get("attribution_confidence"),
+            "verification_status": "unverified_author_self_report",
+            "learning_eligible": False,
         })
     reviews = [x for x in mature if x["review_tags"]]
     return {
@@ -379,6 +384,15 @@ def external_outcome_learning(source_outcomes: dict) -> dict:
         "recent_reviews": reviews[:20],
         "method": "external-source 20-session descriptive outcome review; no causal claim",
     }
+
+
+AUTHOR_CLAIM_GATE = {
+    "rule": "unverified author self-reported trades/plans never become learning inputs that change research priority, error-attribution conclusions or weights",
+    "allowed_use": "labelled background context only (verification_status=unverified_author_self_report, learning_eligible=false)",
+    "enforced_in": ["autonomous_research_planner (failure_review tasks)", "self_improvement_engine (process_guardrail)", "controlled_learning_policy (method deltas)",
+                    "autonomous_research_executor (no counter-evidence from these rows)", "event_evidence_engine / official_evidence_engine (no symbol selection from these rows)"],
+    "source": "#133 6117163110 P0-A",
+}
 
 
 def build(data: dict, learning: dict, agent: dict, history: dict, source_intel: dict | None = None, source_outcomes: dict | None = None) -> dict:
@@ -423,7 +437,9 @@ def build(data: dict, learning: dict, agent: dict, history: dict, source_intel: 
         },
         "failure_attribution": {
             **failures,
-            "external_failure_candidates": external_failures[:20],
+            "external_failure_candidates": [{**x, "verification_status": "unverified_author_self_report", "learning_eligible": False}
+                                            for x in external_failures[:20]],
+            "author_claim_gate": AUTHOR_CLAIM_GATE,
             "external_outcome_reviews": outcome_learning["recent_reviews"],
             "external_outcome_review_count": outcome_learning["review_candidates"],
             "external_note": "旧 Source Outcome 仅保留描述性复盘；不得进入 Evidence Foundation 方法成熟度、Planner 权重或 Promotion。",

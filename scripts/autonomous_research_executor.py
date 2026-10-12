@@ -96,7 +96,8 @@ def market_brief(task,learning,evidence,source,data,official=None,events=None):
     for c in sit.get("contradictions") or []:
         add_unique(counter,str(c.get("message") or c.get("evidence") or c))
     fr=failure_rows(evidence,sym)
-    if fr:add_unique(counter,f"Failure Attribution 中存在 {len(fr)} 个该标的外部研究反例/失效样本")
+    if fr:  # #133 P0-A: unverified author self-reports are background only, never counter-evidence
+        add_unique(unknowns,f"外部作者自述操作的到期复盘 {len(fr)} 条（未经核实，仅作背景，不计入反证或失败归因）")
     sr=source_rows(source,sym)
     if sr:
         latest=sorted(sr,key=lambda x:str(x.get("published_at") or ""),reverse=True)[:3]
@@ -157,10 +158,10 @@ def failure_brief(task,evidence,method,official=None,event_windows=None):
     tags={}
     for r in rows:
         for t in r.get("review_tags") or r.get("tags") or []:tags[t]=tags.get(t,0)+1
-    if rows:add_unique(support,f"已聚合 {len(rows)} 个 {sym} 失败/反例样本")
+    if rows:add_unique(unknowns,f"{len(rows)} 个 {sym} 外部作者自述操作的到期复盘（未经核实，仅作背景，不作为失败归因结论）")
     if tags:
         ranked=sorted(tags.items(),key=lambda x:x[1],reverse=True)[:5]
-        add_unique(support,"高频失败标签："+ "、".join(f"{k}×{v}" for k,v in ranked))
+        add_unique(unknowns,"未核实样本中的高频标签（仅背景）："+ "、".join(f"{k}×{v}" for k,v in ranked))
     mfail=[]
     for m in method.get("methods") or []:
         for x in m.get("failure_examples") or []:

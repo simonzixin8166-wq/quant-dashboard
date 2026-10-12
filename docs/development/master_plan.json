@@ -1,0 +1,1029 @@
+{
+ "version": 1,
+ "title": "MyAlpha View — Master Execution Plan",
+ "issue": "https://github.com/simonzixin8166-wq/quant-dashboard/issues/133",
+ "last_updated": "2026-10-12T04:30:00Z",
+ "charter": "CLAUDE.md (owner-confirmed 2026-10-11)",
+ "statuses": [
+  "Done",
+  "In progress",
+  "Waiting",
+  "Blocked",
+  "Not started",
+  "Superseded"
+ ],
+ "stages": [
+  "instruction_published",
+  "claude_acked",
+  "code_merged",
+  "schedule_verified",
+  "oos_validated"
+ ],
+ "guardrails": [
+  "Zero new paid APIs / data / services without prior owner approval; public-repo GitHub Actions minutes only",
+  "No automatic orders, broker order APIs, or changes to production thresholds, the owner's allocation, gold/DCA rules or private positions",
+  "Private accounts and positions never published; no long-term storage of third-party full text; respect access restrictions (robots) and copyright",
+  "Append-only evidence; never rewrite git history or delete historical evidence",
+  "Genuine Forward (fo-1.0), promoted forward and Auto Research Shadow are three separate tracks, never summed",
+  "Author self-reported trades are never 'verified'",
+  "Engineering QA PASS != Learning PASS; Learning stays UNPROVEN / FINAL=NO until matured out-of-sample evidence",
+  "This ledger is maintained by hand from real PRs and runs; its counts are not learning metrics"
+ ],
+ "execution_capability": {
+  "hourly_watcher": "cloud scheduled task trig_01P3Sk5tEfTuAQWAdFysJKcV (minute 44 every hour): acts only when a new owner instruction on #133 is not yet referenced by a Claude comment",
+  "one_shot": "cloud scheduled task trig_01QwLXu1zXvSHWyZn8Y1Est2 at 2026-10-13T01:30Z: P0 day-1 report, then Batch B continuously",
+  "limits": "no permanent unattended coding beyond these triggers; chat uploads are readable only by the session that received them"
+ },
+ "instructions": [
+  {
+   "id": "6107376896",
+   "summary": "Long-term charter M1–M4",
+   "status": "active"
+  },
+  {
+   "id": "6109291884",
+   "summary": "Daily autonomous research (server, no Claude, no paid API)",
+   "status": "active"
+  },
+  {
+   "id": "6109444028",
+   "summary": "P0: auto research job, SEC facts, weekly report",
+   "status": "active"
+  },
+  {
+   "id": "6109652253",
+   "summary": "P0: SEC fix → real schedule → cross-day revisit",
+   "status": "active"
+  },
+  {
+   "id": "6109685556",
+   "summary": "Priority supplement: health gate, divergence, D/E/F",
+   "status": "partly superseded by 6117163110"
+  },
+  {
+   "id": "6109957428",
+   "summary": "Delayed background dev: CDN, homepage row, SEC merge, learning audit",
+   "status": "done"
+  },
+  {
+   "id": "6116685851",
+   "summary": "Proceed: P0 verification, P1-A SEC, P1-B audit, P1-C small fixes",
+   "status": "active"
+  },
+  {
+   "id": "6116717888",
+   "summary": "Full-module collaboration audit",
+   "status": "active"
+  },
+  {
+   "id": "6116804482",
+   "summary": "Continue autonomously; self-reporting",
+   "status": "active"
+  },
+  {
+   "id": "6116972263",
+   "summary": "Experience feedback loop B1–B4",
+   "status": "active"
+  },
+  {
+   "id": "6117163110",
+   "summary": "Unified daily plan; P0-A contamination block",
+   "status": "active"
+  },
+  {
+   "id": "6117308392",
+   "summary": "Cadence: continuous batches, one report per batch",
+   "status": "active"
+  },
+  {
+   "id": "6117622847",
+   "summary": "STOOQ 19-symbol pack import + daily maintenance",
+   "status": "active"
+  },
+  {
+   "id": "6117657723",
+   "summary": "Decouple research/data-collection universe from display watchlist; free OHLCV for all",
+   "status": "active"
+  },
+  {
+   "id": "6117671408",
+   "summary": "Create and maintain this Master Execution Plan",
+   "status": "active"
+  }
+ ],
+ "tasks": [
+  {
+   "id": "P0-01",
+   "title": "CDN pinning + SRI + safe fallback",
+   "area": "P0 site reliability",
+   "priority": 0,
+   "status": "Done",
+   "stages": [
+    "instruction_published",
+    "claude_acked",
+    "code_merged"
+   ],
+   "instructions": [
+    "6109957428"
+   ],
+   "depends_on": [],
+   "evidence": {
+    "prs": [
+     "#198 971aabb"
+    ],
+    "runs": [
+     "Autonomous QA 38151773984 workflow_dispatch overall=PASS vendor_libs=desktop:ok/mobile:ok"
+    ]
+   },
+   "acceptance": "real libraries load at 1440/390 under SRI; stubs only on outage",
+   "next": "keep vendor_libs in every QA",
+   "last_verified": "2026-10-11T16:20Z"
+  },
+  {
+   "id": "P0-02",
+   "title": "Homepage row 「MyAlpha 今日研究」 + QA check + 404 fix",
+   "area": "P0 site reliability",
+   "priority": 0,
+   "status": "Done",
+   "stages": [
+    "instruction_published",
+    "claude_acked",
+    "code_merged"
+   ],
+   "instructions": [
+    "6109957428"
+   ],
+   "depends_on": [
+    "P0-01"
+   ],
+   "evidence": {
+    "prs": [
+     "#199 063b521",
+     "#201 419bb0f",
+     "#202 e49e655"
+    ],
+    "runs": [
+     "Autonomous QA 38153142070 overall=PASS research_row=desktop:ok(21)/mobile:ok(21) http_errors=0"
+    ]
+   },
+   "acceptance": "row renders from digest at both widths, 0 HTTP/console errors",
+   "next": "verify digest moves to 2026-10-12 after the first schedule",
+   "last_verified": "2026-10-11T16:45Z"
+  },
+  {
+   "id": "P0-03",
+   "title": "module_failures false 'missing' incident",
+   "area": "P0 site reliability",
+   "priority": 0,
+   "status": "Done",
+   "stages": [
+    "instruction_published",
+    "claude_acked",
+    "code_merged",
+    "schedule_verified"
+   ],
+   "instructions": [
+    "6109957428"
+   ],
+   "depends_on": [],
+   "evidence": {
+    "prs": [
+     "#200 05629ef"
+    ],
+    "runs": [
+     "operational_incidents.jsonl resolved ded111b9461b00ae4fbc at 2026-10-11T15:44:46Z; open incidents 0"
+    ]
+   },
+   "acceptance": "incident closed via append-only resolved event",
+   "next": "—",
+   "last_verified": "2026-10-12T04:25Z"
+  },
+  {
+   "id": "P0-04",
+   "title": "Unverified author self-reported trades gated out of learning inputs",
+   "area": "P0 data contamination",
+   "priority": 0,
+   "status": "Done",
+   "stages": [
+    "instruction_published",
+    "claude_acked",
+    "code_merged"
+   ],
+   "instructions": [
+    "6117163110"
+   ],
+   "depends_on": [],
+   "evidence": {
+    "prs": [
+     "#205 1ee856d",
+     "#206 29913fb"
+    ],
+    "runs": [
+     "Source Intelligence Validation 38200101473 push: V6 brief counter-evidence citations 2→0",
+     "38201367795 push: event-window rows labelled unverified"
+    ]
+   },
+   "acceptance": "all 7 paths gated (author_claim_contamination.json all_gated=true); contract test fails CI on a new ungated consumer",
+   "next": "keep test_author_claim_contract green; gate legacy extraction at source (W-02)",
+   "last_verified": "2026-10-12T03:55Z"
+  },
+  {
+   "id": "P0-05",
+   "title": "First real scheduled Auto Research run + cross-day revisit",
+   "area": "P0 unattended verification",
+   "priority": 0,
+   "status": "Waiting",
+   "stages": [
+    "instruction_published",
+    "claude_acked",
+    "code_merged"
+   ],
+   "instructions": [
+    "6109291884",
+    "6109652253",
+    "6116685851",
+    "6117163110"
+   ],
+   "depends_on": [],
+   "evidence": {
+    "prs": [
+     "#194",
+     "#195 31db0b9",
+     "#196 3fe9254"
+    ],
+    "runs": [
+     "no event=schedule research run yet (weekend)"
+    ]
+   },
+   "acceptance": "event=schedule Daily/Auto Research run IDs, market_as_of 2026-10-12, real cross-day revisits (same-day supersedes excluded), digest ok, QA PASS, GAP recorded",
+   "next": "cloud task 2026-10-13T01:30Z reports day 1",
+   "waiting_for": "2026-10-12 NYSE close → Daily 21:30Z / fallback 00:35Z",
+   "last_verified": "2026-10-12T04:25Z"
+  },
+  {
+   "id": "P0-06",
+   "title": "Five consecutive trading days of unattended reliability",
+   "area": "P0 unattended verification",
+   "priority": 0,
+   "status": "Waiting",
+   "stages": [
+    "instruction_published",
+    "claude_acked"
+   ],
+   "instructions": [
+    "6109291884",
+    "6109444028",
+    "6117671408"
+   ],
+   "depends_on": [
+    "P0-05"
+   ],
+   "evidence": {
+    "prs": [],
+    "runs": []
+   },
+   "acceptance": "5 sessions with schedule runs or recorded GAP + recovery",
+   "next": "daily check",
+   "waiting_for": "sessions 2026-10-12..10-16",
+   "last_verified": "2026-10-12T04:25Z"
+  },
+  {
+   "id": "P0-07",
+   "title": "SEC fundamentals quality gate (period, freshness, anomaly_review)",
+   "area": "P0 data quality",
+   "priority": 0,
+   "status": "Done",
+   "stages": [
+    "instruction_published",
+    "claude_acked",
+    "code_merged"
+   ],
+   "instructions": [
+    "6109652253"
+   ],
+   "depends_on": [],
+   "evidence": {
+    "prs": [
+     "#195 31db0b9",
+     "#196 3fe9254"
+    ],
+    "runs": [
+     "MyAlpha Auto Research 38144873589 / 38145180529 workflow_dispatch sec_only"
+    ]
+   },
+   "acceptance": "AVGO/NVDA/GOOG/IREN/TSM fixed or unavailable; anomalies held for review",
+   "next": "pre-gate SEC evidence labelled until superseded (P0-05 run appends sec_correction)",
+   "last_verified": "2026-10-11T14:00Z"
+  },
+  {
+   "id": "B1-01",
+   "title": "Precedent data quality and timing audit",
+   "area": "B1 experience",
+   "priority": 1,
+   "status": "Done",
+   "stages": [
+    "instruction_published",
+    "claude_acked",
+    "code_merged"
+   ],
+   "instructions": [
+    "6116972263",
+    "6117308392"
+   ],
+   "depends_on": [],
+   "evidence": {
+    "prs": [
+     "#206 29913fb"
+    ],
+    "runs": [
+     "research/audit/p1_readiness.json: 84 usable of 160, look-ahead 0"
+    ]
+   },
+   "acceptance": "usable precedents counted with no look-ahead; spec written",
+   "next": "B1-02",
+   "last_verified": "2026-10-12T03:50Z"
+  },
+  {
+   "id": "B1-02",
+   "title": "precedents / error_attribution / experience_input_status in daily_research_job (used_in_decision=false)",
+   "area": "B1 experience",
+   "priority": 1,
+   "status": "Waiting",
+   "stages": [
+    "instruction_published",
+    "claude_acked"
+   ],
+   "instructions": [
+    "6116972263",
+    "6117163110",
+    "6117671408"
+   ],
+   "depends_on": [
+    "P0-05",
+    "B1-01"
+   ],
+   "evidence": {
+    "prs": [],
+    "runs": []
+   },
+   "acceptance": "server-generated replayable records for MSFT, ORCL, VGT (AMD = none); counts by distinct symbol-session; experience_citation flips to wired in module_manifest",
+   "next": "first item of Batch B after P0-05",
+   "waiting_for": "P0-05 (generator must not change before the first schedule)",
+   "last_verified": "2026-10-12T04:25Z"
+  },
+  {
+   "id": "D-01",
+   "title": "SPY daily history in the canonical archive",
+   "area": "Data universe",
+   "priority": 1,
+   "status": "Done",
+   "stages": [
+    "instruction_published",
+    "claude_acked",
+    "code_merged"
+   ],
+   "instructions": [
+    "6117622847"
+   ],
+   "depends_on": [],
+   "evidence": {
+    "prs": [
+     "#207 cadfbc1"
+    ],
+    "runs": [
+     "local dry run: macro_outcome_memory → waiting_for_mature_outcomes; market_state_outcome_scorecards matured 4 outcomes"
+    ]
+   },
+   "acceptance": "validated, provenance recorded (data/history/spy_provenance.json), other members byte-identical",
+   "next": "D-02",
+   "disclosure": "merged 2026-10-12T04:07Z, before 6117622847 (04:13Z) asked to keep the base archive unchanged until after the first schedule; SPY is a new research symbol on 2026-10-12 and its first hypothesis is not a cross-day revisit",
+   "last_verified": "2026-10-12T04:10Z"
+  },
+  {
+   "id": "D-02",
+   "title": "SPY / TQQQ daily increments with real OHLC",
+   "area": "Data universe",
+   "priority": 1,
+   "status": "Waiting",
+   "stages": [
+    "instruction_published",
+    "claude_acked"
+   ],
+   "instructions": [
+    "6117622847",
+    "6117657723"
+   ],
+   "depends_on": [
+    "D-01"
+   ],
+   "evidence": {
+    "prs": [],
+    "runs": []
+   },
+   "acceptance": "2026-10-12 bars appended from docs/data.json stocks.SPY / stocks.TQQQ (owner added both to the watchlist) with open/high/low not all equal to close",
+   "next": "verify in the P0-05 report",
+   "waiting_for": "Daily schedule 2026-10-12",
+   "last_verified": "2026-10-12T04:25Z"
+  },
+  {
+   "id": "D-03",
+   "title": "STOOQ 19-symbol pack import (MyAlpha_STOOQ_19symbols_20261009.zip)",
+   "area": "Data universe",
+   "priority": 1,
+   "status": "Blocked",
+   "stages": [
+    "instruction_published",
+    "claude_acked"
+   ],
+   "instructions": [
+    "6117622847"
+   ],
+   "depends_on": [
+    "P0-05"
+   ],
+   "evidence": {
+    "prs": [],
+    "runs": []
+   },
+   "acceptance": "manifest SHA-256 re-verified; per-symbol checks; overlap vs existing archive; conflicts quarantined; append-only; provenance per file",
+   "next": "build validator (D-07) now; import after P0-05",
+   "blocked_by": "file handoff: the ZIP lives in ChatGPT, not readable from here — owner to upload it to this Claude chat; owner authorization to publish the data in the public repo",
+   "last_verified": "2026-10-12T04:25Z"
+  },
+  {
+   "id": "D-04",
+   "title": "Symbol registry: research_universe / data_collection_universe / display_watchlist",
+   "area": "Data universe",
+   "priority": 1,
+   "status": "In progress",
+   "stages": [
+    "instruction_published",
+    "claude_acked"
+   ],
+   "instructions": [
+    "6117657723"
+   ],
+   "depends_on": [],
+   "evidence": {
+    "prs": [],
+    "runs": []
+   },
+   "acceptance": "one manifest (ticker, exchange, asset_type, source, as_of, refresh_status, quality_status, used_by, display flag); hiding a symbol on the site never stops collection or deletes history",
+   "next": "read-only registry generator before P0-05; wiring after",
+   "last_verified": "2026-10-12T04:25Z"
+  },
+  {
+   "id": "D-05",
+   "title": "Free daily OHLCV collection for the data_collection_universe incl. the 19 STOOQ symbols (not tied to the display list)",
+   "area": "Data universe",
+   "priority": 1,
+   "status": "Waiting",
+   "stages": [
+    "instruction_published",
+    "claude_acked"
+   ],
+   "instructions": [
+    "6117657723",
+    "6117622847"
+   ],
+   "depends_on": [
+    "D-04",
+    "P0-05"
+   ],
+   "evidence": {
+    "prs": [],
+    "runs": []
+   },
+   "acceptance": "a symbol not shown on the site (e.g. AAPL) still updates after a real schedule; missing source → missing/stale, never synthesized; idempotent",
+   "next": "Batch B",
+   "waiting_for": "P0-05 (no canonical-archive pipeline change before the first schedule)",
+   "last_verified": "2026-10-12T04:25Z"
+  },
+  {
+   "id": "D-06",
+   "title": "Stop synthetic flat bars from close-only rows (TQQQ 5 of last 30)",
+   "area": "Data universe",
+   "priority": 1,
+   "status": "Waiting",
+   "stages": [
+    "instruction_published",
+    "claude_acked"
+   ],
+   "instructions": [
+    "6117657723"
+   ],
+   "depends_on": [
+    "P0-05"
+   ],
+   "evidence": {
+    "prs": [],
+    "runs": []
+   },
+   "acceptance": "close-only rows never written as full bars; existing H=L=C bars compared with source (real flat days possible) and corrected only via logged replacement",
+   "next": "Batch B",
+   "waiting_for": "P0-05",
+   "last_verified": "2026-10-12T04:25Z"
+  },
+  {
+   "id": "D-07",
+   "title": "Import validator + Missing Historical Symbols manifest (distinct securities; AAPL, AMZN, AAOI, INTC, MU, META, NOW, CRWV; identity checks for DRAM/SPCX)",
+   "area": "Data universe",
+   "priority": 1,
+   "status": "In progress",
+   "stages": [
+    "instruction_published",
+    "claude_acked"
+   ],
+   "instructions": [
+    "6117622847",
+    "6117657723"
+   ],
+   "depends_on": [],
+   "evidence": {
+    "prs": [],
+    "runs": [
+     "missing list v0 on #133 6117638644 (INTC, AMZN, MU, META, NOW, CRWV)"
+    ]
+   },
+   "acceptance": "manifest counts securities not events; use_case, source availability, priority, reason",
+   "next": "PR after this plan",
+   "last_verified": "2026-10-12T04:25Z"
+  },
+  {
+   "id": "B2-01",
+   "title": "Six outcome memories quality / maturity audit",
+   "area": "B2 outcomes",
+   "priority": 1,
+   "status": "Done",
+   "stages": [
+    "instruction_published",
+    "claude_acked",
+    "code_merged"
+   ],
+   "instructions": [
+    "6116972263",
+    "6117308392"
+   ],
+   "depends_on": [],
+   "evidence": {
+    "prs": [
+     "#206 29913fb",
+     "#207 cadfbc1"
+    ],
+    "runs": [
+     "p1_readiness.json: fundamentals clean subset 189/186; event/options/support pending; macro/market_state pending after SPY"
+    ]
+   },
+   "acceptance": "verdict per memory with reason",
+   "next": "B2-02",
+   "last_verified": "2026-10-12T04:10Z"
+  },
+  {
+   "id": "B2-02",
+   "title": "Wire the clean fundamentals-outcome subset as historical reliability context",
+   "area": "B2 outcomes",
+   "priority": 1,
+   "status": "Waiting",
+   "stages": [
+    "instruction_published",
+    "claude_acked"
+   ],
+   "instructions": [
+    "6116972263",
+    "6117163110"
+   ],
+   "depends_on": [
+    "B1-02"
+   ],
+   "evidence": {
+    "prs": [],
+    "runs": []
+   },
+   "acceptance": "only USD quarter/annual observations; n shown; others disconnected with reason",
+   "next": "Batch B",
+   "waiting_for": "B1-02",
+   "last_verified": "2026-10-12T04:25Z"
+  },
+  {
+   "id": "B2-03",
+   "title": "Macro / market-state / event / options / support outcomes reach maturity",
+   "area": "B2 outcomes",
+   "priority": 2,
+   "status": "Waiting",
+   "stages": [
+    "instruction_published",
+    "claude_acked"
+   ],
+   "instructions": [
+    "6116972263"
+   ],
+   "depends_on": [
+    "D-01"
+   ],
+   "evidence": {
+    "prs": [],
+    "runs": []
+   },
+   "acceptance": "matured counts from real future sessions only; n ≥ 30 before research use",
+   "next": "re-run p1_readiness weekly",
+   "waiting_for": "event 5d from 2026-10-13, options 5d from 2026-10-14, macro/support 20d from 2026-11-04",
+   "last_verified": "2026-10-12T04:25Z"
+  },
+  {
+   "id": "B4-01",
+   "title": "SEC dual-source read-only reconciliation",
+   "area": "B4 SEC",
+   "priority": 1,
+   "status": "Done",
+   "stages": [
+    "instruction_published",
+    "claude_acked",
+    "code_merged"
+   ],
+   "instructions": [
+    "6116685851"
+   ],
+   "depends_on": [],
+   "evidence": {
+    "prs": [
+     "#203 4b523ce"
+    ],
+    "runs": [
+     "sec_fact_reconciliation.json: overlap 7, agreement 2/7"
+    ]
+   },
+   "acceptance": "every difference classified",
+   "next": "B4-02",
+   "last_verified": "2026-10-12T02:40Z"
+  },
+  {
+   "id": "B4-02",
+   "title": "Unified SEC fetcher + append-only fundamentals_v2 + shadow old-schema file (dual run)",
+   "area": "B4 SEC",
+   "priority": 1,
+   "status": "Waiting",
+   "stages": [
+    "instruction_published",
+    "claude_acked"
+   ],
+   "instructions": [
+    "6116685851",
+    "6116972263",
+    "6117163110"
+   ],
+   "depends_on": [
+    "P0-05",
+    "B4-01"
+   ],
+   "evidence": {
+    "prs": [],
+    "runs": []
+   },
+   "acceptance": "all candidate concepts, USD only, period_kind, filed, accn, quality_flags; union universe; old files untouched",
+   "next": "Batch B",
+   "waiting_for": "P0-05",
+   "last_verified": "2026-10-12T04:25Z"
+  },
+  {
+   "id": "B4-03",
+   "title": "One real trading day comparison, then compatible consumer migration",
+   "area": "B4 SEC",
+   "priority": 2,
+   "status": "Not started",
+   "stages": [
+    "instruction_published"
+   ],
+   "instructions": [
+    "6116972263"
+   ],
+   "depends_on": [
+    "B4-02"
+   ],
+   "evidence": {
+    "prs": [],
+    "runs": []
+   },
+   "acceptance": "unexplained differences 0; old observations get quality flags only",
+   "next": "after B4-02 runs one session",
+   "last_verified": "2026-10-12T04:25Z"
+  },
+  {
+   "id": "B3-01",
+   "title": "Shared evidence contract between V6 planner/executor and Auto Research (ledgers stay separate)",
+   "area": "B3 collaboration",
+   "priority": 2,
+   "status": "Not started",
+   "stages": [
+    "instruction_published",
+    "claude_acked"
+   ],
+   "instructions": [
+    "6116972263",
+    "6117163110"
+   ],
+   "depends_on": [
+    "B1-02",
+    "B4-02"
+   ],
+   "evidence": {
+    "prs": [],
+    "runs": []
+   },
+   "acceptance": "both streams cite the same evidence ids; V6 views enter Shadow only when locked and versioned",
+   "next": "after B1/B4",
+   "last_verified": "2026-10-12T04:25Z"
+  },
+  {
+   "id": "M-01",
+   "title": "Module manifest + 15-module matrix",
+   "area": "Modules",
+   "priority": 1,
+   "status": "Done",
+   "stages": [
+    "instruction_published",
+    "claude_acked",
+    "code_merged"
+   ],
+   "instructions": [
+    "6116717888",
+    "6116804482"
+   ],
+   "depends_on": [],
+   "evidence": {
+    "prs": [
+     "#204 0b52fc6"
+    ],
+    "runs": [
+     "module_manifest.json: 34 learning/outcome, 13 reach research, experience citation not yet wired"
+    ]
+   },
+   "acceptance": "roles reviewed per reader; CI fails on an unclassified reader",
+   "next": "M-02",
+   "last_verified": "2026-10-12T03:00Z"
+  },
+  {
+   "id": "M-02",
+   "title": "Repair the 21 learning/outcome artifacts with no research consumer (value first)",
+   "area": "Modules",
+   "priority": 2,
+   "status": "In progress",
+   "stages": [
+    "instruction_published",
+    "claude_acked"
+   ],
+   "instructions": [
+    "6116717888",
+    "6117671408"
+   ],
+   "depends_on": [
+    "B1-02",
+    "B2-02"
+   ],
+   "evidence": {
+    "prs": [],
+    "runs": [
+     "baseline 21 (module_manifest 2026-10-12)"
+    ]
+   },
+   "acceptance": "count falls with real consumers; ineffective modules frozen not forced",
+   "next": "re-run manifest after each batch",
+   "last_verified": "2026-10-12T04:25Z"
+  },
+  {
+   "id": "M-03",
+   "title": "Freeze 5 downstream candidate stages (no deletion)",
+   "area": "Modules",
+   "priority": 2,
+   "status": "Waiting",
+   "stages": [
+    "instruction_published",
+    "claude_acked"
+   ],
+   "instructions": [
+    "6117308392"
+   ],
+   "depends_on": [
+    "P0-05"
+   ],
+   "evidence": {
+    "prs": [],
+    "runs": []
+   },
+   "acceptance": "flagged and skipped in weekly review; evidence kept",
+   "next": "Batch B",
+   "waiting_for": "P0-05",
+   "last_verified": "2026-10-12T04:25Z"
+  },
+  {
+   "id": "M-04",
+   "title": "Weekly manifest / learning-chain trend report",
+   "area": "Modules",
+   "priority": 2,
+   "status": "Not started",
+   "stages": [
+    "instruction_published"
+   ],
+   "instructions": [
+    "6116717888"
+   ],
+   "depends_on": [
+    "M-01"
+   ],
+   "evidence": {
+    "prs": [],
+    "runs": []
+   },
+   "acceptance": "weekly scheduled run writes broken-link counts and changes",
+   "next": "wire module_manifest_audit into an existing weekly workflow",
+   "last_verified": "2026-10-12T04:25Z"
+  },
+  {
+   "id": "W-01",
+   "title": "wxc-bot research-close daily + 13:10 UTC catch-up cron",
+   "area": "WXC collection",
+   "priority": 1,
+   "status": "Waiting",
+   "stages": [
+    "instruction_published",
+    "claude_acked",
+    "code_merged"
+   ],
+   "instructions": [
+    "6117163110"
+   ],
+   "depends_on": [],
+   "evidence": {
+    "prs": [
+     "wxc-bot #54 1341835"
+    ],
+    "runs": [
+     "catch-up 38198512109 workflow_dispatch (BrightLine 7216)"
+    ]
+   },
+   "acceptance": "event=schedule runs at 13:10 and 22:30 UTC",
+   "next": "verify in the P0-05 report",
+   "waiting_for": "first schedule 2026-10-12T13:10Z",
+   "last_verified": "2026-10-12T04:25Z"
+  },
+  {
+   "id": "W-02",
+   "title": "Gate legacy author-operation extraction at source (ce-5 or review before evidence)",
+   "area": "WXC collection",
+   "priority": 2,
+   "status": "Not started",
+   "stages": [
+    "instruction_published",
+    "claude_acked"
+   ],
+   "instructions": [
+    "6117163110"
+   ],
+   "depends_on": [
+    "P0-04"
+   ],
+   "evidence": {
+    "prs": [],
+    "runs": []
+   },
+   "acceptance": "legacy operations reach evidence only after ce-5 or review",
+   "next": "wxc-bot PR",
+   "last_verified": "2026-10-12T04:25Z"
+  },
+  {
+   "id": "W-03",
+   "title": "M1 understanding: blind labels test v2 (41) / v3 (28) → κ; long-article frozen test",
+   "area": "WXC understanding",
+   "priority": 2,
+   "status": "Waiting",
+   "stages": [
+    "instruction_published",
+    "claude_acked"
+   ],
+   "instructions": [
+    "6107376896"
+   ],
+   "depends_on": [],
+   "evidence": {
+    "prs": [],
+    "runs": []
+   },
+   "acceptance": "κ computed on independent labels; rules changed only on dev",
+   "next": "needs independent labels",
+   "waiting_for": "GPT/owner blind labels",
+   "last_verified": "2026-10-12T04:25Z"
+  },
+  {
+   "id": "OPS-01",
+   "title": "Cloud instruction watcher + one-shot P0/Batch B task",
+   "area": "Operations",
+   "priority": 1,
+   "status": "Done",
+   "stages": [
+    "instruction_published",
+    "claude_acked",
+    "code_merged"
+   ],
+   "instructions": [
+    "6116804482"
+   ],
+   "depends_on": [],
+   "evidence": {
+    "prs": [],
+    "runs": [
+     "trig_01P3Sk5tEfTuAQWAdFysJKcV hourly; trig_01QwLXu1zXvSHWyZn8Y1Est2 2026-10-13T01:30Z (cloud, not device-bound)"
+    ]
+   },
+   "acceptance": "watcher acts only on unreferenced owner instructions; ledger baseline on #133 6116834357",
+   "next": "check watcher run history",
+   "last_verified": "2026-10-12T04:25Z"
+  },
+  {
+   "id": "OWN-01",
+   "title": "Owner: confirm GEMINI_API_KEY billing (two manual Gemini workflows)",
+   "area": "Owner decisions",
+   "priority": 2,
+   "status": "Waiting",
+   "stages": [
+    "claude_acked"
+   ],
+   "instructions": [
+    "6117671408"
+   ],
+   "depends_on": [],
+   "evidence": {
+    "prs": [],
+    "runs": []
+   },
+   "acceptance": "owner answer",
+   "next": "—",
+   "waiting_for": "owner",
+   "last_verified": "2026-10-12T04:25Z"
+  },
+  {
+   "id": "OWN-02",
+   "title": "Owner: delete leftover branch tmp/vendor-probe",
+   "area": "Owner decisions",
+   "priority": 3,
+   "status": "Waiting",
+   "stages": [
+    "claude_acked"
+   ],
+   "instructions": [
+    "6109957428"
+   ],
+   "depends_on": [],
+   "evidence": {
+    "prs": [],
+    "runs": []
+   },
+   "acceptance": "branch gone",
+   "next": "—",
+   "waiting_for": "owner (branch deletion not permitted from this environment)",
+   "last_verified": "2026-10-12T04:25Z"
+  },
+  {
+   "id": "OWN-03",
+   "title": "Owner: logged-in check of options assignment-preference cards and private stock ledger save",
+   "area": "Owner decisions",
+   "priority": 2,
+   "status": "Waiting",
+   "stages": [
+    "claude_acked"
+   ],
+   "instructions": [
+    "6109685556"
+   ],
+   "depends_on": [],
+   "evidence": {
+    "prs": [],
+    "runs": []
+   },
+   "acceptance": "owner confirms",
+   "next": "—",
+   "waiting_for": "owner login",
+   "last_verified": "2026-10-12T04:25Z"
+  },
+  {
+   "id": "OWN-04",
+   "title": "Owner: upload the 19-symbol ZIP to this Claude chat and authorize publishing it in the public repo",
+   "area": "Owner decisions",
+   "priority": 1,
+   "status": "Waiting",
+   "stages": [
+    "claude_acked"
+   ],
+   "instructions": [
+    "6117622847"
+   ],
+   "depends_on": [],
+   "evidence": {
+    "prs": [],
+    "runs": []
+   },
+   "acceptance": "file received + explicit authorization",
+   "next": "unblocks D-03",
+   "waiting_for": "owner",
+   "last_verified": "2026-10-12T04:25Z"
+  }
+ ]
+}

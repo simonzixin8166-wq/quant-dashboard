@@ -85,7 +85,7 @@ ROLES = {  # reader → (role, reason)
     "learning_quality_weekly.py": (M, "weekly learning-quality report"), "v615_source_rule_funnel.py": (M, "result-blind funnel"),
     "autonomous_signal_governance.py": (M, "UI contract: may learned research affect actions"), "public_research_evidence_status.py": (V, "presentation adapter"),
     "weekly_research_report.py": (M, "weekly auto-research report"), "auto_research_digest.py": (V, "homepage row digest"),
-    "sec_fact_reconcile.py": (M, "SEC reconciliation audit"), "author_claim_contamination_audit.py": (M, "author-claim gate impact audit + quarantine"), "p1_readiness_audit.py": (M, "B1/B2 readiness quality audit"), "module_manifest_audit.py": (M, "this audit"),
+    "sec_fact_reconcile.py": (M, "SEC reconciliation audit"), "author_claim_contamination_audit.py": (M, "author-claim gate impact audit + quarantine"), "p1_readiness_audit.py": (M, "B1/B2 readiness quality audit"), "symbol_registry.py": (M, "D-04 universes + missing-history manifest"), "module_manifest_audit.py": (M, "this audit"),
     "update_fred_macro.py": (R, "FRED/ALFRED macro collector"),
 }
 PRODUCER_OVERRIDE = {

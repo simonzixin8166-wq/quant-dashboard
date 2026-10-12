@@ -83,7 +83,9 @@ failure_artifacts={**artifacts}
 planner2={"version":"6.1.0","today":[{"task_id":"f1","kind":"failure_review","key":"LITE","title":"LITE失败复盘","priority":68,"questions":[],"evidence_sources":[]}],"queue":[]}
 out3=rx.build(planner2,failure_artifacts,{})
 fr=out3["results"][0]
-assert any("事件窗口已自动对齐" in x for x in fr["supporting_evidence"])
+# #133 P0-A: aligned samples are unverified author self-reports → background (unknowns), never supporting evidence
+assert any("事件窗口已对齐" in x and "未经核实" in x for x in fr["unknowns"])
+assert not any("事件窗口" in x for x in fr["supporting_evidence"])
 assert any("不代表事件造成失败" in x for x in fr["counter_evidence"])
 
 src=(ROOT/"scripts"/"autonomous_research_executor.py").read_text(encoding="utf-8")

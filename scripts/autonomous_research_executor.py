@@ -179,7 +179,7 @@ def failure_brief(task,evidence,method,official=None,event_windows=None):
     if aligned:
         near_sec=sum(1 for x in aligned if (x.get("nearest_sec") or {}).get("distance_band") in {"very_near","near","week"})
         near_evt=sum(1 for x in aligned if (x.get("nearest_event") or {}).get("distance_band") in {"very_near","near","week"})
-        add_unique(support,f"事件窗口已自动对齐 {len(aligned)} 个失败样本；7日内SEC {near_sec}，7日内分级事件 {near_evt}")
+        add_unique(unknowns,f"事件窗口已对齐 {len(aligned)} 个未经核实的作者自述样本（仅背景）；7日内SEC {near_sec}，7日内分级事件 {near_evt}")
         add_unique(counter,"事件时间接近仅生成复盘假设，不代表事件造成失败")
     else:
         add_unique(unknowns,"尚未完成每个失败样本的公司事件/财报/宏观时间线对齐")

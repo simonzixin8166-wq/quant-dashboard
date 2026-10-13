@@ -74,6 +74,18 @@ wr.JOURNAL, wr.STATUS = drj.JOURNAL, drj.STATUS
 rep = wr.build(now)
 assert rep["window"]["to_session"] == "2026-10-09" and rep["maturity"]["matured"] == 0 and rep["learning_state"] == "UNPROVEN"
 assert "2026-10-05" in rep["window"]["before_job_existed"] and rep["window"]["gaps"] == []
+# A generator re-run of the same session never inflates research counts.
+_j = [{"type": "hypothesis", "symbol": "X", "market_as_of": "2026-10-09", "stance": "bullish", "generated_at": "1"},
+      {"type": "hypothesis", "symbol": "X", "market_as_of": "2026-10-09", "stance": "bullish", "generated_at": "2"},
+      {"type": "revisit", "hypothesis_id": "Y-h", "symbol": "Y", "market_as_of": "2026-10-09", "status": "still_valid", "generated_at": "1"},
+      {"type": "revisit", "hypothesis_id": "Y-h", "symbol": "Y", "market_as_of": "2026-10-09", "status": "still_valid", "generated_at": "2"},
+      {"type": "revisit", "hypothesis_id": "X-old", "symbol": "X", "market_as_of": "2026-10-09", "status": "superseded",
+       "trigger": {"reason": "generator upgrade a → b"}, "generated_at": "2"}]
+_tmpj = tmp / "weekly_dupe.jsonl"; _tmpj.write_text("\n".join(json.dumps(x) for x in _j) + "\n")
+_oj = wr.JOURNAL; wr.JOURNAL = _tmpj
+_r = wr.build(now); wr.JOURNAL = _oj
+assert _r["new_hypotheses"]["count"] == 1 and _r["revisits"] == {"still_valid": 1}, (_r["new_hypotheses"], _r["revisits"])
+assert _r["engineering_reruns"] == {**_r["engineering_reruns"], "generator_upgrade_supersedes": 1, "regenerated_hypotheses": 1, "repeated_revisits": 1}
 print("PASS weekly report")
 bad = {"type": "hypothesis", "record_id": "AVGO-x-h", "symbol": "AVGO", "market_as_of": "2026-10-09",
        "fundamentals": {"available": True, "revenue_q": {"end": "2026-08-02"}, "net_income_q": {"end": "2019-08-04"}}}

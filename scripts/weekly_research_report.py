@@ -56,8 +56,21 @@ def build(now=None):
     end = tc.expected_latest_completed_session(now)
     start = tc.add_sessions(end, -4)
     week = [r for r in rows if start.isoformat() <= r.get("market_as_of", "") <= end.isoformat()]
-    hyps = [r for r in week if r["type"] == "hypothesis"]
-    rev = [r for r in week if r["type"] == "revisit"]
+    # One research judgment per (symbol, session) and one revisit per (hypothesis, session): when a generator
+    # upgrade re-runs a session, its regenerated hypotheses / repeated revisits and 'generator upgrade'
+    # supersedes are engineering events, reported separately, never extra research (#133, 2026-10-13).
+    gen_rank = lambda r: (r.get("generated_at") or "")
+    eng = [r for r in week if r["type"] == "revisit" and str((r.get("trigger") or {}).get("reason", "")).startswith("generator upgrade")]
+    _h = {}
+    for r in sorted((r for r in week if r["type"] == "hypothesis"), key=gen_rank):
+        _h[(r["symbol"], r["market_as_of"])] = r
+    hyps = list(_h.values())
+    _rv = {}
+    for r in sorted((r for r in week if r["type"] == "revisit" and r not in eng), key=gen_rank):
+        _rv.setdefault((r.get("hypothesis_id"), r["market_as_of"]), r)
+    rev = list(_rv.values())
+    regenerated = sum(1 for r in week if r["type"] == "hypothesis") - len(hyps)
+    repeated_revisits = sum(1 for r in week if r["type"] == "revisit") - len(eng) - len(rev)
     abst = [r for r in week if r["type"] == "abstain"]
     sessions_seen = sorted({r["market_as_of"] for r in week if r["type"] in ("hypothesis", "revisit", "abstain")})
     expected = [start.isoformat()] + [d.isoformat() for d in tc.sessions_between(start, end) if d != start]
@@ -72,6 +85,9 @@ def build(now=None):
                    "gaps": [d for d in expected if first is not None and d >= first and d not in sessions_seen]},
         "new_hypotheses": {"count": len(hyps), "by_stance": dict(Counter(r["stance"] for r in hyps))},
         "revisits": dict(Counter(r["status"] for r in rev)),
+        "engineering_reruns": {"generator_upgrade_supersedes": len(eng), "regenerated_hypotheses": regenerated,
+                               "repeated_revisits": repeated_revisits,
+                               "note": "same-session generator re-runs; excluded from hypothesis and revisit counts"},
         "invalidated": [{"symbol": r["symbol"], "hypothesis": r["hypothesis_id"], "trigger": (r.get("trigger") or {}).get("note")}
                         for r in rev if r["status"] == "invalidated"],
         "abstentions": {"count": len(abst), "reasons": dict(Counter(r["decision_reason"].split(":")[0] for r in abst))},

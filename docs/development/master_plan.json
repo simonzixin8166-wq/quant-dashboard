@@ -2,7 +2,7 @@
  "version": 1,
  "title": "MyAlpha View — Master Execution Plan",
  "issue": "https://github.com/simonzixin8166-wq/quant-dashboard/issues/133",
- "last_updated": "2026-10-13T14:50Z",
+ "last_updated": "2026-10-13T15:20Z",
  "charter": "CLAUDE.md (owner-confirmed 2026-10-11)",
  "statuses": [
   "Done",
@@ -143,6 +143,11 @@
   {
    "id": "6139191982",
    "summary": "PR #231 follow-up: verify the owner-uploaded full text first, then redo R-A/R-B; keep partial history",
+   "status": "active"
+  },
+  {
+   "id": "6148675138",
+   "summary": "CPI official-outcome loop (P0-A), 10-13 schedule acceptance (P0-B), PR cleanup #235/#236/#237, OPT-01 five fixes, C-01 after schedule PASS",
    "status": "active"
   }
  ],
@@ -1259,6 +1264,36 @@
      "waiting_for": "events"
     }
    ]
+  },
+  {
+   "id": "P0-A-CPI",
+   "title": "CPI 10/14 official outcome: BLS fetch after release → pending/official_result_unavailable/stale/conflict/recorded → tranche Shadow → homepage row → T..T+10 records",
+   "area": "Research tasks",
+   "priority": 0,
+   "status": "In progress",
+   "stages": [
+    "instruction_published",
+    "claude_acked"
+   ],
+   "instructions": [
+    "6148675138"
+   ],
+   "depends_on": [
+    "R-02"
+   ],
+   "evidence": {
+    "prs": [
+     "p0a/cpi-official-outcome (this PR)"
+    ],
+    "runs": [],
+    "sources": [
+     "BLS calendar https://www.bls.gov/schedule/2026/10_sched.htm: CPI September 2026, Wed Oct 14, 08:30 ET (verified 2026-10-13 15:10Z)",
+     "expectations preregistered 2026-10-13T16:00Z: consensus_unavailable (secondary aggregator + TD reference only)"
+    ]
+   },
+   "acceptance": "after 2026-10-14T12:30Z a real event=schedule run records official BLS values (headline/core m/m SA, y/y NSA) with published_at/captured_at/http/hash, or shows official_result_unavailable/stale/conflict; homepage shows 已公布｜T with real values; surprise stays unknown without a same-measure survey consensus; T..T+10 records carry the exact market as_of; no future PASS claimed today",
+   "next": "merge before 19:30Z; 10-14 12:35Z Auto Research run = first real test; 13:20Z check-in verifies or dispatches the existing workflow (labelled workflow_dispatch)",
+   "last_verified": "2026-10-13T15:20Z"
   },
   {
    "id": "C-01",

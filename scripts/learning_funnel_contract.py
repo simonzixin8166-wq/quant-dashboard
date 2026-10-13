@@ -173,6 +173,17 @@ def event():
             return 0 <= (a - p).total_seconds() <= 2 * 86400
         except Exception:
             return False
+    fwd_ids = set()
+    for k, r in rows.items():
+        if r.get("used_in_decision") and live(r):
+            fwd_ids.update(x for x in (k, r.get("uuid"), r.get("archive_id")) if x)
+    outs = jsonl(R / "archive" / "event_outcomes.jsonl")
+
+    def _fwd_mature(o):
+        return o.get("archive_id") in fwd_ids and int(o.get("horizon_sessions") or 0) >= MATURE_MIN_SESSIONS
+    # Same unit as effective_forward_eligible (one event), so the chain can never invert by unit mismatch.
+    fwd_matured = {o.get("archive_id") for o in outs if _fwd_mature(o)}
+    fwd_bench = {o.get("archive_id") for o in outs if _fwd_mature(o) and o.get("benchmark_return_pct") is not None}
     return {
         "discovered": layer(len(rows), "news/event items archived", ev, "uuid"),
         "canonical_persisted": layer(len(rows), "append-only monthly event shards", ev, "uuid"),
@@ -182,11 +193,15 @@ def event():
                                           "items admitted as decision context", ev, "uuid"),
         "effective_forward_eligible": layer(sum(1 for r in rows.values() if r.get("used_in_decision") and live(r)),
                                             "decision-context items archived within 48h of publication (live, not backfilled)", ev, "uuid"),
-        "independently_matured": layer(int(mem.get("outcomes") or 0), "event outcomes matured",
-                                       rel(D / "event_outcome_memory.json"), "uuid×horizon"),
-        "benchmark_evaluated": layer(int(mem.get("outcomes") or 0) if load(D / "event_outcome_memory.json").get("benchmark") else None,
-                                     "event outcomes scored against the recorded benchmark", rel(D / "event_outcome_memory.json"),
-                                     "uuid×horizon", "event outcome memory has no benchmark definition"),
+        "independently_matured": layer(len(fwd_matured), f"forward-eligible events with a matured (>= {MATURE_MIN_SESSIONS} sessions) outcome",
+                                       rel(R / "archive" / "event_outcomes.jsonl"), "uuid"),
+        "benchmark_evaluated": layer(len(fwd_bench) if load(D / "event_outcome_memory.json").get("benchmark") else None,
+                                     "forward-eligible matured events scored against the recorded benchmark",
+                                     rel(R / "archive" / "event_outcomes.jsonl"),
+                                     "uuid", "event outcome memory has no benchmark definition"),
+        "historical": {"matured_outcome_rows_all_events": len(outs),
+                       "outcome_rows_not_forward_or_below_maturity": len(outs) - sum(1 for o in outs if _fwd_mature(o)),
+                       "note": "outcomes of backfilled/non-live events or horizons below the maturity floor are descriptive, never forward learning"},
         "downstream_consumer_count": reuse_layer("news_event_evidence"),
         "validated_learning_applied": applied_layer(),
     }
@@ -196,7 +211,8 @@ def options():
     obs = jsonl(R / "archive" / "options_opportunity_observations")
     sup = {r.get("observation_id") for r in jsonl(R / "archive" / "options_opportunity_supersessions.jsonl")}
     live = [r for r in obs if r.get("observation_id") not in sup]
-    mem = load(D / "options_opportunity_outcome_memory.json").get("counts") or {}
+    mem_doc = load(D / "options_opportunity_outcome_memory.json")
+    mem = mem_doc.get("counts") or {}
     ctx = load(D / "options_opportunity_context.json")
     priv = load(D / "server_action_status.json").get("option_learning") or {}
     ev = rel(R / "archive" / "options_opportunity_observations")
@@ -208,8 +224,11 @@ def options():
         "candidate_claim_or_state": layer(len({(r.get("symbol"), r.get("state")) for r in live}), "distinct symbol×state entries", ev, "symbol×state"),
         "effective_forward_eligible": layer(int(mem.get("observations") or 0), "aligned forward observations eligible for outcome tracking",
                                             rel(D / "options_opportunity_outcome_memory.json"), "observation_id"),
-        "independently_matured": layer(int(mem.get("matured") or 0), "matured opportunity outcomes",
-                                       rel(D / "options_opportunity_outcome_memory.json"), "observation_id×horizon"),
+        "independently_matured": layer(int(((mem_doc.get("horizons") or {}).get(str(MATURE_MIN_SESSIONS)) or {}).get("n") or 0),
+                                       f"observations with a matured {MATURE_MIN_SESSIONS}-session outcome (one per observation)",
+                                       rel(D / "options_opportunity_outcome_memory.json"), "observation_id"),
+        "early_reads": {"outcomes_all_horizons": int(mem.get("matured") or 0),
+                        "note": f"includes horizons below {MATURE_MIN_SESSIONS} sessions; monitoring only, not matured learning"},
         "benchmark_evaluated": layer(None, "matured outcomes compared with a benchmark", rel(D / "options_opportunity_outcome_memory.json"),
                                      reason="no matured outcomes yet; benchmark comparison not instrumented"),
         "downstream_consumer_count": reuse_layer("options_opportunity"),

@@ -50,4 +50,32 @@ assert lf.MATURE_MIN_SESSIONS == 20
 assert "early_reads" in _m and _m["early_reads"]["market_state_outcomes_below_maturity"] >= 0
 if _m["benchmark_evaluated"]["count"] and _m["independently_matured"]["count"] is not None:
     assert _m["benchmark_evaluated"]["count"] <= _m["independently_matured"]["count"]
+# Event chain (regression for Daily 38340669182: independently_matured(4) > effective_forward_eligible(0)):
+# outcomes of backfilled/non-live events or below the maturity floor never count as forward matured.
+import tempfile
+with tempfile.TemporaryDirectory() as _t:
+    _R, _D = Path(_t) / "research", Path(_t) / "docs" / "research"
+    (_R / "archive" / "events").mkdir(parents=True); _D.mkdir(parents=True)
+    _ev = [{"archive_id": f"e{i}", "uuid": f"e{i}", "title": "t", "url": "u", "event_date": "2026-09-01",
+            "used_in_decision": True, "published_at": "2026-09-01T00:00:00Z",
+            "archived_at": ("2026-09-01T01:00:00Z" if i == 0 else "2026-10-01T00:00:00Z")} for i in range(4)]
+    (_R / "archive" / "events" / "2026-09.jsonl").write_text("\n".join(json.dumps(e) for e in _ev) + "\n")
+    _outs = [{"outcome_id": f"e{i}:{h}", "archive_id": f"e{i}", "horizon_sessions": h, "benchmark_return_pct": 1.0}
+             for i in range(4) for h in (5, 20)]
+    (_R / "archive" / "event_outcomes.jsonl").write_text("\n".join(json.dumps(o) for o in _outs) + "\n")
+    (_D / "event_outcome_memory.json").write_text(json.dumps({"counts": {"outcomes": 8}, "benchmark": "SPY"}))
+    _oR, _oD, _oRoot = lf.R, lf.D, lf.ROOT
+    lf.R, lf.D, lf.ROOT = _R, _D, Path(_t)
+    try:
+        _e = lf.event()
+    finally:
+        lf.R, lf.D, lf.ROOT = _oR, _oD, _oRoot
+    assert _e["effective_forward_eligible"]["count"] == 1, _e["effective_forward_eligible"]
+    assert _e["independently_matured"]["count"] == 1 and _e["benchmark_evaluated"]["count"] == 1, _e["independently_matured"]
+    assert lf.check("event", _e) == []
+    assert _e["historical"]["outcome_rows_not_forward_or_below_maturity"] == 7
+# Options: one matured unit per observation (20-session), never obs×horizon.
+assert out["engines"]["options"]["independently_matured"]["dedup_key"] == "observation_id"
+for _name in out["engines"]:
+    assert lf.check(_name, out["engines"][_name]) == [], _name
 print("PASS P3-12 learning funnel contract")

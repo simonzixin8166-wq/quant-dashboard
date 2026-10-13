@@ -2,7 +2,7 @@
  "version": 1,
  "title": "MyAlpha View — Master Execution Plan",
  "issue": "https://github.com/simonzixin8166-wq/quant-dashboard/issues/133",
- "last_updated": "2026-10-12T05:40:00Z",
+ "last_updated": "2026-10-13T04:20Z",
  "charter": "CLAUDE.md (owner-confirmed 2026-10-11)",
  "statuses": [
   "Done",
@@ -108,6 +108,11 @@
   {
    "id": "6117671408",
    "summary": "Create and maintain this Master Execution Plan",
+   "status": "active"
+  },
+  {
+   "id": "6137485275",
+   "summary": "P0 emergency: Daily stuck, restore 2026-10-12 + QA; pause Batch B until stable",
    "status": "active"
   }
  ],
@@ -232,7 +237,7 @@
    "title": "First real scheduled Auto Research run + cross-day revisit",
    "area": "P0 unattended verification",
    "priority": 0,
-   "status": "Waiting",
+   "status": "In progress",
    "stages": [
     "instruction_published",
     "claude_acked",
@@ -249,16 +254,66 @@
     "prs": [
      "#194",
      "#195 31db0b9",
-     "#196 3fe9254"
+     "#196 3fe9254",
+     "#217 52c968a",
+     "#218 27b64a9",
+     "#220 7e7bd24",
+     "#221 e842334"
     ],
     "runs": [
-     "no event=schedule research run yet (weekend)"
+     "day 1 (session 2026-10-12) = FAIL/DEGRADED: Daily 21:30Z cron never fired (GAP); schedule 38286775573 (17:49Z, delayed 08:15 slot) and 38337973679 (02:40Z) failed at the verify contract; MyAlpha Auto Research 00:35Z fallback cron never fired (GAP)",
+     "guardian dispatches 38313360410, 38340669182 failed (same contract)",
+     "published by RECOVERY workflow_dispatch 38343250454 (not a schedule): market_as_of 2026-10-12, 8 new hypotheses, 2 abstentions (DRAM, SPCX), 21 cross-day revisits of 2026-10-09 hypotheses (14 still_valid / 5 superseded / 2 invalidated), SPY first hypothesis (not a revisit), 5 sec_correction annotations, digest latest_session 2026-10-12, weekly gaps 0",
+     "QA 38345224979 workflow_run overall=PASS research_row ok(22) vendor_libs ok"
     ]
    },
-   "acceptance": "event=schedule Daily/Auto Research run IDs, market_as_of 2026-10-12, real cross-day revisits (same-day supersedes excluded), digest ok, QA PASS, GAP recorded",
-   "next": "cloud task 2026-10-13T01:30Z reports day 1",
-   "waiting_for": "2026-10-12 NYSE close → Daily 21:30Z / fallback 00:35Z",
-   "last_verified": "2026-10-12T04:25Z"
+   "acceptance": "five consecutive sessions published by event=schedule runs (recovery dispatches never count), cross-day revisits, digest ok, QA PASS, GAPs recorded",
+   "next": "day 2: session 2026-10-13 must be published by an event=schedule run; P0 incident fixes in place",
+   "waiting_for": "2026-10-13 NYSE close → Daily 21:30Z / guardian / Auto Research fallback",
+   "last_verified": "2026-10-13T04:20Z"
+  },
+  {
+   "id": "P0-INC-1013",
+   "title": "P0 incident 2026-10-13: Daily blocked by contract checks after SPY/10-12 data; site stuck at 2026-10-09",
+   "area": "P0 site reliability",
+   "priority": 0,
+   "status": "Done",
+   "stages": [
+    "instruction_published",
+    "claude_acked",
+    "code_merged"
+   ],
+   "instructions": [
+    "6137485275"
+   ],
+   "depends_on": [],
+   "evidence": {
+    "prs": [
+     "#217 52c968a market funnel: one maturity floor (benchmark_evaluated(3) > independently_matured(0))",
+     "#218 27b64a9 event/options funnel units (independently_matured(4) > effective_forward_eligible(0))",
+     "#220 7e7bd24 test_daily_research_job hermetic as-of (KeyError 'AVGO' once archive had 10-12)",
+     "#219 d903a41 forward intake: live rule pending until its baseline session is validated (live_rule_missing_eventscore_event)",
+     "#221 e842334 system status counts labeled recovery runs (system_status_untrusted)"
+    ],
+    "runs": [
+     "failed: Daily 38286775573 sched, 38313360410 dispatch, 38337973679 sched, 38340669182 dispatch, 38342134443 dispatch; REU 38339531830 sched; QA 38313545826 sched, 38338960799, 38344041138, 38344082295, 38345028628",
+     "recovered: Daily 38343250454 workflow_dispatch success → e17de42 updated=2026-10-13 spy_date=2026-10-12, 26/26 stocks bars 2026-10-12 with real OHLC",
+     "REU 38344089920 push success; Watchdog 38344299253 dispatch success; SIV 38344773276 dispatch → system_status overall=ok; Server Action Watch 38345184911 dispatch → judgment_basis=evaluated",
+     "QA 38345224979 workflow_run overall=PASS (business_data, server_action, investment_data_qa, decision_readiness PASS; fatal_console_errors=0, http_errors=0, deploy_matches_head=true)"
+    ],
+    "timeline": [
+     "2026-10-12T17:59Z first contract failure",
+     "2026-10-12T21:30Z Daily cron did not fire",
+     "2026-10-13T01:37Z #217",
+     "2026-10-13T03:23Z owner P0 report",
+     "2026-10-13T03:41Z #218 → 3rd blocker",
+     "2026-10-13T03:56Z Daily recovery committed",
+     "2026-10-13T04:15Z QA PASS"
+    ]
+   },
+   "acceptance": "Daily commits the latest completed session; QA overall=PASS; no test skipped or removed; recovery dispatch never reported as a schedule",
+   "next": "watch the next event=schedule Daily (2026-10-13 session)",
+   "last_verified": "2026-10-13T04:20Z"
   },
   {
    "id": "P0-06",
@@ -408,10 +463,12 @@
    "title": "SPY / TQQQ daily increments with real OHLC",
    "area": "Data universe",
    "priority": 1,
-   "status": "Waiting",
+   "status": "Done",
    "stages": [
     "instruction_published",
-    "claude_acked"
+    "claude_acked",
+    "code_merged",
+    "schedule_verified"
    ],
    "instructions": [
     "6117622847",
@@ -422,12 +479,14 @@
    ],
    "evidence": {
     "prs": [],
-    "runs": []
+    "runs": [
+     "Daily 38343250454 workflow_dispatch (recovery): archive SPY 2026-10-12 O778.78 H779.40 L777.05 C778.10 V18.6M and TQQQ O80.78 H80.81 L79.22 C79.61 V31.3M = docs/data.json stocks.*",
+     "macro_outcome_memory waiting_for_mature_outcomes (obs 5, matured 0); market_state_outcome_scorecards learning_active (7 outcomes, 3 scorecards, all 5-session = early reads)"
+    ]
    },
    "acceptance": "2026-10-12 bars appended from docs/data.json stocks.SPY / stocks.TQQQ (owner added both to the watchlist) with open/high/low not all equal to close",
-   "next": "verify in the P0-05 report",
-   "waiting_for": "Daily schedule 2026-10-12",
-   "last_verified": "2026-10-12T04:25Z"
+   "next": "append written by a recovery dispatch, not a schedule; re-check on the next schedule",
+   "last_verified": "2026-10-13T04:20Z"
   },
   {
    "id": "D-03",
@@ -866,7 +925,7 @@
    "title": "wxc-bot research-close daily + 13:10 UTC catch-up cron",
    "area": "WXC collection",
    "priority": 1,
-   "status": "Waiting",
+   "status": "In progress",
    "stages": [
     "instruction_published",
     "claude_acked",
@@ -881,13 +940,13 @@
      "wxc-bot #54 1341835"
     ],
     "runs": [
-     "catch-up 38198512109 workflow_dispatch (BrightLine 7216)"
+     "research-close 38312386852 schedule success (created 21:43Z, most likely the 13:10Z slot delayed ~8.5h) → commit d881f15",
+     "22:30Z slot: run created 03:07Z 2026-10-13 schedule success (delayed ~4.5h)"
     ]
    },
    "acceptance": "event=schedule runs at 13:10 and 22:30 UTC",
-   "next": "verify in the P0-05 report",
-   "waiting_for": "first schedule 2026-10-12T13:10Z",
-   "last_verified": "2026-10-12T04:25Z"
+   "next": "both slots ran but both heavily delayed by GitHub; keep watching",
+   "last_verified": "2026-10-13T04:20Z"
   },
   {
    "id": "W-02",

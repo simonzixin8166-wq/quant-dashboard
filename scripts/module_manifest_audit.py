@@ -35,6 +35,7 @@ OUT_MD = ROOT / "research" / "audit" / "MODULE_MANIFEST.md"
 R, D, L, M, V = "research", "decision", "learning", "monitor", "display"
 ROLES = {  # reader → (role, reason)
     "daily_research_job.py": (R, "append-only shadow hypotheses, revisits, maturity"),
+    "experience_inputs.py": (R, "B1: situation/error memory as Shadow evidence in auto research (used_in_decision=false)"),
     "autonomous_research_planner.py": (R, "builds the research queue; priorities use method/regime memory and controlled-policy bonuses"),
     "autonomous_research_executor.py": (R, "writes research briefs with support/counter evidence from situation/method/regime memory"),
     "autonomous_research_agent.py": (R, "agent alerts from learning_engine situation memory"),

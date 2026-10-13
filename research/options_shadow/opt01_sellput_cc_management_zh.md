@@ -85,3 +85,63 @@
   - 美式期权提前行权只做了近似处理（模型按欧式计算）；
   - 手续费按每张 $0.65、滑点按每股 $0.02 假设。
 - Learning UNPROVEN / FINAL=NO。
+
+---
+
+## v0.2 修复（2026-10-13，#133 6148675138）：五处缺口
+
+| # | 缺口 | 修复 | 回归测试 |
+|---|---|---|---|
+| 1 | 压力情境的 `pnl_if_closed_usd` 没有计手续费和滑点，与"提前买回"口径不一致 | 所有路径和压力情境统一按同一套成本口径计算：<br>• 买回按 `(ask + 滑点) × 乘数 × 张数 + 每张手续费 × 张数`；<br>• 卖出开仓按 `(bid − 滑点)`；<br>• 到期作废不计成本；<br>• 被指派计 `assignment_fee`。 | 每个压力情境逐项复算；张数 = 3、乘数 = 10 时缩放正确 |
+| 2 | BS 理论价被当成可成交价 | 没有真实报价时：<br>• `status=quote_required`、`close_now.pnl_usd=null`；<br>• 只给出带标签的 `model_reference_pnl_usd`（"不是预计成交价"）。<br>理论价与 ask 背离超过 25% 时标 `model_uncertainty`。<br>报价缺时间戳时标"时效未核验"；买卖价差超过 20% 时标"成交不确定"。<br>展期必须两条腿都有真实报价（新合约 bid、旧合约 ask）。 | 有报价 / 无报价 / 背离 / 价差过宽 / 展期缺 ask |
+| 3 | 接口没有明确张数、乘数和账户 | 新增 `contracts`、`multiplier`（默认 100，并显式输出）、`account_id`。账户号只接受匿名的 `acct_…`，由 `anonymous_account_id(raw, salt)` 在运行时生成，必须加盐；原始账户号直接拒绝。 | 原始账户号会被拒；不加盐会被拒 |
+| 4 | CC 覆盖可能跨账户抵扣 | `account_view()` 只用**同一账户**的股票计算覆盖。同一账户内多张 CC 按顺序消耗股数，其他账户的股票永不抵扣。缺持仓数据时显示 `private_data_unavailable`，不当作 0 股。 | IREN：A 账户 100 股 + 2 张 CC，B 账户 300 股 → A 的第二张为 uncovered |
+| 5 | 私有持仓读路径 | 见下面的方案；**本 PR 不接入实盘数据** | 适配器测试：原始 broker id 不出现在输出中 |
+
+### 四方案对照（FIXTURE，非 owner 持仓）
+
+条件：LITE 900P，权利金 30.00，标的 995.41，12 DTE，IV 75%，ask 16.60 / bid 16.20，展期目标 880P 40DTE bid 21.00。
+
+| 路径 | 结果（1 张，乘数 100） |
+|---|---|
+| 提前买回 | +$1,337.35（含 $0.65 手续费和 $2 滑点） |
+| 持有到期 | 作废时 +$3,000；比买回多赚最多 $1,662.65；被指派概率（模型）24.7% |
+| 被指派 | 需要现金 $90,000；有效成本 870.00；按市价 +$12,541 |
+| 展期 | 净收 +$434.70（两条腿，各计手续费和滑点） |
+
+压力情境（理论价 + 同口径成本 → 修复前的旧值）：
+- 跌 5%：−$4.91（旧 −$2.26）
+- 跌 10%：−$2,015.99（旧 −$2,013.34）
+- 涨 10%：+$2,556.86（旧 +$2,559.51）
+- IV +10 点：+$781.87（旧 +$784.52）
+
+每张合约统一少计 $2.65，压力情境现在与"提前买回"可以直接比较。
+
+### 私有持仓只读接入方案（未实施，待 owner 批准）
+
+- **数据来源**：沿用已有的 Supabase 私有表 `options_positions` 和 `stock_positions`。这两张表已有 owner-only RLS 和多账户字段 `broker_account_id`。不新建表，也不复制到仓库。
+- **运行位置**：放在现有的私有服务器检查链路里（目前 Server Action Watch 只输出 presence-only 计数）。在运行时：
+  1. 只读 select；
+  2. 用 `from_private_rows(option_rows, stock_rows, salt)` 转成匿名账户；
+  3. 用 `account_view()` 计算；
+  4. 结果只写入 owner 私有侧（私有账本仓库或 owner-only 表）。
+  
+  公开侧只输出聚合数字（例如"N 张合约需要关注"），并接受 `private_guardrail.py` 的 FORBIDDEN_KEYS 扫描。
+- **盐值**：作为 Actions secret 保存，不进代码和日志。
+- **最小测试**：
+  - 适配器单元测试（已有）；
+  - guardrail 扫描公开产物中没有 `broker_account_id` / `option_positions`；
+  - 缺 `stock_rows` → `private_data_unavailable`；
+  - 无报价 → `quote_required`。
+- **待核实**：`options_positions` 的建表 DDL 不在本仓库的 migrations 中（早于迁移目录）。`kind`、`dte` 等列名需要对照线上 schema 确认后才能接入。
+- **没有合规的运行时数据之前，不生成任何实盘持仓结论。**
+
+### 仍未验证
+
+- 博主原期权策略仍是 `source_pending`（原截图未提供）。本文全部是 MyAlpha 独立方案，不是作者策略。
+- 手续费、滑点、指派费都是假设参数。
+- 美式期权按欧式近似计算。
+- 期权链真实报价来源：Alpaca 只读实测 0/5，`NOT_EXECUTED_NO_CREDENTIALS`。
+- 任何胜率或收益率都未经验证。
+
+仅作 Shadow 提醒，不下单。Learning UNPROVEN / FINAL=NO。

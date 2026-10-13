@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """R-01 / R-B — BrightLine 8524 "三批进攻" rules as a read-only Shadow state machine (#133 6138763764).
 
-Author rules (from the owner's section-by-section outline of the full article; MyAlpha has NOT read the
-full text — only a 360-char excerpt persists) are encoded literally and kept apart from MyAlpha's own
+Author rules (v1 from the owner's outline; connectives confirmed against the owner-uploaded full text on
+2026-10-13 — the full text itself is never stored) are encoded literally and kept apart from MyAlpha's own
 guard rails. Nothing here is a trading signal:
   production_use = false, used_in_decision = false, no orders, no change to CORE_TIERS / DCA / gold / QLD.
 
@@ -23,8 +23,9 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 import trading_calendar as tc  # noqa: E402
 
-RULES_VERSION = "bl8524-tranche-v1.1"  # v1.1: connectives confirmed against the full text (logic unchanged from v1)
-RULES_LOCKED_AT = "2026-10-13T06:35:00Z"  # v1 locked 2026-10-13T06:00:00Z
+RULES_VERSION = "bl8524-tranche-v1.2"  # v1.2: an outcome whose surprise is unknown (consensus unavailable) stays unknown, never unmet
+RULES_LOCKED_AT = "2026-10-13T16:00:00Z"  # locked before the 10/14 CPI release; v1.1 2026-10-13T06:35:00Z, v1 06:00:00Z
+SURPRISE_LABELS = ("soft", "inline", "above", "hot")  # set only from a preregistered consensus of the SAME measure (m/m vs m/m, y/y vs y/y)
 OUT = ROOT / "research" / "macro_events" / "brightline_three_tranche_state.json"
 MACRO = ROOT / "docs" / "research" / "macro_context.json"
 BREADTH = ROOT / "docs" / "research" / "breadth_intelligence.json"
@@ -77,6 +78,14 @@ def event_fact(events, key):
     return e if e.get("official_outcome_recorded_at") else None
 
 
+def surprise_status(e, target):
+    """met/unmet only when the official outcome carries a consensus-based surprise label; otherwise unknown
+    (an official value alone, a single bank forecast or a nowcast never defines 'soft'/'hot')."""
+    if not e or e.get("surprise") not in SURPRISE_LABELS:
+        return "unknown"
+    return "met" if e["surprise"] == target else "unmet"
+
+
 def evaluate(inputs):
     """inputs: {'expected_session', 'macro': {'y10': {'value','date','change_20'}}, 'breadth': {'b200','as_of','new_low_52w_pct','new_low_trend'},
     'events': {...}, 'core': {sym: {'drawdown','date','tiers'}}}"""
@@ -91,9 +100,10 @@ def evaluate(inputs):
     cpi = event_fact(ev, "cpi_2026_09")
     fomc = event_fact(ev, "fomc_2026_10")
     risk = [
-        cond("cpi_well_above_expectations", "unknown" if not cpi else ("met" if cpi.get("surprise") == "hot" else "unmet"),
+        cond("cpi_well_above_expectations", surprise_status(cpi, "hot"),
              value=(cpi or {}).get("summary"), as_of=(cpi or {}).get("official_outcome_recorded_at"),
-             rule="author (p46): CPI 爆表 → 前两批继续等", note=None if cpi else "event not yet released / outcome not recorded"),
+             rule="author (p46): CPI 爆表 → 前两批继续等", note=None if cpi and cpi.get("surprise") in SURPRISE_LABELS else
+             ("official outcome recorded; consensus_unavailable → surprise unknown" if cpi else "event not yet released / outcome not recorded")),
         cond("fomc_october_surprise_hike", "unknown" if not fomc else ("met" if fomc.get("hiked") else "unmet"),
              value=(fomc or {}).get("summary"), as_of=(fomc or {}).get("official_outcome_recorded_at"),
              rule="author (p46): 10 月底意外加息 → 前两批继续等", note=None if fomc else "event not yet released / outcome not recorded"),
@@ -117,7 +127,7 @@ def evaluate(inputs):
                     rule="author (p43): 11/4 季度再融资把发行转向短债，或者削减长债拍卖（官方文本）",
                     note=None if refund else "2026-11-04 not yet happened; the date alone never satisfies this"),
                y10_turn]
-    t1_early = [cond("cpi_soft", "unknown" if not cpi else ("met" if cpi.get("surprise") == "soft" else "unmet"),
+    t1_early = [cond("cpi_soft", surprise_status(cpi, "soft"),
                      value=(cpi or {}).get("summary"), as_of=(cpi or {}).get("official_outcome_recorded_at"), rule="author (p43): 这周三（10/14）CPI 偏软"),
                 cond("y10_below_author_5pct", "unknown" if not y10_ok else ("met" if y10["value"] < AUTHOR_THRESHOLDS["y10_below"] else "unmet"),
                      value=y10.get("value"), as_of=y10.get("date"), rule="author (p43): 10Y 直接跌破 5%", threshold_kind="author_threshold")]

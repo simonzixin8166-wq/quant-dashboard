@@ -185,6 +185,20 @@ jobs:
       - name: Build V6.8 Breadth Intelligence
         run: python scripts/breadth_intelligence_engine.py
 
+      # P0-A / H-02 (#133 6148675138): official event outcomes (BLS, free, after release only) → BrightLine
+      # tranche Shadow → homepage macro-event row. Shadow-only; a failure is recorded and never blocks the website.
+      - name: Macro event outcomes + tranche Shadow + homepage event row (Shadow)
+        id: macro_event_watch
+        continue-on-error: true
+        run: |
+          python scripts/macro_official_outcomes.py
+          python scripts/brightline_tranche_shadow.py
+          python scripts/macro_event_watch.py
+
+      - name: Record macro event watch failure
+        if: steps.macro_event_watch.outcome == 'failure'
+        run: python scripts/module_failure_marker.py macro_event_watch
+
       - name: Build V6.8 Regime Combination Memory
         run: python scripts/regime_combination_memory.py
 
@@ -452,6 +466,7 @@ jobs:
           if [ -f research/archive/operational_incidents.jsonl ]; then git add research/archive/operational_incidents.jsonl; fi
           if [ -f data/history/source_validation_history.zip ]; then git add data/history/source_validation_history.zip; fi
           if [ -f research/state/feed_id_ledger.json ]; then git add research/state/feed_id_ledger.json; fi
+          git add research/macro_events/ || true
           git commit -m "Daily update $(date -u +%Y-%m-%d)" || echo "No changes"
           git pull --rebase origin main
           git push origin HEAD:main

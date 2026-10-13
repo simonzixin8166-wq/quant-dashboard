@@ -1,0 +1,23 @@
+{
+ "event": "cpi_2026_09",
+ "preregistered_at": "2026-10-13T16:00:00Z",
+ "locked_before_release": "2026-10-14T12:30:00Z",
+ "rule": "Expectations are compared only with the SAME measure (headline y/y vs headline y/y, core m/m vs core m/m). A surprise label is set only from kind=survey_consensus; secondary aggregators, single-bank forecasts and nowcasts are recorded as reference diffs and never define soft/hot.",
+ "surprise_rule": {"measures_in_priority": ["core_mom_sa", "headline_mom_sa", "core_yoy_nsa", "headline_yoy_nsa"],
+                   "labels": {"soft": "official < consensus", "inline": "official == consensus", "above": "official == consensus + 0.1pp", "hot": "official >= consensus + 0.2pp (author: CPI 爆表)"},
+                   "precision": "BLS published one-decimal percent"},
+ "consensus_status": "consensus_unavailable",
+ "consensus_note": "No survey consensus (Bloomberg/Reuters/WSJ-type) was reachable at preregistration; MyAlpha uses no paid data. surprise stays unknown.",
+ "survey_consensus": {},
+ "reference_expectations": [
+  {"measure": "headline_yoy_nsa", "value": 3.7, "kind": "secondary_aggregator", "label": "Street consensus (attributed to Nowflation, as of 2026-10-06)",
+   "source_url": "https://admiralmarkets.com/analytics/traders-blog/us-cpi-preview-september-2026-forecasts-and-the-core-cpi-outlook", "source_published": "2026-10-08", "captured_at": "2026-10-13T15:20:00Z"},
+  {"measure": "core_mom_sa", "value": 0.2, "kind": "single_forecaster", "label": "TD Securities",
+   "source_url": "https://www.fxstreet.com/news/united-states-core-cpi-trend-seen-moderating-td-securities-202610091256", "source_published": "2026-10-09", "captured_at": "2026-10-13T15:20:00Z"},
+  {"measure": "core_yoy_nsa", "value": 2.4, "kind": "single_forecaster", "label": "TD Securities",
+   "source_url": "https://www.fxstreet.com/news/united-states-core-cpi-trend-seen-moderating-td-securities-202610091256", "source_published": "2026-10-09", "captured_at": "2026-10-13T15:20:00Z"}
+ ],
+ "prior_month_as_reported_by_secondary": {"headline_mom_sa": 0.4, "headline_yoy_nsa": 3.4, "core_mom_sa": 0.3, "core_yoy_nsa": 2.4,
+   "note": "context only; the official prior month is re-read from BLS at fetch time"},
+ "production_use": false
+}

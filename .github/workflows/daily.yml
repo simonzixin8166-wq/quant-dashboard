@@ -264,6 +264,19 @@ jobs:
       - name: Build SEC XBRL Fundamental Memory
         run: python scripts/company_fundamental_memory.py
 
+      # B4-02 Shadow dual run: unified SEC fetcher (append-only fundamentals_v2 + old-schema shadow file).
+      # No consumer reads it yet; a failure is recorded and never blocks the website.
+      - name: SEC unified fact fetcher v2 (Shadow) + daily reconciliation
+        id: sec_facts_v2
+        continue-on-error: true
+        run: |
+          python scripts/sec_facts_v2.py
+          python scripts/sec_fact_reconcile.py
+
+      - name: Record SEC v2 Shadow failure
+        if: steps.sec_facts_v2.outcome == 'failure'
+        run: python scripts/module_failure_marker.py sec_facts_v2
+
       - name: Build XBRL Fundamental Outcome Memory
         run: python scripts/company_fundamental_outcome_memory.py
 
@@ -433,6 +446,7 @@ jobs:
           git config user.name "github-actions"
           git config user.email "actions@github.com"
           git add docs/ research/archive/ research/knowledge/ research/store/source_store.json data/history/stooq_watchlist.zip
+          if [ -f research/audit/sec_fact_reconciliation.json ]; then git add research/audit/sec_fact_reconciliation.json; fi
           if [ -f docs/research/operational_incident_memory.json ]; then git add docs/research/operational_incident_memory.json; fi
           if [ -f research/store/operational_incident_state.json ]; then git add research/store/operational_incident_state.json; fi
           if [ -f research/archive/operational_incidents.jsonl ]; then git add research/archive/operational_incidents.jsonl; fi

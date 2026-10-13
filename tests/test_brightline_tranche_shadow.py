@@ -36,7 +36,7 @@ assert t1["state"] == "not_met"            # 10Y 5.22 not < 5, trend not down; r
 assert t2["state"] == "unknown"            # main branch unmet (10Y ≥ 5) but December FOMC branch unknown → OR stays unknown
 assert t3["state"] == "not_met"            # existing tiers not reached
 assert all(c.get("threshold_kind") == "author_threshold" for c in t1["early"] if c["name"].startswith("y10_below"))
-assert "connective_source" in t1 and "full text not read" in t1["connective_source"]
+assert "connective_source" in t1 and "full text verified" in t1["connective_source"]
 
 # A date arriving never satisfies a condition: the 11/04 refunding stays unknown until an official outcome is recorded
 s2 = run(lambda x: x.update(expected_session="2026-11-05"))
@@ -95,3 +95,14 @@ for k, e in cal["events"].items():
 assert cal["events"]["cpi_2026_09"]["release"]["beijing_label"].startswith("10/14 20:30")
 assert cal["events"]["treasury_refunding_2026_11_04"]["release"]["et_label"].endswith("EST")  # after DST ends 11/01
 print("PASS BrightLine three-tranche shadow")
+
+
+# Full-text verification record (6142705659): hash matches owner's, no full text stored, short excerpts only
+V = json.loads((ROOT / "research" / "audit" / "brightline_8524_fulltext_verification_v0_3.json").read_text(encoding="utf-8"))
+assert V["source"]["matches_owner_hash"] is True and V["source"]["normalized_text_sha256"].startswith("f909e1b9")
+assert V["source"]["paragraphs"] == 50 == len(V["paragraph_locators"]) and V["source"]["chars"] == 3266
+assert all(set(p) == {"loc", "section", "is_heading", "chars", "sha256_16"} for p in V["paragraph_locators"])
+assert sum(len(x) for x in V["connective_excerpts"]["items"].values()) <= 360
+assert all(c["verdict"].startswith("match") for c in V["connective_verification"])
+assert V["used_in_decision"] is False and V["production_use"] is False
+print("full-text verification record OK")

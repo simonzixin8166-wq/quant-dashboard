@@ -103,7 +103,8 @@ def build(now=None):
         "tranche_state": {k: v["state"] for k, v in st["tranches"].items()},
         "rules_version": st["rules_version"], "freshness": freshness, "events": events,
         "source": {"author": "BrightLine", "title": "别和美联储作对，但底已经不远了", "url": ARTICLE_URL, "analysis_url": ANALYSIS_URL,
-                   "reading_basis": "owner outline + 360-char excerpt; MyAlpha did not read the full text (partial)",
+                   "reading_basis": "full text read at runtime from the owner-uploaded HTML and verified (SHA256 f909e1b9…); full text not stored",
+                   "reading_basis_zh": "已逐句核对全文（owner 上传 HTML，运行时读取，不存全文）",
                    "author_forecast": "约三周内见底 — 可证伪预测，不是事实、买点或收益承诺"},
         "production_use": False, "used_in_decision": False, "automatic_orders": False,
     }

@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
 """R-01 / R-B — BrightLine 8524 "三批进攻" rules as a read-only Shadow state machine (#133 6138763764).
 
-Author rules (from the owner's section-by-section outline of the full article; MyAlpha has NOT read the
-full text — only a 360-char excerpt persists) are encoded literally and kept apart from MyAlpha's own
+Author rules are encoded literally (connectives verified 2026-10-13 against the full article text read at runtime
+from the owner-uploaded HTML, normalized SHA256 f909e1b9…, 50 paragraphs; the full text is NOT stored — see
+research/audit/brightline_8524_fulltext_verification_v0_3.json) and kept apart from MyAlpha's own
 guard rails. Nothing here is a trading signal:
   production_use = false, used_in_decision = false, no orders, no change to CORE_TIERS / DCA / gold / QLD.
 
 Every condition evaluates to met / unmet / unknown. Missing or stale inputs → unknown (fail-closed); a date
 arriving never satisfies a condition by itself. The connective of each author branch (AND / OR) is stored
-next to the rule, with its provenance, so it can be corrected once the full text is reviewed.
+next to the rule, with its provenance, verified against the full text (no rule change was needed).
 
 Allocation: the author invests only cash ABOVE his own 20 % cash floor, in three tranches without stated
 sizes. MyAlpha records allocation_unset — it never infers 1/3 per tranche and never applies the author's
@@ -33,7 +34,8 @@ EVENTS = ROOT / "research" / "macro_events" / "event_facts_2026q4.json"  # offic
 
 AUTHOR_THRESHOLDS = {"y10_below": 5.00, "y10_risk_line": 5.35, "spx_above_ma200_share": 0.50}
 MAX_STALE_SESSIONS = {"macro": 3, "breadth": 2, "price": 2}
-SOURCE_NOTE = "owner outline of the full article (6138763764); full text not read by MyAlpha; connective to be re-checked against the text"
+SOURCE_NOTE = ("full text verified 2026-10-13 (owner-uploaded HTML, normalized SHA256 f909e1b9…, 50 paragraphs; text not stored); "
+               "see research/audit/brightline_8524_fulltext_verification_v0_3.json")
 
 
 def _load(p):

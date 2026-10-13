@@ -1,6 +1,6 @@
 {
  "version": "6.11-p2",
- "generated_at": "2026-10-13T11:52:00.238201Z",
+ "generated_at": "2026-10-13T16:05:34.176611Z",
  "module": "v6.11-gold-dca",
  "freshness": {
   "live_max_age_minutes": 20,
@@ -25,50 +25,52 @@
   },
   "buy_data_gate": {
    "trusted_spot_daily": false,
-   "daily_basis": "spot_estimate_from_futures",
+   "daily_basis": "futures_proxy",
    "rule": "BUY 仅在可信现货日线下生成；估算/代理日线最多 WATCH"
   },
   "quote": {
-   "price": 4187.2,
-   "basis": "spot",
-   "source": "gold-api.com 现货",
-   "as_of": "2026-10-13T11:51:43Z",
-   "freshness": "LIVE",
-   "age_minutes": 0.3,
+   "price": 4182.1,
+   "basis": "futures_proxy",
+   "source": "Yahoo COMEX期货(GC=F)代理",
+   "as_of": "2026-10-13T15:55:31Z",
+   "freshness": "DELAYED",
+   "age_minutes": 10.1,
    "market_open": true,
-   "errors": null
+   "errors": [
+    "gold-api:URLError"
+   ]
   },
   "fx": {
-   "usdcny": 6.6807,
-   "as_of": "2026-10-13T11:48:35Z",
+   "usdcny": 6.6808,
+   "as_of": "2026-10-13T16:04:40Z",
    "source": "Yahoo CNY=X"
   },
-  "cny_per_gram": 899.37,
+  "cny_per_gram": 898.28,
   "band_cny_per_gram": [
    {
     "usd": 4050,
-    "cny_per_gram": 869.9
+    "cny_per_gram": 869.91
    },
    {
     "usd": 4000,
-    "cny_per_gram": 859.16
+    "cny_per_gram": 859.17
    },
    {
     "usd": 3950,
-    "cny_per_gram": 848.42
+    "cny_per_gram": 848.43
    },
    {
     "usd": 3850,
-    "cny_per_gram": 826.94
+    "cny_per_gram": 826.95
    },
    {
     "usd": 3650,
-    "cny_per_gram": 783.98
+    "cny_per_gram": 783.99
    }
   ],
   "year_stats": {
    "year": 2026,
-   "basis": "spot_estimate_from_futures",
+   "basis": "futures_proxy",
    "high": {
     "value": 5595.47,
     "date": "2026-01-29",
@@ -90,13 +92,13 @@
     "cny_per_gram": 864.34
    },
    "low_estimate_after_verified": {
-    "value": 3933.1,
+    "value": 3955.4,
     "date": "2026-06-30",
-    "basis": "spot_estimate_from_futures",
+    "basis": "futures_proxy",
     "note": "期货基差估算，未经核实",
     "usdcny": 6.7936,
     "usdcny_date": "2026-06-30",
-    "cny_per_gram": 859.07
+    "cny_per_gram": 863.94
    },
    "coverage": {
     "from": "2026-01-02",
@@ -104,35 +106,35 @@
     "sessions": 196
    },
    "low_is_full_year_confirmed": false,
-   "drawdown_from_high_pct": -25.17,
-   "above_low_pct": 5.76
+   "drawdown_from_high_pct": -25.26,
+   "above_low_pct": 5.63
   },
   "etf_quotes": {
    "GLDM": {
-    "price": 82.47,
+    "price": 82.19,
     "currency": "USD",
-    "as_of": "2026-10-12T20:00:00Z",
+    "as_of": "2026-10-13T16:05:12Z",
     "source": "Yahoo GLDM",
     "delayed": true
    },
    "IAU": {
-    "price": 78.34,
+    "price": 78.11,
     "currency": "USD",
-    "as_of": "2026-10-12T20:00:00Z",
+    "as_of": "2026-10-13T16:05:29Z",
     "source": "Yahoo IAU",
     "delayed": true
    },
    "GLD": {
-    "price": 382.15,
+    "price": 381.01,
     "currency": "USD",
-    "as_of": "2026-10-12T20:00:00Z",
+    "as_of": "2026-10-13T16:05:33Z",
     "source": "Yahoo GLD",
     "delayed": true
    },
    "SGLN": {
-    "price": 6130.0,
+    "price": 6094.0,
     "currency": "GBp",
-    "as_of": "2026-10-13T11:36:13Z",
+    "as_of": "2026-10-13T15:35:06Z",
     "source": "Yahoo SGLN.L",
     "delayed": true
    }
@@ -144,8 +146,8 @@
       "id": "gold_close_below",
       "met": false,
       "value": [
-       4193.9999996875,
-       4168.30029265625
+       4216.2998046875,
+       4190.60009765625
       ],
       "rule": "连续2个交易日收在 $4,000 以下"
      },
@@ -158,7 +160,7 @@
      {
       "id": "dxy_rise",
       "met": false,
-      "value_pct": 0.43,
+      "value_pct": 0.41,
       "rule": "DXY 5 日涨幅 > 1.5%"
      }
     ],
@@ -167,7 +169,7 @@
     "pause": false,
     "complete": true,
     "ry_change_bp_5d": -1.0,
-    "dxy_change_pct_5d": 0.43
+    "dxy_change_pct_5d": 0.41
    },
    "deep_review": {
     "triggered": false,
@@ -177,11 +179,11 @@
     "weeks": [
      {
       "date": "2026-10-09",
-      "close": 4194.0
+      "close": 4216.3
      },
      {
       "date": "2026-10-12",
-      "close": 4168.3
+      "close": 4190.6
      }
     ]
    },
@@ -189,16 +191,16 @@
     "ok": true,
     "stabilized": true,
     "trend": true,
-    "sma5": 4156.04,
-    "detail": "两日未创新低；收盘 4,168 ≥ 5日均线 4,156",
+    "sma5": 4178.34,
+    "detail": "两日未创新低；收盘 4,191 ≥ 5日均线 4,178",
     "as_of": "2026-10-12"
    }
   },
   "inputs": {
    "daily": {
-    "source": "COMEX期货日线 − 实时基差 +22.3（现货估算）",
-    "basis": "spot_estimate_from_futures",
-    "futures_spot_basis": 22.3,
+    "source": "Yahoo COMEX期货日线(代理)",
+    "basis": "futures_proxy",
+    "futures_spot_basis": null,
     "last_date": "2026-10-13",
     "fresh": true
    },
@@ -210,7 +212,7 @@
    "dxy": {
     "source": "Yahoo DX-Y.NYB",
     "last_date": "2026-10-13",
-    "last": 102.26
+    "last": 102.25
    },
    "macro_fresh": true,
    "etf_flows": "unavailable_free_source"
@@ -287,23 +289,23 @@
   ],
   "quotes": {
    "QQQM": {
-    "price": 307.19,
+    "price": 305.57,
     "currency": "USD",
-    "as_of": "2026-10-12T20:00:00Z",
+    "as_of": "2026-10-13T16:05:32Z",
     "source": "Yahoo QQQM",
     "delayed": true
    },
    "QLD": {
-    "price": 97.08,
+    "price": 96.04,
     "currency": "USD",
-    "as_of": "2026-10-12T20:00:00Z",
+    "as_of": "2026-10-13T16:05:33Z",
     "source": "Yahoo QLD",
     "delayed": true
    },
    "VGT": {
-    "price": 126.51,
+    "price": 125.95,
     "currency": "USD",
-    "as_of": "2026-10-12T20:00:00Z",
+    "as_of": "2026-10-13T16:05:26Z",
     "source": "Yahoo VGT",
     "delayed": true
    }
@@ -340,6 +342,6 @@
   "outcome_basis_note": "期货估算日线上的结果为 proxy_estimate_unverified，不计为已验证",
   "capture_mode": "live_observation_state_entries",
   "rule_changes_from_immature_outcomes": false,
-  "daily_basis": "spot_estimate_from_futures"
+  "daily_basis": "futures_proxy"
  }
 }

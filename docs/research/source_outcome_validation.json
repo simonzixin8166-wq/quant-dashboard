@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "generated_at": "2026-10-13T15:31:50.636510+00:00",
+  "generated_at": "2026-10-13T16:03:46.297363+00:00",
   "methodology": {
     "executed_action_baseline": "first trading session open strictly after source date when no reliable intraday timestamp exists",
     "planned_entry_baseline": "explicit stock-entry plans begin only on the first later session whose low touches the stated level; each tranche is validated separately",
@@ -16,9 +16,9 @@
     "attribution_limit": "third-party examples are excluded; unconfirmed source context is visible but excluded from aggregate method memory"
   },
   "counts": {
-    "events": 146,
+    "events": 147,
     "author_owned": 64,
-    "unconfirmed": 82,
+    "unconfirmed": 83,
     "triggered_author_owned": 53,
     "untriggered_plans": 11,
     "mature60": 29,
@@ -523,6 +523,56 @@
       },
       "alignment": {
         "direction": "bearish",
+        "5": null,
+        "20": null,
+        "60": null
+      },
+      "level_checks": {},
+      "status": "developing"
+    },
+    {
+      "event_id": "1a4060df0576c9f74df4:0:NOW:0",
+      "author": "我是一只井底蛙",
+      "title": "今天盘前买了2只股。刚回来一瞅，一只买入后上涨了 3.26% （CIEN），一只持平 （NOW）",
+      "url": "https://bbs.wenxuecity.com/cfzh/114533.html",
+      "published_at": "2026-10-09 11:13:50",
+      "symbol": "NOW",
+      "operation": {
+        "symbols": [
+          "CIEN",
+          "NOW"
+        ],
+        "actions": [
+          "buy"
+        ],
+        "attribution": "unconfirmed_author_context",
+        "attribution_confidence": "needs_review"
+      },
+      "actions": [
+        "buy"
+      ],
+      "attribution": "unconfirmed_author_context",
+      "attribution_confidence": "needs_review",
+      "baseline_kind": "next_session",
+      "baseline_assumption": "next trading session open because source date has no reliable intraday timestamp",
+      "planned_level": null,
+      "triggered": true,
+      "baseline_date": "2026-10-12",
+      "baseline_price": 145.5399932861328,
+      "price_provenance": {
+        "price_source": "stooq_archive",
+        "adjustment_basis": "stooq_archive_native_series",
+        "baseline_source": "stooq_archive",
+        "horizon_source": "stooq_archive",
+        "same_source": true
+      },
+      "outcomes": {
+        "5": null,
+        "20": null,
+        "60": null
+      },
+      "alignment": {
+        "direction": "bullish",
         "5": null,
         "20": null,
         "60": null

@@ -1,6 +1,6 @@
 {
  "version": "p3-12.1",
- "generated_at": "2026-10-13T03:55:52.969995+00:00",
+ "generated_at": "2026-10-13T16:04:42.594415+00:00",
  "layers": [
   "discovered",
   "canonical_persisted",
@@ -36,22 +36,22 @@
   "fundamental": {
    "learning_maturity": "unproven_no_forward_samples",
    "funnel_issues": [],
-   "discovered": 10416,
+   "discovered": 8822,
    "canonical_persisted": 772,
    "interpretable": 772,
    "candidate_claim_or_state": 384,
    "effective_forward_eligible": null,
    "independently_matured": null,
    "benchmark_evaluated": null,
-   "downstream_consumer_count": 0,
+   "downstream_consumer_count": 1,
    "validated_learning_applied": null
   },
   "event": {
    "learning_maturity": "context_only",
    "funnel_issues": [],
-   "discovered": 612,
-   "canonical_persisted": 612,
-   "interpretable": 612,
+   "discovered": 686,
+   "canonical_persisted": 686,
+   "interpretable": 686,
    "candidate_claim_or_state": 0,
    "effective_forward_eligible": 0,
    "independently_matured": 0,
@@ -93,8 +93,8 @@
    "interpretable": 536,
    "candidate_claim_or_state": 27,
    "effective_forward_eligible": 7,
-   "independently_matured": 0,
-   "benchmark_evaluated": 0,
+   "independently_matured": 1,
+   "benchmark_evaluated": null,
    "downstream_consumer_count": 9,
    "validated_learning_applied": null
   }
@@ -164,13 +164,13 @@
     "reason": "no forward-validated method exists yet (genuine forward matured = 0); not provable"
    },
    "historical": {
-    "market_price_history_mature_60": 4525,
+    "market_price_history_mature_60": 7698,
     "note": "historical price-event replay; descriptive, not forward learning"
    }
   },
   "fundamental": {
    "discovered": {
-    "count": 10416,
+    "count": 8822,
     "definition": "XBRL facts captured (company_fundamental_memory archive)",
     "evidence": "docs/research/company_fundamental_memory.json",
     "dedup_key": "fact"
@@ -214,11 +214,13 @@
     "reason": "outcome rows carry raw return_pct only; no benchmark excess recorded"
    },
    "downstream_consumer_count": {
-    "count": 0,
+    "count": 1,
     "definition": "distinct downstream scripts that READ this engine's state (readability, not proof of applied learning)",
     "evidence": "docs/research/data_learning_coverage_audit.json",
     "dedup_key": "consumer script",
-    "readable_by_downstream": []
+    "readable_by_downstream": [
+     "fundamental_reliability.py"
+    ]
    },
    "validated_learning_applied": {
     "count": null,
@@ -227,26 +229,26 @@
     "reason": "no forward-validated method exists yet (genuine forward matured = 0); not provable"
    },
    "historical": {
-    "descriptive_outcome_rows": 887,
-    "descriptive_matured_observations": 449,
+    "descriptive_outcome_rows": 1526,
+    "descriptive_matured_observations": 771,
     "note": "historical XBRL filings → descriptive/history outcomes, not Forward Edge"
    }
   },
   "event": {
    "discovered": {
-    "count": 612,
+    "count": 686,
     "definition": "news/event items archived",
     "evidence": "research/archive/events",
     "dedup_key": "uuid"
    },
    "canonical_persisted": {
-    "count": 612,
+    "count": 686,
     "definition": "append-only monthly event shards",
     "evidence": "research/archive/events",
     "dedup_key": "uuid"
    },
    "interpretable": {
-    "count": 612,
+    "count": 686,
     "definition": "items with title, url and event date",
     "evidence": "research/archive/events",
     "dedup_key": "uuid"
@@ -468,16 +470,17 @@
     "dedup_key": "source_key"
    },
    "independently_matured": {
-    "count": 0,
+    "count": 1,
     "definition": "matured, scoreable genuine-forward events",
     "evidence": "research/reports/forward_intake_health.json",
     "dedup_key": "event_id"
    },
    "benchmark_evaluated": {
-    "count": 0,
+    "count": null,
     "definition": "forward events with benchmark excess (0 while nothing has matured)",
     "evidence": "research/reports/forward_intake_health.json",
-    "dedup_key": "event_id"
+    "dedup_key": "event_id",
+    "reason": "benchmark excess for forward source events not instrumented"
    },
    "downstream_consumer_count": {
     "count": 9,
@@ -503,14 +506,14 @@
     "reason": "no forward-validated method exists yet (genuine forward matured = 0); not provable"
    },
    "historical": {
-    "lifecycle_rules_mature_60": 22,
-    "lifecycle_rules_mature_20": 12,
+    "lifecycle_rules_mature_60": 23,
+    "lifecycle_rules_mature_20": 11,
     "note": "author-rule outcomes on backfill/legacy sources: historical/descriptive, not Genuine Forward"
    }
   }
  },
  "tracks": {
-  "learning_maturity": "UNPROVEN",
-  "genuine_forward_matured_total": 0
+  "learning_maturity": "COLLECTING",
+  "genuine_forward_matured_total": 1
  }
 }

@@ -1,18 +1,18 @@
 {
   "version": "1.0",
-  "generated_at": "2026-10-13T03:55:12.305994+00:00",
+  "generated_at": "2026-10-13T04:01:04.390711+00:00",
   "evaluation_spec_version": "1.7",
   "scoring_engine_version": "event_score@6.15.8l",
   "evidence_layers": {
     "legacy_observational_archive": {
-      "count": 138,
+      "count": 144,
       "label": "历史观察归档",
       "description": "历史/迁移事件，仅供复盘和方法线索，不参与 Promotion。"
     },
     "forward_evidence_candidates": {
-      "count": 0,
-      "scoreable_now": 0,
-      "forward_rules_observed": 0,
+      "count": 2,
+      "scoreable_now": 1,
+      "forward_rules_observed": 1,
       "label": "Forward 证据候选",
       "description": "在真实收录时间之后形成的 point-in-time 事件；未成熟前不代表方法有效。"
     },
@@ -33,64 +33,68 @@
   "source_rule_funnel": {
     "schema_version": "1.0",
     "status": "ok",
-    "generated_at": "2026-10-10T01:42:10.164686+00:00",
-    "new_sources_total": 206,
+    "generated_at": "2026-10-13T03:57:10.512454+00:00",
+    "new_sources_total": 127,
     "terminal_reason_counts": {
-      "backfill": 169,
+      "backfill": 12,
       "rekeyed_duplicate": 0,
-      "identity_ambiguous": 28,
+      "identity_ambiguous": 5,
       "late_discovery": 0,
-      "admission_integrity_rejected": 9,
-      "no_operations": 0,
+      "admission_integrity_rejected": 106,
+      "no_operations": 3,
       "operation_missing_symbol": 0,
       "no_testable_proposition": 0,
       "testable_rule_without_registry_rule": 0,
-      "rule_formed": 0,
+      "rule_formed": 1,
       "reason_not_recorded": 0
     },
     "terminal_reason_share": {
-      "backfill": 0.8203883495145631,
+      "backfill": 0.09448818897637795,
       "rekeyed_duplicate": 0.0,
-      "identity_ambiguous": 0.13592233009708737,
+      "identity_ambiguous": 0.03937007874015748,
       "late_discovery": 0.0,
-      "admission_integrity_rejected": 0.043689320388349516,
-      "no_operations": 0.0,
+      "admission_integrity_rejected": 0.8346456692913385,
+      "no_operations": 0.023622047244094488,
       "operation_missing_symbol": 0.0,
       "no_testable_proposition": 0.0,
       "testable_rule_without_registry_rule": 0.0,
-      "rule_formed": 0.0,
+      "rule_formed": 0.007874015748031496,
       "reason_not_recorded": 0.0
     },
     "conservation": {
-      "terminal_total": 206,
-      "expected_total": 206,
+      "terminal_total": 127,
+      "expected_total": 127,
       "pass": true
     },
     "downstream": {
-      "operations_total": 17,
-      "propositions_total": 542,
-      "new_forward_rules_total": 0,
-      "independent_authors": 0,
-      "largest_author_rule_share": null,
-      "cumulative_forward_rules": 0,
-      "cumulative_forward_authors": 0,
-      "cumulative_largest_author_rule_share": null,
+      "operations_total": 12,
+      "propositions_total": 601,
+      "new_forward_rules_total": 1,
+      "independent_authors": 1,
+      "largest_author_rule_share": 1.0,
+      "cumulative_forward_rules": 1,
+      "cumulative_forward_authors": 1,
+      "cumulative_largest_author_rule_share": 1.0,
       "admission_sources_with_operations": {
         "backfill": {
-          "sources": 169,
-          "sources_with_operations": 8
+          "sources": 12,
+          "sources_with_operations": 1
+        },
+        "genuine_forward": {
+          "sources": 4,
+          "sources_with_operations": 1
         },
         "identity_ambiguous": {
-          "sources": 28,
-          "sources_with_operations": 6
+          "sources": 5,
+          "sources_with_operations": 0
         },
         "timestamp_unverified": {
-          "sources": 9,
-          "sources_with_operations": 0
+          "sources": 106,
+          "sources_with_operations": 6
         }
       },
       "no_operations_context_split": {
-        "with_symbols_or_topics": 0,
+        "with_symbols_or_topics": 3,
         "without_symbols_or_topics": 0
       }
     },
@@ -103,17 +107,17 @@
     "result_blind": true
   },
   "maturity_clock": {
-    "status": "not_started",
-    "genuine_forward_rules": 0,
-    "first_eligible_baseline_timestamp_utc": null,
+    "status": "started",
+    "genuine_forward_rules": 1,
+    "first_eligible_baseline_timestamp_utc": "2026-10-12T13:30:00+00:00",
     "mature_20_effective_units": 0,
     "mature_60_effective_units": 0
   },
   "forward_intake_health": {
-    "status": "waiting_for_first_genuine_forward_rule",
+    "status": "healthy_forward_intake_observed",
     "integrity_pass": true,
-    "forward_path_observed": false,
-    "first_scoreable_forward_observed": false,
+    "forward_path_observed": true,
+    "first_scoreable_forward_observed": true,
     "blockers": []
   },
   "readiness": {

@@ -29,6 +29,12 @@ assert "total" not in t and "combined" not in t
 e = rep["experience_citation"]
 assert (e["status"] == "wired") == (e["records_citing_past_cases"] > 0)
 assert rep["read_only"] is True and rep["production_use"] is False and rep["learning_state"] == "UNPROVEN"
+# M-03: the five downstream candidate stages are frozen (flagged, skipped in reviews), never deleted
+fz = rep["frozen_modules"]
+assert len(fz["artifacts"]) == 5 and all(f in arts and "frozen" in arts[f]["flags"] for f in fz["artifacts"])
+assert {"candidate_rule_status.json", "candidate_parameter_queue.json", "candidate_rule_replay.json"}.isdisjoint(fz["artifacts"])
+assert set(s["outcome_without_research_excluding_frozen"]) == set(s["outcome_without_research"]) - set(s["frozen"])
+assert isinstance(fz["unfreeze_due"], bool)
 md = m.markdown(rep)
 assert "never summed" in md and "| artifact |" in md
 print("test_module_manifest_audit OK")

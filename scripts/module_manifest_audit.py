@@ -180,6 +180,7 @@ def build(now=None, with_git=True):
         hit = [w for w, x in wfs.items() if name in x["text"]]
         script_wf[name] = {"workflows": hit, "scheduled": any(wfs[w]["scheduled"] for w in hit)}
     artifacts = []
+    frz = frozen()
     for f in files:
         rs = readers.get(f, [])
         prod = sorted(producers.get(f, []))
@@ -200,6 +201,8 @@ def build(now=None, with_git=True):
             flags.append("outcome_without_research")
         if not prod:
             flags.append("no_producer_found")
+        if f in frz["artifacts"]:
+            flags.append("frozen")  # M-03: skipped in reviews; still produced and kept
         sched = any(script_wf.get(p, {}).get("scheduled") for p in prod)
         if prod and not sched:
             flags.append("producer_not_scheduled")
@@ -212,8 +215,26 @@ def build(now=None, with_git=True):
     return {"generated_at": now.replace(microsecond=0).isoformat().replace("+00:00", "Z"),
             "method": "roles assigned per reader script after code review (ROLES); producer self-reads excluded; reachability = direct research/decision readers plus paths through learning transforms only (research→research hops are data selection, not learning content); monitor and display reads never count as learning",
             "artifacts": artifacts, "unclassified_readers": sorted(unknown_roles),
-            "summary": summarize(artifacts), "tracks": tracks(), "experience_citation": experience_citation(),
+            "summary": summarize(artifacts), "frozen_modules": frz, "tracks": tracks(), "experience_citation": experience_citation(),
             "duplicates": duplicates(), "read_only": True, "production_use": False, "learning_state": "UNPROVEN"}
+
+
+FROZEN = ROOT / "research" / "registry" / "frozen_modules.json"
+
+
+def frozen():
+    """M-03: frozen artifacts (skipped in reviews, never deleted) and whether the unfreeze condition is met."""
+    try:
+        reg = json.loads(FROZEN.read_text(encoding="utf-8"))
+    except Exception:
+        return {"artifacts": [], "unfreeze_due": False}
+    fwd = {}
+    try:
+        fwd = json.loads((RES / "candidate_forward_status.json").read_text(encoding="utf-8")).get("counts") or {}
+    except Exception:
+        pass
+    return {"artifacts": sorted(m["artifact"] for m in reg.get("modules") or []), "frozen_at": reg.get("frozen_at"),
+            "unfreeze_due": int(fwd.get("eligible_candidates") or 0) > 0, "unfreeze_when": reg.get("unfreeze_when")}
 
 
 def summarize(arts):
@@ -223,7 +244,9 @@ def summarize(arts):
             "learning_reaching_research": sum(1 for a in lo if a["reaches_research_or_decision"]),
             "no_consumer": f("no_consumer"), "monitor_or_display_only": f("monitor_or_display_only"),
             "outcome_without_research": f("outcome_without_research"), "producer_not_scheduled": f("producer_not_scheduled"),
-            "no_producer_found": f("no_producer_found")}
+            "no_producer_found": f("no_producer_found"),
+            "frozen": f("frozen"),
+            "outcome_without_research_excluding_frozen": sorted(set(f("outcome_without_research")) - set(f("frozen")))}
 
 
 def _jsonl(p):

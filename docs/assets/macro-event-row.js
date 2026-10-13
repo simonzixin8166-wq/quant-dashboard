@@ -27,7 +27,13 @@
     if (now < ms(w.t_minus_1_start)) return { key: 'planned', label: '计划中', order: 3 };
     if (now < ms(w.event_day_start)) return { key: 't_minus_1', label: '明天 ' + hm(ev) + '｜事件前观察', order: 0 };
     if (now < rel) return { key: 'pre_event', label: '今天 ' + hm(ev) + ' 发布｜事件前', order: 0 };
-    if (!ev.official_outcome) return { key: 'released_pending', label: '已发布｜待核实官方结果', order: 0 };
+    if (!ev.official_outcome) {
+      var os = ev.outcome_status;
+      if (os === 'conflict') return { key: 'released_conflict', label: '已发布｜官方数据冲突·不判断', order: 0 };
+      if (os === 'stale') return { key: 'released_stale', label: '已发布｜官方结果未取得（过期）', order: 0 };
+      if (os === 'official_result_unavailable') return { key: 'released_unavailable', label: '已发布｜官方结果暂未取得', order: 0 };
+      return { key: 'released_pending', label: '已发布｜待核实官方结果', order: 0 };
+    }
     var last = 'T', keys = ['T+1', 'T+3', 'T+5', 'T+10'];
     for (var i = 0; i < keys.length; i++) if (now >= ms(tp[keys[i]])) last = keys[i];
     return { key: 'post', label: '已公布｜' + last, order: 1 };
@@ -53,13 +59,40 @@
     return { key: 'fresh', label: '数据截至 ' + esc(f.market_as_of), judge: (d.judgment || {}).key || 'data_insufficient' };
   }
 
+  var TR_ZH = { 1: '一批', 2: '二批', 3: '三批' };
+  function stShort(k) {
+    return { not_met: '未满足', unmet: '未满足', unknown: '未知', candidate: '候选', conflict_frozen: '冻结',
+             price_condition_met_needs_manual_budget_and_guardrail_check: '价位到·需人工核对' }[k] || k;
+  }
+  function tranchesHtml(d) {
+    return '<span class="mer-tr" title="作者三批规则的 MyAlpha Shadow 核验状态，不是买卖指令">' + (d.lines || []).map(function (l) {
+      return '<span class="mer-tr-i mer-tr-' + esc(l.state) + '">' + esc(TR_ZH[l.tranche] || l.tranche) + ' ' + esc(stShort(l.state)) + '</span>';
+    }).join('') + '</span>';
+  }
+  function outcomeHtml(e) {
+    var o = e.official_outcome, v = (o && o.values) || {};
+    if (!o) return '<p class="mer-muted">' + esc(e.name_zh) + '：' + esc({ pending: '尚未发布（pending）', official_result_unavailable: '已发布，官方结果暂未取得',
+      stale: '已发布超过 24 小时仍未取得官方结果（stale）', conflict: '官方 API 与发布文本数值冲突，结果暂不采用（conflict）' }[e.outcome_status] || e.outcome_status || 'pending') +
+      (e.outcome_status_detail ? ' <small>' + esc(e.outcome_status_detail) + '</small>' : '') + '</p>';
+    var f = function (x, sign) { return x == null ? '—' : (sign && x > 0 ? '+' : '') + Number(x).toFixed(1) + '%'; };
+    return '<p><b>' + esc(e.name_zh) + ' 官方结果</b>（统计月份 ' + esc(v.reference_month) + '）：整体 环比 ' + f(v.headline_mom_sa, 1) + ' / 同比 ' + f(v.headline_yoy_nsa) +
+      '；核心 环比 ' + f(v.core_mom_sa, 1) + ' / 同比 ' + f(v.core_yoy_nsa) + '。' +
+      (o.consensus_status === 'consensus_unavailable' ? '无可靠共识预期（consensus_unavailable），不判定偏软/偏热。' :
+        '相对共识（' + esc(o.surprise_measure) + '）' + esc(o.surprise_diff_pp) + 'pp → ' + esc(o.surprise) + '。') +
+      ' <small>发布 ' + esc(o.published_at) + ' · 采集 ' + esc(o.captured_at) + ' · 交叉核对 ' + esc(o.cross_check) + ' · hash ' + esc(String(o.data_sha256 || '').slice(0, 12)) +
+      ' · <a href="' + esc(o.release_text) + '" target="_blank" rel="noopener noreferrer">BLS 原文</a></small></p>' +
+      ((o.reference_expectation_diffs || []).length ? '<p class="mer-muted">参考预期（仅同口径对照，不用于判断）：' + o.reference_expectation_diffs.map(function (r) {
+        return esc(r.label) + ' ' + esc(r.measure) + ' 预期 ' + esc(r.expected) + ' / 官方 ' + esc(r.official);
+      }).join('；') + '</p>' : '');
+  }
+
   function lineHtml(d, sel, q) {
     var j = JUDGE[q.judge] || JUDGE.data_insufficient;
     var cur = sel.current, nxt = sel.next;
     var main = (d.lines || [])[0];
     return '<div class="mer-line"><b class="mer-title">宏观事件与分批观察</b>' +
       (cur ? '<span class="mer-event"><b>' + esc(cur.ev.name_zh) + '</b> ' + esc(cur.ph.label) + '</span>' : '<span class="mer-event">暂无待观察事件</span>') +
-      '<span class="mer-judge ' + j[1] + '">' + j[0] + '</span>' +
+      '<span class="mer-judge ' + j[1] + '">' + j[0] + '</span>' + tranchesHtml(d) +
       (q.judge === 'data_insufficient' ? '<span class="mer-text">' + esc(q.label) + '｜不据此判断</span>' :
         (main ? '<span class="mer-text">' + esc(main.text) + '</span>' : '')) +
       '<span class="mer-meta">' + esc(q.label) + '</span>' +
@@ -81,7 +114,9 @@
     return '<div class="mer-detail" hidden>' +
       '<p class="mer-muted">MyAlpha 判断依据：按作者的分批规则做 Shadow 核验，并叠加 MyAlpha 自己的数据护栏；不是作者的预测。作者观点「' + esc(src.author_forecast) +
       '」。Shadow 研究提示，不是买卖指令；由你自行决定。Learning UNPROVEN。</p>' +
-      '<h4>三批条件（作者规则 · MyAlpha 核验）</h4><ul>' + (d.lines || []).map(function (l) {
+      '<h4>官方事件结果</h4>' + (d.events || []).filter(function (e) { return e.official_outcome || (e.outcome_status && e.outcome_status !== 'pending'); }).map(outcomeHtml).join('') +
+      ((d.events || []).some(function (e) { return e.official_outcome || (e.outcome_status && e.outcome_status !== 'pending'); }) ? '' : '<p class="mer-muted">尚无已发布事件的官方结果（pending）。</p>') +
+      '<h4>三批条件（阈值＝作者 author_threshold；状态＝MyAlpha Shadow 核验）</h4><ul>' + (d.lines || []).map(function (l) {
         return '<li><b>第' + esc(l.tranche) + '批</b> <span class="mer-st">' + esc(stz(l.state)) + '</span> ' + esc(l.text) + '</li>';
       }).join('') + '</ul>' +
       '<h4>风险暂停条件</h4><ul>' + ((d.risk_off || {}).conditions || []).map(function (c) {

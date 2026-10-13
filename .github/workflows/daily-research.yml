@@ -52,8 +52,21 @@ jobs:
         run: python scripts/weekly_research_report.py
       - name: Homepage research digest (reads the journal; no network)
         run: python scripts/auto_research_digest.py
+      # P0-A (#133 6148675138): the 12:35Z run lands minutes after the 08:30 ET BLS release, so the official CPI
+      # outcome reaches the homepage without a new cron. Before the release it only refreshes; Shadow-only, non-blocking.
+      - name: Macro event outcomes + tranche Shadow + homepage event row (Shadow, non-blocking)
+        id: macro_event_watch
+        continue-on-error: true
+        run: |
+          python scripts/macro_official_outcomes.py
+          python scripts/brightline_tranche_shadow.py
+          python scripts/macro_event_watch.py
+      - name: Record macro event watch failure
+        if: steps.macro_event_watch.outcome == 'failure'
+        run: python scripts/module_failure_marker.py macro_event_watch
       - name: Save shadow journal only
         run: |
           git config user.name "github-actions"; git config user.email "actions@github.com"
-          git add research/knowledge/auto_research_journal.jsonl docs/research/auto_research_status.json docs/research/sec_fundamentals.json docs/research/weekly_research_report.json docs/research/auto_research_digest.json
+          git add research/knowledge/auto_research_journal.jsonl docs/research/auto_research_status.json docs/research/sec_fundamentals.json docs/research/weekly_research_report.json docs/research/auto_research_digest.json docs/research/macro_event_watch.json research/macro_events/
+          if [ -f docs/research/module_failures.json ]; then git add docs/research/module_failures.json; fi
           git diff --cached --quiet || (git commit -m "auto research shadow journal" && git pull --rebase origin main && git push)

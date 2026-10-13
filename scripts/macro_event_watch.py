@@ -38,6 +38,20 @@ def windows(ev):
             "archive_after": et_utc(tc.add_sessions(date.fromisoformat(cp["T+10"]), 1), CLOSE)}
 
 
+def outcome_public(ev):
+    """Compact public view of a recorded official outcome (values + provenance; no third-party text)."""
+    o = ev.get("official_outcome") or {}
+    src = o.get("official_source") or {}
+    return {"recorded_at": ev["official_outcome_recorded_at"], "summary": ev.get("summary"), "values": o.get("values"),
+            "surprise": ev.get("surprise", "unknown"), "consensus_status": o.get("consensus_status"),
+            "surprise_measure": o.get("surprise_measure"), "surprise_diff_pp": o.get("surprise_diff_pp"),
+            "reference_expectation_diffs": [{k: d.get(k) for k in ("measure", "kind", "label", "expected", "official", "diff_pp")}
+                                            for d in o.get("reference_expectation_diffs") or []],
+            "published_at": src.get("published_at"), "captured_at": src.get("captured_at"), "source": src.get("api"),
+            "release_text": src.get("release_text"), "data_sha256": src.get("data_sha256"),
+            "cross_check": (o.get("cross_check") or {}).get("result")}
+
+
 def pct(x):
     return None if x is None else f"{x * 100:.1f}%"
 
@@ -82,8 +96,9 @@ def build(now=None):
         events.append({"key": key, "name_zh": ev["name_zh"], "importance": ev.get("importance"),
                        "release": ev["release"], "time_status": ev["time_status"], "official_source": ev["official_source"],
                        "checkpoints": ev["checkpoints"], "windows": windows(ev),
-                       "official_outcome": ({"recorded_at": ev["official_outcome_recorded_at"], "summary": ev.get("summary")}
-                                            if ev.get("official_outcome_recorded_at") else None)})
+                       "outcome_status": ev.get("outcome_status") or ("recorded" if ev.get("official_outcome_recorded_at") else "pending"),
+                       "outcome_status_detail": ev.get("outcome_status_detail"),
+                       "official_outcome": (outcome_public(ev) if ev.get("official_outcome_recorded_at") else None)})
     freshness = {
         "market_as_of": market_as_of, "expected_session": expected,
         "market_status": "fresh" if market_as_of == expected else ("stale" if market_as_of and market_as_of < expected else "unknown"),

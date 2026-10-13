@@ -12,7 +12,8 @@ ev = {e["key"]: e for e in out["events"]}
 assert ev["cpi_2026_09"]["windows"]["release"] == "2026-10-14T12:30:00Z"
 assert ev["cpi_2026_09"]["windows"]["t_minus_1_start"] == "2026-10-13T04:00:00Z"        # EDT midnight
 assert ev["treasury_refunding_2026_11_04"]["windows"]["event_day_start"] == "2026-11-04T05:00:00Z"  # EST after 11/01
-assert all(e["official_outcome"] is None for e in out["events"])                              # nothing released yet
+# an outcome exists only once recorded after its official release (the committed calendar fills over time)
+assert all(e["official_outcome"] is None or e["official_outcome"]["recorded_at"] >= e["release"]["utc"] for e in out["events"])
 assert out["judgment"]["key"] in ("risk_elevated", "neutral_awaiting_confirmation", "conditions_improving", "data_insufficient")
 txt = json.dumps(out, ensure_ascii=False)
 for bad in ("马上买", "马上卖", "立即买入", "立即卖出"):

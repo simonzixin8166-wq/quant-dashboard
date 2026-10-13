@@ -147,7 +147,7 @@ jobs:
       # github.sha keeps main's version; the next push-triggered run recomputes it on the new SHA.
       - name: Keep research files changed on main after the compute SHA
         run: |
-          changed=$(git diff --name-only "${{ github.sha }}" HEAD -- research/ || true)
+          changed=$(git diff --name-only "${{ github.sha }}" HEAD -- research/)
           if [ -n "$changed" ]; then
             echo "::notice title=REU lost-update guard::keeping main's version of: $(echo $changed | tr '\n' ' ')"
             echo "$changed" | xargs -r git checkout HEAD --

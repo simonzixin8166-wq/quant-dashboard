@@ -138,7 +138,10 @@ def latest_by_name(runs,names):
     out={}
     err=next((x.get("_error") for x in runs if x.get("_error")),None)
     for name in names:
-        row=next((x for x in runs if x.get("name")==name),None)
+        # A run's "name" is its run-name: labeled dispatches (guardian/recovery) read
+        # "Daily Dashboard Update · <reason>". They are the same workflow and must count, otherwise a
+        # successful recovery stays hidden behind the last failed unlabeled run (P0 2026-10-13).
+        row=next((x for x in runs if x.get("name")==name or str(x.get("name") or "").startswith(name+" · ")),None)
         if row:
             out[name]={
                 "status":row.get("status"),"conclusion":row.get("conclusion"),

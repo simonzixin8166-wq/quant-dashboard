@@ -18,6 +18,7 @@ PATHS={
  "families":ROOT/"research"/"registry"/"rule_families.json",
  "events":ROOT/"research"/"events"/"event_scores_v1.json",
  "spec":ROOT/"research"/"specs"/"evaluation_spec.json",
+ "validation":ROOT/"docs"/"research"/"source_outcome_validation.json",
 }
 OUT=ROOT/"research"/"reports"/"forward_intake_health.json"
 VERSION="6.15.8l"
@@ -26,7 +27,28 @@ def load(p,d):
     try:return json.loads(p.read_text(encoding="utf-8"))
     except Exception:return d
 
-def build(store,rules,families,events,spec,now=None):
+def pending_baseline(rule,validation_generated_at):
+    """True only when the upstream validator could not yet have seen the rule's baseline session.
+
+    EventScore events come from source_outcome_validation.json, which (by design) emits an event only
+    once the first NYSE session strictly after published_at has a completed bar. If the validator last
+    ran before that session completed, a missing event is upstream timing, not a broken path. Once a
+    validator run after the baseline close exists, a missing event fails closed again.
+    """
+    import trading_calendar
+    from datetime import date
+    try:
+        published=date.fromisoformat(str(rule.get("published_at"))[:10])
+        gen=datetime.fromisoformat(str(validation_generated_at).replace("Z","+00:00"))
+    except Exception:
+        return False
+    if gen.tzinfo is None:
+        return False
+    baseline=trading_calendar.next_session(published)
+    return trading_calendar.expected_latest_completed_session(gen)<baseline
+
+
+def build(store,rules,families,events,spec,now=None,validation_generated_at=None):
     now=now or datetime.now(timezone.utc).isoformat()
     source_meta={}
     for row in store.get("records") or []:
@@ -69,7 +91,10 @@ def build(store,rules,families,events,spec,now=None):
     scoreable_forward=[e for e in eligible_forward if e.get("scoreable")]
 
     missing_family=sorted(live_rule_ids-family_rule_ids)
-    missing_event=sorted(live_rule_ids-event_rule_ids)
+    missing_event_all=sorted(live_rule_ids-event_rule_ids)
+    rule_by_id={str(r.get("rule_id")):r for r in live_rules}
+    pending_event=[rid for rid in missing_event_all if pending_baseline(rule_by_id.get(rid) or {},validation_generated_at)]
+    missing_event=[rid for rid in missing_event_all if rid not in pending_event]
     noneligible=[
         {
             "event_id":e.get("event_id"),
@@ -109,7 +134,8 @@ def build(store,rules,families,events,spec,now=None):
     status=(
         "waiting_for_first_genuine_forward_rule"
         if not forward_path_observed
-        else ("healthy_forward_intake_observed" if integrity_pass else "forward_intake_integrity_failure")
+        else (("forward_rule_pending_baseline_session" if pending_event else "healthy_forward_intake_observed")
+              if integrity_pass else "forward_intake_integrity_failure")
     )
     exclusions=Counter(str(e.get("primary_exclusion_reason") or "scoreable") for e in eligible_forward)
 
@@ -129,6 +155,7 @@ def build(store,rules,families,events,spec,now=None):
             "forward_eventscore_events":len(forward_events),
             "point_in_time_eligible_events":len(eligible_forward),
             "scoreable_forward_events":len(scoreable_forward),
+            "pending_baseline_session_rules":len(pending_event),
             "rekeyed_live_inherited_sources":len(rekeyed_live_inherited),
             "legacy_ineligible_live_sources":len(legacy_ineligible_live_sources),
         },
@@ -137,6 +164,8 @@ def build(store,rules,families,events,spec,now=None):
         "details":{
             "missing_family_rule_ids":missing_family,
             "missing_event_rule_ids":missing_event,
+            "pending_baseline_session_rule_ids":pending_event,
+            "validation_generated_at":validation_generated_at,
             "noneligible_forward_events":noneligible[:50],
             "suspicious_live_source_ids":sorted(suspicious_live_sources)[:50],
             "legacy_ineligible_live_source_ids":sorted(legacy_ineligible_live_sources)[:50],
@@ -147,6 +176,7 @@ def build(store,rules,families,events,spec,now=None):
             "No live rule is fabricated to make the forward count non-zero.",
             "Waiting for the first genuine live rule is healthy and distinct from a broken path.",
             "A genuine live rule must map to the current Rule Family definition and an EventScore event.",
+            "A missing EventScore event is pending (not a failure) only while the last validator run predates the completed baseline session; afterwards it fails closed.",
             "Its EventScore event must be point-in-time eligible; scoreability may still be blocked by pre-registered semantic or price-source rules.",
             "This guard cannot alter Promotion, thresholds, production rules, positions, or orders."
         ],
@@ -154,7 +184,8 @@ def build(store,rules,families,events,spec,now=None):
 
 def main():
     d={k:load(p,{}) for k,p in PATHS.items()}
-    out=build(d["store"],d["rules"],d["families"],d["events"],d["spec"])
+    out=build(d["store"],d["rules"],d["families"],d["events"],d["spec"],
+              validation_generated_at=(d.get("validation") or {}).get("generated_at"))
     OUT.parent.mkdir(parents=True,exist_ok=True)
     OUT.write_text(json.dumps(out,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
     live_diag=[]

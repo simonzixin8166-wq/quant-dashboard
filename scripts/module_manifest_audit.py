@@ -35,6 +35,7 @@ OUT_MD = ROOT / "research" / "audit" / "MODULE_MANIFEST.md"
 R, D, L, M, V = "research", "decision", "learning", "monitor", "display"
 ROLES = {  # reader → (role, reason)
     "daily_research_job.py": (R, "append-only shadow hypotheses, revisits, maturity"),
+    "macro_event_watch.py": (V, "H-01/H-02 homepage macro-event reminder artifact (Shadow, no decisions)"),
     "brightline_tranche_shadow.py": (R, "R-01/R-B: BrightLine three-tranche Shadow state (used_in_decision=false)"),
     "fundamental_reliability.py": (R, "B2-02: clean fundamentals-outcome reliability context on SEC evidence (used_in_decision=false)"),
     "experience_inputs.py": (R, "B1: situation/error memory as Shadow evidence in auto research (used_in_decision=false)"),

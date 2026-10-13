@@ -91,7 +91,22 @@
     });
   }
 
+  // #133 6138793593 H-01: the compact 宏观事件与分批观察 row is loaded from here (static asset; no change to the
+  // Daily-generated index.html template), with the same asset version as this script.
+  function loadMacroEventRow() {
+    try {
+      if (document.getElementById('macroEventRowScript')) return;
+      var me = document.querySelector('script[src*="auto-research-row.js"]');
+      var v = me && /[?&]v=([^&]+)/.exec(me.getAttribute('src')) ? /[?&]v=([^&]+)/.exec(me.getAttribute('src'))[1] : '';
+      var css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'assets/macro-event-row.css?v=' + v;
+      document.head.appendChild(css);
+      var s = document.createElement('script'); s.id = 'macroEventRowScript'; s.src = 'assets/macro-event-row.js?v=' + v;
+      document.body.appendChild(s);
+    } catch (e) { /* the research row never fails because of the macro row */ }
+  }
+
   function init() {
+    loadMacroEventRow();
     var el = document.getElementById('autoResearchRow');
     if (!el || typeof fetch !== 'function') return;
     var marketAsOf = el.getAttribute('data-market-as-of') || '';

@@ -1,6 +1,6 @@
 {
   "version": "5.7.0",
-  "generated_at": "2026-10-13T04:07:45.659276+00:00",
+  "generated_at": "2026-10-13T04:36:04.561927+00:00",
   "external_outcome_evidence_role": "legacy_descriptive_only",
   "as_of": "2026-10-13",
   "architecture": [
@@ -676,13 +676,13 @@
     "note": "V5.7 首版只用已有可验证数据形成技术/市场 Breadcrumb；不会假装已经抓取到 SEC/FDA/论坛等外部事实。"
   },
   "failure_attribution": {
-    "mature_samples_scanned": 506,
-    "review_samples": 183,
+    "mature_samples_scanned": 461,
+    "review_samples": 172,
     "tag_counts": {
-      "trend_false_positive": 51,
-      "timeframe_confirmation_missing": 65,
-      "large_adverse_move": 109,
-      "missed_upside": 41
+      "trend_false_positive": 48,
+      "timeframe_confirmation_missing": 77,
+      "large_adverse_move": 103,
+      "missed_upside": 24
     },
     "recent": [
       {
@@ -744,6 +744,48 @@
         ],
         "attribution_hypotheses": [
           "当时状态偏谨慎，但随后20日明显上涨：检查是否漏掉二次启动或修复后的确认。"
+        ],
+        "guardrail": "这是可检验的归因假设，不是已经证明的因果关系；只有重复成熟样本才允许影响 Learning Policy。"
+      },
+      {
+        "symbol": "CRWV",
+        "date": "2026-09-09",
+        "source_stage": "二次启动",
+        "weekly": "空头",
+        "score": 30.95,
+        "return_20": -0.06835896355592996,
+        "mae_20": -0.15862650094796715,
+        "mfe_20": -0.0339161575732041,
+        "severity": "review",
+        "tags": [
+          "timeframe_confirmation_missing",
+          "large_adverse_move"
+        ],
+        "attribution_hypotheses": [
+          "日线偏强而周线未确认，多周期冲突可能是误判来源之一。",
+          "入档后经历较大不利波动，风险识别和无效条件应被单独复盘。"
+        ],
+        "guardrail": "这是可检验的归因假设，不是已经证明的因果关系；只有重复成熟样本才允许影响 Learning Policy。"
+      },
+      {
+        "symbol": "CRWV",
+        "date": "2026-09-08",
+        "source_stage": "趋势启动",
+        "weekly": "空头",
+        "score": 43.69,
+        "return_20": -0.08123810477812277,
+        "mae_20": -0.19983972753681256,
+        "mfe_20": -0.04898327156165483,
+        "severity": "review",
+        "tags": [
+          "trend_false_positive",
+          "timeframe_confirmation_missing",
+          "large_adverse_move"
+        ],
+        "attribution_hypotheses": [
+          "当时趋势状态偏多，但20个交易日结果明显为负：优先检查趋势确认是否过早。",
+          "日线偏强而周线未确认，多周期冲突可能是误判来源之一。",
+          "入档后经历较大不利波动，风险识别和无效条件应被单独复盘。"
         ],
         "guardrail": "这是可检验的归因假设，不是已经证明的因果关系；只有重复成熟样本才允许影响 Learning Policy。"
       },
@@ -846,6 +888,24 @@
         "guardrail": "这是可检验的归因假设，不是已经证明的因果关系；只有重复成熟样本才允许影响 Learning Policy。"
       },
       {
+        "symbol": "NOW",
+        "date": "2026-08-28",
+        "source_stage": "趋势延续",
+        "weekly": "多头",
+        "score": 95.15,
+        "return_20": -0.09163153893994902,
+        "mae_20": -0.09398106557943464,
+        "mfe_20": 0.02266602169856946,
+        "severity": "review",
+        "tags": [
+          "trend_false_positive"
+        ],
+        "attribution_hypotheses": [
+          "当时趋势状态偏多，但20个交易日结果明显为负：优先检查趋势确认是否过早。"
+        ],
+        "guardrail": "这是可检验的归因假设，不是已经证明的因果关系；只有重复成熟样本才允许影响 Learning Policy。"
+      },
+      {
         "symbol": "IREN",
         "date": "2026-08-28",
         "source_stage": "趋势恶化",
@@ -860,6 +920,24 @@
         ],
         "attribution_hypotheses": [
           "当时状态偏谨慎，但随后20日明显上涨：检查是否漏掉二次启动或修复后的确认。"
+        ],
+        "guardrail": "这是可检验的归因假设，不是已经证明的因果关系；只有重复成熟样本才允许影响 Learning Policy。"
+      },
+      {
+        "symbol": "HYG",
+        "date": "2026-08-28",
+        "source_stage": "趋势延续",
+        "weekly": "空头",
+        "score": 29.37,
+        "return_20": -0.027589666415851366,
+        "mae_20": -0.027589666415851366,
+        "mfe_20": 0.0008778530223225722,
+        "severity": "review",
+        "tags": [
+          "timeframe_confirmation_missing"
+        ],
+        "attribution_hypotheses": [
+          "日线偏强而周线未确认，多周期冲突可能是误判来源之一。"
         ],
         "guardrail": "这是可检验的归因假设，不是已经证明的因果关系；只有重复成熟样本才允许影响 Learning Policy。"
       },
@@ -882,6 +960,24 @@
         "guardrail": "这是可检验的归因假设，不是已经证明的因果关系；只有重复成熟样本才允许影响 Learning Policy。"
       },
       {
+        "symbol": "TLT",
+        "date": "2026-08-26",
+        "source_stage": "趋势延续",
+        "weekly": "空头",
+        "score": 23.01,
+        "return_20": -0.04657863145258101,
+        "mae_20": -0.04657863145258101,
+        "mfe_20": -0.0020408163265306367,
+        "severity": "review",
+        "tags": [
+          "timeframe_confirmation_missing"
+        ],
+        "attribution_hypotheses": [
+          "日线偏强而周线未确认，多周期冲突可能是误判来源之一。"
+        ],
+        "guardrail": "这是可检验的归因假设，不是已经证明的因果关系；只有重复成熟样本才允许影响 Learning Policy。"
+      },
+      {
         "symbol": "ORCL",
         "date": "2026-08-26",
         "source_stage": "二次启动",
@@ -890,6 +986,42 @@
         "return_20": -0.0626721300463492,
         "mae_20": -0.0626721300463492,
         "mfe_20": 0.09169073688453011,
+        "severity": "review",
+        "tags": [
+          "timeframe_confirmation_missing"
+        ],
+        "attribution_hypotheses": [
+          "日线偏强而周线未确认，多周期冲突可能是误判来源之一。"
+        ],
+        "guardrail": "这是可检验的归因假设，不是已经证明的因果关系；只有重复成熟样本才允许影响 Learning Policy。"
+      },
+      {
+        "symbol": "HYG",
+        "date": "2026-08-26",
+        "source_stage": "二次启动",
+        "weekly": "过渡",
+        "score": 40.38,
+        "return_20": -0.025156445556946294,
+        "mae_20": -0.025156445556946294,
+        "mfe_20": -0.000375469336670875,
+        "severity": "review",
+        "tags": [
+          "timeframe_confirmation_missing"
+        ],
+        "attribution_hypotheses": [
+          "日线偏强而周线未确认，多周期冲突可能是误判来源之一。"
+        ],
+        "guardrail": "这是可检验的归因假设，不是已经证明的因果关系；只有重复成熟样本才允许影响 Learning Policy。"
+      },
+      {
+        "symbol": "TLT",
+        "date": "2026-08-25",
+        "source_stage": "趋势启动",
+        "weekly": "空头",
+        "score": 24.56,
+        "return_20": -0.03606086018928967,
+        "mae_20": -0.03606086018928967,
+        "mfe_20": -0.0020366598778004397,
         "severity": "review",
         "tags": [
           "timeframe_confirmation_missing"
@@ -918,144 +1050,14 @@
         "guardrail": "这是可检验的归因假设，不是已经证明的因果关系；只有重复成熟样本才允许影响 Learning Policy。"
       },
       {
-        "symbol": "TQQQ",
-        "date": "2026-08-24",
-        "source_stage": "趋势恶化",
-        "weekly": "多头",
-        "score": -1.24,
-        "return_20": 0.17127951498234606,
-        "mae_20": -0.016084633763093437,
-        "mfe_20": 0.17127951498234606,
-        "severity": "review",
-        "tags": [
-          "missed_upside"
-        ],
-        "attribution_hypotheses": [
-          "当时状态偏谨慎，但随后20日明显上涨：检查是否漏掉二次启动或修复后的确认。"
-        ],
-        "guardrail": "这是可检验的归因假设，不是已经证明的因果关系；只有重复成熟样本才允许影响 Learning Policy。"
-      },
-      {
-        "symbol": "SOFI",
-        "date": "2026-08-21",
-        "source_stage": "二次启动",
-        "weekly": "过渡",
-        "score": 56.09,
-        "return_20": -0.10259122157588585,
-        "mae_20": -0.11528291909042832,
-        "mfe_20": 0.014278159703860371,
-        "severity": "review",
-        "tags": [
-          "trend_false_positive",
-          "timeframe_confirmation_missing"
-        ],
-        "attribution_hypotheses": [
-          "当时趋势状态偏多，但20个交易日结果明显为负：优先检查趋势确认是否过早。",
-          "日线偏强而周线未确认，多周期冲突可能是误判来源之一。"
-        ],
-        "guardrail": "这是可检验的归因假设，不是已经证明的因果关系；只有重复成熟样本才允许影响 Learning Policy。"
-      },
-      {
-        "symbol": "IREN",
-        "date": "2026-08-21",
-        "source_stage": "二次启动",
-        "weekly": "过渡",
-        "score": 37.26,
-        "return_20": 0.12774594078319002,
-        "mae_20": -0.15353390639923592,
-        "mfe_20": 0.12774594078319002,
-        "severity": "review",
-        "tags": [
-          "large_adverse_move"
-        ],
-        "attribution_hypotheses": [
-          "入档后经历较大不利波动，风险识别和无效条件应被单独复盘。"
-        ],
-        "guardrail": "这是可检验的归因假设，不是已经证明的因果关系；只有重复成熟样本才允许影响 Learning Policy。"
-      },
-      {
-        "symbol": "SOFI",
-        "date": "2026-08-20",
-        "source_stage": "趋势延续",
-        "weekly": "过渡",
-        "score": 28.58,
-        "return_20": -0.0535714285714286,
-        "mae_20": -0.06640625000000011,
-        "mfe_20": 0.07031249999999978,
-        "severity": "review",
-        "tags": [
-          "timeframe_confirmation_missing"
-        ],
-        "attribution_hypotheses": [
-          "日线偏强而周线未确认，多周期冲突可能是误判来源之一。"
-        ],
-        "guardrail": "这是可检验的归因假设，不是已经证明的因果关系；只有重复成熟样本才允许影响 Learning Policy。"
-      },
-      {
-        "symbol": "HOOD",
-        "date": "2026-08-20",
-        "source_stage": "趋势恶化",
-        "weekly": "过渡",
-        "score": -28.63,
-        "return_20": 0.2599369085173502,
-        "mae_20": 0.08843322818086241,
-        "mfe_20": 0.31146161934805483,
-        "severity": "review",
-        "tags": [
-          "missed_upside"
-        ],
-        "attribution_hypotheses": [
-          "当时状态偏谨慎，但随后20日明显上涨：检查是否漏掉二次启动或修复后的确认。"
-        ],
-        "guardrail": "这是可检验的归因假设，不是已经证明的因果关系；只有重复成熟样本才允许影响 Learning Policy。"
-      },
-      {
-        "symbol": "ORCL",
-        "date": "2026-08-14",
-        "source_stage": "趋势延续",
-        "weekly": "过渡",
-        "score": 36.19,
-        "return_20": -0.03806803082646837,
-        "mae_20": -0.06112144565506261,
-        "mfe_20": 0.07972362476747286,
-        "severity": "review",
-        "tags": [
-          "timeframe_confirmation_missing"
-        ],
-        "attribution_hypotheses": [
-          "日线偏强而周线未确认，多周期冲突可能是误判来源之一。"
-        ],
-        "guardrail": "这是可检验的归因假设，不是已经证明的因果关系；只有重复成熟样本才允许影响 Learning Policy。"
-      },
-      {
-        "symbol": "IREN",
-        "date": "2026-08-14",
-        "source_stage": "趋势延续",
-        "weekly": "空头",
-        "score": 24.54,
-        "return_20": -0.0201997276441217,
-        "mae_20": -0.19541534271448024,
-        "mfe_20": 0.06513844757149334,
-        "severity": "review",
-        "tags": [
-          "timeframe_confirmation_missing",
-          "large_adverse_move"
-        ],
-        "attribution_hypotheses": [
-          "日线偏强而周线未确认，多周期冲突可能是误判来源之一。",
-          "入档后经历较大不利波动，风险识别和无效条件应被单独复盘。"
-        ],
-        "guardrail": "这是可检验的归因假设，不是已经证明的因果关系；只有重复成熟样本才允许影响 Learning Policy。"
-      },
-      {
-        "symbol": "AMD",
-        "date": "2026-08-14",
+        "symbol": "HYG",
+        "date": "2026-08-25",
         "source_stage": "趋势启动",
         "weekly": "过渡",
-        "score": 13.87,
-        "return_20": -0.040786173914733936,
-        "mae_20": -0.11320204514084642,
-        "mfe_20": 0.01303485682070038,
+        "score": 30.76,
+        "return_20": -0.022772772772772898,
+        "mae_20": -0.022772772772772898,
+        "mfe_20": -0.00025025025025016134,
         "severity": "review",
         "tags": [
           "timeframe_confirmation_missing"
@@ -2369,10 +2371,10 @@
         "title": "ServiceNow回来了，我在145卖掉一半",
         "url": "https://blog.wenxuecity.com/myblog/82458/202608/22905.html",
         "attribution": "author_action",
-        "return_20": -0.08544481442282026,
-        "mae_20": -0.10789697095642903,
-        "mfe_20": 0.05292795731663125,
-        "excess_vs_qqq_20": -0.11764694818122756,
+        "return_20": -0.08544481981981988,
+        "mae_20": -0.10789695945945954,
+        "mfe_20": 0.052927927927927776,
+        "excess_vs_qqq_20": -0.11764695357822719,
         "alignment_20": "not_aligned",
         "review_tags": [
           "direction_not_aligned",
@@ -2412,10 +2414,10 @@
         "title": "子弹与耐心：8·18 AI板块大跌手记。",
         "url": "https://blog.wenxuecity.com/myblog/82458/202608/14095.html",
         "attribution": "author_action",
-        "return_20": -0.1522870167918733,
-        "mae_20": -0.16937287642251608,
-        "mfe_20": 0.10994367623775236,
-        "excess_vs_qqq_20": -0.14747018146656332,
+        "return_20": -0.15228695744455067,
+        "mae_20": -0.16937281120662218,
+        "mfe_20": 0.10994375464289496,
+        "excess_vs_qqq_20": -0.1474701221192407,
         "alignment_20": "not_scored",
         "review_tags": [
           "large_adverse_move",
@@ -2434,10 +2436,10 @@
         "title": "我刚刚又加仓了MU@807  & RKLB @64",
         "url": "https://bbs.wenxuecity.com/cfzh/97437.html",
         "attribution": "author_action",
-        "return_20": 0.14248449205844116,
-        "mae_20": -0.16677394358426478,
-        "mfe_20": 0.17001478856936014,
-        "excess_vs_qqq_20": 0.10302055221567019,
+        "return_20": 0.14248450150750358,
+        "mae_20": -0.16677394220671438,
+        "mfe_20": 0.17001479273236453,
+        "excess_vs_qqq_20": 0.10302056166473261,
         "alignment_20": "aligned",
         "review_tags": [
           "large_adverse_move"
@@ -2647,10 +2649,10 @@
         "title": "财富的逻辑：从搏一搏到敢再搏，再到工程化的复利 — 我的投资哲学、方法论与实战案例",
         "url": "https://blog.wenxuecity.com/myblog/82458/202605/4789.html",
         "attribution": "author_action",
-        "return_20": -0.25756710266319216,
-        "mae_20": -0.33270783128686665,
-        "mfe_20": 0.03859022084286834,
-        "excess_vs_qqq_20": -0.22998108735614853,
+        "return_20": -0.17542787286063566,
+        "mae_20": -0.24870110024449876,
+        "mfe_20": 0.014287897310513387,
+        "excess_vs_qqq_20": -0.171866298447662,
         "alignment_20": "not_aligned",
         "review_tags": [
           "direction_not_aligned",
@@ -2670,10 +2672,10 @@
         "title": "财富的逻辑：从搏一搏到敢再搏，再到工程化的复利 — 我的投资哲学、方法论与实战案例",
         "url": "https://blog.wenxuecity.com/myblog/82458/202605/4789.html",
         "attribution": "author_action",
-        "return_20": -0.25756710266319216,
-        "mae_20": -0.33270783128686665,
-        "mfe_20": 0.03859022084286834,
-        "excess_vs_qqq_20": -0.22998108735614853,
+        "return_20": -0.17542787286063566,
+        "mae_20": -0.24870110024449876,
+        "mfe_20": 0.014287897310513387,
+        "excess_vs_qqq_20": -0.171866298447662,
         "alignment_20": "not_aligned",
         "review_tags": [
           "direction_not_aligned",
@@ -2693,10 +2695,10 @@
         "title": "财富的逻辑：从搏一搏到敢再搏，再到工程化的复利 — 我的投资哲学、方法论与实战案例",
         "url": "https://blog.wenxuecity.com/myblog/82458/202605/4789.html",
         "attribution": "author_action",
-        "return_20": -0.25756710266319216,
-        "mae_20": -0.33270783128686665,
-        "mfe_20": 0.03859022084286834,
-        "excess_vs_qqq_20": -0.22998108735614853,
+        "return_20": -0.17542787286063566,
+        "mae_20": -0.24870110024449876,
+        "mfe_20": 0.014287897310513387,
+        "excess_vs_qqq_20": -0.171866298447662,
         "alignment_20": "not_aligned",
         "review_tags": [
           "direction_not_aligned",
@@ -2737,10 +2739,10 @@
         "title": "财富的逻辑：从搏一搏到敢再搏，再到工程化的复利 — 我的投资哲学、方法论与实战案例",
         "url": "https://blog.wenxuecity.com/myblog/82458/202605/4789.html",
         "attribution": "author_action",
-        "return_20": -0.2584615120520959,
-        "mae_20": -0.280673100398137,
-        "mfe_20": 0.17307692307692313,
-        "excess_vs_qqq_20": -0.2308771738865356,
+        "return_20": -0.12113908230673087,
+        "mae_20": -0.16443492233529733,
+        "mfe_20": 0.17970005356186403,
+        "excess_vs_qqq_20": -0.1175775078937572,
         "alignment_20": "aligned",
         "review_tags": [
           "large_adverse_move",
@@ -2759,13 +2761,14 @@
         "title": "这轮建仓和清仓复盘，开始大力减仓",
         "url": "https://blog.wenxuecity.com/myblog/82458/202605/385.html",
         "attribution": "author_action",
-        "return_20": -0.007733233160873709,
-        "mae_20": -0.1182671532596562,
-        "mfe_20": 0.15338576107041968,
-        "excess_vs_qqq_20": 0.019852782146169923,
+        "return_20": -0.016950825334945296,
+        "mae_20": -0.025224736197126174,
+        "mfe_20": 0.05767886369430952,
+        "excess_vs_qqq_20": -0.122930133430875,
         "alignment_20": "not_aligned",
         "review_tags": [
-          "direction_not_aligned"
+          "direction_not_aligned",
+          "underperformed_qqq"
         ],
         "maturity": "mature20",
         "attribution_confidence": "medium",
@@ -2773,17 +2776,17 @@
         "learning_eligible": false
       },
       {
-        "event_id": "brightline-s-blog-wenxuecity-com-myblog-82458-202605-385-html:3:INTC:0",
+        "event_id": "brightline-s-blog-wenxuecity-com-myblog-82458-202605-385-html:0:CRWV:0",
         "author": "BrightLine",
-        "symbol": "INTC",
+        "symbol": "CRWV",
         "published_at": "2026-05-01",
         "title": "这轮建仓和清仓复盘，开始大力减仓",
         "url": "https://blog.wenxuecity.com/myblog/82458/202605/385.html",
         "attribution": "author_action",
-        "return_20": -0.25756710266319216,
-        "mae_20": -0.33270783128686665,
-        "mfe_20": 0.03859022084286834,
-        "excess_vs_qqq_20": -0.22998108735614853,
+        "return_20": -0.015761676844363803,
+        "mae_20": -0.21752764482587894,
+        "mfe_20": 0.14086482917973253,
+        "excess_vs_qqq_20": -0.1217409849402935,
         "alignment_20": "not_aligned",
         "review_tags": [
           "direction_not_aligned",
@@ -2796,7 +2799,7 @@
         "learning_eligible": false
       }
     ],
-    "external_outcome_review_count": 25,
+    "external_outcome_review_count": 23,
     "external_note": "旧 Source Outcome 仅保留描述性复盘；不得进入 Evidence Foundation 方法成熟度、Planner 权重或 Promotion。"
   },
   "external_source_intelligence": {
@@ -3939,98 +3942,98 @@
     ],
     "outcome_validation": {
       "counts": {
-        "events": 144,
+        "events": 146,
         "author_owned": 64,
-        "unconfirmed": 80,
+        "unconfirmed": 82,
         "triggered_author_owned": 53,
         "untriggered_plans": 11,
-        "mature60": 27,
-        "developing": 26,
+        "mature60": 29,
+        "developing": 24,
         "symbols": 24
       },
       "by_action": {
         "add": {
           "5": {
             "n": 12,
-            "avg_return": 0.026416400085447978,
+            "avg_return": 0.032230507665505996,
             "median_return": 0.004890451516737837,
-            "avg_excess_vs_qqq": 0.02498855451727498,
-            "alignment_rate": 0.5833333333333334
+            "avg_excess_vs_qqq": 0.025365184340428604,
+            "alignment_rate": 0.6666666666666666
           },
           "20": {
             "n": 12,
-            "avg_return": 0.06377728969145216,
+            "avg_return": 0.06783343969245939,
             "median_return": 0.08419493907521014,
-            "avg_excess_vs_qqq": 0.03177944345643774,
+            "avg_excess_vs_qqq": 0.02619978880639387,
             "alignment_rate": 0.6666666666666666
           },
           "60": {
-            "n": 7,
-            "avg_return": -0.03117337520016899,
+            "n": 9,
+            "avg_return": -0.017212029337127795,
             "median_return": -0.08720468913972712,
-            "avg_excess_vs_qqq": -0.09043635950842144,
-            "alignment_rate": 0.42857142857142855
+            "avg_excess_vs_qqq": -0.07008004483597424,
+            "alignment_rate": 0.4444444444444444
           }
         },
         "buy": {
           "5": {
             "n": 19,
-            "avg_return": -0.030429273837765357,
-            "median_return": -0.01619433525901859,
-            "avg_excess_vs_qqq": -0.035133115063603754,
-            "alignment_rate": 0.3076923076923077
+            "avg_return": -0.0010883860265191142,
+            "median_return": -0.014927582718547106,
+            "avg_excess_vs_qqq": -0.02648765426001312,
+            "alignment_rate": 0.38461538461538464
           },
           "20": {
             "n": 13,
-            "avg_return": -0.05542130767317669,
-            "median_return": -0.08544481442282026,
-            "avg_excess_vs_qqq": -0.054162552802834336,
-            "alignment_rate": 0.2727272727272727
+            "avg_return": 0.07390778068250267,
+            "median_return": -0.015761676844363803,
+            "avg_excess_vs_qqq": 0.013412214445703893,
+            "alignment_rate": 0.45454545454545453
           },
           "60": {
             "n": 10,
-            "avg_return": -9.936188093540022e-06,
-            "median_return": -0.05417312071616842,
-            "avg_excess_vs_qqq": -0.010450021866142644,
+            "avg_return": -0.12071002850255394,
+            "median_return": -0.17536787056027153,
+            "avg_excess_vs_qqq": -0.1405284126219397,
             "alignment_rate": 0.25
           }
         },
         "hold": {
           "5": {
             "n": 11,
-            "avg_return": -0.0331907677548181,
+            "avg_return": -0.03453733399231682,
             "median_return": -0.028451644415499744,
-            "avg_excess_vs_qqq": -0.03623570021225265,
+            "avg_excess_vs_qqq": -0.038043125049677835,
             "alignment_rate": 0.2857142857142857
           },
           "20": {
             "n": 7,
-            "avg_return": -0.03984545532591921,
+            "avg_return": -0.028111274812771123,
             "median_return": -0.0008683382177357979,
-            "avg_excess_vs_qqq": -0.04092418007111905,
+            "avg_excess_vs_qqq": -0.03262206254283811,
             "alignment_rate": 0.42857142857142855
           },
           "60": {
             "n": 5,
-            "avg_return": -0.16029562410907633,
-            "median_return": -0.06765636253389395,
-            "avg_excess_vs_qqq": -0.1462314828604608,
+            "avg_return": -0.19693960632281085,
+            "median_return": -0.23739303178484106,
+            "avg_excess_vs_qqq": -0.17900780990262552,
             "alignment_rate": 0.0
           }
         },
         "planned_buy": {
           "5": {
             "n": 4,
-            "avg_return": 0.04005652818368363,
-            "median_return": -0.01859362899272715,
-            "avg_excess_vs_qqq": 0.04971820603215493,
+            "avg_return": 0.04005652429494086,
+            "median_return": -0.018593636770212696,
+            "avg_excess_vs_qqq": 0.04971820214341216,
             "alignment_rate": 1.0
           },
           "20": {
             "n": 4,
-            "avg_return": 0.04911038264993797,
+            "avg_return": 0.04911039857668206,
             "median_return": 0.0651589187327824,
-            "avg_excess_vs_qqq": 0.04689104204469016,
+            "avg_excess_vs_qqq": 0.04689105797143425,
             "alignment_rate": 1.0
           },
           "60": {
@@ -4044,16 +4047,16 @@
         "planned_sell": {
           "5": {
             "n": 3,
-            "avg_return": -0.03878177194556465,
-            "median_return": -0.0660087127148069,
-            "avg_excess_vs_qqq": -0.026260776373721595,
+            "avg_return": -0.03878177713055501,
+            "median_return": -0.06600870211185395,
+            "avg_excess_vs_qqq": -0.02626078155871196,
             "alignment_rate": 1.0
           },
           "20": {
             "n": 3,
-            "avg_return": 0.0014805101999173138,
+            "avg_return": 0.0014805314355761008,
             "median_return": -0.06168216253443515,
-            "avg_excess_vs_qqq": 0.0062973455252272785,
+            "avg_excess_vs_qqq": 0.0062973667608860655,
             "alignment_rate": 1.0
           },
           "60": {
@@ -4067,23 +4070,23 @@
         "sell": {
           "5": {
             "n": 7,
-            "avg_return": 0.03123647623949049,
-            "median_return": 0.019340667879962137,
-            "avg_excess_vs_qqq": 0.008992910371450289,
+            "avg_return": 0.021237620487051388,
+            "median_return": 0.019361378611251867,
+            "avg_excess_vs_qqq": -0.013917954476934351,
             "alignment_rate": 0.0
           },
           "20": {
             "n": 3,
-            "avg_return": 0.06969414481286369,
-            "median_return": -0.15717158176943702,
-            "avg_excess_vs_qqq": 0.050606035104959236,
+            "avg_return": 0.15059408988210773,
+            "median_return": -0.015761676844363803,
+            "avg_excess_vs_qqq": 0.0869847647537066,
             "alignment_rate": 1.0
           },
           "60": {
             "n": 3,
-            "avg_return": -0.08480314473894357,
-            "median_return": -0.14307689666748047,
-            "avg_excess_vs_qqq": -0.06901242415901931,
+            "avg_return": -0.1671653102828582,
+            "median_return": -0.28619302949061665,
+            "avg_excess_vs_qqq": -0.16904877539009852,
             "alignment_rate": 1.0
           }
         },
@@ -4113,31 +4116,31 @@
         "trim": {
           "5": {
             "n": 3,
-            "avg_return": 0.015148083221468803,
-            "median_return": 0.016538473275991672,
-            "avg_excess_vs_qqq": 0.030394388408249595,
-            "alignment_rate": 0.3333333333333333
+            "avg_return": -0.014913928848925137,
+            "median_return": -0.07364756293519015,
+            "avg_excess_vs_qqq": -0.00860726743780967,
+            "alignment_rate": 0.6666666666666666
           },
           "20": {
             "n": 3,
-            "avg_return": -0.017391672234880362,
+            "avg_return": 0.028382471013574644,
             "median_return": -0.017282153902128394,
-            "avg_excess_vs_qqq": -0.005822509904377826,
+            "avg_excess_vs_qqq": 0.03194404542654831,
             "alignment_rate": 0.6666666666666666
           },
           "60": {
             "n": 3,
-            "avg_return": -0.13252963280441346,
-            "median_return": -0.14307689666748047,
-            "avg_excess_vs_qqq": -0.12327391060717063,
+            "avg_return": -0.16425767552091897,
+            "median_return": -0.23826102481699696,
+            "avg_excess_vs_qqq": -0.17029686691683088,
             "alignment_rate": 0.6666666666666666
           }
         }
       },
       "mature_learning": {
-        "events_scanned": 144,
+        "events_scanned": 146,
         "mature20": 41,
-        "review_candidates": 25,
+        "review_candidates": 23,
         "recent_reviews": [
           {
             "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-22905-html:0:NOW:0",
@@ -4147,10 +4150,10 @@
             "title": "ServiceNow回来了，我在145卖掉一半",
             "url": "https://blog.wenxuecity.com/myblog/82458/202608/22905.html",
             "attribution": "author_action",
-            "return_20": -0.08544481442282026,
-            "mae_20": -0.10789697095642903,
-            "mfe_20": 0.05292795731663125,
-            "excess_vs_qqq_20": -0.11764694818122756,
+            "return_20": -0.08544481981981988,
+            "mae_20": -0.10789695945945954,
+            "mfe_20": 0.052927927927927776,
+            "excess_vs_qqq_20": -0.11764695357822719,
             "alignment_20": "not_aligned",
             "review_tags": [
               "direction_not_aligned",
@@ -4190,10 +4193,10 @@
             "title": "子弹与耐心：8·18 AI板块大跌手记。",
             "url": "https://blog.wenxuecity.com/myblog/82458/202608/14095.html",
             "attribution": "author_action",
-            "return_20": -0.1522870167918733,
-            "mae_20": -0.16937287642251608,
-            "mfe_20": 0.10994367623775236,
-            "excess_vs_qqq_20": -0.14747018146656332,
+            "return_20": -0.15228695744455067,
+            "mae_20": -0.16937281120662218,
+            "mfe_20": 0.10994375464289496,
+            "excess_vs_qqq_20": -0.1474701221192407,
             "alignment_20": "not_scored",
             "review_tags": [
               "large_adverse_move",
@@ -4212,10 +4215,10 @@
             "title": "我刚刚又加仓了MU@807  & RKLB @64",
             "url": "https://bbs.wenxuecity.com/cfzh/97437.html",
             "attribution": "author_action",
-            "return_20": 0.14248449205844116,
-            "mae_20": -0.16677394358426478,
-            "mfe_20": 0.17001478856936014,
-            "excess_vs_qqq_20": 0.10302055221567019,
+            "return_20": 0.14248450150750358,
+            "mae_20": -0.16677394220671438,
+            "mfe_20": 0.17001479273236453,
+            "excess_vs_qqq_20": 0.10302056166473261,
             "alignment_20": "aligned",
             "review_tags": [
               "large_adverse_move"
@@ -4425,10 +4428,10 @@
             "title": "财富的逻辑：从搏一搏到敢再搏，再到工程化的复利 — 我的投资哲学、方法论与实战案例",
             "url": "https://blog.wenxuecity.com/myblog/82458/202605/4789.html",
             "attribution": "author_action",
-            "return_20": -0.25756710266319216,
-            "mae_20": -0.33270783128686665,
-            "mfe_20": 0.03859022084286834,
-            "excess_vs_qqq_20": -0.22998108735614853,
+            "return_20": -0.17542787286063566,
+            "mae_20": -0.24870110024449876,
+            "mfe_20": 0.014287897310513387,
+            "excess_vs_qqq_20": -0.171866298447662,
             "alignment_20": "not_aligned",
             "review_tags": [
               "direction_not_aligned",
@@ -4448,10 +4451,10 @@
             "title": "财富的逻辑：从搏一搏到敢再搏，再到工程化的复利 — 我的投资哲学、方法论与实战案例",
             "url": "https://blog.wenxuecity.com/myblog/82458/202605/4789.html",
             "attribution": "author_action",
-            "return_20": -0.25756710266319216,
-            "mae_20": -0.33270783128686665,
-            "mfe_20": 0.03859022084286834,
-            "excess_vs_qqq_20": -0.22998108735614853,
+            "return_20": -0.17542787286063566,
+            "mae_20": -0.24870110024449876,
+            "mfe_20": 0.014287897310513387,
+            "excess_vs_qqq_20": -0.171866298447662,
             "alignment_20": "not_aligned",
             "review_tags": [
               "direction_not_aligned",
@@ -4471,10 +4474,10 @@
             "title": "财富的逻辑：从搏一搏到敢再搏，再到工程化的复利 — 我的投资哲学、方法论与实战案例",
             "url": "https://blog.wenxuecity.com/myblog/82458/202605/4789.html",
             "attribution": "author_action",
-            "return_20": -0.25756710266319216,
-            "mae_20": -0.33270783128686665,
-            "mfe_20": 0.03859022084286834,
-            "excess_vs_qqq_20": -0.22998108735614853,
+            "return_20": -0.17542787286063566,
+            "mae_20": -0.24870110024449876,
+            "mfe_20": 0.014287897310513387,
+            "excess_vs_qqq_20": -0.171866298447662,
             "alignment_20": "not_aligned",
             "review_tags": [
               "direction_not_aligned",
@@ -4515,10 +4518,10 @@
             "title": "财富的逻辑：从搏一搏到敢再搏，再到工程化的复利 — 我的投资哲学、方法论与实战案例",
             "url": "https://blog.wenxuecity.com/myblog/82458/202605/4789.html",
             "attribution": "author_action",
-            "return_20": -0.2584615120520959,
-            "mae_20": -0.280673100398137,
-            "mfe_20": 0.17307692307692313,
-            "excess_vs_qqq_20": -0.2308771738865356,
+            "return_20": -0.12113908230673087,
+            "mae_20": -0.16443492233529733,
+            "mfe_20": 0.17970005356186403,
+            "excess_vs_qqq_20": -0.1175775078937572,
             "alignment_20": "aligned",
             "review_tags": [
               "large_adverse_move",
@@ -4537,13 +4540,14 @@
             "title": "这轮建仓和清仓复盘，开始大力减仓",
             "url": "https://blog.wenxuecity.com/myblog/82458/202605/385.html",
             "attribution": "author_action",
-            "return_20": -0.007733233160873709,
-            "mae_20": -0.1182671532596562,
-            "mfe_20": 0.15338576107041968,
-            "excess_vs_qqq_20": 0.019852782146169923,
+            "return_20": -0.016950825334945296,
+            "mae_20": -0.025224736197126174,
+            "mfe_20": 0.05767886369430952,
+            "excess_vs_qqq_20": -0.122930133430875,
             "alignment_20": "not_aligned",
             "review_tags": [
-              "direction_not_aligned"
+              "direction_not_aligned",
+              "underperformed_qqq"
             ],
             "maturity": "mature20",
             "attribution_confidence": "medium",
@@ -4551,17 +4555,17 @@
             "learning_eligible": false
           },
           {
-            "event_id": "brightline-s-blog-wenxuecity-com-myblog-82458-202605-385-html:3:INTC:0",
+            "event_id": "brightline-s-blog-wenxuecity-com-myblog-82458-202605-385-html:0:CRWV:0",
             "author": "BrightLine",
-            "symbol": "INTC",
+            "symbol": "CRWV",
             "published_at": "2026-05-01",
             "title": "这轮建仓和清仓复盘，开始大力减仓",
             "url": "https://blog.wenxuecity.com/myblog/82458/202605/385.html",
             "attribution": "author_action",
-            "return_20": -0.25756710266319216,
-            "mae_20": -0.33270783128686665,
-            "mfe_20": 0.03859022084286834,
-            "excess_vs_qqq_20": -0.22998108735614853,
+            "return_20": -0.015761676844363803,
+            "mae_20": -0.21752764482587894,
+            "mfe_20": 0.14086482917973253,
+            "excess_vs_qqq_20": -0.1217409849402935,
             "alignment_20": "not_aligned",
             "review_tags": [
               "direction_not_aligned",

@@ -1,27 +1,32 @@
 {
   "version": "6.15.8l",
-  "generated_at": "2026-10-10T01:42:22.055923+00:00",
+  "generated_at": "2026-10-13T03:57:15.865156+00:00",
   "spec_version": "1.7",
   "scoring_engine_version": "event_score@6.15.8l",
-  "status": "waiting_for_first_genuine_forward_rule",
+  "status": "healthy_forward_intake_observed",
   "integrity_pass": true,
-  "forward_path_observed": false,
-  "first_scoreable_forward_observed": false,
+  "forward_path_observed": true,
+  "first_scoreable_forward_observed": true,
   "counts": {
-    "active_rules": 0,
-    "genuine_forward_rules": 0,
-    "genuine_forward_rule_authors": 0,
-    "forward_eventscore_events": 0,
-    "point_in_time_eligible_events": 0,
-    "scoreable_forward_events": 0,
+    "active_rules": 1,
+    "genuine_forward_rules": 1,
+    "genuine_forward_rule_authors": 1,
+    "forward_eventscore_events": 1,
+    "point_in_time_eligible_events": 1,
+    "scoreable_forward_events": 1,
+    "pending_baseline_session_rules": 0,
     "rekeyed_live_inherited_sources": 0,
     "legacy_ineligible_live_sources": 88
   },
-  "eligible_event_primary_outcomes": {},
+  "eligible_event_primary_outcomes": {
+    "scoreable": 1
+  },
   "blockers": [],
   "details": {
     "missing_family_rule_ids": [],
     "missing_event_rule_ids": [],
+    "pending_baseline_session_rule_ids": [],
+    "validation_generated_at": "2026-10-13T03:55:12.107370+00:00",
     "noneligible_forward_events": [],
     "suspicious_live_source_ids": [],
     "legacy_ineligible_live_source_ids": [
@@ -83,6 +88,7 @@
     "No live rule is fabricated to make the forward count non-zero.",
     "Waiting for the first genuine live rule is healthy and distinct from a broken path.",
     "A genuine live rule must map to the current Rule Family definition and an EventScore event.",
+    "A missing EventScore event is pending (not a failure) only while the last validator run predates the completed baseline session; afterwards it fails closed.",
     "Its EventScore event must be point-in-time eligible; scoreability may still be blocked by pre-registered semantic or price-source rules.",
     "This guard cannot alter Promotion, thresholds, production rules, positions, or orders."
   ]

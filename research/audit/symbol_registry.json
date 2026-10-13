@@ -1,18 +1,18 @@
 {
- "generated_at": "2026-10-12T04:42:49Z",
- "expected_session": "2026-10-09",
+ "generated_at": "2026-10-13T04:22:57Z",
+ "expected_session": "2026-10-12",
  "counts": {
   "display_watchlist": 28,
-  "research_universe": 30,
+  "research_universe": 40,
   "data_collection_universe": 40,
-  "in_archive": 24,
+  "in_archive": 40,
   "refresh": {
-   "fresh": 24,
-   "missing": 16
+   "stale": 14,
+   "fresh": 26
   },
-  "missing_history_securities": 16,
-  "missing_history_covered_by_owner_pack": 16,
-  "event_rows_without_history": 222
+  "missing_history_securities": 0,
+  "missing_history_covered_by_owner_pack": 0,
+  "event_rows_without_history": 0
  },
  "note": "event_rows_without_history counts news/event rows, not securities; missing_history_securities counts distinct securities",
  "universes": {
@@ -47,15 +47,21 @@
    "VOO"
   ],
   "research_universe": [
+   "AAOI",
+   "AAPL",
    "AMD",
    "AMZN",
    "AVGO",
    "CRWV",
+   "DIA",
    "DRAM",
+   "GLD",
    "GOOG",
    "HOOD",
+   "HYG",
    "INTC",
    "IREN",
+   "IWM",
    "LITE",
    "META",
    "MRVL",
@@ -72,11 +78,15 @@
    "SOFI",
    "SPCX",
    "SPY",
+   "TLT",
    "TQQQ",
    "TSLA",
    "TSM",
    "VGT",
-   "VOO"
+   "VOO",
+   "XLE",
+   "XLF",
+   "XLK"
   ],
   "data_collection_universe": [
    "AAOI",
@@ -126,16 +136,17 @@
    "asset_type": "equity",
    "identity": "listed_ticker_unchecked",
    "display": [],
-   "in_research_universe": false,
+   "in_research_universe": true,
    "in_data_collection_universe": true,
    "used_by": [
+    "auto_research_price_archive",
     "owner_requested"
    ],
-   "in_archive": false,
-   "archive_last_date": null,
-   "refresh_status": "missing",
+   "in_archive": true,
+   "archive_last_date": "2026-10-09",
+   "refresh_status": "stale",
    "quality_flags": [],
-   "pending_owner_pack": "invalid_or_review",
+   "pending_owner_pack": null,
    "event_rows": 0,
    "fundamental_observations": 0,
    "source_mentions": 11
@@ -144,16 +155,17 @@
    "asset_type": "equity",
    "identity": "listed_ticker_unchecked",
    "display": [],
-   "in_research_universe": false,
+   "in_research_universe": true,
    "in_data_collection_universe": true,
    "used_by": [
+    "auto_research_price_archive",
     "owner_requested"
    ],
-   "in_archive": false,
-   "archive_last_date": null,
-   "refresh_status": "missing",
+   "in_archive": true,
+   "archive_last_date": "2026-10-09",
+   "refresh_status": "stale",
    "quality_flags": [],
-   "pending_owner_pack": "invalid_or_review",
+   "pending_owner_pack": null,
    "event_rows": 0,
    "fundamental_observations": 0,
    "source_mentions": 1
@@ -173,13 +185,13 @@
     "sec_facts"
    ],
    "in_archive": true,
-   "archive_last_date": "2026-10-09",
+   "archive_last_date": "2026-10-12",
    "refresh_status": "fresh",
    "quality_flags": [],
    "pending_owner_pack": null,
    "event_rows": 42,
    "fundamental_observations": 65,
-   "source_mentions": 8
+   "source_mentions": 7
   },
   "AMZN": {
    "asset_type": "equity",
@@ -190,16 +202,19 @@
    "in_research_universe": true,
    "in_data_collection_universe": true,
    "used_by": [
+    "auto_research_price_archive",
     "event_archive",
+    "event_evidence",
     "fundamental_outcomes",
-    "owner_requested"
+    "owner_requested",
+    "sec_memory"
    ],
-   "in_archive": false,
-   "archive_last_date": null,
-   "refresh_status": "missing",
+   "in_archive": true,
+   "archive_last_date": "2026-10-12",
+   "refresh_status": "fresh",
    "quality_flags": [],
-   "pending_owner_pack": "new",
-   "event_rows": 25,
+   "pending_owner_pack": null,
+   "event_rows": 30,
    "fundamental_observations": 69,
    "source_mentions": 9
   },
@@ -214,15 +229,17 @@
    "used_by": [
     "auto_research_price_archive",
     "event_archive",
+    "event_evidence",
     "fundamental_outcomes",
-    "sec_facts"
+    "sec_facts",
+    "sec_memory"
    ],
    "in_archive": true,
-   "archive_last_date": "2026-10-09",
+   "archive_last_date": "2026-10-12",
    "refresh_status": "fresh",
    "quality_flags": [],
    "pending_owner_pack": null,
-   "event_rows": 5,
+   "event_rows": 10,
    "fundamental_observations": 34,
    "source_mentions": 9
   },
@@ -251,15 +268,16 @@
    "in_research_universe": true,
    "in_data_collection_universe": true,
    "used_by": [
+    "auto_research_price_archive",
     "event_archive",
     "fundamental_outcomes",
     "owner_requested"
    ],
-   "in_archive": false,
-   "archive_last_date": null,
-   "refresh_status": "missing",
+   "in_archive": true,
+   "archive_last_date": "2026-10-09",
+   "refresh_status": "stale",
    "quality_flags": [],
-   "pending_owner_pack": "invalid_or_review",
+   "pending_owner_pack": null,
    "event_rows": 33,
    "fundamental_observations": 6,
    "source_mentions": 4
@@ -268,16 +286,17 @@
    "asset_type": "etf",
    "identity": "etf_or_benchmark",
    "display": [],
-   "in_research_universe": false,
+   "in_research_universe": true,
    "in_data_collection_universe": true,
    "used_by": [
+    "auto_research_price_archive",
     "owner_requested"
    ],
-   "in_archive": false,
-   "archive_last_date": null,
-   "refresh_status": "missing",
+   "in_archive": true,
+   "archive_last_date": "2026-10-09",
+   "refresh_status": "stale",
    "quality_flags": [],
-   "pending_owner_pack": "new",
+   "pending_owner_pack": null,
    "event_rows": 0,
    "fundamental_observations": 0,
    "source_mentions": 0
@@ -294,7 +313,7 @@
     "auto_research_price_archive"
    ],
    "in_archive": true,
-   "archive_last_date": "2026-10-09",
+   "archive_last_date": "2026-10-12",
    "refresh_status": "fresh",
    "quality_flags": [],
    "pending_owner_pack": null,
@@ -324,16 +343,17 @@
    "asset_type": "etf",
    "identity": "etf_or_benchmark",
    "display": [],
-   "in_research_universe": false,
+   "in_research_universe": true,
    "in_data_collection_universe": true,
    "used_by": [
+    "auto_research_price_archive",
     "owner_requested"
    ],
-   "in_archive": false,
-   "archive_last_date": null,
-   "refresh_status": "missing",
+   "in_archive": true,
+   "archive_last_date": "2026-10-09",
+   "refresh_status": "stale",
    "quality_flags": [],
-   "pending_owner_pack": "new",
+   "pending_owner_pack": null,
    "event_rows": 0,
    "fundamental_observations": 0,
    "source_mentions": 0
@@ -355,11 +375,11 @@
     "sec_memory"
    ],
    "in_archive": true,
-   "archive_last_date": "2026-10-09",
+   "archive_last_date": "2026-10-12",
    "refresh_status": "fresh",
    "quality_flags": [],
    "pending_owner_pack": null,
-   "event_rows": 74,
+   "event_rows": 79,
    "fundamental_observations": 44,
    "source_mentions": 5
   },
@@ -376,7 +396,7 @@
     "sec_facts"
    ],
    "in_archive": true,
-   "archive_last_date": "2026-10-09",
+   "archive_last_date": "2026-10-12",
    "refresh_status": "fresh",
    "quality_flags": [],
    "pending_owner_pack": null,
@@ -388,16 +408,17 @@
    "asset_type": "etf",
    "identity": "etf_or_benchmark",
    "display": [],
-   "in_research_universe": false,
+   "in_research_universe": true,
    "in_data_collection_universe": true,
    "used_by": [
+    "auto_research_price_archive",
     "owner_requested"
    ],
-   "in_archive": false,
-   "archive_last_date": null,
-   "refresh_status": "missing",
+   "in_archive": true,
+   "archive_last_date": "2026-10-09",
+   "refresh_status": "stale",
    "quality_flags": [],
-   "pending_owner_pack": "new",
+   "pending_owner_pack": null,
    "event_rows": 0,
    "fundamental_observations": 0,
    "source_mentions": 0
@@ -411,18 +432,19 @@
    "in_research_universe": true,
    "in_data_collection_universe": true,
    "used_by": [
+    "auto_research_price_archive",
     "event_archive",
     "fundamental_outcomes",
     "owner_requested"
    ],
-   "in_archive": false,
-   "archive_last_date": null,
-   "refresh_status": "missing",
+   "in_archive": true,
+   "archive_last_date": "2026-10-12",
+   "refresh_status": "fresh",
    "quality_flags": [],
-   "pending_owner_pack": "invalid_or_review",
+   "pending_owner_pack": null,
    "event_rows": 50,
    "fundamental_observations": 69,
-   "source_mentions": 11
+   "source_mentions": 10
   },
   "IREN": {
    "asset_type": "equity",
@@ -443,11 +465,11 @@
     "support_volatility"
    ],
    "in_archive": true,
-   "archive_last_date": "2026-10-09",
+   "archive_last_date": "2026-10-12",
    "refresh_status": "fresh",
    "quality_flags": [],
    "pending_owner_pack": null,
-   "event_rows": 16,
+   "event_rows": 21,
    "fundamental_observations": 5,
    "source_mentions": 4
   },
@@ -455,16 +477,17 @@
    "asset_type": "etf",
    "identity": "etf_or_benchmark",
    "display": [],
-   "in_research_universe": false,
+   "in_research_universe": true,
    "in_data_collection_universe": true,
    "used_by": [
+    "auto_research_price_archive",
     "owner_requested"
    ],
-   "in_archive": false,
-   "archive_last_date": null,
-   "refresh_status": "missing",
+   "in_archive": true,
+   "archive_last_date": "2026-10-09",
+   "refresh_status": "stale",
    "quality_flags": [],
-   "pending_owner_pack": "new",
+   "pending_owner_pack": null,
    "event_rows": 0,
    "fundamental_observations": 0,
    "source_mentions": 0
@@ -489,13 +512,13 @@
     "support_volatility"
    ],
    "in_archive": true,
-   "archive_last_date": "2026-10-09",
+   "archive_last_date": "2026-10-12",
    "refresh_status": "fresh",
    "quality_flags": [],
    "pending_owner_pack": "overlap_conflict",
-   "event_rows": 34,
+   "event_rows": 39,
    "fundamental_observations": 45,
-   "source_mentions": 6
+   "source_mentions": 10
   },
   "META": {
    "asset_type": "equity",
@@ -504,18 +527,19 @@
    "in_research_universe": true,
    "in_data_collection_universe": true,
    "used_by": [
+    "auto_research_price_archive",
     "event_archive",
     "fundamental_outcomes",
     "owner_requested"
    ],
-   "in_archive": false,
-   "archive_last_date": null,
-   "refresh_status": "missing",
+   "in_archive": true,
+   "archive_last_date": "2026-10-09",
+   "refresh_status": "stale",
    "quality_flags": [],
-   "pending_owner_pack": "new",
+   "pending_owner_pack": null,
    "event_rows": 38,
    "fundamental_observations": 57,
-   "source_mentions": 3
+   "source_mentions": 4
   },
   "MRVL": {
    "asset_type": "equity",
@@ -528,15 +552,17 @@
    "used_by": [
     "auto_research_price_archive",
     "event_archive",
+    "event_evidence",
     "fundamental_outcomes",
-    "sec_facts"
+    "sec_facts",
+    "sec_memory"
    ],
    "in_archive": true,
-   "archive_last_date": "2026-10-09",
+   "archive_last_date": "2026-10-12",
    "refresh_status": "fresh",
    "quality_flags": [],
    "pending_owner_pack": null,
-   "event_rows": 17,
+   "event_rows": 22,
    "fundamental_observations": 22,
    "source_mentions": 6
   },
@@ -555,13 +581,13 @@
     "sec_facts"
    ],
    "in_archive": true,
-   "archive_last_date": "2026-10-09",
+   "archive_last_date": "2026-10-12",
    "refresh_status": "fresh",
    "quality_flags": [],
    "pending_owner_pack": null,
    "event_rows": 52,
    "fundamental_observations": 67,
-   "source_mentions": 3
+   "source_mentions": 2
   },
   "MU": {
    "asset_type": "equity",
@@ -570,18 +596,19 @@
    "in_research_universe": true,
    "in_data_collection_universe": true,
    "used_by": [
+    "auto_research_price_archive",
     "event_archive",
     "fundamental_outcomes",
     "owner_requested"
    ],
-   "in_archive": false,
-   "archive_last_date": null,
-   "refresh_status": "missing",
+   "in_archive": true,
+   "archive_last_date": "2026-10-09",
+   "refresh_status": "stale",
    "quality_flags": [],
-   "pending_owner_pack": "invalid_or_review",
+   "pending_owner_pack": null,
    "event_rows": 54,
    "fundamental_observations": 65,
-   "source_mentions": 13
+   "source_mentions": 12
   },
   "NBIS": {
    "asset_type": "equity",
@@ -598,13 +625,13 @@
     "sec_facts"
    ],
    "in_archive": true,
-   "archive_last_date": "2026-10-09",
+   "archive_last_date": "2026-10-12",
    "refresh_status": "fresh",
    "quality_flags": [],
    "pending_owner_pack": null,
    "event_rows": 19,
    "fundamental_observations": 12,
-   "source_mentions": 5
+   "source_mentions": 4
   },
   "NOW": {
    "asset_type": "equity",
@@ -613,18 +640,19 @@
    "in_research_universe": true,
    "in_data_collection_universe": true,
    "used_by": [
+    "auto_research_price_archive",
     "event_archive",
     "fundamental_outcomes",
     "owner_requested"
    ],
-   "in_archive": false,
-   "archive_last_date": null,
-   "refresh_status": "missing",
+   "in_archive": true,
+   "archive_last_date": "2026-10-09",
+   "refresh_status": "stale",
    "quality_flags": [],
-   "pending_owner_pack": "new",
+   "pending_owner_pack": null,
    "event_rows": 22,
    "fundamental_observations": 57,
-   "source_mentions": 3
+   "source_mentions": 6
   },
   "NVDA": {
    "asset_type": "equity",
@@ -636,18 +664,22 @@
    "in_data_collection_universe": true,
    "used_by": [
     "auto_research_price_archive",
+    "event_archive",
+    "event_evidence",
+    "fundamental_outcomes",
     "options_context",
     "sec_facts",
+    "sec_memory",
     "support_volatility"
    ],
    "in_archive": true,
-   "archive_last_date": "2026-10-09",
+   "archive_last_date": "2026-10-12",
    "refresh_status": "fresh",
    "quality_flags": [],
    "pending_owner_pack": null,
-   "event_rows": 0,
-   "fundamental_observations": 0,
-   "source_mentions": 16
+   "event_rows": 5,
+   "fundamental_observations": 69,
+   "source_mentions": 13
   },
   "ORCL": {
    "asset_type": "equity",
@@ -662,7 +694,7 @@
     "sec_facts"
    ],
    "in_archive": true,
-   "archive_last_date": "2026-10-09",
+   "archive_last_date": "2026-10-12",
    "refresh_status": "fresh",
    "quality_flags": [],
    "pending_owner_pack": null,
@@ -680,14 +712,16 @@
    "in_research_universe": true,
    "in_data_collection_universe": true,
    "used_by": [
-    "auto_research_price_archive"
+    "auto_research_price_archive",
+    "event_archive",
+    "event_evidence"
    ],
    "in_archive": true,
-   "archive_last_date": "2026-10-09",
+   "archive_last_date": "2026-10-12",
    "refresh_status": "fresh",
    "quality_flags": [],
    "pending_owner_pack": null,
-   "event_rows": 0,
+   "event_rows": 3,
    "fundamental_observations": 0,
    "source_mentions": 0
   },
@@ -704,15 +738,16 @@
    "used_by": [
     "auto_research_price_archive",
     "event_archive",
+    "event_evidence",
     "options_context",
     "support_volatility"
    ],
    "in_archive": true,
-   "archive_last_date": "2026-10-09",
+   "archive_last_date": "2026-10-12",
    "refresh_status": "fresh",
    "quality_flags": [],
    "pending_owner_pack": null,
-   "event_rows": 33,
+   "event_rows": 38,
    "fundamental_observations": 0,
    "source_mentions": 16
   },
@@ -726,14 +761,16 @@
    "in_research_universe": true,
    "in_data_collection_universe": true,
    "used_by": [
-    "auto_research_price_archive"
+    "auto_research_price_archive",
+    "event_archive",
+    "event_evidence"
    ],
    "in_archive": true,
-   "archive_last_date": "2026-10-09",
+   "archive_last_date": "2026-10-12",
    "refresh_status": "fresh",
    "quality_flags": [],
    "pending_owner_pack": null,
-   "event_rows": 0,
+   "event_rows": 5,
    "fundamental_observations": 0,
    "source_mentions": 0
   },
@@ -751,13 +788,13 @@
     "event_archive"
    ],
    "in_archive": true,
-   "archive_last_date": "2026-10-09",
+   "archive_last_date": "2026-10-12",
    "refresh_status": "fresh",
    "quality_flags": [],
    "pending_owner_pack": null,
    "event_rows": 5,
    "fundamental_observations": 0,
-   "source_mentions": 8
+   "source_mentions": 9
   },
   "SOFI": {
    "asset_type": "equity",
@@ -778,11 +815,11 @@
     "support_volatility"
    ],
    "in_archive": true,
-   "archive_last_date": "2026-10-09",
+   "archive_last_date": "2026-10-12",
    "refresh_status": "fresh",
    "quality_flags": [],
    "pending_owner_pack": null,
-   "event_rows": 18,
+   "event_rows": 21,
    "fundamental_observations": 24,
    "source_mentions": 0
   },
@@ -803,11 +840,11 @@
     "sec_memory"
    ],
    "in_archive": true,
-   "archive_last_date": "2026-10-09",
+   "archive_last_date": "2026-10-12",
    "refresh_status": "fresh",
    "quality_flags": [],
    "pending_owner_pack": null,
-   "event_rows": 102,
+   "event_rows": 108,
    "fundamental_observations": 1,
    "source_mentions": 2
   },
@@ -815,8 +852,30 @@
    "asset_type": "etf",
    "identity": "etf_or_benchmark",
    "display": [
-    "index"
+    "index",
+    "stocks"
    ],
+   "in_research_universe": true,
+   "in_data_collection_universe": true,
+   "used_by": [
+    "auto_research_price_archive",
+    "event_archive",
+    "event_evidence",
+    "owner_requested"
+   ],
+   "in_archive": true,
+   "archive_last_date": "2026-10-12",
+   "refresh_status": "fresh",
+   "quality_flags": [],
+   "pending_owner_pack": null,
+   "event_rows": 6,
+   "fundamental_observations": 0,
+   "source_mentions": 23
+  },
+  "TLT": {
+   "asset_type": "etf",
+   "identity": "etf_or_benchmark",
+   "display": [],
    "in_research_universe": true,
    "in_data_collection_universe": true,
    "used_by": [
@@ -825,27 +884,9 @@
    ],
    "in_archive": true,
    "archive_last_date": "2026-10-09",
-   "refresh_status": "fresh",
+   "refresh_status": "stale",
    "quality_flags": [],
    "pending_owner_pack": null,
-   "event_rows": 0,
-   "fundamental_observations": 0,
-   "source_mentions": 25
-  },
-  "TLT": {
-   "asset_type": "etf",
-   "identity": "etf_or_benchmark",
-   "display": [],
-   "in_research_universe": false,
-   "in_data_collection_universe": true,
-   "used_by": [
-    "owner_requested"
-   ],
-   "in_archive": false,
-   "archive_last_date": null,
-   "refresh_status": "missing",
-   "quality_flags": [],
-   "pending_owner_pack": "new",
    "event_rows": 0,
    "fundamental_observations": 0,
    "source_mentions": 0
@@ -855,7 +896,8 @@
    "identity": "etf_or_benchmark",
    "display": [
     "core",
-    "index"
+    "index",
+    "stocks"
    ],
    "in_research_universe": true,
    "in_data_collection_universe": true,
@@ -864,11 +906,9 @@
     "owner_requested"
    ],
    "in_archive": true,
-   "archive_last_date": "2026-10-09",
+   "archive_last_date": "2026-10-12",
    "refresh_status": "fresh",
-   "quality_flags": [
-    "synthetic_flat_bars_last30=5"
-   ],
+   "quality_flags": [],
    "pending_owner_pack": "overlap_conflict",
    "event_rows": 0,
    "fundamental_observations": 0,
@@ -893,13 +933,13 @@
     "support_volatility"
    ],
    "in_archive": true,
-   "archive_last_date": "2026-10-09",
+   "archive_last_date": "2026-10-12",
    "refresh_status": "fresh",
    "quality_flags": [],
    "pending_owner_pack": null,
-   "event_rows": 63,
+   "event_rows": 68,
    "fundamental_observations": 61,
-   "source_mentions": 8
+   "source_mentions": 7
   },
   "TSM": {
    "asset_type": "equity",
@@ -911,16 +951,17 @@
    "in_data_collection_universe": true,
    "used_by": [
     "auto_research_price_archive",
-    "sec_facts"
+    "sec_facts",
+    "sec_memory"
    ],
    "in_archive": true,
-   "archive_last_date": "2026-10-09",
+   "archive_last_date": "2026-10-12",
    "refresh_status": "fresh",
    "quality_flags": [],
    "pending_owner_pack": null,
    "event_rows": 0,
    "fundamental_observations": 0,
-   "source_mentions": 1
+   "source_mentions": 2
   },
   "VGT": {
    "asset_type": "etf",
@@ -932,14 +973,16 @@
    "in_research_universe": true,
    "in_data_collection_universe": true,
    "used_by": [
-    "auto_research_price_archive"
+    "auto_research_price_archive",
+    "event_archive",
+    "event_evidence"
    ],
    "in_archive": true,
-   "archive_last_date": "2026-10-09",
+   "archive_last_date": "2026-10-12",
    "refresh_status": "fresh",
    "quality_flags": [],
    "pending_owner_pack": null,
-   "event_rows": 0,
+   "event_rows": 5,
    "fundamental_observations": 0,
    "source_mentions": 23
   },
@@ -953,7 +996,7 @@
     "market_context"
    ],
    "in_archive": true,
-   "archive_last_date": "2026-10-09",
+   "archive_last_date": "2026-10-12",
    "refresh_status": "fresh",
    "quality_flags": [],
    "pending_owner_pack": null,
@@ -977,11 +1020,11 @@
     "event_evidence"
    ],
    "in_archive": true,
-   "archive_last_date": "2026-10-09",
+   "archive_last_date": "2026-10-12",
    "refresh_status": "fresh",
    "quality_flags": [],
    "pending_owner_pack": null,
-   "event_rows": 20,
+   "event_rows": 23,
    "fundamental_observations": 0,
    "source_mentions": 3
   },
@@ -989,16 +1032,17 @@
    "asset_type": "etf",
    "identity": "etf_or_benchmark",
    "display": [],
-   "in_research_universe": false,
+   "in_research_universe": true,
    "in_data_collection_universe": true,
    "used_by": [
+    "auto_research_price_archive",
     "owner_requested"
    ],
-   "in_archive": false,
-   "archive_last_date": null,
-   "refresh_status": "missing",
+   "in_archive": true,
+   "archive_last_date": "2026-10-09",
+   "refresh_status": "stale",
    "quality_flags": [],
-   "pending_owner_pack": "new",
+   "pending_owner_pack": null,
    "event_rows": 0,
    "fundamental_observations": 0,
    "source_mentions": 0
@@ -1007,16 +1051,17 @@
    "asset_type": "etf",
    "identity": "etf_or_benchmark",
    "display": [],
-   "in_research_universe": false,
+   "in_research_universe": true,
    "in_data_collection_universe": true,
    "used_by": [
+    "auto_research_price_archive",
     "owner_requested"
    ],
-   "in_archive": false,
-   "archive_last_date": null,
-   "refresh_status": "missing",
+   "in_archive": true,
+   "archive_last_date": "2026-10-09",
+   "refresh_status": "stale",
    "quality_flags": [],
-   "pending_owner_pack": "new",
+   "pending_owner_pack": null,
    "event_rows": 0,
    "fundamental_observations": 0,
    "source_mentions": 0
@@ -1025,279 +1070,23 @@
    "asset_type": "etf",
    "identity": "etf_or_benchmark",
    "display": [],
-   "in_research_universe": false,
+   "in_research_universe": true,
    "in_data_collection_universe": true,
    "used_by": [
+    "auto_research_price_archive",
     "owner_requested"
    ],
-   "in_archive": false,
-   "archive_last_date": null,
-   "refresh_status": "missing",
+   "in_archive": true,
+   "archive_last_date": "2026-10-09",
+   "refresh_status": "stale",
    "quality_flags": [],
-   "pending_owner_pack": "new",
+   "pending_owner_pack": null,
    "event_rows": 0,
    "fundamental_observations": 0,
    "source_mentions": 0
   }
  },
- "missing_historical_symbols": [
-  {
-   "symbol": "MU",
-   "use_cases": [
-    "event_archive",
-    "fundamental_outcomes",
-    "owner_requested"
-   ],
-   "owner_requested": true,
-   "event_rows": 54,
-   "fundamental_observations": 65,
-   "source_mentions": 13,
-   "display": [],
-   "identity": "listed_ticker_unchecked",
-   "free_source": "owner-supplied STOOQ pack (validated, staged)",
-   "pending_owner_pack": "invalid_or_review",
-   "priority": "high"
-  },
-  {
-   "symbol": "INTC",
-   "use_cases": [
-    "event_archive",
-    "fundamental_outcomes",
-    "owner_requested"
-   ],
-   "owner_requested": true,
-   "event_rows": 50,
-   "fundamental_observations": 69,
-   "source_mentions": 11,
-   "display": [
-    "stocks"
-   ],
-   "identity": "listed_ticker_unchecked",
-   "free_source": "owner-supplied STOOQ pack (validated, staged)",
-   "pending_owner_pack": "invalid_or_review",
-   "priority": "high"
-  },
-  {
-   "symbol": "AMZN",
-   "use_cases": [
-    "event_archive",
-    "fundamental_outcomes",
-    "owner_requested"
-   ],
-   "owner_requested": true,
-   "event_rows": 25,
-   "fundamental_observations": 69,
-   "source_mentions": 9,
-   "display": [
-    "stocks"
-   ],
-   "identity": "listed_ticker_unchecked",
-   "free_source": "owner-supplied STOOQ pack (validated, staged)",
-   "pending_owner_pack": "new",
-   "priority": "high"
-  },
-  {
-   "symbol": "META",
-   "use_cases": [
-    "event_archive",
-    "fundamental_outcomes",
-    "owner_requested"
-   ],
-   "owner_requested": true,
-   "event_rows": 38,
-   "fundamental_observations": 57,
-   "source_mentions": 3,
-   "display": [],
-   "identity": "listed_ticker_unchecked",
-   "free_source": "owner-supplied STOOQ pack (validated, staged)",
-   "pending_owner_pack": "new",
-   "priority": "high"
-  },
-  {
-   "symbol": "NOW",
-   "use_cases": [
-    "event_archive",
-    "fundamental_outcomes",
-    "owner_requested"
-   ],
-   "owner_requested": true,
-   "event_rows": 22,
-   "fundamental_observations": 57,
-   "source_mentions": 3,
-   "display": [],
-   "identity": "listed_ticker_unchecked",
-   "free_source": "owner-supplied STOOQ pack (validated, staged)",
-   "pending_owner_pack": "new",
-   "priority": "high"
-  },
-  {
-   "symbol": "CRWV",
-   "use_cases": [
-    "event_archive",
-    "fundamental_outcomes",
-    "owner_requested"
-   ],
-   "owner_requested": true,
-   "event_rows": 33,
-   "fundamental_observations": 6,
-   "source_mentions": 4,
-   "display": [],
-   "identity": "listed_ticker_unchecked",
-   "free_source": "owner-supplied STOOQ pack (validated, staged)",
-   "pending_owner_pack": "invalid_or_review",
-   "priority": "medium"
-  },
-  {
-   "symbol": "AAOI",
-   "use_cases": [
-    "owner_requested"
-   ],
-   "owner_requested": true,
-   "event_rows": 0,
-   "fundamental_observations": 0,
-   "source_mentions": 11,
-   "display": [],
-   "identity": "listed_ticker_unchecked",
-   "free_source": "owner-supplied STOOQ pack (validated, staged)",
-   "pending_owner_pack": "invalid_or_review",
-   "priority": "high"
-  },
-  {
-   "symbol": "AAPL",
-   "use_cases": [
-    "owner_requested"
-   ],
-   "owner_requested": true,
-   "event_rows": 0,
-   "fundamental_observations": 0,
-   "source_mentions": 1,
-   "display": [],
-   "identity": "listed_ticker_unchecked",
-   "free_source": "owner-supplied STOOQ pack (validated, staged)",
-   "pending_owner_pack": "invalid_or_review",
-   "priority": "high"
-  },
-  {
-   "symbol": "DIA",
-   "use_cases": [
-    "owner_requested"
-   ],
-   "owner_requested": true,
-   "event_rows": 0,
-   "fundamental_observations": 0,
-   "source_mentions": 0,
-   "display": [],
-   "identity": "etf_or_benchmark",
-   "free_source": "owner-supplied STOOQ pack (validated, staged)",
-   "pending_owner_pack": "new",
-   "priority": "high"
-  },
-  {
-   "symbol": "GLD",
-   "use_cases": [
-    "owner_requested"
-   ],
-   "owner_requested": true,
-   "event_rows": 0,
-   "fundamental_observations": 0,
-   "source_mentions": 0,
-   "display": [],
-   "identity": "etf_or_benchmark",
-   "free_source": "owner-supplied STOOQ pack (validated, staged)",
-   "pending_owner_pack": "new",
-   "priority": "high"
-  },
-  {
-   "symbol": "HYG",
-   "use_cases": [
-    "owner_requested"
-   ],
-   "owner_requested": true,
-   "event_rows": 0,
-   "fundamental_observations": 0,
-   "source_mentions": 0,
-   "display": [],
-   "identity": "etf_or_benchmark",
-   "free_source": "owner-supplied STOOQ pack (validated, staged)",
-   "pending_owner_pack": "new",
-   "priority": "high"
-  },
-  {
-   "symbol": "IWM",
-   "use_cases": [
-    "owner_requested"
-   ],
-   "owner_requested": true,
-   "event_rows": 0,
-   "fundamental_observations": 0,
-   "source_mentions": 0,
-   "display": [],
-   "identity": "etf_or_benchmark",
-   "free_source": "owner-supplied STOOQ pack (validated, staged)",
-   "pending_owner_pack": "new",
-   "priority": "high"
-  },
-  {
-   "symbol": "TLT",
-   "use_cases": [
-    "owner_requested"
-   ],
-   "owner_requested": true,
-   "event_rows": 0,
-   "fundamental_observations": 0,
-   "source_mentions": 0,
-   "display": [],
-   "identity": "etf_or_benchmark",
-   "free_source": "owner-supplied STOOQ pack (validated, staged)",
-   "pending_owner_pack": "new",
-   "priority": "high"
-  },
-  {
-   "symbol": "XLE",
-   "use_cases": [
-    "owner_requested"
-   ],
-   "owner_requested": true,
-   "event_rows": 0,
-   "fundamental_observations": 0,
-   "source_mentions": 0,
-   "display": [],
-   "identity": "etf_or_benchmark",
-   "free_source": "owner-supplied STOOQ pack (validated, staged)",
-   "pending_owner_pack": "new",
-   "priority": "high"
-  },
-  {
-   "symbol": "XLF",
-   "use_cases": [
-    "owner_requested"
-   ],
-   "owner_requested": true,
-   "event_rows": 0,
-   "fundamental_observations": 0,
-   "source_mentions": 0,
-   "display": [],
-   "identity": "etf_or_benchmark",
-   "free_source": "owner-supplied STOOQ pack (validated, staged)",
-   "pending_owner_pack": "new",
-   "priority": "high"
-  },
-  {
-   "symbol": "XLK",
-   "use_cases": [
-    "owner_requested"
-   ],
-   "owner_requested": true,
-   "event_rows": 0,
-   "fundamental_observations": 0,
-   "source_mentions": 0,
-   "display": [],
-   "identity": "etf_or_benchmark",
-   "free_source": "owner-supplied STOOQ pack (validated, staged)",
-   "pending_owner_pack": "new",
-   "priority": "high"
-  }
- ],
+ "missing_historical_symbols": [],
  "collection_rule": "data_collection_universe is updated daily with finalized OHLCV regardless of display; a missing bar is recorded missing/stale, never synthesized (D-05/D-06, wired after P0-05)",
  "read_only": true
 }

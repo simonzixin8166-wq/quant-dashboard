@@ -23,7 +23,9 @@ assert kc.validate(bad2)
 h = kc.history("VGT")
 assert kc.check_price_in_range(h, "2026-08-24", 117.57)["result"] == "compatible"
 assert kc.check_price_in_range(h, "2026-08-24", 130.0)["result"] == "incompatible"
-assert kc.history("AAPL") is None  # not in the free archive → abstain path
+assert kc.history("ZZZQ") is None  # not in the archive → abstain path (AAPL joined via the D-03 owner pack)
+_aapl = kc.history("AAPL")
+assert _aapl and _aapl[-1]["d"] >= "2026-10-09"  # D-03: owner STOOQ pack imported, not synthesised
 # no consumer of the shadow ledger in production code
 for p in ("scripts/server_action_engine.py", "scripts/forward_observation_engine.py", "docs/assets/autonomous-agent.js"):
     assert "shadow_research_cases" not in (ROOT / p).read_text(encoding="utf-8")

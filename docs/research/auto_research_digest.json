@@ -1,41 +1,39 @@
 {
- "generated_at": "2026-10-11T15:30:14Z",
- "latest_session": "2026-10-09",
+ "generated_at": "2026-10-13T03:55:05Z",
+ "latest_session": "2026-10-12",
  "counts": {
-  "new": 21,
-  "invalidated": 0,
+  "new": 8,
+  "invalidated": 2,
   "abstained": 2,
-  "revisited_cross_day": 0,
-  "still_valid": 0,
-  "superseded_cross_day": 0,
+  "revisited_cross_day": 21,
+  "still_valid": 14,
+  "superseded_cross_day": 5,
   "review_due": 0,
-  "active": 21
+  "active": 22
  },
  "count_rules": "distinct symbols for the latest session; same-session generator-upgrade supersedes excluded",
  "new_symbols": [
-  "AMD",
-  "AVGO",
   "GOOG",
-  "HOOD",
-  "IREN",
-  "LITE",
-  "MRVL",
   "MSFT",
   "NBIS",
   "NVDA",
-  "ORCL",
-  "QLD",
   "QQQ",
   "QQQM",
-  "SMH",
-  "SOFI",
-  "TQQQ",
-  "TSLA",
-  "TSM",
-  "VGT",
-  "VOO"
+  "SPY",
+  "TSM"
  ],
- "invalidated": [],
+ "invalidated": [
+  {
+   "symbol": "MSFT",
+   "hypothesis_id": "MSFT-2026-10-09-auto-research-3-h",
+   "trigger": "neutral → bullish review above 60-session high"
+  },
+  {
+   "symbol": "NBIS",
+   "hypothesis_id": "NBIS-2026-10-09-auto-research-3-h",
+   "trigger": "neutral → bearish review below MA50"
+  }
+ ],
  "abstained": [
   {
    "symbol": "DRAM",
@@ -47,10 +45,10 @@
   }
  ],
  "last_run": {
-  "at": "2026-10-11T13:34:27Z",
-  "run_id": "38143687437",
-  "generator_version": "auto-research-3",
-  "market_as_of": "2026-10-09"
+  "at": "2026-10-13T03:54:40Z",
+  "run_id": "38343250454",
+  "generator_version": "auto-research-4",
+  "market_as_of": "2026-10-12"
  },
  "run_failure": {
   "failed_after_last_success": false
@@ -134,7 +132,7 @@
    ],
    "pre_sec_gate": true,
    "annotations": [],
-   "new_this_session": true
+   "new_this_session": false
   },
   {
    "symbol": "AVGO",
@@ -205,42 +203,54 @@
     "valuation not in free pipeline"
    ],
    "pre_sec_gate": true,
-   "annotations": [],
-   "new_this_session": true
+   "annotations": [
+    {
+     "kind": "sec_correction",
+     "note": "SEC evidence in the annotated record is unreliable for the listed reasons; it must not be used; see later records",
+     "generated_at": "2026-10-13T03:54:40Z"
+    }
+   ],
+   "new_this_session": false
   },
   {
    "symbol": "GOOG",
-   "stance": "neutral",
-   "hypothesis_id": "GOOG-2026-10-09-auto-research-3-h",
-   "market_as_of": "2026-10-09",
-   "research_date": "2026-10-11",
-   "generated_at": "2026-10-11T13:34:27Z",
-   "generator_version": "auto-research-3",
-   "decision_reason": "rule_view=neutral: close 347.86 vs MA50 343.44 / MA200 338.28, weekly 过渡, dist MA200 +2.8%, pulse 二次启动; +3 / -1 signed evidence; fundamentals +1/-0 (shown separately; stance from trend rules)",
-   "research_hint": "Hold/Watch (research: no new thesis; not an order)",
+   "stance": "bullish",
+   "hypothesis_id": "GOOG-2026-10-12-auto-research-4-h",
+   "market_as_of": "2026-10-12",
+   "research_date": "2026-10-13",
+   "generated_at": "2026-10-13T03:54:40Z",
+   "generator_version": "auto-research-4",
+   "decision_reason": "rule_view=bullish: close 348.97 vs MA50 343.75 / MA200 338.47, weekly 多头, dist MA200 +3.1%, pulse 二次启动; +4 / -1 signed evidence; fundamentals +1/-0 (shown separately; stance from trend rules)",
+   "research_hint": "Watch (research: upside thesis holds; not an order)",
    "supporting": [
     {
      "name": "close_vs_ma50",
      "group": "trend",
-     "note": "close 347.86 above MA50 343.44",
+     "note": "close 348.97 above MA50 343.75",
      "source": "stooq archive",
-     "as_of": "2026-10-09"
+     "as_of": "2026-10-12"
     },
     {
      "name": "close_vs_ma200",
      "group": "trend",
-     "note": "close above MA200 338.28",
+     "note": "close above MA200 338.47",
      "source": "stooq archive",
-     "as_of": "2026-10-09"
+     "as_of": "2026-10-12"
+    },
+    {
+     "name": "weekly_trend",
+     "group": "trend",
+     "note": "weekly 多头, structure HH/HL",
+     "source": "trend_pulse",
+     "as_of": "2026-10-12"
     },
     {
      "name": "sec_revenue_yoy",
      "group": "fundamental",
-     "note": "quarterly revenue 90,234M for 2025-01-01–2025-03-31 (Q1 FY2025), +12.0% YoY; filed 2025-04-25",
-     "source": "SEC XBRL RevenueFromContractWithCustomerExcludingAssessedTax 10-Q accn 0001652044-25-000043",
-     "as_of": "2025-03-31",
-     "available_at": "2025-04-25",
-     "pre_sec_gate": true
+     "note": "quarterly revenue 119,796M for 2026-04-01–2026-06-30 (Q2 FY2026), +24.2% YoY; filed 2026-07-23; freshness current (period end 105d ago)",
+     "source": "SEC XBRL Revenues 10-Q accn 0001652044-26-000071",
+     "as_of": "2026-06-30",
+     "available_at": "2026-07-23"
     }
    ],
    "opposing": [
@@ -254,10 +264,10 @@
    ],
    "opposing_note": null,
    "invalidation": [
-    "neutral → bearish review below MA50",
-    "neutral → bullish review above 60-session high"
+    "close below MA50",
+    "break of 60-session low"
    ],
-   "next_review": "2026-11-06",
+   "next_review": "2026-11-09",
    "inputs": [
     "author_claims",
     "fred_macro",
@@ -269,7 +279,7 @@
    "unknowns": [
     "valuation not in free pipeline"
    ],
-   "pre_sec_gate": true,
+   "pre_sec_gate": false,
    "annotations": [],
    "new_this_session": true
   },
@@ -342,8 +352,14 @@
     "valuation not in free pipeline"
    ],
    "pre_sec_gate": true,
-   "annotations": [],
-   "new_this_session": true
+   "annotations": [
+    {
+     "kind": "sec_correction",
+     "note": "SEC evidence in the annotated record is unreliable for the listed reasons; it must not be used; see later records",
+     "generated_at": "2026-10-13T03:54:40Z"
+    }
+   ],
+   "new_this_session": false
   },
   {
    "symbol": "IREN",
@@ -424,7 +440,7 @@
    ],
    "pre_sec_gate": true,
    "annotations": [],
-   "new_this_session": true
+   "new_this_session": false
   },
   {
    "symbol": "LITE",
@@ -512,7 +528,7 @@
    ],
    "pre_sec_gate": true,
    "annotations": [],
-   "new_this_session": true
+   "new_this_session": false
   },
   {
    "symbol": "MRVL",
@@ -591,57 +607,56 @@
    ],
    "pre_sec_gate": true,
    "annotations": [],
-   "new_this_session": true
+   "new_this_session": false
   },
   {
    "symbol": "MSFT",
    "stance": "neutral",
-   "hypothesis_id": "MSFT-2026-10-09-auto-research-3-h",
-   "market_as_of": "2026-10-09",
-   "research_date": "2026-10-11",
-   "generated_at": "2026-10-11T13:34:27Z",
-   "generator_version": "auto-research-3",
-   "decision_reason": "rule_view=neutral: close 535.07 vs MA50 499.25 / MA200 433.87, weekly 多头, dist MA200 +23.3%, pulse 高位钝化; +4 / -2 signed evidence; fundamentals +1/-0 (shown separately; stance from trend rules)",
+   "hypothesis_id": "MSFT-2026-10-12-auto-research-4-h",
+   "market_as_of": "2026-10-12",
+   "research_date": "2026-10-13",
+   "generated_at": "2026-10-13T03:54:40Z",
+   "generator_version": "auto-research-4",
+   "decision_reason": "rule_view=neutral: close 541.15 vs MA50 501.05 / MA200 434.15, weekly 多头, dist MA200 +24.6%, pulse 高位钝化; +4 / -2 signed evidence; fundamentals +1/-0 (shown separately; stance from trend rules)",
    "research_hint": "Hold/Watch (research: no new thesis; not an order)",
    "supporting": [
     {
      "name": "close_vs_ma50",
      "group": "trend",
-     "note": "close 535.07 above MA50 499.25",
+     "note": "close 541.15 above MA50 501.05",
      "source": "stooq archive",
-     "as_of": "2026-10-09"
+     "as_of": "2026-10-12"
     },
     {
      "name": "close_vs_ma200",
      "group": "trend",
-     "note": "close above MA200 433.87",
+     "note": "close above MA200 434.15",
      "source": "stooq archive",
-     "as_of": "2026-10-09"
+     "as_of": "2026-10-12"
     },
     {
      "name": "weekly_trend",
      "group": "trend",
      "note": "weekly 多头, structure HH/HL",
      "source": "trend_pulse",
-     "as_of": "2026-10-09"
+     "as_of": "2026-10-12"
     },
     {
      "name": "sec_revenue_yoy",
      "group": "fundamental",
-     "note": "annual revenue 331,839M for 2025-07-01–2026-06-30 (FY FY2026), +17.8% YoY; filed 2026-07-29",
+     "note": "annual revenue 331,839M for 2025-07-01–2026-06-30 (FY FY2026), +17.8% YoY; filed 2026-07-29; freshness current (period end 105d ago)",
      "source": "SEC XBRL RevenueFromContractWithCustomerExcludingAssessedTax 10-K accn 0001193125-26-323660",
      "as_of": "2026-06-30",
-     "available_at": "2026-07-29",
-     "pre_sec_gate": true
+     "available_at": "2026-07-29"
     }
    ],
    "opposing": [
     {
      "name": "stretched_vs_ma200",
      "group": "trend",
-     "note": "23.3% above MA200 (>15%)",
+     "note": "24.6% above MA200 (>15%)",
      "source": "stooq archive",
-     "as_of": "2026-10-09"
+     "as_of": "2026-10-12"
     },
     {
      "name": "real_yield_20d_change",
@@ -656,7 +671,7 @@
     "neutral → bearish review below MA50",
     "neutral → bullish review above 60-session high"
    ],
-   "next_review": "2026-11-06",
+   "next_review": "2026-11-09",
    "inputs": [
     "author_claims",
     "fred_macro",
@@ -668,52 +683,51 @@
    "unknowns": [
     "valuation not in free pipeline"
    ],
-   "pre_sec_gate": true,
+   "pre_sec_gate": false,
    "annotations": [],
    "new_this_session": true
   },
   {
    "symbol": "NBIS",
    "stance": "neutral",
-   "hypothesis_id": "NBIS-2026-10-09-auto-research-3-h",
-   "market_as_of": "2026-10-09",
-   "research_date": "2026-10-11",
-   "generated_at": "2026-10-11T13:34:27Z",
-   "generator_version": "auto-research-3",
-   "decision_reason": "rule_view=neutral: close 221.07 vs MA50 223.69 / MA200 170.80, weekly 过渡, dist MA200 +29.4%, pulse 震荡观察; +2 / -3 signed evidence; fundamentals +1/-0 (shown separately; stance from trend rules)",
+   "hypothesis_id": "NBIS-2026-10-12-auto-research-4-h",
+   "market_as_of": "2026-10-12",
+   "research_date": "2026-10-13",
+   "generated_at": "2026-10-13T03:54:40Z",
+   "generator_version": "auto-research-4",
+   "decision_reason": "rule_view=neutral: close 210.06 vs MA50 224.13 / MA200 171.38, weekly 过渡, dist MA200 +22.6%, pulse 震荡观察; +2 / -3 signed evidence; fundamentals +1/-0 (shown separately; stance from trend rules)",
    "research_hint": "Hold/Watch (research: no new thesis; not an order)",
    "supporting": [
     {
      "name": "close_vs_ma200",
      "group": "trend",
-     "note": "close above MA200 170.80",
+     "note": "close above MA200 171.38",
      "source": "stooq archive",
-     "as_of": "2026-10-09"
+     "as_of": "2026-10-12"
     },
     {
      "name": "sec_revenue_yoy",
      "group": "fundamental",
-     "note": "annual revenue 530M for 2025-01-01–2025-12-31 (FY FY2025), +479.0% YoY; filed 2026-04-30",
+     "note": "annual revenue 530M for 2025-01-01–2025-12-31 (FY FY2025), +479.0% YoY; filed 2026-04-30; freshness current (period end 286d ago)",
      "source": "SEC XBRL Revenues 20-F accn 0001104659-26-052948",
      "as_of": "2025-12-31",
-     "available_at": "2026-04-30",
-     "pre_sec_gate": true
+     "available_at": "2026-04-30"
     }
    ],
    "opposing": [
     {
      "name": "close_vs_ma50",
      "group": "trend",
-     "note": "close 221.07 below MA50 223.69",
+     "note": "close 210.06 below MA50 224.13",
      "source": "stooq archive",
-     "as_of": "2026-10-09"
+     "as_of": "2026-10-12"
     },
     {
      "name": "stretched_vs_ma200",
      "group": "trend",
-     "note": "29.4% above MA200 (>15%)",
+     "note": "22.6% above MA200 (>15%)",
      "source": "stooq archive",
-     "as_of": "2026-10-09"
+     "as_of": "2026-10-12"
     },
     {
      "name": "real_yield_20d_change",
@@ -728,7 +742,7 @@
     "neutral → bearish review below MA50",
     "neutral → bullish review above 60-session high"
    ],
-   "next_review": "2026-11-06",
+   "next_review": "2026-11-09",
    "inputs": [
     "author_claims",
     "fred_macro",
@@ -740,50 +754,49 @@
    "unknowns": [
     "valuation not in free pipeline"
    ],
-   "pre_sec_gate": true,
+   "pre_sec_gate": false,
    "annotations": [],
    "new_this_session": true
   },
   {
    "symbol": "NVDA",
-   "stance": "neutral",
-   "hypothesis_id": "NVDA-2026-10-09-auto-research-3-h",
-   "market_as_of": "2026-10-09",
-   "research_date": "2026-10-11",
-   "generated_at": "2026-10-11T13:34:27Z",
-   "generator_version": "auto-research-3",
-   "decision_reason": "rule_view=neutral: close 229.28 vs MA50 221.47 / MA200 201.94, weekly 多头, dist MA200 +13.5%, pulse 高位钝化; +4 / -1 signed evidence; fundamentals +1/-0 (shown separately; stance from trend rules)",
-   "research_hint": "Hold/Watch (research: no new thesis; not an order)",
+   "stance": "bullish",
+   "hypothesis_id": "NVDA-2026-10-12-auto-research-4-h",
+   "market_as_of": "2026-10-12",
+   "research_date": "2026-10-13",
+   "generated_at": "2026-10-13T03:54:40Z",
+   "generator_version": "auto-research-4",
+   "decision_reason": "rule_view=bullish: close 226.32 vs MA50 222.09 / MA200 202.16, weekly 多头, dist MA200 +12.0%, pulse 震荡观察; +4 / -1 signed evidence; fundamentals +1/-0 (shown separately; stance from trend rules)",
+   "research_hint": "Watch (research: upside thesis holds; not an order)",
    "supporting": [
     {
      "name": "close_vs_ma50",
      "group": "trend",
-     "note": "close 229.28 above MA50 221.47",
+     "note": "close 226.32 above MA50 222.09",
      "source": "stooq archive",
-     "as_of": "2026-10-09"
+     "as_of": "2026-10-12"
     },
     {
      "name": "close_vs_ma200",
      "group": "trend",
-     "note": "close above MA200 201.94",
+     "note": "close above MA200 202.16",
      "source": "stooq archive",
-     "as_of": "2026-10-09"
+     "as_of": "2026-10-12"
     },
     {
      "name": "weekly_trend",
      "group": "trend",
      "note": "weekly 多头, structure HH/HL",
      "source": "trend_pulse",
-     "as_of": "2026-10-09"
+     "as_of": "2026-10-12"
     },
     {
      "name": "sec_revenue_yoy",
      "group": "fundamental",
-     "note": "annual revenue 26,914M for 2021-02-01–2022-01-30 (FY FY2022), +61.4% YoY; filed 2022-03-18",
-     "source": "SEC XBRL RevenueFromContractWithCustomerExcludingAssessedTax 10-K accn 0001045810-22-000036",
-     "as_of": "2022-01-30",
-     "available_at": "2022-03-18",
-     "pre_sec_gate": true
+     "note": "quarterly revenue 96,221M for 2026-04-27–2026-07-26 (Q2 FY2027), +105.9% YoY; filed 2026-08-26; freshness current (period end 79d ago)",
+     "source": "SEC XBRL Revenues 10-Q accn 0001045810-26-000075",
+     "as_of": "2026-07-26",
+     "available_at": "2026-08-26"
     }
    ],
    "opposing": [
@@ -797,10 +810,10 @@
    ],
    "opposing_note": null,
    "invalidation": [
-    "neutral → bearish review below MA50",
-    "neutral → bullish review above 60-session high"
+    "close below MA50",
+    "break of 60-session low"
    ],
-   "next_review": "2026-11-06",
+   "next_review": "2026-11-09",
    "inputs": [
     "author_claims",
     "fred_macro",
@@ -812,7 +825,7 @@
    "unknowns": [
     "valuation not in free pipeline"
    ],
-   "pre_sec_gate": true,
+   "pre_sec_gate": false,
    "annotations": [],
    "new_this_session": true
   },
@@ -886,7 +899,7 @@
    ],
    "pre_sec_gate": true,
    "annotations": [],
-   "new_this_session": true
+   "new_this_session": false
   },
   {
    "symbol": "QLD",
@@ -957,39 +970,39 @@
    ],
    "pre_sec_gate": true,
    "annotations": [],
-   "new_this_session": true
+   "new_this_session": false
   },
   {
    "symbol": "QQQ",
-   "stance": "neutral",
-   "hypothesis_id": "QQQ-2026-10-09-auto-research-3-h",
-   "market_as_of": "2026-10-09",
-   "research_date": "2026-10-11",
-   "generated_at": "2026-10-11T13:34:27Z",
-   "generator_version": "auto-research-3",
-   "decision_reason": "rule_view=neutral: close 751.27 vs MA50 723.44 / MA200 671.59, weekly 多头, dist MA200 +11.9%, pulse 高位钝化; +3 / -1 signed evidence; fundamentals unavailable (shown separately; stance from trend rules)",
-   "research_hint": "Hold/Watch (research: no new thesis; not an order)",
+   "stance": "bullish",
+   "hypothesis_id": "QQQ-2026-10-12-auto-research-4-h",
+   "market_as_of": "2026-10-12",
+   "research_date": "2026-10-13",
+   "generated_at": "2026-10-13T03:54:40Z",
+   "generator_version": "auto-research-4",
+   "decision_reason": "rule_view=bullish: close 746.04 vs MA50 724.69 / MA200 672.22, weekly 多头, dist MA200 +11.0%, pulse 震荡观察; +3 / -1 signed evidence; fundamentals unavailable (shown separately; stance from trend rules)",
+   "research_hint": "Watch (research: upside thesis holds; not an order)",
    "supporting": [
     {
      "name": "close_vs_ma50",
      "group": "trend",
-     "note": "close 751.27 above MA50 723.44",
+     "note": "close 746.04 above MA50 724.69",
      "source": "stooq archive",
-     "as_of": "2026-10-09"
+     "as_of": "2026-10-12"
     },
     {
      "name": "close_vs_ma200",
      "group": "trend",
-     "note": "close above MA200 671.59",
+     "note": "close above MA200 672.22",
      "source": "stooq archive",
-     "as_of": "2026-10-09"
+     "as_of": "2026-10-12"
     },
     {
      "name": "weekly_trend",
      "group": "trend",
      "note": "weekly 多头, structure HH/LL",
      "source": "trend_pulse",
-     "as_of": "2026-10-09"
+     "as_of": "2026-10-12"
     }
    ],
    "opposing": [
@@ -1003,10 +1016,10 @@
    ],
    "opposing_note": null,
    "invalidation": [
-    "neutral → bearish review below MA50",
-    "neutral → bullish review above 60-session high"
+    "close below MA50",
+    "break of 60-session low"
    ],
-   "next_review": "2026-11-06",
+   "next_review": "2026-11-09",
    "inputs": [
     "author_claims",
     "fred_macro",
@@ -1019,41 +1032,41 @@
     "SEC financial facts unavailable",
     "valuation not in free pipeline"
    ],
-   "pre_sec_gate": true,
+   "pre_sec_gate": false,
    "annotations": [],
    "new_this_session": true
   },
   {
    "symbol": "QQQM",
-   "stance": "neutral",
-   "hypothesis_id": "QQQM-2026-10-09-auto-research-3-h",
-   "market_as_of": "2026-10-09",
-   "research_date": "2026-10-11",
-   "generated_at": "2026-10-11T13:34:27Z",
-   "generator_version": "auto-research-3",
-   "decision_reason": "rule_view=neutral: close 309.39 vs MA50 297.89 / MA200 276.52, weekly 多头, dist MA200 +11.9%, pulse 高位钝化; +3 / -1 signed evidence; fundamentals unavailable (shown separately; stance from trend rules)",
-   "research_hint": "Hold/Watch (research: no new thesis; not an order)",
+   "stance": "bullish",
+   "hypothesis_id": "QQQM-2026-10-12-auto-research-4-h",
+   "market_as_of": "2026-10-12",
+   "research_date": "2026-10-13",
+   "generated_at": "2026-10-13T03:54:40Z",
+   "generator_version": "auto-research-4",
+   "decision_reason": "rule_view=bullish: close 307.19 vs MA50 298.40 / MA200 276.78, weekly 多头, dist MA200 +11.0%, pulse 震荡观察; +3 / -1 signed evidence; fundamentals unavailable (shown separately; stance from trend rules)",
+   "research_hint": "Watch (research: upside thesis holds; not an order)",
    "supporting": [
     {
      "name": "close_vs_ma50",
      "group": "trend",
-     "note": "close 309.39 above MA50 297.89",
+     "note": "close 307.19 above MA50 298.40",
      "source": "stooq archive",
-     "as_of": "2026-10-09"
+     "as_of": "2026-10-12"
     },
     {
      "name": "close_vs_ma200",
      "group": "trend",
-     "note": "close above MA200 276.52",
+     "note": "close above MA200 276.78",
      "source": "stooq archive",
-     "as_of": "2026-10-09"
+     "as_of": "2026-10-12"
     },
     {
      "name": "weekly_trend",
      "group": "trend",
      "note": "weekly 多头, structure HH/LL",
      "source": "trend_pulse",
-     "as_of": "2026-10-09"
+     "as_of": "2026-10-12"
     }
    ],
    "opposing": [
@@ -1067,10 +1080,10 @@
    ],
    "opposing_note": null,
    "invalidation": [
-    "neutral → bearish review below MA50",
-    "neutral → bullish review above 60-session high"
+    "close below MA50",
+    "break of 60-session low"
    ],
-   "next_review": "2026-11-06",
+   "next_review": "2026-11-09",
    "inputs": [
     "author_claims",
     "fred_macro",
@@ -1083,7 +1096,7 @@
     "SEC financial facts unavailable",
     "valuation not in free pipeline"
    ],
-   "pre_sec_gate": true,
+   "pre_sec_gate": false,
    "annotations": [],
    "new_this_session": true
   },
@@ -1156,7 +1169,7 @@
    ],
    "pre_sec_gate": true,
    "annotations": [],
-   "new_this_session": true
+   "new_this_session": false
   },
   {
    "symbol": "SOFI",
@@ -1231,6 +1244,74 @@
    ],
    "pre_sec_gate": true,
    "annotations": [],
+   "new_this_session": false
+  },
+  {
+   "symbol": "SPY",
+   "stance": "bullish",
+   "hypothesis_id": "SPY-2026-10-12-auto-research-4-h",
+   "market_as_of": "2026-10-12",
+   "research_date": "2026-10-13",
+   "generated_at": "2026-10-13T03:54:40Z",
+   "generator_version": "auto-research-4",
+   "decision_reason": "rule_view=bullish: close 778.10 vs MA50 768.20 / MA200 723.38, weekly 多头, dist MA200 +7.6%, pulse 二次启动; +3 / -0 signed evidence; fundamentals unavailable (shown separately; stance from trend rules)",
+   "research_hint": "Watch (research: upside thesis holds; not an order)",
+   "supporting": [
+    {
+     "name": "close_vs_ma50",
+     "group": "trend",
+     "note": "close 778.10 above MA50 768.20",
+     "source": "stooq archive",
+     "as_of": "2026-10-12"
+    },
+    {
+     "name": "close_vs_ma200",
+     "group": "trend",
+     "note": "close above MA200 723.38",
+     "source": "stooq archive",
+     "as_of": "2026-10-12"
+    },
+    {
+     "name": "weekly_trend",
+     "group": "trend",
+     "note": "weekly 多头, structure HH/LL",
+     "source": "trend_pulse",
+     "as_of": "2026-10-12"
+    }
+   ],
+   "opposing": [],
+   "opposing_note": {
+    "checks_run": [
+     "trend vs MA50/MA200",
+     "weekly trend",
+     "RSI",
+     "stretch vs MA200",
+     "VIX"
+    ],
+    "not_checked_or_unavailable": [
+     "valuation (not in free pipeline)"
+    ],
+    "why_empty": "no counter-evidence to 'bullish' among the checks that ran; this is not evidence that no risk exists"
+   },
+   "invalidation": [
+    "close below MA50",
+    "break of 60-session low"
+   ],
+   "next_review": "2026-11-09",
+   "inputs": [
+    "author_claims",
+    "fred_macro",
+    "price_archive",
+    "sec_facts",
+    "sec_filings_list",
+    "trend_pulse"
+   ],
+   "unknowns": [
+    "SEC financial facts unavailable",
+    "valuation not in free pipeline"
+   ],
+   "pre_sec_gate": false,
+   "annotations": [],
    "new_this_session": true
   },
   {
@@ -1295,7 +1376,7 @@
    ],
    "pre_sec_gate": true,
    "annotations": [],
-   "new_this_session": true
+   "new_this_session": false
   },
   {
    "symbol": "TSLA",
@@ -1360,49 +1441,42 @@
    ],
    "pre_sec_gate": true,
    "annotations": [],
-   "new_this_session": true
+   "new_this_session": false
   },
   {
    "symbol": "TSM",
-   "stance": "neutral",
-   "hypothesis_id": "TSM-2026-10-09-auto-research-3-h",
-   "market_as_of": "2026-10-09",
-   "research_date": "2026-10-11",
-   "generated_at": "2026-10-11T13:34:27Z",
-   "generator_version": "auto-research-3",
-   "decision_reason": "rule_view=neutral: close 453.31 vs MA50 431.27 / MA200 390.92, weekly 多头, dist MA200 +16.0%, pulse 震荡观察; +3 / -2 signed evidence; fundamentals unavailable (shown separately; stance from trend rules)",
-   "research_hint": "Hold/Watch (research: no new thesis; not an order)",
+   "stance": "bullish",
+   "hypothesis_id": "TSM-2026-10-12-auto-research-4-h",
+   "market_as_of": "2026-10-12",
+   "research_date": "2026-10-13",
+   "generated_at": "2026-10-13T03:54:40Z",
+   "generator_version": "auto-research-4",
+   "decision_reason": "rule_view=bullish: close 444.35 vs MA50 432.10 / MA200 391.68, weekly 多头, dist MA200 +13.4%, pulse 趋势恶化; +3 / -1 signed evidence; fundamentals unavailable (shown separately; stance from trend rules)",
+   "research_hint": "Watch (research: upside thesis holds; not an order)",
    "supporting": [
     {
      "name": "close_vs_ma50",
      "group": "trend",
-     "note": "close 453.31 above MA50 431.27",
+     "note": "close 444.35 above MA50 432.10",
      "source": "stooq archive",
-     "as_of": "2026-10-09"
+     "as_of": "2026-10-12"
     },
     {
      "name": "close_vs_ma200",
      "group": "trend",
-     "note": "close above MA200 390.92",
+     "note": "close above MA200 391.68",
      "source": "stooq archive",
-     "as_of": "2026-10-09"
+     "as_of": "2026-10-12"
     },
     {
      "name": "weekly_trend",
      "group": "trend",
      "note": "weekly 多头, structure HH/HL",
      "source": "trend_pulse",
-     "as_of": "2026-10-09"
+     "as_of": "2026-10-12"
     }
    ],
    "opposing": [
-    {
-     "name": "stretched_vs_ma200",
-     "group": "trend",
-     "note": "16.0% above MA200 (>15%)",
-     "source": "stooq archive",
-     "as_of": "2026-10-09"
-    },
     {
      "name": "real_yield_20d_change",
      "group": "macro",
@@ -1413,10 +1487,10 @@
    ],
    "opposing_note": null,
    "invalidation": [
-    "neutral → bearish review below MA50",
-    "neutral → bullish review above 60-session high"
+    "close below MA50",
+    "break of 60-session low"
    ],
-   "next_review": "2026-11-06",
+   "next_review": "2026-11-09",
    "inputs": [
     "author_claims",
     "fred_macro",
@@ -1429,7 +1503,7 @@
     "SEC financial facts unavailable",
     "valuation not in free pipeline"
    ],
-   "pre_sec_gate": true,
+   "pre_sec_gate": false,
    "annotations": [],
    "new_this_session": true
   },
@@ -1502,7 +1576,7 @@
    ],
    "pre_sec_gate": true,
    "annotations": [],
-   "new_this_session": true
+   "new_this_session": false
   },
   {
    "symbol": "VOO",
@@ -1570,7 +1644,7 @@
    ],
    "pre_sec_gate": true,
    "annotations": [],
-   "new_this_session": true
+   "new_this_session": false
   }
  ],
  "learning_state": "UNPROVEN",

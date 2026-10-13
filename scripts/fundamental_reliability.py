@@ -22,6 +22,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 OBS = ROOT / "research" / "archive" / "fundamental_observations.jsonl"
 OUT = ROOT / "research" / "archive" / "fundamental_outcomes.jsonl"
+MEMORY = ROOT / "docs" / "research" / "company_fundamental_outcome_memory.json"  # summary of OUT; provenance only
 MIN_N = 30
 HORIZONS = (20, 60)
 DISCONNECTED = {
@@ -79,8 +80,14 @@ def load():
         obs, h1 = _jsonl(OBS)
         outs, h2 = _jsonl(OUT)
         _cache["rows"] = clean_rows(obs, outs)
+        try:
+            mem = json.loads(MEMORY.read_text(encoding="utf-8"))
+        except Exception:
+            mem = {}
         _cache["meta"] = {"observations": {"source": str(OBS.relative_to(ROOT)), "sha256": h1},
-                          "outcomes": {"source": str(OUT.relative_to(ROOT)), "sha256": h2}}
+                          "outcomes": {"source": str(OUT.relative_to(ROOT)), "sha256": h2,
+                                       "memory_artifact": "docs/research/company_fundamental_outcome_memory.json",
+                                       "memory_generated_at": mem.get("generated_at")}}
     return _cache["rows"], _cache["meta"]
 
 

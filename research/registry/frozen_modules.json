@@ -1,0 +1,16 @@
+{
+ "version": 1,
+ "task": "M-03 (#133 6117308392)",
+ "frozen_at": "2026-10-13",
+ "rule": "freeze = stop extending and skip in reviews; the producer keeps running and every artifact and evidence row is kept; nothing is deleted",
+ "unfreeze_when": "docs/research/candidate_forward_status.json counts.eligible_candidates > 0 (a candidate becomes forward-eligible)",
+ "basis": "research/audit/p1_readiness.json candidates.recommendation (forward_eligible_candidates = 0; downstream stages compute empty results)",
+ "modules": [
+  {"artifact": "candidate_forward_status.json", "producer": "candidate_forward_observer.py"},
+  {"artifact": "candidate_eventscore_status.json", "producer": "candidate_event_score.py"},
+  {"artifact": "candidate_rule_family_status.json", "producer": "candidate_rule_families.py"},
+  {"artifact": "candidate_family_scorecard_status.json", "producer": "candidate_family_scorecard.py"},
+  {"artifact": "candidate_evidence_promotion_status.json", "producer": "candidate_evidence_promotion.py"}
+ ],
+ "kept_active": ["candidate_rule_status.json", "candidate_parameter_queue.json", "candidate_rule_replay.json"]
+}

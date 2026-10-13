@@ -1,19 +1,21 @@
 {
- "generated_at": "2026-10-13T04:19:57Z",
+ "generated_at": "2026-10-13T07:01:43Z",
  "latest_session": "2026-10-12",
  "counts": {
-  "new": 8,
+  "new": 10,
   "invalidated": 2,
-  "abstained": 2,
+  "abstained": 16,
   "revisited_cross_day": 21,
   "still_valid": 14,
   "superseded_cross_day": 5,
   "review_due": 0,
-  "active": 22
+  "active": 24
  },
  "count_rules": "distinct symbols for the latest session; same-session generator-upgrade supersedes excluded",
  "new_symbols": [
+  "AMZN",
   "GOOG",
+  "INTC",
   "MSFT",
   "NBIS",
   "NVDA",
@@ -36,18 +38,74 @@
  ],
  "abstained": [
   {
+   "symbol": "AAOI",
+   "reason": "stale bars: last 2026-10-09 ≠ expected 2026-10-12"
+  },
+  {
+   "symbol": "AAPL",
+   "reason": "stale bars: last 2026-10-09 ≠ expected 2026-10-12"
+  },
+  {
+   "symbol": "CRWV",
+   "reason": "stale bars: last 2026-10-09 ≠ expected 2026-10-12"
+  },
+  {
+   "symbol": "DIA",
+   "reason": "stale bars: last 2026-10-09 ≠ expected 2026-10-12"
+  },
+  {
    "symbol": "DRAM",
    "reason": "insufficient canonical history"
   },
   {
+   "symbol": "GLD",
+   "reason": "stale bars: last 2026-10-09 ≠ expected 2026-10-12"
+  },
+  {
+   "symbol": "HYG",
+   "reason": "stale bars: last 2026-10-09 ≠ expected 2026-10-12"
+  },
+  {
+   "symbol": "IWM",
+   "reason": "stale bars: last 2026-10-09 ≠ expected 2026-10-12"
+  },
+  {
+   "symbol": "META",
+   "reason": "stale bars: last 2026-10-09 ≠ expected 2026-10-12"
+  },
+  {
+   "symbol": "MU",
+   "reason": "stale bars: last 2026-10-09 ≠ expected 2026-10-12"
+  },
+  {
+   "symbol": "NOW",
+   "reason": "stale bars: last 2026-10-09 ≠ expected 2026-10-12"
+  },
+  {
    "symbol": "SPCX",
    "reason": "insufficient canonical history"
+  },
+  {
+   "symbol": "TLT",
+   "reason": "stale bars: last 2026-10-09 ≠ expected 2026-10-12"
+  },
+  {
+   "symbol": "XLE",
+   "reason": "stale bars: last 2026-10-09 ≠ expected 2026-10-12"
+  },
+  {
+   "symbol": "XLF",
+   "reason": "stale bars: last 2026-10-09 ≠ expected 2026-10-12"
+  },
+  {
+   "symbol": "XLK",
+   "reason": "stale bars: last 2026-10-09 ≠ expected 2026-10-12"
   }
  ],
  "last_run": {
-  "at": "2026-10-13T04:19:33Z",
-  "run_id": "38345865213",
-  "generator_version": "auto-research-5",
+  "at": "2026-10-13T07:01:16Z",
+  "run_id": "38360034032",
+  "generator_version": "auto-research-6",
   "market_as_of": "2026-10-12"
  },
  "run_failure": {
@@ -135,6 +193,81 @@
    "new_this_session": false
   },
   {
+   "symbol": "AMZN",
+   "stance": "bullish",
+   "hypothesis_id": "AMZN-2026-10-12-auto-research-6-h",
+   "market_as_of": "2026-10-12",
+   "research_date": "2026-10-13",
+   "generated_at": "2026-10-13T07:01:16Z",
+   "generator_version": "auto-research-6",
+   "decision_reason": "rule_view=bullish: close 259.53 vs MA50 258.85 / MA200 242.29, weekly 多头, dist MA200 +7.1%, pulse 趋势延续; +4 / -0 signed evidence; fundamentals +1/-0 (shown separately; stance from trend rules)",
+   "research_hint": "Watch (research: upside thesis holds; not an order)",
+   "supporting": [
+    {
+     "name": "close_vs_ma50",
+     "group": "trend",
+     "note": "close 259.53 above MA50 258.85",
+     "source": "stooq archive",
+     "as_of": "2026-10-12"
+    },
+    {
+     "name": "close_vs_ma200",
+     "group": "trend",
+     "note": "close above MA200 242.29",
+     "source": "stooq archive",
+     "as_of": "2026-10-12"
+    },
+    {
+     "name": "weekly_trend",
+     "group": "trend",
+     "note": "weekly 多头, structure LH/LL",
+     "source": "trend_pulse",
+     "as_of": "2026-10-12"
+    },
+    {
+     "name": "sec_revenue_yoy",
+     "group": "fundamental",
+     "note": "quarterly revenue 200,606M for 2026-04-01–2026-06-30 (Q2 FY2026), +19.6% YoY; filed 2026-07-31; freshness current (period end 105d ago)",
+     "source": "SEC XBRL RevenueFromContractWithCustomerExcludingAssessedTax 10-Q accn 0001018724-26-000026",
+     "as_of": "2026-06-30",
+     "available_at": "2026-07-31"
+    }
+   ],
+   "opposing": [],
+   "opposing_note": {
+    "checks_run": [
+     "trend vs MA50/MA200",
+     "weekly trend",
+     "RSI",
+     "stretch vs MA200",
+     "VIX"
+    ],
+    "not_checked_or_unavailable": [
+     "valuation (not in free pipeline)"
+    ],
+    "why_empty": "no counter-evidence to 'bullish' among the checks that ran; this is not evidence that no risk exists"
+   },
+   "invalidation": [
+    "close below MA50",
+    "break of 60-session low"
+   ],
+   "next_review": "2026-11-09",
+   "inputs": [
+    "author_claims",
+    "fred_macro",
+    "price_archive",
+    "sec_facts",
+    "sec_filings_list",
+    "trend_pulse"
+   ],
+   "unknowns": [
+    "valuation not in free pipeline"
+   ],
+   "pre_sec_gate": false,
+   "annotations": [],
+   "new_this_session": true
+  },
+  {
    "symbol": "AVGO",
    "stance": "bearish",
    "hypothesis_id": "AVGO-2026-10-09-auto-research-3-h",
@@ -215,11 +348,11 @@
   {
    "symbol": "GOOG",
    "stance": "bullish",
-   "hypothesis_id": "GOOG-2026-10-12-auto-research-5-h",
+   "hypothesis_id": "GOOG-2026-10-12-auto-research-6-h",
    "market_as_of": "2026-10-12",
    "research_date": "2026-10-13",
-   "generated_at": "2026-10-13T04:19:33Z",
-   "generator_version": "auto-research-5",
+   "generated_at": "2026-10-13T07:01:16Z",
+   "generator_version": "auto-research-6",
    "decision_reason": "rule_view=bullish: close 348.97 vs MA50 343.75 / MA200 338.47, weekly 多头, dist MA200 +3.1%, pulse 二次启动; +4 / -1 signed evidence; fundamentals +1/-0 (shown separately; stance from trend rules)",
    "research_hint": "Watch (research: upside thesis holds; not an order)",
    "supporting": [
@@ -360,6 +493,78 @@
     }
    ],
    "new_this_session": false
+  },
+  {
+   "symbol": "INTC",
+   "stance": "neutral",
+   "hypothesis_id": "INTC-2026-10-12-auto-research-6-h",
+   "market_as_of": "2026-10-12",
+   "research_date": "2026-10-13",
+   "generated_at": "2026-10-13T07:01:16Z",
+   "generator_version": "auto-research-6",
+   "decision_reason": "rule_view=neutral: close 101.35 vs MA50 103.30 / MA200 83.36, weekly 过渡, dist MA200 +21.6%, pulse 趋势恶化; +2 / -3 signed evidence; fundamentals +1/-1 (shown separately; stance from trend rules)",
+   "research_hint": "Hold/Watch (research: no new thesis; not an order)",
+   "supporting": [
+    {
+     "name": "close_vs_ma200",
+     "group": "trend",
+     "note": "close above MA200 83.36",
+     "source": "stooq archive",
+     "as_of": "2026-10-12"
+    },
+    {
+     "name": "sec_revenue_yoy",
+     "group": "fundamental",
+     "note": "quarterly revenue 16,128M for 2026-03-29–2026-06-27 (Q2 FY2026), +25.4% YoY; filed 2026-07-24; freshness current (period end 108d ago)",
+     "source": "SEC XBRL RevenueFromContractWithCustomerExcludingAssessedTax 10-Q accn 0000050863-26-000157",
+     "as_of": "2026-06-27",
+     "available_at": "2026-07-24"
+    }
+   ],
+   "opposing": [
+    {
+     "name": "close_vs_ma50",
+     "group": "trend",
+     "note": "close 101.35 below MA50 103.30",
+     "source": "stooq archive",
+     "as_of": "2026-10-12"
+    },
+    {
+     "name": "stretched_vs_ma200",
+     "group": "trend",
+     "note": "21.6% above MA200 (>15%)",
+     "source": "stooq archive",
+     "as_of": "2026-10-12"
+    },
+    {
+     "name": "sec_net_income_q",
+     "group": "fundamental",
+     "note": "quarterly net income -11,033M (loss) for period ending 2026-06-27",
+     "source": "SEC XBRL NetIncomeLoss 10-Q accn 0000050863-26-000157",
+     "as_of": "2026-06-27",
+     "available_at": "2026-07-24"
+    }
+   ],
+   "opposing_note": null,
+   "invalidation": [
+    "neutral → bearish review below MA50",
+    "neutral → bullish review above 60-session high"
+   ],
+   "next_review": "2026-11-09",
+   "inputs": [
+    "author_claims",
+    "fred_macro",
+    "price_archive",
+    "sec_facts",
+    "sec_filings_list",
+    "trend_pulse"
+   ],
+   "unknowns": [
+    "valuation not in free pipeline"
+   ],
+   "pre_sec_gate": false,
+   "annotations": [],
+   "new_this_session": true
   },
   {
    "symbol": "IREN",
@@ -612,11 +817,11 @@
   {
    "symbol": "MSFT",
    "stance": "neutral",
-   "hypothesis_id": "MSFT-2026-10-12-auto-research-5-h",
+   "hypothesis_id": "MSFT-2026-10-12-auto-research-6-h",
    "market_as_of": "2026-10-12",
    "research_date": "2026-10-13",
-   "generated_at": "2026-10-13T04:19:33Z",
-   "generator_version": "auto-research-5",
+   "generated_at": "2026-10-13T07:01:16Z",
+   "generator_version": "auto-research-6",
    "decision_reason": "rule_view=neutral: close 541.15 vs MA50 501.05 / MA200 434.15, weekly 多头, dist MA200 +24.6%, pulse 高位钝化; +4 / -2 signed evidence; fundamentals +1/-0 (shown separately; stance from trend rules)",
    "research_hint": "Hold/Watch (research: no new thesis; not an order)",
    "supporting": [
@@ -690,11 +895,11 @@
   {
    "symbol": "NBIS",
    "stance": "neutral",
-   "hypothesis_id": "NBIS-2026-10-12-auto-research-5-h",
+   "hypothesis_id": "NBIS-2026-10-12-auto-research-6-h",
    "market_as_of": "2026-10-12",
    "research_date": "2026-10-13",
-   "generated_at": "2026-10-13T04:19:33Z",
-   "generator_version": "auto-research-5",
+   "generated_at": "2026-10-13T07:01:16Z",
+   "generator_version": "auto-research-6",
    "decision_reason": "rule_view=neutral: close 210.06 vs MA50 224.13 / MA200 171.38, weekly 过渡, dist MA200 +22.6%, pulse 震荡观察; +2 / -3 signed evidence; fundamentals +1/-0 (shown separately; stance from trend rules)",
    "research_hint": "Hold/Watch (research: no new thesis; not an order)",
    "supporting": [
@@ -761,11 +966,11 @@
   {
    "symbol": "NVDA",
    "stance": "bullish",
-   "hypothesis_id": "NVDA-2026-10-12-auto-research-5-h",
+   "hypothesis_id": "NVDA-2026-10-12-auto-research-6-h",
    "market_as_of": "2026-10-12",
    "research_date": "2026-10-13",
-   "generated_at": "2026-10-13T04:19:33Z",
-   "generator_version": "auto-research-5",
+   "generated_at": "2026-10-13T07:01:16Z",
+   "generator_version": "auto-research-6",
    "decision_reason": "rule_view=bullish: close 226.32 vs MA50 222.09 / MA200 202.16, weekly 多头, dist MA200 +12.0%, pulse 震荡观察; +4 / -1 signed evidence; fundamentals +1/-0 (shown separately; stance from trend rules)",
    "research_hint": "Watch (research: upside thesis holds; not an order)",
    "supporting": [
@@ -975,11 +1180,11 @@
   {
    "symbol": "QQQ",
    "stance": "bullish",
-   "hypothesis_id": "QQQ-2026-10-12-auto-research-5-h",
+   "hypothesis_id": "QQQ-2026-10-12-auto-research-6-h",
    "market_as_of": "2026-10-12",
    "research_date": "2026-10-13",
-   "generated_at": "2026-10-13T04:19:33Z",
-   "generator_version": "auto-research-5",
+   "generated_at": "2026-10-13T07:01:16Z",
+   "generator_version": "auto-research-6",
    "decision_reason": "rule_view=bullish: close 746.04 vs MA50 724.69 / MA200 672.22, weekly 多头, dist MA200 +11.0%, pulse 震荡观察; +3 / -1 signed evidence; fundamentals unavailable (shown separately; stance from trend rules)",
    "research_hint": "Watch (research: upside thesis holds; not an order)",
    "supporting": [
@@ -1039,11 +1244,11 @@
   {
    "symbol": "QQQM",
    "stance": "bullish",
-   "hypothesis_id": "QQQM-2026-10-12-auto-research-5-h",
+   "hypothesis_id": "QQQM-2026-10-12-auto-research-6-h",
    "market_as_of": "2026-10-12",
    "research_date": "2026-10-13",
-   "generated_at": "2026-10-13T04:19:33Z",
-   "generator_version": "auto-research-5",
+   "generated_at": "2026-10-13T07:01:16Z",
+   "generator_version": "auto-research-6",
    "decision_reason": "rule_view=bullish: close 307.19 vs MA50 298.40 / MA200 276.78, weekly 多头, dist MA200 +11.0%, pulse 震荡观察; +3 / -1 signed evidence; fundamentals unavailable (shown separately; stance from trend rules)",
    "research_hint": "Watch (research: upside thesis holds; not an order)",
    "supporting": [
@@ -1249,11 +1454,11 @@
   {
    "symbol": "SPY",
    "stance": "bullish",
-   "hypothesis_id": "SPY-2026-10-12-auto-research-5-h",
+   "hypothesis_id": "SPY-2026-10-12-auto-research-6-h",
    "market_as_of": "2026-10-12",
    "research_date": "2026-10-13",
-   "generated_at": "2026-10-13T04:19:33Z",
-   "generator_version": "auto-research-5",
+   "generated_at": "2026-10-13T07:01:16Z",
+   "generator_version": "auto-research-6",
    "decision_reason": "rule_view=bullish: close 778.10 vs MA50 768.20 / MA200 723.38, weekly 多头, dist MA200 +7.6%, pulse 二次启动; +3 / -0 signed evidence; fundamentals unavailable (shown separately; stance from trend rules)",
    "research_hint": "Watch (research: upside thesis holds; not an order)",
    "supporting": [
@@ -1446,11 +1651,11 @@
   {
    "symbol": "TSM",
    "stance": "bullish",
-   "hypothesis_id": "TSM-2026-10-12-auto-research-5-h",
+   "hypothesis_id": "TSM-2026-10-12-auto-research-6-h",
    "market_as_of": "2026-10-12",
    "research_date": "2026-10-13",
-   "generated_at": "2026-10-13T04:19:33Z",
-   "generator_version": "auto-research-5",
+   "generated_at": "2026-10-13T07:01:16Z",
+   "generator_version": "auto-research-6",
    "decision_reason": "rule_view=bullish: close 444.35 vs MA50 432.10 / MA200 391.68, weekly 多头, dist MA200 +13.4%, pulse 趋势恶化; +3 / -1 signed evidence; fundamentals unavailable (shown separately; stance from trend rules)",
    "research_hint": "Watch (research: upside thesis holds; not an order)",
    "supporting": [

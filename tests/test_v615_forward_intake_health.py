@@ -148,3 +148,27 @@ assert retro_only["counts"]["genuine_forward_rules"]==0
 assert retro_only["counts"]["forward_eventscore_events"]==0
 assert "live_rule_missing_eventscore_event" not in retro_only["blockers"]
 print("PASS retroactive rule excluded from Forward Intake")
+
+
+# P0 2026-10-13 (Research Evidence Update 38339531830): a genuine live rule published 2026-10-11 (Sun)
+# whose baseline session is 2026-10-12 has no EventScore event while the validator last ran before that
+# session completed. That is upstream timing → pending, integrity holds. After a validator run that saw the
+# completed baseline session, the same gap fails closed again.
+pend_rules={"rules":base_rules["rules"]+[{"rule_id":"r1","source_id":"s1","author":"new-author","active":True,
+            "forward_eligible":True,"effective_forward_eligible":True,"published_at":"2026-10-11"}]}
+pending=build(live_store,pend_rules,live_families,base_events,spec,now="2026-10-13T03:00:00Z",
+              validation_generated_at="2026-10-12T03:51:28+00:00")
+assert pending["integrity_pass"] is True, pending["blockers"]
+assert pending["status"]=="forward_rule_pending_baseline_session"
+assert pending["details"]["pending_baseline_session_rule_ids"]==["r1"]
+assert pending["counts"]["scoreable_forward_events"]==0
+after=build(live_store,pend_rules,live_families,base_events,spec,now="2026-10-13T03:00:00Z",
+            validation_generated_at="2026-10-12T21:45:00+00:00")
+assert after["integrity_pass"] is False and "live_rule_missing_eventscore_event" in after["blockers"]
+nov=build(live_store,pend_rules,live_families,base_events,spec,now="2026-10-13T03:00:00Z")
+assert nov["integrity_pass"] is False and "live_rule_missing_eventscore_event" in nov["blockers"]
+# Missing family assignment is never excused by the pending rule.
+nofam=build(live_store,pend_rules,base_families,base_events,spec,now="2026-10-13T03:00:00Z",
+            validation_generated_at="2026-10-12T03:51:28+00:00")
+assert nofam["integrity_pass"] is False and "live_rule_missing_current_family_assignment" in nofam["blockers"]
+print("PASS forward intake pending-baseline vs fail-closed")

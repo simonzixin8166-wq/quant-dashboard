@@ -23,8 +23,8 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 import trading_calendar as tc  # noqa: E402
 
-RULES_VERSION = "bl8524-tranche-v1"
-RULES_LOCKED_AT = "2026-10-13T06:00:00Z"
+RULES_VERSION = "bl8524-tranche-v1.1"  # v1.1: connectives confirmed against the full text (logic unchanged from v1)
+RULES_LOCKED_AT = "2026-10-13T06:35:00Z"  # v1 locked 2026-10-13T06:00:00Z
 OUT = ROOT / "research" / "macro_events" / "brightline_three_tranche_state.json"
 MACRO = ROOT / "docs" / "research" / "macro_context.json"
 BREADTH = ROOT / "docs" / "research" / "breadth_intelligence.json"
@@ -33,7 +33,8 @@ EVENTS = ROOT / "research" / "macro_events" / "event_facts_2026q4.json"  # offic
 
 AUTHOR_THRESHOLDS = {"y10_below": 5.00, "y10_risk_line": 5.35, "spx_above_ma200_share": 0.50}
 MAX_STALE_SESSIONS = {"macro": 3, "breadth": 2, "price": 2}
-SOURCE_NOTE = "owner outline of the full article (6138763764); full text not read by MyAlpha; connective to be re-checked against the text"
+SOURCE_NOTE = ("full text verified 2026-10-13 (owner-uploaded HTML sha256 bd834014…; 50 paragraphs; normalized sha256 f909e1b9…); "
+               "connectives read from paragraphs 43–46; v1 was based on the owner outline")
 
 
 def _load(p):
@@ -92,12 +93,12 @@ def evaluate(inputs):
     risk = [
         cond("cpi_well_above_expectations", "unknown" if not cpi else ("met" if cpi.get("surprise") == "hot" else "unmet"),
              value=(cpi or {}).get("summary"), as_of=(cpi or {}).get("official_outcome_recorded_at"),
-             rule="author: CPI 显著高于预期 → 前两批等待", note=None if cpi else "event not yet released / outcome not recorded"),
+             rule="author (p46): CPI 爆表 → 前两批继续等", note=None if cpi else "event not yet released / outcome not recorded"),
         cond("fomc_october_surprise_hike", "unknown" if not fomc else ("met" if fomc.get("hiked") else "unmet"),
              value=(fomc or {}).get("summary"), as_of=(fomc or {}).get("official_outcome_recorded_at"),
-             rule="author: 10 月 FOMC 意外加息 → 前两批等待", note=None if fomc else "event not yet released / outcome not recorded"),
+             rule="author (p46): 10 月底意外加息 → 前两批继续等", note=None if fomc else "event not yet released / outcome not recorded"),
         cond("y10_above_author_risk_line", "unknown" if not y10_ok else ("met" if y10["value"] > AUTHOR_THRESHOLDS["y10_risk_line"] else "unmet"),
-             value=y10.get("value"), as_of=y10.get("date"), rule="author: 10Y 突破 5.35% → 前两批等待",
+             value=y10.get("value"), as_of=y10.get("date"), rule="author (p46): 10 年期突破 5.35% → 前两批继续等",
              threshold_kind="author_threshold"),
     ]
     data_stale = not (y10_ok and br_ok)
@@ -113,13 +114,13 @@ def evaluate(inputs):
     t1_main = [cond("refunding_shortens_or_cuts_long_auctions",
                     "unknown" if not refund else ("met" if refund.get("shorter_or_fewer_long") else "unmet"),
                     value=(refund or {}).get("summary"), as_of=(refund or {}).get("official_outcome_recorded_at"),
-                    rule="author: 11/4 季度再融资进一步偏短债或削减长债拍卖（官方文本）",
+                    rule="author (p43): 11/4 季度再融资把发行转向短债，或者削减长债拍卖（官方文本）",
                     note=None if refund else "2026-11-04 not yet happened; the date alone never satisfies this"),
                y10_turn]
     t1_early = [cond("cpi_soft", "unknown" if not cpi else ("met" if cpi.get("surprise") == "soft" else "unmet"),
-                     value=(cpi or {}).get("summary"), as_of=(cpi or {}).get("official_outcome_recorded_at"), rule="author: 10/14 CPI 偏软"),
+                     value=(cpi or {}).get("summary"), as_of=(cpi or {}).get("official_outcome_recorded_at"), rule="author (p43): 这周三（10/14）CPI 偏软"),
                 cond("y10_below_author_5pct", "unknown" if not y10_ok else ("met" if y10["value"] < AUTHOR_THRESHOLDS["y10_below"] else "unmet"),
-                     value=y10.get("value"), as_of=y10.get("date"), rule="author: 10Y 跌破 5%", threshold_kind="author_threshold")]
+                     value=y10.get("value"), as_of=y10.get("date"), rule="author (p43): 10Y 直接跌破 5%", threshold_kind="author_threshold")]
     t1 = combine("OR", [{"status": combine("AND", t1_main)}, {"status": combine("AND", t1_early)}])
 
     # --- Tranche 2: breadth / confirmation --------------------------------------------------------------
@@ -141,11 +142,11 @@ def evaluate(inputs):
                     rule="author: 掉队股不再创新低 (MyAlpha: S&P 500 52w-new-low share falling over 10 sessions)",
                     note="trend needs ≥10 sessions of stored breadth history" if br.get("new_low_trend") is None else None)
     b200 = cond("spx_share_above_ma200_gt_50pct", "unknown" if not br_ok else ("met" if br["b200"] > AUTHOR_THRESHOLDS["spx_above_ma200_share"] else "unmet"),
-                value=br.get("b200"), as_of=br.get("as_of"), rule="author: SPX 成分股高于 MA200 比例回到 >50%",
+                value=br.get("b200"), as_of=br.get("as_of"), rule="author (p44): S&P 500 站上 200 日均线的股票比例重新回到一半以上",
                 threshold_kind="author_threshold", note=f"MyAlpha own breadth from S&P 500 constituents (coverage {br.get('coverage')}/{br.get('universe')}); never IWM/SPY proxy")
     dec = event_fact(ev, "fomc_2026_12")
     t2_alt = cond("december_fomc_signals_last_hike", "unknown" if not dec else ("met" if dec.get("signals_last_hike") else "unmet"),
-                  value=(dec or {}).get("summary"), as_of=(dec or {}).get("official_outcome_recorded_at"), rule="author: 12 月 FOMC 暗示最后一次加息（替代分支）")
+                  value=(dec or {}).get("summary"), as_of=(dec or {}).get("official_outcome_recorded_at"), rule="author (p44): 或者 12 月议息会议暗示这是最后一次加息（替代分支）")
     t2 = combine("OR", [{"status": combine("AND", [y10_sustained, laggards, b200])}, t2_alt])
 
     # --- Tranche 3: pre-computed price levels (author did not publish his); MyAlpha links EXISTING tiers only
@@ -192,7 +193,12 @@ def evaluate(inputs):
                                "note": "independent of tranches 1–2 per the author; MyAlpha still requires manual budget and total-risk guardrails"},
         },
         "allocation": {"status": "allocation_unset", "author_cash_floor": "author's own 20 % — NOT applied to the owner",
-                       "tranche_sizes": "not stated by the author — never inferred"},
+                       "tranche_sizes": "not stated by the author — never inferred",
+                       "author_budget_rule": "p42: only cash above the author's 20 % floor; after all three tranches cash returns exactly to 20 %"},
+        "author_defensive_rules_not_applied": [
+            "p36 先砍 2 倍杠杆 ETF 与短期期权（时间衰减）", "p37 太重的仓位在反弹中减，不在恐慌中砍", "p38 不追已在高位的巨头",
+            "p39 现金放短期国债（约 4%）", "p40 20% 现金底线任何时候不动"],
+        "author_defensive_rules_note": "author's personal rules — recorded for research only; QQQM/VGT core, QLD rules, gold, DCA and the owner's allocation are unchanged",
         "used_in_decision": False, "production_use": False, "automatic_orders": False,
     }
 

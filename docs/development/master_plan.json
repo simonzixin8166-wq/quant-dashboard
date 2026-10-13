@@ -2,7 +2,7 @@
  "version": 1,
  "title": "MyAlpha View — Master Execution Plan",
  "issue": "https://github.com/simonzixin8166-wq/quant-dashboard/issues/133",
- "last_updated": "2026-10-13T05:50Z",
+ "last_updated": "2026-10-13T14:50Z",
  "charter": "CLAUDE.md (owner-confirmed 2026-10-11)",
  "statuses": [
   "Done",
@@ -138,6 +138,11 @@
   {
    "id": "6138793593",
    "summary": "Homepage-visible macro event reminder (H-01..H-03) as R-02 acceptance",
+   "status": "active"
+  },
+  {
+   "id": "6139191982",
+   "summary": "PR #231 follow-up: verify the owner-uploaded full text first, then redo R-A/R-B; keep partial history",
    "status": "active"
   }
  ],
@@ -1180,7 +1185,8 @@
    "instructions": [
     "6137639898",
     "6138710630",
-    "6138763764"
+    "6138763764",
+    "6139191982"
    ],
    "depends_on": [
     "P0-INC-1013"
@@ -1188,16 +1194,18 @@
    "evidence": {
     "prs": [
      "#230 3deebc5 (v0.1)",
-     "#231 2c4e770 (v0.2 + report + tranche state)"
+     "#231 2c4e770 (v0.2 + report + tranche state)",
+     "this PR: full_text_verified v1.0 + full Chinese report + verification log + rules v1.1 (metadata)"
     ],
     "runs": [
      "wxc-bot feed record 56cd7e041adfe7bc43dc captured 2026-10-13T03:10:58Z (scheduled_blog_scan_complete, 3315 chars seen, 360-char excerpt persisted); source_store admission_class=genuine_forward",
-     "official checks 2026-10-13: Fed 09-16 statement (3¾–4%, 12–0), BLS jobs 10-02 (+29k, 4.2%), CPI Aug (3.4%/2.4%), Treasury sb0607 buybacks; 10Y FRED 10-08 5.22%; MyAlpha breadth b200 51.9% (10-12)"
+     "official checks 2026-10-13: Fed 09-16 statement (3¾–4%, 12–0), BLS jobs 10-02 (+29k, 4.2%), CPI Aug (3.4%/2.4%), Treasury sb0607 buybacks; 10Y FRED 10-08 5.22%; MyAlpha breadth b200 51.9% (10-12)",
+     "full text verified 2026-10-13 from owner-uploaded HTML: sha256 bd834014…, 50 paragraphs / 3,266 chars, normalized sha256 f909e1b9… = owner outline; 43/43 non-heading paragraphs reviewed, 48 claims (author 20 / official 11 / derived 6 / unverified 11)"
     ]
    },
-   "acceptance": "R-A Chinese section-by-section fact/opinion/counter-evidence matrix with official sources and as_of; full text status honest (partial unless read at runtime); v0.1 definitions only revised by version; R-B rules locked with tests (fail-closed, AND/OR fidelity, no allocation inference)",
+   "acceptance": "R-A Chinese section-by-section fact/opinion/counter-evidence matrix with official sources and as_of; full text status honest (partial unless read at runtime); v0.1 definitions only revised by version; R-B rules locked with tests (fail-closed, AND/OR fidelity, no allocation inference); full_text_verified record created only after the owner-supplied text was read; partial v0.1/v0.2 kept",
    "next": "R-C daily observation after real sessions; record official outcomes in research/macro_events/event_facts_2026q4.json after each event",
-   "last_verified": "2026-10-13T06:20Z"
+   "last_verified": "2026-10-13T14:50Z"
   },
   {
    "id": "R-02",

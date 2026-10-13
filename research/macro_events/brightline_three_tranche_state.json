@@ -1,6 +1,6 @@
 {
- "rules_version": "bl8524-tranche-v1",
- "rules_locked_at": "2026-10-13T06:00:00Z",
+ "rules_version": "bl8524-tranche-v1.1",
+ "rules_locked_at": "2026-10-13T06:35:00Z",
  "expected_session": "2026-10-12",
  "overall": "neutral_awaiting_confirmation",
  "overall_zh": "中性待确认",
@@ -14,7 +14,7 @@
     "status": "unknown",
     "value": null,
     "as_of": null,
-    "rule": "author: CPI 显著高于预期 → 前两批等待",
+    "rule": "author (p46): CPI 爆表 → 前两批继续等",
     "note": "event not yet released / outcome not recorded"
    },
    {
@@ -22,7 +22,7 @@
     "status": "unknown",
     "value": null,
     "as_of": null,
-    "rule": "author: 10 月 FOMC 意外加息 → 前两批等待",
+    "rule": "author (p46): 10 月底意外加息 → 前两批继续等",
     "note": "event not yet released / outcome not recorded"
    },
    {
@@ -30,7 +30,7 @@
     "status": "unmet",
     "value": 5.22,
     "as_of": "2026-10-08",
-    "rule": "author: 10Y 突破 5.35% → 前两批等待",
+    "rule": "author (p46): 10 年期突破 5.35% → 前两批继续等",
     "note": null,
     "threshold_kind": "author_threshold"
    }
@@ -40,14 +40,14 @@
   "1_policy_rate": {
    "state": "not_met",
    "connective": "(refunding AND y10_turn) OR (cpi_soft AND y10<5%)",
-   "connective_source": "owner outline of the full article (6138763764); full text not read by MyAlpha; connective to be re-checked against the text",
+   "connective_source": "full text verified 2026-10-13 (owner-uploaded HTML sha256 bd834014…; 50 paragraphs; normalized sha256 f909e1b9…); connectives read from paragraphs 43–46; v1 was based on the owner outline",
    "main": [
     {
      "name": "refunding_shortens_or_cuts_long_auctions",
      "status": "unknown",
      "value": null,
      "as_of": null,
-     "rule": "author: 11/4 季度再融资进一步偏短债或削减长债拍卖（官方文本）",
+     "rule": "author (p43): 11/4 季度再融资把发行转向短债，或者削减长债拍卖（官方文本）",
      "note": "2026-11-04 not yet happened; the date alone never satisfies this"
     },
     {
@@ -65,7 +65,7 @@
      "status": "unknown",
      "value": null,
      "as_of": null,
-     "rule": "author: 10/14 CPI 偏软",
+     "rule": "author (p43): 这周三（10/14）CPI 偏软",
      "note": null
     },
     {
@@ -73,7 +73,7 @@
      "status": "unmet",
      "value": 5.22,
      "as_of": "2026-10-08",
-     "rule": "author: 10Y 跌破 5%",
+     "rule": "author (p43): 10Y 直接跌破 5%",
      "note": null,
      "threshold_kind": "author_threshold"
     }
@@ -82,7 +82,7 @@
   "2_breadth_confirmation": {
    "state": "unknown",
    "connective": "(y10 sustained<5% AND laggards stop AND b200>50%) OR december_fomc_last_hike",
-   "connective_source": "owner outline of the full article (6138763764); full text not read by MyAlpha; connective to be re-checked against the text",
+   "connective_source": "full text verified 2026-10-13 (owner-uploaded HTML sha256 bd834014…; 50 paragraphs; normalized sha256 f909e1b9…); connectives read from paragraphs 43–46; v1 was based on the owner outline",
    "main": [
     {
      "name": "y10_sustained_below_author_5pct",
@@ -112,7 +112,7 @@
      "status": "met",
      "value": 0.5190380761523046,
      "as_of": "2026-10-12",
-     "rule": "author: SPX 成分股高于 MA200 比例回到 >50%",
+     "rule": "author (p44): S&P 500 站上 200 日均线的股票比例重新回到一半以上",
      "note": "MyAlpha own breadth from S&P 500 constituents (coverage 499/503); never IWM/SPY proxy",
      "threshold_kind": "author_threshold"
     }
@@ -123,7 +123,7 @@
      "status": "unknown",
      "value": null,
      "as_of": null,
-     "rule": "author: 12 月 FOMC 暗示最后一次加息（替代分支）",
+     "rule": "author (p44): 或者 12 月议息会议暗示这是最后一次加息（替代分支）",
      "note": null
     }
    ]
@@ -160,12 +160,21 @@
  "allocation": {
   "status": "allocation_unset",
   "author_cash_floor": "author's own 20 % — NOT applied to the owner",
-  "tranche_sizes": "not stated by the author — never inferred"
+  "tranche_sizes": "not stated by the author — never inferred",
+  "author_budget_rule": "p42: only cash above the author's 20 % floor; after all three tranches cash returns exactly to 20 %"
  },
+ "author_defensive_rules_not_applied": [
+  "p36 先砍 2 倍杠杆 ETF 与短期期权（时间衰减）",
+  "p37 太重的仓位在反弹中减，不在恐慌中砍",
+  "p38 不追已在高位的巨头",
+  "p39 现金放短期国债（约 4%）",
+  "p40 20% 现金底线任何时候不动"
+ ],
+ "author_defensive_rules_note": "author's personal rules — recorded for research only; QQQM/VGT core, QLD rules, gold, DCA and the owner's allocation are unchanged",
  "used_in_decision": false,
  "production_use": false,
  "automatic_orders": false,
- "generated_at": "2026-10-13T05:25:35Z",
+ "generated_at": "2026-10-13T05:59:11Z",
  "inputs": {
   "macro": "docs/research/macro_context.json",
   "breadth": "docs/research/breadth_intelligence.json",

@@ -1,16 +1,47 @@
 {
   "version": 1,
-  "generated_at": "2026-10-12T03:51:30.794931+00:00",
-  "status": "waiting_for_market_history",
+  "generated_at": "2026-10-13T03:30:40.154104+00:00",
+  "status": "learning_active",
   "counts": {
-    "outcomes": 0,
-    "added": 0,
-    "scorecards": 0
+    "outcomes": 4,
+    "added": 4,
+    "scorecards": 3
   },
-  "scorecards": [],
+  "scorecards": [
+    {
+      "kind": "breadth",
+      "state": "B20_LOW|B50_LOW|B200_LOW|SLOPE_UP|SPY_RSP_GAP|QQQ_QQQE_GAP|AD_NEG|NH52_THIN",
+      "horizon_sessions": 5,
+      "n": 1,
+      "avg_return_pct": 1.1602814152034568,
+      "avg_mae_pct": -0.0013006080595956426,
+      "avg_mfe_pct": 1.55657058421379,
+      "positive_rate": 1.0
+    },
+    {
+      "kind": "cross_asset",
+      "state": "high",
+      "horizon_sessions": 5,
+      "n": 2,
+      "avg_return_pct": 1.230673445602648,
+      "avg_mae_pct": 0.20583211336417384,
+      "avg_mfe_pct": 1.9320968754235834,
+      "positive_rate": 1.0
+    },
+    {
+      "kind": "regime",
+      "state": "CROSS_HIGH|BREADTH_FRAGILE|VIX_LOW",
+      "horizon_sessions": 5,
+      "n": 1,
+      "avg_return_pct": 1.1602814152034568,
+      "avg_mae_pct": -0.0013006080595956426,
+      "avg_mfe_pct": 1.55657058421379,
+      "positive_rate": 1.0
+    }
+  ],
   "guardrails": [
-    "Missing local market history fails closed for maturation without blocking unrelated source learning.",
-    "No synthetic outcomes are created.",
+    "Historical state snapshots are never rewritten.",
+    "Only completed future SPY sessions mature outcomes.",
     "Research evaluation only; no Production rule mutation."
   ]
 }

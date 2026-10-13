@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "generated_at": "2026-10-12T03:51:28.943432+00:00",
+  "generated_at": "2026-10-13T03:30:38.233182+00:00",
   "methodology": {
     "executed_action_baseline": "first trading session open strictly after source date when no reliable intraday timestamp exists",
     "planned_entry_baseline": "explicit stock-entry plans begin only on the first later session whose low touches the stated level; each tranche is validated separately",
@@ -16,14 +16,14 @@
     "attribution_limit": "third-party examples are excluded; unconfirmed source context is visible but excluded from aggregate method memory"
   },
   "counts": {
-    "events": 138,
+    "events": 139,
     "author_owned": 63,
-    "unconfirmed": 75,
+    "unconfirmed": 76,
     "triggered_author_owned": 52,
     "untriggered_plans": 11,
     "mature60": 26,
     "developing": 26,
-    "symbols": 22
+    "symbols": 23
   },
   "missing_history": {},
   "by_action": {
@@ -53,9 +53,9 @@
     "buy": {
       "5": {
         "n": 19,
-        "avg_return": -0.03042927400694911,
+        "avg_return": -0.030429273837765357,
         "median_return": -0.01619433525901859,
-        "avg_excess_vs_qqq": -0.03513311523278751,
+        "avg_excess_vs_qqq": -0.035133115063603754,
         "alignment_rate": 0.3076923076923077
       },
       "20": {
@@ -239,9 +239,9 @@
     "bogbog": {
       "5": {
         "n": 7,
-        "avg_return": 0.02588783835822111,
-        "median_return": 0.010941405607101773,
-        "avg_excess_vs_qqq": 0.03840852719007461,
+        "avg_return": 0.025887838817434155,
+        "median_return": 0.010941408821593113,
+        "avg_excess_vs_qqq": 0.038408527649287656,
         "alignment_rate": 0.5714285714285714
       },
       "20": {
@@ -664,12 +664,12 @@
       "planned_level": null,
       "triggered": true,
       "baseline_date": "2026-10-06",
-      "baseline_price": 778.1500244140625,
+      "baseline_price": 778.15,
       "price_provenance": {
-        "price_source": "yfinance_validation_cache",
-        "adjustment_basis": "yfinance_auto_adjust_false_native_ohlc",
-        "baseline_source": "yfinance_validation_cache",
-        "horizon_source": "yfinance_validation_cache",
+        "price_source": "stooq_archive",
+        "adjustment_basis": "stooq_archive_native_series",
+        "baseline_source": "stooq_archive",
+        "horizon_source": "stooq_archive",
         "same_source": true
       },
       "outcomes": {
@@ -731,6 +731,55 @@
       },
       "alignment": {
         "direction": "bullish",
+        "5": null,
+        "20": null,
+        "60": null
+      },
+      "level_checks": {},
+      "status": "developing"
+    },
+    {
+      "event_id": "9de10b593d73f6932b30:0:PYPL:0",
+      "author": "BrightLine",
+      "title": "再谈PYPL：求婚者走了，新娘还在",
+      "url": "https://blog.wenxuecity.com/myblog/82458/202610/3150.html",
+      "published_at": "2026-10-05",
+      "symbol": "PYPL",
+      "operation": {
+        "symbols": [
+          "PYPL"
+        ],
+        "actions": [
+          "trim"
+        ],
+        "attribution": "unconfirmed_author_context",
+        "attribution_confidence": "needs_review"
+      },
+      "actions": [
+        "trim"
+      ],
+      "attribution": "unconfirmed_author_context",
+      "attribution_confidence": "needs_review",
+      "baseline_kind": "next_session",
+      "baseline_assumption": "next trading session open because source date has no reliable intraday timestamp",
+      "planned_level": null,
+      "triggered": true,
+      "baseline_date": "2026-10-06",
+      "baseline_price": 54.3849983215332,
+      "price_provenance": {
+        "price_source": "yfinance_validation_cache",
+        "adjustment_basis": "yfinance_auto_adjust_false_native_ohlc",
+        "baseline_source": "yfinance_validation_cache",
+        "horizon_source": "yfinance_validation_cache",
+        "same_source": true
+      },
+      "outcomes": {
+        "5": null,
+        "20": null,
+        "60": null
+      },
+      "alignment": {
+        "direction": "bearish",
         "5": null,
         "20": null,
         "60": null
@@ -1707,20 +1756,20 @@
       "baseline_date": "2026-09-16",
       "baseline_price": 759.5,
       "price_provenance": {
-        "price_source": "yfinance_validation_cache",
-        "adjustment_basis": "yfinance_auto_adjust_false_native_ohlc",
-        "baseline_source": "yfinance_validation_cache",
-        "horizon_source": "yfinance_validation_cache",
+        "price_source": "stooq_archive",
+        "adjustment_basis": "stooq_archive_native_series",
+        "baseline_source": "stooq_archive",
+        "horizon_source": "stooq_archive",
         "same_source": true
       },
       "outcomes": {
         "5": {
           "date": "2026-09-23",
-          "return": 0.010941405607101773,
-          "mae": -0.013034923520819586,
-          "mfe": 0.020592514349489832,
+          "return": 0.010941408821593113,
+          "mae": -0.013034891375905189,
+          "mfe": 0.020592495062541127,
           "benchmark_return": 0.04690677966101697,
-          "excess_vs_qqq": -0.0359653740539152
+          "excess_vs_qqq": -0.03596537083942386
         },
         "20": null,
         "60": null
@@ -5863,42 +5912,49 @@
       "baseline_assumption": "next trading session open because source date has no reliable intraday timestamp",
       "planned_level": null,
       "triggered": true,
-      "baseline_date": "2026-08-03",
-      "baseline_price": 749.4400024414062,
+      "baseline_date": "2026-06-08",
+      "baseline_price": 743.36,
       "price_provenance": {
-        "price_source": "yfinance_validation_cache",
-        "adjustment_basis": "yfinance_auto_adjust_false_native_ohlc",
-        "baseline_source": "yfinance_validation_cache",
-        "horizon_source": "yfinance_validation_cache",
+        "price_source": "stooq_archive",
+        "adjustment_basis": "stooq_archive_native_series",
+        "baseline_source": "stooq_archive",
+        "horizon_source": "stooq_archive",
         "same_source": true
       },
       "outcomes": {
         "5": {
-          "date": "2026-08-10",
-          "return": 0.03147687176908209,
-          "mae": -0.0008539905080494625,
-          "mfe": 0.03657393928164954,
-          "benchmark_return": 0.04731948278367004,
-          "excess_vs_qqq": -0.01584261101458795
+          "date": "2026-06-15",
+          "return": 0.015429939733103692,
+          "mae": -0.027940701678863533,
+          "mfe": 0.017918639690055915,
+          "benchmark_return": 0.036485978183641965,
+          "excess_vs_qqq": -0.021056038450538272
         },
         "20": {
-          "date": "2026-08-31",
-          "return": 0.023497525211084946,
-          "mae": -0.0008539905080494625,
-          "mfe": 0.03993647600645822,
-          "benchmark_return": 0.041348249309894,
-          "excess_vs_qqq": -0.017850724098809057
+          "date": "2026-07-08",
+          "return": 0.0027442961687471623,
+          "mae": -0.036025613430908265,
+          "mfe": 0.017918639690055915,
+          "benchmark_return": -0.0088742146250399,
+          "excess_vs_qqq": 0.011618510793787062
         },
-        "60": null
+        "60": {
+          "date": "2026-09-02",
+          "return": 0.02932630219543686,
+          "mae": -0.036025613430908265,
+          "mfe": 0.04844220835126989,
+          "benchmark_return": -0.011939092517518457,
+          "excess_vs_qqq": 0.04126539471295532
+        }
       },
       "alignment": {
         "direction": "bearish",
         "5": "not_aligned",
         "20": "not_aligned",
-        "60": null
+        "60": "not_aligned"
       },
       "level_checks": {},
-      "status": "developing"
+      "status": "mature"
     },
     {
       "event_id": "brightline--blog-wenxuecity-com-myblog-82458-202606-5022-html:0:QQQ:0",
@@ -9622,8 +9678,8 @@
     "No learning result changes production thresholds without separate validation."
   ],
   "history_sources": {
-    "core_stooq_symbols": 24,
-    "source_validation_cache_symbols": 16,
+    "core_stooq_symbols": 25,
+    "source_validation_cache_symbols": 18,
     "principle": "STOOQ core wins at whole-symbol level; baseline and every horizon for an event use the same target-symbol source. yfinance remains validation-only fallback."
   }
 }

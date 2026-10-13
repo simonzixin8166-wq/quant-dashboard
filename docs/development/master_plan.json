@@ -2,7 +2,7 @@
  "version": 1,
  "title": "MyAlpha View — Master Execution Plan",
  "issue": "https://github.com/simonzixin8166-wq/quant-dashboard/issues/133",
- "last_updated": "2026-10-13T05:00Z",
+ "last_updated": "2026-10-13T06:20Z",
  "charter": "CLAUDE.md (owner-confirmed 2026-10-11)",
  "statuses": [
   "Done",
@@ -124,6 +124,21 @@
    "id": "6138128707",
    "summary": "P2 compliance: shared footer, sources & copyright / risk / correction pages, per-item provenance",
    "status": "active (waiting for production stability)"
+  },
+  {
+   "id": "6138710630",
+   "summary": "R-01/R-02 full-text analysis + event windows; OPT-01 options Shadow in parallel",
+   "status": "active"
+  },
+  {
+   "id": "6138763764",
+   "summary": "BrightLine 8524 seven-section outline; three-tranche Shadow rules; R-A/R-B/R-C",
+   "status": "active"
+  },
+  {
+   "id": "6138793593",
+   "summary": "Homepage-visible macro event reminder (H-01..H-03) as R-02 acceptance",
+   "status": "active"
   }
  ],
  "tasks": [
@@ -1163,33 +1178,42 @@
     "claude_acked"
    ],
    "instructions": [
-    "6137639898"
+    "6137639898",
+    "6138710630",
+    "6138763764"
    ],
    "depends_on": [
     "P0-INC-1013"
    ],
    "evidence": {
-    "prs": [],
+    "prs": [
+     "#230 3deebc5 (v0.1)",
+     "this PR: v0.2 fact matrix + Chinese report + tranche state machine (R-A/R-B)"
+    ],
     "runs": [
-     "wxc-bot feed record 56cd7e041adfe7bc43dc captured 2026-10-13T03:10:58Z (scheduled_blog_scan_complete, 3315 chars seen, 360-char excerpt persisted); source_store admission_class=genuine_forward"
+     "wxc-bot feed record 56cd7e041adfe7bc43dc captured 2026-10-13T03:10:58Z (scheduled_blog_scan_complete, 3315 chars seen, 360-char excerpt persisted); source_store admission_class=genuine_forward",
+     "official checks 2026-10-13: Fed 09-16 statement (3¾–4%, 12–0), BLS jobs 10-02 (+29k, 4.2%), CPI Aug (3.4%/2.4%), Treasury sb0607 buybacks; 10Y FRED 10-08 5.22%; MyAlpha breadth b200 51.9% (10-12)"
     ]
    },
-   "acceptance": "research/shadow_theses/brightline_8524_bottom_window_shadow_v0_1.json: real capture proof, short quotes, author vs system separated, locked trough definition + settlement window, production_use=false; article marked partial, not fully learned",
-   "next": "paragraph-level analysis needs a runtime re-read pathway (no storage); scoring runs at settlement (≈2027-01-04)",
-   "last_verified": "2026-10-13T05:00Z"
+   "acceptance": "R-A Chinese section-by-section fact/opinion/counter-evidence matrix with official sources and as_of; full text status honest (partial unless read at runtime); v0.1 definitions only revised by version; R-B rules locked with tests (fail-closed, AND/OR fidelity, no allocation inference)",
+   "next": "R-C daily observation after real sessions; record official outcomes in research/macro_events/event_facts_2026q4.json after each event",
+   "last_verified": "2026-10-13T06:20Z"
   },
   {
    "id": "R-02",
    "title": "Event-offset monitor (T-1..T+10) for CPI / FOMC / refunding / election with stale-aware confirm/conflict/pending output",
    "area": "Research tasks",
    "priority": 2,
-   "status": "Not started",
+   "status": "In progress",
    "stages": [
     "instruction_published",
     "claude_acked"
    ],
    "instructions": [
-    "6137639898"
+    "6137639898",
+    "6138710630",
+    "6138763764",
+    "6138793593"
    ],
    "depends_on": [
     "R-01"
@@ -1198,9 +1222,27 @@
     "prs": [],
     "runs": []
    },
-   "acceptance": "scheduled job reuses Daily/research-close; outputs only from real bars with as_of; missing yields/breadth/VIX term shown unavailable; no homepage module",
-   "next": "build after R-01 merges; first real output after CPI 2026-10-14 close",
-   "last_verified": "2026-10-13T05:00Z"
+   "acceptance": "homepage-visible compact reminder (H-01 fixtures → H-02 real artifact before CPI 10-14 08:30 ET → H-03 real T..T+10 checkpoints with Actions run IDs); ET (DST-aware) + Beijing times; stale/failed shown, never an optimistic carry-over; desktop + 390px QA; no BUY/SELL; gold/DCA layout untouched",
+   "next": "H-01 now (isolated read-only PR); H-02 wiring after tonight's schedule acceptance",
+   "last_verified": "2026-10-13T06:20Z",
+   "subtasks": [
+    {
+     "id": "H-01",
+     "title": "compact homepage component + fixtures (4 states)",
+     "status": "Not started"
+    },
+    {
+     "id": "H-02",
+     "title": "real event artifact wired before CPI 2026-10-14 08:30 ET",
+     "status": "Not started"
+    },
+    {
+     "id": "H-03",
+     "title": "real T/T+1/+3/+5/+10 verification per event",
+     "status": "Waiting",
+     "waiting_for": "events"
+    }
+   ]
   },
   {
    "id": "C-01",
@@ -1226,6 +1268,28 @@
    "acceptance": "PR/CI/Pages/QA PASS; desktop + 390px; three links clickable, no 404; homepage gold/DCA layout, feedback email, APP_VERSION 6.9.0 unchanged; no claim of authorization; any non-compliant full-text cache raised separately",
    "next": "implement once the scheduled Daily is green",
    "last_verified": "2026-10-13T05:00Z"
+  },
+  {
+   "id": "OPT-01",
+   "title": "Options blogger Sell Put / Covered Call management — Shadow research and decision comparison (no orders)",
+   "area": "Research tasks",
+   "priority": 1,
+   "status": "In progress",
+   "stages": [
+    "instruction_published",
+    "claude_acked"
+   ],
+   "instructions": [
+    "6138710630"
+   ],
+   "depends_on": [],
+   "evidence": {
+    "prs": [],
+    "runs": []
+   },
+   "acceptance": "author strategy marked source_pending unless the original material is accessible; MyAlpha independent framework (Delta/DTE/IV/earnings/ex-div/assignment, close-early/hold/roll/assigned paths) with stress scenarios; per-account analysis kept private; no claim of verified win rates; no orders, no threshold changes",
+   "next": "report on #133 today (aggregate only); per-position details in the private ledger repo",
+   "last_verified": "2026-10-13T06:20Z"
   }
  ]
 }

@@ -19,6 +19,11 @@ sec = {"generated_at": "2026-10-10T00:00:00Z", "symbols": {
     "IREN": {"available": False, "reason": "no 3-month USD revenue facts in us-gaap"}}}
 drj.SEC = tmp / "sec.json"; drj.SEC.write_text(json.dumps(sec))
 now = datetime(2026, 10, 10, 15, 0, tzinfo=timezone.utc)  # Saturday → expected session 2026-10-09
+# Hermetic as-of view: the test replays the 2026-10-10 run, so it must see only bars up to its own
+# expected session. Without this the fixture broke as soon as the canonical archive gained the
+# 2026-10-12 bar (every symbol correctly abstained as "stale bars", Daily 38342134443).
+_real_history = drj.kc.history
+drj.kc.history = lambda sym: (lambda rows: None if rows is None else [r for r in rows if r["d"] <= "2026-10-09"])(_real_history(sym))
 st, new = drj.run(now=now, fetch_claims=False, run_id="t1")
 assert st["market_as_of"] == "2026-10-09" and new
 hyps = {r["symbol"]: r for r in new if r["type"] == "hypothesis"}
@@ -57,6 +62,12 @@ fake = dict(a); fake["invalidation"] = [{"metric": "close", "op": ">", "value": 
 assert drj.check_invalidation(fake, drj.kc.history("AVGO")) is not None
 for p in ("scripts/server_action_engine.py", "scripts/forward_observation_engine.py", "docs/assets/autonomous-agent.js"):
     assert "auto_research_journal" not in (ROOT / p).read_text(encoding="utf-8")
+# The production guard itself is unchanged: bars past the expected session are still "stale", never reused.
+_rows = _real_history("AVGO")
+if _rows and _rows[-1]["d"] > "2026-10-09":
+    _res, _ = drj.analyse("AVGO", _rows, [], [], None, "2026-10-09")
+    assert _res["stance"] == "cannot_judge" and "stale bars" in _res["reason"]
+drj.kc.history = _real_history
 print("PASS daily research job v2")
 import weekly_research_report as wr
 wr.JOURNAL, wr.STATUS = drj.JOURNAL, drj.STATUS

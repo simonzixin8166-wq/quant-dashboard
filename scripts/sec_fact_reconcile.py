@@ -28,6 +28,7 @@ OLD = ROOT / "docs" / "research" / "company_fundamental_memory.json"
 NEW = ROOT / "docs" / "research" / "sec_fundamentals.json"
 ARCH = ROOT / "research" / "archive" / "fundamentals"
 OUT = ROOT / "research" / "audit" / "sec_fact_reconciliation.json"
+SHADOW = ROOT / "docs" / "research" / "shadow" / "company_fundamental_memory_v2.json"  # B4-02 unified v2 fetcher
 FOCUS = ("AVGO", "NVDA", "GOOG", "IREN", "TSM")
 METRICS = (("revenue", "revenue", "revenue_q"), ("net_income", "net_income", "net_income_q"))
 
@@ -181,8 +182,21 @@ def build(old, new, idx, now=None):
     return body
 
 
+def shadow_section(shadow, new):
+    """B4-02 dual run: the unified v2 Shadow (old schema) against the current new source, same classifier."""
+    if not shadow:
+        return {"status": "not_run_yet"}
+    b = build(shadow, new, {})
+    return {"status": "compared", "shadow_generated_at": shadow.get("generated_at"), "shadow_counts": shadow.get("counts"),
+            "coverage": b["coverage"], "overlap_agreement": b["overlap_agreement"], "class_tally": b["class_tally"],
+            "disagreements": {s: {m: e["metrics"][m]["classes"] for m in e["metrics"] if e["metrics"][m]["classes"] != ["agree"]}
+                              for s, e in b["symbols"].items() if e["in_old"] and e["in_new"]
+                              and any(e["metrics"][m]["classes"] != ["agree"] for m in e["metrics"])}}
+
+
 def main():
     rep = build(load(OLD), load(NEW), archive_index())
+    rep["shadow_v2_vs_new"] = shadow_section(load(SHADOW), load(NEW))
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(rep, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
     c = rep["coverage"]

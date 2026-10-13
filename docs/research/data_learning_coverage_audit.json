@@ -1,10 +1,10 @@
 {
   "version": "2.3",
-  "generated_at": "2026-10-13T04:36:43.312973+00:00",
+  "generated_at": "2026-10-13T05:42:24.889991+00:00",
   "principle": "Collection success is not learning success. Permanent storage and learning inputs must not be record-count capped; only per-run processing and UI presentation may be bounded.",
   "counts": {
-    "learning_active": 3,
-    "partial_learning": 12,
+    "learning_active": 4,
+    "partial_learning": 11,
     "context_only": 1
   },
   "domains": [
@@ -174,10 +174,8 @@
       "reusable_memory": true,
       "outcome_feedback": true,
       "decision_context": true,
-      "learning_status": "partial_learning",
-      "gaps": [
-        "Outcomes exist but no research/decision component reads them yet (L6 reuse missing); outcome count alone is not learning."
-      ],
+      "learning_status": "learning_active",
+      "gaps": [],
       "evidence": {
         "symbols": 11,
         "archive_total": 10416,
@@ -201,8 +199,10 @@
           }
         }
       },
-      "downstream_reused": false,
-      "reused_by": []
+      "downstream_reused": true,
+      "reused_by": [
+        "fundamental_reliability.py"
+      ]
     },
     {
       "domain": "news_event_evidence",
@@ -217,7 +217,7 @@
       "evidence": {
         "symbols": 16,
         "news_items": 78,
-        "archive_total": 801,
+        "archive_total": 805,
         "event_window_rows": 20,
         "mature_outcomes": 4,
         "benchmark": "SPY",
@@ -363,7 +363,7 @@
       ],
       "evidence": {
         "symbols": 18,
-        "revision_rows": 249,
+        "revision_rows": 250,
         "linked_direct_events": 30
       },
       "downstream_reused": false,
@@ -397,8 +397,10 @@
           "decision_fusion_eligible": 0
         }
       },
-      "downstream_reused": false,
-      "reused_by": []
+      "downstream_reused": true,
+      "reused_by": [
+        "module_manifest_audit.py"
+      ]
     },
     {
       "domain": "production_playbook_forward_replay",
@@ -511,13 +513,6 @@
       "status": "partial_learning",
       "gaps": [
         "Canonical SEC filing archive now preserves filing evidence, but full filing-to-thesis/outcome reuse remains partial."
-      ]
-    },
-    {
-      "domain": "financial_fundamentals_xbrl",
-      "status": "partial_learning",
-      "gaps": [
-        "Outcomes exist but no research/decision component reads them yet (L6 reuse missing); outcome count alone is not learning."
       ]
     },
     {

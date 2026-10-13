@@ -108,3 +108,11 @@ issues=oim.current_issues({"artifacts":{"module_failures":{"freshness":"none_rec
 names={i["name"] for i in issues.values()}
 assert "module_failures" not in names and "learning_engine" in names, names
 print("PASS module_failures event-only")
+
+# P0 2026-10-13: a labeled recovery dispatch is the latest Daily run and must be the one judged.
+_runs=[{"name":"Daily Dashboard Updater","status":"completed","conclusion":"cancelled","event":"schedule","created_at":"2026-10-13T04:00:00Z"},
+       {"name":"Daily Dashboard Update · P0 recovery #2","status":"completed","conclusion":"success","event":"workflow_dispatch","created_at":"2026-10-13T03:45:00Z"},
+       {"name":"Daily Dashboard Update","status":"completed","conclusion":"failure","event":"schedule","created_at":"2026-10-13T02:40:00Z"}]
+_l=ssc.latest_by_name(_runs,["Daily Dashboard Update"])["Daily Dashboard Update"]
+assert _l["conclusion"]=="success" and _l["event"]=="workflow_dispatch", _l
+print("PASS system status counts labeled recovery runs")

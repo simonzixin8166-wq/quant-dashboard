@@ -37,6 +37,10 @@ OWNER_REQUESTED = {"AAPL", "AMZN", "AAOI"}  # #133 6117657723 priority list; plu
 UNVERIFIED_IDENTITY = {"DRAM"}  # not in the SEC ticker map; never guess what instrument a code denotes
 
 
+# Share-class aliases folded into one research symbol (owner decision 2026-10-13, #133): GOOGL → GOOG.
+CANONICAL_SYMBOL = {"GOOGL": "GOOG"}
+
+
 def load(p, d=None):
     try:
         return json.loads(Path(p).read_text(encoding="utf-8"))
@@ -98,7 +102,7 @@ def build(now=None):
     mentions = Counter()
     for r in (load(ROOT / "docs" / "data" / "source_intelligence.json").get("records") or []):
         for s in r.get("symbols") or []:
-            mentions[s] += 1
+            mentions[CANONICAL_SYMBOL.get(s, s)] += 1  # historical records may still say GOOGL
     sec_entities = {k: v.get("entity") for k, v in (load(RES / "sec_fundamentals.json").get("symbols") or {}).items() if v.get("entity")}
     pack = load(ROOT / "research" / "audit" / "stooq_pack_validation.json")
     pack_verdict = {s: x.get("verdict") for s, x in (pack.get("symbols") or {}).items()}

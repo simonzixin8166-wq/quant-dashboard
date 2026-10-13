@@ -36,6 +36,8 @@ for h in hyps.values():
         assert h["opposing_note"] and "not evidence that no risk exists" in h["opposing_note"]["why_empty"]
 a = hyps["AVGO"]
 assert a["fundamentals"]["available"] and any(e["name"] == "sec_revenue_yoy" and e["sign"] == 1 for e in a["supporting"] + a["opposing"])
+_yoy = [e for e in a["supporting"] + a["opposing"] if e["name"] == "sec_revenue_yoy"][0]
+assert _yoy["historical_reliability"]["used_in_decision"] is False and "n" in _yoy["historical_reliability"]["pooled"]["20"]  # B2-02
 assert hyps["NVDA"]["fundamentals"]["available"] is False and "after the lock time" in hyps["NVDA"]["fundamentals"]["reason"]
 assert hyps["IREN"]["fundamentals"]["available"] is False and "SEC financial facts unavailable" in hyps["IREN"]["unknowns"]
 assert any(r["type"] == "abstain" for r in new)

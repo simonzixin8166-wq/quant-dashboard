@@ -32,8 +32,9 @@ sys.path.insert(0, str(ROOT / "scripts"))
 import trading_calendar as tc  # noqa: E402
 import knowledge_contract as kc  # noqa: E402
 import experience_inputs as xp  # noqa: E402
+import fundamental_reliability as frel  # noqa: E402
 
-GENERATOR = "auto-research-5"  # v5: B1 historical experience as Shadow evidence (precedents / error_attribution; used_in_decision=false)
+GENERATOR = "auto-research-6"  # v6: B2 clean fundamentals-outcome reliability context on SEC revenue-YoY evidence (used_in_decision=false); v5: B1 experience
 JOURNAL = ROOT / "research" / "knowledge" / "auto_research_journal.jsonl"
 STATUS = ROOT / "docs" / "research" / "auto_research_status.json"
 MACRO = ROOT / "docs" / "research" / "macro_context.json"
@@ -243,6 +244,9 @@ def analyse(sym, rows, macro_ev, claims, vix, expected, sec=None, generated_at="
     for e in ev:
         e.setdefault("group", "author_context" if e["name"] == "author_claim" else ("macro" if e["name"] in ("real_yield_20d_change", "vix") else "trend"))
     fund, fev = fundamental_evidence(sym, sec, generated_at)
+    for e in fev:  # B2-02: clean historical reliability context, shown with n; never changes sign or stance
+        if e["name"] == "sec_revenue_yoy":
+            e["historical_reliability"] = frel.context(sym, e["value"], expected, generated_at)
     ev += fev
     up = [e for e in ev if e["sign"] > 0]
     down = [e for e in ev if e["sign"] < 0]

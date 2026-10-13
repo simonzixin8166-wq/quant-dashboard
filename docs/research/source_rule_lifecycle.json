@@ -1,31 +1,33 @@
 {
   "version": "6.14.5",
-  "generated_at": "2026-10-10T01:13:01.718111+00:00",
+  "generated_at": "2026-10-13T03:55:12.262013+00:00",
   "mode": "research_only_rule_lifecycle",
   "source_reading_version": "6.14.7",
   "source_outcome_version": 2,
   "counts": {
-    "rules": 46,
+    "rules": 51,
     "by_state": {
-      "triggered_pending": 3,
+      "mapping_missing": 4,
+      "triggered_pending": 4,
       "mature_5": 3,
-      "mature_20": 13,
+      "mature_20": 12,
       "awaiting_trigger": 4,
       "option_outcome_unscored": 2,
-      "mature_60": 21
+      "mature_60": 22
     },
     "scoreable_stock_rules": 33,
     "option_unscored": 2,
-    "mapping_missing": 0
+    "mapping_missing": 4
   },
   "by_method": {
     "仓位与加减仓": {
-      "triggered_pending": 3,
+      "mapping_missing": 4,
+      "triggered_pending": 4,
       "mature_5": 3,
-      "mature_20": 11,
+      "mature_20": 10,
       "awaiting_trigger": 4,
       "option_outcome_unscored": 1,
-      "mature_60": 17
+      "mature_60": 18
     },
     "Sell Put": {
       "option_outcome_unscored": 2
@@ -35,6 +37,170 @@
     }
   },
   "rules": [
+    {
+      "rule_id": "305f49b8607e52d9fc",
+      "source_id": "b4091864de5d6847b786",
+      "operation_index": 0,
+      "author": "三心三意",
+      "published_at": "2026-10-12 14:19:35",
+      "title": "我们高位减仓时（我前一段也减过像AMAT，AAOI， AXTI之类的），可以说明这是仓位管理，而不是给个要崩盘的印象",
+      "url": "https://bbs.wenxuecity.com/cfzh/114862.html",
+      "method_candidates": [
+        "仓位与加减仓"
+      ],
+      "rule": {
+        "fields": {},
+        "conditions": [],
+        "actions": [
+          "trim"
+        ]
+      },
+      "mapped_event_count": 0,
+      "mapped_event_ids": [],
+      "scoreable_as_method_performance": false,
+      "eligible_for_production": false,
+      "state": "mapping_missing",
+      "reason": "No Source Outcome event matched the exact source_id + operation_index key.",
+      "maturity": {
+        "5": 0,
+        "20": 0,
+        "60": 0
+      },
+      "underlying_strike_context": []
+    },
+    {
+      "rule_id": "7b620505e05445a577",
+      "source_id": "ee7532b8483705279f11",
+      "operation_index": 0,
+      "author": "我是一只井底蛙",
+      "published_at": "2026-10-12 06:01:18",
+      "title": "我INTC，AMD，TSM都是获利减仓（下一步关心的什么时候补仓回来）。SOXL清仓。NVDA没动。卖掉后资金转入的是",
+      "url": "https://bbs.wenxuecity.com/cfzh/114698.html",
+      "method_candidates": [
+        "仓位与加减仓"
+      ],
+      "rule": {
+        "fields": {},
+        "conditions": [],
+        "actions": [
+          "clear",
+          "trim",
+          "add"
+        ]
+      },
+      "mapped_event_count": 0,
+      "mapped_event_ids": [],
+      "scoreable_as_method_performance": false,
+      "eligible_for_production": false,
+      "state": "mapping_missing",
+      "reason": "No Source Outcome event matched the exact source_id + operation_index key.",
+      "maturity": {
+        "5": 0,
+        "20": 0,
+        "60": 0
+      },
+      "underlying_strike_context": []
+    },
+    {
+      "rule_id": "7b478438b59e9ccd74",
+      "source_id": "66b4cef06a84cd3de2eb",
+      "operation_index": 1,
+      "author": "BrightLine",
+      "published_at": "2026-10-11",
+      "title": "云计算才是AI最赚钱的环节",
+      "url": "https://blog.wenxuecity.com/myblog/82458/202610/7180.html",
+      "method_candidates": [
+        "仓位与加减仓"
+      ],
+      "rule": {
+        "fields": {},
+        "conditions": [],
+        "actions": [
+          "sell"
+        ]
+      },
+      "mapped_event_count": 1,
+      "mapped_event_ids": [
+        "66b4cef06a84cd3de2eb:1:TSLA:0"
+      ],
+      "scoreable_as_method_performance": false,
+      "eligible_for_production": false,
+      "state": "triggered_pending",
+      "reason": "Stock-entry lifecycle derived from existing Source Outcome events.",
+      "maturity": {
+        "5": 0,
+        "20": 0,
+        "60": 0
+      },
+      "scored_alignment": {
+        "5": 0,
+        "20": 0,
+        "60": 0
+      },
+      "underlying_strike_context": []
+    },
+    {
+      "rule_id": "4f67f5b991b1397b50",
+      "source_id": "9bf7d6d7f269af723746",
+      "operation_index": 0,
+      "author": "我是一只井底蛙",
+      "published_at": "2026-10-09 15:53:39",
+      "title": "这周周线级别值得一提的：",
+      "url": "https://bbs.wenxuecity.com/cfzh/114571.html",
+      "method_candidates": [
+        "仓位与加减仓"
+      ],
+      "rule": {
+        "fields": {},
+        "conditions": [],
+        "actions": [
+          "buy"
+        ]
+      },
+      "mapped_event_count": 0,
+      "mapped_event_ids": [],
+      "scoreable_as_method_performance": false,
+      "eligible_for_production": false,
+      "state": "mapping_missing",
+      "reason": "No Source Outcome event matched the exact source_id + operation_index key.",
+      "maturity": {
+        "5": 0,
+        "20": 0,
+        "60": 0
+      },
+      "underlying_strike_context": []
+    },
+    {
+      "rule_id": "8f81f30f30634b2dbd",
+      "source_id": "9bf7d6d7f269af723746",
+      "operation_index": 1,
+      "author": "我是一只井底蛙",
+      "published_at": "2026-10-09 15:53:39",
+      "title": "这周周线级别值得一提的：",
+      "url": "https://bbs.wenxuecity.com/cfzh/114571.html",
+      "method_candidates": [
+        "仓位与加减仓"
+      ],
+      "rule": {
+        "fields": {},
+        "conditions": [],
+        "actions": [
+          "buy"
+        ]
+      },
+      "mapped_event_count": 0,
+      "mapped_event_ids": [],
+      "scoreable_as_method_performance": false,
+      "eligible_for_production": false,
+      "state": "mapping_missing",
+      "reason": "No Source Outcome event matched the exact source_id + operation_index key.",
+      "maturity": {
+        "5": 0,
+        "20": 0,
+        "60": 0
+      },
+      "underlying_strike_context": []
+    },
     {
       "rule_id": "4581927d4ec6f2abbf",
       "source_id": "091e103b50dfc7e60232",
@@ -963,17 +1129,17 @@
       ],
       "scoreable_as_method_performance": true,
       "eligible_for_production": false,
-      "state": "mature_20",
+      "state": "mature_60",
       "reason": "Stock-entry lifecycle derived from existing Source Outcome events.",
       "maturity": {
         "5": 2,
         "20": 2,
-        "60": 0
+        "60": 1
       },
       "scored_alignment": {
         "5": 2,
         "20": 2,
-        "60": 0
+        "60": 1
       },
       "underlying_strike_context": []
     },

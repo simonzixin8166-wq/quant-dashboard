@@ -1,8 +1,8 @@
 {
   "version": "5.7.0",
-  "generated_at": "2026-10-12T03:51:29.145541+00:00",
+  "generated_at": "2026-10-13T04:07:45.659276+00:00",
   "external_outcome_evidence_role": "legacy_descriptive_only",
-  "as_of": "2026-10-10",
+  "as_of": "2026-10-13",
   "architecture": [
     "plain_language_glossary",
     "trend_state_machine",
@@ -83,7 +83,7 @@
     "method": "evidence accumulation v1",
     "top": [
       {
-        "symbol": "SPCX",
+        "symbol": "GOOG",
         "evidence_score": 72.0,
         "status": "evidence-accumulating",
         "trend_state": {
@@ -115,7 +115,7 @@
           {
             "type": "momentum",
             "strength": "medium",
-            "evidence": "Trend Pulse 分数 94",
+            "evidence": "Trend Pulse 分数 74",
             "meaning": "分数绝对值较高表示趋势证据较集中，但高分不等于未来一定继续上涨或下跌。"
           },
           {
@@ -167,7 +167,7 @@
           {
             "type": "momentum",
             "strength": "medium",
-            "evidence": "Trend Pulse 分数 65",
+            "evidence": "Trend Pulse 分数 64",
             "meaning": "分数绝对值较高表示趋势证据较集中，但高分不等于未来一定继续上涨或下跌。"
           },
           {
@@ -184,6 +184,208 @@
           }
         ],
         "next_confirmation": "若重新跌回修复/恶化状态或周线转弱，则确认失效。",
+        "source_scope": "当前仅使用已验证的行情、Trend Pulse、历史学习与覆盖池异动；尚未把论坛/SEC/FDA/公司新闻自动写入此评分。"
+      },
+      {
+        "symbol": "SPY",
+        "evidence_score": 72.0,
+        "status": "evidence-accumulating",
+        "trend_state": {
+          "state": "Confirmed Trend",
+          "label_cn": "趋势已确认",
+          "source_stage": "二次启动",
+          "weekly": "多头",
+          "explanation": "趋势重新启动且周线同向，属于比首次启动更完整的多周期确认。",
+          "invalidation": "若重新跌回修复/恶化状态或周线转弱，则确认失效。",
+          "term_help": {
+            "cn": "趋势已确认",
+            "plain": "价格结构、动量和较高周期大体同向，趋势证据比早期转换阶段更完整。",
+            "why": "确认提高趋势可信度，但仍不代表没有回撤风险。"
+          }
+        },
+        "breadcrumbs": [
+          {
+            "type": "trend_state",
+            "strength": "medium",
+            "evidence": "Trend Pulse 当前阶段：二次启动",
+            "meaning": "说明当前技术结构处于什么阶段；它是研究线索，不是单独买卖信号。"
+          },
+          {
+            "type": "timeframe",
+            "strength": "high",
+            "evidence": "周线方向：多头",
+            "meaning": "用更高周期检查日线信号是否得到确认，减少一次性反弹造成的误判。"
+          },
+          {
+            "type": "momentum",
+            "strength": "medium",
+            "evidence": "Trend Pulse 分数 75",
+            "meaning": "分数绝对值较高表示趋势证据较集中，但高分不等于未来一定继续上涨或下跌。"
+          },
+          {
+            "type": "contradiction",
+            "strength": "medium",
+            "evidence": "存在 1 条反证或多周期冲突",
+            "meaning": "系统主动保留反证，避免只收集支持当前观点的信息。"
+          },
+          {
+            "type": "research_priority",
+            "strength": "medium",
+            "evidence": "研究优先级 75/100",
+            "meaning": "代表应优先花时间研究，不是买入概率或收益率预测。"
+          }
+        ],
+        "next_confirmation": "若重新跌回修复/恶化状态或周线转弱，则确认失效。",
+        "source_scope": "当前仅使用已验证的行情、Trend Pulse、历史学习与覆盖池异动；尚未把论坛/SEC/FDA/公司新闻自动写入此评分。"
+      },
+      {
+        "symbol": "AMZN",
+        "evidence_score": 69.6,
+        "status": "evidence-accumulating",
+        "trend_state": {
+          "state": "Confirmed Trend",
+          "label_cn": "趋势已确认",
+          "source_stage": "趋势延续",
+          "weekly": "多头",
+          "explanation": "当前处于趋势延续阶段，结构和动量仍支持原方向。",
+          "invalidation": "若进入趋势退潮或恶化，需要重新评估趋势持续性。",
+          "term_help": {
+            "cn": "趋势已确认",
+            "plain": "价格结构、动量和较高周期大体同向，趋势证据比早期转换阶段更完整。",
+            "why": "确认提高趋势可信度，但仍不代表没有回撤风险。"
+          }
+        },
+        "breadcrumbs": [
+          {
+            "type": "trend_state",
+            "strength": "medium",
+            "evidence": "Trend Pulse 当前阶段：趋势延续",
+            "meaning": "说明当前技术结构处于什么阶段；它是研究线索，不是单独买卖信号。"
+          },
+          {
+            "type": "timeframe",
+            "strength": "high",
+            "evidence": "周线方向：多头",
+            "meaning": "用更高周期检查日线信号是否得到确认，减少一次性反弹造成的误判。"
+          },
+          {
+            "type": "transition",
+            "strength": "high",
+            "evidence": "阶段从 震荡观察 变化为 趋势延续",
+            "meaning": "状态变化通常比重复的同状态提醒更值得复查。"
+          },
+          {
+            "type": "contradiction",
+            "strength": "medium",
+            "evidence": "存在 1 条反证或多周期冲突",
+            "meaning": "系统主动保留反证，避免只收集支持当前观点的信息。"
+          }
+        ],
+        "next_confirmation": "若进入趋势退潮或恶化，需要重新评估趋势持续性。",
+        "source_scope": "当前仅使用已验证的行情、Trend Pulse、历史学习与覆盖池异动；尚未把论坛/SEC/FDA/公司新闻自动写入此评分。"
+      },
+      {
+        "symbol": "MRVL",
+        "evidence_score": 62.0,
+        "status": "evidence-accumulating",
+        "trend_state": {
+          "state": "Weakening",
+          "label_cn": "趋势转弱",
+          "source_stage": "趋势退潮",
+          "weekly": "多头",
+          "explanation": "原趋势仍有历史惯性，但当前动量和结构正在退潮，需要减少对旧趋势的依赖。",
+          "invalidation": "重新二次启动可恢复确认；进一步恶化则视为结构破坏。",
+          "term_help": {
+            "cn": "趋势转弱",
+            "plain": "原有上升结构还没有完全破坏，但动量、均线或多周期一致性正在变差。",
+            "why": "通常先进入复查阶段，而不是机械等到完全破位才关注。"
+          }
+        },
+        "breadcrumbs": [
+          {
+            "type": "trend_state",
+            "strength": "medium",
+            "evidence": "Trend Pulse 当前阶段：趋势退潮",
+            "meaning": "说明当前技术结构处于什么阶段；它是研究线索，不是单独买卖信号。"
+          },
+          {
+            "type": "timeframe",
+            "strength": "medium",
+            "evidence": "周线方向：多头",
+            "meaning": "用更高周期检查日线信号是否得到确认，减少一次性反弹造成的误判。"
+          },
+          {
+            "type": "momentum",
+            "strength": "medium",
+            "evidence": "Trend Pulse 分数 71",
+            "meaning": "分数绝对值较高表示趋势证据较集中，但高分不等于未来一定继续上涨或下跌。"
+          },
+          {
+            "type": "transition",
+            "strength": "high",
+            "evidence": "阶段从 高位钝化 变化为 趋势退潮",
+            "meaning": "状态变化通常比重复的同状态提醒更值得复查。"
+          },
+          {
+            "type": "contradiction",
+            "strength": "medium",
+            "evidence": "存在 1 条反证或多周期冲突",
+            "meaning": "系统主动保留反证，避免只收集支持当前观点的信息。"
+          }
+        ],
+        "next_confirmation": "重新二次启动可恢复确认；进一步恶化则视为结构破坏。",
+        "source_scope": "当前仅使用已验证的行情、Trend Pulse、历史学习与覆盖池异动；尚未把论坛/SEC/FDA/公司新闻自动写入此评分。"
+      },
+      {
+        "symbol": "QLD",
+        "evidence_score": 62.0,
+        "status": "evidence-accumulating",
+        "trend_state": {
+          "state": "Weakening",
+          "label_cn": "趋势转弱",
+          "source_stage": "趋势退潮",
+          "weekly": "多头",
+          "explanation": "原趋势仍有历史惯性，但当前动量和结构正在退潮，需要减少对旧趋势的依赖。",
+          "invalidation": "重新二次启动可恢复确认；进一步恶化则视为结构破坏。",
+          "term_help": {
+            "cn": "趋势转弱",
+            "plain": "原有上升结构还没有完全破坏，但动量、均线或多周期一致性正在变差。",
+            "why": "通常先进入复查阶段，而不是机械等到完全破位才关注。"
+          }
+        },
+        "breadcrumbs": [
+          {
+            "type": "trend_state",
+            "strength": "medium",
+            "evidence": "Trend Pulse 当前阶段：趋势退潮",
+            "meaning": "说明当前技术结构处于什么阶段；它是研究线索，不是单独买卖信号。"
+          },
+          {
+            "type": "timeframe",
+            "strength": "medium",
+            "evidence": "周线方向：多头",
+            "meaning": "用更高周期检查日线信号是否得到确认，减少一次性反弹造成的误判。"
+          },
+          {
+            "type": "momentum",
+            "strength": "medium",
+            "evidence": "Trend Pulse 分数 73",
+            "meaning": "分数绝对值较高表示趋势证据较集中，但高分不等于未来一定继续上涨或下跌。"
+          },
+          {
+            "type": "transition",
+            "strength": "high",
+            "evidence": "阶段从 高位钝化 变化为 趋势退潮",
+            "meaning": "状态变化通常比重复的同状态提醒更值得复查。"
+          },
+          {
+            "type": "contradiction",
+            "strength": "medium",
+            "evidence": "存在 1 条反证或多周期冲突",
+            "meaning": "系统主动保留反证，避免只收集支持当前观点的信息。"
+          }
+        ],
+        "next_confirmation": "重新二次启动可恢复确认；进一步恶化则视为结构破坏。",
         "source_scope": "当前仅使用已验证的行情、Trend Pulse、历史学习与覆盖池异动；尚未把论坛/SEC/FDA/公司新闻自动写入此评分。"
       },
       {
@@ -219,7 +421,7 @@
           {
             "type": "momentum",
             "strength": "medium",
-            "evidence": "Trend Pulse 分数 78",
+            "evidence": "Trend Pulse 分数 77",
             "meaning": "分数绝对值较高表示趋势证据较集中，但高分不等于未来一定继续上涨或下跌。"
           },
           {
@@ -239,135 +441,9 @@
         "source_scope": "当前仅使用已验证的行情、Trend Pulse、历史学习与覆盖池异动；尚未把论坛/SEC/FDA/公司新闻自动写入此评分。"
       },
       {
-        "symbol": "GOOG",
-        "evidence_score": 48.0,
+        "symbol": "SPCX",
+        "evidence_score": 56.0,
         "status": "evidence-accumulating",
-        "trend_state": {
-          "state": "Confirmation Pending",
-          "label_cn": "等待确认",
-          "source_stage": "二次启动",
-          "weekly": "过渡",
-          "explanation": "日线出现二次启动，但周线尚未同向，先等待多周期确认。",
-          "invalidation": "若日线再次回落，则视为二次启动未完成确认。",
-          "term_help": {
-            "cn": "等待确认",
-            "plain": "已经出现改善信号，但还需要连续收盘、关键价位或更高周期共同验证。",
-            "why": "避免只因为一天反弹或一次突破就过早把状态升级。"
-          }
-        },
-        "breadcrumbs": [
-          {
-            "type": "trend_state",
-            "strength": "medium",
-            "evidence": "Trend Pulse 当前阶段：二次启动",
-            "meaning": "说明当前技术结构处于什么阶段；它是研究线索，不是单独买卖信号。"
-          },
-          {
-            "type": "timeframe",
-            "strength": "medium",
-            "evidence": "周线方向：过渡",
-            "meaning": "用更高周期检查日线信号是否得到确认，减少一次性反弹造成的误判。"
-          },
-          {
-            "type": "contradiction",
-            "strength": "medium",
-            "evidence": "存在 1 条反证或多周期冲突",
-            "meaning": "系统主动保留反证，避免只收集支持当前观点的信息。"
-          },
-          {
-            "type": "research_priority",
-            "strength": "medium",
-            "evidence": "研究优先级 70/100",
-            "meaning": "代表应优先花时间研究，不是买入概率或收益率预测。"
-          }
-        ],
-        "next_confirmation": "若日线再次回落，则视为二次启动未完成确认。",
-        "source_scope": "当前仅使用已验证的行情、Trend Pulse、历史学习与覆盖池异动；尚未把论坛/SEC/FDA/公司新闻自动写入此评分。"
-      },
-      {
-        "symbol": "NVDA",
-        "evidence_score": 34.0,
-        "status": "monitor",
-        "trend_state": {
-          "state": "Trend Mature",
-          "label_cn": "趋势成熟 / 高位钝化",
-          "source_stage": "高位钝化",
-          "weekly": "多头",
-          "explanation": "趋势仍可能保持强势，但已经处于高位成熟阶段，新增追涨优势下降。",
-          "invalidation": "若高位整理后重新二次启动可恢复积极状态；若转为退潮则进入风险复查。",
-          "term_help": {
-            "cn": "趋势成熟 / 高位钝化",
-            "plain": "趋势仍可能保持强势，但已经处于高位成熟阶段，新增追涨优势下降。",
-            "why": "用于把复杂趋势指标转换成可执行的研究阶段。"
-          }
-        },
-        "breadcrumbs": [
-          {
-            "type": "trend_state",
-            "strength": "medium",
-            "evidence": "Trend Pulse 当前阶段：高位钝化",
-            "meaning": "说明当前技术结构处于什么阶段；它是研究线索，不是单独买卖信号。"
-          },
-          {
-            "type": "timeframe",
-            "strength": "medium",
-            "evidence": "周线方向：多头",
-            "meaning": "用更高周期检查日线信号是否得到确认，减少一次性反弹造成的误判。"
-          },
-          {
-            "type": "momentum",
-            "strength": "medium",
-            "evidence": "Trend Pulse 分数 84",
-            "meaning": "分数绝对值较高表示趋势证据较集中，但高分不等于未来一定继续上涨或下跌。"
-          }
-        ],
-        "next_confirmation": "若高位整理后重新二次启动可恢复积极状态；若转为退潮则进入风险复查。",
-        "source_scope": "当前仅使用已验证的行情、Trend Pulse、历史学习与覆盖池异动；尚未把论坛/SEC/FDA/公司新闻自动写入此评分。"
-      },
-      {
-        "symbol": "LITE",
-        "evidence_score": 34.0,
-        "status": "monitor",
-        "trend_state": {
-          "state": "Trend Mature",
-          "label_cn": "趋势成熟 / 高位钝化",
-          "source_stage": "高位钝化",
-          "weekly": "多头",
-          "explanation": "趋势仍可能保持强势，但已经处于高位成熟阶段，新增追涨优势下降。",
-          "invalidation": "若高位整理后重新二次启动可恢复积极状态；若转为退潮则进入风险复查。",
-          "term_help": {
-            "cn": "趋势成熟 / 高位钝化",
-            "plain": "趋势仍可能保持强势，但已经处于高位成熟阶段，新增追涨优势下降。",
-            "why": "用于把复杂趋势指标转换成可执行的研究阶段。"
-          }
-        },
-        "breadcrumbs": [
-          {
-            "type": "trend_state",
-            "strength": "medium",
-            "evidence": "Trend Pulse 当前阶段：高位钝化",
-            "meaning": "说明当前技术结构处于什么阶段；它是研究线索，不是单独买卖信号。"
-          },
-          {
-            "type": "timeframe",
-            "strength": "medium",
-            "evidence": "周线方向：多头",
-            "meaning": "用更高周期检查日线信号是否得到确认，减少一次性反弹造成的误判。"
-          },
-          {
-            "type": "momentum",
-            "strength": "medium",
-            "evidence": "Trend Pulse 分数 91",
-            "meaning": "分数绝对值较高表示趋势证据较集中，但高分不等于未来一定继续上涨或下跌。"
-          }
-        ],
-        "next_confirmation": "若高位整理后重新二次启动可恢复积极状态；若转为退潮则进入风险复查。",
-        "source_scope": "当前仅使用已验证的行情、Trend Pulse、历史学习与覆盖池异动；尚未把论坛/SEC/FDA/公司新闻自动写入此评分。"
-      },
-      {
-        "symbol": "MRVL",
-        "evidence_score": 34.0,
-        "status": "monitor",
         "trend_state": {
           "state": "Trend Mature",
           "label_cn": "趋势成熟 / 高位钝化",
@@ -399,33 +475,85 @@
             "strength": "medium",
             "evidence": "Trend Pulse 分数 94",
             "meaning": "分数绝对值较高表示趋势证据较集中，但高分不等于未来一定继续上涨或下跌。"
+          },
+          {
+            "type": "transition",
+            "strength": "high",
+            "evidence": "阶段从 二次启动 变化为 高位钝化",
+            "meaning": "状态变化通常比重复的同状态提醒更值得复查。"
           }
         ],
         "next_confirmation": "若高位整理后重新二次启动可恢复积极状态；若转为退潮则进入风险复查。",
+        "source_scope": "当前仅使用已验证的行情、Trend Pulse、历史学习与覆盖池异动；尚未把论坛/SEC/FDA/公司新闻自动写入此评分。"
+      },
+      {
+        "symbol": "LITE",
+        "evidence_score": 54.0,
+        "status": "evidence-accumulating",
+        "trend_state": {
+          "state": "Confirmation Pending",
+          "label_cn": "等待确认",
+          "source_stage": "震荡观察",
+          "weekly": "多头",
+          "explanation": "当前属于修复或震荡阶段，已有改善但尚未形成稳定趋势。",
+          "invalidation": "若修复失败并重新恶化，则继续防守；若启动并获得确认，则升级。",
+          "term_help": {
+            "cn": "等待确认",
+            "plain": "已经出现改善信号，但还需要连续收盘、关键价位或更高周期共同验证。",
+            "why": "避免只因为一天反弹或一次突破就过早把状态升级。"
+          }
+        },
+        "breadcrumbs": [
+          {
+            "type": "trend_state",
+            "strength": "medium",
+            "evidence": "Trend Pulse 当前阶段：震荡观察",
+            "meaning": "说明当前技术结构处于什么阶段；它是研究线索，不是单独买卖信号。"
+          },
+          {
+            "type": "timeframe",
+            "strength": "medium",
+            "evidence": "周线方向：多头",
+            "meaning": "用更高周期检查日线信号是否得到确认，减少一次性反弹造成的误判。"
+          },
+          {
+            "type": "transition",
+            "strength": "high",
+            "evidence": "阶段从 高位钝化 变化为 震荡观察",
+            "meaning": "状态变化通常比重复的同状态提醒更值得复查。"
+          },
+          {
+            "type": "market_anomaly",
+            "strength": "medium",
+            "evidence": "覆盖池出现异常波动 -9.8%",
+            "meaning": "异常波动只触发原因调查；在事件来源确认前不能当成追涨或抄底理由。"
+          }
+        ],
+        "next_confirmation": "若修复失败并重新恶化，则继续防守；若启动并获得确认，则升级。",
         "source_scope": "当前仅使用已验证的行情、Trend Pulse、历史学习与覆盖池异动；尚未把论坛/SEC/FDA/公司新闻自动写入此评分。"
       },
       {
         "symbol": "QQQM",
-        "evidence_score": 34.0,
-        "status": "monitor",
+        "evidence_score": 54.0,
+        "status": "evidence-accumulating",
         "trend_state": {
-          "state": "Trend Mature",
-          "label_cn": "趋势成熟 / 高位钝化",
-          "source_stage": "高位钝化",
+          "state": "Confirmation Pending",
+          "label_cn": "等待确认",
+          "source_stage": "震荡观察",
           "weekly": "多头",
-          "explanation": "趋势仍可能保持强势，但已经处于高位成熟阶段，新增追涨优势下降。",
-          "invalidation": "若高位整理后重新二次启动可恢复积极状态；若转为退潮则进入风险复查。",
+          "explanation": "当前属于修复或震荡阶段，已有改善但尚未形成稳定趋势。",
+          "invalidation": "若修复失败并重新恶化，则继续防守；若启动并获得确认，则升级。",
           "term_help": {
-            "cn": "趋势成熟 / 高位钝化",
-            "plain": "趋势仍可能保持强势，但已经处于高位成熟阶段，新增追涨优势下降。",
-            "why": "用于把复杂趋势指标转换成可执行的研究阶段。"
+            "cn": "等待确认",
+            "plain": "已经出现改善信号，但还需要连续收盘、关键价位或更高周期共同验证。",
+            "why": "避免只因为一天反弹或一次突破就过早把状态升级。"
           }
         },
         "breadcrumbs": [
           {
             "type": "trend_state",
             "strength": "medium",
-            "evidence": "Trend Pulse 当前阶段：高位钝化",
+            "evidence": "Trend Pulse 当前阶段：震荡观察",
             "meaning": "说明当前技术结构处于什么阶段；它是研究线索，不是单独买卖信号。"
           },
           {
@@ -437,75 +565,41 @@
           {
             "type": "momentum",
             "strength": "medium",
-            "evidence": "Trend Pulse 分数 76",
+            "evidence": "Trend Pulse 分数 73",
             "meaning": "分数绝对值较高表示趋势证据较集中，但高分不等于未来一定继续上涨或下跌。"
-          }
-        ],
-        "next_confirmation": "若高位整理后重新二次启动可恢复积极状态；若转为退潮则进入风险复查。",
-        "source_scope": "当前仅使用已验证的行情、Trend Pulse、历史学习与覆盖池异动；尚未把论坛/SEC/FDA/公司新闻自动写入此评分。"
-      },
-      {
-        "symbol": "QLD",
-        "evidence_score": 34.0,
-        "status": "monitor",
-        "trend_state": {
-          "state": "Trend Mature",
-          "label_cn": "趋势成熟 / 高位钝化",
-          "source_stage": "高位钝化",
-          "weekly": "多头",
-          "explanation": "趋势仍可能保持强势，但已经处于高位成熟阶段，新增追涨优势下降。",
-          "invalidation": "若高位整理后重新二次启动可恢复积极状态；若转为退潮则进入风险复查。",
-          "term_help": {
-            "cn": "趋势成熟 / 高位钝化",
-            "plain": "趋势仍可能保持强势，但已经处于高位成熟阶段，新增追涨优势下降。",
-            "why": "用于把复杂趋势指标转换成可执行的研究阶段。"
-          }
-        },
-        "breadcrumbs": [
-          {
-            "type": "trend_state",
-            "strength": "medium",
-            "evidence": "Trend Pulse 当前阶段：高位钝化",
-            "meaning": "说明当前技术结构处于什么阶段；它是研究线索，不是单独买卖信号。"
           },
           {
-            "type": "timeframe",
-            "strength": "medium",
-            "evidence": "周线方向：多头",
-            "meaning": "用更高周期检查日线信号是否得到确认，减少一次性反弹造成的误判。"
-          },
-          {
-            "type": "momentum",
-            "strength": "medium",
-            "evidence": "Trend Pulse 分数 75",
-            "meaning": "分数绝对值较高表示趋势证据较集中，但高分不等于未来一定继续上涨或下跌。"
+            "type": "transition",
+            "strength": "high",
+            "evidence": "阶段从 高位钝化 变化为 震荡观察",
+            "meaning": "状态变化通常比重复的同状态提醒更值得复查。"
           }
         ],
-        "next_confirmation": "若高位整理后重新二次启动可恢复积极状态；若转为退潮则进入风险复查。",
+        "next_confirmation": "若修复失败并重新恶化，则继续防守；若启动并获得确认，则升级。",
         "source_scope": "当前仅使用已验证的行情、Trend Pulse、历史学习与覆盖池异动；尚未把论坛/SEC/FDA/公司新闻自动写入此评分。"
       },
       {
         "symbol": "VGT",
-        "evidence_score": 34.0,
-        "status": "monitor",
+        "evidence_score": 54.0,
+        "status": "evidence-accumulating",
         "trend_state": {
-          "state": "Trend Mature",
-          "label_cn": "趋势成熟 / 高位钝化",
-          "source_stage": "高位钝化",
+          "state": "Confirmation Pending",
+          "label_cn": "等待确认",
+          "source_stage": "震荡观察",
           "weekly": "多头",
-          "explanation": "趋势仍可能保持强势，但已经处于高位成熟阶段，新增追涨优势下降。",
-          "invalidation": "若高位整理后重新二次启动可恢复积极状态；若转为退潮则进入风险复查。",
+          "explanation": "当前属于修复或震荡阶段，已有改善但尚未形成稳定趋势。",
+          "invalidation": "若修复失败并重新恶化，则继续防守；若启动并获得确认，则升级。",
           "term_help": {
-            "cn": "趋势成熟 / 高位钝化",
-            "plain": "趋势仍可能保持强势，但已经处于高位成熟阶段，新增追涨优势下降。",
-            "why": "用于把复杂趋势指标转换成可执行的研究阶段。"
+            "cn": "等待确认",
+            "plain": "已经出现改善信号，但还需要连续收盘、关键价位或更高周期共同验证。",
+            "why": "避免只因为一天反弹或一次突破就过早把状态升级。"
           }
         },
         "breadcrumbs": [
           {
             "type": "trend_state",
             "strength": "medium",
-            "evidence": "Trend Pulse 当前阶段：高位钝化",
+            "evidence": "Trend Pulse 当前阶段：震荡观察",
             "meaning": "说明当前技术结构处于什么阶段；它是研究线索，不是单独买卖信号。"
           },
           {
@@ -517,35 +611,41 @@
           {
             "type": "momentum",
             "strength": "medium",
-            "evidence": "Trend Pulse 分数 86",
+            "evidence": "Trend Pulse 分数 63",
             "meaning": "分数绝对值较高表示趋势证据较集中，但高分不等于未来一定继续上涨或下跌。"
+          },
+          {
+            "type": "transition",
+            "strength": "high",
+            "evidence": "阶段从 高位钝化 变化为 震荡观察",
+            "meaning": "状态变化通常比重复的同状态提醒更值得复查。"
           }
         ],
-        "next_confirmation": "若高位整理后重新二次启动可恢复积极状态；若转为退潮则进入风险复查。",
+        "next_confirmation": "若修复失败并重新恶化，则继续防守；若启动并获得确认，则升级。",
         "source_scope": "当前仅使用已验证的行情、Trend Pulse、历史学习与覆盖池异动；尚未把论坛/SEC/FDA/公司新闻自动写入此评分。"
       },
       {
         "symbol": "QQQ",
-        "evidence_score": 34.0,
-        "status": "monitor",
+        "evidence_score": 54.0,
+        "status": "evidence-accumulating",
         "trend_state": {
-          "state": "Trend Mature",
-          "label_cn": "趋势成熟 / 高位钝化",
-          "source_stage": "高位钝化",
+          "state": "Confirmation Pending",
+          "label_cn": "等待确认",
+          "source_stage": "震荡观察",
           "weekly": "多头",
-          "explanation": "趋势仍可能保持强势，但已经处于高位成熟阶段，新增追涨优势下降。",
-          "invalidation": "若高位整理后重新二次启动可恢复积极状态；若转为退潮则进入风险复查。",
+          "explanation": "当前属于修复或震荡阶段，已有改善但尚未形成稳定趋势。",
+          "invalidation": "若修复失败并重新恶化，则继续防守；若启动并获得确认，则升级。",
           "term_help": {
-            "cn": "趋势成熟 / 高位钝化",
-            "plain": "趋势仍可能保持强势，但已经处于高位成熟阶段，新增追涨优势下降。",
-            "why": "用于把复杂趋势指标转换成可执行的研究阶段。"
+            "cn": "等待确认",
+            "plain": "已经出现改善信号，但还需要连续收盘、关键价位或更高周期共同验证。",
+            "why": "避免只因为一天反弹或一次突破就过早把状态升级。"
           }
         },
         "breadcrumbs": [
           {
             "type": "trend_state",
             "strength": "medium",
-            "evidence": "Trend Pulse 当前阶段：高位钝化",
+            "evidence": "Trend Pulse 当前阶段：震荡观察",
             "meaning": "说明当前技术结构处于什么阶段；它是研究线索，不是单独买卖信号。"
           },
           {
@@ -557,68 +657,56 @@
           {
             "type": "momentum",
             "strength": "medium",
-            "evidence": "Trend Pulse 分数 75",
+            "evidence": "Trend Pulse 分数 73",
             "meaning": "分数绝对值较高表示趋势证据较集中，但高分不等于未来一定继续上涨或下跌。"
-          }
-        ],
-        "next_confirmation": "若高位整理后重新二次启动可恢复积极状态；若转为退潮则进入风险复查。",
-        "source_scope": "当前仅使用已验证的行情、Trend Pulse、历史学习与覆盖池异动；尚未把论坛/SEC/FDA/公司新闻自动写入此评分。"
-      },
-      {
-        "symbol": "MSFT",
-        "evidence_score": 34.0,
-        "status": "monitor",
-        "trend_state": {
-          "state": "Trend Mature",
-          "label_cn": "趋势成熟 / 高位钝化",
-          "source_stage": "高位钝化",
-          "weekly": "多头",
-          "explanation": "趋势仍可能保持强势，但已经处于高位成熟阶段，新增追涨优势下降。",
-          "invalidation": "若高位整理后重新二次启动可恢复积极状态；若转为退潮则进入风险复查。",
-          "term_help": {
-            "cn": "趋势成熟 / 高位钝化",
-            "plain": "趋势仍可能保持强势，但已经处于高位成熟阶段，新增追涨优势下降。",
-            "why": "用于把复杂趋势指标转换成可执行的研究阶段。"
-          }
-        },
-        "breadcrumbs": [
-          {
-            "type": "trend_state",
-            "strength": "medium",
-            "evidence": "Trend Pulse 当前阶段：高位钝化",
-            "meaning": "说明当前技术结构处于什么阶段；它是研究线索，不是单独买卖信号。"
           },
           {
-            "type": "timeframe",
-            "strength": "medium",
-            "evidence": "周线方向：多头",
-            "meaning": "用更高周期检查日线信号是否得到确认，减少一次性反弹造成的误判。"
-          },
-          {
-            "type": "momentum",
-            "strength": "medium",
-            "evidence": "Trend Pulse 分数 100",
-            "meaning": "分数绝对值较高表示趋势证据较集中，但高分不等于未来一定继续上涨或下跌。"
+            "type": "transition",
+            "strength": "high",
+            "evidence": "阶段从 高位钝化 变化为 震荡观察",
+            "meaning": "状态变化通常比重复的同状态提醒更值得复查。"
           }
         ],
-        "next_confirmation": "若高位整理后重新二次启动可恢复积极状态；若转为退潮则进入风险复查。",
+        "next_confirmation": "若修复失败并重新恶化，则继续防守；若启动并获得确认，则升级。",
         "source_scope": "当前仅使用已验证的行情、Trend Pulse、历史学习与覆盖池异动；尚未把论坛/SEC/FDA/公司新闻自动写入此评分。"
       }
     ],
-    "coverage": 24,
+    "coverage": 26,
     "external_event_feed_status": "not-yet-connected",
     "note": "V5.7 首版只用已有可验证数据形成技术/市场 Breadcrumb；不会假装已经抓取到 SEC/FDA/论坛等外部事实。"
   },
   "failure_attribution": {
-    "mature_samples_scanned": 510,
-    "review_samples": 197,
+    "mature_samples_scanned": 506,
+    "review_samples": 183,
     "tag_counts": {
       "trend_false_positive": 51,
-      "timeframe_confirmation_missing": 63,
-      "large_adverse_move": 118,
-      "missed_upside": 48
+      "timeframe_confirmation_missing": 65,
+      "large_adverse_move": 109,
+      "missed_upside": 41
     },
     "recent": [
+      {
+        "symbol": "VIX",
+        "date": "2026-09-14",
+        "source_stage": "趋势延续",
+        "weekly": "空头",
+        "score": 20.7,
+        "return_20": -0.11052633340118734,
+        "mae_20": -0.16900586426035868,
+        "mfe_20": 0.03567243797631425,
+        "severity": "review",
+        "tags": [
+          "trend_false_positive",
+          "timeframe_confirmation_missing",
+          "large_adverse_move"
+        ],
+        "attribution_hypotheses": [
+          "当时趋势状态偏多，但20个交易日结果明显为负：优先检查趋势确认是否过早。",
+          "日线偏强而周线未确认，多周期冲突可能是误判来源之一。",
+          "入档后经历较大不利波动，风险识别和无效条件应被单独复盘。"
+        ],
+        "guardrail": "这是可检验的归因假设，不是已经证明的因果关系；只有重复成熟样本才允许影响 Learning Policy。"
+      },
       {
         "symbol": "VIX",
         "date": "2026-09-10",
@@ -976,28 +1064,55 @@
           "日线偏强而周线未确认，多周期冲突可能是误判来源之一。"
         ],
         "guardrail": "这是可检验的归因假设，不是已经证明的因果关系；只有重复成熟样本才允许影响 Learning Policy。"
-      },
-      {
-        "symbol": "SMH",
-        "date": "2026-08-13",
-        "source_stage": "趋势启动",
-        "weekly": "过渡",
-        "score": 15.81,
-        "return_20": -0.034950376817912576,
-        "mae_20": -0.07451796709994529,
-        "mfe_20": 0.008402383636709754,
-        "severity": "review",
-        "tags": [
-          "timeframe_confirmation_missing"
-        ],
-        "attribution_hypotheses": [
-          "日线偏强而周线未确认，多周期冲突可能是误判来源之一。"
-        ],
-        "guardrail": "这是可检验的归因假设，不是已经证明的因果关系；只有重复成熟样本才允许影响 Learning Policy。"
       }
     ],
     "method": "20-session outcome attribution hypotheses; no causal claim",
     "external_failure_candidates": [
+      {
+        "id": "56cd7e041adfe7bc43dc",
+        "source": "wenxuecity",
+        "source_kind": "blog",
+        "author": "BrightLine",
+        "published_at": "2026-10-12",
+        "title": "别和美联储作对，但底已经不远了",
+        "url": "https://blog.wenxuecity.com/myblog/82458/202610/8524.html",
+        "excerpt": "最近我又闻到了2022年的味道，但这一次的味道不太一样。\n9月16日，美联储三年来第一次加息，联邦基金利率到了3.75%到4.00%。10年期美债收益率9月底收在5.34%，是2002年以来最高，现在还在5.2%以上徘徊。\n华尔街有句老话：Don't fight the Fed。这一次，我决定听它的，先转守，准备足够多的现金。但听它的，首先要看懂它在干什么。看懂了，就会发现：底已经不远了。\n一、这不是熊市，是轮动\nS&P 500 上周五收在7,811点，离历史高点只有一步之遥。苹果离52周高点只差1%左右，微软差2%左右，Meta 差5%左右，Nvidia 10月5日刚创收盘新高，市值逼近6万亿美元。\n但下面是另一个世界。摩根士丹利的数据：罗素3000里，超过一半的公司已经从6月高点跌了20%以上。按10月初的",
+        "content_chars": 3315,
+        "symbols": [],
+        "primary_symbols": [],
+        "symbol_attribution": [],
+        "topics": [
+          "风险管理",
+          "失败复盘",
+          "长期持有纪律",
+          "趋势确认"
+        ],
+        "actions": [],
+        "operations": [],
+        "portfolio_rules": [],
+        "lessons": [
+          "admit_wrong"
+        ],
+        "method_signals": [],
+        "failure_candidate": true,
+        "archive_only": false,
+        "deep_analysis": false,
+        "source_notice": "作者原始观点/操作记录，仅作研究来源；公开归档仅保留短摘录与原文链接，MyAlpha需独立验证后才形成本站判断。",
+        "source_role": null,
+        "transcript_status": null,
+        "content_quality": null,
+        "content_provider": null,
+        "content_provider_url": null,
+        "content_origin": null,
+        "timestamp_evidence": false,
+        "rule_candidate_allowed": null,
+        "captured_at": "2026-10-13T03:10:58Z",
+        "intake_class_hint": "live_candidate",
+        "capture_mode": "scheduled_blog_scan_complete",
+        "myalpha_validation": "needs_independent_validation",
+        "verification_status": "unverified_author_self_report",
+        "learning_eligible": false
+      },
       {
         "id": "66b4cef06a84cd3de2eb",
         "source": "wenxuecity",
@@ -2180,13 +2295,13 @@
         "excerpt": "整体看，两只股票都在经历“中期下跌后的短线反弹”，但 CIEN 的技术修复更完整，AAOI 的上涨弹性更大、波动也更高。\n\r\nCIEN：短线已经明显转强。 4月至6月快速上涨，随后持续回落；9月在约310–350美元区域企稳。10月1日放量上涨7.77%，收379.14美元，重新站上短期均线及Supertrend附近，MACD柱线转正，说明反弹开始升级为趋势修复。今天盘中约386.52美元，再涨1.95%，两日累计约9.86%；最高388.81美元。\n\r\nAAOI：反弹力度更强，但中期反转尚待确认。 5月见顶后总体下行，8月反弹失败，9月主要在95–110美元附近筑底。10月1日上涨8.12%，收107.32美元，MACD改善并重新站上短期均线；但图中价格仍接近或低于下降中的中期均线和Supertrend压力。",
         "content_chars": 575,
         "symbols": [
-          "AAOI",
-          "CIEN"
+          "CIEN",
+          "AAOI"
         ],
         "primary_symbols": [],
         "symbol_attribution": [
           {
-            "symbol": "AAOI",
+            "symbol": "CIEN",
             "role": "contextual_mention",
             "confidence": "low",
             "evidence_basis": [
@@ -2194,7 +2309,7 @@
             ]
           },
           {
-            "symbol": "CIEN",
+            "symbol": "AAOI",
             "role": "contextual_mention",
             "confidence": "low",
             "evidence_basis": [
@@ -2228,46 +2343,6 @@
         "captured_at": "2026-10-02T20:05:30Z",
         "intake_class_hint": null,
         "capture_mode": null,
-        "myalpha_validation": "needs_independent_validation",
-        "verification_status": "unverified_author_self_report",
-        "learning_eligible": false
-      },
-      {
-        "id": "077cece34e018b3fd615",
-        "source": "wenxuecity",
-        "source_kind": "forum",
-        "author": "麻你",
-        "published_at": "2026-10-02 05:46:29",
-        "title": "假如在2003年拿的RSU开始投资到2007年这几年的大牛市，是可以攒下很多钱的，2008年股灾亏个几米是有可能的",
-        "url": "https://bbs.wenxuecity.com/tzlc/2378149.html",
-        "excerpt": "",
-        "content_chars": 0,
-        "symbols": [],
-        "primary_symbols": [],
-        "symbol_attribution": [],
-        "topics": [
-          "失败复盘"
-        ],
-        "actions": [],
-        "operations": [],
-        "portfolio_rules": [],
-        "lessons": [],
-        "method_signals": [],
-        "failure_candidate": true,
-        "archive_only": false,
-        "deep_analysis": false,
-        "source_notice": "作者原始观点/操作记录，仅作研究来源；公开归档仅保留短摘录与原文链接，MyAlpha需独立验证后才形成本站判断。",
-        "source_role": null,
-        "transcript_status": null,
-        "content_quality": null,
-        "content_provider": null,
-        "content_provider_url": null,
-        "content_origin": null,
-        "timestamp_evidence": false,
-        "rule_candidate_allowed": null,
-        "captured_at": "2026-10-09T07:04:30Z",
-        "intake_class_hint": "backfill",
-        "capture_mode": "forum_author_backfill",
         "myalpha_validation": "needs_independent_validation",
         "verification_status": "unverified_author_self_report",
         "learning_eligible": false
@@ -2765,20 +2840,21 @@
       },
       {
         "symbol": "INTC",
-        "source_records": 22,
+        "source_records": 23,
         "authors": [
           "BrightLine",
-          "bogbog"
+          "bogbog",
+          "我是一只井底蛙"
         ],
-        "latest_title": "INTC之前那涨法应该是会套住不少人。",
-        "latest_url": "https://bbs.wenxuecity.com/cfzh/111422.html",
+        "latest_title": "我INTC，AMD，TSM都是获利减仓（下一步关心的什么时候补仓回来）。SOXL清仓。NVDA没动。卖掉后资金转入的是",
+        "latest_url": "https://bbs.wenxuecity.com/cfzh/114698.html",
         "topics": [
           "INTC",
           "LEAPS",
           "Sell Put",
           "个股与行业",
+          "仓位与加减仓",
           "仓位管理",
-          "估值与价格",
           "失败复盘",
           "研究工具",
           "趋势确认",
@@ -2853,13 +2929,16 @@
       },
       {
         "symbol": "AMD",
-        "source_records": 15,
+        "source_records": 16,
         "authors": [
-          "bogbog"
+          "bogbog",
+          "我是一只井底蛙"
         ],
-        "latest_title": "不是，我是在说AMD表现不错",
-        "latest_url": "https://bbs.wenxuecity.com/cfzh/113975.html",
+        "latest_title": "我INTC，AMD，TSM都是获利减仓（下一步关心的什么时候补仓回来）。SOXL清仓。NVDA没动。卖掉后资金转入的是",
+        "latest_url": "https://bbs.wenxuecity.com/cfzh/114698.html",
         "topics": [
+          "INTC",
+          "仓位与加减仓",
           "估值与价格",
           "其他研究"
         ],
@@ -2869,14 +2948,17 @@
       },
       {
         "symbol": "NVDA",
-        "source_records": 13,
+        "source_records": 14,
         "authors": [
           "bogbog",
-          "三心三意"
+          "三心三意",
+          "我是一只井底蛙"
         ],
-        "latest_title": "NVDA 的hedge应该是notional value",
-        "latest_url": "https://bbs.wenxuecity.com/cfzh/114630.html",
+        "latest_title": "我INTC，AMD，TSM都是获利减仓（下一步关心的什么时候补仓回来）。SOXL清仓。NVDA没动。卖掉后资金转入的是",
+        "latest_url": "https://bbs.wenxuecity.com/cfzh/114698.html",
         "topics": [
+          "INTC",
+          "仓位与加减仓",
           "其他研究"
         ],
         "candidate_hypothesis": "外部来源对该标的形成重复研究线索，值得与现有基本面、估值、趋势和事件证据交叉验证。",
@@ -2921,6 +3003,88 @@
         "guardrail": "不是本站Thesis，也不是买卖信号；需MyAlpha独立验证后才能升级。"
       },
       {
+        "symbol": "LITE",
+        "source_records": 9,
+        "authors": [
+          "bogbog",
+          "yifan99",
+          "三心三意"
+        ],
+        "latest_title": "理解，但为什么就偏偏买在最高点呢？7月底到9月底，2个月的时间， LITE都比现在低：）",
+        "latest_url": "https://bbs.wenxuecity.com/cfzh/114839.html",
+        "topics": [
+          "Sell Put",
+          "估值与价格",
+          "其他研究",
+          "趋势确认",
+          "风险管理"
+        ],
+        "candidate_hypothesis": "外部来源对该标的形成重复研究线索，值得与现有基本面、估值、趋势和事件证据交叉验证。",
+        "validation_state": "candidate_only",
+        "guardrail": "不是本站Thesis，也不是买卖信号；需MyAlpha独立验证后才能升级。"
+      },
+      {
+        "symbol": "SMH",
+        "source_records": 9,
+        "authors": [
+          "BrightLine",
+          "bogbog",
+          "三心三意",
+          "我是一只井底蛙"
+        ],
+        "latest_title": "sell ARM and put money into SMH now",
+        "latest_url": "https://bbs.wenxuecity.com/cfzh/114770.html",
+        "topics": [
+          "Sell Put",
+          "其他研究"
+        ],
+        "candidate_hypothesis": "外部来源对该标的形成重复研究线索，值得与现有基本面、估值、趋势和事件证据交叉验证。",
+        "validation_state": "candidate_only",
+        "guardrail": "不是本站Thesis，也不是买卖信号；需MyAlpha独立验证后才能升级。"
+      },
+      {
+        "symbol": "AAOI",
+        "source_records": 8,
+        "authors": [
+          "bogbog",
+          "三心三意"
+        ],
+        "latest_title": "我们高位减仓时（我前一段也减过像AMAT，AAOI， AXTI之类的），可以说明这是仓位管理，而不是给个要崩盘的印象",
+        "latest_url": "https://bbs.wenxuecity.com/cfzh/114862.html",
+        "topics": [
+          "仓位与加减仓",
+          "估值与价格",
+          "其他研究"
+        ],
+        "candidate_hypothesis": "外部来源对该标的形成重复研究线索，值得与现有基本面、估值、趋势和事件证据交叉验证。",
+        "validation_state": "candidate_only",
+        "guardrail": "不是本站Thesis，也不是买卖信号；需MyAlpha独立验证后才能升级。"
+      },
+      {
+        "symbol": "META",
+        "source_records": 8,
+        "authors": [
+          "BrightLine",
+          "bogbog",
+          "我是一只井底蛙"
+        ],
+        "latest_title": "谷歌，META，表现良好。META我试仓的仓位还在，但还没有加仓。",
+        "latest_url": "https://bbs.wenxuecity.com/cfzh/114760.html",
+        "topics": [
+          "AI研究方法",
+          "个股与行业",
+          "仓位与加减仓",
+          "仓位管理",
+          "其他研究",
+          "研究工具",
+          "长期持有纪律",
+          "风险管理"
+        ],
+        "candidate_hypothesis": "外部来源对该标的形成重复研究线索，值得与现有基本面、估值、趋势和事件证据交叉验证。",
+        "validation_state": "candidate_only",
+        "guardrail": "不是本站Thesis，也不是买卖信号；需MyAlpha独立验证后才能升级。"
+      },
+      {
         "symbol": "IREN",
         "source_records": 8,
         "authors": [
@@ -2938,30 +3102,6 @@
           "仓位与加减仓",
           "仓位管理",
           "估值与价格",
-          "失败复盘",
-          "长期持有纪律",
-          "风险管理"
-        ],
-        "candidate_hypothesis": "外部来源对该标的形成重复研究线索，值得与现有基本面、估值、趋势和事件证据交叉验证。",
-        "validation_state": "candidate_only",
-        "guardrail": "不是本站Thesis，也不是买卖信号；需MyAlpha独立验证后才能升级。"
-      },
-      {
-        "symbol": "SMH",
-        "source_records": 8,
-        "authors": [
-          "BrightLine",
-          "bogbog",
-          "三心三意",
-          "我是一只井底蛙"
-        ],
-        "latest_title": "分析来回倒，盯着股价心惊胆战，看着半导体只有绝望。 但一转眼，SMH又快接近前高了：）",
-        "latest_url": "https://bbs.wenxuecity.com/cfzh/114155.html",
-        "topics": [
-          "LEAPS",
-          "Sell Put",
-          "仓位管理",
-          "其他研究",
           "失败复盘",
           "长期持有纪律",
           "风险管理"
@@ -2992,38 +3132,15 @@
         "guardrail": "不是本站Thesis，也不是买卖信号；需MyAlpha独立验证后才能升级。"
       },
       {
-        "symbol": "META",
-        "source_records": 7,
+        "symbol": "AMAT",
+        "source_records": 5,
         "authors": [
-          "BrightLine",
-          "bogbog",
-          "我是一只井底蛙"
+          "三心三意"
         ],
-        "latest_title": "少买了一点META。有时候为等回调会越等股价越高，错过大牛。先少买一点，进去再说，有dips再加。",
-        "latest_url": "https://bbs.wenxuecity.com/cfzh/113578.html",
+        "latest_title": "我们高位减仓时（我前一段也减过像AMAT，AAOI， AXTI之类的），可以说明这是仓位管理，而不是给个要崩盘的印象",
+        "latest_url": "https://bbs.wenxuecity.com/cfzh/114862.html",
         "topics": [
-          "AI研究方法",
-          "个股与行业",
-          "仓位管理",
-          "其他研究",
-          "研究工具",
-          "长期持有纪律",
-          "风险管理"
-        ],
-        "candidate_hypothesis": "外部来源对该标的形成重复研究线索，值得与现有基本面、估值、趋势和事件证据交叉验证。",
-        "validation_state": "candidate_only",
-        "guardrail": "不是本站Thesis，也不是买卖信号；需MyAlpha独立验证后才能升级。"
-      },
-      {
-        "symbol": "AAOI",
-        "source_records": 7,
-        "authors": [
-          "bogbog"
-        ],
-        "latest_title": "CRDO Beta 4.7,  AEHR Beta 4.2,  AAOI, 3.8",
-        "latest_url": "https://bbs.wenxuecity.com/cfzh/112677.html",
-        "topics": [
-          "估值与价格",
+          "仓位与加减仓",
           "其他研究"
         ],
         "candidate_hypothesis": "外部来源对该标的形成重复研究线索，值得与现有基本面、估值、趋势和事件证据交叉验证。",
@@ -3031,21 +3148,24 @@
         "guardrail": "不是本站Thesis，也不是买卖信号；需MyAlpha独立验证后才能升级。"
       },
       {
-        "symbol": "LITE",
+        "symbol": "MRVL",
         "source_records": 5,
         "authors": [
+          "BrightLine",
           "bogbog",
-          "yifan99",
           "三心三意"
         ],
-        "latest_title": "即使LITE到顶的判断是对的，并不代表COHR一定会去前高。这中间没有必然的逻辑链",
-        "latest_url": "https://bbs.wenxuecity.com/cfzh/114186.html",
+        "latest_title": "工业界每天都有某个CEO出来说一些话。前两天MRVL不是还说了CARG要60%吗？",
+        "latest_url": "https://bbs.wenxuecity.com/cfzh/114808.html",
         "topics": [
           "Sell Put",
+          "仓位与加减仓",
+          "仓位管理",
           "估值与价格",
           "其他研究",
-          "止损纪律",
-          "趋势确认",
+          "失败复盘",
+          "研究工具",
+          "长期持有纪律",
           "风险管理"
         ],
         "candidate_hypothesis": "外部来源对该标的形成重复研究线索，值得与现有基本面、估值、趋势和事件证据交叉验证。",
@@ -3065,31 +3185,6 @@
           "其他研究",
           "趋势确认",
           "长期持有纪律"
-        ],
-        "candidate_hypothesis": "外部来源对该标的形成重复研究线索，值得与现有基本面、估值、趋势和事件证据交叉验证。",
-        "validation_state": "candidate_only",
-        "guardrail": "不是本站Thesis，也不是买卖信号；需MyAlpha独立验证后才能升级。"
-      },
-      {
-        "symbol": "MRVL",
-        "source_records": 4,
-        "authors": [
-          "BrightLine",
-          "bogbog",
-          "三心三意"
-        ],
-        "latest_title": "MRVL 几乎把振臂挥出去所有的涨幅又给吐出去了",
-        "latest_url": "https://bbs.wenxuecity.com/cfzh/114055.html",
-        "topics": [
-          "Sell Put",
-          "仓位与加减仓",
-          "仓位管理",
-          "估值与价格",
-          "其他研究",
-          "失败复盘",
-          "研究工具",
-          "长期持有纪律",
-          "风险管理"
         ],
         "candidate_hypothesis": "外部来源对该标的形成重复研究线索，值得与现有基本面、估值、趋势和事件证据交叉验证。",
         "validation_state": "candidate_only",
@@ -3119,24 +3214,313 @@
         "candidate_hypothesis": "外部来源对该标的形成重复研究线索，值得与现有基本面、估值、趋势和事件证据交叉验证。",
         "validation_state": "candidate_only",
         "guardrail": "不是本站Thesis，也不是买卖信号；需MyAlpha独立验证后才能升级。"
-      },
-      {
-        "symbol": "ORCL",
-        "source_records": 4,
-        "authors": [
-          "bogbog"
-        ],
-        "latest_title": "没看见图片， 帮忙再贴一次？ 我觉的ORCL, mu短中期会更有爆发力，长久应该比不过",
-        "latest_url": "https://bbs.wenxuecity.com/cfzh/101824.html",
-        "topics": [
-          "其他研究"
-        ],
-        "candidate_hypothesis": "外部来源对该标的形成重复研究线索，值得与现有基本面、估值、趋势和事件证据交叉验证。",
-        "validation_state": "candidate_only",
-        "guardrail": "不是本站Thesis，也不是买卖信号；需MyAlpha独立验证后才能升级。"
       }
     ],
     "research_alerts": [
+      {
+        "author": "三心三意",
+        "title": "我们高位减仓时（我前一段也减过像AMAT，AAOI， AXTI之类的），可以说明这是仓位管理，而不是给个要崩盘的印象",
+        "url": "https://bbs.wenxuecity.com/cfzh/114862.html",
+        "published_at": "2026-10-12 14:19:35",
+        "symbols": [
+          "AAOI",
+          "AMAT"
+        ],
+        "primary_symbols": [
+          "AAOI",
+          "AMAT"
+        ],
+        "symbol_attribution": [
+          {
+            "symbol": "AAOI",
+            "role": "primary_subject",
+            "confidence": "high",
+            "evidence_basis": [
+              "detected_in_source",
+              "author_owned_structured_operation",
+              "holding_language"
+            ]
+          },
+          {
+            "symbol": "AMAT",
+            "role": "primary_subject",
+            "confidence": "high",
+            "evidence_basis": [
+              "detected_in_source",
+              "author_owned_structured_operation",
+              "holding_language"
+            ]
+          }
+        ],
+        "topics": [
+          "仓位与加减仓",
+          "其他研究"
+        ],
+        "source_view": "出现明确操作：减仓 / trim；主研究标的：AAOI / AMAT；涉及：AAOI / AMAT",
+        "myalpha_view": "先核对行情、估值、事件与现有 Thesis；外部作者观点不能单独触发买卖。",
+        "what_changes_view": "只有独立证据与后续结果支持，才允许升级为 Breadcrumb / Thesis 样本。",
+        "priority": 80
+      },
+      {
+        "author": "三心三意",
+        "title": "这里有很多新人，他们对高位适当减仓可能会错误理解为崩盘就在眼前。",
+        "url": "https://bbs.wenxuecity.com/cfzh/114849.html",
+        "published_at": "2026-10-12 13:35:02",
+        "symbols": [],
+        "primary_symbols": [],
+        "symbol_attribution": [],
+        "topics": [
+          "仓位与加减仓",
+          "其他研究"
+        ],
+        "source_view": "出现明确操作：减仓",
+        "myalpha_view": "先核对行情、估值、事件与现有 Thesis；外部作者观点不能单独触发买卖。",
+        "what_changes_view": "只有独立证据与后续结果支持，才允许升级为 Breadcrumb / Thesis 样本。",
+        "priority": 80
+      },
+      {
+        "author": "我是一只井底蛙",
+        "title": "谷歌，META，表现良好。META我试仓的仓位还在，但还没有加仓。",
+        "url": "https://bbs.wenxuecity.com/cfzh/114760.html",
+        "published_at": "2026-10-12 08:14:51",
+        "symbols": [
+          "META",
+          "GOOGL"
+        ],
+        "primary_symbols": [
+          "META"
+        ],
+        "symbol_attribution": [
+          {
+            "symbol": "META",
+            "role": "primary_subject",
+            "confidence": "high",
+            "evidence_basis": [
+              "detected_in_source",
+              "unique_title_symbol",
+              "holding_language"
+            ]
+          },
+          {
+            "symbol": "GOOGL",
+            "role": "contextual_mention",
+            "confidence": "low",
+            "evidence_basis": [
+              "detected_in_source"
+            ]
+          }
+        ],
+        "topics": [
+          "仓位与加减仓",
+          "其他研究"
+        ],
+        "source_view": "出现明确操作：加仓 / add；主研究标的：META；涉及：META / GOOGL",
+        "myalpha_view": "先核对行情、估值、事件与现有 Thesis；外部作者观点不能单独触发买卖。",
+        "what_changes_view": "只有独立证据与后续结果支持，才允许升级为 Breadcrumb / Thesis 样本。",
+        "priority": 80
+      },
+      {
+        "author": "三心三意",
+        "title": "Also bought back those AMAT at 50D EMA",
+        "url": "https://bbs.wenxuecity.com/cfzh/114734.html",
+        "published_at": "2026-10-12 07:23:07",
+        "symbols": [
+          "AMAT"
+        ],
+        "primary_symbols": [
+          "AMAT"
+        ],
+        "symbol_attribution": [
+          {
+            "symbol": "AMAT",
+            "role": "primary_subject",
+            "confidence": "high",
+            "evidence_basis": [
+              "detected_in_source",
+              "unique_title_symbol"
+            ]
+          }
+        ],
+        "topics": [
+          "其他研究"
+        ],
+        "source_view": "出现明确操作：买入/建仓；主研究标的：AMAT；涉及：AMAT",
+        "myalpha_view": "先核对行情、估值、事件与现有 Thesis；外部作者观点不能单独触发买卖。",
+        "what_changes_view": "只有独立证据与后续结果支持，才允许升级为 Breadcrumb / Thesis 样本。",
+        "priority": 80
+      },
+      {
+        "author": "三心三意",
+        "title": "Hahah, hope to lock in LITE SP and cc spread this week",
+        "url": "https://bbs.wenxuecity.com/cfzh/114707.html",
+        "published_at": "2026-10-12 06:49:38",
+        "symbols": [
+          "LITE"
+        ],
+        "primary_symbols": [
+          "LITE"
+        ],
+        "symbol_attribution": [
+          {
+            "symbol": "LITE",
+            "role": "primary_subject",
+            "confidence": "high",
+            "evidence_basis": [
+              "detected_in_source",
+              "unique_title_symbol"
+            ]
+          }
+        ],
+        "topics": [
+          "Sell Put"
+        ],
+        "source_view": "出现明确操作：Sell Put；主研究标的：LITE；涉及：LITE",
+        "myalpha_view": "先核对行情、估值、事件与现有 Thesis；外部作者观点不能单独触发买卖。",
+        "what_changes_view": "只有独立证据与后续结果支持，才允许升级为 Breadcrumb / Thesis 样本。",
+        "priority": 80
+      },
+      {
+        "author": "我是一只井底蛙",
+        "title": "我INTC，AMD，TSM都是获利减仓（下一步关心的什么时候补仓回来）。SOXL清仓。NVDA没动。卖掉后资金转入的是",
+        "url": "https://bbs.wenxuecity.com/cfzh/114698.html",
+        "published_at": "2026-10-12 06:01:18",
+        "symbols": [
+          "NVDA",
+          "INTC",
+          "AMZN",
+          "CIEN",
+          "TSM",
+          "NOW",
+          "AMD"
+        ],
+        "primary_symbols": [
+          "NVDA",
+          "INTC",
+          "TSM",
+          "AMD"
+        ],
+        "symbol_attribution": [
+          {
+            "symbol": "NVDA",
+            "role": "primary_subject",
+            "confidence": "high",
+            "evidence_basis": [
+              "detected_in_source",
+              "author_owned_structured_operation"
+            ]
+          },
+          {
+            "symbol": "INTC",
+            "role": "primary_subject",
+            "confidence": "high",
+            "evidence_basis": [
+              "detected_in_source",
+              "author_owned_structured_operation"
+            ]
+          },
+          {
+            "symbol": "AMZN",
+            "role": "contextual_mention",
+            "confidence": "low",
+            "evidence_basis": [
+              "detected_in_source"
+            ]
+          },
+          {
+            "symbol": "CIEN",
+            "role": "contextual_mention",
+            "confidence": "low",
+            "evidence_basis": [
+              "detected_in_source"
+            ]
+          },
+          {
+            "symbol": "TSM",
+            "role": "primary_subject",
+            "confidence": "high",
+            "evidence_basis": [
+              "detected_in_source",
+              "author_owned_structured_operation"
+            ]
+          },
+          {
+            "symbol": "NOW",
+            "role": "contextual_mention",
+            "confidence": "low",
+            "evidence_basis": [
+              "detected_in_source"
+            ]
+          },
+          {
+            "symbol": "AMD",
+            "role": "primary_subject",
+            "confidence": "high",
+            "evidence_basis": [
+              "detected_in_source",
+              "author_owned_structured_operation"
+            ]
+          }
+        ],
+        "topics": [
+          "仓位与加减仓",
+          "INTC"
+        ],
+        "source_view": "出现明确操作：加仓 / 减仓 / 卖出/退出 / clear / trim / add；主研究标的：NVDA / INTC / TSM / AMD；涉及：NVDA / INTC / AMZN / CIEN / TSM / NOW / AMD",
+        "myalpha_view": "先核对行情、估值、事件与现有 Thesis；外部作者观点不能单独触发买卖。",
+        "what_changes_view": "只有独立证据与后续结果支持，才允许升级为 Breadcrumb / Thesis 样本。",
+        "priority": 80
+      },
+      {
+        "author": "我是一只井底蛙",
+        "title": "SOXL 如果我不take profits，profits现在已全部化为乌有。2倍3倍有leverage的股，经不起震荡",
+        "url": "https://bbs.wenxuecity.com/cfzh/114697.html",
+        "published_at": "2026-10-12 05:46:05",
+        "symbols": [],
+        "primary_symbols": [],
+        "symbol_attribution": [],
+        "topics": [
+          "其他研究"
+        ],
+        "source_view": "出现明确操作：卖出/退出",
+        "myalpha_view": "先核对行情、估值、事件与现有 Thesis；外部作者观点不能单独触发买卖。",
+        "what_changes_view": "只有独立证据与后续结果支持，才允许升级为 Breadcrumb / Thesis 样本。",
+        "priority": 80
+      },
+      {
+        "author": "BrightLine",
+        "title": "别和美联储作对，但底已经不远了",
+        "url": "https://blog.wenxuecity.com/myblog/82458/202610/8524.html",
+        "published_at": "2026-10-12",
+        "symbols": [],
+        "primary_symbols": [],
+        "symbol_attribution": [],
+        "topics": [
+          "风险管理",
+          "失败复盘",
+          "长期持有纪律",
+          "趋势确认"
+        ],
+        "source_view": "可进入失败复盘",
+        "myalpha_view": "先核对行情、估值、事件与现有 Thesis；外部作者观点不能单独触发买卖。",
+        "what_changes_view": "只有独立证据与后续结果支持，才允许升级为 Breadcrumb / Thesis 样本。",
+        "priority": 80
+      },
+      {
+        "author": "三心三意",
+        "title": "No idea, but hedge fund wont touch SOXS",
+        "url": "https://bbs.wenxuecity.com/cfzh/114684.html",
+        "published_at": "2026-10-11 22:09:40",
+        "symbols": [],
+        "primary_symbols": [],
+        "symbol_attribution": [],
+        "topics": [
+          "其他研究"
+        ],
+        "source_view": "出现明确操作：对冲",
+        "myalpha_view": "先核对行情、估值、事件与现有 Thesis；外部作者观点不能单独触发买卖。",
+        "what_changes_view": "只有独立证据与后续结果支持，才允许升级为 Breadcrumb / Thesis 样本。",
+        "priority": 80
+      },
       {
         "author": "BrightLine",
         "title": "云计算才是AI最赚钱的环节",
@@ -3540,175 +3924,6 @@
         "myalpha_view": "先核对行情、估值、事件与现有 Thesis；外部作者观点不能单独触发买卖。",
         "what_changes_view": "只有独立证据与后续结果支持，才允许升级为 Breadcrumb / Thesis 样本。",
         "priority": 80
-      },
-      {
-        "author": "我是一只井底蛙",
-        "title": "亚麻。昨天的跌幅差不多全部追回，股价差不多回到昨天开盘的高点。不错！如果超过260，站稳260，我会加仓。",
-        "url": "https://bbs.wenxuecity.com/cfzh/114477.html",
-        "published_at": "2026-10-09 07:12:43",
-        "symbols": [],
-        "primary_symbols": [],
-        "symbol_attribution": [],
-        "topics": [
-          "仓位与加减仓",
-          "其他研究"
-        ],
-        "source_view": "出现明确操作：加仓",
-        "myalpha_view": "先核对行情、估值、事件与现有 Thesis；外部作者观点不能单独触发买卖。",
-        "what_changes_view": "只有独立证据与后续结果支持，才允许升级为 Breadcrumb / Thesis 样本。",
-        "priority": 80
-      },
-      {
-        "author": "我是一只井底蛙",
-        "title": "分批买进，分批卖出。INTC卖出过一半。昨天AMD也获利卖出一半。剩下的继续持有+伺机补仓。没利可拿又破位的，割肉。",
-        "url": "https://bbs.wenxuecity.com/cfzh/114446.html",
-        "published_at": "2026-10-09 06:10:48",
-        "symbols": [
-          "INTC",
-          "AMD"
-        ],
-        "primary_symbols": [],
-        "symbol_attribution": [
-          {
-            "symbol": "INTC",
-            "role": "contextual_mention",
-            "confidence": "low",
-            "evidence_basis": [
-              "detected_in_source"
-            ]
-          },
-          {
-            "symbol": "AMD",
-            "role": "contextual_mention",
-            "confidence": "low",
-            "evidence_basis": [
-              "detected_in_source"
-            ]
-          }
-        ],
-        "topics": [
-          "失败复盘",
-          "仓位与加减仓",
-          "INTC"
-        ],
-        "source_view": "出现明确操作：加仓 / 卖出/退出 / add / sell / hold；涉及：INTC / AMD；可进入失败复盘",
-        "myalpha_view": "先核对行情、估值、事件与现有 Thesis；外部作者观点不能单独触发买卖。",
-        "what_changes_view": "只有独立证据与后续结果支持，才允许升级为 Breadcrumb / Thesis 样本。",
-        "priority": 80
-      },
-      {
-        "author": "三心三意",
-        "title": "所以·我一直说，YTD means nothing，对我们回报唯一有用的就是我们的买入价，和卖出价",
-        "url": "https://bbs.wenxuecity.com/cfzh/114442.html",
-        "published_at": "2026-10-09 06:06:46",
-        "symbols": [],
-        "primary_symbols": [],
-        "symbol_attribution": [],
-        "topics": [
-          "其他研究"
-        ],
-        "source_view": "出现明确操作：买入/建仓 / 卖出/退出",
-        "myalpha_view": "先核对行情、估值、事件与现有 Thesis；外部作者观点不能单独触发买卖。",
-        "what_changes_view": "只有独立证据与后续结果支持，才允许升级为 Breadcrumb / Thesis 样本。",
-        "priority": 80
-      },
-      {
-        "author": "我是一只井底蛙",
-        "title": "做短线也要看长线，成功的概率更大一些，进可攻退可守。—— 如果短线错了，股价买入后退回来，如果长线好，守起来更有信心一点",
-        "url": "https://bbs.wenxuecity.com/cfzh/114439.html",
-        "published_at": "2026-10-09 05:59:45",
-        "symbols": [],
-        "primary_symbols": [],
-        "symbol_attribution": [],
-        "topics": [
-          "其他研究"
-        ],
-        "source_view": "出现明确操作：买入/建仓",
-        "myalpha_view": "先核对行情、估值、事件与现有 Thesis；外部作者观点不能单独触发买卖。",
-        "what_changes_view": "只有独立证据与后续结果支持，才允许升级为 Breadcrumb / Thesis 样本。",
-        "priority": 80
-      },
-      {
-        "author": "bogbog",
-        "title": "没有，短炒真的是要求水平很高，要不然很容易亏本。",
-        "url": "https://bbs.wenxuecity.com/cfzh/114404.html",
-        "published_at": "2026-10-08 20:46:50",
-        "symbols": [],
-        "primary_symbols": [],
-        "symbol_attribution": [],
-        "topics": [
-          "失败复盘"
-        ],
-        "source_view": "可进入失败复盘",
-        "myalpha_view": "先核对行情、估值、事件与现有 Thesis；外部作者观点不能单独触发买卖。",
-        "what_changes_view": "只有独立证据与后续结果支持，才允许升级为 Breadcrumb / Thesis 样本。",
-        "priority": 80
-      },
-      {
-        "author": "bogbog",
-        "title": "不只是税， 做短线水平需要挺高的， 买进卖出要猜对两次。 我肯定不行，哈哈,",
-        "url": "https://bbs.wenxuecity.com/cfzh/114370.html",
-        "published_at": "2026-10-08 16:54:38",
-        "symbols": [],
-        "primary_symbols": [],
-        "symbol_attribution": [],
-        "topics": [
-          "其他研究"
-        ],
-        "source_view": "出现明确操作：卖出/退出",
-        "myalpha_view": "先核对行情、估值、事件与现有 Thesis；外部作者观点不能单独触发买卖。",
-        "what_changes_view": "只有独立证据与后续结果支持，才允许升级为 Breadcrumb / Thesis 样本。",
-        "priority": 80
-      },
-      {
-        "author": "三心三意",
-        "title": "期权是很复杂的领域，有投资人买/卖期权，有MM的被动期权，有的为了对冲，有的是赌方向。",
-        "url": "https://bbs.wenxuecity.com/cfzh/114365.html",
-        "published_at": "2026-10-08 16:31:44",
-        "symbols": [],
-        "primary_symbols": [],
-        "symbol_attribution": [],
-        "topics": [
-          "风险管理"
-        ],
-        "source_view": "出现明确操作：对冲",
-        "myalpha_view": "先核对行情、估值、事件与现有 Thesis；外部作者观点不能单独触发买卖。",
-        "what_changes_view": "只有独立证据与后续结果支持，才允许升级为 Breadcrumb / Thesis 样本。",
-        "priority": 80
-      },
-      {
-        "author": "bogbog",
-        "title": "我自己觉得这个时候不是加仓的时候？ 不过我是长线不太一样",
-        "url": "https://bbs.wenxuecity.com/cfzh/114335.html",
-        "published_at": "2026-10-08 14:01:04",
-        "symbols": [],
-        "primary_symbols": [],
-        "symbol_attribution": [],
-        "topics": [
-          "仓位与加减仓",
-          "其他研究"
-        ],
-        "source_view": "出现明确操作：加仓",
-        "myalpha_view": "先核对行情、估值、事件与现有 Thesis；外部作者观点不能单独触发买卖。",
-        "what_changes_view": "只有独立证据与后续结果支持，才允许升级为 Breadcrumb / Thesis 样本。",
-        "priority": 80
-      },
-      {
-        "author": "bogbog",
-        "title": "哦， 我都没去关注， 就放着。你们都是做短线的吗？",
-        "url": "https://bbs.wenxuecity.com/cfzh/114333.html",
-        "published_at": "2026-10-08 13:58:10",
-        "symbols": [],
-        "primary_symbols": [],
-        "symbol_attribution": [],
-        "topics": [
-          "仓位与加减仓",
-          "其他研究"
-        ],
-        "source_view": "出现明确操作：加仓",
-        "myalpha_view": "先核对行情、估值、事件与现有 Thesis；外部作者观点不能单独触发买卖。",
-        "what_changes_view": "只有独立证据与后续结果支持，才允许升级为 Breadcrumb / Thesis 样本。",
-        "priority": 80
       }
     ],
     "authors": [
@@ -3724,14 +3939,14 @@
     ],
     "outcome_validation": {
       "counts": {
-        "events": 138,
-        "author_owned": 63,
-        "unconfirmed": 75,
-        "triggered_author_owned": 52,
+        "events": 144,
+        "author_owned": 64,
+        "unconfirmed": 80,
+        "triggered_author_owned": 53,
         "untriggered_plans": 11,
-        "mature60": 26,
+        "mature60": 27,
         "developing": 26,
-        "symbols": 22
+        "symbols": 24
       },
       "by_action": {
         "add": {
@@ -3750,19 +3965,19 @@
             "alignment_rate": 0.6666666666666666
           },
           "60": {
-            "n": 6,
-            "avg_return": -0.05356866288802168,
-            "median_return": -0.09071898328795563,
-            "avg_excess_vs_qqq": -0.1147431043053313,
-            "alignment_rate": 0.3333333333333333
+            "n": 7,
+            "avg_return": -0.03117337520016899,
+            "median_return": -0.08720468913972712,
+            "avg_excess_vs_qqq": -0.09043635950842144,
+            "alignment_rate": 0.42857142857142855
           }
         },
         "buy": {
           "5": {
             "n": 19,
-            "avg_return": -0.03042927400694911,
+            "avg_return": -0.030429273837765357,
             "median_return": -0.01619433525901859,
-            "avg_excess_vs_qqq": -0.03513311523278751,
+            "avg_excess_vs_qqq": -0.035133115063603754,
             "alignment_rate": 0.3076923076923077
           },
           "20": {
@@ -3920,7 +4135,7 @@
         }
       },
       "mature_learning": {
-        "events_scanned": 138,
+        "events_scanned": 144,
         "mature20": 41,
         "review_candidates": 25,
         "recent_reviews": [

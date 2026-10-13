@@ -1,10 +1,10 @@
 {
   "version": "2.3",
-  "generated_at": "2026-10-12T03:51:56.807590+00:00",
+  "generated_at": "2026-10-13T04:08:32.921040+00:00",
   "principle": "Collection success is not learning success. Permanent storage and learning inputs must not be record-count capped; only per-run processing and UI presentation may be bounded.",
   "counts": {
-    "learning_active": 1,
-    "partial_learning": 14,
+    "learning_active": 3,
+    "partial_learning": 12,
     "context_only": 1
   },
   "domains": [
@@ -21,9 +21,9 @@
         "Historical Journal exposes only a presentation subset of event rows; aggregates use the full local history. A separate full event archive is still preferable for event-level replay."
       ],
       "evidence": {
-        "symbols": 24,
-        "events": 4559,
-        "mature_60": 4304
+        "symbols": 25,
+        "events": 4789,
+        "mature_60": 4525
       },
       "downstream_reused": true,
       "reused_by": [
@@ -48,23 +48,23 @@
         "Historical video archive is intentionally non-gating; this is a governance boundary, not a missing-learning error."
       ],
       "evidence": {
-        "source_records": 1770,
-        "source_reading_records": 1777,
-        "persistent_source_records": 1777,
+        "source_records": 1809,
+        "source_reading_records": 1816,
+        "persistent_source_records": 1816,
         "backlog": 0,
         "collector_coverage_complete": true,
         "collector_semantic_complete": false,
         "collector": {
           "version": 2,
-          "generated_at": "2026-10-12T03:25:14.476293+00:00",
+          "generated_at": "2026-10-13T03:14:35.405185+00:00",
           "complete": true,
           "coverage_complete": true,
           "semantic_learning_complete": false,
           "forum": {
             "complete": true,
             "continuity_proven": true,
-            "anchor_id": "114682",
-            "previous_anchor_id": "114681",
+            "anchor_id": "114891",
+            "previous_anchor_id": "114868",
             "status": "complete"
           },
           "blogs": {
@@ -74,8 +74,8 @@
                 "complete": true,
                 "scan_complete": true,
                 "missing_from_feed": 0,
-                "unique_article_ids": 11,
-                "feed_present_urls": 11,
+                "unique_article_ids": 12,
+                "feed_present_urls": 12,
                 "archive_failures": []
               },
               "yifan99": {
@@ -102,15 +102,15 @@
             "semantic_learning_complete": false,
             "discovery_complete": true,
             "accounting_balanced": true,
-            "seen": 173,
-            "feed_records": 21,
+            "seen": 175,
+            "feed_records": 24,
             "historical_archive_records": 23,
-            "historical_semantic_learned": 4,
-            "pending": 101,
+            "historical_semantic_learned": 6,
+            "pending": 100,
             "historical_backlog": 50,
             "unaccounted": 0,
             "unaccounted_video_ids": [],
-            "unresolved_semantic": 151,
+            "unresolved_semantic": 150,
             "status": "ok"
           },
           "guardrails": [
@@ -120,8 +120,8 @@
           ],
           "fetch_status": "ok"
         },
-        "testable_rules": 49,
-        "eligible_triggered_events": 52
+        "testable_rules": 51,
+        "eligible_triggered_events": 53
       },
       "downstream_reused": true,
       "reused_by": [
@@ -149,11 +149,11 @@
         "Canonical SEC filing archive now preserves filing evidence, but full filing-to-thesis/outcome reuse remains partial."
       ],
       "evidence": {
-        "symbols": 6,
-        "filings": 18,
-        "archive_total": 52,
-        "linked_direct_events": 16,
-        "mature_20": 14
+        "symbols": 12,
+        "filings": 33,
+        "archive_total": 58,
+        "linked_direct_events": 27,
+        "mature_20": 22
       },
       "downstream_reused": true,
       "reused_by": [
@@ -178,25 +178,25 @@
         "Outcomes exist but no research/decision component reads them yet (L6 reuse missing); outcome count alone is not learning."
       ],
       "evidence": {
-        "symbols": 6,
-        "archive_total": 4467,
+        "symbols": 11,
+        "archive_total": 10416,
         "archive_added": 0,
-        "filing_observations": 703,
-        "mature_outcomes": 750,
+        "filing_observations": 772,
+        "mature_outcomes": 887,
         "horizons": {
           "20": {
-            "n": 380,
-            "avg_return_pct": 2.326870020842677,
-            "positive_rate": 0.55,
-            "avg_mae_pct": -8.36328353054878,
-            "avg_mfe_pct": 11.796386671617743
+            "n": 449,
+            "avg_return_pct": 2.2957335399015717,
+            "positive_rate": 0.5523385300668151,
+            "avg_mae_pct": -8.235840136323361,
+            "avg_mfe_pct": 11.545463270102637
           },
           "60": {
-            "n": 370,
-            "avg_return_pct": 12.118586767031719,
-            "positive_rate": 0.6324324324324324,
-            "avg_mae_pct": -13.137241796963398,
-            "avg_mfe_pct": 27.000723444811726
+            "n": 438,
+            "avg_return_pct": 12.013251302436977,
+            "positive_rate": 0.6506849315068494,
+            "avg_mae_pct": -13.0089524710359,
+            "avg_mfe_pct": 26.184145670328427
           }
         }
       },
@@ -209,29 +209,27 @@
       "persistent_history": "current_view_plus_append_only_archive_plus_benchmark_adjusted_outcomes",
       "structured_analysis": true,
       "reusable_memory": true,
-      "outcome_feedback": false,
+      "outcome_feedback": true,
       "decision_context": true,
-      "learning_status": "partial_learning",
-      "gaps": [
-        "Canonical Event archive is retained; waiting for 5/20/60 benchmark-adjusted outcomes to mature."
-      ],
+      "learning_status": "learning_active",
+      "gaps": [],
       "evidence": {
-        "symbols": 7,
-        "news_items": 35,
-        "archive_total": 722,
+        "symbols": 16,
+        "news_items": 78,
+        "archive_total": 798,
         "event_window_rows": 20,
-        "mature_outcomes": 0,
-        "benchmark": "QQQ",
+        "mature_outcomes": 4,
+        "benchmark": "SPY",
         "horizons": {
           "5": {
-            "n": 0,
-            "avg_excess_return_pct": null,
-            "positive_excess_rate": null
+            "n": 3,
+            "avg_excess_return_pct": 0.16506248355679562,
+            "positive_excess_rate": 0.6666666666666666
           },
           "20": {
-            "n": 0,
-            "avg_excess_return_pct": null,
-            "positive_excess_rate": null
+            "n": 1,
+            "avg_excess_return_pct": -1.576919687303624,
+            "positive_excess_rate": 0.0
           },
           "60": {
             "n": 0,
@@ -260,7 +258,7 @@
       "evidence": {
         "version": "5.4.0",
         "series": 15,
-        "observations": 4,
+        "observations": 5,
         "outcomes": 0,
         "scorecards": 0
       },
@@ -275,18 +273,16 @@
       "persistent_history": "append_history_plus_5_20_60_outcome_scorecards",
       "structured_analysis": true,
       "reusable_memory": true,
-      "outcome_feedback": false,
+      "outcome_feedback": true,
       "decision_context": true,
-      "learning_status": "partial_learning",
-      "gaps": [
-        "Append histories are intact; waiting for future 5/20/60-session outcomes to mature."
-      ],
+      "learning_status": "learning_active",
+      "gaps": [],
       "evidence": {
-        "cross_asset_history": 7,
-        "breadth_history": 5,
-        "regime_history": 6,
-        "outcomes": 0,
-        "scorecards": 0
+        "cross_asset_history": 8,
+        "breadth_history": 6,
+        "regime_history": 7,
+        "outcomes": 7,
+        "scorecards": 3
       },
       "downstream_reused": true,
       "reused_by": [
@@ -314,7 +310,7 @@
           "NVDA",
           "TSLA"
         ],
-        "observations": 18,
+        "observations": 24,
         "mature20": 0,
         "garch_mae_pct_points": null
       },
@@ -342,7 +338,7 @@
           "NVDA",
           "TSLA"
         ],
-        "research_observations": 18,
+        "research_observations": 24,
         "research_matured": 0,
         "private_observations": 1,
         "private_mature_outcomes": 0
@@ -365,9 +361,9 @@
         "Thesis revisions are now retained by evidence-hash change; outcome attribution and evidence-delta effectiveness are still partial."
       ],
       "evidence": {
-        "symbols": 7,
-        "revision_rows": 232,
-        "linked_direct_events": 16
+        "symbols": 18,
+        "revision_rows": 249,
+        "linked_direct_events": 27
       },
       "downstream_reused": false,
       "reused_by": []
@@ -445,7 +441,7 @@
       "evidence": {
         "overall": "ok",
         "open_incidents": 0,
-        "resolved_total": 8,
+        "resolved_total": 12,
         "self_improvement_version": "7.2.1"
       },
       "downstream_reused": false,
@@ -524,24 +520,10 @@
       ]
     },
     {
-      "domain": "news_event_evidence",
-      "status": "partial_learning",
-      "gaps": [
-        "Canonical Event archive is retained; waiting for 5/20/60 benchmark-adjusted outcomes to mature."
-      ]
-    },
-    {
       "domain": "macro_fred_alfred",
       "status": "partial_learning",
       "gaps": [
         "Point-in-time macro regime observations are retained; waiting for future 5/20/60-session outcomes to mature."
-      ]
-    },
-    {
-      "domain": "breadth_cross_asset_regime",
-      "status": "partial_learning",
-      "gaps": [
-        "Append histories are intact; waiting for future 5/20/60-session outcomes to mature."
       ]
     },
     {
@@ -610,15 +592,15 @@
   ],
   "reconciliation": {
     "upstream_collector_known": true,
-    "youtube_seen": 173,
-    "youtube_text_admitted": 25,
+    "youtube_seen": 175,
+    "youtube_text_admitted": 30,
     "youtube_semantically_learned": null,
     "youtube_semantic_note": "not inferred from admission; see wxc-bot state/youtube_learning_reconciliation.json",
-    "youtube_semantic_backlog": 151,
-    "captured": 1770,
-    "canonical": 1777,
-    "processed": 1777,
-    "text_enriched": 1777,
+    "youtube_semantic_backlog": 150,
+    "captured": 1809,
+    "canonical": 1816,
+    "processed": 1816,
+    "text_enriched": 1816,
     "source_offline": 0,
     "backlog": 0,
     "errors": 0,

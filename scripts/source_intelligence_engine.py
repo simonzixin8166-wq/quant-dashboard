@@ -36,6 +36,25 @@ SYMBOLS = {
     "NOW","META","SMH","SPY","VOO","ORCL","IBIT","BTC","COIN","NBIS","CRWV","SNDK",
     "PYPL","GOOG","GOOGL","AAPL","MSFT","AMD","TSM","AVGO","JPM","AMAT","LITE","BE","MRVL","RSP","QCOM","AAOI","CIEN",
 }
+# Share-class aliases folded into one canonical research symbol (owner decision 2026-10-13, #133):
+# GOOGL and GOOG are both Alphabet; MyAlpha keeps price history for GOOG only.
+CANONICAL_SYMBOL = {"GOOGL": "GOOG"}
+
+
+def canonical_symbol(sym):
+    s = str(sym or "").upper().strip()
+    return CANONICAL_SYMBOL.get(s, s)
+
+
+def _canonical_unique(values):
+    out = []
+    for v in values:
+        c = canonical_symbol(v)
+        if c not in out:
+            out.append(c)
+    return out
+
+
 # Uppercase tokens from forum titles are useful ticker candidates, but a conservative
 # blocklist prevents common English abbreviations from becoming symbols.
 TICKER_BLOCKLIST = {
@@ -318,11 +337,11 @@ def symbols(text: str):
         if token not in found:
             found.append(token)
 
-    aliases = {"英特尔":"INTC","特斯拉":"TSLA","英伟达":"NVDA","谷歌":"GOOGL","摩根大通":"JPM"}
+    aliases = {"英特尔":"INTC","特斯拉":"TSLA","英伟达":"NVDA","谷歌":"GOOG","摩根大通":"JPM"}
     for name, sym in aliases.items():
         if name in raw and sym not in found:
             found.append(sym)
-    return found[:12]
+    return _canonical_unique(found)[:12]
 
 def sanitize_declared_symbols(values, text: str):
     """Revalidate upstream ticker metadata against source text.
@@ -348,7 +367,7 @@ def sanitize_declared_symbols(values, text: str):
             continue
         if sym not in out:
             out.append(sym)
-    return out[:12]
+    return _canonical_unique(out)[:12]
 
 
 def _symbol_present(sym: str, text: str) -> bool:

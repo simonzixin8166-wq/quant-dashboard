@@ -1,8 +1,8 @@
 # MyAlpha View — Master Execution Plan
 
-Source of truth: `docs/development/master_plan.json` (this file is rendered by `scripts/master_plan.py render`). Last updated 2026-10-13T05:00Z. Issue: https://github.com/simonzixin8166-wq/quant-dashboard/issues/133. Charter: CLAUDE.md (owner-confirmed 2026-10-11).
+Source of truth: `docs/development/master_plan.json` (this file is rendered by `scripts/master_plan.py render`). Last updated 2026-10-13T06:20Z. Issue: https://github.com/simonzixin8166-wq/quant-dashboard/issues/133. Charter: CLAUDE.md (owner-confirmed 2026-10-11).
 
-Status counts: Done 19 · In progress 8 · Waiting 7 · Not started 5
+Status counts: Done 19 · In progress 10 · Waiting 7 · Not started 4
 
 Stages per task: instruction_published → claude_acked → code_merged → schedule_verified → oos_validated (oos_validated is never claimed while Learning is UNPROVEN).
 
@@ -49,6 +49,9 @@ Unified ledger → continuous development by dependency → batch acceptance →
 | [6137485275](https://github.com/simonzixin8166-wq/quant-dashboard/issues/133#issuecomment-6137485275) | P0 emergency: Daily stuck, restore 2026-10-12 + QA; pause Batch B until stable | active |
 | [6137639898](https://github.com/simonzixin8166-wq/quant-dashboard/issues/133#issuecomment-6137639898) | P1 research (after P0): BrightLine 8524 + CPI/FOMC/election/refunding windows, Shadow thesis | active |
 | [6138128707](https://github.com/simonzixin8166-wq/quant-dashboard/issues/133#issuecomment-6138128707) | P2 compliance: shared footer, sources & copyright / risk / correction pages, per-item provenance | active (waiting for production stability) |
+| [6138710630](https://github.com/simonzixin8166-wq/quant-dashboard/issues/133#issuecomment-6138710630) | R-01/R-02 full-text analysis + event windows; OPT-01 options Shadow in parallel | active |
+| [6138763764](https://github.com/simonzixin8166-wq/quant-dashboard/issues/133#issuecomment-6138763764) | BrightLine 8524 seven-section outline; three-tranche Shadow rules; R-A/R-B/R-C | active |
+| [6138793593](https://github.com/simonzixin8166-wq/quant-dashboard/issues/133#issuecomment-6138793593) | Homepage-visible macro event reminder (H-01..H-03) as R-02 acceptance | active |
 
 ## P0 site reliability
 
@@ -160,8 +163,9 @@ Unified ledger → continuous development by dependency → batch acceptance →
 
 | ID | task | status | stages | depends on | evidence (PR / run) | acceptance | next / waiting / blocked | verified |
 |---|---|---|---|---|---|---|---|---|
-| R-01 | BrightLine 8524 provenance check + pre-registered falsifiable 'bottom within ~3 weeks' Shadow thesis + official event windows | **In progress** | published, acked | P0-INC-1013 | wxc-bot feed record 56cd7e041adfe7bc43dc captured 2026-10-13T03:10:58Z (scheduled_blog_scan_complete, 3315 chars seen, 360-char excerpt persisted); source_store admission_class=genuine_forward | research/shadow_theses/brightline_8524_bottom_window_shadow_v0_1.json: real capture proof, short quotes, author vs system separated, locked trough definition + settlement window, production_use=false; article marked partial, not fully learned | paragraph-level analysis needs a runtime re-read pathway (no storage); scoring runs at settlement (≈2027-01-04) | 2026-10-13T05:00Z |
-| R-02 | Event-offset monitor (T-1..T+10) for CPI / FOMC / refunding / election with stale-aware confirm/conflict/pending output | **Not started** | published, acked | R-01 | — | scheduled job reuses Daily/research-close; outputs only from real bars with as_of; missing yields/breadth/VIX term shown unavailable; no homepage module | build after R-01 merges; first real output after CPI 2026-10-14 close | 2026-10-13T05:00Z |
+| OPT-01 | Options blogger Sell Put / Covered Call management — Shadow research and decision comparison (no orders) | **In progress** | published, acked | — | — | author strategy marked source_pending unless the original material is accessible; MyAlpha independent framework (Delta/DTE/IV/earnings/ex-div/assignment, close-early/hold/roll/assigned paths) with stress scenarios; per-account analysis kept private; no claim of verified win rates; no orders, no threshold changes | report on #133 today (aggregate only); per-position details in the private ledger repo | 2026-10-13T06:20Z |
+| R-01 | BrightLine 8524 provenance check + pre-registered falsifiable 'bottom within ~3 weeks' Shadow thesis + official event windows | **In progress** | published, acked | P0-INC-1013 | #230 3deebc5 (v0.1); this PR: v0.2 fact matrix + Chinese report + tranche state machine (R-A/R-B); wxc-bot feed record 56cd7e041adfe7bc43dc captured 2026-10-13T03:10:58Z (scheduled_blog_scan_complete, 3315 chars seen, 360-char excerpt persisted); source_store admission_class=genuine_forward; official checks 2026-10-13: Fed 09-16 statement (3¾–4%, 12–0), BLS jobs 10-02 (+29k, 4.2%), CPI Aug (3.4%/2.4%), Treasury sb0607 buybacks; 10Y FRED 10-08 5.22%; MyAlpha breadth b200 51.9% (10-12) | R-A Chinese section-by-section fact/opinion/counter-evidence matrix with official sources and as_of; full text status honest (partial unless read at runtime); v0.1 definitions only revised by version; R-B rules locked with tests (fail-closed, AND/OR fidelity, no allocation inference) | R-C daily observation after real sessions; record official outcomes in research/macro_events/event_facts_2026q4.json after each event | 2026-10-13T06:20Z |
+| R-02 | Event-offset monitor (T-1..T+10) for CPI / FOMC / refunding / election with stale-aware confirm/conflict/pending output | **In progress** | published, acked | R-01 | — | homepage-visible compact reminder (H-01 fixtures → H-02 real artifact before CPI 10-14 08:30 ET → H-03 real T..T+10 checkpoints with Actions run IDs); ET (DST-aware) + Beijing times; stale/failed shown, never an optimistic carry-over; desktop + 390px QA; no BUY/SELL; gold/DCA layout untouched | H-01 now (isolated read-only PR); H-02 wiring after tonight's schedule acceptance | 2026-10-13T06:20Z |
 
 ## Compliance & UX
 

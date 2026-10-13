@@ -43,4 +43,11 @@ ext = out["engines"]["external_research"]["interpretable"]
 assert "title-only excluded" in ext["definition"] or ext["count"] is None
 assert ext["records_processed_by_source_reading"] >= 0 and "processed ≠ understood" in ext["note"]
 assert lf.check("x", f(effective_forward_eligible=1, independently_matured=4)) == ["independently_matured(4) > effective_forward_eligible(1)"]
+# Market chain: one maturity floor for both sources (regression for the 2026-10-12 Daily failure,
+# where 5-session market-state scorecards (3) exceeded matured macro outcomes (0) once SPY joined).
+_m = out["engines"]["market"]
+assert lf.MATURE_MIN_SESSIONS == 20
+assert "early_reads" in _m and _m["early_reads"]["market_state_outcomes_below_maturity"] >= 0
+if _m["benchmark_evaluated"]["count"] and _m["independently_matured"]["count"] is not None:
+    assert _m["benchmark_evaluated"]["count"] <= _m["independently_matured"]["count"]
 print("PASS P3-12 learning funnel contract")

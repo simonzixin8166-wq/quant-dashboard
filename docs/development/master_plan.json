@@ -2,7 +2,7 @@
  "version": 1,
  "title": "MyAlpha View — Master Execution Plan",
  "issue": "https://github.com/simonzixin8166-wq/quant-dashboard/issues/133",
- "last_updated": "2026-10-13T06:20Z",
+ "last_updated": "2026-10-13T05:50Z",
  "charter": "CLAUDE.md (owner-confirmed 2026-10-11)",
  "statuses": [
   "Done",
@@ -1188,7 +1188,7 @@
    "evidence": {
     "prs": [
      "#230 3deebc5 (v0.1)",
-     "this PR: v0.2 fact matrix + Chinese report + tranche state machine (R-A/R-B)"
+     "#231 2c4e770 (v0.2 + report + tranche state)"
     ],
     "runs": [
      "wxc-bot feed record 56cd7e041adfe7bc43dc captured 2026-10-13T03:10:58Z (scheduled_blog_scan_complete, 3315 chars seen, 360-char excerpt persisted); source_store admission_class=genuine_forward",
@@ -1219,8 +1219,13 @@
     "R-01"
    ],
    "evidence": {
-    "prs": [],
-    "runs": []
+    "prs": [
+     "#231 2c4e770",
+     "#233 dccf7f9"
+    ],
+    "runs": [
+     "Autonomous QA 38352780811 workflow_run PASS macro_row fresh"
+    ]
    },
    "acceptance": "homepage-visible compact reminder (H-01 fixtures → H-02 real artifact before CPI 10-14 08:30 ET → H-03 real T..T+10 checkpoints with Actions run IDs); ET (DST-aware) + Beijing times; stale/failed shown, never an optimistic carry-over; desktop + 390px QA; no BUY/SELL; gold/DCA layout untouched",
    "next": "H-01 now (isolated read-only PR); H-02 wiring after tonight's schedule acceptance",
@@ -1229,14 +1234,15 @@
     {
      "id": "H-01",
      "title": "compact homepage component + fixtures (4 states)",
-     "status": "In progress",
-     "evidence": "this PR: compact row (docs/assets/macro-event-row.js/css loaded via auto-research-row.js; no Daily template change), fixtures in tests/macro_event_row.test.js, local Playwright desktop/390px: rendered, no overflow, no overlap"
+     "status": "Done",
+     "evidence": "#233 dccf7f9; Pages deployed; Autonomous QA 38352780811 (workflow_run) overall=PASS macro_row=desktop:fresh/mobile:fresh fatal_console_errors=0 http_errors=0; screenshots in artifact autonomous-qa-949"
     },
     {
      "id": "H-02",
      "title": "real event artifact wired before CPI 2026-10-14 08:30 ET",
      "status": "In progress",
-     "evidence": "docs/research/macro_event_watch.json built from real inputs (market 2026-10-12, 10Y 2026-10-08, breadth 2026-10-12); refresh wiring into Daily after tonight's schedule acceptance"
+     "evidence": "real artifact live (market 2026-10-12, 中性待确认); next: refresh with Daily after tonight's schedule acceptance so the CPI T-1/T state uses 10-13 data",
+     "waiting_for": "P0-05 day-2 schedule acceptance"
     },
     {
      "id": "H-03",
@@ -1287,10 +1293,10 @@
    "depends_on": [],
    "evidence": {
     "prs": [
-     "this PR: scripts/option_management_shadow.py + tests + research/options_shadow/opt01_sellput_cc_management_zh.md"
+     "#232 f4cb166"
     ],
     "runs": [
-     "author strategy source_pending (original screenshots not accessible to this session)"
+     "author strategy source_pending (original material not accessible); framework + tests merged"
     ]
    },
    "acceptance": "author strategy marked source_pending unless the original material is accessible; MyAlpha independent framework (Delta/DTE/IV/earnings/ex-div/assignment, close-early/hold/roll/assigned paths) with stress scenarios; per-account analysis kept private; no claim of verified win rates; no orders, no threshold changes",

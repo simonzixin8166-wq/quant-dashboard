@@ -132,7 +132,7 @@ def _yahoo_recent(symbols: List[str]) -> Dict[str, List[dict]]:
         import yfinance as yf
         from source_history_cache import normalize_yf
         raw = yf.download(symbols, period="10d", interval="1d", auto_adjust=False, progress=False,
-                          threads=False, actions=False, group_by="column")
+                          threads=False, actions=False, group_by="column", timeout=30)
     except Exception as exc:
         print(f"WARNING fallback OHLCV fetch failed: {type(exc).__name__}")
         return {}

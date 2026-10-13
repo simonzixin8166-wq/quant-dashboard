@@ -92,7 +92,7 @@
       '<p class="mer-meta">数据：行情 ' + esc((d.freshness || {}).market_as_of) + ' · 10Y ' + esc((d.freshness || {}).y10_as_of) + ' · 宽度 ' +
       esc((d.freshness || {}).breadth_as_of) + ' · 生成 ' + esc(d.generated_at) + ' · 规则 ' + esc(d.rules_version) + '</p>' +
       '<p class="mer-meta">来源：<a href="' + esc(src.url) + '" target="_blank" rel="noopener noreferrer">' + esc(src.author) + '《' + esc(src.title) +
-      '》</a>（MyAlpha 未读到全文，依据 owner 提纲与 360 字摘录，partial） · <a href="' + esc(src.analysis_url) + '" target="_blank" rel="noopener noreferrer">完整中文分析</a></p></div>';
+      '》</a>（' + esc(/full text verified/.test(src.reading_basis || '') ? '已核读全文 50 段，全文不存储' : 'MyAlpha 未读到全文，依据 owner 提纲与 360 字摘录，partial') + '） · <a href="' + esc(src.analysis_url) + '" target="_blank" rel="noopener noreferrer">完整中文分析</a></p></div>';
   }
 
   function render(el, d, pageMarketAsOf, now) {

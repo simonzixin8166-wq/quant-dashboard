@@ -36,7 +36,8 @@ assert t1["state"] == "not_met"            # 10Y 5.22 not < 5, trend not down; r
 assert t2["state"] == "unknown"            # main branch unmet (10Y ≥ 5) but December FOMC branch unknown → OR stays unknown
 assert t3["state"] == "not_met"            # existing tiers not reached
 assert all(c.get("threshold_kind") == "author_threshold" for c in t1["early"] if c["name"].startswith("y10_below"))
-assert "connective_source" in t1 and "full text not read" in t1["connective_source"]
+assert "connective_source" in t1 and "full text verified" in t1["connective_source"] and "43–46" in t1["connective_source"]
+assert len(s["author_defensive_rules_not_applied"]) == 5 and "unchanged" in s["author_defensive_rules_note"]
 
 # A date arriving never satisfies a condition: the 11/04 refunding stays unknown until an official outcome is recorded
 s2 = run(lambda x: x.update(expected_session="2026-11-05"))

@@ -22,7 +22,7 @@ import brightline_tranche_shadow as bl  # noqa: E402
 
 ET = ZoneInfo("America/New_York")
 OUT = ROOT / "docs" / "research" / "macro_event_watch.json"
-ANALYSIS_URL = "https://github.com/simonzixin8166-wq/quant-dashboard/blob/main/research/shadow_theses/brightline_8524_analysis_zh.md"
+ANALYSIS_URL = "https://github.com/simonzixin8166-wq/quant-dashboard/blob/main/research/shadow_theses/brightline_8524_analysis_full_zh.md"
 ARTICLE_URL = "https://blog.wenxuecity.com/myblog/82458/202610/8524.html"
 CLOSE = time(16, 15)  # conservative close-confirmation buffer used across MyAlpha
 
@@ -103,7 +103,8 @@ def build(now=None):
         "tranche_state": {k: v["state"] for k, v in st["tranches"].items()},
         "rules_version": st["rules_version"], "freshness": freshness, "events": events,
         "source": {"author": "BrightLine", "title": "别和美联储作对，但底已经不远了", "url": ARTICLE_URL, "analysis_url": ANALYSIS_URL,
-                   "reading_basis": "owner outline + 360-char excerpt; MyAlpha did not read the full text (partial)",
+                   "reading_basis": "full text verified 2026-10-13 (owner-uploaded HTML, 50 paragraphs, sha256 bd834014…); full text not stored",
+                   "analysis_full_url": "https://github.com/simonzixin8166-wq/quant-dashboard/blob/main/research/shadow_theses/brightline_8524_analysis_full_zh.md",
                    "author_forecast": "约三周内见底 — 可证伪预测，不是事实、买点或收益承诺"},
         "production_use": False, "used_in_decision": False, "automatic_orders": False,
     }

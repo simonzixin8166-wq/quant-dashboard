@@ -2,7 +2,7 @@
  "version": 1,
  "title": "MyAlpha View — Master Execution Plan",
  "issue": "https://github.com/simonzixin8166-wq/quant-dashboard/issues/133",
- "last_updated": "2026-10-13T15:20Z",
+ "last_updated": "2026-10-13T15:40Z",
  "charter": "CLAUDE.md (owner-confirmed 2026-10-11)",
  "statuses": [
   "Done",
@@ -1273,7 +1273,8 @@
    "status": "In progress",
    "stages": [
     "instruction_published",
-    "claude_acked"
+    "claude_acked",
+    "code_merged"
    ],
    "instructions": [
     "6148675138"
@@ -1283,17 +1284,19 @@
    ],
    "evidence": {
     "prs": [
-     "p0a/cpi-official-outcome (this PR)"
+     "#239 e52ab30 BLS CPI official outcome → tranche Shadow v1.2 → homepage row; wired non-blocking into Auto Research 12:35Z + Daily"
     ],
-    "runs": [],
+    "runs": [
+     "Autonomous QA 38422987426 workflow_run (head f1321c4, includes #236/#239/#240) overall=PASS macro_row=desktop:fresh/mobile:fresh deploy_matches_head=true"
+    ],
     "sources": [
      "BLS calendar https://www.bls.gov/schedule/2026/10_sched.htm: CPI September 2026, Wed Oct 14, 08:30 ET (verified 2026-10-13 15:10Z)",
      "expectations preregistered 2026-10-13T16:00Z: consensus_unavailable (secondary aggregator + TD reference only)"
     ]
    },
    "acceptance": "after 2026-10-14T12:30Z a real event=schedule run records official BLS values (headline/core m/m SA, y/y NSA) with published_at/captured_at/http/hash, or shows official_result_unavailable/stale/conflict; homepage shows 已公布｜T with real values; surprise stays unknown without a same-measure survey consensus; T..T+10 records carry the exact market as_of; no future PASS claimed today",
-   "next": "merge before 19:30Z; 10-14 12:35Z Auto Research run = first real test; 13:20Z check-in verifies or dispatches the existing workflow (labelled workflow_dispatch)",
-   "last_verified": "2026-10-13T15:20Z"
+   "next": "10-13 Daily event=schedule → T-1 baseline record; 10-14 12:35Z Auto Research event=schedule = first real CPI fetch; 13:20Z check-in verifies (no future PASS claimed)",
+   "last_verified": "2026-10-13T15:40Z"
   },
   {
    "id": "C-01",
@@ -1331,20 +1334,22 @@
     "claude_acked"
    ],
    "instructions": [
-    "6138710630"
+    "6138710630",
+    "6148675138"
    ],
    "depends_on": [],
    "evidence": {
     "prs": [
-     "#232 f4cb166"
+     "#232 f4cb166",
+     "#240 0609e4a v0.2: uniform fees/slippage on all paths+stress, quote_required/model_uncertainty, contracts/multiplier/anon account, same-account CC coverage, private read-path plan (not implemented)"
     ],
     "runs": [
      "author strategy source_pending (original material not accessible); framework + tests merged"
     ]
    },
    "acceptance": "author strategy marked source_pending unless the original material is accessible; MyAlpha independent framework (Delta/DTE/IV/earnings/ex-div/assignment, close-early/hold/roll/assigned paths) with stress scenarios; per-account analysis kept private; no claim of verified win rates; no orders, no threshold changes",
-   "next": "daily option-chain snapshot log (free Alpaca) for out-of-sample evidence; compare with the author's material once accessible",
-   "last_verified": "2026-10-13T06:45Z"
+   "next": "read-path implementation awaits owner approval; author strategy source_pending; Alpaca read-only test 0/5 NOT_EXECUTED_NO_CREDENTIALS",
+   "last_verified": "2026-10-13T15:40Z"
   }
  ]
 }

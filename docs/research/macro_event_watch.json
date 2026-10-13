@@ -1,0 +1,291 @@
+{
+ "version": 1,
+ "generated_at": "2026-10-13T05:38:05Z",
+ "next_scheduled_refresh": "with each Daily Dashboard Update (≈21:30Z / 08:15Z weekdays); event phases update client-side from the clock",
+ "stale_after_hours": 36,
+ "judgment": {
+  "key": "neutral_awaiting_confirmation",
+  "zh": "中性待确认",
+  "basis": "MyAlpha Shadow evaluation of the author's tranche rules plus MyAlpha data guards — not the author's forecast"
+ },
+ "lines": [
+  {
+   "tranche": 1,
+   "state": "not_met",
+   "text": "利率未回落（10Y 5.22% 截至 2026-10-08，作者阈值 5%），第一批条件尚未达成｜暂不追价"
+  },
+  {
+   "tranche": 2,
+   "state": "unknown",
+   "text": "宽度与确认条件未齐（站上 MA200 51.9%；10Y 未持续低于 5%；12 月 FOMC 未到）｜第二批继续观察"
+  },
+  {
+   "tranche": 3,
+   "state": "not_met",
+   "text": "核心标的未到既定档位（QQQM 回撤 2.2%/t1 12.0%、VGT 回撤 3.2%/t1 15.0%）｜不触发"
+  }
+ ],
+ "risk_off": {
+  "active": false,
+  "conditions": [
+   {
+    "name": "cpi_well_above_expectations",
+    "status": "unknown",
+    "rule": "author: CPI 显著高于预期 → 前两批等待"
+   },
+   {
+    "name": "fomc_october_surprise_hike",
+    "status": "unknown",
+    "rule": "author: 10 月 FOMC 意外加息 → 前两批等待"
+   },
+   {
+    "name": "y10_above_author_risk_line",
+    "status": "unmet",
+    "rule": "author: 10Y 突破 5.35% → 前两批等待"
+   }
+  ]
+ },
+ "tranche_state": {
+  "1_policy_rate": "not_met",
+  "2_breadth_confirmation": "unknown",
+  "3_price_levels": "not_met"
+ },
+ "rules_version": "bl8524-tranche-v1",
+ "freshness": {
+  "market_as_of": "2026-10-12",
+  "expected_session": "2026-10-12",
+  "market_status": "fresh",
+  "y10_as_of": "2026-10-08",
+  "breadth_as_of": "2026-10-12",
+  "data_stale": false
+ },
+ "events": [
+  {
+   "key": "cpi_2026_09",
+   "name_zh": "美国 9 月 CPI",
+   "importance": "high",
+   "release": {
+    "et": "2026-10-14T08:30:00-04:00",
+    "utc": "2026-10-14T12:30:00Z",
+    "beijing": "2026-10-14T20:30:00+08:00",
+    "et_label": "10/14 08:30 EDT",
+    "beijing_label": "10/14 20:30 北京"
+   },
+   "time_status": "official",
+   "official_source": "https://www.bls.gov/schedule/2026/10_sched.htm",
+   "checkpoints": {
+    "T-1": "2026-10-13",
+    "T": "2026-10-14",
+    "T+1": "2026-10-15",
+    "T+3": "2026-10-19",
+    "T+5": "2026-10-21",
+    "T+10": "2026-10-28"
+   },
+   "windows": {
+    "t_minus_1_start": "2026-10-13T04:00:00Z",
+    "event_day_start": "2026-10-14T04:00:00Z",
+    "release": "2026-10-14T12:30:00Z",
+    "t_plus": {
+     "T": "2026-10-14T20:15:00Z",
+     "T+1": "2026-10-15T20:15:00Z",
+     "T+3": "2026-10-19T20:15:00Z",
+     "T+5": "2026-10-21T20:15:00Z",
+     "T+10": "2026-10-28T20:15:00Z"
+    },
+    "archive_after": "2026-10-29T20:15:00Z"
+   },
+   "official_outcome": null
+  },
+  {
+   "key": "fomc_2026_10",
+   "name_zh": "FOMC 利率决议（10/27–28）",
+   "importance": "high",
+   "release": {
+    "et": "2026-10-28T14:00:00-04:00",
+    "utc": "2026-10-28T18:00:00Z",
+    "beijing": "2026-10-29T02:00:00+08:00",
+    "et_label": "10/28 14:00 EDT",
+    "beijing_label": "10/29 02:00 北京"
+   },
+   "time_status": "official_date; 14:00 ET statement per FOMC practice",
+   "official_source": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm",
+   "checkpoints": {
+    "T-1": "2026-10-27",
+    "T": "2026-10-28",
+    "T+1": "2026-10-29",
+    "T+3": "2026-11-02",
+    "T+5": "2026-11-04",
+    "T+10": "2026-11-11"
+   },
+   "windows": {
+    "t_minus_1_start": "2026-10-27T04:00:00Z",
+    "event_day_start": "2026-10-28T04:00:00Z",
+    "release": "2026-10-28T18:00:00Z",
+    "t_plus": {
+     "T": "2026-10-28T20:15:00Z",
+     "T+1": "2026-10-29T20:15:00Z",
+     "T+3": "2026-11-02T21:15:00Z",
+     "T+5": "2026-11-04T21:15:00Z",
+     "T+10": "2026-11-11T21:15:00Z"
+    },
+    "archive_after": "2026-11-12T21:15:00Z"
+   },
+   "official_outcome": null
+  },
+  {
+   "key": "treasury_financing_estimates_2026_11_02",
+   "name_zh": "财政部季度融资需求预估",
+   "importance": "medium",
+   "release": {
+    "et": "2026-11-02T15:00:00-05:00",
+    "utc": "2026-11-02T20:00:00Z",
+    "beijing": "2026-11-03T04:00:00+08:00",
+    "et_label": "11/02 15:00 EST",
+    "beijing_label": "11/03 04:00 北京"
+   },
+   "time_status": "official_date; time inferred from the August 2026 release (3:00 PM ET) — official time not yet posted",
+   "official_source": "https://home.treasury.gov/policy-issues/financing-the-government/quarterly-refunding/most-recent-quarterly-refunding-documents",
+   "checkpoints": {
+    "T-1": "2026-10-30",
+    "T": "2026-11-02",
+    "T+1": "2026-11-03",
+    "T+3": "2026-11-05",
+    "T+5": "2026-11-09",
+    "T+10": "2026-11-16"
+   },
+   "windows": {
+    "t_minus_1_start": "2026-10-30T04:00:00Z",
+    "event_day_start": "2026-11-02T05:00:00Z",
+    "release": "2026-11-02T20:00:00Z",
+    "t_plus": {
+     "T": "2026-11-02T21:15:00Z",
+     "T+1": "2026-11-03T21:15:00Z",
+     "T+3": "2026-11-05T21:15:00Z",
+     "T+5": "2026-11-09T21:15:00Z",
+     "T+10": "2026-11-16T21:15:00Z"
+    },
+    "archive_after": "2026-11-17T21:15:00Z"
+   },
+   "official_outcome": null
+  },
+  {
+   "key": "us_midterm_2026_11_03",
+   "name_zh": "美国中期选举",
+   "importance": "medium",
+   "release": {
+    "et": "2026-11-03T18:00:00-05:00",
+    "utc": "2026-11-03T23:00:00Z",
+    "beijing": "2026-11-04T07:00:00+08:00",
+    "et_label": "11/03 18:00 EST",
+    "beijing_label": "11/04 07:00 北京"
+   },
+   "time_status": "election day; first polls close ~18:00 EST, results arrive state by state overnight — no single release instant",
+   "official_source": "https://www.usa.gov/midterm-elections",
+   "checkpoints": {
+    "T-1": "2026-11-02",
+    "T": "2026-11-03",
+    "T+1": "2026-11-04",
+    "T+3": "2026-11-06",
+    "T+5": "2026-11-10",
+    "T+10": "2026-11-17"
+   },
+   "windows": {
+    "t_minus_1_start": "2026-11-02T05:00:00Z",
+    "event_day_start": "2026-11-03T05:00:00Z",
+    "release": "2026-11-03T23:00:00Z",
+    "t_plus": {
+     "T": "2026-11-03T21:15:00Z",
+     "T+1": "2026-11-04T21:15:00Z",
+     "T+3": "2026-11-06T21:15:00Z",
+     "T+5": "2026-11-10T21:15:00Z",
+     "T+10": "2026-11-17T21:15:00Z"
+    },
+    "archive_after": "2026-11-18T21:15:00Z"
+   },
+   "official_outcome": null
+  },
+  {
+   "key": "treasury_refunding_2026_11_04",
+   "name_zh": "财政部季度再融资声明",
+   "importance": "high",
+   "release": {
+    "et": "2026-11-04T08:30:00-05:00",
+    "utc": "2026-11-04T13:30:00Z",
+    "beijing": "2026-11-04T21:30:00+08:00",
+    "et_label": "11/04 08:30 EST",
+    "beijing_label": "11/04 21:30 北京"
+   },
+   "time_status": "official_date; time inferred from the August 2026 release (8:30 AM ET) — official time not yet posted",
+   "official_source": "https://home.treasury.gov/policy-issues/financing-the-government/quarterly-refunding/most-recent-quarterly-refunding-documents",
+   "checkpoints": {
+    "T-1": "2026-11-03",
+    "T": "2026-11-04",
+    "T+1": "2026-11-05",
+    "T+3": "2026-11-09",
+    "T+5": "2026-11-11",
+    "T+10": "2026-11-18"
+   },
+   "windows": {
+    "t_minus_1_start": "2026-11-03T05:00:00Z",
+    "event_day_start": "2026-11-04T05:00:00Z",
+    "release": "2026-11-04T13:30:00Z",
+    "t_plus": {
+     "T": "2026-11-04T21:15:00Z",
+     "T+1": "2026-11-05T21:15:00Z",
+     "T+3": "2026-11-09T21:15:00Z",
+     "T+5": "2026-11-11T21:15:00Z",
+     "T+10": "2026-11-18T21:15:00Z"
+    },
+    "archive_after": "2026-11-19T21:15:00Z"
+   },
+   "official_outcome": null
+  },
+  {
+   "key": "fomc_2026_12",
+   "name_zh": "FOMC 利率决议（12/8–9，含 SEP）",
+   "importance": "high",
+   "release": {
+    "et": "2026-12-09T14:00:00-05:00",
+    "utc": "2026-12-09T19:00:00Z",
+    "beijing": "2026-12-10T03:00:00+08:00",
+    "et_label": "12/09 14:00 EST",
+    "beijing_label": "12/10 03:00 北京"
+   },
+   "time_status": "official_date; 14:00 ET statement per FOMC practice",
+   "official_source": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm",
+   "checkpoints": {
+    "T-1": "2026-12-08",
+    "T": "2026-12-09",
+    "T+1": "2026-12-10",
+    "T+3": "2026-12-14",
+    "T+5": "2026-12-16",
+    "T+10": "2026-12-23"
+   },
+   "windows": {
+    "t_minus_1_start": "2026-12-08T05:00:00Z",
+    "event_day_start": "2026-12-09T05:00:00Z",
+    "release": "2026-12-09T19:00:00Z",
+    "t_plus": {
+     "T": "2026-12-09T21:15:00Z",
+     "T+1": "2026-12-10T21:15:00Z",
+     "T+3": "2026-12-14T21:15:00Z",
+     "T+5": "2026-12-16T21:15:00Z",
+     "T+10": "2026-12-23T21:15:00Z"
+    },
+    "archive_after": "2026-12-24T21:15:00Z"
+   },
+   "official_outcome": null
+  }
+ ],
+ "source": {
+  "author": "BrightLine",
+  "title": "别和美联储作对，但底已经不远了",
+  "url": "https://blog.wenxuecity.com/myblog/82458/202610/8524.html",
+  "analysis_url": "https://github.com/simonzixin8166-wq/quant-dashboard/blob/main/research/shadow_theses/brightline_8524_analysis_zh.md",
+  "reading_basis": "owner outline + 360-char excerpt; MyAlpha did not read the full text (partial)",
+  "author_forecast": "约三周内见底 — 可证伪预测，不是事实、买点或收益承诺"
+ },
+ "production_use": false,
+ "used_in_decision": false,
+ "automatic_orders": false
+}

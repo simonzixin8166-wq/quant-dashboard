@@ -32,6 +32,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 R = ROOT / "research"
+MATURE_MIN_SESSIONS = 20  # charter: only matured 20/60/120 NYSE-session outcomes count
 D = ROOT / "docs" / "research"
 OUT = D / "learning_funnel.json"
 LAYERS = ("discovered", "canonical_persisted", "interpretable", "candidate_claim_or_state",
@@ -96,9 +97,19 @@ def applied_layer():
 def market():
     obs = {r.get("observation_id"): r for r in jsonl(R / "archive" / "macro_regime_observations.jsonl") if r.get("observation_id")}
     pit = [r for r in obs.values() if r.get("point_in_time_capable") is True and r.get("observed_at")]
-    sc = load(D / "market_state_outcome_scorecards.json").get("counts") or {}
-    mo = load(D / "macro_outcome_memory.json").get("counts") or {}
+    mo_doc = load(D / "macro_outcome_memory.json")
+    sc_doc = load(D / "market_state_outcome_scorecards.json")
     ev = rel(R / "archive" / "macro_regime_observations.jsonl")
+    # One chain, one maturity rule (charter: only 20/60/120-session outcomes count as matured experience).
+    # Both sources (macro observations and live market-state snapshots) are counted with the same
+    # horizon floor, so benchmark_evaluated can never exceed independently_matured by construction.
+    # 5-session reads are reported separately as early reads, never as matured learning.
+    ms_rows = jsonl(R / "archive" / "market_state_outcomes.jsonl")
+    ms_mat = [r for r in ms_rows if int(r.get("horizon_sessions") or 0) >= MATURE_MIN_SESSIONS]
+    mo_rows = jsonl(R / "archive" / "macro_regime_outcomes.jsonl")
+    mo_mat = [r for r in mo_rows if int(r.get("horizon_sessions") or 0) >= MATURE_MIN_SESSIONS]
+    mo_cards = [c for c in (mo_doc.get("scorecards") or []) if int(c.get("horizon_sessions") or 0) >= MATURE_MIN_SESSIONS]
+    ms_cards = [c for c in (sc_doc.get("scorecards") or []) if int(c.get("horizon_sessions") or 0) >= MATURE_MIN_SESSIONS]
     return {
         "discovered": layer(len(obs), "macro/regime observations captured", ev, "observation_id"),
         "canonical_persisted": layer(len(obs), "append-only archived observations", ev, "observation_id"),
@@ -107,10 +118,16 @@ def market():
         "candidate_claim_or_state": layer(len({r.get("regime_key") for r in obs.values() if r.get("regime_key")}),
                                           "distinct regime state entries", ev, "regime_key"),
         "effective_forward_eligible": layer(len(pit), "point-in-time capable live observations (observed_at recorded)", ev, "observation_id"),
-        "independently_matured": layer(int(mo.get("outcomes") or 0), "matured macro outcomes on forward observations",
-                                       rel(D / "macro_outcome_memory.json"), "observation_id×horizon"),
-        "benchmark_evaluated": layer(int(sc.get("scorecards") or 0), "outcome scorecards vs benchmark",
-                                     rel(D / "market_state_outcome_scorecards.json"), "scorecard_id"),
+        "independently_matured": layer(len(mo_mat) + len(ms_mat),
+                                       f"matured (>= {MATURE_MIN_SESSIONS} sessions) SPY outcomes of live macro observations and live market-state snapshots",
+                                       rel(R / "archive" / "macro_regime_outcomes.jsonl") + " + " + rel(R / "archive" / "market_state_outcomes.jsonl"),
+                                       "observation_id×horizon / outcome_id"),
+        "benchmark_evaluated": layer(len(mo_cards) + len(ms_cards),
+                                     f"SPY-benchmark scorecards built only from matured (>= {MATURE_MIN_SESSIONS} sessions) outcomes",
+                                     rel(D / "macro_outcome_memory.json") + " + " + rel(D / "market_state_outcome_scorecards.json"), "scorecard_id"),
+        "early_reads": {"market_state_outcomes_below_maturity": len(ms_rows) - len(ms_mat),
+                        "macro_outcomes_below_maturity": len(mo_rows) - len(mo_mat),
+                        "note": f"horizons below {MATURE_MIN_SESSIONS} sessions; visible for monitoring, not matured learning"},
         "downstream_consumer_count": reuse_layer("macro_fred_alfred", "breadth_cross_asset_regime"),
         "validated_learning_applied": applied_layer(),
         "historical": {"market_price_history_mature_60": (coverage_domain("market_price_history").get("evidence") or {}).get("mature_60"),

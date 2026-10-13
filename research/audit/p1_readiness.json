@@ -1,25 +1,25 @@
 {
- "generated_at": "2026-10-12T04:05:09Z",
+ "generated_at": "2026-10-13T04:39:05Z",
  "precedents": {
   "source": "docs/research/learning_engine.json situation_memory[].similarity.matches",
-  "source_sha256": "e956fa038e2566d577967adb2a56d14fb6dd9e4e35238be6fd82e982ebe89864",
-  "memory_as_of": "2026-10-10",
-  "memory_generated_at": "2026-10-10T01:12:55.808945+00:00",
-  "symbols": 24,
-  "usable_matches": 84,
+  "source_sha256": "fe73da09fdd56a98d24fe9f307b198bba0842a4befb3ec2352d639c0e9a04e4a",
+  "memory_as_of": "2026-10-13",
+  "memory_generated_at": "2026-10-13T03:55:06.440162+00:00",
+  "symbols": 26,
+  "usable_matches": 104,
   "excluded": {
-   "non_equity_instrument": 10,
-   "outcome_not_matured": 66
+   "outcome_not_matured": 63,
+   "non_equity_instrument": 13
   },
   "symbols_with_zero_usable": [
    "AMD",
-   "AMZN",
-   "AVGO",
-   "DRAM",
    "HOOD",
+   "LITE",
    "NBIS",
-   "SMH",
-   "TSM"
+   "NVDA",
+   "QQQ",
+   "QQQM",
+   "VGT"
   ],
   "look_ahead_violations": 0,
   "timing_note": "in Daily the research step runs before learning_engine_core, so research reads the previous committed memory (as_of ≤ market_as_of); B1 must record that memory's as_of and sha256 per precedent",
@@ -46,17 +46,24 @@
    "evidence_role": "legacy_descriptive_only"
   },
   "per_symbol": {
-   "SPCX": {
-    "memory_timestamp": "2026-10-09",
-    "usable": 7,
+   "GOOG": {
+    "memory_timestamp": "2026-10-12",
+    "usable": 5,
     "excluded": {
-     "non_equity_instrument": 1,
-     "outcome_not_matured": 2
+     "outcome_not_matured": 5
     },
     "similarity_method": "technical-v1-stage+pulse+weekly+zone"
    },
    "VOO": {
-    "memory_timestamp": "2026-10-09",
+    "memory_timestamp": "2026-10-12",
+    "usable": 3,
+    "excluded": {
+     "outcome_not_matured": 7
+    },
+    "similarity_method": "technical-v1-stage+pulse+weekly+zone"
+   },
+   "SPY": {
+    "memory_timestamp": "2026-10-12",
     "usable": 4,
     "excluded": {
      "outcome_not_matured": 6
@@ -64,138 +71,135 @@
     "similarity_method": "technical-v1-stage+pulse+weekly+zone"
    },
    "TSLA": {
-    "memory_timestamp": "2026-10-09",
+    "memory_timestamp": "2026-10-12",
     "usable": 6,
     "excluded": {
      "outcome_not_matured": 4
     },
     "similarity_method": "technical-v1-stage+pulse+weekly+zone"
    },
-   "GOOG": {
-    "memory_timestamp": "2026-10-09",
-    "usable": 2,
-    "excluded": {
-     "outcome_not_matured": 8
-    },
-    "similarity_method": "technical-v1-stage+pulse+weekly+zone"
-   },
-   "NVDA": {
-    "memory_timestamp": "2026-10-09",
+   "AMZN": {
+    "memory_timestamp": "2026-10-12",
     "usable": 3,
     "excluded": {
      "outcome_not_matured": 7
     },
     "similarity_method": "technical-v1-stage+pulse+weekly+zone"
    },
-   "LITE": {
-    "memory_timestamp": "2026-10-09",
-    "usable": 6,
-    "excluded": {
-     "outcome_not_matured": 3,
-     "non_equity_instrument": 1
-    },
-    "similarity_method": "technical-v1-stage+pulse+weekly+zone"
-   },
-   "MRVL": {
-    "memory_timestamp": "2026-10-09",
+   "SPCX": {
+    "memory_timestamp": "2026-10-12",
     "usable": 8,
     "excluded": {
-     "non_equity_instrument": 1,
-     "outcome_not_matured": 1
-    },
-    "similarity_method": "technical-v1-stage+pulse+weekly+zone"
-   },
-   "QQQM": {
-    "memory_timestamp": "2026-10-09",
-    "usable": 4,
-    "excluded": {
-     "outcome_not_matured": 5,
-     "non_equity_instrument": 1
-    },
-    "similarity_method": "technical-v1-stage+pulse+weekly+zone"
-   },
-   "QLD": {
-    "memory_timestamp": "2026-10-09",
-    "usable": 4,
-    "excluded": {
-     "outcome_not_matured": 5,
-     "non_equity_instrument": 1
-    },
-    "similarity_method": "technical-v1-stage+pulse+weekly+zone"
-   },
-   "VGT": {
-    "memory_timestamp": "2026-10-09",
-    "usable": 5,
-    "excluded": {
-     "outcome_not_matured": 5
-    },
-    "similarity_method": "technical-v1-stage+pulse+weekly+zone"
-   },
-   "QQQ": {
-    "memory_timestamp": "2026-10-09",
-    "usable": 4,
-    "excluded": {
-     "outcome_not_matured": 5,
-     "non_equity_instrument": 1
+     "outcome_not_matured": 2
     },
     "similarity_method": "technical-v1-stage+pulse+weekly+zone"
    },
    "MSFT": {
-    "memory_timestamp": "2026-10-09",
+    "memory_timestamp": "2026-10-12",
     "usable": 10,
     "excluded": {},
     "similarity_method": "technical-v1-stage+pulse+weekly+zone"
    },
-   "TSM": {
-    "memory_timestamp": "2026-10-09",
+   "NVDA": {
+    "memory_timestamp": "2026-10-12",
+    "usable": 0,
+    "excluded": {},
+    "similarity_method": "technical-v1-stage+pulse+weekly+zone"
+   },
+   "LITE": {
+    "memory_timestamp": "2026-10-12",
     "usable": 0,
     "excluded": {},
     "similarity_method": "technical-v1-stage+pulse+weekly+zone"
    },
    "AMD": {
-    "memory_timestamp": "2026-10-09",
+    "memory_timestamp": "2026-10-12",
     "usable": 0,
     "excluded": {},
     "similarity_method": "technical-v1-stage+pulse+weekly+zone"
    },
-   "SMH": {
-    "memory_timestamp": "2026-10-09",
+   "QQQM": {
+    "memory_timestamp": "2026-10-12",
     "usable": 0,
     "excluded": {},
     "similarity_method": "technical-v1-stage+pulse+weekly+zone"
    },
-   "AMZN": {
-    "memory_timestamp": "2026-10-09",
+   "VGT": {
+    "memory_timestamp": "2026-10-12",
     "usable": 0,
     "excluded": {},
     "similarity_method": "technical-v1-stage+pulse+weekly+zone"
    },
-   "NBIS": {
-    "memory_timestamp": "2026-10-09",
-    "usable": 0,
-    "excluded": {},
-    "similarity_method": "technical-v1-stage+pulse+weekly+zone"
-   },
-   "HOOD": {
-    "memory_timestamp": "2026-10-09",
-    "usable": 0,
-    "excluded": {},
-    "similarity_method": "technical-v1-stage+pulse+weekly+zone"
-   },
-   "DRAM": {
-    "memory_timestamp": "2026-10-09",
+   "QQQ": {
+    "memory_timestamp": "2026-10-12",
     "usable": 0,
     "excluded": {},
     "similarity_method": "technical-v1-stage+pulse+weekly+zone"
    },
    "AVGO": {
-    "memory_timestamp": "2026-10-09",
+    "memory_timestamp": "2026-10-12",
+    "usable": 5,
+    "excluded": {
+     "non_equity_instrument": 3,
+     "outcome_not_matured": 2
+    },
+    "similarity_method": "technical-v1-stage+pulse+weekly+zone"
+   },
+   "NBIS": {
+    "memory_timestamp": "2026-10-12",
     "usable": 0,
     "excluded": {},
     "similarity_method": "technical-v1-stage+pulse+weekly+zone"
    },
-   "INTC": {
-    "memory_timestamp": "2026-10-09",
+   "HOOD": {
+    "memory_timestamp": "2026-10-12",
+    "usable": 0,
+    "excluded": {},
+    "similarity_method": "technical-v1-stage+pulse+weekly+zone"
+   },
+   "MRVL": {
+    "memory_timestamp": "2026-10-12",
+    "usable": 9,
+    "excluded": {
+     "outcome_not_matured": 1
+    },
+    "similarity_method": "technical-v1-stage+pulse+weekly+zone"
+   },
+   "QLD": {
+    "memory_timestamp": "2026-10-12",
+    "usable": 8,
+    "excluded": {
+     "outcome_not_matured": 2
+    },
+    "similarity_method": "technical-v1-stage+pulse+weekly+zone"
+   },
+   "TQQQ": {
+    "memory_timestamp": "2026-10-12",
+    "usable": 8,
+    "excluded": {
+     "outcome_not_matured": 2
+    },
+    "similarity_method": "technical-v1-stage+pulse+weekly+zone"
+   },
+   "TSM": {
+    "memory_timestamp": "2026-10-12",
+    "usable": 8,
+    "excluded": {
+     "outcome_not_matured": 2
+    },
+    "similarity_method": "technical-v1-stage+pulse+weekly+zone"
+   },
+   "DRAM": {
+    "memory_timestamp": "2026-10-12",
+    "usable": 6,
+    "excluded": {
+     "non_equity_instrument": 1,
+     "outcome_not_matured": 3
+    },
+    "similarity_method": "technical-v1-stage+pulse+weekly+zone"
+   },
+   "SMH": {
+    "memory_timestamp": "2026-10-12",
     "usable": 6,
     "excluded": {
      "outcome_not_matured": 3,
@@ -203,16 +207,8 @@
     },
     "similarity_method": "technical-v1-stage+pulse+weekly+zone"
    },
-   "SOFI": {
-    "memory_timestamp": "2026-10-09",
-    "usable": 5,
-    "excluded": {
-     "outcome_not_matured": 5
-    },
-    "similarity_method": "technical-v1-stage+pulse+weekly+zone"
-   },
-   "IREN": {
-    "memory_timestamp": "2026-10-09",
+   "INTC": {
+    "memory_timestamp": "2026-10-12",
     "usable": 5,
     "excluded": {
      "outcome_not_matured": 4,
@@ -220,12 +216,30 @@
     },
     "similarity_method": "technical-v1-stage+pulse+weekly+zone"
    },
-   "ORCL": {
-    "memory_timestamp": "2026-10-09",
-    "usable": 5,
+   "SOFI": {
+    "memory_timestamp": "2026-10-12",
+    "usable": 3,
     "excluded": {
-     "outcome_not_matured": 3,
+     "outcome_not_matured": 5,
      "non_equity_instrument": 2
+    },
+    "similarity_method": "technical-v1-stage+pulse+weekly+zone"
+   },
+   "IREN": {
+    "memory_timestamp": "2026-10-12",
+    "usable": 4,
+    "excluded": {
+     "outcome_not_matured": 4,
+     "non_equity_instrument": 2
+    },
+    "similarity_method": "technical-v1-stage+pulse+weekly+zone"
+   },
+   "ORCL": {
+    "memory_timestamp": "2026-10-12",
+    "usable": 3,
+    "excluded": {
+     "outcome_not_matured": 4,
+     "non_equity_instrument": 3
     },
     "similarity_method": "technical-v1-stage+pulse+weekly+zone"
    }
@@ -233,17 +247,17 @@
  },
  "outcomes": {
   "company_fundamental_outcome_memory": {
-   "observations": 703,
+   "observations": 772,
    "matured_outcomes": {
-    "20": 380,
-    "60": 370
+    "20": 771,
+    "60": 755
    },
    "duplicate_outcome_keys": 0,
-   "contaminated_observations": 335,
+   "contaminated_observations": 370,
    "contamination": "non-USD units (NBIS RUB) or YTD revenue/net income periods (#203)",
    "clean_matured_outcomes": {
-    "20": 189,
-    "60": 186
+    "20": 401,
+    "60": 398
    },
    "verdict": "eligible_for_b2_clean_subset_only",
    "conditions": [
@@ -253,28 +267,28 @@
    ]
   },
   "event_outcome_memory": {
-   "events": 722,
-   "matured_outcomes": 0,
-   "events_with_price_history": 500,
-   "events_without_price_history": 222,
-   "earliest_5_session_maturity": "2026-10-13",
+   "events": 801,
+   "matured_outcomes": 4,
+   "events_with_price_history": 801,
+   "events_without_price_history": 0,
+   "earliest_5_session_maturity": "2026-08-12",
    "verdict": "pending",
    "reason": "archive starts 2026-10-06; symbols outside the free price archive can never mature"
   },
   "support_volatility_outcome_memory": {
-   "observations": 18,
+   "observations": 24,
    "matured_outcomes": 0,
    "earliest_20_session_maturity": "2026-11-04",
    "verdict": "pending"
   },
   "options_opportunity_outcome_memory": {
-   "observations": 32,
+   "observations": 38,
    "matured_outcomes": 0,
    "earliest_5_session_maturity": "2026-10-14",
    "verdict": "pending"
   },
   "macro_outcome_memory": {
-   "observations": 4,
+   "observations": 5,
    "matured_outcomes": 0,
    "benchmark_history_available": true,
    "verdict": "pending",
@@ -282,9 +296,9 @@
   },
   "market_state_outcome_scorecards": {
    "history_records": {
-    "cross_asset_divergence_history": 7,
-    "breadth_intelligence_history": 5,
-    "regime_combination_history": 6
+    "cross_asset_divergence_history": 8,
+    "breadth_intelligence_history": 6,
+    "regime_combination_history": 7
    },
    "matured_outcomes": 0,
    "benchmark_history_available": true,

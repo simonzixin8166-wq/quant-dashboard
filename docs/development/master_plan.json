@@ -2,7 +2,7 @@
  "version": 1,
  "title": "MyAlpha View — Master Execution Plan",
  "issue": "https://github.com/simonzixin8166-wq/quant-dashboard/issues/133",
- "last_updated": "2026-10-13T04:20Z",
+ "last_updated": "2026-10-13T04:45Z",
  "charter": "CLAUDE.md (owner-confirmed 2026-10-11)",
  "statuses": [
   "Done",
@@ -406,7 +406,8 @@
    "status": "In progress",
    "stages": [
     "instruction_published",
-    "claude_acked"
+    "claude_acked",
+    "code_merged"
    ],
    "instructions": [
     "6116972263",
@@ -419,16 +420,19 @@
    ],
    "evidence": {
     "prs": [
-     "#213 (DRAFT, not merged)"
+     "#213 201d2a3 (B1-02, auto-research-5)",
+     "#223 4fe2940 (weekly report no longer counts same-session generator re-runs)"
     ],
     "runs": [
-     "research/audit/b1_replay_preview.json (local preview, not journal records): MSFT 10 precedents; ORCL 5, all conflicting with its bearish view; VGT 5; AMD 0 precedents + 2 market error cases"
+     "MyAlpha Auto Research 38345865213 workflow_dispatch 'post-P0 B1 activation' (not a schedule): 8 server-written hypotheses for 2026-10-12 carry precedents/error_attribution/experience_input_status, used_in_decision=false; distinct symbol-sessions with experience = 8",
+     "MSFT 10 precedents (status used); GOOG 5; SPY 4; TSM 8; NBIS/NVDA/QQQ/QQQM 0 (status none)",
+     "ORCL / VGT / AMD: no server record yet — their 2026-10-09 hypotheses were revisited still_valid, so no new hypothesis was generated; they get experience on their next new hypothesis",
+     "module_manifest experience_citation: not yet wired → wired (8 records)"
     ]
    },
-   "acceptance": "server-generated replayable records for MSFT, ORCL, VGT (AMD = none); counts by distinct symbol-session; experience_citation flips to wired in module_manifest",
-   "next": "after P0-05: mark #213 ready, merge, let the server generate auto-research-5 records; verify module_manifest experience_citation flips to wired with server records",
-   "waiting_for": "P0-05 (generator must not change before the first schedule)",
-   "last_verified": "2026-10-12T05:40Z"
+   "acceptance": "server-generated records with precedents/error_attribution for real symbols; ORCL/VGT/AMD verified when they next form a hypothesis",
+   "next": "verify ORCL/VGT/AMD server records when they next form a hypothesis (AMD expected 0 precedents)",
+   "last_verified": "2026-10-13T04:45Z"
   },
   {
    "id": "D-01",
@@ -493,10 +497,11 @@
    "title": "STOOQ 19-symbol pack import (MyAlpha_STOOQ_19symbols_20261009.zip)",
    "area": "Data universe",
    "priority": 1,
-   "status": "In progress",
+   "status": "Done",
    "stages": [
     "instruction_published",
-    "claude_acked"
+    "claude_acked",
+    "code_merged"
    ],
    "instructions": [
     "6117622847"
@@ -506,18 +511,18 @@
    ],
    "evidence": {
     "prs": [
-     "this PR: scripts/stooq_pack_import.py (dry-run default, --apply) + tests/test_stooq_pack_import.py"
+     "#212 a201413 (script)",
+     "#224 c960494 (import)"
     ],
     "runs": [
-     "pack received in this Claude chat 2026-10-12T04:24Z, sha256 ead9bb5f…; manifest sha256 19/19 match",
-     "research/audit/stooq_pack_validation.json: new clean 11 (AMZN, META, NOW, DIA, GLD, HYG, IWM, TLT, XLE, XLF, XLK); SPY identical to #207; review 7",
-     "dry run on a copy of the real archive: 25→41 members, only TQQQ/LITE changed, 8 corrections (TQQQ 5 flat bars, LITE 09-29/30 + 10-01 inserted), re-run 0 changes; real archive untouched"
+     "pack sha256 ead9bb5f… verified from data-handoff/stooq-20261009 (branch not merged); dry run → --apply → re-run 0 changes",
+     "16 appended (AAOI AAPL AMZN CRWV DIA GLD HYG INTC IWM META MU NOW TLT XLE XLF XLK); SPY skipped identical; 8 corrections (TQQQ 5 flat bars → real OHLCV, LITE 09-29/30 + 10-01) in data/history/corrections.jsonl",
+     "symbol_registry missing securities 16 → 0; event rows without history 222 → 0"
     ]
    },
    "acceptance": "manifest SHA-256 re-verified; per-symbol checks; overlap vs existing archive; conflicts quarantined; append-only; provenance per file",
-   "next": "after P0-05: git fetch data-handoff/stooq-20261009 → python -I scripts/stooq_pack_import.py <zip> --apply → python scripts/local_history_agent.py → symbol_registry.py (missing → 0) → PR",
-   "last_verified": "2026-10-12T05:15Z",
-   "waiting_for": "P0-05 only (owner authorized publishing; pack staged on branch data-handoff/stooq-20261009)"
+   "next": "none (new symbols' first hypotheses are not revisits; nothing backfilled as Genuine Forward)",
+   "last_verified": "2026-10-13T04:45Z"
   },
   {
    "id": "D-04",
@@ -551,10 +556,11 @@
    "title": "Free daily OHLCV collection for the data_collection_universe incl. the 19 STOOQ symbols (not tied to the display list)",
    "area": "Data universe",
    "priority": 1,
-   "status": "Waiting",
+   "status": "In progress",
    "stages": [
     "instruction_published",
-    "claude_acked"
+    "claude_acked",
+    "code_merged"
    ],
    "instructions": [
     "6117657723",
@@ -566,23 +572,28 @@
     "P0-05"
    ],
    "evidence": {
-    "prs": [],
-    "runs": []
+    "prs": [
+     "#225 1eb2215"
+    ],
+    "runs": [
+     "dry run on real state: 26 symbols from docs/data.json; 14 not on the site (AAOI AAPL CRWV DIA GLD HYG IWM META MU NOW TLT XLE XLF XLK) request the free Yahoo fallback (basis-checked); not verifiable in the sandbox (no egress)"
+    ]
    },
-   "acceptance": "a symbol not shown on the site (e.g. AAPL) still updates after a real schedule; missing source → missing/stale, never synthesized; idempotent",
-   "next": "after P0-05: collector iterates symbol_registry data_collection_universe; full-OHLC sources only; missing/stale recorded; verify AAPL/AMZN update after a real schedule",
-   "waiting_for": "P0-05 (no canonical-archive pipeline change before the first schedule)",
-   "last_verified": "2026-10-12T04:25Z"
+   "acceptance": "after a real schedule Daily a non-displayed symbol (e.g. AAPL) shows a 2026-10-13+ bar from the fallback, or is recorded missing/stale with the reason",
+   "next": "check the next event=schedule Daily (session 2026-10-13)",
+   "waiting_for": "Daily schedule 2026-10-13 21:30Z",
+   "last_verified": "2026-10-13T04:45Z"
   },
   {
    "id": "D-06",
    "title": "Stop synthetic flat bars from close-only rows (TQQQ 5 of last 30)",
    "area": "Data universe",
    "priority": 1,
-   "status": "In progress",
+   "status": "Done",
    "stages": [
     "instruction_published",
-    "claude_acked"
+    "claude_acked",
+    "code_merged"
    ],
    "instructions": [
     "6117657723"
@@ -592,16 +603,16 @@
    ],
    "evidence": {
     "prs": [
-     "this PR: scripts/ohlcv_merge.py + tests/test_ohlcv_merge.py (not wired)"
+     "#211 e34ad9c (module)",
+     "#225 1eb2215 (wired)"
     ],
     "runs": [
-     "legacy dashboard_bar close-only back-fill pinned by test as the defect to remove"
+     "dashboard_bar no longer back-fills close into O/H/L; close-only → close_only, never written; conflicts quarantined; legacy test assertion replaced"
     ]
    },
    "acceptance": "close-only rows never written as full bars; existing H=L=C bars compared with source (real flat days possible) and corrected only via logged replacement",
-   "next": "after P0-05: local_history_agent.append_latest uses ohlcv_merge for the data_collection_universe; flat bars fixed only via corrections.jsonl (TQQQ from owner pack)",
-   "waiting_for": "P0-05 (production pipeline change)",
-   "last_verified": "2026-10-12T05:00Z"
+   "next": "watch the next schedule report for close_only / quarantined entries",
+   "last_verified": "2026-10-13T04:45Z"
   },
   {
    "id": "D-07",
@@ -666,10 +677,11 @@
    "title": "Wire the clean fundamentals-outcome subset as historical reliability context",
    "area": "B2 outcomes",
    "priority": 1,
-   "status": "Waiting",
+   "status": "In progress",
    "stages": [
     "instruction_published",
-    "claude_acked"
+    "claude_acked",
+    "code_merged"
    ],
    "instructions": [
     "6116972263",
@@ -679,13 +691,19 @@
     "B1-02"
    ],
    "evidence": {
-    "prs": [],
-    "runs": []
+    "prs": [
+     "#226 59cbe07 (auto-research-6)",
+     "#228 369f7b7 (provenance → manifest sees the consumer)"
+    ],
+    "runs": [
+     "clean subset recount: 223/220 matured 20/60 (100/97 with revenue YoY); 370/772 observations excluded (RUB, YTD)",
+     "today every symbol is descriptive_pooled_only (e.g. MSFT n=16, pooled n=73, positive rate 0.60 @20); market-state scorecards not wired (5-session only, n<30); other memories disconnected with reasons"
+    ]
    },
    "acceptance": "only USD quarter/annual observations; n shown; others disconnected with reason",
-   "next": "Batch B",
-   "waiting_for": "B1-02",
-   "last_verified": "2026-10-12T04:25Z"
+   "next": "verify server-written auto-research-6 records carry historical_reliability after the next schedule",
+   "waiting_for": "Daily schedule 2026-10-13",
+   "last_verified": "2026-10-13T04:45Z"
   },
   {
    "id": "B2-03",
@@ -744,10 +762,11 @@
    "title": "Unified SEC fetcher + append-only fundamentals_v2 + shadow old-schema file (dual run)",
    "area": "B4 SEC",
    "priority": 1,
-   "status": "Waiting",
+   "status": "In progress",
    "stages": [
     "instruction_published",
-    "claude_acked"
+    "claude_acked",
+    "code_merged"
    ],
    "instructions": [
     "6116685851",
@@ -759,13 +778,17 @@
     "B4-01"
    ],
    "evidence": {
-    "prs": [],
-    "runs": []
+    "prs": [
+     "#227 3aa76fd"
+    ],
+    "runs": [
+     "Daily step 'SEC unified fact fetcher v2 (Shadow) + daily reconciliation' (non-blocking); no consumer migrated; SEC not reachable from the sandbox"
+    ]
    },
    "acceptance": "all candidate concepts, USD only, period_kind, filed, accn, quality_flags; union universe; old files untouched",
-   "next": "Batch B",
-   "waiting_for": "P0-05",
-   "last_verified": "2026-10-12T04:25Z"
+   "next": "verify the first real v2 Shadow run (research/archive/fundamentals_v2, shadow_v2_vs_new) after the next Daily",
+   "waiting_for": "Daily schedule 2026-10-13",
+   "last_verified": "2026-10-13T04:45Z"
   },
   {
    "id": "B4-03",
@@ -863,24 +886,28 @@
     "B2-02"
    ],
    "evidence": {
-    "prs": [],
+    "prs": [
+     "#226",
+     "#228"
+    ],
     "runs": [
-     "baseline 21 (module_manifest 2026-10-12)"
+     "module_manifest: reaching research 13 → 14; outcome_without_research 21 → 20 (15 excluding 5 frozen stages); experience_citation wired"
     ]
    },
    "acceptance": "count falls with real consumers; ineffective modules frozen not forced",
    "next": "re-run manifest after each batch",
-   "last_verified": "2026-10-12T04:25Z"
+   "last_verified": "2026-10-13T04:45Z"
   },
   {
    "id": "M-03",
    "title": "Freeze 5 downstream candidate stages (no deletion)",
    "area": "Modules",
    "priority": 2,
-   "status": "Waiting",
+   "status": "Done",
    "stages": [
     "instruction_published",
-    "claude_acked"
+    "claude_acked",
+    "code_merged"
    ],
    "instructions": [
     "6117308392"
@@ -889,13 +916,16 @@
     "P0-05"
    ],
    "evidence": {
-    "prs": [],
-    "runs": []
+    "prs": [
+     "#228 369f7b7"
+    ],
+    "runs": [
+     "5 stages frozen in research/registry/frozen_modules.json; flagged in module_manifest; unfreeze_due=false"
+    ]
    },
    "acceptance": "flagged and skipped in weekly review; evidence kept",
-   "next": "Batch B",
-   "waiting_for": "P0-05",
-   "last_verified": "2026-10-12T04:25Z"
+   "next": "unfreeze when candidate_forward_status eligible_candidates > 0",
+   "last_verified": "2026-10-13T04:45Z"
   },
   {
    "id": "M-04",

@@ -1,4 +1,4 @@
-# MyAlpha module manifest (read-only) — 2026-10-13T04:36:00Z
+# MyAlpha module manifest (read-only) — 2026-10-13T04:39:05Z
 
 Method: roles assigned per reader script after code review (ROLES); producer self-reads excluded; reachability = direct research/decision readers plus paths through learning transforms only (research→research hops are data selection, not learning content); monitor and display reads never count as learning.
 

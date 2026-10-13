@@ -94,62 +94,147 @@ def write_archive(store: Dict[str, pd.DataFrame]) -> None:
     tmp.replace(ARCHIVE)
 
 
+REGISTRY = ROOT / "research" / "audit" / "symbol_registry.json"
+BASIS_TOLERANCE = 0.005  # fallback rows must match archived closes on overlapping sessions within 0.5 %
+
+
 def dashboard_bar(data: dict, symbol: str) -> Optional[dict]:
-    # Watchlist instruments are normally in stocks.  Fall back to core/index.
-    row = (data.get("stocks") or {}).get(symbol) or (data.get("core") or {}).get(symbol) or (data.get("index") or {}).get(symbol)
-    if not isinstance(row, dict):
-        return None
-    date = str(row.get("date") or "")[:10]
-    if not re.match(r"^\d{4}-\d{2}-\d{2}$", date):
-        return None
-    close = row.get("close")
-    if close is None:
-        return None
-    return {
-        "date": pd.Timestamp(date),
-        "open": row.get("open", close),
-        "high": row.get("high", close),
-        "low": row.get("low", close),
-        "close": close,
-        "volume": row.get("volume", 0),
-    }
+    """Latest dashboard row for a symbol, exactly as published (no field is invented).
+
+    stocks.* rows carry full OHLC; core/index rows are usually close-only. Missing open/high/low stay
+    missing (D-06): a close is never copied into open/high/low.
+    """
+    for group in ("stocks", "core", "index"):
+        row = (data.get(group) or {}).get(symbol)
+        if isinstance(row, dict) and row.get("close") is not None:
+            out = {k: row.get(k) for k in ("date", "open", "high", "low", "close", "volume")}
+            out["source"] = f"docs/data.json {group}.{symbol}"
+            return out
+    return None
 
 
-def append_latest(store: Dict[str, pd.DataFrame]) -> dict:
-    """Append only already-fetched dashboard bars; no extra market API calls."""
-    result = {"appended": [], "unchanged": [], "quarantined": [], "missing": []}
-    if not DASHBOARD.exists():
-        return result
-    data = json.loads(DASHBOARD.read_text(encoding="utf-8"))
-    for symbol, df in sorted(store.items()):
-        bar = dashboard_bar(data, symbol)
-        if not bar:
-            result["missing"].append(symbol)
-            continue
-        last_date = df.index.max()
-        if bar["date"] <= last_date:
-            result["unchanged"].append(symbol)
-            continue
+def collection_universe(store: Dict[str, pd.DataFrame]) -> List[str]:
+    """D-05: archive symbols ∪ registry data_collection_universe (display-independent)."""
+    syms = set(store)
+    try:
+        reg = json.loads(REGISTRY.read_text(encoding="utf-8"))
+        syms |= set(((reg.get("universes") or {}).get("data_collection_universe")) or [])
+    except Exception:
+        pass
+    return sorted(s for s in syms if s and s != "VIX")
+
+
+def _yahoo_recent(symbols: List[str]) -> Dict[str, List[dict]]:
+    """Free fallback (Yahoo via yfinance, already a Daily dependency): last ~10 daily bars, full OHLC only."""
+    if not symbols:
+        return {}
+    try:
+        import yfinance as yf
+        from source_history_cache import normalize_yf
+        raw = yf.download(symbols, period="10d", interval="1d", auto_adjust=False, progress=False,
+                          threads=False, actions=False, group_by="column", timeout=30)
+    except Exception as exc:
+        print(f"WARNING fallback OHLCV fetch failed: {type(exc).__name__}")
+        return {}
+    out: Dict[str, List[dict]] = {}
+    for sym in symbols:
         try:
-            vals = {k: float(bar[k]) for k in ("open", "high", "low", "close")}
-            volume = float(bar.get("volume") or 0)
+            df = normalize_yf(raw, sym)
         except Exception:
-            result["quarantined"].append({"symbol": symbol, "reason": "invalid_ohlc"})
             continue
-        last_close = float(df.iloc[-1]["close"])
-        jump = vals["close"] / last_close - 1.0 if last_close > 0 else 0.0
-        # A >60% one-session jump may be genuine, but mixing a split/raw series is
-        # more damaging to Trend Pulse.  Quarantine and let the operator inspect.
-        if abs(jump) > 0.60:
-            result["quarantined"].append({"symbol": symbol, "date": str(bar["date"].date()), "jump": jump, "reason": "extreme_gap_check"})
+        out[sym] = [{"date": d.date().isoformat(), "open": r.open, "high": r.high, "low": r.low,
+                     "close": r.close, "volume": r.volume} for d, r in df.iterrows()]
+    return out
+
+
+def _hist_dict(df: pd.DataFrame) -> dict:
+    return {d.date().isoformat(): (float(r.open), float(r.high), float(r.low), float(r.close), float(r.volume))
+            for d, r in df.iterrows()}
+
+
+def append_latest(store: Dict[str, pd.DataFrame], fetch_fallback=None, expected=None) -> dict:
+    """Append finalized real OHLCV bars for the whole data-collection universe (D-05 / D-06).
+
+    Rules (scripts/ohlcv_merge.py): full OHLC only; close-only rows are reported as close_only and never
+    written; an existing date with different values is a quarantined conflict; missing stays missing;
+    sessions after the latest completed NYSE session are not_final. Sources, in order:
+      1. docs/data.json stocks/core/index (already fetched by Daily; no extra call)
+      2. free fallback for symbols still without a full bar for the expected session (Yahoo, last ~10 bars),
+         accepted only when its closes match the archive on overlapping sessions (same price basis).
+    """
+    import ohlcv_merge as om
+    import trading_calendar as tcal
+    expected = expected or tcal.expected_latest_completed_session().isoformat()
+    fetch_fallback = _yahoo_recent if fetch_fallback is None else fetch_fallback
+    result = {"expected_session": expected, "appended": [], "unchanged": [], "quarantined": [], "missing": [],
+              "close_only": [], "not_final": [], "sources": {}}
+    data = json.loads(DASHBOARD.read_text(encoding="utf-8")) if DASHBOARD.exists() else {}
+    changed = False
+    need_fallback = []
+    for symbol in collection_universe(store):
+        df = store.get(symbol)
+        if df is None or df.empty:
+            result["missing"].append(symbol)
+            result["sources"][symbol] = "no canonical history (a series is never started from one bar)"
             continue
-        if vals["low"] > vals["high"] or not (vals["low"] <= vals["close"] <= vals["high"] * 1.02):
-            result["quarantined"].append({"symbol": symbol, "reason": "ohlc_inconsistent"})
+        last = df.index.max().date().isoformat()
+        row = dashboard_bar(data, symbol)
+        status, bar = om.normalize_bar(row, expected) if row else ("missing", "not in docs/data.json")
+        if status == "ok":
+            hist = _hist_dict(df.tail(5))
+            if bar["date"] < last and bar["date"] not in hist:
+                r, res = "unchanged", {}
+            else:
+                res, _ = om.merge_bar(hist, status, bar)
+                r = res["result"]
+            if r == "appended":
+                df.loc[pd.Timestamp(bar["date"]), ["open", "high", "low", "close", "volume"]] = \
+                    [bar["open"], bar["high"], bar["low"], bar["close"], bar["volume"]]
+                store[symbol] = df = df.sort_index()
+                result["appended"].append({"symbol": symbol, "date": bar["date"], "close": bar["close"], "source": row["source"]})
+                changed = True
+            elif r == "unchanged":
+                result["unchanged"].append(symbol)
+            else:
+                result["quarantined"].append({"symbol": symbol, **{k: v for k, v in res.items() if k != "result"},
+                                              "reason": r, "source": row["source"]})
+            result["sources"][symbol] = row["source"]
+            last = df.index.max().date().isoformat()
+        elif status == "close_only":
+            result["close_only"].append({"symbol": symbol, "date": bar["date"], "source": row["source"]})
+        elif status == "not_final":
+            result["not_final"].append({"symbol": symbol, "detail": bar})
+        if last < expected:
+            need_fallback.append(symbol)
+    fetched = fetch_fallback(need_fallback) if need_fallback else {}
+    for symbol in need_fallback:
+        df = store[symbol]
+        rows = fetched.get(symbol) or []
+        hist = _hist_dict(df.tail(15))
+        bars = [b for st, b in (om.normalize_bar(r, expected) for r in rows) if st == "ok"]
+        overlap = [b for b in bars if b["date"] in hist]
+        mism = [b["date"] for b in overlap if abs(b["close"] / hist[b["date"]][3] - 1) > BASIS_TOLERANCE]
+        new = sorted((b for b in bars if b["date"] > df.index.max().date().isoformat()), key=lambda b: b["date"])
+        if not new:
+            result["missing"].append(symbol)
+            result["sources"].setdefault(symbol, "stale: no finalized full-OHLC bar after the archive from any free source")
             continue
-        df.loc[bar["date"], ["open", "high", "low", "close", "volume"]] = [vals["open"], vals["high"], vals["low"], vals["close"], volume]
-        store[symbol] = df.sort_index().drop_duplicates()
-        result["appended"].append({"symbol": symbol, "date": str(bar["date"].date()), "close": vals["close"]})
-    if result["appended"]:
+        if not overlap or mism:
+            result["quarantined"].append({"symbol": symbol, "reason": "fallback_basis_unverified" if not overlap else "fallback_basis_mismatch",
+                                          "dates": mism, "source": "Yahoo (yfinance) fallback"})
+            continue
+        cur = _hist_dict(df.tail(5))
+        for b in new:
+            res, cur = om.merge_bar(cur, "ok", b)
+            if res["result"] != "appended":
+                result["quarantined"].append({"symbol": symbol, "date": b["date"], "reason": res["result"], "source": "Yahoo (yfinance) fallback"})
+                break
+            df.loc[pd.Timestamp(b["date"]), ["open", "high", "low", "close", "volume"]] = [b["open"], b["high"], b["low"], b["close"], b["volume"]]
+            result["appended"].append({"symbol": symbol, "date": b["date"], "close": b["close"], "source": "Yahoo (yfinance) fallback"})
+            changed = True
+        store[symbol] = df.sort_index()
+        result["sources"][symbol] = "Yahoo (yfinance) fallback"
+    if changed:
         write_archive(store)
     return result
 
@@ -388,7 +473,7 @@ def main() -> int:
     if not store:
         print("WARNING: no local STOOQ history archive; skipping historical learning")
         return 0
-    update = {"appended": [], "unchanged": [], "quarantined": [], "missing": []}
+    update = {"appended": [], "unchanged": [], "quarantined": [], "missing": [], "close_only": [], "not_final": []}
     if not args.no_update:
         update = append_latest(store)
         # Re-read after archive rewrite to validate persisted bytes.

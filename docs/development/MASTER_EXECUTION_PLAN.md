@@ -1,8 +1,8 @@
 # MyAlpha View — Master Execution Plan
 
-Source of truth: `docs/development/master_plan.json` (this file is rendered by `scripts/master_plan.py render`). Last updated 2026-10-13T04:45Z. Issue: https://github.com/simonzixin8166-wq/quant-dashboard/issues/133. Charter: CLAUDE.md (owner-confirmed 2026-10-11).
+Source of truth: `docs/development/master_plan.json` (this file is rendered by `scripts/master_plan.py render`). Last updated 2026-10-13T05:00Z. Issue: https://github.com/simonzixin8166-wq/quant-dashboard/issues/133. Charter: CLAUDE.md (owner-confirmed 2026-10-11).
 
-Status counts: Done 19 · In progress 7 · Waiting 6 · Not started 4
+Status counts: Done 19 · In progress 8 · Waiting 7 · Not started 5
 
 Stages per task: instruction_published → claude_acked → code_merged → schedule_verified → oos_validated (oos_validated is never claimed while Learning is UNPROVEN).
 
@@ -47,6 +47,8 @@ Unified ledger → continuous development by dependency → batch acceptance →
 | [6117657723](https://github.com/simonzixin8166-wq/quant-dashboard/issues/133#issuecomment-6117657723) | Decouple research/data-collection universe from display watchlist; free OHLCV for all | active |
 | [6117671408](https://github.com/simonzixin8166-wq/quant-dashboard/issues/133#issuecomment-6117671408) | Create and maintain this Master Execution Plan | active |
 | [6137485275](https://github.com/simonzixin8166-wq/quant-dashboard/issues/133#issuecomment-6137485275) | P0 emergency: Daily stuck, restore 2026-10-12 + QA; pause Batch B until stable | active |
+| [6137639898](https://github.com/simonzixin8166-wq/quant-dashboard/issues/133#issuecomment-6137639898) | P1 research (after P0): BrightLine 8524 + CPI/FOMC/election/refunding windows, Shadow thesis | active |
+| [6138128707](https://github.com/simonzixin8166-wq/quant-dashboard/issues/133#issuecomment-6138128707) | P2 compliance: shared footer, sources & copyright / risk / correction pages, per-item provenance | active (waiting for production stability) |
 
 ## P0 site reliability
 
@@ -153,5 +155,18 @@ Unified ledger → continuous development by dependency → batch acceptance →
 | OWN-02 | Owner: delete leftover branch tmp/vendor-probe | **Waiting** | acked | — | — | branch gone | — (waiting: owner (branch deletion not permitted from this environment)) | 2026-10-12T04:25Z |
 | OWN-03 | Owner: logged-in check of options assignment-preference cards and private stock ledger save | **Waiting** | acked | — | — | owner confirms | — (waiting: owner login) | 2026-10-12T04:25Z |
 | OWN-04 | Owner: authorize publishing the 19-symbol pack in the public repo (file already received in this chat) | **Done** | acked, merged | — | owner authorization in the Claude chat 2026-10-12 12:33 (UTC+8); recorded on #133; pack staged on branch data-handoff/stooq-20261009 @ fe2af73 (sha256 ead9bb5f…) | file received + explicit authorization | — (waiting: owner) | 2026-10-12T04:40Z |
+
+## Research tasks
+
+| ID | task | status | stages | depends on | evidence (PR / run) | acceptance | next / waiting / blocked | verified |
+|---|---|---|---|---|---|---|---|---|
+| R-01 | BrightLine 8524 provenance check + pre-registered falsifiable 'bottom within ~3 weeks' Shadow thesis + official event windows | **In progress** | published, acked | P0-INC-1013 | wxc-bot feed record 56cd7e041adfe7bc43dc captured 2026-10-13T03:10:58Z (scheduled_blog_scan_complete, 3315 chars seen, 360-char excerpt persisted); source_store admission_class=genuine_forward | research/shadow_theses/brightline_8524_bottom_window_shadow_v0_1.json: real capture proof, short quotes, author vs system separated, locked trough definition + settlement window, production_use=false; article marked partial, not fully learned | paragraph-level analysis needs a runtime re-read pathway (no storage); scoring runs at settlement (≈2027-01-04) | 2026-10-13T05:00Z |
+| R-02 | Event-offset monitor (T-1..T+10) for CPI / FOMC / refunding / election with stale-aware confirm/conflict/pending output | **Not started** | published, acked | R-01 | — | scheduled job reuses Daily/research-close; outputs only from real bars with as_of; missing yields/breadth/VIX term shown unavailable; no homepage module | build after R-01 merges; first real output after CPI 2026-10-14 close | 2026-10-13T05:00Z |
+
+## Compliance & UX
+
+| ID | task | status | stages | depends on | evidence (PR / run) | acceptance | next / waiting / blocked | verified |
+|---|---|---|---|---|---|---|---|---|
+| C-01 | Shared footer (sources/copyright, risk disclaimer, correction & contact) + full Chinese policy page + per-item provenance labels | **Waiting** | published, acked | P0-INC-1013 | — | PR/CI/Pages/QA PASS; desktop + 390px; three links clickable, no 404; homepage gold/DCA layout, feedback email, APP_VERSION 6.9.0 unchanged; no claim of authorization; any non-compliant full-text cache raised separately | implement once the scheduled Daily is green (waiting: production stability: first successful event=schedule Daily after the P0 (2026-10-13 session) + QA PASS) | 2026-10-13T05:00Z |
 
 Engineering QA PASS ≠ Learning PASS. **Learning UNPROVEN / FINAL=NO.**

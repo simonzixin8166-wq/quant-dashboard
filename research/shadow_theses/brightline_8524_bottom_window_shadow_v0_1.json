@@ -1,0 +1,190 @@
+{
+ "version": "0.1",
+ "id": "brightline-8524-bottom-window-shadow",
+ "status": "shadow_preregistered_not_active_not_scored",
+ "created_at": "2026-10-13",
+ "request": "quant-dashboard#133 comment 6137639898 (P1, queued behind P0 6137485275; P0 recovered per 6138104805)",
+ "production_use": false,
+ "production_effect": "none",
+ "promotion_effect": "none",
+ "automatic_orders": false,
+ "home_page_effect": "none (no new homepage module; no BUY/SELL; no change to X2 / TQQQ Hard Exit / CORE_TIERS / LEAPS or owner allocation)",
+ "source": {
+  "author": "BrightLine",
+  "title": "别和美联储作对，但底已经不远了",
+  "url": "https://blog.wenxuecity.com/myblog/82458/202610/8524.html",
+  "article_id": "8524",
+  "published_at": "2026-10-12",
+  "published_at_semantics": "source_archive_publication_date",
+  "captured_at": "2026-10-13T03:10:58Z",
+  "capture_mode": "scheduled_blog_scan_complete",
+  "wxc_bot_feed_record_id": "56cd7e041adfe7bc43dc",
+  "content_chars_seen_at_capture": 3315,
+  "persisted_scope": "title + 360-char public excerpt + hashes + link (full text used at runtime only, never stored)",
+  "excerpt_chars_persisted": 360,
+  "source_store": {
+   "first_fetched_at": "2026-10-13T03:30:30.674161+00:00",
+   "ingest_type": "live_ingest",
+   "admission_class": "genuine_forward",
+   "effective_forward_eligible": true,
+   "timestamp_confidence": "high",
+   "snapshot_hash": "7984c4fa21855e9f54b03329aa9ed2960b653240860c867c8fe5be0a99b2dcea",
+   "normalized_available_text_hash": "e2903f3beeb3f1f0846dfaa08e25d56f81d9ff52801dcffd4253527b04e8c833",
+   "content_hash_scope": "normalized_title_excerpt_only"
+  },
+  "claims_status": "experimental_unvalidated",
+  "learning_state": "partial — only the 360-char excerpt is available to MyAlpha after capture; the article is NOT claimed as fully learned",
+  "classifier_notes": [
+   "feed lessons=['admit_wrong'] and themes incl. 失败复盘 put this post in evidence_attribution.external_failure_candidates; the excerpt does not show an admitted mistake — flagged for understanding review, not used as a failure precedent",
+   "claims=[] and symbols=[]: the extractor found no testable rule; the thesis below is pre-registered by the owner's request, not extracted automatically"
+  ]
+ },
+ "author_claims_unverified": [
+  {
+   "quote": "现在的问题不是会不会有底，而是底离我们有多近。我的答案是：很近了，大概就在接下来的三周里。",
+   "origin": "owner-supplied quote in 6137639898 (beyond the persisted excerpt)",
+   "kind": "timing_forecast"
+  },
+  {
+   "quote": "9月16日，美联储三年来第一次加息，联邦基金利率到了3.75%到4.00%。",
+   "origin": "persisted excerpt",
+   "kind": "macro_fact_claim",
+   "verification": "unverified — no free official FOMC feed wired in this repo"
+  },
+  {
+   "quote": "10年期美债收益率9月底收在5.34%……现在还在5.2%以上徘徊。",
+   "origin": "persisted excerpt",
+   "kind": "macro_fact_claim",
+   "verification": "unverified — no 10Y yield series in the canonical archive"
+  },
+  {
+   "quote": "S&P 500 上周五收在7,811点，离历史高点只有一步之遥。",
+   "origin": "persisted excerpt",
+   "kind": "market_fact_claim",
+   "verification": "compatible_with_market_data: SPY close 2026-10-09 = 778.57 (canonical archive, ≈ SPX/10); not an index-level verification"
+  },
+  {
+   "quote": "罗素3000里，超过一半的公司已经从6月高点跌了20%以上。",
+   "origin": "persisted excerpt (author cites Morgan Stanley)",
+   "kind": "breadth_claim",
+   "verification": "unverified — no constituent-level breadth data; IWM used only as a proxy below"
+  },
+  {
+   "quote": "我决定听它的，先转守，准备足够多的现金。",
+   "origin": "persisted excerpt",
+   "kind": "author_self_reported_positioning",
+   "verification": "never 'verified'; not a trade record"
+  }
+ ],
+ "system_inference_vs_author": "Everything under preregistered_test and monitoring is MyAlpha's own falsifiable framing; it is not the author's wording and does not say the author is right.",
+ "preregistered_test": {
+  "locked_at": "2026-10-13T05:00Z (before any window session closes)",
+  "as_of_baseline": {
+   "SPY": {
+    "date": "2026-10-12",
+    "close": 778.099976
+   },
+   "IWM": {
+    "date": "2026-10-09",
+    "close": 278.94,
+    "note": "10-12 bar not yet in the canonical archive — stale by one session"
+   },
+   "VIX": {
+    "date": "2026-10-12",
+    "close": 15.21
+   },
+   "HYG": {
+    "date": "2026-10-09",
+    "close": 77.23
+   },
+   "TLT": {
+    "date": "2026-10-09",
+    "close": 77.98
+   },
+   "source": "data/history/stooq_watchlist.zip (canonical archive)"
+  },
+  "window": {
+   "first_session": "2026-10-13",
+   "last_session": "2026-11-04",
+   "basis": "author '接下来的三周' + owner window 10/13–11/04"
+  },
+  "instruments": {
+   "primary": "IWM (breadth-heavy proxy for the author's Russell 3000 argument)",
+   "secondary": "SPY"
+  },
+  "bottom_definition": "trough = lowest daily close of the instrument within the window (date d*).",
+  "settlement": {
+   "rule": "40 NYSE sessions after the last window session",
+   "date_estimate": "2027-01-04 (standard NYSE holidays; the scorer must recompute from the calendar)"
+  },
+  "outcomes": {
+   "consistent": "no daily close below the window trough during the settlement period AND the trough is ≥3% below the highest close of the 20 sessions before d*",
+   "falsified": "any daily close below the window trough during the settlement period",
+   "not_testable": "trough < 3% below the prior 20-session high (no meaningful decline to call a bottom) — recorded as 'no_decline_in_window', never as a success",
+   "unavailable": "missing bars for the window or settlement period → explicit unavailable, no fill"
+  },
+  "never": "A date alone never confirms a bottom; a close-only trough is not called a bottom until price, breadth and volatility/credit confirm (see monitoring)."
+ },
+ "event_windows": [
+  {
+   "event": "US CPI (September 2026)",
+   "when": "2026-10-14 08:30 ET",
+   "official": "https://www.bls.gov/schedule/news_release/cpi.htm"
+  },
+  {
+   "event": "FOMC meeting / statement",
+   "when": "2026-10-27..28; statement 2026-10-28 14:00 ET",
+   "official": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
+  },
+  {
+   "event": "Treasury financing estimates",
+   "when": "2026-11-02",
+   "official": "https://home.treasury.gov/policy-issues/financing-the-government/quarterly-refunding"
+  },
+  {
+   "event": "US midterm elections",
+   "when": "2026-11-03",
+   "official": "https://www.usa.gov/midterm-elections"
+  },
+  {
+   "event": "Treasury Quarterly Refunding statement",
+   "when": "2026-11-04",
+   "official": "https://home.treasury.gov/policy-issues/financing-the-government/quarterly-refunding"
+  }
+ ],
+ "event_dates_verification": "owner-verified in 6137639898 against the official calendars above; not independently re-fetched by this run (scheduled collection from the official free pages is pending)",
+ "monitoring": {
+  "offsets": [
+   "T-1",
+   "T",
+   "T+1",
+   "T+3",
+   "T+5",
+   "T+10 NYSE sessions"
+  ],
+  "indicators_available_now": [
+   "SPY",
+   "QQQ",
+   "IWM",
+   "VIX (level only)",
+   "HYG",
+   "TLT"
+  ],
+  "indicators_unavailable": [
+   "2Y/10Y yields and curve (no free series wired)",
+   "VIX term structure (no VIX3M series)",
+   "market breadth (no constituent data; IWM/SPY ratio is only a proxy)",
+   "US dollar index",
+   "consensus vs actual CPI (no free consensus source)"
+  ],
+  "confirmation_rule": "'bottom confirmed' requires price (IWM and SPY back above their 20-day MA after d*), breadth proxy (IWM/SPY ratio rising over 5 sessions) and volatility/credit (VIX below its 10-day mean and HYG above its 10-day mean) together; any missing input → 'pending/unavailable', never a confident call",
+  "stale_rule": "if the latest bar is older than the last completed NYSE session, outputs show stale + as_of and no directional conclusion",
+  "status": "specified only — no scheduled job writes event-offset reports yet (next item)"
+ },
+ "missing_or_unverified": [
+  "paragraph-level analysis of the full article: only the 360-char excerpt persists; a runtime re-read pathway (no storage) is not built yet",
+  "event-offset report job and notifications (spec above; not wired)",
+  "official calendar pages not re-fetched by an automated collector",
+  "IWM 10-12 bar missing in the canonical archive (D-05 background collection pending tonight's scheduled Daily)"
+ ]
+}

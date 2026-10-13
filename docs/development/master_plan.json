@@ -2,7 +2,7 @@
  "version": 1,
  "title": "MyAlpha View — Master Execution Plan",
  "issue": "https://github.com/simonzixin8166-wq/quant-dashboard/issues/133",
- "last_updated": "2026-10-13T04:45Z",
+ "last_updated": "2026-10-13T05:00Z",
  "charter": "CLAUDE.md (owner-confirmed 2026-10-11)",
  "statuses": [
   "Done",
@@ -114,6 +114,16 @@
    "id": "6137485275",
    "summary": "P0 emergency: Daily stuck, restore 2026-10-12 + QA; pause Batch B until stable",
    "status": "active"
+  },
+  {
+   "id": "6137639898",
+   "summary": "P1 research (after P0): BrightLine 8524 + CPI/FOMC/election/refunding windows, Shadow thesis",
+   "status": "active"
+  },
+  {
+   "id": "6138128707",
+   "summary": "P2 compliance: shared footer, sources & copyright / risk / correction pages, per-item provenance",
+   "status": "active (waiting for production stability)"
   }
  ],
  "tasks": [
@@ -1141,6 +1151,81 @@
    "next": "—",
    "waiting_for": "owner",
    "last_verified": "2026-10-12T04:40Z"
+  },
+  {
+   "id": "R-01",
+   "title": "BrightLine 8524 provenance check + pre-registered falsifiable 'bottom within ~3 weeks' Shadow thesis + official event windows",
+   "area": "Research tasks",
+   "priority": 1,
+   "status": "In progress",
+   "stages": [
+    "instruction_published",
+    "claude_acked"
+   ],
+   "instructions": [
+    "6137639898"
+   ],
+   "depends_on": [
+    "P0-INC-1013"
+   ],
+   "evidence": {
+    "prs": [],
+    "runs": [
+     "wxc-bot feed record 56cd7e041adfe7bc43dc captured 2026-10-13T03:10:58Z (scheduled_blog_scan_complete, 3315 chars seen, 360-char excerpt persisted); source_store admission_class=genuine_forward"
+    ]
+   },
+   "acceptance": "research/shadow_theses/brightline_8524_bottom_window_shadow_v0_1.json: real capture proof, short quotes, author vs system separated, locked trough definition + settlement window, production_use=false; article marked partial, not fully learned",
+   "next": "paragraph-level analysis needs a runtime re-read pathway (no storage); scoring runs at settlement (≈2027-01-04)",
+   "last_verified": "2026-10-13T05:00Z"
+  },
+  {
+   "id": "R-02",
+   "title": "Event-offset monitor (T-1..T+10) for CPI / FOMC / refunding / election with stale-aware confirm/conflict/pending output",
+   "area": "Research tasks",
+   "priority": 2,
+   "status": "Not started",
+   "stages": [
+    "instruction_published",
+    "claude_acked"
+   ],
+   "instructions": [
+    "6137639898"
+   ],
+   "depends_on": [
+    "R-01"
+   ],
+   "evidence": {
+    "prs": [],
+    "runs": []
+   },
+   "acceptance": "scheduled job reuses Daily/research-close; outputs only from real bars with as_of; missing yields/breadth/VIX term shown unavailable; no homepage module",
+   "next": "build after R-01 merges; first real output after CPI 2026-10-14 close",
+   "last_verified": "2026-10-13T05:00Z"
+  },
+  {
+   "id": "C-01",
+   "title": "Shared footer (sources/copyright, risk disclaimer, correction & contact) + full Chinese policy page + per-item provenance labels",
+   "area": "Compliance & UX",
+   "priority": 2,
+   "status": "Waiting",
+   "stages": [
+    "instruction_published",
+    "claude_acked"
+   ],
+   "instructions": [
+    "6138128707"
+   ],
+   "depends_on": [
+    "P0-INC-1013"
+   ],
+   "evidence": {
+    "prs": [],
+    "runs": []
+   },
+   "waiting_for": "production stability: first successful event=schedule Daily after the P0 (2026-10-13 session) + QA PASS",
+   "acceptance": "PR/CI/Pages/QA PASS; desktop + 390px; three links clickable, no 404; homepage gold/DCA layout, feedback email, APP_VERSION 6.9.0 unchanged; no claim of authorization; any non-compliant full-text cache raised separately",
+   "next": "implement once the scheduled Daily is green",
+   "last_verified": "2026-10-13T05:00Z"
   }
  ]
 }

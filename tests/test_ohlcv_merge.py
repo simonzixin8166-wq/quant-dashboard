@@ -27,8 +27,55 @@ res, _ = m.merge_bar(hist, *m.normalize_bar({**row, "open": 200, "high": 201, "l
 assert res["result"] == "quarantined"
 # input history is never mutated
 assert hist == {"2026-10-09": (81.72, 81.81, 80.37, 81.28, 1e6)}
-# the current production helper still back-fills close-only rows → this is the D-06 defect the migration removes
+# D-06 wired: the production helper no longer back-fills close-only rows
+import json, tempfile  # noqa: E402
+import pandas as pd  # noqa: E402
 import local_history_agent as lha  # noqa: E402
 legacy = lha.dashboard_bar({"core": {"TQQQ": {"date": "2026-10-12", "close": 82.0}}}, "TQQQ")
-assert legacy and float(legacy["open"]) == float(legacy["high"]) == float(legacy["low"]) == 82.0, "documented legacy behaviour changed; update D-06 status"
+assert legacy["open"] is None and legacy["high"] is None and legacy["low"] is None and legacy["close"] == 82.0
+assert m.normalize_bar(legacy, E)[0] == "close_only"
+
+# D-05 / D-06 end-to-end on a temp archive: display-independent universe, close-only never written,
+# fallback accepted only with a verified price basis, missing stays missing, re-run idempotent.
+def _df(rows):
+    d = pd.DataFrame(rows, columns=["date", "open", "high", "low", "close", "volume"])
+    d["date"] = pd.to_datetime(d["date"]); return d.set_index("date")
+base = [("2026-10-08", 10, 11, 9, 10.5, 1), ("2026-10-09", 10.5, 11, 10, 10.8, 1)]
+with tempfile.TemporaryDirectory() as t:
+    t = Path(t)
+    lha.ARCHIVE, lha.DASHBOARD, lha.REGISTRY = t / "a.zip", t / "data.json", t / "reg.json"
+    lha.REGISTRY.write_text(json.dumps({"universes": {"data_collection_universe": ["AAPL", "TQQQ", "SPY", "MU", "XLE", "NEWX"]}}))
+    lha.DASHBOARD.write_text(json.dumps({
+        "stocks": {"SPY": {"date": "2026-10-12", "open": 10.9, "high": 11.2, "low": 10.7, "close": 11.0, "volume": 5}},
+        "core": {"TQQQ": {"date": "2026-10-12", "close": 12.0}}}))
+    store = {s: _df(base) for s in ("AAPL", "TQQQ", "SPY", "MU", "XLE")}
+    lha.write_archive(store)
+    calls = []
+    def fake(symbols):
+        calls.append(sorted(symbols))
+        ok = [{"date": "2026-10-09", "open": 10.5, "high": 11, "low": 10, "close": 10.81, "volume": 1},
+              {"date": "2026-10-12", "open": 10.8, "high": 11.3, "low": 10.6, "close": 11.1, "volume": 2},
+              {"date": "2026-10-13", "open": 11, "high": 11.5, "low": 10.9, "close": 11.2, "volume": 2}]  # not final
+        return {"AAPL": ok, "TQQQ": [], "MU": [{**r, "close": r["close"] * 1.2, "high": r["high"] * 1.2} for r in ok],
+                "XLE": [ok[1]]}
+    st = lha.read_archive()
+    r = lha.append_latest(st, fetch_fallback=fake, expected="2026-10-12")
+    app = {(a["symbol"], a["date"]): a["source"] for a in r["appended"]}
+    assert app[("SPY", "2026-10-12")].startswith("docs/data.json stocks")              # displayed: full OHLC from site data
+    assert app[("AAPL", "2026-10-12")].startswith("Yahoo")                             # not displayed: still updated
+    assert ("AAPL", "2026-10-13") not in app                                            # unfinished session never written
+    assert any(c["symbol"] == "TQQQ" for c in r["close_only"]) and "TQQQ" in r["missing"]  # close-only → stale, not a flat bar
+    q = {x["symbol"]: x["reason"] for x in r["quarantined"]}
+    assert q["MU"] == "fallback_basis_mismatch" and q["XLE"] == "fallback_basis_unverified"
+    assert "NEWX" in r["missing"] and calls == [["AAPL", "MU", "TQQQ", "XLE"]]
+    st2 = lha.read_archive()
+    assert st2["AAPL"].index.max() == pd.Timestamp("2026-10-12") and st2["TQQQ"].index.max() == pd.Timestamp("2026-10-09")
+    assert st2["MU"].index.max() == pd.Timestamp("2026-10-09") and "NEWX" not in st2
+    r2 = lha.append_latest(st2, fetch_fallback=fake, expected="2026-10-12")         # idempotent re-run
+    assert not r2["appended"] and "SPY" in r2["unchanged"]
+    # a different value for an already archived date is quarantined, never overwritten
+    lha.DASHBOARD.write_text(json.dumps({"stocks": {"SPY": {"date": "2026-10-12", "open": 10.9, "high": 11.2, "low": 10.7, "close": 11.05, "volume": 5}}}))
+    r3 = lha.append_latest(lha.read_archive(), fetch_fallback=lambda s: {}, expected="2026-10-12")
+    assert any(x["symbol"] == "SPY" and x["reason"] == "conflict" for x in r3["quarantined"])
+    assert float(lha.read_archive()["SPY"].loc["2026-10-12", "close"]) == 11.0
 print("test_ohlcv_merge OK")

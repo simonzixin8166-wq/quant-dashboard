@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Fail-closed daily OHLCV merge rules (#133 6117657723; tasks D-05 / D-06). Pure functions, NOT wired yet.
+"""Fail-closed daily OHLCV merge rules (#133 6117657723; tasks D-05 / D-06). Pure functions, wired into
+local_history_agent.append_latest (data-collection universe; site data first, free Yahoo fallback with basis check).
 
 Replaces the current `local_history_agent.dashboard_bar` behaviour (which back-fills open/high/low with the close
 when a row has only a close — the source of TQQQ's synthetic flat bars) once P0-05 is verified:

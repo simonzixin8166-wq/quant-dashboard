@@ -1,6 +1,6 @@
 {
   "version": "5.4.0",
-  "generated_at": "2026-10-13T16:03:40.033334+00:00",
+  "generated_at": "2026-10-14T00:07:08.365176+00:00",
   "as_of": "2026-10-13",
   "architecture": [
     "market_context",
@@ -30,13 +30,13 @@
         "name": "yield_curve",
         "score": 2,
         "max": 15,
-        "reason": "T10Y2Y=0.44"
+        "reason": "T10Y2Y=0.42"
       },
       {
         "name": "real_yield",
         "score": 15,
         "max": 15,
-        "reason": "DFII10=2.87"
+        "reason": "DFII10=2.91"
       },
       {
         "name": "inflation",
@@ -66,12 +66,12 @@
   },
   "situation_memory": [
     {
-      "timestamp": "2026-10-12",
+      "timestamp": "2026-10-13",
       "symbol": "GOOG",
-      "price": 348.97,
-      "drawdown": -0.13721660444532346,
-      "rsi": 56.9,
-      "score": 73.9,
+      "price": 349.51999,
+      "drawdown": -0.13585682498083917,
+      "rsi": 57.4,
+      "score": 75.0,
       "stage": "二次启动",
       "weekly": "多头",
       "zone": null,
@@ -97,13 +97,13 @@
             "name": "yield_curve",
             "score": 2,
             "max": 15,
-            "reason": "T10Y2Y=0.44"
+            "reason": "T10Y2Y=0.42"
           },
           {
             "name": "real_yield",
             "score": 15,
             "max": 15,
-            "reason": "DFII10=2.87"
+            "reason": "DFII10=2.91"
           },
           {
             "name": "inflation",
@@ -133,9 +133,180 @@
       },
       "market_regime": "正常",
       "historical_stage_evidence": {
-        "n60": 1544,
+        "n60": 1542,
         "median60": 0.03350858252027622,
-        "positive_rate60": 0.6126943005181347,
+        "positive_rate60": 0.6128404669260701,
+        "label": "历史表现偏正"
+      },
+      "similarity": {
+        "method": "technical-v1-stage+pulse+weekly+zone",
+        "n": 9,
+        "median_return_60": 0.008342282908867515,
+        "positive_rate_60": 0.5555555555555556,
+        "median_mae_60": -0.20331339162448225,
+        "matches": [
+          {
+            "similarity": 99.8,
+            "symbol": "XLF",
+            "date": "2026-08-25",
+            "stage": "二次启动",
+            "return_60": null,
+            "mae_60": null
+          },
+          {
+            "similarity": 99.8,
+            "symbol": "IWM",
+            "date": "2026-08-17",
+            "stage": "二次启动",
+            "return_60": null,
+            "mae_60": null
+          },
+          {
+            "similarity": 99.6,
+            "symbol": "MSFT",
+            "date": "2026-09-17",
+            "stage": "二次启动",
+            "return_60": null,
+            "mae_60": null
+          },
+          {
+            "similarity": 99.2,
+            "symbol": "NBIS",
+            "date": "2026-09-21",
+            "stage": "二次启动",
+            "return_60": null,
+            "mae_60": null
+          },
+          {
+            "similarity": 99.0,
+            "symbol": "LITE",
+            "date": "2026-08-25",
+            "stage": "二次启动",
+            "return_60": null,
+            "mae_60": null
+          },
+          {
+            "similarity": 97.8,
+            "symbol": "AAPL",
+            "date": "2026-07-02",
+            "stage": "二次启动",
+            "return_60": 0.09645854259145259,
+            "mae_60": -0.020672002073680473
+          },
+          {
+            "similarity": 97.2,
+            "symbol": "SMH",
+            "date": "2026-10-06",
+            "stage": "二次启动",
+            "return_60": null,
+            "mae_60": null
+          },
+          {
+            "similarity": 97.0,
+            "symbol": "SPY",
+            "date": "2026-10-06",
+            "stage": "二次启动",
+            "return_60": null,
+            "mae_60": null
+          },
+          {
+            "similarity": 97.0,
+            "symbol": "MSFT",
+            "date": "2026-08-31",
+            "stage": "二次启动",
+            "return_60": null,
+            "mae_60": null
+          },
+          {
+            "similarity": 96.9,
+            "symbol": "VOO",
+            "date": "2026-10-06",
+            "stage": "二次启动",
+            "return_60": null,
+            "mae_60": null
+          }
+        ]
+      },
+      "contradictions": [
+        {
+          "type": "breadth_divergence",
+          "severity": "medium",
+          "message": "个股趋势偏强，但大盘宽度出现背离。"
+        }
+      ],
+      "research_priority": 71.0
+    },
+    {
+      "timestamp": "2026-10-13",
+      "symbol": "VOO",
+      "price": 715.20001,
+      "drawdown": -0.00455128277664818,
+      "rsi": 58.8,
+      "score": 74.4,
+      "stage": "二次启动",
+      "weekly": "多头",
+      "zone": null,
+      "structure": "HH/LL",
+      "supertrend": "多头",
+      "data_confidence": "中（主源完整，二次源日期落后一交易日）",
+      "macro": {
+        "rates_regime": "RISING",
+        "real_yield_regime": "RISING",
+        "yield_curve": "NORMAL",
+        "inflation_regime": "STABLE",
+        "credit_regime": "EASY",
+        "financial_conditions": "NEUTRAL",
+        "macro_risk_score": 34.0,
+        "components": [
+          {
+            "name": "policy_rate",
+            "score": 2,
+            "max": 15,
+            "reason": "DFF=3.88"
+          },
+          {
+            "name": "yield_curve",
+            "score": 2,
+            "max": 15,
+            "reason": "T10Y2Y=0.42"
+          },
+          {
+            "name": "real_yield",
+            "score": 15,
+            "max": 15,
+            "reason": "DFII10=2.91"
+          },
+          {
+            "name": "inflation",
+            "score": 8,
+            "max": 15,
+            "reason": "inflation=0.03353016322755642"
+          },
+          {
+            "name": "unemployment",
+            "score": 4,
+            "max": 15,
+            "reason": "UNRATE=4.2"
+          },
+          {
+            "name": "credit",
+            "score": 2,
+            "max": 15,
+            "reason": "HY_OAS=3.11"
+          },
+          {
+            "name": "financial_conditions",
+            "score": 1,
+            "max": 10,
+            "reason": "NFCI=-0.494"
+          }
+        ]
+      },
+      "market_regime": "正常",
+      "historical_stage_evidence": {
+        "n60": 1542,
+        "median60": 0.03350858252027622,
+        "positive_rate60": 0.6128404669260701,
         "label": "历史表现偏正"
       },
       "similarity": {
@@ -155,6 +326,14 @@
           },
           {
             "similarity": 99.6,
+            "symbol": "IWM",
+            "date": "2026-08-17",
+            "stage": "二次启动",
+            "return_60": null,
+            "mae_60": null
+          },
+          {
+            "similarity": 99.4,
             "symbol": "NBIS",
             "date": "2026-09-21",
             "stage": "二次启动",
@@ -163,14 +342,6 @@
           },
           {
             "similarity": 99.4,
-            "symbol": "IWM",
-            "date": "2026-08-17",
-            "stage": "二次启动",
-            "return_60": null,
-            "mae_60": null
-          },
-          {
-            "similarity": 99.3,
             "symbol": "MSFT",
             "date": "2026-09-17",
             "stage": "二次启动",
@@ -178,7 +349,7 @@
             "mae_60": null
           },
           {
-            "similarity": 99.3,
+            "similarity": 99.2,
             "symbol": "LITE",
             "date": "2026-08-25",
             "stage": "二次启动",
@@ -186,15 +357,7 @@
             "mae_60": null
           },
           {
-            "similarity": 97.4,
-            "symbol": "SPY",
-            "date": "2026-10-06",
-            "stage": "二次启动",
-            "return_60": null,
-            "mae_60": null
-          },
-          {
-            "similarity": 97.4,
+            "similarity": 97.6,
             "symbol": "AAPL",
             "date": "2026-07-02",
             "stage": "二次启动",
@@ -203,185 +366,6 @@
           },
           {
             "similarity": 97.2,
-            "symbol": "VOO",
-            "date": "2026-10-06",
-            "stage": "二次启动",
-            "return_60": null,
-            "mae_60": null
-          },
-          {
-            "similarity": 97.1,
-            "symbol": "TSM",
-            "date": "2026-06-16",
-            "stage": "二次启动",
-            "return_60": 0.017401310382077373,
-            "mae_60": -0.12014184064063116
-          },
-          {
-            "similarity": 97.0,
-            "symbol": "VOO",
-            "date": "2026-09-21",
-            "stage": "二次启动",
-            "return_60": null,
-            "mae_60": null
-          }
-        ]
-      },
-      "contradictions": [
-        {
-          "type": "breadth_divergence",
-          "severity": "medium",
-          "message": "个股趋势偏强，但大盘宽度出现背离。"
-        }
-      ],
-      "research_priority": 71.0
-    },
-    {
-      "timestamp": "2026-10-12",
-      "symbol": "VOO",
-      "price": 715.13,
-      "drawdown": -0.004648725958581124,
-      "rsi": 58.7,
-      "score": 64.3,
-      "stage": "二次启动",
-      "weekly": "多头",
-      "zone": null,
-      "structure": "HH/LL",
-      "supertrend": "多头",
-      "data_confidence": "中（主源完整，二次源日期落后一交易日）",
-      "macro": {
-        "rates_regime": "RISING",
-        "real_yield_regime": "RISING",
-        "yield_curve": "NORMAL",
-        "inflation_regime": "STABLE",
-        "credit_regime": "EASY",
-        "financial_conditions": "NEUTRAL",
-        "macro_risk_score": 34.0,
-        "components": [
-          {
-            "name": "policy_rate",
-            "score": 2,
-            "max": 15,
-            "reason": "DFF=3.88"
-          },
-          {
-            "name": "yield_curve",
-            "score": 2,
-            "max": 15,
-            "reason": "T10Y2Y=0.44"
-          },
-          {
-            "name": "real_yield",
-            "score": 15,
-            "max": 15,
-            "reason": "DFII10=2.87"
-          },
-          {
-            "name": "inflation",
-            "score": 8,
-            "max": 15,
-            "reason": "inflation=0.03353016322755642"
-          },
-          {
-            "name": "unemployment",
-            "score": 4,
-            "max": 15,
-            "reason": "UNRATE=4.2"
-          },
-          {
-            "name": "credit",
-            "score": 2,
-            "max": 15,
-            "reason": "HY_OAS=3.11"
-          },
-          {
-            "name": "financial_conditions",
-            "score": 1,
-            "max": 10,
-            "reason": "NFCI=-0.494"
-          }
-        ]
-      },
-      "market_regime": "正常",
-      "historical_stage_evidence": {
-        "n60": 1544,
-        "median60": 0.03350858252027622,
-        "positive_rate60": 0.6126943005181347,
-        "label": "历史表现偏正"
-      },
-      "similarity": {
-        "method": "technical-v1-stage+pulse+weekly+zone",
-        "n": 6,
-        "median_return_60": 0.027414948766300462,
-        "positive_rate_60": 0.6666666666666666,
-        "median_mae_60": -0.0908380704707703,
-        "matches": [
-          {
-            "similarity": 99.9,
-            "symbol": "VGT",
-            "date": "2026-08-27",
-            "stage": "二次启动",
-            "return_60": null,
-            "mae_60": null
-          },
-          {
-            "similarity": 99.9,
-            "symbol": "HOOD",
-            "date": "2026-08-24",
-            "stage": "二次启动",
-            "return_60": null,
-            "mae_60": null
-          },
-          {
-            "similarity": 99.9,
-            "symbol": "AMD",
-            "date": "2026-07-22",
-            "stage": "二次启动",
-            "return_60": null,
-            "mae_60": null
-          },
-          {
-            "similarity": 99.8,
-            "symbol": "SMH",
-            "date": "2026-09-21",
-            "stage": "二次启动",
-            "return_60": null,
-            "mae_60": null
-          },
-          {
-            "similarity": 99.8,
-            "symbol": "IWM",
-            "date": "2026-06-12",
-            "stage": "二次启动",
-            "return_60": -0.007885304659498216,
-            "mae_60": -0.014951356886840794
-          },
-          {
-            "similarity": 99.7,
-            "symbol": "TSM",
-            "date": "2026-06-16",
-            "stage": "二次启动",
-            "return_60": 0.017401310382077373,
-            "mae_60": -0.12014184064063116
-          },
-          {
-            "similarity": 99.6,
-            "symbol": "LITE",
-            "date": "2026-09-21",
-            "stage": "二次启动",
-            "return_60": null,
-            "mae_60": null
-          },
-          {
-            "similarity": 99.6,
-            "symbol": "DIA",
-            "date": "2026-08-25",
-            "stage": "二次启动",
-            "return_60": null,
-            "mae_60": null
-          },
-          {
-            "similarity": 99.4,
             "symbol": "SPY",
             "date": "2026-10-06",
             "stage": "二次启动",
@@ -389,9 +373,25 @@
             "mae_60": null
           },
           {
-            "similarity": 98.9,
-            "symbol": "NVDA",
-            "date": "2026-09-17",
+            "similarity": 97.0,
+            "symbol": "SMH",
+            "date": "2026-10-06",
+            "stage": "二次启动",
+            "return_60": null,
+            "mae_60": null
+          },
+          {
+            "similarity": 96.9,
+            "symbol": "TSM",
+            "date": "2026-06-16",
+            "stage": "二次启动",
+            "return_60": 0.017401310382077373,
+            "mae_60": -0.12014184064063116
+          },
+          {
+            "similarity": 96.8,
+            "symbol": "MSFT",
+            "date": "2026-08-31",
             "stage": "二次启动",
             "return_60": null,
             "mae_60": null
@@ -408,12 +408,12 @@
       "research_priority": 71.0
     },
     {
-      "timestamp": "2026-10-12",
+      "timestamp": "2026-10-13",
       "symbol": "SPY",
-      "price": 778.099976,
-      "drawdown": -0.004503497863411976,
-      "rsi": 59.3,
-      "score": 74.7,
+      "price": 778.01001,
+      "drawdown": -0.004618599831120007,
+      "rsi": 59.2,
+      "score": 74.6,
       "stage": "二次启动",
       "weekly": "多头",
       "zone": null,
@@ -439,13 +439,13 @@
             "name": "yield_curve",
             "score": 2,
             "max": 15,
-            "reason": "T10Y2Y=0.44"
+            "reason": "T10Y2Y=0.42"
           },
           {
             "name": "real_yield",
             "score": 15,
             "max": 15,
-            "reason": "DFII10=2.87"
+            "reason": "DFII10=2.91"
           },
           {
             "name": "inflation",
@@ -475,9 +475,9 @@
       },
       "market_regime": "正常",
       "historical_stage_evidence": {
-        "n60": 1544,
+        "n60": 1542,
         "median60": 0.03350858252027622,
-        "positive_rate60": 0.6126943005181347,
+        "positive_rate60": 0.6128404669260701,
         "label": "历史表现偏正"
       },
       "similarity": {
@@ -488,7 +488,7 @@
         "median_mae_60": -0.20331339162448225,
         "matches": [
           {
-            "similarity": 99.8,
+            "similarity": 99.9,
             "symbol": "XLF",
             "date": "2026-08-25",
             "stage": "二次启动",
@@ -512,7 +512,7 @@
             "mae_60": null
           },
           {
-            "similarity": 99.3,
+            "similarity": 99.4,
             "symbol": "NBIS",
             "date": "2026-09-21",
             "stage": "二次启动",
@@ -528,7 +528,7 @@
             "mae_60": null
           },
           {
-            "similarity": 97.7,
+            "similarity": 97.6,
             "symbol": "AAPL",
             "date": "2026-07-02",
             "stage": "二次启动",
@@ -536,7 +536,7 @@
             "mae_60": -0.020672002073680473
           },
           {
-            "similarity": 97.2,
+            "similarity": 97.1,
             "symbol": "SMH",
             "date": "2026-10-06",
             "stage": "二次启动",
@@ -552,20 +552,20 @@
             "mae_60": null
           },
           {
-            "similarity": 96.9,
-            "symbol": "MSFT",
-            "date": "2026-08-31",
+            "similarity": 96.8,
+            "symbol": "VOO",
+            "date": "2026-09-21",
             "stage": "二次启动",
             "return_60": null,
             "mae_60": null
           },
           {
             "similarity": 96.8,
-            "symbol": "TSM",
-            "date": "2026-06-16",
+            "symbol": "MSFT",
+            "date": "2026-08-31",
             "stage": "二次启动",
-            "return_60": 0.017401310382077373,
-            "mae_60": -0.12014184064063116
+            "return_60": null,
+            "mae_60": null
           }
         ]
       },
@@ -579,183 +579,12 @@
       "research_priority": 71.0
     },
     {
-      "timestamp": "2026-10-12",
-      "symbol": "TSLA",
-      "price": 378.029999,
-      "drawdown": -0.2421666568202927,
-      "rsi": 56.4,
-      "score": 76.7,
-      "stage": "二次启动",
-      "weekly": "过渡",
-      "zone": null,
-      "structure": "HH/HL",
-      "supertrend": "多头",
-      "data_confidence": "中（主源完整，二次源日期落后一交易日）",
-      "macro": {
-        "rates_regime": "RISING",
-        "real_yield_regime": "RISING",
-        "yield_curve": "NORMAL",
-        "inflation_regime": "STABLE",
-        "credit_regime": "EASY",
-        "financial_conditions": "NEUTRAL",
-        "macro_risk_score": 34.0,
-        "components": [
-          {
-            "name": "policy_rate",
-            "score": 2,
-            "max": 15,
-            "reason": "DFF=3.88"
-          },
-          {
-            "name": "yield_curve",
-            "score": 2,
-            "max": 15,
-            "reason": "T10Y2Y=0.44"
-          },
-          {
-            "name": "real_yield",
-            "score": 15,
-            "max": 15,
-            "reason": "DFII10=2.87"
-          },
-          {
-            "name": "inflation",
-            "score": 8,
-            "max": 15,
-            "reason": "inflation=0.03353016322755642"
-          },
-          {
-            "name": "unemployment",
-            "score": 4,
-            "max": 15,
-            "reason": "UNRATE=4.2"
-          },
-          {
-            "name": "credit",
-            "score": 2,
-            "max": 15,
-            "reason": "HY_OAS=3.11"
-          },
-          {
-            "name": "financial_conditions",
-            "score": 1,
-            "max": 10,
-            "reason": "NFCI=-0.494"
-          }
-        ]
-      },
-      "market_regime": "正常",
-      "historical_stage_evidence": {
-        "n60": 1544,
-        "median60": 0.03350858252027622,
-        "positive_rate60": 0.6126943005181347,
-        "label": "历史表现偏正"
-      },
-      "similarity": {
-        "method": "technical-v1-stage+pulse+weekly+zone",
-        "n": 3,
-        "median_return_60": 0.05018208011525083,
-        "positive_rate_60": 0.6666666666666666,
-        "median_mae_60": -0.0930009204049781,
-        "matches": [
-          {
-            "similarity": 99.3,
-            "symbol": "GLD",
-            "date": "2026-08-25",
-            "stage": "二次启动",
-            "return_60": null,
-            "mae_60": null
-          },
-          {
-            "similarity": 98.9,
-            "symbol": "AMZN",
-            "date": "2026-08-03",
-            "stage": "二次启动",
-            "return_60": null,
-            "mae_60": null
-          },
-          {
-            "similarity": 97.8,
-            "symbol": "XLE",
-            "date": "2026-10-08",
-            "stage": "二次启动",
-            "return_60": null,
-            "mae_60": null
-          },
-          {
-            "similarity": 97.4,
-            "symbol": "AAPL",
-            "date": "2026-09-03",
-            "stage": "二次启动",
-            "return_60": null,
-            "mae_60": null
-          },
-          {
-            "similarity": 97.4,
-            "symbol": "SPY",
-            "date": "2026-08-04",
-            "stage": "二次启动",
-            "return_60": null,
-            "mae_60": null
-          },
-          {
-            "similarity": 96.8,
-            "symbol": "SOFI",
-            "date": "2026-07-08",
-            "stage": "二次启动",
-            "return_60": -0.11139311900733218,
-            "mae_60": -0.13987591652566278
-          },
-          {
-            "similarity": 95.7,
-            "symbol": "AVGO",
-            "date": "2026-08-05",
-            "stage": "二次启动",
-            "return_60": null,
-            "mae_60": null
-          },
-          {
-            "similarity": 95.5,
-            "symbol": "IREN",
-            "date": "2026-09-21",
-            "stage": "二次启动",
-            "return_60": null,
-            "mae_60": null
-          },
-          {
-            "similarity": 95.2,
-            "symbol": "SPCX",
-            "date": "2026-09-22",
-            "stage": "二次启动",
-            "return_60": null,
-            "mae_60": null
-          },
-          {
-            "similarity": 93.6,
-            "symbol": "NBIS",
-            "date": "2026-08-13",
-            "stage": "二次启动",
-            "return_60": null,
-            "mae_60": null
-          }
-        ]
-      },
-      "contradictions": [
-        {
-          "type": "breadth_divergence",
-          "severity": "medium",
-          "message": "个股趋势偏强，但大盘宽度出现背离。"
-        }
-      ],
-      "research_priority": 66.0
-    },
-    {
-      "timestamp": "2026-10-12",
+      "timestamp": "2026-10-13",
       "symbol": "AMZN",
-      "price": 259.53,
-      "drawdown": -0.09634404260640539,
-      "rsi": 55.6,
-      "score": 22.8,
+      "price": 258.57999,
+      "drawdown": -0.09965187675306841,
+      "rsi": 54.4,
+      "score": 22.3,
       "stage": "趋势延续",
       "weekly": "多头",
       "zone": null,
@@ -781,13 +610,13 @@
             "name": "yield_curve",
             "score": 2,
             "max": 15,
-            "reason": "T10Y2Y=0.44"
+            "reason": "T10Y2Y=0.42"
           },
           {
             "name": "real_yield",
             "score": 15,
             "max": 15,
-            "reason": "DFII10=2.87"
+            "reason": "DFII10=2.91"
           },
           {
             "name": "inflation",
@@ -824,29 +653,13 @@
       },
       "similarity": {
         "method": "technical-v1-stage+pulse+weekly+zone",
-        "n": 12,
-        "median_return_60": -0.038716343778470275,
-        "positive_rate_60": 0.16666666666666666,
-        "median_mae_60": -0.13440736415240861,
+        "n": 13,
+        "median_return_60": -0.040221479314667685,
+        "positive_rate_60": 0.15384615384615385,
+        "median_mae_60": -0.13890457368718245,
         "matches": [
           {
             "similarity": 100.0,
-            "symbol": "SMH",
-            "date": "2026-08-14",
-            "stage": "趋势延续",
-            "return_60": null,
-            "mae_60": null
-          },
-          {
-            "similarity": 99.9,
-            "symbol": "NVDA",
-            "date": "2026-07-22",
-            "stage": "趋势延续",
-            "return_60": null,
-            "mae_60": null
-          },
-          {
-            "similarity": 99.8,
             "symbol": "MU",
             "date": "2026-08-21",
             "stage": "趋势延续",
@@ -854,7 +667,7 @@
             "mae_60": null
           },
           {
-            "similarity": 99.8,
+            "similarity": 100.0,
             "symbol": "TSM",
             "date": "2026-08-14",
             "stage": "趋势延续",
@@ -862,7 +675,23 @@
             "mae_60": null
           },
           {
-            "similarity": 99.7,
+            "similarity": 99.9,
+            "symbol": "NBIS",
+            "date": "2026-08-27",
+            "stage": "趋势延续",
+            "return_60": null,
+            "mae_60": null
+          },
+          {
+            "similarity": 99.9,
+            "symbol": "SMH",
+            "date": "2026-08-14",
+            "stage": "趋势延续",
+            "return_60": null,
+            "mae_60": null
+          },
+          {
+            "similarity": 99.8,
             "symbol": "XLK",
             "date": "2026-09-01",
             "stage": "趋势延续",
@@ -871,30 +700,6 @@
           },
           {
             "similarity": 99.7,
-            "symbol": "NBIS",
-            "date": "2026-08-27",
-            "stage": "趋势延续",
-            "return_60": null,
-            "mae_60": null
-          },
-          {
-            "similarity": 99.7,
-            "symbol": "SMH",
-            "date": "2026-06-12",
-            "stage": "趋势延续",
-            "return_60": -0.07366611124374534,
-            "mae_60": -0.18668949069276908
-          },
-          {
-            "similarity": 99.5,
-            "symbol": "SPY",
-            "date": "2026-09-22",
-            "stage": "趋势延续",
-            "return_60": null,
-            "mae_60": null
-          },
-          {
-            "similarity": 99.5,
             "symbol": "IWM",
             "date": "2026-07-27",
             "stage": "趋势延续",
@@ -902,12 +707,36 @@
             "mae_60": null
           },
           {
-            "similarity": 99.5,
+            "similarity": 99.7,
+            "symbol": "NVDA",
+            "date": "2026-07-22",
+            "stage": "趋势延续",
+            "return_60": null,
+            "mae_60": null
+          },
+          {
+            "similarity": 99.7,
             "symbol": "XLK",
             "date": "2026-06-18",
             "stage": "趋势延续",
             "return_60": -0.040221479314667685,
             "mae_60": -0.12991015461763478
+          },
+          {
+            "similarity": 99.5,
+            "symbol": "SMH",
+            "date": "2026-06-12",
+            "stage": "趋势延续",
+            "return_60": -0.07366611124374534,
+            "mae_60": -0.18668949069276908
+          },
+          {
+            "similarity": 99.4,
+            "symbol": "SPY",
+            "date": "2026-09-22",
+            "stage": "趋势延续",
+            "return_60": null,
+            "mae_60": null
           }
         ]
       },
@@ -921,12 +750,12 @@
       "research_priority": 64.0
     },
     {
-      "timestamp": "2026-10-12",
-      "symbol": "SPCX",
-      "price": 163.42,
-      "drawdown": -0.2757489806771849,
-      "rsi": 59.6,
-      "score": 94.3,
+      "timestamp": "2026-10-13",
+      "symbol": "MSFT",
+      "price": 543.45001,
+      "drawdown": -0.01854720898001916,
+      "rsi": 70.7,
+      "score": 100.0,
       "stage": "高位钝化",
       "weekly": "多头",
       "zone": null,
@@ -952,13 +781,13 @@
             "name": "yield_curve",
             "score": 2,
             "max": 15,
-            "reason": "T10Y2Y=0.44"
+            "reason": "T10Y2Y=0.42"
           },
           {
             "name": "real_yield",
             "score": 15,
             "max": 15,
-            "reason": "DFII10=2.87"
+            "reason": "DFII10=2.91"
           },
           {
             "name": "inflation",
@@ -999,171 +828,6 @@
         "median_return_60": -0.04243486467356494,
         "positive_rate_60": 0.3333333333333333,
         "median_mae_60": -0.2154657955901752,
-        "matches": [
-          {
-            "similarity": 100.0,
-            "symbol": "SPY",
-            "date": "2026-08-14",
-            "stage": "高位钝化",
-            "return_60": null,
-            "mae_60": null
-          },
-          {
-            "similarity": 99.9,
-            "symbol": "INTC",
-            "date": "2026-06-30",
-            "stage": "高位钝化",
-            "return_60": -0.08766024493303726,
-            "mae_60": -0.4135930673923942
-          },
-          {
-            "similarity": 99.8,
-            "symbol": "XLE",
-            "date": "2026-08-25",
-            "stage": "高位钝化",
-            "return_60": null,
-            "mae_60": null
-          },
-          {
-            "similarity": 99.8,
-            "symbol": "VOO",
-            "date": "2026-08-14",
-            "stage": "高位钝化",
-            "return_60": null,
-            "mae_60": null
-          },
-          {
-            "similarity": 99.4,
-            "symbol": "HOOD",
-            "date": "2026-07-10",
-            "stage": "高位钝化",
-            "return_60": 0.0002679289095293136,
-            "mae_60": -0.22693578637134948
-          },
-          {
-            "similarity": 99.3,
-            "symbol": "NOW",
-            "date": "2026-09-03",
-            "stage": "高位钝化",
-            "return_60": null,
-            "mae_60": null
-          },
-          {
-            "similarity": 98.2,
-            "symbol": "TSM",
-            "date": "2026-06-30",
-            "stage": "高位钝化",
-            "return_60": -0.055321732939673796,
-            "mae_60": -0.2154657955901752
-          },
-          {
-            "similarity": 98.1,
-            "symbol": "MSFT",
-            "date": "2026-10-08",
-            "stage": "高位钝化",
-            "return_60": null,
-            "mae_60": null
-          },
-          {
-            "similarity": 98.1,
-            "symbol": "META",
-            "date": "2026-09-30",
-            "stage": "高位钝化",
-            "return_60": null,
-            "mae_60": null
-          },
-          {
-            "similarity": 98.1,
-            "symbol": "DIA",
-            "date": "2026-08-10",
-            "stage": "高位钝化",
-            "return_60": null,
-            "mae_60": null
-          }
-        ]
-      },
-      "contradictions": [],
-      "research_priority": 56.0
-    },
-    {
-      "timestamp": "2026-10-12",
-      "symbol": "MSFT",
-      "price": 541.15002,
-      "drawdown": -0.02270091504917182,
-      "rsi": 69.9,
-      "score": 100.0,
-      "stage": "高位钝化",
-      "weekly": "多头",
-      "zone": null,
-      "structure": "HH/HL",
-      "supertrend": "多头",
-      "data_confidence": "中（主源完整，二次源日期落后一交易日）",
-      "macro": {
-        "rates_regime": "RISING",
-        "real_yield_regime": "RISING",
-        "yield_curve": "NORMAL",
-        "inflation_regime": "STABLE",
-        "credit_regime": "EASY",
-        "financial_conditions": "NEUTRAL",
-        "macro_risk_score": 34.0,
-        "components": [
-          {
-            "name": "policy_rate",
-            "score": 2,
-            "max": 15,
-            "reason": "DFF=3.88"
-          },
-          {
-            "name": "yield_curve",
-            "score": 2,
-            "max": 15,
-            "reason": "T10Y2Y=0.44"
-          },
-          {
-            "name": "real_yield",
-            "score": 15,
-            "max": 15,
-            "reason": "DFII10=2.87"
-          },
-          {
-            "name": "inflation",
-            "score": 8,
-            "max": 15,
-            "reason": "inflation=0.03353016322755642"
-          },
-          {
-            "name": "unemployment",
-            "score": 4,
-            "max": 15,
-            "reason": "UNRATE=4.2"
-          },
-          {
-            "name": "credit",
-            "score": 2,
-            "max": 15,
-            "reason": "HY_OAS=3.11"
-          },
-          {
-            "name": "financial_conditions",
-            "score": 1,
-            "max": 10,
-            "reason": "NFCI=-0.494"
-          }
-        ]
-      },
-      "market_regime": "正常",
-      "historical_stage_evidence": {
-        "n60": 813,
-        "median60": 0.0305775764439411,
-        "positive_rate60": 0.6137761377613776,
-        "label": "历史表现偏正"
-      },
-      "similarity": {
-        "method": "technical-v1-stage+pulse+weekly+zone",
-        "n": 10,
-        "median_return_60": -0.04887829880661937,
-        "positive_rate_60": 0.3,
-        "median_mae_60": -0.20171585839146677,
         "matches": [
           {
             "similarity": 100.0,
@@ -1230,20 +894,20 @@
             "mae_60": null
           },
           {
+            "similarity": 97.6,
+            "symbol": "SPCX",
+            "date": "2026-10-13",
+            "stage": "高位钝化",
+            "return_60": null,
+            "mae_60": null
+          },
+          {
             "similarity": 96.3,
             "symbol": "TSM",
             "date": "2026-06-30",
             "stage": "高位钝化",
             "return_60": -0.055321732939673796,
             "mae_60": -0.2154657955901752
-          },
-          {
-            "similarity": 96.2,
-            "symbol": "DIA",
-            "date": "2026-08-10",
-            "stage": "高位钝化",
-            "return_60": null,
-            "mae_60": null
           }
         ]
       },
@@ -1251,12 +915,12 @@
       "research_priority": 56.0
     },
     {
-      "timestamp": "2026-10-12",
+      "timestamp": "2026-10-13",
       "symbol": "NVDA",
-      "price": 226.32001,
-      "drawdown": -0.0700578953856269,
-      "rsi": 49.4,
-      "score": 30.2,
+      "price": 228.52,
+      "drawdown": -0.06101820273657388,
+      "rsi": 52.0,
+      "score": 60.1,
       "stage": "震荡观察",
       "weekly": "多头",
       "zone": null,
@@ -1282,13 +946,13 @@
             "name": "yield_curve",
             "score": 2,
             "max": 15,
-            "reason": "T10Y2Y=0.44"
+            "reason": "T10Y2Y=0.42"
           },
           {
             "name": "real_yield",
             "score": 15,
             "max": 15,
-            "reason": "DFII10=2.87"
+            "reason": "DFII10=2.91"
           },
           {
             "name": "inflation",
@@ -1335,12 +999,12 @@
       "research_priority": 55.0
     },
     {
-      "timestamp": "2026-10-12",
+      "timestamp": "2026-10-13",
       "symbol": "LITE",
-      "price": 995.40997,
-      "drawdown": -0.12912513560804895,
-      "rsi": 50.9,
-      "score": 56.2,
+      "price": 987.98999,
+      "drawdown": -0.13561680664916886,
+      "rsi": 50.2,
+      "score": 29.3,
       "stage": "震荡观察",
       "weekly": "多头",
       "zone": null,
@@ -1366,13 +1030,13 @@
             "name": "yield_curve",
             "score": 2,
             "max": 15,
-            "reason": "T10Y2Y=0.44"
+            "reason": "T10Y2Y=0.42"
           },
           {
             "name": "real_yield",
             "score": 15,
             "max": 15,
-            "reason": "DFII10=2.87"
+            "reason": "DFII10=2.91"
           },
           {
             "name": "inflation",
@@ -1419,12 +1083,12 @@
       "research_priority": 55.0
     },
     {
-      "timestamp": "2026-10-12",
+      "timestamp": "2026-10-13",
       "symbol": "AMD",
-      "price": 594.23999,
-      "drawdown": -0.09761287135962848,
-      "rsi": 53.0,
-      "score": 31.2,
+      "price": 605.53003,
+      "drawdown": -0.0804683052764289,
+      "rsi": 55.8,
+      "score": 56.5,
       "stage": "震荡观察",
       "weekly": "多头",
       "zone": null,
@@ -1450,13 +1114,13 @@
             "name": "yield_curve",
             "score": 2,
             "max": 15,
-            "reason": "T10Y2Y=0.44"
+            "reason": "T10Y2Y=0.42"
           },
           {
             "name": "real_yield",
             "score": 15,
             "max": 15,
-            "reason": "DFII10=2.87"
+            "reason": "DFII10=2.91"
           },
           {
             "name": "inflation",
@@ -1503,12 +1167,12 @@
       "research_priority": 55.0
     },
     {
-      "timestamp": "2026-10-12",
+      "timestamp": "2026-10-13",
       "symbol": "QQQM",
-      "price": 307.19,
-      "drawdown": -0.02204603479763889,
-      "rsi": 56.6,
-      "score": 73.3,
+      "price": 306.16,
+      "drawdown": -0.025325088751733782,
+      "rsi": 54.6,
+      "score": 52.3,
       "stage": "震荡观察",
       "weekly": "多头",
       "zone": null,
@@ -1534,13 +1198,13 @@
             "name": "yield_curve",
             "score": 2,
             "max": 15,
-            "reason": "T10Y2Y=0.44"
+            "reason": "T10Y2Y=0.42"
           },
           {
             "name": "real_yield",
             "score": 15,
             "max": 15,
-            "reason": "DFII10=2.87"
+            "reason": "DFII10=2.91"
           },
           {
             "name": "inflation",
@@ -1587,11 +1251,95 @@
       "research_priority": 55.0
     },
     {
-      "timestamp": "2026-10-12",
+      "timestamp": "2026-10-13",
+      "symbol": "QLD",
+      "price": 96.44,
+      "drawdown": -0.05097421767368637,
+      "rsi": 53.7,
+      "score": 51.8,
+      "stage": "震荡观察",
+      "weekly": "多头",
+      "zone": null,
+      "structure": "HH/LL",
+      "supertrend": "多头",
+      "data_confidence": "中（主源完整，二次源日期落后一交易日）",
+      "macro": {
+        "rates_regime": "RISING",
+        "real_yield_regime": "RISING",
+        "yield_curve": "NORMAL",
+        "inflation_regime": "STABLE",
+        "credit_regime": "EASY",
+        "financial_conditions": "NEUTRAL",
+        "macro_risk_score": 34.0,
+        "components": [
+          {
+            "name": "policy_rate",
+            "score": 2,
+            "max": 15,
+            "reason": "DFF=3.88"
+          },
+          {
+            "name": "yield_curve",
+            "score": 2,
+            "max": 15,
+            "reason": "T10Y2Y=0.42"
+          },
+          {
+            "name": "real_yield",
+            "score": 15,
+            "max": 15,
+            "reason": "DFII10=2.91"
+          },
+          {
+            "name": "inflation",
+            "score": 8,
+            "max": 15,
+            "reason": "inflation=0.03353016322755642"
+          },
+          {
+            "name": "unemployment",
+            "score": 4,
+            "max": 15,
+            "reason": "UNRATE=4.2"
+          },
+          {
+            "name": "credit",
+            "score": 2,
+            "max": 15,
+            "reason": "HY_OAS=3.11"
+          },
+          {
+            "name": "financial_conditions",
+            "score": 1,
+            "max": 10,
+            "reason": "NFCI=-0.494"
+          }
+        ]
+      },
+      "market_regime": "正常",
+      "historical_stage_evidence": {
+        "n60": null,
+        "median60": null,
+        "positive_rate60": null,
+        "label": null
+      },
+      "similarity": {
+        "method": "technical-v1-stage+pulse+weekly+zone",
+        "n": 0,
+        "median_return_60": null,
+        "positive_rate_60": null,
+        "median_mae_60": null,
+        "matches": []
+      },
+      "contradictions": [],
+      "research_priority": 55.0
+    },
+    {
+      "timestamp": "2026-10-13",
       "symbol": "VGT",
-      "price": 126.51,
-      "drawdown": -0.03176182458288679,
-      "rsi": 55.6,
+      "price": 126.48,
+      "drawdown": -0.031991428134088395,
+      "rsi": 55.5,
       "score": 62.8,
       "stage": "震荡观察",
       "weekly": "多头",
@@ -1618,13 +1366,13 @@
             "name": "yield_curve",
             "score": 2,
             "max": 15,
-            "reason": "T10Y2Y=0.44"
+            "reason": "T10Y2Y=0.42"
           },
           {
             "name": "real_yield",
             "score": 15,
             "max": 15,
-            "reason": "DFII10=2.87"
+            "reason": "DFII10=2.91"
           },
           {
             "name": "inflation",
@@ -1671,12 +1419,12 @@
       "research_priority": 55.0
     },
     {
-      "timestamp": "2026-10-12",
+      "timestamp": "2026-10-13",
       "symbol": "QQQ",
-      "price": 746.039978,
-      "drawdown": -0.02204862257883,
-      "rsi": 56.6,
-      "score": 73.3,
+      "price": 743.57001,
+      "drawdown": -0.025286396262569788,
+      "rsi": 54.6,
+      "score": 52.3,
       "stage": "震荡观察",
       "weekly": "多头",
       "zone": null,
@@ -1702,13 +1450,13 @@
             "name": "yield_curve",
             "score": 2,
             "max": 15,
-            "reason": "T10Y2Y=0.44"
+            "reason": "T10Y2Y=0.42"
           },
           {
             "name": "real_yield",
             "score": 15,
             "max": 15,
-            "reason": "DFII10=2.87"
+            "reason": "DFII10=2.91"
           },
           {
             "name": "inflation",
@@ -1755,181 +1503,16 @@
       "research_priority": 55.0
     },
     {
-      "timestamp": "2026-10-12",
-      "symbol": "AVGO",
-      "price": 354.73001,
-      "drawdown": -0.2833737171717172,
-      "rsi": 46.4,
-      "score": -13.0,
-      "stage": "修复中",
-      "weekly": "空头",
-      "zone": null,
-      "structure": "LH/LL",
-      "supertrend": "多头",
-      "data_confidence": "中（主源完整，二次源日期落后一交易日）",
-      "macro": {
-        "rates_regime": "RISING",
-        "real_yield_regime": "RISING",
-        "yield_curve": "NORMAL",
-        "inflation_regime": "STABLE",
-        "credit_regime": "EASY",
-        "financial_conditions": "NEUTRAL",
-        "macro_risk_score": 34.0,
-        "components": [
-          {
-            "name": "policy_rate",
-            "score": 2,
-            "max": 15,
-            "reason": "DFF=3.88"
-          },
-          {
-            "name": "yield_curve",
-            "score": 2,
-            "max": 15,
-            "reason": "T10Y2Y=0.44"
-          },
-          {
-            "name": "real_yield",
-            "score": 15,
-            "max": 15,
-            "reason": "DFII10=2.87"
-          },
-          {
-            "name": "inflation",
-            "score": 8,
-            "max": 15,
-            "reason": "inflation=0.03353016322755642"
-          },
-          {
-            "name": "unemployment",
-            "score": 4,
-            "max": 15,
-            "reason": "UNRATE=4.2"
-          },
-          {
-            "name": "credit",
-            "score": 2,
-            "max": 15,
-            "reason": "HY_OAS=3.11"
-          },
-          {
-            "name": "financial_conditions",
-            "score": 1,
-            "max": 10,
-            "reason": "NFCI=-0.494"
-          }
-        ]
-      },
-      "market_regime": "正常",
-      "historical_stage_evidence": {
-        "n60": 1232,
-        "median60": 0.025070457973117466,
-        "positive_rate60": 0.5560064935064936,
-        "label": "历史表现偏正"
-      },
-      "similarity": {
-        "method": "technical-v1-stage+pulse+weekly+zone",
-        "n": 16,
-        "median_return_60": 0.02171377230507343,
-        "positive_rate_60": 0.5625,
-        "median_mae_60": -0.08321236907990498,
-        "matches": [
-          {
-            "similarity": 99.7,
-            "symbol": "AAOI",
-            "date": "2026-09-21",
-            "stage": "修复中",
-            "return_60": null,
-            "mae_60": null
-          },
-          {
-            "similarity": 99.4,
-            "symbol": "AAOI",
-            "date": "2026-10-08",
-            "stage": "修复中",
-            "return_60": null,
-            "mae_60": null
-          },
-          {
-            "similarity": 99.1,
-            "symbol": "VIX",
-            "date": "2026-08-10",
-            "stage": "修复中",
-            "return_60": null,
-            "mae_60": null
-          },
-          {
-            "similarity": 98.3,
-            "symbol": "NOW",
-            "date": "2026-07-28",
-            "stage": "修复中",
-            "return_60": null,
-            "mae_60": null
-          },
-          {
-            "similarity": 97.4,
-            "symbol": "VIX",
-            "date": "2026-09-01",
-            "stage": "修复中",
-            "return_60": null,
-            "mae_60": null
-          },
-          {
-            "similarity": 96.8,
-            "symbol": "META",
-            "date": "2026-08-26",
-            "stage": "修复中",
-            "return_60": null,
-            "mae_60": null
-          },
-          {
-            "similarity": 95.9,
-            "symbol": "HYG",
-            "date": "2026-06-12",
-            "stage": "修复中",
-            "return_60": -0.01200900675506622,
-            "mae_60": -0.01200900675506622
-          },
-          {
-            "similarity": 94.0,
-            "symbol": "CRWV",
-            "date": "2026-09-04",
-            "stage": "修复中",
-            "return_60": null,
-            "mae_60": null
-          },
-          {
-            "similarity": 93.7,
-            "symbol": "META",
-            "date": "2026-08-11",
-            "stage": "修复中",
-            "return_60": null,
-            "mae_60": null
-          },
-          {
-            "similarity": 93.7,
-            "symbol": "GLD",
-            "date": "2026-07-22",
-            "stage": "修复中",
-            "return_60": null,
-            "mae_60": null
-          }
-        ]
-      },
-      "contradictions": [],
-      "research_priority": 52.0
-    },
-    {
-      "timestamp": "2026-10-12",
-      "symbol": "NBIS",
-      "price": 210.059998,
-      "drawdown": -0.29947307074878504,
-      "rsi": 42.8,
-      "score": 0.4,
+      "timestamp": "2026-10-13",
+      "symbol": "TQQQ",
+      "price": 78.81,
+      "drawdown": -0.10534676378007779,
+      "rsi": 52.9,
+      "score": 51.5,
       "stage": "震荡观察",
-      "weekly": "过渡",
+      "weekly": "多头",
       "zone": null,
-      "structure": "LH/HL",
+      "structure": "HH/LL",
       "supertrend": "多头",
       "data_confidence": "中（主源完整，二次源日期落后一交易日）",
       "macro": {
@@ -1951,13 +1534,13 @@
             "name": "yield_curve",
             "score": 2,
             "max": 15,
-            "reason": "T10Y2Y=0.44"
+            "reason": "T10Y2Y=0.42"
           },
           {
             "name": "real_yield",
             "score": 15,
             "max": 15,
-            "reason": "DFII10=2.87"
+            "reason": "DFII10=2.91"
           },
           {
             "name": "inflation",
@@ -2001,15 +1584,345 @@
         "matches": []
       },
       "contradictions": [],
-      "research_priority": 50.0
+      "research_priority": 55.0
     },
     {
-      "timestamp": "2026-10-12",
+      "timestamp": "2026-10-13",
+      "symbol": "ORCL",
+      "price": 143.2,
+      "drawdown": -0.5560240727964261,
+      "rsi": 50.5,
+      "score": -21.8,
+      "stage": "修复中",
+      "weekly": "空头",
+      "zone": null,
+      "structure": "LH/LL",
+      "supertrend": "空头",
+      "data_confidence": "中（主源完整，二次源日期落后一交易日）",
+      "macro": {
+        "rates_regime": "RISING",
+        "real_yield_regime": "RISING",
+        "yield_curve": "NORMAL",
+        "inflation_regime": "STABLE",
+        "credit_regime": "EASY",
+        "financial_conditions": "NEUTRAL",
+        "macro_risk_score": 34.0,
+        "components": [
+          {
+            "name": "policy_rate",
+            "score": 2,
+            "max": 15,
+            "reason": "DFF=3.88"
+          },
+          {
+            "name": "yield_curve",
+            "score": 2,
+            "max": 15,
+            "reason": "T10Y2Y=0.42"
+          },
+          {
+            "name": "real_yield",
+            "score": 15,
+            "max": 15,
+            "reason": "DFII10=2.91"
+          },
+          {
+            "name": "inflation",
+            "score": 8,
+            "max": 15,
+            "reason": "inflation=0.03353016322755642"
+          },
+          {
+            "name": "unemployment",
+            "score": 4,
+            "max": 15,
+            "reason": "UNRATE=4.2"
+          },
+          {
+            "name": "credit",
+            "score": 2,
+            "max": 15,
+            "reason": "HY_OAS=3.11"
+          },
+          {
+            "name": "financial_conditions",
+            "score": 1,
+            "max": 10,
+            "reason": "NFCI=-0.494"
+          }
+        ]
+      },
+      "market_regime": "正常",
+      "historical_stage_evidence": {
+        "n60": 1230,
+        "median60": 0.024056166171598004,
+        "positive_rate60": 0.5552845528455285,
+        "label": "历史表现偏正"
+      },
+      "similarity": {
+        "method": "technical-v1-stage+pulse+weekly+zone",
+        "n": 14,
+        "median_return_60": 0.02420207786766626,
+        "positive_rate_60": 0.6428571428571429,
+        "median_mae_60": -0.07249853362457465,
+        "matches": [
+          {
+            "similarity": 99.7,
+            "symbol": "VIX",
+            "date": "2026-09-01",
+            "stage": "修复中",
+            "return_60": null,
+            "mae_60": null
+          },
+          {
+            "similarity": 99.7,
+            "symbol": "META",
+            "date": "2026-08-26",
+            "stage": "修复中",
+            "return_60": null,
+            "mae_60": null
+          },
+          {
+            "similarity": 98.9,
+            "symbol": "HYG",
+            "date": "2026-06-12",
+            "stage": "修复中",
+            "return_60": -0.01200900675506622,
+            "mae_60": -0.01200900675506622
+          },
+          {
+            "similarity": 98.8,
+            "symbol": "NOW",
+            "date": "2026-07-28",
+            "stage": "修复中",
+            "return_60": null,
+            "mae_60": null
+          },
+          {
+            "similarity": 98.0,
+            "symbol": "VIX",
+            "date": "2026-08-10",
+            "stage": "修复中",
+            "return_60": null,
+            "mae_60": null
+          },
+          {
+            "similarity": 96.9,
+            "symbol": "CRWV",
+            "date": "2026-09-04",
+            "stage": "修复中",
+            "return_60": null,
+            "mae_60": null
+          },
+          {
+            "similarity": 96.8,
+            "symbol": "AAOI",
+            "date": "2026-09-21",
+            "stage": "修复中",
+            "return_60": null,
+            "mae_60": null
+          },
+          {
+            "similarity": 96.6,
+            "symbol": "META",
+            "date": "2026-08-11",
+            "stage": "修复中",
+            "return_60": null,
+            "mae_60": null
+          },
+          {
+            "similarity": 96.6,
+            "symbol": "GLD",
+            "date": "2026-07-22",
+            "stage": "修复中",
+            "return_60": null,
+            "mae_60": null
+          },
+          {
+            "similarity": 96.5,
+            "symbol": "AAOI",
+            "date": "2026-10-08",
+            "stage": "修复中",
+            "return_60": null,
+            "mae_60": null
+          }
+        ]
+      },
+      "contradictions": [],
+      "research_priority": 52.0
+    },
+    {
+      "timestamp": "2026-10-13",
+      "symbol": "TSLA",
+      "price": 375.23001,
+      "drawdown": -0.24777976961649806,
+      "rsi": 54.5,
+      "score": 75.3,
+      "stage": "高位钝化",
+      "weekly": "过渡",
+      "zone": null,
+      "structure": "HH/HL",
+      "supertrend": "多头",
+      "data_confidence": "中（主源完整，二次源日期落后一交易日）",
+      "macro": {
+        "rates_regime": "RISING",
+        "real_yield_regime": "RISING",
+        "yield_curve": "NORMAL",
+        "inflation_regime": "STABLE",
+        "credit_regime": "EASY",
+        "financial_conditions": "NEUTRAL",
+        "macro_risk_score": 34.0,
+        "components": [
+          {
+            "name": "policy_rate",
+            "score": 2,
+            "max": 15,
+            "reason": "DFF=3.88"
+          },
+          {
+            "name": "yield_curve",
+            "score": 2,
+            "max": 15,
+            "reason": "T10Y2Y=0.42"
+          },
+          {
+            "name": "real_yield",
+            "score": 15,
+            "max": 15,
+            "reason": "DFII10=2.91"
+          },
+          {
+            "name": "inflation",
+            "score": 8,
+            "max": 15,
+            "reason": "inflation=0.03353016322755642"
+          },
+          {
+            "name": "unemployment",
+            "score": 4,
+            "max": 15,
+            "reason": "UNRATE=4.2"
+          },
+          {
+            "name": "credit",
+            "score": 2,
+            "max": 15,
+            "reason": "HY_OAS=3.11"
+          },
+          {
+            "name": "financial_conditions",
+            "score": 1,
+            "max": 10,
+            "reason": "NFCI=-0.494"
+          }
+        ]
+      },
+      "market_regime": "正常",
+      "historical_stage_evidence": {
+        "n60": 813,
+        "median60": 0.0305775764439411,
+        "positive_rate60": 0.6137761377613776,
+        "label": "历史表现偏正"
+      },
+      "similarity": {
+        "method": "technical-v1-stage+pulse+weekly+zone",
+        "n": 9,
+        "median_return_60": -0.04243486467356494,
+        "positive_rate_60": 0.3333333333333333,
+        "median_mae_60": -0.18796592119275835,
+        "matches": [
+          {
+            "similarity": 99.3,
+            "symbol": "GLD",
+            "date": "2026-08-26",
+            "stage": "高位钝化",
+            "return_60": null,
+            "mae_60": null
+          },
+          {
+            "similarity": 98.8,
+            "symbol": "SOFI",
+            "date": "2026-07-10",
+            "stage": "高位钝化",
+            "return_60": -0.1608093716719915,
+            "mae_60": -0.18796592119275835
+          },
+          {
+            "similarity": 98.6,
+            "symbol": "NOW",
+            "date": "2026-08-14",
+            "stage": "高位钝化",
+            "return_60": null,
+            "mae_60": null
+          },
+          {
+            "similarity": 95.6,
+            "symbol": "HOOD",
+            "date": "2026-06-23",
+            "stage": "高位钝化",
+            "return_60": 0.06353510895883785,
+            "mae_60": -0.16164648910411616
+          },
+          {
+            "similarity": 83.2,
+            "symbol": "NBIS",
+            "date": "2026-06-16",
+            "stage": "高位钝化",
+            "return_60": -0.1529611467370804,
+            "mae_60": -0.44089023010184836
+          },
+          {
+            "similarity": 83.1,
+            "symbol": "QLD",
+            "date": "2026-09-30",
+            "stage": "高位钝化",
+            "return_60": null,
+            "mae_60": null
+          },
+          {
+            "similarity": 83.0,
+            "symbol": "TQQQ",
+            "date": "2026-09-30",
+            "stage": "高位钝化",
+            "return_60": null,
+            "mae_60": null
+          },
+          {
+            "similarity": 82.9,
+            "symbol": "IWM",
+            "date": "2026-08-14",
+            "stage": "高位钝化",
+            "return_60": null,
+            "mae_60": null
+          },
+          {
+            "similarity": 82.7,
+            "symbol": "NVDA",
+            "date": "2026-08-18",
+            "stage": "高位钝化",
+            "return_60": null,
+            "mae_60": null
+          },
+          {
+            "similarity": 82.3,
+            "symbol": "AAPL",
+            "date": "2026-09-17",
+            "stage": "高位钝化",
+            "return_60": null,
+            "mae_60": null
+          }
+        ]
+      },
+      "contradictions": [],
+      "research_priority": 51.0
+    },
+    {
+      "timestamp": "2026-10-13",
       "symbol": "HOOD",
-      "price": 109.22,
-      "drawdown": -0.29013388795008455,
-      "rsi": 46.1,
-      "score": 12.0,
+      "price": 110.52,
+      "drawdown": -0.28168464838164575,
+      "rsi": 48.1,
+      "score": 13.0,
       "stage": "震荡观察",
       "weekly": "过渡",
       "zone": null,
@@ -2035,13 +1948,13 @@
             "name": "yield_curve",
             "score": 2,
             "max": 15,
-            "reason": "T10Y2Y=0.44"
+            "reason": "T10Y2Y=0.42"
           },
           {
             "name": "real_yield",
             "score": 15,
             "max": 15,
-            "reason": "DFII10=2.87"
+            "reason": "DFII10=2.91"
           },
           {
             "name": "inflation",
@@ -2088,12 +2001,12 @@
       "research_priority": 50.0
     },
     {
-      "timestamp": "2026-10-12",
+      "timestamp": "2026-10-13",
       "symbol": "MRVL",
-      "price": 265.85999,
-      "drawdown": -0.19407060143082333,
-      "rsi": 55.4,
-      "score": 70.7,
+      "price": 268.72501,
+      "drawdown": -0.18538556444767795,
+      "rsi": 56.8,
+      "score": 70.3,
       "stage": "趋势退潮",
       "weekly": "多头",
       "zone": null,
@@ -2119,13 +2032,13 @@
             "name": "yield_curve",
             "score": 2,
             "max": 15,
-            "reason": "T10Y2Y=0.44"
+            "reason": "T10Y2Y=0.42"
           },
           {
             "name": "real_yield",
             "score": 15,
             "max": 15,
-            "reason": "DFII10=2.87"
+            "reason": "DFII10=2.91"
           },
           {
             "name": "inflation",
@@ -2168,15 +2081,7 @@
         "median_mae_60": -0.34736340112864617,
         "matches": [
           {
-            "similarity": 99.9,
-            "symbol": "NBIS",
-            "date": "2026-06-25",
-            "stage": "趋势退潮",
-            "return_60": -0.09285742119004003,
-            "mae_60": -0.42243697151541126
-          },
-          {
-            "similarity": 99.8,
+            "similarity": 100.0,
             "symbol": "NOW",
             "date": "2026-09-08",
             "stage": "趋势退潮",
@@ -2184,7 +2089,15 @@
             "mae_60": null
           },
           {
-            "similarity": 99.5,
+            "similarity": 100.0,
+            "symbol": "NBIS",
+            "date": "2026-06-25",
+            "stage": "趋势退潮",
+            "return_60": -0.09285742119004003,
+            "mae_60": -0.42243697151541126
+          },
+          {
+            "similarity": 99.3,
             "symbol": "AAPL",
             "date": "2026-07-10",
             "stage": "趋势退潮",
@@ -2192,7 +2105,7 @@
             "mae_60": -0.04144995560065967
           },
           {
-            "similarity": 99.1,
+            "similarity": 99.0,
             "symbol": "DRAM",
             "date": "2026-06-26",
             "stage": "趋势退潮",
@@ -2200,333 +2113,15 @@
             "mae_60": -0.3760434056761268
           },
           {
-            "similarity": 99.0,
+            "similarity": 98.8,
             "symbol": "TQQQ",
             "date": "2026-09-29",
-            "stage": "趋势退潮",
-            "return_60": null,
-            "mae_60": null
-          },
-          {
-            "similarity": 98.9,
-            "symbol": "QLD",
-            "date": "2026-09-29",
-            "stage": "趋势退潮",
-            "return_60": null,
-            "mae_60": null
-          },
-          {
-            "similarity": 98.9,
-            "symbol": "XLK",
-            "date": "2026-09-18",
-            "stage": "趋势退潮",
-            "return_60": null,
-            "mae_60": null
-          },
-          {
-            "similarity": 98.9,
-            "symbol": "NVDA",
-            "date": "2026-08-20",
             "stage": "趋势退潮",
             "return_60": null,
             "mae_60": null
           },
           {
             "similarity": 98.7,
-            "symbol": "QQQ",
-            "date": "2026-09-29",
-            "stage": "趋势退潮",
-            "return_60": null,
-            "mae_60": null
-          },
-          {
-            "similarity": 98.6,
-            "symbol": "QQQM",
-            "date": "2026-09-29",
-            "stage": "趋势退潮",
-            "return_60": null,
-            "mae_60": null
-          }
-        ]
-      },
-      "contradictions": [
-        {
-          "type": "timeframe_conflict",
-          "severity": "medium",
-          "message": "日线转弱但周线仍偏多，多周期方向冲突。"
-        }
-      ],
-      "research_priority": 42.0
-    },
-    {
-      "timestamp": "2026-10-12",
-      "symbol": "QLD",
-      "price": 97.080002,
-      "drawdown": -0.044676225152529114,
-      "rsi": 55.6,
-      "score": 72.8,
-      "stage": "趋势退潮",
-      "weekly": "多头",
-      "zone": null,
-      "structure": "HH/LL",
-      "supertrend": "多头",
-      "data_confidence": "中（主源完整，二次源日期落后一交易日）",
-      "macro": {
-        "rates_regime": "RISING",
-        "real_yield_regime": "RISING",
-        "yield_curve": "NORMAL",
-        "inflation_regime": "STABLE",
-        "credit_regime": "EASY",
-        "financial_conditions": "NEUTRAL",
-        "macro_risk_score": 34.0,
-        "components": [
-          {
-            "name": "policy_rate",
-            "score": 2,
-            "max": 15,
-            "reason": "DFF=3.88"
-          },
-          {
-            "name": "yield_curve",
-            "score": 2,
-            "max": 15,
-            "reason": "T10Y2Y=0.44"
-          },
-          {
-            "name": "real_yield",
-            "score": 15,
-            "max": 15,
-            "reason": "DFII10=2.87"
-          },
-          {
-            "name": "inflation",
-            "score": 8,
-            "max": 15,
-            "reason": "inflation=0.03353016322755642"
-          },
-          {
-            "name": "unemployment",
-            "score": 4,
-            "max": 15,
-            "reason": "UNRATE=4.2"
-          },
-          {
-            "name": "credit",
-            "score": 2,
-            "max": 15,
-            "reason": "HY_OAS=3.11"
-          },
-          {
-            "name": "financial_conditions",
-            "score": 1,
-            "max": 10,
-            "reason": "NFCI=-0.494"
-          }
-        ]
-      },
-      "market_regime": "正常",
-      "historical_stage_evidence": {
-        "n60": 567,
-        "median60": 0.04106280193236711,
-        "positive_rate60": 0.6631393298059964,
-        "label": "历史结果分化"
-      },
-      "similarity": {
-        "method": "technical-v1-stage+pulse+weekly+zone",
-        "n": 8,
-        "median_return_60": -0.06300142711471657,
-        "positive_rate_60": 0.25,
-        "median_mae_60": -0.3617034034023865,
-        "matches": [
-          {
-            "similarity": 99.8,
-            "symbol": "AAPL",
-            "date": "2026-07-10",
-            "stage": "趋势退潮",
-            "return_60": 0.05572117214258521,
-            "mae_60": -0.04144995560065967
-          },
-          {
-            "similarity": 99.8,
-            "symbol": "DRAM",
-            "date": "2026-06-26",
-            "stage": "趋势退潮",
-            "return_60": -0.11491374513077346,
-            "mae_60": -0.3760434056761268
-          },
-          {
-            "similarity": 99.7,
-            "symbol": "TQQQ",
-            "date": "2026-09-29",
-            "stage": "趋势退潮",
-            "return_60": null,
-            "mae_60": null
-          },
-          {
-            "similarity": 99.6,
-            "symbol": "XLK",
-            "date": "2026-09-18",
-            "stage": "趋势退潮",
-            "return_60": null,
-            "mae_60": null
-          },
-          {
-            "similarity": 99.6,
-            "symbol": "NVDA",
-            "date": "2026-08-20",
-            "stage": "趋势退潮",
-            "return_60": null,
-            "mae_60": null
-          },
-          {
-            "similarity": 99.4,
-            "symbol": "QQQ",
-            "date": "2026-09-29",
-            "stage": "趋势退潮",
-            "return_60": null,
-            "mae_60": null
-          },
-          {
-            "similarity": 99.3,
-            "symbol": "QQQM",
-            "date": "2026-09-29",
-            "stage": "趋势退潮",
-            "return_60": null,
-            "mae_60": null
-          },
-          {
-            "similarity": 99.3,
-            "symbol": "MRVL",
-            "date": "2026-06-17",
-            "stage": "趋势退潮",
-            "return_60": -0.24424949920563666,
-            "mae_60": -0.43565655867928443
-          },
-          {
-            "similarity": 99.2,
-            "symbol": "NBIS",
-            "date": "2026-06-25",
-            "stage": "趋势退潮",
-            "return_60": -0.09285742119004003,
-            "mae_60": -0.42243697151541126
-          },
-          {
-            "similarity": 99.1,
-            "symbol": "NOW",
-            "date": "2026-09-08",
-            "stage": "趋势退潮",
-            "return_60": null,
-            "mae_60": null
-          }
-        ]
-      },
-      "contradictions": [
-        {
-          "type": "timeframe_conflict",
-          "severity": "medium",
-          "message": "日线转弱但周线仍偏多，多周期方向冲突。"
-        }
-      ],
-      "research_priority": 42.0
-    },
-    {
-      "timestamp": "2026-10-12",
-      "symbol": "TQQQ",
-      "price": 79.61,
-      "drawdown": -0.09626514229833771,
-      "rsi": 54.9,
-      "score": 72.5,
-      "stage": "趋势退潮",
-      "weekly": "多头",
-      "zone": null,
-      "structure": "HH/LL",
-      "supertrend": "多头",
-      "data_confidence": "中（主源完整，二次源日期落后一交易日）",
-      "macro": {
-        "rates_regime": "RISING",
-        "real_yield_regime": "RISING",
-        "yield_curve": "NORMAL",
-        "inflation_regime": "STABLE",
-        "credit_regime": "EASY",
-        "financial_conditions": "NEUTRAL",
-        "macro_risk_score": 34.0,
-        "components": [
-          {
-            "name": "policy_rate",
-            "score": 2,
-            "max": 15,
-            "reason": "DFF=3.88"
-          },
-          {
-            "name": "yield_curve",
-            "score": 2,
-            "max": 15,
-            "reason": "T10Y2Y=0.44"
-          },
-          {
-            "name": "real_yield",
-            "score": 15,
-            "max": 15,
-            "reason": "DFII10=2.87"
-          },
-          {
-            "name": "inflation",
-            "score": 8,
-            "max": 15,
-            "reason": "inflation=0.03353016322755642"
-          },
-          {
-            "name": "unemployment",
-            "score": 4,
-            "max": 15,
-            "reason": "UNRATE=4.2"
-          },
-          {
-            "name": "credit",
-            "score": 2,
-            "max": 15,
-            "reason": "HY_OAS=3.11"
-          },
-          {
-            "name": "financial_conditions",
-            "score": 1,
-            "max": 10,
-            "reason": "NFCI=-0.494"
-          }
-        ]
-      },
-      "market_regime": "正常",
-      "historical_stage_evidence": {
-        "n60": 567,
-        "median60": 0.04106280193236711,
-        "positive_rate60": 0.6631393298059964,
-        "label": "历史结果分化"
-      },
-      "similarity": {
-        "method": "technical-v1-stage+pulse+weekly+zone",
-        "n": 8,
-        "median_return_60": -0.06300142711471657,
-        "positive_rate_60": 0.25,
-        "median_mae_60": -0.3617034034023865,
-        "matches": [
-          {
-            "similarity": 99.9,
-            "symbol": "AAPL",
-            "date": "2026-07-10",
-            "stage": "趋势退潮",
-            "return_60": 0.05572117214258521,
-            "mae_60": -0.04144995560065967
-          },
-          {
-            "similarity": 99.7,
-            "symbol": "DRAM",
-            "date": "2026-06-26",
-            "stage": "趋势退潮",
-            "return_60": -0.11491374513077346,
-            "mae_60": -0.3760434056761268
-          },
-          {
-            "similarity": 99.5,
             "symbol": "QLD",
             "date": "2026-09-29",
             "stage": "趋势退潮",
@@ -2534,7 +2129,7 @@
             "mae_60": null
           },
           {
-            "similarity": 99.5,
+            "similarity": 98.7,
             "symbol": "XLK",
             "date": "2026-09-18",
             "stage": "趋势退潮",
@@ -2542,7 +2137,7 @@
             "mae_60": null
           },
           {
-            "similarity": 99.5,
+            "similarity": 98.7,
             "symbol": "NVDA",
             "date": "2026-08-20",
             "stage": "趋势退潮",
@@ -2550,31 +2145,7 @@
             "mae_60": null
           },
           {
-            "similarity": 99.4,
-            "symbol": "MRVL",
-            "date": "2026-06-17",
-            "stage": "趋势退潮",
-            "return_60": -0.24424949920563666,
-            "mae_60": -0.43565655867928443
-          },
-          {
-            "similarity": 99.3,
-            "symbol": "QQQ",
-            "date": "2026-09-29",
-            "stage": "趋势退潮",
-            "return_60": null,
-            "mae_60": null
-          },
-          {
-            "similarity": 99.3,
-            "symbol": "NBIS",
-            "date": "2026-06-25",
-            "stage": "趋势退潮",
-            "return_60": -0.09285742119004003,
-            "mae_60": -0.42243697151541126
-          },
-          {
-            "similarity": 99.2,
+            "similarity": 98.5,
             "symbol": "QQQM",
             "date": "2026-09-29",
             "stage": "趋势退潮",
@@ -2582,9 +2153,9 @@
             "mae_60": null
           },
           {
-            "similarity": 99.2,
-            "symbol": "NOW",
-            "date": "2026-09-08",
+            "similarity": 98.5,
+            "symbol": "QQQ",
+            "date": "2026-09-29",
             "stage": "趋势退潮",
             "return_60": null,
             "mae_60": null
@@ -2601,12 +2172,183 @@
       "research_priority": 42.0
     },
     {
-      "timestamp": "2026-10-12",
+      "timestamp": "2026-10-13",
+      "symbol": "SPCX",
+      "price": 156.53999,
+      "drawdown": -0.3062400726821486,
+      "rsi": 52.6,
+      "score": 89.9,
+      "stage": "趋势退潮",
+      "weekly": "多头",
+      "zone": null,
+      "structure": "HH/HL",
+      "supertrend": "多头",
+      "data_confidence": "中（主源完整，二次源日期落后一交易日）",
+      "macro": {
+        "rates_regime": "RISING",
+        "real_yield_regime": "RISING",
+        "yield_curve": "NORMAL",
+        "inflation_regime": "STABLE",
+        "credit_regime": "EASY",
+        "financial_conditions": "NEUTRAL",
+        "macro_risk_score": 34.0,
+        "components": [
+          {
+            "name": "policy_rate",
+            "score": 2,
+            "max": 15,
+            "reason": "DFF=3.88"
+          },
+          {
+            "name": "yield_curve",
+            "score": 2,
+            "max": 15,
+            "reason": "T10Y2Y=0.42"
+          },
+          {
+            "name": "real_yield",
+            "score": 15,
+            "max": 15,
+            "reason": "DFII10=2.91"
+          },
+          {
+            "name": "inflation",
+            "score": 8,
+            "max": 15,
+            "reason": "inflation=0.03353016322755642"
+          },
+          {
+            "name": "unemployment",
+            "score": 4,
+            "max": 15,
+            "reason": "UNRATE=4.2"
+          },
+          {
+            "name": "credit",
+            "score": 2,
+            "max": 15,
+            "reason": "HY_OAS=3.11"
+          },
+          {
+            "name": "financial_conditions",
+            "score": 1,
+            "max": 10,
+            "reason": "NFCI=-0.494"
+          }
+        ]
+      },
+      "market_regime": "正常",
+      "historical_stage_evidence": {
+        "n60": 567,
+        "median60": 0.04106280193236711,
+        "positive_rate60": 0.6631393298059964,
+        "label": "历史结果分化"
+      },
+      "similarity": {
+        "method": "technical-v1-stage+pulse+weekly+zone",
+        "n": 8,
+        "median_return_60": -0.06300142711471657,
+        "positive_rate_60": 0.25,
+        "median_mae_60": -0.3617034034023865,
+        "matches": [
+          {
+            "similarity": 99.6,
+            "symbol": "XLE",
+            "date": "2026-09-01",
+            "stage": "趋势退潮",
+            "return_60": null,
+            "mae_60": null
+          },
+          {
+            "similarity": 99.1,
+            "symbol": "INTC",
+            "date": "2026-06-29",
+            "stage": "趋势退潮",
+            "return_60": -0.06923777710294565,
+            "mae_60": -0.3783783783783784
+          },
+          {
+            "similarity": 98.5,
+            "symbol": "AMD",
+            "date": "2026-09-28",
+            "stage": "趋势退潮",
+            "return_60": null,
+            "mae_60": null
+          },
+          {
+            "similarity": 97.7,
+            "symbol": "INTC",
+            "date": "2026-10-02",
+            "stage": "趋势退潮",
+            "return_60": null,
+            "mae_60": null
+          },
+          {
+            "similarity": 97.5,
+            "symbol": "SPY",
+            "date": "2026-08-17",
+            "stage": "趋势退潮",
+            "return_60": null,
+            "mae_60": null
+          },
+          {
+            "similarity": 97.3,
+            "symbol": "VOO",
+            "date": "2026-08-17",
+            "stage": "趋势退潮",
+            "return_60": null,
+            "mae_60": null
+          },
+          {
+            "similarity": 97.2,
+            "symbol": "MU",
+            "date": "2026-06-26",
+            "stage": "趋势退潮",
+            "return_60": -0.03194298481891311,
+            "mae_60": -0.34736340112864617
+          },
+          {
+            "similarity": 97.1,
+            "symbol": "MSFT",
+            "date": "2026-08-18",
+            "stage": "趋势退潮",
+            "return_60": null,
+            "mae_60": null
+          },
+          {
+            "similarity": 97.1,
+            "symbol": "XLF",
+            "date": "2026-07-21",
+            "stage": "趋势退潮",
+            "return_60": null,
+            "mae_60": null
+          },
+          {
+            "similarity": 96.9,
+            "symbol": "META",
+            "date": "2026-10-02",
+            "stage": "趋势退潮",
+            "return_60": null,
+            "mae_60": null
+          }
+        ]
+      },
+      "contradictions": [
+        {
+          "type": "timeframe_conflict",
+          "severity": "medium",
+          "message": "日线转弱但周线仍偏多，多周期方向冲突。"
+        }
+      ],
+      "research_priority": 42.0
+    },
+    {
+      "timestamp": "2026-10-13",
       "symbol": "TSM",
-      "price": 444.35001,
-      "drawdown": -0.08845670502800174,
-      "rsi": 47.6,
-      "score": -21.5,
+      "price": 445.12,
+      "drawdown": -0.08687714115740464,
+      "rsi": 48.1,
+      "score": -21.0,
       "stage": "趋势恶化",
       "weekly": "多头",
       "zone": null,
@@ -2632,13 +2374,13 @@
             "name": "yield_curve",
             "score": 2,
             "max": 15,
-            "reason": "T10Y2Y=0.44"
+            "reason": "T10Y2Y=0.42"
           },
           {
             "name": "real_yield",
             "score": 15,
             "max": 15,
-            "reason": "DFII10=2.87"
+            "reason": "DFII10=2.91"
           },
           {
             "name": "inflation",
@@ -2669,19 +2411,19 @@
       "market_regime": "正常",
       "historical_stage_evidence": {
         "n60": 1590,
-        "median60": 0.017618371363495644,
+        "median60": 0.018129334856105572,
         "positive_rate60": 0.5440251572327044,
         "label": "历史结果分化"
       },
       "similarity": {
         "method": "technical-v1-stage+pulse+weekly+zone",
-        "n": 21,
-        "median_return_60": 0.060764269367038715,
-        "positive_rate_60": 0.7619047619047619,
-        "median_mae_60": -0.11372422068653287,
+        "n": 22,
+        "median_return_60": 0.06259396843769938,
+        "positive_rate_60": 0.8181818181818182,
+        "median_mae_60": -0.07519358522900099,
         "matches": [
           {
-            "similarity": 99.8,
+            "similarity": 99.9,
             "symbol": "SMH",
             "date": "2026-10-12",
             "stage": "趋势恶化",
@@ -2689,7 +2431,7 @@
             "mae_60": null
           },
           {
-            "similarity": 99.6,
+            "similarity": 99.8,
             "symbol": "QQQM",
             "date": "2026-07-13",
             "stage": "趋势恶化",
@@ -2697,7 +2439,7 @@
             "mae_60": -0.07012215928478815
           },
           {
-            "similarity": 99.6,
+            "similarity": 99.8,
             "symbol": "QQQ",
             "date": "2026-07-13",
             "stage": "趋势恶化",
@@ -2705,15 +2447,7 @@
             "mae_60": -0.07026442240143871
           },
           {
-            "similarity": 99.5,
-            "symbol": "DRAM",
-            "date": "2026-10-12",
-            "stage": "趋势恶化",
-            "return_60": null,
-            "mae_60": null
-          },
-          {
-            "similarity": 99.4,
+            "similarity": 99.6,
             "symbol": "MU",
             "date": "2026-09-14",
             "stage": "趋势恶化",
@@ -2721,7 +2455,15 @@
             "mae_60": null
           },
           {
-            "similarity": 99.4,
+            "similarity": 99.3,
+            "symbol": "DRAM",
+            "date": "2026-10-12",
+            "stage": "趋势恶化",
+            "return_60": null,
+            "mae_60": null
+          },
+          {
+            "similarity": 99.2,
             "symbol": "SMH",
             "date": "2026-07-16",
             "stage": "趋势恶化",
@@ -2729,7 +2471,7 @@
             "mae_60": -0.11372422068653287
           },
           {
-            "similarity": 99.2,
+            "similarity": 99.1,
             "symbol": "MU",
             "date": "2026-07-15",
             "stage": "趋势恶化",
@@ -2737,15 +2479,7 @@
             "mae_60": -0.18277524660503386
           },
           {
-            "similarity": 99.1,
-            "symbol": "VOO",
-            "date": "2026-06-23",
-            "stage": "趋势恶化",
-            "return_60": 0.03650530798119278,
-            "mae_60": -0.008989561463169427
-          },
-          {
-            "similarity": 99.1,
+            "similarity": 99.0,
             "symbol": "QQQM",
             "date": "2026-06-23",
             "stage": "趋势恶化",
@@ -2753,12 +2487,20 @@
             "mae_60": -0.07268520093919084
           },
           {
-            "similarity": 99.1,
+            "similarity": 99.0,
             "symbol": "QQQ",
             "date": "2026-06-23",
             "stage": "趋势恶化",
             "return_60": 0.004582078049464089,
             "mae_60": -0.07275274994745318
+          },
+          {
+            "similarity": 98.9,
+            "symbol": "NBIS",
+            "date": "2026-07-06",
+            "stage": "趋势恶化",
+            "return_60": 0.13369636653835326,
+            "mae_60": -0.3041967890338936
           }
         ]
       },
@@ -2772,17 +2514,17 @@
       "research_priority": 34.0
     },
     {
-      "timestamp": "2026-10-12",
-      "symbol": "DRAM",
-      "price": 54.72,
-      "drawdown": -0.3272682567002705,
-      "rsi": 39.7,
-      "score": -31.2,
+      "timestamp": "2026-10-13",
+      "symbol": "NBIS",
+      "price": 206.86,
+      "drawdown": -0.31014471120338516,
+      "rsi": 41.7,
+      "score": -0.2,
       "stage": "趋势恶化",
       "weekly": "过渡",
       "zone": null,
-      "structure": "HH/HL",
-      "supertrend": "空头",
+      "structure": "LH/HL",
+      "supertrend": "多头",
       "data_confidence": "中（主源完整，二次源日期落后一交易日）",
       "macro": {
         "rates_regime": "RISING",
@@ -2803,13 +2545,13 @@
             "name": "yield_curve",
             "score": 2,
             "max": 15,
-            "reason": "T10Y2Y=0.44"
+            "reason": "T10Y2Y=0.42"
           },
           {
             "name": "real_yield",
             "score": 15,
             "max": 15,
-            "reason": "DFII10=2.87"
+            "reason": "DFII10=2.91"
           },
           {
             "name": "inflation",
@@ -2840,7 +2582,172 @@
       "market_regime": "正常",
       "historical_stage_evidence": {
         "n60": 1590,
-        "median60": 0.017618371363495644,
+        "median60": 0.018129334856105572,
+        "positive_rate60": 0.5440251572327044,
+        "label": "历史结果分化"
+      },
+      "similarity": {
+        "method": "technical-v1-stage+pulse+weekly+zone",
+        "n": 16,
+        "median_return_60": -0.019230246563343323,
+        "positive_rate_60": 0.4375,
+        "median_mae_60": -0.1084950994333636,
+        "matches": [
+          {
+            "similarity": 100.0,
+            "symbol": "SOFI",
+            "date": "2026-08-18",
+            "stage": "趋势恶化",
+            "return_60": null,
+            "mae_60": null
+          },
+          {
+            "similarity": 99.9,
+            "symbol": "SOFI",
+            "date": "2026-07-24",
+            "stage": "趋势恶化",
+            "return_60": null,
+            "mae_60": null
+          },
+          {
+            "similarity": 99.8,
+            "symbol": "TQQQ",
+            "date": "2026-09-10",
+            "stage": "趋势恶化",
+            "return_60": null,
+            "mae_60": null
+          },
+          {
+            "similarity": 99.8,
+            "symbol": "CRWV",
+            "date": "2026-08-21",
+            "stage": "趋势恶化",
+            "return_60": null,
+            "mae_60": null
+          },
+          {
+            "similarity": 99.7,
+            "symbol": "IREN",
+            "date": "2026-10-05",
+            "stage": "趋势恶化",
+            "return_60": null,
+            "mae_60": null
+          },
+          {
+            "similarity": 99.4,
+            "symbol": "SOFI",
+            "date": "2026-09-16",
+            "stage": "趋势恶化",
+            "return_60": null,
+            "mae_60": null
+          },
+          {
+            "similarity": 98.1,
+            "symbol": "GOOG",
+            "date": "2026-08-13",
+            "stage": "趋势恶化",
+            "return_60": null,
+            "mae_60": null
+          },
+          {
+            "similarity": 97.8,
+            "symbol": "TSLA",
+            "date": "2026-09-30",
+            "stage": "趋势恶化",
+            "return_60": null,
+            "mae_60": null
+          },
+          {
+            "similarity": 97.4,
+            "symbol": "AMZN",
+            "date": "2026-07-10",
+            "stage": "趋势恶化",
+            "return_60": 0.024700415749572047,
+            "mae_60": -0.07617999510882856
+          },
+          {
+            "similarity": 97.1,
+            "symbol": "LITE",
+            "date": "2026-06-26",
+            "stage": "趋势恶化",
+            "return_60": 0.15751915591568943,
+            "mae_60": -0.2627114494846875
+          }
+        ]
+      },
+      "contradictions": [],
+      "research_priority": 32.0
+    },
+    {
+      "timestamp": "2026-10-13",
+      "symbol": "DRAM",
+      "price": 52.84,
+      "drawdown": -0.35038111630194246,
+      "rsi": 36.3,
+      "score": -42.9,
+      "stage": "趋势恶化",
+      "weekly": "过渡",
+      "zone": null,
+      "structure": "HH/LL",
+      "supertrend": "空头",
+      "data_confidence": "中（主源完整，二次源日期落后一交易日）",
+      "macro": {
+        "rates_regime": "RISING",
+        "real_yield_regime": "RISING",
+        "yield_curve": "NORMAL",
+        "inflation_regime": "STABLE",
+        "credit_regime": "EASY",
+        "financial_conditions": "NEUTRAL",
+        "macro_risk_score": 34.0,
+        "components": [
+          {
+            "name": "policy_rate",
+            "score": 2,
+            "max": 15,
+            "reason": "DFF=3.88"
+          },
+          {
+            "name": "yield_curve",
+            "score": 2,
+            "max": 15,
+            "reason": "T10Y2Y=0.42"
+          },
+          {
+            "name": "real_yield",
+            "score": 15,
+            "max": 15,
+            "reason": "DFII10=2.91"
+          },
+          {
+            "name": "inflation",
+            "score": 8,
+            "max": 15,
+            "reason": "inflation=0.03353016322755642"
+          },
+          {
+            "name": "unemployment",
+            "score": 4,
+            "max": 15,
+            "reason": "UNRATE=4.2"
+          },
+          {
+            "name": "credit",
+            "score": 2,
+            "max": 15,
+            "reason": "HY_OAS=3.11"
+          },
+          {
+            "name": "financial_conditions",
+            "score": 1,
+            "max": 10,
+            "reason": "NFCI=-0.494"
+          }
+        ]
+      },
+      "market_regime": "正常",
+      "historical_stage_evidence": {
+        "n60": 1590,
+        "median60": 0.018129334856105572,
         "positive_rate60": 0.5440251572327044,
         "label": "历史结果分化"
       },
@@ -2852,20 +2759,177 @@
         "median_mae_60": -0.10945370011623401,
         "matches": [
           {
-            "similarity": 99.9,
-            "symbol": "AMD",
-            "date": "2026-07-28",
+            "similarity": 99.8,
+            "symbol": "AVGO",
+            "date": "2026-06-23",
+            "stage": "趋势恶化",
+            "return_60": -0.08641325792450338,
+            "mae_60": -0.1075364987504932
+          },
+          {
+            "similarity": 99.5,
+            "symbol": "TQQQ",
+            "date": "2026-07-16",
+            "stage": "趋势恶化",
+            "return_60": 0.1489963592666248,
+            "mae_60": -0.18363017042756424
+          },
+          {
+            "similarity": 99.4,
+            "symbol": "AAOI",
+            "date": "2026-10-12",
             "stage": "趋势恶化",
             "return_60": null,
             "mae_60": null
           },
           {
-            "similarity": 99.8,
-            "symbol": "TSLA",
+            "similarity": 99.2,
+            "symbol": "NBIS",
+            "date": "2026-08-10",
+            "stage": "趋势恶化",
+            "return_60": null,
+            "mae_60": null
+          },
+          {
+            "similarity": 99.1,
+            "symbol": "AMZN",
+            "date": "2026-09-15",
+            "stage": "趋势恶化",
+            "return_60": null,
+            "mae_60": null
+          },
+          {
+            "similarity": 99.0,
+            "symbol": "INTC",
+            "date": "2026-08-11",
+            "stage": "趋势恶化",
+            "return_60": null,
+            "mae_60": null
+          },
+          {
+            "similarity": 99.0,
+            "symbol": "NVDA",
             "date": "2026-06-23",
             "stage": "趋势恶化",
-            "return_60": -0.04038154136422012,
-            "mae_60": -0.21825947957338654
+            "return_60": 0.09648070385922813,
+            "mae_60": -0.05013997200559894
+          },
+          {
+            "similarity": 98.1,
+            "symbol": "AMD",
+            "date": "2026-08-13",
+            "stage": "趋势恶化",
+            "return_60": null,
+            "mae_60": null
+          },
+          {
+            "similarity": 97.4,
+            "symbol": "AMD",
+            "date": "2026-08-28",
+            "stage": "趋势恶化",
+            "return_60": null,
+            "mae_60": null
+          },
+          {
+            "similarity": 97.1,
+            "symbol": "SMH",
+            "date": "2026-09-01",
+            "stage": "趋势恶化",
+            "return_60": null,
+            "mae_60": null
+          }
+        ]
+      },
+      "contradictions": [],
+      "research_priority": 32.0
+    },
+    {
+      "timestamp": "2026-10-13",
+      "symbol": "SMH",
+      "price": 588.12,
+      "drawdown": -0.12459999926767185,
+      "rsi": 46.5,
+      "score": -29.4,
+      "stage": "趋势恶化",
+      "weekly": "过渡",
+      "zone": null,
+      "structure": "HH/HL",
+      "supertrend": "空头",
+      "data_confidence": "中（主源完整，二次源日期落后一交易日）",
+      "macro": {
+        "rates_regime": "RISING",
+        "real_yield_regime": "RISING",
+        "yield_curve": "NORMAL",
+        "inflation_regime": "STABLE",
+        "credit_regime": "EASY",
+        "financial_conditions": "NEUTRAL",
+        "macro_risk_score": 34.0,
+        "components": [
+          {
+            "name": "policy_rate",
+            "score": 2,
+            "max": 15,
+            "reason": "DFF=3.88"
+          },
+          {
+            "name": "yield_curve",
+            "score": 2,
+            "max": 15,
+            "reason": "T10Y2Y=0.42"
+          },
+          {
+            "name": "real_yield",
+            "score": 15,
+            "max": 15,
+            "reason": "DFII10=2.91"
+          },
+          {
+            "name": "inflation",
+            "score": 8,
+            "max": 15,
+            "reason": "inflation=0.03353016322755642"
+          },
+          {
+            "name": "unemployment",
+            "score": 4,
+            "max": 15,
+            "reason": "UNRATE=4.2"
+          },
+          {
+            "name": "credit",
+            "score": 2,
+            "max": 15,
+            "reason": "HY_OAS=3.11"
+          },
+          {
+            "name": "financial_conditions",
+            "score": 1,
+            "max": 10,
+            "reason": "NFCI=-0.494"
+          }
+        ]
+      },
+      "market_regime": "正常",
+      "historical_stage_evidence": {
+        "n60": 1590,
+        "median60": 0.018129334856105572,
+        "positive_rate60": 0.5440251572327044,
+        "label": "历史结果分化"
+      },
+      "similarity": {
+        "method": "technical-v1-stage+pulse+weekly+zone",
+        "n": 16,
+        "median_return_60": -0.019230246563343323,
+        "positive_rate_60": 0.4375,
+        "median_mae_60": -0.1084950994333636,
+        "matches": [
+          {
+            "similarity": 100.0,
+            "symbol": "AAPL",
+            "date": "2026-08-21",
+            "stage": "趋势恶化",
+            "return_60": null,
+            "mae_60": null
           },
           {
             "similarity": 99.7,
@@ -2876,31 +2940,7 @@
             "mae_60": null
           },
           {
-            "similarity": 99.4,
-            "symbol": "AAPL",
-            "date": "2026-08-21",
-            "stage": "趋势恶化",
-            "return_60": null,
-            "mae_60": null
-          },
-          {
-            "similarity": 99.2,
-            "symbol": "HYG",
-            "date": "2026-06-23",
-            "stage": "趋势恶化",
-            "return_60": -0.014398397395768203,
-            "mae_60": -0.018655314886691032
-          },
-          {
-            "similarity": 99.2,
-            "symbol": "GOOG",
-            "date": "2026-06-22",
-            "stage": "趋势恶化",
-            "return_60": -0.027008429382418653,
-            "mae_60": -0.08727564653936581
-          },
-          {
-            "similarity": 99.1,
+            "similarity": 99.7,
             "symbol": "HOOD",
             "date": "2026-08-20",
             "stage": "趋势恶化",
@@ -2908,15 +2948,15 @@
             "mae_60": null
           },
           {
-            "similarity": 99.0,
-            "symbol": "TLT",
-            "date": "2026-07-01",
+            "similarity": 99.3,
+            "symbol": "AMD",
+            "date": "2026-07-28",
             "stage": "趋势恶化",
-            "return_60": -0.07249766136576241,
-            "mae_60": -0.07249766136576241
+            "return_60": null,
+            "mae_60": null
           },
           {
-            "similarity": 98.6,
+            "similarity": 99.2,
             "symbol": "GOOG",
             "date": "2026-07-09",
             "stage": "趋势恶化",
@@ -2924,12 +2964,44 @@
             "mae_60": -0.10638895126880765
           },
           {
-            "similarity": 98.4,
+            "similarity": 99.2,
+            "symbol": "TSLA",
+            "date": "2026-06-23",
+            "stage": "趋势恶化",
+            "return_60": -0.04038154136422012,
+            "mae_60": -0.21825947957338654
+          },
+          {
+            "similarity": 99.0,
             "symbol": "GLD",
             "date": "2026-09-01",
             "stage": "趋势恶化",
             "return_60": null,
             "mae_60": null
+          },
+          {
+            "similarity": 98.7,
+            "symbol": "CRWV",
+            "date": "2026-09-15",
+            "stage": "趋势恶化",
+            "return_60": null,
+            "mae_60": null
+          },
+          {
+            "similarity": 98.6,
+            "symbol": "HYG",
+            "date": "2026-06-23",
+            "stage": "趋势恶化",
+            "return_60": -0.014398397395768203,
+            "mae_60": -0.018655314886691032
+          },
+          {
+            "similarity": 98.6,
+            "symbol": "GOOG",
+            "date": "2026-06-22",
+            "stage": "趋势恶化",
+            "return_60": -0.027008429382418653,
+            "mae_60": -0.08727564653936581
           }
         ]
       },
@@ -2937,12 +3009,12 @@
       "research_priority": 32.0
     },
     {
-      "timestamp": "2026-10-12",
-      "symbol": "SMH",
-      "price": 590.98999,
-      "drawdown": -0.12032810025369212,
-      "rsi": 47.7,
-      "score": -28.8,
+      "timestamp": "2026-10-13",
+      "symbol": "INTC",
+      "price": 102.81,
+      "drawdown": -0.27776612028337755,
+      "rsi": 42.2,
+      "score": -33.6,
       "stage": "趋势恶化",
       "weekly": "过渡",
       "zone": null,
@@ -2968,13 +3040,13 @@
             "name": "yield_curve",
             "score": 2,
             "max": 15,
-            "reason": "T10Y2Y=0.44"
+            "reason": "T10Y2Y=0.42"
           },
           {
             "name": "real_yield",
             "score": 15,
             "max": 15,
-            "reason": "DFII10=2.87"
+            "reason": "DFII10=2.91"
           },
           {
             "name": "inflation",
@@ -3005,7 +3077,7 @@
       "market_regime": "正常",
       "historical_stage_evidence": {
         "n60": 1590,
-        "median60": 0.017618371363495644,
+        "median60": 0.018129334856105572,
         "positive_rate60": 0.5440251572327044,
         "label": "历史结果分化"
       },
@@ -3017,170 +3089,21 @@
         "median_mae_60": -0.10945370011623401,
         "matches": [
           {
-            "similarity": 99.9,
-            "symbol": "HOOD",
-            "date": "2026-08-20",
-            "stage": "趋势恶化",
-            "return_60": null,
-            "mae_60": null
-          },
-          {
-            "similarity": 99.8,
-            "symbol": "AAPL",
-            "date": "2026-08-21",
-            "stage": "趋势恶化",
-            "return_60": null,
-            "mae_60": null
-          },
-          {
-            "similarity": 99.5,
-            "symbol": "GLD",
-            "date": "2026-09-16",
-            "stage": "趋势恶化",
-            "return_60": null,
-            "mae_60": null
-          },
-          {
-            "similarity": 99.4,
-            "symbol": "GOOG",
-            "date": "2026-07-09",
-            "stage": "趋势恶化",
-            "return_60": -0.034836093644733834,
-            "mae_60": -0.10638895126880765
-          },
-          {
-            "similarity": 99.2,
-            "symbol": "GLD",
-            "date": "2026-09-01",
-            "stage": "趋势恶化",
-            "return_60": null,
-            "mae_60": null
-          },
-          {
-            "similarity": 99.1,
-            "symbol": "AMD",
-            "date": "2026-07-28",
-            "stage": "趋势恶化",
-            "return_60": null,
-            "mae_60": null
-          },
-          {
-            "similarity": 99.0,
-            "symbol": "TSLA",
+            "similarity": 100.0,
+            "symbol": "HYG",
             "date": "2026-06-23",
             "stage": "趋势恶化",
-            "return_60": -0.04038154136422012,
-            "mae_60": -0.21825947957338654
+            "return_60": -0.014398397395768203,
+            "mae_60": -0.018655314886691032
           },
           {
-            "similarity": 98.9,
-            "symbol": "CRWV",
-            "date": "2026-09-15",
-            "stage": "趋势恶化",
-            "return_60": null,
-            "mae_60": null
-          },
-          {
-            "similarity": 98.7,
-            "symbol": "SPCX",
+            "similarity": 100.0,
+            "symbol": "GOOG",
             "date": "2026-06-22",
             "stage": "趋势恶化",
-            "return_60": -0.024062095730918442,
-            "mae_60": -0.2996765847347995
+            "return_60": -0.027008429382418653,
+            "mae_60": -0.08727564653936581
           },
-          {
-            "similarity": 98.4,
-            "symbol": "AAPL",
-            "date": "2026-06-24",
-            "stage": "趋势恶化",
-            "return_60": 0.14688822164596704,
-            "mae_60": -0.061177835403302905
-          }
-        ]
-      },
-      "contradictions": [],
-      "research_priority": 32.0
-    },
-    {
-      "timestamp": "2026-10-12",
-      "symbol": "INTC",
-      "price": 101.35,
-      "drawdown": -0.28802252981928134,
-      "rsi": 40.3,
-      "score": -34.7,
-      "stage": "趋势恶化",
-      "weekly": "过渡",
-      "zone": null,
-      "structure": "HH/HL",
-      "supertrend": "空头",
-      "data_confidence": "中（主源完整，二次源日期落后一交易日）",
-      "macro": {
-        "rates_regime": "RISING",
-        "real_yield_regime": "RISING",
-        "yield_curve": "NORMAL",
-        "inflation_regime": "STABLE",
-        "credit_regime": "EASY",
-        "financial_conditions": "NEUTRAL",
-        "macro_risk_score": 34.0,
-        "components": [
-          {
-            "name": "policy_rate",
-            "score": 2,
-            "max": 15,
-            "reason": "DFF=3.88"
-          },
-          {
-            "name": "yield_curve",
-            "score": 2,
-            "max": 15,
-            "reason": "T10Y2Y=0.44"
-          },
-          {
-            "name": "real_yield",
-            "score": 15,
-            "max": 15,
-            "reason": "DFII10=2.87"
-          },
-          {
-            "name": "inflation",
-            "score": 8,
-            "max": 15,
-            "reason": "inflation=0.03353016322755642"
-          },
-          {
-            "name": "unemployment",
-            "score": 4,
-            "max": 15,
-            "reason": "UNRATE=4.2"
-          },
-          {
-            "name": "credit",
-            "score": 2,
-            "max": 15,
-            "reason": "HY_OAS=3.11"
-          },
-          {
-            "name": "financial_conditions",
-            "score": 1,
-            "max": 10,
-            "reason": "NFCI=-0.494"
-          }
-        ]
-      },
-      "market_regime": "正常",
-      "historical_stage_evidence": {
-        "n60": 1590,
-        "median60": 0.017618371363495644,
-        "positive_rate60": 0.5440251572327044,
-        "label": "历史结果分化"
-      },
-      "similarity": {
-        "method": "technical-v1-stage+pulse+weekly+zone",
-        "n": 18,
-        "median_return_60": 0.005151009176901922,
-        "positive_rate_60": 0.5,
-        "median_mae_60": -0.1202756204404346,
-        "matches": [
           {
             "similarity": 99.8,
             "symbol": "TLT",
@@ -3190,31 +3113,7 @@
             "mae_60": -0.07249766136576241
           },
           {
-            "similarity": 99.6,
-            "symbol": "HYG",
-            "date": "2026-06-23",
-            "stage": "趋势恶化",
-            "return_60": -0.014398397395768203,
-            "mae_60": -0.018655314886691032
-          },
-          {
-            "similarity": 99.6,
-            "symbol": "GOOG",
-            "date": "2026-06-22",
-            "stage": "趋势恶化",
-            "return_60": -0.027008429382418653,
-            "mae_60": -0.08727564653936581
-          },
-          {
-            "similarity": 99.1,
-            "symbol": "AMD",
-            "date": "2026-08-13",
-            "stage": "趋势恶化",
-            "return_60": null,
-            "mae_60": null
-          },
-          {
-            "similarity": 99.1,
+            "similarity": 99.4,
             "symbol": "TSLA",
             "date": "2026-06-23",
             "stage": "趋势恶化",
@@ -3222,7 +3121,7 @@
             "mae_60": -0.21825947957338654
           },
           {
-            "similarity": 98.9,
+            "similarity": 99.3,
             "symbol": "AMD",
             "date": "2026-07-28",
             "stage": "趋势恶化",
@@ -3230,7 +3129,7 @@
             "mae_60": null
           },
           {
-            "similarity": 98.5,
+            "similarity": 98.9,
             "symbol": "GLD",
             "date": "2026-09-16",
             "stage": "趋势恶化",
@@ -3238,15 +3137,15 @@
             "mae_60": null
           },
           {
-            "similarity": 98.3,
-            "symbol": "NVDA",
-            "date": "2026-06-23",
+            "similarity": 98.8,
+            "symbol": "AMD",
+            "date": "2026-08-13",
             "stage": "趋势恶化",
-            "return_60": 0.09648070385922813,
-            "mae_60": -0.05013997200559894
+            "return_60": null,
+            "mae_60": null
           },
           {
-            "similarity": 98.2,
+            "similarity": 98.6,
             "symbol": "AAPL",
             "date": "2026-08-21",
             "stage": "趋势恶化",
@@ -3254,12 +3153,20 @@
             "mae_60": null
           },
           {
-            "similarity": 98.1,
-            "symbol": "AMZN",
-            "date": "2026-09-15",
+            "similarity": 98.3,
+            "symbol": "HOOD",
+            "date": "2026-08-20",
             "stage": "趋势恶化",
             "return_60": null,
             "mae_60": null
+          },
+          {
+            "similarity": 97.9,
+            "symbol": "NVDA",
+            "date": "2026-06-23",
+            "stage": "趋势恶化",
+            "return_60": 0.09648070385922813,
+            "mae_60": -0.05013997200559894
           }
         ]
       },
@@ -3267,12 +3174,12 @@
       "research_priority": 32.0
     },
     {
-      "timestamp": "2026-10-12",
+      "timestamp": "2026-10-13",
       "symbol": "SOFI",
-      "price": 15.23,
-      "drawdown": -0.5346776657500762,
-      "rsi": 33.2,
-      "score": -90.1,
+      "price": 15.24,
+      "drawdown": -0.534372135655362,
+      "rsi": 33.4,
+      "score": -90.7,
       "stage": "趋势恶化",
       "weekly": "空头",
       "zone": null,
@@ -3298,13 +3205,13 @@
             "name": "yield_curve",
             "score": 2,
             "max": 15,
-            "reason": "T10Y2Y=0.44"
+            "reason": "T10Y2Y=0.42"
           },
           {
             "name": "real_yield",
             "score": 15,
             "max": 15,
-            "reason": "DFII10=2.87"
+            "reason": "DFII10=2.91"
           },
           {
             "name": "inflation",
@@ -3335,19 +3242,19 @@
       "market_regime": "正常",
       "historical_stage_evidence": {
         "n60": 1590,
-        "median60": 0.017618371363495644,
+        "median60": 0.018129334856105572,
         "positive_rate60": 0.5440251572327044,
         "label": "历史结果分化"
       },
       "similarity": {
         "method": "technical-v1-stage+pulse+weekly+zone",
-        "n": 11,
-        "median_return_60": 0.046832294259306684,
-        "positive_rate_60": 0.7272727272727273,
-        "median_mae_60": -0.05455753222838666,
+        "n": 10,
+        "median_return_60": 0.09511757875623883,
+        "positive_rate_60": 0.7,
+        "median_mae_60": -0.06424492243973728,
         "matches": [
           {
-            "similarity": 99.3,
+            "similarity": 99.5,
             "symbol": "HYG",
             "date": "2026-08-03",
             "stage": "趋势恶化",
@@ -3355,7 +3262,7 @@
             "mae_60": null
           },
           {
-            "similarity": 99.1,
+            "similarity": 99.3,
             "symbol": "CRWV",
             "date": "2026-07-24",
             "stage": "趋势恶化",
@@ -3363,7 +3270,7 @@
             "mae_60": null
           },
           {
-            "similarity": 98.8,
+            "similarity": 99.0,
             "symbol": "TLT",
             "date": "2026-08-11",
             "stage": "趋势恶化",
@@ -3371,15 +3278,7 @@
             "mae_60": null
           },
           {
-            "similarity": 98.5,
-            "symbol": "META",
-            "date": "2026-06-17",
-            "stage": "趋势恶化",
-            "return_60": 0.17269812185066424,
-            "mae_60": -0.050301279114838504
-          },
-          {
-            "similarity": 98.4,
+            "similarity": 98.6,
             "symbol": "AVGO",
             "date": "2026-09-14",
             "stage": "趋势恶化",
@@ -3387,7 +3286,15 @@
             "mae_60": null
           },
           {
-            "similarity": 98.0,
+            "similarity": 98.3,
+            "symbol": "META",
+            "date": "2026-06-17",
+            "stage": "趋势恶化",
+            "return_60": 0.17269812185066424,
+            "mae_60": -0.050301279114838504
+          },
+          {
+            "similarity": 97.8,
             "symbol": "ORCL",
             "date": "2026-10-08",
             "stage": "趋势恶化",
@@ -3395,7 +3302,7 @@
             "mae_60": null
           },
           {
-            "similarity": 98.0,
+            "similarity": 97.8,
             "symbol": "ORCL",
             "date": "2026-07-29",
             "stage": "趋势恶化",
@@ -3403,7 +3310,7 @@
             "mae_60": null
           },
           {
-            "similarity": 97.1,
+            "similarity": 96.9,
             "symbol": "MSFT",
             "date": "2026-06-30",
             "stage": "趋势恶化",
@@ -3411,7 +3318,7 @@
             "mae_60": 0.022947831215484493
           },
           {
-            "similarity": 96.7,
+            "similarity": 96.5,
             "symbol": "TLT",
             "date": "2026-09-24",
             "stage": "趋势恶化",
@@ -3419,7 +3326,7 @@
             "mae_60": null
           },
           {
-            "similarity": 96.1,
+            "similarity": 95.9,
             "symbol": "IREN",
             "date": "2026-07-28",
             "stage": "趋势恶化",
@@ -3432,12 +3339,12 @@
       "research_priority": 27.0
     },
     {
-      "timestamp": "2026-10-12",
+      "timestamp": "2026-10-13",
       "symbol": "IREN",
       "price": 34.8,
       "drawdown": -0.54728762846364,
       "rsi": 33.2,
-      "score": -78.4,
+      "score": -79.1,
       "stage": "趋势恶化",
       "weekly": "空头",
       "zone": null,
@@ -3463,13 +3370,13 @@
             "name": "yield_curve",
             "score": 2,
             "max": 15,
-            "reason": "T10Y2Y=0.44"
+            "reason": "T10Y2Y=0.42"
           },
           {
             "name": "real_yield",
             "score": 15,
             "max": 15,
-            "reason": "DFII10=2.87"
+            "reason": "DFII10=2.91"
           },
           {
             "name": "inflation",
@@ -3500,7 +3407,7 @@
       "market_regime": "正常",
       "historical_stage_evidence": {
         "n60": 1590,
-        "median60": 0.017618371363495644,
+        "median60": 0.018129334856105572,
         "positive_rate60": 0.5440251572327044,
         "label": "历史结果分化"
       },
@@ -3512,15 +3419,7 @@
         "median_mae_60": -0.05455753222838666,
         "matches": [
           {
-            "similarity": 99.7,
-            "symbol": "GLD",
-            "date": "2026-07-13",
-            "stage": "趋势恶化",
-            "return_60": 0.04123879824585286,
-            "mae_60": -0.005910712826519227
-          },
-          {
-            "similarity": 99.4,
+            "similarity": 99.6,
             "symbol": "TLT",
             "date": "2026-09-24",
             "stage": "趋势恶化",
@@ -3528,7 +3427,15 @@
             "mae_60": null
           },
           {
-            "similarity": 99.0,
+            "similarity": 99.5,
+            "symbol": "GLD",
+            "date": "2026-07-13",
+            "stage": "趋势恶化",
+            "return_60": 0.04123879824585286,
+            "mae_60": -0.005910712826519227
+          },
+          {
+            "similarity": 99.2,
             "symbol": "MSFT",
             "date": "2026-06-30",
             "stage": "趋势恶化",
@@ -3536,15 +3443,7 @@
             "mae_60": 0.022947831215484493
           },
           {
-            "similarity": 98.2,
-            "symbol": "META",
-            "date": "2026-08-12",
-            "stage": "趋势恶化",
-            "return_60": null,
-            "mae_60": null
-          },
-          {
-            "similarity": 98.1,
+            "similarity": 98.3,
             "symbol": "ORCL",
             "date": "2026-10-08",
             "stage": "趋势恶化",
@@ -3552,7 +3451,7 @@
             "mae_60": null
           },
           {
-            "similarity": 98.1,
+            "similarity": 98.3,
             "symbol": "ORCL",
             "date": "2026-07-29",
             "stage": "趋势恶化",
@@ -3560,7 +3459,15 @@
             "mae_60": null
           },
           {
-            "similarity": 98.1,
+            "similarity": 98.0,
+            "symbol": "META",
+            "date": "2026-08-12",
+            "stage": "趋势恶化",
+            "return_60": null,
+            "mae_60": null
+          },
+          {
+            "similarity": 97.8,
             "symbol": "HYG",
             "date": "2026-07-17",
             "stage": "趋势恶化",
@@ -3568,15 +3475,7 @@
             "mae_60": -0.034526051475204045
           },
           {
-            "similarity": 97.7,
-            "symbol": "NOW",
-            "date": "2026-06-30",
-            "stage": "趋势恶化",
-            "return_60": 0.3877921031426268,
-            "mae_60": -0.0739323126510879
-          },
-          {
-            "similarity": 97.6,
+            "similarity": 97.8,
             "symbol": "META",
             "date": "2026-06-17",
             "stage": "趋势恶化",
@@ -3584,7 +3483,15 @@
             "mae_60": -0.050301279114838504
           },
           {
-            "similarity": 95.4,
+            "similarity": 97.5,
+            "symbol": "NOW",
+            "date": "2026-06-30",
+            "stage": "趋势恶化",
+            "return_60": 0.3877921031426268,
+            "mae_60": -0.0739323126510879
+          },
+          {
+            "similarity": 95.6,
             "symbol": "HYG",
             "date": "2026-08-03",
             "stage": "趋势恶化",
@@ -3597,17 +3504,17 @@
       "research_priority": 27.0
     },
     {
-      "timestamp": "2026-10-12",
-      "symbol": "ORCL",
-      "price": 137.39,
-      "drawdown": -0.5740373419099231,
-      "rsi": 44.4,
-      "score": -72.8,
+      "timestamp": "2026-10-13",
+      "symbol": "AVGO",
+      "price": 357.31,
+      "drawdown": -0.27816161616161617,
+      "rsi": 48.0,
+      "score": -12.2,
       "stage": "趋势恶化",
       "weekly": "空头",
       "zone": null,
       "structure": "LH/LL",
-      "supertrend": "空头",
+      "supertrend": "多头",
       "data_confidence": "中（主源完整，二次源日期落后一交易日）",
       "macro": {
         "rates_regime": "RISING",
@@ -3628,13 +3535,13 @@
             "name": "yield_curve",
             "score": 2,
             "max": 15,
-            "reason": "T10Y2Y=0.44"
+            "reason": "T10Y2Y=0.42"
           },
           {
             "name": "real_yield",
             "score": 15,
             "max": 15,
-            "reason": "DFII10=2.87"
+            "reason": "DFII10=2.91"
           },
           {
             "name": "inflation",
@@ -3665,96 +3572,96 @@
       "market_regime": "正常",
       "historical_stage_evidence": {
         "n60": 1590,
-        "median60": 0.017618371363495644,
+        "median60": 0.018129334856105572,
         "positive_rate60": 0.5440251572327044,
         "label": "历史结果分化"
       },
       "similarity": {
         "method": "technical-v1-stage+pulse+weekly+zone",
-        "n": 11,
-        "median_return_60": 0.046832294259306684,
-        "positive_rate_60": 0.7272727272727273,
-        "median_mae_60": -0.05455753222838666,
+        "n": 13,
+        "median_return_60": 0.06442366750836004,
+        "positive_rate_60": 0.7692307692307693,
+        "median_mae_60": -0.07617999510882856,
         "matches": [
           {
             "similarity": 99.9,
-            "symbol": "META",
-            "date": "2026-08-12",
+            "symbol": "GOOG",
+            "date": "2026-09-23",
             "stage": "趋势恶化",
             "return_60": null,
             "mae_60": null
           },
           {
-            "similarity": 99.9,
-            "symbol": "HYG",
-            "date": "2026-07-17",
-            "stage": "趋势恶化",
-            "return_60": -0.029629618135250002,
-            "mae_60": -0.034526051475204045
-          },
-          {
-            "similarity": 99.6,
-            "symbol": "NOW",
-            "date": "2026-06-30",
-            "stage": "趋势恶化",
-            "return_60": 0.3877921031426268,
-            "mae_60": -0.0739323126510879
-          },
-          {
-            "similarity": 98.4,
-            "symbol": "GLD",
-            "date": "2026-07-13",
-            "stage": "趋势恶化",
-            "return_60": 0.04123879824585286,
-            "mae_60": -0.005910712826519227
-          },
-          {
-            "similarity": 98.2,
-            "symbol": "IREN",
-            "date": "2026-07-28",
+            "similarity": 99.7,
+            "symbol": "VIX",
+            "date": "2026-10-06",
             "stage": "趋势恶化",
             "return_60": null,
             "mae_60": null
           },
           {
-            "similarity": 97.5,
-            "symbol": "TLT",
-            "date": "2026-09-24",
+            "similarity": 99.7,
+            "symbol": "TSLA",
+            "date": "2026-07-08",
+            "stage": "趋势恶化",
+            "return_60": -0.05928028726589851,
+            "mae_60": -0.24295792518905757
+          },
+          {
+            "similarity": 99.4,
+            "symbol": "CRWV",
+            "date": "2026-09-29",
             "stage": "趋势恶化",
             "return_60": null,
             "mae_60": null
           },
           {
-            "similarity": 97.1,
+            "similarity": 99.4,
             "symbol": "MSFT",
-            "date": "2026-06-30",
+            "date": "2026-07-22",
             "stage": "趋势恶化",
-            "return_60": 0.3348614015334299,
-            "mae_60": 0.022947831215484493
+            "return_60": null,
+            "mae_60": null
           },
           {
-            "similarity": 95.7,
-            "symbol": "AVGO",
-            "date": "2026-09-28",
+            "similarity": 99.2,
+            "symbol": "VIX",
+            "date": "2026-09-17",
+            "stage": "趋势恶化",
+            "return_60": null,
+            "mae_60": null
+          },
+          {
+            "similarity": 95.8,
+            "symbol": "IREN",
+            "date": "2026-08-28",
             "stage": "趋势恶化",
             "return_60": null,
             "mae_60": null
           },
           {
             "similarity": 95.7,
-            "symbol": "META",
-            "date": "2026-06-17",
+            "symbol": "TLT",
+            "date": "2026-09-01",
             "stage": "趋势恶化",
-            "return_60": 0.17269812185066424,
-            "mae_60": -0.050301279114838504
+            "return_60": null,
+            "mae_60": null
           },
           {
-            "similarity": 93.5,
+            "similarity": 94.3,
             "symbol": "HYG",
-            "date": "2026-08-03",
+            "date": "2026-08-19",
             "stage": "趋势恶化",
             "return_60": null,
             "mae_60": null
+          },
+          {
+            "similarity": 92.0,
+            "symbol": "VIX",
+            "date": "2026-07-10",
+            "stage": "趋势恶化",
+            "return_60": 0.018629453866940038,
+            "mae_60": -0.05455753222838666
           }
         ]
       },
@@ -3809,31 +3716,31 @@
       },
       "horizons": {
         "20": {
-          "n": 1613,
-          "avg": 0.022603762836185017,
-          "median": 0.01057943174976339,
-          "positive_rate": 0.5666460012399256,
-          "mae_avg": -0.05990319565108552,
-          "mfe_avg": 0.0890959472706955,
-          "excess_vs_qqq_avg": 0.010068833166286165
+          "n": 1612,
+          "avg": 0.022374543773676075,
+          "median": 0.010572734742806289,
+          "positive_rate": 0.5663771712158809,
+          "mae_avg": -0.059960035232016935,
+          "mfe_avg": 0.0887243583595454,
+          "excess_vs_qqq_avg": 0.009934409784777462
         },
         "60": {
-          "n": 1544,
-          "avg": 0.07883014530277808,
+          "n": 1542,
+          "avg": 0.0789013656211379,
           "median": 0.03350858252027622,
-          "positive_rate": 0.6126943005181347,
-          "mae_avg": -0.10594126166340682,
-          "mfe_avg": 0.20520671287365233,
-          "excess_vs_qqq_avg": 0.04666490898376444
+          "positive_rate": 0.6128404669260701,
+          "mae_avg": -0.10590555889365584,
+          "mfe_avg": 0.20498376236984675,
+          "excess_vs_qqq_avg": 0.04679388466047488
         },
         "120": {
-          "n": 1462,
-          "avg": 0.18512869088837883,
+          "n": 1460,
+          "avg": 0.18542566550189038,
           "median": 0.08180292212287055,
-          "positive_rate": 0.6703146374829001,
-          "mae_avg": -0.13576342310855055,
-          "mfe_avg": 0.3681057431281809,
-          "excess_vs_qqq_avg": 0.10411518156394728
+          "positive_rate": 0.6705479452054794,
+          "mae_avg": -0.13551535897126724,
+          "mfe_avg": 0.36809342010327734,
+          "excess_vs_qqq_avg": 0.104351516704191
         }
       },
       "learned_from": "STOOQ causal event study",
@@ -3847,13 +3754,13 @@
       },
       "horizons": {
         "20": {
-          "n": 1153,
-          "avg": 0.021159467523872058,
-          "median": 0.013131354430724995,
-          "positive_rate": 0.5784908933217693,
-          "mae_avg": -0.060424193461634246,
-          "mfe_avg": 0.0856594292331221,
-          "excess_vs_qqq_avg": 0.009343383868120305
+          "n": 1154,
+          "avg": 0.02097312080841586,
+          "median": 0.013123763119081255,
+          "positive_rate": 0.5779896013864818,
+          "mae_avg": -0.060539843763758115,
+          "mfe_avg": 0.08569319366289463,
+          "excess_vs_qqq_avg": 0.009125255041979032
         },
         "60": {
           "n": 1109,
@@ -3885,31 +3792,31 @@
       },
       "horizons": {
         "20": {
-          "n": 1285,
-          "avg": 0.02560682831634658,
-          "median": 0.00910935951290881,
-          "positive_rate": 0.553307392996109,
-          "mae_avg": -0.07368360882213243,
-          "mfe_avg": 0.10289021014320868,
-          "excess_vs_qqq_avg": 0.011858556808794442
+          "n": 1283,
+          "avg": 0.02544467903676811,
+          "median": 0.00896592946802155,
+          "positive_rate": 0.5526110678098207,
+          "mae_avg": -0.07381413032297604,
+          "mfe_avg": 0.10284345537864908,
+          "excess_vs_qqq_avg": 0.011841633359585662
         },
         "60": {
-          "n": 1232,
-          "avg": 0.07554261724696458,
-          "median": 0.025070457973117466,
-          "positive_rate": 0.5560064935064936,
-          "mae_avg": -0.12490777173309703,
-          "mfe_avg": 0.23425736447764237,
-          "excess_vs_qqq_avg": 0.039933137360451336
+          "n": 1230,
+          "avg": 0.07553437100403433,
+          "median": 0.024056166171598004,
+          "positive_rate": 0.5552845528455285,
+          "mae_avg": -0.1251272086529379,
+          "mfe_avg": 0.23437207720108746,
+          "excess_vs_qqq_avg": 0.03999159136123242
         },
         "120": {
-          "n": 1184,
-          "avg": 0.18472879848996296,
+          "n": 1182,
+          "avg": 0.18493178008153763,
           "median": 0.0654391899083725,
-          "positive_rate": 0.6190878378378378,
-          "mae_avg": -0.165680605084322,
-          "mfe_avg": 0.40831472112077893,
-          "excess_vs_qqq_avg": 0.10063877304924175
+          "positive_rate": 0.6184433164128595,
+          "mae_avg": -0.16583703196088903,
+          "mfe_avg": 0.40872860552274487,
+          "excess_vs_qqq_avg": 0.10042508013733313
         }
       },
       "learned_from": "STOOQ causal event study",
@@ -3941,13 +3848,13 @@
           "excess_vs_qqq_avg": 0.05403562788329466
         },
         "120": {
-          "n": 758,
-          "avg": 0.21365114496665744,
-          "median": 0.09476858405240296,
-          "positive_rate": 0.7058047493403694,
-          "mae_avg": -0.12761827717591906,
-          "mfe_avg": 0.4030915535461725,
-          "excess_vs_qqq_avg": 0.13246649021439197
+          "n": 760,
+          "avg": 0.2142685318942554,
+          "median": 0.09528010779099894,
+          "positive_rate": 0.7065789473684211,
+          "mae_avg": -0.12742883866303445,
+          "mfe_avg": 0.40465004687643163,
+          "excess_vs_qqq_avg": 0.13291719038563457
         }
       },
       "learned_from": "STOOQ causal event study",
@@ -3999,31 +3906,31 @@
       },
       "horizons": {
         "20": {
-          "n": 1639,
-          "avg": 0.023869989171395885,
-          "median": 0.008964148248565618,
-          "positive_rate": 0.546064673581452,
-          "mae_avg": -0.06990718150140666,
-          "mfe_avg": 0.10118793682396193,
-          "excess_vs_qqq_avg": 0.012740777194427098
+          "n": 1640,
+          "avg": 0.02374892379497602,
+          "median": 0.008716486470471851,
+          "positive_rate": 0.5457317073170732,
+          "mae_avg": -0.06993651549679422,
+          "mfe_avg": 0.10109234682381109,
+          "excess_vs_qqq_avg": 0.012663970523859588
         },
         "60": {
           "n": 1590,
-          "avg": 0.07269360263933376,
-          "median": 0.017618371363495644,
+          "avg": 0.07259702241297529,
+          "median": 0.018129334856105572,
           "positive_rate": 0.5440251572327044,
-          "mae_avg": -0.1246616825170742,
-          "mfe_avg": 0.22343913108465369,
-          "excess_vs_qqq_avg": 0.03923342049546637
+          "mae_avg": -0.1247164168518737,
+          "mfe_avg": 0.22326759642678232,
+          "excess_vs_qqq_avg": 0.03914596352081087
         },
         "120": {
-          "n": 1495,
-          "avg": 0.18361123952524697,
+          "n": 1493,
+          "avg": 0.18360525820186616,
           "median": 0.07143616173423295,
-          "positive_rate": 0.6361204013377927,
-          "mae_avg": -0.1637822020320553,
-          "mfe_avg": 0.40235695009865785,
-          "excess_vs_qqq_avg": 0.10015605470204289
+          "positive_rate": 0.6356329537843268,
+          "mae_avg": -0.1639510072794178,
+          "mfe_avg": 0.4025605665335643,
+          "excess_vs_qqq_avg": 0.10008725293617003
         }
       },
       "learned_from": "STOOQ causal event study",
@@ -4044,7 +3951,7 @@
       "symbol": "VOO",
       "research_priority": 71.0,
       "stage": "二次启动",
-      "similarity_n60": 6,
+      "similarity_n60": 9,
       "contradictions": 1
     },
     {
@@ -4057,38 +3964,22 @@
     },
     {
       "rank": 4,
-      "symbol": "TSLA",
-      "research_priority": 66.0,
-      "stage": "二次启动",
-      "similarity_n60": 3,
+      "symbol": "AMZN",
+      "research_priority": 64.0,
+      "stage": "趋势延续",
+      "similarity_n60": 13,
       "contradictions": 1
     },
     {
       "rank": 5,
-      "symbol": "AMZN",
-      "research_priority": 64.0,
-      "stage": "趋势延续",
-      "similarity_n60": 12,
-      "contradictions": 1
-    },
-    {
-      "rank": 6,
-      "symbol": "SPCX",
+      "symbol": "MSFT",
       "research_priority": 56.0,
       "stage": "高位钝化",
       "similarity_n60": 9,
       "contradictions": 0
     },
     {
-      "rank": 7,
-      "symbol": "MSFT",
-      "research_priority": 56.0,
-      "stage": "高位钝化",
-      "similarity_n60": 10,
-      "contradictions": 0
-    },
-    {
-      "rank": 8,
+      "rank": 6,
       "symbol": "NVDA",
       "research_priority": 55.0,
       "stage": "震荡观察",
@@ -4096,7 +3987,7 @@
       "contradictions": 0
     },
     {
-      "rank": 9,
+      "rank": 7,
       "symbol": "LITE",
       "research_priority": 55.0,
       "stage": "震荡观察",
@@ -4104,7 +3995,7 @@
       "contradictions": 0
     },
     {
-      "rank": 10,
+      "rank": 8,
       "symbol": "AMD",
       "research_priority": 55.0,
       "stage": "震荡观察",
@@ -4112,7 +4003,7 @@
       "contradictions": 0
     },
     {
-      "rank": 11,
+      "rank": 9,
       "symbol": "QQQM",
       "research_priority": 55.0,
       "stage": "震荡观察",
@@ -4120,8 +4011,24 @@
       "contradictions": 0
     },
     {
-      "rank": 12,
+      "rank": 10,
+      "symbol": "QLD",
+      "research_priority": 55.0,
+      "stage": "震荡观察",
+      "similarity_n60": 0,
+      "contradictions": 0
+    },
+    {
+      "rank": 11,
       "symbol": "VGT",
+      "research_priority": 55.0,
+      "stage": "震荡观察",
+      "similarity_n60": 0,
+      "contradictions": 0
+    },
+    {
+      "rank": 12,
+      "symbol": "QQQ",
       "research_priority": 55.0,
       "stage": "震荡观察",
       "similarity_n60": 0,

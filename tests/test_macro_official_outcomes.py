@@ -9,7 +9,11 @@ import macro_official_outcomes as mo  # noqa: E402
 import brightline_tranche_shadow as bl  # noqa: E402
 
 CAL = json.loads((ROOT / "research/macro_events/event_facts_2026q4.json").read_text(encoding="utf-8"))
-EV = CAL["events"]["cpi_2026_09"]
+COMMITTED = CAL["events"]["cpi_2026_09"]
+# the committed calendar fills after the 10/14 release; state-machine tests use the pre-release shape of the same event
+EV = {k: v for k, v in COMMITTED.items() if k not in ("official_outcome", "surprise", "summary", "official_outcome_candidate",
+                                                      "outcome_status_detail", "outcome_last_attempt_at")}
+EV.update(outcome_status="pending", official_outcome_recorded_at=None)
 EXP = json.loads((ROOT / "research/macro_events/expectations/cpi_2026_09.json").read_text(encoding="utf-8"))
 T = lambda s: datetime.fromisoformat(s.replace("Z", "+00:00"))
 
@@ -127,7 +131,7 @@ p = mo.parse_release_text("CONSUMER PRICE INDEX - OCTOBER 2026 (CPI-U) was uncha
 assert p == {"reference_month": "2026-10", "headline_mom_sa": 0.0, "headline_yoy_nsa": 2.9, "core_mom_sa": -0.1}, p
 
 # 9) committed calendar: CPI not recorded before the release; preregistration precedes it
-assert EV.get("official_outcome_recorded_at") is None or (EV["outcome_status"] == "recorded" and EV["official_outcome_recorded_at"] >= EV["release"]["utc"])
+assert COMMITTED.get("official_outcome_recorded_at") is None or (COMMITTED["outcome_status"] == "recorded" and COMMITTED["official_outcome_recorded_at"] >= COMMITTED["release"]["utc"])
 assert T(EXP["preregistered_at"]) < T(EV["release"]["utc"]) and EXP["consensus_status"] == "consensus_unavailable"
 
 # 10) BLS API blocked (GitHub runners get 403 from bls.gov) → FRED mirror of the same BLS series; provenance kept

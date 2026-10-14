@@ -2,7 +2,7 @@
  "version": 1,
  "title": "MyAlpha View — Master Execution Plan",
  "issue": "https://github.com/simonzixin8166-wq/quant-dashboard/issues/133",
- "last_updated": "2026-10-14T02:05Z",
+ "last_updated": "2026-10-14T13:35Z",
  "charter": "CLAUDE.md (owner-confirmed 2026-10-11)",
  "statuses": [
   "Done",
@@ -1287,12 +1287,14 @@
    ],
    "evidence": {
     "prs": [
-     "#239 e52ab30 BLS CPI official outcome → tranche Shadow v1.2 → homepage row; wired non-blocking into Auto Research 12:35Z + Daily"
+     "#239 e52ab30 BLS CPI official outcome → tranche Shadow v1.2 → homepage row; wired non-blocking into Auto Research 12:35Z + Daily",
+     "#242 e4efc5a FRED mirror fallback (not needed today: BLS API returned 200)"
     ],
     "runs": [
      "Autonomous QA 38422987426 workflow_run (head f1321c4, includes #236/#239/#240) overall=PASS macro_row=desktop:fresh/mobile:fresh deploy_matches_head=true",
      "T-1 baseline recorded 2026-10-14T00:07:07Z by recovery run 38487322756 (workflow_dispatch) — market_as_of 2026-10-13, QQQ 743.57, tranche v1.2 neutral; macro step ok in schedule 38490415299 (cpi=pending)",
-     "risk found: Daily log 'CPI refresh failed (HTTP Error 403: Forbidden)' — www.bls.gov blocks GitHub runners → FRED mirror (existing free FRED_API_KEY) added as fallback in this PR"
+     "risk found: Daily log 'CPI refresh failed (HTTP Error 403: Forbidden)' — www.bls.gov blocks GitHub runners → FRED mirror (existing free FRED_API_KEY) added as fallback in this PR",
+     "CPI T: 12:35Z Auto Research schedule had not fired by 13:22Z (GitHub scheduler degraded) → labelled recovery 38571209117 workflow_dispatch 'CPI 10-14 recovery' success → d34889b; recorded 2026-10-14T13:23:17Z from BLS API v1 (http 200, REQUEST_SUCCEEDED, data sha256 a8824236…), release-text cross-check match (http 200, sha256 b9e7ff67…); Sep-2026 CPI headline +0.6% m/m SA, 3.7% y/y; core +0.3% m/m SA, 2.6% y/y; consensus_unavailable → surprise unknown; tranches unchanged (t1 not_met, t2 unknown, t3 not_met, overall neutral); QA 38571742141 workflow_dispatch PASS macro_row fresh head d34889b; homepage renders '美国 9 月 CPI 已公布｜T' (desktop + 390px)"
     ],
     "sources": [
      "BLS calendar https://www.bls.gov/schedule/2026/10_sched.htm: CPI September 2026, Wed Oct 14, 08:30 ET (verified 2026-10-13 15:10Z)",
@@ -1300,8 +1302,8 @@
     ]
    },
    "acceptance": "after 2026-10-14T12:30Z a real event=schedule run records official BLS values (headline/core m/m SA, y/y NSA) with published_at/captured_at/http/hash, or shows official_result_unavailable/stale/conflict; homepage shows 已公布｜T with real values; surprise stays unknown without a same-measure survey consensus; T..T+10 records carry the exact market as_of; no future PASS claimed today",
-   "next": "10-13 Daily event=schedule → T-1 baseline record; 10-14 12:35Z Auto Research event=schedule = first real CPI fetch; 13:20Z check-in verifies (no future PASS claimed)",
-   "last_verified": "2026-10-14T02:05Z"
+   "next": "T checkpoint record after the 10-14 close (Daily, exact as_of 2026-10-14); T+1/+3/+5/+10 follow; the event itself was captured via a labelled recovery run, not a schedule run",
+   "last_verified": "2026-10-14T13:35Z"
   },
   {
    "id": "C-01",

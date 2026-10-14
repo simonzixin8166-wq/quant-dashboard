@@ -1,18 +1,18 @@
 {
   "version": "6.14.7",
-  "generated_at": "2026-10-14T00:37:12.899460+00:00",
+  "generated_at": "2026-10-14T01:50:08.754477+00:00",
   "mode": "research_only_free_first",
   "source_intelligence_version": 2,
   "counts": {
-    "source_records": 1842,
+    "source_records": 1845,
     "records_with_testable_rules": 27,
     "testable_rules": 51,
-    "records_with_candidate_rules": 6,
-    "candidate_rules": 6,
-    "propositions": 4726,
+    "records_with_candidate_rules": 7,
+    "candidate_rules": 7,
+    "propositions": 4749,
     "by_kind": {
-      "non_testable_view": 3954,
-      "candidate_rule": 6,
+      "non_testable_view": 3976,
+      "candidate_rule": 7,
       "trigger": 95,
       "invalidation": 52,
       "fact": 152,
@@ -51,17 +51,17 @@
     "LEAPS": 2
   },
   "topic_record_counts": {
-    "其他研究": 1442,
+    "其他研究": 1444,
+    "趋势确认": 104,
     "仓位与加减仓": 154,
-    "趋势确认": 103,
     "估值与价格": 68,
     "风险管理": 138,
     "止损纪律": 21,
+    "失败复盘": 66,
+    "长期持有纪律": 101,
     "逆向交易": 7,
     "Sell Put": 42,
     "INTC": 31,
-    "失败复盘": 65,
-    "长期持有纪律": 100,
     "IREN": 5,
     "TSLA": 23,
     "AI研究方法": 5,
@@ -76,6 +76,123 @@
     "行为纪律": 2
   },
   "records": [
+    {
+      "source_id": "a5a514ef92a1332a31e7",
+      "extractor_input_hash": "78a12e557afcf70e672a191ce6f60922bd4127be14300753d1da37da1c95306d",
+      "extractor_input_scope": "exact_fields_consumed_by_source_reading_memory",
+      "source": "wenxuecity",
+      "source_kind": "forum",
+      "author": "三心三意",
+      "published_at": "2026-10-13 13:53:00",
+      "title": "嗯， 7月底miss the train, 好不容易又爬上去了",
+      "url": "https://bbs.wenxuecity.com/cfzh/115000.html",
+      "symbols": [],
+      "primary_symbols": [],
+      "symbol_attribution": [],
+      "topics": [
+        "其他研究"
+      ],
+      "content_quality": null,
+      "content_provider": null,
+      "content_origin": null,
+      "rule_candidate_allowed": null,
+      "propositions": [
+        {
+          "proposition_id": "6fc371ffb8f4a41dc5",
+          "kind": "non_testable_view",
+          "text": "嗯， 7月底miss the train, 好不容易又爬上去了",
+          "confidence": "low",
+          "testable": false,
+          "evidence": {
+            "source_field": "prose",
+            "classification": "residual_context"
+          }
+        }
+      ],
+      "testable_rule_count": 0,
+      "candidate_rule_count": 0,
+      "reading_state": "structured_context"
+    },
+    {
+      "source_id": "83cb6c52abb4755a1b36",
+      "extractor_input_hash": "9b1f8bb93ccd83abe25be48dc08ef13b387b64784dc2cabdb50b1568c18229c2",
+      "extractor_input_scope": "exact_fields_consumed_by_source_reading_memory",
+      "source": "wenxuecity",
+      "source_kind": "forum",
+      "author": "三心三意",
+      "published_at": "2026-10-13 13:06:02",
+      "title": "Just like that, SMH back above EMA50 :)",
+      "url": "https://bbs.wenxuecity.com/cfzh/114994.html",
+      "symbols": [
+        "SMH"
+      ],
+      "primary_symbols": [
+        "SMH"
+      ],
+      "symbol_attribution": [
+        {
+          "symbol": "SMH",
+          "role": "primary_subject",
+          "confidence": "high",
+          "evidence_basis": [
+            "detected_in_source",
+            "unique_title_symbol"
+          ]
+        }
+      ],
+      "topics": [
+        "趋势确认",
+        "其他研究"
+      ],
+      "content_quality": null,
+      "content_provider": null,
+      "content_origin": null,
+      "rule_candidate_allowed": null,
+      "propositions": [
+        {
+          "proposition_id": "75afc66c275ca1cf93",
+          "kind": "non_testable_view",
+          "text": "Just like that, SMH back above EMA50 :)",
+          "confidence": "low",
+          "testable": false,
+          "evidence": {
+            "source_field": "prose",
+            "classification": "residual_context"
+          }
+        },
+        {
+          "proposition_id": "9003153f83e3ea5881",
+          "kind": "candidate_rule",
+          "text": "SMH：来源叙述形成候选规则 Just like that, SMH back above EMA50 :)",
+          "confidence": "medium",
+          "testable": false,
+          "evidence": {
+            "candidate_rule": {
+              "symbols": [
+                "SMH"
+              ],
+              "conditions": [
+                {
+                  "condition_id": "price_above_ma50",
+                  "machine_ready": true,
+                  "semantic_role": "unspecified"
+                }
+              ],
+              "state_hint": null,
+              "machine_readiness": "machine_ready",
+              "needs_definition": [],
+              "raw_evidence": [
+                "Just like that, SMH back above EMA50 :)"
+              ],
+              "source_derived_only": true
+            }
+          }
+        }
+      ],
+      "testable_rule_count": 0,
+      "candidate_rule_count": 1,
+      "reading_state": "candidate_rule"
+    },
     {
       "source_id": "fb5fcdb3c60a4a82bb78",
       "extractor_input_hash": "df8863a22afd2f8c4a8013605663a43cc4babee3a898a26dd8ff7569d1ae5637",
@@ -1139,6 +1256,253 @@
           "evidence": {
             "source_field": "prose",
             "classification": "explicit_invalidation_language"
+          }
+        }
+      ],
+      "testable_rule_count": 0,
+      "candidate_rule_count": 0,
+      "reading_state": "structured_context"
+    },
+    {
+      "source_id": "8b692e2a76807d0e68cf",
+      "extractor_input_hash": "50092733c8e3d68dbbbdf36b74d532b164825a165f7fabe7421fe45741d1072a",
+      "extractor_input_scope": "exact_fields_consumed_by_source_reading_memory",
+      "source": "wenxuecity",
+      "source_kind": "blog",
+      "author": "BrightLine",
+      "published_at": "2026-10-13",
+      "title": "做减法2.0：损之又损",
+      "url": "https://blog.wenxuecity.com/myblog/82458/202610/9046.html",
+      "symbols": [],
+      "primary_symbols": [],
+      "symbol_attribution": [],
+      "topics": [
+        "失败复盘",
+        "长期持有纪律"
+      ],
+      "content_quality": null,
+      "content_provider": null,
+      "content_origin": null,
+      "rule_candidate_allowed": null,
+      "propositions": [
+        {
+          "proposition_id": "4cb5e39699820e3bdd",
+          "kind": "non_testable_view",
+          "text": "做减法2.0：损之又损",
+          "confidence": "low",
+          "testable": false,
+          "evidence": {
+            "source_field": "prose",
+            "classification": "residual_context"
+          }
+        },
+        {
+          "proposition_id": "075caef9e0e9adad94",
+          "kind": "non_testable_view",
+          "text": "老子说：为学日益，为道日损。",
+          "confidence": "low",
+          "testable": false,
+          "evidence": {
+            "source_field": "prose",
+            "classification": "residual_context"
+          }
+        },
+        {
+          "proposition_id": "4f27280c39c70fc8b9",
+          "kind": "non_testable_view",
+          "text": "损之又损，以至于无为。",
+          "confidence": "low",
+          "testable": false,
+          "evidence": {
+            "source_field": "prose",
+            "classification": "residual_context"
+          }
+        },
+        {
+          "proposition_id": "7f2b29276dbe2539e4",
+          "kind": "non_testable_view",
+          "text": "年轻时做加法，因为以为时间无限。",
+          "confidence": "low",
+          "testable": false,
+          "evidence": {
+            "source_field": "prose",
+            "classification": "residual_context"
+          }
+        },
+        {
+          "proposition_id": "4f7f36cc46df1532e0",
+          "kind": "non_testable_view",
+          "text": "人到中年做减法，因为终于知道时间有限。",
+          "confidence": "low",
+          "testable": false,
+          "evidence": {
+            "source_field": "prose",
+            "classification": "residual_context"
+          }
+        },
+        {
+          "proposition_id": "666fed0d9b464dd479",
+          "kind": "non_testable_view",
+          "text": "钱花了可以再赚，时间花了就没了。",
+          "confidence": "low",
+          "testable": false,
+          "evidence": {
+            "source_field": "prose",
+            "classification": "residual_context"
+          }
+        },
+        {
+          "proposition_id": "704ea322ccd6d25be2",
+          "kind": "non_testable_view",
+          "text": "所以人生真正该算的账，从来不是钱，是时间。",
+          "confidence": "low",
+          "testable": false,
+          "evidence": {
+            "source_field": "prose",
+            "classification": "residual_context"
+          }
+        },
+        {
+          "proposition_id": "6cb890d037731094de",
+          "kind": "non_testable_view",
+          "text": "几年前我写过《做减法》，讲的是舍：卖出租房，砍副业，持仓砍到指数加几只龙头。",
+          "confidence": "low",
+          "testable": false,
+          "evidence": {
+            "source_field": "prose",
+            "classification": "residual_context"
+          }
+        },
+        {
+          "proposition_id": "e8946d2661f72c12a7",
+          "kind": "non_testable_view",
+          "text": "今天再看，舍只是第一步。",
+          "confidence": "low",
+          "testable": false,
+          "evidence": {
+            "source_field": "prose",
+            "classification": "residual_context"
+          }
+        },
+        {
+          "proposition_id": "505344c903363b1333",
+          "kind": "non_testable_view",
+          "text": "第二步是转：事情还在，只是不再由我来做。",
+          "confidence": "low",
+          "testable": false,
+          "evidence": {
+            "source_field": "prose",
+            "classification": "residual_context"
+          }
+        },
+        {
+          "proposition_id": "3f98302f9fa3403051",
+          "kind": "non_testable_view",
+          "text": "第三步是守：把腾出来的时间，守在真正重要的人和事上。",
+          "confidence": "low",
+          "testable": false,
+          "evidence": {
+            "source_field": "prose",
+            "classification": "residual_context"
+          }
+        },
+        {
+          "proposition_id": "6ff6e380ae2c622bf8",
+          "kind": "non_testable_view",
+          "text": "舍，是知道什么不值得做；",
+          "confidence": "low",
+          "testable": false,
+          "evidence": {
+            "source_field": "prose",
+            "classification": "residual_context"
+          }
+        },
+        {
+          "proposition_id": "25768949e9151052aa",
+          "kind": "non_testable_view",
+          "text": "转，是知道什么不必亲自做；",
+          "confidence": "low",
+          "testable": false,
+          "evidence": {
+            "source_field": "prose",
+            "classification": "residual_context"
+          }
+        },
+        {
+          "proposition_id": "10f61da7f2161478f6",
+          "kind": "non_testable_view",
+          "text": "守，是知道什么绝不能放手。",
+          "confidence": "low",
+          "testable": false,
+          "evidence": {
+            "source_field": "prose",
+            "classification": "residual_context"
+          }
+        },
+        {
+          "proposition_id": "d23a2ffa1ba34e003d",
+          "kind": "non_testable_view",
+          "text": "我也写过“穷搏富算”：穷的时候靠搏，富了以后靠算。",
+          "confidence": "low",
+          "testable": false,
+          "evidence": {
+            "source_field": "prose",
+            "classification": "residual_context"
+          }
+        },
+        {
+          "proposition_id": "25b9b7bfe87b6d838b",
+          "kind": "non_testable_view",
+          "text": "减法，就是富算里最要紧的一笔账。",
+          "confidence": "low",
+          "testable": false,
+          "evidence": {
+            "source_field": "prose",
+            "classification": "residual_context"
+          }
+        },
+        {
+          "proposition_id": "f6c8b4d069d5397102",
+          "kind": "non_testable_view",
+          "text": "钱不够的时候，用时间换钱是现实。",
+          "confidence": "low",
+          "testable": false,
+          "evidence": {
+            "source_field": "prose",
+            "classification": "residual_context"
+          }
+        },
+        {
+          "proposition_id": "97849a4324dfff0a09",
+          "kind": "non_testable_view",
+          "text": "钱已经够了，还舍不得用钱换时间，就是习惯。",
+          "confidence": "low",
+          "testable": false,
+          "evidence": {
+            "source_field": "prose",
+            "classification": "residual_context"
+          }
+        },
+        {
+          "proposition_id": "cb759067dc669ce55c",
+          "kind": "non_testable_view",
+          "text": "为了省几百刀坐红眼航班，为一点折扣比价半天。",
+          "confidence": "low",
+          "testable": false,
+          "evidence": {
+            "source_field": "prose",
+            "classification": "residual_context"
+          }
+        },
+        {
+          "proposition_id": "ace7a9a1939124a76f",
+          "kind": "non_testable_view",
+          "text": "很多人早就不需要这样过日子了，脑子却还停留在过去",
+          "confidence": "low",
+          "testable": false,
+          "evidence": {
+            "source_field": "prose",
+            "classification": "residual_context"
           }
         }
       ],
@@ -17472,7 +17836,7 @@
     },
     {
       "source_id": "d5a969e48a644b3510e8",
-      "extractor_input_hash": "afd96879d65b0356ceb9c7fb54dd1f0103f2d429394e48a7e7d89a4a362df6ca",
+      "extractor_input_hash": "3cc225114165185ae684bb3690fb6d2b33c2bcb0abb6bd4b9d0fda307986356b",
       "extractor_input_scope": "exact_fields_consumed_by_source_reading_memory",
       "source": "wenxuecity",
       "source_kind": "forum",
@@ -17482,9 +17846,9 @@
       "url": "https://bbs.wenxuecity.com/cfzh/113867.html",
       "symbols": [
         "AMAT",
+        "AVGO",
         "AAOI",
-        "CIEN",
-        "AVGO"
+        "CIEN"
       ],
       "primary_symbols": [
         "AVGO"
@@ -17492,15 +17856,6 @@
       "symbol_attribution": [
         {
           "symbol": "AMAT",
-          "role": "comparison_peer",
-          "confidence": "medium",
-          "evidence_basis": [
-            "detected_in_source",
-            "comparison_language"
-          ]
-        },
-        {
-          "symbol": "AAOI",
           "role": "comparison_peer",
           "confidence": "medium",
           "evidence_basis": [
@@ -17524,6 +17879,15 @@
           "evidence_basis": [
             "detected_in_source",
             "unique_title_symbol"
+          ]
+        },
+        {
+          "symbol": "AAOI",
+          "role": "comparison_peer",
+          "confidence": "medium",
+          "evidence_basis": [
+            "detected_in_source",
+            "comparison_language"
           ]
         }
       ],
@@ -17797,7 +18161,7 @@
     },
     {
       "source_id": "7b8c2b51e37f449ecf74",
-      "extractor_input_hash": "aa74f51fcdb21efbfe3709b5158f1a0229148379c59408e8135a8f9e4cd08801",
+      "extractor_input_hash": "f69e4f618437505df5da0a2d17b91c431af74c1c0c9077865ab2398b039d51b6",
       "extractor_input_scope": "exact_fields_consumed_by_source_reading_memory",
       "source": "wenxuecity",
       "source_kind": "forum",
@@ -17812,7 +18176,7 @@
       "primary_symbols": [],
       "symbol_attribution": [
         {
-          "symbol": "AAOI",
+          "symbol": "CIEN",
           "role": "comparison_peer",
           "confidence": "medium",
           "evidence_basis": [
@@ -17821,7 +18185,7 @@
           ]
         },
         {
-          "symbol": "CIEN",
+          "symbol": "AAOI",
           "role": "comparison_peer",
           "confidence": "medium",
           "evidence_basis": [
@@ -18872,7 +19236,7 @@
     },
     {
       "source_id": "5377eb61a5db0e089b1c",
-      "extractor_input_hash": "78b6f6fb9fc4139eb5ded654b90b0c7aa20c2b1cb4e5f6099882cb53bf04d807",
+      "extractor_input_hash": "b05e7dcdaee6e4db04b0df1e81af9f022c0b6c27c4a7c0f58749d29234fd7d54",
       "extractor_input_scope": "exact_fields_consumed_by_source_reading_memory",
       "source": "wenxuecity",
       "source_kind": "blog",
@@ -18882,9 +19246,9 @@
       "url": "https://blog.wenxuecity.com/myblog/31983/202610/3715.html",
       "symbols": [
         "AMAT",
+        "AVGO",
         "AAOI",
-        "CIEN",
-        "AVGO"
+        "CIEN"
       ],
       "primary_symbols": [
         "AVGO"
@@ -18892,15 +19256,6 @@
       "symbol_attribution": [
         {
           "symbol": "AMAT",
-          "role": "comparison_peer",
-          "confidence": "medium",
-          "evidence_basis": [
-            "detected_in_source",
-            "comparison_language"
-          ]
-        },
-        {
-          "symbol": "AAOI",
           "role": "comparison_peer",
           "confidence": "medium",
           "evidence_basis": [
@@ -18924,6 +19279,15 @@
           "evidence_basis": [
             "detected_in_source",
             "unique_title_symbol"
+          ]
+        },
+        {
+          "symbol": "AAOI",
+          "role": "comparison_peer",
+          "confidence": "medium",
+          "evidence_basis": [
+            "detected_in_source",
+            "comparison_language"
           ]
         }
       ],
@@ -20361,7 +20725,7 @@
     },
     {
       "source_id": "d7f938643d641aa7154e",
-      "extractor_input_hash": "71fce64abba1011fa16e64c4346d76e3f1f47dcf3d0a07d7660f7e367491ce2d",
+      "extractor_input_hash": "94ab5128fe5d20890aa8f93972fa9914e0c8efe3929e25be5e47f0306cd17a06",
       "extractor_input_scope": "exact_fields_consumed_by_source_reading_memory",
       "source": "wenxuecity",
       "source_kind": "forum",
@@ -20385,7 +20749,7 @@
           ]
         },
         {
-          "symbol": "AAOI",
+          "symbol": "CIEN",
           "role": "comparison_peer",
           "confidence": "medium",
           "evidence_basis": [
@@ -20394,7 +20758,7 @@
           ]
         },
         {
-          "symbol": "CIEN",
+          "symbol": "AAOI",
           "role": "comparison_peer",
           "confidence": "medium",
           "evidence_basis": [
@@ -22405,7 +22769,7 @@
     },
     {
       "source_id": "8d9e6281e5fe0a41bf7f",
-      "extractor_input_hash": "18d48ccaaf9d4b21383be5d6f5f09714af4e5c67839831b1eae3c2fdcd4ada58",
+      "extractor_input_hash": "5c0c89e9ced7de15766cea064c0a435d2c3f41ca11ecb5df798986f4b40cc81b",
       "extractor_input_scope": "exact_fields_consumed_by_source_reading_memory",
       "source": "wenxuecity",
       "source_kind": "blog",
@@ -22420,7 +22784,7 @@
       "primary_symbols": [],
       "symbol_attribution": [
         {
-          "symbol": "AAOI",
+          "symbol": "CIEN",
           "role": "comparison_peer",
           "confidence": "medium",
           "evidence_basis": [
@@ -22429,7 +22793,7 @@
           ]
         },
         {
-          "symbol": "CIEN",
+          "symbol": "AAOI",
           "role": "comparison_peer",
           "confidence": "medium",
           "evidence_basis": [
@@ -29924,7 +30288,7 @@
     },
     {
       "source_id": "a4e1ef2750f4d09eaf84",
-      "extractor_input_hash": "19c5d64963218976f7cae64deec19ee4771b908f3cd1fd9df4f8c3c3c3fd63c7",
+      "extractor_input_hash": "65b871d9b025b4989cc603c9e820f195f507661265bbaff4b6eb0ebba9dadcfc",
       "extractor_input_scope": "exact_fields_consumed_by_source_reading_memory",
       "source": "wenxuecity",
       "source_kind": "forum",
@@ -29939,7 +30303,7 @@
       "primary_symbols": [],
       "symbol_attribution": [
         {
-          "symbol": "AAOI",
+          "symbol": "CIEN",
           "role": "contextual_mention",
           "confidence": "low",
           "evidence_basis": [
@@ -29947,7 +30311,7 @@
           ]
         },
         {
-          "symbol": "CIEN",
+          "symbol": "AAOI",
           "role": "contextual_mention",
           "confidence": "low",
           "evidence_basis": [
@@ -32476,7 +32840,7 @@
     },
     {
       "source_id": "bced53383a2d1aed7e7d",
-      "extractor_input_hash": "5555e886fd029af78d5c11b5bf5a44109070c10480cd0148ffbb8a977b983681",
+      "extractor_input_hash": "2862ef68ef2a2030b473094ca359cb62fb80031689b9d2375a2182857917f6b8",
       "extractor_input_scope": "exact_fields_consumed_by_source_reading_memory",
       "source": "wenxuecity",
       "source_kind": "blog",
@@ -32491,7 +32855,7 @@
       "primary_symbols": [],
       "symbol_attribution": [
         {
-          "symbol": "AAOI",
+          "symbol": "CIEN",
           "role": "contextual_mention",
           "confidence": "low",
           "evidence_basis": [
@@ -32499,7 +32863,7 @@
           ]
         },
         {
-          "symbol": "CIEN",
+          "symbol": "AAOI",
           "role": "contextual_mention",
           "confidence": "low",
           "evidence_basis": [
@@ -48661,7 +49025,7 @@
     },
     {
       "source_id": "61357cf0eb89b7c47552",
-      "extractor_input_hash": "c094b0b453070325fd2c7c437f8be40b9b7bb6126a4b573e92f3e580e86b9a40",
+      "extractor_input_hash": "3e47b96c697042f97ac505e928680cb72c72982084a610695007cb6a35b1dfde",
       "extractor_input_scope": "exact_fields_consumed_by_source_reading_memory",
       "source": "wenxuecity",
       "source_kind": "forum",
@@ -48671,8 +49035,8 @@
       "url": "https://bbs.wenxuecity.com/cfzh/109394.html",
       "symbols": [
         "MU",
-        "AAOI",
-        "SNDK"
+        "SNDK",
+        "AAOI"
       ],
       "primary_symbols": [],
       "symbol_attribution": [
@@ -48685,7 +49049,7 @@
           ]
         },
         {
-          "symbol": "AAOI",
+          "symbol": "SNDK",
           "role": "contextual_mention",
           "confidence": "low",
           "evidence_basis": [
@@ -48693,7 +49057,7 @@
           ]
         },
         {
-          "symbol": "SNDK",
+          "symbol": "AAOI",
           "role": "contextual_mention",
           "confidence": "low",
           "evidence_basis": [
@@ -65008,7 +65372,7 @@
     },
     {
       "source_id": "71a42f7e923d9b6d4d24",
-      "extractor_input_hash": "1ad8ca09ff0f744cdc2727476b414030fef7d6184e8d9c1b55145aa3a0611cd8",
+      "extractor_input_hash": "5de0d48a9ede3de89f3732e8b5b07d56f3b141e82e65e0b790a5513c1fbab3a0",
       "extractor_input_scope": "exact_fields_consumed_by_source_reading_memory",
       "source": "wenxuecity",
       "source_kind": "forum",
@@ -65017,8 +65381,8 @@
       "title": "今天光通都涨的还不错， AAOI AEHR TSEM COHR LITE",
       "url": "https://bbs.wenxuecity.com/cfzh/101765.html",
       "symbols": [
-        "AAOI",
-        "LITE"
+        "LITE",
+        "AAOI"
       ],
       "primary_symbols": [],
       "symbol_attribution": [
@@ -109113,7 +109477,7 @@
   ],
   "duplicate_evidence_records": 7,
   "text_enrichment": {
-    "text_enriched_records": 1842,
+    "text_enriched_records": 1845,
     "text_unavailable_records": 0,
     "source_offline_records": 0,
     "online_text_coverage": 1.0

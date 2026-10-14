@@ -39,6 +39,10 @@ API = "https://api.bls.gov/publicAPI/v1/timeseries/data/"
 RELEASE_TEXT = "https://www.bls.gov/news.release/cpi.nr0.htm"
 UA = os.getenv("BLS_USER_AGENT", "MyAlphaView/6.9 research-agent myalphaview.com")
 SERIES = {"headline_sa": "CUSR0000SA0", "core_sa": "CUSR0000SA0L1E", "headline_nsa": "CUUR0000SA0", "core_nsa": "CUUR0000SA0L1E"}
+# Mirror used only when the BLS API gives no value: FRED republishes the same BLS index series (free, existing
+# FRED_API_KEY secret). GitHub runners get HTTP 403 from www.bls.gov (Daily 38490415299: "CPI refresh failed
+# (HTTP Error 403: Forbidden)"), so a second official-data path is needed for the 12:35Z run.
+FRED_SERIES = {"headline_sa": "CPIAUCSL", "core_sa": "CPILFESL", "headline_nsa": "CPIAUCNS", "core_nsa": "CPILFENS"}
 CPI_EVENTS = {"cpi_2026_09": {"reference": "2026-09"}}
 STALE_AFTER = timedelta(hours=24)
 CHECKPOINTS = ("T-1", "T", "T+1", "T+3", "T+5", "T+10")
@@ -86,6 +90,22 @@ def http_get(url, timeout=30):
         return e.code, b""
     except Exception as e:
         return None, str(e).encode()[:200]
+
+
+def fetch_fred(ref):
+    """(points, meta) from FRED for the four CPI series, or (None, meta) when unavailable (no key / error)."""
+    try:
+        import fred_client
+    except Exception as e:  # pragma: no cover
+        return None, {"status": f"fred_client_unavailable: {type(e).__name__}"}
+    pts = {}
+    try:
+        for k, sid in FRED_SERIES.items():
+            obs = fred_client.series_observations(sid, observation_start=f"{int(ref[:4]) - 1}-01-01")
+            pts[k] = {o["date"][:7]: float(o["value"]) for o in obs if o.get("value") not in (None, ".", "")}
+    except Exception as e:
+        return None, {"status": f"fred_error: {str(e)[:120]}"}
+    return pts, {"status": "ok", "series": FRED_SERIES}
 
 
 # ---------------------------------------------------------------- pure computation ------------------------
@@ -192,7 +212,7 @@ def summary_zh(v, s):
 
 
 # ---------------------------------------------------------------- state transition ------------------------
-def step(ev_key, ev, now, fetch_api=http_post_json, fetch_text=http_get, expectations=None):
+def step(ev_key, ev, now, fetch_api=http_post_json, fetch_text=http_get, expectations=None, fetch_mirror=fetch_fred):
     """Return (new_event_dict, log_entry_or_None). Pure apart from the injected fetchers."""
     ev = json.loads(json.dumps(ev))
     rel = ts(ev["release"]["utc"])
@@ -217,11 +237,23 @@ def step(ev_key, ev, now, fetch_api=http_post_json, fetch_text=http_get, expecta
             log["latest_period_per_series"] = {k: (max(v) if v else None) for k, v in pts.items()}
             values = compute(pts, ref)
             log["data_sha256"] = sha(json.dumps(pts, sort_keys=True)) if pts else None
+    source_used = "bls_api" if values else None
+    if not values and fetch_mirror is not None:
+        mpts, mmeta = fetch_mirror(ref)
+        log["mirror"] = {"source": "FRED (St. Louis Fed republication of BLS CPI series)", **(mmeta or {})}
+        if mpts:
+            log["mirror"]["latest_period_per_series"] = {k: (max(v) if v else None) for k, v in mpts.items()}
+            values = compute(mpts, ref)
+            if values:
+                source_used = "fred_mirror"
+                log["data_sha256"] = sha(json.dumps(mpts, sort_keys=True))
     if not values:
         late = now - rel > STALE_AFTER
         ev["outcome_status"] = "stale" if late else "official_result_unavailable"
         ev["outcome_status_detail"] = (f"BLS API http={status} api_status={log.get('api_status')} "
-                                       f"latest={log.get('latest_period_per_series')} — reference {ref} not available")
+                                       f"latest={log.get('latest_period_per_series')}; FRED mirror "
+                                       f"{(log.get('mirror') or {}).get('status')} latest={(log.get('mirror') or {}).get('latest_period_per_series')}"
+                                       f" — reference {ref} not available")
         ev["outcome_last_attempt_at"] = iso(now)
         log["result"] = ev["outcome_status"]
         return ev, log
@@ -246,13 +278,14 @@ def step(ev_key, ev, now, fetch_api=http_post_json, fetch_text=http_get, expecta
     outcome = {"values": values, "official_source": {"api": API, "series": SERIES, "release_text": RELEASE_TEXT,
                                                      "published_at": ev["release"]["utc"], "captured_at": iso(now),
                                                      "http_status": status, "api_status": api.get("status"),
-                                                     "data_sha256": log.get("data_sha256")},
+                                                     "data_sha256": log.get("data_sha256"), "source_used": source_used,
+                                                     "mirror": FRED_SERIES if source_used == "fred_mirror" else None},
                "cross_check": cross, **s, "reference_expectation_diffs": reference_diffs(values, exp),
                "expectations_file": f"research/macro_events/expectations/{ev_key}.json",
                "expectations_preregistered_at": (exp or {}).get("preregistered_at")}
     if cross["result"] == "conflict":
         ev["outcome_status"] = "conflict"
-        ev["outcome_status_detail"] = "BLS API and release text disagree — outcome withheld (fail-closed)"
+        ev["outcome_status_detail"] = f"{source_used} values and BLS release text disagree — outcome withheld (fail-closed)"
         ev["official_outcome_candidate"] = outcome
         ev["official_outcome_recorded_at"] = None
         log["result"] = "conflict"

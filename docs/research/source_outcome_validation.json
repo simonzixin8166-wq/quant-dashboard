@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "generated_at": "2026-10-14T01:52:11.458207+00:00",
+  "generated_at": "2026-10-14T13:50:06.256232+00:00",
   "methodology": {
     "executed_action_baseline": "first trading session open strictly after source date when no reliable intraday timestamp exists",
     "planned_entry_baseline": "explicit stock-entry plans begin only on the first later session whose low touches the stated level; each tranche is validated separately",
@@ -16,24 +16,24 @@
     "attribution_limit": "third-party examples are excluded; unconfirmed source context is visible but excluded from aggregate method memory"
   },
   "counts": {
-    "events": 151,
-    "author_owned": 68,
-    "unconfirmed": 83,
-    "triggered_author_owned": 57,
+    "events": 153,
+    "author_owned": 69,
+    "unconfirmed": 84,
+    "triggered_author_owned": 58,
     "untriggered_plans": 11,
-    "mature60": 29,
+    "mature60": 30,
     "developing": 28,
-    "symbols": 25
+    "symbols": 26
   },
   "missing_history": {},
   "by_action": {
     "add": {
       "5": {
-        "n": 14,
-        "avg_return": 0.006379294521230451,
-        "median_return": 0.002156096833117571,
-        "avg_excess_vs_qqq": 0.0036823108810978672,
-        "alignment_rate": 0.5714285714285714
+        "n": 15,
+        "avg_return": -0.0022143988407290335,
+        "median_return": 0.0007254599229895575,
+        "avg_excess_vs_qqq": -0.0032440466068836956,
+        "alignment_rate": 0.5333333333333333
       },
       "20": {
         "n": 12,
@@ -43,11 +43,11 @@
         "alignment_rate": 0.6666666666666666
       },
       "60": {
-        "n": 9,
-        "avg_return": -0.017212029337127795,
-        "median_return": -0.08720468913972712,
+        "n": 10,
+        "avg_return": -0.007855066108756636,
+        "median_return": -0.00542354309657167,
         "avg_excess_vs_qqq": -0.07008004483597424,
-        "alignment_rate": 0.4444444444444444
+        "alignment_rate": 0.5
       }
     },
     "buy": {
@@ -238,11 +238,11 @@
   "by_author": {
     "BrightLine": {
       "5": {
-        "n": 37,
-        "avg_return": -0.003525071758582698,
-        "median_return": -0.028451644415499744,
-        "avg_excess_vs_qqq": -0.013716256273589423,
-        "alignment_rate": 0.46875
+        "n": 38,
+        "avg_return": -0.006656677920413728,
+        "median_return": -0.0286397884764632,
+        "avg_excess_vs_qqq": -0.015992487725300902,
+        "alignment_rate": 0.45454545454545453
       },
       "20": {
         "n": 35,
@@ -275,9 +275,9 @@
         "alignment_rate": 1.0
       },
       "60": {
-        "n": 3,
-        "avg_return": 0.14303257606265962,
-        "median_return": 0.13872638342763977,
+        "n": 4,
+        "avg_return": 0.12636383278364066,
+        "median_return": 0.12096236717729347,
         "avg_excess_vs_qqq": 0.09258776646203182,
         "alignment_rate": 1.0
       }
@@ -289,6 +289,29 @@
         "median_return": -0.0111712113608059,
         "avg_excess_vs_qqq": -0.043000392340735626,
         "alignment_rate": 0.0
+      },
+      "20": {
+        "n": 0,
+        "avg_return": null,
+        "median_return": null,
+        "avg_excess_vs_qqq": null,
+        "alignment_rate": null
+      },
+      "60": {
+        "n": 0,
+        "avg_return": null,
+        "median_return": null,
+        "avg_excess_vs_qqq": null,
+        "alignment_rate": null
+      }
+    },
+    "三心三意": {
+      "5": {
+        "n": 0,
+        "avg_return": null,
+        "median_return": null,
+        "avg_excess_vs_qqq": null,
+        "alignment_rate": null
       },
       "20": {
         "n": 0,
@@ -330,6 +353,105 @@
     }
   },
   "events": [
+    {
+      "event_id": "b4091864de5d6847b786:0:AAOI:0",
+      "author": "三心三意",
+      "title": "我们高位减仓时（我前一段也减过像AMAT，AAOI， AXTI之类的），可以说明这是仓位管理，而不是给个要崩盘的印象",
+      "url": "https://bbs.wenxuecity.com/cfzh/114862.html",
+      "published_at": "2026-10-12 14:19:35",
+      "symbol": "AAOI",
+      "operation": {
+        "symbols": [
+          "AAOI",
+          "AMAT"
+        ],
+        "actions": [
+          "trim"
+        ],
+        "attribution": "author_action",
+        "attribution_confidence": "high"
+      },
+      "actions": [
+        "trim"
+      ],
+      "attribution": "author_action",
+      "attribution_confidence": "high",
+      "baseline_kind": "next_session",
+      "baseline_assumption": "next trading session open because source date has no reliable intraday timestamp",
+      "planned_level": null,
+      "triggered": true,
+      "baseline_date": "2026-10-13",
+      "baseline_price": 97.44000244140624,
+      "price_provenance": {
+        "price_source": "stooq_archive",
+        "adjustment_basis": "stooq_archive_native_series",
+        "baseline_source": "stooq_archive",
+        "horizon_source": "stooq_archive",
+        "same_source": true
+      },
+      "outcomes": {
+        "5": null,
+        "20": null,
+        "60": null
+      },
+      "alignment": {
+        "direction": "bearish",
+        "5": null,
+        "20": null,
+        "60": null
+      },
+      "level_checks": {},
+      "status": "developing"
+    },
+    {
+      "event_id": "f8deb6134ca473e61dc7:0:META:0",
+      "author": "我是一只井底蛙",
+      "title": "谷歌，META，表现良好。META我试仓的仓位还在，但还没有加仓。",
+      "url": "https://bbs.wenxuecity.com/cfzh/114760.html",
+      "published_at": "2026-10-12 08:14:51",
+      "symbol": "META",
+      "operation": {
+        "symbols": [
+          "META"
+        ],
+        "actions": [
+          "add"
+        ],
+        "attribution": "unconfirmed_author_context",
+        "attribution_confidence": "needs_review"
+      },
+      "actions": [
+        "add"
+      ],
+      "attribution": "unconfirmed_author_context",
+      "attribution_confidence": "needs_review",
+      "baseline_kind": "next_session",
+      "baseline_assumption": "next trading session open because source date has no reliable intraday timestamp",
+      "planned_level": null,
+      "triggered": true,
+      "baseline_date": "2026-10-13",
+      "baseline_price": 735.989990234375,
+      "price_provenance": {
+        "price_source": "stooq_archive",
+        "adjustment_basis": "stooq_archive_native_series",
+        "baseline_source": "stooq_archive",
+        "horizon_source": "stooq_archive",
+        "same_source": true
+      },
+      "outcomes": {
+        "5": null,
+        "20": null,
+        "60": null
+      },
+      "alignment": {
+        "direction": "bullish",
+        "5": null,
+        "20": null,
+        "60": null
+      },
+      "level_checks": {},
+      "status": "developing"
+    },
     {
       "event_id": "ee7532b8483705279f11:0:TSM:0",
       "author": "我是一只井底蛙",
@@ -1754,13 +1876,20 @@
         "same_source": true
       },
       "outcomes": {
-        "5": null,
+        "5": {
+          "date": "2026-10-13",
+          "return": -0.12252610590816182,
+          "mae": -0.14169720202591973,
+          "mfe": 0.05114180998026496,
+          "benchmark_return": -0.022313054469536242,
+          "excess_vs_qqq": -0.10021305143862558
+        },
         "20": null,
         "60": null
       },
       "alignment": {
         "direction": "bullish",
-        "5": null,
+        "5": "not_aligned",
         "20": null,
         "60": null
       },
@@ -5932,16 +6061,21 @@
           "benchmark_return": 0.03946393984277097,
           "excess_vs_qqq": 0.10302056166473261
         },
-        "60": null
+        "60": {
+          "date": "2026-10-13",
+          "return": 0.07635760294658378,
+          "mae": -0.16677394220671438,
+          "mfe": 0.25198459749088165
+        }
       },
       "alignment": {
         "direction": "bullish",
         "5": "aligned",
         "20": "aligned",
-        "60": null
+        "60": "aligned"
       },
       "level_checks": {},
-      "status": "developing"
+      "status": "mature"
     },
     {
       "event_id": "c86f0c70f65e76dfa62b:0:NBIS:0",

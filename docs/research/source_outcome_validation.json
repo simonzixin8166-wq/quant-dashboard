@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "generated_at": "2026-10-14T13:50:06.256232+00:00",
+  "generated_at": "2026-10-14T22:06:20.550664+00:00",
   "methodology": {
     "executed_action_baseline": "first trading session open strictly after source date when no reliable intraday timestamp exists",
     "planned_entry_baseline": "explicit stock-entry plans begin only on the first later session whose low touches the stated level; each tranche is validated separately",
@@ -19,10 +19,10 @@
     "events": 153,
     "author_owned": 69,
     "unconfirmed": 84,
-    "triggered_author_owned": 58,
-    "untriggered_plans": 11,
+    "triggered_author_owned": 59,
+    "untriggered_plans": 10,
     "mature60": 30,
-    "developing": 28,
+    "developing": 29,
     "symbols": 26
   },
   "missing_history": {},
@@ -46,7 +46,7 @@
         "n": 10,
         "avg_return": -0.007855066108756636,
         "median_return": -0.00542354309657167,
-        "avg_excess_vs_qqq": -0.07008004483597424,
+        "avg_excess_vs_qqq": -0.05923598810146915,
         "alignment_rate": 0.5
       }
     },
@@ -59,11 +59,11 @@
         "alignment_rate": 0.38461538461538464
       },
       "20": {
-        "n": 13,
-        "avg_return": 0.07390778068250267,
-        "median_return": -0.015761676844363803,
+        "n": 14,
+        "avg_return": 0.06957852464673094,
+        "median_return": -0.0018251199471085444,
         "avg_excess_vs_qqq": 0.013412214445703893,
-        "alignment_rate": 0.45454545454545453
+        "alignment_rate": 0.5
       },
       "60": {
         "n": 10,
@@ -167,11 +167,11 @@
     },
     "sell": {
       "5": {
-        "n": 7,
-        "avg_return": 0.021237620487051388,
-        "median_return": 0.019361378611251867,
-        "avg_excess_vs_qqq": -0.013917954476934351,
-        "alignment_rate": 0.0
+        "n": 9,
+        "avg_return": -0.02776827911253659,
+        "median_return": -0.02197608484884106,
+        "avg_excess_vs_qqq": -0.04775609544227563,
+        "alignment_rate": 0.6666666666666666
       },
       "20": {
         "n": 3,
@@ -238,11 +238,11 @@
   "by_author": {
     "BrightLine": {
       "5": {
-        "n": 38,
-        "avg_return": -0.006656677920413728,
-        "median_return": -0.0286397884764632,
-        "avg_excess_vs_qqq": -0.015992487725300902,
-        "alignment_rate": 0.45454545454545453
+        "n": 40,
+        "avg_return": -0.016288290409947757,
+        "median_return": -0.02882793253742666,
+        "avg_excess_vs_qqq": -0.023502342780084364,
+        "alignment_rate": 0.4857142857142857
       },
       "20": {
         "n": 35,
@@ -268,9 +268,9 @@
         "alignment_rate": 0.5714285714285714
       },
       "20": {
-        "n": 6,
-        "avg_return": 0.12740862582794488,
-        "median_return": 0.11361261283270041,
+        "n": 7,
+        "avg_return": 0.1111071358784811,
+        "median_return": 0.09583335736906773,
         "avg_excess_vs_qqq": 0.10124793424876881,
         "alignment_rate": 1.0
       },
@@ -278,7 +278,7 @@
         "n": 4,
         "avg_return": 0.12636383278364066,
         "median_return": 0.12096236717729347,
-        "avg_excess_vs_qqq": 0.09258776646203182,
+        "avg_excess_vs_qqq": 0.07903095547379302,
         "alignment_rate": 1.0
       }
     },
@@ -1266,13 +1266,20 @@
         "same_source": true
       },
       "outcomes": {
-        "5": null,
+        "5": {
+          "date": "2026-10-14",
+          "return": -0.12804831596332433,
+          "mae": -0.12868816667928062,
+          "mfe": 0.020369744769631826,
+          "benchmark_return": -0.0330993388901244,
+          "excess_vs_qqq": -0.09494897707319994
+        },
         "20": null,
         "60": null
       },
       "alignment": {
         "direction": "bearish",
-        "5": null,
+        "5": "aligned",
         "20": null,
         "60": null
       },
@@ -1316,13 +1323,20 @@
         "same_source": true
       },
       "outcomes": {
-        "5": null,
+        "5": {
+          "date": "2026-10-14",
+          "return": -0.2705295394588647,
+          "mae": -0.285722166208934,
+          "mfe": 0.002495148322706031,
+          "benchmark_return": -0.0330993388901244,
+          "excess_vs_qqq": -0.2374302005687403
+        },
         "20": null,
         "60": null
       },
       "alignment": {
         "direction": "bearish",
-        "5": null,
+        "5": "aligned",
         "20": null,
         "60": null
       },
@@ -2644,13 +2658,18 @@
           "benchmark_return": 0.04690677966101697,
           "excess_vs_qqq": -0.03596537083942386
         },
-        "20": null,
+        "20": {
+          "date": "2026-10-14",
+          "return": 0.013298196181698474,
+          "mae": -0.013034891375905189,
+          "mfe": 0.02912442396313364
+        },
         "60": null
       },
       "alignment": {
         "direction": "bullish",
         "5": "aligned",
-        "20": null,
+        "20": "aligned",
         "60": null
       },
       "level_checks": {},
@@ -4289,7 +4308,8 @@
             "within_sessions": 20
           },
           "touch60": {
-            "touched": false,
+            "touched": true,
+            "date": "2026-10-14",
             "within_sessions": 60
           }
         },
@@ -4349,8 +4369,8 @@
       "baseline_kind": "entry_1",
       "baseline_assumption": "explicit plan starts only when the stated stock-entry level is touched",
       "planned_level": 75.0,
-      "triggered": false,
-      "baseline_date": null,
+      "triggered": true,
+      "baseline_date": "2026-10-14",
       "baseline_price": 75.0,
       "price_provenance": {
         "price_source": "stooq_archive",
@@ -4378,7 +4398,8 @@
             "within_sessions": 20
           },
           "touch60": {
-            "touched": false,
+            "touched": true,
+            "date": "2026-10-14",
             "within_sessions": 60
           }
         },
@@ -4405,7 +4426,7 @@
           }
         }
       },
-      "status": "not_triggered"
+      "status": "developing"
     },
     {
       "event_id": "771de7f518806ab0b147:0:NBIS:0",
@@ -6065,7 +6086,9 @@
           "date": "2026-10-13",
           "return": 0.07635760294658378,
           "mae": -0.16677394220671438,
-          "mfe": 0.25198459749088165
+          "mfe": 0.25198459749088165,
+          "benchmark_return": 0.03799708043750716,
+          "excess_vs_qqq": 0.03836052250907662
         }
       },
       "alignment": {

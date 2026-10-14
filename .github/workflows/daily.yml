@@ -190,6 +190,8 @@ jobs:
       - name: Macro event outcomes + tranche Shadow + homepage event row (Shadow)
         id: macro_event_watch
         continue-on-error: true
+        env:
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
         run: |
           python scripts/macro_official_outcomes.py
           python scripts/brightline_tranche_shadow.py

@@ -129,4 +129,22 @@ assert p == {"reference_month": "2026-10", "headline_mom_sa": 0.0, "headline_yoy
 # 9) committed calendar: CPI not recorded before the release; preregistration precedes it
 assert EV.get("official_outcome_recorded_at") is None or (EV["outcome_status"] == "recorded" and EV["official_outcome_recorded_at"] >= EV["release"]["utc"])
 assert T(EXP["preregistered_at"]) < T(EV["release"]["utc"]) and EXP["consensus_status"] == "consensus_unavailable"
+
+# 10) BLS API blocked (GitHub runners get 403 from bls.gov) → FRED mirror of the same BLS series; provenance kept
+def pts_of(body):
+    return mo.series_points(body)
+mirror = lambda ref: (pts_of(GOOD), {"status": "ok"})
+nomirror = lambda ref: (None, {"status": "fred_error: no key"})
+evm, logm = mo.step("cpi_2026_09", EV, T("2026-10-14T12:40:00Z"), fetch_api=api({}, 403), fetch_text=text("", 403), expectations=EXP, fetch_mirror=mirror)
+assert evm["outcome_status"] == "recorded" and evm["official_outcome"]["official_source"]["source_used"] == "fred_mirror"
+assert evm["official_outcome"]["values"] == v and logm["http_status"] == 403 and logm["mirror"]["status"] == "ok"
+assert evm["official_outcome"]["official_source"]["mirror"]["headline_sa"] == "CPIAUCSL"
+evb, _ = mo.step("cpi_2026_09", EV, T("2026-10-14T12:36:00Z"), fetch_api=api(GOOD), fetch_text=text(TEXT), expectations=EXP, fetch_mirror=boom)
+assert evb["official_outcome"]["official_source"]["source_used"] == "bls_api"          # mirror never called when BLS works
+evn, logn = mo.step("cpi_2026_09", EV, T("2026-10-14T12:40:00Z"), fetch_api=api({}, 403), fetch_text=boom, expectations=EXP, fetch_mirror=nomirror)
+assert evn["outcome_status"] == "official_result_unavailable" and "FRED mirror fred_error" in evn["outcome_status_detail"]
+oldm = lambda ref: (pts_of(OLD), {"status": "ok"})                                     # mirror not yet updated → still unavailable
+assert mo.step("cpi_2026_09", EV, T("2026-10-14T12:40:00Z"), fetch_api=api({}, 403), fetch_text=boom, expectations=EXP, fetch_mirror=oldm)[0]["outcome_status"] == "official_result_unavailable"
+evc, _ = mo.step("cpi_2026_09", EV, T("2026-10-14T12:40:00Z"), fetch_api=api({}, 403), fetch_text=text(TEXT.replace("rose 0.3", "rose 0.6")), expectations=EXP, fetch_mirror=mirror)
+assert evc["outcome_status"] == "conflict" and "fred_mirror" in evc["outcome_status_detail"]
 print("PASS macro official outcomes (CPI)")

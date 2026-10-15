@@ -2,7 +2,7 @@
  "version": 1,
  "title": "MyAlpha View — Master Execution Plan",
  "issue": "https://github.com/simonzixin8166-wq/quant-dashboard/issues/133",
- "last_updated": "2026-10-15T04:25Z",
+ "last_updated": "2026-10-15T04:45Z",
  "charter": "CLAUDE.md (owner-confirmed 2026-10-11)",
  "statuses": [
   "Done",
@@ -1360,25 +1360,29 @@
    "title": "Shared footer (sources/copyright, risk disclaimer, correction & contact) + full Chinese policy page + per-item provenance labels",
    "area": "Compliance & UX",
    "priority": 2,
-   "status": "Waiting",
+   "status": "In progress",
    "stages": [
     "instruction_published",
     "claude_acked"
    ],
    "instructions": [
-    "6138128707"
+    "6138128707",
+    "6183848571"
    ],
    "depends_on": [
     "P0-INC-1013"
    ],
    "evidence": {
-    "prs": [],
-    "runs": []
+    "prs": [
+     "c01/site-footer (this PR): shared footer on index.html (+ Daily generator) and brightline-2026.html; docs/legal.html with #sources/#risk/#correction/#changes; tests/test_site_footer.py"
+    ],
+    "runs": [
+     "precondition met: latest Daily event=schedule 38657460138 success (2h30m late) + QA 38666141209 PASS (2026-10-15T01:33Z); local render desktop/390px: 3 links → 200, no overflow, no page errors"
+    ]
    },
-   "waiting_for": "production stability: first successful event=schedule Daily after the P0 (2026-10-13 session) + QA PASS",
    "acceptance": "PR/CI/Pages/QA PASS; desktop + 390px; three links clickable, no 404; homepage gold/DCA layout, feedback email, APP_VERSION 6.9.0 unchanged; no claim of authorization; any non-compliant full-text cache raised separately",
-   "next": "implement once the scheduled Daily is green",
-   "last_verified": "2026-10-13T05:00Z"
+   "next": "merge → Pages + Autonomous QA; then per-item provenance labels on the wenxuecity/source cards (layer 3) as a follow-up PR",
+   "last_verified": "2026-10-15T04:45Z"
   },
   {
    "id": "OPT-01",

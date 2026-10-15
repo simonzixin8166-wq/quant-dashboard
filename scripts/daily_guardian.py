@@ -170,8 +170,14 @@ def main():
         print(f"::warning title=Daily guardian::DAILY_MISSED dispatched Daily for {d['expected']} (attempt {d['attempt']}/{MAX_DISPATCH})")
     elif d["action"] == "give_up":
         print(f"::error title=Daily guardian::DAILY_STILL_STALE {d['expected']} after {MAX_DISPATCH} guard dispatches; explicit GAP, no backfill")
-        gruns = (gh("GET", "actions/workflows/daily-guardian.yml/runs?per_page=30") or {}).get("workflow_runs", [])
-        if should_alert_give_up(d, runs, gruns, os.getenv("GITHUB_RUN_ID")):
+        try:
+            gruns = (gh("GET", "actions/workflows/daily-guardian.yml/runs?per_page=30") or {}).get("workflow_runs", [])
+        except Exception as exc:  # never let the alert path break the guardian / server check below
+            gruns = None
+            print(f"::warning title=Daily guardian::GIVE_UP_ALERT skipped (guardian runs unavailable: {type(exc).__name__})")
+        if gruns is None:
+            pass
+        elif should_alert_give_up(d, runs, gruns, os.getenv("GITHUB_RUN_ID")):
             status = "dry_run" if os.getenv("GUARD_DRY_RUN") == "1" else send_telegram(give_up_message(d))
             print(f"::warning title=Daily guardian::GIVE_UP_ALERT {status}")
         else:

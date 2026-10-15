@@ -124,27 +124,60 @@ def collection_universe(store: Dict[str, pd.DataFrame]) -> List[str]:
     return sorted(s for s in syms if s and s != "VIX")
 
 
+FALLBACK_DIAG: dict = {}
+
+
 def _yahoo_recent(symbols: List[str]) -> Dict[str, List[dict]]:
-    """Free fallback (Yahoo via yfinance, already a Daily dependency): last ~10 daily bars, full OHLC only."""
+    """Free fallback (Yahoo via yfinance, already a Daily dependency): last ~10 daily bars, full OHLC only.
+
+    P0-2 (#133 6183848571): every call records diagnostics in FALLBACK_DIAG — one batched request, the
+    exception if any, and per symbol the last date Yahoo returned before and after dropping incomplete rows,
+    so a missing bar can be told apart from an empty response, a rate limit or an unfinalised (NaN) row."""
+    global FALLBACK_DIAG
+    FALLBACK_DIAG = {"provider": "Yahoo (yfinance download, period=10d, interval=1d)", "requests": 0,
+                     "requested_symbols": len(symbols), "error": None, "per_symbol": {}}
     if not symbols:
         return {}
     try:
         import yfinance as yf
         from source_history_cache import normalize_yf
+        FALLBACK_DIAG["requests"] = 1
         raw = yf.download(symbols, period="10d", interval="1d", auto_adjust=False, progress=False,
                           threads=False, actions=False, group_by="column", timeout=30)
     except Exception as exc:
         print(f"WARNING fallback OHLCV fetch failed: {type(exc).__name__}")
+        FALLBACK_DIAG["error"] = f"{type(exc).__name__}: {str(exc)[:160]}"
         return {}
+    FALLBACK_DIAG["raw_empty"] = bool(raw is None or getattr(raw, "empty", True))
     out: Dict[str, List[dict]] = {}
     for sym in symbols:
+        d = FALLBACK_DIAG["per_symbol"].setdefault(sym, {})
         try:
+            d["raw_last_date"] = _raw_last_date(raw, sym)
             df = normalize_yf(raw, sym)
-        except Exception:
+        except Exception as exc:
+            d["error"] = f"{type(exc).__name__}: {str(exc)[:120]}"
             continue
+        d["rows"] = int(len(df))
+        d["last_complete_date"] = None if df.empty else df.index.max().date().isoformat()
         out[sym] = [{"date": d.date().isoformat(), "open": r.open, "high": r.high, "low": r.low,
                      "close": r.close, "volume": r.volume} for d, r in df.iterrows()]
     return out
+
+
+def _raw_last_date(raw, sym):
+    """Last index date Yahoo returned for sym, including rows later dropped as incomplete (NaN OHLC)."""
+    if raw is None or getattr(raw, "empty", True):
+        return None
+    try:
+        sub = raw
+        if isinstance(raw.columns, pd.MultiIndex):
+            lv = -1 if sym in raw.columns.get_level_values(-1) else 0
+            sub = raw.xs(sym, axis=1, level=lv, drop_level=True)
+        sub = sub.dropna(how="all")
+        return None if sub.empty else pd.to_datetime(sub.index.max()).date().isoformat()
+    except Exception:
+        return None
 
 
 def _hist_dict(df: pd.DataFrame) -> dict:
@@ -206,7 +239,17 @@ def append_latest(store: Dict[str, pd.DataFrame], fetch_fallback=None, expected=
             result["not_final"].append({"symbol": symbol, "detail": bar})
         if last < expected:
             need_fallback.append(symbol)
+    global FALLBACK_DIAG
+    FALLBACK_DIAG = {}
     fetched = fetch_fallback(need_fallback) if need_fallback else {}
+    diag = dict(FALLBACK_DIAG) if FALLBACK_DIAG else {"provider": "injected fetcher (test/other)", "requests": int(bool(need_fallback)),
+                                                      "requested_symbols": len(need_fallback), "error": None, "per_symbol": {}}
+    for sym in need_fallback:
+        d = diag["per_symbol"].setdefault(sym, {})
+        rows = fetched.get(sym) or []
+        d.setdefault("rows", len(rows))
+        d.setdefault("last_complete_date", max((r["date"] for r in rows), default=None))
+    result["fallback_diagnostics"] = diag
     for symbol in need_fallback:
         df = store[symbol]
         rows = fetched.get(symbol) or []
@@ -216,6 +259,9 @@ def append_latest(store: Dict[str, pd.DataFrame], fetch_fallback=None, expected=
         mism = [b["date"] for b in overlap if abs(b["close"] / hist[b["date"]][3] - 1) > BASIS_TOLERANCE]
         new = sorted((b for b in bars if b["date"] > df.index.max().date().isoformat()), key=lambda b: b["date"])
         if not new:
+            dd = diag["per_symbol"].get(symbol, {})
+            dd["outcome"] = ("empty_response" if not rows else
+                             "no_bar_after_archive (raw_last=%s, complete_last=%s)" % (dd.get("raw_last_date"), dd.get("last_complete_date")))
             result["missing"].append(symbol)
             result["sources"].setdefault(symbol, "stale: no finalized full-OHLC bar after the archive from any free source")
             continue

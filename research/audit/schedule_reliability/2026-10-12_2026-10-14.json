@@ -1,0 +1,274 @@
+{
+ "version": 1,
+ "generated_at": "2026-10-15T04:20:00Z",
+ "instruction": "#133 6183848571 P0-1",
+ "acceptance_definition_in_use": "P0-06 counts only event=schedule Daily runs that publish the session; timeliness threshold not yet fixed by the owner (proposal: created ≤ 60 min after the 21:30Z slot = on time; ≤ 180 min = DEGRADED; else GAP)",
+ "consecutive_on_time_schedule_pass": 0,
+ "days": [
+  {
+   "session": "2026-10-12",
+   "daily_2130_schedule": {
+    "status": "GAP",
+    "note": "21:30Z cron never delivered for this session; 08:15Z slot delivered 17:49Z (38286775573, failure at verify contract); later schedule 38337973679 created 02:40Z 10-13 failure"
+   },
+   "recovery": [
+    {
+     "run": 38313360410,
+     "event": "workflow_dispatch",
+     "label": "daily-guardian 2026-10-12 #1",
+     "created": "2026-10-12T21:52:49Z",
+     "conclusion": "failure"
+    },
+    {
+     "run": 38340669182,
+     "event": "workflow_dispatch",
+     "label": "daily-guardian 2026-10-12 #2",
+     "created": "2026-10-13T03:13:23Z",
+     "conclusion": "failure"
+    },
+    {
+     "run": 38342134443,
+     "event": "workflow_dispatch",
+     "label": "P0 recovery after #218",
+     "created": "2026-10-13T03:31:43Z",
+     "conclusion": "failure"
+    },
+    {
+     "run": 38343250454,
+     "event": "workflow_dispatch",
+     "label": "P0 recovery #2 after #220",
+     "created": "2026-10-13T03:46:00Z",
+     "conclusion": "success"
+    }
+   ],
+   "root_cause": [
+    "platform: 21:30Z slot not delivered",
+    "repo: contract failures #217/#218/#220/#221 (fixed)"
+   ],
+   "source_completeness": "recovered 26/26 display bars for 10-12 at 03:56Z 10-13",
+   "qa": "FAIL until 38345224979 (04:15Z 10-13) PASS",
+   "verdict": "FAIL"
+  },
+  {
+   "session": "2026-10-13",
+   "daily_2130_schedule": {
+    "status": "DEGRADED",
+    "run": 38490415299,
+    "event": "schedule",
+    "created": "2026-10-14T00:28:55Z",
+    "delay_minutes": 179,
+    "conclusion": "success",
+    "head_sha": "43ecdfb"
+   },
+   "recovery": [
+    {
+     "run": 38487322756,
+     "event": "workflow_dispatch",
+     "label": "daily-guardian 2026-10-13 #1",
+     "created": "2026-10-13T23:57:16Z",
+     "conclusion": "success",
+     "note": "published the session and the CPI T-1 baseline before the schedule run"
+    }
+   ],
+   "root_cause": [
+    "platform: no Actions runs at all 19:58Z–23:37Z; schedule created 2h59m late (started == created, so no queue or concurrency wait)"
+   ],
+   "source_completeness": "archive 26/40 at publication; 14 fallback symbols filled at 13:51Z 10-14 by the delayed 08:15Z run 38573634393 (first_seen in research/audit/ohlcv_completeness)",
+   "qa": "38485421325 FAIL 23:39Z (stale, before recovery); 38491369685 PASS 00:42Z",
+   "verdict": "DEGRADED"
+  },
+  {
+   "session": "2026-10-14",
+   "daily_2130_schedule": {
+    "status": "DEGRADED",
+    "run": 38657460138,
+    "event": "schedule",
+    "created": "2026-10-15T00:00:17Z",
+    "delay_minutes": 150,
+    "conclusion": "success",
+    "head_sha": "ce45e57"
+   },
+   "recovery": [
+    {
+     "run": 38644154255,
+     "event": "workflow_dispatch",
+     "label": "daily-guardian 2026-10-14 #1",
+     "created": "2026-10-14T21:57:18Z",
+     "conclusion": "success",
+     "note": "published 40/40 + VIX bars at 22:07Z"
+    }
+   ],
+   "root_cause": [
+    "platform: schedule created 2h30m late"
+   ],
+   "source_completeness": "archive 41/41 for 10-14 (recovery 22:07Z); schedule run quarantined 9 display-symbol conflicts (values revised after the recovery capture; old kept, flagged); VIX bar captured intraday at 13:51Z (fixed in this PR)",
+   "qa": "38639624033 FAIL 21:23Z (before Daily slot); 38658339021 FAIL 00:10Z (server_action stale); 38666141209 PASS 01:33Z",
+   "verdict": "DEGRADED"
+  }
+ ],
+ "platform_evidence_10_12_to_10_14": {
+  "method": "cron slots vs schedule-run created_at from the Actions API (FIFO matching; high-frequency crons also measured against the nearest prior slot)",
+  "per_workflow": {
+   "daily.yml": {
+    "crons": [
+     "30 21 * * 1-5",
+     "15 8 * * 1-5"
+    ],
+    "slots_10_12_to_10_14": 6,
+    "delivered": 6,
+    "undelivered": 0,
+    "delay_minutes": {
+     "min": 150,
+     "median": 325,
+     "max": 574
+    }
+   },
+   "daily-research.yml": {
+    "crons": [
+     "35 0 * * 2-6",
+     "35 12 * * 2-6"
+    ],
+    "slots_10_12_to_10_14": 4,
+    "delivered": 4,
+    "undelivered": 0,
+    "delay_minutes": {
+     "min": 281,
+     "median": 386,
+     "max": 414
+    }
+   },
+   "daily-guardian.yml": {
+    "crons": [
+     "50 22 * * 1-5",
+     "20 23 * * 1-5",
+     "40 0 * * 2-6",
+     "20 1 * * 2-6",
+     "40 2 * * 2-6",
+     "20 3 * * 2-6",
+     "20 12 * * 2-6",
+     "47 13-21 * * 1-5"
+    ],
+    "slots_10_12_to_10_14": 43,
+    "delivered": 21,
+    "undelivered": 22,
+    "delay_minutes": {
+     "min": 486,
+     "median": 1507,
+     "max": 1931
+    }
+   },
+   "research-evidence-update.yml": {
+    "crons": [
+     "10 22 * * 1-5"
+    ],
+    "slots_10_12_to_10_14": 3,
+    "delivered": 3,
+    "undelivered": 0,
+    "delay_minutes": {
+     "min": 138,
+     "median": 179,
+     "max": 289
+    }
+   },
+   "server-action-watch.yml": {
+    "crons": [
+     "*/30 13-22 * * 1-5",
+     "20 0-12,23 * * 1-5",
+     "20 23 * * 0"
+    ],
+    "slots_10_12_to_10_14": 102,
+    "delivered": 17,
+    "undelivered": 85,
+    "delay_minutes": {
+     "min": 125,
+     "median": 2160,
+     "max": 3541
+    }
+   },
+   "autonomous-qa.yml": {
+    "crons": [
+     "0 14 * * *"
+    ],
+    "slots_10_12_to_10_14": 3,
+    "delivered": 3,
+    "undelivered": 0,
+    "delay_minutes": {
+     "min": 253,
+     "median": 359,
+     "max": 475
+    }
+   },
+   "source-intelligence-validation.yml": {
+    "crons": [
+     "10 23 * * *"
+    ],
+    "slots_10_12_to_10_14": 3,
+    "delivered": 3,
+    "undelivered": 0,
+    "delay_minutes": {
+     "min": 135,
+     "median": 159,
+     "max": 260
+    }
+   },
+   "trend-pulse-backtest.yml": {
+    "crons": [
+     "30 22 * * 1-5"
+    ],
+    "slots_10_12_to_10_14": 3,
+    "delivered": 3,
+    "undelivered": 0,
+    "delay_minutes": {
+     "min": 130,
+     "median": 168,
+     "max": 275
+    }
+   },
+   "playbook-watchdog.yml": {
+    "crons": [
+     "17 */3 * * 1-6"
+    ],
+    "slots_10_12_to_10_14": 24,
+    "delivered": 10,
+    "undelivered": 14,
+    "delay_minutes": {
+     "min": 346,
+     "median": 1983,
+     "max": 2680
+    }
+   }
+  },
+  "nearest_prior_slot_lag_minutes": {
+   "daily-guardian.yml": {
+    "min": 6,
+    "median": 35,
+    "max": 443
+   },
+   "server-action-watch.yml": {
+    "min": 5,
+    "median": 19,
+    "max": 45
+   },
+   "playbook-watchdog.yml": {
+    "min": 3,
+    "median": 84,
+    "max": 166
+   }
+  },
+  "weekday_slot_load": 66,
+  "findings": [
+   "every scheduled workflow was delivered late: daily-frequency crons 125–574 min after their slot",
+   "high-frequency crons were mostly not delivered (server-action-watch 17/102, daily-guardian 21/43, playbook-watchdog 10/24)",
+   "run_started_at == created_at for the late Daily runs → no runner queue and no concurrency wait; the delay is before GitHub creates the run",
+   "no Actions runs of any kind 2026-10-13 19:58Z–23:37Z"
+  ],
+  "hypotheses_not_proven": [
+   "the repository's 66 scheduled slots per weekday (34 from server-action-watch, 16 from daily-guardian) may contribute to throttling — testable only by reducing frequency, which changes cron architecture and needs owner approval"
+  ]
+ },
+ "repo_side_findings": [
+  "VIX refresh (bootstrap_replay_history.py) wrote intraday bars and restated 10-13 silently → fixed in this PR",
+  "Yahoo fallback had no diagnostics, so the 10-13 night misses (23:57Z/00:28Z) cannot be attributed → instrumented in this PR",
+  "QA runs before the Daily slot or before Server Action Watch report FAIL on stale data (correct, but expected noise)"
+ ]
+}

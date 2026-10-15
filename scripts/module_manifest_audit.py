@@ -91,6 +91,7 @@ ROLES = {  # reader → (role, reason)
     "weekly_research_report.py": (M, "weekly auto-research report"), "auto_research_digest.py": (V, "homepage row digest"),
     "sec_fact_reconcile.py": (M, "SEC reconciliation audit"), "sec_facts_v2.py": (M, "B4-02 unified SEC Shadow fetcher (reads CIKs; no consumer)"), "author_claim_contamination_audit.py": (M, "author-claim gate impact audit + quarantine"), "p1_readiness_audit.py": (M, "B1/B2 readiness quality audit"), "symbol_registry.py": (M, "D-04 universes + missing-history manifest"), "module_manifest_audit.py": (M, "this audit"),
     "v615_forward_intake_health.py": (M, "forward-intake integrity guard (reads validator timestamp only)"),
+    "ohlcv_completeness_audit.py": (M, "P0-2 per-symbol OHLCV completeness evidence (read-only audit, no decisions)"),
     "update_fred_macro.py": (R, "FRED/ALFRED macro collector"),
 }
 PRODUCER_OVERRIDE = {

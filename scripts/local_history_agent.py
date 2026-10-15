@@ -124,10 +124,18 @@ def collection_universe(store: Dict[str, pd.DataFrame]) -> List[str]:
     return sorted(s for s in syms if s and s != "VIX")
 
 
+FALLBACK_DIAG: List[dict] = []  # per-run fallback request log (source, requested, returned last dates, errors)
+
+
+def _returned_summary(symbols: List[str], out: Dict[str, List[dict]]) -> Dict[str, Optional[str]]:
+    return {s: (max(r["date"] for r in out[s]) if out.get(s) else None) for s in symbols}
+
+
 def _yahoo_recent(symbols: List[str]) -> Dict[str, List[dict]]:
     """Free fallback (Yahoo via yfinance, already a Daily dependency): last ~10 daily bars, full OHLC only."""
     if not symbols:
         return {}
+    diag = {"source": "Yahoo (yfinance) fallback", "requests": 1, "requested": sorted(symbols), "error": None}
     try:
         import yfinance as yf
         from source_history_cache import normalize_yf
@@ -135,6 +143,9 @@ def _yahoo_recent(symbols: List[str]) -> Dict[str, List[dict]]:
                           threads=False, actions=False, group_by="column", timeout=30)
     except Exception as exc:
         print(f"WARNING fallback OHLCV fetch failed: {type(exc).__name__}")
+        diag["error"] = type(exc).__name__
+        diag["returned_last_date"] = {s: None for s in symbols}
+        FALLBACK_DIAG.append(diag)
         return {}
     out: Dict[str, List[dict]] = {}
     for sym in symbols:
@@ -144,6 +155,59 @@ def _yahoo_recent(symbols: List[str]) -> Dict[str, List[dict]]:
             continue
         out[sym] = [{"date": d.date().isoformat(), "open": r.open, "high": r.high, "low": r.low,
                      "close": r.close, "volume": r.volume} for d, r in df.iterrows()]
+    diag["raw_rows"] = int(len(raw)) if raw is not None else 0
+    diag["returned_last_date"] = _returned_summary(symbols, out)
+    FALLBACK_DIAG.append(diag)
+    return out
+
+
+YAHOO_CHART = "https://query1.finance.yahoo.com/v8/finance/chart/{sym}?interval=1d&range=1mo"
+
+
+def _yahoo_chart_recent(symbols: List[str], opener=None, pause: float = 0.4) -> Dict[str, List[dict]]:
+    """Second free fallback: the same public Yahoo chart endpoint fetch_and_build.py already uses for indices
+    (no new service, no key). One low-frequency request per still-missing symbol. Full OHLC only: a row with
+    any of open/high/low/close missing is skipped, never synthesized (D-06). HTTP status / errors are logged."""
+    import time
+    import urllib.error
+    import urllib.request
+    from zoneinfo import ZoneInfo
+    if not symbols:
+        return {}
+    opener = opener or (lambda url: urllib.request.urlopen(
+        urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (MyAlpha research; low-frequency)"}), timeout=15))
+    ny = ZoneInfo("America/New_York")
+    out: Dict[str, List[dict]] = {}
+    per: Dict[str, dict] = {}
+    for i, sym in enumerate(symbols):
+        if i and pause:
+            time.sleep(pause)
+        rec = {"http_status": None, "error": None, "rows": 0}
+        try:
+            with opener(YAHOO_CHART.format(sym=sym)) as resp:
+                rec["http_status"] = getattr(resp, "status", None) or 200
+                payload = json.loads(resp.read().decode("utf-8"))
+            res = payload["chart"]["result"][0]
+            q = res["indicators"]["quote"][0]
+            rows = []
+            for k, t in enumerate(res.get("timestamp") or []):
+                vals = [q.get(f, [None] * (k + 1))[k] for f in ("open", "high", "low", "close")]
+                if any(v is None for v in vals):
+                    continue
+                vol = (q.get("volume") or [None] * (k + 1))[k]
+                rows.append({"date": datetime.fromtimestamp(int(t), tz=timezone.utc).astimezone(ny).date().isoformat(),
+                             "open": float(vals[0]), "high": float(vals[1]), "low": float(vals[2]),
+                             "close": float(vals[3]), "volume": float(vol or 0)})
+            out[sym] = rows
+            rec["rows"] = len(rows)
+        except urllib.error.HTTPError as exc:
+            rec["http_status"], rec["error"] = exc.code, "HTTPError"
+        except Exception as exc:
+            rec["error"] = type(exc).__name__
+        rec["returned_last_date"] = max((r["date"] for r in out.get(sym) or []), default=None)
+        per[sym] = rec
+    FALLBACK_DIAG.append({"source": "Yahoo chart v8 fallback", "requests": len(symbols), "requested": sorted(symbols),
+                          "per_symbol": per, "returned_last_date": {s: per[s]["returned_last_date"] for s in symbols}})
     return out
 
 
@@ -152,7 +216,11 @@ def _hist_dict(df: pd.DataFrame) -> dict:
             for d, r in df.iterrows()}
 
 
-def append_latest(store: Dict[str, pd.DataFrame], fetch_fallback=None, expected=None) -> dict:
+def _fb_source(result: dict, symbol: str) -> str:
+    return (result.get("fallback_source") or {}).get(symbol, "Yahoo (yfinance) fallback")
+
+
+def append_latest(store: Dict[str, pd.DataFrame], fetch_fallback=None, expected=None, fetch_fallback2=None) -> dict:
     """Append finalized real OHLCV bars for the whole data-collection universe (D-05 / D-06).
 
     Rules (scripts/ohlcv_merge.py): full OHLC only; close-only rows are reported as close_only and never
@@ -161,11 +229,17 @@ def append_latest(store: Dict[str, pd.DataFrame], fetch_fallback=None, expected=
       1. docs/data.json stocks/core/index (already fetched by Daily; no extra call)
       2. free fallback for symbols still without a full bar for the expected session (Yahoo, last ~10 bars),
          accepted only when its closes match the archive on overlapping sessions (same price basis).
+      3. (P0-2, 2026-10-15) second free fallback (public Yahoo chart endpoint) only for symbols the first
+         fallback returned no bar for the expected session; same basis guard. Every request is logged in
+         result["fallback_attempts"] (requested symbols, returned last date, HTTP status / error).
     """
     import ohlcv_merge as om
     import trading_calendar as tcal
     expected = expected or tcal.expected_latest_completed_session().isoformat()
-    fetch_fallback = _yahoo_recent if fetch_fallback is None else fetch_fallback
+    if fetch_fallback is None:
+        fetch_fallback = _yahoo_recent
+        fetch_fallback2 = _yahoo_chart_recent if fetch_fallback2 is None else fetch_fallback2
+    FALLBACK_DIAG.clear()
     result = {"expected_session": expected, "appended": [], "unchanged": [], "quarantined": [], "missing": [],
               "close_only": [], "not_final": [], "sources": {}}
     data = json.loads(DASHBOARD.read_text(encoding="utf-8")) if DASHBOARD.exists() else {}
@@ -207,6 +281,15 @@ def append_latest(store: Dict[str, pd.DataFrame], fetch_fallback=None, expected=
         if last < expected:
             need_fallback.append(symbol)
     fetched = fetch_fallback(need_fallback) if need_fallback else {}
+    if fetch_fallback2 and need_fallback:
+        lacking = [s for s in need_fallback if not any(str(r.get("date"))[:10] == expected for r in fetched.get(s) or [])]
+        if lacking:
+            second = fetch_fallback2(lacking) or {}
+            for s in lacking:
+                if any(str(r.get("date"))[:10] == expected for r in second.get(s) or []):
+                    fetched[s] = second[s]
+                    result.setdefault("fallback_source", {})[s] = "Yahoo chart v8 fallback"
+    result["fallback_attempts"] = list(FALLBACK_DIAG)
     for symbol in need_fallback:
         df = store[symbol]
         rows = fetched.get(symbol) or []
@@ -214,6 +297,11 @@ def append_latest(store: Dict[str, pd.DataFrame], fetch_fallback=None, expected=
         bars = [b for st, b in (om.normalize_bar(r, expected) for r in rows) if st == "ok"]
         overlap = [b for b in bars if b["date"] in hist]
         mism = [b["date"] for b in overlap if abs(b["close"] / hist[b["date"]][3] - 1) > BASIS_TOLERANCE]
+        result.setdefault("basis_check", {})[symbol] = {
+            "source": _fb_source(result, symbol), "overlap_sessions": len(overlap), "tolerance_pct": BASIS_TOLERANCE * 100,
+            "max_abs_close_diff_pct": (round(max(abs(b["close"] / hist[b["date"]][3] - 1) for b in overlap) * 100, 4)
+                                       if overlap else None),
+            "returned_last_date": max((b["date"] for b in bars), default=None)}
         new = sorted((b for b in bars if b["date"] > df.index.max().date().isoformat()), key=lambda b: b["date"])
         if not new:
             result["missing"].append(symbol)
@@ -221,19 +309,19 @@ def append_latest(store: Dict[str, pd.DataFrame], fetch_fallback=None, expected=
             continue
         if not overlap or mism:
             result["quarantined"].append({"symbol": symbol, "reason": "fallback_basis_unverified" if not overlap else "fallback_basis_mismatch",
-                                          "dates": mism, "source": "Yahoo (yfinance) fallback"})
+                                          "dates": mism, "source": _fb_source(result, symbol)})
             continue
         cur = _hist_dict(df.tail(5))
         for b in new:
             res, cur = om.merge_bar(cur, "ok", b)
             if res["result"] != "appended":
-                result["quarantined"].append({"symbol": symbol, "date": b["date"], "reason": res["result"], "source": "Yahoo (yfinance) fallback"})
+                result["quarantined"].append({"symbol": symbol, "date": b["date"], "reason": res["result"], "source": _fb_source(result, symbol)})
                 break
             df.loc[pd.Timestamp(b["date"]), ["open", "high", "low", "close", "volume"]] = [b["open"], b["high"], b["low"], b["close"], b["volume"]]
-            result["appended"].append({"symbol": symbol, "date": b["date"], "close": b["close"], "source": "Yahoo (yfinance) fallback"})
+            result["appended"].append({"symbol": symbol, "date": b["date"], "close": b["close"], "source": _fb_source(result, symbol)})
             changed = True
         store[symbol] = df.sort_index()
-        result["sources"][symbol] = "Yahoo (yfinance) fallback"
+        result["sources"][symbol] = _fb_source(result, symbol)
     if changed:
         write_archive(store)
     return result

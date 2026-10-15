@@ -78,4 +78,54 @@ with tempfile.TemporaryDirectory() as t:
     r3 = lha.append_latest(lha.read_archive(), fetch_fallback=lambda s: {}, expected="2026-10-12")
     assert any(x["symbol"] == "SPY" and x["reason"] == "conflict" for x in r3["quarantined"])
     assert float(lha.read_archive()["SPY"].loc["2026-10-12", "close"]) == 11.0
+
+# P0-2 (2026-10-15): second free fallback only for symbols the first one left without the expected session;
+# same basis guard; every request logged (requested, returned last date, HTTP status / error).
+with tempfile.TemporaryDirectory() as t:
+    t = Path(t)
+    lha.ARCHIVE, lha.DASHBOARD, lha.REGISTRY = t / "a.zip", t / "data.json", t / "reg.json"
+    lha.REGISTRY.write_text(json.dumps({"universes": {"data_collection_universe": ["IWM", "HYG", "TLT"]}}))
+    lha.DASHBOARD.write_text(json.dumps({}))
+    lha.write_archive({s: _df(base) for s in ("IWM", "HYG", "TLT")})
+    ok = [{"date": "2026-10-09", "open": 10.5, "high": 11, "low": 10, "close": 10.8, "volume": 1},
+          {"date": "2026-10-12", "open": 10.8, "high": 11.3, "low": 10.6, "close": 11.1, "volume": 2}]
+    first_calls, second_calls = [], []
+    def first(symbols):
+        first_calls.append(sorted(symbols))
+        return {"IWM": ok, "HYG": ok[:1], "TLT": []}          # HYG/TLT: source has not published 10-12 yet
+    def second(symbols):
+        second_calls.append(sorted(symbols))
+        return {"HYG": ok, "TLT": [{**r, "close": r["close"] * 1.3, "high": r["high"] * 1.3} for r in ok]}
+    r = lha.append_latest(lha.read_archive(), fetch_fallback=first, fetch_fallback2=second, expected="2026-10-12")
+    src = {a["symbol"]: a["source"] for a in r["appended"]}
+    assert src == {"IWM": "Yahoo (yfinance) fallback", "HYG": "Yahoo chart v8 fallback"}, src
+    assert second_calls == [["HYG", "TLT"]]                                        # only the still-lacking symbols
+    assert {x["symbol"]: x["reason"] for x in r["quarantined"]} == {"TLT": "fallback_basis_mismatch"}
+    assert "fallback_attempts" in r
+    bc = r["basis_check"]
+    assert bc["HYG"]["overlap_sessions"] == 1 and bc["HYG"]["max_abs_close_diff_pct"] == 0.0
+    assert bc["TLT"]["max_abs_close_diff_pct"] > 0.5 and bc["HYG"]["returned_last_date"] == "2026-10-12"
+    # no second fallback configured → behaviour identical to before (HYG stays missing, fail-closed)
+    lha.write_archive({s: _df(base) for s in ("IWM", "HYG", "TLT")})
+    r0 = lha.append_latest(lha.read_archive(), fetch_fallback=first, expected="2026-10-12")
+    assert "HYG" in r0["missing"] and "TLT" in r0["missing"]
+
+# chart parser: rows with any missing O/H/L/C are skipped (never synthesized); HTTP errors are recorded
+import io as _io, urllib.error  # noqa: E402
+class _Resp(_io.BytesIO):
+    status = 200
+def opener(url):
+    if "TLT" in url:
+        raise urllib.error.HTTPError(url, 429, "Too Many Requests", {}, None)
+    body = {"chart": {"result": [{"timestamp": [1760362200, 1760448600],   # 2025-10-13/14 13:30Z → NY dates
+                                  "indicators": {"quote": [{"open": [1.0, None], "high": [1.2, 1.3], "low": [0.9, 1.0],
+                                                            "close": [1.1, 1.2], "volume": [100, 200]}]}}]}}
+    return _Resp(json.dumps(body).encode())
+lha.FALLBACK_DIAG.clear()
+out = lha._yahoo_chart_recent(["HYG", "TLT"], opener=opener, pause=0)
+assert [r["date"] for r in out["HYG"]] == ["2025-10-13"] and out["HYG"][0]["open"] == 1.0
+assert "TLT" not in out
+d = lha.FALLBACK_DIAG[-1]["per_symbol"]
+assert d["TLT"]["http_status"] == 429 and d["TLT"]["error"] == "HTTPError" and d["HYG"]["http_status"] == 200
+assert d["HYG"]["returned_last_date"] == "2025-10-13" and d["TLT"]["returned_last_date"] is None
 print("test_ohlcv_merge OK")

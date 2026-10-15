@@ -81,4 +81,14 @@ with tempfile.TemporaryDirectory() as t:
     assert g["migration_allowed"] is False and g["blocker_differences"] == 3 and g["archive_unexplained_rows"] == 1
     assert rep["read_only"] and rep["consumers_migrated"] is False and "AAA.capex" in g["design_decisions_needed"]["cashflow_ytd_lag"]
     assert a.build(old, new, v2, o, v, etfs={"ETF"})["content_sha256"] == rep["content_sha256"]            # deterministic
+# period-layers-1 outputs: a stale-labelled fact is explained (not a blocker); an old YTD 'latest' that equals v2's
+# separate YTD layer is explained; a basis-tagged quarter is never re-flagged as TTM
+v2b = {"symbols": {"AAA": {"status": "ok", "latest": {
+    "net_income": {**f(4, "2026-04-01", "2026-06-30", "2026-07-30"), "basis": "reported"},
+    "gross_profit": {**f(3, "2018-06-01", "2018-08-31", "2018-09-19", fp="Q1", concept="GrossProfit"), "stale": True}},
+    "periods": {"net_income": {"ytd": {"value": 9, "start": "2026-01-01", "end": "2026-06-30"}}}}}}
+cb = {(d["symbol"], d["metric"]): d["cause"] for d in a.compare_latest(old, v2b)["differences"]}
+assert cb[("AAA", "net_income")] == "ytd_layer_agree" and cb[("AAA", "gross_profit")] == "discontinued_concept_both"
+assert a.v2_selection_issue("gross_profit", {"stale": True, "end": "2018-08-31"}, {}) == "stale_flagged"
+assert a.v2_selection_issue("net_income", {"basis": "reported", "form": "10-Q", "start": "2025-07-01", "end": "2026-06-30", "fp": "Q2"}, {}) is None
 print("PASS sec v2 migration audit")

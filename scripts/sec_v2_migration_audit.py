@@ -20,6 +20,8 @@ Causes (explained unless marked):
   cashflow_ytd_lag (10-Q cash-flow lines are YTD; v2 drops YTD periods, so its latest lags to the last discrete
   quarter or is empty — DESIGN DECISION, not a data error), etf_no_companyfacts (ETF / unit trust: companyfacts
   returns HTTP error on BOTH paths),
+  stale_flagged (v2 keeps an old period but labels it stale — explained), ytd_layer_agree (old 'latest' was a YTD
+  figure and v2's separate YTD layer holds the same fact — explained, period-layers-1),
   v2_selection_ttm (BLOCKER: v2 'latest' picked a trailing-12-month figure printed in a 10-Q over the quarter),
   v2_selection_stale (BLOCKER: v2 'latest' end date is > 400 days older than the company's newest filing),
   unexplained (BLOCKER).
@@ -34,6 +36,7 @@ from datetime import date, datetime, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "scripts"))
 OLD = ROOT / "docs" / "research" / "company_fundamental_memory.json"
 NEW = ROOT / "docs" / "research" / "sec_fundamentals.json"
 SHADOW = ROOT / "docs" / "research" / "shadow" / "company_fundamental_memory_v2.json"
@@ -92,6 +95,10 @@ def v2_selection_issue(metric, fact, latest_all):
     """Detect the two known v2 'latest' selection defects on a single selected fact."""
     if not fact:
         return None
+    if fact.get("stale") is True:
+        return "stale_flagged"          # period-layers-1: an old period is labelled stale, never presented as current
+    if fact.get("basis") in ("reported", "derived_ytd_difference", "fiscal_year"):
+        return None                     # period-layers-1: latest is a discrete quarter or the fiscal year by construction
     newest = max((str(f.get("filed")) for f in latest_all.values() if f), default=None)
     if newest and days_between(fact.get("end"), newest) is not None and days_between(fact.get("end"), newest) > STALE_DAYS:
         return "v2_selection_stale"
@@ -106,16 +113,22 @@ def compare_latest(old_doc, v2_doc):
     rows, tally = [], Counter()
     for s in sorted(set(os_) | set(vs_)):
         o, v = (os_.get(s) or {}).get("latest") or {}, (vs_.get(s) or {}).get("latest") or {}
+        periods = (vs_.get(s) or {}).get("periods") or {}
         for m in sorted(set(o) | set(v)):
             of, vf = o.get(m), v.get(m)
             sel = v2_selection_issue(m, vf, v)
+            ylay = ((periods.get(m) or {}).get("ytd") or {})
+            ytd_same = bool(of and ylay.get("value") is not None and (of.get("start"), of.get("end"), of.get("value"))
+                            == (ylay.get("start"), ylay.get("end"), ylay.get("value")))
             same = bool(of and vf and (of.get("start"), of.get("end"), of.get("value")) == (vf.get("start"), vf.get("end"), vf.get("value")))
             if s not in os_ or s not in vs_:
                 cause = "not_covered"
-            elif sel == "v2_selection_stale" and of and v2_selection_issue(m, of, o) == "v2_selection_stale":
+            elif sel in ("v2_selection_stale", "stale_flagged") and of and v2_selection_issue(m, {k: x for k, x in of.items() if k != "stale"}, o) == "v2_selection_stale":
                 cause = "discontinued_concept_both"
             elif sel:
                 cause = sel
+            elif ytd_same and not (vf and (vf.get("start"), vf.get("end"), vf.get("value")) == (of.get("start"), of.get("end"), of.get("value"))):
+                cause = "ytd_layer_agree"
             elif of is None or vf is None:
                 if of is None:
                     cause = "v2_more_concepts"
@@ -283,10 +296,52 @@ def simulate_fix(v2_dir=V2_ARCH, symbols=None):
             "note": "simulation of the candidate rule on the real v2 archive; no production file changed"}
 
 
-def build(old_doc, new_doc, v2_doc, old_dir=OLD_ARCH, v2_dir=V2_ARCH, now=None, etfs=None):
+def recompute_from_archive(v2_doc, v2_dir=V2_ARCH):
+    """'After' view: what the fixed sec_facts_v2 (period-layers-1) produces from the SAME append-only archive rows.
+    Errors (e.g. DIA) stay errors; no network; the production Shadow file is not touched."""
+    import sec_facts_v2 as v2
+    out = {"version": "recomputed-from-archive", "period_contract": v2.PERIOD_CONTRACT, "symbols": {}}
+    for s, node in ((v2_doc or {}).get("symbols") or {}).items():
+        rows = jsonl(Path(v2_dir) / f"{s}.jsonl")
+        if node.get("status") != "ok" or not rows:
+            out["symbols"][s] = {k: node.get(k) for k in ("status", "cik", "error", "company_name")} | {"latest": {}}
+            continue
+        newest = max(str(r["filed"]) for r in rows)
+        layers = {m: L for m in sorted(v2.FLOW_METRICS | v2.NON_ADDITIVE) if (L := v2.period_layers(rows, m, newest))}
+        out["symbols"][s] = {"status": "ok", "company_name": node.get("company_name"), "latest": v2.latest_old_schema(rows, layers), "periods": layers}
+    return out
+
+
+def cashflow_items_status(old_doc, after_doc, items):
+    res = {}
+    for it in items:
+        s, m = it.split(".")
+        o = (((old_doc or {}).get("symbols") or {}).get(s) or {}).get("latest", {}).get(m) or {}
+        P = ((((after_doc or {}).get("symbols") or {}).get(s) or {}).get("periods") or {}).get(m) or {}
+        lay = lambda k: (P.get(k) or {})
+        res[it] = {"old_latest": {"start": o.get("start"), "end": o.get("end"), "value": o.get("value")},
+                   "ytd": {k: lay("ytd").get(k) for k in ("start", "end", "value", "basis")} if lay("ytd").get("value") is not None else lay("ytd"),
+                   "quarter": {k: lay("quarter").get(k) for k in ("start", "end", "value", "basis")} if lay("quarter").get("value") is not None else lay("quarter"),
+                   "ttm": {k: lay("ttm").get(k) for k in ("start", "end", "value", "basis")} if lay("ttm").get("value") is not None else lay("ttm"),
+                   "ytd_matches_old": (lay("ytd").get("start"), lay("ytd").get("end"), lay("ytd").get("value")) == (o.get("start"), o.get("end"), o.get("value")),
+                   "lag_resolved": lay("ytd").get("end") is not None and str(lay("ytd").get("end")) >= str(o.get("end"))}
+    return res
+
+
+def build(old_doc, new_doc, v2_doc, old_dir=OLD_ARCH, v2_dir=V2_ARCH, now=None, etfs=None, after_doc=None):
     now = now or datetime.now(timezone.utc)
     a, b, c = compare_latest(old_doc, v2_doc), compare_research(new_doc, v2_doc, etfs), compare_archives(old_dir, v2_dir)
     d, e = v2_self_check(v2_doc), simulate_fix(v2_dir)
+    after = None
+    if after_doc is not None:
+        aa, ab, ad = compare_latest(old_doc, after_doc), compare_research(new_doc, after_doc, etfs), v2_self_check(after_doc)
+        ablock = [x for part in (aa, ab) for x in part["differences"] if x["blocker"]]
+        before_items = sorted({f"{x['symbol']}.{x['metric']}" for part in (a, b) for x in part["differences"] if x["cause"] == "cashflow_ytd_lag"})
+        after = {"source": "fixed sec_facts_v2 (period-layers-1) recomputed from research/archive/fundamentals_v2; production Shadow not rewritten",
+                 "A_tally": aa["tally"], "B_tally": ab["tally"], "D_self_check": ad["tally"],
+                 "blocker_differences": len(ablock), "blockers": [{k: x[k] for k in ("symbol", "metric", "cause")} for x in ablock],
+                 "unexplained": [{k: x[k] for k in ("symbol", "metric", "cause")} for part in (aa, ab) for x in part["differences"] if x["cause"] == "unexplained"],
+                 "cashflow_ytd_lag_items": cashflow_items_status(old_doc, after_doc, before_items)}
     blockers = [d for part in (a, b) for d in part["differences"] if d["blocker"]]
     decisions = [d for part in (a, b) for d in part["differences"] if d["cause"] == "cashflow_ytd_lag"]
     gate = {"blocker_differences": len(blockers),
@@ -304,7 +359,7 @@ def build(old_doc, new_doc, v2_doc, old_dir=OLD_ARCH, v2_dir=V2_ARCH, now=None, 
             "inputs": {k: {"path": str(p.relative_to(ROOT)), "generated_at": (d or {}).get("generated_at")}
                        for k, p, d in (("old", OLD, old_doc), ("new", NEW, new_doc), ("v2_shadow", SHADOW, v2_doc))},
             "A_latest_old_vs_v2": a, "B_research_new_vs_v2": b, "C_archive_old_vs_v2": c,
-            "D_v2_selection_self_check": d, "E_candidate_fix_simulation": e, "gate": gate,
+            "D_v2_selection_self_check": d, "E_candidate_fix_simulation": e, "after_fix": after, "gate": gate,
             "read_only": True, "production_use": False, "consumers_migrated": False}
     body["content_sha256"] = hashlib.sha256(json.dumps({k: body[k] for k in ("A_latest_old_vs_v2", "B_research_new_vs_v2", "C_archive_old_vs_v2")},
                                                        sort_keys=True, ensure_ascii=False).encode()).hexdigest()
@@ -312,12 +367,14 @@ def build(old_doc, new_doc, v2_doc, old_dir=OLD_ARCH, v2_dir=V2_ARCH, now=None, 
 
 
 def main():
-    rep = build(load(OLD), load(NEW), load(SHADOW))
+    shadow = load(SHADOW)
+    rep = build(load(OLD), load(NEW), shadow, after_doc=recompute_from_archive(shadow))
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(rep, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
     g = rep["gate"]
     print(f"::notice title=SEC v2 migration audit::blockers={g['blocker_differences']} {g['blocker_causes']} "
-          f"archive_unexplained={g['archive_unexplained_rows']} migration_allowed={g['migration_allowed']}")
+          f"archive_unexplained={g['archive_unexplained_rows']} migration_allowed={g['migration_allowed']} "
+          f"after_fix_blockers={(rep['after_fix'] or {}).get('blocker_differences')}")
     return 0
 
 

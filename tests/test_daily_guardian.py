@@ -48,3 +48,19 @@ assert dg.decide_server(night, "2026-10-09T23:04:00Z", [], "2026-10-08", "2026-1
 assert dg.decide_server(night, "2026-10-09T23:04:00Z", [{"status": "in_progress"}], "2026-10-08", "2026-10-09")["reason"] == "server_watch_running"
 assert dg.decide_server(night, "2026-10-09T23:04:00Z", [], "2026-10-09", "2026-10-09")["action"] == "ok"
 print("PASS server chain")
+
+# give_up → exactly one Telegram alert per session (first guardian run after the 2nd guard Daily finished)
+gu = {"action": "give_up", "expected": "2026-10-09", "market_as_of": "2026-10-08"}
+g1 = {"event": "workflow_dispatch", "display_title": "Daily Dashboard Update · daily-guardian 2026-10-09 #1", "created_at": "2026-10-09T22:00:00Z", "updated_at": "2026-10-09T22:10:00Z"}
+g2 = {**g1, "display_title": "Daily Dashboard Update · daily-guardian 2026-10-09 #2", "created_at": "2026-10-09T23:20:00Z", "updated_at": "2026-10-09T23:31:00Z"}
+cur = {"id": 9, "created_at": "2026-10-10T00:40:00Z"}
+assert dg.should_alert_give_up(gu, [g1, g2], [cur, {"id": 5, "created_at": "2026-10-09T23:20:00Z"}], 9) is True
+assert dg.should_alert_give_up(gu, [g1, g2], [cur, {"id": 8, "created_at": "2026-10-10T00:20:00Z"}], 9) is False   # sibling already alerted
+assert dg.should_alert_give_up({**gu, "action": "dispatch"}, [g1, g2], [cur], 9) is False
+assert dg.should_alert_give_up({**gu, "expected": "2026-10-12"}, [g1, g2], [cur], 9) is False               # other session's dispatches
+msg = dg.give_up_message(gu)
+assert "2026-10-09" in msg and "不回填" in msg and "TOKEN" not in msg
+import os as _os
+_os.environ.pop("MYALPHA_TG_BOT_TOKEN", None)
+assert dg.send_telegram("x") == "not_configured"
+print("PASS give_up alert dedup")

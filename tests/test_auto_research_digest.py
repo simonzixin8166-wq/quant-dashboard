@@ -66,3 +66,55 @@ blob = str(d).lower()
 for bad in ("shares", "quantity", "broker", "account", "cost_basis", "position_size"):
     assert bad not in blob, bad
 print("test_auto_research_digest OK")
+
+# B1/B2 experience_basis (#133 6185390674): built only from the record, informational only, never changes research output
+import copy, json as _json  # noqa: E402
+rel = lambda n: {"status": "descriptive_pooled_only" if n < 30 else "symbol_and_pooled", "min_n": 30, "yoy_bucket": "> +10%",
+                 "symbol": {"20": {"n": n}, "60": {"n": n}}, "pooled": {"20": {"n": 135, "positive_rate": 0.54}, "60": {"n": 131}},
+                 "used_in_decision": False}
+b1 = h("CCC", D2, "auto-research-6", stance="bullish", fund=True)
+b1["supporting"][1]["historical_reliability"] = rel(3)
+b1.update({"experience_input_status": "used", "record_sha256": "f" * 64,
+           "precedents": [{"case_id": "XLK:2026-06-18:s", "date": "2026-06-18", "stage": "s", "return_60": 0.04, "supports_or_conflicts": "supports"},
+                          {"case_id": "SMH:2026-06-12:s", "date": "2026-06-12", "stage": "s", "return_60": -0.02, "supports_or_conflicts": "conflicts"}],
+           "error_attribution": {"symbol_cases": [{"case_id": "CCC:2026-08-01:x", "tags": ["trend_false_positive"]}], "base_rates": {"scope": "all"}},
+           "experience": {"memory_inputs": {"learning": {"as_of": D2, "sha256": "a" * 64, "source": "docs/research/learning_engine.json"}},
+                          "excluded": [{"why_excluded": "look-ahead"}]}})
+b2 = h("DDD", D2, "auto-research-6", fund=True)
+b2["supporting"][1]["historical_reliability"] = rel(40)
+b2.update({"experience_input_status": "none", "precedents": [], "error_attribution": {"symbol_cases": []}})
+J2 = J + [b1, b2]
+d2 = ard.build(J2, {}, None, now)
+it = {i["symbol"]: i for i in d2["items"]}
+e = it["CCC"]["experience_basis"]
+assert e["contract"] == "experience-basis-1" and e["evidence_id"] == b1["record_id"] and e["session"] == D2 and e["record_sha256"] == "f" * 12
+assert e["informational_only"] and e["used_in_decision"] is False and e["shadow"] and e["status"] == "used"
+assert e["precedents"]["n"] == 2 and e["precedents"]["supports"] == 1 and e["precedents"]["conflicts"] == 1 and abs(e["precedents"]["median_return_60"] - 0.01) < 1e-12
+assert e["error_attribution"]["symbol_cases_n"] == 1 and e["error_attribution"]["tags"] == {"trend_false_positive": 1}
+assert e["historical_reliability"][0]["strength"] == "descriptive" and e["historical_reliability"][0]["symbol_n_20"] == 3   # n < 30 stays descriptive
+assert e["memory_inputs"]["learning"]["sha256"] == "a" * 12 and e["excluded_n"] == 1
+assert it["DDD"]["experience_basis"]["status"] == "none" and it["DDD"]["experience_basis"]["historical_reliability"][0]["strength"] == "eligible_for_review"
+pre = it["AAA"]["experience_basis"]                        # auto-research-4 record: no B1 fields → unavailable, never a default
+assert pre["status"] == "unavailable" and pre["precedents"] == {"status": "unavailable"} and pre["historical_reliability"]["status"] == "unavailable"
+cov = d2["experience_coverage"]
+assert cov["active_items"] == 4 and cov["used"] == 1 and cov["none"] == 1 and cov["unavailable_or_unknown"] == 2
+assert cov["precedent_items"] == 2 and cov["with_historical_reliability"] == 2 and cov["reliability_symbol_n_ge_min"] == 1 and cov["used_in_decision"] == 0
+# research output unchanged: stripping every B1/B2 field gives the same items (minus experience_basis) and counts
+stripped = copy.deepcopy(J2)
+for r in stripped:
+    for k in ("experience_input_status", "precedents", "error_attribution", "experience"):
+        r.pop(k, None)
+    for ev in (r.get("supporting") or []) + (r.get("opposing") or []):
+        ev.pop("historical_reliability", None)
+d3 = ard.build(stripped, {}, None, now)
+drop = lambda d: [{k: v for k, v in i.items() if k != "experience_basis"} for i in d["items"]]
+assert drop(d2) == drop(d3) and d2["counts"] == d3["counts"] and d2["new_symbols"] == d3["new_symbols"]
+# deterministic / idempotent; a same-session regeneration counts once (latest record per symbol)
+assert _json.dumps(ard.build(J2, {}, None, now), sort_keys=True) == _json.dumps(d2, sort_keys=True)
+rerun = copy.deepcopy(b1); rerun["record_id"] = "CCC-rerun"
+d4 = ard.build(J2 + [rerun], {}, None, now)
+assert d4["experience_coverage"]["used"] == 1 and d4["experience_coverage"]["active_items"] == 4
+# no cross-record leakage: a later record for another symbol never changes CCC's basis
+later = h("EEE", "2026-10-20", "auto-research-6"); later.update({"experience_input_status": "used", "precedents": [{"return_60": 9}]})
+assert {i["symbol"]: i for i in ard.build(J2 + [later], {}, None, now)["items"]}["CCC"]["experience_basis"] == e
+print("PASS experience_basis contract")

@@ -39,6 +39,7 @@ with tempfile.TemporaryDirectory() as t:
     assert set(out["symbols"]) == {"ACME", "OLDCO", "NEWCO"}                       # union; ETF (QQQ) skipped
     assert out["symbols"]["ACME"]["universes"] == ["old_official_evidence", "new_price_archive"]
     assert out["symbols"]["OLDCO"]["status"] == "error" and out["consumers_migrated"] is False
+    assert out["period_contract"] == "period-layers-1" and out["symbols"]["ACME"]["periods"]["revenue"]["contract"] == "period-layers-1"
     n1 = sum(1 for _ in (t / "v2" / "ACME.jsonl").open())
     out2 = v2.run(fetch=fetch, official=official, sleep=0)                          # idempotent append-only
     assert sum(1 for _ in (t / "v2" / "ACME.jsonl").open()) == n1 and out2["counts"]["archive_added"] == 0

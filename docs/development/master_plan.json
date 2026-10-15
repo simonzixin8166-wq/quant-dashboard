@@ -2,7 +2,7 @@
  "version": 1,
  "title": "MyAlpha View — Master Execution Plan",
  "issue": "https://github.com/simonzixin8166-wq/quant-dashboard/issues/133",
- "last_updated": "2026-10-15T04:45Z",
+ "last_updated": "2026-10-15T05:50Z",
  "charter": "CLAUDE.md (owner-confirmed 2026-10-11)",
  "statuses": [
   "Done",
@@ -30,9 +30,10 @@
   "This ledger is maintained by hand from real PRs and runs; its counts are not learning metrics"
  ],
  "execution_capability": {
-  "hourly_watcher": "cloud scheduled task trig_01P3Sk5tEfTuAQWAdFysJKcV (minute 44 every hour): acts only when a new owner instruction on #133 is not yet referenced by a Claude comment",
-  "one_shot": "cloud scheduled task trig_01QwLXu1zXvSHWyZn8Y1Est2 at 2026-10-13T01:30Z: P0 day-1 report, then Batch B continuously",
-  "limits": "no permanent unattended coding beyond these triggers; chat uploads are readable only by the session that received them"
+  "hourly_watcher": "DISABLED 2026-10-15T05:11Z (owner decision; #133 6184936851): trig_01P3Sk5tEfTuAQWAdFysJKcV kept but off; Claude works only when the owner notifies it",
+  "one_shot": "trig_01GXuvQEVhzxwfMzLWag1rdQ at 2026-10-16T02:30Z (P0-06 day 4 + CPI T+1 check; set by another session, kept)",
+  "limits": "no permanent unattended coding beyond these triggers; chat uploads are readable only by the session that received them",
+  "alerts": "#248 8f5073a: Daily Guardian give_up → one Telegram alert per session; weekly change summary only on change (no Claude check-ins needed)"
  },
  "instructions": [
   {
@@ -158,16 +159,31 @@
   {
    "id": "6183889673",
    "summary": "Jackal-style sentiment read-only audit — narrowed by 6183911144/6183923696 to CNN Fear & Greed data access only",
-   "status": "active"
+   "status": "closed as decision (6185055738: keep CNN official link-out)"
   },
   {
    "id": "6183911144",
    "summary": "CNN Fear & Greed: data access only, no seven-factor engine",
-   "status": "active"
+   "status": "closed as decision (6185055738: keep CNN official link-out)"
   },
   {
    "id": "6183923696",
    "summary": "CNN Fear & Greed minimal access check, A/B/C conclusion, then wait for owner approval",
+   "status": "closed as decision (6185055738: keep CNN official link-out)"
+  },
+  {
+   "id": "6184073352",
+   "summary": "De-Claude runtime dependency and quota audit (stage 1 read-only; stage 2 only on approval)",
+   "status": "active"
+  },
+  {
+   "id": "6185055738",
+   "summary": "#248 conditional merge + QA; cron single-workflow experiment design only; CNN stays link-out (Deferred/Closed as decision)",
+   "status": "active"
+  },
+  {
+   "id": "6185118420",
+   "summary": "Learning loop schedule: B1/B2/B4 production verification now; B4-03 after real Daily+QA; then B3-01 → M-02 → W-03 → M-04",
    "status": "active"
   }
  ],
@@ -515,12 +531,13 @@
      "MyAlpha Auto Research 38345865213 workflow_dispatch 'post-P0 B1 activation' (not a schedule): 8 server-written hypotheses for 2026-10-12 carry precedents/error_attribution/experience_input_status, used_in_decision=false; distinct symbol-sessions with experience = 8",
      "MSFT 10 precedents (status used); GOOG 5; SPY 4; TSM 8; NBIS/NVDA/QQQ/QQQM 0 (status none)",
      "ORCL / VGT / AMD: no server record yet — their 2026-10-09 hypotheses were revisited still_valid, so no new hypothesis was generated; they get experience on their next new hypothesis",
-     "module_manifest experience_citation: not yet wired → wired (8 records)"
+     "module_manifest experience_citation: not yet wired → wired (8 records)",
+     "2026-10-15 production check (#133 6185118420): auto-research-6 journal, 49 distinct symbol-sessions 10-12..10-14; experience_input_status=used 19/49 (10-12 10/24, 10-13 2/8, 10-14 7/17); precedents present on 14 records (64 items); error_attribution symbol_cases on 5; used_in_decision=false 49/49; writers: Daily runs 38360034032/38426032589/38573634393 (schedule) and 38487322756/38644154255 (guardian workflow_dispatch; all 10-14 records come from recovery 38644154255); Auto Research 38684666261 (schedule, fired 05:03Z, 4h28m late) appended 0 (idempotent). Consumers: only audits (p1_readiness_audit, module_manifest_audit); homepage digest and research decisions do not read these fields (by design until B3-01/M-02)"
     ]
    },
    "acceptance": "server-generated records with precedents/error_attribution for real symbols; ORCL/VGT/AMD verified when they next form a hypothesis",
-   "next": "verify ORCL/VGT/AMD server records when they next form a hypothesis (AMD expected 0 precedents)",
-   "last_verified": "2026-10-13T04:45Z"
+   "next": "verify ORCL/VGT/AMD server records when they next form a hypothesis (none did 10-13/10-14); then B3-01 shared evidence contract (gate: B4-03 evidence); keep used_in_decision=false",
+   "last_verified": "2026-10-15T05:50Z"
   },
   {
    "id": "D-01",
@@ -785,13 +802,14 @@
     ],
     "runs": [
      "clean subset recount: 223/220 matured 20/60 (100/97 with revenue YoY); 370/772 observations excluded (RUB, YTD)",
-     "today every symbol is descriptive_pooled_only (e.g. MSFT n=16, pooled n=73, positive rate 0.60 @20); market-state scorecards not wired (5-session only, n<30); other memories disconnected with reasons"
+     "today every symbol is descriptive_pooled_only (e.g. MSFT n=16, pooled n=73, positive rate 0.60 @20); market-state scorecards not wired (5-session only, n<30); other memories disconnected with reasons",
+     "2026-10-15 production check: historical_reliability on sec_revenue_yoy evidence for 24 of 49 symbol-sessions (10-12 12/24, 10-13 4/8, 10-14 8/17); all descriptive_pooled_only (symbol n<30, e.g. symbol n=3 vs pooled n=135/131 at 20/60, min_n 30); used_in_decision=false; inputs carry sha256 + memory_generated_at; no research consumer beyond audits"
     ]
    },
    "acceptance": "only USD quarter/annual observations; n shown; others disconnected with reason",
-   "next": "verify server-written auto-research-6 records carry historical_reliability after the next schedule",
+   "next": "stay descriptive until symbol n ≥ 30; consumer wiring via M-02/B3-01",
    "waiting_for": "Daily schedule 2026-10-13",
-   "last_verified": "2026-10-13T04:45Z"
+   "last_verified": "2026-10-15T05:50Z"
   },
   {
    "id": "B2-03",
@@ -804,19 +822,22 @@
     "claude_acked"
    ],
    "instructions": [
-    "6116972263"
+    "6116972263",
+    "6185118420"
    ],
    "depends_on": [
     "D-01"
    ],
    "evidence": {
     "prs": [],
-    "runs": []
+    "runs": [
+     "2026-10-15: Auto Research journal records are forward_eligible=false by design (shadow, never counted); matured outcomes come only from real future sessions; first 20-session outcomes ≈ 2026-11-06"
+    ]
    },
    "acceptance": "matured counts from real future sessions only; n ≥ 30 before research use",
    "next": "re-run p1_readiness weekly",
    "waiting_for": "event 5d from 2026-10-13, options 5d from 2026-10-14, macro/support 20d from 2026-11-04",
-   "last_verified": "2026-10-12T04:25Z"
+   "last_verified": "2026-10-15T05:50Z"
   },
   {
    "id": "B4-01",
@@ -850,11 +871,12 @@
    "title": "Unified SEC fetcher + append-only fundamentals_v2 + shadow old-schema file (dual run)",
    "area": "B4 SEC",
    "priority": 1,
-   "status": "In progress",
+   "status": "Done",
    "stages": [
     "instruction_published",
     "claude_acked",
-    "code_merged"
+    "code_merged",
+    "schedule_verified"
    ],
    "instructions": [
     "6116685851",
@@ -870,25 +892,27 @@
      "#227 3aa76fd"
     ],
     "runs": [
-     "Daily step 'SEC unified fact fetcher v2 (Shadow) + daily reconciliation' (non-blocking); no consumer migrated; SEC not reachable from the sandbox"
+     "Daily step 'SEC unified fact fetcher v2 (Shadow) + daily reconciliation' (non-blocking); no consumer migrated; SEC not reachable from the sandbox",
+     "2026-10-15 production check: Shadow v2 written by Daily schedule 38657460138 (commit eb26824, 00:08Z): 25 symbols, 24 ok, DIA HTTPError (ETF, no companyfacts — classify not_applicable), archive_total 34,719 rows, archive_added 0 (append-only; no new filings since 10-13 first write 8ed5926), non_usd_skipped 386, ytd_or_other 7,801, restated 857; consumers_migrated=false. shadow_v2_vs_new: revenue agree 22 / neither 9; net_income agree 21 / neither 8 / old_misaligned 1 (AMZN) / only_old 1 (GLD); only reader = sec_fact_reconcile (audit)"
     ]
    },
    "acceptance": "all candidate concepts, USD only, period_kind, filed, accn, quality_flags; union universe; old files untouched",
-   "next": "verify the first real v2 Shadow run (research/archive/fundamentals_v2, shadow_v2_vs_new) after the next Daily",
-   "waiting_for": "Daily schedule 2026-10-13",
-   "last_verified": "2026-10-13T04:45Z"
+   "next": "B4-03",
+   "last_verified": "2026-10-15T05:50Z"
   },
   {
    "id": "B4-03",
    "title": "One real trading day comparison, then compatible consumer migration",
    "area": "B4 SEC",
    "priority": 2,
-   "status": "Not started",
+   "status": "Waiting",
    "stages": [
-    "instruction_published"
+    "instruction_published",
+    "claude_acked"
    ],
    "instructions": [
-    "6116972263"
+    "6116972263",
+    "6185118420"
    ],
    "depends_on": [
     "B4-02"
@@ -898,8 +922,9 @@
     "runs": []
    },
    "acceptance": "unexplained differences 0; old observations get quality flags only",
-   "next": "after B4-02 runs one session",
-   "last_verified": "2026-10-12T04:25Z"
+   "next": "after 2026-10-15 Daily + QA: per-flag diff table → minimal compatible migration PR (production rules unchanged)",
+   "last_verified": "2026-10-15T05:50Z",
+   "waiting_for": "one full real trading-day comparison after the next real Daily + QA PASS (2026-10-15 21:30Z schedule); then classify AMZN net_income old_misaligned, GLD only_old, DIA/TSM neither by quality flag; migration PR only with 0 unexplained differences"
   },
   {
    "id": "B3-01",
@@ -913,7 +938,8 @@
    ],
    "instructions": [
     "6116972263",
-    "6117163110"
+    "6117163110",
+    "6185118420"
    ],
    "depends_on": [
     "B1-02",
@@ -924,8 +950,9 @@
     "runs": []
    },
    "acceptance": "both streams cite the same evidence ids; V6 views enter Shadow only when locked and versioned",
-   "next": "after B1/B4",
-   "last_verified": "2026-10-12T04:25Z"
+   "next": "design + Shadow dual-read PR after B4-03 evidence passes and P0 core chain is stable; ledgers stay separate (evidence_id/as_of/version/quality/source/used_in_decision)",
+   "last_verified": "2026-10-15T05:50Z",
+   "waiting_for": "B4-03 evidence + P0 stable"
   },
   {
    "id": "M-01",
@@ -967,7 +994,8 @@
    ],
    "instructions": [
     "6116717888",
-    "6117671408"
+    "6117671408",
+    "6185118420"
    ],
    "depends_on": [
     "B1-02",
@@ -983,8 +1011,9 @@
     ]
    },
    "acceptance": "count falls with real consumers; ineffective modules frozen not forced",
-   "next": "re-run manifest after each batch",
-   "last_verified": "2026-10-13T04:45Z"
+   "next": "pick 2–3 highest-value consumer-less artifacts (of ~20) after B3-01; five frozen stay frozen; prove research-evidence impact, not nicer numbers",
+   "last_verified": "2026-10-15T05:50Z",
+   "waiting_for": "B3-01 + P0 stable"
   },
   {
    "id": "M-03",
@@ -1025,7 +1054,8 @@
     "instruction_published"
    ],
    "instructions": [
-    "6116717888"
+    "6116717888",
+    "6185118420"
    ],
    "depends_on": [
     "M-01"
@@ -1035,8 +1065,9 @@
     "runs": []
    },
    "acceptance": "weekly scheduled run writes broken-link counts and changes",
-   "next": "wire module_manifest_audit into an existing weekly workflow",
-   "last_verified": "2026-10-12T04:25Z"
+   "next": "fold module-manifest broken-link counts / valid precedents / matured samples / OOS baseline into the existing weekly workflow (#248 weekly change summary already reports schedule/OHLCV/matured/open incidents); no new cron, no Claude session",
+   "last_verified": "2026-10-15T05:50Z",
+   "waiting_for": "B3-01/M-02 order + P0 stable"
   },
   {
    "id": "W-01",
@@ -1101,7 +1132,8 @@
     "claude_acked"
    ],
    "instructions": [
-    "6107376896"
+    "6107376896",
+    "6185118420"
    ],
    "depends_on": [],
    "evidence": {
@@ -1109,9 +1141,9 @@
     "runs": []
    },
    "acceptance": "κ computed on independent labels; rules changed only on dev",
-   "next": "needs independent labels",
+   "next": "prepare independent blind-label design + sample list (long blog posts, short forum posts, transcript-available finance videos); minimal owner label kit; no κ PASS without independent labels",
    "waiting_for": "GPT/owner blind labels",
-   "last_verified": "2026-10-12T04:25Z"
+   "last_verified": "2026-10-15T05:50Z"
   },
   {
    "id": "OPS-01",
@@ -1417,7 +1449,7 @@
    "title": "CNN Fear & Greed data access (read-only check; A/B/C conclusion)",
    "area": "Research tasks",
    "priority": 3,
-   "status": "Waiting",
+   "status": "Done",
    "stages": [
     "instruction_published",
     "claude_acked"
@@ -1425,19 +1457,53 @@
    "instructions": [
     "6183889673",
     "6183911144",
-    "6183923696"
+    "6183923696",
+    "6185055738"
    ],
    "depends_on": [],
    "evidence": {
     "prs": [],
     "runs": [
-     "#133 6183968101: A CNN graphdata reachable via Anthropic fetcher (score 44.6 fear, 2026-10-14; 252-point history) but undocumented/unlicensed; B fearandgreedgraph values are not a 0–100 score, no source/licence; recommend C link-out; runner untested"
+     "#133 6183968101: A CNN graphdata reachable via Anthropic fetcher (score 44.6 fear, 2026-10-14; 252-point history) but undocumented/unlicensed; B fearandgreedgraph values are not a 0–100 score, no source/licence; recommend C link-out; runner untested",
+     "6185055738: owner keeps CNN official link-out; no integration, no mirrors, no seven-factor redesign — Closed as decision"
     ]
    },
    "acceptance": "owner chooses A/B/C; no development before approval",
-   "next": "owner decision",
-   "last_verified": "2026-10-15T04:00Z",
+   "next": "none (reopen only with a public licence + runner evidence)",
+   "last_verified": "2026-10-15T05:50Z",
    "waiting_for": "owner choice of A/B/C (#133 6183968101)"
+  },
+  {
+   "id": "OPS-02",
+   "title": "De-Claude runtime dependency + quota saving (manual trigger, alerts instead of Claude check-ins)",
+   "area": "Operations",
+   "priority": 1,
+   "status": "Done",
+   "stages": [
+    "instruction_published",
+    "claude_acked",
+    "code_merged"
+   ],
+   "instructions": [
+    "6184073352",
+    "6185055738"
+   ],
+   "depends_on": [],
+   "evidence": {
+    "prs": [
+     "#248 8f5073a"
+    ],
+    "runs": [
+     "#133 6184680182 stage-1 audit",
+     "hourly watcher disabled 2026-10-15T05:11Z (6184936851)",
+     "QA 38686774490 workflow_dispatch @8f5073a overall=PASS",
+     "Guardian 38686776436 dry_run+fault injection: decision dispatch, no dispatch sent",
+     "wxc-bot ai_summary switch not changed (owner decision)"
+    ]
+   },
+   "acceptance": "routine runs need no Claude session; give_up alert once per session; weekly summary only on change; Telegram give_up alert not yet observed in production",
+   "next": "observe first real give_up alert / first weekly summary (Sunday 23:40Z)",
+   "last_verified": "2026-10-15T05:50Z"
   }
  ]
 }

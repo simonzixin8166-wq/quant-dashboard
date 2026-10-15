@@ -1,8 +1,8 @@
 # MyAlpha View — Master Execution Plan
 
-Source of truth: `docs/development/master_plan.json` (this file is rendered by `scripts/master_plan.py render`). Last updated 2026-10-15T04:25Z. Issue: https://github.com/simonzixin8166-wq/quant-dashboard/issues/133. Charter: CLAUDE.md (owner-confirmed 2026-10-11).
+Source of truth: `docs/development/master_plan.json` (this file is rendered by `scripts/master_plan.py render`). Last updated 2026-10-15T04:45Z. Issue: https://github.com/simonzixin8166-wq/quant-dashboard/issues/133. Charter: CLAUDE.md (owner-confirmed 2026-10-11).
 
-Status counts: Done 19 · In progress 12 · Waiting 8 · Not started 4
+Status counts: Done 19 · In progress 13 · Waiting 7 · Not started 4
 
 Stages per task: instruction_published → claude_acked → code_merged → schedule_verified → oos_validated (oos_validated is never claimed while Learning is UNPROVEN).
 
@@ -180,6 +180,6 @@ Unified ledger → continuous development by dependency → batch acceptance →
 
 | ID | task | status | stages | depends on | evidence (PR / run) | acceptance | next / waiting / blocked | verified |
 |---|---|---|---|---|---|---|---|---|
-| C-01 | Shared footer (sources/copyright, risk disclaimer, correction & contact) + full Chinese policy page + per-item provenance labels | **Waiting** | published, acked | P0-INC-1013 | — | PR/CI/Pages/QA PASS; desktop + 390px; three links clickable, no 404; homepage gold/DCA layout, feedback email, APP_VERSION 6.9.0 unchanged; no claim of authorization; any non-compliant full-text cache raised separately | implement once the scheduled Daily is green (waiting: production stability: first successful event=schedule Daily after the P0 (2026-10-13 session) + QA PASS) | 2026-10-13T05:00Z |
+| C-01 | Shared footer (sources/copyright, risk disclaimer, correction & contact) + full Chinese policy page + per-item provenance labels | **In progress** | published, acked | P0-INC-1013 | c01/site-footer (this PR): shared footer on index.html (+ Daily generator) and brightline-2026.html; docs/legal.html with #sources/#risk/#correction/#changes; tests/test_site_footer.py; precondition met: latest Daily event=schedule 38657460138 success (2h30m late) + QA 38666141209 PASS (2026-10-15T01:33Z); local render desktop/390px: 3 links → 200, no overflow, no page errors | PR/CI/Pages/QA PASS; desktop + 390px; three links clickable, no 404; homepage gold/DCA layout, feedback email, APP_VERSION 6.9.0 unchanged; no claim of authorization; any non-compliant full-text cache raised separately | merge → Pages + Autonomous QA; then per-item provenance labels on the wenxuecity/source cards (layer 3) as a follow-up PR | 2026-10-15T04:45Z |
 
 Engineering QA PASS ≠ Learning PASS. **Learning UNPROVEN / FINAL=NO.**

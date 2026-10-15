@@ -2177,7 +2177,7 @@ body{{font-size:15px;background:linear-gradient(180deg,#f7f9fc 0,#f3f6fa 100%);l
 <section class="section"><div class="table-container"><table><thead><tr><th style="text-align:left;">资产代号</th><th>触发日期</th><th>触发收盘价</th><th>当时全期回撤幅度</th><th>触发加仓评级</th><th>规则体系</th></tr></thead><tbody id="archiveTableBody">{signals_html}</tbody></table></div></section>
 <section class="section"><p style="font-size:11.5px;color:var(--muted);line-height:1.7">同一资产同一天可能出现两条记录——"资产自身三档线"是该ETF自己相对真实全期最高点的回撤触发的加仓线；"全市场宽度恐慌"是标普500全市场宽度指标触发的分级信号。两套规则相互独立，同一天都触发是正常情况，不是数据重复。</p></section></div>
 
-<div class="footer footer-with-analytics"><div class="footer-main">© 2026 Myalpha View · 投资分析及策略<br>市场数据与策略指标仅供研究参考，不构成投资建议；本站仅记录匿名访问次数，不采集姓名、邮箱或IP地址。 · 意见交流邮箱：<a href="mailto:xxj8166@gmail.com">xxj8166@gmail.com</a><br><span id="siteAnalyticsRoot" class="site-analytics private-console"><span class="site-analytics-empty">匿名访问统计读取中…</span></span></div></div>
+<div class="footer footer-with-analytics"><div class="footer-main">© 2026 MyAlpha View · 独立投资研究与策略分析平台。部分资料来自第三方公开来源，著作权和观点归相应权利人；MyAlpha 提供独立整理与 AI 辅助研究，不代表原作者认可、授权、合作或赞助。投资内容仅供研究参考，不构成个性化建议。<br><span class="footer-links"><a href="legal.html#sources">资料来源与版权</a> · <a href="legal.html#risk">风险免责声明</a> · <a href="legal.html#correction">内容纠错与联系</a></span> · 意见交流邮箱：<a href="mailto:xxj8166@gmail.com">xxj8166@gmail.com</a><br>本站仅记录匿名访问次数，不采集姓名、邮箱或IP地址。<br><span id="siteAnalyticsRoot" class="site-analytics private-console"><span class="site-analytics-empty">匿名访问统计读取中…</span></span></div></div>
 </div></main></div>
 
 <div id="underlyingModal" class="option-modal-backdrop" style="display:none">

@@ -289,8 +289,24 @@ def experience_citation():
     src = (ROOT / "scripts" / "daily_research_job.py").read_text(encoding="utf-8")
     reads_memory = [k for k in ("method_memory", "learning_engine", "evidence_attribution", "regime_combination_memory",
                                 "market_state_outcome_scorecards", "macro_outcome_memory", "research_execution") if k in src]
+    # B1/B2 (#133 6185390674): does a research OUTPUT (not only an audit) surface the stored experience?
+    dsrc = (ROOT / "scripts" / "auto_research_digest.py").read_text(encoding="utf-8")
+    dig = ROOT / "docs" / "research" / "auto_research_digest.json"
+    try:
+        dj = json.loads(dig.read_text(encoding="utf-8"))
+    except Exception:
+        dj = {}
+    surfaced = [i for i in dj.get("items") or [] if isinstance(i.get("experience_basis"), dict)]
+    output = {"consumer": "scripts/auto_research_digest.py → docs/research/auto_research_digest.json items[].experience_basis (homepage research row detail)",
+              "code_reads_experience": "experience_basis" in dsrc,
+              "digest_generated_at": dj.get("generated_at"),
+              "digest_items_with_basis": len(surfaced),
+              "digest_items_status_used": sum(1 for i in surfaced if i["experience_basis"].get("status") == "used"),
+              "status": ("research_output_consumer" if surfaced else "code_wired_awaiting_production_digest") if "experience_basis" in dsrc else "audit_only",
+              "used_in_decision": False}
     return {"auto_research_records": len(sh), "records_citing_past_cases": len(cites),
             "daily_research_job_reads_memory_artifacts": reads_memory,
+            "research_output": output,
             "status": "wired" if cites else "not yet wired",
             "note": "the V6 planner/executor (research_execution.json) does use situation/method/regime memory for priorities and briefs, "
                     "but those briefs are not the append-only, revisited, maturity-scored automatic research journal; the two are not connected"}
@@ -322,7 +338,7 @@ def markdown(rep):
              f"- Promoted forward (separate group): {t['promoted_forward_separate_group']['observations']} observations over {len(t['promoted_forward_separate_group']['sessions'])} sessions, earliest maturity {t['promoted_forward_separate_group']['earliest_20_session_maturity']}",
              f"- Auto Research Shadow: {t['auto_research_shadow']['hypothesis_records']} hypothesis records ({t['auto_research_shadow']['distinct_symbol_sessions']} symbol-sessions), earliest maturity {t['auto_research_shadow']['earliest_maturity']}, forward_eligible=false", "",
              "## Does new research cite past experience?", "",
-             f"**{e['status']}** — {e['records_citing_past_cases']}/{e['auto_research_records']} automatic research records cite a past case; daily_research_job reads memory artifacts: {e['daily_research_job_reads_memory_artifacts'] or 'none'}. {e['note']}.", "",
+             f"**{e['status']}** — {e['records_citing_past_cases']}/{e['auto_research_records']} automatic research records cite a past case; daily_research_job reads memory artifacts: {e['daily_research_job_reads_memory_artifacts'] or 'none'}. {e['note']}." f"Research output consumer: **{e['research_output']['status']}** ({e['research_output']['digest_items_with_basis']} digest items carry experience_basis, {e['research_output']['digest_items_status_used']} with status used; used_in_decision=false).", "",
              "## Artifacts", "", "| artifact | producer (scheduled) | research / decision | learning | monitor / display | reaches research | flags |", "|---|---|---|---|---|---|---|"]
     for a in rep["artifacts"]:
         c = a["consumers"]

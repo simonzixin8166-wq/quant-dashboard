@@ -2,7 +2,7 @@
  "version": 1,
  "title": "MyAlpha View — Master Execution Plan",
  "issue": "https://github.com/simonzixin8166-wq/quant-dashboard/issues/133",
- "last_updated": "2026-10-15T05:50Z",
+ "last_updated": "2026-10-15T06:40Z",
  "charter": "CLAUDE.md (owner-confirmed 2026-10-11)",
  "statuses": [
   "Done",
@@ -919,12 +919,14 @@
    ],
    "evidence": {
     "prs": [],
-    "runs": []
+    "runs": [
+     "2026-10-15 attribution audit (research/audit/sec_v2_migration_audit.json, read-only): A old-vs-v2 latest: agree 38, ytd_period 25, cashflow_ytd_lag 16, old_non_usd 10 (NBIS RUB), discontinued_concept_both 4, old_stale_concept 1; B new-vs-v2 (revenue/NI): agree 43, etf_no_companyfacts 2 (DIA), non_operating_trust 2 (GLD), foreign_ifrs_non_usd 2 (TSM), v2_selection_ttm 1 (AMZN NI: v2 picked TTM 135.3B from the Q2 10-Q instead of quarter 62.6B); C archive: 23,096 old rows agree, 266 old non-USD, 0 unexplained; D v2 self-check all symbols: TTM selection 3 (AMZN NI/OCF/SBC), stale selection 12; E candidate rule simulation on the real v2 archive: TTM 3→0, 12 stale facts flagged not hidden"
+    ]
    },
    "acceptance": "unexplained differences 0; old observations get quality flags only",
-   "next": "after 2026-10-15 Daily + QA: per-flag diff table → minimal compatible migration PR (production rules unchanged)",
-   "last_verified": "2026-10-15T05:50Z",
-   "waiting_for": "one full real trading-day comparison after the next real Daily + QA PASS (2026-10-15 21:30Z schedule); then classify AMZN net_income old_misaligned, GLD only_old, DIA/TSM neither by quality flag; migration PR only with 0 unexplained differences"
+   "next": "decision on cashflow_ytd_lag (16 metrics); then a small Shadow-only PR applying the candidate selection rule to sec_facts_v2 latest; repeat the audit on one real trading day after the next Daily + QA; consumer migration only with 0 blockers",
+   "last_verified": "2026-10-15T06:40Z",
+   "waiting_for": "next real Daily + QA PASS (2026-10-15 21:30Z schedule); owner decision on cash-flow YTD semantics"
   },
   {
    "id": "B3-01",
@@ -947,11 +949,13 @@
    ],
    "evidence": {
     "prs": [],
-    "runs": []
+    "runs": [
+     "2026-10-15 read-only minimal design: docs/development/B3_SHARED_EVIDENCE_CONTRACT.md (evidence-1 contract; V6 executor evidence is free text without as_of and is overwritten each run → dual-read adapter first)"
+    ]
    },
    "acceptance": "both streams cite the same evidence ids; V6 views enter Shadow only when locked and versioned",
-   "next": "design + Shadow dual-read PR after B4-03 evidence passes and P0 core chain is stable; ledgers stay separate (evidence_id/as_of/version/quality/source/used_in_decision)",
-   "last_verified": "2026-10-15T05:50Z",
+   "next": "after B4-03 gate: Shadow dual-read adapter PR (read-only) per the design",
+   "last_verified": "2026-10-15T06:40Z",
    "waiting_for": "B4-03 evidence + P0 stable"
   },
   {

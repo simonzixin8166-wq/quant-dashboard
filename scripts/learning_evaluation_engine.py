@@ -347,11 +347,32 @@ def build(execution, planner, learning, method, evidence, history, self_improvem
             "eligible_for_review": len((self_improvement.get("shadow_brain") or {}).get("eligible_for_review") or []),
             "production_brain": (self_improvement.get("production_brain") or {}).get("mode", "locked"),
         },
+        "three_tier_metrics_isolation": {
+            "ingestion_volume": {
+                "source_records": method_counts.get("source_records", 0),
+                "operation_cases": len((load(PATHS["evidence"]).get("failure_attribution") or {}).get("external_outcome_reviews") or []),
+                "note": "数据采集数量：仅代表外部观点与文献摄入规模，不等于学习能力或预测准确度。"
+            },
+            "research_coverage": {
+                "symbols_analyzed": analyzed,
+                "auto_thesis_symbols": len((auto_thesis or {}).get("symbols") or {}),
+                "open_planner_tasks": open_tasks,
+                "note": "研究覆盖率：代表系统已形成假设与结构化研究草稿的资产范围。"
+            },
+            "genuine_learning_outcomes": {
+                "historical_mature_60": history_summary["mature_60"],
+                "forward_mature_20": int(((forward_feedback or {}).get("counts") or {}).get("forward_mature20") or 0),
+                "forward_mature_60": int(((forward_feedback or {}).get("counts") or {}).get("forward_mature60") or 0),
+                "direct_methods_validated": direct_methods,
+                "note": "真正学习效果：仅来自 20/60/120 交易日已成熟的真实 Alpha 对齐率与超额收益验证。"
+            }
+        },
         "guardrails": [
             "自我评估只评价研究与学习质量，不评价投资者本人。",
             "学习健康分不是收益预测、胜率或买卖分数。",
             "未成熟前瞻样本不得提前算作验证成功。",
             "博客与外部观点必须经过独立历史/前瞻验证后才可提高研究权重。",
+            "数据采集数量 (Ingestion Volume) 绝不能代替真正学习效果 (Genuine Learning Outcomes)。",
             "仓位、下单、核心配置和Hard Exit阈值继续锁定，必须人工决定。",
         ],
     }

@@ -381,7 +381,21 @@
     for(let i=0;i<entries.length;i++){
       const [id]=entries[i];setAutoStatus(`${reason}：正在刷新 ${i+1}/${entries.length}`,'warn');if(await refreshPosition(id,{silent:true}))success++;if(i<entries.length-1)await new Promise(resolve=>setTimeout(resolve,450));
     }
-    state.lastBulkAt=Date.now();state.bulkRefreshing=false;setAutoStatus(`完成 ${success}/${entries.length} · ${new Date().toLocaleTimeString()}`,success===entries.length?'good':'warn');renderRiskSummary();global.RollManager?.load();window.dispatchEvent(new CustomEvent('mav:options-updated',{detail:{reason:'quotes-refreshed',success,total:entries.length}}));
+    state.lastBulkAt=Date.now();state.bulkRefreshing=false;
+    const sessionOpen=isUsRegularSession();
+    if(success===entries.length){
+      setAutoStatus(`完成 ${success}/${entries.length} · ${new Date().toLocaleTimeString()}`,'good');
+    }else{
+      const usableCount=entries.filter(([id])=>quoteFreshness(readCachedQuote(id)).usable).length;
+      if(!sessionOpen){
+        setAutoStatus(`休市降级 (参考报价 ${usableCount}/${entries.length}) · ${new Date().toLocaleTimeString()}`,'good');
+      }else if(usableCount>0){
+        setAutoStatus(`完成 ${success}/${entries.length} (离线降级 ${usableCount}/${entries.length} 参考报价) · ${new Date().toLocaleTimeString()}`,'warn');
+      }else{
+        setAutoStatus(`完成 ${success}/${entries.length} · 无有效报价 · ${new Date().toLocaleTimeString()}`,'warn');
+      }
+    }
+    renderRiskSummary();global.RollManager?.load();window.dispatchEvent(new CustomEvent('mav:options-updated',{detail:{reason:'quotes-refreshed',success,total:entries.length}}));
   }
   function schedulePositionRefresh(){
     clearInterval(state.positionsTimer);state.positionsTimer=setInterval(()=>{if(document.visibilityState==='visible'&&isUsRegularSession())refreshAllPositions({onlyNeeded:true,reason:'15分钟自动检查'})},POSITION_REFRESH_MS);

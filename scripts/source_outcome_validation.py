@@ -322,6 +322,9 @@ def build(source: dict, store: dict[str,pd.DataFrame], price_provenance: dict|No
         "by_action":{k:summary(v) for k,v in sorted(by_action.items())},
         "by_author":{k:summary(v) for k,v in sorted(by_author.items())},
         "events":sorted(events,key=lambda x:(x.get("published_at") or "",x["symbol"],x["baseline_kind"]),reverse=True),
+        "explanation": {
+            "untriggered_plans_note": f"untriggered_plans ({sum(1 for x in owned if x['status']=='not_triggered')}) refers to conditional limit-price trading plans from author posts whose price thresholds have not been touched by the market yet. They are intentionally kept in observation status (triggered=false) and are NOT data processing or parsing failures.",
+        },
         "guardrails":[
             "External-source outcomes are descriptive evidence, not rankings or automatic trade rules.",
             "Quoted third-party examples are excluded from author-level outcome aggregates.",

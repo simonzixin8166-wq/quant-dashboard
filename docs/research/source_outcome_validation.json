@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "generated_at": "2026-10-15T04:07:30.032282+00:00",
+  "generated_at": "2026-10-16T01:36:13.238384+00:00",
   "methodology": {
     "executed_action_baseline": "first trading session open strictly after source date when no reliable intraday timestamp exists",
     "planned_entry_baseline": "explicit stock-entry plans begin only on the first later session whose low touches the stated level; each tranche is validated separately",
@@ -16,13 +16,13 @@
     "attribution_limit": "third-party examples are excluded; unconfirmed source context is visible but excluded from aggregate method memory"
   },
   "counts": {
-    "events": 153,
+    "events": 154,
     "author_owned": 69,
-    "unconfirmed": 84,
-    "triggered_author_owned": 59,
-    "untriggered_plans": 10,
+    "unconfirmed": 85,
+    "triggered_author_owned": 62,
+    "untriggered_plans": 7,
     "mature60": 30,
-    "developing": 29,
+    "developing": 32,
     "symbols": 26
   },
   "missing_history": {},
@@ -53,16 +53,16 @@
     "buy": {
       "5": {
         "n": 19,
-        "avg_return": -0.0010883860265191257,
+        "avg_return": -0.0010883860265191198,
         "median_return": -0.014927582718547106,
-        "avg_excess_vs_qqq": -0.026487654260013135,
+        "avg_excess_vs_qqq": -0.02648765426001313,
         "alignment_rate": 0.38461538461538464
       },
       "20": {
         "n": 14,
         "avg_return": 0.06957852464673094,
         "median_return": -0.0018251199471085444,
-        "avg_excess_vs_qqq": 0.013412214445703893,
+        "avg_excess_vs_qqq": 0.011386314028944824,
         "alignment_rate": 0.5
       },
       "60": {
@@ -99,9 +99,9 @@
     "hold": {
       "5": {
         "n": 11,
-        "avg_return": -0.03453733399231684,
+        "avg_return": -0.034537333992316836,
         "median_return": -0.028451644415499744,
-        "avg_excess_vs_qqq": -0.038043125049677856,
+        "avg_excess_vs_qqq": -0.03804312504967784,
         "alignment_rate": 0.2857142857142857
       },
       "20": {
@@ -168,9 +168,9 @@
     "sell": {
       "5": {
         "n": 9,
-        "avg_return": -0.027768279112536615,
+        "avg_return": -0.027768279112536605,
         "median_return": -0.02197608484884106,
-        "avg_excess_vs_qqq": -0.04775609544227566,
+        "avg_excess_vs_qqq": -0.047756095442275645,
         "alignment_rate": 0.6666666666666666
       },
       "20": {
@@ -271,7 +271,7 @@
         "n": 7,
         "avg_return": 0.1111071358784811,
         "median_return": 0.09583335736906773,
-        "avg_excess_vs_qqq": 0.10124793424876881,
+        "avg_excess_vs_qqq": 0.08464817344338425,
         "alignment_rate": 1.0
       },
       "60": {
@@ -285,9 +285,9 @@
     "yifan99": {
       "5": {
         "n": 5,
-        "avg_return": -0.01706367775308355,
+        "avg_return": -0.01706367775308353,
         "median_return": -0.0111712113608059,
-        "avg_excess_vs_qqq": -0.043000392340735674,
+        "avg_excess_vs_qqq": -0.043000392340735646,
         "alignment_rate": 0.0
       },
       "20": {
@@ -923,6 +923,56 @@
       "status": "developing"
     },
     {
+      "event_id": "8fbc0a4c7ddf5ed82a33:0:SGOV:0",
+      "author": "麻你",
+      "title": "是由全仓VGT，慢慢分次卖出一小部分，把钱转到SGOV得来的。 未来随着市场不断走高，俺会卖出更多VGT，继续转入",
+      "url": "https://bbs.wenxuecity.com/tzlc/2383239.html",
+      "published_at": "2026-10-09 14:18:31",
+      "symbol": "SGOV",
+      "operation": {
+        "symbols": [
+          "SGOV",
+          "VGT"
+        ],
+        "actions": [
+          "sell"
+        ],
+        "attribution": "unconfirmed_author_context",
+        "attribution_confidence": "needs_review"
+      },
+      "actions": [
+        "sell"
+      ],
+      "attribution": "unconfirmed_author_context",
+      "attribution_confidence": "needs_review",
+      "baseline_kind": "next_session",
+      "baseline_assumption": "next trading session open because source date has no reliable intraday timestamp",
+      "planned_level": null,
+      "triggered": true,
+      "baseline_date": "2026-10-12",
+      "baseline_price": 100.5250015258789,
+      "price_provenance": {
+        "price_source": "yfinance_validation_cache",
+        "adjustment_basis": "yfinance_auto_adjust_false_native_ohlc",
+        "baseline_source": "yfinance_validation_cache",
+        "horizon_source": "yfinance_validation_cache",
+        "same_source": true
+      },
+      "outcomes": {
+        "5": null,
+        "20": null,
+        "60": null
+      },
+      "alignment": {
+        "direction": "bearish",
+        "5": null,
+        "20": null,
+        "60": null
+      },
+      "level_checks": {},
+      "status": "developing"
+    },
+    {
       "event_id": "1a4060df0576c9f74df4:0:NOW:0",
       "author": "我是一只井底蛙",
       "title": "今天盘前买了2只股。刚回来一瞅，一只买入后上涨了 3.26% （CIEN），一只持平 （NOW）",
@@ -1167,13 +1217,20 @@
         "same_source": true
       },
       "outcomes": {
-        "5": null,
+        "5": {
+          "date": "2026-10-15",
+          "return": -0.04734465036598645,
+          "mae": -0.06875876031770745,
+          "mfe": 0.006852515184550878,
+          "benchmark_return": -0.03440850796457795,
+          "excess_vs_qqq": -0.012936142401408501
+        },
         "20": null,
         "60": null
       },
       "alignment": {
         "direction": "mixed",
-        "5": null,
+        "5": "not_scored",
         "20": null,
         "60": null
       },
@@ -1216,13 +1273,20 @@
         "same_source": true
       },
       "outcomes": {
-        "5": null,
+        "5": {
+          "date": "2026-10-15",
+          "return": -0.04734465036598645,
+          "mae": -0.06875876031770745,
+          "mfe": 0.006852515184550878,
+          "benchmark_return": -0.03440850796457795,
+          "excess_vs_qqq": -0.012936142401408501
+        },
         "20": null,
         "60": null
       },
       "alignment": {
         "direction": "bearish",
-        "5": null,
+        "5": "aligned",
         "20": null,
         "60": null
       },
@@ -2228,7 +2292,7 @@
       "planned_level": null,
       "triggered": true,
       "baseline_date": "2026-09-28",
-      "baseline_price": 199.16000366210935,
+      "baseline_price": 199.16000366210932,
       "price_provenance": {
         "price_source": "yfinance_validation_cache",
         "adjustment_basis": "yfinance_auto_adjust_false_native_ohlc",
@@ -2239,11 +2303,11 @@
       "outcomes": {
         "5": {
           "date": "2026-10-05",
-          "return": -0.09223744747034002,
-          "mae": -0.09469773179131391,
+          "return": -0.0922374474703399,
+          "mae": -0.0946977317913138,
           "mfe": 0.0,
           "benchmark_return": 0.02593671458765212,
-          "excess_vs_qqq": -0.11817416205799214
+          "excess_vs_qqq": -0.11817416205799203
         },
         "20": null,
         "60": null
@@ -2662,7 +2726,9 @@
           "date": "2026-10-14",
           "return": 0.013298196181698474,
           "mae": -0.013034891375905189,
-          "mfe": 0.02912442396313364
+          "mfe": 0.02912442396313364,
+          "benchmark_return": 0.02824858757062154,
+          "excess_vs_qqq": -0.014950391388923068
         },
         "60": null
       },
@@ -3329,7 +3395,8 @@
             "within_sessions": 20
           },
           "touch60": {
-            "touched": false,
+            "touched": true,
+            "date": "2026-10-15",
             "within_sessions": 60
           }
         },
@@ -3391,8 +3458,8 @@
       "baseline_kind": "entry_1",
       "baseline_assumption": "explicit plan starts only when the stated stock-entry level is touched",
       "planned_level": 180.0,
-      "triggered": false,
-      "baseline_date": null,
+      "triggered": true,
+      "baseline_date": "2026-10-15",
       "baseline_price": 180.0,
       "price_provenance": {
         "price_source": "stooq_archive",
@@ -3420,7 +3487,8 @@
             "within_sessions": 20
           },
           "touch60": {
-            "touched": false,
+            "touched": true,
+            "date": "2026-10-15",
             "within_sessions": 60
           }
         },
@@ -3449,7 +3517,7 @@
           }
         }
       },
-      "status": "not_triggered"
+      "status": "developing"
     },
     {
       "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html:7:MRVL:1",
@@ -3831,8 +3899,8 @@
       "baseline_kind": "entry_2",
       "baseline_assumption": "explicit plan starts only when the stated stock-entry level is touched",
       "planned_level": 30.0,
-      "triggered": false,
-      "baseline_date": null,
+      "triggered": true,
+      "baseline_date": "2026-10-15",
       "baseline_price": 30.0,
       "price_provenance": {
         "price_source": "stooq_archive",
@@ -3873,7 +3941,8 @@
             "within_sessions": 20
           },
           "touch60": {
-            "touched": false,
+            "touched": true,
+            "date": "2026-10-15",
             "within_sessions": 60
           }
         },
@@ -3900,7 +3969,7 @@
           }
         }
       },
-      "status": "not_triggered"
+      "status": "developing"
     },
     {
       "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html:3:IREN:0",
@@ -3990,7 +4059,8 @@
             "within_sessions": 20
           },
           "touch60": {
-            "touched": false,
+            "touched": true,
+            "date": "2026-10-15",
             "within_sessions": 60
           }
         },
@@ -4279,8 +4349,8 @@
       "baseline_kind": "entry_2",
       "baseline_assumption": "explicit plan starts only when the stated stock-entry level is touched",
       "planned_level": 62.0,
-      "triggered": false,
-      "baseline_date": null,
+      "triggered": true,
+      "baseline_date": "2026-10-15",
       "baseline_price": 62.0,
       "price_provenance": {
         "price_source": "stooq_archive",
@@ -4320,7 +4390,8 @@
             "within_sessions": 20
           },
           "touch60": {
-            "touched": false,
+            "touched": true,
+            "date": "2026-10-15",
             "within_sessions": 60
           }
         },
@@ -4336,7 +4407,7 @@
           }
         }
       },
-      "status": "not_triggered"
+      "status": "developing"
     },
     {
       "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html:2:CRWV:0",
@@ -4410,7 +4481,8 @@
             "within_sessions": 20
           },
           "touch60": {
-            "touched": false,
+            "touched": true,
+            "date": "2026-10-15",
             "within_sessions": 60
           }
         },

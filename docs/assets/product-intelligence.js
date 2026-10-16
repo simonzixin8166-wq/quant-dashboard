@@ -64,6 +64,11 @@ function optionActions(){
    return{symbol:p.symbol||'—',expiry:p.expiry||'',timing,tone,reason,risk:r.level||'unknown',id:p.id};
  }).sort((a,b)=>(rank[b.risk]||0)-(rank[a.risk]||0)||String(a.expiry).localeCompare(String(b.expiry)));
 }
+function thesisDetail(s){
+ if(!s)return '等待登录后载入';
+ const autoCount=s.autoEvidenceCount??0;
+ return s.loaded?`${s.count} 只已载入 · ${s.researchCount>0?`私有 Thesis ${s.researchCount}/${s.count}`:`官方/事件证据草稿 ${autoCount}/${s.count}`}`:'等待登录后载入';
+}
 function stockStatus(){try{return global.StockWatchlist?.assistantStatus?.()||{count:0,researchCount:0,risk:[],improving:[],hot:[],loaded:false}}catch{return{count:0,researchCount:0,risk:[],improving:[],hot:[],loaded:false}}}
 function stockHeld(x){
  const qty=Number(x?.position_qty??x?.quantity??x?.shares??0);
@@ -161,8 +166,7 @@ function dataHealth(){
    rows.push({name:'期权报价',status:usable===opt.length?'ok':usable?'warn':'bad',detail:`${usable}/${opt.length} 个持仓有可用报价`});
  }
  const s=stockStatus();
- const autoCount=s.autoEvidenceCount??0;
- rows.push({name:'观察池',status:s.loaded?'ok':'warn',detail:s.loaded?`${s.count} 只已载入 · ${s.researchCount>0?`私有 Thesis ${s.researchCount}/${s.count}`:`官方/事件证据草稿 ${autoCount}/${s.count}`}`:'等待登录后载入'});
+ rows.push({name:'观察池',status:s.loaded?'ok':'warn',detail:thesisDetail(s)});
  const sourceText=[...document.querySelectorAll('#tab-wenxuecity .wxc-warning')].map(x=>x.textContent).join(' ');
  if(sourceText)rows.push({name:'研究来源',status:'warn',detail:'部分来源需要核验；历史资料仍可用'});
  else rows.push({name:'研究来源',status:'ok',detail:'Source Intelligence 已启用 fail-closed 保护'});
@@ -363,6 +367,6 @@ async function loadSystemStatus(){
 }
 function schedule(){clearInterval(state.timer);state.timer=setInterval(()=>{if(document.visibilityState==='visible')render()},120000)}
 function init(){loadSystemStatus().finally(render);render();schedule();window.addEventListener('mav:options-updated',render);window.addEventListener('mav:option-opportunities',e=>{state.optionIdeas=Array.isArray(e?.detail?.ideas)?e.detail.ideas:[];render()});document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')render()});setTimeout(render,1200);setTimeout(render,3500)}
-global.MAVProductIntelligence={laneOf,laneCounts,render,optionActions,opportunities,dataHealth,decisionAuthority,formalStrategyActions,explicitSignal,positionContext,stockActionText};
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
-})(window);
+global.MAVProductIntelligence={laneOf,laneCounts,render,optionActions,opportunities,dataHealth,decisionAuthority,formalStrategyActions,explicitSignal,positionContext,stockActionText,_test:{thesisDetail}};
+if(typeof document !== 'undefined'){if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();}
+})(typeof window !== 'undefined' ? window : globalThis);

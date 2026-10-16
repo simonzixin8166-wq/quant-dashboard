@@ -1,72 +1,54 @@
 const assert = require('assert');
 
-// 1. Test Thesis count formatting logic (0 / null / undefined / positive)
-function formatThesisDetail(s) {
-  const autoCount = s.autoEvidenceCount ?? 0;
-  return s.loaded
-    ? `${s.count} 只已载入 · ${s.researchCount > 0 ? `私有 Thesis ${s.researchCount}/${s.count}` : `官方/事件证据草稿 ${autoCount}/${s.count}`}`
-    : '等待登录后载入';
-}
+// Require the actual assets
+require('../docs/assets/options-v2.js');
+require('../docs/assets/product-intelligence.js');
 
-// Thesis Count Test Cases
-{
-  // Case A: 0 autoEvidenceCount (must not fall back to s.count)
-  const res0 = formatThesisDetail({ loaded: true, count: 26, researchCount: 0, autoEvidenceCount: 0 });
-  assert.strictEqual(res0, '26 只已载入 · 官方/事件证据草稿 0/26');
+const optTest = (globalThis.OptionV2 && globalThis.OptionV2._test) || (globalThis.MAVOptions && globalThis.MAVOptions._test);
+const piTest = globalThis.MAVProductIntelligence && globalThis.MAVProductIntelligence._test;
 
-  // Case B: null autoEvidenceCount
-  const resNull = formatThesisDetail({ loaded: true, count: 26, researchCount: 0, autoEvidenceCount: null });
-  assert.strictEqual(resNull, '26 只已载入 · 官方/事件证据草稿 0/26');
+assert(optTest && typeof optTest.autoStatusTone === 'function', 'autoStatusTone must be exported under _test in options-v2.js');
+assert(piTest && typeof piTest.thesisDetail === 'function', 'thesisDetail must be exported under _test in product-intelligence.js');
 
-  // Case C: undefined (missing) autoEvidenceCount
-  const resMissing = formatThesisDetail({ loaded: true, count: 26, researchCount: 0 });
-  assert.strictEqual(resMissing, '26 只已载入 · 官方/事件证据草稿 0/26');
+// Test autoStatusTone exported function directly
+assert.strictEqual(optTest.autoStatusTone(0, 3, true), 'bad', '0 usable quotes must return bad');
+assert.strictEqual(optTest.autoStatusTone(0, 3, false), 'bad', '0 usable quotes on closed market must return bad');
 
-  // Case D: positive autoEvidenceCount
-  const resPos = formatThesisDetail({ loaded: true, count: 26, researchCount: 0, autoEvidenceCount: 15 });
-  assert.strictEqual(resPos, '26 只已载入 · 官方/事件证据草稿 15/26');
+assert.strictEqual(optTest.autoStatusTone(1, 3, true), 'warn', 'Partial usable quotes (1/3) must return warn');
+assert.strictEqual(optTest.autoStatusTone(2, 3, false), 'warn', 'Partial usable quotes (2/3) on closed market must return warn');
 
-  // Case E: Positive private researchCount
-  const resPrivate = formatThesisDetail({ loaded: true, count: 26, researchCount: 4, autoEvidenceCount: 15 });
-  assert.strictEqual(resPrivate, '26 只已载入 · 私有 Thesis 4/26');
-}
+assert.strictEqual(optTest.autoStatusTone(3, 3, true), 'good', 'All usable quotes (3/3) must return good');
+assert.strictEqual(optTest.autoStatusTone(3, 3, false), 'good', 'All usable quotes (3/3) on closed market must return good');
 
-console.log('PASS: Thesis count formatting contract (0 / null / undefined / positive)');
+// Test thesisDetail exported function directly
+assert.strictEqual(
+  piTest.thesisDetail({ loaded: true, count: 26, researchCount: 0, autoEvidenceCount: 0 }),
+  '26 只已载入 · 官方/事件证据草稿 0/26',
+  '0 autoEvidenceCount must render 0/26 without fallback'
+);
 
-// 2. Test Option Status Tone Logic (0 / partial / all usable, post-refresh recalculation)
-function computeOptionAutoStatus(usableCount, totalPositions, sessionOpen) {
-  if (sessionOpen) {
-    if (usableCount === totalPositions && totalPositions > 0) return { tone: 'good', label: `实时报价 ${usableCount}/${totalPositions}` };
-    if (usableCount > 0) return { tone: 'warn', label: `部分实时 ${usableCount}/${totalPositions}` };
-    return { tone: 'bad', label: `无有效报价 ${usableCount}/${totalPositions}` };
-  } else {
-    if (usableCount === totalPositions && totalPositions > 0) return { tone: 'good', label: `休市参考报价 ${usableCount}/${totalPositions}` };
-    if (usableCount > 0) return { tone: 'warn', label: `休市部分参考 ${usableCount}/${totalPositions}` };
-    return { tone: 'bad', label: `休市无有效报价 ${usableCount}/${totalPositions}` };
-  }
-}
+assert.strictEqual(
+  piTest.thesisDetail({ loaded: true, count: 26, researchCount: 0, autoEvidenceCount: null }),
+  '26 只已载入 · 官方/事件证据草稿 0/26',
+  'null autoEvidenceCount must render 0/26'
+);
 
-{
-  // 0 usable quotes: tone MUST be bad
-  const s0_open = computeOptionAutoStatus(0, 3, true);
-  assert.strictEqual(s0_open.tone, 'bad');
+assert.strictEqual(
+  piTest.thesisDetail({ loaded: true, count: 26, researchCount: 0 }),
+  '26 只已载入 · 官方/事件证据草稿 0/26',
+  'missing autoEvidenceCount must render 0/26'
+);
 
-  const s0_closed = computeOptionAutoStatus(0, 3, false);
-  assert.strictEqual(s0_closed.tone, 'bad');
+assert.strictEqual(
+  piTest.thesisDetail({ loaded: true, count: 26, researchCount: 0, autoEvidenceCount: 15 }),
+  '26 只已载入 · 官方/事件证据草稿 15/26',
+  'positive autoEvidenceCount must render 15/26'
+);
 
-  // Partial usable quotes (1/3 or 2/3): tone MUST be warn
-  const sPart_open = computeOptionAutoStatus(1, 3, true);
-  assert.strictEqual(sPart_open.tone, 'warn');
+assert.strictEqual(
+  piTest.thesisDetail({ loaded: true, count: 26, researchCount: 4, autoEvidenceCount: 15 }),
+  '26 只已载入 · 私有 Thesis 4/26',
+  'positive private researchCount must take precedence over auto draft'
+);
 
-  const sPart_closed = computeOptionAutoStatus(2, 3, false);
-  assert.strictEqual(sPart_closed.tone, 'warn');
-
-  // All usable quotes (3/3): tone IS good
-  const sAll_open = computeOptionAutoStatus(3, 3, true);
-  assert.strictEqual(sAll_open.tone, 'good');
-
-  const sAll_closed = computeOptionAutoStatus(3, 3, false);
-  assert.strictEqual(sAll_closed.tone, 'good');
-}
-
-console.log('PASS: Option auto-status tone contract (0 / partial / all usable quotes)');
+console.log('pr254_round2_contracts.test.js OK');

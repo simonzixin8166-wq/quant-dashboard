@@ -369,6 +369,12 @@
       renderPositionTable();renderRiskSummary();return false;
     }
   }
+  function autoStatusTone(usable,total,sessionOpen){
+    const u=Number(usable)||0,t=Number(total)||0;
+    if(t>0&&u===t)return 'good';
+    if(u>0)return 'warn';
+    return 'bad';
+  }
   function setAutoStatus(text,tone=''){
     const node=$('optionAutoStatus');if(node){node.textContent=text;node.className=`option-auto-status ${tone}`}
     const button=$('refreshAllOptions');if(button)button.disabled=state.bulkRefreshing;
@@ -377,12 +383,11 @@
     if(state.bulkRefreshing||document.visibilityState==='hidden'||!state.positions.size)return;
     const entries=[...state.positions.entries()].filter(([id])=>{if(force)return true;const freshness=quoteFreshness(readCachedQuote(id));return onlyNeeded?freshness.status==='unavailable'||(isUsRegularSession()&&!freshness.fresh):!freshness.fresh});
     const totalPositions=state.positions.size;
-    const allPositions=[...state.positions.keys()];
-    const usableCount=allPositions.filter(id=>quoteFreshness(readCachedQuote(id)).usable).length;
     const sessionOpen=isUsRegularSession();
 
     if(!entries.length){
-      const tone=usableCount===totalPositions&&totalPositions>0?'good':usableCount>0?'warn':'bad';
+      const usableCount=[...state.positions.keys()].filter(id=>quoteFreshness(readCachedQuote(id)).usable).length;
+      const tone=autoStatusTone(usableCount,totalPositions,sessionOpen);
       const label=sessionOpen?`持仓报价仍在有效期 (${usableCount}/${totalPositions})`:`休市 · 保留上次有效报价 (${usableCount}/${totalPositions})`;
       setAutoStatus(label,tone);
       renderRiskSummary();
@@ -395,14 +400,15 @@
     }
     state.lastBulkAt=Date.now();state.bulkRefreshing=false;
 
+    const postUsableCount=[...state.positions.keys()].filter(id=>quoteFreshness(readCachedQuote(id)).usable).length;
+    const tone=autoStatusTone(postUsableCount,totalPositions,sessionOpen);
+
     if(success===entries.length&&sessionOpen){
-      setAutoStatus(`完成 ${success}/${entries.length} · 实时报价 · ${new Date().toLocaleTimeString()}`,'good');
+      setAutoStatus(`完成 ${success}/${entries.length} · 实时报价 (${postUsableCount}/${totalPositions}) · ${new Date().toLocaleTimeString()}`,tone);
     }else if(!sessionOpen){
-      const tone=usableCount===totalPositions&&totalPositions>0?'good':usableCount>0?'warn':'bad';
-      setAutoStatus(`休市降级 (参考报价 ${usableCount}/${totalPositions}) · ${new Date().toLocaleTimeString()}`,tone);
+      setAutoStatus(`休市降级 (参考报价 ${postUsableCount}/${totalPositions}) · ${new Date().toLocaleTimeString()}`,tone);
     }else{
-      const tone=usableCount>0?'warn':'bad';
-      setAutoStatus(`完成 ${success}/${entries.length} (离线降级 ${usableCount}/${totalPositions} 参考报价) · ${new Date().toLocaleTimeString()}`,tone);
+      setAutoStatus(`完成 ${success}/${entries.length} (离线降级 ${postUsableCount}/${totalPositions} 参考报价) · ${new Date().toLocaleTimeString()}`,tone);
     }
     renderRiskSummary();global.RollManager?.load();window.dispatchEvent(new CustomEvent('mav:options-updated',{detail:{reason:'quotes-refreshed',success,total:entries.length}}));
   }
@@ -492,7 +498,9 @@
     if(typeof global.openDashboardTab==='function')global.openDashboardTab('tab-sandbox');
     setTimeout(()=>{const input=$('optionSymbol');if(input)input.value=symbol;try{strategyChanged(strategy)}catch{};const btn=$('loadExpirations');if(btn)btn.focus()},80);
   }
-  global.OptionV2={bsPrice,evaluate,normalizeColumnar,relativeIvContext,renderDecisionAssistant,loadPrivatePositions,populateAccountSelect,refreshQuote,refreshPosition,refreshAllPositions,openPositionScenario,renderPositionDecisionLab,completeRocFields,occSymbol,positionMetrics,annualizedRoc,positionRisk,quoteFreshness,isUsRegularSession,setMarketEvents,realizedPnl,assignmentBasis,openLifecycle,closeLifecycle,savePositionAccount,updateLifecyclePreview,saveLifecycle,editPosition,deletePosition,deleteLifecycleRecord,restoreArchivedPosition,toggleHistory,autoScreenOpportunity,openForSymbol,getPosition:id=>state.positions.get(String(id)),getPositions:()=>[...state.positions.values()],getHistory:()=>(state.history||[]).slice(),positionsLoaded:()=>Boolean(state.positionsLoaded),getCachedQuote:id=>readCachedQuote(id),getEvents:()=>state.events.slice()};
+  const testExports={autoStatusTone};
+  global.OptionV2={bsPrice,evaluate,normalizeColumnar,relativeIvContext,renderDecisionAssistant,loadPrivatePositions,populateAccountSelect,refreshQuote,refreshPosition,refreshAllPositions,openPositionScenario,renderPositionDecisionLab,completeRocFields,occSymbol,positionMetrics,annualizedRoc,positionRisk,quoteFreshness,isUsRegularSession,setMarketEvents,realizedPnl,assignmentBasis,openLifecycle,closeLifecycle,savePositionAccount,updateLifecyclePreview,saveLifecycle,editPosition,deletePosition,deleteLifecycleRecord,restoreArchivedPosition,toggleHistory,autoScreenOpportunity,openForSymbol,getPosition:id=>state.positions.get(String(id)),getPositions:()=>[...state.positions.values()],getHistory:()=>(state.history||[]).slice(),positionsLoaded:()=>Boolean(state.positionsLoaded),getCachedQuote:id=>readCachedQuote(id),getEvents:()=>state.events.slice(),_test:testExports};
+  global.MAVOptions=global.OptionV2;
   if(typeof document!=='undefined'){
     document.addEventListener('DOMContentLoaded',()=>{bind();$('refreshAllOptions')?.addEventListener('click',()=>refreshAllPositions({force:true,reason:'手动刷新'}))});
     document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&Date.now()-state.lastBulkAt>=POSITION_REFRESH_MS)refreshAllPositions({onlyNeeded:true,reason:'返回页面检查'})});

@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "generated_at": "2026-10-16T01:36:13.238384+00:00",
+  "generated_at": "2026-10-16T06:11:19.694778+00:00",
   "methodology": {
     "executed_action_baseline": "first trading session open strictly after source date when no reliable intraday timestamp exists",
     "planned_entry_baseline": "explicit stock-entry plans begin only on the first later session whose low touches the stated level; each tranche is validated separately",
@@ -239,9 +239,9 @@
     "BrightLine": {
       "5": {
         "n": 40,
-        "avg_return": -0.016288290409947757,
+        "avg_return": -0.016288290409947767,
         "median_return": -0.02882793253742666,
-        "avg_excess_vs_qqq": -0.023502342780084364,
+        "avg_excess_vs_qqq": -0.02350234278008436,
         "alignment_rate": 0.4857142857142857
       },
       "20": {
@@ -253,7 +253,7 @@
       },
       "60": {
         "n": 26,
-        "avg_return": -0.14607220168552185,
+        "avg_return": -0.14607220168552182,
         "median_return": -0.2229683555767093,
         "avg_excess_vs_qqq": -0.1628589599674507,
         "alignment_rate": 0.2608695652173913
@@ -10663,6 +10663,10 @@
       "status": "mature"
     }
   ],
+  "explanation": {
+    "balanced_reconciliation": "Source intelligence parsing is 100% balanced (260 operation cases persisted).",
+    "untriggered_plans_note": "untriggered_plans (7) refers to conditional limit-price trading plans from author posts whose price thresholds have not been touched by the market yet. They are intentionally kept in observation status (triggered=false) and are NOT data processing or parsing failures."
+  },
   "guardrails": [
     "External-source outcomes are descriptive evidence, not rankings or automatic trade rules.",
     "Quoted third-party examples are excluded from author-level outcome aggregates.",

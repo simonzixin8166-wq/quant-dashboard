@@ -161,7 +161,8 @@ function dataHealth(){
    rows.push({name:'期权报价',status:usable===opt.length?'ok':usable?'warn':'bad',detail:`${usable}/${opt.length} 个持仓有可用报价`});
  }
  const s=stockStatus();
- rows.push({name:'观察池',status:s.loaded?'ok':'warn',detail:s.loaded?`${s.count} 只已载入 · ${s.researchCount>0?`私有 Thesis ${s.researchCount}/${s.count}`:`官方/事件证据草稿 ${s.autoEvidenceCount||s.count}/${s.count}`}`:'等待登录后载入'});
+ const autoCount=s.autoEvidenceCount??0;
+ rows.push({name:'观察池',status:s.loaded?'ok':'warn',detail:s.loaded?`${s.count} 只已载入 · ${s.researchCount>0?`私有 Thesis ${s.researchCount}/${s.count}`:`官方/事件证据草稿 ${autoCount}/${s.count}`}`:'等待登录后载入'});
  const sourceText=[...document.querySelectorAll('#tab-wenxuecity .wxc-warning')].map(x=>x.textContent).join(' ');
  if(sourceText)rows.push({name:'研究来源',status:'warn',detail:'部分来源需要核验；历史资料仍可用'});
  else rows.push({name:'研究来源',status:'ok',detail:'Source Intelligence 已启用 fail-closed 保护'});

@@ -376,24 +376,33 @@
   async function refreshAllPositions({force=false,onlyNeeded=false,reason='手动'}={}){
     if(state.bulkRefreshing||document.visibilityState==='hidden'||!state.positions.size)return;
     const entries=[...state.positions.entries()].filter(([id])=>{if(force)return true;const freshness=quoteFreshness(readCachedQuote(id));return onlyNeeded?freshness.status==='unavailable'||(isUsRegularSession()&&!freshness.fresh):!freshness.fresh});
-    if(!entries.length){setAutoStatus(isUsRegularSession()?'持仓报价仍在有效期':'休市 · 保留上次有效报价','good');renderRiskSummary();return}
+    const totalPositions=state.positions.size;
+    const allPositions=[...state.positions.keys()];
+    const usableCount=allPositions.filter(id=>quoteFreshness(readCachedQuote(id)).usable).length;
+    const sessionOpen=isUsRegularSession();
+
+    if(!entries.length){
+      const tone=usableCount===totalPositions&&totalPositions>0?'good':usableCount>0?'warn':'bad';
+      const label=sessionOpen?`持仓报价仍在有效期 (${usableCount}/${totalPositions})`:`休市 · 保留上次有效报价 (${usableCount}/${totalPositions})`;
+      setAutoStatus(label,tone);
+      renderRiskSummary();
+      return;
+    }
+
     state.bulkRefreshing=true;setAutoStatus(`${reason}：正在刷新 0/${entries.length}`,'warn');let success=0;
     for(let i=0;i<entries.length;i++){
       const [id]=entries[i];setAutoStatus(`${reason}：正在刷新 ${i+1}/${entries.length}`,'warn');if(await refreshPosition(id,{silent:true}))success++;if(i<entries.length-1)await new Promise(resolve=>setTimeout(resolve,450));
     }
     state.lastBulkAt=Date.now();state.bulkRefreshing=false;
-    const sessionOpen=isUsRegularSession();
-    if(success===entries.length){
-      setAutoStatus(`完成 ${success}/${entries.length} · ${new Date().toLocaleTimeString()}`,'good');
+
+    if(success===entries.length&&sessionOpen){
+      setAutoStatus(`完成 ${success}/${entries.length} · 实时报价 · ${new Date().toLocaleTimeString()}`,'good');
+    }else if(!sessionOpen){
+      const tone=usableCount===totalPositions&&totalPositions>0?'good':usableCount>0?'warn':'bad';
+      setAutoStatus(`休市降级 (参考报价 ${usableCount}/${totalPositions}) · ${new Date().toLocaleTimeString()}`,tone);
     }else{
-      const usableCount=entries.filter(([id])=>quoteFreshness(readCachedQuote(id)).usable).length;
-      if(!sessionOpen){
-        setAutoStatus(`休市降级 (参考报价 ${usableCount}/${entries.length}) · ${new Date().toLocaleTimeString()}`,'good');
-      }else if(usableCount>0){
-        setAutoStatus(`完成 ${success}/${entries.length} (离线降级 ${usableCount}/${entries.length} 参考报价) · ${new Date().toLocaleTimeString()}`,'warn');
-      }else{
-        setAutoStatus(`完成 ${success}/${entries.length} · 无有效报价 · ${new Date().toLocaleTimeString()}`,'warn');
-      }
+      const tone=usableCount>0?'warn':'bad';
+      setAutoStatus(`完成 ${success}/${entries.length} (离线降级 ${usableCount}/${totalPositions} 参考报价) · ${new Date().toLocaleTimeString()}`,tone);
     }
     renderRiskSummary();global.RollManager?.load();window.dispatchEvent(new CustomEvent('mav:options-updated',{detail:{reason:'quotes-refreshed',success,total:entries.length}}));
   }

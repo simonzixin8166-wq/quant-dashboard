@@ -469,6 +469,16 @@ jobs:
           if [ -f data/history/source_validation_history.zip ]; then git add data/history/source_validation_history.zip; fi
           if [ -f research/state/feed_id_ledger.json ]; then git add research/state/feed_id_ledger.json; fi
           git add research/macro_events/ || true
+          # P0 (#133 6205646800): bootstrap_replay_history appends the VIX/price restatement provenance here (#245);
+          # it was never staged, so `git pull --rebase` refused to run ("unstaged changes") from 2026-10-15 13:21Z on.
+          if [ -f data/history/corrections.jsonl ]; then git add data/history/corrections.jsonl; fi
+          # Fail loudly with the exact file names instead of git's generic message; nothing is discarded or reset.
+          UNSTAGED="$(git diff --name-only)"
+          if [ -n "$UNSTAGED" ]; then
+            echo "::error title=Daily commit::tracked files modified by this run but not staged: $(echo $UNSTAGED | tr '\n' ' ')"
+            git diff --stat
+            exit 1
+          fi
           git commit -m "Daily update $(date -u +%Y-%m-%d)" || echo "No changes"
           git pull --rebase origin main
           git push origin HEAD:main

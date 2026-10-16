@@ -359,12 +359,14 @@ def build(execution, planner, learning, method, evidence, history, self_improvem
                 "open_planner_tasks": open_tasks,
                 "note": "研究覆盖率：代表系统已形成假设与结构化研究草稿的资产范围。"
             },
-            "genuine_learning_outcomes": {
+            "historical_reconstruction": {
                 "historical_mature_60": history_summary["mature_60"],
-                "historical_prior_note": "仅作为先验/相似情境库，不属于前瞻实证成熟样本。",
+                "note": "历史重建样本：仅作为先验与相似情境库，不属于前瞻实证成熟样本。"
+            },
+            "genuine_learning_outcomes": {
                 "forward_mature_20": int(((forward_feedback or {}).get("counts") or {}).get("forward_mature20") or 0),
                 "forward_mature_60": int(((forward_feedback or {}).get("counts") or {}).get("forward_mature60") or 0),
-                "forward_status": "0 / UNPROVEN" if int(((forward_feedback or {}).get("counts") or {}).get("forward_mature60") or 0) == 0 else "MATURING",
+                "forward_status": "UNPROVEN" if (int(((forward_feedback or {}).get("counts") or {}).get("forward_mature20") or 0) == 0 and int(((forward_feedback or {}).get("counts") or {}).get("forward_mature60") or 0) == 0) else f"matured_n={int(((forward_feedback or {}).get('counts') or {}).get('forward_mature60') or 0)}",
                 "direct_methods_validated": direct_methods,
                 "note": "真正学习效果：仅来自 20/60/120 交易日已成熟的真实 Alpha 对齐率与超额收益验证。"
             }

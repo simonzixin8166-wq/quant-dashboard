@@ -87,6 +87,19 @@ def downstream_consumers(artifact,producer,scripts_dir=None):
             pass
     return out
 
+# Charter measure 3: only Forward outcomes matured at 20/60/120 NYSE sessions count as verified
+# experience. Shorter horizons (e.g. 5) are real outcome feedback but never make a domain learning_active.
+VERIFIED_FORWARD_HORIZONS=("20","60","120")
+
+def forward_mature_counts(mature_total):
+    """(any_mature, verified_mature) from playbook_outcome_shadow.mature_total {horizon: n}."""
+    if not isinstance(mature_total,dict):
+        return 0,0
+    def n(v):
+        try:return max(0,int(v or 0))
+        except (TypeError,ValueError):return 0
+    return sum(n(v) for v in mature_total.values()),sum(n(mature_total.get(h)) for h in VERIFIED_FORWARD_HORIZONS)
+
 def apply_reuse_gate(rows,scripts_dir=None):
     """Never upgrades; downgrades learning_active without L6 downstream reuse."""
     for x in rows:
@@ -164,6 +177,7 @@ def build():
     candidate_promotion=load("docs/research/candidate_evidence_promotion_status.json")
     playbook=load("docs/research/playbook_status.json")
     forward_outcomes=load("docs/research/playbook_outcome_shadow.json")
+    forward_any_mature,forward_verified_mature=forward_mature_counts(forward_outcomes.get("mature_total"))
     self_improvement=load("docs/research/self_improvement.json")
     system_status=load("docs/research/system_status.json")
     operational=load("docs/research/operational_incident_memory.json")
@@ -248,11 +262,12 @@ def build():
           {"forward_counts":candidate_forward.get("counts") or candidate_forward.get("summary"),"promotion":candidate_promotion.get("summary") or candidate_promotion.get("counts")}),
       row("production_playbook_forward_replay", bool(playbook), "private_forward_ledger_plus_local_replay",
           True, True,
-          sum(int(v or 0) for v in ((forward_outcomes.get("mature_total") or {}).values() if isinstance(forward_outcomes.get("mature_total"),dict) else []))>0,
+          forward_any_mature>0,
           True,
-          "learning_active" if sum(int(v or 0) for v in ((forward_outcomes.get("mature_total") or {}).values() if isinstance(forward_outcomes.get("mature_total"),dict) else []))>0 else "partial_learning",
-          ["Pipeline exists, but Learning Active requires at least one real mature Forward outcome."],
-          {"mode":playbook.get("mode"),"forward_clock_active":((playbook.get("storage") or {}).get("forward_clock_active")),"mature_total":forward_outcomes.get("mature_total")}),
+          "learning_active" if forward_verified_mature>0 else "partial_learning",
+          ["Pipeline exists, but Learning Active requires at least one real Forward outcome matured at 20/60/120 NYSE sessions (5-session outcomes are recorded, not counted as verified experience)."],
+          {"mode":playbook.get("mode"),"forward_clock_active":((playbook.get("storage") or {}).get("forward_clock_active")),"mature_total":forward_outcomes.get("mature_total"),
+           "mature_any":forward_any_mature,"mature_verified_20_60_120":forward_verified_mature}),
       row("operational_system_learning", bool(system_status), "status_snapshots_plus_append_only_incident_transitions",
           True, bool(operational), bool((operational.get("counts") or {}).get("resolved_total")), True,
           "learning_active" if int((operational.get("counts") or {}).get("resolved_total") or 0)>0 else "partial_learning",

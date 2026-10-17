@@ -13,8 +13,8 @@ assert "getErrorMemory" in journal
 
 assert "mavAgentDecisionMemoryV56" in agent
 assert "function remainingEdge(" in agent
-assert "Remaining Edge：" in agent
-assert "Changed Since Last Decision" in agent
+assert "剩余空间：" in agent
+assert "和上次判断相比" in agent
 assert "trackDecision" in agent
 
 assert "POSITION DECISION LAB · V5.6" in options

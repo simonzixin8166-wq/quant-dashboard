@@ -1,52 +1,53 @@
 {
   "version": "6.12.1-shadow",
-  "generated_at": "2026-10-16T13:19:54.660096+00:00",
+  "generated_at": "2026-10-17T02:52:01.745063+00:00",
   "mode": "shadow_no_forward_ledger_write",
-  "market_date": "2026-10-15",
+  "market_date": "2026-10-16",
   "storage_configured": true,
-  "private_trigger_records": 12,
-  "eligible_forward_triggers": 4,
+  "private_trigger_records": 16,
+  "eligible_forward_triggers": 7,
   "ledger_read_problems": [],
   "mature_total": {
-    "5": 0,
+    "5": 1,
     "20": 0,
     "60": 0
   },
   "pending_total": {
-    "5": 4,
-    "20": 4,
-    "60": 4
+    "5": 6,
+    "20": 7,
+    "60": 7
   },
   "by_playbook": {
     "CP-02": {
-      "trigger_records": 2,
-      "baseline_pass": 2,
+      "trigger_records": 3,
+      "baseline_pass": 3,
       "baseline_mismatch": 0,
       "history_or_definition_missing": 0,
       "late_detected": 0,
       "timing_uncertain": 0,
       "horizons": {
         "5": {
-          "mature": 0,
+          "mature": 1,
           "aligned": 0,
-          "not_aligned": 0,
+          "not_aligned": 1,
           "pending": 2
         },
         "20": {
           "mature": 0,
           "aligned": 0,
           "not_aligned": 0,
-          "pending": 2
+          "pending": 3
         },
         "60": {
           "mature": 0,
           "aligned": 0,
           "not_aligned": 0,
-          "pending": 2
+          "pending": 3
         }
       },
       "objective_groups": {
-        "risk_restore": 2
+        "risk_restore": 2,
+        "risk_reduction": 1
       },
       "by_state_detail": {
         "full_restore": {
@@ -56,10 +57,10 @@
           "baseline_mismatch": 0,
           "horizons": {
             "5": {
-              "mature": 0,
+              "mature": 1,
               "aligned": 0,
-              "not_aligned": 0,
-              "pending": 2
+              "not_aligned": 1,
+              "pending": 1
             },
             "20": {
               "mature": 0,
@@ -74,12 +75,38 @@
               "pending": 2
             }
           }
+        },
+        "tier1": {
+          "trigger_records": 1,
+          "late_detected": 0,
+          "timing_uncertain": 0,
+          "baseline_mismatch": 0,
+          "horizons": {
+            "5": {
+              "mature": 0,
+              "aligned": 0,
+              "not_aligned": 0,
+              "pending": 1
+            },
+            "20": {
+              "mature": 0,
+              "aligned": 0,
+              "not_aligned": 0,
+              "pending": 1
+            },
+            "60": {
+              "mature": 0,
+              "aligned": 0,
+              "not_aligned": 0,
+              "pending": 1
+            }
+          }
         }
       }
     },
     "CP-03": {
-      "trigger_records": 2,
-      "baseline_pass": 2,
+      "trigger_records": 4,
+      "baseline_pass": 4,
       "baseline_mismatch": 0,
       "history_or_definition_missing": 0,
       "late_detected": 0,
@@ -89,25 +116,25 @@
           "mature": 0,
           "aligned": 0,
           "not_aligned": 0,
-          "pending": 2
+          "pending": 4
         },
         "20": {
           "mature": 0,
           "aligned": 0,
           "not_aligned": 0,
-          "pending": 2
+          "pending": 4
         },
         "60": {
           "mature": 0,
           "aligned": 0,
           "not_aligned": 0,
-          "pending": 2
+          "pending": 4
         }
       },
       "objective_groups": {},
       "by_state_detail": {
         "candidate": {
-          "trigger_records": 2,
+          "trigger_records": 3,
           "late_detected": 0,
           "timing_uncertain": 0,
           "baseline_mismatch": 0,
@@ -116,19 +143,45 @@
               "mature": 0,
               "aligned": 0,
               "not_aligned": 0,
-              "pending": 2
+              "pending": 3
             },
             "20": {
               "mature": 0,
               "aligned": 0,
               "not_aligned": 0,
-              "pending": 2
+              "pending": 3
             },
             "60": {
               "mature": 0,
               "aligned": 0,
               "not_aligned": 0,
-              "pending": 2
+              "pending": 3
+            }
+          }
+        },
+        "strong": {
+          "trigger_records": 1,
+          "late_detected": 0,
+          "timing_uncertain": 0,
+          "baseline_mismatch": 0,
+          "horizons": {
+            "5": {
+              "mature": 0,
+              "aligned": 0,
+              "not_aligned": 0,
+              "pending": 1
+            },
+            "20": {
+              "mature": 0,
+              "aligned": 0,
+              "not_aligned": 0,
+              "pending": 1
+            },
+            "60": {
+              "mature": 0,
+              "aligned": 0,
+              "not_aligned": 0,
+              "pending": 1
             }
           }
         }

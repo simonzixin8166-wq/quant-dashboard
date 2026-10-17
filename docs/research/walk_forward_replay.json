@@ -1,6 +1,6 @@
 {
   "version": "6.11.1",
-  "generated_at": "2026-10-16T13:19:56.211314+00:00",
+  "generated_at": "2026-10-17T02:52:03.315838+00:00",
   "mode": "research_only",
   "evidence_provenance": "historical_replay_post_rule_design",
   "forward_evidence_mixed": false,
@@ -44,8 +44,8 @@
     }
   },
   "summary": {
-    "raw_events": 1712,
-    "effective_clusters": 935,
+    "raw_events": 1715,
+    "effective_clusters": 937,
     "replayable_playbooks": 3,
     "blocked_playbooks": 0,
     "history_symbols": 41
@@ -986,8 +986,8 @@
     "CP-02:tier1": {
       "playbook_id": "CP-02",
       "state_detail": "tier1",
-      "raw_events": 67,
-      "effective_clusters": 58,
+      "raw_events": 68,
+      "effective_clusters": 59,
       "independent_dates": [
         "2000-09-06",
         "2003-09-24",
@@ -1046,7 +1046,8 @@
         "2025-08-01",
         "2025-10-10",
         "2025-11-17",
-        "2026-06-05"
+        "2026-06-05",
+        "2026-10-16"
       ],
       "horizons": {
         "5": {
@@ -1179,7 +1180,7 @@
     "CP-03:candidate": {
       "playbook_id": "CP-03",
       "state_detail": "candidate",
-      "raw_events": 532,
+      "raw_events": 533,
       "effective_clusters": 148,
       "independent_dates": [
         "2000-04-11",
@@ -1379,8 +1380,8 @@
     "CP-03:strong": {
       "playbook_id": "CP-03",
       "state_detail": "strong",
-      "raw_events": 145,
-      "effective_clusters": 78,
+      "raw_events": 146,
+      "effective_clusters": 79,
       "independent_dates": [
         "2000-04-13",
         "2000-11-21",
@@ -1459,7 +1460,8 @@
         "2025-03-04",
         "2025-04-04",
         "2025-11-20",
-        "2026-03-30"
+        "2026-03-30",
+        "2026-10-16"
       ],
       "horizons": {
         "5": {
@@ -1508,6 +1510,71 @@
     }
   },
   "recent_replay_events": [
+    {
+      "playbook_id": "CP-03",
+      "entity_key": "CP-03:VGT",
+      "symbol": "VGT",
+      "evaluation_asset": "VGT",
+      "event_date": "2026-10-16",
+      "state_detail": "candidate",
+      "expected_direction": "bullish",
+      "baseline_close": 118.83,
+      "rule_hash": "20aaf8cf9b5c9dfcc137305750b16ccd04a08f873a4a2ddb83d6ef6ffd99220d",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "risk_context": {
+        "trend_risk": false,
+        "vix_risk": false,
+        "vix_available": true
+      },
+      "outcomes": {
+        "5": null,
+        "20": null,
+        "60": null
+      }
+    },
+    {
+      "playbook_id": "CP-02",
+      "entity_key": "CP-02:TQQQ",
+      "symbol": "TQQQ",
+      "evaluation_asset": "QQQ",
+      "event_date": "2026-10-16",
+      "state_detail": "tier1",
+      "objective_group": "risk_reduction",
+      "expected_direction": "bearish",
+      "baseline_close": 709.79999,
+      "rule_hash": "f89277cd0b6f80aa2682799ee45d3c02a0cd76633d855cb0621557bc18db8fb5",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": null,
+        "20": null,
+        "60": null
+      }
+    },
+    {
+      "playbook_id": "CP-03",
+      "entity_key": "CP-03:SMH",
+      "symbol": "SMH",
+      "evaluation_asset": "SMH",
+      "event_date": "2026-10-16",
+      "state_detail": "strong",
+      "expected_direction": "bullish",
+      "baseline_close": 539.78998,
+      "rule_hash": "20aaf8cf9b5c9dfcc137305750b16ccd04a08f873a4a2ddb83d6ef6ffd99220d",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "risk_context": {
+        "trend_risk": false,
+        "vix_risk": false,
+        "vix_available": true
+      },
+      "outcomes": {
+        "5": null,
+        "20": null,
+        "60": null
+      }
+    },
     {
       "playbook_id": "CP-03",
       "entity_key": "CP-03:SMH",
@@ -6542,139 +6609,6 @@
           "benchmark_return": 0.019448476052249752,
           "excess_vs_benchmark": -0.007773033681648833,
           "aligned": true
-        }
-      }
-    },
-    {
-      "playbook_id": "CP-02",
-      "entity_key": "CP-02:TQQQ",
-      "symbol": "TQQQ",
-      "evaluation_asset": "QQQ",
-      "event_date": "2025-02-27",
-      "state_detail": "partial_restore",
-      "objective_group": "risk_restore",
-      "expected_direction": "bullish",
-      "baseline_close": 499.525,
-      "rule_hash": "f89277cd0b6f80aa2682799ee45d3c02a0cd76633d855cb0621557bc18db8fb5",
-      "evidence_provenance": "historical_replay_post_rule_design",
-      "scoreable": true,
-      "outcomes": {
-        "5": {
-          "maturity_date": "2025-03-06",
-          "return": -0.024126920574545796,
-          "mae": -0.028124718482558375,
-          "mfe": 0.02552624993744046,
-          "benchmark_return": null,
-          "excess_vs_benchmark": null,
-          "aligned": false
-        },
-        "20": {
-          "maturity_date": "2025-03-27",
-          "return": -0.035844051849256764,
-          "mae": -0.06764226014713981,
-          "mfe": 0.02552624993744046,
-          "benchmark_return": null,
-          "excess_vs_benchmark": null,
-          "aligned": false
-        },
-        "60": {
-          "maturity_date": "2025-05-23",
-          "return": 0.019448476052249752,
-          "mae": -0.19445473199539565,
-          "mfe": 0.04699464491266703,
-          "benchmark_return": null,
-          "excess_vs_benchmark": null,
-          "aligned": true
-        }
-      }
-    },
-    {
-      "playbook_id": "CP-03",
-      "entity_key": "CP-03:SMH",
-      "symbol": "SMH",
-      "evaluation_asset": "SMH",
-      "event_date": "2025-02-27",
-      "state_detail": "candidate",
-      "expected_direction": "bullish",
-      "baseline_close": 228.7899932861328,
-      "rule_hash": "20aaf8cf9b5c9dfcc137305750b16ccd04a08f873a4a2ddb83d6ef6ffd99220d",
-      "evidence_provenance": "historical_replay_post_rule_design",
-      "scoreable": true,
-      "risk_context": {
-        "trend_risk": false,
-        "vix_risk": false,
-        "vix_available": true
-      },
-      "outcomes": {
-        "5": {
-          "maturity_date": "2025-03-06",
-          "return": -0.03938106897694482,
-          "mae": -0.04694256982185052,
-          "mfe": 0.028760007098848517,
-          "benchmark_return": -0.024126920574545796,
-          "excess_vs_benchmark": -0.015254148402399026,
-          "aligned": false
-        },
-        "20": {
-          "maturity_date": "2025-03-27",
-          "return": -0.048253829319911734,
-          "mae": -0.0801170816476291,
-          "mfe": 0.028760007098848517,
-          "benchmark_return": -0.035844051849256764,
-          "excess_vs_benchmark": -0.01240977747065497,
-          "aligned": false
-        },
-        "60": {
-          "maturity_date": "2025-05-23",
-          "return": 0.037807637611385614,
-          "mae": -0.25647971676101233,
-          "mfe": 0.09025748398640765,
-          "benchmark_return": 0.019448476052249752,
-          "excess_vs_benchmark": 0.01835916155913586,
-          "aligned": true
-        }
-      }
-    },
-    {
-      "playbook_id": "CP-02",
-      "entity_key": "CP-02:TQQQ",
-      "symbol": "TQQQ",
-      "evaluation_asset": "QQQ",
-      "event_date": "2025-02-24",
-      "state_detail": "tier1",
-      "objective_group": "risk_reduction",
-      "expected_direction": "bearish",
-      "baseline_close": 519.176,
-      "rule_hash": "f89277cd0b6f80aa2682799ee45d3c02a0cd76633d855cb0621557bc18db8fb5",
-      "evidence_provenance": "historical_replay_post_rule_design",
-      "scoreable": true,
-      "outcomes": {
-        "5": {
-          "maturity_date": "2025-03-03",
-          "return": -0.04404286792918022,
-          "mae": -0.0507169052498575,
-          "mfe": -0.0005566513089975134,
-          "benchmark_return": null,
-          "excess_vs_benchmark": null,
-          "aligned": true
-        },
-        "20": {
-          "maturity_date": "2025-03-24",
-          "return": -0.054925497326532846,
-          "mae": -0.10293233893708498,
-          "mfe": -0.0005566513089975134,
-          "benchmark_return": null,
-          "excess_vs_benchmark": null,
-          "aligned": true
-        },
-        "60": {
-          "maturity_date": "2025-05-20",
-          "return": 0.0021071852319829443,
-          "mae": -0.22494491270782946,
-          "mfe": 0.006460236990923907,
-          "benchmark_return": null,
-          "excess_vs_benchmark": null,
-          "aligned": false
         }
       }
     }

@@ -185,6 +185,12 @@ jobs:
       - name: Build V6.8 Breadth Intelligence
         run: python scripts/breadth_intelligence_engine.py
 
+      # 市场温度 (#133 2026-10-17): MyAlpha's own descriptive 0–100 reading from existing data; append-only daily
+      # history for later validation. Descriptive only — never blocks the website, never feeds decisions.
+      - name: Market temperature (descriptive)
+        continue-on-error: true
+        run: python scripts/market_temperature.py
+
       # P0-A / H-02 (#133 6148675138): official event outcomes (BLS, free, after release only) → BrightLine
       # tranche Shadow → homepage macro-event row. Shadow-only; a failure is recorded and never blocks the website.
       - name: Macro event outcomes + tranche Shadow + homepage event row (Shadow)

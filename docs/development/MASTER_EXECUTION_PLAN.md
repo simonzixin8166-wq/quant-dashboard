@@ -1,8 +1,8 @@
 # MyAlpha View — Master Execution Plan
 
-Source of truth: `docs/development/master_plan.json` (this file is rendered by `scripts/master_plan.py render`). Last updated 2026-10-15T07:00Z. Issue: https://github.com/simonzixin8166-wq/quant-dashboard/issues/133. Charter: CLAUDE.md (owner-confirmed 2026-10-11).
+Source of truth: `docs/development/master_plan.json` (this file is rendered by `scripts/master_plan.py render`). Last updated 2026-10-17T06:30Z. Issue: https://github.com/simonzixin8166-wq/quant-dashboard/issues/133. Charter: CLAUDE.md (owner-confirmed 2026-10-11).
 
-Status counts: Done 22 · In progress 12 · Waiting 7 · Not started 3
+Status counts: Done 24 · In progress 14 · Waiting 7 · Not started 4
 
 Stages per task: instruction_published → claude_acked → code_merged → schedule_verified → oos_validated (oos_validated is never claimed while Learning is UNPROVEN).
 
@@ -73,6 +73,7 @@ Unified ledger → continuous development by dependency → batch acceptance →
 | P0-02 | Homepage row 「MyAlpha 今日研究」 + QA check + 404 fix | **Done** | published, acked, merged | P0-01 | #199 063b521; #201 419bb0f; #202 e49e655; Autonomous QA 38153142070 overall=PASS research_row=desktop:ok(21)/mobile:ok(21) http_errors=0 | row renders from digest at both widths, 0 HTTP/console errors | verify digest moves to 2026-10-12 after the first schedule | 2026-10-11T16:45Z |
 | P0-03 | module_failures false 'missing' incident | **Done** | published, acked, merged, schedule✓ | — | #200 05629ef; operational_incidents.jsonl resolved ded111b9461b00ae4fbc at 2026-10-11T15:44:46Z; open incidents 0 | incident closed via append-only resolved event | — | 2026-10-12T04:25Z |
 | P0-INC-1013 | P0 incident 2026-10-13: Daily blocked by contract checks after SPY/10-12 data; site stuck at 2026-10-09 | **Done** | published, acked, merged | — | #217 52c968a market funnel: one maturity floor (benchmark_evaluated(3) > independently_matured(0)); #218 27b64a9 event/options funnel units (independently_matured(4) > effective_forward_eligible(0)); #220 7e7bd24 test_daily_research_job hermetic as-of (KeyError 'AVGO' once archive had 10-12); #219 d903a41 forward intake: live rule pending until its baseline session is validated (live_rule_missing_eventscore_event); #221 e842334 system status counts labeled recovery runs (system_status_untrusted); failed: Daily 38286775573 sched, 38313360410 dispatch, 38337973679 sched, 38340669182 dispatch, 38342134443 dispatch; REU 38339531830 sched; QA 38313545826 sched, 38338960799, 38344041138, 38344082295, 38345028628; recovered: Daily 38343250454 workflow_dispatch success → e17de42 updated=2026-10-13 spy_date=2026-10-12, 26/26 stocks bars 2026-10-12 with real OHLC; REU 38344089920 push success; Watchdog 38344299253 dispatch success; SIV 38344773276 dispatch → system_status overall=ok; Server Action Watch 38345184911 dispatch → judgment_basis=evaluated; QA 38345224979 workflow_run overall=PASS (business_data, server_action, investment_data_qa, decision_readiness PASS; fatal_console_errors=0, http_errors=0, deploy_matches_head=true) | Daily commits the latest completed session; QA overall=PASS; no test skipped or removed; recovery dispatch never reported as a schedule | watch the next event=schedule Daily (2026-10-13 session) | 2026-10-13T04:20Z |
+| P0-INC-1017 | P0 incident 2026-10-17: Daily contract failed on first real Forward maturity (audit test read wrong key); site stuck at 2026-10-15 | **Done** | acked, merged | — | #256 b77cead Forward maturity read from evidence; learning_active only on 20/60/120-session maturity; reconciliation test uses audit definition; failed: Daily 38983076111 sched, 38988068685 dispatch; SIV 38990074533; Watchdog 38982529319; QA 38990478264 (stale data); recovered: Daily 38995993962 workflow_dispatch success → 6f46ca0 spy_date=2026-10-16; Pages 38996742787; QA 38996746713 PASS; Watchdog 38997053044 PASS | Daily commits the latest completed session; no assertion removed; recovery dispatch not counted as schedule | verify the 10/19 21:30Z schedule run | 2026-10-17T03:00Z |
 
 ## P0 data contamination
 
@@ -160,6 +161,7 @@ Unified ledger → continuous development by dependency → batch acceptance →
 
 | ID | task | status | stages | depends on | evidence (PR / run) | acceptance | next / waiting / blocked | verified |
 |---|---|---|---|---|---|---|---|---|
+| OPS-03 | Agent onboarding AGENTS.md (Jules conventions: generated files, imports, regression commands, Chinese PR text) | **In progress** | acked | — | — | merged; next Jules task follows it | merge | 2026-10-17T06:30Z |
 | OPS-01 | Cloud instruction watcher + one-shot P0/Batch B task | **Done** | published, acked, merged | — | trig_01P3Sk5tEfTuAQWAdFysJKcV hourly; trig_01QwLXu1zXvSHWyZn8Y1Est2 2026-10-13T01:30Z (cloud, not device-bound) | watcher acts only on unreferenced owner instructions; ledger baseline on #133 6116834357 | check watcher run history | 2026-10-12T04:25Z |
 | OPS-02 | De-Claude runtime dependency + quota saving (manual trigger, alerts instead of Claude check-ins) | **Done** | published, acked, merged | — | #248 8f5073a; #133 6184680182 stage-1 audit; hourly watcher disabled 2026-10-15T05:11Z (6184936851); QA 38686774490 workflow_dispatch @8f5073a overall=PASS; Guardian 38686776436 dry_run+fault injection: decision dispatch, no dispatch sent; wxc-bot ai_summary switch not changed (owner decision) | routine runs need no Claude session; give_up alert once per session; weekly summary only on change; Telegram give_up alert not yet observed in production | observe first real give_up alert / first weekly summary (Sunday 23:40Z) | 2026-10-15T05:50Z |
 
@@ -187,5 +189,18 @@ Unified ledger → continuous development by dependency → batch acceptance →
 | ID | task | status | stages | depends on | evidence (PR / run) | acceptance | next / waiting / blocked | verified |
 |---|---|---|---|---|---|---|---|---|
 | C-01 | Shared footer (sources/copyright, risk disclaimer, correction & contact) + full Chinese policy page + per-item provenance labels | **In progress** | published, acked | P0-INC-1013 | c01/site-footer (this PR): shared footer on index.html (+ Daily generator) and brightline-2026.html; docs/legal.html with #sources/#risk/#correction/#changes; tests/test_site_footer.py; precondition met: latest Daily event=schedule 38657460138 success (2h30m late) + QA 38666141209 PASS (2026-10-15T01:33Z); local render desktop/390px: 3 links → 200, no overflow, no page errors | PR/CI/Pages/QA PASS; desktop + 390px; three links clickable, no 404; homepage gold/DCA layout, feedback email, APP_VERSION 6.9.0 unchanged; no claim of authorization; any non-compliant full-text cache raised separately | merge → Pages + Autonomous QA; then per-item provenance labels on the wenxuecity/source cards (layer 3) as a follow-up PR | 2026-10-15T04:45Z |
+
+## Engineering hygiene
+
+| ID | task | status | stages | depends on | evidence (PR / run) | acceptance | next / waiting / blocked | verified |
+|---|---|---|---|---|---|---|---|---|
+| HYG-01 | Stale test_v500_investment_assistant (APP_VERSION==6.8.2), not run by any workflow | **Not started** |  | — | — | version-format check; registered in v56-pr-validation; passes | Jules task card | 2026-10-17T06:00Z |
+| J-01 | Stale test_v511_ui_visibility assertions + register in PR validation (Jules) | **Done** | merged | — | #257 test_v511 version-format check, MyAlpha casing, registered in v56-pr-validation | test runs in CI and passes | — | 2026-10-17T04:00Z |
+
+## Options / market UI
+
+| ID | task | status | stages | depends on | evidence (PR / run) | acceptance | next / waiting / blocked | verified |
+|---|---|---|---|---|---|---|---|---|
+| FE-CAL | Frontend NYSE holiday / early-close aware session check (before 2026-11-26) | **In progress** | acked | — | #258 Jules (closed, 2 rounds failed); #259 Claude replacement | JS/Python closure parity 2026-2028; early close 13:00 ET; fallback when calendar absent; CI green | merge #259; next Daily regenerates index.html with the calendar script | 2026-10-17T06:00Z |
 
 Engineering QA PASS ≠ Learning PASS. **Learning UNPROVEN / FINAL=NO.**

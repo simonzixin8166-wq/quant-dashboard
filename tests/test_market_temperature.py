@@ -24,7 +24,7 @@ c = {x["key"]: x for x in out["components"]}
 assert out["components_available"] == 6 and out["score"] == 50.0 and out["label"] == "中性", out
 assert {k for k, x in c.items() if x["method"] == "percentile_252"} == {"momentum", "volatility", "safe_haven"}
 assert {k for k, x in c.items() if x["method"] == "fixed_scale"} == {"strength", "breadth", "credit"}
-assert out["version"] == 2 and out["validated"] is False and "不是 CNN" in out["note"]
+assert out["version"] == 3 and out["fixed_scale_components"] == 3 and isinstance(out["score"], int) and out["validated"] is False and "不是 CNN" in out["note"]
 
 # relative scale: a rising market whose latest gain is the smallest of the year reads as fear, not greed
 rising = [(d, 100.0 * 1.002 ** i) for i, d in enumerate(days[:-1])] + [(days[-1], 100.0 * 1.002 ** (len(days) - 2))]
@@ -52,3 +52,19 @@ assert mt.with_change(dict(out, as_of="2026-10-17", score=50.0), h)["change_vs"]
 assert mt.append_history(h, dict(o4)) == h
 assert [mt.label(x) for x in (0, 24.9, 25, 44.9, 45, 55.9, 56, 75.9, 76, 100)] == ["极度恐惧"] * 2 + ["恐惧"] * 2 + ["中性"] * 2 + ["贪婪"] * 2 + ["极度贪婪"] * 2
 print("PASS market temperature v2")
+
+# v3: an input more than 2 NYSE sessions behind the market date is excluded (never averaged in), and says why
+assert mt.lag_sessions("2026-10-16", "2026-10-16") == 0 and mt.lag_sessions("2026-10-15", "2026-10-16") == 1
+assert mt.lag_sessions("2026-10-09", "2026-10-16") == 5 and mt.lag_sessions(None, "2026-10-16") is None
+stale_breadth = dict(breadth, as_of=days[-30])
+o5 = mt.build(zip_of({"spy": flat(100.0), "vix": flat(20.0), "tlt": flat(90.0)}), stale_breadth, cross)
+c5 = {x["key"]: x for x in o5["components"]}
+assert c5["breadth"]["status"] == "stale" and c5["strength"]["status"] == "stale" and "不计入" in c5["breadth"]["reason"]
+assert "score" not in c5["breadth"] and o5["components_available"] == 4 and o5["score"] == 50 and o5["reference_date"] == days[-1]
+# too many stale inputs → no composite rather than a precise-looking number
+o6 = mt.build(zip_of({"spy": flat(100.0), "vix": flat(20.0), "tlt": flat(90.0)}), stale_breadth,
+              {"signals": [{"key": "credit_widening", "value": {"latest": 3.0, "date": days[-40], "chg20": 0.0}}]})
+assert o6["components_available"] == 3 and o6["score"] is None and o6["status"] == "unavailable"
+# history rows carry the method version so a method change is visible and reproducible
+assert mt.append_history([], o5)[0]["v"] == 3
+print("market temperature v3: staleness + integer + version checks passed")

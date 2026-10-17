@@ -15,9 +15,15 @@ Scale (v2, 2026-10-17): each component scores the mid-rank percentile of today's
 trailing 252 readings ("how unusual is today versus the past year"). Components without 252 past readings yet
 use a fixed linear scale and say so (method=fixed_scale); the daily history stores raw readings so they move to
 the percentile scale on their own. Composite = mean of available components; published only when ≥ 4 of 6.
+v3 (2026-10-17, #133 6235016536): a component whose as_of is more than MAX_LAG_SESSIONS NYSE sessions behind the
+market reference date (latest SPY archive close) is marked stale/unavailable instead of being averaged in; the
+composite is an integer (no false precision) and reports how many components still use the fixed scale; each
+history row carries the method version. Forward-validation plan is pre-registered in
+docs/development/market_temperature_validation.md (fixed before any outcome is seen).
 """
 from __future__ import annotations
 import io, json, sys, zipfile
+import trading_calendar as tc
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -28,6 +34,9 @@ CROSS = ROOT / "docs" / "research" / "cross_asset_divergence.json"
 OUT = ROOT / "docs" / "research" / "market_temperature.json"
 HIST = ROOT / "docs" / "research" / "market_temperature_history.json"
 MIN_COMPONENTS = 4
+MAX_LAG_SESSIONS = 2  # FRED HY OAS normally lags one session; more than two means the input is stale
+VERSION = 3
+VALIDATION_PLAN = "docs/development/market_temperature_validation.md"
 BANDS = ((25, "极度恐惧"), (45, "恐惧"), (56, "中性"), (76, "贪婪"), (101, "极度贪婪"))
 NAMES = {"momentum": "价格动量", "strength": "股价强度", "breadth": "市场宽度",
          "volatility": "波动率", "safe_haven": "避险需求", "credit": "信用风险"}
@@ -126,6 +135,14 @@ def comp(key, raw, linear, past, invert, value, as_of, source, unavailable_reaso
             "raw": round(raw, 6), "value": value, "as_of": as_of, "source": source}
 
 
+def lag_sessions(as_of, ref):
+    """NYSE sessions after as_of up to and including ref (0 = same day); None when either date is missing/invalid."""
+    try:
+        return len(tc.sessions_between(str(as_of)[:10], str(ref)[:10])) if as_of and ref else None
+    except ValueError:
+        return None
+
+
 def build(zbytes: bytes, breadth: dict, cross: dict, hist: list | None = None) -> dict:
     spy, vix, tlt = closes(zbytes, "spy"), closes(zbytes, "vix"), closes(zbytes, "tlt")
     m = (breadth or {}).get("metrics") or {}
@@ -170,12 +187,23 @@ def build(zbytes: bytes, breadth: dict, cross: dict, hist: list | None = None) -
                       None if chg is None else {"hy_oas": cw.get("latest"), "chg20_pp": round(chg, 3)}, cw.get("date"),
                       "FRED ICE BofA US High Yield OAS (via cross_asset_divergence)", "HY OAS missing"))
 
+    ref = spy[-1][0] if spy else max((c.get("as_of") or "" for c in comps if c["status"] == "ok"), default=None)
+    for c in comps:
+        lag = lag_sessions(c.get("as_of"), ref) if c["status"] == "ok" else None
+        if c["status"] == "ok" and (lag is None or lag > MAX_LAG_SESSIONS):
+            c.update(status="stale", stale_score=c.pop("score"),
+                     reason=f"数据截至 {c.get('as_of') or '未知'}，落后市场日 {ref} {'未知' if lag is None else lag} 个交易日，不计入")
+        elif c["status"] == "ok":
+            c["lag_sessions"] = lag
     ok = [c for c in comps if c["status"] == "ok"]
-    score = round(sum(c["score"] for c in ok) / len(ok), 1) if len(ok) >= MIN_COMPONENTS else None
+    score = round(sum(c["score"] for c in ok) / len(ok)) if len(ok) >= MIN_COMPONENTS else None
     dates = sorted(d for d in (c.get("as_of") for c in ok) if d)
     return {
-        "version": 2,
-        "method": "each component = percentile of today vs its trailing 252 readings; fixed linear scale (labelled) until 252 readings exist",
+        "version": VERSION,
+        "method": "each component = percentile of today vs its trailing 252 readings; fixed linear scale (labelled) until 252 readings exist; inputs > 2 sessions behind the market date are excluded; composite rounded to an integer",
+        "reference_date": ref, "max_lag_sessions": MAX_LAG_SESSIONS,
+        "fixed_scale_components": sum(1 for c in ok if c.get("method") == "fixed_scale"),
+        "validation_plan": VALIDATION_PLAN,
         "generated_at": datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z"),
         "as_of": dates[-1] if dates else None,
         "score": score, "label": label(score),
@@ -192,7 +220,7 @@ def append_history(hist: list, out: dict) -> list:
     """One row per as_of date (a re-run on the same date replaces that day's row); never rewrites other days."""
     if out.get("score") is None or not out.get("as_of"):
         return hist
-    row = {"as_of": out["as_of"], "score": out["score"], "label": out["label"], "available": out["components_available"],
+    row = {"as_of": out["as_of"], "v": out.get("version"), "score": out["score"], "label": out["label"], "available": out["components_available"],
            "components": {c["key"]: c.get("score") for c in out["components"]},
            "raw": {c["key"]: c.get("raw") for c in out["components"] if c.get("status") == "ok"}}
     keep = [h for h in hist if h.get("as_of") != out["as_of"]]

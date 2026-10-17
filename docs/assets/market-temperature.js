@@ -26,7 +26,7 @@
       ? `<li><span>${esc(c.name)}</span><b>${esc(c.score)}</b><small>${esc(c.as_of || '')} · ${c.method === 'percentile_252' ? '与过去一年比' : '固定标尺（历史不足一年）'}</small></li>`
       : `<li class="mt-off"><span>${esc(c.name)}</span><b>不可用</b><small>${esc(c.reason || '')}</small></li>`).join('');
     return `<details class="mt-card ${TONE[d.label] || ''}"><summary><span class="mt-k">市场温度</span>${arc(d.score)}<b class="mt-score">${esc(Math.round(d.score))}</b><span class="mt-label">${esc(d.label)}</span><small>${esc(changeText(d))}</small></summary>
-      <div class="mt-body"><ul>${rows}</ul><p>0–100，越高代表市场越偏向冒险；每项看今天在过去一年里有多反常。由 ${esc(d.components_available)}/6 项现有数据合成，数据截至 ${esc(d.as_of)}。这是 MyAlpha 自己的描述性指标，不是 CNN 指数，也不预测涨跌。</p><a href="${esc(d.cnn_link)}" target="_blank" rel="noopener noreferrer">CNN 恐惧与贪婪指数（官方）↗</a></div></details>`;
+      <div class="mt-body"><ul>${rows}</ul><p>0–100，越高代表市场越偏向冒险；每项看今天在过去一年里有多反常。由 ${esc(d.components_available)}/6 项现有数据合成${d.fixed_scale_components ? `（其中 ${esc(d.fixed_scale_components)} 项历史不足一年，暂用固定标尺，结果只作粗略参考）` : ''}，数据截至 ${esc(d.as_of)}；落后超过 2 个交易日的数据不计入。这是 MyAlpha 自己的描述性指标，不是 CNN 指数，也不预测涨跌。</p><a href="${esc(d.cnn_link)}" target="_blank" rel="noopener noreferrer">CNN 恐惧与贪婪指数（官方）↗</a></div></details>`;
   }
 
   const CSS = `.mt-card{border:1px solid var(--line,#e3e8ef);border-radius:12px;background:var(--card,#fff);padding:8px 12px;min-width:150px;font-size:12px}

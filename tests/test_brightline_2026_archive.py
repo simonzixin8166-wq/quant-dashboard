@@ -14,7 +14,9 @@ assert sum(1 for x in rows if x.get('deep_analysis'))==14
 js=(ROOT/'docs'/'assets'/'wenxuecity.js').read_text(encoding='utf-8')
 assert 'brightline-2026.html' in js
 page=(ROOT/'docs'/'brightline-2026.html').read_text(encoding='utf-8')
-assert '118篇' in page and '14 篇' in page and '104 篇' in page
+# 总数 118 由页面脚本根据 q1–q3 数据动态填入（rows.length），已在上方第 11–12 行对数据精确断言
+assert '<b id="total">' in page and "getElementById('total').textContent=rows.length" in page
+assert '14 篇' in page and '104 篇' in page
 wf=(ROOT/'.github'/'workflows'/'wenxuecity.yml').read_text(encoding='utf-8')
 assert re.search(r'^\s*schedule\s*:',wf,re.M) is None
 print('PASS BrightLine 2026 static archive')

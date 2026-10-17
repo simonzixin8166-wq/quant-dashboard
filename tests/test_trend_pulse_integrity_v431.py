@@ -28,6 +28,21 @@ check=m.calculate_trend_pulse(rows,symbol='TEST',secondary=None,today=end)
 assert check['available'] is True
 assert check['data_integrity']['status']=='CHECK'
 assert '暂停生成研究提示' in check['guidance']
+assert check['guidance_paused'] is True and '中' not in check['confidence'] and '有限校验' in check['confidence']
+assert check['analysis'] and check['risk_watch']            # descriptive data is kept on CHECK
+assert res['guidance_paused'] is False and '暂停' not in res['guidance']
+
+# secondary one session behind → CHECK (paused), not PASS
+lag=m.calculate_trend_pulse(rows,symbol='TEST',secondary={'date':rows[1]['datetime'],'close':float(rows[1]['close'])},today=end)
+assert lag['data_integrity']['status']=='CHECK' and lag['guidance_paused'] is True
+
+# same-day sources disagree by > 1.5% → FAIL (no trend conclusion at all)
+mis=m.calculate_trend_pulse(rows,symbol='TEST',secondary={'date':rows[0]['datetime'],'close':latest*1.05},today=end)
+assert mis['available'] is False and mis['data_integrity']['status']=='FAIL'
+
+# stale primary data (> 7 days old) → FAIL
+stale=m.calculate_trend_pulse(rows,symbol='TEST',secondary=sec,today=end+datetime.timedelta(days=12))
+assert stale['available'] is False and stale['data_integrity']['status']=='FAIL'
 
 bad=[dict(x) for x in rows]
 bad[0]['high']='1'

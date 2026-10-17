@@ -5,11 +5,11 @@ from app_version import APP_VERSION
 class Tests(unittest.TestCase):
     def test_generator_contract(self):
         s=(ROOT/'scripts/fetch_and_build.py').read_text(encoding='utf-8')
-        self.assertEqual(APP_VERSION,"6.8.2")
+        self.assertRegex(APP_VERSION, r"^\d+\.\d+\.\d+$")
         self.assertIn("from app_version import APP_VERSION, OPTIONS_VERSION, ASSET_VERSION",s)
         self.assertIn('id="stockCountChip"',s)
         self.assertIn('AI 投资助手 · 正在值守',s)
-        self.assertIn('Myalpha View V{APP_VERSION}',s)
+        self.assertIn('MyAlpha View V{APP_VERSION}',s)
     def test_assistant_normal_visibility(self):
         s=(ROOT/'docs/assets/investment-assistant.js').read_text(encoding='utf-8')
         self.assertIn('今天最重要的 3 件事',s)

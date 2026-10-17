@@ -52,5 +52,5 @@ const texts=['AMD','ORCL','DRAM','MSFT','IREN','NBIS'].map((sym,i)=>PI.stockActi
 ok(new Set(texts).size===6,'11 distinct texts');
 // 12 public watchlist labels are research states, not position instructions
 const agent=fs.readFileSync(__dirname+'/../docs/assets/autonomous-agent.js','utf8');
-ok(/研究复查（非持仓建议）/.test(agent)&&/item.kind==='option'\?levelLabel\(item.level\):watchLevelLabel/.test(agent),'12 public watch labels');
+ok(/review:'研究复查'/.test(agent)&&/研究状态（非持仓建议）/.test(agent)&&/item.kind==='option'\?levelLabel\(item.level\):watchLevelLabel/.test(agent),'12 public watch labels');
 console.log(`PASS held vs watch (${n} cases)`);

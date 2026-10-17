@@ -17,10 +17,28 @@ runs = [
 s = w.schedule_week(runs, today)
 v = {r["session"]: r for r in s["rows"]}
 assert s["sessions"] == 5 and "2026-10-10" not in v
+# Owner rule 2026-10-17: on time = schedule success finished before the next NYSE 09:30 ET open.
 assert v["2026-10-14"]["verdict"] == "on_time" and v["2026-10-14"]["delay_min"] == 20
-assert v["2026-10-13"]["verdict"] == "degraded" and v["2026-10-13"]["guardian_recoveries"] == 1
+assert v["2026-10-13"]["verdict"] == "on_time" and v["2026-10-13"]["delay_min"] == 179   # +2h58m55s, before 10-14 open
+assert v["2026-10-13"]["guardian_recoveries"] == 1
 assert v["2026-10-12"]["verdict"] == "gap" and v["2026-10-08"]["verdict"] == "gap"
-assert s["on_time"] == 1 and s["degraded"] == 1 and s["gap"] == 3
+assert v["2026-10-14"]["next_open_utc"] == "2026-10-15T13:30:00Z"
+assert s["on_time"] == 2 and s["degraded"] == 0 and s["gap"] == 3
+# Friday session: next open is Monday; a run finishing after that open is degraded; a run created after the
+# next weekday 08:15Z cron is not attributed to the 21:30Z slot; a guardian recovery never counts.
+fri = w.schedule_week([
+    {"id": 7, "event": "schedule", "created_at": "2026-10-17T06:00:00Z", "updated_at": "2026-10-17T06:15:00Z", "conclusion": "success"},
+], date(2026, 10, 19))
+assert {r["session"]: r["verdict"] for r in fri["rows"]}["2026-10-16"] == "on_time"
+late = w.schedule_week([
+    {"id": 8, "event": "schedule", "created_at": "2026-10-15T07:59:00Z", "updated_at": "2026-10-15T13:45:00Z", "conclusion": "success"},
+    {"id": 9, "event": "schedule", "created_at": "2026-10-16T08:30:00Z", "conclusion": "success"},        # next-day 08:15 slot
+    {"id": 10, "event": "workflow_dispatch", "created_at": "2026-10-16T01:00:00Z", "conclusion": "success",
+     "display_title": "Daily Dashboard Update · daily-guardian 2026-10-15 #1"},
+], date(2026, 10, 17))
+lv = {r["session"]: r for r in late["rows"]}
+assert lv["2026-10-14"]["verdict"] == "degraded"          # finished 13:45Z, after the 10-15 13:30Z open
+assert lv["2026-10-15"]["verdict"] == "gap" and lv["2026-10-15"]["guardian_recoveries"] == 1
 j = {"update": {"expected_session": "2026-10-14"}, "coverage": [{"symbol": "AAPL", "last_date": "2026-10-14"},
      {"symbol": "IWM", "last_date": "2026-10-13"}, {"symbol": "VIX", "last_date": "2026-10-10"}]}
 o = w.ohlcv_40(j)
@@ -30,7 +48,7 @@ f = w.build(runs, today, j, {"snapshot": {"market": {"numeric": {"forward_mature
 assert w.changed(f, None) and not w.changed(f, {"fields": f}) and w.changed(f, {"fields": {**f, "open_incidents": 1}})
 assert w.build(runs, today, j, {}, None)["open_incidents"] == "unavailable"
 msg = w.message(f)
-assert "1/5" in msg and "1/2" in msg and "UNPROVEN" in msg
+assert "2/5" in msg and "1/2" in msg and "UNPROVEN" in msg
 u = w.build(None, today, j, {}, None)
 assert u["schedule_7d"] == {"status": "unavailable"} and "Daily 准点（schedule）：unavailable" in w.message(u)
 print("PASS weekly change summary")

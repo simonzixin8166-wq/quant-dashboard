@@ -2,7 +2,7 @@
  "version": 1,
  "title": "MyAlpha View — Master Execution Plan",
  "issue": "https://github.com/simonzixin8166-wq/quant-dashboard/issues/133",
- "last_updated": "2026-10-17T06:30Z",
+ "last_updated": "2026-10-17T05:30Z",
  "charter": "CLAUDE.md (owner-confirmed 2026-10-11)",
  "statuses": [
   "Done",
@@ -347,7 +347,7 @@
     ]
    },
    "acceptance": "five consecutive sessions published by event=schedule runs (recovery dispatches never count), cross-day revisits, digest ok, QA PASS, GAPs recorded",
-   "next": "owner decisions pending: timeliness threshold for P0-06 and an approved recovery/trigger change (platform delivers every cron 2–9.6 h late, high-frequency crons ~80 % dropped)",
+   "next": "timeliness threshold decided by owner 2026-10-17 (before next open); remaining: approved recovery/trigger change if delays exceed it",
    "waiting_for": "2026-10-13 NYSE close → Daily 21:30Z / guardian / Auto Research fallback",
    "last_verified": "2026-10-15T04:25Z"
   },
@@ -420,7 +420,7 @@
     ]
    },
    "acceptance": "5 sessions with schedule runs or recorded GAP + recovery",
-   "next": "daily check",
+   "next": "owner rule 2026-10-17: a 21:30Z schedule run counts on time when it succeeds and finishes before the next NYSE 09:30 ET open (recovery never counts); count via weekly_change_summary; first eligible session 2026-10-19",
    "waiting_for": "sessions 2026-10-12..10-16",
    "last_verified": "2026-10-15T04:25Z"
   },
@@ -1566,21 +1566,22 @@
    "title": "Frontend NYSE holiday / early-close aware session check (before 2026-11-26)",
    "area": "Options / market UI",
    "priority": 1,
-   "status": "In progress",
+   "status": "Done",
    "stages": [
-    "claude_acked"
+    "claude_acked",
+    "code_merged"
    ],
    "instructions": [],
    "depends_on": [],
    "evidence": {
     "prs": [
      "#258 Jules (closed, 2 rounds failed)",
-     "#259 Claude replacement"
+     "#259 merged: calendar + delegation/fallback + parity tests"
     ]
    },
    "acceptance": "JS/Python closure parity 2026-2028; early close 13:00 ET; fallback when calendar absent; CI green",
-   "next": "merge #259; next Daily regenerates index.html with the calendar script",
-   "last_verified": "2026-10-17T06:00Z"
+   "next": "verify the next Daily regenerates index.html with trading-calendar.js",
+   "last_verified": "2026-10-17T05:10Z"
   },
   {
    "id": "HYG-01",
@@ -1601,16 +1602,21 @@
    "title": "Agent onboarding AGENTS.md (Jules conventions: generated files, imports, regression commands, Chinese PR text)",
    "area": "Operations",
    "priority": 2,
-   "status": "In progress",
+   "status": "Done",
    "stages": [
-    "claude_acked"
+    "claude_acked",
+    "code_merged"
    ],
    "instructions": [],
    "depends_on": [],
-   "evidence": {},
+   "evidence": {
+    "prs": [
+     "#260 AGENTS.md + ledger"
+    ]
+   },
    "acceptance": "merged; next Jules task follows it",
-   "next": "merge",
-   "last_verified": "2026-10-17T06:30Z"
+   "next": "—",
+   "last_verified": "2026-10-17T05:10Z"
   }
  ]
 }

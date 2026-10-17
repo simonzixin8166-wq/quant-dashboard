@@ -5,9 +5,12 @@ and nothing is sent. Replaces recurring long Claude reports. Read-only over exis
 Actions REST API; no model calls, no paid service.
 
 Fields (missing evidence → "unavailable", never a default):
-  schedule        Daily 21:30Z event=schedule per NYSE session in the last 7 days: on_time (≤60 min),
-                  degraded (≤180 min), gap (later / none); guardian recoveries counted separately and
-                  never as on-time.
+  schedule        Daily 21:30Z event=schedule per NYSE session in the last 7 days (owner rule 2026-10-17):
+                  on_time = the slot's schedule run succeeded and finished before the next NYSE session's
+                  09:30 ET open; degraded = succeeded but finished after that open; gap = failed / none.
+                  A run is attributed to the 21:30Z slot only if created before the next weekday 08:15Z
+                  cron (the A/H-share snapshot slot). Guardian recoveries are counted separately and never
+                  as on-time.
   ohlcv_40        archive symbols whose last bar ≥ the expected session (docs/research/historical_journal.json).
   forward_mature  matured forward samples (docs/research/learning_quality_weekly.json snapshot).
   open_incidents  unresolved operational incidents (docs/research/operational_incident_memory.json).
@@ -15,6 +18,7 @@ Fields (missing evidence → "unavailable", never a default):
 from __future__ import annotations
 import json, os, sys, urllib.request
 from datetime import date, datetime, time, timedelta, timezone
+from zoneinfo import ZoneInfo
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -22,12 +26,20 @@ sys.path.insert(0, str(ROOT / "scripts"))
 import trading_calendar as tc  # noqa: E402
 
 OUT = ROOT / "docs" / "research" / "weekly_change_summary.json"
-ON_TIME_MIN, DEGRADED_MIN = 60, 180
+ET = ZoneInfo("America/New_York")
+NEXT_SLOT = time(8, 15)  # the other Daily cron (weekdays 08:15Z)
 GUARD_MARK = "daily-guardian"
 
 
 def _t(s):
     return datetime.fromisoformat(str(s).replace("Z", "+00:00"))
+
+
+def _next_weekday(d: date) -> date:
+    n = d + timedelta(days=1)
+    while n.weekday() >= 5:
+        n += timedelta(days=1)
+    return n
 
 
 def schedule_week(runs: list[dict], today: date) -> dict:
@@ -36,22 +48,27 @@ def schedule_week(runs: list[dict], today: date) -> dict:
     rows, counts = [], {"on_time": 0, "degraded": 0, "gap": 0}
     for d in sessions:
         cron = datetime.combine(d, time(21, 30), timezone.utc)
-        until = cron + timedelta(hours=12)
+        until = datetime.combine(_next_weekday(d), NEXT_SLOT, timezone.utc)
+        next_open = datetime.combine(tc.next_session(d), time(9, 30), ET).astimezone(timezone.utc)
         sched = sorted((r for r in runs if r.get("event") == "schedule" and cron <= _t(r["created_at"]) < until),
                        key=lambda r: r["created_at"])
         rec = [r for r in runs if r.get("event") == "workflow_dispatch" and GUARD_MARK in str(r.get("display_title") or "")
                and d.isoformat() in str(r.get("display_title") or "")]
         if sched:
-            delay = round((_t(sched[0]["created_at"]) - cron).total_seconds() / 60)
-            ok = sched[0].get("conclusion") == "success"
-            verdict = "on_time" if ok and delay <= ON_TIME_MIN else "degraded" if ok and delay <= DEGRADED_MIN else "gap"
+            r0 = sched[0]
+            delay = round((_t(r0["created_at"]) - cron).total_seconds() / 60)
+            finished = _t(r0.get("updated_at") or r0["created_at"])
+            ok = r0.get("conclusion") == "success"
+            verdict = "on_time" if ok and finished < next_open else "degraded" if ok else "gap"
         else:
             delay, verdict = None, "gap"
         counts[verdict] += 1
         rows.append({"session": d.isoformat(), "schedule_run_id": sched[0]["id"] if sched else None,
-                     "delay_min": delay, "verdict": verdict, "guardian_recoveries": len(rec)})
+                     "delay_min": delay, "next_open_utc": next_open.isoformat().replace("+00:00", "Z"),
+                     "verdict": verdict, "guardian_recoveries": len(rec)})
     return {"sessions": len(sessions), **counts, "rows": rows,
-            "rule": f"event=schedule only; on_time ≤{ON_TIME_MIN} min, degraded ≤{DEGRADED_MIN} min; recovery never counts"}
+            "rule": "event=schedule only; on_time = success finished before next NYSE 09:30 ET open "
+                    "(owner #133 2026-10-17); degraded = success after that open; recovery never counts"}
 
 
 def ohlcv_40(journal: dict) -> dict:

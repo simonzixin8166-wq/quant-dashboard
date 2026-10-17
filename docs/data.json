@@ -1,6 +1,6 @@
 {
   "updated": "2026-10-17",
-  "gen_time": "2026-10-17 10:51:29",
+  "gen_time": "2026-10-17 16:50:40",
   "spy_date": "2026-10-16",
   "core": {
     "QQQM": {
@@ -230,34 +230,34 @@
     },
     "GCMAIN": {
       "date": "2026-10-16",
-      "close": 4186.7001953125,
+      "close": 4181.10009765625,
       "prev_close": 4170.10009765625,
-      "day_chg": 0.003980743211794812,
+      "day_chg": 0.0026378263692476843,
       "ytd_high": 5586.2001953125,
-      "rsi": 44.08629807251535,
-      "dist_200ma": -0.07796668313538019,
+      "rsi": 43.490751050418424,
+      "dist_200ma": -0.07919430956758963,
       "ath_is_true": false,
       "ath_validation": "UNAVAILABLE",
       "strategy_drawdown": null,
-      "window_drawdown": -0.2505280783124011,
-      "drawdown": -0.2505280783124011,
+      "window_drawdown": -0.2515305661324668,
+      "drawdown": -0.2515305661324668,
       "tiers": null,
       "level": 0,
       "level_label": null
     },
     "BTC/USD": {
       "date": "2026-10-17",
-      "close": 81350.53125,
-      "prev_close": 82141.4609375,
-      "day_chg": -0.009628872903804384,
+      "close": 81570.1796875,
+      "prev_close": 81500.8046875,
+      "day_chg": 0.0008512185893870105,
       "ytd_high": 97860.6015625,
-      "rsi": 45.99264830710216,
-      "dist_200ma": 0.1242597569873686,
+      "rsi": 46.76520364097098,
+      "dist_200ma": 0.12624567278147117,
       "ath_is_true": false,
       "ath_validation": "UNAVAILABLE",
       "strategy_drawdown": null,
-      "window_drawdown": -0.3553742062096953,
-      "drawdown": -0.3553742062096953,
+      "window_drawdown": -0.3536337006935959,
+      "drawdown": -0.3536337006935959,
       "tiers": null,
       "level": 0,
       "level_label": null
@@ -1824,7 +1824,7 @@
     ],
     "vix": 19.989999771118164,
     "breadth_status": "ok",
-    "breadth_message": "宽度数据缺失",
+    "breadth_message": "已是最近完整美股交易日，亚洲时段沿用缓存",
     "dist_52w_high": -0.023593550359255692,
     "divergence": {
       "level": "l1",
@@ -11270,7 +11270,9 @@
     "coverage": 498,
     "coverage_pct": 0.9900596421471173,
     "quality_gate": "pass",
-    "failed_batches": 0
+    "failed_batches": 0,
+    "is_cached": true,
+    "message": "已是最近完整美股交易日，亚洲时段沿用缓存"
   },
   "breadth_proxies": {
     "SPY": {
@@ -11335,17 +11337,17 @@
     "spx_source": "yahoo_real",
     "ixic": {
       "date": "2026-10-16",
-      "close": 26140.033203125,
+      "close": 26140.029296875,
       "prev_close": 26713.029296875,
-      "day_chg": -0.021450060469818427,
+      "day_chg": -0.021450206699957907,
       "ytd_high": 27722.75,
-      "rsi": 37.24503866798402,
-      "dist_200ma": 0.048983144474712914,
+      "rsi": 37.24498925290576,
+      "dist_200ma": 0.048982988541518044,
       "ath_is_true": false,
       "ath_validation": "UNAVAILABLE",
       "strategy_drawdown": null,
-      "window_drawdown": -0.05709090176389431,
-      "drawdown": -0.05709090176389431,
+      "window_drawdown": -0.05709104266802534,
+      "drawdown": -0.05709104266802534,
       "tiers": null,
       "level": 0,
       "level_label": null
@@ -11383,38 +11385,38 @@
       {
         "label": "VIX",
         "current": "19.99",
-        "delta": "+3.53",
-        "tone": "bad"
+        "delta": "+0.00",
+        "tone": "neutral"
       },
       {
         "label": "SPX回撤",
         "current": "-2.4%",
-        "delta": "-1.1%",
-        "tone": "bad"
+        "delta": "+0.0%",
+        "tone": "neutral"
       },
       {
         "label": "VGT回撤",
         "current": "-9.1%",
-        "delta": "-2.7%",
-        "tone": "bad"
+        "delta": "+0.0%",
+        "tone": "neutral"
       },
       {
         "label": "QQQM回撤",
         "current": "-7.0%",
-        "delta": "-2.4%",
-        "tone": "bad"
+        "delta": "+0.0%",
+        "tone": "neutral"
       },
       {
         "label": "QLD回撤",
         "current": "-13.7%",
-        "delta": "-4.6%",
-        "tone": "bad"
+        "delta": "+0.0%",
+        "tone": "neutral"
       },
       {
         "label": "TQQQ回撤",
         "current": "-22.6%",
-        "delta": "-6.4%",
-        "tone": "bad"
+        "delta": "+0.0%",
+        "tone": "neutral"
       }
     ],
     "note": "较上一份有效快照"
@@ -17923,25 +17925,28 @@
         }
       ],
       "data_integrity": {
-        "status": "PASS",
-        "label": "双源校验通过",
-        "issues": [],
+        "status": "CHECK",
+        "label": "有限校验",
+        "issues": [
+          "Yahoo二次行情暂不可用，未完成双源校验"
+        ],
         "rows": 260,
-        "dual_source": true,
+        "dual_source": false,
         "primary_source": "Twelve Data",
-        "secondary_source": "Yahoo Finance",
+        "secondary_source": null,
         "as_of": "2026-10-16",
         "age_days": 1,
         "primary_close": 292.26,
-        "secondary_close": 292.26,
-        "secondary_date": "2026-10-16",
-        "price_mismatch_pct": 0.0
+        "secondary_close": null,
+        "secondary_date": null,
+        "price_mismatch_pct": null
       },
       "method": "Trend Pulse V1 · 价格结构 + EMA + Supertrend + ADX/DI + MACD + RSI + OBV/MFI + 周线共振",
       "analysis": "趋势恶化：脉冲位于负区且未形成有效上拐，周线为过渡，Supertrend为空头。",
       "risk_watch": "ADX 16.8，趋势强度仍有限；+DI/-DI 17.8/41.2；RSI 35；结构 HH/HL。",
       "guidance": "以风险观察为主，不把普通反弹直接视为趋势反转；等待结构与斜率真正修复。",
-      "confidence": "高（双源校验）"
+      "confidence": "中（主源完整，二次源日期落后一交易日）",
+      "validation_note": "Trend Pulse按主源最新完整日线计算；二次源未与主源处于同一交易日，因此不做跨日价差比较。"
     },
     "QLD": {
       "available": true,
@@ -21975,7 +21980,7 @@
     }
   },
   "fx_usdcny": {
-    "value": 6.676799774169922,
+    "value": 6.686200141906738,
     "date": "2026-10-17",
     "source": "Yahoo Finance",
     "status": "ok"

@@ -1,8 +1,8 @@
 # MyAlpha View — Master Execution Plan
 
-Source of truth: `docs/development/master_plan.json` (this file is rendered by `scripts/master_plan.py render`). Last updated 2026-10-17T05:30Z. Issue: https://github.com/simonzixin8166-wq/quant-dashboard/issues/133. Charter: CLAUDE.md (owner-confirmed 2026-10-11).
+Source of truth: `docs/development/master_plan.json` (this file is rendered by `scripts/master_plan.py render`). Last updated 2026-10-17T09:50Z. Issue: https://github.com/simonzixin8166-wq/quant-dashboard/issues/133. Charter: CLAUDE.md (owner-confirmed 2026-10-11).
 
-Status counts: Done 26 · In progress 12 · Waiting 7 · Not started 4
+Status counts: Done 28 · In progress 14 · Waiting 7 · Not started 8
 
 Stages per task: instruction_published → claude_acked → code_merged → schedule_verified → oos_validated (oos_validated is never claimed while Learning is UNPROVEN).
 
@@ -155,7 +155,7 @@ Unified ledger → continuous development by dependency → batch acceptance →
 
 | ID | task | status | stages | depends on | evidence (PR / run) | acceptance | next / waiting / blocked | verified |
 |---|---|---|---|---|---|---|---|---|
-| W-03 | M1 understanding: blind labels test v2 (41) / v3 (28) → κ; long-article frozen test | **Waiting** | published, acked | — | — | κ computed on independent labels; rules changed only on dev | prepare independent blind-label design + sample list (long blog posts, short forum posts, transcript-available finance videos); minimal owner label kit; no κ PASS without independent labels (waiting: GPT/owner blind labels) | 2026-10-15T05:50Z |
+| W-03 | M1 understanding: blind labels test v2 (41) / v3 (28) → κ; long-article frozen test | **In progress** | published, acked | — | wxc-bot #55: owner blind r1 INVALID, r2 κ 0.126 (v1.1); guideline v1.2; append-only adjudication | κ computed on independent labels; rules changed only on dev | Actions runtime fetch for the 9 needs_article_check items → score the extractor against the v1.2 adjudicated gold (precision/recall/abstention); inter-annotator agreement under v1.2 needs a fresh blind sample (waiting: GPT/owner blind labels) | 2026-10-17T08:15Z |
 
 ## Operations
 
@@ -194,13 +194,46 @@ Unified ledger → continuous development by dependency → batch acceptance →
 
 | ID | task | status | stages | depends on | evidence (PR / run) | acceptance | next / waiting / blocked | verified |
 |---|---|---|---|---|---|---|---|---|
-| HYG-01 | Stale test_v500_investment_assistant (APP_VERSION==6.8.2), not run by any workflow | **Not started** |  | — | — | version-format check; registered in v56-pr-validation; passes | Jules task card | 2026-10-17T06:00Z |
+| HYG-02 | Four tests not run by any workflow fail on main (brightline_2026_archive, trend_pulse_integrity_v431, research_assistant.test.js, wenxuecity_render.test.js) | **Not started** |  | — | — |  | classify each: stale copy/count → fix + register; real regression → fix code; Jules candidate for the stale ones | 2026-10-17T09:50Z |
+| HYG-01 | Stale test_v500_investment_assistant (APP_VERSION==6.8.2), not run by any workflow | **Done** | merged | — | #262 Jules (task card + AGENTS.md): version-format check, 期权决策台 rename, registered | version-format check; registered in v56-pr-validation; passes | — | 2026-10-17T07:30Z |
 | J-01 | Stale test_v511_ui_visibility assertions + register in PR validation (Jules) | **Done** | merged | — | #257 test_v511 version-format check, MyAlpha casing, registered in v56-pr-validation | test runs in CI and passes | — | 2026-10-17T04:00Z |
 
 ## Options / market UI
 
 | ID | task | status | stages | depends on | evidence (PR / run) | acceptance | next / waiting / blocked | verified |
 |---|---|---|---|---|---|---|---|---|
+| CAL-02 | Frontend NYSE early closes: add 2027 dates from the official NYSE calendar | **Not started** |  | — | — |  | due before 2027-01; trading-calendar.js EARLY_CLOSES | 2026-10-17T09:50Z |
 | FE-CAL | Frontend NYSE holiday / early-close aware session check (before 2026-11-26) | **Done** | acked, merged | — | #258 Jules (closed, 2 rounds failed); #259 merged: calendar + delegation/fallback + parity tests | JS/Python closure parity 2026-2028; early close 13:00 ET; fallback when calendar absent; CI green | verify the next Daily regenerates index.html with trading-calendar.js | 2026-10-17T05:10Z |
+
+## Site clarity
+
+| ID | task | status | stages | depends on | evidence (PR / run) | acceptance | next / waiting / blocked | verified |
+|---|---|---|---|---|---|---|---|---|
+| COPY-01 | Plain-language copy: conclusion first, technical detail collapsed, no internal jargon | **In progress** |  | — | #263; #264 | default visible text short; no data/threshold change; owner reviews each page | agent center done; next: sidebar grouped by task with one-line descriptions, then 市场中心 / 研究中心 / others one PR each | 2026-10-17T09:50Z |
+
+## Market state
+
+| ID | task | status | stages | depends on | evidence (PR / run) | acceptance | next / waiting / blocked | verified |
+|---|---|---|---|---|---|---|---|---|
+| PC-01 | Put/Call ratio (SPY/QQQ, 5-day) as 7th 市场温度 component | **Waiting** |  | — | — |  | gate: several on-time P0-06 PASS → refresh #237 to main, add P/C aggregate, verify one real session's volume completeness (fallback OI); record-only until 252 readings (waiting: several on-time P0-06 schedule PASS, then #237 refresh) | 2026-10-17T09:50Z |
+| MT-01 | MyAlpha 市场温度 (own descriptive 0–100 gauge; not CNN, not a forecast) | **Done** | merged | — | #265; #266 v2 percentile vs trailing 252 | ≥4/6 components; missing → unavailable; validated=false | history accumulates daily; after ≥60 sessions test forward 20/60-day usefulness before any use beyond display | 2026-10-17T09:50Z |
+
+## Risk flagging
+
+| ID | task | status | stages | depends on | evidence (PR / run) | acceptance | next / waiting / blocked | verified |
+|---|---|---|---|---|---|---|---|---|
+| UX-02 | Two-week event calendar incl. holdings/watchlist earnings dates | **Not started** |  | — | — |  | free earnings-date source; ship before 2026-11-05 (IREN earnings) | 2026-10-17T09:50Z |
+
+## Independent judgments
+
+| ID | task | status | stages | depends on | evidence (PR / run) | acceptance | next / waiting / blocked | verified |
+|---|---|---|---|---|---|---|---|---|
+| UX-03 | Stock cards in three parts: research lean / trigger conditions / falsification | **Not started** |  | — | — |  | check thesis data for falsification conditions; never phrased as buy/sell orders | 2026-10-17T09:50Z |
+
+## Options
+
+| ID | task | status | stages | depends on | evidence (PR / run) | acceptance | next / waiting / blocked | verified |
+|---|---|---|---|---|---|---|---|---|
+| UX-04 | Options center reorganised around the sell-put workflow (candidates → manage/roll → expiry review) | **Not started** |  | — | — |  | after UX-02 | 2026-10-17T09:50Z |
 
 Engineering QA PASS ≠ Learning PASS. **Learning UNPROVEN / FINAL=NO.**

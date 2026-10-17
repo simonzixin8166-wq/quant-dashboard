@@ -4,7 +4,7 @@ const AUTHORITY_TAB='tab-overview';
 const ACTION_WORDS=['EARLY ENTRY','CONFIRMED ENTRY','HOLD','NO ADD','REDUCE','EXIT'];
 const SECONDARY_TABS=['tab-agent-center','tab-index','tab-stocks','tab-options','tab-engine','tab-wenxuecity','tab-knowledge','tab-journal','tab-system-health'];
 function bannerHtml(){
- return '<div class="single-action-banner" data-single-action-banner="true"><div><b>研究 / 解释页面</b><span>本页不发布正式投资动作；所有经过自主学习、验证与风险检查后的行动结论，只在「今日驾驶舱」统一发布。</span></div><button type="button" data-open-action-outlet>返回今日驾驶舱</button></div>';
+ return '<div class="single-action-banner" data-single-action-banner="true"><div><b>研究页</b><span>正式行动只在「今日驾驶舱」发布。</span></div><button type="button" data-open-action-outlet>返回今日驾驶舱</button></div>';
 }
 function install(){
  for(const id of SECONDARY_TABS){

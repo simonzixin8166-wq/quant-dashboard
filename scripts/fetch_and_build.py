@@ -788,7 +788,14 @@ def build_trend_interpretation(tp):
     if isinstance(rsi,(int,float)):
         risk.append(f"RSI {rsi:.0f}" + ("，短线偏热" if rsi>=70 else ("，短线偏弱" if rsi<=30 else "")))
     risk.append(f"结构 {structure}")
-    return {"analysis":analysis,"risk_watch":"；".join(risk)+"。","guidance":guidance,"confidence":"高（双源校验）"}
+    if integrity.get("status") != "PASS":
+        # #133 Owner 2026-10-17 (6235584113): research guidance renders only on dual-source PASS. CHECK keeps the
+        # descriptive analysis/indicators but pauses guidance and says why; no "medium confidence" bypass.
+        reason = "；".join(integrity.get("issues") or []) or "二次源未完成同交易日校验"
+        return {"analysis":analysis,"risk_watch":"；".join(risk)+"。",
+                "guidance":f"暂停生成研究提示：数据仅完成有限校验（{reason}），趋势数值只作描述参考。",
+                "confidence":"有限校验（未完成双源确认）","guidance_paused":True}
+    return {"analysis":analysis,"risk_watch":"；".join(risk)+"。","guidance":guidance,"confidence":"高（双源校验）","guidance_paused":False}
 
 def calculate_trend_pulse(rows, symbol=None, secondary=None, today=None):
     """V4.3 自研趋势跟踪：借鉴动态曲线/多周期思想，但不复制或冒充第三方TCDS公式。"""
@@ -846,7 +853,6 @@ def calculate_trend_pulse(rows, symbol=None, secondary=None, today=None):
     }
     result.update(build_trend_interpretation(result))
     if integrity.get("status") == "CHECK":
-        result["confidence"] = "中（主源完整，二次源日期落后一交易日）"
         result["validation_note"] = "Trend Pulse按主源最新完整日线计算；二次源未与主源处于同一交易日，因此不做跨日价差比较。"
     return result
 

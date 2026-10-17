@@ -7,10 +7,6 @@
   const quoteNumber=v=>v===null||v===undefined||v===''?NaN:Number(v);
   const clamp=(n,a,b)=>Math.min(b,Math.max(a,n));
   const QUOTE_FRESH_MS=30*60*1000,QUOTE_USABLE_MS=90*60*1000,CLOSED_REFERENCE_MS=5*24*60*60*1000,POSITION_REFRESH_MS=15*60*1000;
-  function isUsRegularSession(now=new Date()){
-    const parts=new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',weekday:'short',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts(now),v=Object.fromEntries(parts.map(x=>[x.type,x.value]));
-    const minute=Number(v.hour)*60+Number(v.minute);return !['Sat','Sun'].includes(v.weekday)&&minute>=570&&minute<960;
-  }
   function quoteFreshness(cached,now=Date.now(),sessionOpen=isUsRegularSession(new Date(now))){
     if(!cached?.quote||!Number.isFinite(Number(cached.at)))return{status:'unavailable',label:'无有效报价',tone:'unavailable',usable:false,fresh:false,ageMs:Infinity};
     const providerAt=Number(cached.quote.updated)*1000,sourceAt=Number.isFinite(providerAt)&&providerAt>0?providerAt:Number(cached.at);

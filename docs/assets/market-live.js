@@ -8,12 +8,6 @@
   let refreshTimer = null;
   let providerMarketState = null;
 
-  function isUsRegularSession(now = new Date()) {
-    const parts = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', weekday: 'short', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).formatToParts(now);
-    const values = Object.fromEntries(parts.map(part => [part.type, part.value]));
-    const minute = Number(values.hour) * 60 + Number(values.minute);
-    return !['Sat', 'Sun'].includes(values.weekday) && minute >= 570 && minute < 960;
-  }
 
   function usSessionPhase(now = new Date()) {
     const parts = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', weekday: 'short', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).formatToParts(now);

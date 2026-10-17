@@ -4,14 +4,17 @@ built only from data the pipeline already has. MyAlpha's own descriptive measure
 index (that stays a link-out per SENT-01) and NOT a forecast. Every reading is appended to a dated history so
 its forward usefulness can be tested later; until then it is descriptive only (validated=false).
 
-Components (each 0–100, higher = more risk appetite; missing input → unavailable, never imputed):
-  momentum    SPY close vs its 125-session average            50 + 500·(close/ma125 − 1)
-  strength    net 52-week new highs (S&P 500 share)            50 + 500·(nh − nl)
-  breadth     share of S&P 500 members above their 50-day MA   100·b50
-  volatility  VIX vs its 50-session average                     50 − 250·(vix/ma50 − 1)
-  safe_haven  SPY minus TLT 20-session return                   50 + 500·(spy20 − tlt20)
-  credit      High-yield OAS 20-day change (FRED)               50 − 100·Δ20 (percentage points)
-Composite = mean of available components; published only when ≥ 4 of 6 are available.
+Components (raw reading → 0–100, higher = more risk appetite; missing input → unavailable, never imputed):
+  momentum    SPY close vs its 125-session average
+  strength    net 52-week new highs (S&P 500 share)
+  breadth     share of S&P 500 members above their 50-day MA
+  volatility  VIX vs its 50-session average                (inverted)
+  safe_haven  SPY minus TLT 20-session return
+  credit      High-yield OAS 20-day change (FRED)          (inverted)
+Scale (v2, 2026-10-17): each component scores the mid-rank percentile of today's raw reading within its own
+trailing 252 readings ("how unusual is today versus the past year"). Components without 252 past readings yet
+use a fixed linear scale and say so (method=fixed_scale); the daily history stores raw readings so they move to
+the percentile scale on their own. Composite = mean of available components; published only when ≥ 4 of 6.
 """
 from __future__ import annotations
 import io, json, sys, zipfile
@@ -71,59 +74,108 @@ def avg_ratio(series, n):
     return series[-1][1] / m if m else None
 
 
-def comp(key, score, value, as_of, source, unavailable_reason=None):
-    if score is None:
+WINDOW = 252  # trailing sessions for the percentile scale (≈ one year)
+
+
+def percentile(today, past, invert=False):
+    """Mid-rank percentile of today's raw value in the trailing window, 0–100 (inverted for fear-up inputs)."""
+    w = [x for x in past[-WINDOW:] if isinstance(x, (int, float))]
+    if len(w) < WINDOW:
+        return None
+    p = 100.0 * (sum(1 for x in w if x < today) + 0.5 * sum(1 for x in w if x == today)) / len(w)
+    return 100.0 - p if invert else p
+
+
+def momentum_series(spy):
+    out, run = [], 0.0
+    for i, (d, c) in enumerate(spy):
+        run += c
+        if i >= 125:
+            run -= spy[i - 125][1]
+        if i >= 124:
+            out.append((d, c / (run / 125) - 1))
+    return out
+
+
+def vix_series(vix):
+    out, run = [], 0.0
+    for i, (d, c) in enumerate(vix):
+        run += c
+        if i >= 50:
+            run -= vix[i - 50][1]
+        if i >= 49:
+            out.append((d, c / (run / 50) - 1))
+    return out
+
+
+def safe_haven_series(spy, tlt):
+    t = dict(tlt)
+    s = [(d, c) for d, c in spy if d in t]
+    return [(s[i][0], (s[i][1] / s[i - 20][1] - 1) - (t[s[i][0]] / t[s[i - 20][0]] - 1)) for i in range(20, len(s))]
+
+
+def comp(key, raw, linear, past, invert, value, as_of, source, unavailable_reason=None):
+    """Score = percentile of today's raw reading in its trailing year when ≥252 past readings exist;
+    otherwise the fixed linear scale (labelled), so the method is always explicit."""
+    if raw is None:
         return {"key": key, "name": NAMES[key], "status": "unavailable", "reason": unavailable_reason or "input missing",
                 "source": source}
-    return {"key": key, "name": NAMES[key], "status": "ok", "score": round(clamp(score), 1), "value": value,
-            "as_of": as_of, "source": source}
+    p = percentile(raw, past, invert)
+    score, method = (p, "percentile_252") if p is not None else (linear, "fixed_scale")
+    return {"key": key, "name": NAMES[key], "status": "ok", "score": round(clamp(score), 1), "method": method,
+            "raw": round(raw, 6), "value": value, "as_of": as_of, "source": source}
 
 
-def build(zbytes: bytes, breadth: dict, cross: dict) -> dict:
+def build(zbytes: bytes, breadth: dict, cross: dict, hist: list | None = None) -> dict:
     spy, vix, tlt = closes(zbytes, "spy"), closes(zbytes, "vix"), closes(zbytes, "tlt")
     m = (breadth or {}).get("metrics") or {}
     b_asof = (breadth or {}).get("as_of")
     sig = {s.get("key"): s for s in (cross or {}).get("signals") or [] if isinstance(s, dict)}
+    past_raw = lambda k: [((h.get("raw") or {}).get(k)) for h in (hist or []) if h.get("as_of") and h["as_of"] < (b_asof or "9999")]
     comps = []
 
-    r = avg_ratio(spy, 125)
-    comps.append(comp("momentum", None if r is None else 50 + 500 * (r - 1), None if r is None else round(r - 1, 4),
-                      spy[-1][0] if spy else None, "archive SPY close vs 125-session average", "SPY history < 125 sessions"))
+    ms = momentum_series(spy)
+    r = ms[-1][1] if ms else None
+    comps.append(comp("momentum", r, None if r is None else 50 + 500 * r, [x for _, x in ms[:-1]], False,
+                      None if r is None else round(r, 4), ms[-1][0] if ms else None,
+                      "archive SPY close vs 125-session average", "SPY history < 125 sessions"))
 
     nh, nl = m.get("new_high_52w_pct"), m.get("new_low_52w_pct")
-    if isinstance(nh, (int, float)) and isinstance(nl, (int, float)):
-        s = 50 + 500 * (nh - nl)
-        comps.append(comp("strength", s, {"new_high": round(nh, 4), "new_low": round(nl, 4)}, b_asof, "breadth_intelligence (S&P 500)"))
-    else:
-        comps.append(comp("strength", None, None, None, "breadth_intelligence (S&P 500)", "new-high/low share missing"))
+    net = (nh - nl) if isinstance(nh, (int, float)) and isinstance(nl, (int, float)) else None
+    comps.append(comp("strength", net, None if net is None else 50 + 500 * net, past_raw("strength"), False,
+                      None if net is None else {"new_high": round(nh, 4), "new_low": round(nl, 4)}, b_asof,
+                      "breadth_intelligence (S&P 500 net 52-week highs)", "new-high/low share missing"))
 
-    b50 = m.get("b50")
-    comps.append(comp("breadth", None if not isinstance(b50, (int, float)) else 100 * b50,
-                      None if not isinstance(b50, (int, float)) else round(b50, 4), b_asof,
+    b50 = m.get("b50") if isinstance(m.get("b50"), (int, float)) else None
+    comps.append(comp("breadth", b50, None if b50 is None else 100 * b50, past_raw("breadth"), False,
+                      None if b50 is None else round(b50, 4), b_asof,
                       "breadth_intelligence (S&P 500 above 50-day MA)", "50-day breadth missing"))
 
-    v = avg_ratio(vix, 50)
-    comps.append(comp("volatility", None if v is None else 50 - 250 * (v - 1),
-                      None if v is None else {"vix": round(vix[-1][1], 2), "vs_ma50": round(v - 1, 4)},
-                      vix[-1][0] if vix else None, "archive VIX vs 50-session average", "VIX history < 50 sessions"))
+    vs = vix_series(vix)
+    v = vs[-1][1] if vs else None
+    comps.append(comp("volatility", v, None if v is None else 50 - 250 * v, [x for _, x in vs[:-1]], True,
+                      None if v is None else {"vix": round(vix[-1][1], 2), "vs_ma50": round(v, 4)}, vs[-1][0] if vs else None,
+                      "archive VIX vs 50-session average", "VIX history < 50 sessions"))
 
-    s20, t20 = ret(spy, 20), ret(tlt, 20)
-    same_day = bool(spy and tlt and spy[-1][0] == tlt[-1][0])
-    sh = None if (s20 is None or t20 is None or not same_day) else 50 + 500 * (s20 - t20)
-    comps.append(comp("safe_haven", sh, None if sh is None else round(s20 - t20, 4), spy[-1][0] if sh is not None else None,
+    shs = safe_haven_series(spy, tlt)
+    same_day = bool(shs and spy and shs[-1][0] == spy[-1][0])
+    sh = shs[-1][1] if same_day else None
+    comps.append(comp("safe_haven", sh, None if sh is None else 50 + 500 * sh, [x for _, x in shs[:-1]], False,
+                      None if sh is None else round(sh, 4), shs[-1][0] if same_day else None,
                       "archive SPY vs TLT 20-session return", "SPY/TLT history missing or dates differ"))
 
     cw = (sig.get("credit_widening") or {}).get("value") or {}
-    chg = cw.get("chg20")
-    comps.append(comp("credit", None if not isinstance(chg, (int, float)) else 50 - 100 * chg,
-                      None if not isinstance(chg, (int, float)) else {"hy_oas": cw.get("latest"), "chg20_pp": round(chg, 3)},
-                      cw.get("date"), "FRED ICE BofA US High Yield OAS (via cross_asset_divergence)", "HY OAS missing"))
+    chg = cw.get("chg20") if isinstance(cw.get("chg20"), (int, float)) else None
+    comps.append(comp("credit", chg, None if chg is None else 50 - 100 * chg, past_raw("credit"), True,
+                      None if chg is None else {"hy_oas": cw.get("latest"), "chg20_pp": round(chg, 3)}, cw.get("date"),
+                      "FRED ICE BofA US High Yield OAS (via cross_asset_divergence)", "HY OAS missing"))
 
     ok = [c for c in comps if c["status"] == "ok"]
     score = round(sum(c["score"] for c in ok) / len(ok), 1) if len(ok) >= MIN_COMPONENTS else None
     dates = sorted(d for d in (c.get("as_of") for c in ok) if d)
     return {
-        "version": 1,
+        "version": 2,
+        "method": "each component = percentile of today vs its trailing 252 readings; fixed linear scale (labelled) until 252 readings exist",
         "generated_at": datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z"),
         "as_of": dates[-1] if dates else None,
         "score": score, "label": label(score),
@@ -141,7 +193,8 @@ def append_history(hist: list, out: dict) -> list:
     if out.get("score") is None or not out.get("as_of"):
         return hist
     row = {"as_of": out["as_of"], "score": out["score"], "label": out["label"], "available": out["components_available"],
-           "components": {c["key"]: c.get("score") for c in out["components"]}}
+           "components": {c["key"]: c.get("score") for c in out["components"]},
+           "raw": {c["key"]: c.get("raw") for c in out["components"] if c.get("status") == "ok"}}
     keep = [h for h in hist if h.get("as_of") != out["as_of"]]
     return sorted(keep + [row], key=lambda h: h["as_of"])
 
@@ -167,8 +220,8 @@ def main():
         zbytes = None
     else:
         zbytes = ARCHIVE.read_bytes()
-    out = build(zbytes, load(BREADTH, {}), load(CROSS, {})) if zbytes else build(_empty_zip(), load(BREADTH, {}), load(CROSS, {}))
     hist = load(HIST, {}).get("rows", []) if isinstance(load(HIST, {}), dict) else []
+    out = build(zbytes or _empty_zip(), load(BREADTH, {}), load(CROSS, {}), hist)
     out = with_change(out, hist)
     hist = append_history(hist, out)
     OUT.write_text(json.dumps(out, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")

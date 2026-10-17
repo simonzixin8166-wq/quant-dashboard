@@ -1,5 +1,6 @@
-"""市场温度: component maths, missing → unavailable (never imputed), ≥4/6 rule, append-only history."""
-import io, json, sys, zipfile
+"""市场温度 v2: percentile-vs-trailing-year scale, fixed-scale fallback (labelled), missing → unavailable,
+≥4/6 rule, append-only history with raw readings."""
+import io, sys, zipfile
 from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
@@ -12,33 +13,42 @@ def zip_of(series):
             z.writestr(f"data/{sym}_us_d.csv", "Date,Open,High,Low,Close,Volume\n" + "\n".join(f"{d},0,0,0,{c},0" for d, c in rows))
     return b.getvalue()
 
-days = [f"2026-{m:02d}-{d:02d}" for m in range(1, 11) for d in range(1, 29)][:200]
+days = [f"{y}-{m:02d}-{d:02d}" for y in (2025, 2026) for m in range(1, 13) for d in range(1, 29)][:500]
 flat = lambda v: [(d, v) for d in days]
-z = zip_of({"spy": flat(100.0), "vix": flat(20.0), "tlt": flat(90.0)})
 breadth = {"as_of": days[-1], "metrics": {"new_high_52w_pct": 0.03, "new_low_52w_pct": 0.03, "b50": 0.5}}
 cross = {"signals": [{"key": "credit_widening", "value": {"latest": 3.0, "date": days[-1], "chg20": 0.0}}]}
-out = mt.build(z, breadth, cross)
-# a perfectly flat market scores exactly neutral on every component
+
+# flat market: percentile components sit at the mid-rank (50); history-less components use the fixed scale
+out = mt.build(zip_of({"spy": flat(100.0), "vix": flat(20.0), "tlt": flat(90.0)}), breadth, cross)
+c = {x["key"]: x for x in out["components"]}
 assert out["components_available"] == 6 and out["score"] == 50.0 and out["label"] == "中性", out
-assert out["validated"] is False and "不是 CNN" in out["note"] and out["cnn_link"].startswith("https://www.cnn.com/")
+assert {k for k, x in c.items() if x["method"] == "percentile_252"} == {"momentum", "volatility", "safe_haven"}
+assert {k for k, x in c.items() if x["method"] == "fixed_scale"} == {"strength", "breadth", "credit"}
+assert out["version"] == 2 and out["validated"] is False and "不是 CNN" in out["note"]
 
-# direction of each mapping
-up = zip_of({"spy": flat(100.0)[:-1] + [(days[-1], 110.0)], "vix": flat(20.0)[:-1] + [(days[-1], 30.0)], "tlt": flat(90.0)})
-o2 = {c["key"]: c for c in mt.build(up, breadth, {"signals": [{"key": "credit_widening", "value": {"chg20": 0.5, "date": days[-1]}}]})["components"]}
-assert o2["momentum"]["score"] > 50 and o2["volatility"]["score"] < 50 and o2["safe_haven"]["score"] > 50 and o2["credit"]["score"] == 0.0
+# relative scale: a rising market whose latest gain is the smallest of the year reads as fear, not greed
+rising = [(d, 100.0 * 1.002 ** i) for i, d in enumerate(days[:-1])] + [(days[-1], 100.0 * 1.002 ** (len(days) - 2))]
+o2 = {x["key"]: x for x in mt.build(zip_of({"spy": rising, "vix": flat(20.0)[:-1] + [(days[-1], 30.0)], "tlt": flat(90.0)}), breadth, cross)["components"]}
+assert o2["momentum"]["raw"] > 0 and o2["momentum"]["score"] < 10          # above its average, yet unusually weak
+assert o2["volatility"]["score"] < 5                                         # VIX spike → near-zero (inverted)
 
-# missing inputs are unavailable, not filled; fewer than 4 components → no composite
-o3 = mt.build(zip_of({"spy": flat(100.0)[:30]}), {}, {})
-assert o3["score"] is None and o3["status"] == "unavailable" and o3["label"] == "不可用"
-assert all(c["status"] == "unavailable" and c["reason"] for c in o3["components"] if c["key"] != "safe_haven" or True)
+# fixed-scale fallback moves to percentile once 252 past raw readings exist in history
+hist = [{"as_of": f"2024-{i:04d}", "raw": {"strength": 0.10, "breadth": 0.9, "credit": -0.2}} for i in range(252)]
+o3 = {x["key"]: x for x in mt.build(zip_of({"spy": flat(100.0), "vix": flat(20.0), "tlt": flat(90.0)}), breadth, cross, hist)["components"]}
+assert o3["strength"]["method"] == "percentile_252" and o3["strength"]["score"] == 0.0     # 0.0 net vs a year of +10%
+assert o3["credit"]["method"] == "percentile_252" and o3["credit"]["score"] == 0.0         # spreads wider than all year
 
-# history: one row per date, same-date rerun replaces, other days untouched; change vs ≤5 rows back
+# missing inputs are unavailable, never filled; fewer than 4 → no composite
+o4 = mt.build(zip_of({"spy": flat(100.0)[:30]}), {}, {})
+assert o4["score"] is None and o4["status"] == "unavailable" and o4["label"] == "不可用"
+assert all(x["status"] == "unavailable" and x["reason"] for x in o4["components"])
+
+# history: one row per date (same-date rerun replaces), raw readings kept; change vs ≤5 rows back
 h = mt.append_history([], dict(out, as_of="2026-10-15", score=40.0))
 h = mt.append_history(h, dict(out, as_of="2026-10-16", score=45.0))
 h = mt.append_history(h, dict(out, as_of="2026-10-16", score=47.0))
-assert [r["as_of"] for r in h] == ["2026-10-15", "2026-10-16"] and h[1]["score"] == 47.0 and h[0]["score"] == 40.0
-c = mt.with_change(dict(out, as_of="2026-10-17", score=50.0), h)
-assert c["change_vs"] == {"as_of": "2026-10-15", "delta": 10.0}
-assert mt.append_history(h, dict(o3)) == h          # unavailable readings never enter history
+assert [r["as_of"] for r in h] == ["2026-10-15", "2026-10-16"] and h[1]["score"] == 47.0 and set(h[1]["raw"]) == set(c)
+assert mt.with_change(dict(out, as_of="2026-10-17", score=50.0), h)["change_vs"] == {"as_of": "2026-10-15", "delta": 10.0}
+assert mt.append_history(h, dict(o4)) == h
 assert [mt.label(x) for x in (0, 24.9, 25, 44.9, 45, 55.9, 56, 75.9, 76, 100)] == ["极度恐惧"] * 2 + ["恐惧"] * 2 + ["中性"] * 2 + ["贪婪"] * 2 + ["极度贪婪"] * 2
-print("PASS market temperature")
+print("PASS market temperature v2")

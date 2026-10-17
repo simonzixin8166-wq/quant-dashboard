@@ -2,7 +2,7 @@
  "version": 1,
  "title": "MyAlpha View — Master Execution Plan",
  "issue": "https://github.com/simonzixin8166-wq/quant-dashboard/issues/133",
- "last_updated": "2026-10-15T07:00Z",
+ "last_updated": "2026-10-17T06:30Z",
  "charter": "CLAUDE.md (owner-confirmed 2026-10-11)",
  "statuses": [
   "Done",
@@ -1515,6 +1515,102 @@
    "acceptance": "routine runs need no Claude session; give_up alert once per session; weekly summary only on change; Telegram give_up alert not yet observed in production",
    "next": "observe first real give_up alert / first weekly summary (Sunday 23:40Z)",
    "last_verified": "2026-10-15T05:50Z"
+  },
+  {
+   "id": "P0-INC-1017",
+   "title": "P0 incident 2026-10-17: Daily contract failed on first real Forward maturity (audit test read wrong key); site stuck at 2026-10-15",
+   "area": "P0 site reliability",
+   "priority": 0,
+   "status": "Done",
+   "stages": [
+    "claude_acked",
+    "code_merged"
+   ],
+   "instructions": [],
+   "depends_on": [],
+   "evidence": {
+    "prs": [
+     "#256 b77cead Forward maturity read from evidence; learning_active only on 20/60/120-session maturity; reconciliation test uses audit definition"
+    ],
+    "runs": [
+     "failed: Daily 38983076111 sched, 38988068685 dispatch; SIV 38990074533; Watchdog 38982529319; QA 38990478264 (stale data)",
+     "recovered: Daily 38995993962 workflow_dispatch success → 6f46ca0 spy_date=2026-10-16; Pages 38996742787; QA 38996746713 PASS; Watchdog 38997053044 PASS"
+    ]
+   },
+   "acceptance": "Daily commits the latest completed session; no assertion removed; recovery dispatch not counted as schedule",
+   "next": "verify the 10/19 21:30Z schedule run",
+   "last_verified": "2026-10-17T03:00Z"
+  },
+  {
+   "id": "J-01",
+   "title": "Stale test_v511_ui_visibility assertions + register in PR validation (Jules)",
+   "area": "Engineering hygiene",
+   "priority": 3,
+   "status": "Done",
+   "stages": [
+    "code_merged"
+   ],
+   "instructions": [],
+   "depends_on": [],
+   "evidence": {
+    "prs": [
+     "#257 test_v511 version-format check, MyAlpha casing, registered in v56-pr-validation"
+    ]
+   },
+   "acceptance": "test runs in CI and passes",
+   "next": "—",
+   "last_verified": "2026-10-17T04:00Z"
+  },
+  {
+   "id": "FE-CAL",
+   "title": "Frontend NYSE holiday / early-close aware session check (before 2026-11-26)",
+   "area": "Options / market UI",
+   "priority": 1,
+   "status": "In progress",
+   "stages": [
+    "claude_acked"
+   ],
+   "instructions": [],
+   "depends_on": [],
+   "evidence": {
+    "prs": [
+     "#258 Jules (closed, 2 rounds failed)",
+     "#259 Claude replacement"
+    ]
+   },
+   "acceptance": "JS/Python closure parity 2026-2028; early close 13:00 ET; fallback when calendar absent; CI green",
+   "next": "merge #259; next Daily regenerates index.html with the calendar script",
+   "last_verified": "2026-10-17T06:00Z"
+  },
+  {
+   "id": "HYG-01",
+   "title": "Stale test_v500_investment_assistant (APP_VERSION==6.8.2), not run by any workflow",
+   "area": "Engineering hygiene",
+   "priority": 3,
+   "status": "Not started",
+   "stages": [],
+   "instructions": [],
+   "depends_on": [],
+   "evidence": {},
+   "acceptance": "version-format check; registered in v56-pr-validation; passes",
+   "next": "Jules task card",
+   "last_verified": "2026-10-17T06:00Z"
+  },
+  {
+   "id": "OPS-03",
+   "title": "Agent onboarding AGENTS.md (Jules conventions: generated files, imports, regression commands, Chinese PR text)",
+   "area": "Operations",
+   "priority": 2,
+   "status": "In progress",
+   "stages": [
+    "claude_acked"
+   ],
+   "instructions": [],
+   "depends_on": [],
+   "evidence": {},
+   "acceptance": "merged; next Jules task follows it",
+   "next": "merge",
+   "last_verified": "2026-10-17T06:30Z"
   }
  ]
 }

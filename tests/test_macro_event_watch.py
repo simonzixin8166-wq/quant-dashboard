@@ -20,6 +20,10 @@ for bad in ("马上买", "马上卖", "立即买入", "立即卖出"):
     assert bad not in txt
 assert len(out["lines"]) == 3 and {l["tranche"] for l in out["lines"]} == {1, 2, 3}
 # a later expected session than the data → data_insufficient (never the previous judgment)
-late = mew.build(datetime(2026, 10, 20, 12, 0, tzinfo=timezone.utc))
+# "later" is relative to the committed data (a fixed date stops being later once Daily advances the data — failed 10/20)
+from datetime import date, timedelta
+data_asof = date.fromisoformat(mew.build(datetime(2026, 10, 13, 12, 0, tzinfo=timezone.utc))["freshness"]["market_as_of"])
+late_day = data_asof + timedelta(days=7)
+late = mew.build(datetime(late_day.year, late_day.month, late_day.day, 12, 0, tzinfo=timezone.utc))
 assert late["freshness"]["data_stale"] and late["judgment"]["key"] == "data_insufficient"
 print("PASS macro event watch")

@@ -20,5 +20,9 @@ assert.strictEqual(T.fromTo({ score: 23.1, change_vs: { as_of: '2026-10-16', del
 const comps = [{ status: 'ok', name: '价格动量', score: 14 }, { status: 'ok', name: '波动率', score: 8 }, { status: 'ok', name: '市场宽度', score: 46 }, { status: 'unavailable', name: '信用风险' }];
 assert.strictEqual(T.drivers({ score: 23, components: comps }), '波动率与价格动量仍在拖累市场情绪。');
 assert.strictEqual(T.drivers({ score: 80, components: comps }), '市场宽度与价格动量正在推升市场情绪。');
+const vc = v => [{ key: 'volatility', status: 'ok', name: '波动率', score: 8, value: { vix: v } }];
+assert.ok(T.vsVix({ score: 31, components: vc(18.4) }).includes('尚未恐慌') && T.vsVix({ score: 31, components: vc(18.4) }).includes('不是信号'));
+assert.ok(T.vsVix({ score: 20, components: vc(32) }).includes('同时走弱'));
+assert.strictEqual(T.vsVix({ score: 31, components: [] }), '');
 assert.strictEqual(MT._test.changeText({}), '首日记录，暂无比较');
 console.log('PASS market temperature UI');

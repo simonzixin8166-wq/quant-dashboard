@@ -1860,7 +1860,7 @@ def render_html(data):
     # V4.1 Website-first：首页以“结论→变化→证据”为主，而不是继续叠加卡片。
     research = data.get("research_brief") or {}
     research_paragraphs = "".join(f'<p>{html.escape(str(p))}</p>' for p in research.get("paragraphs", []) if p)
-    research_brief_html = f'<section class="research-shell"><div class="research-brief"><div class="research-kicker">市场简报</div><h2>{html.escape(str(research.get("headline", "今日市场概览")))}</h2><div class="research-copy">{research_paragraphs}</div></div><aside class="brief-vix">{vix_gauge_card(vol_value,None,vix_note)}</aside></section>'
+    research_brief_html = f'<section class="research-shell"><div class="research-brief"><div class="research-kicker">市场简报</div><h2>{html.escape(str(research.get("headline", "今日市场概览")))}</h2><div class="research-copy">{research_paragraphs}</div></div><aside class="brief-gauges" aria-label="市场情绪对照"><div class="brief-vix">{vix_gauge_card(vol_value,None,vix_note)}</div><div id="marketTemperatureRoot" class="mt-root"></div></aside></section>'
 
     changes = data.get("what_changed") or {}
     if changes.get("available"):
@@ -1999,11 +1999,11 @@ body{{font-size:15px;background:linear-gradient(180deg,#f7f9fc 0,#f3f6fa 100%);l
 <div class="top-meta"><span id="liveStatus" style="display:none;"><i class="live-dot"></i><span id="liveStatusText">数据抓取成功</span></span><div style="text-align:right; line-height:1.4;"><div style="font-weight:600; font-size:12px; color:var(--ink);">生成时间: {data.get('gen_time', '-')}</div><div id="usLiveAsOf" style="color:var(--muted); font-size:10.5px;">美股收盘日线截至: {data.get('spy_date', '-')} | A/港股盘中动态刷新</div></div><button id="themeToggle" class="theme-toggle" title="切换深浅主题">🌙 深色</button><button id="authBtn" class="auth-btn-top" onclick="handleAuth()">登录 / 注册</button></div></header><div class="content">
 
 <div id="tab-overview" class="tab-pane active">
-<section class="hero overview-hero"><div><h1>今日驾驶舱 · 唯一行动出口</h1><p>所有自主学习、市场、个股、期权和策略结论在这里统一排序；其他页面只提供依据与解释。</p><div class="data-legend" aria-label="数据状态说明"><span class="live">盘中延迟行情</span><span class="close">最近有效收盘</span><span class="missing">不可用不计分</span></div></div><div class="overview-side-tools"><div id="marketTemperatureRoot" class="mt-root"></div><div class="fx-reference-card" title="日度参考汇率，不用于实时换汇"><span>USD/CNY</span><strong>{fmt_num((data.get('fx_usdcny') or {}).get('value'),4)}</strong><small>最新日度汇率 · {(data.get('fx_usdcny') or {}).get('date','-')}</small></div><span id="privateModeShield" class="private-mode-shield" role="status" title="私有控制台已连接，真实持仓受 Supabase RLS 保护">🛡️ 私有模式</span></div><div class="public-note" id="modePanel"><b id="modeTitle">访客预览模式</b><span id="modeDesc">未登录仅显示市场概览；策略、观察池与持仓模块需要主理人登录。</span></div></section>
+<section class="hero overview-hero"><div><h1>今日驾驶舱 · 唯一行动出口</h1><p>所有自主学习、市场、个股、期权和策略结论在这里统一排序；其他页面只提供依据与解释。</p><div class="data-legend" aria-label="数据状态说明"><span class="live">盘中延迟行情</span><span class="close">最近有效收盘</span><span class="missing">不可用不计分</span></div></div><div class="overview-side-tools"><div class="fx-reference-card" title="日度参考汇率，不用于实时换汇"><span>USD/CNY</span><strong>{fmt_num((data.get('fx_usdcny') or {}).get('value'),4)}</strong><small>最新日度汇率 · {(data.get('fx_usdcny') or {}).get('date','-')}</small></div><span id="privateModeShield" class="private-mode-shield" role="status" title="私有控制台已连接，真实持仓受 Supabase RLS 保护">🛡️ 私有模式</span></div><div class="public-note" id="modePanel"><b id="modeTitle">访客预览模式</b><span id="modeDesc">未登录仅显示市场概览；策略、观察池与持仓模块需要主理人登录。</span></div></section>
 {tape_html}
+{research_brief_html}
 <section id="investActionStrip" class="invest-action-strip" aria-label="投资行动速览"></section>\n<section id="productIntelligenceRoot" aria-label="今日行动与组合智能"></section>\n<section id="marketOptionAlert" class="market-option-alert assistant-normal" aria-live="polite"><div class="assistant-placeholder"><span>AI INVESTMENT ASSISTANT</span><b>AI 投资助手 · 正在值守</b><small>正在读取市场状态；正常行情保持安静，条件触发时自动升级提醒。</small></div></section>
 <section id="autoResearchRow" class="auto-research-row" data-market-as-of="{data.get('spy_date','')}" aria-label="MyAlpha 今日研究"></section>
-{research_brief_html}
 {what_changed_html}
 {iren_brief_html}
 <section class="public-access-gate"><div><span class="access-lock">🔐</span><strong>其余模块仅限主理人登录后浏览</strong><p>包括策略信号、市场宽度、个股观察、期权持仓、推演与历史记录。</p></div><button type="button" onclick="handleAuth()">登录解锁</button></section>

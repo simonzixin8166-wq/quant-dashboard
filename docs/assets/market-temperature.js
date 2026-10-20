@@ -54,6 +54,20 @@
     return `${two.map(c => esc(c.name)).join('与')}${d.score < 45 ? '仍在拖累市场情绪' : '正在推升市场情绪'}。`;
   }
 
+  // one descriptive sentence contrasting the broad reading with VIX (taken from this artifact's own volatility input)
+  function vsVix(d) {
+    const vol = (d.components || []).find(c => c.key === 'volatility' && c.status === 'ok');
+    const vix = vol && vol.value && typeof vol.value.vix === 'number' ? vol.value.vix : null;
+    if (vix === null) return '';
+    let t;
+    if (d.score < 45 && vix < 20) t = '情绪偏弱，但期权市场尚未恐慌，更像回调或板块轮动';
+    else if (d.score < 45) t = '情绪与波动率同时走弱，避险较为普遍';
+    else if (d.score >= 56 && vix < 15) t = '情绪偏乐观且波动很低，留意过度乐观';
+    else if (d.score >= 56 && vix >= 20) t = '情绪偏乐观但波动率偏高，分歧较大';
+    else t = '两者读数大致一致';
+    return `<span class="mt-vs">对照 VIX ${esc(vix.toFixed(2))}：${t}（描述，不是信号）</span>`;
+  }
+
   function html(d) {
     if (!d || d.status !== 'ok' || d.score === null || d.score === undefined) {
       return `<div class="mt-card mt-na"><span class="mt-k">市场温度</span><b>不可用</b><small>可用数据不足 ${esc(d?.components_available ?? 0)}/6</small></div>`;
@@ -63,16 +77,23 @@
       : `<li class="mt-off"><span>${esc(c.name)}</span><b>不可用</b><small>${esc(c.reason || '')}</small></li>`).join('');
     return `<details class="mt-card ${TONE[d.label] || ''}"><summary><span class="mt-k">市场温度</span>${gauge(d.score)}
       <b class="mt-score">${esc(Math.round(d.score))}</b><span class="mt-label">${esc(d.label)}，${trendWord(d)}</span>
-      <span class="mt-fromto">${fromTo(d)}</span><span class="mt-why">${drivers(d)}</span><span class="mt-more">查看 6 项分解 ▾</span></summary>
+      <span class="mt-fromto">${fromTo(d)}</span><span class="mt-why">${drivers(d)}</span>${vsVix(d)}<span class="mt-more">查看 6 项分解 ▾</span></summary>
       <div class="mt-body"><ul>${rows}</ul><p>0–100，越高代表市场越偏向冒险；每项看今天在过去一年里有多反常。${esc(changeText(d))}。由 ${esc(d.components_available)}/6 项现有数据合成${d.fixed_scale_components ? `（其中 ${esc(d.fixed_scale_components)} 项历史不足一年，暂用固定标尺，结果只作粗略参考）` : ''}，数据截至 ${esc(d.as_of)}；落后超过 2 个交易日的数据不计入。这是 MyAlpha 自己的描述性指标，不是 CNN 指数，也不预测涨跌。</p><a href="${esc(d.cnn_link)}" target="_blank" rel="noopener noreferrer">CNN 恐惧与贪婪指数（官方）↗</a></div></details>`;
   }
 
-  const CSS = `.mt-root{flex:0 0 auto;max-width:100%}
-@media (max-width:820px){.overview-side-tools{grid-template-columns:1fr!important}.mt-root{min-width:0}.mt-root,.mt-card{width:100%!important}}
-.mt-card{border:1px solid var(--line,#e3e8ef);border-radius:14px;background:var(--card,#fff);padding:10px 14px 12px;width:300px;max-width:100%;font-size:12px;box-sizing:border-box}
+  const CSS = `.mt-root{min-width:0}
+/* 市场简报 row: VIX and 市场温度 side by side so the two readings can be compared at a glance */
+.research-shell{grid-template-columns:minmax(0,1fr) minmax(0,600px)!important}
+.brief-gauges{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:stretch}
+.brief-gauges .brief-vix{max-width:none!important}.brief-gauges .brief-vix .metric-card,.brief-gauges .mt-card{height:100%;box-sizing:border-box}
+.brief-gauges .mt-card{width:100%;background:#f8fafc;border-radius:18px;padding:16px 18px}
+@media (max-width:1180px){.research-shell{grid-template-columns:1fr!important}}
+@media (max-width:620px){.brief-gauges{grid-template-columns:1fr}}
+.mt-card{border:1px solid var(--line,#e3e8ef);border-radius:14px;background:var(--card,#fff);padding:10px 14px 12px;width:100%;font-size:12px;box-sizing:border-box}
 .mt-card summary{list-style:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;text-align:center;gap:2px}
 .mt-card summary::-webkit-details-marker{display:none}
-.mt-k{align-self:flex-start;color:var(--muted,#6b7280);font-size:11px;letter-spacing:.04em}
+.mt-k{align-self:flex-start;color:var(--muted,#6b7280);font-size:15px;font-weight:700}
+.mt-vs{margin-top:6px;padding-top:6px;border-top:1px dashed var(--line,#e3e8ef);color:var(--muted,#6b7280);font-size:11.5px;line-height:1.5}
 .mt-gauge{width:100%;height:auto;margin:-2px 0 -26px;overflow:visible}
 .mt-arc{fill:none;stroke:url(#mtGrad);stroke-width:20}
 .mt-tick{stroke:#b9b2a4;stroke-width:1}.mt-tick-major{stroke:#8f897c;stroke-width:2}
@@ -106,7 +127,7 @@ html[data-theme="dark"] .mt-needle{stroke:#f1f3f5}html[data-theme="dark"] .mt-ne
     }
   }
 
-  global.MAVMarketTemperature = { html, load, _test: { gauge, changeText, trendWord, fromTo, drivers } };
+  global.MAVMarketTemperature = { html, load, _test: { gauge, changeText, trendWord, fromTo, drivers, vsVix } };
   if (typeof module !== 'undefined' && module.exports) module.exports = global.MAVMarketTemperature;
   if (typeof document !== 'undefined') {
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', load); else load();

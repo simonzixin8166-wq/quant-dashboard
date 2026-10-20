@@ -37,10 +37,17 @@ assert 'ok=overall in {"ok","running","degraded"}' in srv
 pi = (ROOT / "docs" / "assets" / "product-intelligence.js").read_text(encoding="utf-8")
 assert "sys.overall==='attention'||sys.overall==='unknown'" in pi and "['ok','running','degraded']" in pi
 # every continue-on-error Daily step now leaves a visible failure marker
-import yaml  # noqa: E402
-steps = yaml.safe_load((ROOT / ".github" / "workflows" / "daily.yml").read_text(encoding="utf-8"))["jobs"]["update"]["steps"]
-coe = [s for s in steps if s.get("continue-on-error")]
-markers = " ".join(str(s.get("if", "")) for s in steps if "module_failure_marker" in str(s.get("run", "")))
-missing = [s.get("name") for s in coe if not s.get("id") or f"steps.{s['id']}.outcome == 'failure'" not in markers]
+import re  # noqa: E402  (CI has no PyYAML: parse the step list textually)
+wf = (ROOT / ".github" / "workflows" / "daily.yml").read_text(encoding="utf-8")
+steps = re.split(r"\n      - ", wf.split("\n    steps:\n", 1)[1])
+coe = [st for st in steps if re.search(r"^\s*continue-on-error:\s*true\s*$", st, re.M)]
+assert len(coe) >= 20, len(coe)
+missing = []
+for st in coe:
+    m = re.search(r"^\s*id:\s*(\S+)\s*$", st, re.M)
+    name = st.splitlines()[0]
+    cond = f"if: steps.{m.group(1)}.outcome == 'failure'" if m else None
+    if not cond or not any(cond in x and "module_failure_marker.py" in x for x in steps):
+        missing.append(name)
 assert not missing, missing
 print("PASS system status matrix: ok/running/degraded/attention, markers on every isolated step")

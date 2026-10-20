@@ -105,6 +105,7 @@ PRODUCER_OVERRIDE = {
     "trend_pulse_backtest.json": "backtest_trend_pulse.py", "auto_research_status.json": "daily_research_job.py",
     "historical_journal.json": "local_history_agent.py", "playbook_status.json": "playbook_engine.py",
     "system_status.json": "system_status_center.py",
+    "market_temperature_history.json": "market_temperature.py",  # written via HIST, not an OUT_VARS name
 }
 OUT_VARS = re.compile(r'^\s*(OUT|OUTPUT|PUBLIC|PUBLIC_OUT|STATUS_OUT|ANCHOR_OUT|AUTHOR_SIGNALS_OUT|HISTORY|STATUS)\s*=\s*(.+)$')
 LEARNING_KIND = re.compile(r"(outcome|memory|feedback|replay|scorecard|attribution|validation|lifecycle|self_improvement|challenger|policy|candidate_|backtest|learning_engine|historical_journal)")

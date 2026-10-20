@@ -54,8 +54,13 @@ jobs:
         run: python -m compileall -q scripts
 
       - name: Update official FOMC and CPI calendar
+        id: market_events_calendar
         continue-on-error: true
         run: python scripts/update_market_events.py
+
+      - name: Record market_events_calendar failure (visible in system status)
+        if: steps.market_events_calendar.outcome == 'failure'
+        run: python scripts/module_failure_marker.py market_events_calendar
 
       - name: Fetch prices and build site
         env:
@@ -65,9 +70,14 @@ jobs:
         run: python scripts/fetch_and_build.py
 
       - name: Server forward observations (append-only, independent of browser visits)
+        id: forward_observations
         # Never blocks the market update; an append-only violation leaves the ledger untouched and is annotated.
         continue-on-error: true
         run: python scripts/forward_observation_engine.py
+
+      - name: Record forward_observations failure (visible in system status)
+        if: steps.forward_observations.outcome == 'failure'
+        run: python scripts/module_failure_marker.py forward_observations
 
       - name: Bootstrap / refresh Replay history dependencies
         id: replay_history_bootstrap
@@ -151,14 +161,24 @@ jobs:
         run: python scripts/module_failure_marker.py market_location_research
 
       - name: Update FRED point-in-time macro context
+        id: fred_macro
         continue-on-error: true
         env:
           FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
         run: python scripts/update_fred_macro.py
 
+      - name: Record fred_macro failure (visible in system status)
+        if: steps.fred_macro.outcome == 'failure'
+        run: python scripts/module_failure_marker.py fred_macro
+
       - name: SEC XBRL fundamentals for automatic research (official, free; failures → unavailable)
+        id: sec_xbrl_fundamentals
         continue-on-error: true
         run: python scripts/sec_fundamentals.py
+
+      - name: Record sec_xbrl_fundamentals failure (visible in system status)
+        if: steps.sec_xbrl_fundamentals.outcome == 'failure'
+        run: python scripts/module_failure_marker.py sec_xbrl_fundamentals
 
       - name: MyAlpha automatic research (shadow; ingestion → evidence → analysis → shadow-write → revisit)
         id: auto_research
@@ -188,11 +208,16 @@ jobs:
       # 市场温度 (#133 2026-10-17): MyAlpha's own descriptive 0–100 reading from existing data; append-only daily
       # history for later validation. Descriptive only — never blocks the website, never feeds decisions.
       - name: Market temperature (descriptive)
+        id: market_temperature
         continue-on-error: true
         run: python scripts/market_temperature.py
 
       # P0-A / H-02 (#133 6148675138): official event outcomes (BLS, free, after release only) → BrightLine
       # tranche Shadow → homepage macro-event row. Shadow-only; a failure is recorded and never blocks the website.
+
+      - name: Record market_temperature failure (visible in system status)
+        if: steps.market_temperature.outcome == 'failure'
+        run: python scripts/module_failure_marker.py market_temperature
       - name: Macro event outcomes + tranche Shadow + homepage event row (Shadow)
         id: macro_event_watch
         continue-on-error: true
@@ -350,13 +375,23 @@ jobs:
         run: python scripts/data_learning_coverage_audit.py
 
       - name: Build five-engine learning funnel contract (P3-12)
+        id: learning_funnel_contract
         # Diagnostic measurement only; never blocks the dashboard publish.
         continue-on-error: true
         run: python scripts/learning_funnel_contract.py
 
+      - name: Record learning_funnel_contract failure (visible in system status)
+        if: steps.learning_funnel_contract.outcome == 'failure'
+        run: python scripts/module_failure_marker.py learning_funnel_contract
+
       - name: Validate assistant market alert rules
+        id: assistant_alert_rules
         continue-on-error: true
         run: python scripts/backtest_assistant_rules.py --period 5y --skip-if-no-new-data
+
+      - name: Record assistant_alert_rules failure (visible in system status)
+        if: steps.assistant_alert_rules.outcome == 'failure'
+        run: python scripts/module_failure_marker.py assistant_alert_rules
 
       - name: Generate immutable build manifest
         run: python scripts/generate_build_manifest.py

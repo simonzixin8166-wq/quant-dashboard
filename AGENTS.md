@@ -26,6 +26,8 @@
 3. 改了 `docs/assets/*.js`：`node --check` 每个文件，并运行 `node tests/pr254_round2_contracts.test.js`、`node tests/options_v2.test.js`、`node tests/option_decision.test.js`。
 4. 改了 `scripts/fetch_and_build.py`：`python tests/test_build_contract.py`。
 5. 依赖 yfinance 等外部库的测试在无网络时可能失败——说明原因，不要改测试绕过。
+6. 改了 Daily 会运行的任何脚本或 `.github/workflows/daily.yml`：在本地完整执行 Daily 的「Verify generated dashboard contract」全部命令和 v56-pr-validation 全部命令，退出码都必须为 0。这类 PR 只能在一次真实定时 Daily 验收通过之后合并（Owner 2026-10-20：定时运行已恢复，任何修改都不得影响它）。
+7. **过渡期兼容**：JS/CSS 一合并就上线，`docs/index.html` 却要等下一次 Daily 才重新生成。改了页面结构的前端脚本，必须同时在「旧 index.html + 新脚本」下检查（不能出现横向溢出、元素缺失），或者让脚本兼容旧结构（10/20 #275 合并后，QA 在过渡期报 macro_row overflow）。
 
 ## 交付
 - 一个任务一个小 PR，只改任务卡列出的文件。

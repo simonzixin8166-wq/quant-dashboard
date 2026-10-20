@@ -1,6 +1,6 @@
 {
   "version": "5.7.0",
-  "generated_at": "2026-10-20T13:41:34.533556+00:00",
+  "generated_at": "2026-10-20T22:05:18.301789+00:00",
   "external_outcome_evidence_role": "legacy_descriptive_only",
   "as_of": "2026-10-20",
   "architecture": [
@@ -84,26 +84,26 @@
     "top": [
       {
         "symbol": "AMZN",
-        "evidence_score": 50.4,
+        "evidence_score": 73.6,
         "status": "evidence-accumulating",
         "trend_state": {
-          "state": "Early Bull Transition",
-          "label_cn": "早期多头转换",
-          "source_stage": "趋势启动",
+          "state": "Confirmed Trend",
+          "label_cn": "趋势已确认",
+          "source_stage": "二次启动",
           "weekly": "多头",
-          "explanation": "短周期已经出现由弱转强，但趋势刚开始，仍需要更高周期和后续收盘确认。",
-          "invalidation": "若趋势分数重新显著转弱、关键结构失守或周线继续背离，则早期转换失败。",
+          "explanation": "趋势重新启动且周线同向，属于比首次启动更完整的多周期确认。",
+          "invalidation": "若重新跌回修复/恶化状态或周线转弱，则确认失效。",
           "term_help": {
-            "cn": "早期多头转换",
-            "plain": "短周期已经明显转强，但更高周期或价格确认还没有完全跟上。",
-            "why": "它代表值得观察的早期阶段，不等于已经进入稳定主升趋势。"
+            "cn": "趋势已确认",
+            "plain": "价格结构、动量和较高周期大体同向，趋势证据比早期转换阶段更完整。",
+            "why": "确认提高趋势可信度，但仍不代表没有回撤风险。"
           }
         },
         "breadcrumbs": [
           {
             "type": "trend_state",
             "strength": "medium",
-            "evidence": "Trend Pulse 当前阶段：趋势启动",
+            "evidence": "Trend Pulse 当前阶段：二次启动",
             "meaning": "说明当前技术结构处于什么阶段；它是研究线索，不是单独买卖信号。"
           },
           {
@@ -113,13 +113,19 @@
             "meaning": "用更高周期检查日线信号是否得到确认，减少一次性反弹造成的误判。"
           },
           {
+            "type": "transition",
+            "strength": "high",
+            "evidence": "阶段从 趋势启动 变化为 二次启动",
+            "meaning": "状态变化通常比重复的同状态提醒更值得复查。"
+          },
+          {
             "type": "research_priority",
             "strength": "medium",
-            "evidence": "研究优先级 71/100",
+            "evidence": "研究优先级 74/100",
             "meaning": "代表应优先花时间研究，不是买入概率或收益率预测。"
           }
         ],
-        "next_confirmation": "若趋势分数重新显著转弱、关键结构失守或周线继续背离，则早期转换失败。",
+        "next_confirmation": "若重新跌回修复/恶化状态或周线转弱，则确认失效。",
         "source_scope": "当前仅使用已验证的行情、Trend Pulse、历史学习与覆盖池异动；尚未把论坛/SEC/FDA/公司新闻自动写入此评分。"
       },
       {
@@ -155,7 +161,7 @@
           {
             "type": "momentum",
             "strength": "medium",
-            "evidence": "Trend Pulse 分数 80",
+            "evidence": "Trend Pulse 分数 79",
             "meaning": "分数绝对值较高表示趋势证据较集中，但高分不等于未来一定继续上涨或下跌。"
           },
           {
@@ -166,6 +172,46 @@
           }
         ],
         "next_confirmation": "重新二次启动可恢复确认；进一步恶化则视为结构破坏。",
+        "source_scope": "当前仅使用已验证的行情、Trend Pulse、历史学习与覆盖池异动；尚未把论坛/SEC/FDA/公司新闻自动写入此评分。"
+      },
+      {
+        "symbol": "HOOD",
+        "evidence_score": 30.0,
+        "status": "monitor",
+        "trend_state": {
+          "state": "Breakdown",
+          "label_cn": "结构破坏",
+          "source_stage": "趋势恶化",
+          "weekly": "过渡",
+          "explanation": "趋势结构已经明显恶化，原来的多头假设必须重新验证。",
+          "invalidation": "只有进入修复并完成新的确认流程，才考虑重新升级。",
+          "term_help": {
+            "cn": "结构破坏",
+            "plain": "趋势和价格结构已经明显恶化，原来的多头假设需要重新验证。",
+            "why": "这不是自动卖出指令，而是要求重新检查投资逻辑、估值和风险暴露。"
+          }
+        },
+        "breadcrumbs": [
+          {
+            "type": "trend_state",
+            "strength": "medium",
+            "evidence": "Trend Pulse 当前阶段：趋势恶化",
+            "meaning": "说明当前技术结构处于什么阶段；它是研究线索，不是单独买卖信号。"
+          },
+          {
+            "type": "timeframe",
+            "strength": "medium",
+            "evidence": "周线方向：过渡",
+            "meaning": "用更高周期检查日线信号是否得到确认，减少一次性反弹造成的误判。"
+          },
+          {
+            "type": "momentum",
+            "strength": "medium",
+            "evidence": "Trend Pulse 分数 -70",
+            "meaning": "分数绝对值较高表示趋势证据较集中，但高分不等于未来一定继续上涨或下跌。"
+          }
+        ],
+        "next_confirmation": "只有进入修复并完成新的确认流程，才考虑重新升级。",
         "source_scope": "当前仅使用已验证的行情、Trend Pulse、历史学习与覆盖池异动；尚未把论坛/SEC/FDA/公司新闻自动写入此评分。"
       },
       {
@@ -201,7 +247,47 @@
           {
             "type": "momentum",
             "strength": "medium",
-            "evidence": "Trend Pulse 分数 -76",
+            "evidence": "Trend Pulse 分数 -88",
+            "meaning": "分数绝对值较高表示趋势证据较集中，但高分不等于未来一定继续上涨或下跌。"
+          }
+        ],
+        "next_confirmation": "只有进入修复并完成新的确认流程，才考虑重新升级。",
+        "source_scope": "当前仅使用已验证的行情、Trend Pulse、历史学习与覆盖池异动；尚未把论坛/SEC/FDA/公司新闻自动写入此评分。"
+      },
+      {
+        "symbol": "SMH",
+        "evidence_score": 30.0,
+        "status": "monitor",
+        "trend_state": {
+          "state": "Breakdown",
+          "label_cn": "结构破坏",
+          "source_stage": "趋势恶化",
+          "weekly": "过渡",
+          "explanation": "趋势结构已经明显恶化，原来的多头假设必须重新验证。",
+          "invalidation": "只有进入修复并完成新的确认流程，才考虑重新升级。",
+          "term_help": {
+            "cn": "结构破坏",
+            "plain": "趋势和价格结构已经明显恶化，原来的多头假设需要重新验证。",
+            "why": "这不是自动卖出指令，而是要求重新检查投资逻辑、估值和风险暴露。"
+          }
+        },
+        "breadcrumbs": [
+          {
+            "type": "trend_state",
+            "strength": "medium",
+            "evidence": "Trend Pulse 当前阶段：趋势恶化",
+            "meaning": "说明当前技术结构处于什么阶段；它是研究线索，不是单独买卖信号。"
+          },
+          {
+            "type": "timeframe",
+            "strength": "medium",
+            "evidence": "周线方向：过渡",
+            "meaning": "用更高周期检查日线信号是否得到确认，减少一次性反弹造成的误判。"
+          },
+          {
+            "type": "momentum",
+            "strength": "medium",
+            "evidence": "Trend Pulse 分数 -63",
             "meaning": "分数绝对值较高表示趋势证据较集中，但高分不等于未来一定继续上涨或下跌。"
           }
         ],
@@ -241,7 +327,7 @@
           {
             "type": "momentum",
             "strength": "medium",
-            "evidence": "Trend Pulse 分数 -65",
+            "evidence": "Trend Pulse 分数 -66",
             "meaning": "分数绝对值较高表示趋势证据较集中，但高分不等于未来一定继续上涨或下跌。"
           }
         ],
@@ -281,7 +367,7 @@
           {
             "type": "momentum",
             "strength": "medium",
-            "evidence": "Trend Pulse 分数 -95",
+            "evidence": "Trend Pulse 分数 -93",
             "meaning": "分数绝对值较高表示趋势证据较集中，但高分不等于未来一定继续上涨或下跌。"
           }
         ],
@@ -321,7 +407,7 @@
           {
             "type": "momentum",
             "strength": "medium",
-            "evidence": "Trend Pulse 分数 -87",
+            "evidence": "Trend Pulse 分数 -88",
             "meaning": "分数绝对值较高表示趋势证据较集中，但高分不等于未来一定继续上涨或下跌。"
           }
         ],
@@ -449,48 +535,14 @@
         "source_scope": "当前仅使用已验证的行情、Trend Pulse、历史学习与覆盖池异动；尚未把论坛/SEC/FDA/公司新闻自动写入此评分。"
       },
       {
-        "symbol": "TSLA",
-        "evidence_score": 20.0,
-        "status": "monitor",
-        "trend_state": {
-          "state": "Confirmation Pending",
-          "label_cn": "等待确认",
-          "source_stage": "震荡观察",
-          "weekly": "过渡",
-          "explanation": "当前属于修复或震荡阶段，已有改善但尚未形成稳定趋势。",
-          "invalidation": "若修复失败并重新恶化，则继续防守；若启动并获得确认，则升级。",
-          "term_help": {
-            "cn": "等待确认",
-            "plain": "已经出现改善信号，但还需要连续收盘、关键价位或更高周期共同验证。",
-            "why": "避免只因为一天反弹或一次突破就过早把状态升级。"
-          }
-        },
-        "breadcrumbs": [
-          {
-            "type": "trend_state",
-            "strength": "medium",
-            "evidence": "Trend Pulse 当前阶段：震荡观察",
-            "meaning": "说明当前技术结构处于什么阶段；它是研究线索，不是单独买卖信号。"
-          },
-          {
-            "type": "timeframe",
-            "strength": "medium",
-            "evidence": "周线方向：过渡",
-            "meaning": "用更高周期检查日线信号是否得到确认，减少一次性反弹造成的误判。"
-          }
-        ],
-        "next_confirmation": "若修复失败并重新恶化，则继续防守；若启动并获得确认，则升级。",
-        "source_scope": "当前仅使用已验证的行情、Trend Pulse、历史学习与覆盖池异动；尚未把论坛/SEC/FDA/公司新闻自动写入此评分。"
-      },
-      {
         "symbol": "VOO",
-        "evidence_score": 20.0,
+        "evidence_score": 22.0,
         "status": "monitor",
         "trend_state": {
           "state": "Confirmation Pending",
           "label_cn": "等待确认",
           "source_stage": "震荡观察",
-          "weekly": "过渡",
+          "weekly": "多头",
           "explanation": "当前属于修复或震荡阶段，已有改善但尚未形成稳定趋势。",
           "invalidation": "若修复失败并重新恶化，则继续防守；若启动并获得确认，则升级。",
           "term_help": {
@@ -509,41 +561,7 @@
           {
             "type": "timeframe",
             "strength": "medium",
-            "evidence": "周线方向：过渡",
-            "meaning": "用更高周期检查日线信号是否得到确认，减少一次性反弹造成的误判。"
-          }
-        ],
-        "next_confirmation": "若修复失败并重新恶化，则继续防守；若启动并获得确认，则升级。",
-        "source_scope": "当前仅使用已验证的行情、Trend Pulse、历史学习与覆盖池异动；尚未把论坛/SEC/FDA/公司新闻自动写入此评分。"
-      },
-      {
-        "symbol": "SPY",
-        "evidence_score": 20.0,
-        "status": "monitor",
-        "trend_state": {
-          "state": "Confirmation Pending",
-          "label_cn": "等待确认",
-          "source_stage": "震荡观察",
-          "weekly": "过渡",
-          "explanation": "当前属于修复或震荡阶段，已有改善但尚未形成稳定趋势。",
-          "invalidation": "若修复失败并重新恶化，则继续防守；若启动并获得确认，则升级。",
-          "term_help": {
-            "cn": "等待确认",
-            "plain": "已经出现改善信号，但还需要连续收盘、关键价位或更高周期共同验证。",
-            "why": "避免只因为一天反弹或一次突破就过早把状态升级。"
-          }
-        },
-        "breadcrumbs": [
-          {
-            "type": "trend_state",
-            "strength": "medium",
-            "evidence": "Trend Pulse 当前阶段：震荡观察",
-            "meaning": "说明当前技术结构处于什么阶段；它是研究线索，不是单独买卖信号。"
-          },
-          {
-            "type": "timeframe",
-            "strength": "medium",
-            "evidence": "周线方向：过渡",
+            "evidence": "周线方向：多头",
             "meaning": "用更高周期检查日线信号是否得到确认，减少一次性反弹造成的误判。"
           }
         ],
@@ -556,15 +574,57 @@
     "note": "V5.7 首版只用已有可验证数据形成技术/市场 Breadcrumb；不会假装已经抓取到 SEC/FDA/论坛等外部事实。"
   },
   "failure_attribution": {
-    "mature_samples_scanned": 463,
-    "review_samples": 171,
+    "mature_samples_scanned": 472,
+    "review_samples": 176,
     "tag_counts": {
-      "trend_false_positive": 46,
-      "large_adverse_move": 102,
-      "timeframe_confirmation_missing": 78,
+      "trend_false_positive": 50,
+      "timeframe_confirmation_missing": 81,
+      "large_adverse_move": 106,
       "missed_upside": 23
     },
     "recent": [
+      {
+        "symbol": "CRWV",
+        "date": "2026-09-22",
+        "source_stage": "趋势启动",
+        "weekly": "过渡",
+        "score": 6.08,
+        "return_20": -0.28388657136796647,
+        "mae_20": -0.29552790534941487,
+        "mfe_20": 0.057169202397418184,
+        "severity": "review",
+        "tags": [
+          "trend_false_positive",
+          "timeframe_confirmation_missing",
+          "large_adverse_move"
+        ],
+        "attribution_hypotheses": [
+          "当时趋势状态偏多，但20个交易日结果明显为负：优先检查趋势确认是否过早。",
+          "日线偏强而周线未确认，多周期冲突可能是误判来源之一。",
+          "入档后经历较大不利波动，风险识别和无效条件应被单独复盘。"
+        ],
+        "guardrail": "这是可检验的归因假设，不是已经证明的因果关系；只有重复成熟样本才允许影响 Learning Policy。"
+      },
+      {
+        "symbol": "NBIS",
+        "date": "2026-09-21",
+        "source_stage": "二次启动",
+        "weekly": "多头",
+        "score": 72.69,
+        "return_20": -0.2635309278350516,
+        "mae_20": -0.2892182130584193,
+        "mfe_20": 0.0733247422680412,
+        "severity": "review",
+        "tags": [
+          "trend_false_positive",
+          "large_adverse_move"
+        ],
+        "attribution_hypotheses": [
+          "当时趋势状态偏多，但20个交易日结果明显为负：优先检查趋势确认是否过早。",
+          "入档后经历较大不利波动，风险识别和无效条件应被单独复盘。"
+        ],
+        "guardrail": "这是可检验的归因假设，不是已经证明的因果关系；只有重复成熟样本才允许影响 Learning Policy。"
+      },
       {
         "symbol": "LITE",
         "date": "2026-09-21",
@@ -574,6 +634,66 @@
         "return_20": -0.125700625464908,
         "mae_20": -0.13657555343691397,
         "mfe_20": 0.18744043415855582,
+        "severity": "review",
+        "tags": [
+          "trend_false_positive",
+          "large_adverse_move"
+        ],
+        "attribution_hypotheses": [
+          "当时趋势状态偏多，但20个交易日结果明显为负：优先检查趋势确认是否过早。",
+          "入档后经历较大不利波动，风险识别和无效条件应被单独复盘。"
+        ],
+        "guardrail": "这是可检验的归因假设，不是已经证明的因果关系；只有重复成熟样本才允许影响 Learning Policy。"
+      },
+      {
+        "symbol": "IREN",
+        "date": "2026-09-21",
+        "source_stage": "二次启动",
+        "weekly": "过渡",
+        "score": 63.31,
+        "return_20": -0.43637518526360364,
+        "mae_20": -0.43637518526360364,
+        "mfe_20": 0.02794833792081297,
+        "severity": "review",
+        "tags": [
+          "trend_false_positive",
+          "timeframe_confirmation_missing",
+          "large_adverse_move"
+        ],
+        "attribution_hypotheses": [
+          "当时趋势状态偏多，但20个交易日结果明显为负：优先检查趋势确认是否过早。",
+          "日线偏强而周线未确认，多周期冲突可能是误判来源之一。",
+          "入档后经历较大不利波动，风险识别和无效条件应被单独复盘。"
+        ],
+        "guardrail": "这是可检验的归因假设，不是已经证明的因果关系；只有重复成熟样本才允许影响 Learning Policy。"
+      },
+      {
+        "symbol": "GOOG",
+        "date": "2026-09-21",
+        "source_stage": "趋势启动",
+        "weekly": "空头",
+        "score": 32.25,
+        "return_20": -0.04124037392766555,
+        "mae_20": -0.04528742839228195,
+        "mfe_20": -0.0038476073759512452,
+        "severity": "review",
+        "tags": [
+          "timeframe_confirmation_missing"
+        ],
+        "attribution_hypotheses": [
+          "日线偏强而周线未确认，多周期冲突可能是误判来源之一。"
+        ],
+        "guardrail": "这是可检验的归因假设，不是已经证明的因果关系；只有重复成熟样本才允许影响 Learning Policy。"
+      },
+      {
+        "symbol": "DRAM",
+        "date": "2026-09-21",
+        "source_stage": "二次启动",
+        "weekly": "多头",
+        "score": 84.57,
+        "return_20": -0.2250730756739201,
+        "mae_20": -0.24569665475803826,
+        "mfe_20": 0.03312763884378045,
         "severity": "review",
         "tags": [
           "trend_false_positive",
@@ -860,100 +980,6 @@
           "当时趋势状态偏多，但20个交易日结果明显为负：优先检查趋势确认是否过早。",
           "日线偏强而周线未确认，多周期冲突可能是误判来源之一。",
           "入档后经历较大不利波动，风险识别和无效条件应被单独复盘。"
-        ],
-        "guardrail": "这是可检验的归因假设，不是已经证明的因果关系；只有重复成熟样本才允许影响 Learning Policy。"
-      },
-      {
-        "symbol": "ORCL",
-        "date": "2026-09-04",
-        "source_stage": "趋势延续",
-        "weekly": "过渡",
-        "score": 51.47,
-        "return_20": -0.08823529411764697,
-        "mae_20": -0.16488222698072807,
-        "mfe_20": 0.023554603854389677,
-        "severity": "review",
-        "tags": [
-          "trend_false_positive",
-          "timeframe_confirmation_missing",
-          "large_adverse_move"
-        ],
-        "attribution_hypotheses": [
-          "当时趋势状态偏多，但20个交易日结果明显为负：优先检查趋势确认是否过早。",
-          "日线偏强而周线未确认，多周期冲突可能是误判来源之一。",
-          "入档后经历较大不利波动，风险识别和无效条件应被单独复盘。"
-        ],
-        "guardrail": "这是可检验的归因假设，不是已经证明的因果关系；只有重复成熟样本才允许影响 Learning Policy。"
-      },
-      {
-        "symbol": "IREN",
-        "date": "2026-09-04",
-        "source_stage": "二次启动",
-        "weekly": "空头",
-        "score": 41.58,
-        "return_20": -0.07609668755595345,
-        "mae_20": -0.09400179051029545,
-        "mfe_20": 0.08661593554162939,
-        "severity": "review",
-        "tags": [
-          "timeframe_confirmation_missing"
-        ],
-        "attribution_hypotheses": [
-          "日线偏强而周线未确认，多周期冲突可能是误判来源之一。"
-        ],
-        "guardrail": "这是可检验的归因假设，不是已经证明的因果关系；只有重复成熟样本才允许影响 Learning Policy。"
-      },
-      {
-        "symbol": "DRAM",
-        "date": "2026-09-04",
-        "source_stage": "二次启动",
-        "weekly": "过渡",
-        "score": 35.56,
-        "return_20": -0.00284804824928786,
-        "mae_20": -0.08192327022951917,
-        "mfe_20": 0.06584017423353994,
-        "severity": "review",
-        "tags": [
-          "timeframe_confirmation_missing"
-        ],
-        "attribution_hypotheses": [
-          "日线偏强而周线未确认，多周期冲突可能是误判来源之一。"
-        ],
-        "guardrail": "这是可检验的归因假设，不是已经证明的因果关系；只有重复成熟样本才允许影响 Learning Policy。"
-      },
-      {
-        "symbol": "VIX",
-        "date": "2026-09-01",
-        "source_stage": "修复中",
-        "weekly": "空头",
-        "score": -20.88,
-        "return_20": -0.018359806258204547,
-        "mae_20": -0.13035496294677662,
-        "mfe_20": 0.09179926474862565,
-        "severity": "review",
-        "tags": [
-          "large_adverse_move"
-        ],
-        "attribution_hypotheses": [
-          "入档后经历较大不利波动，风险识别和无效条件应被单独复盘。"
-        ],
-        "guardrail": "这是可检验的归因假设，不是已经证明的因果关系；只有重复成熟样本才允许影响 Learning Policy。"
-      },
-      {
-        "symbol": "NOW",
-        "date": "2026-08-28",
-        "source_stage": "趋势延续",
-        "weekly": "多头",
-        "score": 95.15,
-        "return_20": -0.09163153893994902,
-        "mae_20": -0.09398106557943464,
-        "mfe_20": 0.02266602169856946,
-        "severity": "review",
-        "tags": [
-          "trend_false_positive"
-        ],
-        "attribution_hypotheses": [
-          "当时趋势状态偏多，但20个交易日结果明显为负：优先检查趋势确认是否过早。"
         ],
         "guardrail": "这是可检验的归因假设，不是已经证明的因果关系；只有重复成熟样本才允许影响 Learning Policy。"
       }
@@ -3644,17 +3670,17 @@
         "unconfirmed": 97,
         "triggered_author_owned": 75,
         "untriggered_plans": 7,
-        "mature60": 31,
-        "developing": 44,
+        "mature60": 32,
+        "developing": 43,
         "symbols": 29
       },
       "by_action": {
         "add": {
           "5": {
-            "n": 15,
-            "avg_return": -0.0022143988407290335,
-            "median_return": 0.0007254599229895575,
-            "avg_excess_vs_qqq": -0.0032440466068836956,
+            "n": 19,
+            "avg_return": -0.01335464082008582,
+            "median_return": -0.028048208720593437,
+            "avg_excess_vs_qqq": -0.007933666949056044,
             "alignment_rate": 0.5333333333333333
           },
           "20": {
@@ -3665,11 +3691,11 @@
             "alignment_rate": 0.6666666666666666
           },
           "60": {
-            "n": 10,
-            "avg_return": -0.007855066108756636,
-            "median_return": -0.00542354309657167,
-            "avg_excess_vs_qqq": -0.05923598810146915,
-            "alignment_rate": 0.5
+            "n": 11,
+            "avg_return": 0.007879209839224148,
+            "median_return": 0.07635760294658378,
+            "avg_excess_vs_qqq": -0.042414887282234186,
+            "alignment_rate": 0.5454545454545454
           }
         },
         "buy": {
@@ -3697,10 +3723,10 @@
         },
         "clear": {
           "5": {
-            "n": 0,
-            "avg_return": null,
-            "median_return": null,
-            "avg_excess_vs_qqq": null,
+            "n": 4,
+            "avg_return": -0.05513054824267377,
+            "median_return": -0.054408176252074114,
+            "avg_excess_vs_qqq": -0.025519743232202352,
             "alignment_rate": null
           },
           "20": {
@@ -3835,11 +3861,11 @@
         },
         "trim": {
           "5": {
-            "n": 3,
-            "avg_return": -0.014913928848925137,
-            "median_return": -0.07364756293519015,
-            "avg_excess_vs_qqq": -0.00860726743780967,
-            "alignment_rate": 0.6666666666666666
+            "n": 8,
+            "avg_return": -0.05971280560238408,
+            "median_return": -0.07384220429745486,
+            "avg_excess_vs_qqq": -0.038841054441671144,
+            "alignment_rate": 0.75
           },
           "20": {
             "n": 3,

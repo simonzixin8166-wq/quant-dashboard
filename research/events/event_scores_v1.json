@@ -1,19 +1,1579 @@
 {
   "version": "6.15.8l",
-  "generated_at": "2026-10-17T00:22:27.508017+00:00",
+  "generated_at": "2026-10-20T01:03:39.938016+00:00",
   "spec_version": "1.7",
   "scoring_engine_version": "event_score@6.15.8l",
   "mode": "research_only_adapter",
   "counts": {
-    "events": 154,
+    "events": 179,
     "scoreable": 1,
     "primary_exclusion": {
-      "non_point_in_time_source": 152,
-      "missing_rule_id": 1
+      "missing_rule_id": 2,
+      "non_point_in_time_source": 176
     },
     "conservation_ok": true
   },
   "events": [
+    {
+      "event_id": "f50b5f253e8f32dcede6:0:NBIS:0",
+      "rule_id": null,
+      "legacy_source_id": "f50b5f253e8f32dcede6",
+      "legacy_operation_index": 0,
+      "spec_version": "1.7",
+      "scoring_engine_version": "event_score@6.15.8l",
+      "author": "BrightLine",
+      "symbol": "NBIS",
+      "published_at": "2026-10-18",
+      "baseline_date": "2026-10-19",
+      "baseline_timestamp_utc": "2026-10-19T13:30:00+00:00",
+      "entry_type": "next_session",
+      "fill_status": "simulated_fill",
+      "fill_confidence": "high",
+      "fill_model": "simulated_next_session_open",
+      "entry_inference_source": "baseline_kind:next_session",
+      "entry_registry_version": "1.0",
+      "direction": "bullish",
+      "rule_structural_direction": null,
+      "triggered": true,
+      "scoreable": false,
+      "primary_exclusion_reason": "missing_rule_id",
+      "secondary_exclusion_reasons": [],
+      "exclusion_reasons": [
+        "missing_rule_id"
+      ],
+      "maturity": {
+        "5": false,
+        "20": false,
+        "60": false
+      },
+      "scores": {
+        "5": null,
+        "20": null,
+        "60": null
+      },
+      "data_quality": {
+        "status": "ok",
+        "source": "stooq_archive",
+        "price_source": "stooq_archive",
+        "adjustment_basis": "stooq_archive_native_series",
+        "same_source_only": true,
+        "price_series_hash": "9f71fc983e19b3909eaa8d605c7ef71f2043e9f9f517915da4ecaf12c996b6d0",
+        "overlap_conflicts": []
+      },
+      "price_provenance": {
+        "price_source": "stooq_archive",
+        "adjustment_basis": "stooq_archive_native_series",
+        "baseline_source": "stooq_archive",
+        "horizon_source": "stooq_archive",
+        "same_source": true,
+        "provenance_origin": "source_outcome_artifact"
+      },
+      "source_provenance": {
+        "first_fetched_at": "2026-10-19T01:08:27.242560+00:00",
+        "ingest_type": "live_ingest",
+        "first_fetched_at_origin": "source_store_first_observation",
+        "admission_class": "genuine_forward",
+        "admission_origin": "new_visible_source_no_prior_identity_match",
+        "identity_parent_source_key": null,
+        "published_at_semantics": "source_archive_publication_date",
+        "timestamp_confidence": "high",
+        "snapshot_hash": "c5601ab7506e369fc7fd0934764ac762b1cc5c94dde9809ccb9ad11758be2cf2"
+      },
+      "point_in_time_status": "eligible",
+      "market_timestamp_cutoff": "strictly_before_baseline_timestamp_utc"
+    },
+    {
+      "event_id": "902553da20fd6a4c7902:0:VGT:0",
+      "rule_id": null,
+      "legacy_source_id": "902553da20fd6a4c7902",
+      "legacy_operation_index": 0,
+      "spec_version": "1.7",
+      "scoring_engine_version": "event_score@6.15.8l",
+      "author": "麻你",
+      "symbol": "VGT",
+      "published_at": "2026-10-16 15:27:12",
+      "baseline_date": "2026-10-19",
+      "baseline_timestamp_utc": "2026-10-19T13:30:00+00:00",
+      "entry_type": "next_session",
+      "fill_status": "simulated_fill",
+      "fill_confidence": "high",
+      "fill_model": "simulated_next_session_open",
+      "entry_inference_source": "baseline_kind:next_session",
+      "entry_registry_version": "1.0",
+      "direction": "bearish",
+      "rule_structural_direction": null,
+      "triggered": true,
+      "scoreable": false,
+      "primary_exclusion_reason": "non_point_in_time_source",
+      "secondary_exclusion_reasons": [
+        "missing_rule_id"
+      ],
+      "exclusion_reasons": [
+        "missing_rule_id",
+        "non_point_in_time_source"
+      ],
+      "maturity": {
+        "5": false,
+        "20": false,
+        "60": false
+      },
+      "scores": {
+        "5": null,
+        "20": null,
+        "60": null
+      },
+      "data_quality": {
+        "status": "ok",
+        "source": "stooq_archive",
+        "price_source": "stooq_archive",
+        "adjustment_basis": "stooq_archive_native_series",
+        "same_source_only": true,
+        "price_series_hash": "983d6fb74193654695edfdbb3ef2b60d7b3083cbc2297eae8ecd0b883458c507",
+        "overlap_conflicts": []
+      },
+      "price_provenance": {
+        "price_source": "stooq_archive",
+        "adjustment_basis": "stooq_archive_native_series",
+        "baseline_source": "stooq_archive",
+        "horizon_source": "stooq_archive",
+        "same_source": true,
+        "provenance_origin": "source_outcome_artifact"
+      },
+      "source_provenance": {
+        "first_fetched_at": "2026-10-17T02:43:16.202100+00:00",
+        "ingest_type": "backfill_ingest",
+        "first_fetched_at_origin": "source_store_first_observation",
+        "admission_class": "identity_ambiguous",
+        "admission_origin": "identity_collision_fail_closed",
+        "identity_parent_source_key": null,
+        "published_at_semantics": "upstream_published_at_unverified",
+        "timestamp_confidence": "unverified",
+        "snapshot_hash": "7fc2bb9f4e8261d3f119975f68aa59674a294867b0d9729d46647aec1010527e"
+      },
+      "point_in_time_status": "source_not_genuine_forward",
+      "market_timestamp_cutoff": "strictly_before_baseline_timestamp_utc"
+    },
+    {
+      "event_id": "902553da20fd6a4c7902:1:VGT:0",
+      "rule_id": null,
+      "legacy_source_id": "902553da20fd6a4c7902",
+      "legacy_operation_index": 1,
+      "spec_version": "1.7",
+      "scoring_engine_version": "event_score@6.15.8l",
+      "author": "麻你",
+      "symbol": "VGT",
+      "published_at": "2026-10-16 15:27:12",
+      "baseline_date": "2026-10-19",
+      "baseline_timestamp_utc": "2026-10-19T13:30:00+00:00",
+      "entry_type": "next_session",
+      "fill_status": "simulated_fill",
+      "fill_confidence": "high",
+      "fill_model": "simulated_next_session_open",
+      "entry_inference_source": "baseline_kind:next_session",
+      "entry_registry_version": "1.0",
+      "direction": "bullish",
+      "rule_structural_direction": null,
+      "triggered": true,
+      "scoreable": false,
+      "primary_exclusion_reason": "non_point_in_time_source",
+      "secondary_exclusion_reasons": [
+        "missing_rule_id"
+      ],
+      "exclusion_reasons": [
+        "missing_rule_id",
+        "non_point_in_time_source"
+      ],
+      "maturity": {
+        "5": false,
+        "20": false,
+        "60": false
+      },
+      "scores": {
+        "5": null,
+        "20": null,
+        "60": null
+      },
+      "data_quality": {
+        "status": "ok",
+        "source": "stooq_archive",
+        "price_source": "stooq_archive",
+        "adjustment_basis": "stooq_archive_native_series",
+        "same_source_only": true,
+        "price_series_hash": "983d6fb74193654695edfdbb3ef2b60d7b3083cbc2297eae8ecd0b883458c507",
+        "overlap_conflicts": []
+      },
+      "price_provenance": {
+        "price_source": "stooq_archive",
+        "adjustment_basis": "stooq_archive_native_series",
+        "baseline_source": "stooq_archive",
+        "horizon_source": "stooq_archive",
+        "same_source": true,
+        "provenance_origin": "source_outcome_artifact"
+      },
+      "source_provenance": {
+        "first_fetched_at": "2026-10-17T02:43:16.202100+00:00",
+        "ingest_type": "backfill_ingest",
+        "first_fetched_at_origin": "source_store_first_observation",
+        "admission_class": "identity_ambiguous",
+        "admission_origin": "identity_collision_fail_closed",
+        "identity_parent_source_key": null,
+        "published_at_semantics": "upstream_published_at_unverified",
+        "timestamp_confidence": "unverified",
+        "snapshot_hash": "7fc2bb9f4e8261d3f119975f68aa59674a294867b0d9729d46647aec1010527e"
+      },
+      "point_in_time_status": "source_not_genuine_forward",
+      "market_timestamp_cutoff": "strictly_before_baseline_timestamp_utc"
+    },
+    {
+      "event_id": "902553da20fd6a4c7902:2:VGT:0",
+      "rule_id": null,
+      "legacy_source_id": "902553da20fd6a4c7902",
+      "legacy_operation_index": 2,
+      "spec_version": "1.7",
+      "scoring_engine_version": "event_score@6.15.8l",
+      "author": "麻你",
+      "symbol": "VGT",
+      "published_at": "2026-10-16 15:27:12",
+      "baseline_date": "2026-10-19",
+      "baseline_timestamp_utc": "2026-10-19T13:30:00+00:00",
+      "entry_type": "next_session",
+      "fill_status": "simulated_fill",
+      "fill_confidence": "high",
+      "fill_model": "simulated_next_session_open",
+      "entry_inference_source": "baseline_kind:next_session",
+      "entry_registry_version": "1.0",
+      "direction": "bearish",
+      "rule_structural_direction": null,
+      "triggered": true,
+      "scoreable": false,
+      "primary_exclusion_reason": "non_point_in_time_source",
+      "secondary_exclusion_reasons": [
+        "missing_rule_id"
+      ],
+      "exclusion_reasons": [
+        "missing_rule_id",
+        "non_point_in_time_source"
+      ],
+      "maturity": {
+        "5": false,
+        "20": false,
+        "60": false
+      },
+      "scores": {
+        "5": null,
+        "20": null,
+        "60": null
+      },
+      "data_quality": {
+        "status": "ok",
+        "source": "stooq_archive",
+        "price_source": "stooq_archive",
+        "adjustment_basis": "stooq_archive_native_series",
+        "same_source_only": true,
+        "price_series_hash": "983d6fb74193654695edfdbb3ef2b60d7b3083cbc2297eae8ecd0b883458c507",
+        "overlap_conflicts": []
+      },
+      "price_provenance": {
+        "price_source": "stooq_archive",
+        "adjustment_basis": "stooq_archive_native_series",
+        "baseline_source": "stooq_archive",
+        "horizon_source": "stooq_archive",
+        "same_source": true,
+        "provenance_origin": "source_outcome_artifact"
+      },
+      "source_provenance": {
+        "first_fetched_at": "2026-10-17T02:43:16.202100+00:00",
+        "ingest_type": "backfill_ingest",
+        "first_fetched_at_origin": "source_store_first_observation",
+        "admission_class": "identity_ambiguous",
+        "admission_origin": "identity_collision_fail_closed",
+        "identity_parent_source_key": null,
+        "published_at_semantics": "upstream_published_at_unverified",
+        "timestamp_confidence": "unverified",
+        "snapshot_hash": "7fc2bb9f4e8261d3f119975f68aa59674a294867b0d9729d46647aec1010527e"
+      },
+      "point_in_time_status": "source_not_genuine_forward",
+      "market_timestamp_cutoff": "strictly_before_baseline_timestamp_utc"
+    },
+    {
+      "event_id": "52c9e9e098cbdf204fd2:0:QQQ:0",
+      "rule_id": null,
+      "legacy_source_id": "52c9e9e098cbdf204fd2",
+      "legacy_operation_index": 0,
+      "spec_version": "1.7",
+      "scoring_engine_version": "event_score@6.15.8l",
+      "author": "bogbog",
+      "symbol": "QQQ",
+      "published_at": "2026-10-16 12:50:29",
+      "baseline_date": "2026-10-19",
+      "baseline_timestamp_utc": "2026-10-19T13:30:00+00:00",
+      "entry_type": "next_session",
+      "fill_status": "simulated_fill",
+      "fill_confidence": "high",
+      "fill_model": "simulated_next_session_open",
+      "entry_inference_source": "baseline_kind:next_session",
+      "entry_registry_version": "1.0",
+      "direction": "bullish",
+      "rule_structural_direction": null,
+      "triggered": true,
+      "scoreable": false,
+      "primary_exclusion_reason": "non_point_in_time_source",
+      "secondary_exclusion_reasons": [
+        "missing_rule_id"
+      ],
+      "exclusion_reasons": [
+        "missing_rule_id",
+        "non_point_in_time_source"
+      ],
+      "maturity": {
+        "5": false,
+        "20": false,
+        "60": false
+      },
+      "scores": {
+        "5": null,
+        "20": null,
+        "60": null
+      },
+      "data_quality": {
+        "status": "ok",
+        "source": "stooq_archive",
+        "price_source": "stooq_archive",
+        "adjustment_basis": "stooq_archive_native_series",
+        "same_source_only": true,
+        "price_series_hash": "8ed29d89c57eff4f84e7f51e16fddd73812ddf37be0ee1dedc3e4b3b9d5ac16f",
+        "overlap_conflicts": []
+      },
+      "price_provenance": {
+        "price_source": "stooq_archive",
+        "adjustment_basis": "stooq_archive_native_series",
+        "baseline_source": "stooq_archive",
+        "horizon_source": "stooq_archive",
+        "same_source": true,
+        "provenance_origin": "source_outcome_artifact"
+      },
+      "source_provenance": {
+        "first_fetched_at": "2026-10-17T02:43:16.202100+00:00",
+        "ingest_type": "backfill_ingest",
+        "first_fetched_at_origin": "source_store_first_observation",
+        "admission_class": "timestamp_unverified",
+        "admission_origin": "unverified_timestamp_fail_closed",
+        "identity_parent_source_key": null,
+        "published_at_semantics": "upstream_published_at_unverified",
+        "timestamp_confidence": "unverified",
+        "snapshot_hash": "15e4aee691d6807646a406aaa92135568f0fc17d25e9d7e3d5dbc6b922f16af6"
+      },
+      "point_in_time_status": "source_not_genuine_forward",
+      "market_timestamp_cutoff": "strictly_before_baseline_timestamp_utc"
+    },
+    {
+      "event_id": "d5d28da35b3055089d6a:0:VGT:0",
+      "rule_id": null,
+      "legacy_source_id": "d5d28da35b3055089d6a",
+      "legacy_operation_index": 0,
+      "spec_version": "1.7",
+      "scoring_engine_version": "event_score@6.15.8l",
+      "author": "麻你",
+      "symbol": "VGT",
+      "published_at": "2026-10-16",
+      "baseline_date": "2026-10-19",
+      "baseline_timestamp_utc": "2026-10-19T13:30:00+00:00",
+      "entry_type": "next_session",
+      "fill_status": "simulated_fill",
+      "fill_confidence": "high",
+      "fill_model": "simulated_next_session_open",
+      "entry_inference_source": "baseline_kind:next_session",
+      "entry_registry_version": "1.0",
+      "direction": "bearish",
+      "rule_structural_direction": null,
+      "triggered": true,
+      "scoreable": false,
+      "primary_exclusion_reason": "non_point_in_time_source",
+      "secondary_exclusion_reasons": [
+        "missing_rule_id"
+      ],
+      "exclusion_reasons": [
+        "missing_rule_id",
+        "non_point_in_time_source"
+      ],
+      "maturity": {
+        "5": false,
+        "20": false,
+        "60": false
+      },
+      "scores": {
+        "5": null,
+        "20": null,
+        "60": null
+      },
+      "data_quality": {
+        "status": "ok",
+        "source": "stooq_archive",
+        "price_source": "stooq_archive",
+        "adjustment_basis": "stooq_archive_native_series",
+        "same_source_only": true,
+        "price_series_hash": "983d6fb74193654695edfdbb3ef2b60d7b3083cbc2297eae8ecd0b883458c507",
+        "overlap_conflicts": []
+      },
+      "price_provenance": {
+        "price_source": "stooq_archive",
+        "adjustment_basis": "stooq_archive_native_series",
+        "baseline_source": "stooq_archive",
+        "horizon_source": "stooq_archive",
+        "same_source": true,
+        "provenance_origin": "source_outcome_artifact"
+      },
+      "source_provenance": {
+        "first_fetched_at": "2026-10-17T02:43:16.202100+00:00",
+        "ingest_type": "backfill_ingest",
+        "first_fetched_at_origin": "source_store_first_observation",
+        "admission_class": "identity_ambiguous",
+        "admission_origin": "identity_collision_fail_closed",
+        "identity_parent_source_key": null,
+        "published_at_semantics": "source_archive_publication_date",
+        "timestamp_confidence": "high",
+        "snapshot_hash": "01fdbc18eb7f02c6ea0771ab4be8e4ff17909624b1db7ac2d785bd9d5cb61568"
+      },
+      "point_in_time_status": "source_not_genuine_forward",
+      "market_timestamp_cutoff": "strictly_before_baseline_timestamp_utc"
+    },
+    {
+      "event_id": "d5d28da35b3055089d6a:1:VGT:0",
+      "rule_id": null,
+      "legacy_source_id": "d5d28da35b3055089d6a",
+      "legacy_operation_index": 1,
+      "spec_version": "1.7",
+      "scoring_engine_version": "event_score@6.15.8l",
+      "author": "麻你",
+      "symbol": "VGT",
+      "published_at": "2026-10-16",
+      "baseline_date": "2026-10-19",
+      "baseline_timestamp_utc": "2026-10-19T13:30:00+00:00",
+      "entry_type": "next_session",
+      "fill_status": "simulated_fill",
+      "fill_confidence": "high",
+      "fill_model": "simulated_next_session_open",
+      "entry_inference_source": "baseline_kind:next_session",
+      "entry_registry_version": "1.0",
+      "direction": "bullish",
+      "rule_structural_direction": null,
+      "triggered": true,
+      "scoreable": false,
+      "primary_exclusion_reason": "non_point_in_time_source",
+      "secondary_exclusion_reasons": [
+        "missing_rule_id"
+      ],
+      "exclusion_reasons": [
+        "missing_rule_id",
+        "non_point_in_time_source"
+      ],
+      "maturity": {
+        "5": false,
+        "20": false,
+        "60": false
+      },
+      "scores": {
+        "5": null,
+        "20": null,
+        "60": null
+      },
+      "data_quality": {
+        "status": "ok",
+        "source": "stooq_archive",
+        "price_source": "stooq_archive",
+        "adjustment_basis": "stooq_archive_native_series",
+        "same_source_only": true,
+        "price_series_hash": "983d6fb74193654695edfdbb3ef2b60d7b3083cbc2297eae8ecd0b883458c507",
+        "overlap_conflicts": []
+      },
+      "price_provenance": {
+        "price_source": "stooq_archive",
+        "adjustment_basis": "stooq_archive_native_series",
+        "baseline_source": "stooq_archive",
+        "horizon_source": "stooq_archive",
+        "same_source": true,
+        "provenance_origin": "source_outcome_artifact"
+      },
+      "source_provenance": {
+        "first_fetched_at": "2026-10-17T02:43:16.202100+00:00",
+        "ingest_type": "backfill_ingest",
+        "first_fetched_at_origin": "source_store_first_observation",
+        "admission_class": "identity_ambiguous",
+        "admission_origin": "identity_collision_fail_closed",
+        "identity_parent_source_key": null,
+        "published_at_semantics": "source_archive_publication_date",
+        "timestamp_confidence": "high",
+        "snapshot_hash": "01fdbc18eb7f02c6ea0771ab4be8e4ff17909624b1db7ac2d785bd9d5cb61568"
+      },
+      "point_in_time_status": "source_not_genuine_forward",
+      "market_timestamp_cutoff": "strictly_before_baseline_timestamp_utc"
+    },
+    {
+      "event_id": "e87adaa186591d74f598:0:SMH:0",
+      "rule_id": null,
+      "legacy_source_id": "e87adaa186591d74f598",
+      "legacy_operation_index": 0,
+      "spec_version": "1.7",
+      "scoring_engine_version": "event_score@6.15.8l",
+      "author": "我是一只井底蛙",
+      "symbol": "SMH",
+      "published_at": "2026-10-15 17:28:29",
+      "baseline_date": "2026-10-16",
+      "baseline_timestamp_utc": "2026-10-16T13:30:00+00:00",
+      "entry_type": "next_session",
+      "fill_status": "simulated_fill",
+      "fill_confidence": "high",
+      "fill_model": "simulated_next_session_open",
+      "entry_inference_source": "baseline_kind:next_session",
+      "entry_registry_version": "1.0",
+      "direction": "bearish",
+      "rule_structural_direction": null,
+      "triggered": true,
+      "scoreable": false,
+      "primary_exclusion_reason": "non_point_in_time_source",
+      "secondary_exclusion_reasons": [
+        "missing_rule_id"
+      ],
+      "exclusion_reasons": [
+        "missing_rule_id",
+        "non_point_in_time_source"
+      ],
+      "maturity": {
+        "5": false,
+        "20": false,
+        "60": false
+      },
+      "scores": {
+        "5": null,
+        "20": null,
+        "60": null
+      },
+      "data_quality": {
+        "status": "ok",
+        "source": "stooq_archive",
+        "price_source": "stooq_archive",
+        "adjustment_basis": "stooq_archive_native_series",
+        "same_source_only": true,
+        "price_series_hash": "32b44fd84a73edb5bf70ea189cab3df660518631008e7db51a6807f0c85d2be6",
+        "overlap_conflicts": []
+      },
+      "price_provenance": {
+        "price_source": "stooq_archive",
+        "adjustment_basis": "stooq_archive_native_series",
+        "baseline_source": "stooq_archive",
+        "horizon_source": "stooq_archive",
+        "same_source": true,
+        "provenance_origin": "source_outcome_artifact"
+      },
+      "source_provenance": {
+        "first_fetched_at": "2026-10-16T01:36:08.159573+00:00",
+        "ingest_type": "backfill_ingest",
+        "first_fetched_at_origin": "source_store_first_observation",
+        "admission_class": "timestamp_unverified",
+        "admission_origin": "unverified_timestamp_fail_closed",
+        "identity_parent_source_key": null,
+        "published_at_semantics": "upstream_published_at_unverified",
+        "timestamp_confidence": "unverified",
+        "snapshot_hash": "b23dba7bca994d9f7b895dcadaa71d0587dd244efa2f72c2210f4a506dc1dceb"
+      },
+      "point_in_time_status": "source_not_genuine_forward",
+      "market_timestamp_cutoff": "strictly_before_baseline_timestamp_utc"
+    },
+    {
+      "event_id": "c76ca44deb80633d6c0c:0:NOW:0",
+      "rule_id": null,
+      "legacy_source_id": "c76ca44deb80633d6c0c",
+      "legacy_operation_index": 0,
+      "spec_version": "1.7",
+      "scoring_engine_version": "event_score@6.15.8l",
+      "author": "我是一只井底蛙",
+      "symbol": "NOW",
+      "published_at": "2026-10-15 17:11:43",
+      "baseline_date": "2026-10-16",
+      "baseline_timestamp_utc": "2026-10-16T13:30:00+00:00",
+      "entry_type": "next_session",
+      "fill_status": "simulated_fill",
+      "fill_confidence": "high",
+      "fill_model": "simulated_next_session_open",
+      "entry_inference_source": "baseline_kind:next_session",
+      "entry_registry_version": "1.0",
+      "direction": "bullish",
+      "rule_structural_direction": null,
+      "triggered": true,
+      "scoreable": false,
+      "primary_exclusion_reason": "non_point_in_time_source",
+      "secondary_exclusion_reasons": [
+        "missing_rule_id"
+      ],
+      "exclusion_reasons": [
+        "missing_rule_id",
+        "non_point_in_time_source"
+      ],
+      "maturity": {
+        "5": false,
+        "20": false,
+        "60": false
+      },
+      "scores": {
+        "5": null,
+        "20": null,
+        "60": null
+      },
+      "data_quality": {
+        "status": "ok",
+        "source": "stooq_archive",
+        "price_source": "stooq_archive",
+        "adjustment_basis": "stooq_archive_native_series",
+        "same_source_only": true,
+        "price_series_hash": "8ffa2ed46b58eb4d5daae871e240e8491dce76612fc74f24a0ff18390ccd687e",
+        "overlap_conflicts": []
+      },
+      "price_provenance": {
+        "price_source": "stooq_archive",
+        "adjustment_basis": "stooq_archive_native_series",
+        "baseline_source": "stooq_archive",
+        "horizon_source": "stooq_archive",
+        "same_source": true,
+        "provenance_origin": "source_outcome_artifact"
+      },
+      "source_provenance": {
+        "first_fetched_at": "2026-10-16T01:36:08.159573+00:00",
+        "ingest_type": "backfill_ingest",
+        "first_fetched_at_origin": "source_store_first_observation",
+        "admission_class": "timestamp_unverified",
+        "admission_origin": "unverified_timestamp_fail_closed",
+        "identity_parent_source_key": null,
+        "published_at_semantics": "upstream_published_at_unverified",
+        "timestamp_confidence": "unverified",
+        "snapshot_hash": "594566bca9ccbe17e81ce21696f282c39630a83fb729ca93cadec87e072f08d6"
+      },
+      "point_in_time_status": "source_not_genuine_forward",
+      "market_timestamp_cutoff": "strictly_before_baseline_timestamp_utc"
+    },
+    {
+      "event_id": "8f9aaa67bf996d2b25a1:2:NVDA:0",
+      "rule_id": null,
+      "legacy_source_id": "8f9aaa67bf996d2b25a1",
+      "legacy_operation_index": 2,
+      "spec_version": "1.7",
+      "scoring_engine_version": "event_score@6.15.8l",
+      "author": "BrightLine",
+      "symbol": "NVDA",
+      "published_at": "2026-10-15",
+      "baseline_date": "2026-10-16",
+      "baseline_timestamp_utc": "2026-10-16T13:30:00+00:00",
+      "entry_type": "next_session",
+      "fill_status": "simulated_fill",
+      "fill_confidence": "high",
+      "fill_model": "simulated_next_session_open",
+      "entry_inference_source": "baseline_kind:next_session",
+      "entry_registry_version": "1.0",
+      "direction": "bullish",
+      "rule_structural_direction": null,
+      "triggered": true,
+      "scoreable": false,
+      "primary_exclusion_reason": "non_point_in_time_source",
+      "secondary_exclusion_reasons": [
+        "missing_rule_id"
+      ],
+      "exclusion_reasons": [
+        "missing_rule_id",
+        "non_point_in_time_source"
+      ],
+      "maturity": {
+        "5": false,
+        "20": false,
+        "60": false
+      },
+      "scores": {
+        "5": null,
+        "20": null,
+        "60": null
+      },
+      "data_quality": {
+        "status": "ok",
+        "source": "stooq_archive",
+        "price_source": "stooq_archive",
+        "adjustment_basis": "stooq_archive_native_series",
+        "same_source_only": true,
+        "price_series_hash": "e8647266c124999f420f4c4b9ecf0e92db2f28ff1c086672856870c94e588d21",
+        "overlap_conflicts": []
+      },
+      "price_provenance": {
+        "price_source": "stooq_archive",
+        "adjustment_basis": "stooq_archive_native_series",
+        "baseline_source": "stooq_archive",
+        "horizon_source": "stooq_archive",
+        "same_source": true,
+        "provenance_origin": "source_outcome_artifact"
+      },
+      "source_provenance": {
+        "first_fetched_at": "2026-10-17T00:22:16.072586+00:00",
+        "ingest_type": "backfill_ingest",
+        "first_fetched_at_origin": "source_store_first_observation",
+        "admission_class": "backfill",
+        "admission_origin": "outside_visible_window_recovery",
+        "identity_parent_source_key": null,
+        "published_at_semantics": "source_archive_publication_date",
+        "timestamp_confidence": "high",
+        "snapshot_hash": "207a94011ef56d1dc74b44fa14a26faa8526c674c71b780427b749ed4465a666"
+      },
+      "point_in_time_status": "source_not_genuine_forward",
+      "market_timestamp_cutoff": "strictly_before_baseline_timestamp_utc"
+    },
+    {
+      "event_id": "8f9aaa67bf996d2b25a1:3:NVDA:0",
+      "rule_id": null,
+      "legacy_source_id": "8f9aaa67bf996d2b25a1",
+      "legacy_operation_index": 3,
+      "spec_version": "1.7",
+      "scoring_engine_version": "event_score@6.15.8l",
+      "author": "BrightLine",
+      "symbol": "NVDA",
+      "published_at": "2026-10-15",
+      "baseline_date": "2026-10-16",
+      "baseline_timestamp_utc": "2026-10-16T13:30:00+00:00",
+      "entry_type": "next_session",
+      "fill_status": "simulated_fill",
+      "fill_confidence": "high",
+      "fill_model": "simulated_next_session_open",
+      "entry_inference_source": "baseline_kind:next_session",
+      "entry_registry_version": "1.0",
+      "direction": "bullish",
+      "rule_structural_direction": null,
+      "triggered": true,
+      "scoreable": false,
+      "primary_exclusion_reason": "non_point_in_time_source",
+      "secondary_exclusion_reasons": [
+        "missing_rule_id"
+      ],
+      "exclusion_reasons": [
+        "missing_rule_id",
+        "non_point_in_time_source"
+      ],
+      "maturity": {
+        "5": false,
+        "20": false,
+        "60": false
+      },
+      "scores": {
+        "5": null,
+        "20": null,
+        "60": null
+      },
+      "data_quality": {
+        "status": "ok",
+        "source": "stooq_archive",
+        "price_source": "stooq_archive",
+        "adjustment_basis": "stooq_archive_native_series",
+        "same_source_only": true,
+        "price_series_hash": "e8647266c124999f420f4c4b9ecf0e92db2f28ff1c086672856870c94e588d21",
+        "overlap_conflicts": []
+      },
+      "price_provenance": {
+        "price_source": "stooq_archive",
+        "adjustment_basis": "stooq_archive_native_series",
+        "baseline_source": "stooq_archive",
+        "horizon_source": "stooq_archive",
+        "same_source": true,
+        "provenance_origin": "source_outcome_artifact"
+      },
+      "source_provenance": {
+        "first_fetched_at": "2026-10-17T00:22:16.072586+00:00",
+        "ingest_type": "backfill_ingest",
+        "first_fetched_at_origin": "source_store_first_observation",
+        "admission_class": "backfill",
+        "admission_origin": "outside_visible_window_recovery",
+        "identity_parent_source_key": null,
+        "published_at_semantics": "source_archive_publication_date",
+        "timestamp_confidence": "high",
+        "snapshot_hash": "207a94011ef56d1dc74b44fa14a26faa8526c674c71b780427b749ed4465a666"
+      },
+      "point_in_time_status": "source_not_genuine_forward",
+      "market_timestamp_cutoff": "strictly_before_baseline_timestamp_utc"
+    },
+    {
+      "event_id": "8f9aaa67bf996d2b25a1:4:NVDA:0",
+      "rule_id": null,
+      "legacy_source_id": "8f9aaa67bf996d2b25a1",
+      "legacy_operation_index": 4,
+      "spec_version": "1.7",
+      "scoring_engine_version": "event_score@6.15.8l",
+      "author": "BrightLine",
+      "symbol": "NVDA",
+      "published_at": "2026-10-15",
+      "baseline_date": "2026-10-16",
+      "baseline_timestamp_utc": "2026-10-16T13:30:00+00:00",
+      "entry_type": "next_session",
+      "fill_status": "simulated_fill",
+      "fill_confidence": "high",
+      "fill_model": "simulated_next_session_open",
+      "entry_inference_source": "baseline_kind:next_session",
+      "entry_registry_version": "1.0",
+      "direction": "bullish",
+      "rule_structural_direction": null,
+      "triggered": true,
+      "scoreable": false,
+      "primary_exclusion_reason": "non_point_in_time_source",
+      "secondary_exclusion_reasons": [
+        "missing_rule_id"
+      ],
+      "exclusion_reasons": [
+        "missing_rule_id",
+        "non_point_in_time_source"
+      ],
+      "maturity": {
+        "5": false,
+        "20": false,
+        "60": false
+      },
+      "scores": {
+        "5": null,
+        "20": null,
+        "60": null
+      },
+      "data_quality": {
+        "status": "ok",
+        "source": "stooq_archive",
+        "price_source": "stooq_archive",
+        "adjustment_basis": "stooq_archive_native_series",
+        "same_source_only": true,
+        "price_series_hash": "e8647266c124999f420f4c4b9ecf0e92db2f28ff1c086672856870c94e588d21",
+        "overlap_conflicts": []
+      },
+      "price_provenance": {
+        "price_source": "stooq_archive",
+        "adjustment_basis": "stooq_archive_native_series",
+        "baseline_source": "stooq_archive",
+        "horizon_source": "stooq_archive",
+        "same_source": true,
+        "provenance_origin": "source_outcome_artifact"
+      },
+      "source_provenance": {
+        "first_fetched_at": "2026-10-17T00:22:16.072586+00:00",
+        "ingest_type": "backfill_ingest",
+        "first_fetched_at_origin": "source_store_first_observation",
+        "admission_class": "backfill",
+        "admission_origin": "outside_visible_window_recovery",
+        "identity_parent_source_key": null,
+        "published_at_semantics": "source_archive_publication_date",
+        "timestamp_confidence": "high",
+        "snapshot_hash": "207a94011ef56d1dc74b44fa14a26faa8526c674c71b780427b749ed4465a666"
+      },
+      "point_in_time_status": "source_not_genuine_forward",
+      "market_timestamp_cutoff": "strictly_before_baseline_timestamp_utc"
+    },
+    {
+      "event_id": "8f9aaa67bf996d2b25a1:6:NVDA:0",
+      "rule_id": null,
+      "legacy_source_id": "8f9aaa67bf996d2b25a1",
+      "legacy_operation_index": 6,
+      "spec_version": "1.7",
+      "scoring_engine_version": "event_score@6.15.8l",
+      "author": "BrightLine",
+      "symbol": "NVDA",
+      "published_at": "2026-10-15",
+      "baseline_date": "2026-10-16",
+      "baseline_timestamp_utc": "2026-10-16T13:30:00+00:00",
+      "entry_type": "next_session",
+      "fill_status": "simulated_fill",
+      "fill_confidence": "high",
+      "fill_model": "simulated_next_session_open",
+      "entry_inference_source": "baseline_kind:next_session",
+      "entry_registry_version": "1.0",
+      "direction": "bullish",
+      "rule_structural_direction": null,
+      "triggered": true,
+      "scoreable": false,
+      "primary_exclusion_reason": "non_point_in_time_source",
+      "secondary_exclusion_reasons": [
+        "missing_rule_id"
+      ],
+      "exclusion_reasons": [
+        "missing_rule_id",
+        "non_point_in_time_source"
+      ],
+      "maturity": {
+        "5": false,
+        "20": false,
+        "60": false
+      },
+      "scores": {
+        "5": null,
+        "20": null,
+        "60": null
+      },
+      "data_quality": {
+        "status": "ok",
+        "source": "stooq_archive",
+        "price_source": "stooq_archive",
+        "adjustment_basis": "stooq_archive_native_series",
+        "same_source_only": true,
+        "price_series_hash": "e8647266c124999f420f4c4b9ecf0e92db2f28ff1c086672856870c94e588d21",
+        "overlap_conflicts": []
+      },
+      "price_provenance": {
+        "price_source": "stooq_archive",
+        "adjustment_basis": "stooq_archive_native_series",
+        "baseline_source": "stooq_archive",
+        "horizon_source": "stooq_archive",
+        "same_source": true,
+        "provenance_origin": "source_outcome_artifact"
+      },
+      "source_provenance": {
+        "first_fetched_at": "2026-10-17T00:22:16.072586+00:00",
+        "ingest_type": "backfill_ingest",
+        "first_fetched_at_origin": "source_store_first_observation",
+        "admission_class": "backfill",
+        "admission_origin": "outside_visible_window_recovery",
+        "identity_parent_source_key": null,
+        "published_at_semantics": "source_archive_publication_date",
+        "timestamp_confidence": "high",
+        "snapshot_hash": "207a94011ef56d1dc74b44fa14a26faa8526c674c71b780427b749ed4465a666"
+      },
+      "point_in_time_status": "source_not_genuine_forward",
+      "market_timestamp_cutoff": "strictly_before_baseline_timestamp_utc"
+    },
+    {
+      "event_id": "8f9aaa67bf996d2b25a1:1:NBIS:0",
+      "rule_id": null,
+      "legacy_source_id": "8f9aaa67bf996d2b25a1",
+      "legacy_operation_index": 1,
+      "spec_version": "1.7",
+      "scoring_engine_version": "event_score@6.15.8l",
+      "author": "BrightLine",
+      "symbol": "NBIS",
+      "published_at": "2026-10-15",
+      "baseline_date": "2026-10-16",
+      "baseline_timestamp_utc": "2026-10-16T13:30:00+00:00",
+      "entry_type": "next_session",
+      "fill_status": "simulated_fill",
+      "fill_confidence": "high",
+      "fill_model": "simulated_next_session_open",
+      "entry_inference_source": "baseline_kind:next_session",
+      "entry_registry_version": "1.0",
+      "direction": "bearish",
+      "rule_structural_direction": null,
+      "triggered": true,
+      "scoreable": false,
+      "primary_exclusion_reason": "non_point_in_time_source",
+      "secondary_exclusion_reasons": [
+        "missing_rule_id"
+      ],
+      "exclusion_reasons": [
+        "missing_rule_id",
+        "non_point_in_time_source"
+      ],
+      "maturity": {
+        "5": false,
+        "20": false,
+        "60": false
+      },
+      "scores": {
+        "5": null,
+        "20": null,
+        "60": null
+      },
+      "data_quality": {
+        "status": "ok",
+        "source": "stooq_archive",
+        "price_source": "stooq_archive",
+        "adjustment_basis": "stooq_archive_native_series",
+        "same_source_only": true,
+        "price_series_hash": "9f71fc983e19b3909eaa8d605c7ef71f2043e9f9f517915da4ecaf12c996b6d0",
+        "overlap_conflicts": []
+      },
+      "price_provenance": {
+        "price_source": "stooq_archive",
+        "adjustment_basis": "stooq_archive_native_series",
+        "baseline_source": "stooq_archive",
+        "horizon_source": "stooq_archive",
+        "same_source": true,
+        "provenance_origin": "source_outcome_artifact"
+      },
+      "source_provenance": {
+        "first_fetched_at": "2026-10-17T00:22:16.072586+00:00",
+        "ingest_type": "backfill_ingest",
+        "first_fetched_at_origin": "source_store_first_observation",
+        "admission_class": "backfill",
+        "admission_origin": "outside_visible_window_recovery",
+        "identity_parent_source_key": null,
+        "published_at_semantics": "source_archive_publication_date",
+        "timestamp_confidence": "high",
+        "snapshot_hash": "207a94011ef56d1dc74b44fa14a26faa8526c674c71b780427b749ed4465a666"
+      },
+      "point_in_time_status": "source_not_genuine_forward",
+      "market_timestamp_cutoff": "strictly_before_baseline_timestamp_utc"
+    },
+    {
+      "event_id": "8f9aaa67bf996d2b25a1:0:IREN:0",
+      "rule_id": null,
+      "legacy_source_id": "8f9aaa67bf996d2b25a1",
+      "legacy_operation_index": 0,
+      "spec_version": "1.7",
+      "scoring_engine_version": "event_score@6.15.8l",
+      "author": "BrightLine",
+      "symbol": "IREN",
+      "published_at": "2026-10-15",
+      "baseline_date": "2026-10-16",
+      "baseline_timestamp_utc": "2026-10-16T13:30:00+00:00",
+      "entry_type": "next_session",
+      "fill_status": "simulated_fill",
+      "fill_confidence": "high",
+      "fill_model": "simulated_next_session_open",
+      "entry_inference_source": "baseline_kind:next_session",
+      "entry_registry_version": "1.0",
+      "direction": "bearish",
+      "rule_structural_direction": null,
+      "triggered": true,
+      "scoreable": false,
+      "primary_exclusion_reason": "non_point_in_time_source",
+      "secondary_exclusion_reasons": [
+        "missing_rule_id"
+      ],
+      "exclusion_reasons": [
+        "missing_rule_id",
+        "non_point_in_time_source"
+      ],
+      "maturity": {
+        "5": false,
+        "20": false,
+        "60": false
+      },
+      "scores": {
+        "5": null,
+        "20": null,
+        "60": null
+      },
+      "data_quality": {
+        "status": "ok",
+        "source": "stooq_archive",
+        "price_source": "stooq_archive",
+        "adjustment_basis": "stooq_archive_native_series",
+        "same_source_only": true,
+        "price_series_hash": "e00aa7631b561c9f89c885d2e6540a7e6b465fef5ed7a1d19ea308c770cc7c6e",
+        "overlap_conflicts": []
+      },
+      "price_provenance": {
+        "price_source": "stooq_archive",
+        "adjustment_basis": "stooq_archive_native_series",
+        "baseline_source": "stooq_archive",
+        "horizon_source": "stooq_archive",
+        "same_source": true,
+        "provenance_origin": "source_outcome_artifact"
+      },
+      "source_provenance": {
+        "first_fetched_at": "2026-10-17T00:22:16.072586+00:00",
+        "ingest_type": "backfill_ingest",
+        "first_fetched_at_origin": "source_store_first_observation",
+        "admission_class": "backfill",
+        "admission_origin": "outside_visible_window_recovery",
+        "identity_parent_source_key": null,
+        "published_at_semantics": "source_archive_publication_date",
+        "timestamp_confidence": "high",
+        "snapshot_hash": "207a94011ef56d1dc74b44fa14a26faa8526c674c71b780427b749ed4465a666"
+      },
+      "point_in_time_status": "source_not_genuine_forward",
+      "market_timestamp_cutoff": "strictly_before_baseline_timestamp_utc"
+    },
+    {
+      "event_id": "8f9aaa67bf996d2b25a1:1:IREN:0",
+      "rule_id": null,
+      "legacy_source_id": "8f9aaa67bf996d2b25a1",
+      "legacy_operation_index": 1,
+      "spec_version": "1.7",
+      "scoring_engine_version": "event_score@6.15.8l",
+      "author": "BrightLine",
+      "symbol": "IREN",
+      "published_at": "2026-10-15",
+      "baseline_date": "2026-10-16",
+      "baseline_timestamp_utc": "2026-10-16T13:30:00+00:00",
+      "entry_type": "next_session",
+      "fill_status": "simulated_fill",
+      "fill_confidence": "high",
+      "fill_model": "simulated_next_session_open",
+      "entry_inference_source": "baseline_kind:next_session",
+      "entry_registry_version": "1.0",
+      "direction": "bearish",
+      "rule_structural_direction": null,
+      "triggered": true,
+      "scoreable": false,
+      "primary_exclusion_reason": "non_point_in_time_source",
+      "secondary_exclusion_reasons": [
+        "missing_rule_id"
+      ],
+      "exclusion_reasons": [
+        "missing_rule_id",
+        "non_point_in_time_source"
+      ],
+      "maturity": {
+        "5": false,
+        "20": false,
+        "60": false
+      },
+      "scores": {
+        "5": null,
+        "20": null,
+        "60": null
+      },
+      "data_quality": {
+        "status": "ok",
+        "source": "stooq_archive",
+        "price_source": "stooq_archive",
+        "adjustment_basis": "stooq_archive_native_series",
+        "same_source_only": true,
+        "price_series_hash": "e00aa7631b561c9f89c885d2e6540a7e6b465fef5ed7a1d19ea308c770cc7c6e",
+        "overlap_conflicts": []
+      },
+      "price_provenance": {
+        "price_source": "stooq_archive",
+        "adjustment_basis": "stooq_archive_native_series",
+        "baseline_source": "stooq_archive",
+        "horizon_source": "stooq_archive",
+        "same_source": true,
+        "provenance_origin": "source_outcome_artifact"
+      },
+      "source_provenance": {
+        "first_fetched_at": "2026-10-17T00:22:16.072586+00:00",
+        "ingest_type": "backfill_ingest",
+        "first_fetched_at_origin": "source_store_first_observation",
+        "admission_class": "backfill",
+        "admission_origin": "outside_visible_window_recovery",
+        "identity_parent_source_key": null,
+        "published_at_semantics": "source_archive_publication_date",
+        "timestamp_confidence": "high",
+        "snapshot_hash": "207a94011ef56d1dc74b44fa14a26faa8526c674c71b780427b749ed4465a666"
+      },
+      "point_in_time_status": "source_not_genuine_forward",
+      "market_timestamp_cutoff": "strictly_before_baseline_timestamp_utc"
+    },
+    {
+      "event_id": "8f9aaa67bf996d2b25a1:4:IREN:0",
+      "rule_id": null,
+      "legacy_source_id": "8f9aaa67bf996d2b25a1",
+      "legacy_operation_index": 4,
+      "spec_version": "1.7",
+      "scoring_engine_version": "event_score@6.15.8l",
+      "author": "BrightLine",
+      "symbol": "IREN",
+      "published_at": "2026-10-15",
+      "baseline_date": "2026-10-16",
+      "baseline_timestamp_utc": "2026-10-16T13:30:00+00:00",
+      "entry_type": "next_session",
+      "fill_status": "simulated_fill",
+      "fill_confidence": "high",
+      "fill_model": "simulated_next_session_open",
+      "entry_inference_source": "baseline_kind:next_session",
+      "entry_registry_version": "1.0",
+      "direction": "bullish",
+      "rule_structural_direction": null,
+      "triggered": true,
+      "scoreable": false,
+      "primary_exclusion_reason": "non_point_in_time_source",
+      "secondary_exclusion_reasons": [
+        "missing_rule_id"
+      ],
+      "exclusion_reasons": [
+        "missing_rule_id",
+        "non_point_in_time_source"
+      ],
+      "maturity": {
+        "5": false,
+        "20": false,
+        "60": false
+      },
+      "scores": {
+        "5": null,
+        "20": null,
+        "60": null
+      },
+      "data_quality": {
+        "status": "ok",
+        "source": "stooq_archive",
+        "price_source": "stooq_archive",
+        "adjustment_basis": "stooq_archive_native_series",
+        "same_source_only": true,
+        "price_series_hash": "e00aa7631b561c9f89c885d2e6540a7e6b465fef5ed7a1d19ea308c770cc7c6e",
+        "overlap_conflicts": []
+      },
+      "price_provenance": {
+        "price_source": "stooq_archive",
+        "adjustment_basis": "stooq_archive_native_series",
+        "baseline_source": "stooq_archive",
+        "horizon_source": "stooq_archive",
+        "same_source": true,
+        "provenance_origin": "source_outcome_artifact"
+      },
+      "source_provenance": {
+        "first_fetched_at": "2026-10-17T00:22:16.072586+00:00",
+        "ingest_type": "backfill_ingest",
+        "first_fetched_at_origin": "source_store_first_observation",
+        "admission_class": "backfill",
+        "admission_origin": "outside_visible_window_recovery",
+        "identity_parent_source_key": null,
+        "published_at_semantics": "source_archive_publication_date",
+        "timestamp_confidence": "high",
+        "snapshot_hash": "207a94011ef56d1dc74b44fa14a26faa8526c674c71b780427b749ed4465a666"
+      },
+      "point_in_time_status": "source_not_genuine_forward",
+      "market_timestamp_cutoff": "strictly_before_baseline_timestamp_utc"
+    },
+    {
+      "event_id": "8f9aaa67bf996d2b25a1:0:CRWV:0",
+      "rule_id": null,
+      "legacy_source_id": "8f9aaa67bf996d2b25a1",
+      "legacy_operation_index": 0,
+      "spec_version": "1.7",
+      "scoring_engine_version": "event_score@6.15.8l",
+      "author": "BrightLine",
+      "symbol": "CRWV",
+      "published_at": "2026-10-15",
+      "baseline_date": "2026-10-16",
+      "baseline_timestamp_utc": "2026-10-16T13:30:00+00:00",
+      "entry_type": "next_session",
+      "fill_status": "simulated_fill",
+      "fill_confidence": "high",
+      "fill_model": "simulated_next_session_open",
+      "entry_inference_source": "baseline_kind:next_session",
+      "entry_registry_version": "1.0",
+      "direction": "bearish",
+      "rule_structural_direction": null,
+      "triggered": true,
+      "scoreable": false,
+      "primary_exclusion_reason": "non_point_in_time_source",
+      "secondary_exclusion_reasons": [
+        "missing_rule_id"
+      ],
+      "exclusion_reasons": [
+        "missing_rule_id",
+        "non_point_in_time_source"
+      ],
+      "maturity": {
+        "5": false,
+        "20": false,
+        "60": false
+      },
+      "scores": {
+        "5": null,
+        "20": null,
+        "60": null
+      },
+      "data_quality": {
+        "status": "ok",
+        "source": "stooq_archive",
+        "price_source": "stooq_archive",
+        "adjustment_basis": "stooq_archive_native_series",
+        "same_source_only": true,
+        "price_series_hash": "e234e3d9235af351c5f1182cef778cf4bb3385fe594c8a02ec3ef9fcd2ce55d8",
+        "overlap_conflicts": []
+      },
+      "price_provenance": {
+        "price_source": "stooq_archive",
+        "adjustment_basis": "stooq_archive_native_series",
+        "baseline_source": "stooq_archive",
+        "horizon_source": "stooq_archive",
+        "same_source": true,
+        "provenance_origin": "source_outcome_artifact"
+      },
+      "source_provenance": {
+        "first_fetched_at": "2026-10-17T00:22:16.072586+00:00",
+        "ingest_type": "backfill_ingest",
+        "first_fetched_at_origin": "source_store_first_observation",
+        "admission_class": "backfill",
+        "admission_origin": "outside_visible_window_recovery",
+        "identity_parent_source_key": null,
+        "published_at_semantics": "source_archive_publication_date",
+        "timestamp_confidence": "high",
+        "snapshot_hash": "207a94011ef56d1dc74b44fa14a26faa8526c674c71b780427b749ed4465a666"
+      },
+      "point_in_time_status": "source_not_genuine_forward",
+      "market_timestamp_cutoff": "strictly_before_baseline_timestamp_utc"
+    },
+    {
+      "event_id": "8f9aaa67bf996d2b25a1:1:CRWV:0",
+      "rule_id": null,
+      "legacy_source_id": "8f9aaa67bf996d2b25a1",
+      "legacy_operation_index": 1,
+      "spec_version": "1.7",
+      "scoring_engine_version": "event_score@6.15.8l",
+      "author": "BrightLine",
+      "symbol": "CRWV",
+      "published_at": "2026-10-15",
+      "baseline_date": "2026-10-16",
+      "baseline_timestamp_utc": "2026-10-16T13:30:00+00:00",
+      "entry_type": "next_session",
+      "fill_status": "simulated_fill",
+      "fill_confidence": "high",
+      "fill_model": "simulated_next_session_open",
+      "entry_inference_source": "baseline_kind:next_session",
+      "entry_registry_version": "1.0",
+      "direction": "bearish",
+      "rule_structural_direction": null,
+      "triggered": true,
+      "scoreable": false,
+      "primary_exclusion_reason": "non_point_in_time_source",
+      "secondary_exclusion_reasons": [
+        "missing_rule_id"
+      ],
+      "exclusion_reasons": [
+        "missing_rule_id",
+        "non_point_in_time_source"
+      ],
+      "maturity": {
+        "5": false,
+        "20": false,
+        "60": false
+      },
+      "scores": {
+        "5": null,
+        "20": null,
+        "60": null
+      },
+      "data_quality": {
+        "status": "ok",
+        "source": "stooq_archive",
+        "price_source": "stooq_archive",
+        "adjustment_basis": "stooq_archive_native_series",
+        "same_source_only": true,
+        "price_series_hash": "e234e3d9235af351c5f1182cef778cf4bb3385fe594c8a02ec3ef9fcd2ce55d8",
+        "overlap_conflicts": []
+      },
+      "price_provenance": {
+        "price_source": "stooq_archive",
+        "adjustment_basis": "stooq_archive_native_series",
+        "baseline_source": "stooq_archive",
+        "horizon_source": "stooq_archive",
+        "same_source": true,
+        "provenance_origin": "source_outcome_artifact"
+      },
+      "source_provenance": {
+        "first_fetched_at": "2026-10-17T00:22:16.072586+00:00",
+        "ingest_type": "backfill_ingest",
+        "first_fetched_at_origin": "source_store_first_observation",
+        "admission_class": "backfill",
+        "admission_origin": "outside_visible_window_recovery",
+        "identity_parent_source_key": null,
+        "published_at_semantics": "source_archive_publication_date",
+        "timestamp_confidence": "high",
+        "snapshot_hash": "207a94011ef56d1dc74b44fa14a26faa8526c674c71b780427b749ed4465a666"
+      },
+      "point_in_time_status": "source_not_genuine_forward",
+      "market_timestamp_cutoff": "strictly_before_baseline_timestamp_utc"
+    },
+    {
+      "event_id": "8f9aaa67bf996d2b25a1:3:CRWV:0",
+      "rule_id": null,
+      "legacy_source_id": "8f9aaa67bf996d2b25a1",
+      "legacy_operation_index": 3,
+      "spec_version": "1.7",
+      "scoring_engine_version": "event_score@6.15.8l",
+      "author": "BrightLine",
+      "symbol": "CRWV",
+      "published_at": "2026-10-15",
+      "baseline_date": "2026-10-16",
+      "baseline_timestamp_utc": "2026-10-16T13:30:00+00:00",
+      "entry_type": "next_session",
+      "fill_status": "simulated_fill",
+      "fill_confidence": "high",
+      "fill_model": "simulated_next_session_open",
+      "entry_inference_source": "baseline_kind:next_session",
+      "entry_registry_version": "1.0",
+      "direction": "bullish",
+      "rule_structural_direction": null,
+      "triggered": true,
+      "scoreable": false,
+      "primary_exclusion_reason": "non_point_in_time_source",
+      "secondary_exclusion_reasons": [
+        "missing_rule_id"
+      ],
+      "exclusion_reasons": [
+        "missing_rule_id",
+        "non_point_in_time_source"
+      ],
+      "maturity": {
+        "5": false,
+        "20": false,
+        "60": false
+      },
+      "scores": {
+        "5": null,
+        "20": null,
+        "60": null
+      },
+      "data_quality": {
+        "status": "ok",
+        "source": "stooq_archive",
+        "price_source": "stooq_archive",
+        "adjustment_basis": "stooq_archive_native_series",
+        "same_source_only": true,
+        "price_series_hash": "e234e3d9235af351c5f1182cef778cf4bb3385fe594c8a02ec3ef9fcd2ce55d8",
+        "overlap_conflicts": []
+      },
+      "price_provenance": {
+        "price_source": "stooq_archive",
+        "adjustment_basis": "stooq_archive_native_series",
+        "baseline_source": "stooq_archive",
+        "horizon_source": "stooq_archive",
+        "same_source": true,
+        "provenance_origin": "source_outcome_artifact"
+      },
+      "source_provenance": {
+        "first_fetched_at": "2026-10-17T00:22:16.072586+00:00",
+        "ingest_type": "backfill_ingest",
+        "first_fetched_at_origin": "source_store_first_observation",
+        "admission_class": "backfill",
+        "admission_origin": "outside_visible_window_recovery",
+        "identity_parent_source_key": null,
+        "published_at_semantics": "source_archive_publication_date",
+        "timestamp_confidence": "high",
+        "snapshot_hash": "207a94011ef56d1dc74b44fa14a26faa8526c674c71b780427b749ed4465a666"
+      },
+      "point_in_time_status": "source_not_genuine_forward",
+      "market_timestamp_cutoff": "strictly_before_baseline_timestamp_utc"
+    },
+    {
+      "event_id": "8f9aaa67bf996d2b25a1:5:CRWV:0",
+      "rule_id": null,
+      "legacy_source_id": "8f9aaa67bf996d2b25a1",
+      "legacy_operation_index": 5,
+      "spec_version": "1.7",
+      "scoring_engine_version": "event_score@6.15.8l",
+      "author": "BrightLine",
+      "symbol": "CRWV",
+      "published_at": "2026-10-15",
+      "baseline_date": "2026-10-16",
+      "baseline_timestamp_utc": "2026-10-16T13:30:00+00:00",
+      "entry_type": "next_session",
+      "fill_status": "simulated_fill",
+      "fill_confidence": "high",
+      "fill_model": "simulated_next_session_open",
+      "entry_inference_source": "baseline_kind:next_session",
+      "entry_registry_version": "1.0",
+      "direction": "bullish",
+      "rule_structural_direction": null,
+      "triggered": true,
+      "scoreable": false,
+      "primary_exclusion_reason": "non_point_in_time_source",
+      "secondary_exclusion_reasons": [
+        "missing_rule_id"
+      ],
+      "exclusion_reasons": [
+        "missing_rule_id",
+        "non_point_in_time_source"
+      ],
+      "maturity": {
+        "5": false,
+        "20": false,
+        "60": false
+      },
+      "scores": {
+        "5": null,
+        "20": null,
+        "60": null
+      },
+      "data_quality": {
+        "status": "ok",
+        "source": "stooq_archive",
+        "price_source": "stooq_archive",
+        "adjustment_basis": "stooq_archive_native_series",
+        "same_source_only": true,
+        "price_series_hash": "e234e3d9235af351c5f1182cef778cf4bb3385fe594c8a02ec3ef9fcd2ce55d8",
+        "overlap_conflicts": []
+      },
+      "price_provenance": {
+        "price_source": "stooq_archive",
+        "adjustment_basis": "stooq_archive_native_series",
+        "baseline_source": "stooq_archive",
+        "horizon_source": "stooq_archive",
+        "same_source": true,
+        "provenance_origin": "source_outcome_artifact"
+      },
+      "source_provenance": {
+        "first_fetched_at": "2026-10-17T00:22:16.072586+00:00",
+        "ingest_type": "backfill_ingest",
+        "first_fetched_at_origin": "source_store_first_observation",
+        "admission_class": "backfill",
+        "admission_origin": "outside_visible_window_recovery",
+        "identity_parent_source_key": null,
+        "published_at_semantics": "source_archive_publication_date",
+        "timestamp_confidence": "high",
+        "snapshot_hash": "207a94011ef56d1dc74b44fa14a26faa8526c674c71b780427b749ed4465a666"
+      },
+      "point_in_time_status": "source_not_genuine_forward",
+      "market_timestamp_cutoff": "strictly_before_baseline_timestamp_utc"
+    },
+    {
+      "event_id": "b4091864de5d6847b786:0:AMAT:0",
+      "rule_id": null,
+      "legacy_source_id": "b4091864de5d6847b786",
+      "legacy_operation_index": 0,
+      "spec_version": "1.7",
+      "scoring_engine_version": "event_score@6.15.8l",
+      "author": "三心三意",
+      "symbol": "AMAT",
+      "published_at": "2026-10-12 14:19:35",
+      "baseline_date": "2026-10-13",
+      "baseline_timestamp_utc": "2026-10-13T13:30:00+00:00",
+      "entry_type": "next_session",
+      "fill_status": "simulated_fill",
+      "fill_confidence": "high",
+      "fill_model": "simulated_next_session_open",
+      "entry_inference_source": "baseline_kind:next_session",
+      "entry_registry_version": "1.0",
+      "direction": "bearish",
+      "rule_structural_direction": null,
+      "triggered": true,
+      "scoreable": false,
+      "primary_exclusion_reason": "non_point_in_time_source",
+      "secondary_exclusion_reasons": [
+        "missing_rule_id",
+        "cache_only_unscored"
+      ],
+      "exclusion_reasons": [
+        "missing_rule_id",
+        "cache_only_unscored",
+        "non_point_in_time_source"
+      ],
+      "maturity": {
+        "5": false,
+        "20": false,
+        "60": false
+      },
+      "scores": {
+        "5": null,
+        "20": null,
+        "60": null
+      },
+      "data_quality": {
+        "status": "cache_only_unscored",
+        "source": "yfinance_validation_cache",
+        "price_source": "yfinance_validation_cache",
+        "adjustment_basis": "yfinance_auto_adjust_false_native_ohlc",
+        "same_source_only": true,
+        "price_series_hash": "9ab7739f2e5007ee5796c15439e10601479b89c56d743ae170daed4611f77fdd"
+      },
+      "price_provenance": {
+        "price_source": "yfinance_validation_cache",
+        "adjustment_basis": "yfinance_auto_adjust_false_native_ohlc",
+        "baseline_source": "yfinance_validation_cache",
+        "horizon_source": "yfinance_validation_cache",
+        "same_source": true,
+        "provenance_origin": "source_outcome_artifact"
+      },
+      "source_provenance": {
+        "first_fetched_at": "2026-10-13T03:30:30.674161+00:00",
+        "ingest_type": "backfill_ingest",
+        "first_fetched_at_origin": "source_store_first_observation",
+        "admission_class": "timestamp_unverified",
+        "admission_origin": "unverified_timestamp_fail_closed",
+        "identity_parent_source_key": null,
+        "published_at_semantics": "upstream_published_at_unverified",
+        "timestamp_confidence": "unverified",
+        "snapshot_hash": "3eeb69a28e1b568df0e70645a678f4ce49aaeb261098a4e951b7422650679f34"
+      },
+      "point_in_time_status": "source_not_genuine_forward",
+      "market_timestamp_cutoff": "strictly_before_baseline_timestamp_utc"
+    },
     {
       "event_id": "b4091864de5d6847b786:0:AAOI:0",
       "rule_id": null,
@@ -60,7 +1620,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "de936e66883ec0abfc0a05800b235d6318b4b2acb632283899d2236c7b5fa48c",
+        "price_series_hash": "c9da2e1bc1eff2779099d61784ffd8f55593fe7aebf34ff2ec51dd89a1d1b722",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -131,7 +1691,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "a0faf784399f8df7a2f66e9bb386d5dcd94704e274f246224156bb799c6489b2",
+        "price_series_hash": "3dfa4ced0e1e0ea858c77f44a05a9f23bb3c05be4ae04830b0e36d767c5c8c82",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -204,7 +1764,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "531083d3cbb3b5953ce41b5dc61d585a7e7cc8d199709a0a018898cb97c2e61e",
+        "price_series_hash": "78858747bd7a23b1000eb69dc3821d327aff309df5c882b10fdae0258cbf1c50",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -277,7 +1837,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "9a9d3b07b4c33c8bbe12fbebb0a10c3303164617e2eb8ef1297e2d6119da57f2",
+        "price_series_hash": "e8647266c124999f420f4c4b9ecf0e92db2f28ff1c086672856870c94e588d21",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -350,7 +1910,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "fed0147ce7e6a2925da87d8c3f76bef66ebaf96c69c04ca53280b33fa2e9ff17",
+        "price_series_hash": "e323da6b63b94a770857e61140f322167a68e24874f32ca00115581763f308e4",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -423,7 +1983,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "e8bece432d70f3793523455d9fd0644ab0c5a080ba27d19b001539d7500a8d56",
+        "price_series_hash": "28ab0657641bbe3a5b779f96e3cef832b9b16017f9516d2757bcee8509f49126",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -474,12 +2034,27 @@
       "secondary_exclusion_reasons": [],
       "exclusion_reasons": [],
       "maturity": {
-        "5": false,
+        "5": true,
         "20": false,
         "60": false
       },
       "scores": {
-        "5": null,
+        "5": {
+          "horizon_end_date": "2026-10-19",
+          "raw_return": -0.03802825953394462,
+          "direction_adjusted_return": 0.03802825953394462,
+          "benchmark_return": -0.04179062012298418,
+          "excess_vs_qqq": 0.0037623605890395595,
+          "unconditional_baseline_direction_adjusted_return": 0.0015098635867597649,
+          "unconditional_baseline_direction_adjusted_mae": -0.047901667438899835,
+          "unconditional_baseline_n": 252,
+          "unconditional_lift": 0.036518395947184853,
+          "mae": -0.08698152392727643,
+          "mfe": 0.0002352787495172315,
+          "direction_adjusted_mae": -0.0002352787495172315,
+          "direction_adjusted_mfe": 0.08698152392727643,
+          "legacy_alignment": "aligned"
+        },
         "20": null,
         "60": null
       },
@@ -489,7 +2064,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "c597c2c4a4c2788e22bea8eac7b148aeaaf127bc81b17037cfdbe6466c2c0ec8",
+        "price_series_hash": "9f93bdd71c53a1f08e092c839f25cac8fc536506b3e27d6380893442758ecd79",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -542,12 +2117,27 @@
         "missing_rule_id"
       ],
       "maturity": {
-        "5": false,
+        "5": true,
         "20": false,
         "60": false
       },
       "scores": {
-        "5": null,
+        "5": {
+          "horizon_end_date": "2026-10-19",
+          "raw_return": -0.050889712761771455,
+          "direction_adjusted_return": 0.050889712761771455,
+          "benchmark_return": -0.04179062012298418,
+          "excess_vs_qqq": -0.009099092638787276,
+          "unconditional_baseline_direction_adjusted_return": -0.004522289674969767,
+          "unconditional_baseline_direction_adjusted_mae": -0.04546813705908209,
+          "unconditional_baseline_n": 252,
+          "unconditional_lift": 0.05541200243674122,
+          "mae": -0.06942679141345687,
+          "mfe": 0.0005683557032309938,
+          "direction_adjusted_mae": -0.0005683557032309938,
+          "direction_adjusted_mfe": 0.06942679141345687,
+          "legacy_alignment": "aligned"
+        },
         "20": null,
         "60": null
       },
@@ -557,7 +2147,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "9a9d3b07b4c33c8bbe12fbebb0a10c3303164617e2eb8ef1297e2d6119da57f2",
+        "price_series_hash": "e8647266c124999f420f4c4b9ecf0e92db2f28ff1c086672856870c94e588d21",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -580,6 +2170,78 @@
         "snapshot_hash": "cac50f1369467821ad566def4ca0f8362b89d2f11e5c2e410a47cbe6f017f2b0"
       },
       "point_in_time_status": "eligible",
+      "market_timestamp_cutoff": "strictly_before_baseline_timestamp_utc"
+    },
+    {
+      "event_id": "9bf7d6d7f269af723746:1:PLTR:0",
+      "rule_id": null,
+      "legacy_source_id": "9bf7d6d7f269af723746",
+      "legacy_operation_index": 1,
+      "spec_version": "1.7",
+      "scoring_engine_version": "event_score@6.15.8l",
+      "author": "我是一只井底蛙",
+      "symbol": "PLTR",
+      "published_at": "2026-10-09 15:53:39",
+      "baseline_date": "2026-10-12",
+      "baseline_timestamp_utc": "2026-10-12T13:30:00+00:00",
+      "entry_type": "next_session",
+      "fill_status": "simulated_fill",
+      "fill_confidence": "high",
+      "fill_model": "simulated_next_session_open",
+      "entry_inference_source": "baseline_kind:next_session",
+      "entry_registry_version": "1.0",
+      "direction": "bullish",
+      "rule_structural_direction": null,
+      "triggered": true,
+      "scoreable": false,
+      "primary_exclusion_reason": "non_point_in_time_source",
+      "secondary_exclusion_reasons": [
+        "missing_rule_id",
+        "cache_only_unscored"
+      ],
+      "exclusion_reasons": [
+        "missing_rule_id",
+        "cache_only_unscored",
+        "non_point_in_time_source"
+      ],
+      "maturity": {
+        "5": false,
+        "20": false,
+        "60": false
+      },
+      "scores": {
+        "5": null,
+        "20": null,
+        "60": null
+      },
+      "data_quality": {
+        "status": "cache_only_unscored",
+        "source": "yfinance_validation_cache",
+        "price_source": "yfinance_validation_cache",
+        "adjustment_basis": "yfinance_auto_adjust_false_native_ohlc",
+        "same_source_only": true,
+        "price_series_hash": "efdd012c9fb0669a68c3fb7cfb844897b2e568f34ee9a5ab1c76e53c9df55893"
+      },
+      "price_provenance": {
+        "price_source": "yfinance_validation_cache",
+        "adjustment_basis": "yfinance_auto_adjust_false_native_ohlc",
+        "baseline_source": "yfinance_validation_cache",
+        "horizon_source": "yfinance_validation_cache",
+        "same_source": true,
+        "provenance_origin": "source_outcome_artifact"
+      },
+      "source_provenance": {
+        "first_fetched_at": "2026-10-10T02:16:50.590645+00:00",
+        "ingest_type": "backfill_ingest",
+        "first_fetched_at_origin": "source_store_first_observation",
+        "admission_class": "timestamp_unverified",
+        "admission_origin": "unverified_timestamp_fail_closed",
+        "identity_parent_source_key": null,
+        "published_at_semantics": "upstream_published_at_unverified",
+        "timestamp_confidence": "unverified",
+        "snapshot_hash": "4cdec6fe528bd22b76bff590b834f533a94dc7f818b6b4fc90d1bb61e79f5801"
+      },
+      "point_in_time_status": "source_not_genuine_forward",
       "market_timestamp_cutoff": "strictly_before_baseline_timestamp_utc"
     },
     {
@@ -613,6 +2275,94 @@
         "non_point_in_time_source"
       ],
       "maturity": {
+        "5": true,
+        "20": false,
+        "60": false
+      },
+      "scores": {
+        "5": {
+          "horizon_end_date": "2026-10-19",
+          "raw_return": -0.10232150799843931,
+          "direction_adjusted_return": 0.10232150799843931,
+          "benchmark_return": -0.04179062012298418,
+          "excess_vs_qqq": -0.06053088787545513,
+          "unconditional_baseline_direction_adjusted_return": -0.03001608596733275,
+          "unconditional_baseline_direction_adjusted_mae": -0.10230288732488259,
+          "unconditional_baseline_n": 252,
+          "unconditional_lift": 0.13233759396577205,
+          "mae": -0.13002341006632856,
+          "mfe": 0.0065353101833789395,
+          "direction_adjusted_mae": -0.0065353101833789395,
+          "direction_adjusted_mfe": 0.13002341006632856,
+          "legacy_alignment": "aligned"
+        },
+        "20": null,
+        "60": null
+      },
+      "data_quality": {
+        "status": "ok",
+        "source": "stooq_archive",
+        "price_source": "stooq_archive",
+        "adjustment_basis": "stooq_archive_native_series",
+        "same_source_only": true,
+        "price_series_hash": "e323da6b63b94a770857e61140f322167a68e24874f32ca00115581763f308e4",
+        "overlap_conflicts": []
+      },
+      "price_provenance": {
+        "price_source": "stooq_archive",
+        "adjustment_basis": "stooq_archive_native_series",
+        "baseline_source": "stooq_archive",
+        "horizon_source": "stooq_archive",
+        "same_source": true,
+        "provenance_origin": "source_outcome_artifact"
+      },
+      "source_provenance": {
+        "first_fetched_at": "2026-10-10T02:16:50.590645+00:00",
+        "ingest_type": "backfill_ingest",
+        "first_fetched_at_origin": "source_store_first_observation",
+        "admission_class": "timestamp_unverified",
+        "admission_origin": "unverified_timestamp_fail_closed",
+        "identity_parent_source_key": null,
+        "published_at_semantics": "upstream_published_at_unverified",
+        "timestamp_confidence": "unverified",
+        "snapshot_hash": "4cdec6fe528bd22b76bff590b834f533a94dc7f818b6b4fc90d1bb61e79f5801"
+      },
+      "point_in_time_status": "source_not_genuine_forward",
+      "market_timestamp_cutoff": "strictly_before_baseline_timestamp_utc"
+    },
+    {
+      "event_id": "9bf7d6d7f269af723746:0:CIEN:0",
+      "rule_id": null,
+      "legacy_source_id": "9bf7d6d7f269af723746",
+      "legacy_operation_index": 0,
+      "spec_version": "1.7",
+      "scoring_engine_version": "event_score@6.15.8l",
+      "author": "我是一只井底蛙",
+      "symbol": "CIEN",
+      "published_at": "2026-10-09 15:53:39",
+      "baseline_date": "2026-10-12",
+      "baseline_timestamp_utc": "2026-10-12T13:30:00+00:00",
+      "entry_type": "next_session",
+      "fill_status": "simulated_fill",
+      "fill_confidence": "high",
+      "fill_model": "simulated_next_session_open",
+      "entry_inference_source": "baseline_kind:next_session",
+      "entry_registry_version": "1.0",
+      "direction": "bullish",
+      "rule_structural_direction": null,
+      "triggered": true,
+      "scoreable": false,
+      "primary_exclusion_reason": "non_point_in_time_source",
+      "secondary_exclusion_reasons": [
+        "missing_rule_id",
+        "cache_only_unscored"
+      ],
+      "exclusion_reasons": [
+        "missing_rule_id",
+        "cache_only_unscored",
+        "non_point_in_time_source"
+      ],
+      "maturity": {
         "5": false,
         "20": false,
         "60": false
@@ -623,19 +2373,18 @@
         "60": null
       },
       "data_quality": {
-        "status": "ok",
-        "source": "stooq_archive",
-        "price_source": "stooq_archive",
-        "adjustment_basis": "stooq_archive_native_series",
+        "status": "cache_only_unscored",
+        "source": "yfinance_validation_cache",
+        "price_source": "yfinance_validation_cache",
+        "adjustment_basis": "yfinance_auto_adjust_false_native_ohlc",
         "same_source_only": true,
-        "price_series_hash": "fed0147ce7e6a2925da87d8c3f76bef66ebaf96c69c04ca53280b33fa2e9ff17",
-        "overlap_conflicts": []
+        "price_series_hash": "5eea1f3da68fb280525494ee10ee66b3f8cbdb8a8002c1341a4d4f2cb80738fd"
       },
       "price_provenance": {
-        "price_source": "stooq_archive",
-        "adjustment_basis": "stooq_archive_native_series",
-        "baseline_source": "stooq_archive",
-        "horizon_source": "stooq_archive",
+        "price_source": "yfinance_validation_cache",
+        "adjustment_basis": "yfinance_auto_adjust_false_native_ohlc",
+        "baseline_source": "yfinance_validation_cache",
+        "horizon_source": "yfinance_validation_cache",
         "same_source": true,
         "provenance_origin": "source_outcome_artifact"
       },
@@ -684,12 +2433,27 @@
         "non_point_in_time_source"
       ],
       "maturity": {
-        "5": false,
+        "5": true,
         "20": false,
         "60": false
       },
       "scores": {
-        "5": null,
+        "5": {
+          "horizon_end_date": "2026-10-19",
+          "raw_return": -0.10314537201249097,
+          "direction_adjusted_return": 0.10314537201249097,
+          "benchmark_return": -0.04179062012298418,
+          "excess_vs_qqq": -0.06135475188950679,
+          "unconditional_baseline_direction_adjusted_return": -0.03143188381153654,
+          "unconditional_baseline_direction_adjusted_mae": -0.09157359130743951,
+          "unconditional_baseline_n": 252,
+          "unconditional_lift": 0.13457725582402752,
+          "mae": -0.12184750090589735,
+          "mfe": 0.010451252820349977,
+          "direction_adjusted_mae": -0.010451252820349977,
+          "direction_adjusted_mfe": 0.12184750090589735,
+          "legacy_alignment": "aligned"
+        },
         "20": null,
         "60": null
       },
@@ -699,7 +2463,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "e8bece432d70f3793523455d9fd0644ab0c5a080ba27d19b001539d7500a8d56",
+        "price_series_hash": "28ab0657641bbe3a5b779f96e3cef832b9b16017f9516d2757bcee8509f49126",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -755,12 +2519,27 @@
         "non_point_in_time_source"
       ],
       "maturity": {
-        "5": false,
+        "5": true,
         "20": false,
         "60": false
       },
       "scores": {
-        "5": null,
+        "5": {
+          "horizon_end_date": "2026-10-19",
+          "raw_return": -0.0573443008225617,
+          "direction_adjusted_return": 0.0573443008225617,
+          "benchmark_return": -0.04179062012298418,
+          "excess_vs_qqq": -0.015553680699577521,
+          "unconditional_baseline_direction_adjusted_return": -0.006710439027514376,
+          "unconditional_baseline_direction_adjusted_mae": -0.028050301649256974,
+          "unconditional_baseline_n": 252,
+          "unconditional_lift": 0.06405473985007608,
+          "mae": -0.07269878574226396,
+          "mfe": 0.0007050528789658284,
+          "direction_adjusted_mae": -0.0007050528789658284,
+          "direction_adjusted_mfe": 0.07269878574226396,
+          "legacy_alignment": "aligned"
+        },
         "20": null,
         "60": null
       },
@@ -770,7 +2549,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "bc29860f157a335c956fd5bc1a071d96f15e4a97ce7ab3378cdf3d0460dd8a32",
+        "price_series_hash": "983d6fb74193654695edfdbb3ef2b60d7b3083cbc2297eae8ecd0b883458c507",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -898,6 +2677,94 @@
         "non_point_in_time_source"
       ],
       "maturity": {
+        "5": true,
+        "20": false,
+        "60": false
+      },
+      "scores": {
+        "5": {
+          "horizon_end_date": "2026-10-19",
+          "raw_return": -0.0012367231282427449,
+          "direction_adjusted_return": -0.0012367231282427449,
+          "benchmark_return": -0.04179062012298418,
+          "excess_vs_qqq": 0.040553896994741434,
+          "unconditional_baseline_direction_adjusted_return": -0.002239416631779153,
+          "unconditional_baseline_direction_adjusted_mae": -0.06294824737396705,
+          "unconditional_baseline_n": 252,
+          "unconditional_lift": 0.0010026935035364081,
+          "mae": -0.050707640267059206,
+          "mfe": 0.05950257016354077,
+          "direction_adjusted_mae": -0.050707640267059206,
+          "direction_adjusted_mfe": 0.05950257016354077,
+          "legacy_alignment": "not_aligned"
+        },
+        "20": null,
+        "60": null
+      },
+      "data_quality": {
+        "status": "ok",
+        "source": "stooq_archive",
+        "price_source": "stooq_archive",
+        "adjustment_basis": "stooq_archive_native_series",
+        "same_source_only": true,
+        "price_series_hash": "8ffa2ed46b58eb4d5daae871e240e8491dce76612fc74f24a0ff18390ccd687e",
+        "overlap_conflicts": []
+      },
+      "price_provenance": {
+        "price_source": "stooq_archive",
+        "adjustment_basis": "stooq_archive_native_series",
+        "baseline_source": "stooq_archive",
+        "horizon_source": "stooq_archive",
+        "same_source": true,
+        "provenance_origin": "source_outcome_artifact"
+      },
+      "source_provenance": {
+        "first_fetched_at": "2026-10-10T02:16:50.590645+00:00",
+        "ingest_type": "backfill_ingest",
+        "first_fetched_at_origin": "source_store_first_observation",
+        "admission_class": "timestamp_unverified",
+        "admission_origin": "unverified_timestamp_fail_closed",
+        "identity_parent_source_key": null,
+        "published_at_semantics": "upstream_published_at_unverified",
+        "timestamp_confidence": "unverified",
+        "snapshot_hash": "9e0cd1c67e30cbcabbb2b9e90c8ceef4f540e4821608027b00cf29f8db75fd75"
+      },
+      "point_in_time_status": "source_not_genuine_forward",
+      "market_timestamp_cutoff": "strictly_before_baseline_timestamp_utc"
+    },
+    {
+      "event_id": "1a4060df0576c9f74df4:0:CIEN:0",
+      "rule_id": null,
+      "legacy_source_id": "1a4060df0576c9f74df4",
+      "legacy_operation_index": 0,
+      "spec_version": "1.7",
+      "scoring_engine_version": "event_score@6.15.8l",
+      "author": "我是一只井底蛙",
+      "symbol": "CIEN",
+      "published_at": "2026-10-09 11:13:50",
+      "baseline_date": "2026-10-12",
+      "baseline_timestamp_utc": "2026-10-12T13:30:00+00:00",
+      "entry_type": "next_session",
+      "fill_status": "simulated_fill",
+      "fill_confidence": "high",
+      "fill_model": "simulated_next_session_open",
+      "entry_inference_source": "baseline_kind:next_session",
+      "entry_registry_version": "1.0",
+      "direction": "bullish",
+      "rule_structural_direction": null,
+      "triggered": true,
+      "scoreable": false,
+      "primary_exclusion_reason": "non_point_in_time_source",
+      "secondary_exclusion_reasons": [
+        "missing_rule_id",
+        "cache_only_unscored"
+      ],
+      "exclusion_reasons": [
+        "missing_rule_id",
+        "cache_only_unscored",
+        "non_point_in_time_source"
+      ],
+      "maturity": {
         "5": false,
         "20": false,
         "60": false
@@ -908,19 +2775,18 @@
         "60": null
       },
       "data_quality": {
-        "status": "ok",
-        "source": "stooq_archive",
-        "price_source": "stooq_archive",
-        "adjustment_basis": "stooq_archive_native_series",
+        "status": "cache_only_unscored",
+        "source": "yfinance_validation_cache",
+        "price_source": "yfinance_validation_cache",
+        "adjustment_basis": "yfinance_auto_adjust_false_native_ohlc",
         "same_source_only": true,
-        "price_series_hash": "624bfac9227d9e26fb9ce73e83b80a19e4a521aeebf7a5f1b97758a1cb8bcec1",
-        "overlap_conflicts": []
+        "price_series_hash": "5eea1f3da68fb280525494ee10ee66b3f8cbdb8a8002c1341a4d4f2cb80738fd"
       },
       "price_provenance": {
-        "price_source": "stooq_archive",
-        "adjustment_basis": "stooq_archive_native_series",
-        "baseline_source": "stooq_archive",
-        "horizon_source": "stooq_archive",
+        "price_source": "yfinance_validation_cache",
+        "adjustment_basis": "yfinance_auto_adjust_false_native_ohlc",
+        "baseline_source": "yfinance_validation_cache",
+        "horizon_source": "yfinance_validation_cache",
         "same_source": true,
         "provenance_origin": "source_outcome_artifact"
       },
@@ -971,12 +2837,27 @@
         "non_point_in_time_source"
       ],
       "maturity": {
-        "5": false,
+        "5": true,
         "20": false,
         "60": false
       },
       "scores": {
-        "5": null,
+        "5": {
+          "horizon_end_date": "2026-10-19",
+          "raw_return": -0.10232150799843931,
+          "direction_adjusted_return": null,
+          "benchmark_return": -0.04179062012298418,
+          "excess_vs_qqq": -0.06053088787545513,
+          "unconditional_baseline_direction_adjusted_return": null,
+          "unconditional_baseline_direction_adjusted_mae": null,
+          "unconditional_baseline_n": null,
+          "unconditional_lift": null,
+          "mae": -0.13002341006632856,
+          "mfe": 0.0065353101833789395,
+          "direction_adjusted_mae": null,
+          "direction_adjusted_mfe": null,
+          "legacy_alignment": "not_scored"
+        },
         "20": null,
         "60": null
       },
@@ -986,7 +2867,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "fed0147ce7e6a2925da87d8c3f76bef66ebaf96c69c04ca53280b33fa2e9ff17",
+        "price_series_hash": "e323da6b63b94a770857e61140f322167a68e24874f32ca00115581763f308e4",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -1044,12 +2925,27 @@
         "non_point_in_time_source"
       ],
       "maturity": {
-        "5": false,
+        "5": true,
         "20": false,
         "60": false
       },
       "scores": {
-        "5": null,
+        "5": {
+          "horizon_end_date": "2026-10-19",
+          "raw_return": -0.10314537201249097,
+          "direction_adjusted_return": null,
+          "benchmark_return": -0.04179062012298418,
+          "excess_vs_qqq": -0.06135475188950679,
+          "unconditional_baseline_direction_adjusted_return": null,
+          "unconditional_baseline_direction_adjusted_mae": null,
+          "unconditional_baseline_n": null,
+          "unconditional_lift": null,
+          "mae": -0.12184750090589735,
+          "mfe": 0.010451252820349977,
+          "direction_adjusted_mae": null,
+          "direction_adjusted_mfe": null,
+          "legacy_alignment": "not_scored"
+        },
         "20": null,
         "60": null
       },
@@ -1059,7 +2955,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "e8bece432d70f3793523455d9fd0644ab0c5a080ba27d19b001539d7500a8d56",
+        "price_series_hash": "28ab0657641bbe3a5b779f96e3cef832b9b16017f9516d2757bcee8509f49126",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -1115,12 +3011,27 @@
         "non_point_in_time_source"
       ],
       "maturity": {
-        "5": false,
+        "5": true,
         "20": false,
         "60": false
       },
       "scores": {
-        "5": null,
+        "5": {
+          "horizon_end_date": "2026-10-16",
+          "raw_return": -0.0844254409406735,
+          "direction_adjusted_return": -0.0844254409406735,
+          "benchmark_return": -0.05680685744212155,
+          "excess_vs_qqq": -0.027618583498551952,
+          "unconditional_baseline_direction_adjusted_return": 0.004700692452935246,
+          "unconditional_baseline_direction_adjusted_mae": -0.04105742278162207,
+          "unconditional_baseline_n": 252,
+          "unconditional_lift": -0.08912613339360875,
+          "mae": -0.08989840726884024,
+          "mfe": 6.413682522699027e-05,
+          "direction_adjusted_mae": -0.08989840726884024,
+          "direction_adjusted_mfe": 6.413682522699027e-05,
+          "legacy_alignment": "not_aligned"
+        },
         "20": null,
         "60": null
       },
@@ -1130,7 +3041,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "9a9d3b07b4c33c8bbe12fbebb0a10c3303164617e2eb8ef1297e2d6119da57f2",
+        "price_series_hash": "e8647266c124999f420f4c4b9ecf0e92db2f28ff1c086672856870c94e588d21",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -1218,7 +3129,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "bc29860f157a335c956fd5bc1a071d96f15e4a97ce7ab3378cdf3d0460dd8a32",
+        "price_series_hash": "983d6fb74193654695edfdbb3ef2b60d7b3083cbc2297eae8ecd0b883458c507",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -1304,7 +3215,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "bc29860f157a335c956fd5bc1a071d96f15e4a97ce7ab3378cdf3d0460dd8a32",
+        "price_series_hash": "983d6fb74193654695edfdbb3ef2b60d7b3083cbc2297eae8ecd0b883458c507",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -1390,7 +3301,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "491032e5ae6af7522326d9d0c4b3041dc46c9777e5e989b0f81703b71249e385",
+        "price_series_hash": "fe2514472f6221bd367f649a658b578d419ad1270a87d76b0d89d88064abd961",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -1476,7 +3387,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "207569b625bf06dc7a63518354cd6d717a9da97aec4ebb16026a7e967dc1cccb",
+        "price_series_hash": "e234e3d9235af351c5f1182cef778cf4bb3385fe594c8a02ec3ef9fcd2ce55d8",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -1562,7 +3473,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "8c3cd45425e49f21fd85b7010b2052f1b3f5c324981ec486661dc1e821cc2db7",
+        "price_series_hash": "ae6e241243aaa5398fc30cac2483001e44155e23258d1787d2613380f6fbd292",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -1648,7 +3559,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "bc29860f157a335c956fd5bc1a071d96f15e4a97ce7ab3378cdf3d0460dd8a32",
+        "price_series_hash": "983d6fb74193654695edfdbb3ef2b60d7b3083cbc2297eae8ecd0b883458c507",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -1734,7 +3645,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "bd31f9da5b0bb04d1ca0fee0b47cf47db4dcdacb69f3a1bd0fd8e04fbb3448c2",
+        "price_series_hash": "e07092ffe89e474d35ef7d8c8dbe2e9fdfd4828ae4b59dbde6eff76aba6b99fc",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -1820,7 +3731,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "c597c2c4a4c2788e22bea8eac7b148aeaaf127bc81b17037cfdbe6466c2c0ec8",
+        "price_series_hash": "9f93bdd71c53a1f08e092c839f25cac8fc536506b3e27d6380893442758ecd79",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -1878,12 +3789,27 @@
         "non_point_in_time_source"
       ],
       "maturity": {
-        "5": false,
+        "5": true,
         "20": false,
         "60": false
       },
       "scores": {
-        "5": null,
+        "5": {
+          "horizon_end_date": "2026-10-13",
+          "raw_return": 0.032821548267021994,
+          "direction_adjusted_return": -0.032821548267021994,
+          "benchmark_return": -0.022313054469536242,
+          "excess_vs_qqq": 0.055134602736558236,
+          "unconditional_baseline_direction_adjusted_return": 0.024374613635797793,
+          "unconditional_baseline_direction_adjusted_mae": -0.03585880245497605,
+          "unconditional_baseline_n": 26,
+          "unconditional_lift": -0.057196161902819787,
+          "mae": -0.007446884100325901,
+          "mfe": 0.03705071741351662,
+          "direction_adjusted_mae": -0.03705071741351662,
+          "direction_adjusted_mfe": 0.007446884100325901,
+          "legacy_alignment": "not_aligned"
+        },
         "20": null,
         "60": null
       },
@@ -1893,7 +3819,7 @@
         "price_source": "yfinance_validation_cache",
         "adjustment_basis": "yfinance_auto_adjust_false_native_ohlc",
         "same_source_only": true,
-        "price_series_hash": "6aaca3da440b3bf1a526314f535e0a710521d10d2901115bf9c5ec96a0004e8e"
+        "price_series_hash": "72b992da039d9ddb03d7c82af8b4ef5e2c85196de2af812100fad5c52e9cb5e0"
       },
       "price_provenance": {
         "price_source": "yfinance_validation_cache",
@@ -1978,7 +3904,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "9a9d3b07b4c33c8bbe12fbebb0a10c3303164617e2eb8ef1297e2d6119da57f2",
+        "price_series_hash": "e8647266c124999f420f4c4b9ecf0e92db2f28ff1c086672856870c94e588d21",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -2064,7 +3990,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "9a9d3b07b4c33c8bbe12fbebb0a10c3303164617e2eb8ef1297e2d6119da57f2",
+        "price_series_hash": "e8647266c124999f420f4c4b9ecf0e92db2f28ff1c086672856870c94e588d21",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -2150,7 +4076,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "d2833db101e9629d76308b87f71be27e4e1e62151ba439c828a320dad94332fd",
+        "price_series_hash": "e00aa7631b561c9f89c885d2e6540a7e6b465fef5ed7a1d19ea308c770cc7c6e",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -2236,7 +4162,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "d2833db101e9629d76308b87f71be27e4e1e62151ba439c828a320dad94332fd",
+        "price_series_hash": "e00aa7631b561c9f89c885d2e6540a7e6b465fef5ed7a1d19ea308c770cc7c6e",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -2322,7 +4248,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "207569b625bf06dc7a63518354cd6d717a9da97aec4ebb16026a7e967dc1cccb",
+        "price_series_hash": "e234e3d9235af351c5f1182cef778cf4bb3385fe594c8a02ec3ef9fcd2ce55d8",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -2410,7 +4336,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "bc29860f157a335c956fd5bc1a071d96f15e4a97ce7ab3378cdf3d0460dd8a32",
+        "price_series_hash": "983d6fb74193654695edfdbb3ef2b60d7b3083cbc2297eae8ecd0b883458c507",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -2496,7 +4422,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "2cd573a83991295e00c7f1821c8df5fa722966e5071ab535e480671ea1ffffe6",
+        "price_series_hash": "14bd99ebc81f6180caacc6632680c2de6b533799d876a2cfb8feacc9059a4851",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -2582,7 +4508,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "bc29860f157a335c956fd5bc1a071d96f15e4a97ce7ab3378cdf3d0460dd8a32",
+        "price_series_hash": "983d6fb74193654695edfdbb3ef2b60d7b3083cbc2297eae8ecd0b883458c507",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -2668,7 +4594,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "bc29860f157a335c956fd5bc1a071d96f15e4a97ce7ab3378cdf3d0460dd8a32",
+        "price_series_hash": "983d6fb74193654695edfdbb3ef2b60d7b3083cbc2297eae8ecd0b883458c507",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -2754,7 +4680,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "bc29860f157a335c956fd5bc1a071d96f15e4a97ce7ab3378cdf3d0460dd8a32",
+        "price_series_hash": "983d6fb74193654695edfdbb3ef2b60d7b3083cbc2297eae8ecd0b883458c507",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -2821,15 +4747,15 @@
       "scores": {
         "5": {
           "horizon_end_date": "2026-10-05",
-          "raw_return": -0.0922374474703399,
+          "raw_return": -0.0922374474703398,
           "direction_adjusted_return": null,
           "benchmark_return": 0.02593671458765212,
-          "excess_vs_qqq": -0.11817416205799203,
+          "excess_vs_qqq": -0.11817416205799192,
           "unconditional_baseline_direction_adjusted_return": null,
           "unconditional_baseline_direction_adjusted_mae": null,
           "unconditional_baseline_n": null,
           "unconditional_lift": null,
-          "mae": -0.0946977317913138,
+          "mae": -0.09469773179131369,
           "mfe": 0.0,
           "direction_adjusted_mae": null,
           "direction_adjusted_mfe": null,
@@ -2929,7 +4855,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "2cd573a83991295e00c7f1821c8df5fa722966e5071ab535e480671ea1ffffe6",
+        "price_series_hash": "14bd99ebc81f6180caacc6632680c2de6b533799d876a2cfb8feacc9059a4851",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -3017,7 +4943,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "5af50c2a25db9831b44090e53c1a117e88b27ad96ac6231669c6af88536afb56",
+        "price_series_hash": "2e14c178ac2fe991035566bfc35c51a2bbf3981553ff1a3706e3c47985190899",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -3105,7 +5031,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "bcbf042c61854277f6f0f2da0b445d8095219615e41dbf8bc40012154bd025dd",
+        "price_series_hash": "5bbb8af4f453e83fabd6881ada219a9655ecd2a3965f0d2616850bdd25d6240b",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -3193,7 +5119,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "047d8c371830ff400303038df9d3669e0507cdf41f1b53c3de6f914211d6ae53",
+        "price_series_hash": "23088edf1d475e75ccff70e81d345374ec7ad4818061bc8bd4cd2094dd5bf2f7",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -3279,7 +5205,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "047d8c371830ff400303038df9d3669e0507cdf41f1b53c3de6f914211d6ae53",
+        "price_series_hash": "23088edf1d475e75ccff70e81d345374ec7ad4818061bc8bd4cd2094dd5bf2f7",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -3467,7 +5393,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "bd31f9da5b0bb04d1ca0fee0b47cf47db4dcdacb69f3a1bd0fd8e04fbb3448c2",
+        "price_series_hash": "e07092ffe89e474d35ef7d8c8dbe2e9fdfd4828ae4b59dbde6eff76aba6b99fc",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -3568,7 +5494,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "fed0147ce7e6a2925da87d8c3f76bef66ebaf96c69c04ca53280b33fa2e9ff17",
+        "price_series_hash": "e323da6b63b94a770857e61140f322167a68e24874f32ca00115581763f308e4",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -3669,7 +5595,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "9a9d3b07b4c33c8bbe12fbebb0a10c3303164617e2eb8ef1297e2d6119da57f2",
+        "price_series_hash": "e8647266c124999f420f4c4b9ecf0e92db2f28ff1c086672856870c94e588d21",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -3770,7 +5696,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "2cd573a83991295e00c7f1821c8df5fa722966e5071ab535e480671ea1ffffe6",
+        "price_series_hash": "14bd99ebc81f6180caacc6632680c2de6b533799d876a2cfb8feacc9059a4851",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -3871,7 +5797,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "624bfac9227d9e26fb9ce73e83b80a19e4a521aeebf7a5f1b97758a1cb8bcec1",
+        "price_series_hash": "8ffa2ed46b58eb4d5daae871e240e8491dce76612fc74f24a0ff18390ccd687e",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -3972,7 +5898,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "bc29860f157a335c956fd5bc1a071d96f15e4a97ce7ab3378cdf3d0460dd8a32",
+        "price_series_hash": "983d6fb74193654695edfdbb3ef2b60d7b3083cbc2297eae8ecd0b883458c507",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -4073,7 +5999,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "bc29860f157a335c956fd5bc1a071d96f15e4a97ce7ab3378cdf3d0460dd8a32",
+        "price_series_hash": "983d6fb74193654695edfdbb3ef2b60d7b3083cbc2297eae8ecd0b883458c507",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -4174,7 +6100,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "bc29860f157a335c956fd5bc1a071d96f15e4a97ce7ab3378cdf3d0460dd8a32",
+        "price_series_hash": "983d6fb74193654695edfdbb3ef2b60d7b3083cbc2297eae8ecd0b883458c507",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -4353,7 +6279,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "bf61db399c618703f39987bc12022bf0fad6459a29d57039cf21a5a5233f7128",
+        "price_series_hash": "9f71fc983e19b3909eaa8d605c7ef71f2043e9f9f517915da4ecaf12c996b6d0",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -4428,7 +6354,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "bf61db399c618703f39987bc12022bf0fad6459a29d57039cf21a5a5233f7128",
+        "price_series_hash": "9f71fc983e19b3909eaa8d605c7ef71f2043e9f9f517915da4ecaf12c996b6d0",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -4501,7 +6427,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "bf61db399c618703f39987bc12022bf0fad6459a29d57039cf21a5a5233f7128",
+        "price_series_hash": "9f71fc983e19b3909eaa8d605c7ef71f2043e9f9f517915da4ecaf12c996b6d0",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -4576,7 +6502,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "491032e5ae6af7522326d9d0c4b3041dc46c9777e5e989b0f81703b71249e385",
+        "price_series_hash": "fe2514472f6221bd367f649a658b578d419ad1270a87d76b0d89d88064abd961",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -4651,7 +6577,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "491032e5ae6af7522326d9d0c4b3041dc46c9777e5e989b0f81703b71249e385",
+        "price_series_hash": "fe2514472f6221bd367f649a658b578d419ad1270a87d76b0d89d88064abd961",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -4726,7 +6652,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "a0faf784399f8df7a2f66e9bb386d5dcd94704e274f246224156bb799c6489b2",
+        "price_series_hash": "3dfa4ced0e1e0ea858c77f44a05a9f23bb3c05be4ae04830b0e36d767c5c8c82",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -4829,7 +6755,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "a0faf784399f8df7a2f66e9bb386d5dcd94704e274f246224156bb799c6489b2",
+        "price_series_hash": "3dfa4ced0e1e0ea858c77f44a05a9f23bb3c05be4ae04830b0e36d767c5c8c82",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -4902,7 +6828,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "d2833db101e9629d76308b87f71be27e4e1e62151ba439c828a320dad94332fd",
+        "price_series_hash": "e00aa7631b561c9f89c885d2e6540a7e6b465fef5ed7a1d19ea308c770cc7c6e",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -5005,7 +6931,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "d2833db101e9629d76308b87f71be27e4e1e62151ba439c828a320dad94332fd",
+        "price_series_hash": "e00aa7631b561c9f89c885d2e6540a7e6b465fef5ed7a1d19ea308c770cc7c6e",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -5078,7 +7004,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "fed0147ce7e6a2925da87d8c3f76bef66ebaf96c69c04ca53280b33fa2e9ff17",
+        "price_series_hash": "e323da6b63b94a770857e61140f322167a68e24874f32ca00115581763f308e4",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -5151,7 +7077,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "fed0147ce7e6a2925da87d8c3f76bef66ebaf96c69c04ca53280b33fa2e9ff17",
+        "price_series_hash": "e323da6b63b94a770857e61140f322167a68e24874f32ca00115581763f308e4",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -5254,7 +7180,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "207569b625bf06dc7a63518354cd6d717a9da97aec4ebb16026a7e967dc1cccb",
+        "price_series_hash": "e234e3d9235af351c5f1182cef778cf4bb3385fe594c8a02ec3ef9fcd2ce55d8",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -5327,7 +7253,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "207569b625bf06dc7a63518354cd6d717a9da97aec4ebb16026a7e967dc1cccb",
+        "price_series_hash": "e234e3d9235af351c5f1182cef778cf4bb3385fe594c8a02ec3ef9fcd2ce55d8",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -5400,7 +7326,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "207569b625bf06dc7a63518354cd6d717a9da97aec4ebb16026a7e967dc1cccb",
+        "price_series_hash": "e234e3d9235af351c5f1182cef778cf4bb3385fe594c8a02ec3ef9fcd2ce55d8",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -5501,7 +7427,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "bf61db399c618703f39987bc12022bf0fad6459a29d57039cf21a5a5233f7128",
+        "price_series_hash": "9f71fc983e19b3909eaa8d605c7ef71f2043e9f9f517915da4ecaf12c996b6d0",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -5602,7 +7528,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "bf61db399c618703f39987bc12022bf0fad6459a29d57039cf21a5a5233f7128",
+        "price_series_hash": "9f71fc983e19b3909eaa8d605c7ef71f2043e9f9f517915da4ecaf12c996b6d0",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -5703,7 +7629,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "9a9d3b07b4c33c8bbe12fbebb0a10c3303164617e2eb8ef1297e2d6119da57f2",
+        "price_series_hash": "e8647266c124999f420f4c4b9ecf0e92db2f28ff1c086672856870c94e588d21",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -5804,7 +7730,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "2cd573a83991295e00c7f1821c8df5fa722966e5071ab535e480671ea1ffffe6",
+        "price_series_hash": "14bd99ebc81f6180caacc6632680c2de6b533799d876a2cfb8feacc9059a4851",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -6109,7 +8035,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "bf61db399c618703f39987bc12022bf0fad6459a29d57039cf21a5a5233f7128",
+        "price_series_hash": "9f71fc983e19b3909eaa8d605c7ef71f2043e9f9f517915da4ecaf12c996b6d0",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -6210,7 +8136,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "bf61db399c618703f39987bc12022bf0fad6459a29d57039cf21a5a5233f7128",
+        "price_series_hash": "9f71fc983e19b3909eaa8d605c7ef71f2043e9f9f517915da4ecaf12c996b6d0",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -6311,7 +8237,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "bf61db399c618703f39987bc12022bf0fad6459a29d57039cf21a5a5233f7128",
+        "price_series_hash": "9f71fc983e19b3909eaa8d605c7ef71f2043e9f9f517915da4ecaf12c996b6d0",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -6412,7 +8338,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "bf61db399c618703f39987bc12022bf0fad6459a29d57039cf21a5a5233f7128",
+        "price_series_hash": "9f71fc983e19b3909eaa8d605c7ef71f2043e9f9f517915da4ecaf12c996b6d0",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -6513,7 +8439,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "d2833db101e9629d76308b87f71be27e4e1e62151ba439c828a320dad94332fd",
+        "price_series_hash": "e00aa7631b561c9f89c885d2e6540a7e6b465fef5ed7a1d19ea308c770cc7c6e",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -6614,7 +8540,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "207569b625bf06dc7a63518354cd6d717a9da97aec4ebb16026a7e967dc1cccb",
+        "price_series_hash": "e234e3d9235af351c5f1182cef778cf4bb3385fe594c8a02ec3ef9fcd2ce55d8",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -6715,7 +8641,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "bf61db399c618703f39987bc12022bf0fad6459a29d57039cf21a5a5233f7128",
+        "price_series_hash": "9f71fc983e19b3909eaa8d605c7ef71f2043e9f9f517915da4ecaf12c996b6d0",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -6816,7 +8742,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "2cd573a83991295e00c7f1821c8df5fa722966e5071ab535e480671ea1ffffe6",
+        "price_series_hash": "14bd99ebc81f6180caacc6632680c2de6b533799d876a2cfb8feacc9059a4851",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -6917,7 +8843,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "491032e5ae6af7522326d9d0c4b3041dc46c9777e5e989b0f81703b71249e385",
+        "price_series_hash": "fe2514472f6221bd367f649a658b578d419ad1270a87d76b0d89d88064abd961",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -7018,7 +8944,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "8c3cd45425e49f21fd85b7010b2052f1b3f5c324981ec486661dc1e821cc2db7",
+        "price_series_hash": "ae6e241243aaa5398fc30cac2483001e44155e23258d1787d2613380f6fbd292",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -7119,7 +9045,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "bc29860f157a335c956fd5bc1a071d96f15e4a97ce7ab3378cdf3d0460dd8a32",
+        "price_series_hash": "983d6fb74193654695edfdbb3ef2b60d7b3083cbc2297eae8ecd0b883458c507",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -7220,7 +9146,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "bf61db399c618703f39987bc12022bf0fad6459a29d57039cf21a5a5233f7128",
+        "price_series_hash": "9f71fc983e19b3909eaa8d605c7ef71f2043e9f9f517915da4ecaf12c996b6d0",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -7321,7 +9247,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "2cd573a83991295e00c7f1821c8df5fa722966e5071ab535e480671ea1ffffe6",
+        "price_series_hash": "14bd99ebc81f6180caacc6632680c2de6b533799d876a2cfb8feacc9059a4851",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -7422,7 +9348,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "c597c2c4a4c2788e22bea8eac7b148aeaaf127bc81b17037cfdbe6466c2c0ec8",
+        "price_series_hash": "9f93bdd71c53a1f08e092c839f25cac8fc536506b3e27d6380893442758ecd79",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -7523,7 +9449,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "c597c2c4a4c2788e22bea8eac7b148aeaaf127bc81b17037cfdbe6466c2c0ec8",
+        "price_series_hash": "9f93bdd71c53a1f08e092c839f25cac8fc536506b3e27d6380893442758ecd79",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -7624,7 +9550,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "c597c2c4a4c2788e22bea8eac7b148aeaaf127bc81b17037cfdbe6466c2c0ec8",
+        "price_series_hash": "9f93bdd71c53a1f08e092c839f25cac8fc536506b3e27d6380893442758ecd79",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -7725,7 +9651,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "c597c2c4a4c2788e22bea8eac7b148aeaaf127bc81b17037cfdbe6466c2c0ec8",
+        "price_series_hash": "9f93bdd71c53a1f08e092c839f25cac8fc536506b3e27d6380893442758ecd79",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -7783,7 +9709,7 @@
       "maturity": {
         "5": true,
         "20": true,
-        "60": false
+        "60": true
       },
       "scores": {
         "5": {
@@ -7818,7 +9744,22 @@
           "direction_adjusted_mfe": 0.031143695014662853,
           "legacy_alignment": "aligned"
         },
-        "60": null
+        "60": {
+          "horizon_end_date": "2026-10-19",
+          "raw_return": 0.07935483284457479,
+          "direction_adjusted_return": 0.07935483284457479,
+          "benchmark_return": 0.034102509105042866,
+          "excess_vs_qqq": 0.04525232373953192,
+          "unconditional_baseline_direction_adjusted_return": 0.07436013340754374,
+          "unconditional_baseline_direction_adjusted_mae": -0.11882180570751444,
+          "unconditional_baseline_n": 252,
+          "unconditional_lift": 0.004994699437031042,
+          "mae": -0.12791788856304986,
+          "mfe": 0.13947214076246328,
+          "direction_adjusted_mae": -0.12791788856304986,
+          "direction_adjusted_mfe": 0.13947214076246328,
+          "legacy_alignment": "aligned"
+        }
       },
       "data_quality": {
         "status": "ok",
@@ -7826,7 +9767,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "c597c2c4a4c2788e22bea8eac7b148aeaaf127bc81b17037cfdbe6466c2c0ec8",
+        "price_series_hash": "9f93bdd71c53a1f08e092c839f25cac8fc536506b3e27d6380893442758ecd79",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -7884,7 +9825,7 @@
       "maturity": {
         "5": true,
         "20": true,
-        "60": false
+        "60": true
       },
       "scores": {
         "5": {
@@ -7919,7 +9860,22 @@
           "direction_adjusted_mfe": 0.10745608707271437,
           "legacy_alignment": "aligned"
         },
-        "60": null
+        "60": {
+          "horizon_end_date": "2026-10-16",
+          "raw_return": 0.0404509122713248,
+          "direction_adjusted_return": 0.0404509122713248,
+          "benchmark_return": 0.008783135783519525,
+          "excess_vs_qqq": 0.03166777648780528,
+          "unconditional_baseline_direction_adjusted_return": 0.11354244281332287,
+          "unconditional_baseline_direction_adjusted_mae": -0.06748843446603287,
+          "unconditional_baseline_n": 252,
+          "unconditional_lift": -0.07309153054199807,
+          "mae": -0.07674740652559464,
+          "mfe": 0.182527149486164,
+          "direction_adjusted_mae": -0.07674740652559464,
+          "direction_adjusted_mfe": 0.182527149486164,
+          "legacy_alignment": "aligned"
+        }
       },
       "data_quality": {
         "status": "ok",
@@ -7927,7 +9883,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "9a9d3b07b4c33c8bbe12fbebb0a10c3303164617e2eb8ef1297e2d6119da57f2",
+        "price_series_hash": "e8647266c124999f420f4c4b9ecf0e92db2f28ff1c086672856870c94e588d21",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -8043,7 +9999,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "2cd573a83991295e00c7f1821c8df5fa722966e5071ab535e480671ea1ffffe6",
+        "price_series_hash": "14bd99ebc81f6180caacc6632680c2de6b533799d876a2cfb8feacc9059a4851",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -8159,7 +10115,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "bf61db399c618703f39987bc12022bf0fad6459a29d57039cf21a5a5233f7128",
+        "price_series_hash": "9f71fc983e19b3909eaa8d605c7ef71f2043e9f9f517915da4ecaf12c996b6d0",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -8275,7 +10231,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "2cd573a83991295e00c7f1821c8df5fa722966e5071ab535e480671ea1ffffe6",
+        "price_series_hash": "14bd99ebc81f6180caacc6632680c2de6b533799d876a2cfb8feacc9059a4851",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -8391,7 +10347,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "9a9d3b07b4c33c8bbe12fbebb0a10c3303164617e2eb8ef1297e2d6119da57f2",
+        "price_series_hash": "e8647266c124999f420f4c4b9ecf0e92db2f28ff1c086672856870c94e588d21",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -8609,7 +10565,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "491032e5ae6af7522326d9d0c4b3041dc46c9777e5e989b0f81703b71249e385",
+        "price_series_hash": "fe2514472f6221bd367f649a658b578d419ad1270a87d76b0d89d88064abd961",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -8725,7 +10681,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "9a9d3b07b4c33c8bbe12fbebb0a10c3303164617e2eb8ef1297e2d6119da57f2",
+        "price_series_hash": "e8647266c124999f420f4c4b9ecf0e92db2f28ff1c086672856870c94e588d21",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -8841,7 +10797,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "c597c2c4a4c2788e22bea8eac7b148aeaaf127bc81b17037cfdbe6466c2c0ec8",
+        "price_series_hash": "9f93bdd71c53a1f08e092c839f25cac8fc536506b3e27d6380893442758ecd79",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -8957,7 +10913,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "c597c2c4a4c2788e22bea8eac7b148aeaaf127bc81b17037cfdbe6466c2c0ec8",
+        "price_series_hash": "9f93bdd71c53a1f08e092c839f25cac8fc536506b3e27d6380893442758ecd79",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -9073,7 +11029,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "9a9d3b07b4c33c8bbe12fbebb0a10c3303164617e2eb8ef1297e2d6119da57f2",
+        "price_series_hash": "e8647266c124999f420f4c4b9ecf0e92db2f28ff1c086672856870c94e588d21",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -9191,7 +11147,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "e461ec4d87532b33297484713bff1ba617e55af480ef7930037d931edb697527",
+        "price_series_hash": "96c7ad708d1b5e892dc4b9227e60745cc8b7659e41c9fc05d7bd3063a0132bf9",
         "overlap_conflicts": [
           {
             "date": "2026-09-30",
@@ -9313,7 +11269,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "bd31f9da5b0bb04d1ca0fee0b47cf47db4dcdacb69f3a1bd0fd8e04fbb3448c2",
+        "price_series_hash": "e07092ffe89e474d35ef7d8c8dbe2e9fdfd4828ae4b59dbde6eff76aba6b99fc",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -9429,7 +11385,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "26d13953951856eca9e7d27779bf8e8c1b52973b833d30ff7e0535fbc5d3c764",
+        "price_series_hash": "8ed29d89c57eff4f84e7f51e16fddd73812ddf37be0ee1dedc3e4b3b9d5ac16f",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -9545,7 +11501,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "c597c2c4a4c2788e22bea8eac7b148aeaaf127bc81b17037cfdbe6466c2c0ec8",
+        "price_series_hash": "9f93bdd71c53a1f08e092c839f25cac8fc536506b3e27d6380893442758ecd79",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -9661,7 +11617,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "c597c2c4a4c2788e22bea8eac7b148aeaaf127bc81b17037cfdbe6466c2c0ec8",
+        "price_series_hash": "9f93bdd71c53a1f08e092c839f25cac8fc536506b3e27d6380893442758ecd79",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -9777,7 +11733,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "bf61db399c618703f39987bc12022bf0fad6459a29d57039cf21a5a5233f7128",
+        "price_series_hash": "9f71fc983e19b3909eaa8d605c7ef71f2043e9f9f517915da4ecaf12c996b6d0",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -9895,7 +11851,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "2cd573a83991295e00c7f1821c8df5fa722966e5071ab535e480671ea1ffffe6",
+        "price_series_hash": "14bd99ebc81f6180caacc6632680c2de6b533799d876a2cfb8feacc9059a4851",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -10011,7 +11967,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "a0faf784399f8df7a2f66e9bb386d5dcd94704e274f246224156bb799c6489b2",
+        "price_series_hash": "3dfa4ced0e1e0ea858c77f44a05a9f23bb3c05be4ae04830b0e36d767c5c8c82",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -10127,7 +12083,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "a0faf784399f8df7a2f66e9bb386d5dcd94704e274f246224156bb799c6489b2",
+        "price_series_hash": "3dfa4ced0e1e0ea858c77f44a05a9f23bb3c05be4ae04830b0e36d767c5c8c82",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -10243,7 +12199,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "207569b625bf06dc7a63518354cd6d717a9da97aec4ebb16026a7e967dc1cccb",
+        "price_series_hash": "e234e3d9235af351c5f1182cef778cf4bb3385fe594c8a02ec3ef9fcd2ce55d8",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -10359,7 +12315,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "e3194d32cdc384c7156559883fdea77c0bb9498df8c0b05c97ecfffe12e4bcc6",
+        "price_series_hash": "32b44fd84a73edb5bf70ea189cab3df660518631008e7db51a6807f0c85d2be6",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -10475,7 +12431,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "26d13953951856eca9e7d27779bf8e8c1b52973b833d30ff7e0535fbc5d3c764",
+        "price_series_hash": "8ed29d89c57eff4f84e7f51e16fddd73812ddf37be0ee1dedc3e4b3b9d5ac16f",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -10591,7 +12547,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "d2833db101e9629d76308b87f71be27e4e1e62151ba439c828a320dad94332fd",
+        "price_series_hash": "e00aa7631b561c9f89c885d2e6540a7e6b465fef5ed7a1d19ea308c770cc7c6e",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -10707,7 +12663,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "d2833db101e9629d76308b87f71be27e4e1e62151ba439c828a320dad94332fd",
+        "price_series_hash": "e00aa7631b561c9f89c885d2e6540a7e6b465fef5ed7a1d19ea308c770cc7c6e",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -10823,7 +12779,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "d2833db101e9629d76308b87f71be27e4e1e62151ba439c828a320dad94332fd",
+        "price_series_hash": "e00aa7631b561c9f89c885d2e6540a7e6b465fef5ed7a1d19ea308c770cc7c6e",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -10939,7 +12895,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "d2833db101e9629d76308b87f71be27e4e1e62151ba439c828a320dad94332fd",
+        "price_series_hash": "e00aa7631b561c9f89c885d2e6540a7e6b465fef5ed7a1d19ea308c770cc7c6e",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -11055,7 +13011,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "26d13953951856eca9e7d27779bf8e8c1b52973b833d30ff7e0535fbc5d3c764",
+        "price_series_hash": "8ed29d89c57eff4f84e7f51e16fddd73812ddf37be0ee1dedc3e4b3b9d5ac16f",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -11171,7 +13127,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "9a9d3b07b4c33c8bbe12fbebb0a10c3303164617e2eb8ef1297e2d6119da57f2",
+        "price_series_hash": "e8647266c124999f420f4c4b9ecf0e92db2f28ff1c086672856870c94e588d21",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -11287,7 +13243,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "c597c2c4a4c2788e22bea8eac7b148aeaaf127bc81b17037cfdbe6466c2c0ec8",
+        "price_series_hash": "9f93bdd71c53a1f08e092c839f25cac8fc536506b3e27d6380893442758ecd79",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -11403,7 +13359,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "c597c2c4a4c2788e22bea8eac7b148aeaaf127bc81b17037cfdbe6466c2c0ec8",
+        "price_series_hash": "9f93bdd71c53a1f08e092c839f25cac8fc536506b3e27d6380893442758ecd79",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -11519,7 +13475,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "c597c2c4a4c2788e22bea8eac7b148aeaaf127bc81b17037cfdbe6466c2c0ec8",
+        "price_series_hash": "9f93bdd71c53a1f08e092c839f25cac8fc536506b3e27d6380893442758ecd79",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -11637,7 +13593,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "c597c2c4a4c2788e22bea8eac7b148aeaaf127bc81b17037cfdbe6466c2c0ec8",
+        "price_series_hash": "9f93bdd71c53a1f08e092c839f25cac8fc536506b3e27d6380893442758ecd79",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -11753,7 +13709,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "bf61db399c618703f39987bc12022bf0fad6459a29d57039cf21a5a5233f7128",
+        "price_series_hash": "9f71fc983e19b3909eaa8d605c7ef71f2043e9f9f517915da4ecaf12c996b6d0",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -11869,7 +13825,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "d2833db101e9629d76308b87f71be27e4e1e62151ba439c828a320dad94332fd",
+        "price_series_hash": "e00aa7631b561c9f89c885d2e6540a7e6b465fef5ed7a1d19ea308c770cc7c6e",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -11985,7 +13941,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "fed0147ce7e6a2925da87d8c3f76bef66ebaf96c69c04ca53280b33fa2e9ff17",
+        "price_series_hash": "e323da6b63b94a770857e61140f322167a68e24874f32ca00115581763f308e4",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -12101,7 +14057,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "fed0147ce7e6a2925da87d8c3f76bef66ebaf96c69c04ca53280b33fa2e9ff17",
+        "price_series_hash": "e323da6b63b94a770857e61140f322167a68e24874f32ca00115581763f308e4",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -12217,7 +14173,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "fed0147ce7e6a2925da87d8c3f76bef66ebaf96c69c04ca53280b33fa2e9ff17",
+        "price_series_hash": "e323da6b63b94a770857e61140f322167a68e24874f32ca00115581763f308e4",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -12333,7 +14289,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "5af50c2a25db9831b44090e53c1a117e88b27ad96ac6231669c6af88536afb56",
+        "price_series_hash": "2e14c178ac2fe991035566bfc35c51a2bbf3981553ff1a3706e3c47985190899",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -12449,7 +14405,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "207569b625bf06dc7a63518354cd6d717a9da97aec4ebb16026a7e967dc1cccb",
+        "price_series_hash": "e234e3d9235af351c5f1182cef778cf4bb3385fe594c8a02ec3ef9fcd2ce55d8",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -12565,7 +14521,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "c597c2c4a4c2788e22bea8eac7b148aeaaf127bc81b17037cfdbe6466c2c0ec8",
+        "price_series_hash": "9f93bdd71c53a1f08e092c839f25cac8fc536506b3e27d6380893442758ecd79",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -12683,7 +14639,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "bf61db399c618703f39987bc12022bf0fad6459a29d57039cf21a5a5233f7128",
+        "price_series_hash": "9f71fc983e19b3909eaa8d605c7ef71f2043e9f9f517915da4ecaf12c996b6d0",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -12799,7 +14755,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "a0faf784399f8df7a2f66e9bb386d5dcd94704e274f246224156bb799c6489b2",
+        "price_series_hash": "3dfa4ced0e1e0ea858c77f44a05a9f23bb3c05be4ae04830b0e36d767c5c8c82",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -12915,7 +14871,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "fed0147ce7e6a2925da87d8c3f76bef66ebaf96c69c04ca53280b33fa2e9ff17",
+        "price_series_hash": "e323da6b63b94a770857e61140f322167a68e24874f32ca00115581763f308e4",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -13031,7 +14987,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "207569b625bf06dc7a63518354cd6d717a9da97aec4ebb16026a7e967dc1cccb",
+        "price_series_hash": "e234e3d9235af351c5f1182cef778cf4bb3385fe594c8a02ec3ef9fcd2ce55d8",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -13149,7 +15105,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "207569b625bf06dc7a63518354cd6d717a9da97aec4ebb16026a7e967dc1cccb",
+        "price_series_hash": "e234e3d9235af351c5f1182cef778cf4bb3385fe594c8a02ec3ef9fcd2ce55d8",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -13265,7 +15221,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "bcbf042c61854277f6f0f2da0b445d8095219615e41dbf8bc40012154bd025dd",
+        "price_series_hash": "5bbb8af4f453e83fabd6881ada219a9655ecd2a3965f0d2616850bdd25d6240b",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -13381,7 +15337,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "fed0147ce7e6a2925da87d8c3f76bef66ebaf96c69c04ca53280b33fa2e9ff17",
+        "price_series_hash": "e323da6b63b94a770857e61140f322167a68e24874f32ca00115581763f308e4",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -13497,7 +15453,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "624bfac9227d9e26fb9ce73e83b80a19e4a521aeebf7a5f1b97758a1cb8bcec1",
+        "price_series_hash": "8ffa2ed46b58eb4d5daae871e240e8491dce76612fc74f24a0ff18390ccd687e",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -13732,7 +15688,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "e461ec4d87532b33297484713bff1ba617e55af480ef7930037d931edb697527",
+        "price_series_hash": "96c7ad708d1b5e892dc4b9227e60745cc8b7659e41c9fc05d7bd3063a0132bf9",
         "overlap_conflicts": [
           {
             "date": "2026-09-30",
@@ -13854,7 +15810,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "26d13953951856eca9e7d27779bf8e8c1b52973b833d30ff7e0535fbc5d3c764",
+        "price_series_hash": "8ed29d89c57eff4f84e7f51e16fddd73812ddf37be0ee1dedc3e4b3b9d5ac16f",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -13970,7 +15926,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "26d13953951856eca9e7d27779bf8e8c1b52973b833d30ff7e0535fbc5d3c764",
+        "price_series_hash": "8ed29d89c57eff4f84e7f51e16fddd73812ddf37be0ee1dedc3e4b3b9d5ac16f",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -14088,7 +16044,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "e461ec4d87532b33297484713bff1ba617e55af480ef7930037d931edb697527",
+        "price_series_hash": "96c7ad708d1b5e892dc4b9227e60745cc8b7659e41c9fc05d7bd3063a0132bf9",
         "overlap_conflicts": [
           {
             "date": "2026-09-30",
@@ -14210,7 +16166,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "26d13953951856eca9e7d27779bf8e8c1b52973b833d30ff7e0535fbc5d3c764",
+        "price_series_hash": "8ed29d89c57eff4f84e7f51e16fddd73812ddf37be0ee1dedc3e4b3b9d5ac16f",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -14326,7 +16282,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "c597c2c4a4c2788e22bea8eac7b148aeaaf127bc81b17037cfdbe6466c2c0ec8",
+        "price_series_hash": "9f93bdd71c53a1f08e092c839f25cac8fc536506b3e27d6380893442758ecd79",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -14444,7 +16400,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "e461ec4d87532b33297484713bff1ba617e55af480ef7930037d931edb697527",
+        "price_series_hash": "96c7ad708d1b5e892dc4b9227e60745cc8b7659e41c9fc05d7bd3063a0132bf9",
         "overlap_conflicts": [
           {
             "date": "2026-09-30",
@@ -14568,7 +16524,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "e461ec4d87532b33297484713bff1ba617e55af480ef7930037d931edb697527",
+        "price_series_hash": "96c7ad708d1b5e892dc4b9227e60745cc8b7659e41c9fc05d7bd3063a0132bf9",
         "overlap_conflicts": [
           {
             "date": "2026-09-30",
@@ -14690,7 +16646,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "c597c2c4a4c2788e22bea8eac7b148aeaaf127bc81b17037cfdbe6466c2c0ec8",
+        "price_series_hash": "9f93bdd71c53a1f08e092c839f25cac8fc536506b3e27d6380893442758ecd79",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -14806,7 +16762,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "c597c2c4a4c2788e22bea8eac7b148aeaaf127bc81b17037cfdbe6466c2c0ec8",
+        "price_series_hash": "9f93bdd71c53a1f08e092c839f25cac8fc536506b3e27d6380893442758ecd79",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -14922,7 +16878,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "2cd573a83991295e00c7f1821c8df5fa722966e5071ab535e480671ea1ffffe6",
+        "price_series_hash": "14bd99ebc81f6180caacc6632680c2de6b533799d876a2cfb8feacc9059a4851",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -15038,7 +16994,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "bf61db399c618703f39987bc12022bf0fad6459a29d57039cf21a5a5233f7128",
+        "price_series_hash": "9f71fc983e19b3909eaa8d605c7ef71f2043e9f9f517915da4ecaf12c996b6d0",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -15154,7 +17110,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "a0faf784399f8df7a2f66e9bb386d5dcd94704e274f246224156bb799c6489b2",
+        "price_series_hash": "3dfa4ced0e1e0ea858c77f44a05a9f23bb3c05be4ae04830b0e36d767c5c8c82",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -15270,7 +17226,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "a0faf784399f8df7a2f66e9bb386d5dcd94704e274f246224156bb799c6489b2",
+        "price_series_hash": "3dfa4ced0e1e0ea858c77f44a05a9f23bb3c05be4ae04830b0e36d767c5c8c82",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -15386,7 +17342,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "d2833db101e9629d76308b87f71be27e4e1e62151ba439c828a320dad94332fd",
+        "price_series_hash": "e00aa7631b561c9f89c885d2e6540a7e6b465fef5ed7a1d19ea308c770cc7c6e",
         "overlap_conflicts": []
       },
       "price_provenance": {

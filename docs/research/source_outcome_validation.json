@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "generated_at": "2026-10-19T23:15:06.999336+00:00",
+  "generated_at": "2026-10-20T00:38:19.268903+00:00",
   "methodology": {
     "executed_action_baseline": "first trading session open strictly after source date when no reliable intraday timestamp exists",
     "planned_entry_baseline": "explicit stock-entry plans begin only on the first later session whose low touches the stated level; each tranche is validated separately",
@@ -16,14 +16,14 @@
     "attribution_limit": "third-party examples are excluded; unconfirmed source context is visible but excluded from aggregate method memory"
   },
   "counts": {
-    "events": 178,
-    "author_owned": 81,
+    "events": 179,
+    "author_owned": 82,
     "unconfirmed": 97,
-    "triggered_author_owned": 74,
+    "triggered_author_owned": 75,
     "untriggered_plans": 7,
     "mature60": 31,
-    "developing": 43,
-    "symbols": 28
+    "developing": 44,
+    "symbols": 29
   },
   "missing_history": {},
   "by_action": {
@@ -1388,6 +1388,56 @@
       },
       "alignment": {
         "direction": "bullish",
+        "5": null,
+        "20": null,
+        "60": null
+      },
+      "level_checks": {},
+      "status": "developing"
+    },
+    {
+      "event_id": "b4091864de5d6847b786:0:AMAT:0",
+      "author": "三心三意",
+      "title": "我们高位减仓时（我前一段也减过像AMAT，AAOI， AXTI之类的），可以说明这是仓位管理，而不是给个要崩盘的印象",
+      "url": "https://bbs.wenxuecity.com/cfzh/114862.html",
+      "published_at": "2026-10-12 14:19:35",
+      "symbol": "AMAT",
+      "operation": {
+        "symbols": [
+          "AAOI",
+          "AMAT"
+        ],
+        "actions": [
+          "trim"
+        ],
+        "attribution": "author_action",
+        "attribution_confidence": "high"
+      },
+      "actions": [
+        "trim"
+      ],
+      "attribution": "author_action",
+      "attribution_confidence": "high",
+      "baseline_kind": "next_session",
+      "baseline_assumption": "next trading session open because source date has no reliable intraday timestamp",
+      "planned_level": null,
+      "triggered": true,
+      "baseline_date": "2026-10-13",
+      "baseline_price": 485.3999938964844,
+      "price_provenance": {
+        "price_source": "yfinance_validation_cache",
+        "adjustment_basis": "yfinance_auto_adjust_false_native_ohlc",
+        "baseline_source": "yfinance_validation_cache",
+        "horizon_source": "yfinance_validation_cache",
+        "same_source": true
+      },
+      "outcomes": {
+        "5": null,
+        "20": null,
+        "60": null
+      },
+      "alignment": {
+        "direction": "bearish",
         "5": null,
         "20": null,
         "60": null
@@ -2929,13 +2979,20 @@
         "same_source": true
       },
       "outcomes": {
-        "5": null,
+        "5": {
+          "date": "2026-10-13",
+          "return": 0.032821548267021994,
+          "mae": -0.007446884100325901,
+          "mfe": 0.03705071741351662,
+          "benchmark_return": -0.022313054469536242,
+          "excess_vs_qqq": 0.055134602736558236
+        },
         "20": null,
         "60": null
       },
       "alignment": {
         "direction": "bearish",
-        "5": null,
+        "5": "not_aligned",
         "20": null,
         "60": null
       },

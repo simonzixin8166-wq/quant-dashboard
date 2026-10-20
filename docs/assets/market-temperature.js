@@ -86,7 +86,7 @@
 .research-shell{grid-template-columns:minmax(0,1fr) minmax(0,600px)!important}
 .brief-gauges{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:stretch}
 .brief-gauges .brief-vix{max-width:none!important}.brief-gauges .brief-vix .metric-card,.brief-gauges .mt-card{height:100%;box-sizing:border-box}
-.brief-gauges .mt-card{width:100%;background:#f8fafc;border-radius:18px;padding:16px 18px}
+.brief-gauges .mt-card{width:100%;border-radius:18px;padding:16px 18px}
 @media (max-width:1180px){.research-shell{grid-template-columns:1fr!important}}
 @media (max-width:620px){.brief-gauges{grid-template-columns:1fr}}
 .mt-card{border:1px solid var(--line,#e3e8ef);border-radius:14px;background:var(--card,#fff);padding:10px 14px 12px;width:100%;font-size:12px;box-sizing:border-box}

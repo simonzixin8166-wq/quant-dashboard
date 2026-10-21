@@ -1,12 +1,12 @@
 {
  "version": 3,
  "method": "each component = percentile of today vs its trailing 252 readings; fixed linear scale (labelled) until 252 readings exist; inputs > 2 sessions behind the market date are excluded; composite rounded to an integer",
- "reference_date": "2026-10-20",
+ "reference_date": "2026-10-21",
  "max_lag_sessions": 2,
  "fixed_scale_components": 3,
  "validation_plan": "docs/development/market_temperature_validation.md",
- "generated_at": "2026-10-21T14:32:47Z",
- "as_of": "2026-10-20",
+ "generated_at": "2026-10-21T22:08:28Z",
+ "as_of": "2026-10-21",
  "score": 37,
  "label": "恐惧",
  "components_available": 6,
@@ -16,11 +16,11 @@
    "key": "momentum",
    "name": "价格动量",
    "status": "ok",
-   "score": 17.5,
+   "score": 21.0,
    "method": "percentile_252",
-   "raw": 0.021565,
-   "value": 0.0216,
-   "as_of": "2026-10-20",
+   "raw": 0.026227,
+   "value": 0.0262,
+   "as_of": "2026-10-21",
    "source": "archive SPY close vs 125-session average",
    "lag_sessions": 0
   },
@@ -28,14 +28,14 @@
    "key": "strength",
    "name": "股价强度",
    "status": "ok",
-   "score": 82.1,
+   "score": 75.1,
    "method": "fixed_scale",
-   "raw": 0.064128,
+   "raw": 0.0501,
    "value": {
-    "new_high": 0.0661,
-    "new_low": 0.002
+    "new_high": 0.0561,
+    "new_low": 0.006
    },
-   "as_of": "2026-10-20",
+   "as_of": "2026-10-21",
    "source": "breadth_intelligence (S&P 500 net 52-week highs)",
    "lag_sessions": 0
   },
@@ -43,11 +43,11 @@
    "key": "breadth",
    "name": "市场宽度",
    "status": "ok",
-   "score": 53.3,
+   "score": 55.5,
    "method": "fixed_scale",
-   "raw": 0.533066,
-   "value": 0.5331,
-   "as_of": "2026-10-20",
+   "raw": 0.55511,
+   "value": 0.5551,
+   "as_of": "2026-10-21",
    "source": "breadth_intelligence (S&P 500 above 50-day MA)",
    "lag_sessions": 0
   },
@@ -55,14 +55,14 @@
    "key": "volatility",
    "name": "波动率",
    "status": "ok",
-   "score": 21.8,
+   "score": 30.6,
    "method": "percentile_252",
-   "raw": 0.102506,
+   "raw": 0.059505,
    "value": {
-    "vix": 17.31,
-    "vs_ma50": 0.1025
+    "vix": 16.68,
+    "vs_ma50": 0.0595
    },
-   "as_of": "2026-10-20",
+   "as_of": "2026-10-21",
    "source": "archive VIX vs 50-session average",
    "lag_sessions": 0
   },
@@ -70,11 +70,11 @@
    "key": "safe_haven",
    "name": "避险需求",
    "status": "ok",
-   "score": 47.2,
+   "score": 41.3,
    "method": "percentile_252",
-   "raw": 0.014218,
-   "value": 0.0142,
-   "as_of": "2026-10-20",
+   "raw": 0.009611,
+   "value": 0.0096,
+   "as_of": "2026-10-21",
    "source": "archive SPY vs TLT 20-session return",
    "lag_sessions": 0
   },
@@ -91,7 +91,7 @@
    },
    "as_of": "2026-10-20",
    "source": "FRED ICE BofA US High Yield OAS (via cross_asset_divergence)",
-   "lag_sessions": 0
+   "lag_sessions": 1
   }
  ],
  "status": "ok",

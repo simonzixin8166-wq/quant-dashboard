@@ -1,33 +1,31 @@
 {
   "version": "6.14.5",
-  "generated_at": "2026-10-21T14:32:55.766872+00:00",
+  "generated_at": "2026-10-21T22:08:37.277895+00:00",
   "mode": "research_only_rule_lifecycle",
   "source_reading_version": "6.14.7",
   "source_outcome_version": 2,
   "counts": {
-    "rules": 58,
+    "rules": 59,
     "by_state": {
-      "mapping_missing": 2,
-      "triggered_pending": 9,
-      "mature_5": 8,
-      "mature_20": 9,
+      "triggered_pending": 11,
+      "mature_5": 9,
+      "mature_20": 6,
       "awaiting_trigger": 2,
       "option_outcome_unscored": 2,
-      "mature_60": 26
+      "mature_60": 29
     },
-    "scoreable_stock_rules": 38,
+    "scoreable_stock_rules": 39,
     "option_unscored": 2,
-    "mapping_missing": 2
+    "mapping_missing": 0
   },
   "by_method": {
     "仓位与加减仓": {
-      "mapping_missing": 2,
-      "triggered_pending": 9,
-      "mature_5": 8,
-      "mature_20": 7,
+      "triggered_pending": 11,
+      "mature_5": 9,
+      "mature_20": 5,
       "awaiting_trigger": 2,
       "option_outcome_unscored": 1,
-      "mature_60": 22
+      "mature_60": 24
     },
     "Sell Put": {
       "option_outcome_unscored": 2
@@ -37,6 +35,44 @@
     }
   },
   "rules": [
+    {
+      "rule_id": "c28052fdb84aff6377",
+      "source_id": "4e311b264478acfb1bc8",
+      "operation_index": 0,
+      "author": "我是一只井底蛙",
+      "published_at": "2026-10-20 18:32:44",
+      "title": "SPCX分钟线参考图",
+      "url": "https://bbs.wenxuecity.com/cfzh/116391.html",
+      "method_candidates": [
+        "仓位与加减仓"
+      ],
+      "rule": {
+        "fields": {},
+        "conditions": [],
+        "actions": [
+          "add"
+        ]
+      },
+      "mapped_event_count": 1,
+      "mapped_event_ids": [
+        "4e311b264478acfb1bc8:0:SPCX:0"
+      ],
+      "scoreable_as_method_performance": false,
+      "eligible_for_production": false,
+      "state": "triggered_pending",
+      "reason": "Stock-entry lifecycle derived from existing Source Outcome events.",
+      "maturity": {
+        "5": 0,
+        "20": 0,
+        "60": 0
+      },
+      "scored_alignment": {
+        "5": 0,
+        "20": 0,
+        "60": 0
+      },
+      "underlying_strike_context": []
+    },
     {
       "rule_id": "7ea30a6c0fb7e433ca",
       "source_id": "55354e2a1e6ddffefb16",
@@ -55,13 +91,20 @@
           "add"
         ]
       },
-      "mapped_event_count": 0,
-      "mapped_event_ids": [],
+      "mapped_event_count": 1,
+      "mapped_event_ids": [
+        "55354e2a1e6ddffefb16:0:SPCX:0"
+      ],
       "scoreable_as_method_performance": false,
       "eligible_for_production": false,
-      "state": "mapping_missing",
-      "reason": "No Source Outcome event matched the exact source_id + operation_index key.",
+      "state": "triggered_pending",
+      "reason": "Stock-entry lifecycle derived from existing Source Outcome events.",
       "maturity": {
+        "5": 0,
+        "20": 0,
+        "60": 0
+      },
+      "scored_alignment": {
         "5": 0,
         "20": 0,
         "60": 0
@@ -86,13 +129,20 @@
           "add"
         ]
       },
-      "mapped_event_count": 0,
-      "mapped_event_ids": [],
+      "mapped_event_count": 1,
+      "mapped_event_ids": [
+        "03ed223df7514f3df28c:0:SPY:0"
+      ],
       "scoreable_as_method_performance": false,
       "eligible_for_production": false,
-      "state": "mapping_missing",
-      "reason": "No Source Outcome event matched the exact source_id + operation_index key.",
+      "state": "triggered_pending",
+      "reason": "Stock-entry lifecycle derived from existing Source Outcome events.",
       "maturity": {
+        "5": 0,
+        "20": 0,
+        "60": 0
+      },
+      "scored_alignment": {
         "5": 0,
         "20": 0,
         "60": 0
@@ -911,17 +961,17 @@
         "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html:2:CRWV:1",
         "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html:2:CRWV:0"
       ],
-      "scoreable_as_method_performance": false,
+      "scoreable_as_method_performance": true,
       "eligible_for_production": false,
-      "state": "triggered_pending",
+      "state": "mature_5",
       "reason": "Stock-entry lifecycle derived from existing Source Outcome events.",
       "maturity": {
-        "5": 0,
+        "5": 1,
         "20": 0,
         "60": 0
       },
       "scored_alignment": {
-        "5": 0,
+        "5": 1,
         "20": 0,
         "60": 0
       },
@@ -1191,17 +1241,17 @@
       ],
       "scoreable_as_method_performance": true,
       "eligible_for_production": false,
-      "state": "mature_20",
+      "state": "mature_60",
       "reason": "Stock-entry lifecycle derived from existing Source Outcome events.",
       "maturity": {
         "5": 1,
         "20": 1,
-        "60": 0
+        "60": 1
       },
       "scored_alignment": {
         "5": 1,
         "20": 1,
-        "60": 0
+        "60": 1
       },
       "underlying_strike_context": []
     },
@@ -1229,17 +1279,17 @@
       ],
       "scoreable_as_method_performance": true,
       "eligible_for_production": false,
-      "state": "mature_20",
+      "state": "mature_60",
       "reason": "Stock-entry lifecycle derived from existing Source Outcome events.",
       "maturity": {
         "5": 1,
         "20": 1,
-        "60": 0
+        "60": 1
       },
       "scored_alignment": {
         "5": 1,
         "20": 1,
-        "60": 0
+        "60": 1
       },
       "underlying_strike_context": []
     },
@@ -1265,17 +1315,17 @@
       ],
       "scoreable_as_method_performance": true,
       "eligible_for_production": false,
-      "state": "mature_20",
+      "state": "mature_60",
       "reason": "Stock-entry lifecycle derived from existing Source Outcome events.",
       "maturity": {
         "5": 1,
         "20": 1,
-        "60": 0
+        "60": 1
       },
       "scored_alignment": {
         "5": 1,
         "20": 1,
-        "60": 0
+        "60": 1
       },
       "underlying_strike_context": []
     },

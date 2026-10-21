@@ -320,14 +320,15 @@
       ? `静默前瞻 · 心跳${ph.status==='pass'?'正常':'异常'} · 数据${pq.status==='pass'?'通过':'需关注'} · 账本${pr.ledger_anchor_status==='ok'?'正常':'需关注'}`
       : `观察模式 · 私有账本${ps.configured?'已配置':'尚未配置'}`;
     const killText=pk.global_enabled===false?'全局已暂停':pk.ledger_enabled===false?'新触发记账已暂停':pk.alerts_enabled?'提醒已启用':'提醒静默';
-    return `<div class="agent-section-title"><b>System Status · 自主系统状态</b><span>${s.overall==='ok'?'运行正常':s.overall==='running'?'正在运行':'需要关注'}</span></div>
+    return `<div class="agent-section-title"><b>System Status · 自主系统状态</b><span>${s.overall==='ok'?'运行正常':s.overall==='running'?'正在运行':s.overall==='degraded'?'部分降级（行情与决策数据可用）':'需要关注'}</span></div>
       <div class="agent-grid"><article class="agent-card agent-watch"><div class="agent-card-head"><div><span>PIPELINE HEALTH</span><h3>采集 → 学习 → 验证 → 部署</h3></div><b>${esc(humanTime(s.generated_at))}</b></div>
       <div class="agent-metrics">${rows.map(([name,x])=>`<span class="${cls(x?.health)}">${esc(name)} · ${esc(x?._recovered?'已由后续更新恢复':cn(x?.health))}</span>`).join('')}</div>
       <p><strong>最近 Source Intelligence：</strong>${esc(humanTime(latest))}</p>
       <p><strong>关键数据新鲜度：</strong>${freshness.map(esc).join(' · ')||'等待状态数据'}</p>
       <p><strong>Playbook：</strong>${esc(playbookText)} · ${esc(killText)}${pr.unresolved_failure?' · 存在未恢复的隔离故障':''}</p>
+      ${(s.degraded_reasons||[]).length?`<p><strong>降级原因：</strong>${s.degraded_reasons.map(esc).join('；')}</p>`:''}
       ${excluded.length?`<p class="negative"><strong>已暂停参与当前判断：</strong>${excluded.map(esc).join(' · ')}</p>`:''}
-      <small>缓存或过期关键产物只保留为历史上下文，不继续参与当前研究结论；Daily Dashboard、Autonomous QA 或收盘研究采集失败也会直接标记异常。</small></article></div>`;
+      <small>缓存或过期关键产物只保留为历史上下文，不继续参与当前研究结论；Daily 失败或前向观察漏记标记为「需要关注」并暂停行动结论；收盘研究采集或隔离模块失败标记为「部分降级」，并写明原因。</small></article></div>`;
   }
 
   function sourceIntelHtml(){

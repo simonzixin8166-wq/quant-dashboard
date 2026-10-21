@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import json, os, urllib.request, sys
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 ROOT=Path(__file__).resolve().parents[1]
@@ -270,6 +270,38 @@ def build_resource_guard(repos, artifacts):
         "reason":"; ".join(reasons),
     }
 
+# Isolated (continue-on-error) Daily modules whose failure is critical: a missed forward observation can never be
+# back-filled, so it blocks action conclusions like a Daily failure. Every other marker only degrades.
+CRITICAL_MODULES={"forward_observations"}
+MARKER_ACTIVE_HOURS=26  # a module re-marks itself on every failing Daily; an older marker means it has not failed since
+
+def active_module_failures(failures, now):
+    active={}
+    for m,v in ((failures or {}).get("modules") or {}).items():
+        t=parse_iso((v or {}).get("failed_at"))
+        if t and now-t<=timedelta(hours=MARKER_ACTIVE_HOURS):active[m]=v
+    return active,{m for m in active if m in CRITICAL_MODULES}
+
+def classify_overall(critical, research_close, artifact_failures, ledger_fault, unresolved_playbook_failure, failures, now):
+    """State matrix (HEALTH-01): attention = critical failure, action conclusions paused; degraded = non-critical
+    failure, market/decision data still usable, reasons listed; running; ok."""
+    overall="ok"
+    if "bad" in critical:overall="attention"
+    elif "running" in critical:overall="running"
+    elif any(x in {"unknown",None} for x in critical):overall="attention"
+    elif artifact_failures:overall="attention"
+    elif ledger_fault:overall="attention"
+    elif unresolved_playbook_failure:overall="attention"
+    active_failures,critical_module_failures=active_module_failures(failures,now)
+    if critical_module_failures and overall in {"ok","running"}:overall="attention"
+    degraded_reasons=[]
+    if research_close=="bad":degraded_reasons.append("wxc-bot 盘后来源采集（research-close）最近一次运行失败；行情与决策数据不受影响")
+    elif research_close in {"unknown",None}:degraded_reasons.append("wxc-bot 盘后来源采集（research-close）状态未知")
+    degraded_reasons+=[f"{m} 于 {str(v.get('failed_at',''))[:16].replace('T',' ')}Z 失败（隔离模块，网站已继续更新）"
+                       for m,v in sorted(active_failures.items()) if m not in critical_module_failures]
+    if overall=="ok" and degraded_reasons:overall="degraded"
+    return overall,degraded_reasons,active_failures,critical_module_failures
+
 def build(fetch_runs=True):
     repos={}
     for repo,names in WATCH_WORKFLOWS.items():
@@ -285,11 +317,12 @@ def build(fetch_runs=True):
                 artifacts[name]["decision_eligible"]=False
                 artifacts[name]["participation"]="excluded"
                 artifacts[name]["blocked_by"]="market_dashboard_business_freshness"
-    overall="ok"
+    # HEALTH-01 (#133 6282755378): only the market-data pipeline is critical. wxc-bot research-close is source
+    # collection — its failure degrades research inputs but must not mark fresh market data unusable (10/20 incident).
     critical=[
         repos["quant-dashboard"].get("Daily Dashboard Update",{}).get("health"),
-        repos["wxc-bot"].get("research-close",{}).get("health"),
     ]
+    research_close=repos["wxc-bot"].get("research-close",{}).get("health")
     artifact_failures=[
         name for name in CRITICAL_DECISION_ARTIFACTS
         if not artifacts.get(name,{}).get("decision_eligible")
@@ -301,16 +334,15 @@ def build(fetch_runs=True):
     playbook_generated=parse_iso(playbook.get("generated_at"))
     playbook_failure=parse_iso((((failures.get("modules") or {}).get("playbook_engine") or {}).get("failed_at")))
     unresolved_playbook_failure=bool(playbook_failure and (not playbook_generated or playbook_failure>playbook_generated))
-    if "bad" in critical:overall="attention"
-    elif "running" in critical:overall="running"
-    elif any(x in {"unknown",None} for x in critical):overall="attention"
-    elif artifact_failures:overall="attention"
-    elif ledger_fault:overall="attention"
-    elif unresolved_playbook_failure:overall="attention"
+    overall,degraded_reasons,active_failures,critical_module_failures=classify_overall(
+        critical,research_close,artifact_failures,ledger_fault,unresolved_playbook_failure,failures,datetime.now(timezone.utc))
     result={
         "version":4,
         "generated_at":datetime.now(timezone.utc).isoformat(),
         "overall":overall,
+        "overall_levels":"ok < running < degraded（非关键模块失败，行情与决策数据可用）< attention（关键失败，暂停行动结论）",
+        "degraded_reasons":degraded_reasons,
+        "active_module_failures":{m:{"failed_at":v.get("failed_at"),"run_id":v.get("run_id"),"critical":m in critical_module_failures} for m,v in active_failures.items()},
         "workflows":repos,
         "artifacts":artifacts,
         "range_research":{

@@ -142,7 +142,7 @@ function decisionAuthority(){
  }
  if(sys.overall==='attention'||sys.overall==='unknown')return blocked('系统状态存在未解决异常，暂不发布行动结论。');
  const unknown=Number(server?.action_counts?.unknown||0);
- const trustOk=server?.data_trust?.ok===true && ['ok','running'].includes(String(server?.data_trust?.overall||''));
+ const trustOk=server?.data_trust?.ok===true && ['ok','running','degraded'].includes(String(server?.data_trust?.overall||''));
  const serverOk=['clear','action_required'].includes(String(server?.status||''))&&unknown===0&&trustOk;
  if(!serverOk)return blocked('服务端发现数据缺失、过期或关键风险状态未知。');
  if(server.status==='action_required')return{status:'action_required',decision_eligible:true,title:'存在需要处理的事项',detail:'服务端风险扫描已发现需要处理或复核的事项。'};

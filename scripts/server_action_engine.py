@@ -150,7 +150,7 @@ def system_trust(now=None):
     age_hours=None if not generated else max(0.0,(now-generated).total_seconds()/3600)
     status_fresh=age_hours is not None and age_hours<=30
     market_fresh=bool(market_as_of) and market_as_of==expected
-    ok=overall in {"ok","running"} and not excluded and status_fresh and market_fresh
+    ok=overall in {"ok","running","degraded"} and not excluded and status_fresh and market_fresh
     return {
         "ok":ok,"overall":overall,"excluded":excluded,"resource_mode":guard,
         "market_as_of":market_as_of or None,"expected_market_date":expected,

@@ -221,9 +221,35 @@ async function optionQuote(optionSymbol: string, headers: Record<string, string>
   return normalizeSnapshots(raw.snapshots || {}, spot);
 }
 
+// owner-guard:start — SEC-01 (#133): sign-up stays open, but only the owner (and server-side jobs) may use this
+// function, so registered non-owner accounts cannot consume the owner's Alpaca quota. verify_jwt=true means the
+// gateway has already checked the token signature; here we only read its claims; node tests run it with type stripping.
+const OWNER_EMAILS = String(Deno.env.get('MYALPHA_OWNER_EMAILS') || 'xxj8166@gmail.com')
+  .toLowerCase().split(',').map((s: string) => s.trim()).filter(Boolean);
+function jwtClaims(token: string): Record<string, unknown> | null {
+  const parts = String(token || '').split('.');
+  if (parts.length !== 3) return null;
+  try {
+    const b = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+    return JSON.parse(atob(b + '='.repeat((4 - (b.length % 4)) % 4)));
+  } catch (_e) { return null; }
+}
+function callerAllowed(req: Request): boolean {
+  const token = String(req.headers.get('authorization') || '').replace(/^Bearer\s+/i, '').trim();
+  if (!token) return false;
+  const service = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+  if (service && token === service) return true;           // server jobs (Server Action Watch)
+  const claims = jwtClaims(token);
+  if (!claims) return false;
+  if (claims.role === 'service_role') return true;
+  return claims.role === 'authenticated' && OWNER_EMAILS.includes(String(claims.email || '').toLowerCase());
+}
+// owner-guard:end
+
 serve(async (req: Request) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
   if (req.method !== 'GET') return jsonResponse({ error: 'Method not allowed' }, 405);
+  if (!callerAllowed(req)) return jsonResponse({ error: '该接口仅限主理人使用', code: 'OWNER_ONLY' }, 403);
 
   // 关键兼容修复：覆盖所有常见命名格式，确保无论配置哪种都能被准确提取
   const key =

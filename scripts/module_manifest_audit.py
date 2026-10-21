@@ -47,6 +47,7 @@ ROLES = {  # reader → (role, reason)
     "v615_auto_thesis_engine.py": (R, "thesis drafts from official + event evidence"),
     "cross_asset_divergence_engine.py": (R, "market-state research from FRED macro"),
     "breadth_intelligence_engine.py": (R, "breadth research state"),
+    "turning_point_checklist.py": (V, "TP-01 external-author turning-point observation list (#133 6235323449; validated=false, not a decision input)"),
     "market_temperature.py": (V, "descriptive 0–100 market temperature from breadth + cross-asset (#133 2026-10-17; not a decision input)"),
     "regime_combination_memory.py": (R, "joint cross-asset + breadth state"),
     "options_opportunity_context.py": (R, "ranks option-inspection universe from support/volatility research"),

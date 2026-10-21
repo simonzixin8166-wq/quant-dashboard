@@ -83,3 +83,23 @@ finally:
     sa.AUTO_THESIS=old_auto
 
 print("PASS V6.15 server action engine")
+
+# Alert delivery failure (e.g. Telegram HTTP 404 from a bad token, 10/20–10/21 incident) must not abort the run:
+# notify() reports the failure and main() still writes the sanitized status, so the snapshot never goes stale.
+import os, urllib.error
+_saved={k:os.environ.get(k) for k in ("MYALPHA_TG_BOT_TOKEN","MYALPHA_TG_CHAT_ID")}
+os.environ["MYALPHA_TG_BOT_TOKEN"]="x";os.environ["MYALPHA_TG_CHAT_ID"]="y"
+_orig_send=sa.send_telegram
+def _boom(text,raise_errors=False):
+    err=urllib.error.HTTPError("https://api.telegram.org/botx/sendMessage",404,"Not Found",None,None)
+    if raise_errors:raise err
+    return "failed:HTTPError"
+sa.send_telegram=_boom
+_alert={"status":"action_required","actions":[{"level":"l2","symbol":"T","expiry":"2099-12-31","reason":"r","dte":30}],"event_count_48h":0}
+assert sa.notify(_alert,None)=="failed:HTTPError", "delivery failure must be reported, not raised"
+assert sa.notify({**_alert,"status":"clear"},None)=="not_needed"
+sa.send_telegram=_orig_send
+for k,v in _saved.items():
+    if v is None:os.environ.pop(k,None)
+    else:os.environ[k]=v
+print("PASS server action: alert delivery failure is reported and never blocks the status snapshot")

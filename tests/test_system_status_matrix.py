@@ -51,3 +51,14 @@ for st in coe:
         missing.append(name)
 assert not missing, missing
 print("PASS system status matrix: ok/running/degraded/attention, markers on every isolated step")
+
+# Regression (10/21 13:43Z scheduled Daily failed at "Verify generated dashboard contract"): every root key the status
+# builder publishes must be on the Public Leak Guard allowlist, so adding a status field can never fail Daily again.
+import importlib.util as _ilu
+_spec = _ilu.spec_from_file_location("pg", ROOT / "scripts" / "private_guardrail.py")
+_pg = _ilu.module_from_spec(_spec); _spec.loader.exec_module(_pg)
+_built = ssc.build(False)
+_allowed = set(_pg.PUBLIC_JSON_ROOT_ALLOWLIST["docs/research/system_status.json"]) if hasattr(_pg, "PUBLIC_JSON_ROOT_ALLOWLIST") else None
+assert _allowed is not None, "private_guardrail allowlist name changed; update this test"
+assert set(_built) <= _allowed, sorted(set(_built) - _allowed)
+print("PASS system_status root keys are all on the Public Leak Guard allowlist")

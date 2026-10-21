@@ -34,6 +34,8 @@ PUBLIC_JSON_ROOT_ALLOWLIST = {
     "docs/research/system_status.json": {
         "version","generated_at","overall","principle","workflows","artifacts",
         "playbook_runtime","range_research","resource_guard","decision_data_contract",
+        # HEALTH-01 (#276): degraded tier, its reasons and active isolated-module failure markers (public, no private fields)
+        "overall_levels","degraded_reasons","active_module_failures",
     },
     "docs/research/official_evidence.json": {
         "version","generated_at","source","policy","selected_symbols","symbols",

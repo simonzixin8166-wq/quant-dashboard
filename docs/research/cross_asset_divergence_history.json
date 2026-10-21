@@ -948,7 +948,12 @@
           "reason": "NFCI=-0.494，尚未进入系统性紧缩"
         }
       ],
-      "outcomes": {}
+      "outcomes": {
+        "5": {
+          "date": "2026-10-20",
+          "return": -0.011516589613030814
+        }
+      }
     },
     {
       "as_of": "2026-10-14",
@@ -1266,8 +1271,8 @@
           "label": "指数接近高位",
           "hit": true,
           "severity": "context",
-          "value": -0.019604773610060817,
-          "reason": "距52周高点 -2.0%"
+          "value": -0.023593550359255692,
+          "reason": "距52周高点 -2.4%"
         },
         {
           "key": "rates_pressure",
@@ -1317,13 +1322,13 @@
           "hit": true,
           "severity": "context",
           "value": {
-            "latest": 19.99,
-            "date": "2026-10-16",
-            "chg3": 4.719999999999999,
-            "chg20": 5.179999999999998,
-            "chg60": 1.4100000000000001
+            "latest": 18.44,
+            "date": "2026-10-19",
+            "chg3": 1.5700000000000003,
+            "chg20": 3.570000000000002,
+            "chg60": -0.23000000000000043
           },
-          "reason": "VIX=19.99：股票波动仍低，不足以否定债券/信用压力"
+          "reason": "VIX=18.44：股票波动仍低，不足以否定债券/信用压力"
         },
         {
           "key": "breadth_divergence",
@@ -1336,6 +1341,107 @@
             "w200": 0.5130260521042084
           },
           "reason": "20/50/200日宽度=65%/44%/51%"
+        },
+        {
+          "key": "financial_conditions_cushion",
+          "label": "金融条件仍有缓冲",
+          "hit": true,
+          "severity": "offset",
+          "value": {
+            "latest": -0.499,
+            "date": "2026-10-09",
+            "chg3": 0.028000000000000025,
+            "chg20": 0.008000000000000007,
+            "chg60": 0.02400000000000002
+          },
+          "reason": "NFCI=-0.499，尚未进入系统性紧缩"
+        }
+      ],
+      "outcomes": {}
+    },
+    {
+      "as_of": "2026-10-20",
+      "anchor_spy": 769.049988,
+      "level": "medium",
+      "label": "中度跨资产背离",
+      "risk_hits": 3,
+      "high_hits": 2,
+      "signals": [
+        {
+          "key": "equity_near_high",
+          "label": "指数接近高位",
+          "hit": true,
+          "severity": "context",
+          "value": -0.0168206843738012,
+          "reason": "距52周高点 -1.7%"
+        },
+        {
+          "key": "rates_pressure",
+          "label": "10年期美债收益率压力",
+          "hit": true,
+          "severity": "high",
+          "value": {
+            "latest": 5.15,
+            "date": "2026-10-19",
+            "chg3": -0.040000000000000036,
+            "chg20": 0.14000000000000057,
+            "chg60": 0.4400000000000004
+          },
+          "reason": "10Y=5.15，20日变化=+0.14"
+        },
+        {
+          "key": "real_yield_pressure",
+          "label": "实际利率压力",
+          "hit": true,
+          "severity": "high",
+          "value": {
+            "latest": 2.8,
+            "date": "2026-10-19",
+            "chg3": -0.040000000000000036,
+            "chg20": 0.11999999999999966,
+            "chg60": 0.36999999999999966
+          },
+          "reason": "10Y real=2.80，20日变化=+0.12"
+        },
+        {
+          "key": "credit_widening",
+          "label": "高收益信用利差走阔",
+          "hit": true,
+          "severity": "medium",
+          "value": {
+            "latest": 3.29,
+            "date": "2026-10-19",
+            "chg3": 0.040000000000000036,
+            "chg20": 0.6299999999999999,
+            "chg60": 0.48
+          },
+          "reason": "HY OAS=3.29，20日变化=+0.63"
+        },
+        {
+          "key": "vix_disconnect",
+          "label": "VIX未同步确认风险",
+          "hit": true,
+          "severity": "context",
+          "value": {
+            "latest": 18.44,
+            "date": "2026-10-19",
+            "chg3": 1.5700000000000003,
+            "chg20": 3.570000000000002,
+            "chg60": -0.23000000000000043
+          },
+          "reason": "VIX=18.44：股票波动仍低，不足以否定债券/信用压力"
+        },
+        {
+          "key": "breadth_divergence",
+          "label": "市场宽度弱于指数",
+          "hit": false,
+          "severity": "high",
+          "value": {
+            "w20": 0.7254509018036072,
+            "w50": 0.533066132264529,
+            "w200": 0.5531062124248497
+          },
+          "reason": "20/50/200日宽度=73%/53%/55%"
         },
         {
           "key": "financial_conditions_cushion",

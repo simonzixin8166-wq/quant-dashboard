@@ -81,6 +81,44 @@
       <div class="mt-body"><ul>${rows}</ul><p>0–100，越高代表市场越偏向冒险；每项看今天在过去一年里有多反常。${esc(changeText(d))}。由 ${esc(d.components_available)}/6 项现有数据合成${d.fixed_scale_components ? `（其中 ${esc(d.fixed_scale_components)} 项历史不足一年，暂用固定标尺，结果只作粗略参考）` : ''}，数据截至 ${esc(d.as_of)}；落后超过 2 个交易日的数据不计入。这是 MyAlpha 自己的描述性指标，不是 CNN 指数，也不预测涨跌。</p><a href="${esc(d.cnn_link)}" target="_blank" rel="noopener noreferrer">CNN 恐惧与贪婪指数（官方）↗</a></div></details>`;
   }
 
+  // MT-04 加仓分档 (owner decision #133 6283755497, option 1): the EXISTING production ladder in data.json core.*.tiers
+  // and core.*.level is the trigger (no new thresholds). This only adds the size hint and a VIX>=25 confirmation flag.
+  // Level is trusted only when ATH is verified (ath_is_true && ath_validation PASS) — same rule as core_action_summary().
+  const ADDON_SYMBOLS = [['QQQM', 'dca'], ['VGT', 'dca'], ['QLD', 'rebalance']];
+  const VIX_CONFIRM = 25;
+  const pctAbs = v => `${(Math.abs(v) * 100).toFixed(1)}%`;
+
+  function addonTiers(data) {
+    const core = (data && data.core) || {}, vixRow = (data && data.market_indicators && data.market_indicators.vix) || {};
+    const vix = typeof vixRow.close === 'number' && Number.isFinite(vixRow.close) ? vixRow.close : null;
+    const rows = ADDON_SYMBOLS.map(([sym, kind]) => {
+      const r = core[sym];
+      if (!r || r.error || typeof r.drawdown !== 'number' || !r.tiers) return { sym, kind, status: 'unavailable', level: null, text: '数据不可用' };
+      if (!r.ath_is_true || r.ath_validation !== 'PASS') return { sym, kind, status: 'unverified', level: null, dd: r.drawdown, text: '仅观察 · 等待历史高点校验' };
+      const level = Math.max(0, Math.min(3, parseInt(r.level, 10) || 0)), t = [r.tiers.t1, r.tiers.t2, r.tiers.t3];
+      const next = level < 3 && typeof t[level] === 'number' ? t[level] + r.drawdown : null;  // >0: still that far from the next tier
+      let text;
+      if (level === 0) text = `未到一级（一级 −${pctAbs(t[0])}${next !== null ? `，还差 ${pctAbs(next)}` : ''}）`;
+      else if (kind === 'dca') text = `${['', '一', '二', '三'][level]}级 → 本月可加 ${level} 倍月定投`;
+      else text = `${['', '一', '二', '三'][level]}级 → 只补回目标权重，不额外加码`;
+      return { sym, kind, status: 'ok', level, dd: r.drawdown, text, tiers: t };
+    });
+    const hit = rows.some(r => r.status === 'ok' && r.level > 0);
+    const confirm = vix === null ? 'unavailable' : vix >= VIX_CONFIRM ? 'confirmed' : 'pending';
+    return { rows, vix, vix_as_of: vixRow.date || null, as_of: (data && data.spy_date) || null, hit, confirm };
+  }
+
+  function addonHtml(data) {
+    const a = addonTiers(data);
+    const confirmText = a.confirm === 'unavailable' ? 'VIX 不可用，无法确认'
+      : !a.hit ? `VIX ${a.vix.toFixed(1)} · 到档后需 VIX ≥ ${VIX_CONFIRM} 才算恐慌确认`
+      : a.confirm === 'confirmed' ? `VIX ${a.vix.toFixed(1)} ≥ ${VIX_CONFIRM} · 恐慌已确认`
+      : `VIX ${a.vix.toFixed(1)} < ${VIX_CONFIRM} · 恐慌待确认`;
+    const items = a.rows.map(r => `<li class="ao-${esc(r.status)}${r.level ? ' ao-hit' : ''}"><b>${esc(r.sym)}</b><span>${typeof r.dd === 'number' ? `回撤 −${esc(pctAbs(r.dd))}` : '—'}</span><em>${esc(r.text)}</em></li>`).join('');
+    const head = a.hit ? (a.confirm === 'confirmed' ? '已到加仓档，恐慌已确认' : '已到加仓档，恐慌待确认') : '未到加仓档';
+    return `<section class="ao-card${a.hit ? ' ao-on' : ''}" aria-label="加仓分档提示"><div class="ao-head"><span class="mt-k">加仓分档</span><b>${esc(head)}</b><small>${esc(confirmText)}</small></div><ul>${items}</ul><p>沿用现有正式加仓线（距历史最高收盘回撤）；一/二/三级分别对应加 1/2/3 倍月定投，QLD 只补回目标权重。数据截至 ${esc(a.as_of || '—')}。只是提示，由你人工决定和下单。</p></section>`;
+  }
+
   const CSS = `.mt-root{min-width:0}
 /* 市场简报 row: VIX and 市场温度 side by side so the two readings can be compared at a glance */
 .research-shell{grid-template-columns:minmax(0,1fr) minmax(0,600px)!important}
@@ -108,7 +146,18 @@
 .mt-body p{margin:8px 0 4px;line-height:1.5;color:var(--muted,#6b7280)}.mt-na b{display:block;font-size:14px}
 html[data-theme="dark"] .mt-card{background:#17191d;border-color:#303339}
 html[data-theme="dark"] .mt-score,html[data-theme="dark"] .mt-body{color:#f1f3f5}
-html[data-theme="dark"] .mt-needle{stroke:#f1f3f5}html[data-theme="dark"] .mt-needle-dot{fill:#f1f3f5;stroke:#17191d}`;
+html[data-theme="dark"] .mt-needle{stroke:#f1f3f5}html[data-theme="dark"] .mt-needle-dot{fill:#f1f3f5;stroke:#17191d}
+.ao-root{grid-column:1/-1;min-width:0}
+.ao-card{border:1px solid var(--line,#e3e8ef);border-radius:14px;background:var(--card,#fff);padding:12px 16px;font-size:12.5px}
+.ao-card.ao-on{border-color:#c2410c}
+.ao-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px}.ao-head b{font-size:14px}.ao-head small{color:var(--muted,#6b7280)}
+.ao-card.ao-on .ao-head b{color:#c2410c}
+.ao-card ul{list-style:none;margin:8px 0 4px;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px 14px}
+.ao-card li{display:grid;grid-template-columns:auto 1fr;gap:0 8px;min-width:0}.ao-card li em{grid-column:1/-1;font-style:normal;color:var(--muted,#6b7280);overflow-wrap:anywhere}
+.ao-card li span{color:var(--muted,#6b7280);font-variant-numeric:tabular-nums}.ao-card li.ao-hit em{color:#c2410c;font-weight:700}
+.ao-card p{margin:4px 0 0;color:var(--muted,#6b7280);font-size:11.5px;line-height:1.5}
+@media (max-width:620px){.ao-card ul{grid-template-columns:1fr}}
+html[data-theme="dark"] .ao-card{background:#17191d;border-color:#303339}html[data-theme="dark"] .ao-card.ao-on{border-color:#e07a45}`;
 
   function inject() {
     if (typeof document === 'undefined' || document.getElementById('mt-style')) return;
@@ -125,9 +174,26 @@ html[data-theme="dark"] .mt-needle{stroke:#f1f3f5}html[data-theme="dark"] .mt-ne
     } catch (e) {
       root.innerHTML = html(null);
     }
+    loadAddon(root);
   }
 
-  global.MAVMarketTemperature = { html, load, _test: { gauge, changeText, trendWord, fromTo, drivers, vsVix } };
+  // full-width row under the VIX / 市场温度 pair (falls back to the temperature column on older page layouts)
+  async function loadAddon(root) {
+    let host = document.getElementById('addonTierRoot');
+    if (!host) {
+      host = document.createElement('div'); host.id = 'addonTierRoot'; host.className = 'ao-root';
+      const pair = root.closest('.brief-gauges');
+      (pair || root).appendChild(host);
+    }
+    try {
+      const r = await fetch('data.json?v=' + Date.now(), { cache: 'no-store' });
+      host.innerHTML = addonHtml(r.ok ? await r.json() : null);
+    } catch (e) {
+      host.innerHTML = addonHtml(null);
+    }
+  }
+
+  global.MAVMarketTemperature = { html, load, _test: { gauge, changeText, trendWord, fromTo, drivers, vsVix, addonTiers, addonHtml } };
   if (typeof module !== 'undefined' && module.exports) module.exports = global.MAVMarketTemperature;
   if (typeof document !== 'undefined') {
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', load); else load();

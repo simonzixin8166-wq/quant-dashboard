@@ -1,0 +1,89 @@
+/* MyAlpha UI-02 扁平样式 (2026-10-20)
+   Imported at the top of compact-layout.css, so it applies to the current docs/index.html and to every later build
+   (transition-safe: no template change, no new markup).
+   Scope: page background, card surfaces/borders/shadows/radius, page-title frames and tab buttons only.
+   Never changes display/visibility/position/overflow/height, and never recolours status, risk or price badges. */
+
+/* ---------- light theme ---------- */
+html:not([data-theme="dark"]),html:not([data-theme="dark"]) body{background:#f4f3ef!important;background-image:none!important}
+
+/* page titles sit on the page, without a card frame */
+html:not([data-theme="dark"]) body .hero,
+html:not([data-theme="dark"]) body .hero.compact-hero,
+html:not([data-theme="dark"]) body .overview-hero,
+html:not([data-theme="dark"]) body .finance-hero{background:transparent!important;border-color:transparent!important;box-shadow:none!important}
+@media (min-width:821px){
+  html body .hero,html body .hero.compact-hero,html body .overview-hero,html body .finance-hero{padding-left:2px!important;padding-right:2px!important}
+}
+
+/* flat cards: white surface, hairline warm border, no shadow, small radius */
+html:not([data-theme="dark"]) body .research-shell,
+html:not([data-theme="dark"]) body .invest-action-strip,
+html:not([data-theme="dark"]) body .auto-research-row,
+html:not([data-theme="dark"]) body .macro-event-row,
+html:not([data-theme="dark"]) body .iren-brief,
+html:not([data-theme="dark"]) body .trend-method-note,
+html:not([data-theme="dark"]) body .panel,
+html:not([data-theme="dark"]) body .metric-card,
+html:not([data-theme="dark"]) body .mkt-card,
+html:not([data-theme="dark"]) body .card,
+html:not([data-theme="dark"]) body .finance-card,
+html:not([data-theme="dark"]) body .finance-mode-panel,
+html:not([data-theme="dark"]) body .agent-card,
+html:not([data-theme="dark"]) body .journal-panel,
+html:not([data-theme="dark"]) body .wxc-box,
+html:not([data-theme="dark"]) body .public-access-gate{border-color:#e6e3dc!important;box-shadow:none!important;border-radius:8px!important}
+html:not([data-theme="dark"]) body .finance-card,
+html:not([data-theme="dark"]) body .finance-mode-panel{background:#fff!important}
+
+/* underline tabs (研究中心 / 复盘与学习 / 工具) */
+body #wxcRoot .wxc-tabs,body #knowledgeRoot .kh-tabs,body .finance-view-tabs,body .finance-mode-tabs{border-bottom:1px solid #e3e0d8;gap:4px 18px!important}
+body #wxcRoot .wxc-tabs button[data-tab],
+body #knowledgeRoot .kh-tabs button[data-kh-tab],
+body .finance-view-tabs button,
+body .finance-mode-tabs button{background:transparent!important;border:0!important;border-bottom:2px solid transparent!important;border-radius:0!important;padding:8px 2px!important;color:#5f6670!important;font-weight:600}
+body #wxcRoot .wxc-tabs button[data-tab]:hover,
+body #knowledgeRoot .kh-tabs button[data-kh-tab]:hover,
+body .finance-view-tabs button:hover,
+body .finance-mode-tabs button:hover{color:#15171a!important}
+body #wxcRoot .wxc-tabs button[data-tab][aria-pressed="true"],
+body #knowledgeRoot .kh-tabs button[data-kh-tab][aria-selected="true"],
+body .finance-view-tabs button.active,
+body .finance-mode-tabs button.active{background:transparent!important;color:#15171a!important;border-bottom-color:#d71920!important;font-weight:700}
+
+/* ---------- dark theme: same flattening, existing dark surfaces kept ---------- */
+html[data-theme="dark"] body .hero,
+html[data-theme="dark"] body .hero.compact-hero,
+html[data-theme="dark"] body .overview-hero,
+html[data-theme="dark"] body .finance-hero{background:transparent!important;border-color:transparent!important;box-shadow:none!important}
+html[data-theme="dark"] body .research-shell,
+html[data-theme="dark"] body .invest-action-strip,
+html[data-theme="dark"] body .auto-research-row,
+html[data-theme="dark"] body .macro-event-row,
+html[data-theme="dark"] body .iren-brief,
+html[data-theme="dark"] body .panel,
+html[data-theme="dark"] body .card,
+html[data-theme="dark"] body .finance-card,
+html[data-theme="dark"] body .agent-card,
+html[data-theme="dark"] body .wxc-box,
+html[data-theme="dark"] body .public-access-gate{box-shadow:none!important;border-radius:8px!important}
+html[data-theme="dark"] body #wxcRoot .wxc-tabs,html[data-theme="dark"] body #knowledgeRoot .kh-tabs,
+html[data-theme="dark"] body .finance-view-tabs,html[data-theme="dark"] body .finance-mode-tabs{border-bottom-color:#303339}
+html[data-theme="dark"] body #wxcRoot .wxc-tabs button[data-tab],
+html[data-theme="dark"] body #knowledgeRoot .kh-tabs button[data-kh-tab],
+html[data-theme="dark"] body .finance-view-tabs button,
+html[data-theme="dark"] body .finance-mode-tabs button{color:#9aa3af!important}
+html[data-theme="dark"] body #wxcRoot .wxc-tabs button[data-tab][aria-pressed="true"],
+html[data-theme="dark"] body #knowledgeRoot .kh-tabs button[data-kh-tab][aria-selected="true"],
+html[data-theme="dark"] body .finance-view-tabs button.active,
+html[data-theme="dark"] body .finance-mode-tabs button.active{color:#f1f3f5!important;border-bottom-color:#ff6b70!important}
+
+/* sticky research-center tab strip follows the page background */
+html:not([data-theme="dark"]) body #wxcRoot .wxc-primary-tabs{background:#f4f3ef!important}
+html[data-theme="dark"] body #wxcRoot .wxc-primary-tabs{background:#0f1114!important}
+
+/* pre-existing dark-theme bug: 研究中心 / 复盘与学习 cards stayed white under light text (unreadable) */
+html[data-theme="dark"] #wxcRoot,html[data-theme="dark"] #knowledgeRoot{--card:#17191d;--accent-soft:#1f2a36}
+html[data-theme="dark"] body #wxcRoot .wxc-hero{background:#17191d!important;border-color:#32353b!important}
+html[data-theme="dark"] body #wxcRoot .wxc-operation-inline{background:rgba(184,121,36,.14);border-color:rgba(184,121,36,.38)}
+html[data-theme="dark"] body #wxcRoot .wxc-progress{background:#2a2e35}

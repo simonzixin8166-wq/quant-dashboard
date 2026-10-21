@@ -26,3 +26,23 @@ assert.ok(T.vsVix({ score: 20, components: vc(32) }).includes('同时走弱'));
 assert.strictEqual(T.vsVix({ score: 31, components: [] }), '');
 assert.strictEqual(MT._test.changeText({}), '首日记录，暂无比较');
 console.log('PASS market temperature UI');
+
+// MT-04 加仓分档: existing production ladder is the trigger; size hint + VIX>=25 confirmation only (#133 6283755497)
+const core = (lvl, dd, extra = {}) => ({ drawdown: dd, tiers: { t1: 0.12, t2: 0.18, t3: 0.25 }, level: lvl, ath_is_true: true, ath_validation: 'PASS', ...extra });
+const mk = (q, v, l, vix) => ({ spy_date: '2026-10-19', core: { QQQM: q, VGT: v, QLD: l }, market_indicators: { vix: { close: vix, date: '2026-10-19' } } });
+let a = T.addonTiers(mk(core(0, -0.058), core(0, -0.079), core(0, -0.116), 18.4));
+assert.strictEqual(a.hit, false); assert.strictEqual(a.confirm, 'pending');
+assert.ok(a.rows[0].text.includes('未到一级') && a.rows[0].text.includes('一级 −12.0%') && a.rows[0].text.includes('还差 6.2%'), a.rows[0].text);
+a = T.addonTiers(mk(core(1, -0.13), core(2, -0.19), core(3, -0.30), 27));
+assert.strictEqual(a.hit, true); assert.strictEqual(a.confirm, 'confirmed');
+assert.ok(a.rows[0].text.includes('本月可加 1 倍月定投') && a.rows[1].text.includes('2 倍') && !a.rows[2].text.includes('倍月定投') && a.rows[2].text.includes('只补回目标权重'));
+assert.strictEqual(T.addonTiers(mk(core(1, -0.13), core(0, -0.05), core(0, -0.1), 25)).confirm, 'confirmed', 'VIX exactly 25 confirms');
+assert.strictEqual(T.addonTiers(mk(core(1, -0.13), core(0, -0.05), core(0, -0.1), null)).confirm, 'unavailable', 'missing VIX is unavailable, never pending/confirmed');
+// the ladder level is used only when the ATH is verified; never invent a tier from missing data
+const unver = T.addonTiers(mk(core(2, -0.2, { ath_validation: 'CHECK' }), core(1, -0.16, { ath_is_true: false }), { error: 'x' }, 30));
+assert.deepStrictEqual(unver.rows.map(r => r.status), ['unverified', 'unverified', 'unavailable']); assert.strictEqual(unver.hit, false);
+assert.ok(T.addonTiers(null).rows.every(r => r.status === 'unavailable'));
+const ah = T.addonHtml(mk(core(1, -0.13), core(0, -0.05), core(0, -0.1), 22));
+assert.ok(ah.includes('已到加仓档，恐慌待确认') && ah.includes('VIX 22.0 &lt; 25') && ah.includes('人工决定'), ah);
+assert.ok(T.addonHtml(mk(core(0, -0.05), core(0, -0.05), core(0, -0.1), 18.4)).includes('到档后需 VIX ≥ 25'), 'no tier hit: confirmation explained, not shown as pending');
+console.log('PASS MT-04 add-on tiers');

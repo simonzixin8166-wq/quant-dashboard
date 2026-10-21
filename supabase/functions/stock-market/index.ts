@@ -131,9 +131,35 @@ async function historyRows(symbols: string[], headers: Record<string,string>) {
   return rows;
 }
 
+// owner-guard:start — SEC-01 (#133): sign-up stays open, but only the owner (and server-side jobs) may use this
+// function, so registered non-owner accounts cannot consume the owner's Alpaca quota. verify_jwt=true means the
+// gateway has already checked the token signature; here we only read its claims; node tests run it with type stripping.
+const OWNER_EMAILS = String(Deno.env.get('MYALPHA_OWNER_EMAILS') || 'xxj8166@gmail.com')
+  .toLowerCase().split(',').map((s: string) => s.trim()).filter(Boolean);
+function jwtClaims(token: string): Record<string, unknown> | null {
+  const parts = String(token || '').split('.');
+  if (parts.length !== 3) return null;
+  try {
+    const b = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+    return JSON.parse(atob(b + '='.repeat((4 - (b.length % 4)) % 4)));
+  } catch (_e) { return null; }
+}
+function callerAllowed(req: Request): boolean {
+  const token = String(req.headers.get('authorization') || '').replace(/^Bearer\s+/i, '').trim();
+  if (!token) return false;
+  const service = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+  if (service && token === service) return true;           // server jobs (Server Action Watch)
+  const claims = jwtClaims(token);
+  if (!claims) return false;
+  if (claims.role === 'service_role') return true;
+  return claims.role === 'authenticated' && OWNER_EMAILS.includes(String(claims.email || '').toLowerCase());
+}
+// owner-guard:end
+
 Deno.serve(async (request) => {
   if (request.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
   if (request.method !== 'GET') return json({ error:'Method not allowed' }, 405);
+  if (!callerAllowed(request)) return json({ error:'该接口仅限主理人使用', code:'OWNER_ONLY' }, 403);
 
   const key = Deno.env.get('ALPACA_API_KEY') || Deno.env.get('APCA_API_KEY_ID') || Deno.env.get('ALPACA_KEY_ID');
   const secret = Deno.env.get('ALPACA_API_SECRET') || Deno.env.get('APCA_API_SECRET_KEY') || Deno.env.get('ALPACA_SECRET_KEY') || Deno.env.get('ALPACA_SECRET');

@@ -1,0 +1,32 @@
+{
+  "contract_id": "fsc-1.0",
+  "frozen_at": "2026-10-22",
+  "approval": "Owner 10/22 (#133 audit part 2, §7 table, item 1 '同意')",
+  "purpose": "Pre-registered definition of what counts as a correct forward judgment, frozen before the first outcome matures (promoted group 20-session on 2026-10-27, fo-1.0 on 2026-11-05). Changing any field under 'rules' requires a new contract_id approved by the Owner; outcomes always record the contract_hash they were scored under.",
+  "rules": {
+    "unit": "one ledger row (event_id) per horizon",
+    "ledgers": {
+      "genuine_forward": "research/archive/forward_observations.jsonl",
+      "promoted": "research/archive/forward_observations_promoted.jsonl"
+    },
+    "benchmark": "QQQ",
+    "horizons_sessions": [20, 60, 120, 180],
+    "calendar": "NYSE sessions (scripts/trading_calendar.add_sessions)",
+    "primary_metric": "excess_vs_qqq = (close_h / close_0 - 1) - (QQQ_h / QQQ_0 - 1), closes taken only from the ledgers' own rows",
+    "classes": {
+      "修复候选": {"expect": "outperform_qqq", "hit_if": {"metric": "excess_vs_qqq", "op": ">", "value": 0}},
+      "大跌机会候选": {"expect": "outperform_qqq", "hit_if": {"metric": "excess_vs_qqq", "op": ">", "value": 0}},
+      "等待修复": {"expect": "underperform_qqq", "hit_if": {"metric": "excess_vs_qqq", "op": "<", "value": 0}},
+      "高位观察": {"expect": "not_outperform_qqq", "hit_if": {"metric": "excess_vs_qqq", "op": "<=", "value": 0}},
+      "继续观察": {"expect": "no_prediction", "hit_if": null}
+    },
+    "unmapped_decision": "unscored_unmapped (counted, never a hit or miss)",
+    "missing_close": "unavailable (counted separately, never scored, never filled)",
+    "min_n_for_rate": 20,
+    "below_min_n": "report 'insufficient_sample' with n; no hit rate, no interval",
+    "report_separately": ["ledger group (genuine_forward vs promoted)", "horizon", "decision class", "eligible true/false"],
+    "never_pool": ["genuine_forward with promoted", "different horizons", "different contract_id"],
+    "independence_view": "also report independent episodes: only the first row of each run of consecutive sessions with the same (symbol, decision) counts",
+    "descriptive_only": ["share of rows with ret > 0", "max adverse excursion over the window from the ledger's daily closes"]
+  }
+}

@@ -1,14 +1,14 @@
 {
   "version": "6.10a.0",
   "schema_version": "1.0",
-  "generated_at": "2026-10-22T00:12:19.684057+00:00",
+  "generated_at": "2026-10-22T13:52:43.089365+00:00",
   "market_date": "2026-10-21",
   "expected_market_date": "2026-10-21",
   "mode": "silent_forward",
   "heartbeat": {
     "status": "pass",
     "scan_completed": true,
-    "scan_completed_at": "2026-10-22T00:12:19.684057+00:00",
+    "scan_completed_at": "2026-10-22T13:52:43.089365+00:00",
     "observed_market_date": "2026-10-21",
     "expected_market_date": "2026-10-21",
     "missing_sessions": []
@@ -16,7 +16,7 @@
   "data_quality": {
     "status": "attention",
     "global_reasons": [],
-    "undetermined_count": 1,
+    "undetermined_count": 7,
     "split_adjustment_gate": true,
     "missing_session_gate": true,
     "freshness_gate": true
@@ -65,10 +65,10 @@
   },
   "counts": {
     "entities": 7,
-    "triggered": 1,
-    "near_trigger": 1,
-    "undetermined": 1,
-    "transitions": 1,
+    "triggered": 0,
+    "near_trigger": 0,
+    "undetermined": 7,
+    "transitions": 7,
     "private_trigger_events_pending": 0,
     "late_detected_entities": 0
   },
@@ -77,29 +77,28 @@
       "entity_key": "CP-01:QQQM",
       "playbook_id": "CP-01",
       "symbol": "QQQM",
-      "state": "IDLE",
-      "detail": "normal",
-      "state_key": "IDLE:normal",
+      "state": "UNDETERMINED",
+      "detail": "history_quarantined",
+      "state_key": "UNDETERMINED:history_quarantined",
       "market_date": "2026-10-21",
       "rule_version": "1.0.0",
       "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
       "lifecycle": "active",
       "evidence": "unverified",
       "quality": {
-        "eligible": true,
-        "reasons": [],
+        "eligible": false,
+        "reasons": [
+          "history_quarantined"
+        ],
         "date": "2026-10-21",
         "source": "docs/data.json",
         "as_of": "2026-10-21",
-        "freshness": "fresh",
-        "split_adjustment_check": "pass"
+        "freshness": "failed",
+        "split_adjustment_check": "fail"
       },
-      "baseline_close": 298.64001,
+      "baseline_close": null,
       "benchmark": "QQQ",
-      "metrics": {
-        "level": 0,
-        "drawdown": -0.04926532023954333
-      },
+      "metrics": {},
       "runtime": {
         "enabled": true,
         "ledger_enabled": true,
@@ -110,56 +109,52 @@
       "continuity": {
         "last_valid_state_key": "IDLE:normal",
         "last_valid_market_date": "2026-10-21",
-        "unknown_since_market_date": null,
+        "unknown_since_market_date": "2026-10-21",
         "detection_delay_sessions": 0,
         "late_detected": false,
         "timing_uncertain": false,
         "detection_window_start": null,
-        "detection_window_end": null,
-        "previous_valid_state_key": "IDLE:normal",
-        "previous_valid_market_date": "2026-10-21",
-        "prior_unknown_since_market_date": null
+        "detection_window_end": null
       },
       "last_valid_state_key": "IDLE:normal",
       "last_valid_market_date": "2026-10-21",
-      "unknown_since_market_date": null,
+      "unknown_since_market_date": "2026-10-21",
       "late_detected": false,
       "detection_delay_sessions": 0,
       "timing_uncertain": false,
       "previous_state_key": "IDLE:normal",
-      "transition_detected": false,
+      "transition_detected": true,
       "suppressed_by_kill_switch": false,
       "bootstrap": false,
-      "committed_state_key": "IDLE:normal",
+      "committed_state_key": "UNDETERMINED:history_quarantined",
       "pending_transition": false
     },
     {
       "entity_key": "CP-01:VGT",
       "playbook_id": "CP-01",
       "symbol": "VGT",
-      "state": "IDLE",
-      "detail": "normal",
-      "state_key": "IDLE:normal",
+      "state": "UNDETERMINED",
+      "detail": "history_quarantined",
+      "state_key": "UNDETERMINED:history_quarantined",
       "market_date": "2026-10-21",
       "rule_version": "1.0.0",
       "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
       "lifecycle": "active",
       "evidence": "unverified",
       "quality": {
-        "eligible": true,
-        "reasons": [],
+        "eligible": false,
+        "reasons": [
+          "history_quarantined"
+        ],
         "date": "2026-10-21",
         "source": "docs/data.json",
         "as_of": "2026-10-21",
-        "freshness": "fresh",
-        "split_adjustment_check": "pass"
+        "freshness": "failed",
+        "split_adjustment_check": "fail"
       },
-      "baseline_close": 122.25,
+      "baseline_close": null,
       "benchmark": "QQQ",
-      "metrics": {
-        "level": 0,
-        "drawdown": -0.06436555507726671
-      },
+      "metrics": {},
       "runtime": {
         "enabled": true,
         "ledger_enabled": true,
@@ -170,56 +165,52 @@
       "continuity": {
         "last_valid_state_key": "IDLE:normal",
         "last_valid_market_date": "2026-10-21",
-        "unknown_since_market_date": null,
+        "unknown_since_market_date": "2026-10-21",
         "detection_delay_sessions": 0,
         "late_detected": false,
         "timing_uncertain": false,
         "detection_window_start": null,
-        "detection_window_end": null,
-        "previous_valid_state_key": "IDLE:normal",
-        "previous_valid_market_date": "2026-10-21",
-        "prior_unknown_since_market_date": null
+        "detection_window_end": null
       },
       "last_valid_state_key": "IDLE:normal",
       "last_valid_market_date": "2026-10-21",
-      "unknown_since_market_date": null,
+      "unknown_since_market_date": "2026-10-21",
       "late_detected": false,
       "detection_delay_sessions": 0,
       "timing_uncertain": false,
       "previous_state_key": "IDLE:normal",
-      "transition_detected": false,
+      "transition_detected": true,
       "suppressed_by_kill_switch": false,
       "bootstrap": false,
-      "committed_state_key": "IDLE:normal",
+      "committed_state_key": "UNDETERMINED:history_quarantined",
       "pending_transition": false
     },
     {
       "entity_key": "CP-01:QLD",
       "playbook_id": "CP-01",
       "symbol": "QLD",
-      "state": "IDLE",
-      "detail": "normal",
-      "state_key": "IDLE:normal",
+      "state": "UNDETERMINED",
+      "detail": "history_quarantined",
+      "state_key": "UNDETERMINED:history_quarantined",
       "market_date": "2026-10-21",
       "rule_version": "1.0.0",
       "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
       "lifecycle": "active",
       "evidence": "unverified",
       "quality": {
-        "eligible": true,
-        "reasons": [],
+        "eligible": false,
+        "reasons": [
+          "history_quarantined"
+        ],
         "date": "2026-10-21",
         "source": "docs/data.json",
         "as_of": "2026-10-21",
-        "freshness": "fresh",
-        "split_adjustment_check": "pass"
+        "freshness": "failed",
+        "split_adjustment_check": "fail"
       },
-      "baseline_close": 91.46,
+      "baseline_close": null,
       "benchmark": "QQQ",
-      "metrics": {
-        "level": 0,
-        "drawdown": -0.09998035216989898
-      },
+      "metrics": {},
       "runtime": {
         "enabled": true,
         "ledger_enabled": true,
@@ -230,27 +221,24 @@
       "continuity": {
         "last_valid_state_key": "IDLE:normal",
         "last_valid_market_date": "2026-10-21",
-        "unknown_since_market_date": null,
+        "unknown_since_market_date": "2026-10-21",
         "detection_delay_sessions": 0,
         "late_detected": false,
         "timing_uncertain": false,
         "detection_window_start": null,
-        "detection_window_end": null,
-        "previous_valid_state_key": "IDLE:normal",
-        "previous_valid_market_date": "2026-10-21",
-        "prior_unknown_since_market_date": null
+        "detection_window_end": null
       },
       "last_valid_state_key": "IDLE:normal",
       "last_valid_market_date": "2026-10-21",
-      "unknown_since_market_date": null,
+      "unknown_since_market_date": "2026-10-21",
       "late_detected": false,
       "detection_delay_sessions": 0,
       "timing_uncertain": false,
       "previous_state_key": "IDLE:normal",
-      "transition_detected": false,
+      "transition_detected": true,
       "suppressed_by_kill_switch": false,
       "bootstrap": false,
-      "committed_state_key": "IDLE:normal",
+      "committed_state_key": "UNDETERMINED:history_quarantined",
       "pending_transition": false
     },
     {
@@ -258,8 +246,8 @@
       "playbook_id": "CP-02",
       "symbol": "TQQQ",
       "state": "UNDETERMINED",
-      "detail": "tqqq_snapshot_date_mismatch|tqqq_strategy_date_mismatch",
-      "state_key": "UNDETERMINED:tqqq_snapshot_date_mismatch|tqqq_strategy_date_mismatch",
+      "detail": "history_quarantined",
+      "state_key": "UNDETERMINED:history_quarantined",
       "market_date": "2026-10-21",
       "rule_version": "1.0.0",
       "rule_hash": "f89277cd0b6f80aa2682799ee45d3c02a0cd76633d855cb0621557bc18db8fb5",
@@ -268,14 +256,13 @@
       "quality": {
         "eligible": false,
         "reasons": [
-          "tqqq_snapshot_date_mismatch",
-          "tqqq_strategy_date_mismatch"
+          "history_quarantined"
         ],
         "date": "2026-10-21",
         "source": "docs/data.json",
         "as_of": "2026-10-21",
         "freshness": "failed",
-        "split_adjustment_check": "pass"
+        "split_adjustment_check": "fail"
       },
       "baseline_close": null,
       "benchmark": "QQQ",
@@ -303,42 +290,39 @@
       "late_detected": false,
       "detection_delay_sessions": 0,
       "timing_uncertain": false,
-      "previous_state_key": "IDLE:hold",
+      "previous_state_key": "UNDETERMINED:tqqq_snapshot_date_mismatch|tqqq_strategy_date_mismatch",
       "transition_detected": true,
       "suppressed_by_kill_switch": false,
       "bootstrap": false,
-      "committed_state_key": "UNDETERMINED:tqqq_snapshot_date_mismatch|tqqq_strategy_date_mismatch",
+      "committed_state_key": "UNDETERMINED:history_quarantined",
       "pending_transition": false
     },
     {
       "entity_key": "CP-03:QQQ",
       "playbook_id": "CP-03",
       "symbol": "QQQ",
-      "state": "IDLE",
-      "detail": "normal",
-      "state_key": "IDLE:normal",
+      "state": "UNDETERMINED",
+      "detail": "history_quarantined",
+      "state_key": "UNDETERMINED:history_quarantined",
       "market_date": "2026-10-21",
       "rule_version": "1.0.0",
       "rule_hash": "20aaf8cf9b5c9dfcc137305750b16ccd04a08f873a4a2ddb83d6ef6ffd99220d",
       "lifecycle": "active",
       "evidence": "unverified",
       "quality": {
-        "eligible": true,
-        "reasons": [],
+        "eligible": false,
+        "reasons": [
+          "history_quarantined"
+        ],
         "date": "2026-10-21",
         "source": "docs/data.json",
         "as_of": "2026-10-21",
-        "freshness": "fresh",
-        "split_adjustment_check": "pass"
+        "freshness": "failed",
+        "split_adjustment_check": "fail"
       },
-      "baseline_close": 725.20001,
+      "baseline_close": null,
       "benchmark": "QQQ",
-      "metrics": {
-        "drawdown63": -0.045362348104244665,
-        "rsi14": 40.82631990929114,
-        "trend_risk": false,
-        "vix_risk": false
-      },
+      "metrics": {},
       "runtime": {
         "enabled": true,
         "ledger_enabled": true,
@@ -349,58 +333,52 @@
       "continuity": {
         "last_valid_state_key": "IDLE:normal",
         "last_valid_market_date": "2026-10-21",
-        "unknown_since_market_date": null,
+        "unknown_since_market_date": "2026-10-21",
         "detection_delay_sessions": 0,
         "late_detected": false,
         "timing_uncertain": false,
         "detection_window_start": null,
-        "detection_window_end": null,
-        "previous_valid_state_key": "IDLE:normal",
-        "previous_valid_market_date": "2026-10-21",
-        "prior_unknown_since_market_date": null
+        "detection_window_end": null
       },
       "last_valid_state_key": "IDLE:normal",
       "last_valid_market_date": "2026-10-21",
-      "unknown_since_market_date": null,
+      "unknown_since_market_date": "2026-10-21",
       "late_detected": false,
       "detection_delay_sessions": 0,
       "timing_uncertain": false,
       "previous_state_key": "IDLE:normal",
-      "transition_detected": false,
+      "transition_detected": true,
       "suppressed_by_kill_switch": false,
       "bootstrap": false,
-      "committed_state_key": "IDLE:normal",
+      "committed_state_key": "UNDETERMINED:history_quarantined",
       "pending_transition": false
     },
     {
       "entity_key": "CP-03:SMH",
       "playbook_id": "CP-03",
       "symbol": "SMH",
-      "state": "TRIGGERED",
-      "detail": "strong",
-      "state_key": "TRIGGERED:strong",
+      "state": "UNDETERMINED",
+      "detail": "history_quarantined",
+      "state_key": "UNDETERMINED:history_quarantined",
       "market_date": "2026-10-21",
       "rule_version": "1.0.0",
       "rule_hash": "20aaf8cf9b5c9dfcc137305750b16ccd04a08f873a4a2ddb83d6ef6ffd99220d",
       "lifecycle": "active",
       "evidence": "unverified",
       "quality": {
-        "eligible": true,
-        "reasons": [],
+        "eligible": false,
+        "reasons": [
+          "history_quarantined"
+        ],
         "date": "2026-10-21",
         "source": "docs/data.json",
         "as_of": "2026-10-21",
-        "freshness": "fresh",
-        "split_adjustment_check": "pass"
+        "freshness": "failed",
+        "split_adjustment_check": "fail"
       },
-      "baseline_close": 556.70001,
+      "baseline_close": null,
       "benchmark": "QQQ",
-      "metrics": {
-        "drawdown63": -0.1217857825592118,
-        "rsi14": 26.730667812046548,
-        "trend_risk": false,
-        "vix_risk": false
-      },
+      "metrics": {},
       "runtime": {
         "enabled": true,
         "ledger_enabled": true,
@@ -411,58 +389,52 @@
       "continuity": {
         "last_valid_state_key": "TRIGGERED:strong",
         "last_valid_market_date": "2026-10-21",
-        "unknown_since_market_date": null,
+        "unknown_since_market_date": "2026-10-21",
         "detection_delay_sessions": 0,
         "late_detected": false,
         "timing_uncertain": false,
         "detection_window_start": null,
-        "detection_window_end": null,
-        "previous_valid_state_key": "TRIGGERED:strong",
-        "previous_valid_market_date": "2026-10-21",
-        "prior_unknown_since_market_date": null
+        "detection_window_end": null
       },
       "last_valid_state_key": "TRIGGERED:strong",
       "last_valid_market_date": "2026-10-21",
-      "unknown_since_market_date": null,
+      "unknown_since_market_date": "2026-10-21",
       "late_detected": false,
       "detection_delay_sessions": 0,
       "timing_uncertain": false,
       "previous_state_key": "TRIGGERED:strong",
-      "transition_detected": false,
+      "transition_detected": true,
       "suppressed_by_kill_switch": false,
       "bootstrap": false,
-      "committed_state_key": "TRIGGERED:strong",
+      "committed_state_key": "UNDETERMINED:history_quarantined",
       "pending_transition": false
     },
     {
       "entity_key": "CP-03:VGT",
       "playbook_id": "CP-03",
       "symbol": "VGT",
-      "state": "NEAR_TRIGGER",
-      "detail": "watch",
-      "state_key": "NEAR_TRIGGER:watch",
+      "state": "UNDETERMINED",
+      "detail": "history_quarantined",
+      "state_key": "UNDETERMINED:history_quarantined",
       "market_date": "2026-10-21",
       "rule_version": "1.0.0",
       "rule_hash": "20aaf8cf9b5c9dfcc137305750b16ccd04a08f873a4a2ddb83d6ef6ffd99220d",
       "lifecycle": "active",
       "evidence": "unverified",
       "quality": {
-        "eligible": true,
-        "reasons": [],
+        "eligible": false,
+        "reasons": [
+          "history_quarantined"
+        ],
         "date": "2026-10-21",
         "source": "docs/data.json",
         "as_of": "2026-10-21",
-        "freshness": "fresh",
-        "split_adjustment_check": "pass"
+        "freshness": "failed",
+        "split_adjustment_check": "fail"
       },
-      "baseline_close": 122.25,
+      "baseline_close": null,
       "benchmark": "QQQ",
-      "metrics": {
-        "drawdown63": -0.05816640986132515,
-        "rsi14": 37.40740078385195,
-        "trend_risk": false,
-        "vix_risk": false
-      },
+      "metrics": {},
       "runtime": {
         "enabled": true,
         "ledger_enabled": true,
@@ -473,27 +445,24 @@
       "continuity": {
         "last_valid_state_key": "NEAR_TRIGGER:watch",
         "last_valid_market_date": "2026-10-21",
-        "unknown_since_market_date": null,
+        "unknown_since_market_date": "2026-10-21",
         "detection_delay_sessions": 0,
         "late_detected": false,
         "timing_uncertain": false,
         "detection_window_start": null,
-        "detection_window_end": null,
-        "previous_valid_state_key": "NEAR_TRIGGER:watch",
-        "previous_valid_market_date": "2026-10-21",
-        "prior_unknown_since_market_date": null
+        "detection_window_end": null
       },
       "last_valid_state_key": "NEAR_TRIGGER:watch",
       "last_valid_market_date": "2026-10-21",
-      "unknown_since_market_date": null,
+      "unknown_since_market_date": "2026-10-21",
       "late_detected": false,
       "detection_delay_sessions": 0,
       "timing_uncertain": false,
       "previous_state_key": "NEAR_TRIGGER:watch",
-      "transition_detected": false,
+      "transition_detected": true,
       "suppressed_by_kill_switch": false,
       "bootstrap": false,
-      "committed_state_key": "NEAR_TRIGGER:watch",
+      "committed_state_key": "UNDETERMINED:history_quarantined",
       "pending_transition": false
     }
   ],

@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "generated_at": "2026-10-22T13:53:53.067558+00:00",
+  "generated_at": "2026-10-22T22:05:20.805520+00:00",
   "methodology": {
     "executed_action_baseline": "first trading session open strictly after source date when no reliable intraday timestamp exists",
     "planned_entry_baseline": "explicit stock-entry plans begin only on the first later session whose low touches the stated level; each tranche is validated separately",
@@ -19,10 +19,10 @@
     "events": 183,
     "author_owned": 85,
     "unconfirmed": 98,
-    "triggered_author_owned": 78,
-    "untriggered_plans": 7,
+    "triggered_author_owned": 79,
+    "untriggered_plans": 6,
     "mature60": 35,
-    "developing": 43,
+    "developing": 44,
     "symbols": 30
   },
   "missing_history": {},
@@ -119,13 +119,36 @@
         "alignment_rate": 0.16666666666666666
       }
     },
+    "no_add": {
+      "5": {
+        "n": 0,
+        "avg_return": null,
+        "median_return": null,
+        "avg_excess_vs_qqq": null,
+        "alignment_rate": null
+      },
+      "20": {
+        "n": 0,
+        "avg_return": null,
+        "median_return": null,
+        "avg_excess_vs_qqq": null,
+        "alignment_rate": null
+      },
+      "60": {
+        "n": 0,
+        "avg_return": null,
+        "median_return": null,
+        "avg_excess_vs_qqq": null,
+        "alignment_rate": null
+      }
+    },
     "planned_buy": {
       "5": {
-        "n": 5,
-        "avg_return": -0.003101448044516064,
-        "median_return": -0.06600870211185395,
-        "avg_excess_vs_qqq": 0.008096726212580752,
-        "alignment_rate": 0.6666666666666666
+        "n": 8,
+        "avg_return": -0.04801524502175403,
+        "median_return": -0.09119194445690132,
+        "avg_excess_vs_qqq": -0.033668243917092555,
+        "alignment_rate": 0.3333333333333333
       },
       "20": {
         "n": 4,
@@ -144,11 +167,11 @@
     },
     "planned_sell": {
       "5": {
-        "n": 4,
-        "avg_return": -0.0730196671985022,
-        "median_return": -0.07258337998154679,
-        "avg_excess_vs_qqq": -0.05929288054672019,
-        "alignment_rate": 0.5
+        "n": 6,
+        "avg_return": -0.08517112034646568,
+        "median_return": -0.09119194445690132,
+        "avg_excess_vs_qqq": -0.06948824729507681,
+        "alignment_rate": 0.25
       },
       "20": {
         "n": 3,
@@ -238,11 +261,11 @@
   "by_author": {
     "BrightLine": {
       "5": {
-        "n": 42,
-        "avg_return": -0.020602219365099966,
+        "n": 45,
+        "avg_return": -0.027420176295236687,
         "median_return": -0.02882793253742666,
-        "avg_excess_vs_qqq": -0.02606477447916857,
-        "alignment_rate": 0.4864864864864865
+        "avg_excess_vs_qqq": -0.03121222467832719,
+        "alignment_rate": 0.45
       },
       "20": {
         "n": 35,
@@ -5017,13 +5040,20 @@
         "same_source": true
       },
       "outcomes": {
-        "5": null,
+        "5": {
+          "date": "2026-10-22",
+          "return": -0.11572222222222228,
+          "mae": -0.13483333333333336,
+          "mfe": 0.0518333333333334,
+          "benchmark_return": -0.019595045850602566,
+          "excess_vs_qqq": -0.09612717637161972
+        },
         "20": null,
         "60": null
       },
       "alignment": {
         "direction": "bullish",
-        "5": null,
+        "5": "not_aligned",
         "20": null,
         "60": null
       },
@@ -5458,13 +5488,20 @@
         "same_source": true
       },
       "outcomes": {
-        "5": null,
+        "5": {
+          "date": "2026-10-22",
+          "return": -0.14966666666666661,
+          "mae": -0.17133333333333334,
+          "mfe": 0.015333333333333421,
+          "benchmark_return": -0.019595045850602566,
+          "excess_vs_qqq": -0.13007162081606405
+        },
         "20": null,
         "60": null
       },
       "alignment": {
         "direction": "bullish",
-        "5": null,
+        "5": "not_aligned",
         "20": null,
         "60": null
       },
@@ -5671,8 +5708,8 @@
       "baseline_kind": "entry_below",
       "baseline_assumption": "explicit plan starts only when the stated stock-entry level is touched",
       "planned_level": 85.0,
-      "triggered": false,
-      "baseline_date": null,
+      "triggered": true,
+      "baseline_date": "2026-10-22",
       "baseline_price": 85.0,
       "price_provenance": {
         "price_source": "stooq_archive",
@@ -5711,12 +5748,13 @@
             "within_sessions": 20
           },
           "touch60": {
-            "touched": false,
+            "touched": true,
+            "date": "2026-10-22",
             "within_sessions": 60
           }
         }
       },
-      "status": "not_triggered"
+      "status": "developing"
     },
     {
       "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html:4:INTC:0",
@@ -5792,7 +5830,8 @@
             "within_sessions": 20
           },
           "touch60": {
-            "touched": false,
+            "touched": true,
+            "date": "2026-10-22",
             "within_sessions": 60
           }
         }
@@ -5908,13 +5947,20 @@
         "same_source": true
       },
       "outcomes": {
-        "5": null,
+        "5": {
+          "date": "2026-10-22",
+          "return": -0.103225831062563,
+          "mae": -0.11532260525611138,
+          "mfe": 0.12516132477791087,
+          "benchmark_return": -0.019595045850602566,
+          "excess_vs_qqq": -0.08363078521196043
+        },
         "20": null,
         "60": null
       },
       "alignment": {
         "direction": "bullish",
-        "5": null,
+        "5": "not_aligned",
         "20": null,
         "60": null
       },
@@ -7263,16 +7309,21 @@
           "benchmark_return": 0.05309361144625124,
           "excess_vs_qqq": 0.07343700079864668
         },
-        "60": null
+        "60": {
+          "date": "2026-10-22",
+          "return": 0.028199267988445298,
+          "mae": -0.11418967587034812,
+          "mfe": 0.33099639855942375
+        }
       },
       "alignment": {
         "direction": "bullish",
         "5": "aligned",
         "20": "aligned",
-        "60": null
+        "60": "aligned"
       },
       "level_checks": {},
-      "status": "developing"
+      "status": "mature"
     },
     {
       "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202607-18322-html:0:TSLA:0",
@@ -12261,7 +12312,7 @@
     }
   ],
   "explanation": {
-    "untriggered_plans_note": "untriggered_plans (7) refers to conditional limit-price trading plans from author posts whose price thresholds have not been touched by the market yet. They are intentionally kept in observation status (triggered=false) and are NOT data processing or parsing failures."
+    "untriggered_plans_note": "untriggered_plans (6) refers to conditional limit-price trading plans from author posts whose price thresholds have not been touched by the market yet. They are intentionally kept in observation status (triggered=false) and are NOT data processing or parsing failures."
   },
   "guardrails": [
     "External-source outcomes are descriptive evidence, not rankings or automatic trade rules.",

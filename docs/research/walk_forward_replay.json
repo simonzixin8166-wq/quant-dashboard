@@ -1,6 +1,6 @@
 {
   "version": "6.11.1",
-  "generated_at": "2026-10-22T13:52:50.282062+00:00",
+  "generated_at": "2026-10-22T22:04:20.725365+00:00",
   "mode": "research_only",
   "evidence_provenance": "historical_replay_post_rule_design",
   "forward_evidence_mixed": false,
@@ -44,8 +44,8 @@
     }
   },
   "summary": {
-    "raw_events": 1715,
-    "effective_clusters": 937,
+    "raw_events": 1717,
+    "effective_clusters": 938,
     "replayable_playbooks": 3,
     "blocked_playbooks": 0,
     "history_symbols": 41
@@ -757,8 +757,8 @@
     "CP-02:partial_restore": {
       "playbook_id": "CP-02",
       "state_detail": "partial_restore",
-      "raw_events": 224,
-      "effective_clusters": 177,
+      "raw_events": 225,
+      "effective_clusters": 178,
       "independent_dates": [
         "1999-12-22",
         "2000-01-10",
@@ -936,7 +936,8 @@
         "2025-06-17",
         "2025-11-21",
         "2026-07-29",
-        "2026-08-20"
+        "2026-08-20",
+        "2026-10-22"
       ],
       "horizons": {
         "5": {
@@ -1180,7 +1181,7 @@
     "CP-03:candidate": {
       "playbook_id": "CP-03",
       "state_detail": "candidate",
-      "raw_events": 533,
+      "raw_events": 534,
       "effective_clusters": 148,
       "independent_dates": [
         "2000-04-11",
@@ -1362,18 +1363,18 @@
           "avg_excess_vs_qqq": 0.0025986364121100237
         },
         "60": {
-          "raw_n": 528,
+          "raw_n": 529,
           "effective_n": 146,
-          "aligned_rate": 0.6723484848484849,
+          "aligned_rate": 0.6729678638941399,
           "aligned_rate_ci95": {
-            "low": 0.6311945452161966,
-            "high": 0.7110126990320557
+            "low": 0.6318685002254614,
+            "high": 0.7115732439755678
           },
-          "avg_return": 0.05100205021233462,
-          "median_return": 0.06952332218245161,
-          "avg_mae": -0.10858181772748621,
-          "avg_mfe": 0.1435205696587129,
-          "avg_excess_vs_qqq": 0.0043416718726810195
+          "avg_return": 0.05098673848246154,
+          "median_return": 0.06888208767130521,
+          "avg_mae": -0.1084167175764071,
+          "avg_mfe": 0.1434937692031989,
+          "avg_excess_vs_qqq": 0.004340887890354688
         }
       }
     },
@@ -1510,6 +1511,48 @@
     }
   },
   "recent_replay_events": [
+    {
+      "playbook_id": "CP-03",
+      "entity_key": "CP-03:VGT",
+      "symbol": "VGT",
+      "evaluation_asset": "VGT",
+      "event_date": "2026-10-22",
+      "state_detail": "candidate",
+      "expected_direction": "bullish",
+      "baseline_close": 118.6,
+      "rule_hash": "20aaf8cf9b5c9dfcc137305750b16ccd04a08f873a4a2ddb83d6ef6ffd99220d",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "risk_context": {
+        "trend_risk": false,
+        "vix_risk": false,
+        "vix_available": true
+      },
+      "outcomes": {
+        "5": null,
+        "20": null,
+        "60": null
+      }
+    },
+    {
+      "playbook_id": "CP-02",
+      "entity_key": "CP-02:TQQQ",
+      "symbol": "TQQQ",
+      "evaluation_asset": "QQQ",
+      "event_date": "2026-10-22",
+      "state_detail": "partial_restore",
+      "objective_group": "risk_restore",
+      "expected_direction": "bullish",
+      "baseline_close": 704.46997,
+      "rule_hash": "f89277cd0b6f80aa2682799ee45d3c02a0cd76633d855cb0621557bc18db8fb5",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": null,
+        "20": null,
+        "60": null
+      }
+    },
     {
       "playbook_id": "CP-03",
       "entity_key": "CP-03:VGT",
@@ -1865,8 +1908,8 @@
           "return": 0.05117076220420835,
           "mae": -0.04903695600512903,
           "mfe": 0.20745845823067643,
-          "benchmark_return": null,
-          "excess_vs_benchmark": null,
+          "benchmark_return": 0.042902145109475986,
+          "excess_vs_benchmark": 0.008268617094732367,
           "aligned": true
         }
       }
@@ -1907,7 +1950,15 @@
           "excess_vs_benchmark": 0.0,
           "aligned": true
         },
-        "60": null
+        "60": {
+          "maturity_date": "2026-10-22",
+          "return": 0.042902145109475986,
+          "mae": -0.021243837806629307,
+          "mfe": 0.12934312869176456,
+          "benchmark_return": 0.042902145109475986,
+          "excess_vs_benchmark": 0.0,
+          "aligned": true
+        }
       }
     },
     {
@@ -6546,100 +6597,6 @@
           "mfe": 0.055146984747435956,
           "benchmark_return": null,
           "excess_vs_benchmark": null,
-          "aligned": true
-        }
-      }
-    },
-    {
-      "playbook_id": "CP-03",
-      "entity_key": "CP-03:SMH",
-      "symbol": "SMH",
-      "evaluation_asset": "SMH",
-      "event_date": "2025-03-03",
-      "state_detail": "candidate",
-      "expected_direction": "bullish",
-      "baseline_close": 223.009994506836,
-      "rule_hash": "20aaf8cf9b5c9dfcc137305750b16ccd04a08f873a4a2ddb83d6ef6ffd99220d",
-      "evidence_provenance": "historical_replay_post_rule_design",
-      "scoreable": true,
-      "risk_context": {
-        "trend_risk": false,
-        "vix_risk": false,
-        "vix_available": true
-      },
-      "outcomes": {
-        "5": {
-          "maturity_date": "2025-03-10",
-          "return": -0.038025182442122274,
-          "mae": -0.051567195566418866,
-          "mfe": 0.03493120818261364,
-          "benchmark_return": -0.048929096733896116,
-          "excess_vs_benchmark": 0.010903914291773842,
-          "aligned": false
-        },
-        "20": {
-          "maturity_date": "2025-03-31",
-          "return": -0.05174652961923254,
-          "mae": -0.0829559233024999,
-          "mfe": 0.04219543470649634,
-          "benchmark_return": -0.05518728214220947,
-          "excess_vs_benchmark": 0.003440752522976931,
-          "aligned": false
-        },
-        "60": {
-          "maturity_date": "2025-05-28",
-          "return": 0.086767439039251,
-          "mae": -0.23720907223672827,
-          "mfe": 0.11851490330295533,
-          "benchmark_return": 0.04553605609397349,
-          "excess_vs_benchmark": 0.041231382945277506,
-          "aligned": true
-        }
-      }
-    },
-    {
-      "playbook_id": "CP-03",
-      "entity_key": "CP-03:VGT",
-      "symbol": "VGT",
-      "evaluation_asset": "VGT",
-      "event_date": "2025-02-27",
-      "state_detail": "candidate",
-      "expected_direction": "bullish",
-      "baseline_close": 73.2135,
-      "rule_hash": "20aaf8cf9b5c9dfcc137305750b16ccd04a08f873a4a2ddb83d6ef6ffd99220d",
-      "evidence_provenance": "historical_replay_post_rule_design",
-      "scoreable": true,
-      "risk_context": {
-        "trend_risk": false,
-        "vix_risk": false,
-        "vix_available": true
-      },
-      "outcomes": {
-        "5": {
-          "maturity_date": "2025-03-06",
-          "return": -0.03414261031093979,
-          "mae": -0.03940666680325344,
-          "mfe": 0.022107944573063643,
-          "benchmark_return": -0.024126920574545796,
-          "excess_vs_benchmark": -0.010015689736393996,
-          "aligned": false
-        },
-        "20": {
-          "maturity_date": "2025-03-27",
-          "return": -0.05267334576273497,
-          "mae": -0.0790359701421185,
-          "mfe": 0.022107944573063643,
-          "benchmark_return": -0.035844051849256764,
-          "excess_vs_benchmark": -0.016829293913478205,
-          "aligned": false
-        },
-        "60": {
-          "maturity_date": "2025-05-23",
-          "return": 0.01167544237060092,
-          "mae": -0.2332834791397761,
-          "mfe": 0.051792360698505124,
-          "benchmark_return": 0.019448476052249752,
-          "excess_vs_benchmark": -0.007773033681648833,
           "aligned": true
         }
       }

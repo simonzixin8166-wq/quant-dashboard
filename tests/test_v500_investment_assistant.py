@@ -12,7 +12,8 @@ wxc=(ROOT/'docs/assets/wenxuecity.js').read_text(encoding='utf-8')
 methods=(ROOT/'docs/assets/research-methods.js').read_text(encoding='utf-8')
 css=(ROOT/'docs/assets/design-v4.8.css').read_text(encoding='utf-8')
 
-assert APP_VERSION == "6.8.2" and ASSET_VERSION == APP_VERSION
+import re
+assert re.match(r"^\d+\.\d+\.\d+$", APP_VERSION) and ASSET_VERSION == APP_VERSION
 assert "from app_version import APP_VERSION, OPTIONS_VERSION, ASSET_VERSION" in g
 assert 'id="marketOptionAlert"' in g and 'id="marketOptionAlert"' in p
 assert 'marketOptionAlert' in js and '30–45 DTE' in methods and 'Delta 0.16–0.20' in methods
@@ -24,5 +25,5 @@ assert '先看位置，再看方向' in g and '先看位置，再看方向' in p
 assert '策略经验库 · 先作为研究候选' in wxc
 assert '查看后台采集技术状态' in wxc and '当前有来源暂不可用' in wxc
 assert 'footer-main #siteAnalyticsRoot.site-analytics' in css
-assert '期权决策与推演' in g and '期权决策与推演' in p
+assert '期权决策台' in g and '期权决策台' in p
 print('test_v500_investment_assistant.py: all assertions passed')

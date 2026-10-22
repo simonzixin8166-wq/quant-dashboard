@@ -38,3 +38,9 @@ assert isinstance(fz["unfreeze_due"], bool)
 md = m.markdown(rep)
 assert "never summed" in md and "| artifact |" in md
 print("test_module_manifest_audit OK")
+# B1/B2 research-output consumer is reported from the real digest artifact, never assumed
+_ro = m.experience_citation()["research_output"]
+assert _ro["code_reads_experience"] is True and _ro["used_in_decision"] is False
+assert _ro["status"] in ("research_output_consumer", "code_wired_awaiting_production_digest")
+assert (_ro["status"] == "research_output_consumer") == (_ro["digest_items_with_basis"] > 0)
+print("PASS manifest research-output consumer")

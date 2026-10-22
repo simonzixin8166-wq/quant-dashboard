@@ -2,7 +2,7 @@
  "version": 1,
  "title": "MyAlpha View — Master Execution Plan",
  "issue": "https://github.com/simonzixin8166-wq/quant-dashboard/issues/133",
- "last_updated": "2026-10-13T05:50Z",
+ "last_updated": "2026-10-17T09:50Z",
  "charter": "CLAUDE.md (owner-confirmed 2026-10-11)",
  "statuses": [
   "Done",
@@ -30,9 +30,10 @@
   "This ledger is maintained by hand from real PRs and runs; its counts are not learning metrics"
  ],
  "execution_capability": {
-  "hourly_watcher": "cloud scheduled task trig_01P3Sk5tEfTuAQWAdFysJKcV (minute 44 every hour): acts only when a new owner instruction on #133 is not yet referenced by a Claude comment",
-  "one_shot": "cloud scheduled task trig_01QwLXu1zXvSHWyZn8Y1Est2 at 2026-10-13T01:30Z: P0 day-1 report, then Batch B continuously",
-  "limits": "no permanent unattended coding beyond these triggers; chat uploads are readable only by the session that received them"
+  "hourly_watcher": "DISABLED 2026-10-15T05:11Z (owner decision; #133 6184936851): trig_01P3Sk5tEfTuAQWAdFysJKcV kept but off; Claude works only when the owner notifies it",
+  "one_shot": "trig_01GXuvQEVhzxwfMzLWag1rdQ at 2026-10-16T02:30Z (P0-06 day 4 + CPI T+1 check; set by another session, kept)",
+  "limits": "no permanent unattended coding beyond these triggers; chat uploads are readable only by the session that received them",
+  "alerts": "#248 8f5073a: Daily Guardian give_up → one Telegram alert per session; weekly change summary only on change (no Claude check-ins needed)"
  },
  "instructions": [
   {
@@ -138,6 +139,56 @@
   {
    "id": "6138793593",
    "summary": "Homepage-visible macro event reminder (H-01..H-03) as R-02 acceptance",
+   "status": "active"
+  },
+  {
+   "id": "6139191982",
+   "summary": "PR #231 follow-up: verify the owner-uploaded full text first, then redo R-A/R-B; keep partial history",
+   "status": "active"
+  },
+  {
+   "id": "6148675138",
+   "summary": "CPI official-outcome loop (P0-A), 10-13 schedule acceptance (P0-B), PR cleanup #235/#236/#237, OPT-01 five fixes, C-01 after schedule PASS",
+   "status": "active"
+  },
+  {
+   "id": "6183848571",
+   "summary": "P0 production stability + 40-symbol OHLCV integrity round (P0-1 schedule/recovery audit, P0-2 OHLCV, P1 event follow-up + C-01, P2 options boundary)",
+   "status": "active"
+  },
+  {
+   "id": "6183889673",
+   "summary": "Jackal-style sentiment read-only audit — narrowed by 6183911144/6183923696 to CNN Fear & Greed data access only",
+   "status": "closed as decision (6185055738: keep CNN official link-out)"
+  },
+  {
+   "id": "6183911144",
+   "summary": "CNN Fear & Greed: data access only, no seven-factor engine",
+   "status": "closed as decision (6185055738: keep CNN official link-out)"
+  },
+  {
+   "id": "6183923696",
+   "summary": "CNN Fear & Greed minimal access check, A/B/C conclusion, then wait for owner approval",
+   "status": "closed as decision (6185055738: keep CNN official link-out)"
+  },
+  {
+   "id": "6184073352",
+   "summary": "De-Claude runtime dependency and quota audit (stage 1 read-only; stage 2 only on approval)",
+   "status": "active"
+  },
+  {
+   "id": "6185055738",
+   "summary": "#248 conditional merge + QA; cron single-workflow experiment design only; CNN stays link-out (Deferred/Closed as decision)",
+   "status": "active"
+  },
+  {
+   "id": "6185118420",
+   "summary": "Learning loop schedule: B1/B2/B4 production verification now; B4-03 after real Daily+QA; then B3-01 → M-02 → W-03 → M-04",
+   "status": "active"
+  },
+  {
+   "id": "6186122456",
+   "summary": "SEC v2 Shadow period-layers (YTD / Quarter / TTM) + selection fix; one small PR; no consumer migration",
    "status": "active"
   }
  ],
@@ -272,7 +323,8 @@
     "6109291884",
     "6109652253",
     "6116685851",
-    "6117163110"
+    "6117163110",
+    "6183848571"
    ],
    "depends_on": [],
    "evidence": {
@@ -289,13 +341,15 @@
      "day 1 (session 2026-10-12) = FAIL/DEGRADED: Daily 21:30Z cron never fired (GAP); schedule 38286775573 (17:49Z, delayed 08:15 slot) and 38337973679 (02:40Z) failed at the verify contract; MyAlpha Auto Research 00:35Z fallback cron never fired (GAP)",
      "guardian dispatches 38313360410, 38340669182 failed (same contract)",
      "published by RECOVERY workflow_dispatch 38343250454 (not a schedule): market_as_of 2026-10-12, 8 new hypotheses, 2 abstentions (DRAM, SPCX), 21 cross-day revisits of 2026-10-09 hypotheses (14 still_valid / 5 superseded / 2 invalidated), SPY first hypothesis (not a revisit), 5 sec_correction annotations, digest latest_session 2026-10-12, weekly gaps 0",
-     "QA 38345224979 workflow_run overall=PASS research_row ok(22) vendor_libs ok"
+     "QA 38345224979 workflow_run overall=PASS research_row ok(22) vendor_libs ok",
+     "day 2 (session 2026-10-13) = DEGRADED (late schedule + automatic recovery first): no Actions runs 19:58Z–23:37Z (GitHub scheduler stall); QA 38485421325 workflow_run 23:39Z FAIL (market_as_of 10-12 < expected 10-13); Daily Guardian auto-recovery 38487322756 workflow_dispatch 23:57Z success → 43ecdfb (data + CPI T-1 baseline); Daily 21:30Z cron fired 2h59m late: 38490415299 event=schedule created 00:28:55Z success head 43ecdfb → 9e40604 updated=2026-10-14 spy_date=2026-10-13; QA 38491369685 workflow_run PASS market_as_of=2026-10-13 macro_row fresh deploy_matches_head; 40-symbol archive: 26 with real 10-13 OHLC from data.json, 14 missing (AAOI AAPL CRWV DIA GLD HYG IWM META MU NOW TLT XLE XLF XLK: Yahoo fallback returned no finalized 10-13 bar, no error logged — root cause open); B1/B2 artifacts regenerated 00:37Z (company_fundamental_memory_v2, sec_fact_reconciliation); forward_intake_health 01:09Z; 08:15Z slot of 10-13 had fired 7.6h late (38426032589 15:54Z)",
+     "day 3 (session 2026-10-14) = DEGRADED: Guardian recovery 38644154255 workflow_dispatch 21:57Z success (published 22:07Z ce45e57); Daily 21:30Z cron delivered 2h30m late: 38657460138 event=schedule created 00:00:17Z success; QA 38639624033 FAIL 21:23Z (pre-slot), 38658339021 FAIL 00:10Z (server_action stale), 38666141209 PASS 01:33Z; archive 41/41 for 10-13 and 10-14 (10-13's 14 fallback bars first seen 13:51Z 10-14); 9 display-symbol 10-14 conflicts quarantined; evidence research/audit/schedule_reliability/2026-10-12_2026-10-14.json + research/audit/ohlcv_completeness/2026-10-13_2026-10-14.json"
     ]
    },
    "acceptance": "five consecutive sessions published by event=schedule runs (recovery dispatches never count), cross-day revisits, digest ok, QA PASS, GAPs recorded",
-   "next": "day 2: session 2026-10-13 must be published by an event=schedule run; P0 incident fixes in place",
+   "next": "timeliness threshold decided by owner 2026-10-17 (before next open); remaining: approved recovery/trigger change if delays exceed it",
    "waiting_for": "2026-10-13 NYSE close → Daily 21:30Z / guardian / Auto Research fallback",
-   "last_verified": "2026-10-13T04:20Z"
+   "last_verified": "2026-10-15T04:25Z"
   },
   {
    "id": "P0-INC-1013",
@@ -360,12 +414,42 @@
    ],
    "evidence": {
     "prs": [],
-    "runs": []
+    "runs": [
+     "2026-10-12 FAIL; 2026-10-13 DEGRADED (schedule 2h59m late, after automatic recovery) → consecutive on-time PASS = 0/5",
+     "2026-10-14 DEGRADED (schedule 2h30m late, after recovery) → consecutive on-time PASS = 0/5"
+    ]
    },
    "acceptance": "5 sessions with schedule runs or recorded GAP + recovery",
-   "next": "daily check",
+   "next": "owner rule 2026-10-17: a 21:30Z schedule run counts on time when it succeeds and finishes before the next NYSE 09:30 ET open (recovery never counts); count via weekly_change_summary; first eligible session 2026-10-19",
    "waiting_for": "sessions 2026-10-12..10-16",
-   "last_verified": "2026-10-12T04:25Z"
+   "last_verified": "2026-10-15T04:25Z"
+  },
+  {
+   "id": "P0-07b-OHLCV",
+   "title": "40-symbol OHLCV integrity: fallback diagnostics, no intraday/silent restatement (VIX), per-symbol completeness evidence",
+   "area": "P0 site reliability",
+   "priority": 0,
+   "status": "In progress",
+   "stages": [
+    "instruction_published",
+    "claude_acked"
+   ],
+   "instructions": [
+    "6183848571"
+   ],
+   "depends_on": [],
+   "evidence": {
+    "prs": [
+     "p0/ohlcv-audit-diagnostics (this PR)"
+    ],
+    "runs": [],
+    "files": [
+     "research/audit/ohlcv_completeness/2026-10-13_2026-10-14.json"
+    ]
+   },
+   "acceptance": "each Daily records fallback request count / returned dates / outcome per symbol; no bar captured before its session close enters the archive; restatements logged in data/history/corrections.jsonl; completeness table per session",
+   "next": "verify diagnostics on the next real Daily run; correct VIX 2026-10-14 (intraday close 15.75) via the logged restatement path",
+   "last_verified": "2026-10-15T04:25Z"
   },
   {
    "id": "P0-07",
@@ -452,12 +536,13 @@
      "MyAlpha Auto Research 38345865213 workflow_dispatch 'post-P0 B1 activation' (not a schedule): 8 server-written hypotheses for 2026-10-12 carry precedents/error_attribution/experience_input_status, used_in_decision=false; distinct symbol-sessions with experience = 8",
      "MSFT 10 precedents (status used); GOOG 5; SPY 4; TSM 8; NBIS/NVDA/QQQ/QQQM 0 (status none)",
      "ORCL / VGT / AMD: no server record yet — their 2026-10-09 hypotheses were revisited still_valid, so no new hypothesis was generated; they get experience on their next new hypothesis",
-     "module_manifest experience_citation: not yet wired → wired (8 records)"
+     "module_manifest experience_citation: not yet wired → wired (8 records)",
+     "2026-10-15 production check (#133 6185118420): auto-research-6 journal, 49 distinct symbol-sessions 10-12..10-14; experience_input_status=used 19/49 (10-12 10/24, 10-13 2/8, 10-14 7/17); precedents present on 14 records (64 items); error_attribution symbol_cases on 5; used_in_decision=false 49/49; writers: Daily runs 38360034032/38426032589/38573634393 (schedule) and 38487322756/38644154255 (guardian workflow_dispatch; all 10-14 records come from recovery 38644154255); Auto Research 38684666261 (schedule, fired 05:03Z, 4h28m late) appended 0 (idempotent). Consumers: only audits (p1_readiness_audit, module_manifest_audit); homepage digest and research decisions do not read these fields (by design until B3-01/M-02)"
     ]
    },
    "acceptance": "server-generated records with precedents/error_attribution for real symbols; ORCL/VGT/AMD verified when they next form a hypothesis",
-   "next": "verify ORCL/VGT/AMD server records when they next form a hypothesis (AMD expected 0 precedents)",
-   "last_verified": "2026-10-13T04:45Z"
+   "next": "verify ORCL/VGT/AMD server records when they next form a hypothesis (none did 10-13/10-14); then B3-01 shared evidence contract (gate: B4-03 evidence); keep used_in_decision=false",
+   "last_verified": "2026-10-15T05:50Z"
   },
   {
    "id": "D-01",
@@ -722,13 +807,14 @@
     ],
     "runs": [
      "clean subset recount: 223/220 matured 20/60 (100/97 with revenue YoY); 370/772 observations excluded (RUB, YTD)",
-     "today every symbol is descriptive_pooled_only (e.g. MSFT n=16, pooled n=73, positive rate 0.60 @20); market-state scorecards not wired (5-session only, n<30); other memories disconnected with reasons"
+     "today every symbol is descriptive_pooled_only (e.g. MSFT n=16, pooled n=73, positive rate 0.60 @20); market-state scorecards not wired (5-session only, n<30); other memories disconnected with reasons",
+     "2026-10-15 production check: historical_reliability on sec_revenue_yoy evidence for 24 of 49 symbol-sessions (10-12 12/24, 10-13 4/8, 10-14 8/17); all descriptive_pooled_only (symbol n<30, e.g. symbol n=3 vs pooled n=135/131 at 20/60, min_n 30); used_in_decision=false; inputs carry sha256 + memory_generated_at; no research consumer beyond audits"
     ]
    },
    "acceptance": "only USD quarter/annual observations; n shown; others disconnected with reason",
-   "next": "verify server-written auto-research-6 records carry historical_reliability after the next schedule",
+   "next": "stay descriptive until symbol n ≥ 30; consumer wiring via M-02/B3-01",
    "waiting_for": "Daily schedule 2026-10-13",
-   "last_verified": "2026-10-13T04:45Z"
+   "last_verified": "2026-10-15T05:50Z"
   },
   {
    "id": "B2-03",
@@ -741,19 +827,22 @@
     "claude_acked"
    ],
    "instructions": [
-    "6116972263"
+    "6116972263",
+    "6185118420"
    ],
    "depends_on": [
     "D-01"
    ],
    "evidence": {
     "prs": [],
-    "runs": []
+    "runs": [
+     "2026-10-15: Auto Research journal records are forward_eligible=false by design (shadow, never counted); matured outcomes come only from real future sessions; first 20-session outcomes ≈ 2026-11-06"
+    ]
    },
    "acceptance": "matured counts from real future sessions only; n ≥ 30 before research use",
    "next": "re-run p1_readiness weekly",
    "waiting_for": "event 5d from 2026-10-13, options 5d from 2026-10-14, macro/support 20d from 2026-11-04",
-   "last_verified": "2026-10-12T04:25Z"
+   "last_verified": "2026-10-15T05:50Z"
   },
   {
    "id": "B4-01",
@@ -787,11 +876,12 @@
    "title": "Unified SEC fetcher + append-only fundamentals_v2 + shadow old-schema file (dual run)",
    "area": "B4 SEC",
    "priority": 1,
-   "status": "In progress",
+   "status": "Done",
    "stages": [
     "instruction_published",
     "claude_acked",
-    "code_merged"
+    "code_merged",
+    "schedule_verified"
    ],
    "instructions": [
     "6116685851",
@@ -807,36 +897,43 @@
      "#227 3aa76fd"
     ],
     "runs": [
-     "Daily step 'SEC unified fact fetcher v2 (Shadow) + daily reconciliation' (non-blocking); no consumer migrated; SEC not reachable from the sandbox"
+     "Daily step 'SEC unified fact fetcher v2 (Shadow) + daily reconciliation' (non-blocking); no consumer migrated; SEC not reachable from the sandbox",
+     "2026-10-15 production check: Shadow v2 written by Daily schedule 38657460138 (commit eb26824, 00:08Z): 25 symbols, 24 ok, DIA HTTPError (ETF, no companyfacts — classify not_applicable), archive_total 34,719 rows, archive_added 0 (append-only; no new filings since 10-13 first write 8ed5926), non_usd_skipped 386, ytd_or_other 7,801, restated 857; consumers_migrated=false. shadow_v2_vs_new: revenue agree 22 / neither 9; net_income agree 21 / neither 8 / old_misaligned 1 (AMZN) / only_old 1 (GLD); only reader = sec_fact_reconcile (audit)"
     ]
    },
    "acceptance": "all candidate concepts, USD only, period_kind, filed, accn, quality_flags; union universe; old files untouched",
-   "next": "verify the first real v2 Shadow run (research/archive/fundamentals_v2, shadow_v2_vs_new) after the next Daily",
-   "waiting_for": "Daily schedule 2026-10-13",
-   "last_verified": "2026-10-13T04:45Z"
+   "next": "B4-03",
+   "last_verified": "2026-10-15T05:50Z"
   },
   {
    "id": "B4-03",
    "title": "One real trading day comparison, then compatible consumer migration",
    "area": "B4 SEC",
    "priority": 2,
-   "status": "Not started",
+   "status": "Waiting",
    "stages": [
-    "instruction_published"
+    "instruction_published",
+    "claude_acked"
    ],
    "instructions": [
-    "6116972263"
+    "6116972263",
+    "6185118420",
+    "6186122456"
    ],
    "depends_on": [
     "B4-02"
    ],
    "evidence": {
     "prs": [],
-    "runs": []
+    "runs": [
+     "2026-10-15 attribution audit (research/audit/sec_v2_migration_audit.json, read-only): A old-vs-v2 latest: agree 38, ytd_period 25, cashflow_ytd_lag 16, old_non_usd 10 (NBIS RUB), discontinued_concept_both 4, old_stale_concept 1; B new-vs-v2 (revenue/NI): agree 43, etf_no_companyfacts 2 (DIA), non_operating_trust 2 (GLD), foreign_ifrs_non_usd 2 (TSM), v2_selection_ttm 1 (AMZN NI: v2 picked TTM 135.3B from the Q2 10-Q instead of quarter 62.6B); C archive: 23,096 old rows agree, 266 old non-USD, 0 unexplained; D v2 self-check all symbols: TTM selection 3 (AMZN NI/OCF/SBC), stale selection 12; E candidate rule simulation on the real v2 archive: TTM 3→0, 12 stale facts flagged not hidden",
+     "2026-10-15 period-layers-1 (sec_facts_v2 Shadow only): after-fix recompute from the same v2 archive → blockers 1→0 (AMZN NI now 62.6B quarter; B agree 43→44), D self-check TTM 3→0, stale 12 labelled stale_flagged; 16/16 cashflow_ytd_lag resolved (YTD layer equals old YTD; 13 quarters derived from YTD differences, 13 TTM derived FY+YTD−prior YTD; SPCX 3 quarter/TTM unavailable: first post-IPO filing); A: agree 38, ytd_layer_agree 40; archive unchanged (append-only)"
+    ]
    },
    "acceptance": "unexplained differences 0; old observations get quality flags only",
-   "next": "after B4-02 runs one session",
-   "last_verified": "2026-10-12T04:25Z"
+   "next": "production Shadow regenerates at the next Daily (21:30Z schedule); rerun sec_v2_migration_audit on that real trading day; only blockers=0 with all causes classified → separate B4-03 consumer-migration request",
+   "last_verified": "2026-10-15T07:00Z",
+   "waiting_for": "2026-10-15 real Daily event=schedule + QA PASS, then one real-day audit rerun"
   },
   {
    "id": "B3-01",
@@ -850,7 +947,8 @@
    ],
    "instructions": [
     "6116972263",
-    "6117163110"
+    "6117163110",
+    "6185118420"
    ],
    "depends_on": [
     "B1-02",
@@ -858,11 +956,14 @@
    ],
    "evidence": {
     "prs": [],
-    "runs": []
+    "runs": [
+     "2026-10-15 read-only minimal design: docs/development/B3_SHARED_EVIDENCE_CONTRACT.md (evidence-1 contract; V6 executor evidence is free text without as_of and is overwritten each run → dual-read adapter first)"
+    ]
    },
    "acceptance": "both streams cite the same evidence ids; V6 views enter Shadow only when locked and versioned",
-   "next": "after B1/B4",
-   "last_verified": "2026-10-12T04:25Z"
+   "next": "after B4-03 gate: Shadow dual-read adapter PR (read-only) per the design",
+   "last_verified": "2026-10-15T06:40Z",
+   "waiting_for": "B4-03 evidence + P0 stable"
   },
   {
    "id": "M-01",
@@ -904,7 +1005,8 @@
    ],
    "instructions": [
     "6116717888",
-    "6117671408"
+    "6117671408",
+    "6185118420"
    ],
    "depends_on": [
     "B1-02",
@@ -920,8 +1022,9 @@
     ]
    },
    "acceptance": "count falls with real consumers; ineffective modules frozen not forced",
-   "next": "re-run manifest after each batch",
-   "last_verified": "2026-10-13T04:45Z"
+   "next": "pick 2–3 highest-value consumer-less artifacts (of ~20) after B3-01; five frozen stay frozen; prove research-evidence impact, not nicer numbers",
+   "last_verified": "2026-10-15T05:50Z",
+   "waiting_for": "B3-01 + P0 stable"
   },
   {
    "id": "M-03",
@@ -962,7 +1065,8 @@
     "instruction_published"
    ],
    "instructions": [
-    "6116717888"
+    "6116717888",
+    "6185118420"
    ],
    "depends_on": [
     "M-01"
@@ -972,8 +1076,9 @@
     "runs": []
    },
    "acceptance": "weekly scheduled run writes broken-link counts and changes",
-   "next": "wire module_manifest_audit into an existing weekly workflow",
-   "last_verified": "2026-10-12T04:25Z"
+   "next": "fold module-manifest broken-link counts / valid precedents / matured samples / OOS baseline into the existing weekly workflow (#248 weekly change summary already reports schedule/OHLCV/matured/open incidents); no new cron, no Claude session",
+   "last_verified": "2026-10-15T05:50Z",
+   "waiting_for": "B3-01/M-02 order + P0 stable"
   },
   {
    "id": "W-01",
@@ -1032,23 +1137,26 @@
    "title": "M1 understanding: blind labels test v2 (41) / v3 (28) → κ; long-article frozen test",
    "area": "WXC understanding",
    "priority": 2,
-   "status": "Waiting",
+   "status": "In progress",
    "stages": [
     "instruction_published",
     "claude_acked"
    ],
    "instructions": [
-    "6107376896"
+    "6107376896",
+    "6185118420"
    ],
    "depends_on": [],
    "evidence": {
-    "prs": [],
+    "prs": [
+     "wxc-bot #55: owner blind r1 INVALID, r2 κ 0.126 (v1.1); guideline v1.2; append-only adjudication"
+    ],
     "runs": []
    },
    "acceptance": "κ computed on independent labels; rules changed only on dev",
-   "next": "needs independent labels",
+   "next": "Actions runtime fetch for the 9 needs_article_check items → score the extractor against the v1.2 adjudicated gold (precision/recall/abstention); inter-annotator agreement under v1.2 needs a fresh blind sample",
    "waiting_for": "GPT/owner blind labels",
-   "last_verified": "2026-10-12T04:25Z"
+   "last_verified": "2026-10-17T08:15Z"
   },
   {
    "id": "OPS-01",
@@ -1180,7 +1288,8 @@
    "instructions": [
     "6137639898",
     "6138710630",
-    "6138763764"
+    "6138763764",
+    "6139191982"
    ],
    "depends_on": [
     "P0-INC-1013"
@@ -1188,16 +1297,18 @@
    "evidence": {
     "prs": [
      "#230 3deebc5 (v0.1)",
-     "#231 2c4e770 (v0.2 + report + tranche state)"
+     "#231 2c4e770 (v0.2 + report + tranche state)",
+     "this PR: full_text_verified v1.0 + full Chinese report + verification log + rules v1.1 (metadata)"
     ],
     "runs": [
      "wxc-bot feed record 56cd7e041adfe7bc43dc captured 2026-10-13T03:10:58Z (scheduled_blog_scan_complete, 3315 chars seen, 360-char excerpt persisted); source_store admission_class=genuine_forward",
-     "official checks 2026-10-13: Fed 09-16 statement (3¾–4%, 12–0), BLS jobs 10-02 (+29k, 4.2%), CPI Aug (3.4%/2.4%), Treasury sb0607 buybacks; 10Y FRED 10-08 5.22%; MyAlpha breadth b200 51.9% (10-12)"
+     "official checks 2026-10-13: Fed 09-16 statement (3¾–4%, 12–0), BLS jobs 10-02 (+29k, 4.2%), CPI Aug (3.4%/2.4%), Treasury sb0607 buybacks; 10Y FRED 10-08 5.22%; MyAlpha breadth b200 51.9% (10-12)",
+     "full text verified 2026-10-13 from owner-uploaded HTML: sha256 bd834014…, 50 paragraphs / 3,266 chars, normalized sha256 f909e1b9… = owner outline; 43/43 non-heading paragraphs reviewed, 48 claims (author 20 / official 11 / derived 6 / unverified 11)"
     ]
    },
-   "acceptance": "R-A Chinese section-by-section fact/opinion/counter-evidence matrix with official sources and as_of; full text status honest (partial unless read at runtime); v0.1 definitions only revised by version; R-B rules locked with tests (fail-closed, AND/OR fidelity, no allocation inference)",
+   "acceptance": "R-A Chinese section-by-section fact/opinion/counter-evidence matrix with official sources and as_of; full text status honest (partial unless read at runtime); v0.1 definitions only revised by version; R-B rules locked with tests (fail-closed, AND/OR fidelity, no allocation inference); full_text_verified record created only after the owner-supplied text was read; partial v0.1/v0.2 kept",
    "next": "R-C daily observation after real sessions; record official outcomes in research/macro_events/event_facts_2026q4.json after each event",
-   "last_verified": "2026-10-13T06:20Z"
+   "last_verified": "2026-10-13T14:50Z"
   },
   {
    "id": "R-02",
@@ -1253,29 +1364,70 @@
    ]
   },
   {
+   "id": "P0-A-CPI",
+   "title": "CPI 10/14 official outcome: BLS fetch after release → pending/official_result_unavailable/stale/conflict/recorded → tranche Shadow → homepage row → T..T+10 records",
+   "area": "Research tasks",
+   "priority": 0,
+   "status": "In progress",
+   "stages": [
+    "instruction_published",
+    "claude_acked",
+    "code_merged"
+   ],
+   "instructions": [
+    "6148675138"
+   ],
+   "depends_on": [
+    "R-02"
+   ],
+   "evidence": {
+    "prs": [
+     "#239 e52ab30 BLS CPI official outcome → tranche Shadow v1.2 → homepage row; wired non-blocking into Auto Research 12:35Z + Daily",
+     "#242 e4efc5a FRED mirror fallback (not needed today: BLS API returned 200)"
+    ],
+    "runs": [
+     "Autonomous QA 38422987426 workflow_run (head f1321c4, includes #236/#239/#240) overall=PASS macro_row=desktop:fresh/mobile:fresh deploy_matches_head=true",
+     "T-1 baseline recorded 2026-10-14T00:07:07Z by recovery run 38487322756 (workflow_dispatch) — market_as_of 2026-10-13, QQQ 743.57, tranche v1.2 neutral; macro step ok in schedule 38490415299 (cpi=pending)",
+     "risk found: Daily log 'CPI refresh failed (HTTP Error 403: Forbidden)' — www.bls.gov blocks GitHub runners → FRED mirror (existing free FRED_API_KEY) added as fallback in this PR",
+     "CPI T: 12:35Z Auto Research schedule had not fired by 13:22Z (GitHub scheduler degraded) → labelled recovery 38571209117 workflow_dispatch 'CPI 10-14 recovery' success → d34889b; recorded 2026-10-14T13:23:17Z from BLS API v1 (http 200, REQUEST_SUCCEEDED, data sha256 a8824236…), release-text cross-check match (http 200, sha256 b9e7ff67…); Sep-2026 CPI headline +0.6% m/m SA, 3.7% y/y; core +0.3% m/m SA, 2.6% y/y; consensus_unavailable → surprise unknown; tranches unchanged (t1 not_met, t2 unknown, t3 not_met, overall neutral); QA 38571742141 workflow_dispatch PASS macro_row fresh head d34889b; homepage renders '美国 9 月 CPI 已公布｜T' (desktop + 390px)"
+    ],
+    "sources": [
+     "BLS calendar https://www.bls.gov/schedule/2026/10_sched.htm: CPI September 2026, Wed Oct 14, 08:30 ET (verified 2026-10-13 15:10Z)",
+     "expectations preregistered 2026-10-13T16:00Z: consensus_unavailable (secondary aggregator + TD reference only)"
+    ]
+   },
+   "acceptance": "after 2026-10-14T12:30Z a real event=schedule run records official BLS values (headline/core m/m SA, y/y NSA) with published_at/captured_at/http/hash, or shows official_result_unavailable/stale/conflict; homepage shows 已公布｜T with real values; surprise stays unknown without a same-measure survey consensus; T..T+10 records carry the exact market as_of; no future PASS claimed today",
+   "next": "T checkpoint record after the 10-14 close (Daily, exact as_of 2026-10-14); T+1/+3/+5/+10 follow; the event itself was captured via a labelled recovery run, not a schedule run",
+   "last_verified": "2026-10-14T13:35Z"
+  },
+  {
    "id": "C-01",
    "title": "Shared footer (sources/copyright, risk disclaimer, correction & contact) + full Chinese policy page + per-item provenance labels",
    "area": "Compliance & UX",
    "priority": 2,
-   "status": "Waiting",
+   "status": "In progress",
    "stages": [
     "instruction_published",
     "claude_acked"
    ],
    "instructions": [
-    "6138128707"
+    "6138128707",
+    "6183848571"
    ],
    "depends_on": [
     "P0-INC-1013"
    ],
    "evidence": {
-    "prs": [],
-    "runs": []
+    "prs": [
+     "c01/site-footer (this PR): shared footer on index.html (+ Daily generator) and brightline-2026.html; docs/legal.html with #sources/#risk/#correction/#changes; tests/test_site_footer.py"
+    ],
+    "runs": [
+     "precondition met: latest Daily event=schedule 38657460138 success (2h30m late) + QA 38666141209 PASS (2026-10-15T01:33Z); local render desktop/390px: 3 links → 200, no overflow, no page errors"
+    ]
    },
-   "waiting_for": "production stability: first successful event=schedule Daily after the P0 (2026-10-13 session) + QA PASS",
    "acceptance": "PR/CI/Pages/QA PASS; desktop + 390px; three links clickable, no 404; homepage gold/DCA layout, feedback email, APP_VERSION 6.9.0 unchanged; no claim of authorization; any non-compliant full-text cache raised separately",
-   "next": "implement once the scheduled Daily is green",
-   "last_verified": "2026-10-13T05:00Z"
+   "next": "merge → Pages + Autonomous QA; then per-item provenance labels on the wenxuecity/source cards (layer 3) as a follow-up PR",
+   "last_verified": "2026-10-15T04:45Z"
   },
   {
    "id": "OPT-01",
@@ -1288,20 +1440,318 @@
     "claude_acked"
    ],
    "instructions": [
-    "6138710630"
+    "6138710630",
+    "6148675138"
    ],
    "depends_on": [],
    "evidence": {
     "prs": [
-     "#232 f4cb166"
+     "#232 f4cb166",
+     "#240 0609e4a v0.2: uniform fees/slippage on all paths+stress, quote_required/model_uncertainty, contracts/multiplier/anon account, same-account CC coverage, private read-path plan (not implemented)"
     ],
     "runs": [
      "author strategy source_pending (original material not accessible); framework + tests merged"
     ]
    },
    "acceptance": "author strategy marked source_pending unless the original material is accessible; MyAlpha independent framework (Delta/DTE/IV/earnings/ex-div/assignment, close-early/hold/roll/assigned paths) with stress scenarios; per-account analysis kept private; no claim of verified win rates; no orders, no threshold changes",
-   "next": "daily option-chain snapshot log (free Alpaca) for out-of-sample evidence; compare with the author's material once accessible",
-   "last_verified": "2026-10-13T06:45Z"
+   "next": "read-path implementation awaits owner approval; author strategy source_pending; Alpaca read-only test 0/5 NOT_EXECUTED_NO_CREDENTIALS",
+   "last_verified": "2026-10-13T15:40Z"
+  },
+  {
+   "id": "SENT-01",
+   "title": "CNN Fear & Greed data access (read-only check; A/B/C conclusion)",
+   "area": "Research tasks",
+   "priority": 3,
+   "status": "Done",
+   "stages": [
+    "instruction_published",
+    "claude_acked"
+   ],
+   "instructions": [
+    "6183889673",
+    "6183911144",
+    "6183923696",
+    "6185055738"
+   ],
+   "depends_on": [],
+   "evidence": {
+    "prs": [],
+    "runs": [
+     "#133 6183968101: A CNN graphdata reachable via Anthropic fetcher (score 44.6 fear, 2026-10-14; 252-point history) but undocumented/unlicensed; B fearandgreedgraph values are not a 0–100 score, no source/licence; recommend C link-out; runner untested",
+     "6185055738: owner keeps CNN official link-out; no integration, no mirrors, no seven-factor redesign — Closed as decision"
+    ]
+   },
+   "acceptance": "owner chooses A/B/C; no development before approval",
+   "next": "none (reopen only with a public licence + runner evidence)",
+   "last_verified": "2026-10-15T05:50Z",
+   "waiting_for": "owner choice of A/B/C (#133 6183968101)"
+  },
+  {
+   "id": "OPS-02",
+   "title": "De-Claude runtime dependency + quota saving (manual trigger, alerts instead of Claude check-ins)",
+   "area": "Operations",
+   "priority": 1,
+   "status": "Done",
+   "stages": [
+    "instruction_published",
+    "claude_acked",
+    "code_merged"
+   ],
+   "instructions": [
+    "6184073352",
+    "6185055738"
+   ],
+   "depends_on": [],
+   "evidence": {
+    "prs": [
+     "#248 8f5073a"
+    ],
+    "runs": [
+     "#133 6184680182 stage-1 audit",
+     "hourly watcher disabled 2026-10-15T05:11Z (6184936851)",
+     "QA 38686774490 workflow_dispatch @8f5073a overall=PASS",
+     "Guardian 38686776436 dry_run+fault injection: decision dispatch, no dispatch sent",
+     "wxc-bot ai_summary switch not changed (owner decision)"
+    ]
+   },
+   "acceptance": "routine runs need no Claude session; give_up alert once per session; weekly summary only on change; Telegram give_up alert not yet observed in production",
+   "next": "observe first real give_up alert / first weekly summary (Sunday 23:40Z)",
+   "last_verified": "2026-10-15T05:50Z"
+  },
+  {
+   "id": "P0-INC-1017",
+   "title": "P0 incident 2026-10-17: Daily contract failed on first real Forward maturity (audit test read wrong key); site stuck at 2026-10-15",
+   "area": "P0 site reliability",
+   "priority": 0,
+   "status": "Done",
+   "stages": [
+    "claude_acked",
+    "code_merged"
+   ],
+   "instructions": [],
+   "depends_on": [],
+   "evidence": {
+    "prs": [
+     "#256 b77cead Forward maturity read from evidence; learning_active only on 20/60/120-session maturity; reconciliation test uses audit definition"
+    ],
+    "runs": [
+     "failed: Daily 38983076111 sched, 38988068685 dispatch; SIV 38990074533; Watchdog 38982529319; QA 38990478264 (stale data)",
+     "recovered: Daily 38995993962 workflow_dispatch success → 6f46ca0 spy_date=2026-10-16; Pages 38996742787; QA 38996746713 PASS; Watchdog 38997053044 PASS"
+    ]
+   },
+   "acceptance": "Daily commits the latest completed session; no assertion removed; recovery dispatch not counted as schedule",
+   "next": "verify the 10/19 21:30Z schedule run",
+   "last_verified": "2026-10-17T03:00Z"
+  },
+  {
+   "id": "J-01",
+   "title": "Stale test_v511_ui_visibility assertions + register in PR validation (Jules)",
+   "area": "Engineering hygiene",
+   "priority": 3,
+   "status": "Done",
+   "stages": [
+    "code_merged"
+   ],
+   "instructions": [],
+   "depends_on": [],
+   "evidence": {
+    "prs": [
+     "#257 test_v511 version-format check, MyAlpha casing, registered in v56-pr-validation"
+    ]
+   },
+   "acceptance": "test runs in CI and passes",
+   "next": "—",
+   "last_verified": "2026-10-17T04:00Z"
+  },
+  {
+   "id": "FE-CAL",
+   "title": "Frontend NYSE holiday / early-close aware session check (before 2026-11-26)",
+   "area": "Options / market UI",
+   "priority": 1,
+   "status": "Done",
+   "stages": [
+    "claude_acked",
+    "code_merged"
+   ],
+   "instructions": [],
+   "depends_on": [],
+   "evidence": {
+    "prs": [
+     "#258 Jules (closed, 2 rounds failed)",
+     "#259 merged: calendar + delegation/fallback + parity tests"
+    ]
+   },
+   "acceptance": "JS/Python closure parity 2026-2028; early close 13:00 ET; fallback when calendar absent; CI green",
+   "next": "verify the next Daily regenerates index.html with trading-calendar.js",
+   "last_verified": "2026-10-17T05:10Z"
+  },
+  {
+   "id": "HYG-01",
+   "title": "Stale test_v500_investment_assistant (APP_VERSION==6.8.2), not run by any workflow",
+   "area": "Engineering hygiene",
+   "priority": 3,
+   "status": "Done",
+   "stages": [
+    "code_merged"
+   ],
+   "instructions": [],
+   "depends_on": [],
+   "evidence": {
+    "prs": [
+     "#262 Jules (task card + AGENTS.md): version-format check, 期权决策台 rename, registered"
+    ]
+   },
+   "acceptance": "version-format check; registered in v56-pr-validation; passes",
+   "next": "—",
+   "last_verified": "2026-10-17T07:30Z"
+  },
+  {
+   "id": "OPS-03",
+   "title": "Agent onboarding AGENTS.md (Jules conventions: generated files, imports, regression commands, Chinese PR text)",
+   "area": "Operations",
+   "priority": 2,
+   "status": "Done",
+   "stages": [
+    "claude_acked",
+    "code_merged"
+   ],
+   "instructions": [],
+   "depends_on": [],
+   "evidence": {
+    "prs": [
+     "#260 AGENTS.md + ledger"
+    ]
+   },
+   "acceptance": "merged; next Jules task follows it",
+   "next": "—",
+   "last_verified": "2026-10-17T05:10Z"
+  },
+  {
+   "id": "COPY-01",
+   "title": "Plain-language copy: conclusion first, technical detail collapsed, no internal jargon",
+   "area": "Site clarity",
+   "priority": 2,
+   "status": "In progress",
+   "stages": [],
+   "instructions": [],
+   "depends_on": [],
+   "evidence": {
+    "prs": [
+     "#263",
+     "#264"
+    ]
+   },
+   "acceptance": "default visible text short; no data/threshold change; owner reviews each page",
+   "next": "agent center done; next: sidebar grouped by task with one-line descriptions, then 市场中心 / 研究中心 / others one PR each",
+   "last_verified": "2026-10-17T09:50Z"
+  },
+  {
+   "id": "MT-01",
+   "title": "MyAlpha 市场温度 (own descriptive 0–100 gauge; not CNN, not a forecast)",
+   "area": "Market state",
+   "priority": 2,
+   "status": "Done",
+   "stages": [
+    "code_merged"
+   ],
+   "instructions": [],
+   "depends_on": [],
+   "evidence": {
+    "prs": [
+     "#265",
+     "#266 v2 percentile vs trailing 252"
+    ]
+   },
+   "acceptance": "≥4/6 components; missing → unavailable; validated=false",
+   "next": "history accumulates daily; after ≥60 sessions test forward 20/60-day usefulness before any use beyond display",
+   "last_verified": "2026-10-17T09:50Z"
+  },
+  {
+   "id": "PC-01",
+   "title": "Put/Call ratio (SPY/QQQ, 5-day) as 7th 市场温度 component",
+   "area": "Market state",
+   "priority": 3,
+   "status": "Waiting",
+   "stages": [],
+   "instructions": [],
+   "depends_on": [],
+   "evidence": {
+    "decision": "#133 6232368503"
+   },
+   "acceptance": "",
+   "next": "gate: several on-time P0-06 PASS → refresh #237 to main, add P/C aggregate, verify one real session's volume completeness (fallback OI); record-only until 252 readings",
+   "last_verified": "2026-10-17T09:50Z",
+   "waiting_for": "several on-time P0-06 schedule PASS, then #237 refresh"
+  },
+  {
+   "id": "UX-02",
+   "title": "Two-week event calendar incl. holdings/watchlist earnings dates",
+   "area": "Risk flagging",
+   "priority": 1,
+   "status": "Not started",
+   "stages": [],
+   "instructions": [],
+   "depends_on": [],
+   "evidence": {},
+   "acceptance": "",
+   "next": "free earnings-date source; ship before 2026-11-05 (IREN earnings)",
+   "last_verified": "2026-10-17T09:50Z"
+  },
+  {
+   "id": "UX-03",
+   "title": "Stock cards in three parts: research lean / trigger conditions / falsification",
+   "area": "Independent judgments",
+   "priority": 2,
+   "status": "Not started",
+   "stages": [],
+   "instructions": [],
+   "depends_on": [],
+   "evidence": {},
+   "acceptance": "",
+   "next": "check thesis data for falsification conditions; never phrased as buy/sell orders",
+   "last_verified": "2026-10-17T09:50Z"
+  },
+  {
+   "id": "UX-04",
+   "title": "Options center reorganised around the sell-put workflow (candidates → manage/roll → expiry review)",
+   "area": "Options",
+   "priority": 3,
+   "status": "Not started",
+   "stages": [],
+   "instructions": [],
+   "depends_on": [],
+   "evidence": {},
+   "acceptance": "",
+   "next": "after UX-02",
+   "last_verified": "2026-10-17T09:50Z"
+  },
+  {
+   "id": "HYG-02",
+   "title": "Four tests not run by any workflow fail on main (brightline_2026_archive, trend_pulse_integrity_v431, research_assistant.test.js, wenxuecity_render.test.js)",
+   "area": "Engineering hygiene",
+   "priority": 3,
+   "status": "Not started",
+   "stages": [],
+   "instructions": [],
+   "depends_on": [],
+   "evidence": {},
+   "acceptance": "",
+   "next": "classify each: stale copy/count → fix + register; real regression → fix code; Jules candidate for the stale ones",
+   "last_verified": "2026-10-17T09:50Z"
+  },
+  {
+   "id": "CAL-02",
+   "title": "Frontend NYSE early closes: add 2027 dates from the official NYSE calendar",
+   "area": "Options / market UI",
+   "priority": 3,
+   "status": "Not started",
+   "stages": [],
+   "instructions": [],
+   "depends_on": [],
+   "evidence": {},
+   "acceptance": "",
+   "next": "due before 2027-01; trading-calendar.js EARLY_CLOSES",
+   "last_verified": "2026-10-17T09:50Z"
   }
  ]
 }

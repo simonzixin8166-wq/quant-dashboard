@@ -150,7 +150,7 @@ def system_trust(now=None):
     age_hours=None if not generated else max(0.0,(now-generated).total_seconds()/3600)
     status_fresh=age_hours is not None and age_hours<=30
     market_fresh=bool(market_as_of) and market_as_of==expected
-    ok=overall in {"ok","running"} and not excluded and status_fresh and market_fresh
+    ok=overall in {"ok","running","degraded"} and not excluded and status_fresh and market_fresh
     return {
         "ok":ok,"overall":overall,"excluded":excluded,"resource_mode":guard,
         "market_as_of":market_as_of or None,"expected_market_date":expected,
@@ -348,7 +348,14 @@ def notify(result, previous=None):
     for a in result["actions"][:8]:
         lines.append(f"- {a['level'].upper()} {a.get('symbol','?')} {a.get('expiry','')}：{a.get('reason','')}")
     if result.get("event_count_48h"):lines.append(f"- 48小时内宏观事件：{result['event_count_48h']} 项")
-    return send_telegram("\n".join(lines),raise_errors=True)
+    # A delivery failure (bad token, Telegram outage) must not stop the sanitized status from being written:
+    # otherwise the published snapshot goes stale and QA fails closed on server_action for a notification problem.
+    # The failure stays visible in the status file's `delivery` field and as an Actions warning.
+    try:
+        return send_telegram("\n".join(lines),raise_errors=True)
+    except Exception as e:
+        print(f"::warning title=Server Action alert not delivered::{type(e).__name__}; status snapshot still written")
+        return f"failed:{type(e).__name__}"
 
 def telegram_configured():
     return bool(os.getenv("MYALPHA_TG_BOT_TOKEN") and os.getenv("MYALPHA_TG_CHAT_ID"))

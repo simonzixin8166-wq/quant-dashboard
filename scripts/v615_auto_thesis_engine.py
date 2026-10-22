@@ -29,7 +29,7 @@ def digest(obj):
     raw=json.dumps(obj,ensure_ascii=False,sort_keys=True).encode()
     return hashlib.sha256(raw).hexdigest()[:16]
 
-ALIASES={"SPCX":["spacex"],"GOOG":["google","alphabet"],"GOOGL":["google","alphabet"],"META":["meta","facebook"],
+ALIASES={"SPCX":["spacex"],"GOOG":["google","alphabet"],"META":["meta","facebook"],
          "AMZN":["amazon"],"TSLA":["tesla"],"NBIS":["nebius"],"CRWV":["coreweave"],"NOW":["servicenow"],"MU":["micron"],
          "INTC":["intel"],"LITE":["lumentum"],"IREN":["iren"],"SOFI":["sofi"],"MSFT":["microsoft"]}
 

@@ -36,3 +36,10 @@ evidence-based research hints on stocks and options. It never changes the owner'
 - Small PRs → CI → merge → production verification; report progress on Issue #133 with PR / SHA /
   Actions run / evidence. Reuse existing pipelines (Daily, research-close, Guardian, QA) before adding new ones.
 - The long-term plan is #133 comment 6107376896 (milestones M1–M4); latest execution orders follow it.
+- Manual trigger only (owner decision #133 6184936851): the hourly #133 instruction watcher is off. A Claude
+  session starts work only when the owner notifies it; nothing polls #133 for instructions on a schedule.
+- No duplicate sessions: after posting an acknowledgement, re-read #133. If an earlier Claude acknowledgement
+  already cites the same instruction id, stop immediately (no PR, no further comments). Before starting, also
+  check open PRs in both repos for in-flight work on the same item.
+- Routine health is watched by Actions, not Claude: Daily Guardian sends one Telegram alert per session when it
+  gives up; the weekly change summary (Learning Quality Weekly) is written/sent only when a field changed.

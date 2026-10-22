@@ -89,7 +89,11 @@ def market_brief(task,learning,evidence,source,data,official=None,events=None):
     support=[];counter=[];unknowns=[]
     priority=sit.get("research_priority")
     stage=sit.get("stage") or tp.get("state")
-    if stage:add_unique(support,f"Trend Pulse / Situation 当前阶段：{stage}")
+    tp_status=((tp.get("data_integrity") or {}).get("status")) if tp else None
+    if stage and tp and tp_status!="PASS" and not sit.get("stage"):
+        # Trend Pulse without dual-source PASS is descriptive only: never counted as supporting evidence (#133 6235584113)
+        add_unique(unknowns,f"Trend Pulse 阶段「{stage}」仅完成有限校验（{tp_status or '未知'}），不计入支持证据")
+    elif stage:add_unique(support,f"Trend Pulse / Situation 当前阶段：{stage}")
     if priority is not None:add_unique(support,f"Learning Engine 研究优先级：{fmt_num(priority,0)}/100")
     hist=sit.get("historical_stage_evidence") or {}
     if hist.get("n60"):add_unique(support,f"相同阶段60日历史样本：{hist.get('n60')}，中位收益 {fmt_pct(hist.get('median60'))}")

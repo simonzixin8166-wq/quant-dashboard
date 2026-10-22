@@ -9,8 +9,9 @@ let source=fs.readFileSync(path.join(base,'wenxuecity.js'),'utf8');
 assert(source.includes('render();load();'));
 source=source.replace('render();load();','globalThis.renderTab=(value)=>{tab=value;render()};render();');
 vm.runInContext(source,context);
-context.renderTab('overview');assert(node('#wxcContent').innerHTML.includes('20篇博客'));
-assert(node('#wxcContent').innerHTML.includes('2篇论坛主贴'));
+// 概览已改版为「先看结论」指标卡（旧的“N篇博客 · N篇论坛主贴”一行不再渲染）；资料总数 = 20 篇博客 + 2 篇论坛主贴，分项数量由下方 blogs/forum 标签页精确断言
+context.renderTab('overview');assert(node('#wxcContent').innerHTML.includes('<span>研究资料</span><b>22</b>'));
+assert(node('#wxcContent').innerHTML.includes('先看结论'));
 context.renderTab('blogs');assert.equal((node('#wxcResults').innerHTML.match(/<article>/g)||[]).length,20);
 assert(node('#wxcResults').innerHTML.includes('Gemini生成'));
 assert(node('#wxcResults').innerHTML.includes('加仓价格档位'));

@@ -68,6 +68,10 @@ with tempfile.TemporaryDirectory() as t:
     q = {x["symbol"]: x["reason"] for x in r["quarantined"]}
     assert q["MU"] == "fallback_basis_mismatch" and q["XLE"] == "fallback_basis_unverified"
     assert "NEWX" in r["missing"] and calls == [["AAPL", "MU", "TQQQ", "XLE"]]
+    # P0-2 (#133 6183848571): fallback diagnostics recorded per requested symbol (request count, returned dates, outcome)
+    fd = r["fallback_diagnostics"]
+    assert fd["requests"] == 1 and fd["requested_symbols"] == 4 and set(fd["per_symbol"]) == {"AAPL", "MU", "TQQQ", "XLE"}
+    assert fd["per_symbol"]["TQQQ"]["outcome"] == "empty_response" and fd["per_symbol"]["AAPL"]["last_complete_date"] == "2026-10-13"
     st2 = lha.read_archive()
     assert st2["AAPL"].index.max() == pd.Timestamp("2026-10-12") and st2["TQQQ"].index.max() == pd.Timestamp("2026-10-09")
     assert st2["MU"].index.max() == pd.Timestamp("2026-10-09") and "NEWX" not in st2
@@ -78,4 +82,13 @@ with tempfile.TemporaryDirectory() as t:
     r3 = lha.append_latest(lha.read_archive(), fetch_fallback=lambda s: {}, expected="2026-10-12")
     assert any(x["symbol"] == "SPY" and x["reason"] == "conflict" for x in r3["quarantined"])
     assert float(lha.read_archive()["SPY"].loc["2026-10-12", "close"]) == 11.0
+# an unfinalised (NaN) last row from Yahoo is visible in diagnostics: raw_last_date > last complete date
+import numpy as np
+idx = pd.to_datetime(["2026-10-12", "2026-10-13"])
+cols = pd.MultiIndex.from_product([["Open", "High", "Low", "Close", "Volume"], ["IWM"]])
+raw = pd.DataFrame([[1, 2, 0.5, 1.5, 10], [np.nan, 2.1, 0.6, 1.6, 0]], index=idx, columns=cols)
+assert lha._raw_last_date(raw, "IWM") == "2026-10-13"
+from source_history_cache import normalize_yf
+assert normalize_yf(raw, "IWM").index.max() == pd.Timestamp("2026-10-12")
+assert lha._raw_last_date(pd.DataFrame(), "IWM") is None
 print("test_ohlcv_merge OK")

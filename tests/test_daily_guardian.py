@@ -48,3 +48,54 @@ assert dg.decide_server(night, "2026-10-09T23:04:00Z", [], "2026-10-08", "2026-1
 assert dg.decide_server(night, "2026-10-09T23:04:00Z", [{"status": "in_progress"}], "2026-10-08", "2026-10-09")["reason"] == "server_watch_running"
 assert dg.decide_server(night, "2026-10-09T23:04:00Z", [], "2026-10-09", "2026-10-09")["action"] == "ok"
 print("PASS server chain")
+
+# give_up → exactly one Telegram alert per session (first guardian run after the 2nd guard Daily finished)
+gu = {"action": "give_up", "expected": "2026-10-09", "market_as_of": "2026-10-08"}
+g1 = {"event": "workflow_dispatch", "display_title": "Daily Dashboard Update · daily-guardian 2026-10-09 #1", "created_at": "2026-10-09T22:00:00Z", "updated_at": "2026-10-09T22:10:00Z"}
+g2 = {**g1, "display_title": "Daily Dashboard Update · daily-guardian 2026-10-09 #2", "created_at": "2026-10-09T23:20:00Z", "updated_at": "2026-10-09T23:31:00Z"}
+cur = {"id": 9, "created_at": "2026-10-10T00:40:00Z"}
+assert dg.should_alert_give_up(gu, [g1, g2], [cur, {"id": 5, "created_at": "2026-10-09T23:20:00Z"}], 9) is True
+assert dg.should_alert_give_up(gu, [g1, g2], [cur, {"id": 8, "created_at": "2026-10-10T00:20:00Z"}], 9) is False   # sibling already alerted
+assert dg.should_alert_give_up({**gu, "action": "dispatch"}, [g1, g2], [cur], 9) is False
+assert dg.should_alert_give_up({**gu, "expected": "2026-10-12"}, [g1, g2], [cur], 9) is False               # other session's dispatches
+msg = dg.give_up_message(gu)
+assert "2026-10-09" in msg and "不回填" in msg and "TOKEN" not in msg
+import os as _os
+_os.environ.pop("MYALPHA_TG_BOT_TOKEN", None)
+assert dg.send_telegram("x") == "not_configured"
+print("PASS give_up alert dedup")
+
+# main() fixture: give_up path in dry run never sends; an API failure on the alert lookup never breaks the guardian
+import io, contextlib, json as _json, os as _o
+calls = {"tg": 0}
+dg.send_telegram = lambda text: calls.__setitem__("tg", calls["tg"] + 1) or "sent"
+_now = datetime.now(timezone.utc)
+_exp = dg.tc.expected_latest_completed_session(_now).isoformat()
+_late = (dg.session_close_utc(dg.tc.expected_latest_completed_session(_now)) + dg.timedelta(minutes=5)).isoformat().replace("+00:00", "Z")
+_g = [{"event": "workflow_dispatch", "status": "completed", "display_title": f"Daily Dashboard Update · daily-guardian {_exp} #{i}",
+       "created_at": _late, "updated_at": _late} for i in (1, 2)]
+def fake_gh(fail_guardian):
+    def _gh(method, path, body=None):
+        assert method == "GET", "fixture must never dispatch"
+        if path.startswith("actions/workflows/daily.yml"):
+            return {"workflow_runs": _g}
+        if path.startswith("actions/workflows/daily-guardian.yml"):
+            if fail_guardian:
+                raise OSError("api down")
+            return {"workflow_runs": []}
+        return {"workflow_runs": []}
+    return _gh
+for fail in (False, True):
+    dg.gh = fake_gh(fail)
+    _o.environ["GUARD_DRY_RUN"] = "1"
+    if _now >= dg.session_close_utc(dg.tc.expected_latest_completed_session(_now)) + dg.timedelta(minutes=dg.GRACE_MIN):
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            _o.environ["GUARD_INJECT_MARKET_AS_OF"] = "2000-01-03"
+            assert dg.main() == 0
+        out = buf.getvalue()
+        assert "DAILY_STILL_STALE" in out and "SERVER_GUARD" in out
+        assert ("GIVE_UP_ALERT skipped" in out) if fail else ("GIVE_UP_ALERT dry_run" in out)
+assert calls["tg"] == 0
+_o.environ.pop("GUARD_INJECT_MARKET_AS_OF", None); _o.environ.pop("GUARD_DRY_RUN", None)
+print("PASS give_up main() dry-run fixture (no send, API failure tolerated)")

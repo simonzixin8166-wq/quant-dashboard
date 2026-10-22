@@ -8,8 +8,9 @@ Rules (no loops, idempotent):
 - ok        : published market_as_of >= expected latest completed NYSE session.
 - wait      : a Daily run is queued / in progress, or the session closed < GRACE minutes ago.
 - dispatch  : stale, nothing running, and the guard has dispatched < MAX_DISPATCH times for this session.
-- give_up   : stale after MAX_DISPATCH guard dispatches → warning annotation, no further dispatch
-              (the gap stays explicit in forward_observation_status; nothing is backfilled).
+- give_up   : stale after MAX_DISPATCH guard dispatches → error annotation, no further dispatch
+              (the gap stays explicit in forward_observation_status; nothing is backfilled), plus ONE
+              Telegram alert per session (owner decision #133 6184936851: alerts replace Claude check-ins).
 """
 from __future__ import annotations
 import json, os, sys, urllib.request
@@ -55,6 +56,42 @@ def decide(now_utc: datetime, market_as_of: str | None, runs: list[dict]) -> dic
     if len(guard) >= MAX_DISPATCH:
         return {"action": "give_up", "reason": f"{len(guard)}_guard_dispatches_without_fresh_data", **base}
     return {"action": "dispatch", "reason": "stale_and_idle", "attempt": len(guard) + 1, **base}
+
+
+def should_alert_give_up(d: dict, daily_runs: list[dict], guardian_runs: list[dict], current_run_id=None) -> bool:
+    """One alert per session, stateless: only the first guardian run after the last guard-dispatched Daily
+    for this session finished alerts; later guardian runs see an earlier sibling and stay silent."""
+    if d.get("action") != "give_up":
+        return False
+    mark = f"{GUARD_MARK} {d.get('expected')}"
+    guard = [r for r in daily_runs if r.get("event") == "workflow_dispatch" and mark in str(r.get("display_title") or "")]
+    if not guard:
+        return False
+    done = max(str(r.get("updated_at") or r.get("created_at") or "") for r in guard)
+    earlier = [r for r in guardian_runs if str(r.get("id")) != str(current_run_id) and str(r.get("created_at") or "") > done]
+    return not earlier
+
+
+def give_up_message(d: dict) -> str:
+    return ("MyAlpha 告警：Daily 数据仍未更新\n"
+            f"- 预期交易日：{d.get('expected')}；已发布 market_as_of：{d.get('market_as_of')}\n"
+            f"- Guardian 已补发 {MAX_DISPATCH} 次仍无新数据，停止自动补发（显式 GAP，不回填）\n"
+            "- 需要人工查看 Actions：Daily Dashboard Update")
+
+
+def send_telegram(text: str) -> str:
+    token, chat = os.getenv("MYALPHA_TG_BOT_TOKEN"), os.getenv("MYALPHA_TG_CHAT_ID")
+    if not token or not chat:
+        return "not_configured"
+    import urllib.parse
+    body = urllib.parse.urlencode({"chat_id": chat, "text": text}).encode()
+    try:
+        with urllib.request.urlopen(urllib.request.Request(f"https://api.telegram.org/bot{token}/sendMessage",
+                                                           data=body, method="POST"), timeout=12) as r:
+            r.read()
+    except Exception as exc:
+        return f"failed:{type(exc).__name__}"
+    return "sent"
 
 
 SERVER_MAX_AGE_MIN = 75
@@ -133,6 +170,18 @@ def main():
         print(f"::warning title=Daily guardian::DAILY_MISSED dispatched Daily for {d['expected']} (attempt {d['attempt']}/{MAX_DISPATCH})")
     elif d["action"] == "give_up":
         print(f"::error title=Daily guardian::DAILY_STILL_STALE {d['expected']} after {MAX_DISPATCH} guard dispatches; explicit GAP, no backfill")
+        try:
+            gruns = (gh("GET", "actions/workflows/daily-guardian.yml/runs?per_page=30") or {}).get("workflow_runs", [])
+        except Exception as exc:  # never let the alert path break the guardian / server check below
+            gruns = None
+            print(f"::warning title=Daily guardian::GIVE_UP_ALERT skipped (guardian runs unavailable: {type(exc).__name__})")
+        if gruns is None:
+            pass
+        elif should_alert_give_up(d, runs, gruns, os.getenv("GITHUB_RUN_ID")):
+            status = "dry_run" if os.getenv("GUARD_DRY_RUN") == "1" else send_telegram(give_up_message(d))
+            print(f"::warning title=Daily guardian::GIVE_UP_ALERT {status}")
+        else:
+            print("::notice title=Daily guardian::GIVE_UP_ALERT already_sent_this_session")
     srv = json.loads((ROOT / "docs" / "research" / "server_action_status.json").read_text(encoding="utf-8"))
     sruns = (gh("GET", "actions/workflows/server-action-watch.yml/runs?per_page=20") or {}).get("workflow_runs", [])
     sd = decide_server(datetime.now(timezone.utc), srv.get("generated_at"), sruns,

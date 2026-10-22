@@ -164,15 +164,25 @@
     return `<tr data-stock-row data-symbol="${esc(symbol)}" data-detail-id="${detailId}" data-status="${status}" data-target-distance="999" data-drawdown="${dd===null?0:Math.abs(dd)}" data-rsi="${rsi===null?999:rsi}" data-dist200="${dist===null?0:dist}" data-pulse="${tpScore===null?-999:tpScore}" data-default-order="${index}"><td class="stock-identity"><div class="stock-name-line"><span class="stock-name">${esc(canonicalDisplayName(symbol,item.display_name))}</span><span class="stock-symbol">${esc(symbol)}</span><button type="button" class="stock-mobile-menu" aria-label="${esc(symbol)} 操作菜单" onclick="StockDecision.openContextMenuForSymbol('${esc(symbol)}', this)">⋯</button></div></td><td data-label="最新价 / 涨跌"><b id="close-${esc(symbol)}">${money(price)}</b><small id="chg-${esc(symbol)}" class="${chg!==null&&chg>=0?'pos-text':'neg-text'}">${pct(chg)}</small></td><td data-label="Trend Pulse">${pulseHtml}</td><td data-label="YTD回撤" class="neg-text fw-bold">${pct(dd)}</td><td data-label="RSI">${rsi===null?'—':rsi.toFixed(2)}</td><td data-label="距200MA" class="${dist!==null&&dist<0?'neg-text':''}">${pct(dist)}</td><td data-label="策略价 / 距离" id="target-cell-${esc(symbol)}"><b id="target-${esc(symbol)}">—</b><small id="target-gap-${esc(symbol)}">等待策略数据</small></td><td data-label="状态"><span id="stock-status-${esc(symbol)}" class="stock-status ${status}">${label}</span><span id="action-${esc(symbol)}"></span></td></tr><tr id="${detailId}" class="stock-detail-row" data-detail-for="${esc(symbol)}" hidden><td colspan="8"><div class="stock-detail-panel"><div><span>当日区间</span><b>开 ${money(q.open)} · 高 ${money(q.high)} · 低 ${money(q.low)}</b></div><div><span>YTD高点</span><b>${money(q.ytdHigh)}</b></div><div><span>完整日线</span><b>${esc(q.dailyAsOf||'等待数据')}</b></div><div><span>Trend Pulse</span><b>${detailPulse}</b></div>${supportVolHtml(symbol)}${researchHtml(symbol,q,tp)}</div></td></tr>`;
   }
 
+  async function updateHeaderStats(){
+    const count=state.items.length;
+    let session=null;
+    try{
+      const res=await supabaseClient.auth.getSession();
+      session=res?.data?.session||null;
+    }catch(_){}
+    const ss=assistantStatus();
+    const thesisText=session?`私有Thesis ${ss.researchCount}/${count}`:`官方/事件证据草稿 ${ss.autoEvidenceCount}/${count} (未登录)`;
+    const chip=document.getElementById('stockCountChip');if(chip)chip.textContent=`${count}只 · ${thesisText}`;
+    const stamp=document.getElementById('stockWatchStatus');
+    if(stamp)stamp.textContent=`${count}只 · ${thesisText} · ${sessionOpen()?'盘中10分钟更新':'休市保留最近报价'} · ${new Date().toLocaleTimeString()}`;
+  }
   function render(){
     const body=document.getElementById('stocksTableBody');if(!body)return;
-    body.innerHTML=state.items.length?state.items.map(rowHtml).join(''):'<tr><td colspan="8" class="stock-watch-empty">观察池为空，点击“新增个股”开始添加。</td></tr>';
+    body.innerHTML=state.items.length?state.items.map(rowHtml).join(''):'<tr><td colspan="8" class="stock-watch-empty">观察池为空，点击“新增个股”开始添加。论点状态：未登录默认展示系统官方/事件证据草稿。</td></tr>';
     global.StockDecision?.sort('priority');
     global.fetchAndRenderTargets?.();
-    const count=state.items.length;
-    const chip=document.getElementById('stockCountChip');if(chip)chip.textContent=`${count}只`;
-    const stamp=document.getElementById('stockWatchStatus');
-    if(stamp)stamp.textContent=`${count}只 · ${sessionOpen()?'普通观察股盘中10分钟更新':'休市保留最近报价'} · 指标${Object.keys(state.daily).length?'按完整收盘日线':'等待日线'} · ${new Date().toLocaleTimeString()}`;
+    updateHeaderStats().catch(()=>{});
     global.MAVProductIntelligence?.render?.();
   }
   async function load(){

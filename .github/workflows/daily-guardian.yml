@@ -49,6 +49,8 @@ jobs:
       - name: Evaluate and (if needed) dispatch Daily
         env:
           GITHUB_TOKEN: ${{ github.token }}
+          MYALPHA_TG_BOT_TOKEN: ${{ secrets.MYALPHA_TG_BOT_TOKEN }}
+          MYALPHA_TG_CHAT_ID: ${{ secrets.MYALPHA_TG_CHAT_ID }}
           GUARD_DRY_RUN: ${{ inputs.dry_run && '1' || '0' }}
           GUARD_INJECT_MARKET_AS_OF: ${{ inputs.inject_market_as_of }}
         run: python scripts/daily_guardian.py

@@ -9,6 +9,8 @@
   let providerMarketState = null;
 
   function isUsRegularSession(now = new Date()) {
+    const cal = (typeof window !== 'undefined' ? window : globalThis).MAVTradingCalendar;
+    if (cal && typeof cal.isUsRegularSession === 'function') return cal.isUsRegularSession(now);
     const parts = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', weekday: 'short', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).formatToParts(now);
     const values = Object.fromEntries(parts.map(part => [part.type, part.value]));
     const minute = Number(values.hour) * 60 + Number(values.minute);
@@ -19,12 +21,19 @@
     const parts = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', weekday: 'short', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).formatToParts(now);
     const values = Object.fromEntries(parts.map(part => [part.type, part.value]));
     if (['Sat', 'Sun'].includes(values.weekday)) return 'weekend';
+    const cal = (typeof window !== 'undefined' ? window : globalThis).MAVTradingCalendar;
+    if (cal && typeof cal.isNyseHoliday === 'function') {
+      const ymd = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York', year: 'numeric', month: '2-digit', day: '2-digit' }).format(now);
+      if (cal.isNyseHoliday(ymd)) return 'holiday';
+    }
     const minute = Number(values.hour) * 60 + Number(values.minute);
-    return minute >= 570 && minute < 960 ? 'regular-window' : 'off-hours';
+    if (minute >= 570 && minute < 960) return isUsRegularSession(now) ? 'regular-window' : 'off-hours';
+    return 'off-hours';
   }
   function nextDelay(now = new Date()) {
     const phase = usSessionPhase(now);
     if (phase === 'weekend') return null;
+    if (phase === 'holiday') return null;
     if (phase === 'regular-window' && providerMarketState && providerMarketState !== 'REGULAR') return 2 * 60 * 60 * 1000;
     return phase === 'regular-window' ? 5 * 60 * 1000 : 30 * 60 * 1000;
   }
@@ -110,7 +119,7 @@
       const asOf = document.getElementById('usLiveAsOf');
       const providerTimes = [body.exact?.spx?.updated, body.exact?.ixic?.updated, body.exact?.vix?.updated].map(Number).filter(Number.isFinite);
       const providerStamp = providerTimes.length ? new Date(Math.max(...providerTimes) * 1000).toLocaleString() : '时间未知';
-      const marketLabel = providerMarketState === 'REGULAR' ? '常规交易时段' : (usSessionPhase() === 'weekend' ? '周末休市' : '当前休市');
+      const marketLabel = providerMarketState === 'REGULAR' ? '常规交易时段' : (usSessionPhase() === 'weekend' ? '周末休市' : (usSessionPhase() === 'holiday' ? '美股假日休市' : '当前休市'));
       if (asOf) asOf.textContent = `美股行情时点: ${providerStamp}${body.stale ? '（缓存）' : ''} | ${marketLabel} | 宽度: 上一完整收盘日`;
       globalThis.MAVInvestmentAssistant?.updateFromMarket?.(body);
       globalThis.MAVInvestActions?.updateFromMarket?.(body);

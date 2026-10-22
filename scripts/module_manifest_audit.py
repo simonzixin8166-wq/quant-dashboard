@@ -48,6 +48,8 @@ ROLES = {  # reader → (role, reason)
     "v615_auto_thesis_engine.py": (R, "thesis drafts from official + event evidence"),
     "cross_asset_divergence_engine.py": (R, "market-state research from FRED macro"),
     "breadth_intelligence_engine.py": (R, "breadth research state"),
+    "turning_point_checklist.py": (V, "TP-01 external-author turning-point observation list (#133 6235323449; validated=false, not a decision input)"),
+    "market_temperature.py": (V, "descriptive 0–100 market temperature from breadth + cross-asset (#133 2026-10-17; not a decision input)"),
     "regime_combination_memory.py": (R, "joint cross-asset + breadth state"),
     "options_opportunity_context.py": (R, "ranks option-inspection universe from support/volatility research"),
     "range_intelligence.py": (R, "market-location research from playbook state"),
@@ -92,6 +94,9 @@ ROLES = {  # reader → (role, reason)
     "weekly_research_report.py": (M, "weekly auto-research report"), "auto_research_digest.py": (V, "homepage row digest"),
     "sec_fact_reconcile.py": (M, "SEC reconciliation audit"), "sec_facts_v2.py": (M, "B4-02 unified SEC Shadow fetcher (reads CIKs; no consumer)"), "author_claim_contamination_audit.py": (M, "author-claim gate impact audit + quarantine"), "p1_readiness_audit.py": (M, "B1/B2 readiness quality audit"), "symbol_registry.py": (M, "D-04 universes + missing-history manifest"), "module_manifest_audit.py": (M, "this audit"),
     "v615_forward_intake_health.py": (M, "forward-intake integrity guard (reads validator timestamp only)"),
+    "ohlcv_completeness_audit.py": (M, "P0-2 per-symbol OHLCV completeness evidence (read-only audit, no decisions)"),
+    "sec_v2_migration_audit.py": (M, "B4-03 pre-migration attribution audit (read-only; no consumer migrated)"),
+    "weekly_change_summary.py": (M, "weekly fixed-field change summary; written/sent only on change (ops, no decisions)"),
     "update_fred_macro.py": (R, "FRED/ALFRED macro collector"),
 }
 PRODUCER_OVERRIDE = {
@@ -102,6 +107,7 @@ PRODUCER_OVERRIDE = {
     "trend_pulse_backtest.json": "backtest_trend_pulse.py", "auto_research_status.json": "daily_research_job.py",
     "historical_journal.json": "local_history_agent.py", "playbook_status.json": "playbook_engine.py",
     "system_status.json": "system_status_center.py",
+    "market_temperature_history.json": "market_temperature.py",  # written via HIST, not an OUT_VARS name
 }
 OUT_VARS = re.compile(r'^\s*(OUT|OUTPUT|PUBLIC|PUBLIC_OUT|STATUS_OUT|ANCHOR_OUT|AUTHOR_SIGNALS_OUT|HISTORY|STATUS)\s*=\s*(.+)$')
 LEARNING_KIND = re.compile(r"(outcome|memory|feedback|replay|scorecard|attribution|validation|lifecycle|self_improvement|challenger|policy|candidate_|backtest|learning_engine|historical_journal)")
@@ -288,8 +294,24 @@ def experience_citation():
     src = (ROOT / "scripts" / "daily_research_job.py").read_text(encoding="utf-8")
     reads_memory = [k for k in ("method_memory", "learning_engine", "evidence_attribution", "regime_combination_memory",
                                 "market_state_outcome_scorecards", "macro_outcome_memory", "research_execution") if k in src]
+    # B1/B2 (#133 6185390674): does a research OUTPUT (not only an audit) surface the stored experience?
+    dsrc = (ROOT / "scripts" / "auto_research_digest.py").read_text(encoding="utf-8")
+    dig = ROOT / "docs" / "research" / "auto_research_digest.json"
+    try:
+        dj = json.loads(dig.read_text(encoding="utf-8"))
+    except Exception:
+        dj = {}
+    surfaced = [i for i in dj.get("items") or [] if isinstance(i.get("experience_basis"), dict)]
+    output = {"consumer": "scripts/auto_research_digest.py → docs/research/auto_research_digest.json items[].experience_basis (homepage research row detail)",
+              "code_reads_experience": "experience_basis" in dsrc,
+              "digest_generated_at": dj.get("generated_at"),
+              "digest_items_with_basis": len(surfaced),
+              "digest_items_status_used": sum(1 for i in surfaced if i["experience_basis"].get("status") == "used"),
+              "status": ("research_output_consumer" if surfaced else "code_wired_awaiting_production_digest") if "experience_basis" in dsrc else "audit_only",
+              "used_in_decision": False}
     return {"auto_research_records": len(sh), "records_citing_past_cases": len(cites),
             "daily_research_job_reads_memory_artifacts": reads_memory,
+            "research_output": output,
             "status": "wired" if cites else "not yet wired",
             "note": "the V6 planner/executor (research_execution.json) does use situation/method/regime memory for priorities and briefs, "
                     "but those briefs are not the append-only, revisited, maturity-scored automatic research journal; the two are not connected"}
@@ -321,7 +343,7 @@ def markdown(rep):
              f"- Promoted forward (separate group): {t['promoted_forward_separate_group']['observations']} observations over {len(t['promoted_forward_separate_group']['sessions'])} sessions, earliest maturity {t['promoted_forward_separate_group']['earliest_20_session_maturity']}",
              f"- Auto Research Shadow: {t['auto_research_shadow']['hypothesis_records']} hypothesis records ({t['auto_research_shadow']['distinct_symbol_sessions']} symbol-sessions), earliest maturity {t['auto_research_shadow']['earliest_maturity']}, forward_eligible=false", "",
              "## Does new research cite past experience?", "",
-             f"**{e['status']}** — {e['records_citing_past_cases']}/{e['auto_research_records']} automatic research records cite a past case; daily_research_job reads memory artifacts: {e['daily_research_job_reads_memory_artifacts'] or 'none'}. {e['note']}.", "",
+             f"**{e['status']}** — {e['records_citing_past_cases']}/{e['auto_research_records']} automatic research records cite a past case; daily_research_job reads memory artifacts: {e['daily_research_job_reads_memory_artifacts'] or 'none'}. {e['note']}." f"Research output consumer: **{e['research_output']['status']}** ({e['research_output']['digest_items_with_basis']} digest items carry experience_basis, {e['research_output']['digest_items_status_used']} with status used; used_in_decision=false).", "",
              "## Artifacts", "", "| artifact | producer (scheduled) | research / decision | learning | monitor / display | reaches research | flags |", "|---|---|---|---|---|---|---|"]
     for a in rep["artifacts"]:
         c = a["consumers"]

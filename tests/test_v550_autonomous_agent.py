@@ -85,7 +85,7 @@ assert "自主研究规划 · 研究计划" in agent_js
 assert "Shadow Brain · 自我优化" in agent_js
 assert "research/research_planner.json" in agent_js
 assert "research/self_improvement.json" in agent_js
-assert "MYALPHA AUTONOMOUS AGENT · V6.9" in agent_js
+assert "MYALPHA 自主研究 · 今日要点" in agent_js
 assert "Build Autonomous Research Planner" in workflow
 assert "Build Self-Improvement Shadow Engine" in workflow
 

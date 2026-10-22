@@ -22,7 +22,7 @@ import brightline_tranche_shadow as bl  # noqa: E402
 
 ET = ZoneInfo("America/New_York")
 OUT = ROOT / "docs" / "research" / "macro_event_watch.json"
-ANALYSIS_URL = "https://github.com/simonzixin8166-wq/quant-dashboard/blob/main/research/shadow_theses/brightline_8524_analysis_zh.md"
+ANALYSIS_URL = "https://github.com/simonzixin8166-wq/quant-dashboard/blob/main/research/shadow_theses/brightline_8524_analysis_full_zh.md"
 ARTICLE_URL = "https://blog.wenxuecity.com/myblog/82458/202610/8524.html"
 CLOSE = time(16, 15)  # conservative close-confirmation buffer used across MyAlpha
 
@@ -36,6 +36,20 @@ def windows(ev):
     return {"t_minus_1_start": et_utc(cp["T-1"]), "event_day_start": et_utc(cp["T"]), "release": ev["release"]["utc"],
             "t_plus": {k: et_utc(cp[k], CLOSE) for k in ("T", "T+1", "T+3", "T+5", "T+10")},
             "archive_after": et_utc(tc.add_sessions(date.fromisoformat(cp["T+10"]), 1), CLOSE)}
+
+
+def outcome_public(ev):
+    """Compact public view of a recorded official outcome (values + provenance; no third-party text)."""
+    o = ev.get("official_outcome") or {}
+    src = o.get("official_source") or {}
+    return {"recorded_at": ev["official_outcome_recorded_at"], "summary": ev.get("summary"), "values": o.get("values"),
+            "surprise": ev.get("surprise", "unknown"), "consensus_status": o.get("consensus_status"),
+            "surprise_measure": o.get("surprise_measure"), "surprise_diff_pp": o.get("surprise_diff_pp"),
+            "reference_expectation_diffs": [{k: d.get(k) for k in ("measure", "kind", "label", "expected", "official", "diff_pp")}
+                                            for d in o.get("reference_expectation_diffs") or []],
+            "published_at": src.get("published_at"), "captured_at": src.get("captured_at"), "source": src.get("api"),
+            "release_text": src.get("release_text"), "data_sha256": src.get("data_sha256"),
+            "cross_check": (o.get("cross_check") or {}).get("result")}
 
 
 def pct(x):
@@ -82,8 +96,9 @@ def build(now=None):
         events.append({"key": key, "name_zh": ev["name_zh"], "importance": ev.get("importance"),
                        "release": ev["release"], "time_status": ev["time_status"], "official_source": ev["official_source"],
                        "checkpoints": ev["checkpoints"], "windows": windows(ev),
-                       "official_outcome": ({"recorded_at": ev["official_outcome_recorded_at"], "summary": ev.get("summary")}
-                                            if ev.get("official_outcome_recorded_at") else None)})
+                       "outcome_status": ev.get("outcome_status") or ("recorded" if ev.get("official_outcome_recorded_at") else "pending"),
+                       "outcome_status_detail": ev.get("outcome_status_detail"),
+                       "official_outcome": (outcome_public(ev) if ev.get("official_outcome_recorded_at") else None)})
     freshness = {
         "market_as_of": market_as_of, "expected_session": expected,
         "market_status": "fresh" if market_as_of == expected else ("stale" if market_as_of and market_as_of < expected else "unknown"),
@@ -103,7 +118,8 @@ def build(now=None):
         "tranche_state": {k: v["state"] for k, v in st["tranches"].items()},
         "rules_version": st["rules_version"], "freshness": freshness, "events": events,
         "source": {"author": "BrightLine", "title": "别和美联储作对，但底已经不远了", "url": ARTICLE_URL, "analysis_url": ANALYSIS_URL,
-                   "reading_basis": "owner outline + 360-char excerpt; MyAlpha did not read the full text (partial)",
+                   "reading_basis": "full text verified 2026-10-13 (owner-uploaded HTML, 50 paragraphs, sha256 bd834014…); full text not stored",
+                   "analysis_full_url": "https://github.com/simonzixin8166-wq/quant-dashboard/blob/main/research/shadow_theses/brightline_8524_analysis_full_zh.md",
                    "author_forecast": "约三周内见底 — 可证伪预测，不是事实、买点或收益承诺"},
         "production_use": False, "used_in_decision": False, "automatic_orders": False,
     }

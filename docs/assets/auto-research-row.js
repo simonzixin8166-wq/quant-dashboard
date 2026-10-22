@@ -46,6 +46,32 @@
     }).join('');
   }
 
+  function pct(v) { return v == null ? '-' : (v * 100).toFixed(1) + '%'; }
+
+  // B1/B2 (#133 6185390674): historical experience stored in the record — informational only, never part of the judgment.
+  function expHtml(eb) {
+    if (!eb) return '';
+    var head = '<h4>历史经验与可靠性依据 <small class="arr-muted">（Shadow · 仅供参考 · 不参与判断）</small></h4>';
+    if (eb.status === 'unavailable') return head + '<p class="arr-meta arr-muted">unavailable：' + esc(eb.why || '该记录生成时尚无历史经验字段') + '</p>';
+    var p = eb.precedents || {}, ea = eb.error_attribution || {}, rows = [];
+    rows.push('<li>相似历史情境：' + (p.n ? esc(p.n) + ' 例（支持 ' + esc(p.supports) + ' / 冲突 ' + esc(p.conflicts) +
+      '，60 日中位回报 ' + pct(p.median_return_60) + '，均为已成熟窗口）' : '无可用先例') + '</li>');
+    rows.push('<li>本标的过去错误归因：' + (ea.symbol_cases_n ? esc(ea.symbol_cases_n) + ' 例 · ' +
+      esc(Object.keys(ea.tags || {}).join('、')) + '（市场数据推断的假设，非因果）' : '无') + '</li>');
+    var rel = eb.historical_reliability;
+    if (Array.isArray(rel)) {
+      rel.forEach(function (r) {
+        rows.push('<li>财报后历史表现（' + esc(r.bucket || '') + '）：本标的 n=' + esc(r.symbol_n_20 == null ? '-' : r.symbol_n_20) +
+          '，合并样本 n=' + esc(r.pooled_n_20 == null ? '-' : r.pooled_n_20) + '，20 日上涨比例 ' + pct(r.pooled_positive_rate_20) +
+          (r.strength === 'descriptive' ? ' · <em class="arr-flag">样本 n&lt;' + esc(r.min_n) + '，仅描述性</em>' : '') + '</li>');
+      });
+    } else {
+      rows.push('<li>财报后历史表现：unavailable</li>');
+    }
+    return head + '<ul class="arr-exp">' + rows.join('') + '</ul><p class="arr-meta arr-muted">证据 ' + esc(eb.evidence_id) +
+      ' · 交易日 ' + esc(eb.session) + ' · 状态 ' + esc(eb.status) + ' · used_in_decision=false</p>';
+  }
+
   function itemHtml(it) {
     var notes = (it.annotations || []).map(function (a) { return '<li>' + esc(a.note) + '</li>'; }).join('');
     return '<details class="arr-item"><summary><b>' + esc(it.symbol) + '</b> <span class="arr-stance st-' + esc(it.stance) + '">' +
@@ -59,6 +85,7 @@
       '<h4>失效条件</h4><ul>' + (it.invalidation || []).map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>' +
       '<p class="arr-meta">下次复核 ' + esc(it.next_review || '-') + ' · 输入来源：' + esc((it.inputs || []).join(', ')) +
       (it.unknowns && it.unknowns.length ? ' · 未知项：' + esc(it.unknowns.join('；')) : '') + '</p>' +
+      expHtml(it.experience_basis) +
       (notes ? '<h4>追加注释</h4><ul class="arr-notes">' + notes + '</ul>' : '') +
       '<p class="arr-meta">' + esc(it.research_hint || '') + '</p></div></details>';
   }

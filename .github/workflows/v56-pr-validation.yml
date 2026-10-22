@@ -46,6 +46,7 @@ jobs:
           node --check docs/assets/auto-research-row.js
           node tests/auto_research_row.test.js
           node --check docs/assets/stock-positions.js
+          node tests/pr254_round2_contracts.test.js
       - name: V6.11 investment watch regression
         run: |
           python tests/test_investment_watch_engine.py
@@ -53,6 +54,7 @@ jobs:
           python tests/test_feed_integrity_consumer.py
           python tests/test_forward_journal_audit.py
           python tests/test_daily_guardian.py
+          python tests/test_daily_commit_staging.py
           python tests/test_forward_observation_engine.py
           python tests/test_forward_evidence_forensics.py
           python tests/test_forward_rule_equivalence.py
@@ -66,9 +68,15 @@ jobs:
           python tests/test_sec_fact_reconcile.py
           python tests/test_sec_facts_v2.py
           python tests/test_brightline_tranche_shadow.py
+          python tests/test_brightline_2026_archive.py
+          python tests/test_trend_pulse_integrity_v431.py
           python tests/test_option_management_shadow.py
           python tests/test_option_chain_snapshot.py
           python tests/test_macro_event_watch.py
+          python tests/test_macro_official_outcomes.py
+          python tests/test_site_footer.py
+          python tests/test_reu_lost_update_guard.py
+          python tests/test_bl8524_full_text_record.py
           node tests/macro_event_row.test.js
           python tests/test_module_manifest_audit.py
           python tests/test_author_claim_gate.py
@@ -77,7 +85,12 @@ jobs:
           python tests/test_master_plan.py
           python tests/test_stooq_pack_validate.py
           python tests/test_symbol_registry.py
+          python tests/test_symbol_canonical_goog.py
           python tests/test_ohlcv_merge.py
+          python tests/test_weekly_change_summary.py
+          python tests/test_sec_v2_migration_audit.py
+          python tests/test_sec_v2_period_layers.py
+          python tests/test_bootstrap_vix_refresh.py
           python tests/test_stooq_pack_import.py
           python tests/test_experimental_claims_isolated.py
           python tests/test_fear_greed_boundary.py
@@ -99,6 +112,20 @@ jobs:
       - name: Core learning regression contracts
         run: |
           python tests/test_v510_autonomous_assistant.py
+          python tests/test_v511_ui_visibility.py
+          python tests/test_v500_investment_assistant.py
+          python tests/test_trading_calendar_parity.py
+          python tests/test_market_temperature.py
+          python tests/test_turning_point_checklist.py
+          python tests/test_forward_scoring_contract.py
+          node tests/market_temperature.test.js
+          node tests/research_assistant.test.js
+          node tests/wenxuecity_render.test.js
+          python tests/test_compact_layout.py
+          python tests/test_system_status_matrix.py
+          python tests/test_flat_theme.py
+          node tests/option_chain_breakeven.test.js
+          node tests/edge_owner_guard.test.js
           python tests/test_v520_decision_journal.py
           python tests/test_v530_local_history_agent.py
           python tests/test_v540_learning_engine_core.py
@@ -141,6 +168,7 @@ jobs:
           python tests/test_v6145_source_rule_lifecycle.py
           python tests/test_v6146_source_reading_semantics.py
           python tests/test_v6147_source_reading_ui.py
+          python tests/test_pr254_round2_validation.py
       - name: V6.10b stabilization / research-only contract
         run: |
           python -m py_compile scripts/range_intelligence.py scripts/private_guardrail.py

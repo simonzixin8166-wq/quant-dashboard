@@ -48,6 +48,6 @@ assert "Math.min(1,1-capture)" in agent
 
 css=(ROOT/"docs/assets/options-v2.css").read_text(encoding="utf-8")
 assert "grid-template-columns:1fr 1fr" in css
-assert "height:54px" in css
+assert "min-height:42px" in css
 
 print("PASS V5.6 data integrity + Remaining Edge semantics + UI alignment")

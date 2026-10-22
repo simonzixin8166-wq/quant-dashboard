@@ -54,8 +54,13 @@ jobs:
         run: python -m compileall -q scripts
 
       - name: Update official FOMC and CPI calendar
+        id: market_events_calendar
         continue-on-error: true
         run: python scripts/update_market_events.py
+
+      - name: Record market_events_calendar failure (visible in system status)
+        if: steps.market_events_calendar.outcome == 'failure'
+        run: python scripts/module_failure_marker.py market_events_calendar
 
       - name: Fetch prices and build site
         env:
@@ -65,9 +70,14 @@ jobs:
         run: python scripts/fetch_and_build.py
 
       - name: Server forward observations (append-only, independent of browser visits)
+        id: forward_observations
         # Never blocks the market update; an append-only violation leaves the ledger untouched and is annotated.
         continue-on-error: true
         run: python scripts/forward_observation_engine.py
+
+      - name: Record forward_observations failure (visible in system status)
+        if: steps.forward_observations.outcome == 'failure'
+        run: python scripts/module_failure_marker.py forward_observations
 
       - name: Bootstrap / refresh Replay history dependencies
         id: replay_history_bootstrap
@@ -151,14 +161,24 @@ jobs:
         run: python scripts/module_failure_marker.py market_location_research
 
       - name: Update FRED point-in-time macro context
+        id: fred_macro
         continue-on-error: true
         env:
           FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
         run: python scripts/update_fred_macro.py
 
+      - name: Record fred_macro failure (visible in system status)
+        if: steps.fred_macro.outcome == 'failure'
+        run: python scripts/module_failure_marker.py fred_macro
+
       - name: SEC XBRL fundamentals for automatic research (official, free; failures → unavailable)
+        id: sec_xbrl_fundamentals
         continue-on-error: true
         run: python scripts/sec_fundamentals.py
+
+      - name: Record sec_xbrl_fundamentals failure (visible in system status)
+        if: steps.sec_xbrl_fundamentals.outcome == 'failure'
+        run: python scripts/module_failure_marker.py sec_xbrl_fundamentals
 
       - name: MyAlpha automatic research (shadow; ingestion → evidence → analysis → shadow-write → revisit)
         id: auto_research
@@ -184,6 +204,49 @@ jobs:
 
       - name: Build V6.8 Breadth Intelligence
         run: python scripts/breadth_intelligence_engine.py
+
+      # 市场温度 (#133 2026-10-17): MyAlpha's own descriptive 0–100 reading from existing data; append-only daily
+      # history for later validation. Descriptive only — never blocks the website, never feeds decisions.
+      - name: Market temperature (descriptive)
+        id: market_temperature
+        continue-on-error: true
+        run: python scripts/market_temperature.py
+
+      # P0-A / H-02 (#133 6148675138): official event outcomes (BLS, free, after release only) → BrightLine
+      # tranche Shadow → homepage macro-event row. Shadow-only; a failure is recorded and never blocks the website.
+
+      - name: Record market_temperature failure (visible in system status)
+        if: steps.market_temperature.outcome == 'failure'
+        run: python scripts/module_failure_marker.py market_temperature
+
+      # TP-01 变盘信号清单 (#133 6235323449 / 6307417998): an external author's four turning-point conditions,
+      # tracked as an observation list (validated=false, production_use=false). Append-only daily state; one Telegram
+      # only when ≥3 conditions newly hold. Never blocks the website, never changes thresholds or positions.
+      - name: Turning-point checklist (observation)
+        id: turning_point_checklist
+        continue-on-error: true
+        env:
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+          MYALPHA_TG_BOT_TOKEN: ${{ secrets.MYALPHA_TG_BOT_TOKEN }}
+          MYALPHA_TG_CHAT_ID: ${{ secrets.MYALPHA_TG_CHAT_ID }}
+        run: python scripts/turning_point_checklist.py
+
+      - name: Record turning_point_checklist failure (visible in system status)
+        if: steps.turning_point_checklist.outcome == 'failure'
+        run: python scripts/module_failure_marker.py turning_point_checklist
+      - name: Macro event outcomes + tranche Shadow + homepage event row (Shadow)
+        id: macro_event_watch
+        continue-on-error: true
+        env:
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+        run: |
+          python scripts/macro_official_outcomes.py
+          python scripts/brightline_tranche_shadow.py
+          python scripts/macro_event_watch.py
+
+      - name: Record macro event watch failure
+        if: steps.macro_event_watch.outcome == 'failure'
+        run: python scripts/module_failure_marker.py macro_event_watch
 
       - name: Build V6.8 Regime Combination Memory
         run: python scripts/regime_combination_memory.py
@@ -328,13 +391,23 @@ jobs:
         run: python scripts/data_learning_coverage_audit.py
 
       - name: Build five-engine learning funnel contract (P3-12)
+        id: learning_funnel_contract
         # Diagnostic measurement only; never blocks the dashboard publish.
         continue-on-error: true
         run: python scripts/learning_funnel_contract.py
 
+      - name: Record learning_funnel_contract failure (visible in system status)
+        if: steps.learning_funnel_contract.outcome == 'failure'
+        run: python scripts/module_failure_marker.py learning_funnel_contract
+
       - name: Validate assistant market alert rules
+        id: assistant_alert_rules
         continue-on-error: true
         run: python scripts/backtest_assistant_rules.py --period 5y --skip-if-no-new-data
+
+      - name: Record assistant_alert_rules failure (visible in system status)
+        if: steps.assistant_alert_rules.outcome == 'failure'
+        run: python scripts/module_failure_marker.py assistant_alert_rules
 
       - name: Generate immutable build manifest
         run: python scripts/generate_build_manifest.py
@@ -452,6 +525,17 @@ jobs:
           if [ -f research/archive/operational_incidents.jsonl ]; then git add research/archive/operational_incidents.jsonl; fi
           if [ -f data/history/source_validation_history.zip ]; then git add data/history/source_validation_history.zip; fi
           if [ -f research/state/feed_id_ledger.json ]; then git add research/state/feed_id_ledger.json; fi
+          git add research/macro_events/ || true
+          # P0 (#133 6205646800): bootstrap_replay_history appends the VIX/price restatement provenance here (#245);
+          # it was never staged, so `git pull --rebase` refused to run ("unstaged changes") from 2026-10-15 13:21Z on.
+          if [ -f data/history/corrections.jsonl ]; then git add data/history/corrections.jsonl; fi
+          # Fail loudly with the exact file names instead of git's generic message; nothing is discarded or reset.
+          UNSTAGED="$(git diff --name-only)"
+          if [ -n "$UNSTAGED" ]; then
+            echo "::error title=Daily commit::tracked files modified by this run but not staged: $(echo $UNSTAGED | tr '\n' ' ')"
+            git diff --stat
+            exit 1
+          fi
           git commit -m "Daily update $(date -u +%Y-%m-%d)" || echo "No changes"
           git pull --rebase origin main
           git push origin HEAD:main

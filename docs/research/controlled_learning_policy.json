@@ -1,6 +1,6 @@
 {
   "version": "6.13.2",
-  "generated_at": "2026-10-13T03:55:13.298300+00:00",
+  "generated_at": "2026-10-22T00:13:05.798866+00:00",
   "mode": "controlled_research_only",
   "production_mutation": false,
   "automatic_orders": false,
@@ -8,8 +8,8 @@
   "task_kind_priority_delta": {},
   "playbook_validation_priority_bonus": {
     "CP-01": 7,
-    "CP-02": 7,
-    "CP-03": 7
+    "CP-02": 5,
+    "CP-03": 5
   },
   "replay_evidence": {
     "CP-01": {
@@ -19,13 +19,13 @@
       "provenance": "historical_replay_post_rule_design"
     },
     "CP-02": {
-      "effective_n": 560,
-      "alignment20_effective_weighted": 0.5322903332096054,
+      "effective_n": 561,
+      "alignment20_effective_weighted": 0.5314836120776286,
       "state": "replay_mixed",
       "provenance": "historical_replay_post_rule_design"
     },
     "CP-03": {
-      "effective_n": 225,
+      "effective_n": 227,
       "alignment20_effective_weighted": 0.6028829577678204,
       "state": "replay_supportive",
       "provenance": "historical_replay_post_rule_design"
@@ -33,9 +33,15 @@
   },
   "forward_evidence": {
     "CP-02": {
-      "mature5": 0,
-      "aligned5_rate": null,
-      "state": "forward_unproven",
+      "mature5": 2,
+      "aligned5_rate": 0.0,
+      "state": "forward_early",
+      "provenance": "forward_out_of_sample"
+    },
+    "CP-03": {
+      "mature5": 1,
+      "aligned5_rate": 0.0,
+      "state": "forward_early",
       "provenance": "forward_out_of_sample"
     }
   },
@@ -108,20 +114,21 @@
   "forward_learning_feedback": {
     "mode": "shadow_research_only",
     "counts": {
-      "playbooks": 1,
+      "playbooks": 2,
       "challenger_candidates": 0,
       "forward_mature20": 0,
       "forward_mature60": 0,
       "attribution_reviews": 0
     },
     "playbook_states": {
-      "CP-02": "forward_unproven"
+      "CP-02": "forward_early",
+      "CP-03": "forward_early"
     },
     "challenger_candidates": [],
     "automatic_promotion": false
   },
   "change_log": {
-    "previous_generated_at": "2026-10-10T01:13:02.988089+00:00",
+    "previous_generated_at": "2026-10-21T22:08:38.829026+00:00",
     "recomputed_from_current_evidence": true,
     "cumulative_same_day_learning": false,
     "rollback": "delete/ignore controlled_learning_policy.json to return all controlled deltas to zero"

@@ -1,0 +1,106 @@
+{
+ "version": 3,
+ "method": "each component = percentile of today vs its trailing 252 readings; fixed linear scale (labelled) until 252 readings exist; inputs > 2 sessions behind the market date are excluded; composite rounded to an integer",
+ "reference_date": "2026-10-21",
+ "max_lag_sessions": 2,
+ "fixed_scale_components": 3,
+ "validation_plan": "docs/development/market_temperature_validation.md",
+ "generated_at": "2026-10-22T00:12:58Z",
+ "as_of": "2026-10-21",
+ "score": 37,
+ "label": "恐惧",
+ "components_available": 6,
+ "components_total": 6,
+ "components": [
+  {
+   "key": "momentum",
+   "name": "价格动量",
+   "status": "ok",
+   "score": 21.0,
+   "method": "percentile_252",
+   "raw": 0.026227,
+   "value": 0.0262,
+   "as_of": "2026-10-21",
+   "source": "archive SPY close vs 125-session average",
+   "lag_sessions": 0
+  },
+  {
+   "key": "strength",
+   "name": "股价强度",
+   "status": "ok",
+   "score": 75.1,
+   "method": "fixed_scale",
+   "raw": 0.0501,
+   "value": {
+    "new_high": 0.0561,
+    "new_low": 0.006
+   },
+   "as_of": "2026-10-21",
+   "source": "breadth_intelligence (S&P 500 net 52-week highs)",
+   "lag_sessions": 0
+  },
+  {
+   "key": "breadth",
+   "name": "市场宽度",
+   "status": "ok",
+   "score": 55.5,
+   "method": "fixed_scale",
+   "raw": 0.55511,
+   "value": 0.5551,
+   "as_of": "2026-10-21",
+   "source": "breadth_intelligence (S&P 500 above 50-day MA)",
+   "lag_sessions": 0
+  },
+  {
+   "key": "volatility",
+   "name": "波动率",
+   "status": "ok",
+   "score": 30.6,
+   "method": "percentile_252",
+   "raw": 0.059505,
+   "value": {
+    "vix": 16.68,
+    "vs_ma50": 0.0595
+   },
+   "as_of": "2026-10-21",
+   "source": "archive VIX vs 50-session average",
+   "lag_sessions": 0
+  },
+  {
+   "key": "safe_haven",
+   "name": "避险需求",
+   "status": "ok",
+   "score": 41.3,
+   "method": "percentile_252",
+   "raw": 0.009611,
+   "value": 0.0096,
+   "as_of": "2026-10-21",
+   "source": "archive SPY vs TLT 20-session return",
+   "lag_sessions": 0
+  },
+  {
+   "key": "credit",
+   "name": "信用风险",
+   "status": "ok",
+   "score": 0.0,
+   "method": "fixed_scale",
+   "raw": 0.65,
+   "value": {
+    "hy_oas": 3.33,
+    "chg20_pp": 0.65
+   },
+   "as_of": "2026-10-20",
+   "source": "FRED ICE BofA US High Yield OAS (via cross_asset_divergence)",
+   "lag_sessions": 1
+  }
+ ],
+ "status": "ok",
+ "validated": false,
+ "note": "MyAlpha 自建的描述性指标，不是 CNN 恐惧与贪婪指数，也不是预测；积累历史后再检验其对 20/60 日走势的参考价值。",
+ "cnn_link": "https://www.cnn.com/markets/fear-and-greed",
+ "decision": "#133 2026-10-17 owner-approved; SENT-01 CNN stays link-out only",
+ "change_vs": {
+  "as_of": "2026-10-16",
+  "delta": 5
+ }
+}

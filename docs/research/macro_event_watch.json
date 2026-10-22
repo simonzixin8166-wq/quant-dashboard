@@ -1,6 +1,6 @@
 {
  "version": 1,
- "generated_at": "2026-10-13T05:38:05Z",
+ "generated_at": "2026-10-22T05:15:31Z",
  "next_scheduled_refresh": "with each Daily Dashboard Update (≈21:30Z / 08:15Z weekdays); event phases update client-side from the clock",
  "stale_after_hours": 36,
  "judgment": {
@@ -12,17 +12,17 @@
   {
    "tranche": 1,
    "state": "not_met",
-   "text": "利率未回落（10Y 5.22% 截至 2026-10-08，作者阈值 5%），第一批条件尚未达成｜暂不追价"
+   "text": "利率未回落（10Y 5.15% 截至 2026-10-19，作者阈值 5%），第一批条件尚未达成｜暂不追价"
   },
   {
    "tranche": 2,
    "state": "unknown",
-   "text": "宽度与确认条件未齐（站上 MA200 51.9%；10Y 未持续低于 5%；12 月 FOMC 未到）｜第二批继续观察"
+   "text": "宽度与确认条件未齐（站上 MA200 55.9%；10Y 未持续低于 5%；12 月 FOMC 未到）｜第二批继续观察"
   },
   {
    "tranche": 3,
    "state": "not_met",
-   "text": "核心标的未到既定档位（QQQM 回撤 2.2%/t1 12.0%、VGT 回撤 3.2%/t1 15.0%）｜不触发"
+   "text": "核心标的未到既定档位（QQQM 回撤 4.9%/t1 12.0%、VGT 回撤 6.4%/t1 15.0%）｜不触发"
   }
  ],
  "risk_off": {
@@ -31,17 +31,17 @@
    {
     "name": "cpi_well_above_expectations",
     "status": "unknown",
-    "rule": "author: CPI 显著高于预期 → 前两批等待"
+    "rule": "author (p46): CPI 爆表 → 前两批继续等"
    },
    {
     "name": "fomc_october_surprise_hike",
     "status": "unknown",
-    "rule": "author: 10 月 FOMC 意外加息 → 前两批等待"
+    "rule": "author (p46): 10 月底意外加息 → 前两批继续等"
    },
    {
     "name": "y10_above_author_risk_line",
     "status": "unmet",
-    "rule": "author: 10Y 突破 5.35% → 前两批等待"
+    "rule": "author (p46): 10 年期突破 5.35% → 前两批继续等"
    }
   ]
  },
@@ -50,13 +50,13 @@
   "2_breadth_confirmation": "unknown",
   "3_price_levels": "not_met"
  },
- "rules_version": "bl8524-tranche-v1",
+ "rules_version": "bl8524-tranche-v1.2",
  "freshness": {
-  "market_as_of": "2026-10-12",
-  "expected_session": "2026-10-12",
+  "market_as_of": "2026-10-21",
+  "expected_session": "2026-10-21",
   "market_status": "fresh",
-  "y10_as_of": "2026-10-08",
-  "breadth_as_of": "2026-10-12",
+  "y10_as_of": "2026-10-19",
+  "breadth_as_of": "2026-10-21",
   "data_stale": false
  },
  "events": [
@@ -94,7 +94,61 @@
     },
     "archive_after": "2026-10-29T20:15:00Z"
    },
-   "official_outcome": null
+   "outcome_status": "recorded",
+   "outcome_status_detail": null,
+   "official_outcome": {
+    "recorded_at": "2026-10-14T13:23:17Z",
+    "summary": "2026年9月 CPI：整体环比 +0.6%（季调）、同比 3.7%；核心环比 +0.3%、同比 2.6%（BLS 官方）｜无可靠共识预期，不判定偏软/偏热",
+    "values": {
+     "reference_month": "2026-09",
+     "headline_mom_sa": 0.6,
+     "core_mom_sa": 0.3,
+     "headline_yoy_nsa": 3.7,
+     "core_yoy_nsa": 2.6,
+     "index": {
+      "headline_sa": 336.298,
+      "core_sa": 338.896,
+      "headline_nsa": 336.94,
+      "core_nsa": 339.287
+     }
+    },
+    "surprise": "unknown",
+    "consensus_status": "consensus_unavailable",
+    "surprise_measure": null,
+    "surprise_diff_pp": null,
+    "reference_expectation_diffs": [
+     {
+      "measure": "headline_yoy_nsa",
+      "kind": "secondary_aggregator",
+      "label": "Street consensus (attributed to Nowflation, as of 2026-10-06)",
+      "expected": 3.7,
+      "official": 3.7,
+      "diff_pp": 0.0
+     },
+     {
+      "measure": "core_mom_sa",
+      "kind": "single_forecaster",
+      "label": "TD Securities",
+      "expected": 0.2,
+      "official": 0.3,
+      "diff_pp": 0.1
+     },
+     {
+      "measure": "core_yoy_nsa",
+      "kind": "single_forecaster",
+      "label": "TD Securities",
+      "expected": 2.4,
+      "official": 2.6,
+      "diff_pp": 0.2
+     }
+    ],
+    "published_at": "2026-10-14T12:30:00Z",
+    "captured_at": "2026-10-14T13:23:17Z",
+    "source": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
+    "release_text": "https://www.bls.gov/news.release/cpi.nr0.htm",
+    "data_sha256": "a8824236b9548eab867320164b3481e06c9f6541836bbcc6a4667df70e089d45",
+    "cross_check": "match"
+   }
   },
   {
    "key": "fomc_2026_10",
@@ -130,6 +184,8 @@
     },
     "archive_after": "2026-11-12T21:15:00Z"
    },
+   "outcome_status": "pending",
+   "outcome_status_detail": null,
    "official_outcome": null
   },
   {
@@ -166,6 +222,8 @@
     },
     "archive_after": "2026-11-17T21:15:00Z"
    },
+   "outcome_status": "pending",
+   "outcome_status_detail": null,
    "official_outcome": null
   },
   {
@@ -202,6 +260,8 @@
     },
     "archive_after": "2026-11-18T21:15:00Z"
    },
+   "outcome_status": "pending",
+   "outcome_status_detail": null,
    "official_outcome": null
   },
   {
@@ -238,6 +298,8 @@
     },
     "archive_after": "2026-11-19T21:15:00Z"
    },
+   "outcome_status": "pending",
+   "outcome_status_detail": null,
    "official_outcome": null
   },
   {
@@ -274,6 +336,8 @@
     },
     "archive_after": "2026-12-24T21:15:00Z"
    },
+   "outcome_status": "pending",
+   "outcome_status_detail": null,
    "official_outcome": null
   }
  ],
@@ -281,8 +345,9 @@
   "author": "BrightLine",
   "title": "别和美联储作对，但底已经不远了",
   "url": "https://blog.wenxuecity.com/myblog/82458/202610/8524.html",
-  "analysis_url": "https://github.com/simonzixin8166-wq/quant-dashboard/blob/main/research/shadow_theses/brightline_8524_analysis_zh.md",
-  "reading_basis": "owner outline + 360-char excerpt; MyAlpha did not read the full text (partial)",
+  "analysis_url": "https://github.com/simonzixin8166-wq/quant-dashboard/blob/main/research/shadow_theses/brightline_8524_analysis_full_zh.md",
+  "reading_basis": "full text verified 2026-10-13 (owner-uploaded HTML, 50 paragraphs, sha256 bd834014…); full text not stored",
+  "analysis_full_url": "https://github.com/simonzixin8166-wq/quant-dashboard/blob/main/research/shadow_theses/brightline_8524_analysis_full_zh.md",
   "author_forecast": "约三周内见底 — 可证伪预测，不是事实、买点或收益承诺"
  },
  "production_use": false,

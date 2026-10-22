@@ -1,10 +1,10 @@
 {
   "version": "2.3",
-  "generated_at": "2026-10-13T05:42:24.889991+00:00",
+  "generated_at": "2026-10-22T03:36:30.978359+00:00",
   "principle": "Collection success is not learning success. Permanent storage and learning inputs must not be record-count capped; only per-run processing and UI presentation may be bounded.",
   "counts": {
-    "learning_active": 4,
-    "partial_learning": 11,
+    "learning_active": 7,
+    "partial_learning": 8,
     "context_only": 1
   },
   "domains": [
@@ -22,8 +22,8 @@
       ],
       "evidence": {
         "symbols": 41,
-        "events": 8120,
-        "mature_60": 7699
+        "events": 8090,
+        "mature_60": 7659
       },
       "downstream_reused": true,
       "reused_by": [
@@ -31,7 +31,9 @@
         "learning_engine_core.py",
         "learning_evaluation_engine.py",
         "module_manifest_audit.py",
-        "playbook_engine.py"
+        "ohlcv_completeness_audit.py",
+        "playbook_engine.py",
+        "weekly_change_summary.py"
       ]
     },
     {
@@ -48,23 +50,23 @@
         "Historical video archive is intentionally non-gating; this is a governance boundary, not a missing-learning error."
       ],
       "evidence": {
-        "source_records": 1809,
-        "source_reading_records": 1816,
-        "persistent_source_records": 1816,
+        "source_records": 2270,
+        "source_reading_records": 2277,
+        "persistent_source_records": 2277,
         "backlog": 0,
         "collector_coverage_complete": true,
         "collector_semantic_complete": false,
         "collector": {
           "version": 2,
-          "generated_at": "2026-10-13T03:14:35.405185+00:00",
+          "generated_at": "2026-10-22T00:57:06.603971+00:00",
           "complete": true,
           "coverage_complete": true,
           "semantic_learning_complete": false,
           "forum": {
             "complete": true,
             "continuity_proven": true,
-            "anchor_id": "114891",
-            "previous_anchor_id": "114868",
+            "anchor_id": "116646",
+            "previous_anchor_id": "116553",
             "status": "complete"
           },
           "blogs": {
@@ -74,24 +76,24 @@
                 "complete": true,
                 "scan_complete": true,
                 "missing_from_feed": 0,
-                "unique_article_ids": 12,
-                "feed_present_urls": 12,
+                "unique_article_ids": 13,
+                "feed_present_urls": 13,
                 "archive_failures": []
               },
               "yifan99": {
                 "complete": true,
                 "scan_complete": true,
                 "missing_from_feed": 0,
-                "unique_article_ids": 8,
-                "feed_present_urls": 8,
+                "unique_article_ids": 1,
+                "feed_present_urls": 1,
                 "archive_failures": []
               },
               "麻你": {
                 "complete": true,
                 "scan_complete": true,
                 "missing_from_feed": 0,
-                "unique_article_ids": 3,
-                "feed_present_urls": 3,
+                "unique_article_ids": 2,
+                "feed_present_urls": 2,
                 "archive_failures": []
               }
             }
@@ -102,15 +104,15 @@
             "semantic_learning_complete": false,
             "discovery_complete": true,
             "accounting_balanced": true,
-            "seen": 175,
+            "seen": 186,
             "feed_records": 24,
             "historical_archive_records": 23,
             "historical_semantic_learned": 6,
-            "pending": 100,
-            "historical_backlog": 50,
+            "pending": 109,
+            "historical_backlog": 52,
             "unaccounted": 0,
             "unaccounted_video_ids": [],
-            "unresolved_semantic": 150,
+            "unresolved_semantic": 161,
             "status": "ok"
           },
           "guardrails": [
@@ -120,8 +122,8 @@
           ],
           "fetch_status": "ok"
         },
-        "testable_rules": 51,
-        "eligible_triggered_events": 53
+        "testable_rules": 59,
+        "eligible_triggered_events": 78
       },
       "downstream_reused": true,
       "reused_by": [
@@ -149,11 +151,11 @@
         "Canonical SEC filing archive now preserves filing evidence, but full filing-to-thesis/outcome reuse remains partial."
       ],
       "evidence": {
-        "symbols": 12,
-        "filings": 33,
-        "archive_total": 58,
-        "linked_direct_events": 30,
-        "mature_20": 24
+        "symbols": 3,
+        "filings": 9,
+        "archive_total": 66,
+        "linked_direct_events": 8,
+        "mature_20": 7
       },
       "downstream_reused": true,
       "reused_by": [
@@ -177,25 +179,25 @@
       "learning_status": "learning_active",
       "gaps": [],
       "evidence": {
-        "symbols": 11,
-        "archive_total": 10416,
+        "symbols": 3,
+        "archive_total": 524,
         "archive_added": 0,
-        "filing_observations": 772,
-        "mature_outcomes": 1526,
+        "filing_observations": 861,
+        "mature_outcomes": 1706,
         "horizons": {
           "20": {
-            "n": 771,
-            "avg_return_pct": 1.9702415862506295,
-            "positive_rate": 0.5499351491569391,
-            "avg_mae_pct": -7.8063255813206265,
-            "avg_mfe_pct": 10.288550220080575
+            "n": 860,
+            "avg_return_pct": 2.0354893897790536,
+            "positive_rate": 0.5534883720930233,
+            "avg_mae_pct": -7.708302315631899,
+            "avg_mfe_pct": 10.153198616746124
           },
           "60": {
-            "n": 755,
-            "avg_return_pct": 10.299148141332626,
-            "positive_rate": 0.6556291390728477,
-            "avg_mae_pct": -12.167847019637298,
-            "avg_mfe_pct": 22.925352396291945
+            "n": 846,
+            "avg_return_pct": 9.850481811776149,
+            "positive_rate": 0.648936170212766,
+            "avg_mae_pct": -12.049690473635021,
+            "avg_mfe_pct": 22.469292222064567
           }
         }
       },
@@ -215,21 +217,21 @@
       "learning_status": "learning_active",
       "gaps": [],
       "evidence": {
-        "symbols": 16,
-        "news_items": 78,
-        "archive_total": 805,
+        "symbols": 4,
+        "news_items": 20,
+        "archive_total": 1527,
         "event_window_rows": 20,
-        "mature_outcomes": 4,
+        "mature_outcomes": 1093,
         "benchmark": "SPY",
         "horizons": {
           "5": {
-            "n": 3,
-            "avg_excess_return_pct": 0.16506248355679562,
-            "positive_excess_rate": 0.6666666666666666
+            "n": 1090,
+            "avg_excess_return_pct": -4.616540793734864,
+            "positive_excess_rate": 0.19908256880733946
           },
           "20": {
-            "n": 1,
-            "avg_excess_return_pct": -1.576919687303624,
+            "n": 3,
+            "avg_excess_return_pct": -5.116851855004815,
             "positive_excess_rate": 0.0
           },
           "60": {
@@ -250,18 +252,16 @@
       "persistent_history": "point_in_time_context_plus_macro_regime_outcome_memory",
       "structured_analysis": true,
       "reusable_memory": true,
-      "outcome_feedback": false,
+      "outcome_feedback": true,
       "decision_context": true,
-      "learning_status": "partial_learning",
-      "gaps": [
-        "Point-in-time macro regime observations are retained; waiting for future 5/20/60-session outcomes to mature."
-      ],
+      "learning_status": "learning_active",
+      "gaps": [],
       "evidence": {
         "version": "5.4.0",
         "series": 15,
-        "observations": 5,
-        "outcomes": 0,
-        "scorecards": 0
+        "observations": 16,
+        "outcomes": 8,
+        "scorecards": 4
       },
       "downstream_reused": true,
       "reused_by": [
@@ -279,11 +279,11 @@
       "learning_status": "learning_active",
       "gaps": [],
       "evidence": {
-        "cross_asset_history": 8,
-        "breadth_history": 6,
-        "regime_history": 7,
-        "outcomes": 7,
-        "scorecards": 3
+        "cross_asset_history": 15,
+        "breadth_history": 13,
+        "regime_history": 14,
+        "outcomes": 27,
+        "scorecards": 12
       },
       "downstream_reused": true,
       "reused_by": [
@@ -311,7 +311,7 @@
           "NVDA",
           "TSLA"
         ],
-        "observations": 24,
+        "observations": 66,
         "mature20": 0,
         "garch_mae_pct_points": null
       },
@@ -324,9 +324,9 @@
       "persistent_history": "current_context_plus_append_only_research_outcomes_plus_private_positions",
       "structured_analysis": true,
       "reusable_memory": true,
-      "outcome_feedback": false,
+      "outcome_feedback": true,
       "decision_context": true,
-      "learning_status": "partial_learning",
+      "learning_status": "learning_active",
       "gaps": [
         "Research scan/reject/no-trade snapshots now retain underlying 5D/20D outcomes. True option PnL/assignment learning still requires private executed-position outcomes and live-chain fields such as IV rank/skew/term structure."
       ],
@@ -339,10 +339,10 @@
           "NVDA",
           "TSLA"
         ],
-        "research_observations": 24,
-        "research_matured": 0,
+        "research_observations": 66,
+        "research_matured": 36,
         "private_observations": 1,
-        "private_mature_outcomes": 0
+        "private_mature_outcomes": 1
       },
       "downstream_reused": true,
       "reused_by": [
@@ -362,9 +362,9 @@
         "Thesis revisions are now retained by evidence-hash change; outcome attribution and evidence-delta effectiveness are still partial."
       ],
       "evidence": {
-        "symbols": 18,
-        "revision_rows": 250,
-        "linked_direct_events": 30
+        "symbols": 4,
+        "revision_rows": 348,
+        "linked_direct_events": 8
       },
       "downstream_reused": false,
       "reused_by": []
@@ -408,20 +408,22 @@
       "persistent_history": "private_forward_ledger_plus_local_replay",
       "structured_analysis": true,
       "reusable_memory": true,
-      "outcome_feedback": false,
+      "outcome_feedback": true,
       "decision_context": true,
       "learning_status": "partial_learning",
       "gaps": [
-        "Pipeline exists, but Learning Active requires at least one real mature Forward outcome."
+        "Pipeline exists, but Learning Active requires at least one real Forward outcome matured at 20/60/120 NYSE sessions (5-session outcomes are recorded, not counted as verified experience)."
       ],
       "evidence": {
         "mode": "silent_forward",
         "forward_clock_active": true,
         "mature_total": {
-          "5": 0,
+          "5": 3,
           "20": 0,
           "60": 0
-        }
+        },
+        "mature_any": 3,
+        "mature_verified_20_60_120": 0
       },
       "downstream_reused": true,
       "reused_by": [
@@ -437,18 +439,18 @@
       "reusable_memory": true,
       "outcome_feedback": true,
       "decision_context": true,
-      "learning_status": "partial_learning",
-      "gaps": [
-        "Outcomes exist but no research/decision component reads them yet (L6 reuse missing); outcome count alone is not learning."
-      ],
+      "learning_status": "learning_active",
+      "gaps": [],
       "evidence": {
         "overall": "ok",
-        "open_incidents": 0,
-        "resolved_total": 12,
+        "open_incidents": 1,
+        "resolved_total": 26,
         "self_improvement_version": "7.2.1"
       },
-      "downstream_reused": false,
-      "reused_by": []
+      "downstream_reused": true,
+      "reused_by": [
+        "weekly_change_summary.py"
+      ]
     },
     {
       "domain": "regional_cn_hk_learning",
@@ -516,24 +518,10 @@
       ]
     },
     {
-      "domain": "macro_fred_alfred",
-      "status": "partial_learning",
-      "gaps": [
-        "Point-in-time macro regime observations are retained; waiting for future 5/20/60-session outcomes to mature."
-      ]
-    },
-    {
       "domain": "support_resistance_volatility",
       "status": "partial_learning",
       "gaps": [
         "Dated Support/GARCH observations are now retained; waiting for real 20-session outcomes to mature."
-      ]
-    },
-    {
-      "domain": "options_opportunity",
-      "status": "partial_learning",
-      "gaps": [
-        "Research scan/reject/no-trade snapshots now retain underlying 5D/20D outcomes. True option PnL/assignment learning still requires private executed-position outcomes and live-chain fields such as IV rank/skew/term structure."
       ]
     },
     {
@@ -554,14 +542,7 @@
       "domain": "production_playbook_forward_replay",
       "status": "partial_learning",
       "gaps": [
-        "Pipeline exists, but Learning Active requires at least one real mature Forward outcome."
-      ]
-    },
-    {
-      "domain": "operational_system_learning",
-      "status": "partial_learning",
-      "gaps": [
-        "Outcomes exist but no research/decision component reads them yet (L6 reuse missing); outcome count alone is not learning."
+        "Pipeline exists, but Learning Active requires at least one real Forward outcome matured at 20/60/120 NYSE sessions (5-session outcomes are recorded, not counted as verified experience)."
       ]
     },
     {
@@ -588,15 +569,15 @@
   ],
   "reconciliation": {
     "upstream_collector_known": true,
-    "youtube_seen": 175,
+    "youtube_seen": 186,
     "youtube_text_admitted": 30,
     "youtube_semantically_learned": null,
     "youtube_semantic_note": "not inferred from admission; see wxc-bot state/youtube_learning_reconciliation.json",
-    "youtube_semantic_backlog": 150,
-    "captured": 1809,
-    "canonical": 1816,
-    "processed": 1816,
-    "text_enriched": 1816,
+    "youtube_semantic_backlog": 161,
+    "captured": 2270,
+    "canonical": 2277,
+    "processed": 2277,
+    "text_enriched": 2277,
     "source_offline": 0,
     "backlog": 0,
     "errors": 0,

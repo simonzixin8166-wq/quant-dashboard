@@ -86,3 +86,17 @@ GitHub 仓库 Settings → Secrets and variables → Actions 中增加：
 - `SUPABASE_PROJECT_REF`：当前项目 ref，本项目为 `rhielbkvhgqbthcgztci`。
 
 然后运行 `Deploy Supabase Functions` Action。日常数据仍运行 `Daily Dashboard Update`；两者职责不同。
+
+
+## OFI-A1 只读窗口查询（2026-10-13，#133 阶段 A）
+
+`options-market` 新增两个只读 action，只用于每日收盘快照存档，原有行为不变：
+
+- `action=oi_window&symbol=X&expiration_lte=YYYY-MM-DD[&strike_gte=..&strike_lte=..]`
+  - 来源：`/v2/options/contracts`；
+  - 返回 openInterest 与 openInterestDate（通常是前一交易日）、closePrice。
+- `action=chain_window&symbol=X&expiration_lte=YYYY-MM-DD[&strike_gte=..&strike_lte=..]`
+  - 来源：`/v1beta1/options/snapshots`，feed=indicative；
+  - 不区分 call/put，一次返回窗口内全部合约。
+
+两个 action 的缓存均为 10 分钟。说明：Edge 实际缓存为 quote 60 秒、chain 10 分钟、expirations 1 小时，本文档前文写的"15 秒"已过时。

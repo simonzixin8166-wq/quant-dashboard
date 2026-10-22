@@ -208,6 +208,88 @@ async function optionChain(symbol: string, expiration: string, side: string, hea
   return normalizeSnapshots(snapshots, spot);
 }
 
+// OFI-A1 (#133, owner-approved stage A): read-only window queries used by the daily closing snapshot.
+// Additive actions; existing expirations/chain/quote behaviour is unchanged.
+async function contractsWindow(symbol: string, expLte: string, strikeGte: number | null, strikeLte: number | null, headers: Record<string, string>) {
+  const today = isoDateInNewYork();
+  const candidates = [
+    Deno.env.get('ALPACA_TRADING_BASE_URL'),
+    'https://paper-api.alpaca.markets',
+    'https://api.alpaca.markets'
+  ].filter((value, index, all): value is string => Boolean(value) && all.indexOf(value) === index);
+  let lastError: unknown = null;
+  for (const base of candidates) {
+    try {
+      const rows: Record<string, unknown>[] = [];
+      let pageToken = '';
+      let pages = 0;
+      for (; pages < 3; pages++) {
+        const url = new URL('/v2/options/contracts', base);
+        url.searchParams.set('underlying_symbols', symbol);
+        url.searchParams.set('status', 'active');
+        url.searchParams.set('expiration_date_gte', today);
+        url.searchParams.set('expiration_date_lte', expLte);
+        if (strikeGte !== null) url.searchParams.set('strike_price_gte', String(strikeGte));
+        if (strikeLte !== null) url.searchParams.set('strike_price_lte', String(strikeLte));
+        url.searchParams.set('limit', '10000');
+        if (pageToken) url.searchParams.set('page_token', pageToken);
+        const raw = await fetchAlpaca(url.toString(), headers);
+        for (const c of raw.option_contracts || []) {
+          rows.push({
+            optionSymbol: c.symbol ?? null,
+            expiration: c.expiration_date ?? null,
+            strike: finiteOrNull(c.strike_price),
+            side: c.type ?? null,
+            multiplier: finiteOrNull(c.multiplier ?? c.size),
+            openInterest: finiteOrNull(c.open_interest),
+            openInterestDate: c.open_interest_date ?? null,
+            closePrice: finiteOrNull(c.close_price),
+            closePriceDate: c.close_price_date ?? null
+          });
+        }
+        pageToken = raw.next_page_token || '';
+        if (!pageToken) break;
+      }
+      const keys = ['optionSymbol', 'expiration', 'strike', 'side', 'multiplier', 'openInterest', 'openInterestDate', 'closePrice', 'closePriceDate'];
+      const out: Record<string, unknown> = {
+        s: 'ok', provider: PROVIDER, source: 'alpaca_trading_v2_options_contracts', truncated: Boolean(pageToken),
+        pages: pages + (pageToken ? 0 : 1), receivedAt: new Date().toISOString()
+      };
+      keys.forEach((key) => { out[key] = rows.map((row) => row[key] ?? null); });
+      return out;
+    } catch (error) {
+      lastError = error;
+      const status = (error as Error & { status?: number }).status;
+      if (status !== 401 && status !== 403) break;
+    }
+  }
+  throw lastError || new Error('Alpaca没有返回合约');
+}
+
+async function chainWindow(symbol: string, expLte: string, strikeGte: number | null, strikeLte: number | null, headers: Record<string, string>) {
+  let pageToken = '';
+  let pages = 0;
+  const snapshots: Record<string, AlpacaSnapshot> = {};
+  for (; pages < 5; pages++) {
+    const url = new URL(`${DATA_BASE}/v1beta1/options/snapshots/${encodeURIComponent(symbol)}`);
+    url.searchParams.set('feed', FEED);
+    url.searchParams.set('expiration_date_lte', expLte);
+    if (strikeGte !== null) url.searchParams.set('strike_price_gte', String(strikeGte));
+    if (strikeLte !== null) url.searchParams.set('strike_price_lte', String(strikeLte));
+    url.searchParams.set('limit', '1000');
+    if (pageToken) url.searchParams.set('page_token', pageToken);
+    const raw = await fetchAlpaca(url.toString(), headers);
+    Object.assign(snapshots, raw.snapshots || {});
+    pageToken = raw.next_page_token || '';
+    if (!pageToken) break;
+  }
+  const spot = await stockPrice(symbol, headers);
+  const out = normalizeSnapshots(snapshots, spot);
+  out.truncated = Boolean(pageToken);
+  out.pages = pages + (pageToken ? 0 : 1);
+  return out;
+}
+
 async function optionQuote(optionSymbol: string, headers: Record<string, string>) {
   const parts = occParts(optionSymbol);
   if (!parts) throw Object.assign(new Error('期权代码格式无效'), { status: 400 });
@@ -275,6 +357,13 @@ serve(async (req: Request) => {
   const symbol = clean(requestUrl.searchParams.get('symbol')?.toUpperCase() || null, /^[A-Z0-9.\-]{1,12}$/);
   const expiration = clean(requestUrl.searchParams.get('expiration'), /^\d{4}-\d{2}-\d{2}$/);
   const side = clean(requestUrl.searchParams.get('side'), /^(call|put)$/);
+  const expLte = clean(requestUrl.searchParams.get('expiration_lte'), /^\d{4}-\d{2}-\d{2}$/);
+  const strikeNum = (name: string) => {
+    const raw = clean(requestUrl.searchParams.get(name), /^\d{1,6}(\.\d{1,3})?$/);
+    return raw === null ? null : Number(raw);
+  };
+  const strikeGte = strikeNum('strike_gte');
+  const strikeLte = strikeNum('strike_lte');
   const optionSymbol = clean(
     requestUrl.searchParams.get('optionSymbol')?.toUpperCase() || null,
     /^[A-Z0-9.\-]{1,12}\d{6}[CP]\d{8}$/
@@ -284,7 +373,8 @@ serve(async (req: Request) => {
     !(
       (action === 'expirations' && symbol) ||
       (action === 'chain' && symbol && expiration && side) ||
-      (action === 'quote' && optionSymbol)
+      (action === 'quote' && optionSymbol) ||
+      ((action === 'oi_window' || action === 'chain_window') && symbol && expLte)
     )
   ) {
     return jsonResponse({ error: '无效或缺失的查询参数' }, 400);
@@ -292,7 +382,7 @@ serve(async (req: Request) => {
 
   const cacheKey = requestUrl.search;
   const hit = memoryCache.get(cacheKey);
-  const ttl = action === 'quote' ? 60_000 : action === 'chain' ? 600_000 : 3_600_000;
+  const ttl = action === 'quote' ? 60_000 : (action === 'chain' || action === 'chain_window' || action === 'oi_window') ? 600_000 : 3_600_000;
   if (hit && Date.now() - hit.at < ttl) {
     return new Response(hit.body, { status: hit.status, headers: { ...jsonHeaders, 'X-Cache': 'HIT' } });
   }
@@ -307,6 +397,8 @@ serve(async (req: Request) => {
     let result: unknown;
     if (action === 'expirations') result = await listExpirations(symbol!, alpacaHeaders);
     else if (action === 'chain') result = await optionChain(symbol!, expiration!, side!, alpacaHeaders);
+    else if (action === 'oi_window') result = await contractsWindow(symbol!, expLte!, strikeGte, strikeLte, alpacaHeaders);
+    else if (action === 'chain_window') result = await chainWindow(symbol!, expLte!, strikeGte, strikeLte, alpacaHeaders);
     else result = await optionQuote(optionSymbol!, alpacaHeaders);
 
     const body = JSON.stringify(result);

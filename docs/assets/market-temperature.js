@@ -119,6 +119,21 @@
     return `<section class="ao-card${a.hit ? ' ao-on' : ''}" aria-label="加仓分档提示"><div class="ao-head"><span class="mt-k">加仓分档</span><b>${esc(head)}</b><small>${esc(confirmText)}</small></div><ul>${items}</ul><p>沿用现有正式加仓线（距历史最高收盘回撤）；一/二/三级分别对应加 1/2/3 倍月定投，QLD 只补回目标权重。数据截至 ${esc(a.as_of || '—')}。只是提示，由你人工决定和下单。</p></section>`;
   }
 
+  // TP-01 变盘信号清单 (#133 6235323449 / 6307417998; backend #282): result only — conclusion, what to do, four
+  // statuses with one value and date each; thresholds stay in the JSON (page principle 6290421775).
+  const TP_STATUS = { met: ['满足', 'tp-ok'], near: ['接近', 'tp-near'], not_met: ['未满足', 'tp-no'], waiting: ['等待中', 'tp-no'], unavailable: ['不可用', 'tp-na'] };
+
+  function tpHtml(d) {
+    if (!d || !d.summary || !Array.isArray(d.items)) {
+      return '<section class="tp-card tp-empty" aria-label="变盘信号清单"><div class="tp-head"><span class="mt-k">变盘信号清单</span><small>结果将在下一次每日更新后生成</small></div></section>';
+    }
+    const items = d.items.map(x => {
+      const [word, cls] = TP_STATUS[x.status] || ['不可用', 'tp-na'];
+      return `<li class="${cls}"><b>${esc(x.name)}</b><span>${esc(word)}</span><em>${esc(x.value || '')}${x.as_of ? ` · ${esc(String(x.as_of).slice(5).replace('-', '/'))}` : ''}</em></li>`;
+    }).join('');
+    return `<section class="tp-card${d.summary.triggered ? ' tp-on' : ''}" aria-label="变盘信号清单"><div class="tp-head"><span class="mt-k">变盘信号清单</span><b>${esc(d.summary.headline)}</b><small class="tp-tag">${esc(d.tag || '外部观点 · 未验证')}</small></div><p class="tp-do">${esc(d.summary.action)}</p><ul>${items}</ul><p class="tp-note">数据截至 ${esc(d.market_date || '—')}；阈值与来源见后台记录，满足 3 项时会提醒你。</p></section>`;
+  }
+
   const CSS = `.mt-root{min-width:0}
 /* 市场简报 row: VIX and 市场温度 side by side so the two readings can be compared at a glance */
 .research-shell{grid-template-columns:minmax(0,1fr) minmax(0,600px)!important}
@@ -148,6 +163,20 @@ html[data-theme="dark"] .mt-card{background:#17191d;border-color:#303339}
 html[data-theme="dark"] .mt-score,html[data-theme="dark"] .mt-body{color:#f1f3f5}
 html[data-theme="dark"] .mt-needle{stroke:#f1f3f5}html[data-theme="dark"] .mt-needle-dot{fill:#f1f3f5;stroke:#17191d}
 .ao-root{grid-column:1/-1;min-width:0}
+.tp-root{grid-column:1/-1;min-width:0}
+.tp-card{border:1px solid var(--line,#e3e8ef);border-radius:14px;background:var(--card,#fff);padding:12px 16px;font-size:12.5px}
+.tp-card.tp-on{border-color:#15803d}
+.tp-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px}.tp-head b{font-size:14px}.tp-head small{color:var(--muted,#6b7280)}
+.tp-tag{background:#fbf3e4;color:#8a5a14!important;border-radius:4px;padding:1px 6px}
+.tp-do{margin:6px 0 8px;color:var(--text,#374151)}
+.tp-card ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px 14px}
+.tp-card li{border-top:3px solid #d1d5db;padding-top:5px;min-width:0}.tp-card li b{display:block;font-size:13px}
+.tp-card li span{display:block;font-weight:700;color:#6b7280}.tp-card li em{display:block;font-style:normal;color:var(--muted,#6b7280);overflow-wrap:anywhere}
+.tp-card li.tp-near{border-color:#c2410c}.tp-card li.tp-near span{color:#c2410c}.tp-card li.tp-ok{border-color:#15803d}.tp-card li.tp-ok span{color:#15803d}
+.tp-note{margin:6px 0 0;color:var(--muted,#6b7280);font-size:11.5px}
+@media (max-width:820px){.tp-card ul{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:620px){.tp-card ul{grid-template-columns:1fr}}
+html[data-theme="dark"] .tp-card{background:#17191d;border-color:#303339}html[data-theme="dark"] .tp-do{color:#e5e7eb}html[data-theme="dark"] .tp-tag{background:#2b2418;color:#e0b46a!important}
 .ao-card{border:1px solid var(--line,#e3e8ef);border-radius:14px;background:var(--card,#fff);padding:12px 16px;font-size:12.5px}
 .ao-card.ao-on{border-color:#c2410c}
 .ao-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px}.ao-head b{font-size:14px}.ao-head small{color:var(--muted,#6b7280)}
@@ -175,9 +204,25 @@ html[data-theme="dark"] .ao-card{background:#17191d;border-color:#303339}html[da
       root.innerHTML = html(null);
     }
     loadAddon(root);
+    loadTurningPoints(root);
   }
 
   // full-width row under the VIX / 市场温度 pair (falls back to the temperature column on older page layouts)
+  // full-width row under 加仓分档 (same placement rule: .brief-gauges when present, else the temperature column)
+  async function loadTurningPoints(root) {
+    let host = document.getElementById('turningPointRoot');
+    if (!host) {
+      host = document.createElement('div'); host.id = 'turningPointRoot'; host.className = 'tp-root';
+      (root.closest('.brief-gauges') || root).appendChild(host);
+    }
+    try {
+      const r = await fetch('research/turning_point_checklist.json?v=' + Date.now(), { cache: 'no-store' });
+      host.innerHTML = tpHtml(r.ok ? await r.json() : null);
+    } catch (e) {
+      host.innerHTML = tpHtml(null);
+    }
+  }
+
   async function loadAddon(root) {
     let host = document.getElementById('addonTierRoot');
     if (!host) {
@@ -193,7 +238,7 @@ html[data-theme="dark"] .ao-card{background:#17191d;border-color:#303339}html[da
     }
   }
 
-  global.MAVMarketTemperature = { html, load, _test: { gauge, changeText, trendWord, fromTo, drivers, vsVix, addonTiers, addonHtml } };
+  global.MAVMarketTemperature = { html, load, _test: { gauge, changeText, trendWord, fromTo, drivers, vsVix, addonTiers, addonHtml, tpHtml } };
   if (typeof module !== 'undefined' && module.exports) module.exports = global.MAVMarketTemperature;
   if (typeof document !== 'undefined') {
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', load); else load();

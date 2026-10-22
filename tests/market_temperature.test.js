@@ -46,3 +46,17 @@ const ah = T.addonHtml(mk(core(1, -0.13), core(0, -0.05), core(0, -0.1), 22));
 assert.ok(ah.includes('已到加仓档，恐慌待确认') && ah.includes('VIX 22.0 &lt; 25') && ah.includes('人工决定'), ah);
 assert.ok(T.addonHtml(mk(core(0, -0.05), core(0, -0.05), core(0, -0.1), 18.4)).includes('到档后需 VIX ≥ 25'), 'no tier hit: confirmation explained, not shown as pending');
 console.log('PASS MT-04 add-on tiers');
+// TP-01 front-end: result only (headline, action, 4 statuses with value/date); escaped; placeholder before first run
+const tpd = { market_date: '2026-10-21', tag: '外部观点 · 未验证 · 观察用，不是买卖信号',
+  summary: { met: 0, near: 1, triggered: false, headline: '0 / 4 满足、1 项接近 · 尚未出现转折条件', action: '继续按原计划定投，不因本清单加减仓；满足 3 项时会提醒你重新评估。' },
+  items: [{ key: 'earnings', name: '科技巨头财报', status: 'waiting', value: '本季尚未公布 · 0/6 家' },
+          { key: 'yield_10y', name: '10 年期美债', status: 'not_met', value: '5.15%（需 < 5.0%）', as_of: '2026-10-20' },
+          { key: 'sentiment', name: '情绪出清', status: 'near', value: '<b>x</b>', as_of: '2026-10-21' },
+          { key: 'easing', name: '通胀与油价缓解', status: 'unavailable', value: '通胀与油价数据不足' }] };
+const th = T.tpHtml(tpd);
+['变盘信号清单', '0 / 4 满足、1 项接近', '继续按原计划定投', '等待中', '未满足', '接近', '不可用', '10/20', '不是买卖信号', '&lt;b&gt;x&lt;/b&gt;'].forEach(t => assert.ok(th.includes(t), t));
+assert.ok(!th.includes('tp-on'), 'not triggered → no highlight');
+assert.ok(T.tpHtml({ ...tpd, summary: { ...tpd.summary, triggered: true } }).includes('tp-on'));
+assert.ok(T.tpHtml(null).includes('结果将在下一次每日更新后生成') && T.tpHtml({}).includes('结果将在下一次每日更新后生成'));
+console.log('PASS TP-01 front-end');
+

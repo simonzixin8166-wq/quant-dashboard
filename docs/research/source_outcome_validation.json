@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "generated_at": "2026-10-22T22:05:20.805520+00:00",
+  "generated_at": "2026-10-23T00:12:09.420809+00:00",
   "methodology": {
     "executed_action_baseline": "first trading session open strictly after source date when no reliable intraday timestamp exists",
     "planned_entry_baseline": "explicit stock-entry plans begin only on the first later session whose low touches the stated level; each tranche is validated separately",
@@ -16,9 +16,9 @@
     "attribution_limit": "third-party examples are excluded; unconfirmed source context is visible but excluded from aggregate method memory"
   },
   "counts": {
-    "events": 183,
+    "events": 184,
     "author_owned": 85,
-    "unconfirmed": 98,
+    "unconfirmed": 99,
     "triggered_author_owned": 79,
     "untriggered_plans": 6,
     "mature60": 35,
@@ -753,6 +753,56 @@
         "adjustment_basis": "stooq_archive_native_series",
         "baseline_source": "stooq_archive",
         "horizon_source": "stooq_archive",
+        "same_source": true
+      },
+      "outcomes": {
+        "5": null,
+        "20": null,
+        "60": null
+      },
+      "alignment": {
+        "direction": "bearish",
+        "5": null,
+        "20": null,
+        "60": null
+      },
+      "level_checks": {},
+      "status": "developing"
+    },
+    {
+      "event_id": "902553da20fd6a4c7902:2:SGOV:0",
+      "author": "麻你",
+      "title": "下个星期设VGT 118.36止盈，如果跌下，卖出总仓位的5%",
+      "url": "https://bbs.wenxuecity.com/tzlc/2386198.html",
+      "published_at": "2026-10-16 15:27:12",
+      "symbol": "SGOV",
+      "operation": {
+        "symbols": [
+          "SGOV",
+          "VGT"
+        ],
+        "actions": [
+          "sell"
+        ],
+        "attribution": "unconfirmed_author_context",
+        "attribution_confidence": "needs_review"
+      },
+      "actions": [
+        "sell"
+      ],
+      "attribution": "unconfirmed_author_context",
+      "attribution_confidence": "needs_review",
+      "baseline_kind": "next_session",
+      "baseline_assumption": "next trading session open because source date has no reliable intraday timestamp",
+      "planned_level": null,
+      "triggered": true,
+      "baseline_date": "2026-10-19",
+      "baseline_price": 100.58999633789062,
+      "price_provenance": {
+        "price_source": "yfinance_validation_cache",
+        "adjustment_basis": "yfinance_auto_adjust_false_native_ohlc",
+        "baseline_source": "yfinance_validation_cache",
+        "horizon_source": "yfinance_validation_cache",
         "same_source": true
       },
       "outcomes": {
@@ -2445,13 +2495,20 @@
         "same_source": true
       },
       "outcomes": {
-        "5": null,
+        "5": {
+          "date": "2026-10-19",
+          "return": 0.0006465537033091273,
+          "mae": -0.0001492105388785081,
+          "mfe": 0.0007460526943925405,
+          "benchmark_return": -0.04179062012298418,
+          "excess_vs_qqq": 0.042437173826293306
+        },
         "20": null,
         "60": null
       },
       "alignment": {
         "direction": "bearish",
-        "5": null,
+        "5": "not_aligned",
         "20": null,
         "60": null
       },
@@ -4231,19 +4288,26 @@
       "outcomes": {
         "5": {
           "date": "2026-09-28",
-          "return": 0.0007953259167639004,
+          "return": 0.0007953259167636784,
           "mae": 0.0,
-          "mfe": 0.0007953259167639004,
+          "mfe": 0.0007953259167636784,
           "benchmark_return": 0.011869925400816106,
-          "excess_vs_qqq": -0.011074599484052206
+          "excess_vs_qqq": -0.011074599484052428
         },
-        "20": null,
+        "20": {
+          "date": "2026-10-19",
+          "return": 0.0,
+          "mae": -0.0018888042442462005,
+          "mfe": 0.0009941953191816566,
+          "benchmark_return": -0.014095536413469056,
+          "excess_vs_qqq": 0.014095536413469056
+        },
         "60": null
       },
       "alignment": {
         "direction": "bullish",
         "5": "aligned",
-        "20": null,
+        "20": "not_aligned",
         "60": null
       },
       "level_checks": {},
@@ -6381,8 +6445,8 @@
       "baseline_assumption": "next trading session open because source date has no reliable intraday timestamp",
       "planned_level": null,
       "triggered": true,
-      "baseline_date": "2026-08-04",
-      "baseline_price": 100.4250030517578,
+      "baseline_date": "2026-08-25",
+      "baseline_price": 100.6449966430664,
       "price_provenance": {
         "price_source": "yfinance_validation_cache",
         "adjustment_basis": "yfinance_auto_adjust_false_native_ohlc",
@@ -6392,26 +6456,26 @@
       },
       "outcomes": {
         "5": {
-          "date": "2026-08-11",
-          "return": 0.0008463936459017773,
-          "mae": -4.983701927185891e-05,
-          "mfe": 0.0008463936459017773,
-          "benchmark_return": 0.014530614550384291,
-          "excess_vs_qqq": -0.013684220904482514
+          "date": "2026-09-01",
+          "return": -0.0023348699766012615,
+          "mae": -0.0024342503389052084,
+          "mfe": 0.0005464782851634098,
+          "benchmark_return": -0.005033604229352395,
+          "excess_vs_qqq": 0.0026987342527511338
         },
         "20": {
-          "date": "2026-09-01",
-          "return": -0.00014935911568447757,
-          "mae": -0.00024895718316286786,
-          "mfe": 0.002738301101596008,
-          "benchmark_return": -0.0007342973339358183,
-          "excess_vs_qqq": 0.0005849382182513407
+          "date": "2026-09-23",
+          "return": -0.0002483371982515692,
+          "mae": -0.0024342503389052084,
+          "mfe": 0.0005464782851634098,
+          "benchmark_return": 0.042166980681083155,
+          "excess_vs_qqq": -0.042415317879334724
         },
         "60": null
       },
       "alignment": {
         "direction": "bullish",
-        "5": "aligned",
+        "5": "not_aligned",
         "20": "not_aligned",
         "60": null
       },
@@ -6444,8 +6508,8 @@
       "baseline_assumption": "next trading session open because source date has no reliable intraday timestamp",
       "planned_level": null,
       "triggered": true,
-      "baseline_date": "2026-08-04",
-      "baseline_price": 100.4250030517578,
+      "baseline_date": "2026-08-25",
+      "baseline_price": 100.6449966430664,
       "price_provenance": {
         "price_source": "yfinance_validation_cache",
         "adjustment_basis": "yfinance_auto_adjust_false_native_ohlc",
@@ -6455,26 +6519,26 @@
       },
       "outcomes": {
         "5": {
-          "date": "2026-08-11",
-          "return": 0.0008463936459017773,
-          "mae": -4.983701927185891e-05,
-          "mfe": 0.0008463936459017773,
-          "benchmark_return": 0.014530614550384291,
-          "excess_vs_qqq": -0.013684220904482514
+          "date": "2026-09-01",
+          "return": -0.0023348699766012615,
+          "mae": -0.0024342503389052084,
+          "mfe": 0.0005464782851634098,
+          "benchmark_return": -0.005033604229352395,
+          "excess_vs_qqq": 0.0026987342527511338
         },
         "20": {
-          "date": "2026-09-01",
-          "return": -0.00014935911568447757,
-          "mae": -0.00024895718316286786,
-          "mfe": 0.002738301101596008,
-          "benchmark_return": -0.0007342973339358183,
-          "excess_vs_qqq": 0.0005849382182513407
+          "date": "2026-09-23",
+          "return": -0.0002483371982515692,
+          "mae": -0.0024342503389052084,
+          "mfe": 0.0005464782851634098,
+          "benchmark_return": 0.042166980681083155,
+          "excess_vs_qqq": -0.042415317879334724
         },
         "60": null
       },
       "alignment": {
         "direction": "bullish",
-        "5": "aligned",
+        "5": "not_aligned",
         "20": "not_aligned",
         "60": null
       },
@@ -8058,8 +8122,8 @@
       "baseline_assumption": "next trading session open because source date has no reliable intraday timestamp",
       "planned_level": null,
       "triggered": true,
-      "baseline_date": "2026-08-04",
-      "baseline_price": 100.4250030517578,
+      "baseline_date": "2026-08-25",
+      "baseline_price": 100.6449966430664,
       "price_provenance": {
         "price_source": "yfinance_validation_cache",
         "adjustment_basis": "yfinance_auto_adjust_false_native_ohlc",
@@ -8069,26 +8133,26 @@
       },
       "outcomes": {
         "5": {
-          "date": "2026-08-11",
-          "return": 0.0008463936459017773,
-          "mae": -4.983701927185891e-05,
-          "mfe": 0.0008463936459017773,
-          "benchmark_return": 0.014530614550384291,
-          "excess_vs_qqq": -0.013684220904482514
+          "date": "2026-09-01",
+          "return": -0.0023348699766012615,
+          "mae": -0.0024342503389052084,
+          "mfe": 0.0005464782851634098,
+          "benchmark_return": -0.005033604229352395,
+          "excess_vs_qqq": 0.0026987342527511338
         },
         "20": {
-          "date": "2026-09-01",
-          "return": -0.00014935911568447757,
-          "mae": -0.00024895718316286786,
-          "mfe": 0.002738301101596008,
-          "benchmark_return": -0.0007342973339358183,
-          "excess_vs_qqq": 0.0005849382182513407
+          "date": "2026-09-23",
+          "return": -0.0002483371982515692,
+          "mae": -0.0024342503389052084,
+          "mfe": 0.0005464782851634098,
+          "benchmark_return": 0.042166980681083155,
+          "excess_vs_qqq": -0.042415317879334724
         },
         "60": null
       },
       "alignment": {
         "direction": "bearish",
-        "5": "not_aligned",
+        "5": "aligned",
         "20": "aligned",
         "60": null
       },

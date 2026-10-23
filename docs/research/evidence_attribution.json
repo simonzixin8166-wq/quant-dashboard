@@ -1,8 +1,8 @@
 {
   "version": "5.7.0",
-  "generated_at": "2026-10-22T22:05:21.222850+00:00",
+  "generated_at": "2026-10-23T00:12:09.779535+00:00",
   "external_outcome_evidence_role": "legacy_descriptive_only",
-  "as_of": "2026-10-22",
+  "as_of": "2026-10-23",
   "architecture": [
     "plain_language_glossary",
     "trend_state_machine",
@@ -82,218 +82,6 @@
   "breadcrumb_engine": {
     "method": "evidence accumulation v1",
     "top": [
-      {
-        "symbol": "SPCX",
-        "evidence_score": 52.0,
-        "status": "evidence-accumulating",
-        "trend_state": {
-          "state": "False Break",
-          "label_cn": "假突破 / 突破失败",
-          "source_stage": "趋势恶化",
-          "weekly": "过渡",
-          "explanation": "此前出现过转强阶段，但当前已经快速回落到修复或恶化状态，第一次突破没有持续确认。",
-          "invalidation": "只有重新站回关键趋势结构并获得更高周期确认，才考虑再次升级。",
-          "term_help": {
-            "cn": "假突破 / 突破失败",
-            "plain": "价格或趋势指标刚转强，随后很快跌回关键区域，原来的突破没有得到持续确认。",
-            "why": "它提醒投资者重新检查原来的判断，而不是把第一次突破当成永久有效。"
-          }
-        },
-        "breadcrumbs": [
-          {
-            "type": "trend_state",
-            "strength": "medium",
-            "evidence": "Trend Pulse 当前阶段：趋势恶化",
-            "meaning": "说明当前技术结构处于什么阶段；它是研究线索，不是单独买卖信号。"
-          },
-          {
-            "type": "timeframe",
-            "strength": "medium",
-            "evidence": "周线方向：过渡",
-            "meaning": "用更高周期检查日线信号是否得到确认，减少一次性反弹造成的误判。"
-          },
-          {
-            "type": "transition",
-            "strength": "high",
-            "evidence": "阶段从 趋势启动 变化为 趋势恶化",
-            "meaning": "状态变化通常比重复的同状态提醒更值得复查。"
-          },
-          {
-            "type": "market_anomaly",
-            "strength": "medium",
-            "evidence": "覆盖池出现异常波动 -9.1%",
-            "meaning": "异常波动只触发原因调查；在事件来源确认前不能当成追涨或抄底理由。"
-          }
-        ],
-        "next_confirmation": "只有重新站回关键趋势结构并获得更高周期确认，才考虑再次升级。",
-        "source_scope": "当前仅使用已验证的行情、Trend Pulse、历史学习与覆盖池异动；尚未把论坛/SEC/FDA/公司新闻自动写入此评分。"
-      },
-      {
-        "symbol": "SOFI",
-        "evidence_score": 52.0,
-        "status": "evidence-accumulating",
-        "trend_state": {
-          "state": "Breakdown",
-          "label_cn": "结构破坏",
-          "source_stage": "趋势恶化",
-          "weekly": "空头",
-          "explanation": "趋势结构已经明显恶化，原来的多头假设必须重新验证。",
-          "invalidation": "只有进入修复并完成新的确认流程，才考虑重新升级。",
-          "term_help": {
-            "cn": "结构破坏",
-            "plain": "趋势和价格结构已经明显恶化，原来的多头假设需要重新验证。",
-            "why": "这不是自动卖出指令，而是要求重新检查投资逻辑、估值和风险暴露。"
-          }
-        },
-        "breadcrumbs": [
-          {
-            "type": "trend_state",
-            "strength": "medium",
-            "evidence": "Trend Pulse 当前阶段：趋势恶化",
-            "meaning": "说明当前技术结构处于什么阶段；它是研究线索，不是单独买卖信号。"
-          },
-          {
-            "type": "timeframe",
-            "strength": "medium",
-            "evidence": "周线方向：空头",
-            "meaning": "用更高周期检查日线信号是否得到确认，减少一次性反弹造成的误判。"
-          },
-          {
-            "type": "momentum",
-            "strength": "medium",
-            "evidence": "Trend Pulse 分数 -92",
-            "meaning": "分数绝对值较高表示趋势证据较集中，但高分不等于未来一定继续上涨或下跌。"
-          },
-          {
-            "type": "transition",
-            "strength": "high",
-            "evidence": "阶段从 修复中 变化为 趋势恶化",
-            "meaning": "状态变化通常比重复的同状态提醒更值得复查。"
-          }
-        ],
-        "next_confirmation": "只有进入修复并完成新的确认流程，才考虑重新升级。",
-        "source_scope": "当前仅使用已验证的行情、Trend Pulse、历史学习与覆盖池异动；尚未把论坛/SEC/FDA/公司新闻自动写入此评分。"
-      },
-      {
-        "symbol": "MSFT",
-        "evidence_score": 44.0,
-        "status": "monitor",
-        "trend_state": {
-          "state": "Confirmation Pending",
-          "label_cn": "等待确认",
-          "source_stage": "震荡观察",
-          "weekly": "多头",
-          "explanation": "当前属于修复或震荡阶段，已有改善但尚未形成稳定趋势。",
-          "invalidation": "若修复失败并重新恶化，则继续防守；若启动并获得确认，则升级。",
-          "term_help": {
-            "cn": "等待确认",
-            "plain": "已经出现改善信号，但还需要连续收盘、关键价位或更高周期共同验证。",
-            "why": "避免只因为一天反弹或一次突破就过早把状态升级。"
-          }
-        },
-        "breadcrumbs": [
-          {
-            "type": "trend_state",
-            "strength": "medium",
-            "evidence": "Trend Pulse 当前阶段：震荡观察",
-            "meaning": "说明当前技术结构处于什么阶段；它是研究线索，不是单独买卖信号。"
-          },
-          {
-            "type": "timeframe",
-            "strength": "medium",
-            "evidence": "周线方向：多头",
-            "meaning": "用更高周期检查日线信号是否得到确认，减少一次性反弹造成的误判。"
-          },
-          {
-            "type": "transition",
-            "strength": "high",
-            "evidence": "阶段从 趋势退潮 变化为 震荡观察",
-            "meaning": "状态变化通常比重复的同状态提醒更值得复查。"
-          }
-        ],
-        "next_confirmation": "若修复失败并重新恶化，则继续防守；若启动并获得确认，则升级。",
-        "source_scope": "当前仅使用已验证的行情、Trend Pulse、历史学习与覆盖池异动；尚未把论坛/SEC/FDA/公司新闻自动写入此评分。"
-      },
-      {
-        "symbol": "VOO",
-        "evidence_score": 42.0,
-        "status": "monitor",
-        "trend_state": {
-          "state": "False Break",
-          "label_cn": "假突破 / 突破失败",
-          "source_stage": "震荡观察",
-          "weekly": "过渡",
-          "explanation": "此前出现过转强阶段，但当前已经快速回落到修复或恶化状态，第一次突破没有持续确认。",
-          "invalidation": "只有重新站回关键趋势结构并获得更高周期确认，才考虑再次升级。",
-          "term_help": {
-            "cn": "假突破 / 突破失败",
-            "plain": "价格或趋势指标刚转强，随后很快跌回关键区域，原来的突破没有得到持续确认。",
-            "why": "它提醒投资者重新检查原来的判断，而不是把第一次突破当成永久有效。"
-          }
-        },
-        "breadcrumbs": [
-          {
-            "type": "trend_state",
-            "strength": "medium",
-            "evidence": "Trend Pulse 当前阶段：震荡观察",
-            "meaning": "说明当前技术结构处于什么阶段；它是研究线索，不是单独买卖信号。"
-          },
-          {
-            "type": "timeframe",
-            "strength": "medium",
-            "evidence": "周线方向：过渡",
-            "meaning": "用更高周期检查日线信号是否得到确认，减少一次性反弹造成的误判。"
-          },
-          {
-            "type": "transition",
-            "strength": "high",
-            "evidence": "阶段从 二次启动 变化为 震荡观察",
-            "meaning": "状态变化通常比重复的同状态提醒更值得复查。"
-          }
-        ],
-        "next_confirmation": "只有重新站回关键趋势结构并获得更高周期确认，才考虑再次升级。",
-        "source_scope": "当前仅使用已验证的行情、Trend Pulse、历史学习与覆盖池异动；尚未把论坛/SEC/FDA/公司新闻自动写入此评分。"
-      },
-      {
-        "symbol": "AMZN",
-        "evidence_score": 42.0,
-        "status": "monitor",
-        "trend_state": {
-          "state": "False Break",
-          "label_cn": "假突破 / 突破失败",
-          "source_stage": "趋势恶化",
-          "weekly": "过渡",
-          "explanation": "此前出现过转强阶段，但当前已经快速回落到修复或恶化状态，第一次突破没有持续确认。",
-          "invalidation": "只有重新站回关键趋势结构并获得更高周期确认，才考虑再次升级。",
-          "term_help": {
-            "cn": "假突破 / 突破失败",
-            "plain": "价格或趋势指标刚转强，随后很快跌回关键区域，原来的突破没有得到持续确认。",
-            "why": "它提醒投资者重新检查原来的判断，而不是把第一次突破当成永久有效。"
-          }
-        },
-        "breadcrumbs": [
-          {
-            "type": "trend_state",
-            "strength": "medium",
-            "evidence": "Trend Pulse 当前阶段：趋势恶化",
-            "meaning": "说明当前技术结构处于什么阶段；它是研究线索，不是单独买卖信号。"
-          },
-          {
-            "type": "timeframe",
-            "strength": "medium",
-            "evidence": "周线方向：过渡",
-            "meaning": "用更高周期检查日线信号是否得到确认，减少一次性反弹造成的误判。"
-          },
-          {
-            "type": "transition",
-            "strength": "high",
-            "evidence": "阶段从 趋势延续 变化为 趋势恶化",
-            "meaning": "状态变化通常比重复的同状态提醒更值得复查。"
-          }
-        ],
-        "next_confirmation": "只有重新站回关键趋势结构并获得更高周期确认，才考虑再次升级。",
-        "source_scope": "当前仅使用已验证的行情、Trend Pulse、历史学习与覆盖池异动；尚未把论坛/SEC/FDA/公司新闻自动写入此评分。"
-      },
       {
         "symbol": "LITE",
         "evidence_score": 40.0,
@@ -593,6 +381,206 @@
             "strength": "medium",
             "evidence": "覆盖池出现异常波动 -8.1%",
             "meaning": "异常波动只触发原因调查；在事件来源确认前不能当成追涨或抄底理由。"
+          }
+        ],
+        "next_confirmation": "只有进入修复并完成新的确认流程，才考虑重新升级。",
+        "source_scope": "当前仅使用已验证的行情、Trend Pulse、历史学习与覆盖池异动；尚未把论坛/SEC/FDA/公司新闻自动写入此评分。"
+      },
+      {
+        "symbol": "HOOD",
+        "evidence_score": 30.0,
+        "status": "monitor",
+        "trend_state": {
+          "state": "Breakdown",
+          "label_cn": "结构破坏",
+          "source_stage": "趋势恶化",
+          "weekly": "过渡",
+          "explanation": "趋势结构已经明显恶化，原来的多头假设必须重新验证。",
+          "invalidation": "只有进入修复并完成新的确认流程，才考虑重新升级。",
+          "term_help": {
+            "cn": "结构破坏",
+            "plain": "趋势和价格结构已经明显恶化，原来的多头假设需要重新验证。",
+            "why": "这不是自动卖出指令，而是要求重新检查投资逻辑、估值和风险暴露。"
+          }
+        },
+        "breadcrumbs": [
+          {
+            "type": "trend_state",
+            "strength": "medium",
+            "evidence": "Trend Pulse 当前阶段：趋势恶化",
+            "meaning": "说明当前技术结构处于什么阶段；它是研究线索，不是单独买卖信号。"
+          },
+          {
+            "type": "timeframe",
+            "strength": "medium",
+            "evidence": "周线方向：过渡",
+            "meaning": "用更高周期检查日线信号是否得到确认，减少一次性反弹造成的误判。"
+          },
+          {
+            "type": "momentum",
+            "strength": "medium",
+            "evidence": "Trend Pulse 分数 -71",
+            "meaning": "分数绝对值较高表示趋势证据较集中，但高分不等于未来一定继续上涨或下跌。"
+          }
+        ],
+        "next_confirmation": "只有进入修复并完成新的确认流程，才考虑重新升级。",
+        "source_scope": "当前仅使用已验证的行情、Trend Pulse、历史学习与覆盖池异动；尚未把论坛/SEC/FDA/公司新闻自动写入此评分。"
+      },
+      {
+        "symbol": "SPCX",
+        "evidence_score": 30.0,
+        "status": "monitor",
+        "trend_state": {
+          "state": "Breakdown",
+          "label_cn": "结构破坏",
+          "source_stage": "趋势恶化",
+          "weekly": "过渡",
+          "explanation": "趋势结构已经明显恶化，原来的多头假设必须重新验证。",
+          "invalidation": "只有进入修复并完成新的确认流程，才考虑重新升级。",
+          "term_help": {
+            "cn": "结构破坏",
+            "plain": "趋势和价格结构已经明显恶化，原来的多头假设需要重新验证。",
+            "why": "这不是自动卖出指令，而是要求重新检查投资逻辑、估值和风险暴露。"
+          }
+        },
+        "breadcrumbs": [
+          {
+            "type": "trend_state",
+            "strength": "medium",
+            "evidence": "Trend Pulse 当前阶段：趋势恶化",
+            "meaning": "说明当前技术结构处于什么阶段；它是研究线索，不是单独买卖信号。"
+          },
+          {
+            "type": "timeframe",
+            "strength": "medium",
+            "evidence": "周线方向：过渡",
+            "meaning": "用更高周期检查日线信号是否得到确认，减少一次性反弹造成的误判。"
+          },
+          {
+            "type": "market_anomaly",
+            "strength": "medium",
+            "evidence": "覆盖池出现异常波动 -9.1%",
+            "meaning": "异常波动只触发原因调查；在事件来源确认前不能当成追涨或抄底理由。"
+          }
+        ],
+        "next_confirmation": "只有进入修复并完成新的确认流程，才考虑重新升级。",
+        "source_scope": "当前仅使用已验证的行情、Trend Pulse、历史学习与覆盖池异动；尚未把论坛/SEC/FDA/公司新闻自动写入此评分。"
+      },
+      {
+        "symbol": "SMH",
+        "evidence_score": 30.0,
+        "status": "monitor",
+        "trend_state": {
+          "state": "Breakdown",
+          "label_cn": "结构破坏",
+          "source_stage": "趋势恶化",
+          "weekly": "过渡",
+          "explanation": "趋势结构已经明显恶化，原来的多头假设必须重新验证。",
+          "invalidation": "只有进入修复并完成新的确认流程，才考虑重新升级。",
+          "term_help": {
+            "cn": "结构破坏",
+            "plain": "趋势和价格结构已经明显恶化，原来的多头假设需要重新验证。",
+            "why": "这不是自动卖出指令，而是要求重新检查投资逻辑、估值和风险暴露。"
+          }
+        },
+        "breadcrumbs": [
+          {
+            "type": "trend_state",
+            "strength": "medium",
+            "evidence": "Trend Pulse 当前阶段：趋势恶化",
+            "meaning": "说明当前技术结构处于什么阶段；它是研究线索，不是单独买卖信号。"
+          },
+          {
+            "type": "timeframe",
+            "strength": "medium",
+            "evidence": "周线方向：过渡",
+            "meaning": "用更高周期检查日线信号是否得到确认，减少一次性反弹造成的误判。"
+          },
+          {
+            "type": "momentum",
+            "strength": "medium",
+            "evidence": "Trend Pulse 分数 -78",
+            "meaning": "分数绝对值较高表示趋势证据较集中，但高分不等于未来一定继续上涨或下跌。"
+          }
+        ],
+        "next_confirmation": "只有进入修复并完成新的确认流程，才考虑重新升级。",
+        "source_scope": "当前仅使用已验证的行情、Trend Pulse、历史学习与覆盖池异动；尚未把论坛/SEC/FDA/公司新闻自动写入此评分。"
+      },
+      {
+        "symbol": "SOFI",
+        "evidence_score": 30.0,
+        "status": "monitor",
+        "trend_state": {
+          "state": "Breakdown",
+          "label_cn": "结构破坏",
+          "source_stage": "趋势恶化",
+          "weekly": "空头",
+          "explanation": "趋势结构已经明显恶化，原来的多头假设必须重新验证。",
+          "invalidation": "只有进入修复并完成新的确认流程，才考虑重新升级。",
+          "term_help": {
+            "cn": "结构破坏",
+            "plain": "趋势和价格结构已经明显恶化，原来的多头假设需要重新验证。",
+            "why": "这不是自动卖出指令，而是要求重新检查投资逻辑、估值和风险暴露。"
+          }
+        },
+        "breadcrumbs": [
+          {
+            "type": "trend_state",
+            "strength": "medium",
+            "evidence": "Trend Pulse 当前阶段：趋势恶化",
+            "meaning": "说明当前技术结构处于什么阶段；它是研究线索，不是单独买卖信号。"
+          },
+          {
+            "type": "timeframe",
+            "strength": "medium",
+            "evidence": "周线方向：空头",
+            "meaning": "用更高周期检查日线信号是否得到确认，减少一次性反弹造成的误判。"
+          },
+          {
+            "type": "momentum",
+            "strength": "medium",
+            "evidence": "Trend Pulse 分数 -92",
+            "meaning": "分数绝对值较高表示趋势证据较集中，但高分不等于未来一定继续上涨或下跌。"
+          }
+        ],
+        "next_confirmation": "只有进入修复并完成新的确认流程，才考虑重新升级。",
+        "source_scope": "当前仅使用已验证的行情、Trend Pulse、历史学习与覆盖池异动；尚未把论坛/SEC/FDA/公司新闻自动写入此评分。"
+      },
+      {
+        "symbol": "ORCL",
+        "evidence_score": 30.0,
+        "status": "monitor",
+        "trend_state": {
+          "state": "Breakdown",
+          "label_cn": "结构破坏",
+          "source_stage": "趋势恶化",
+          "weekly": "空头",
+          "explanation": "趋势结构已经明显恶化，原来的多头假设必须重新验证。",
+          "invalidation": "只有进入修复并完成新的确认流程，才考虑重新升级。",
+          "term_help": {
+            "cn": "结构破坏",
+            "plain": "趋势和价格结构已经明显恶化，原来的多头假设需要重新验证。",
+            "why": "这不是自动卖出指令，而是要求重新检查投资逻辑、估值和风险暴露。"
+          }
+        },
+        "breadcrumbs": [
+          {
+            "type": "trend_state",
+            "strength": "medium",
+            "evidence": "Trend Pulse 当前阶段：趋势恶化",
+            "meaning": "说明当前技术结构处于什么阶段；它是研究线索，不是单独买卖信号。"
+          },
+          {
+            "type": "timeframe",
+            "strength": "medium",
+            "evidence": "周线方向：空头",
+            "meaning": "用更高周期检查日线信号是否得到确认，减少一次性反弹造成的误判。"
+          },
+          {
+            "type": "momentum",
+            "strength": "medium",
+            "evidence": "Trend Pulse 分数 -86",
+            "meaning": "分数绝对值较高表示趋势证据较集中，但高分不等于未来一定继续上涨或下跌。"
           }
         ],
         "next_confirmation": "只有进入修复并完成新的确认流程，才考虑重新升级。",
@@ -3594,9 +3582,9 @@
     ],
     "outcome_validation": {
       "counts": {
-        "events": 183,
+        "events": 184,
         "author_owned": 85,
-        "unconfirmed": 98,
+        "unconfirmed": 99,
         "triggered_author_owned": 79,
         "untriggered_plans": 6,
         "mature60": 35,
@@ -3836,7 +3824,7 @@
         }
       },
       "mature_learning": {
-        "events_scanned": 183,
+        "events_scanned": 184,
         "mature20": 42,
         "review_candidates": 23,
         "recent_reviews": [

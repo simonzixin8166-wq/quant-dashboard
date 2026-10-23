@@ -123,6 +123,22 @@
   // statuses with one value and date each; thresholds stay in the JSON (page principle 6290421775).
   const TP_STATUS = { met: ['满足', 'tp-ok'], near: ['接近', 'tp-near'], not_met: ['未满足', 'tp-no'], waiting: ['等待中', 'tp-no'], unavailable: ['不可用', 'tp-na'] };
 
+  // GPT 6333569916 C / 6333647855 §1: never let missing data read like "condition not met". If the conditions that are
+  // still undecided (data unavailable, or waiting e.g. for more earnings reports) could still lift the count to 3, the
+  // card says it cannot judge yet and shows the effective denominator, instead of "no turning point".
+  function tpVerdict(d) {
+    const items = Array.isArray(d.items) ? d.items : [];
+    const n = items.length || 4;
+    const met = items.filter(x => x.status === 'met').length;
+    const unavailable = items.filter(x => x.status === 'unavailable' || !TP_STATUS[x.status]).length;
+    const waiting = items.filter(x => x.status === 'waiting').length;
+    const judged = n - unavailable - waiting;
+    const cannot = !d.summary.triggered && unavailable > 0 && met + unavailable + waiting >= 3;
+    if (cannot) return { cannot, headline: `暂无法判断 · ${unavailable} 项数据不可用（可判断 ${judged}/${n} 项，满足 ${met} 项）` };
+    if (unavailable > 0 && !d.summary.triggered) return { cannot, headline: `${d.summary.headline}（${unavailable} 项数据不可用，可判断 ${judged}/${n}）` };
+    return { cannot, headline: d.summary.headline };
+  }
+
   function tpHtml(d) {
     if (!d || !d.summary || !Array.isArray(d.items)) {
       return '<section class="tp-card tp-empty" aria-label="变盘信号清单"><div class="tp-head"><span class="mt-k">变盘信号清单</span><small>结果将在下一次每日更新后生成</small></div></section>';
@@ -131,7 +147,8 @@
       const [word, cls] = TP_STATUS[x.status] || ['不可用', 'tp-na'];
       return `<li class="${cls}"><b>${esc(x.name)}</b><span>${esc(word)}</span><em>${esc(x.value || '')}${x.as_of ? ` · ${esc(String(x.as_of).slice(5).replace('-', '/'))}` : ''}</em></li>`;
     }).join('');
-    return `<section class="tp-card${d.summary.triggered ? ' tp-on' : ''}" aria-label="变盘信号清单"><div class="tp-head"><span class="mt-k">变盘信号清单</span><b>${esc(d.summary.headline)}</b><small class="tp-tag">${esc(d.tag || '外部观点 · 未验证')}</small></div><p class="tp-do">${esc(d.summary.action)}</p><ul>${items}</ul><p class="tp-note">数据截至 ${esc(d.market_date || '—')}；阈值与来源见后台记录，满足 3 项时会提醒你。</p></section>`;
+    const v = tpVerdict(d);
+    return `<section class="tp-card${d.summary.triggered ? ' tp-on' : ''}${v.cannot ? ' tp-unknown' : ''}" aria-label="变盘信号清单"><div class="tp-head"><span class="mt-k">变盘信号清单</span><b>${esc(v.headline)}</b><small class="tp-tag">${esc(d.tag || '外部观点 · 未验证')}</small></div><p class="tp-do">${esc(d.summary.action)}</p><ul>${items}</ul><p class="tp-note">数据截至 ${esc(d.market_date || '—')}；阈值与来源见后台记录，满足 3 项时会提醒你。</p></section>`;
   }
 
   const CSS = `.mt-root{min-width:0}
@@ -166,6 +183,7 @@ html[data-theme="dark"] .mt-needle{stroke:#f1f3f5}html[data-theme="dark"] .mt-ne
 .tp-root{grid-column:1/-1;min-width:0}
 .tp-card{border:1px solid var(--line,#e3e8ef);border-radius:14px;background:var(--card,#fff);padding:12px 16px;font-size:12.5px}
 .tp-card.tp-on{border-color:#15803d}
+.tp-card.tp-unknown{border-color:#b45309}
 .tp-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px}.tp-head b{font-size:14px}.tp-head small{color:var(--muted,#6b7280)}
 .tp-tag{background:#fbf3e4;color:#8a5a14!important;border-radius:4px;padding:1px 6px}
 .tp-do{margin:6px 0 8px;color:var(--text,#374151)}
@@ -238,7 +256,7 @@ html[data-theme="dark"] .ao-card{background:#17191d;border-color:#303339}html[da
     }
   }
 
-  global.MAVMarketTemperature = { html, load, _test: { gauge, changeText, trendWord, fromTo, drivers, vsVix, addonTiers, addonHtml, tpHtml } };
+  global.MAVMarketTemperature = { html, load, _test: { gauge, changeText, trendWord, fromTo, drivers, vsVix, addonTiers, addonHtml, tpHtml, tpVerdict } };
   if (typeof module !== 'undefined' && module.exports) module.exports = global.MAVMarketTemperature;
   if (typeof document !== 'undefined') {
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', load); else load();

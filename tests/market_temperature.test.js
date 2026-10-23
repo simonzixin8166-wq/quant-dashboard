@@ -58,5 +58,13 @@ const th = T.tpHtml(tpd);
 assert.ok(!th.includes('tp-on'), 'not triggered → no highlight');
 assert.ok(T.tpHtml({ ...tpd, summary: { ...tpd.summary, triggered: true } }).includes('tp-on'));
 assert.ok(T.tpHtml(null).includes('结果将在下一次每日更新后生成') && T.tpHtml({}).includes('结果将在下一次每日更新后生成'));
+// cannot_judge (GPT 6333569916 C): missing data never reads as "not met"
+assert.ok(th.includes('1 项数据不可用，可判断 2/4') && !th.includes('tp-unknown'), 'partial data: denominator shown, verdict kept (max reachable 2 < 3)');
+const two = { ...tpd, items: tpd.items.map(x => x.key === 'yield_10y' ? { ...x, status: 'unavailable' } : x) };
+const tu = T.tpHtml(two);
+assert.ok(tu.includes('暂无法判断') && tu.includes('2 项数据不可用') && tu.includes('可判断 1/4') && tu.includes('tp-unknown') && !tu.includes('尚未出现转折条件'), tu);
+const allOk = { ...tpd, items: tpd.items.map(x => ({ ...x, status: 'not_met' })) };
+assert.strictEqual(T.tpVerdict(allOk).headline, tpd.summary.headline);
+assert.ok(!T.tpVerdict({ ...two, summary: { ...two.summary, triggered: true } }).cannot, 'triggered stays triggered');
 console.log('PASS TP-01 front-end');
 

@@ -1,26 +1,26 @@
 {
  "version": 3,
  "method": "each component = percentile of today vs its trailing 252 readings; fixed linear scale (labelled) until 252 readings exist; inputs > 2 sessions behind the market date are excluded; composite rounded to an integer",
- "reference_date": "2026-10-22",
+ "reference_date": "2026-10-23",
  "max_lag_sessions": 2,
  "fixed_scale_components": 3,
  "validation_plan": "docs/development/market_temperature_validation.md",
- "generated_at": "2026-10-23T13:29:51Z",
- "as_of": "2026-10-22",
- "score": 32,
+ "generated_at": "2026-10-24T00:03:06Z",
+ "as_of": "2026-10-23",
+ "score": 28,
  "label": "恐惧",
- "components_available": 6,
+ "components_available": 5,
  "components_total": 6,
  "components": [
   {
    "key": "momentum",
    "name": "价格动量",
    "status": "ok",
-   "score": 13.1,
+   "score": 10.7,
    "method": "percentile_252",
-   "raw": 0.013569,
-   "value": 0.0136,
-   "as_of": "2026-10-22",
+   "raw": 0.007796,
+   "value": 0.0078,
+   "as_of": "2026-10-23",
    "source": "archive SPY close vs 125-session average",
    "lag_sessions": 0
   },
@@ -28,14 +28,14 @@
    "key": "strength",
    "name": "股价强度",
    "status": "ok",
-   "score": 96.1,
+   "score": 58.0,
    "method": "fixed_scale",
-   "raw": 0.092184,
+   "raw": 0.016032,
    "value": {
-    "new_high": 0.1002,
-    "new_low": 0.008
+    "new_high": 0.0361,
+    "new_low": 0.02
    },
-   "as_of": "2026-10-22",
+   "as_of": "2026-10-23",
    "source": "breadth_intelligence (S&P 500 net 52-week highs)",
    "lag_sessions": 0
   },
@@ -43,11 +43,11 @@
    "key": "breadth",
    "name": "市场宽度",
    "status": "ok",
-   "score": 61.5,
+   "score": 58.7,
    "method": "fixed_scale",
-   "raw": 0.61523,
-   "value": 0.6152,
-   "as_of": "2026-10-22",
+   "raw": 0.587174,
+   "value": 0.5872,
+   "as_of": "2026-10-23",
    "source": "breadth_intelligence (S&P 500 above 50-day MA)",
    "lag_sessions": 0
   },
@@ -55,28 +55,23 @@
    "key": "volatility",
    "name": "波动率",
    "status": "ok",
-   "score": 13.5,
+   "score": 12.3,
    "method": "percentile_252",
-   "raw": 0.202057,
+   "raw": 0.220568,
    "value": {
-    "vix": 19.03,
-    "vs_ma50": 0.2021
+    "vix": 19.45,
+    "vs_ma50": 0.2206
    },
-   "as_of": "2026-10-22",
+   "as_of": "2026-10-23",
    "source": "archive VIX vs 50-session average",
    "lag_sessions": 0
   },
   {
    "key": "safe_haven",
    "name": "避险需求",
-   "status": "ok",
-   "score": 6.7,
-   "method": "percentile_252",
-   "raw": -0.033409,
-   "value": -0.0334,
-   "as_of": "2026-10-22",
-   "source": "archive SPY vs TLT 20-session return",
-   "lag_sessions": 0
+   "status": "unavailable",
+   "reason": "SPY/TLT history missing or dates differ",
+   "source": "archive SPY vs TLT 20-session return"
   },
   {
    "key": "credit",
@@ -84,12 +79,12 @@
    "status": "ok",
    "score": 0.0,
    "method": "fixed_scale",
-   "raw": 0.54,
+   "raw": 0.6,
    "value": {
-    "hy_oas": 3.27,
-    "chg20_pp": 0.54
+    "hy_oas": 3.4,
+    "chg20_pp": 0.6
    },
-   "as_of": "2026-10-21",
+   "as_of": "2026-10-22",
    "source": "FRED ICE BofA US High Yield OAS (via cross_asset_divergence)",
    "lag_sessions": 1
   }
@@ -101,6 +96,6 @@
  "decision": "#133 2026-10-17 owner-approved; SENT-01 CNN stays link-out only",
  "change_vs": {
   "as_of": "2026-10-16",
-  "delta": 0
+  "delta": -4
  }
 }

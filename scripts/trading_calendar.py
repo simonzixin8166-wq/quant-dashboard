@@ -111,5 +111,22 @@ def expected_latest_completed_session(now_utc=None):
         d-=timedelta(days=1)
     return d
 
+# Monitors (Playbook watchdog, Autonomous QA) only: Daily publishes a session's data some hours after the
+# close (GitHub delays the 21:30Z cron to ~00:00Z). Until close + MONITOR_GRACE_HOURS the previous session is
+# also accepted as "Daily pending", never later. Production engines keep the strict date above.
+MONITOR_GRACE_HOURS=5
+
+def monitor_grace_session(now_utc=None,grace_hours=MONITOR_GRACE_HOURS):
+    """The previous session while still inside the post-close grace window, else None."""
+    now_utc=now_utc or datetime.now(timezone.utc)
+    if now_utc.tzinfo is None: now_utc=now_utc.replace(tzinfo=timezone.utc)
+    strict=expected_latest_completed_session(now_utc)
+    lenient=expected_latest_completed_session(now_utc-timedelta(hours=grace_hours))
+    return lenient if lenient<strict else None
+
 if __name__=="__main__":
-    print(expected_latest_completed_session().isoformat())
+    import sys
+    if "--grace" in sys.argv[1:]:
+        g=monitor_grace_session();print(g.isoformat() if g else "")
+    else:
+        print(expected_latest_completed_session().isoformat())

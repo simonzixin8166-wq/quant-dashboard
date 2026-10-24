@@ -81,6 +81,7 @@ jobs:
           python tests/test_v615_auto_thesis_engine.py
           python tests/test_v610a_playbook_engine.py
           python tests/test_v610c_stabilization_p1.py
+          python tests/test_monitor_close_grace.py
           python tests/test_v611_outcome_foundation.py
           python tests/test_v610d_late_detection.py
           python tests/test_v611_walk_forward_replay.py
@@ -161,7 +162,9 @@ jobs:
           npm install --no-save playwright@1.55.0
           npx playwright install --with-deps chromium
       - name: Compute independent expected market date
-        run: echo "EXPECTED_MARKET_DATE=$(python scripts/trading_calendar.py)" >> "$GITHUB_ENV"
+        run: |
+          echo "EXPECTED_MARKET_DATE=$(python scripts/trading_calendar.py)" >> "$GITHUB_ENV"
+          echo "EXPECTED_MARKET_DATE_GRACE=$(python scripts/trading_calendar.py --grace)" >> "$GITHUB_ENV"
       - name: Browser autonomous QA
         env:
           BASE_URL: https://myalphaview.com

@@ -116,7 +116,11 @@ try{
   if(sr.ok&&dr.ok&&ar.ok){
     const sys=await sr.json(),data=await dr.json(),server=await ar.json(),market=sys?.artifacts?.market_dashboard||{};
     const marketAsOf=String(data?.spy_date||market.market_as_of||'');
-    const expected=String(process.env.EXPECTED_MARKET_DATE||'');
+    // Post-close grace (scripts/trading_calendar.py --grace): until Daily publishes, the previous session is
+    // accepted as "Daily pending"; empty outside the window, so the strict date applies again.
+    const graceDate=String(process.env.EXPECTED_MARKET_DATE_GRACE||'');
+    const pendingDaily=Boolean(graceDate)&&marketAsOf===graceDate&&String(market.market_as_of||'')===graceDate;
+    const expected=pendingDaily?graceDate:String(process.env.EXPECTED_MARKET_DATE||'');
     const sysGenerated=Date.parse(sys?.generated_at||'');
     const statusAgeHours=Number.isFinite(sysGenerated)?(Date.now()-sysGenerated)/36e5:Infinity;
     const ok=Boolean(expected)
@@ -135,15 +139,21 @@ try{
       expected_market_date:expected,
       business_freshness:market.business_freshness||'unknown',
       decision_eligible:Boolean(market.decision_eligible),
-      system_status_age_hours:Number.isFinite(statusAgeHours)?Number(statusAgeHours.toFixed(2)):null
+      system_status_age_hours:Number.isFinite(statusAgeHours)?Number(statusAgeHours.toFixed(2)):null,
+      pending_daily:pendingDaily
     };
     const unknown=Number(server?.action_counts?.unknown||0);
     // The server snapshot must have judged the same completed session the site shows;
     // an older "clear" snapshot is stale evidence, not a current judgment.
     const serverMarketAsOf=String(server?.data_trust?.market_as_of||'');
     const serverCurrent=Boolean(expected)&&serverMarketAsOf===expected;
-    const serverOk=['clear','action_required'].includes(String(server?.status||''))&&unknown===0&&server?.data_trust?.ok===true&&serverCurrent;
-    report.server_action={status:serverOk?'PASS':'FAIL',server_status:server?.status||'unknown',judgment_basis:server?.judgment_basis||null,unknown_actions:unknown,data_trust_ok:server?.data_trust?.ok===true,server_market_as_of:serverMarketAsOf||null,server_snapshot_current:serverCurrent,last_checked_at:server?.last_checked_at||server?.generated_at||null};
+    // Inside the grace window the server engine correctly fails closed (cannot_judge/market_data_stale) on the
+    // previous session until Server Action Watch refreshes after Daily; that is "pending", not a QA failure.
+    const serverPending=Boolean(graceDate)&&serverMarketAsOf===graceDate&&unknown===0
+      &&String(server?.status||'')==='cannot_judge'&&String(server?.judgment_basis||'')==='market_data_stale';
+    const serverOk=(['clear','action_required'].includes(String(server?.status||''))&&unknown===0&&server?.data_trust?.ok===true&&serverCurrent)||serverPending;
+    if(pendingDaily||serverPending)console.log(`::notice title=MyAlpha QA::QA_PENDING_DAILY site=${marketAsOf} server=${serverMarketAsOf} grace=${graceDate}`);
+    report.server_action={status:serverOk?'PASS':'FAIL',server_status:server?.status||'unknown',judgment_basis:server?.judgment_basis||null,unknown_actions:unknown,data_trust_ok:server?.data_trust?.ok===true,server_market_as_of:serverMarketAsOf||null,server_snapshot_current:serverCurrent,pending_daily:serverPending,last_checked_at:server?.last_checked_at||server?.generated_at||null};
   }else{
     report.business_data={status:'FAIL',error:`status ${sr.status}/${dr.status}/${ar.status}`};
     report.server_action={status:'FAIL',error:'server action status unavailable'};

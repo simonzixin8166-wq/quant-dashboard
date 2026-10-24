@@ -9,7 +9,7 @@ from __future__ import annotations
 import json
 from datetime import datetime, timezone
 from pathlib import Path
-from trading_calendar import expected_latest_completed_session
+from trading_calendar import expected_latest_completed_session, monitor_grace_session
 
 ROOT=Path(__file__).resolve().parents[1]
 STATUS=ROOT/"docs"/"research"/"playbook_status.json"
@@ -34,7 +34,9 @@ def check(now=None):
     problems=[]
     if not s:problems.append("missing_playbook_status")
     market=str(s.get("market_date") or "")[:10]
-    if market!=expected:problems.append(f"market_date_stale:{market or 'missing'}!=expected:{expected}")
+    grace=monitor_grace_session(now)
+    pending_daily=bool(grace) and market==grace.isoformat()
+    if market!=expected and not pending_daily:problems.append(f"market_date_stale:{market or 'missing'}!=expected:{expected}")
     if (s.get("heartbeat") or {}).get("status")!="pass":problems.append("heartbeat_not_pass")
     if (s.get("storage") or {}).get("forward_clock_active") and a.get("status")!="ok":
         problems.append(f"ledger_anchor_{a.get('status') or 'missing'}")
@@ -48,6 +50,7 @@ def check(now=None):
         "checked_at":now.isoformat(),
         "expected_market_date":expected,
         "observed_market_date":market or None,
+        "pending_daily":pending_daily,
         "problems":problems,
     }
 

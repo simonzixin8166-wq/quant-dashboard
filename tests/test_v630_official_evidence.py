@@ -78,3 +78,23 @@ for sym in ["NOW","NBIS","CRWV","MU"]:
 assert not any(s in oe.selected_symbols(crowded_planner,review_evidence) for s in ["NOW","NBIS","CRWV","MU"]), "unverified reviews never jump the queue"
 assert len(crowded)<=14
 print("PASS learning-review priority over backlog queue")
+
+# 2026-10-25: SEC's ticker directory returned 403 (official_evidence.json @aeb2048c). The engine is fail-soft and
+# records ticker_directory_error; the Public Leak Guard must accept that root key, otherwise a transient SEC outage
+# during Daily would fail Daily's verify step (the same class as E-01).
+import json as _json, sys as _sys
+_sys.path.insert(0, str(ROOT / "scripts"))
+import private_guardrail as _pg
+def _boom(url, ua):
+    raise RuntimeError("HTTP Error 403: Forbidden")
+oldj = oe.request_json
+oe.request_json = _boom
+try:
+    down = oe.build(planner, {}, "MyAlpha Test")
+finally:
+    oe.request_json = oldj
+assert down["ticker_directory_status"] == "error" and down["ticker_directory_error"] == "HTTP Error 403: Forbidden"
+_path = ROOT / "docs" / "research" / "official_evidence.json"
+assert _pg.schema_findings(_path, _json.dumps(down)) == [], _pg.schema_findings(_path, _json.dumps(down))
+assert set(down) <= _pg.PUBLIC_JSON_ROOT_ALLOWLIST["docs/research/official_evidence.json"]
+print("PASS official evidence SEC outage stays fail-soft and guardrail-clean")

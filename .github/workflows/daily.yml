@@ -79,6 +79,17 @@ jobs:
         if: steps.forward_observations.outcome == 'failure'
         run: python scripts/module_failure_marker.py forward_observations
 
+      - name: Forward outcome ledger (fsc-1.0 scoring, append-only, aggregate scorecard)
+        id: forward_outcomes
+        # Never blocks the market update: reads the forward ledgers only; contract mismatch or an append-only
+        # violation fails this step closed (nothing written) and is marked below.
+        continue-on-error: true
+        run: python scripts/forward_outcome_ledger.py
+
+      - name: Record forward_outcomes failure (visible in system status)
+        if: steps.forward_outcomes.outcome == 'failure'
+        run: python scripts/module_failure_marker.py forward_outcomes
+
       - name: Bootstrap / refresh Replay history dependencies
         id: replay_history_bootstrap
         continue-on-error: true
@@ -486,6 +497,7 @@ jobs:
           python tests/test_v615_decision_authority.py
           python tests/test_v615_auto_thesis_engine.py
           python tests/test_forward_observation_engine.py
+          python tests/test_forward_outcome_ledger.py
           python tests/test_thesis_revision_memory.py
           python tests/test_v610a_playbook_engine.py
           python tests/test_v610b_parallel_safety.py

@@ -65,3 +65,25 @@ yt2 = next(c for c in build(window_only, old_only)["expected_coverage"]["channel
 assert yt2["coverage_state"] == "present_stale"
 assert "youtube" in build(window_only, {"records": store["records"][:5]})["expected_coverage"]["missing_or_stale_channels"]
 print("PASS SRC-02 coverage over the full canonical store: undated records counted, not hidden")
+
+# SRC-02b: dates resolved later by wxc-bot (#67) count for coverage only; SRC-03: None quality = NOT_ASSESSED
+from scripts.source_coverage_audit import quality_label, _video_id
+store_yt = {"records": store["records"][:5] + [
+    srow({"id": "y1", "source": "youtube", "author": "老李玩钱", "url": "https://www.youtube.com/watch?v=b_ZVO8_QfJ0"},
+         "", "2026-10-06T05:00:00Z")]}
+out4 = build(window_only, store_yt, {"b_ZVO8_QfJ0": "2026-10-05T03:10:00+00:00"}, "ok")
+yt4 = next(c for c in out4["expected_coverage"]["channels"] if c["source"] == "youtube")
+assert yt4["coverage_state"] == "active_recent" and yt4["undated_records"] == 0 and yt4["recent_30d"] == 1
+assert out4["window"]["dates_resolved_after_admission"] == 1 and out4["window"]["resolved_dates_source"] == "ok"
+assert out4["expected_coverage"]["active_undated_channels"] == [] and out4["alerts"] == []
+assert store_yt["records"][5]["published_at"] == ""          # the stored row itself is never modified
+out5 = build(window_only, store_yt, {}, "unavailable:URLError")
+assert out5["window"]["resolved_dates_source"] == "unavailable:URLError" and out5["expected_coverage"]["active_undated_channels"] == ["youtube"]
+assert quality_label(None) == "NOT_ASSESSED" and quality_label("") == "NOT_ASSESSED" and quality_label("q2") == "Q2"
+assert _video_id({"url": "https://www.youtube.com/watch?v=b_ZVO8_QfJ0&t=3"}) == "b_ZVO8_QfJ0"
+src_nq = {"generated_at": "2026-10-07T04:00:00+00:00", "counts": {"records": 1},
+          "feed_integrity": {"text_depth": {"title_only": 3, "excerpt": 1, "full_text": 0}},
+          "records": [dict(records[0], content_quality=None)]}
+q = build(src_nq)["quality"]
+assert q["content_quality_counts"] == {"NOT_ASSESSED": 1} and q["text_depth"]["title_only"] == 3
+print("PASS SRC-02b/SRC-03 resolved YouTube dates counted for coverage only; NOT_ASSESSED quality + text depth")

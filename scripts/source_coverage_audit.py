@@ -20,6 +20,7 @@ import pandas as pd
 ROOT=Path(__file__).resolve().parents[1]
 SRC=ROOT/"docs"/"data"/"source_intelligence.json"
 OUT=ROOT/"docs"/"research"/"source_coverage_audit.json"
+STORE=ROOT/"research"/"store"/"source_store.json"
 VERSION="1.0"
 
 EXPECTED_WXC_AUTHORS=("BrightLine","yifan99","三心三意","我是一只井底蛙","bogbog")
@@ -38,8 +39,24 @@ def parse_day(value):
         return ts.date()
     except Exception:return None
 
-def build(source):
-    rows=list(source.get("records") or [])
+def store_records(store):
+    """Full canonical stream (SRC-02): every stored source with its own published_at and first_fetched_at."""
+    out=[]
+    for x in (store or {}).get("records") or []:
+        if not isinstance(x,dict) or not isinstance(x.get("record"),dict):continue
+        r=dict(x["record"])
+        r["published_at"]=x.get("published_at") or r.get("published_at") or ""
+        r["_captured_at"]=x.get("first_fetched_at") or r.get("captured_at") or ""
+        r["_online"]=x.get("source_still_online") is not False
+        out.append(r)
+    return out
+
+def build(source, store=None):
+    """Coverage over the full canonical store when available; otherwise over the 800-row presentation window.
+    The window alone hides undated records (they sort last), which made YouTube look absent (#133 6391860281)."""
+    full=store_records(store) if store else []
+    window_rows=list(source.get("records") or [])
+    rows=full or window_rows
     generated=pd.Timestamp(source.get("generated_at") or datetime.now(timezone.utc))
     if generated.tzinfo is None:generated=generated.tz_localize("UTC")
     ref_day=generated.tz_convert("UTC").date()
@@ -73,6 +90,14 @@ def build(source):
             if age is not None and 0<=age<=days:out+=1
         return out
 
+    def captured_undated(items,days):
+        out=0
+        for r in items:
+            if parse_day(r.get("published_at")) is not None:continue
+            cap=parse_day(r.get("_captured_at"))
+            if cap is not None and 0<=(ref_day-cap).days<=days:out+=1
+        return out
+
     def latest_day(items):
         days=[parse_day(r.get("published_at")) for r in items]
         days=[d for d in days if d is not None]
@@ -95,6 +120,7 @@ def build(source):
 
     channels=[]
     missing_channels=[]
+    undated_channels=[]
     for channel in EXPECTED_CHANNELS:
         items=by_channel.get(channel,[])
         row={
@@ -103,8 +129,18 @@ def build(source):
             "recent_7d":window_count(items,HOT_DAYS),
             "recent_30d":window_count(items,RECENT_DAYS),
             "latest_published_at":latest_day(items),
+            "undated_records":sum(1 for r in items if parse_day(r.get("published_at")) is None),
+            "undated_captured_30d":captured_undated(items,RECENT_DAYS),
         }
-        row["coverage_state"]="active_recent" if row["recent_30d"]>0 else ("present_stale" if items else "missing")
+        if row["undated_captured_30d"]>0:
+            # records keep arriving without a reproducible publication date: learning-only, never forward-usable
+            undated_channels.append(channel)
+        if row["recent_30d"]>0:
+            row["coverage_state"]="active_recent"
+        elif row["undated_captured_30d"]>0:
+            row["coverage_state"]="active_undated"
+        else:
+            row["coverage_state"]="present_stale" if items else "missing"
         if row["coverage_state"] in {"present_stale","missing"}:missing_channels.append(channel)
         channels.append(row)
 
@@ -120,7 +156,10 @@ def build(source):
         "state":state,
         "window":{
             "records_examined":len(rows),
+            "basis":"full_canonical_store" if full else "presentation_window",
+            "presentation_window_records":len(window_rows),
             "source_intelligence_total_records":int((source.get("counts") or {}).get("records") or len(rows)),
+            "undated_records":sum(1 for r in rows if parse_day(r.get("published_at")) is None),
             "presentation_window_is_recent_newest_first":True,
         },
         "expected_coverage":{
@@ -128,6 +167,7 @@ def build(source):
             "channels":channels,
             "missing_or_stale_authors":missing_authors,
             "missing_or_stale_channels":missing_channels,
+            "active_undated_channels":undated_channels,
         },
         "quality":{
             "published_timestamp_parseable_ratio":timestamp_ratio,
@@ -140,6 +180,7 @@ def build(source):
         "alerts":[
             *[{"kind":"author_coverage","subject":x,"severity":"P1","message":"Expected Wenxuecity author has no source record within 30 days."} for x in missing_authors],
             *[{"kind":"channel_coverage","subject":x,"severity":"P1","message":"Expected source channel has no source record within 30 days."} for x in missing_channels],
+            *[{"kind":"channel_publication_dates","subject":x,"severity":"P2","message":"Records captured within 30 days but without a reproducible publication date (learning-only, non-forward)."} for x in undated_channels],
         ],
         "production_effect":"none",
         "promotion_effect":"none",
@@ -153,7 +194,7 @@ def build(source):
     }
 
 def main():
-    out=build(load(SRC,{}))
+    out=build(load(SRC,{}),load(STORE,{}))
     OUT.parent.mkdir(parents=True,exist_ok=True)
     OUT.write_text(json.dumps(out,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
     print(json.dumps({"state":out["state"],"alerts":len(out["alerts"]),"window":out["window"]},ensure_ascii=False))

@@ -42,3 +42,26 @@ assert out2["production_effect"]=="none"
 assert out2["promotion_effect"]=="none"
 
 print("PASS continuous source coverage audit / observational fail-safe")
+
+# SRC-02 (#133 6391860281): with the canonical store, undated records are counted instead of vanishing past the
+# 800-row window; a channel that only receives undated records is "active_undated" (P2), not missing (P1).
+def srow(rec, published, fetched, online=True):
+    return {"record": rec, "published_at": published, "first_fetched_at": fetched, "source_still_online": online}
+store = {"records": [srow(r, r["published_at"], "2026-10-06T00:00:00Z") for r in records[:5]] + [
+    srow({"id": "y1", "source": "youtube", "author": "老李玩钱"}, "", "2026-10-06T05:00:00Z"),
+    srow({"id": "y2", "source": "youtube", "author": "老李玩钱"}, "", "2026-08-01T05:00:00Z")]}
+window_only = {"generated_at": "2026-10-07T04:00:00+00:00", "counts": {"records": 7}, "records": records[:5]}
+assert "youtube" in build(window_only)["expected_coverage"]["missing_or_stale_channels"]        # old blind spot
+out3 = build(window_only, store)
+yt = next(c for c in out3["expected_coverage"]["channels"] if c["source"] == "youtube")
+assert out3["window"]["basis"] == "full_canonical_store" and out3["window"]["undated_records"] == 2
+assert yt["coverage_state"] == "active_undated" and yt["undated_records"] == 2 and yt["undated_captured_30d"] == 1
+assert "youtube" not in out3["expected_coverage"]["missing_or_stale_channels"]
+assert out3["expected_coverage"]["active_undated_channels"] == ["youtube"]
+assert [a["severity"] for a in out3["alerts"]] == ["P2"] and out3["state"] == "operational"
+# an old undated record alone is still stale, and a truly absent channel is still P1
+old_only = {"records": store["records"][:5] + [store["records"][6]]}
+yt2 = next(c for c in build(window_only, old_only)["expected_coverage"]["channels"] if c["source"] == "youtube")
+assert yt2["coverage_state"] == "present_stale"
+assert "youtube" in build(window_only, {"records": store["records"][:5]})["expected_coverage"]["missing_or_stale_channels"]
+print("PASS SRC-02 coverage over the full canonical store: undated records counted, not hidden")

@@ -1,52 +1,55 @@
 {
   "version": "1.0",
-  "generated_at": "2026-10-25T01:32:07.943286+00:00",
+  "generated_at": "2026-10-25T01:34:09.735840+00:00",
   "reference_date": "2026-10-25",
   "state": "operational",
   "window": {
-    "records_examined": 800,
+    "records_examined": 2470,
+    "basis": "full_canonical_store",
+    "presentation_window_records": 800,
     "source_intelligence_total_records": 2467,
+    "undated_records": 32,
     "presentation_window_is_recent_newest_first": true
   },
   "expected_coverage": {
     "wenxuecity_authors": [
       {
         "author": "BrightLine",
-        "records_in_window": 13,
+        "records_in_window": 142,
         "recent_7d": 3,
-        "recent_30d": 13,
+        "recent_30d": 27,
         "latest_published_at": "2026-10-21",
         "coverage_state": "active_recent"
       },
       {
         "author": "yifan99",
-        "records_in_window": 11,
+        "records_in_window": 46,
         "recent_7d": 7,
-        "recent_30d": 11,
+        "recent_30d": 46,
         "latest_published_at": "2026-10-24",
         "coverage_state": "active_recent"
       },
       {
         "author": "三心三意",
-        "records_in_window": 470,
+        "records_in_window": 757,
         "recent_7d": 241,
-        "recent_30d": 470,
+        "recent_30d": 757,
         "latest_published_at": "2026-10-24",
         "coverage_state": "active_recent"
       },
       {
         "author": "我是一只井底蛙",
-        "records_in_window": 78,
+        "records_in_window": 132,
         "recent_7d": 35,
-        "recent_30d": 78,
+        "recent_30d": 132,
         "latest_published_at": "2026-10-23",
         "coverage_state": "active_recent"
       },
       {
         "author": "bogbog",
-        "records_in_window": 160,
+        "records_in_window": 1099,
         "recent_7d": 110,
-        "recent_30d": 160,
+        "recent_30d": 245,
         "latest_published_at": "2026-10-24",
         "coverage_state": "active_recent"
       }
@@ -54,41 +57,49 @@
     "channels": [
       {
         "source": "wenxuecity",
-        "records_in_window": 798,
+        "records_in_window": 2435,
         "recent_7d": 416,
-        "recent_30d": 798,
+        "recent_30d": 1342,
         "latest_published_at": "2026-10-24",
+        "undated_records": 0,
+        "undated_captured_30d": 0,
         "coverage_state": "active_recent"
       },
       {
         "source": "youtube",
-        "records_in_window": 2,
+        "records_in_window": 35,
         "recent_7d": 2,
-        "recent_30d": 2,
+        "recent_30d": 3,
         "latest_published_at": "2026-10-21",
+        "undated_records": 32,
+        "undated_captured_30d": 32,
         "coverage_state": "active_recent"
       }
     ],
     "missing_or_stale_authors": [],
-    "missing_or_stale_channels": []
+    "missing_or_stale_channels": [],
+    "active_undated_channels": [
+      "youtube"
+    ]
   },
   "quality": {
-    "published_timestamp_parseable_ratio": 1.0,
+    "published_timestamp_parseable_ratio": 0.9870445344129555,
     "content_quality_counts": {
-      "Q3": 2,
-      "UNKNOWN": 798
+      "UNKNOWN": 2470
     },
-    "symbol_role_counts": {
-      "comparison_peer": 14,
-      "contextual_mention": 127,
-      "holding_mention": 14,
-      "primary_subject": 141
-    },
-    "multi_symbol_records": 55,
-    "ambiguous_multi_symbol_records": 38,
-    "ambiguous_multi_symbol_ratio": 0.6909090909090909
+    "symbol_role_counts": {},
+    "multi_symbol_records": 194,
+    "ambiguous_multi_symbol_records": 194,
+    "ambiguous_multi_symbol_ratio": 1.0
   },
-  "alerts": [],
+  "alerts": [
+    {
+      "kind": "channel_publication_dates",
+      "subject": "youtube",
+      "severity": "P2",
+      "message": "Records captured within 30 days but without a reproducible publication date (learning-only, non-forward)."
+    }
+  ],
   "production_effect": "none",
   "promotion_effect": "none",
   "guardrails": [

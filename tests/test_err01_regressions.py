@@ -78,12 +78,7 @@ assert len(verify) >= 50 and any("private_guardrail.py" in c for c in verify), l
 refs = set(re.findall(r"(tests/[A-Za-z0-9_.-]+\.(?:py|js|mjs))", ALL_WF))
 dangling = sorted(r for r in refs if not (ROOT / r).is_file())
 assert not dangling, "workflows reference missing test files: " + ", ".join(dangling)
-UNREGISTERED_BASELINE = {  # test files on disk that no workflow runs, as found on 2026-10-23 (to review, not to delete)
-    "tests/brightline_method_map.test.js", "tests/stock_research_and_operations.test.js",
-    "tests/test_research_brief_v41.py", "tests/test_thesis_revision_outcome_memory.py", "tests/test_trend_pulse_backtest.py",
-    "tests/test_trend_pulse_v43.py", "tests/test_v496_layout_hotfix.py", "tests/test_v497_options_decision.py",
-    "tests/test_wenxuecity.py", "tests/trading_calendar_parity.test.js",
-}
+UNREGISTERED_BASELINE = set()  # 10/26: the 10 files found on 10/23 were reviewed, fixed where stale, and registered in v56
 on_disk = {f"tests/{p.name}" for p in (ROOT / "tests").iterdir()
            if p.suffix in (".py", ".js", ".mjs") and (p.name.startswith("test_") or ".test." in p.name)}
 unregistered = sorted(on_disk - refs - UNREGISTERED_BASELINE)

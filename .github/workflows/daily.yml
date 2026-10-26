@@ -62,6 +62,18 @@ jobs:
         if: steps.market_events_calendar.outcome == 'failure'
         run: python scripts/module_failure_marker.py market_events_calendar
 
+      - name: Event calendar (UX-02, display only)
+        id: event_calendar
+        # Display-only list for the homepage; never feeds market_events.json or any decision. Fails soft.
+        continue-on-error: true
+        env:
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+        run: python scripts/event_calendar.py
+
+      - name: Record event_calendar failure (visible in system status)
+        if: steps.event_calendar.outcome == 'failure'
+        run: python scripts/module_failure_marker.py event_calendar
+
       - name: Fetch prices and build site
         env:
           TWELVE_DATA_KEY: ${{ secrets.TWELVE_DATA_KEY }}
@@ -486,6 +498,7 @@ jobs:
           python tests/test_v615_decision_authority.py
           python tests/test_v615_auto_thesis_engine.py
           python tests/test_forward_observation_engine.py
+          python tests/test_event_calendar.py
           python tests/test_thesis_revision_memory.py
           python tests/test_v610a_playbook_engine.py
           python tests/test_v610b_parallel_safety.py

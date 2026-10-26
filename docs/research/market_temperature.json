@@ -5,11 +5,11 @@
  "max_lag_sessions": 2,
  "fixed_scale_components": 3,
  "validation_plan": "docs/development/market_temperature_validation.md",
- "generated_at": "2026-10-24T00:03:06Z",
+ "generated_at": "2026-10-26T15:17:26Z",
  "as_of": "2026-10-23",
- "score": 28,
+ "score": 25,
  "label": "恐惧",
- "components_available": 5,
+ "components_available": 6,
  "components_total": 6,
  "components": [
   {
@@ -69,24 +69,29 @@
   {
    "key": "safe_haven",
    "name": "避险需求",
-   "status": "unavailable",
-   "reason": "SPY/TLT history missing or dates differ",
-   "source": "archive SPY vs TLT 20-session return"
+   "status": "ok",
+   "score": 4.0,
+   "method": "percentile_252",
+   "raw": -0.04022,
+   "value": -0.0402,
+   "as_of": "2026-10-23",
+   "source": "archive SPY vs TLT 20-session return",
+   "lag_sessions": 0
   },
   {
    "key": "credit",
    "name": "信用风险",
    "status": "ok",
-   "score": 0.0,
+   "score": 5.0,
    "method": "fixed_scale",
-   "raw": 0.6,
+   "raw": 0.45,
    "value": {
-    "hy_oas": 3.4,
-    "chg20_pp": 0.6
+    "hy_oas": 3.38,
+    "chg20_pp": 0.45
    },
-   "as_of": "2026-10-22",
+   "as_of": "2026-10-23",
    "source": "FRED ICE BofA US High Yield OAS (via cross_asset_divergence)",
-   "lag_sessions": 1
+   "lag_sessions": 0
   }
  ],
  "status": "ok",
@@ -96,6 +101,6 @@
  "decision": "#133 2026-10-17 owner-approved; SENT-01 CNN stays link-out only",
  "change_vs": {
   "as_of": "2026-10-16",
-  "delta": -4
+  "delta": -7
  }
 }

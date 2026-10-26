@@ -1,15 +1,15 @@
 {
   "version": "6.13.2",
-  "generated_at": "2026-10-26T15:17:45.542842+00:00",
+  "generated_at": "2026-10-26T23:31:50.890826+00:00",
   "title": "Learning Evaluation · 自我评估中心",
   "learning_health": {
-    "score": 68.4,
+    "score": 67.1,
     "max_score": 100,
     "meaning": "衡量学习链覆盖、反证纪律、未知项透明度、历史记忆和直接方法验证成熟度；不是收益率或买卖评分。",
     "components": {
       "research_execution": 24,
-      "counter_evidence_discipline": 15.0,
-      "explicit_unknowns": 9.4,
+      "counter_evidence_discipline": 10.0,
+      "explicit_unknowns": 13.1,
       "historical_memory": 20,
       "direct_method_validation": 0
     }
@@ -20,8 +20,8 @@
       "validation_state": "forward_unproven",
       "feedback_state": "research_priority_only",
       "historical_mature_20": 7953,
-      "historical_mature_60": 7659,
-      "historical_mature_120": 7243,
+      "historical_mature_60": 7660,
+      "historical_mature_120": 7246,
       "forward_mature_20": 0,
       "forward_mature_60": 0,
       "current_situations": 26,
@@ -47,7 +47,7 @@
       "feedback_state": "hypothesis_only",
       "review_samples": 20,
       "with_sec_context": 0,
-      "with_ranked_event_context": 3,
+      "with_ranked_event_context": 6,
       "gap": "事件窗口目前是描述性邻近关系；日期接近不等于因果，且现有复盘样本的事件上下文覆盖仍有限。",
       "safe_effect": "生成复盘假设/研究优先级"
     },
@@ -80,27 +80,27 @@
   },
   "research_scorecard": {
     "analyzed": 8,
-    "high_confidence": 3,
-    "medium_confidence": 3,
+    "high_confidence": 1,
+    "medium_confidence": 5,
     "low_confidence": 2,
-    "with_counter_evidence": 6,
-    "with_unknowns": 5,
-    "open_tasks": 15,
-    "high_priority_tasks": 3,
+    "with_counter_evidence": 4,
+    "with_unknowns": 7,
+    "open_tasks": 21,
+    "high_priority_tasks": 8,
     "situation_memory": 26
   },
   "outcome_memory": {
     "symbols": 41,
-    "events": 8091,
+    "events": 8090,
     "mature_20": 7953,
-    "mature_60": 7659,
-    "mature_120": 7243,
+    "mature_60": 7660,
+    "mature_120": 7246,
     "role": "历史库提供先验与相似情境；实时前瞻结果用于验证系统当时判断是否可靠。"
   },
   "method_validation": {
-    "source_records": 2478,
-    "eligible_triggered_events": 79,
-    "direct_method_links": 74,
+    "source_records": 2510,
+    "eligible_triggered_events": 80,
+    "direct_method_links": 75,
     "mature60_eligible_events": 35,
     "methods_with_direct_validation": 0,
     "validated_methods": 0,
@@ -172,20 +172,29 @@
   },
   "evidence_gaps": [
     {
-      "category": "其他待验证项",
-      "count": 8,
+      "category": "官方/一手证据",
+      "count": 17,
       "examples": [
-        "tcds_cross_zero：存在疑似定义线索，但需逐项核实公式、参数、周期和原文语义后才能编译。",
-        "任何缺失定义必须从作者原始材料或可审计定义中补齐，不能用通用指标默认参数替代。",
-        "supertrend_bullish：现有同作者资料只有概念/使用线索，尚无可审计公式或参数定义。"
+        "SEC官方证据暂不可用：unmapped",
+        "尚未完成本任务对应的最新SEC官方披露核验",
+        "已读取 5 条相关一般媒体线索，但暂无 Reuters/AP/新闻稿等高优先级事件源确认"
       ]
     },
     {
-      "category": "期权/私有结果",
-      "count": 2,
+      "category": "其他待验证项",
+      "count": 5,
       "examples": [
-        "ppo_hist_positive：现有 Source Reading 未找到同作者可用定义线索。",
-        "macd_hist_positive：现有同作者资料只有概念/使用线索，尚无可审计公式或参数定义。"
+        "外部作者自述操作的到期复盘 3 条（未经核实，仅作背景，不计入反证或失败归因）",
+        "tcds_cross_zero：存在疑似定义线索，但需逐项核实公式、参数、周期和原文语义后才能编译。",
+        "任何缺失定义必须从作者原始材料或可审计定义中补齐，不能用通用指标默认参数替代。"
+      ]
+    },
+    {
+      "category": "行业/同业证据",
+      "count": 4,
+      "examples": [
+        "行业同业联动样本暂不足",
+        "同业样本已读取但未形成一致共振：3 个，方向 mixed"
       ]
     }
   ],
@@ -200,51 +209,57 @@
     "principle": "错误记忆只用于定位研究流程问题；不因单一样本自动修改交易规则。"
   },
   "lessons": [
-    "本轮自动完成 8 项研究，其中高置信度 3 项；所有结论继续区分支持证据、反证和未知项。",
-    "历史库已有 7659 个60日成熟状态样本，可用于相似情境先验；实时前瞻样本仍单独验证。",
-    "Method Memory 已吸收 2478 条来源记录，但直接方法验证仍需继续积累。",
-    "当前最大证据缺口是“其他待验证项”（8 项），下一轮研究应优先补齐而不是猜测。",
+    "本轮自动完成 8 项研究，其中高置信度 1 项；所有结论继续区分支持证据、反证和未知项。",
+    "历史库已有 7660 个60日成熟状态样本，可用于相似情境先验；实时前瞻样本仍单独验证。",
+    "Method Memory 已吸收 2510 条来源记录，但直接方法验证仍需继续积累。",
+    "当前最大证据缺口是“官方/一手证据”（17 项），下一轮研究应优先补齐而不是猜测。",
     "当前外部方法仍没有足够直接归因样本，因此不能把博主观点晋级为正式策略。"
   ],
   "next_learning_focus": [
     {
       "priority": 1,
-      "focus": "其他待验证项",
-      "reason": "本轮出现 8 个未完成验证项。",
+      "focus": "官方/一手证据",
+      "reason": "本轮出现 17 个未完成验证项。",
       "action": "优先补证据并记录结果；不得用推测填补缺失事实。"
     },
     {
       "priority": 2,
-      "focus": "期权/私有结果",
-      "reason": "本轮出现 2 个未完成验证项。",
+      "focus": "其他待验证项",
+      "reason": "本轮出现 5 个未完成验证项。",
       "action": "优先补证据并记录结果；不得用推测填补缺失事实。"
     },
     {
       "priority": 3,
+      "focus": "行业/同业证据",
+      "reason": "本轮出现 4 个未完成验证项。",
+      "action": "优先补证据并记录结果；不得用推测填补缺失事实。"
+    },
+    {
+      "priority": 4,
       "focus": "方法直接验证",
       "reason": "当前方法库以来源记录和候选事件为主，直接方法归因样本不足。",
       "action": "继续锁定触发时点并等待5/20/60/120日结果成熟。"
     }
   ],
   "shadow_status": {
-    "candidate_count": 1,
+    "candidate_count": 2,
     "eligible_for_review": 0,
     "production_brain": "locked"
   },
   "three_tier_metrics_isolation": {
     "ingestion_volume": {
-      "source_records": 2478,
+      "source_records": 2510,
       "operation_cases": 20,
       "note": "数据采集数量：仅代表外部观点与文献摄入规模，不等于学习能力或预测准确度。"
     },
     "research_coverage": {
       "symbols_analyzed": 8,
       "auto_thesis_symbols": 4,
-      "open_planner_tasks": 15,
+      "open_planner_tasks": 21,
       "note": "研究覆盖率：代表系统已形成假设与结构化研究草稿的资产范围。"
     },
     "historical_reconstruction": {
-      "historical_mature_60": 7659,
+      "historical_mature_60": 7660,
       "note": "历史重建样本：仅作为先验与相似情境库，不属于前瞻实证成熟样本。"
     },
     "genuine_learning_outcomes": {

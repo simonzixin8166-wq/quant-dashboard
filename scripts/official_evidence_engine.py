@@ -13,6 +13,12 @@ from __future__ import annotations
 import html, json, os, re, time, urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
+try:  # SEC fair-access identity (secret, never persisted)
+    from sec_identity import user_agent as sec_user_agent
+except ModuleNotFoundError:  # loaded by file path (tests) without scripts/ on sys.path
+    import os as _os, sys as _sys
+    _sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__)))
+    from sec_identity import user_agent as sec_user_agent
 
 ROOT=Path(__file__).resolve().parents[1]
 PLANNER=ROOT/"docs/research/research_planner.json"
@@ -183,7 +189,7 @@ def build(planner,previous,user_agent,evidence=None):
 
 def main():
     planner=load(PLANNER); previous=load(PREVIOUS)
-    ua=os.getenv("SEC_USER_AGENT","MyAlphaView/6.3 research-agent myalphaview.com")
+    ua=sec_user_agent()
     out=build(planner,previous,ua,load(EVIDENCE))
     OUT.parent.mkdir(parents=True,exist_ok=True)
     OUT.write_text(json.dumps(out,ensure_ascii=False,indent=2),encoding="utf-8")

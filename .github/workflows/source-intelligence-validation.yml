@@ -149,6 +149,10 @@ concurrency:
   group: myalpha-production-writer
   cancel-in-progress: false
 
+env:
+  # SEC fair-access identity: the contact email stays in a secret, never in this public repo (scripts/sec_identity.py)
+  SEC_USER_AGENT: ${{ secrets.SEC_USER_AGENT }}
+
 jobs:
   validate:
     runs-on: ubuntu-latest

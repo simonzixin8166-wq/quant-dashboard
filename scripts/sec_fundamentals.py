@@ -18,7 +18,13 @@ ROOT = Path(__file__).resolve().parents[1]
 ARCHIVE = ROOT / "data" / "history" / "stooq_watchlist.zip"
 OUT = ROOT / "docs" / "research" / "sec_fundamentals.json"
 import os
-UA = {"User-Agent": os.getenv("SEC_USER_AGENT", "MyAlphaView/6.9 research-agent myalphaview.com"), "Accept": "application/json"}  # same identity as company_fundamental_memory
+try:  # SEC fair-access identity (secret, never persisted)
+    from sec_identity import user_agent as sec_user_agent
+except ModuleNotFoundError:  # loaded by file path (tests) without scripts/ on sys.path
+    import os as _os, sys as _sys
+    _sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__)))
+    from sec_identity import user_agent as sec_user_agent
+UA = {"User-Agent": sec_user_agent(), "Accept": "application/json"}  # same identity as company_fundamental_memory
 NON_OPERATING = {"QQQ", "QQQM", "QLD", "TQQQ", "VGT", "VOO", "SMH", "SPY", "VIX", "DRAM"}
 REVENUE = ("RevenueFromContractWithCustomerExcludingAssessedTax", "Revenues", "SalesRevenueNet",
            "RevenueFromContractWithCustomerIncludingAssessedTax")

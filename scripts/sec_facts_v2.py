@@ -24,6 +24,12 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 from company_fundamental_memory import CONCEPTS  # noqa: E402  (old metric map; v2 uses every listed concept)
 from sec_fundamentals import NON_OPERATING  # noqa: E402
+try:  # SEC fair-access identity (secret, never persisted)
+    from sec_identity import user_agent as sec_user_agent
+except ModuleNotFoundError:  # loaded by file path (tests) without scripts/ on sys.path
+    import os as _os, sys as _sys
+    _sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__)))
+    from sec_identity import user_agent as sec_user_agent
 
 OFFICIAL = ROOT / "docs" / "research" / "official_evidence.json"
 PRICE_ARCHIVE = ROOT / "data" / "history" / "stooq_watchlist.zip"
@@ -31,7 +37,7 @@ ARCH = ROOT / "research" / "archive" / "fundamentals_v2"
 SHADOW = ROOT / "docs" / "research" / "shadow" / "company_fundamental_memory_v2.json"
 TICKERS = "https://www.sec.gov/files/company_tickers.json"
 BASE = "https://data.sec.gov/api/xbrl/companyfacts/CIK{cik:010d}.json"
-UA = os.getenv("SEC_USER_AGENT", "MyAlphaView/6.9 research-agent myalphaview.com")
+UA = sec_user_agent()
 EXTRA = {"revenue": ["RevenueFromContractWithCustomerIncludingAssessedTax"],
          "net_income": ["NetIncomeLossAvailableToCommonStockholdersBasic", "NetIncomeLossAttributableToParent"]}
 ALLOWED_UNITS = {"USD", "USD/shares", "shares"}

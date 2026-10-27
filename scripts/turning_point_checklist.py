@@ -24,6 +24,12 @@ import io, json, os, sys, urllib.request, zipfile
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from zoneinfo import ZoneInfo
+try:  # SEC fair-access identity (secret, never persisted)
+    from sec_identity import user_agent as sec_user_agent
+except ModuleNotFoundError:  # loaded by file path (tests) without scripts/ on sys.path
+    import os as _os, sys as _sys
+    _sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__)))
+    from sec_identity import user_agent as sec_user_agent
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
@@ -99,7 +105,7 @@ def latest_earnings_filing(submissions, today):
 
 
 def sec_submissions(cik):
-    ua = os.getenv("SEC_USER_AGENT", "MyAlphaView/6.9 research-agent myalphaview.com")
+    ua = sec_user_agent()
     req = urllib.request.Request(f"https://data.sec.gov/submissions/CIK{cik:010d}.json",
                                  headers={"User-Agent": ua, "Accept": "application/json", "Accept-Encoding": "identity"})
     with urllib.request.urlopen(req, timeout=15) as r:

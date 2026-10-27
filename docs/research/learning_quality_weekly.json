@@ -1,16 +1,16 @@
 {
   "version": "learning-quality-weekly-1.1",
-  "generated_at": "2026-10-19T01:39:55.954930+00:00",
-  "week": "2026-W43",
+  "generated_at": "2026-10-26T01:41:11.257897+00:00",
+  "week": "2026-W44",
   "baseline_report": false,
   "learning_health": {
-    "score": 66.5,
+    "score": 70.2,
     "max_score": 100,
     "meaning": "衡量学习链覆盖、反证纪律、未知项透明度、历史记忆和直接方法验证成熟度；不是收益率或买卖评分。",
     "components": {
       "research_execution": 24,
-      "counter_evidence_discipline": 7.5,
-      "explicit_unknowns": 15.0,
+      "counter_evidence_discipline": 15.0,
+      "explicit_unknowns": 11.2,
       "historical_memory": 20,
       "direct_method_validation": 0
     }
@@ -20,24 +20,24 @@
       "validation_state": "forward_unproven",
       "feedback_state": "research_priority_only",
       "numeric": {
-        "historical_mature_20": 7967,
-        "historical_mature_60": 7679,
-        "historical_mature_120": 7261,
+        "historical_mature_20": 7953,
+        "historical_mature_60": 7659,
+        "historical_mature_120": 7241,
         "forward_mature_20": 0,
         "forward_mature_60": 0,
         "current_situations": 26
       }
     },
     "fundamental": {
-      "validation_state": "descriptive_outcomes_maturing",
-      "feedback_state": "thesis_review_plus_outcome_context",
+      "validation_state": "outcome_link_missing",
+      "feedback_state": "thesis_review_only",
       "numeric": {
-        "symbols_with_direct_company": 10,
-        "direct_company_items": 30,
-        "draft_symbols": 13,
-        "linked_direct_events": 29,
-        "outcome_mature_20": 24,
-        "outcome_mature_60": 2
+        "symbols_with_direct_company": 0,
+        "direct_company_items": 0,
+        "draft_symbols": 4,
+        "linked_direct_events": 0,
+        "outcome_mature_20": 0,
+        "outcome_mature_60": 0
       }
     },
     "event": {
@@ -45,19 +45,19 @@
       "feedback_state": "hypothesis_only",
       "numeric": {
         "review_samples": 20,
-        "with_sec_context": 13,
-        "with_ranked_event_context": 13
+        "with_sec_context": 0,
+        "with_ranked_event_context": 3
       }
     },
     "options": {
-      "validation_state": "state_observations_started",
+      "validation_state": "outcome_maturing",
       "feedback_state": "risk_monitoring_plus_outcomes",
       "numeric": {
         "positions_checked": 1,
         "unknown_actions": 0,
         "quote_failures": 0,
         "state_observations": 1,
-        "mature_outcomes": 0
+        "mature_outcomes": 1
       }
     },
     "decision": {
@@ -74,27 +74,27 @@
   },
   "changes_since_previous_report": [
     {
-      "engine": "market",
-      "numeric_deltas": {
-        "current_situations": 2
-      }
-    },
-    {
       "engine": "fundamental",
       "numeric_deltas": {
-        "symbols_with_direct_company": -3,
-        "direct_company_items": -9,
-        "draft_symbols": -2,
-        "linked_direct_events": 7,
-        "outcome_mature_20": 6,
-        "outcome_mature_60": 1
+        "symbols_with_direct_company": -10,
+        "direct_company_items": -30,
+        "draft_symbols": -9,
+        "linked_direct_events": -29,
+        "outcome_mature_20": -24,
+        "outcome_mature_60": -2
       }
     },
     {
       "engine": "event",
       "numeric_deltas": {
-        "with_sec_context": -6,
-        "with_ranked_event_context": -7
+        "with_sec_context": -13,
+        "with_ranked_event_context": -10
+      }
+    },
+    {
+      "engine": "options",
+      "numeric_deltas": {
+        "mature_outcomes": 1
       }
     }
   ],
@@ -110,23 +110,17 @@
     },
     {
       "engine": "fundamental",
-      "state": "descriptive_outcomes_maturing",
-      "gap": "已建立 Direct Company Evidence→后续市场结果的描述性链接；公告后涨跌不等于 Thesis 对错。",
-      "numeric_gaps": []
+      "state": "outcome_link_missing",
+      "gap": "已有 SEC/Direct Company 证据，但尚未形成可验证的后续结果链接。",
+      "numeric_gaps": [
+        "60d_outcomes_early"
+      ]
     },
     {
       "engine": "event",
       "state": "descriptive_context_only",
       "gap": "事件窗口目前是描述性邻近关系；日期接近不等于因果，且现有复盘样本的事件上下文覆盖仍有限。",
       "numeric_gaps": []
-    },
-    {
-      "engine": "options",
-      "state": "state_observations_started",
-      "gap": "真实期权状态观察已开始；成熟结果只来自实际平仓/到期/被指派/展期，不用模拟样本。",
-      "numeric_gaps": [
-        "mature_outcomes=0"
-      ]
     },
     {
       "engine": "decision",

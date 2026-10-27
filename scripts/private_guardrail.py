@@ -40,6 +40,8 @@ PUBLIC_JSON_ROOT_ALLOWLIST = {
     "docs/research/official_evidence.json": {
         "version","generated_at","source","policy","selected_symbols","symbols",
         "counts","ticker_directory_status",
+        # fail-soft SEC outage note (e.g. "HTTP Error 403: Forbidden"); official_evidence_engine caps it at 180 chars
+        "ticker_directory_error",
     },
     "docs/research/event_evidence.json": {
         "version","generated_at","source","policy","selected_symbols","symbols","counts",

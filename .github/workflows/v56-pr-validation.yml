@@ -36,6 +36,7 @@ jobs:
           node --check docs/assets/knowledge.js
           node --check docs/assets/invest-actions.js
           node tests/journal_coverage.test.js
+          node tests/journal_maturity.test.js
           node tests/invest_actions.test.js
           node tests/option_decision.test.js
           node tests/option_scenarios.test.js
@@ -56,6 +57,7 @@ jobs:
           python tests/test_daily_guardian.py
           python tests/test_daily_commit_staging.py
           python tests/test_forward_observation_engine.py
+          python tests/test_forward_outcome_ledger.py
           python tests/test_event_calendar.py
           python tests/test_forward_evidence_forensics.py
           python tests/test_forward_rule_equivalence.py
@@ -83,6 +85,17 @@ jobs:
           python tests/test_author_claim_gate.py
           python tests/test_author_claim_contract.py
           python tests/test_p1_readiness_audit.py
+          # ERR-01 10/26: the 10 test files that no workflow ran (baseline 10/23), reviewed and registered
+          node tests/brightline_method_map.test.js
+          node tests/stock_research_and_operations.test.js
+          node tests/trading_calendar_parity.test.js
+          python tests/test_research_brief_v41.py
+          python tests/test_thesis_revision_outcome_memory.py
+          python tests/test_trend_pulse_backtest.py
+          python tests/test_trend_pulse_v43.py
+          python tests/test_v496_layout_hotfix.py
+          python tests/test_v497_options_decision.py
+          python tests/test_wenxuecity.py
           python tests/test_master_plan.py
           python tests/test_stooq_pack_validate.py
           python tests/test_symbol_registry.py

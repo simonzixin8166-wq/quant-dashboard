@@ -316,6 +316,16 @@ function outcomeFor(bars,eventDate,entryPrice){
   if(first20.length)res.mae20=Math.min(...first20)/Number(entryPrice)-1;
   return res;
 }
+// Alpaca 1Day history includes today's still-forming bar while the NYSE session is open. A maturity close and
+// "已计至" must only count completed sessions, so drop that bar until the close (13:00 ET on early-close days).
+function completedBars(bars,now=new Date()){
+  if(!Array.isArray(bars)||!bars.length)return bars;
+  const p=Object.fromEntries(new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts(now).map(x=>[x.type,x.value]));
+  const today=`${p.year}-${p.month}-${p.day}`,minute=Number(p.hour)*60+Number(p.minute);
+  const close=(global.MAVTradingCalendar?.EARLY_CLOSES||[]).includes(today)?780:960;
+  return String(bars[bars.length-1]?.d)===today&&minute<close?bars.slice(0,-1):bars;
+}
+function readyCount(rows){let n=0;for(const e of rows)for(const c of(e.candidates||[])){const el=num(c?.maturityProgress?.elapsed);if(num(c.price)!==null&&el!==null&&H.some(h=>el>=h&&!c.outcomes?.[h]))n++;}return n}
 function tradingProgress(bars,eventDate){
   if(!Array.isArray(bars)||!bars.length)return null;
   const start=bars.findIndex(x=>String(x.d)>=eventDate);if(start<0)return null;
@@ -332,7 +342,7 @@ async function refreshOutcomes({silent=false}={}){
   if(!symbols.length){state.refreshing=false;if(!silent)global.MAV?.toast?.('当前没有等待补齐的实时结果','good');render();return}
   try{
     const history=await fetchHistory(symbols);state.lastAuthError='';
-    for(const e of rows)for(const c of(e.candidates||[])){const bars=history[c.symbol]?.bars;if(!bars)continue;c.outcomes={...(c.outcomes||{}),...outcomeFor(bars,e.date,c.price)};c.maturityProgress=tradingProgress(bars,e.date);c.lastValidatedAt=new Date().toISOString();}
+    for(const e of rows)for(const c of(e.candidates||[])){const bars=completedBars(history[c.symbol]?.bars);if(!bars||!bars.length)continue;c.outcomes={...(c.outcomes||{}),...outcomeFor(bars,e.date,c.price)};c.maturityProgress=tradingProgress(bars,e.date);c.lastValidatedAt=new Date().toISOString();}
     write(rows);if(!silent)global.MAV?.toast?.('实时 Journal 已补齐当前已成熟的结果','good');
   }catch(err){state.lastAuthError=String(err.message||err);if(!silent)global.MAV?.toast?.(`实时结果补齐暂不可用：${state.lastAuthError}`,'warn')}
   finally{state.refreshing=false;render()}
@@ -424,7 +434,7 @@ async function render(error=''){
   <section class="journal-summary"><article><span>决策日</span><b>${rows.length}</b><small>同日同标的只保留一条主记录</small></article><article><span>等待成熟</span><b>${pending}</b><small>每条从首次入档日起算</small></article><article><span>实时20日成熟</span><b>${s20.n}</b><small>平均 ${pct(s20.avg)}</small></article><article><span>实时60日成熟</span><b>${s60.n}</b><small>平均 ${pct(s60.avg)}</small></article></section>
   ${error||state.lastAuthError?`<div class="journal-warning">${esc(error||state.lastAuthError)}。历史学习不依赖登录，仍可正常使用。</div>`:''}
   <section class="journal-panel"><div class="journal-head"><div><h2>自主学习 · 历史回填</h2><p>使用你提供的 STOOQ OHLCV，本地因果重放 Trend Pulse；不重复下载多年历史，也不使用未来数据。</p></div></div>${stageProfileHtml(history)}${recentHistoryHtml(history)}</section>
-  <section class="journal-panel"><div class="journal-head"><div><h2>实时决策日志</h2><p>保存系统当时真实看到的环境和候选，防止事后改写。20 / 60 / 120均按各自入档交易日起算。</p></div><small>当前可补齐 ${pending===0?0:'部分'} 条</small></div>${coverageHtml(coverage)}${recent.length?`<div class="journal-table-wrap"><table class="journal-table"><thead><tr><th>交易日</th><th>环境</th><th>标的 / 当时判断</th><th>收盘入档价</th><th>20日</th><th>60日</th><th>120日</th></tr></thead><tbody>${recent.map(({e,c})=>`<tr><td>${esc(e.date)}</td><td>${esc(marketLabel(e))}<small>VIX ${e.vix==null?'—':Number(e.vix).toFixed(1)}</small></td><td><b>${esc(c.symbol)}</b><small>${esc(c.decision)} · ${esc(c.stage||c.zone||'')}${(c.transitions||[]).length?` · 日内变化 ${(c.transitions||[]).length}次`:''}</small></td><td>${c.price==null?'—':'$'+Number(c.price).toFixed(2)}</td>${H.map(h=>`<td>${outcomeCell(c,e,h)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`:`<div class="journal-empty"><b>还没有实时记录</b><p>市场状态或候选发生有意义变化后会自动留下快照，不需要手工记录。</p></div>`}</section>
+  <section class="journal-panel"><div class="journal-head"><div><h2>实时决策日志</h2><p>保存系统当时真实看到的环境和候选，防止事后改写。20 / 60 / 120均按各自入档交易日起算。</p></div><small>可补齐 ${readyCount(rows)} 条 · 等待成熟 ${pending} 条</small></div>${coverageHtml(coverage)}${recent.length?`<div class="journal-table-wrap"><table class="journal-table"><thead><tr><th>交易日</th><th>环境</th><th>标的 / 当时判断</th><th>收盘入档价</th><th>20日</th><th>60日</th><th>120日</th></tr></thead><tbody>${recent.map(({e,c})=>`<tr><td>${esc(e.date)}</td><td>${esc(marketLabel(e))}<small>VIX ${e.vix==null?'—':Number(e.vix).toFixed(1)}</small></td><td><b>${esc(c.symbol)}</b><small>${esc(c.decision)} · ${esc(c.stage||c.zone||'')}${(c.transitions||[]).length?` · 日内变化 ${(c.transitions||[]).length}次`:''}</small></td><td>${c.price==null?'—':'$'+Number(c.price).toFixed(2)}</td>${H.map(h=>`<td>${outcomeCell(c,e,h)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`:`<div class="journal-empty"><b>还没有实时记录</b><p>市场状态或候选发生有意义变化后会自动留下快照，不需要手工记录。</p></div>`}</section>
   <section class="journal-panel"><div class="journal-head"><div><h2>历史市场规则验证</h2><p>单独检查观察 / 大跌 / 极端市场触发，不与个股 Trend Pulse 样本混在一起。</p></div></div>${validationHtml(backtestCache)}</section>
   <section class="journal-panel"><div class="journal-head"><div><h2>Weekly Self Review · 每周自主复盘</h2><p>系统评价自己的历史判断、重复提醒和漏掉的行情，并把结论用于后续研究优先级。</p></div></div>${selfReviewHtml(rows)}</section>
   <section class="journal-panel"><div class="journal-head"><div><h2>Agent Error Memory · 错误记忆</h2><p>只记录已经有成熟结果的误报、漏掉上涨和大幅不利波动；它只调整研究权重，不自动修改核心策略。</p></div></div>${(()=>{const errs=errorMemory(rows);return errs.length?`<div class="learning-grid">${errs.slice(0,8).map(x=>`<article class="learning-card"><div><b>${esc(x.symbol)} · ${esc(x.type)}</b><span>${esc(x.date)}</span></div><strong>20日 ${pct(x.return20)}</strong><p>${esc(x.note)}</p><small>当时判断：${esc(x.decision)}</small></article>`).join('')}</div>`:'<div class="journal-empty"><b>暂无成熟错误样本</b><p>待20日结果成熟后自动归类，不会用未成熟样本提前“学习”。</p></div>'})()}</section>
@@ -434,6 +444,6 @@ async function render(error=''){
 }
 function learningForStage(stage){const p=state.history?.profiles?.[stage];if(!p)return null;return {...p.evidence,stats:p.horizons?.['60']||null}}
 async function init(){render();loadOperatorDecisionsRemote();setTimeout(()=>refreshOutcomes({silent:true}),4500);setTimeout(()=>syncForwardJournal().then(()=>render()),6000);loadServerObservations().then(()=>render())}
-global.MAVDecisionJournal={toggleAll,journalCoverage,journalEntryRows,syncForwardJournal,recordAssistantEvent,recordOperatorDecision,updateOperatorDecision,refreshOutcomes,render,getJournal:read,getOperatorDecisions:readOperatorDecisions,getHistorical:()=>state.history,learningForStage,getErrorMemory:()=>errorMemory(read()),getSelfReview:()=>weeklySelfReview(read()),state};
+global.MAVDecisionJournal={_test:{completedBars,readyCount,tradingProgress,outcomeFor},toggleAll,journalCoverage,journalEntryRows,syncForwardJournal,recordAssistantEvent,recordOperatorDecision,updateOperatorDecision,refreshOutcomes,render,getJournal:read,getOperatorDecisions:readOperatorDecisions,getHistorical:()=>state.history,learningForStage,getErrorMemory:()=>errorMemory(read()),getSelfReview:()=>weeklySelfReview(read()),state};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })(window);

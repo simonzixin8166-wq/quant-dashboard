@@ -141,6 +141,10 @@ groups = {(c["group"], c["decision"]) for c in sc["cells"]}
 assert ("genuine_forward", "修复候选") in groups and ("promoted", "等待修复") in groups
 assert all(c["status"] == "INSUFFICIENT" and c["hit_rate"] is None for c in sc["cells"])
 assert sc["learning_state"] == "UNPROVEN" and sc["contract_hash"] == digest and sc["pending"]
+# basis codes come with plain-language readings (GPT 6440332000 §2): no dividends, close-only MAE; contract untouched
+assert "不含股息" in sc["price_basis_zh"] and "不是已做股息调整" in sc["price_basis_zh"]
+assert "每日收盘价" in sc["mae_basis_zh"] and "不代表盘中" in sc["mae_basis_zh"]
+assert sc["price_basis"] == "price_return_ex_dividends_split_adjusted_ledger_close"
 many = []
 for k in range(25):                                                   # 25 rows, one consecutive run -> 1 episode
     many.append({"outcome_id": f"o{k}", "group": "genuine_forward", "h": 20, "symbol": "Y", "session": SESS[k],

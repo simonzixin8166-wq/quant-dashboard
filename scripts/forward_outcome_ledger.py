@@ -45,6 +45,9 @@ SCORER_VERSION = "fol-1.0"
 LATE_GRACE_SESSIONS = 3          # a missing maturity close stays pending this long (owner-agreed, #133 6383888703)
 GAP_LIMIT = 0.40                 # |day-over-day| move above this with no recorded split -> split_unverified
 PRICE_BASIS = "price_return_ex_dividends_split_adjusted_ledger_close"
+PRICE_BASIS_ZH = ("价格收益：只用账本捕获时的收盘价计算，按已核实的拆股换算；不含股息，也不做股息再投资"
+                  "（名称中的 ex_dividends 指不含股息，不是已做股息调整）。")
+MAE_BASIS_ZH = "最大不利变动（MAE）按每日收盘价计算，不代表盘中最大不利波动；任一交易日缺数据时不计算。"
 OPS = {">": lambda a, b: a > b, "<": lambda a, b: a < b, "<=": lambda a, b: a <= b, ">=": lambda a, b: a >= b}
 
 
@@ -324,6 +327,8 @@ def scorecard(current, pending, as_of, contract, contract_hash, generated_at):
         "version": 1, "generated_at": generated_at, "as_of_session": as_of,
         "contract_id": contract["contract_id"], "contract_hash": contract_hash, "scorer_version": SCORER_VERSION,
         "price_basis": PRICE_BASIS, "mae_basis": "ledger daily closes only; null when any session is missing",
+        # plain-language reading of the two basis codes above (display text only; fsc-1.0 contract and hash unchanged)
+        "price_basis_zh": PRICE_BASIS_ZH, "mae_basis_zh": MAE_BASIS_ZH,
         "late_grace_sessions": LATE_GRACE_SESSIONS, "gap_limit": GAP_LIMIT,
         "learning_state": "UNPROVEN",
         "note": "n>=20 is only the minimum reporting threshold, not proof of predictive skill; genuine_forward and "

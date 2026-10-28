@@ -21,6 +21,12 @@ from dashboard_universe import (
     STOCK_META, STOCKS, CN_HK_SYMBOLS, TENCENT_URL,
 )
 from dashboard_option_math import norm_cdf, norm_pdf, calc_option_greeks, build_yahoo_option_ticker
+try:  # SEC fair-access identity (secret, never persisted)
+    from sec_identity import user_agent as sec_user_agent, configured as sec_configured
+except ModuleNotFoundError:  # loaded by file path (tests) without scripts/ on sys.path
+    import os as _os, sys as _sys
+    _sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__)))
+    from sec_identity import user_agent as sec_user_agent, configured as sec_configured
 
 API_KEY = os.environ.get("TWELVE_DATA_KEY", "demo")
 BASE = "https://api.twelvedata.com"
@@ -940,7 +946,7 @@ def fetch_iren_sec_filings(limit=3):
     """读取 IREN 最近 SEC 重要申报，作为公司级信息优先源。"""
     url = "https://data.sec.gov/submissions/CIK0001878848.json"
     sec_headers = {
-        "User-Agent": "myAlphaView/4.2.1 contact@myalphaview.com",
+        "User-Agent": sec_user_agent() if sec_configured() else "myAlphaView/4.2.1 contact@myalphaview.com",
         "Accept": "application/json",
     }
     form_names = {"8-K": "当前报告", "6-K": "境外发行人报告", "10-Q": "季度报告", "10-K": "年度报告", "20-F": "年度报告", "S-3": "注册声明", "F-3": "注册声明"}

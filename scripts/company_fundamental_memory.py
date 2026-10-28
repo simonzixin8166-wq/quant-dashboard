@@ -8,6 +8,12 @@ from __future__ import annotations
 import hashlib,json,os,time,urllib.request
 from datetime import datetime,timezone
 from pathlib import Path
+try:  # SEC fair-access identity (secret, never persisted)
+    from sec_identity import user_agent as sec_user_agent
+except ModuleNotFoundError:  # loaded by file path (tests) without scripts/ on sys.path
+    import os as _os, sys as _sys
+    _sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__)))
+    from sec_identity import user_agent as sec_user_agent
 
 ROOT=Path(__file__).resolve().parents[1]
 OFFICIAL=ROOT/"docs"/"research"/"official_evidence.json"
@@ -93,7 +99,7 @@ def latest_by_metric(rows):
     return out
 
 def build(official,fetcher=get_json,ua=None):
-    ua=ua or os.getenv("SEC_USER_AGENT","MyAlphaView/6.9 research-agent myalphaview.com")
+    ua=ua or sec_user_agent()
     now=datetime.now(timezone.utc).isoformat();symbols={};total_new=0;total_obs=0
     for symbol,node in (official.get("symbols") or {}).items():
         cik=node.get("cik")

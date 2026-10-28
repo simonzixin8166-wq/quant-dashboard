@@ -26,6 +26,11 @@ PREVIOUS=ROOT/"docs/research/official_evidence.json"
 EVIDENCE=ROOT/"docs/research/evidence_attribution.json"
 OUT=PREVIOUS
 ARCHIVE=ROOT/"research/archive/sec_filings"
+# freshness of the *latest* coverage (history is never dropped): a cached symbol is immediately not-latest; it is
+# escalated to an alert after STALE_ALERT_FAILURES consecutive failed runs AND STALE_ALERT_DAYS calendar days
+# without a successful refresh (Owner-approved 2026-10-28, #133 6458368830 §B).
+STALE_ALERT_FAILURES=3
+STALE_ALERT_DAYS=2
 SEC_TICKERS="https://www.sec.gov/files/company_tickers.json"
 SEC_SUBMISSIONS="https://data.sec.gov/submissions/CIK{cik:010d}.json"
 FORMS={"10-K","10-Q","8-K","6-K","20-F","40-F"}
@@ -159,7 +164,8 @@ def cached_symbol(sym,prev,archive):
     Prefers the previous published file, then the append-only archive; returns None if neither knows the symbol."""
     old=prev.get(sym) or {}
     if old.get("cik") and old.get("filings"):
-        return {"cik":old["cik"],"company_name":old.get("company_name"),"filings":old["filings"],"cache_source":"previous"}
+        return {"cik":old["cik"],"company_name":old.get("company_name"),"filings":old["filings"],"cache_source":"previous",
+                "last_success_at":old.get("last_success_at") or old.get("fetched_at")}
     rows=[r for r in archive if str(r.get("symbol") or "").upper()==sym and r.get("cik")]
     if not rows:
         return {"cik":old["cik"],"company_name":old.get("company_name"),"filings":[],"cache_source":"previous"} if old.get("cik") else None
@@ -171,9 +177,27 @@ def cached_symbol(sym,prev,archive):
         seen.add(key)
         filings.append({k:r.get(k) for k in ("form","accession","filing_date","report_date","primary_document","url","document_status")}|{"excerpts":r.get("excerpts") or []})
         if len(filings)>=3:break
-    return {"cik":rows[0]["cik"],"company_name":rows[0].get("company_name"),"filings":filings,"cache_source":"archive"}
+    return {"cik":rows[0]["cik"],"company_name":rows[0].get("company_name"),"filings":filings,"cache_source":"archive",
+            "last_success_at":max((str(r.get("archived_at") or "") for r in rows),default="") or None}
 
-def build(planner,previous,user_agent,evidence=None,archive=None):
+def _age_days(since,now):
+    try:
+        t=datetime.fromisoformat(str(since).replace("Z","+00:00"))
+        return round((now-t).total_seconds()/86400,2)
+    except (TypeError,ValueError):
+        return None
+
+def stale_fields(old,last_success_at,now):
+    """Freshness of the latest coverage for a symbol served from cache: history stays usable as dated evidence,
+    but it is never the latest verified state and never means 'no new filing'."""
+    failures=int((old or {}).get("consecutive_failures") or 0)+1
+    age=_age_days(last_success_at,now)
+    alert=failures>=STALE_ALERT_FAILURES and age is not None and age>=STALE_ALERT_DAYS
+    return {"last_success_at":last_success_at,"cache_age_days":age,"consecutive_failures":failures,
+            "latest_coverage_fresh":False,"freshness":"unavailable_stale" if alert else "stale"}
+
+def build(planner,previous,user_agent,evidence=None,archive=None,now=None):
+    now=now or datetime.now(timezone.utc)
     syms=selected_symbols(planner,evidence)
     result={"version":"6.3.0","generated_at":datetime.now(timezone.utc).isoformat(),
             "source":"SEC EDGAR official","symbols":{},"selected_symbols":syms,
@@ -204,20 +228,29 @@ def build(planner,previous,user_agent,evidence=None,archive=None):
             time.sleep(0.12)
             sub=request_json(SEC_SUBMISSIONS.format(cik=cik),user_agent)
             rows=recent_filings(sub,cik,user_agent)
+            stamp=now.isoformat()
             result["symbols"][sym]={
               "status":"ok","cik":cik,"company_name":meta.get("title") or sub.get("name"),
-              "filings":rows,"fetched_at":datetime.now(timezone.utc).isoformat()
+              "filings":rows,"fetched_at":stamp,"last_success_at":stamp,"consecutive_failures":0,
+              "latest_coverage_fresh":True,"freshness":"fresh"
             }
+            known=(prev.get(sym) or {}).get("cik")
+            if known and int(known)!=int(cik) and meta.get("cik_source")!="cache":
+                # the directory now maps this ticker to another company: keep the new mapping, flag it for review
+                result["symbols"][sym]["cik_changed_from"]=int(known)
+                print(f"::warning title=SEC identity::{sym} CIK changed {known} -> {cik}; review before trusting old filings")
         except Exception as exc:
             old=prev.get(sym) or {}
             fallback=cached or (cached_symbol(sym,prev,archive or []) if not old.get("filings") else None)
             if old.get("filings"):
-                result["symbols"][sym]={**old,"status":"stale_cache","refresh_error":str(exc)[:180]}
+                result["symbols"][sym]={**old,"status":"stale_cache","cache_source":"previous","refresh_error":str(exc)[:180],
+                                        **stale_fields(old,old.get("last_success_at") or old.get("fetched_at"),now)}
             elif fallback and fallback.get("filings"):
                 # never replace known filings with an empty list during an outage; label them as cached
                 result["symbols"][sym]={"status":"stale_cache","cik":fallback["cik"],"company_name":fallback.get("company_name"),
                                         "filings":fallback["filings"],"cache_source":fallback["cache_source"],
-                                        "refresh_error":str(exc)[:180]}
+                                        "refresh_error":str(exc)[:180],
+                                        **stale_fields(old,fallback.get("last_success_at"),now)}
             else:
                 result["symbols"][sym]={"status":"error","cik":cik,"filings":[],"error":str(exc)[:180]}
     counts={
@@ -225,10 +258,16 @@ def build(planner,previous,user_agent,evidence=None,archive=None):
       "mapped":sum(1 for x in result["symbols"].values() if x.get("cik")),
       "ok":sum(1 for x in result["symbols"].values() if x.get("status")=="ok"),
       "stale_cache":sum(1 for x in result["symbols"].values() if x.get("status")=="stale_cache"),
+      "latest_fresh":sum(1 for x in result["symbols"].values() if x.get("latest_coverage_fresh") is True),
+      "stale_alert":sum(1 for x in result["symbols"].values() if x.get("freshness")=="unavailable_stale"),
       "filings":sum(len(x.get("filings") or []) for x in result["symbols"].values()),
       "with_excerpts":sum(1 for x in result["symbols"].values() for f in x.get("filings") or [] if f.get("excerpts")),
     }
     result["counts"]=counts
+    if counts["stale_alert"]:
+        names=",".join(k for k,v in result["symbols"].items() if v.get("freshness")=="unavailable_stale")
+        print(f"::warning title=SEC freshness::latest SEC coverage unavailable for {names} "
+              f"(>={STALE_ALERT_FAILURES} failed runs and >={STALE_ALERT_DAYS} days); cached history kept")
     return result
 
 def main():

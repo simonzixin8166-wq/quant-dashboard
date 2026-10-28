@@ -135,3 +135,53 @@ finally:
     oe.request_json, oe.request_text = oldj, oldt
 assert part["ticker_directory_status"] == "error" and part["symbols"][s0]["status"] == "ok" and part["symbols"][s0]["cik"] == 111
 print("PASS E-17 SEC directory outage keeps last known filings as stale_cache (previous file, then archive)")
+
+# #133 6458368830 §B: latest-coverage freshness is separate from history. Cached filings stay usable as dated evidence,
+# never count as the latest verified state, and escalate after 3 failed runs AND >= 2 calendar days.
+from datetime import datetime as _dt, timezone as _tz
+NOW = _dt(2026, 10, 28, 1, 0, tzinfo=_tz.utc)
+UA = "MyAlphaView research secret-contact@example.com"
+prev2 = {"symbols": {s0: {"status": "ok", "cik": 111, "company_name": "Prev Co", "filings": [FIX],
+                          "fetched_at": "2026-10-26T01:00:00+00:00", "last_success_at": "2026-10-26T01:00:00+00:00",
+                          "consecutive_failures": 0}}}
+oe.request_json = _boom
+try:
+    r1 = oe.build(planner, prev2, UA, archive=[], now=NOW)                       # first failed run, 2 days old
+    r2 = oe.build(planner, r1, UA, archive=[], now=NOW)
+    r3 = oe.build(planner, r2, UA, archive=[], now=NOW)                          # third consecutive failure
+finally:
+    oe.request_json = oldj
+x1, x3 = r1["symbols"][s0], r3["symbols"][s0]
+assert x1["status"] == "stale_cache" and x1["latest_coverage_fresh"] is False and x1["freshness"] == "stale"
+assert x1["consecutive_failures"] == 1 and x1["cache_age_days"] == 2.0 and x1["last_success_at"] == "2026-10-26T01:00:00+00:00"
+assert x1["filings"] == [FIX] and r1["counts"]["latest_fresh"] == 0 and r1["counts"]["ok"] == 0          # history kept, not "latest"
+assert x3["consecutive_failures"] == 3 and x3["freshness"] == "unavailable_stale" and r3["counts"]["stale_alert"] == 1
+assert x3["filings"] == [FIX]                                                                               # alert never deletes history
+young = {"symbols": {s0: dict(prev2["symbols"][s0], last_success_at="2026-10-27T20:00:00+00:00", consecutive_failures=5)}}
+oe.request_json = _boom
+try:
+    y = oe.build(planner, young, UA, archive=[], now=NOW)["symbols"][s0]
+finally:
+    oe.request_json = oldj
+assert y["consecutive_failures"] == 6 and y["freshness"] == "stale"                                        # < 2 days: no alert yet
+# recovery: a successful refresh is fresh again and resets the failure count
+oe.request_json, oe.request_text = fake_json, fake_text
+try:
+    ok = oe.build(planner, r3, UA, archive=[], now=NOW)
+finally:
+    oe.request_json, oe.request_text = oldj, oldt
+o = ok["symbols"][s0]
+assert o["status"] == "ok" and o["latest_coverage_fresh"] is True and o["freshness"] == "fresh" and o["consecutive_failures"] == 0
+assert o["last_success_at"] == NOW.isoformat() and ok["counts"]["latest_fresh"] >= 1 and ok["counts"]["stale_alert"] == 0
+# identity check on recovery: a ticker now mapped to another CIK is flagged, never silently merged
+changed = {"symbols": {s0: dict(prev2["symbols"][s0], cik=999999)}}
+oe.request_json, oe.request_text = fake_json, fake_text
+try:
+    ch = oe.build(planner, changed, UA, archive=[], now=NOW)["symbols"][s0]
+finally:
+    oe.request_json, oe.request_text = oldj, oldt
+assert ch["cik_changed_from"] == 999999 and ch["cik"] != 999999
+# the SEC identity (secret) never reaches the artifact
+for doc in (r1, r3, ok):
+    assert "secret-contact@example.com" not in _json.dumps(doc) and _pg.schema_findings(_path, _json.dumps(doc)) == []
+print("PASS SEC latest-coverage freshness: stale vs fresh, alert after 3 runs and 2 days, history kept, CIK change flagged")

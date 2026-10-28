@@ -11,6 +11,7 @@ from pathlib import Path
 
 ROOT=Path(__file__).resolve().parents[1]
 OUT=ROOT/"docs"/"research"/"source_duplicate_map.json"
+STORE=ROOT/"research"/"store"/"source_store.json"
 sys.path.insert(0,str(ROOT/"scripts"))
 import source_intelligence_engine as sie
 
@@ -140,12 +141,61 @@ def build(rows):
       "mapping":mapping,
       "policy":("All raw sources are retained with provenance. Exact normalized cross-channel copies, and same-author "
                 f"cross-channel reposts with near-identical text (3-gram Jaccard >= {NEAR_JACCARD}, within {NEAR_MAX_DAYS} days), "
-                "count as one independent evidence item; duplicates cannot form independent method/candidate evidence."),
+                "count as one independent evidence item; two Store identities of the same canonical URL count once; duplicates cannot "
+                "form independent method/candidate evidence."),
     }
+
+def _url_key(u):
+    # exact canonical URL only: forum posts differ only in their query string, so it must never be stripped
+    return str(u or "").strip()
+
+def store_identity_duplicates(store_rows,feed_ids,mapping):
+    """SRC-04: the canonical Store can hold two identities for one article (a seed/migration record and the
+    research-stream record of the same URL, e.g. 3 BrightLine blog posts of 2026-09). Same channel, so the
+    cross-channel passes never see them, but Source Reading reads every Store row and would count the article
+    twice. Group Store rows by canonical URL; the canonical is the identity present in the normalized feed
+    (else the earliest first_fetched_at); the others are registered duplicate_of it. Nothing is deleted."""
+    groups={}
+    for row in store_rows or []:
+        rec=row.get("record") or {}
+        key=_url_key(row.get("canonical_url") or rec.get("url"))
+        sid=str(rec.get("id") or rec.get("url") or "")
+        if key and sid:groups.setdefault(key,[]).append((row,sid))
+    added=0;n=0
+    for key,items in groups.items():
+        ids={sid for _,sid in items}
+        if len(ids)<2:continue
+        if any(sid in mapping for sid in ids):continue      # already explained by a text pass
+        n+=1
+        ordered=sorted(items,key=lambda x:(x[1] not in feed_ids,str(x[0].get("first_fetched_at") or ""),x[1]))
+        canonical_id=ordered[0][1]
+        channels=sorted({str((r.get("record") or {}).get("source_kind") or "") for r,_ in items})
+        for row,sid in ordered:
+            is_dup=sid!=canonical_id
+            if is_dup:added+=1
+            mapping[sid]={
+                "content_hash":hashlib.sha256(key.encode("utf-8")).hexdigest(),
+                "canonical_source_id":canonical_id,
+                "duplicate_of":canonical_id if is_dup else None,
+                "evidence_weight_class":"duplicate_evidence" if is_dup else "canonical_evidence",
+                "channels":channels,
+                "match_basis":"same_canonical_url",
+            }
+    return n,added
 
 def main():
     rows=sie.collect_full_records()
     out=build(rows)
+    try:
+        store=json.loads(STORE.read_text(encoding="utf-8")).get("records") or []
+        store_status="ok"
+    except Exception as exc:  # fail-soft: the text passes still run; the gap is visible
+        store,store_status=[],f"unavailable:{type(exc).__name__}"
+    feed_ids={str(r.get("id") or r.get("url") or "") for r in rows}
+    url_groups,url_dups=store_identity_duplicates(store,feed_ids,out["mapping"])
+    out["counts"].update({"store_scanned":len(store),"store_status":store_status,"url_groups":url_groups})
+    out["counts"]["duplicate_groups"]+=url_groups
+    out["counts"]["duplicate_records"]+=url_dups
     OUT.parent.mkdir(parents=True,exist_ok=True)
     OUT.write_text(json.dumps(out,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
     print(json.dumps(out["counts"],ensure_ascii=False))

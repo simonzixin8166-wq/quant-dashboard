@@ -50,3 +50,26 @@ edited={"author":"Z","source_kind":"forum","published_at":"2026-09-30","excerpt"
 other={"author":"Z","source_kind":"blog","published_at":"2026-09-30","excerpt":body.replace("800","805")}
 assert near_duplicate(edited,other) is False
 print("PASS same-author cross-channel near-duplicate evidence / no topic-only merge")
+
+# SRC-04: two Store identities of one article (seed/migration key + research-stream id, same blog URL). Same channel,
+# so the text passes never see them, but Source Reading reads every Store row and would count the article twice.
+from source_duplicate_audit import store_identity_duplicates
+U = "https://blog.wenxuecity.com/myblog/82458/202609/20915.html"
+store = [
+    {"canonical_url": U, "first_fetched_at": "2026-10-04T11:37:19Z", "record": {"id": "seed-key", "source_kind": "blog"}},
+    {"canonical_url": U, "first_fetched_at": "2026-10-04T11:37:19Z", "record": {"id": "s1", "source_kind": "blog"}},
+    {"canonical_url": "https://blog.wenxuecity.com/myblog/82458/202609/1.html", "record": {"id": "solo", "source_kind": "blog"}},
+    # forum posts differ only by query string: distinct articles, never merged
+    {"canonical_url": "https://bbs.wenxuecity.com/cfzh/?act=view&id=1", "record": {"id": "f1", "source_kind": "forum"}},
+    {"canonical_url": "https://bbs.wenxuecity.com/cfzh/?act=view&id=2", "record": {"id": "f2", "source_kind": "forum"}},
+    {"canonical_url": "https://example.com/x", "record": {"id": "a", "source_kind": "blog"}},     # already mapped by text
+    {"canonical_url": "https://example.com/x", "record": {"id": "zz", "source_kind": "blog"}},
+]
+mp = {"a": {"duplicate_of": None}}
+groups, dups = store_identity_duplicates(store, {"s1", "solo", "a"}, mp)
+assert (groups, dups) == (1, 1), (groups, dups)
+assert mp["s1"]["duplicate_of"] is None and mp["s1"]["match_basis"] == "same_canonical_url"     # feed identity is canonical
+assert mp["seed-key"]["duplicate_of"] == "s1" and mp["seed-key"]["evidence_weight_class"] == "duplicate_evidence"
+assert "solo" not in mp and "zz" not in mp and "f1" not in mp and "f2" not in mp                                                       # nothing invented / no override
+assert store_identity_duplicates([], set(), {}) == (0, 0)
+print("PASS SRC-04 same-URL Store identities count once (feed identity canonical, nothing deleted)")

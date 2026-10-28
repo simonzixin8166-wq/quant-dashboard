@@ -90,7 +90,7 @@ def _boom(url, ua):
 oldj = oe.request_json
 oe.request_json = _boom
 try:
-    down = oe.build(planner, {}, "MyAlpha Test")
+    down = oe.build(planner, {}, "MyAlpha Test", archive=[])
 finally:
     oe.request_json = oldj
 assert down["ticker_directory_status"] == "error" and down["ticker_directory_error"] == "HTTP Error 403: Forbidden"
@@ -98,3 +98,40 @@ _path = ROOT / "docs" / "research" / "official_evidence.json"
 assert _pg.schema_findings(_path, _json.dumps(down)) == [], _pg.schema_findings(_path, _json.dumps(down))
 assert set(down) <= _pg.PUBLIC_JSON_ROOT_ALLOWLIST["docs/research/official_evidence.json"]
 print("PASS official evidence SEC outage stays fail-soft and guardrail-clean")
+
+# E-17 (10/27): a directory outage must not erase known filings. Before the fix every symbol became "unmapped" with
+# empty filings, and auto_thesis / fundamental_outcome_context recomputed to 0 (direct-company 11 -> 0, mature_20 24 -> 0).
+sel = oe.selected_symbols(planner)
+s0, s1 = sel[0], sel[1]
+FIX = {"form": "10-Q", "accession": "0000000000-26-000001", "filing_date": "2026-10-01", "report_date": "2026-09-30",
+       "primary_document": "q.htm", "url": "https://www.sec.gov/x/q.htm", "document_status": "ok", "excerpts": ["FIXTURE"]}
+prev = {"symbols": {s0: {"status": "ok", "cik": 111, "company_name": "Prev Co", "filings": [FIX]},
+                    s1: {"status": "unmapped", "filings": []}}}                       # already degraded, no cik
+arch = [dict(FIX, symbol=s1, cik=222, company_name="Arch Co", accession=f"0000000000-26-00000{i}",
+             filing_date=f"2026-0{i}-15") for i in range(1, 6)]
+oe.request_json = _boom
+try:
+    kept = oe.build(planner, prev, "MyAlpha Test", archive=arch)
+finally:
+    oe.request_json = oldj
+a, b = kept["symbols"][s0], kept["symbols"][s1]
+assert a["status"] == "stale_cache" and a["filings"] == [FIX] and a["cik"] == 111                      # previous file
+assert b["status"] == "stale_cache" and b["cik"] == 222 and b["cache_source"] == "archive"             # archive
+assert [f["filing_date"] for f in b["filings"]] == ["2026-05-15", "2026-04-15", "2026-03-15"]           # newest 3
+assert all("symbol" not in f and "archive_id" not in f for f in b["filings"])                           # filing shape only
+others = [v for k, v in kept["symbols"].items() if k not in (s0, s1)]
+assert others and all(v["status"] == "unmapped" and v["filings"] == [] for v in others)                # nothing invented
+assert kept["counts"]["stale_cache"] == 2 and kept["counts"]["filings"] == 4 and kept["counts"]["ok"] == 0
+assert _pg.schema_findings(_path, _json.dumps(kept)) == []
+# directory down but submissions reachable: the cached CIK is used and the symbol refreshes normally
+def _dir_only(url, ua):
+    if url == oe.SEC_TICKERS:
+        raise RuntimeError("HTTP Error 403: Forbidden")
+    return fake_json(url, ua)
+oe.request_json, oe.request_text = _dir_only, fake_text
+try:
+    part = oe.build(planner, prev, "MyAlpha Test", archive=arch)
+finally:
+    oe.request_json, oe.request_text = oldj, oldt
+assert part["ticker_directory_status"] == "error" and part["symbols"][s0]["status"] == "ok" and part["symbols"][s0]["cik"] == 111
+print("PASS E-17 SEC directory outage keeps last known filings as stale_cache (previous file, then archive)")

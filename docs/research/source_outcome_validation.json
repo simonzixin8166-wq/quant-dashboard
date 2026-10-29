@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "generated_at": "2026-10-29T15:20:32.650543+00:00",
+  "generated_at": "2026-10-29T23:46:06.534872+00:00",
   "methodology": {
     "executed_action_baseline": "first trading session open strictly after source date when no reliable intraday timestamp exists",
     "planned_entry_baseline": "explicit stock-entry plans begin only on the first later session whose low touches the stated level; each tranche is validated separately",
@@ -16,9 +16,9 @@
     "attribution_limit": "third-party examples are excluded; unconfirmed source context is visible but excluded from aggregate method memory"
   },
   "counts": {
-    "events": 201,
+    "events": 203,
     "author_owned": 85,
-    "unconfirmed": 116,
+    "unconfirmed": 118,
     "triggered_author_owned": 80,
     "untriggered_plans": 5,
     "mature60": 35,
@@ -121,11 +121,11 @@
     },
     "no_add": {
       "5": {
-        "n": 0,
-        "avg_return": null,
-        "median_return": null,
-        "avg_excess_vs_qqq": null,
-        "alignment_rate": null
+        "n": 1,
+        "avg_return": 0.08317647058823519,
+        "median_return": 0.08317647058823519,
+        "avg_excess_vs_qqq": 0.08085044208349879,
+        "alignment_rate": 1.0
       },
       "20": {
         "n": 0,
@@ -144,11 +144,11 @@
     },
     "planned_buy": {
       "5": {
-        "n": 8,
-        "avg_return": -0.04801524502175403,
-        "median_return": -0.09119194445690132,
-        "avg_excess_vs_qqq": -0.033668243917092555,
-        "alignment_rate": 0.3333333333333333
+        "n": 9,
+        "avg_return": -0.033438387731755226,
+        "median_return": -0.07915805785123964,
+        "avg_excess_vs_qqq": -0.020943945472582406,
+        "alignment_rate": 0.42857142857142855
       },
       "20": {
         "n": 4,
@@ -261,11 +261,11 @@
   "by_author": {
     "BrightLine": {
       "5": {
-        "n": 55,
-        "avg_return": -0.04328892727802553,
-        "median_return": -0.03802825953394462,
-        "avg_excess_vs_qqq": -0.04109875692378486,
-        "alignment_rate": 0.46
+        "n": 56,
+        "avg_return": -0.04103061660184231,
+        "median_return": -0.037168891671734205,
+        "avg_excess_vs_qqq": -0.038921092655797664,
+        "alignment_rate": 0.47058823529411764
       },
       "20": {
         "n": 35,
@@ -376,6 +376,104 @@
     }
   },
   "events": [
+    {
+      "event_id": "709500d3285b74cd3d13:0:AMD:0",
+      "author": "我是一只井底蛙",
+      "title": "昨天547补仓的 AMD 今天上涨3%，表现良好。trading（补仓）的部分不着急take mini profits。",
+      "url": "https://bbs.wenxuecity.com/cfzh/117742.html",
+      "published_at": "2026-10-28 12:55:59",
+      "symbol": "AMD",
+      "operation": {
+        "symbols": [
+          "AMD"
+        ],
+        "actions": [
+          "add"
+        ],
+        "attribution": "unconfirmed_author_context",
+        "attribution_confidence": "needs_review"
+      },
+      "actions": [
+        "add"
+      ],
+      "attribution": "unconfirmed_author_context",
+      "attribution_confidence": "needs_review",
+      "baseline_kind": "next_session",
+      "baseline_assumption": "next trading session open because source date has no reliable intraday timestamp",
+      "planned_level": null,
+      "triggered": true,
+      "baseline_date": "2026-10-29",
+      "baseline_price": 562.0,
+      "price_provenance": {
+        "price_source": "stooq_archive",
+        "adjustment_basis": "stooq_archive_native_series",
+        "baseline_source": "stooq_archive",
+        "horizon_source": "stooq_archive",
+        "same_source": true
+      },
+      "outcomes": {
+        "5": null,
+        "20": null,
+        "60": null
+      },
+      "alignment": {
+        "direction": "bullish",
+        "5": null,
+        "20": null,
+        "60": null
+      },
+      "level_checks": {},
+      "status": "developing"
+    },
+    {
+      "event_id": "89acf8bde1cd3dab53f3:0:SPCX:0",
+      "author": "我是一只井底蛙",
+      "title": "今天的交易：刚一开跌就减了 SPCX，新买了EAT。见内。注：—— SPCX是减仓，以后会补回来。",
+      "url": "https://bbs.wenxuecity.com/cfzh/117651.html",
+      "published_at": "2026-10-28 07:16:16",
+      "symbol": "SPCX",
+      "operation": {
+        "symbols": [
+          "SPCX"
+        ],
+        "actions": [
+          "trim"
+        ],
+        "attribution": "unconfirmed_author_context",
+        "attribution_confidence": "needs_review"
+      },
+      "actions": [
+        "trim"
+      ],
+      "attribution": "unconfirmed_author_context",
+      "attribution_confidence": "needs_review",
+      "baseline_kind": "next_session",
+      "baseline_assumption": "next trading session open because source date has no reliable intraday timestamp",
+      "planned_level": null,
+      "triggered": true,
+      "baseline_date": "2026-10-29",
+      "baseline_price": 142.30499,
+      "price_provenance": {
+        "price_source": "stooq_archive",
+        "adjustment_basis": "stooq_archive_native_series",
+        "baseline_source": "stooq_archive",
+        "horizon_source": "stooq_archive",
+        "same_source": true
+      },
+      "outcomes": {
+        "5": null,
+        "20": null,
+        "60": null
+      },
+      "alignment": {
+        "direction": "bearish",
+        "5": null,
+        "20": null,
+        "60": null
+      },
+      "level_checks": {},
+      "status": "developing"
+    },
     {
       "event_id": "618a41cd88c03f569df0:0:TSLA:0",
       "author": "BrightLine",
@@ -6898,13 +6996,20 @@
         "same_source": true
       },
       "outcomes": {
-        "5": null,
+        "5": {
+          "date": "2026-10-29",
+          "return": 0.08317647058823519,
+          "mae": -0.004176470588235337,
+          "mfe": 0.12564705882352944,
+          "benchmark_return": 0.0023260285047363993,
+          "excess_vs_qqq": 0.08085044208349879
+        },
         "20": null,
         "60": null
       },
       "alignment": {
         "direction": "bullish",
-        "5": null,
+        "5": "aligned",
         "20": null,
         "60": null
       },

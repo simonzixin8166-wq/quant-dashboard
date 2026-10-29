@@ -1,7 +1,7 @@
 {
  "rules_version": "bl8524-tranche-v1.2",
  "rules_locked_at": "2026-10-13T16:00:00Z",
- "expected_session": "2026-10-28",
+ "expected_session": "2026-10-29",
  "overall": "neutral_awaiting_confirmation",
  "overall_zh": "中性待确认",
  "risk_off": {
@@ -28,8 +28,8 @@
    {
     "name": "y10_above_author_risk_line",
     "status": "unmet",
-    "value": 4.99,
-    "as_of": "2026-10-27",
+    "value": 5.05,
+    "as_of": "2026-10-28",
     "rule": "author (p46): 10 年期突破 5.35% → 前两批继续等",
     "note": null,
     "threshold_kind": "author_threshold"
@@ -53,8 +53,8 @@
     {
      "name": "y10_trend_turns_down",
      "status": "met",
-     "value": -0.25,
-     "as_of": "2026-10-27",
+     "value": -0.20999999999999996,
+     "as_of": "2026-10-28",
      "rule": "MyAlpha operationalisation: 20-session change of DGS10 < 0 (author: 收益率趋势掉头向下)",
      "note": null
     }
@@ -70,9 +70,9 @@
     },
     {
      "name": "y10_below_author_5pct",
-     "status": "met",
-     "value": 4.99,
-     "as_of": "2026-10-27",
+     "status": "unmet",
+     "value": 5.05,
+     "as_of": "2026-10-28",
      "rule": "author (p43): 10Y 直接跌破 5%",
      "note": null,
      "threshold_kind": "author_threshold"
@@ -86,12 +86,12 @@
    "main": [
     {
      "name": "y10_sustained_below_author_5pct",
-     "status": "unknown",
+     "status": "unmet",
      "value": {
-      "latest": 4.99,
+      "latest": 5.05,
       "max_10": null
      },
-     "as_of": "2026-10-27",
+     "as_of": "2026-10-28",
      "rule": "author: 10Y 持续稳在 5% 下方 (MyAlpha: latest and 10-session max < 5%)",
      "note": "10-session history unavailable",
      "threshold_kind": "author_threshold"
@@ -100,18 +100,18 @@
      "name": "laggards_stop_new_lows",
      "status": "unknown",
      "value": {
-      "new_low_52w_pct": 0.018036072144288578,
+      "new_low_52w_pct": 0.006012024048096192,
       "trend": null
      },
-     "as_of": "2026-10-28",
+     "as_of": "2026-10-29",
      "rule": "author: 掉队股不再创新低 (MyAlpha: S&P 500 52w-new-low share falling over 10 sessions)",
      "note": "trend needs ≥10 sessions of stored breadth history"
     },
     {
      "name": "spx_share_above_ma200_gt_50pct",
      "status": "met",
-     "value": 0.6072144288577155,
-     "as_of": "2026-10-28",
+     "value": 0.6472945891783567,
+     "as_of": "2026-10-29",
      "rule": "author (p44): S&P 500 站上 200 日均线的股票比例重新回到一半以上",
      "note": "MyAlpha own breadth from S&P 500 constituents (coverage 499/503); never IWM/SPY proxy",
      "threshold_kind": "author_threshold"
@@ -135,10 +135,10 @@
      "name": "QQQM_existing_tier1_reached",
      "status": "unmet",
      "value": {
-      "drawdown": -0.049,
+      "drawdown": -0.0623,
       "existing_t1": 0.12
      },
-     "as_of": "2026-10-28",
+     "as_of": "2026-10-29",
      "rule": "MyAlpha: existing CORE_TIERS t1 drawdown (read-only link; author's own levels were not published)",
      "note": null
     },
@@ -146,10 +146,10 @@
      "name": "VGT_existing_tier1_reached",
      "status": "unmet",
      "value": {
-      "drawdown": -0.0541,
+      "drawdown": -0.0644,
       "existing_t1": 0.15
      },
-     "as_of": "2026-10-28",
+     "as_of": "2026-10-29",
      "rule": "MyAlpha: existing CORE_TIERS t1 drawdown (read-only link; author's own levels were not published)",
      "note": null
     }
@@ -174,7 +174,7 @@
  "used_in_decision": false,
  "production_use": false,
  "automatic_orders": false,
- "generated_at": "2026-10-29T18:38:27Z",
+ "generated_at": "2026-10-29T23:45:59Z",
  "inputs": {
   "macro": "docs/research/macro_context.json",
   "breadth": "docs/research/breadth_intelligence.json",

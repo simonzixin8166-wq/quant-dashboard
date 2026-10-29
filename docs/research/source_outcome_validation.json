@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "generated_at": "2026-10-28T23:45:54.477457+00:00",
+  "generated_at": "2026-10-29T01:15:28.002295+00:00",
   "methodology": {
     "executed_action_baseline": "first trading session open strictly after source date when no reliable intraday timestamp exists",
     "planned_entry_baseline": "explicit stock-entry plans begin only on the first later session whose low touches the stated level; each tranche is validated separately",
@@ -16,9 +16,9 @@
     "attribution_limit": "third-party examples are excluded; unconfirmed source context is visible but excluded from aggregate method memory"
   },
   "counts": {
-    "events": 199,
+    "events": 201,
     "author_owned": 85,
-    "unconfirmed": 114,
+    "unconfirmed": 116,
     "triggered_author_owned": 80,
     "untriggered_plans": 5,
     "mature60": 35,
@@ -825,6 +825,56 @@
       "status": "developing"
     },
     {
+      "event_id": "bb3907df342b8342412e:1:SGOV:0",
+      "author": "麻你",
+      "title": "下个星期继续保持82%仓位在VGT，18%仓位在SGOV",
+      "url": "https://bbs.wenxuecity.com/tzlc/2388985.html",
+      "published_at": "2026-10-23 16:53:44",
+      "symbol": "SGOV",
+      "operation": {
+        "symbols": [
+          "SGOV",
+          "VGT"
+        ],
+        "actions": [
+          "sell"
+        ],
+        "attribution": "unconfirmed_author_context",
+        "attribution_confidence": "needs_review"
+      },
+      "actions": [
+        "sell"
+      ],
+      "attribution": "unconfirmed_author_context",
+      "attribution_confidence": "needs_review",
+      "baseline_kind": "next_session",
+      "baseline_assumption": "next trading session open because source date has no reliable intraday timestamp",
+      "planned_level": null,
+      "triggered": true,
+      "baseline_date": "2026-10-26",
+      "baseline_price": 100.66999816894531,
+      "price_provenance": {
+        "price_source": "yfinance_validation_cache",
+        "adjustment_basis": "yfinance_auto_adjust_false_native_ohlc",
+        "baseline_source": "yfinance_validation_cache",
+        "horizon_source": "yfinance_validation_cache",
+        "same_source": true
+      },
+      "outcomes": {
+        "5": null,
+        "20": null,
+        "60": null
+      },
+      "alignment": {
+        "direction": "bearish",
+        "5": null,
+        "20": null,
+        "60": null
+      },
+      "level_checks": {},
+      "status": "developing"
+    },
+    {
       "event_id": "40e00824da050d59317d:0:VGT:0",
       "author": "麻你",
       "title": "下个星期继续保持82%仓位在VGT，18%仓位在SGOV",
@@ -958,6 +1008,56 @@
         "adjustment_basis": "stooq_archive_native_series",
         "baseline_source": "stooq_archive",
         "horizon_source": "stooq_archive",
+        "same_source": true
+      },
+      "outcomes": {
+        "5": null,
+        "20": null,
+        "60": null
+      },
+      "alignment": {
+        "direction": "bearish",
+        "5": null,
+        "20": null,
+        "60": null
+      },
+      "level_checks": {},
+      "status": "developing"
+    },
+    {
+      "event_id": "0aa017481e5d841d92d7:0:SGOV:0",
+      "author": "麻你",
+      "title": "VGT今天卖在118.36",
+      "url": "https://bbs.wenxuecity.com/tzlc/2388561.html",
+      "published_at": "2026-10-22 16:03:51",
+      "symbol": "SGOV",
+      "operation": {
+        "symbols": [
+          "SGOV",
+          "VGT"
+        ],
+        "actions": [
+          "sell"
+        ],
+        "attribution": "unconfirmed_author_context",
+        "attribution_confidence": "needs_review"
+      },
+      "actions": [
+        "sell"
+      ],
+      "attribution": "unconfirmed_author_context",
+      "attribution_confidence": "needs_review",
+      "baseline_kind": "next_session",
+      "baseline_assumption": "next trading session open because source date has no reliable intraday timestamp",
+      "planned_level": null,
+      "triggered": true,
+      "baseline_date": "2026-10-23",
+      "baseline_price": 100.66000366210938,
+      "price_provenance": {
+        "price_source": "yfinance_validation_cache",
+        "adjustment_basis": "yfinance_auto_adjust_false_native_ohlc",
+        "baseline_source": "yfinance_validation_cache",
+        "horizon_source": "yfinance_validation_cache",
         "same_source": true
       },
       "outcomes": {
@@ -1609,13 +1709,20 @@
         "same_source": true
       },
       "outcomes": {
-        "5": null,
+        "5": {
+          "date": "2026-10-26",
+          "return": 0.0007953259167636784,
+          "mae": 0.0,
+          "mfe": 0.0008947606179725565,
+          "benchmark_return": -0.010304093304115303,
+          "excess_vs_qqq": 0.011099419220878981
+        },
         "20": null,
         "60": null
       },
       "alignment": {
         "direction": "bearish",
-        "5": null,
+        "5": "not_aligned",
         "20": null,
         "60": null
       },

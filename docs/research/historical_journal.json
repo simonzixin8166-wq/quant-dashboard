@@ -1,6 +1,6 @@
 {
   "version": "5.3.0",
-  "generated_at": "2026-10-29T01:14:39.063553+00:00",
+  "generated_at": "2026-10-29T15:19:34.502147+00:00",
   "source": "user-supplied STOOQ OHLCV + daily dashboard append",
   "method": "causal Trend Pulse state-entry event study; 5y window; 10-session same-state cooldown",
   "guardrails": [
@@ -384,34 +384,467 @@
     "expected_session": "2026-10-28",
     "appended": [],
     "unchanged": [
-      "AMD",
-      "AMZN",
-      "AVGO",
-      "DRAM",
       "GOOG",
-      "HOOD",
-      "INTC",
-      "IREN",
-      "LITE",
-      "MRVL",
-      "MSFT",
-      "NBIS",
-      "NVDA",
-      "ORCL",
-      "QLD",
-      "QQQ",
-      "QQQM",
-      "SMH",
-      "SOFI",
-      "SPCX",
-      "SPY",
-      "TQQQ",
-      "TSLA",
-      "TSM",
-      "VGT",
-      "VOO"
+      "HOOD"
     ],
-    "quarantined": [],
+    "quarantined": [
+      {
+        "symbol": "AMD",
+        "date": "2026-10-28",
+        "old": [
+          572.52002,
+          579.1134,
+          560.52002,
+          578.44
+        ],
+        "new": [
+          573.080017,
+          579.17999,
+          560.52002,
+          578.44
+        ],
+        "action": "quarantined; correct only via data/history/corrections.jsonl with an independent source",
+        "reason": "conflict",
+        "source": "docs/data.json stocks.AMD"
+      },
+      {
+        "symbol": "AMZN",
+        "date": "2026-10-28",
+        "old": [
+          252.96001,
+          255.36,
+          251.98,
+          254.60001
+        ],
+        "new": [
+          253.0,
+          255.36,
+          251.98,
+          254.60001
+        ],
+        "action": "quarantined; correct only via data/history/corrections.jsonl with an independent source",
+        "reason": "conflict",
+        "source": "docs/data.json stocks.AMZN"
+      },
+      {
+        "symbol": "AVGO",
+        "date": "2026-10-28",
+        "old": [
+          348.72,
+          352.0,
+          344.35001,
+          351.81
+        ],
+        "new": [
+          349.22,
+          352.39999,
+          344.35001,
+          351.81
+        ],
+        "action": "quarantined; correct only via data/history/corrections.jsonl with an independent source",
+        "reason": "conflict",
+        "source": "docs/data.json stocks.AVGO"
+      },
+      {
+        "symbol": "DRAM",
+        "date": "2026-10-28",
+        "old": [
+          52.87,
+          54.12,
+          52.342,
+          54.12
+        ],
+        "new": [
+          52.87,
+          54.12,
+          52.34,
+          54.12
+        ],
+        "action": "quarantined; correct only via data/history/corrections.jsonl with an independent source",
+        "reason": "conflict",
+        "source": "docs/data.json stocks.DRAM"
+      },
+      {
+        "symbol": "INTC",
+        "date": "2026-10-28",
+        "old": [
+          95.13,
+          95.68,
+          93.0,
+          95.53
+        ],
+        "new": [
+          95.089996,
+          95.68,
+          93.0,
+          95.53
+        ],
+        "action": "quarantined; correct only via data/history/corrections.jsonl with an independent source",
+        "reason": "conflict",
+        "source": "docs/data.json stocks.INTC"
+      },
+      {
+        "symbol": "IREN",
+        "date": "2026-10-28",
+        "old": [
+          28.09,
+          28.88,
+          26.88,
+          28.84
+        ],
+        "new": [
+          28.09,
+          28.88,
+          26.87,
+          28.84
+        ],
+        "action": "quarantined; correct only via data/history/corrections.jsonl with an independent source",
+        "reason": "conflict",
+        "source": "docs/data.json stocks.IREN"
+      },
+      {
+        "symbol": "LITE",
+        "date": "2026-10-28",
+        "old": [
+          878.13,
+          921.0,
+          872.84003,
+          913.95001
+        ],
+        "new": [
+          877.22498,
+          921.0,
+          872.40002,
+          913.95001
+        ],
+        "action": "quarantined; correct only via data/history/corrections.jsonl with an independent source",
+        "reason": "conflict",
+        "source": "docs/data.json stocks.LITE"
+      },
+      {
+        "symbol": "MRVL",
+        "date": "2026-10-28",
+        "old": [
+          247.45,
+          253.6599,
+          246.22141,
+          251.64999
+        ],
+        "new": [
+          247.45,
+          253.66,
+          246.22,
+          251.64999
+        ],
+        "action": "quarantined; correct only via data/history/corrections.jsonl with an independent source",
+        "reason": "conflict",
+        "source": "docs/data.json stocks.MRVL"
+      },
+      {
+        "symbol": "MSFT",
+        "date": "2026-10-28",
+        "old": [
+          532.198,
+          534.57202,
+          526.13501,
+          531.01001
+        ],
+        "new": [
+          531.82001,
+          535.0,
+          526.14001,
+          531.01001
+        ],
+        "action": "quarantined; correct only via data/history/corrections.jsonl with an independent source",
+        "reason": "conflict",
+        "source": "docs/data.json stocks.MSFT"
+      },
+      {
+        "symbol": "NBIS",
+        "date": "2026-10-28",
+        "old": [
+          173.64999,
+          182.74001,
+          168.92,
+          182.34
+        ],
+        "new": [
+          173.49001,
+          182.74001,
+          168.92,
+          182.34
+        ],
+        "action": "quarantined; correct only via data/history/corrections.jsonl with an independent source",
+        "reason": "conflict",
+        "source": "docs/data.json stocks.NBIS"
+      },
+      {
+        "symbol": "NVDA",
+        "date": "2026-10-28",
+        "old": [
+          219.88,
+          219.99001,
+          214.47,
+          215.38
+        ],
+        "new": [
+          219.92,
+          219.99001,
+          214.47,
+          215.38
+        ],
+        "action": "quarantined; correct only via data/history/corrections.jsonl with an independent source",
+        "reason": "conflict",
+        "source": "docs/data.json stocks.NVDA"
+      },
+      {
+        "symbol": "ORCL",
+        "date": "2026-10-28",
+        "old": [
+          131.32001,
+          148.47,
+          128.42,
+          144.53999
+        ],
+        "new": [
+          131.32001,
+          148.48,
+          128.38,
+          144.53999
+        ],
+        "action": "quarantined; correct only via data/history/corrections.jsonl with an independent source",
+        "reason": "conflict",
+        "source": "docs/data.json stocks.ORCL"
+      },
+      {
+        "symbol": "QLD",
+        "date": "2026-10-28",
+        "old": [
+          90.99,
+          91.4801,
+          90.040001,
+          91.39
+        ],
+        "new": [
+          90.99,
+          91.48,
+          90.040001,
+          91.39
+        ],
+        "action": "quarantined; correct only via data/history/corrections.jsonl with an independent source",
+        "reason": "conflict",
+        "source": "docs/data.json stocks.QLD"
+      },
+      {
+        "symbol": "QQQ",
+        "date": "2026-10-28",
+        "old": [
+          724.12,
+          726.12,
+          720.29999,
+          725.60999
+        ],
+        "new": [
+          724.12,
+          726.14001,
+          720.29999,
+          725.60999
+        ],
+        "action": "quarantined; correct only via data/history/corrections.jsonl with an independent source",
+        "reason": "conflict",
+        "source": "docs/data.json stocks.QQQ"
+      },
+      {
+        "symbol": "QQQM",
+        "date": "2026-10-28",
+        "old": [
+          298.19,
+          298.97,
+          296.64999,
+          298.70999
+        ],
+        "new": [
+          298.16,
+          298.97,
+          296.64999,
+          298.70999
+        ],
+        "action": "quarantined; correct only via data/history/corrections.jsonl with an independent source",
+        "reason": "conflict",
+        "source": "docs/data.json stocks.QQQM"
+      },
+      {
+        "symbol": "SMH",
+        "date": "2026-10-28",
+        "old": [
+          564.388,
+          571.0,
+          560.51501,
+          567.66998
+        ],
+        "new": [
+          564.32001,
+          571.0,
+          560.52002,
+          567.66998
+        ],
+        "action": "quarantined; correct only via data/history/corrections.jsonl with an independent source",
+        "reason": "conflict",
+        "source": "docs/data.json stocks.SMH"
+      },
+      {
+        "symbol": "SOFI",
+        "date": "2026-10-28",
+        "old": [
+          16.555,
+          17.25,
+          16.555,
+          17.14
+        ],
+        "new": [
+          16.56,
+          17.25,
+          16.555,
+          17.14
+        ],
+        "action": "quarantined; correct only via data/history/corrections.jsonl with an independent source",
+        "reason": "conflict",
+        "source": "docs/data.json stocks.SOFI"
+      },
+      {
+        "symbol": "SPCX",
+        "date": "2026-10-28",
+        "old": [
+          147.28999,
+          147.57001,
+          142.13,
+          145.23
+        ],
+        "new": [
+          147.37,
+          148.2,
+          142.13,
+          145.23
+        ],
+        "action": "quarantined; correct only via data/history/corrections.jsonl with an independent source",
+        "reason": "conflict",
+        "source": "docs/data.json stocks.SPCX"
+      },
+      {
+        "symbol": "SPY",
+        "date": "2026-10-28",
+        "old": [
+          771.42999,
+          773.34998,
+          769.25,
+          772.31
+        ],
+        "new": [
+          771.42999,
+          773.35999,
+          769.23999,
+          772.31
+        ],
+        "action": "quarantined; correct only via data/history/corrections.jsonl with an independent source",
+        "reason": "conflict",
+        "source": "docs/data.json stocks.SPY"
+      },
+      {
+        "symbol": "TQQQ",
+        "date": "2026-10-28",
+        "old": [
+          71.905,
+          72.4699,
+          70.76,
+          72.36
+        ],
+        "new": [
+          71.91,
+          72.53,
+          70.76,
+          72.36
+        ],
+        "action": "quarantined; correct only via data/history/corrections.jsonl with an independent source",
+        "reason": "conflict",
+        "source": "docs/data.json stocks.TQQQ"
+      },
+      {
+        "symbol": "TSLA",
+        "date": "2026-10-28",
+        "old": [
+          410.20999,
+          410.85001,
+          397.17999,
+          404.22
+        ],
+        "new": [
+          410.16,
+          410.85001,
+          397.17999,
+          404.22
+        ],
+        "action": "quarantined; correct only via data/history/corrections.jsonl with an independent source",
+        "reason": "conflict",
+        "source": "docs/data.json stocks.TSLA"
+      },
+      {
+        "symbol": "TSM",
+        "date": "2026-10-28",
+        "old": [
+          438.23999,
+          440.879,
+          436.84,
+          439.51001
+        ],
+        "new": [
+          438.23999,
+          440.88,
+          436.84,
+          439.51001
+        ],
+        "action": "quarantined; correct only via data/history/corrections.jsonl with an independent source",
+        "reason": "conflict",
+        "source": "docs/data.json stocks.TSM"
+      },
+      {
+        "symbol": "VGT",
+        "date": "2026-10-28",
+        "old": [
+          123.565,
+          123.85,
+          122.735,
+          123.59
+        ],
+        "new": [
+          123.57,
+          123.85,
+          122.73,
+          123.59
+        ],
+        "action": "quarantined; correct only via data/history/corrections.jsonl with an independent source",
+        "reason": "conflict",
+        "source": "docs/data.json stocks.VGT"
+      },
+      {
+        "symbol": "VOO",
+        "date": "2026-10-28",
+        "old": [
+          709.15002,
+          710.84003,
+          707.10498,
+          709.90002
+        ],
+        "new": [
+          709.15002,
+          710.84003,
+          707.099976,
+          709.90002
+        ],
+        "action": "quarantined; correct only via data/history/corrections.jsonl with an independent source",
+        "reason": "conflict",
+        "source": "docs/data.json stocks.VOO"
+      }
+    ],
     "missing": [],
     "close_only": [],
     "not_final": [],

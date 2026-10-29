@@ -1,6 +1,6 @@
 {
   "version": "2.3",
-  "generated_at": "2026-10-29T02:23:19.997775+00:00",
+  "generated_at": "2026-10-29T15:21:32.570241+00:00",
   "principle": "Collection success is not learning success. Permanent storage and learning inputs must not be record-count capped; only per-run processing and UI presentation may be bounded.",
   "counts": {
     "learning_active": 7,
@@ -46,28 +46,29 @@
       "decision_context": true,
       "learning_status": "partial_learning",
       "gaps": [
+        "Upstream source coverage is not fully accounted; at least one discovered item is missing from feed/archive/pending/backlog or collector status is unavailable.",
         "Source coverage may be complete, but explicit YouTube pending/backlog/provider-blocked items still lack Q1/Q2 semantic learning; they are not counted as learned.",
         "Historical video archive is intentionally non-gating; this is a governance boundary, not a missing-learning error."
       ],
       "evidence": {
-        "source_records": 2585,
-        "source_reading_records": 2592,
-        "persistent_source_records": 2592,
+        "source_records": 2669,
+        "source_reading_records": 2676,
+        "persistent_source_records": 2676,
         "backlog": 0,
-        "collector_coverage_complete": true,
+        "collector_coverage_complete": false,
         "collector_semantic_complete": false,
         "collector": {
           "version": 2,
-          "generated_at": "2026-10-28T22:33:16.870065+00:00",
-          "complete": true,
-          "coverage_complete": true,
+          "generated_at": "2026-10-29T13:01:29.567553+00:00",
+          "complete": false,
+          "coverage_complete": false,
           "semantic_learning_complete": false,
           "forum": {
-            "complete": true,
+            "complete": false,
             "continuity_proven": true,
             "anchor_id": "117591",
-            "previous_anchor_id": "117523",
-            "status": "complete"
+            "previous_anchor_id": "117591",
+            "status": "partial"
           },
           "blogs": {
             "complete": true,
@@ -76,8 +77,8 @@
                 "complete": true,
                 "scan_complete": true,
                 "missing_from_feed": 0,
-                "unique_article_ids": 11,
-                "feed_present_urls": 11,
+                "unique_article_ids": 13,
+                "feed_present_urls": 13,
                 "archive_failures": []
               },
               "yifan99": {
@@ -104,15 +105,15 @@
             "semantic_learning_complete": false,
             "discovery_complete": true,
             "accounting_balanced": true,
-            "seen": 196,
+            "seen": 198,
             "feed_records": 37,
             "historical_archive_records": 23,
             "historical_semantic_learned": 6,
-            "pending": 105,
-            "historical_backlog": 53,
+            "pending": 106,
+            "historical_backlog": 54,
             "unaccounted": 0,
             "unaccounted_video_ids": [],
-            "unresolved_semantic": 158,
+            "unresolved_semantic": 160,
             "status": "ok"
           },
           "guardrails": [
@@ -218,8 +219,8 @@
       "gaps": [],
       "evidence": {
         "symbols": 16,
-        "news_items": 75,
-        "archive_total": 2124,
+        "news_items": 80,
+        "archive_total": 2190,
         "event_window_rows": 20,
         "mature_outcomes": 1529,
         "benchmark": "SPY",
@@ -311,7 +312,7 @@
           "NVDA",
           "TSLA"
         ],
-        "observations": 96,
+        "observations": 102,
         "mature20": 0,
         "garch_mae_pct_points": null
       },
@@ -442,7 +443,7 @@
       "learning_status": "learning_active",
       "gaps": [],
       "evidence": {
-        "overall": "ok",
+        "overall": "running",
         "open_incidents": 0,
         "resolved_total": 32,
         "self_improvement_version": "7.2.1"
@@ -506,6 +507,7 @@
       "domain": "blog_forum_video_sources",
       "status": "partial_learning",
       "gaps": [
+        "Upstream source coverage is not fully accounted; at least one discovered item is missing from feed/archive/pending/backlog or collector status is unavailable.",
         "Source coverage may be complete, but explicit YouTube pending/backlog/provider-blocked items still lack Q1/Q2 semantic learning; they are not counted as learned.",
         "Historical video archive is intentionally non-gating; this is a governance boundary, not a missing-learning error."
       ]
@@ -569,15 +571,15 @@
   ],
   "reconciliation": {
     "upstream_collector_known": true,
-    "youtube_seen": 196,
+    "youtube_seen": 198,
     "youtube_text_admitted": 43,
     "youtube_semantically_learned": null,
     "youtube_semantic_note": "not inferred from admission; see wxc-bot state/youtube_learning_reconciliation.json",
-    "youtube_semantic_backlog": 158,
-    "captured": 2585,
-    "canonical": 2592,
-    "processed": 2592,
-    "text_enriched": 2592,
+    "youtube_semantic_backlog": 160,
+    "captured": 2669,
+    "canonical": 2676,
+    "processed": 2676,
+    "text_enriched": 2676,
     "source_offline": 0,
     "backlog": 0,
     "errors": 0,

@@ -151,6 +151,19 @@
     return q;
   }
 
+  // UX-02 event calendar row (display only) sits right under this row; it never affects this row
+  function loadEventCalendar() {
+    try {
+      if (document.getElementById('eventCalendarScript')) return;
+      var me = document.querySelector('script[src*="macro-event-row.js"]');
+      var m = me && /[?&]v=([^&]+)/.exec(me.getAttribute('src') || ''), v = m ? m[1] : '';
+      var css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'assets/event-calendar.css?v=' + v;
+      document.head.appendChild(css);
+      var s = document.createElement('script'); s.id = 'eventCalendarScript'; s.src = 'assets/event-calendar.js?v=' + v;
+      document.body.appendChild(s);
+    } catch (e) { /* the macro row never fails because of the calendar */ }
+  }
+
   function init() {
     if (typeof document === 'undefined' || typeof fetch !== 'function') return;
     var anchor = document.getElementById('autoResearchRow');
@@ -158,6 +171,7 @@
     var el = document.createElement('section');
     el.id = 'macroEventRow'; el.className = 'macro-event-row'; el.setAttribute('aria-label', '宏观事件与分批观察');
     anchor.parentNode.insertBefore(el, anchor.nextSibling);
+    loadEventCalendar();
     var page = anchor.getAttribute('data-market-as-of') || '';
     fetch('research/macro_event_watch.json?v=' + Date.now(), { cache: 'no-store' })
       .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })

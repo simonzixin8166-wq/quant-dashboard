@@ -425,16 +425,43 @@ function stageProfileHtml(history){
 }
 function recentHistoryHtml(history){const rows=(history?.recent_events||[]).slice(0,18);if(!rows.length)return '';return `<details class="journal-history-details"><summary>查看最近历史状态样本</summary><div class="journal-table-wrap"><table class="journal-table"><thead><tr><th>日期</th><th>标的</th><th>状态</th><th>Pulse</th><th>20日</th><th>60日</th><th>120日</th></tr></thead><tbody>${rows.map(e=>`<tr><td>${esc(e.date)}</td><td><b>${esc(e.symbol)}</b><small>$${Number(e.price).toFixed(2)}</small></td><td>${esc(e.stage)}<small>${esc(e.zone||'')}</small></td><td>${Number(e.score)>0?'+':''}${Number(e.score).toFixed(0)}</td>${H.map(h=>`<td>${pct(e.outcomes?.[h]?.return)}</td>`).join('')}</tr>`).join('')}</tbody></table></div></details>`}
 let backtestCache=null;
+// FWD-01 server scorecard (docs/research/forward_scorecard.json, fsc-1.0). Owner-approved 10/27: replaces the browser
+// "实时20日/60日成熟" averages; 真实前瞻 and 历史补录 shown separately (never pooled); no rate below n=20; aggregates only.
+let scorecardCache=null;
+const SC_MIN_N=20;
+const SC_GROUPS=[['genuine_forward','真实前瞻'],['promoted','历史补录']];
+const SC_STATE={UNPROVEN:'未证明（UNPROVEN）'};
+function scorecardGroup(sc,group,h=20){
+  const cells=(sc?.cells||[]).filter(c=>c&&c.group===group&&Number(c.h)===h);
+  const sum=k=>cells.reduce((n,c)=>n+(Number(c[k])||0),0);
+  const p=(sc?.pending||[]).find(x=>x&&x.group===group&&Number(x.h)===h);
+  return {cells,matured:sum('matured'),scored:sum('scored'),abstain:sum('abstain'),unavailable:sum('unavailable'),invalid:sum('invalid'),
+    pending:p?Number(p.rows)||0:0,reportable:cells.filter(scorecardReportable).length};
+}
+function scorecardReportable(c){return c.status!=='INSUFFICIENT'&&Number(c.scored)>=SC_MIN_N&&num(c.hit_rate)!==null}
+function scorecardCards(sc){
+  if(!sc||!Array.isArray(sc.cells))return SC_GROUPS.map(([,label])=>`<article><span>${label} · 20日已打分</span><b>—</b><small>服务器记分卡读取失败，不显示数字</small></article>`).join('');
+  return SC_GROUPS.map(([g,label])=>{const s=scorecardGroup(sc,g,20);
+    const status=s.reportable?`${s.reportable} 组达到报告门槛（n≥${SC_MIN_N}）`:`样本不足：每组需 n≥${SC_MIN_N}，不显示命中率`;
+    return `<article><span>${label} · 20日已打分</span><b>${s.scored}</b><small>已到期 ${s.matured+s.unavailable+s.invalid} · 弃权 ${s.abstain} · 待成熟 ${s.pending}</small><small>${status}${g==='promoted'?' · 事后补录，不计作真实前瞻':''}</small></article>`}).join('');
+}
+function scorecardNote(sc){
+  if(!sc||!Array.isArray(sc.cells))return `<p class="journal-method-note">服务器记分卡暂时无法读取，以上不显示任何打分。下方“实时决策日志”的20/60/120日结果来自本浏览器缓存，仅为参考值。</p>`;
+  const rows=SC_GROUPS.flatMap(([g,label])=>scorecardGroup(sc,g,20).cells.map(c=>({c,label})));
+  const table=rows.length?`<details class="journal-history-details"><summary>查看20日分组明细（按当时判断 × 是否适用）</summary><div class="journal-table-wrap"><table class="journal-table"><thead><tr><th>组别</th><th>当时判断</th><th>适用</th><th>已打分</th><th>命中</th><th>命中率</th></tr></thead><tbody>${rows.map(({c,label})=>`<tr><td>${esc(label)}</td><td>${esc(c.decision)}</td><td>${c.eligible?'是':'否'}</td><td>${Number(c.scored)||0}</td><td>${Number(c.hits)||0}</td><td>${scorecardReportable(c)?`${(Number(c.hit_rate)*100).toFixed(0)}%`:`样本不足（n&lt;${SC_MIN_N}）`}</td></tr>`).join('')}</tbody></table></div></details>`:'';
+  return `<p class="journal-method-note">以上两张卡来自服务器记分卡 ${esc(sc.contract_id||'')} · 截至 ${esc(sc.as_of_session||'—')} 收盘 · 学习状态 ${esc(SC_STATE[sc.learning_state]||sc.learning_state||'—')}。真实前瞻与历史补录分开统计，从不合并；n≥${SC_MIN_N} 只是最低报告门槛，不代表已证明有预测能力。${esc(sc.price_basis_zh||'')}${esc(sc.mae_basis_zh||'')}下方“实时决策日志”的20/60/120日结果来自本浏览器缓存，仅为参考值，不计入记分卡。</p>${table}`;
+}
 async function render(error=''){
   const root=document.getElementById('decisionJournalRoot');if(!root)return;
-  const rows=read(),candidateCount=rows.reduce((n,e)=>n+(e.candidates||[]).length,0),s20=matureStats(rows,20),s60=matureStats(rows,60),recent=candidateRows(rows,state.showAllJournal),coverage=journalCoverage(rows),pending=pendingCount(rows);
+  const rows=read(),recent=candidateRows(rows,state.showAllJournal),coverage=journalCoverage(rows),pending=pendingCount(rows);
+  if(!scorecardCache)scorecardCache=await loadJson('research/forward_scorecard.json');
   if(backtestCache===null)backtestCache=await loadJson('research/assistant_rule_validation.json');
   const history=await ensureHistory();
   root.innerHTML=`<section class="hero compact-hero"><div><h1>Decision Journal · 决策复盘</h1><p>两条证据链：历史回填立即学习 + 从今天起实时留痕。系统负责记录、验证和排序；投资者负责最终操作。</p></div><div class="journal-actions"><button type="button" onclick="MAVDecisionJournal.refreshOutcomes()">↻ 补齐实时成熟结果</button></div></section>
-  <section class="journal-summary"><article><span>决策日</span><b>${rows.length}</b><small>同日同标的只保留一条主记录</small></article><article><span>等待成熟</span><b>${pending}</b><small>每条从首次入档日起算</small></article><article><span>实时20日成熟</span><b>${s20.n}</b><small>平均 ${pct(s20.avg)}</small></article><article><span>实时60日成熟</span><b>${s60.n}</b><small>平均 ${pct(s60.avg)}</small></article></section>
+  <section class="journal-summary"><article><span>决策日</span><b>${rows.length}</b><small>同日同标的只保留一条主记录</small></article><article><span>等待成熟</span><b>${pending}</b><small>每条从首次入档日起算</small></article>${scorecardCards(scorecardCache)}</section>${scorecardNote(scorecardCache)}
   ${error||state.lastAuthError?`<div class="journal-warning">${esc(error||state.lastAuthError)}。历史学习不依赖登录，仍可正常使用。</div>`:''}
   <section class="journal-panel"><div class="journal-head"><div><h2>自主学习 · 历史回填</h2><p>使用你提供的 STOOQ OHLCV，本地因果重放 Trend Pulse；不重复下载多年历史，也不使用未来数据。</p></div></div>${stageProfileHtml(history)}${recentHistoryHtml(history)}</section>
-  <section class="journal-panel"><div class="journal-head"><div><h2>实时决策日志</h2><p>保存系统当时真实看到的环境和候选，防止事后改写。20 / 60 / 120均按各自入档交易日起算。</p></div><small>可补齐 ${readyCount(rows)} 条 · 等待成熟 ${pending} 条</small></div>${coverageHtml(coverage)}${recent.length?`<div class="journal-table-wrap"><table class="journal-table"><thead><tr><th>交易日</th><th>环境</th><th>标的 / 当时判断</th><th>收盘入档价</th><th>20日</th><th>60日</th><th>120日</th></tr></thead><tbody>${recent.map(({e,c})=>`<tr><td>${esc(e.date)}</td><td>${esc(marketLabel(e))}<small>VIX ${e.vix==null?'—':Number(e.vix).toFixed(1)}</small></td><td><b>${esc(c.symbol)}</b><small>${esc(c.decision)} · ${esc(c.stage||c.zone||'')}${(c.transitions||[]).length?` · 日内变化 ${(c.transitions||[]).length}次`:''}</small></td><td>${c.price==null?'—':'$'+Number(c.price).toFixed(2)}</td>${H.map(h=>`<td>${outcomeCell(c,e,h)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`:`<div class="journal-empty"><b>还没有实时记录</b><p>市场状态或候选发生有意义变化后会自动留下快照，不需要手工记录。</p></div>`}</section>
+  <section class="journal-panel"><div class="journal-head"><div><h2>实时决策日志</h2><p>保存系统当时真实看到的环境和候选，防止事后改写。20 / 60 / 120均按各自入档交易日起算；这里的结果是浏览器参考值，正式打分以页首服务器记分卡为准。</p></div><small>可补齐 ${readyCount(rows)} 条 · 等待成熟 ${pending} 条</small></div>${coverageHtml(coverage)}${recent.length?`<div class="journal-table-wrap"><table class="journal-table"><thead><tr><th>交易日</th><th>环境</th><th>标的 / 当时判断</th><th>收盘入档价</th><th>20日</th><th>60日</th><th>120日</th></tr></thead><tbody>${recent.map(({e,c})=>`<tr><td>${esc(e.date)}</td><td>${esc(marketLabel(e))}<small>VIX ${e.vix==null?'—':Number(e.vix).toFixed(1)}</small></td><td><b>${esc(c.symbol)}</b><small>${esc(c.decision)} · ${esc(c.stage||c.zone||'')}${(c.transitions||[]).length?` · 日内变化 ${(c.transitions||[]).length}次`:''}</small></td><td>${c.price==null?'—':'$'+Number(c.price).toFixed(2)}</td>${H.map(h=>`<td>${outcomeCell(c,e,h)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`:`<div class="journal-empty"><b>还没有实时记录</b><p>市场状态或候选发生有意义变化后会自动留下快照，不需要手工记录。</p></div>`}</section>
   <section class="journal-panel"><div class="journal-head"><div><h2>历史市场规则验证</h2><p>单独检查观察 / 大跌 / 极端市场触发，不与个股 Trend Pulse 样本混在一起。</p></div></div>${validationHtml(backtestCache)}</section>
   <section class="journal-panel"><div class="journal-head"><div><h2>Weekly Self Review · 每周自主复盘</h2><p>系统评价自己的历史判断、重复提醒和漏掉的行情，并把结论用于后续研究优先级。</p></div></div>${selfReviewHtml(rows)}</section>
   <section class="journal-panel"><div class="journal-head"><div><h2>Agent Error Memory · 错误记忆</h2><p>只记录已经有成熟结果的误报、漏掉上涨和大幅不利波动；它只调整研究权重，不自动修改核心策略。</p></div></div>${(()=>{const errs=errorMemory(rows);return errs.length?`<div class="learning-grid">${errs.slice(0,8).map(x=>`<article class="learning-card"><div><b>${esc(x.symbol)} · ${esc(x.type)}</b><span>${esc(x.date)}</span></div><strong>20日 ${pct(x.return20)}</strong><p>${esc(x.note)}</p><small>当时判断：${esc(x.decision)}</small></article>`).join('')}</div>`:'<div class="journal-empty"><b>暂无成熟错误样本</b><p>待20日结果成熟后自动归类，不会用未成熟样本提前“学习”。</p></div>'})()}</section>
@@ -444,6 +471,6 @@ async function render(error=''){
 }
 function learningForStage(stage){const p=state.history?.profiles?.[stage];if(!p)return null;return {...p.evidence,stats:p.horizons?.['60']||null}}
 async function init(){render();loadOperatorDecisionsRemote();setTimeout(()=>refreshOutcomes({silent:true}),4500);setTimeout(()=>syncForwardJournal().then(()=>render()),6000);loadServerObservations().then(()=>render())}
-global.MAVDecisionJournal={_test:{completedBars,readyCount,tradingProgress,outcomeFor},toggleAll,journalCoverage,journalEntryRows,syncForwardJournal,recordAssistantEvent,recordOperatorDecision,updateOperatorDecision,refreshOutcomes,render,getJournal:read,getOperatorDecisions:readOperatorDecisions,getHistorical:()=>state.history,learningForStage,getErrorMemory:()=>errorMemory(read()),getSelfReview:()=>weeklySelfReview(read()),state};
+global.MAVDecisionJournal={_test:{completedBars,readyCount,tradingProgress,outcomeFor,scorecardGroup,scorecardCards,scorecardNote},toggleAll,journalCoverage,journalEntryRows,syncForwardJournal,recordAssistantEvent,recordOperatorDecision,updateOperatorDecision,refreshOutcomes,render,getJournal:read,getOperatorDecisions:readOperatorDecisions,getHistorical:()=>state.history,learningForStage,getErrorMemory:()=>errorMemory(read()),getSelfReview:()=>weeklySelfReview(read()),state};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })(window);

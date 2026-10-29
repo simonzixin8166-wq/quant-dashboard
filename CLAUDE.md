@@ -15,6 +15,20 @@ The owner is a long-term investor: QQQM / VGT index core, QLD risk-balanced, sto
 MyAlpha protects the core discipline (DCA, staged gold buying reminders), flags risk early, and gives
 evidence-based research hints on stocks and options. It never changes the owner's strategy on its own.
 
+## Why we collect: to train MyAlpha itself (owner, 2026-10-29)
+Everything MyAlpha collects — prices, macro, filings, events, forum posts, blogs, videos — exists for one
+purpose: **to train the MyAlpha system so that its understanding, judgments and alerts become measurably
+more intelligent and more professional over time.** Collecting without learning has no value; a source that
+never improves any of the four measures below is a cost, not an asset.
+
+"Training" here means a closed loop, not model fine-tuning and not hoarding content:
+collect → understand (structured, traceable claims) → turn into testable rules / methods → verify against
+real outcomes → attribute errors and feed the fixes back → keep only what is proven as reusable experience.
+Progress is shown only on the evidence ladder:
+Collected → Parsed → Testable → Historically tested → Shadow observed → Forward validated → Promotion eligible.
+No level implies the next; Forward validated still needs the owner's explicit approval before any production
+use, and training never means automatic orders or changing production thresholds.
+
 ## The four measures (report them with denominators; never substitute feature counts)
 1. Does it understand information correctly? (precision / recall / abstention on frozen, unseen tests)
 2. How many independent, evidence-based judgments does it form? (not restating authors; abstain when unsure)

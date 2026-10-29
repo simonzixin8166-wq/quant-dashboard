@@ -99,3 +99,71 @@ for fail in (False, True):
 assert calls["tg"] == 0
 _o.environ.pop("GUARD_INJECT_MARKET_AS_OF", None); _o.environ.pop("GUARD_DRY_RUN", None)
 print("PASS give_up main() dry-run fixture (no send, API failure tolerated)")
+
+# Option B (Owner 10/29): a guard-dispatched Daily fires no workflow_run, so the guardian follows its own dispatch
+# and refreshes Server Action Watch only after that Daily completed successfully.
+class FakeClock:
+    def __init__(self): self.t = 0.0
+    def __call__(self): return self.t
+    def sleep(self, s): self.t += s
+R = "daily-guardian 2026-10-28 #1"
+mk = lambda status, conclusion=None, title=f"Daily Dashboard Update · {R}", created="2026-10-28T23:35:54Z": {
+    "id": 1, "status": status, "conclusion": conclusion, "display_title": title, "created_at": created}
+seq = [[], [mk("queued")], [mk("in_progress")], [mk("completed", "success")]]
+c = FakeClock()
+r = dg.follow_dispatched(R, lambda: seq.pop(0) if len(seq) > 1 else seq[0], sleep=c.sleep, clock=c, max_min=25, poll_sec=60)
+assert r["result"] == "success" and c.t == 180
+c = FakeClock()
+assert dg.follow_dispatched(R, lambda: [mk("completed", "failure")], sleep=c.sleep, clock=c)["result"] == "failed"
+c = FakeClock()
+t = dg.follow_dispatched(R, lambda: [mk("in_progress")], sleep=c.sleep, clock=c, max_min=25, poll_sec=60)
+assert t["result"] == "timeout" and c.t == 25 * 60
+# another run's success (different run-name, e.g. the delayed scheduled Daily or attempt #2) is never taken for ours
+c = FakeClock()
+other = [mk("completed", "success", title="Daily Dashboard Update"), mk("completed", "success", title="Daily Dashboard Update · daily-guardian 2026-10-28 #2")]
+assert dg.follow_dispatched(R, lambda: other, sleep=c.sleep, clock=c, max_min=3, poll_sec=60)["result"] == "timeout"
+# transient API errors are tolerated within the budget
+c = FakeClock(); n = {"i": 0}
+def flaky():
+    n["i"] += 1
+    if n["i"] == 1: raise OSError("api")
+    return [mk("completed", "success")]
+assert dg.follow_dispatched(R, flaky, sleep=c.sleep, clock=c)["result"] == "success"
+
+# main(): dispatch -> follow -> Server Action Watch refresh (success) / no refresh (failed); never in dry run
+posts = []
+def gh_follow(conclusion):
+    def _gh(method, path, body=None):
+        if method == "POST":
+            posts.append((path, (body or {}).get("inputs", {}).get("run_reason"))); return None
+        if path.startswith("actions/workflows/daily.yml/runs"):
+            return {"workflow_runs": [mk("completed", conclusion)]}
+        return {"workflow_runs": []}
+    return _gh
+orig_decide, orig_follow = dg.decide, dg.follow_dispatched
+dg.decide = lambda now, m, runs: {"action": "dispatch", "reason": "stale_and_idle", "attempt": 1, "expected": "2026-10-28", "market_as_of": "2026-10-27"}
+dg.follow_dispatched = lambda reason, lr: orig_follow(reason, lr, sleep=lambda s: None, clock=lambda: 0.0)
+try:
+    for concl, want in (("success", True), ("failure", False)):
+        posts.clear(); dg.gh = gh_follow(concl); _o.environ["GUARD_DRY_RUN"] = "0"
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            assert dg.main() == 0
+        out = buf.getvalue()
+        assert posts[0] == ("actions/workflows/daily.yml/dispatches", R), posts
+        refreshed = ("actions/workflows/server-action-watch.yml/dispatches", "server-guardian after-daily 2026-10-28") in posts
+        assert refreshed is want, (concl, posts)
+        assert ("SERVER_REFRESH_AFTER_DAILY" in out) is want and "FOLLOW_DAILY" in out
+        assert sum(1 for p_, _ in posts if "server-action-watch" in p_) == (1 if want else sum(1 for p_, _ in posts if "server-action-watch" in p_))
+        if want:
+            assert "SERVER_GUARD skipped" in out
+    posts.clear(); dg.gh = gh_follow("success"); _o.environ["GUARD_DRY_RUN"] = "1"
+    with contextlib.redirect_stdout(io.StringIO()):
+        dg.main()
+    assert posts == [], "dry run never dispatches or follows"
+finally:
+    dg.decide, dg.follow_dispatched = orig_decide, orig_follow
+    _o.environ.pop("GUARD_DRY_RUN", None)
+wf = (ROOT / ".github" / "workflows" / "daily-guardian.yml").read_text(encoding="utf-8")
+assert "timeout-minutes: 32" in wf and "actions: write" in wf and "contents: read" in wf   # no permission change
+print("PASS guardian follows its own Daily dispatch and refreshes Server Action Watch only after success")

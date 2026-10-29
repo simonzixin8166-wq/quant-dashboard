@@ -13,7 +13,7 @@ Rules (no loops, idempotent):
               Telegram alert per session (owner decision #133 6184936851: alerts replace Claude check-ins).
 """
 from __future__ import annotations
-import json, os, sys, urllib.request
+import json, os, sys, time as _time, urllib.request
 from datetime import date, datetime, time, timedelta, timezone
 from pathlib import Path
 from zoneinfo import ZoneInfo
@@ -96,6 +96,36 @@ def send_telegram(text: str) -> str:
 
 SERVER_MAX_AGE_MIN = 75
 SERVER_MARK = "server-guardian"
+# A guard-dispatched Daily is created by GITHUB_TOKEN, so its completion fires no workflow_run and Server Action
+# Watch (which reacts to Daily) never runs; the guardian's own catch-up crons are throttled (10/28: 23:47 -> 01:17Z
+# with the server snapshot on the previous session). The guardian therefore follows its own dispatch to the end
+# and then refreshes Server Action Watch itself (Owner-approved option B, 10/29). No permission change.
+FOLLOW_MAX_MIN = int(os.getenv("GUARD_FOLLOW_MAX_MIN", "25"))
+FOLLOW_POLL_SEC = int(os.getenv("GUARD_FOLLOW_POLL_SEC", "60"))
+_ACTIVE = ("queued", "in_progress", "waiting", "pending", "requested")
+
+
+def follow_dispatched(run_reason: str, list_runs, sleep=_time.sleep, clock=_time.monotonic,
+                      max_min: int = FOLLOW_MAX_MIN, poll_sec: int = FOLLOW_POLL_SEC) -> dict:
+    """Wait for the Daily run whose run-name carries run_reason. Returns
+    {"result": "success"} when it completed successfully, else "failed" / "timeout" (no refresh then:
+    the normal alerts and the throttled catch-up crons stay the fallback)."""
+    start = clock()
+    while True:
+        try:
+            runs = list_runs() or []
+        except Exception as exc:  # transient API error: keep waiting within the budget
+            runs = []
+            print(f"::notice title=Daily guardian::FOLLOW list error {type(exc).__name__}")
+        mine = [r for r in runs if run_reason in str(r.get("display_title") or "")]
+        if mine:
+            r = max(mine, key=lambda x: str(x.get("created_at") or ""))
+            if r.get("status") == "completed":
+                ok = r.get("conclusion") == "success"
+                return {"result": "success" if ok else "failed", "run_id": r.get("id"), "conclusion": r.get("conclusion")}
+        if clock() - start >= max_min * 60:
+            return {"result": "timeout", "run_id": mine and mine[0].get("id")}
+        sleep(poll_sec)
 
 
 def us_session_open(now_utc: datetime) -> bool:
@@ -163,11 +193,20 @@ def main():
         data = {"trend_pulse": {"X": {"available": True, "date": inject}}}
         print(f"::notice title=Daily guardian::FAULT_INJECTION market_as_of={inject} (dry run, no dispatch)")
     # Guard-dispatched runs carry the guard marker in their run-name (daily.yml run-name uses inputs.run_reason).
+    refreshed = False
     d = decide(datetime.now(timezone.utc), published_market_as_of(data), runs)
     print(f"::notice title=Daily guardian::DAILY_GUARD {json.dumps(d, sort_keys=True)}")
     if d["action"] == "dispatch" and os.getenv("GUARD_DRY_RUN") != "1":
-        gh("POST", "actions/workflows/daily.yml/dispatches", {"ref": "main", "inputs": {"run_reason": f"{GUARD_MARK} {d['expected']} #{d['attempt']}"}})
+        reason = f"{GUARD_MARK} {d['expected']} #{d['attempt']}"
+        gh("POST", "actions/workflows/daily.yml/dispatches", {"ref": "main", "inputs": {"run_reason": reason}})
         print(f"::warning title=Daily guardian::DAILY_MISSED dispatched Daily for {d['expected']} (attempt {d['attempt']}/{MAX_DISPATCH})")
+        f = follow_dispatched(reason, lambda: (gh("GET", "actions/workflows/daily.yml/runs?event=workflow_dispatch&per_page=10") or {}).get("workflow_runs", []))
+        print(f"::notice title=Daily guardian::FOLLOW_DAILY {json.dumps(f, sort_keys=True)}")
+        if f["result"] == "success":
+            gh("POST", "actions/workflows/server-action-watch.yml/dispatches",
+               {"ref": "main", "inputs": {"run_reason": f"{SERVER_MARK} after-daily {d['expected']}"}})
+            print(f"::warning title=Daily guardian::SERVER_REFRESH_AFTER_DAILY dispatched Server Action Watch for {d['expected']}")
+            refreshed = True
     elif d["action"] == "give_up":
         print(f"::error title=Daily guardian::DAILY_STILL_STALE {d['expected']} after {MAX_DISPATCH} guard dispatches; explicit GAP, no backfill")
         try:
@@ -182,6 +221,9 @@ def main():
             print(f"::warning title=Daily guardian::GIVE_UP_ALERT {status}")
         else:
             print("::notice title=Daily guardian::GIVE_UP_ALERT already_sent_this_session")
+    if refreshed:  # the checkout predates the Daily it just followed; the refresh above already covers the server
+        print("::notice title=Daily guardian::SERVER_GUARD skipped (refreshed after the followed Daily)")
+        return 0
     srv = json.loads((ROOT / "docs" / "research" / "server_action_status.json").read_text(encoding="utf-8"))
     sruns = (gh("GET", "actions/workflows/server-action-watch.yml/runs?per_page=20") or {}).get("workflow_runs", [])
     sd = decide_server(datetime.now(timezone.utc), srv.get("generated_at"), sruns,

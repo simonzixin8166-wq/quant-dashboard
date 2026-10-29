@@ -39,7 +39,8 @@ concurrency:
 jobs:
   guard:
     runs-on: ubuntu-24.04
-    timeout-minutes: 5
+    # 5 min for the checks; up to 25 more when a dispatched Daily is followed to its end (option B, 10/29)
+    timeout-minutes: 32
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5

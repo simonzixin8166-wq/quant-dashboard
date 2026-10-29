@@ -1,6 +1,6 @@
 {
  "version": "6.11-p2",
- "generated_at": "2026-10-28T22:57:39.309886Z",
+ "generated_at": "2026-10-29T01:17:15.914724Z",
  "module": "v6.11-gold-dca",
  "freshness": {
   "live_max_age_minutes": 20,
@@ -25,50 +25,52 @@
   },
   "buy_data_gate": {
    "trusted_spot_daily": false,
-   "daily_basis": "spot_estimate_from_futures",
+   "daily_basis": "futures_proxy",
    "rule": "BUY 仅在可信现货日线下生成；估算/代理日线最多 WATCH"
   },
   "quote": {
-   "price": 4054.3,
-   "basis": "spot",
-   "source": "gold-api.com 现货",
-   "as_of": "2026-10-28T22:57:29Z",
-   "freshness": "LIVE",
-   "age_minutes": 0.2,
+   "price": 4058.5,
+   "basis": "futures_proxy",
+   "source": "Yahoo COMEX期货(GC=F)代理",
+   "as_of": "2026-10-29T01:07:13Z",
+   "freshness": "DELAYED",
+   "age_minutes": 10.0,
    "market_open": true,
-   "errors": null
+   "errors": [
+    "gold-api:URLError"
+   ]
   },
   "fx": {
-   "usdcny": 6.6549,
-   "as_of": "2026-10-28T22:48:30Z",
+   "usdcny": 6.6559,
+   "as_of": "2026-10-29T01:16:29Z",
    "source": "Yahoo CNY=X"
   },
-  "cny_per_gram": 867.46,
+  "cny_per_gram": 868.49,
   "band_cny_per_gram": [
    {
     "usd": 4050,
-    "cny_per_gram": 866.54
+    "cny_per_gram": 866.67
    },
    {
     "usd": 4000,
-    "cny_per_gram": 855.84
+    "cny_per_gram": 855.97
    },
    {
     "usd": 3950,
-    "cny_per_gram": 845.14
+    "cny_per_gram": 845.27
    },
    {
     "usd": 3850,
-    "cny_per_gram": 823.75
+    "cny_per_gram": 823.87
    },
    {
     "usd": 3650,
-    "cny_per_gram": 780.95
+    "cny_per_gram": 781.07
    }
   ],
   "year_stats": {
    "year": 2026,
-   "basis": "spot_estimate_from_futures",
+   "basis": "futures_proxy",
    "high": {
     "value": 5595.47,
     "date": "2026-01-29",
@@ -90,13 +92,13 @@
     "cny_per_gram": 864.34
    },
    "low_estimate_after_verified": {
-    "value": 3944.0,
+    "value": 3955.4,
     "date": "2026-06-30",
-    "basis": "spot_estimate_from_futures",
+    "basis": "futures_proxy",
     "note": "期货基差估算，未经核实",
     "usdcny": 6.7936,
     "usdcny_date": "2026-06-30",
-    "cny_per_gram": 861.45
+    "cny_per_gram": 863.94
    },
    "coverage": {
     "from": "2026-01-02",
@@ -104,8 +106,8 @@
     "sessions": 207
    },
    "low_is_full_year_confirmed": false,
-   "drawdown_from_high_pct": -27.54,
-   "above_low_pct": 2.4
+   "drawdown_from_high_pct": -27.47,
+   "above_low_pct": 2.5
   },
   "etf_quotes": {
    "GLDM": {
@@ -144,8 +146,8 @@
       "id": "gold_close_below",
       "met": false,
       "value": [
-       4026.99995134375,
-       4063.20014665625
+       4038.39990234375,
+       4074.60009765625
       ],
       "rule": "连续2个交易日收在 $4,000 以下"
      },
@@ -158,7 +160,7 @@
      {
       "id": "dxy_rise",
       "met": false,
-      "value_pct": 0.37,
+      "value_pct": 0.47,
       "rule": "DXY 5 日涨幅 > 1.5%"
      }
     ],
@@ -167,7 +169,7 @@
     "pause": false,
     "complete": true,
     "ry_change_bp_5d": null,
-    "dxy_change_pct_5d": 0.37
+    "dxy_change_pct_5d": 0.47
    },
    "deep_review": {
     "triggered": false,
@@ -177,11 +179,11 @@
     "weeks": [
      {
       "date": "2026-10-23",
-      "close": 3996.5
+      "close": 4007.9
      },
      {
       "date": "2026-10-27",
-      "close": 4063.2
+      "close": 4074.6
      }
     ]
    },
@@ -189,16 +191,16 @@
     "ok": true,
     "stabilized": true,
     "trend": true,
-    "sma5": 4054.86,
-    "detail": "两日未创新低；收盘 4,063 ≥ 5日均线 4,055",
+    "sma5": 4066.26,
+    "detail": "两日未创新低；收盘 4,075 ≥ 5日均线 4,066",
     "as_of": "2026-10-27"
    }
   },
   "inputs": {
    "daily": {
-    "source": "COMEX期货日线 − 实时基差 +11.4（现货估算）",
-    "basis": "spot_estimate_from_futures",
-    "futures_spot_basis": 11.4,
+    "source": "Yahoo COMEX期货日线(代理)",
+    "basis": "futures_proxy",
+    "futures_spot_basis": null,
     "last_date": "2026-10-28",
     "fresh": true
    },
@@ -210,7 +212,7 @@
    "dxy": {
     "source": "Yahoo DX-Y.NYB",
     "last_date": "2026-10-28",
-    "last": 102.15
+    "last": 102.26
    },
    "macro_fresh": false,
    "etf_flows": "unavailable_free_source"
@@ -340,6 +342,6 @@
   "outcome_basis_note": "期货估算日线上的结果为 proxy_estimate_unverified，不计为已验证",
   "capture_mode": "live_observation_state_entries",
   "rule_changes_from_immature_outcomes": false,
-  "daily_basis": "spot_estimate_from_futures"
+  "daily_basis": "futures_proxy"
  }
 }

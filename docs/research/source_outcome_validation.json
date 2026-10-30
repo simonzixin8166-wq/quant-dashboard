@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "generated_at": "2026-10-29T23:46:06.534872+00:00",
+  "generated_at": "2026-10-30T01:22:53.577235+00:00",
   "methodology": {
     "executed_action_baseline": "first trading session open strictly after source date when no reliable intraday timestamp exists",
     "planned_entry_baseline": "explicit stock-entry plans begin only on the first later session whose low touches the stated level; each tranche is validated separately",
@@ -16,14 +16,14 @@
     "attribution_limit": "third-party examples are excluded; unconfirmed source context is visible but excluded from aggregate method memory"
   },
   "counts": {
-    "events": 203,
-    "author_owned": 85,
+    "events": 204,
+    "author_owned": 86,
     "unconfirmed": 118,
-    "triggered_author_owned": 80,
+    "triggered_author_owned": 81,
     "untriggered_plans": 5,
     "mature60": 35,
-    "developing": 45,
-    "symbols": 31
+    "developing": 46,
+    "symbols": 32
   },
   "missing_history": {},
   "by_action": {
@@ -965,6 +965,57 @@
       },
       "alignment": {
         "direction": "bearish",
+        "5": null,
+        "20": null,
+        "60": null
+      },
+      "level_checks": {},
+      "status": "developing"
+    },
+    {
+      "event_id": "3f4f1645cd4e12b92c41:0:BE:0",
+      "author": "三心三意",
+      "title": "比如说我本来就准备分批建仓BE，190，160，130 是我的计划。所以BE240时，我卖出49的葡萄",
+      "url": "https://bbs.wenxuecity.com/cfzh/117092.html",
+      "published_at": "2026-10-23 10:39:24",
+      "symbol": "BE",
+      "operation": {
+        "symbols": [
+          "BE"
+        ],
+        "actions": [
+          "buy",
+          "sell"
+        ],
+        "attribution": "author_action",
+        "attribution_confidence": "high"
+      },
+      "actions": [
+        "buy",
+        "sell"
+      ],
+      "attribution": "author_action",
+      "attribution_confidence": "high",
+      "baseline_kind": "next_session",
+      "baseline_assumption": "next trading session open because source date has no reliable intraday timestamp",
+      "planned_level": null,
+      "triggered": true,
+      "baseline_date": "2026-10-26",
+      "baseline_price": 193.0,
+      "price_provenance": {
+        "price_source": "yfinance_validation_cache",
+        "adjustment_basis": "yfinance_auto_adjust_false_native_ohlc",
+        "baseline_source": "yfinance_validation_cache",
+        "horizon_source": "yfinance_validation_cache",
+        "same_source": true
+      },
+      "outcomes": {
+        "5": null,
+        "20": null,
+        "60": null
+      },
+      "alignment": {
+        "direction": "mixed",
         "5": null,
         "20": null,
         "60": null

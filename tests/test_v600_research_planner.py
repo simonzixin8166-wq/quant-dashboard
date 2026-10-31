@@ -1,4 +1,5 @@
 import importlib.util
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 ROOT=Path(__file__).resolve().parents[1]
@@ -37,7 +38,7 @@ prior_task={
     "task_id":"legacy-open-1","kind":"manual_research","key":"ABC",
     "title":"ABC · pending research","priority":71,"why_now":"pending",
     "questions":["q"],"evidence_sources":["x"],"status":"open",
-    "review_window_days":30,"first_seen_at":"2026-10-01T00:00:00+00:00","run_count":2,
+    "review_window_days":30,"first_seen_at":(datetime.now(timezone.utc)-timedelta(days=1)).isoformat(),"run_count":2,
 }
 carry=p.build({}, {}, {}, {}, {}, {"queue":[prior_task]}, {}, {}, {}, {}, {}, {}, {})
 row=next(x for x in carry["queue"] if x["task_id"]=="legacy-open-1")
@@ -45,6 +46,10 @@ assert row["carry_forward"] is True
 assert row["status"]=="open"
 assert carry["counts"]["carried_backlog"]>=1
 assert carry["planner_policy"]["backlog_contract"]
+# ...and a task older than its review window is no longer carried (date-independent: relative to now)
+expired=dict(prior_task,task_id="legacy-expired-1",first_seen_at=(datetime.now(timezone.utc)-timedelta(days=31)).isoformat())
+carry2=p.build({}, {}, {}, {}, {}, {"queue":[expired]}, {}, {}, {}, {}, {}, {}, {})
+assert not any(x["task_id"]=="legacy-expired-1" and x.get("status")=="open" for x in carry2["queue"])
 
 print("PASS V6 autonomous research planner")
 

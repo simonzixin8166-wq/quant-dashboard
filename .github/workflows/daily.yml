@@ -38,7 +38,36 @@ env:
   SEC_USER_AGENT: ${{ secrets.SEC_USER_AGENT }}
 
 jobs:
+  # Efficiency (#133 10/31): GitHub often starts the US-close cron 3-4 h late, after the Daily Guardian has
+  # already published that session. Only for that cron, skip the duplicate rebuild when the latest NYSE session
+  # is already published and trusted (scripts/daily_skip_gate.py; any doubt → run). Never gates the 08:15Z A/HK
+  # snapshot, workflow_dispatch (Guardian / manual) or push.
+  gate:
+    if: ${{ github.event_name == 'schedule' && github.event.schedule == '30 21 * * 1-5' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      skip: ${{ steps.gate.outputs.skip }}
+      reason: ${{ steps.gate.outputs.reason }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 1
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            scripts/trading_calendar.py
+            scripts/daily_skip_gate.py
+            docs/data.json
+            docs/research/server_action_status.json
+      - name: Skip a late duplicate US-close run?
+        id: gate
+        run: python3 scripts/daily_skip_gate.py
+
   update:
+    needs: gate
+    # !cancelled(): the gate job is skipped for dispatch / 08:15Z / push, and a failed gate fails open (run).
+    if: ${{ !cancelled() && needs.gate.outputs.skip != 'true' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

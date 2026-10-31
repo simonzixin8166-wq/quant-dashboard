@@ -138,6 +138,21 @@ jobs:
         if: steps.playbook_engine.outcome == 'failure'
         run: python scripts/module_failure_marker.py playbook_engine
 
+      # Core-ETF drawdown tier alerts (Owner #133 6516033003 / 6537316711): one Telegram when a CP-01 asset comes
+      # within 2 pp of tier 1, enters a tier, or recovers out of one (once per line per drawdown cycle). Separate
+      # from MYALPHA_PLAYBOOK_ALERTS_ENABLED. Reminder only; never blocks the website or changes thresholds/positions.
+      - name: Core ETF tier alerts (reminder only)
+        id: core_tier_alert
+        continue-on-error: true
+        env:
+          MYALPHA_TG_BOT_TOKEN: ${{ secrets.MYALPHA_TG_BOT_TOKEN }}
+          MYALPHA_TG_CHAT_ID: ${{ secrets.MYALPHA_TG_CHAT_ID }}
+        run: python scripts/core_tier_alert.py
+
+      - name: Record core_tier_alert failure (visible in system status)
+        if: steps.core_tier_alert.outcome == 'failure'
+        run: python scripts/module_failure_marker.py core_tier_alert
+
       - name: Build V6.11 Outcome Foundation (shadow-only)
         id: playbook_outcomes
         continue-on-error: true

@@ -6,7 +6,8 @@
   const finite=value=>value!==null&&value!==undefined&&value!==''&&Number.isFinite(Number(value));
   const number=value=>finite(value)?Number(value):null;
   const escape=value=>String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
-  const dte=(expiry,now=new Date())=>Math.max(0,Math.ceil((new Date(`${expiry}T20:00:00Z`)-now)/86400000));
+  const usCloseMs=d=>{for(const h of [20,21]){const t=Date.parse(`${d}T${h}:00:00Z`);if(Number(new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',hour:'2-digit',hourCycle:'h23'}).format(new Date(t)))===16)return t}return Date.parse(`${d}T21:00:00Z`)};
+  const dte=(expiry,now=new Date())=>Math.max(0,Math.ceil((usCloseMs(expiry)-now)/86400000));
   function normalizeColumnar(raw){
     if(!raw||raw.s!=='ok')return[];
     const keys=Object.keys(raw).filter(key=>Array.isArray(raw[key])),length=(raw.optionSymbol||[]).length,rows=[];

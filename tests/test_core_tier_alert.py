@@ -81,6 +81,46 @@ assert fb.core_tier_banner_html(core(-0.13, valid="CHECK")["core"]) == ""       
 src = (ROOT / "scripts" / "fetch_and_build.py").read_text(encoding="utf-8")
 assert src.count("{core_tier_banner_html(data.get('core'))}") == 1
 
+# --- GPT 6537701769 §1/§2 rigor ---------------------------------------------------------------
+# leaving a line never re-arms its 'enter' alert within the cycle (second dip in the same cycle: page only)
+st, ev1 = cts.advance({}, 0.13, 100.0, T)
+st, ev2 = cts.advance(st, 0.09, 100.0, T)
+st, ev3 = cts.advance(st, 0.14, 100.0, T)
+assert ("leave", "t1") in ev2 and ev3 == [] and st["zone"] == "t1"
+# new cycle only on a plausible validated new ATH; a jump (split / adjustment artefact) is 'suspect'
+assert cts.new_cycle_check(100.0, 100.005) == "same" and cts.new_cycle_check(100.0, 103.0) == "new"
+assert cts.new_cycle_check(100.0, 200.0) == "suspect" and cts.new_cycle_check(None, 50.0) == "new"
+# row checks: close must be finite/positive, drawdown in range, no unexplained day jump
+base = {"date": "2026-11-02", "close": 100.0, "prev_close": 99.0, "strategy_drawdown": -0.05, "ath_is_true": True, "ath_validation": "PASS"}
+assert cts.row_inputs(base, T)[2] == "ok"
+assert cts.row_inputs({**base, "close": 0}, T)[2] == "close_invalid"
+assert cts.row_inputs({**base, "close": float("nan")}, T)[2] == "close_invalid"
+assert cts.row_inputs({**base, "strategy_drawdown": 0.3}, T)[2] == "drawdown_out_of_range"
+assert cts.row_inputs({**base, "prev_close": 50.0}, T)[2] == "price_jump_unexplained"
+# suspect ATH in build(): cannot judge, cycle kept, no trigger
+prev = cta.build(now, lambda t: "sent", core(-0.13), config, ok, {})
+jump = core(-0.13); jump["core"]["QQQM"]["close"] = 300.0          # implied ATH ~345 vs cycle ~115
+o9 = cta.build(now, lambda t: "sent", jump, config, ok, prev)
+assert o9["symbols"]["QQQM"]["judgment"] == "cannot_judge" and o9["symbols"]["QQQM"]["reason"] == "ath_jump_unverified"
+assert o9["symbols"]["QQQM"]["cycle_ath"] == prev["symbols"]["QQQM"]["cycle_ath"]
+# Telegram: failed sends are retried on later runs (max 3 attempts), each alert key is sent at most once
+calls = []
+def flaky(t):
+    calls.append(t); return "failed:URLError" if len(calls) <= 2 else "sent"
+r1 = cta.build(now, flaky, core(-0.13), config, ok, {})           # near + t1 queued, both fail (2 calls)
+assert len(calls) == 2 and all(o["status"] == "failed" for o in r1["outbox"])
+r2 = cta.build(now, flaky, core(-0.13), config, ok, r1)           # retries: near -> sent, t1 -> sent
+assert len(calls) == 4 and all(o["status"] == "sent" for o in r2["outbox"]) and all(o["attempts"] == 2 for o in r2["outbox"])
+r3 = cta.build(now, flaky, core(-0.13), config, ok, r2)           # nothing re-sent
+assert len(calls) == 4
+dead = cta.build(now, lambda t: "failed:X", core(-0.13), config, ok, {})
+for _ in range(5):
+    dead = cta.build(now, lambda t: "failed:X", core(-0.13), config, ok, dead)
+assert all(o["attempts"] == cta.MAX_SEND_ATTEMPTS for o in dead["outbox"])
+assert len({o["key"] for o in r2["outbox"]}) == len(r2["outbox"])
+# audit fields recorded for every asset
+assert all(k in r2["symbols"]["QQQM"] for k in ("as_of", "expected_session", "ath_implied", "ath_validation", "cycle_id"))
+
 # 10-year replay sanity on the committed STOOQ history (QQQ tiers): 7 / 4 / 2 tier entries since 2016-10-31
 import csv, io, zipfile
 z = zipfile.ZipFile(ROOT / "data" / "history" / "stooq_watchlist.zip")
@@ -96,4 +136,4 @@ for r in rows:
             cnt[(k, line)] = cnt.get((k, line), 0) + 1
 assert (cnt.get(("enter", "t1")), cnt.get(("enter", "t2")), cnt.get(("enter", "t3"))) == (7, 4, 2), cnt
 assert sum(cnt.values()) <= 40, cnt   # about 4 alerts a year, not daily noise
-print("PASS core tier alerts: near 2pp, once per line per cycle, recovery alert, cannot-judge, no amounts, 10y replay 7/4/2")
+print("PASS core tier alerts: near 2pp, suspect ATH, row checks, idempotent outbox + retry, once per line per cycle, recovery alert, cannot-judge, no amounts, 10y replay 7/4/2")

@@ -47,13 +47,32 @@ def trigger_prices(close, drawdown, tiers):
     return {} if ath is None else {k: round(ath * (1.0 - v), 2) for k, v in thresholds(tiers).items()}
 
 
+MAX_ATH_STEP = 0.15      # a new ATH more than 15% above the cycle's ATH in one step is not trusted as a new cycle
+
+
+def cycle_id(sym, ath):
+    return f"{sym}@{float(ath):.4f}" if ath is not None else None
+
+
+def new_cycle_check(prev_ath, ath):
+    """'same' | 'new' | 'suspect'. Only a validated ATH that rises by a plausible step starts a new cycle; a jump
+    (split / adjustment / data repair artefact) is 'suspect' -> cannot judge, the old cycle is kept."""
+    if prev_ath is None:
+        return "new"
+    if ath is None or ath <= float(prev_ath) * (1 + NEW_HIGH_EPS):
+        return "same"
+    return "new" if ath <= float(prev_ath) * (1 + MAX_ATH_STEP) else "suspect"
+
+
 def advance(prev, loss, ath, tiers):
-    """prev = {'cycle_ath': float|None, 'sent': [...]}. Returns (new_state, events) with events like
-    ('enter','t1') / ('leave','t1'). A higher ATH starts a new cycle and re-arms every line."""
+    """prev = {'cycle_ath': float|None, 'sent': [...]} per asset; 'sent' holds one 'enter:<line>' / 'leave:<line>'
+    flag per line for the current cycle. Returns (new_state, events) with events like ('enter','t1') /
+    ('leave','t1'). Leaving a line never re-arms its 'enter' alert in the same cycle; only a confirmed new ATH
+    (new_cycle_check == 'new') starts a new cycle and re-arms every line."""
     prev = prev or {}
     cyc = prev.get("cycle_ath")
     sent = set(prev.get("sent") or [])
-    if cyc is None or (ath is not None and ath > float(cyc) * (1 + NEW_HIGH_EPS)):
+    if new_cycle_check(cyc, ath) == "new":
         cyc, sent = ath, set()
     th = thresholds(tiers)
     events = []
@@ -66,6 +85,17 @@ def advance(prev, loss, ath, tiers):
     return {"cycle_ath": cyc, "sent": sorted(sent), "zone": zone(loss, tiers)}, events
 
 
+MAX_DAY_MOVE = 0.25      # |close/prev_close-1| above this (CP-01 holds at most 2x ETFs) -> unexplained jump
+
+
+def _finite_pos(x):
+    try:
+        x = float(x)
+    except (TypeError, ValueError):
+        return False
+    return x > 0 and x == x and x != float("inf")
+
+
 def row_inputs(row, tiers):
     """(loss, ath, reason). loss None means cannot judge (never a default zone)."""
     row = row or {}
@@ -74,4 +104,15 @@ def row_inputs(row, tiers):
         return None, None, "no_tiers"
     if dd is None or row.get("ath_is_true") is not True or row.get("ath_validation") != "PASS":
         return None, None, "ath_unvalidated"
-    return -float(dd), ath_of(row.get("close"), dd), "ok"
+    if not _finite_pos(row.get("close")):
+        return None, None, "close_invalid"
+    try:
+        dd = float(dd)
+    except (TypeError, ValueError):
+        return None, None, "drawdown_invalid"
+    if not (-1 < dd <= 1e-9):
+        return None, None, "drawdown_out_of_range"
+    pc = row.get("prev_close")
+    if _finite_pos(pc) and abs(float(row["close"]) / float(pc) - 1) > MAX_DAY_MOVE:
+        return None, None, "price_jump_unexplained"
+    return -dd, ath_of(row.get("close"), dd), "ok"

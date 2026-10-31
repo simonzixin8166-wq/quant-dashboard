@@ -1074,6 +1074,38 @@ def _distance_to_first_tier(symbol, row):
     return max(0.0, t1 - (-dd))
 
 
+def core_tier_banner_html(core):
+    """Homepage banner when a CP-01 core ETF is near tier 1 or in a tier (Owner #133 6516033003 / 6537316711).
+    Shows the current zone from the validated ATH drawdown; hidden when every asset is normal. Reminder only."""
+    import core_tier_state as cts
+    from playbook_config import PLAYBOOKS
+    assets = (PLAYBOOKS.get("CP-01") or {}).get("assets") or []
+    items, worst = [], "normal"
+    for sym in assets:
+        row, tiers = (core or {}).get(sym) or {}, CORE_TIERS.get(sym)
+        loss, _ath, reason = cts.row_inputs(row, tiers)
+        if loss is None:
+            continue
+        z = cts.zone(loss, tiers)
+        if z == "normal":
+            continue
+        th, px = cts.thresholds(tiers), cts.trigger_prices(row.get("close"), row.get("strategy_drawdown"), tiers)
+        ref = "t1" if z == "near" else z
+        what = f"接近一级（阈值 {th['t1']:.0%}）" if z == "near" else f"已进入{cts.LABEL_ZH[z]}加仓线（阈值 {th[z]:.0%}）"
+        items.append(f"<li><b>{html.escape(sym)}</b> {what} · 当前回撤 {-loss:.1%} · {cts.LABEL_ZH[ref]}对应价格 ≈ {px.get(ref, '—')} · 数据 {html.escape(str(row.get('date') or '—'))}</li>")
+        if cts.ORDER.index(z) > cts.ORDER.index(worst):
+            worst = z
+    if not items:
+        return ""
+    near = worst == "near"
+    bg, fg, bd = ("#f9eeda", "#7a4d00", "#e0b25c") if near else ("#fbebeb", "#8a1f1f", "#d97a7a")
+    title = "核心ETF接近一级加仓线" if near else "核心ETF已进入回撤加仓线"
+    return (f'<section class="core-tier-banner" data-core-tier-banner="{worst}" role="alert" style="margin:0 0 16px;padding:12px 16px;'
+            f'border-radius:12px;border:1px solid {bd};background:{bg};color:{fg}"><b style="font-size:15px">⚠ {title}</b>'
+            f'<ul style="margin:6px 0 4px 18px;padding:0;font-size:12.5px;line-height:1.7">{"".join(items)}</ul>'
+            f'<small>这是提醒，不是买卖指令；是否加仓由你决定。回撤按校验过的历史最高价计算。</small></section>')
+
+
 def build_market_brief(market_regime, market_indicators, core, breadth_data):
     mr = market_regime or {}
     vix = _safe_float(((market_indicators or {}).get("vix") or {}).get("close"))
@@ -2005,7 +2037,7 @@ body{{font-size:15px;background:linear-gradient(180deg,#f7f9fc 0,#f3f6fa 100%);l
 <div class="top-meta"><span id="liveStatus" style="display:none;"><i class="live-dot"></i><span id="liveStatusText">数据抓取成功</span></span><div style="text-align:right; line-height:1.4;"><div style="font-weight:600; font-size:12px; color:var(--ink);">生成时间: {data.get('gen_time', '-')}</div><div id="usLiveAsOf" style="color:var(--muted); font-size:10.5px;">美股收盘日线截至: {data.get('spy_date', '-')} | A/港股盘中动态刷新</div></div><button id="themeToggle" class="theme-toggle" title="切换深浅主题">🌙 深色</button><button id="authBtn" class="auth-btn-top" onclick="handleAuth()">登录 / 注册</button></div></header><div class="content">
 
 <div id="tab-overview" class="tab-pane active">
-<section class="hero overview-hero"><div><h1>今日驾驶舱 · 唯一行动出口</h1><p>所有自主学习、市场、个股、期权和策略结论在这里统一排序；其他页面只提供依据与解释。</p><div class="data-legend" aria-label="数据状态说明"><span class="live">盘中延迟行情</span><span class="close">最近有效收盘</span><span class="missing">不可用不计分</span></div></div><div class="overview-side-tools"><div class="fx-reference-card" title="日度参考汇率，不用于实时换汇"><span>USD/CNY</span><strong>{fmt_num((data.get('fx_usdcny') or {}).get('value'),4)}</strong><small>最新日度汇率 · {(data.get('fx_usdcny') or {}).get('date','-')}</small></div><span id="privateModeShield" class="private-mode-shield" role="status" title="私有控制台已连接，真实持仓受 Supabase RLS 保护">🛡️ 私有模式</span></div><div class="public-note" id="modePanel"><b id="modeTitle">访客预览模式</b><span id="modeDesc">未登录仅显示市场概览；策略、观察池与持仓模块需要主理人登录。</span></div></section>
+<section class="hero overview-hero"><div><h1>今日驾驶舱 · 唯一行动出口</h1><p>所有自主学习、市场、个股、期权和策略结论在这里统一排序；其他页面只提供依据与解释。</p><div class="data-legend" aria-label="数据状态说明"><span class="live">盘中延迟行情</span><span class="close">最近有效收盘</span><span class="missing">不可用不计分</span></div></div><div class="overview-side-tools"><div class="fx-reference-card" title="日度参考汇率，不用于实时换汇"><span>USD/CNY</span><strong>{fmt_num((data.get('fx_usdcny') or {}).get('value'),4)}</strong><small>最新日度汇率 · {(data.get('fx_usdcny') or {}).get('date','-')}</small></div><span id="privateModeShield" class="private-mode-shield" role="status" title="私有控制台已连接，真实持仓受 Supabase RLS 保护">🛡️ 私有模式</span></div><div class="public-note" id="modePanel"><b id="modeTitle">访客预览模式</b><span id="modeDesc">未登录仅显示市场概览；策略、观察池与持仓模块需要主理人登录。</span></div></section>{core_tier_banner_html(data.get('core'))}
 {tape_html}
 {research_brief_html}
 <section id="investActionStrip" class="invest-action-strip" aria-label="投资行动速览"></section>\n<section id="productIntelligenceRoot" aria-label="今日行动与组合智能"></section>\n<section id="marketOptionAlert" class="market-option-alert assistant-normal" aria-live="polite"><div class="assistant-placeholder"><span>AI INVESTMENT ASSISTANT</span><b>AI 投资助手 · 正在值守</b><small>正在读取市场状态；正常行情保持安静，条件触发时自动升级提醒。</small></div></section>

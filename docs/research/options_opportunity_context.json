@@ -1,6 +1,6 @@
 {
   "version": "options-opportunity-context-1.1",
-  "generated_at": "2026-10-31T02:17:55.930207+00:00",
+  "generated_at": "2026-10-31T02:51:21.322916+00:00",
   "universe": [
     "QQQ",
     "SOFI",
@@ -48,20 +48,14 @@
       "rv20_ann_pct": 93.14,
       "rv60_ann_pct": 89.92,
       "garch20": {
-        "status": "ok",
-        "horizon": 20,
-        "ann_vol_pct_avg": 93.12,
-        "ann_vol_pct_day1": 96.82,
-        "ann_vol_pct_day20": 90.27,
-        "omega": 1.35786381,
-        "alpha1": 0.12974522,
-        "beta1": 0.82351991
+        "status": "arch_dependency_unavailable",
+        "horizon": 20
       },
       "context": {
-        "price": 840.96997,
-        "rsi14": 44.59338030251699,
-        "dist_200ma": 0.04967088952426795,
-        "window_drawdown": -0.2642432458442695,
+        "price": 840.70001,
+        "rsi14": 44.57270957523227,
+        "dist_200ma": 0.049335702280318854,
+        "window_drawdown": -0.26447943132108487,
         "nearest_support": {
           "low": 820.0,
           "high": 840.7,
@@ -71,7 +65,7 @@
         },
         "rv20_ann_pct": 93.14,
         "rv60_ann_pct": 89.92,
-        "garch20_ann_pct": 93.12,
+        "garch20_ann_pct": null,
         "near_strong_support": true,
         "forecast_vol_expanding": false,
         "trend_constructive": true,
@@ -105,11 +99,9 @@
       "scan_priority": "high",
       "strategy_preference": null,
       "scan_lanes": [
-        "SELL_PUT_CHAIN_SCAN",
         "LEAPS_CALL_CHAIN_SCAN"
       ],
       "research_modes": [
-        "SELL_PUT_SCREEN",
         "LEAPS_SCREEN"
       ],
       "nearest_support": {
@@ -122,20 +114,14 @@
       "rv20_ann_pct": 36.57,
       "rv60_ann_pct": 40.08,
       "garch20": {
-        "status": "ok",
-        "horizon": 20,
-        "ann_vol_pct_avg": 48.76,
-        "ann_vol_pct_day1": 47.72,
-        "ann_vol_pct_day20": 49.73,
-        "omega": 0.13973634,
-        "alpha1": 0.02249683,
-        "beta1": 0.96700856
+        "status": "arch_dependency_unavailable",
+        "horizon": 20
       },
       "context": {
-        "price": 399.82001,
-        "rsi14": 60.868981355961175,
-        "dist_200ma": 0.03768858449512364,
-        "window_drawdown": -0.1984844175066539,
+        "price": 399.81,
+        "rsi14": 60.86296642235631,
+        "dist_200ma": 0.03766273943961141,
+        "window_drawdown": -0.1985044844637348,
         "nearest_support": {
           "low": 395.0,
           "high": 399.81,
@@ -145,14 +131,13 @@
         },
         "rv20_ann_pct": 36.57,
         "rv60_ann_pct": 40.08,
-        "garch20_ann_pct": 48.76,
+        "garch20_ann_pct": null,
         "near_strong_support": true,
-        "forecast_vol_expanding": true,
+        "forecast_vol_expanding": false,
         "trend_constructive": true,
         "structurally_weak": false
       },
       "reasons": [
-        "strong_support_plus_volatility",
         "constructive_trend_plus_non_extreme_realized_vol"
       ],
       "required_before_strategy_candidate": [
@@ -193,20 +178,14 @@
       "rv20_ann_pct": 66.85,
       "rv60_ann_pct": 51.48,
       "garch20": {
-        "status": "ok",
-        "horizon": 20,
-        "ann_vol_pct_avg": 60.77,
-        "ann_vol_pct_day1": 61.57,
-        "ann_vol_pct_day20": 60.15,
-        "omega": 0.58214578,
-        "alpha1": 0.02404177,
-        "beta1": 0.93381739
+        "status": "arch_dependency_unavailable",
+        "horizon": 20
       },
       "context": {
-        "price": 16.755,
-        "rsi14": 56.92639477545355,
-        "dist_200ma": -0.05794972613014427,
-        "window_drawdown": -0.4880843263061412,
+        "price": 16.76,
+        "rsi14": 56.96887450340238,
+        "dist_200ma": -0.05766992557438577,
+        "window_drawdown": -0.4879315612587839,
         "nearest_support": {
           "low": 16.7,
           "high": 16.76,
@@ -216,7 +195,7 @@
         },
         "rv20_ann_pct": 66.85,
         "rv60_ann_pct": 51.48,
-        "garch20_ann_pct": 60.77,
+        "garch20_ann_pct": null,
         "near_strong_support": true,
         "forecast_vol_expanding": false,
         "trend_constructive": false,
@@ -224,80 +203,6 @@
       },
       "reasons": [
         "strong_support_plus_volatility"
-      ],
-      "required_before_strategy_candidate": [
-        "thesis_intact_or_explicit_index_case",
-        "live_option_chain",
-        "iv_rank_or_percentile",
-        "event_risk",
-        "bid_ask_liquidity",
-        "dte_delta_contract_fit"
-      ],
-      "semantic_boundary": "research_chain_scan_not_trade_action",
-      "trade_action": null,
-      "production_effect": "none"
-    },
-    "NVDA": {
-      "symbol": "NVDA",
-      "as_of": "2026-10-30",
-      "price_as_of": "2026-10-30",
-      "support_as_of": "2026-10-30",
-      "inputs_aligned": true,
-      "status": "scan_context_ready",
-      "state": "chain_scan_candidate",
-      "scan_priority": "medium",
-      "strategy_preference": {
-        "primary": "SELL_PUT",
-        "source": "user_strategy_preference",
-        "note": "Prioritize cash-secured Sell Put research; live chain, support and event gates still apply."
-      },
-      "scan_lanes": [
-        "SELL_PUT_CHAIN_SCAN"
-      ],
-      "research_modes": [
-        "SELL_PUT_SCREEN"
-      ],
-      "nearest_support": {
-        "low": 192.0,
-        "high": 202.0,
-        "strength": "中",
-        "distance_pct": -1.29,
-        "window": "1Y"
-      },
-      "rv20_ann_pct": 32.47,
-      "rv60_ann_pct": 35.22,
-      "garch20": {
-        "status": "ok",
-        "horizon": 20,
-        "ann_vol_pct_avg": 43.61,
-        "ann_vol_pct_day1": 41.43,
-        "ann_vol_pct_day20": 45.36,
-        "omega": 0.30236868,
-        "alpha1": 0.08247579,
-        "beta1": 0.88678811
-      },
-      "context": {
-        "price": 204.81,
-        "rsi14": 35.16912354012587,
-        "dist_200ma": 0.002077447642701612,
-        "window_drawdown": -0.15844187862102976,
-        "nearest_support": {
-          "low": 192.0,
-          "high": 202.0,
-          "strength": "中",
-          "distance_pct": -1.29,
-          "window": "1Y"
-        },
-        "rv20_ann_pct": 32.47,
-        "rv60_ann_pct": 35.22,
-        "garch20_ann_pct": 43.61,
-        "near_strong_support": false,
-        "forecast_vol_expanding": true,
-        "trend_constructive": false,
-        "structurally_weak": false
-      },
-      "reasons": [
-        "preferred_sell_put_research"
       ],
       "required_before_strategy_candidate": [
         "thesis_intact_or_explicit_index_case",
@@ -333,20 +238,14 @@
       "rv20_ann_pct": 22.85,
       "rv60_ann_pct": 17.81,
       "garch20": {
-        "status": "ok",
-        "horizon": 20,
-        "ann_vol_pct_avg": 24.56,
-        "ann_vol_pct_day1": 26.87,
-        "ann_vol_pct_day20": 22.81,
-        "omega": 0.08917017,
-        "alpha1": 0.09924298,
-        "beta1": 0.84644963
+        "status": "arch_dependency_unavailable",
+        "horizon": 20
       },
       "context": {
-        "price": 690.56,
-        "rsi14": 34.904678938580545,
-        "dist_200ma": 0.016247285514499735,
-        "window_drawdown": -0.09477491407040506,
+        "price": 690.48999,
+        "rsi14": 34.883599533376355,
+        "dist_200ma": 0.016144780313221103,
+        "window_drawdown": -0.09486668713612834,
         "nearest_support": {
           "low": 685.0,
           "high": 690.49,
@@ -356,7 +255,7 @@
         },
         "rv20_ann_pct": 22.85,
         "rv60_ann_pct": 17.81,
-        "garch20_ann_pct": 24.56,
+        "garch20_ann_pct": null,
         "near_strong_support": false,
         "forecast_vol_expanding": false,
         "trend_constructive": false,
@@ -397,20 +296,14 @@
       "rv20_ann_pct": 93.87,
       "rv60_ann_pct": 85.17,
       "garch20": {
-        "status": "ok",
-        "horizon": 20,
-        "ann_vol_pct_avg": 103.23,
-        "ann_vol_pct_day1": 102.59,
-        "ann_vol_pct_day20": 103.81,
-        "omega": 0.72964156,
-        "alpha1": 0.01600537,
-        "beta1": 0.96797628
+        "status": "arch_dependency_unavailable",
+        "horizon": 20
       },
       "context": {
-        "price": 23.9658,
-        "rsi14": 30.219558178723062,
-        "dist_200ma": -0.4597354489989749,
-        "window_drawdown": -0.6882294783400547,
+        "price": 23.95,
+        "rsi14": 30.197803374313196,
+        "dist_200ma": -0.4600906691914957,
+        "window_drawdown": -0.6884350201639131,
         "nearest_support": {
           "low": 18.5,
           "high": 18.75,
@@ -420,7 +313,7 @@
         },
         "rv20_ann_pct": 93.87,
         "rv60_ann_pct": 85.17,
-        "garch20_ann_pct": 103.23,
+        "garch20_ann_pct": null,
         "near_strong_support": false,
         "forecast_vol_expanding": false,
         "trend_constructive": false,
@@ -428,6 +321,74 @@
       },
       "reasons": [
         "below_200ma_risk"
+      ],
+      "required_before_strategy_candidate": [
+        "thesis_intact_or_explicit_index_case",
+        "live_option_chain",
+        "iv_rank_or_percentile",
+        "event_risk",
+        "bid_ask_liquidity",
+        "dte_delta_contract_fit"
+      ],
+      "semantic_boundary": "research_chain_scan_not_trade_action",
+      "trade_action": null,
+      "production_effect": "none"
+    },
+    "NVDA": {
+      "symbol": "NVDA",
+      "as_of": "2026-10-30",
+      "price_as_of": "2026-10-30",
+      "support_as_of": "2026-10-30",
+      "inputs_aligned": true,
+      "status": "scan_context_ready",
+      "state": "chain_scan_candidate",
+      "scan_priority": "low",
+      "strategy_preference": {
+        "primary": "SELL_PUT",
+        "source": "user_strategy_preference",
+        "note": "Prioritize cash-secured Sell Put research; live chain, support and event gates still apply."
+      },
+      "scan_lanes": [
+        "SELL_PUT_CHAIN_SCAN"
+      ],
+      "research_modes": [
+        "SELL_PUT_SCREEN"
+      ],
+      "nearest_support": {
+        "low": 192.0,
+        "high": 202.0,
+        "strength": "中",
+        "distance_pct": -1.29,
+        "window": "1Y"
+      },
+      "rv20_ann_pct": 32.47,
+      "rv60_ann_pct": 35.22,
+      "garch20": {
+        "status": "arch_dependency_unavailable",
+        "horizon": 20
+      },
+      "context": {
+        "price": 204.64,
+        "rsi14": 35.05601392847173,
+        "dist_200ma": 0.001249849694898624,
+        "window_drawdown": -0.15914040350084246,
+        "nearest_support": {
+          "low": 192.0,
+          "high": 202.0,
+          "strength": "中",
+          "distance_pct": -1.29,
+          "window": "1Y"
+        },
+        "rv20_ann_pct": 32.47,
+        "rv60_ann_pct": 35.22,
+        "garch20_ann_pct": null,
+        "near_strong_support": false,
+        "forecast_vol_expanding": false,
+        "trend_constructive": false,
+        "structurally_weak": false
+      },
+      "reasons": [
+        "preferred_sell_put_research"
       ],
       "required_before_strategy_candidate": [
         "thesis_intact_or_explicit_index_case",
@@ -475,20 +436,14 @@
       "rv20_ann_pct": 93.14,
       "rv60_ann_pct": 89.92,
       "garch20": {
-        "status": "ok",
-        "horizon": 20,
-        "ann_vol_pct_avg": 93.12,
-        "ann_vol_pct_day1": 96.82,
-        "ann_vol_pct_day20": 90.27,
-        "omega": 1.35786381,
-        "alpha1": 0.12974522,
-        "beta1": 0.82351991
+        "status": "arch_dependency_unavailable",
+        "horizon": 20
       },
       "context": {
-        "price": 840.96997,
-        "rsi14": 44.59338030251699,
-        "dist_200ma": 0.04967088952426795,
-        "window_drawdown": -0.2642432458442695,
+        "price": 840.70001,
+        "rsi14": 44.57270957523227,
+        "dist_200ma": 0.049335702280318854,
+        "window_drawdown": -0.26447943132108487,
         "nearest_support": {
           "low": 820.0,
           "high": 840.7,
@@ -498,7 +453,7 @@
         },
         "rv20_ann_pct": 93.14,
         "rv60_ann_pct": 89.92,
-        "garch20_ann_pct": 93.12,
+        "garch20_ann_pct": null,
         "near_strong_support": true,
         "forecast_vol_expanding": false,
         "trend_constructive": true,
@@ -532,11 +487,9 @@
       "scan_priority": "high",
       "strategy_preference": null,
       "scan_lanes": [
-        "SELL_PUT_CHAIN_SCAN",
         "LEAPS_CALL_CHAIN_SCAN"
       ],
       "research_modes": [
-        "SELL_PUT_SCREEN",
         "LEAPS_SCREEN"
       ],
       "nearest_support": {
@@ -549,20 +502,14 @@
       "rv20_ann_pct": 36.57,
       "rv60_ann_pct": 40.08,
       "garch20": {
-        "status": "ok",
-        "horizon": 20,
-        "ann_vol_pct_avg": 48.76,
-        "ann_vol_pct_day1": 47.72,
-        "ann_vol_pct_day20": 49.73,
-        "omega": 0.13973634,
-        "alpha1": 0.02249683,
-        "beta1": 0.96700856
+        "status": "arch_dependency_unavailable",
+        "horizon": 20
       },
       "context": {
-        "price": 399.82001,
-        "rsi14": 60.868981355961175,
-        "dist_200ma": 0.03768858449512364,
-        "window_drawdown": -0.1984844175066539,
+        "price": 399.81,
+        "rsi14": 60.86296642235631,
+        "dist_200ma": 0.03766273943961141,
+        "window_drawdown": -0.1985044844637348,
         "nearest_support": {
           "low": 395.0,
           "high": 399.81,
@@ -572,14 +519,13 @@
         },
         "rv20_ann_pct": 36.57,
         "rv60_ann_pct": 40.08,
-        "garch20_ann_pct": 48.76,
+        "garch20_ann_pct": null,
         "near_strong_support": true,
-        "forecast_vol_expanding": true,
+        "forecast_vol_expanding": false,
         "trend_constructive": true,
         "structurally_weak": false
       },
       "reasons": [
-        "strong_support_plus_volatility",
         "constructive_trend_plus_non_extreme_realized_vol"
       ],
       "required_before_strategy_candidate": [
@@ -620,20 +566,14 @@
       "rv20_ann_pct": 66.85,
       "rv60_ann_pct": 51.48,
       "garch20": {
-        "status": "ok",
-        "horizon": 20,
-        "ann_vol_pct_avg": 60.77,
-        "ann_vol_pct_day1": 61.57,
-        "ann_vol_pct_day20": 60.15,
-        "omega": 0.58214578,
-        "alpha1": 0.02404177,
-        "beta1": 0.93381739
+        "status": "arch_dependency_unavailable",
+        "horizon": 20
       },
       "context": {
-        "price": 16.755,
-        "rsi14": 56.92639477545355,
-        "dist_200ma": -0.05794972613014427,
-        "window_drawdown": -0.4880843263061412,
+        "price": 16.76,
+        "rsi14": 56.96887450340238,
+        "dist_200ma": -0.05766992557438577,
+        "window_drawdown": -0.4879315612587839,
         "nearest_support": {
           "low": 16.7,
           "high": 16.76,
@@ -643,7 +583,7 @@
         },
         "rv20_ann_pct": 66.85,
         "rv60_ann_pct": 51.48,
-        "garch20_ann_pct": 60.77,
+        "garch20_ann_pct": null,
         "near_strong_support": true,
         "forecast_vol_expanding": false,
         "trend_constructive": false,
@@ -651,80 +591,6 @@
       },
       "reasons": [
         "strong_support_plus_volatility"
-      ],
-      "required_before_strategy_candidate": [
-        "thesis_intact_or_explicit_index_case",
-        "live_option_chain",
-        "iv_rank_or_percentile",
-        "event_risk",
-        "bid_ask_liquidity",
-        "dte_delta_contract_fit"
-      ],
-      "semantic_boundary": "research_chain_scan_not_trade_action",
-      "trade_action": null,
-      "production_effect": "none"
-    },
-    {
-      "symbol": "NVDA",
-      "as_of": "2026-10-30",
-      "price_as_of": "2026-10-30",
-      "support_as_of": "2026-10-30",
-      "inputs_aligned": true,
-      "status": "scan_context_ready",
-      "state": "chain_scan_candidate",
-      "scan_priority": "medium",
-      "strategy_preference": {
-        "primary": "SELL_PUT",
-        "source": "user_strategy_preference",
-        "note": "Prioritize cash-secured Sell Put research; live chain, support and event gates still apply."
-      },
-      "scan_lanes": [
-        "SELL_PUT_CHAIN_SCAN"
-      ],
-      "research_modes": [
-        "SELL_PUT_SCREEN"
-      ],
-      "nearest_support": {
-        "low": 192.0,
-        "high": 202.0,
-        "strength": "中",
-        "distance_pct": -1.29,
-        "window": "1Y"
-      },
-      "rv20_ann_pct": 32.47,
-      "rv60_ann_pct": 35.22,
-      "garch20": {
-        "status": "ok",
-        "horizon": 20,
-        "ann_vol_pct_avg": 43.61,
-        "ann_vol_pct_day1": 41.43,
-        "ann_vol_pct_day20": 45.36,
-        "omega": 0.30236868,
-        "alpha1": 0.08247579,
-        "beta1": 0.88678811
-      },
-      "context": {
-        "price": 204.81,
-        "rsi14": 35.16912354012587,
-        "dist_200ma": 0.002077447642701612,
-        "window_drawdown": -0.15844187862102976,
-        "nearest_support": {
-          "low": 192.0,
-          "high": 202.0,
-          "strength": "中",
-          "distance_pct": -1.29,
-          "window": "1Y"
-        },
-        "rv20_ann_pct": 32.47,
-        "rv60_ann_pct": 35.22,
-        "garch20_ann_pct": 43.61,
-        "near_strong_support": false,
-        "forecast_vol_expanding": true,
-        "trend_constructive": false,
-        "structurally_weak": false
-      },
-      "reasons": [
-        "preferred_sell_put_research"
       ],
       "required_before_strategy_candidate": [
         "thesis_intact_or_explicit_index_case",
@@ -760,20 +626,14 @@
       "rv20_ann_pct": 22.85,
       "rv60_ann_pct": 17.81,
       "garch20": {
-        "status": "ok",
-        "horizon": 20,
-        "ann_vol_pct_avg": 24.56,
-        "ann_vol_pct_day1": 26.87,
-        "ann_vol_pct_day20": 22.81,
-        "omega": 0.08917017,
-        "alpha1": 0.09924298,
-        "beta1": 0.84644963
+        "status": "arch_dependency_unavailable",
+        "horizon": 20
       },
       "context": {
-        "price": 690.56,
-        "rsi14": 34.904678938580545,
-        "dist_200ma": 0.016247285514499735,
-        "window_drawdown": -0.09477491407040506,
+        "price": 690.48999,
+        "rsi14": 34.883599533376355,
+        "dist_200ma": 0.016144780313221103,
+        "window_drawdown": -0.09486668713612834,
         "nearest_support": {
           "low": 685.0,
           "high": 690.49,
@@ -783,7 +643,7 @@
         },
         "rv20_ann_pct": 22.85,
         "rv60_ann_pct": 17.81,
-        "garch20_ann_pct": 24.56,
+        "garch20_ann_pct": null,
         "near_strong_support": false,
         "forecast_vol_expanding": false,
         "trend_constructive": false,
@@ -824,20 +684,14 @@
       "rv20_ann_pct": 93.87,
       "rv60_ann_pct": 85.17,
       "garch20": {
-        "status": "ok",
-        "horizon": 20,
-        "ann_vol_pct_avg": 103.23,
-        "ann_vol_pct_day1": 102.59,
-        "ann_vol_pct_day20": 103.81,
-        "omega": 0.72964156,
-        "alpha1": 0.01600537,
-        "beta1": 0.96797628
+        "status": "arch_dependency_unavailable",
+        "horizon": 20
       },
       "context": {
-        "price": 23.9658,
-        "rsi14": 30.219558178723062,
-        "dist_200ma": -0.4597354489989749,
-        "window_drawdown": -0.6882294783400547,
+        "price": 23.95,
+        "rsi14": 30.197803374313196,
+        "dist_200ma": -0.4600906691914957,
+        "window_drawdown": -0.6884350201639131,
         "nearest_support": {
           "low": 18.5,
           "high": 18.75,
@@ -847,7 +701,7 @@
         },
         "rv20_ann_pct": 93.87,
         "rv60_ann_pct": 85.17,
-        "garch20_ann_pct": 103.23,
+        "garch20_ann_pct": null,
         "near_strong_support": false,
         "forecast_vol_expanding": false,
         "trend_constructive": false,
@@ -855,6 +709,74 @@
       },
       "reasons": [
         "below_200ma_risk"
+      ],
+      "required_before_strategy_candidate": [
+        "thesis_intact_or_explicit_index_case",
+        "live_option_chain",
+        "iv_rank_or_percentile",
+        "event_risk",
+        "bid_ask_liquidity",
+        "dte_delta_contract_fit"
+      ],
+      "semantic_boundary": "research_chain_scan_not_trade_action",
+      "trade_action": null,
+      "production_effect": "none"
+    },
+    {
+      "symbol": "NVDA",
+      "as_of": "2026-10-30",
+      "price_as_of": "2026-10-30",
+      "support_as_of": "2026-10-30",
+      "inputs_aligned": true,
+      "status": "scan_context_ready",
+      "state": "chain_scan_candidate",
+      "scan_priority": "low",
+      "strategy_preference": {
+        "primary": "SELL_PUT",
+        "source": "user_strategy_preference",
+        "note": "Prioritize cash-secured Sell Put research; live chain, support and event gates still apply."
+      },
+      "scan_lanes": [
+        "SELL_PUT_CHAIN_SCAN"
+      ],
+      "research_modes": [
+        "SELL_PUT_SCREEN"
+      ],
+      "nearest_support": {
+        "low": 192.0,
+        "high": 202.0,
+        "strength": "中",
+        "distance_pct": -1.29,
+        "window": "1Y"
+      },
+      "rv20_ann_pct": 32.47,
+      "rv60_ann_pct": 35.22,
+      "garch20": {
+        "status": "arch_dependency_unavailable",
+        "horizon": 20
+      },
+      "context": {
+        "price": 204.64,
+        "rsi14": 35.05601392847173,
+        "dist_200ma": 0.001249849694898624,
+        "window_drawdown": -0.15914040350084246,
+        "nearest_support": {
+          "low": 192.0,
+          "high": 202.0,
+          "strength": "中",
+          "distance_pct": -1.29,
+          "window": "1Y"
+        },
+        "rv20_ann_pct": 32.47,
+        "rv60_ann_pct": 35.22,
+        "garch20_ann_pct": null,
+        "near_strong_support": false,
+        "forecast_vol_expanding": false,
+        "trend_constructive": false,
+        "structurally_weak": false
+      },
+      "reasons": [
+        "preferred_sell_put_research"
       ],
       "required_before_strategy_candidate": [
         "thesis_intact_or_explicit_index_case",

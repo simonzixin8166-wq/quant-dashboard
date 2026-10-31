@@ -10,7 +10,17 @@
 (function (root) {
   var STATE = { ok: '正常', pending: '待运行', stale: '陈旧', failed: '失败' };
   var STANCE = { bullish: '偏多', bearish: '偏空', neutral: '中性', cannot_judge: '弃权' };
-  var RUN_WINDOW_HOURS = 18; // close (≈20:00 UTC) → the 12:35 UTC fallback run next day, plus margin
+  var RUN_WINDOW_HOURS = 18; // US close (20:00 UTC in EDT, 21:00 UTC in EST) → the 12:35 UTC fallback run next day, plus margin
+
+  // 16:00 America/New_York on that date, DST-aware (EDT 20:00Z / EST 21:00Z)
+  function usCloseMs(d) {
+    var fmt = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', hour: '2-digit', hourCycle: 'h23' });
+    for (var h = 20; h <= 21; h++) {
+      var t = Date.parse(d + 'T' + h + ':00:00Z');
+      if (Number(fmt.format(new Date(t))) === 16) return t;
+    }
+    return Date.parse(d + 'T21:00:00Z');
+  }
 
   function esc(s) {
     return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
@@ -24,7 +34,7 @@
     if (d.run_failure && d.run_failure.failed_after_last_success) return { key: 'failed', why: '最近一次自动研究运行失败（' + (d.run_failure.failed_at || '') + '）' };
     if (!d.latest_session) return { key: 'pending', why: '尚无研究记录' };
     if (!pageMarketAsOf || d.latest_session >= pageMarketAsOf) return { key: 'ok', why: '研究已覆盖页面所示交易日 ' + d.latest_session };
-    var close = Date.parse(pageMarketAsOf + 'T20:00:00Z');
+    var close = usCloseMs(pageMarketAsOf);
     var hours = (now.getTime() - close) / 3600000;
     if (hours >= 0 && hours < RUN_WINDOW_HOURS) return { key: 'pending', why: pageMarketAsOf + ' 收盘后的研究尚未运行（正常窗口内）' };
     return { key: 'stale', why: '研究停留在 ' + d.latest_session + '，页面行情已到 ' + pageMarketAsOf };

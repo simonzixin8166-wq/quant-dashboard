@@ -1,6 +1,6 @@
 {
  "version": "6.11-p2",
- "generated_at": "2026-10-31T02:52:37.155513Z",
+ "generated_at": "2026-11-02T02:33:05.145793Z",
  "module": "v6.11-gold-dca",
  "freshness": {
   "live_max_age_minutes": 20,
@@ -18,9 +18,8 @@
    "已进入第3档 跌破历史低点后风险复核；BUY 条件未齐备"
   ],
   "blockers": [
-   "市场休市/报价非盘中，不生成新 BUY",
    "宏观风险数据缺失（DXY/实际利率），无法排除 PAUSE",
-   "止跌/趋势未确认：仍在创新低；收盘 3,876 < 5日均线 4,008"
+   "止跌/趋势未确认：仍在创新低；收盘 3,889 < 5日均线 4,009"
   ],
   "next_band": {
    "min": 3650,
@@ -33,41 +32,41 @@
    "rule": "BUY 仅在可信现货日线下生成；估算/代理日线最多 WATCH"
   },
   "quote": {
-   "price": 3876.4,
+   "price": 3911.2,
    "basis": "spot",
    "source": "gold-api.com 现货",
-   "as_of": "2026-10-31T02:52:26Z",
-   "freshness": "CLOSED",
+   "as_of": "2026-11-02T02:32:52Z",
+   "freshness": "LIVE",
    "age_minutes": 0.2,
-   "market_open": false,
+   "market_open": true,
    "errors": null
   },
   "fx": {
-   "usdcny": 6.6449,
-   "as_of": "2026-10-31T02:32:34Z",
+   "usdcny": 6.6542,
+   "as_of": "2026-11-02T02:33:04Z",
    "source": "Yahoo CNY=X"
   },
-  "cny_per_gram": 828.15,
+  "cny_per_gram": 836.75,
   "band_cny_per_gram": [
    {
     "usd": 4050,
-    "cny_per_gram": 865.24
+    "cny_per_gram": 866.45
    },
    {
     "usd": 4000,
-    "cny_per_gram": 854.55
+    "cny_per_gram": 855.75
    },
    {
     "usd": 3950,
-    "cny_per_gram": 843.87
+    "cny_per_gram": 845.05
    },
    {
     "usd": 3850,
-    "cny_per_gram": 822.51
+    "cny_per_gram": 823.66
    },
    {
     "usd": 3650,
-    "cny_per_gram": 779.78
+    "cny_per_gram": 780.87
    }
   ],
   "year_stats": {
@@ -94,22 +93,22 @@
     "cny_per_gram": 864.34
    },
    "low_estimate_after_verified": {
-    "value": 3870.8,
+    "value": 3869.8,
     "date": "2026-10-30",
     "basis": "spot_estimate_from_futures",
     "note": "期货基差估算，未经核实",
     "usdcny": 6.661,
     "usdcny_date": "2026-10-30",
-    "cny_per_gram": 828.96
+    "cny_per_gram": 828.74
    },
    "coverage": {
     "from": "2026-01-02",
-    "to": "2026-10-30",
-    "sessions": 209
+    "to": "2026-11-01",
+    "sessions": 210
    },
    "low_is_full_year_confirmed": false,
-   "drawdown_from_high_pct": -30.72,
-   "above_low_pct": -2.09
+   "drawdown_from_high_pct": -30.1,
+   "above_low_pct": -1.22
   },
   "etf_quotes": {
    "GLDM": {
@@ -148,8 +147,8 @@
       "id": "gold_close_below",
       "met": false,
       "value": [
-       4022.89980434375,
-       3876.39980434375
+       4021.8998533437502,
+       3889.3998533437502
       ],
       "rule": "连续2个交易日收在 $4,000 以下"
      },
@@ -162,7 +161,7 @@
      {
       "id": "dxy_rise",
       "met": false,
-      "value_pct": 0.15,
+      "value_pct": 0.01,
       "rule": "DXY 5 日涨幅 > 1.5%"
      }
     ],
@@ -171,7 +170,7 @@
     "pause": false,
     "complete": true,
     "ry_change_bp_5d": null,
-    "dxy_change_pct_5d": 0.15
+    "dxy_change_pct_5d": 0.01
    },
    "deep_review": {
     "triggered": false,
@@ -181,11 +180,11 @@
     "weeks": [
      {
       "date": "2026-10-23",
-      "close": 3999.4
+      "close": 3998.4
      },
      {
       "date": "2026-10-30",
-      "close": 3876.4
+      "close": 3889.4
      }
     ]
    },
@@ -193,17 +192,17 @@
     "ok": false,
     "stabilized": false,
     "trend": false,
-    "sma5": 4007.68,
-    "detail": "仍在创新低；收盘 3,876 < 5日均线 4,008",
+    "sma5": 4009.48,
+    "detail": "仍在创新低；收盘 3,889 < 5日均线 4,009",
     "as_of": "2026-10-30"
    }
   },
   "inputs": {
    "daily": {
-    "source": "COMEX期货日线 − 实时基差 +8.5（现货估算）",
+    "source": "COMEX期货日线 − 实时基差 +9.5（现货估算）",
     "basis": "spot_estimate_from_futures",
-    "futures_spot_basis": 8.5,
-    "last_date": "2026-10-30",
+    "futures_spot_basis": 9.5,
+    "last_date": "2026-11-01",
     "fresh": true
    },
    "real_yield": {
@@ -213,8 +212,8 @@
    },
    "dxy": {
     "source": "Yahoo DX-Y.NYB",
-    "last_date": "2026-10-30",
-    "last": 101.96
+    "last_date": "2026-11-01",
+    "last": 101.97
    },
    "macro_fresh": false,
    "etf_flows": "unavailable_free_source"
@@ -268,13 +267,6 @@
   ],
   "months": [
    {
-    "month": "2026-10",
-    "nominal": "2026-10-07~2026-10-10",
-    "due_date": "2026-10-07",
-    "window_end": "2026-10-12",
-    "rolled": true
-   },
-   {
     "month": "2026-11",
     "nominal": "2026-11-07~2026-11-10",
     "due_date": "2026-11-09",
@@ -287,6 +279,13 @@
     "due_date": "2026-12-07",
     "window_end": "2026-12-10",
     "rolled": false
+   },
+   {
+    "month": "2027-01",
+    "nominal": "2027-01-07~2027-01-10",
+    "due_date": "2027-01-07",
+    "window_end": "2027-01-11",
+    "rolled": true
    }
   ],
   "quotes": {

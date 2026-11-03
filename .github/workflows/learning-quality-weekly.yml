@@ -30,6 +30,10 @@ jobs:
         run: |
           python tests/test_v615_learning_quality_weekly.py
           python scripts/learning_quality_weekly.py
+      - name: Forward attribution (fea-0.2, report-only; written only when changed)
+        run: |
+          python tests/test_forward_attribution_weekly.py
+          python scripts/forward_attribution_weekly.py
       - name: Weekly change summary (written and sent only when a field changed)
         env:
           GITHUB_TOKEN: ${{ github.token }}
@@ -44,6 +48,7 @@ jobs:
           git config user.email "actions@github.com"
           git add docs/research/learning_quality_weekly.json
           if [ -f docs/research/weekly_change_summary.json ]; then git add docs/research/weekly_change_summary.json; fi
+          if [ -f docs/research/forward_attribution_weekly.json ]; then git add docs/research/forward_attribution_weekly.json research/reports/attribution/forward_h20_latest.md; fi
           if ! git diff --cached --quiet; then
             git commit -m "update weekly learning quality report"
             git pull --rebase origin main

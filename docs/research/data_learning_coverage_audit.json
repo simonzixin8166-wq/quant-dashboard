@@ -1,6 +1,6 @@
 {
   "version": "2.3",
-  "generated_at": "2026-10-31T02:51:26.982661+00:00",
+  "generated_at": "2026-11-03T02:26:23.317608+00:00",
   "principle": "Collection success is not learning success. Permanent storage and learning inputs must not be record-count capped; only per-run processing and UI presentation may be bounded.",
   "counts": {
     "learning_active": 7,
@@ -22,8 +22,8 @@
       ],
       "evidence": {
         "symbols": 41,
-        "events": 8118,
-        "mature_60": 7700
+        "events": 8115,
+        "mature_60": 7698
       },
       "downstream_reused": true,
       "reused_by": [
@@ -46,55 +46,65 @@
       "decision_context": true,
       "learning_status": "partial_learning",
       "gaps": [
+        "Upstream source coverage is not fully accounted; at least one discovered item is missing from feed/archive/pending/backlog or collector status is unavailable.",
         "Source coverage may be complete, but explicit YouTube pending/backlog/provider-blocked items still lack Q1/Q2 semantic learning; they are not counted as learned.",
         "Historical video archive is intentionally non-gating; this is a governance boundary, not a missing-learning error."
       ],
       "evidence": {
-        "source_records": 2940,
-        "source_reading_records": 2950,
-        "persistent_source_records": 2950,
+        "source_records": 2967,
+        "source_reading_records": 2977,
+        "persistent_source_records": 2977,
         "backlog": 0,
-        "collector_coverage_complete": true,
+        "collector_coverage_complete": false,
         "collector_semantic_complete": false,
         "collector": {
           "version": 2,
-          "generated_at": "2026-10-31T01:54:22.588781+00:00",
-          "complete": true,
-          "coverage_complete": true,
+          "generated_at": "2026-11-02T23:31:26.102837+00:00",
+          "complete": false,
+          "coverage_complete": false,
           "semantic_learning_complete": false,
           "forum": {
-            "complete": true,
+            "complete": false,
             "continuity_proven": true,
-            "anchor_id": "118676",
-            "previous_anchor_id": "118479",
-            "status": "complete"
+            "anchor_id": "118755",
+            "previous_anchor_id": "118676",
+            "status": "blocked"
           },
           "blogs": {
-            "complete": true,
+            "complete": false,
             "authors": {
               "BrightLine": {
-                "complete": true,
-                "scan_complete": true,
-                "missing_from_feed": 0,
-                "unique_article_ids": 13,
-                "feed_present_urls": 13,
-                "archive_failures": []
-              },
-              "yifan99": {
-                "complete": true,
-                "scan_complete": true,
+                "complete": false,
+                "scan_complete": false,
                 "missing_from_feed": 0,
                 "unique_article_ids": 0,
                 "feed_present_urls": 0,
-                "archive_failures": []
+                "archive_failures": [
+                  "2026-10",
+                  "2026-11"
+                ]
+              },
+              "yifan99": {
+                "complete": false,
+                "scan_complete": false,
+                "missing_from_feed": 0,
+                "unique_article_ids": 0,
+                "feed_present_urls": 0,
+                "archive_failures": [
+                  "2026-10",
+                  "2026-11"
+                ]
               },
               "麻你": {
-                "complete": true,
-                "scan_complete": true,
+                "complete": false,
+                "scan_complete": false,
                 "missing_from_feed": 0,
-                "unique_article_ids": 4,
-                "feed_present_urls": 4,
-                "archive_failures": []
+                "unique_article_ids": 0,
+                "feed_present_urls": 0,
+                "archive_failures": [
+                  "2026-10",
+                  "2026-11"
+                ]
               }
             }
           },
@@ -104,15 +114,15 @@
             "semantic_learning_complete": false,
             "discovery_complete": true,
             "accounting_balanced": true,
-            "seen": 201,
-            "feed_records": 40,
+            "seen": 203,
+            "feed_records": 44,
             "historical_archive_records": 23,
             "historical_semantic_learned": 6,
-            "pending": 106,
+            "pending": 104,
             "historical_backlog": 54,
             "unaccounted": 0,
             "unaccounted_video_ids": [],
-            "unresolved_semantic": 160,
+            "unresolved_semantic": 158,
             "status": "ok"
           },
           "guardrails": [
@@ -122,8 +132,8 @@
           ],
           "fetch_status": "ok"
         },
-        "testable_rules": 61,
-        "eligible_triggered_events": 82
+        "testable_rules": 62,
+        "eligible_triggered_events": 84
       },
       "downstream_reused": true,
       "reused_by": [
@@ -151,11 +161,11 @@
         "Canonical SEC filing archive now preserves filing evidence, but full filing-to-thesis/outcome reuse remains partial."
       ],
       "evidence": {
-        "symbols": 14,
-        "filings": 39,
-        "archive_total": 83,
-        "linked_direct_events": 35,
-        "mature_20": 20
+        "symbols": 11,
+        "filings": 33,
+        "archive_total": 89,
+        "linked_direct_events": 26,
+        "mature_20": 16
       },
       "downstream_reused": true,
       "reused_by": [
@@ -163,6 +173,7 @@
         "company_fundamental_memory.py",
         "event_window_attribution.py",
         "evidence_archive.py",
+        "fundamental_outcome_context.py",
         "module_manifest_audit.py",
         "sec_facts_v2.py",
         "v615_auto_thesis_engine.py"
@@ -179,11 +190,11 @@
       "learning_status": "learning_active",
       "gaps": [],
       "evidence": {
-        "symbols": 13,
-        "archive_total": 14047,
+        "symbols": 11,
+        "archive_total": 12940,
         "archive_added": 0,
-        "filing_observations": 866,
-        "mature_outcomes": 1712,
+        "filing_observations": 867,
+        "mature_outcomes": 1713,
         "horizons": {
           "20": {
             "n": 860,
@@ -193,11 +204,11 @@
             "avg_mfe_pct": 10.153198616746124
           },
           "60": {
-            "n": 852,
-            "avg_return_pct": 9.854833869628175,
-            "positive_rate": 0.6502347417840375,
-            "avg_mae_pct": -12.009233712312632,
-            "avg_mfe_pct": 22.554400282309363
+            "n": 853,
+            "avg_return_pct": 9.83192733565643,
+            "positive_rate": 0.64947245017585,
+            "avg_mae_pct": -12.02388916789395,
+            "avg_mfe_pct": 22.535070828867255
           }
         }
       },
@@ -217,21 +228,21 @@
       "learning_status": "learning_active",
       "gaps": [],
       "evidence": {
-        "symbols": 16,
-        "news_items": 75,
-        "archive_total": 2445,
+        "symbols": 12,
+        "news_items": 60,
+        "archive_total": 2680,
         "event_window_rows": 20,
-        "mature_outcomes": 1790,
+        "mature_outcomes": 1842,
         "benchmark": "SPY",
         "horizons": {
           "5": {
-            "n": 1785,
-            "avg_excess_return_pct": -2.9993824658561956,
-            "positive_excess_rate": 0.2649859943977591
+            "n": 1836,
+            "avg_excess_return_pct": -3.135806283575853,
+            "positive_excess_rate": 0.26742919389978215
           },
           "20": {
-            "n": 4,
-            "avg_excess_return_pct": -6.132630676352274,
+            "n": 5,
+            "avg_excess_return_pct": -6.6739530894484975,
             "positive_excess_rate": 0.0
           },
           "60": {
@@ -259,8 +270,8 @@
       "evidence": {
         "version": "5.4.0",
         "series": 15,
-        "observations": 27,
-        "outcomes": 18,
+        "observations": 29,
+        "outcomes": 19,
         "scorecards": 6
       },
       "downstream_reused": true,
@@ -279,10 +290,10 @@
       "learning_status": "learning_active",
       "gaps": [],
       "evidence": {
-        "cross_asset_history": 22,
+        "cross_asset_history": 23,
         "breadth_history": 20,
-        "regime_history": 21,
-        "outcomes": 52,
+        "regime_history": 22,
+        "outcomes": 58,
         "scorecards": 21
       },
       "downstream_reused": true,
@@ -311,7 +322,7 @@
           "NVDA",
           "TSLA"
         ],
-        "observations": 108,
+        "observations": 114,
         "mature20": 0,
         "garch_mae_pct_points": null
       },
@@ -339,8 +350,8 @@
           "NVDA",
           "TSLA"
         ],
-        "research_observations": 108,
-        "research_matured": 78,
+        "research_observations": 114,
+        "research_matured": 84,
         "private_observations": 1,
         "private_mature_outcomes": 1
       },
@@ -362,9 +373,9 @@
         "Thesis revisions are now retained by evidence-hash change; outcome attribution and evidence-delta effectiveness are still partial."
       ],
       "evidence": {
-        "symbols": 18,
-        "revision_rows": 468,
-        "linked_direct_events": 35
+        "symbols": 12,
+        "revision_rows": 502,
+        "linked_direct_events": 26
       },
       "downstream_reused": false,
       "reused_by": []
@@ -418,11 +429,11 @@
         "mode": "silent_forward",
         "forward_clock_active": true,
         "mature_total": {
-          "5": 15,
+          "5": 17,
           "20": 0,
           "60": 0
         },
-        "mature_any": 15,
+        "mature_any": 17,
         "mature_verified_20_60_120": 0
       },
       "downstream_reused": true,
@@ -442,9 +453,9 @@
       "learning_status": "learning_active",
       "gaps": [],
       "evidence": {
-        "overall": "running",
-        "open_incidents": 1,
-        "resolved_total": 33,
+        "overall": "ok",
+        "open_incidents": 0,
+        "resolved_total": 35,
         "self_improvement_version": "7.2.1"
       },
       "downstream_reused": true,
@@ -506,6 +517,7 @@
       "domain": "blog_forum_video_sources",
       "status": "partial_learning",
       "gaps": [
+        "Upstream source coverage is not fully accounted; at least one discovered item is missing from feed/archive/pending/backlog or collector status is unavailable.",
         "Source coverage may be complete, but explicit YouTube pending/backlog/provider-blocked items still lack Q1/Q2 semantic learning; they are not counted as learned.",
         "Historical video archive is intentionally non-gating; this is a governance boundary, not a missing-learning error."
       ]
@@ -569,15 +581,15 @@
   ],
   "reconciliation": {
     "upstream_collector_known": true,
-    "youtube_seen": 201,
-    "youtube_text_admitted": 46,
+    "youtube_seen": 203,
+    "youtube_text_admitted": 50,
     "youtube_semantically_learned": null,
     "youtube_semantic_note": "not inferred from admission; see wxc-bot state/youtube_learning_reconciliation.json",
-    "youtube_semantic_backlog": 160,
-    "captured": 2940,
-    "canonical": 2950,
-    "processed": 2950,
-    "text_enriched": 2950,
+    "youtube_semantic_backlog": 158,
+    "captured": 2967,
+    "canonical": 2977,
+    "processed": 2977,
+    "text_enriched": 2977,
     "source_offline": 0,
     "backlog": 0,
     "errors": 0,

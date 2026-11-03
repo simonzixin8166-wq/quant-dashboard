@@ -1,13 +1,13 @@
 {
- "generated_at": "2026-10-31T02:51:01Z",
+ "generated_at": "2026-11-03T02:12:16Z",
  "inputs": {
   "old": {
    "path": "docs/research/company_fundamental_memory.json",
-   "generated_at": "2026-10-31T02:50:47.018279+00:00"
+   "generated_at": "2026-11-03T02:12:00.161518+00:00"
   },
   "new": {
    "path": "docs/research/sec_fundamentals.json",
-   "generated_at": "2026-10-31T02:49:58Z"
+   "generated_at": "2026-11-03T02:11:09Z"
   },
   "archive": "research/archive/fundamentals"
  },
@@ -15,7 +15,6 @@
   "old_symbols": [
    "AMD",
    "AVGO",
-   "GOOG",
    "INTC",
    "IREN",
    "LITE",
@@ -24,7 +23,6 @@
    "NBIS",
    "ORCL",
    "SOFI",
-   "SPCX",
    "TSLA"
   ],
   "new_symbols": [
@@ -63,7 +61,6 @@
   "overlap": [
    "AMD",
    "AVGO",
-   "GOOG",
    "INTC",
    "IREN",
    "LITE",
@@ -72,7 +69,6 @@
    "NBIS",
    "ORCL",
    "SOFI",
-   "SPCX",
    "TSLA"
   ],
   "only_old": [],
@@ -83,6 +79,7 @@
    "CRWV",
    "DIA",
    "GLD",
+   "GOOG",
    "HOOD",
    "HYG",
    "IWM",
@@ -90,6 +87,7 @@
    "MU",
    "NOW",
    "NVDA",
+   "SPCX",
    "TLT",
    "TSM",
    "XLE",
@@ -103,19 +101,18 @@
  },
  "class_tally": {
   "revenue": {
-   "only_new": 9,
-   "old_ytd_period": 7,
+   "only_new": 11,
+   "old_ytd_period": 6,
    "neither": 9,
-   "concept_switch": 1,
-   "old_stale": 2,
    "agree": 4,
-   "old_non_usd": 1
+   "old_non_usd": 1,
+   "old_stale": 1
   },
   "net_income": {
-   "only_new": 9,
-   "old_ytd_period": 7,
+   "only_new": 11,
+   "old_ytd_period": 5,
    "concept_switch": 1,
-   "old_misaligned": 2,
+   "old_misaligned": 1,
    "old_stale": 2,
    "neither": 9,
    "agree": 4,
@@ -258,7 +255,7 @@
    }
   },
   "GOOG": {
-   "in_old_memory": true,
+   "in_old_memory": false,
    "in_new_source": true,
    "old_path_view": {
     "revenue": {
@@ -284,7 +281,7 @@
      "period_kind": "ytd_or_other"
     }
    },
-   "old_path_basis": "company_fundamental_memory latest",
+   "old_path_basis": "archive-only (symbol not in current old run)",
    "new_view": {
     "revenue": {
      "value": 127577000000,
@@ -316,12 +313,10 @@
    },
    "classes": {
     "revenue": [
-     "concept_switch",
-     "old_stale"
+     "only_new"
     ],
     "net_income": [
-     "old_misaligned",
-     "old_ytd_period"
+     "only_new"
     ]
    }
   },
@@ -880,7 +875,7 @@
    }
   },
   "GOOG": {
-   "in_old": true,
+   "in_old": false,
    "in_new": true,
    "new_available": true,
    "new_metrics_status": {
@@ -890,17 +885,7 @@
    },
    "metrics": {
     "revenue": {
-     "old": {
-      "value": 90234000000,
-      "start": "2025-01-01",
-      "end": "2025-03-31",
-      "filed": "2025-04-25",
-      "concept": "RevenueFromContractWithCustomerExcludingAssessedTax",
-      "unit": "USD",
-      "form": "10-Q",
-      "accn": "0001652044-25-000043",
-      "period_kind": "quarter"
-     },
+     "old": null,
      "new": {
       "value": 127577000000,
       "start": "2026-07-01",
@@ -913,8 +898,7 @@
       "period_kind": "quarter"
      },
      "classes": [
-      "concept_switch",
-      "old_stale"
+      "only_new"
      ],
      "archive_rows": 87,
      "archive_has_new_fact": false,
@@ -926,17 +910,7 @@
      ]
     },
     "net_income": {
-     "old": {
-      "value": 201239000000,
-      "start": "2026-01-01",
-      "end": "2026-09-30",
-      "filed": "2026-10-29",
-      "concept": "NetIncomeLoss",
-      "unit": "USD",
-      "form": "10-Q",
-      "accn": "0001652044-26-000084",
-      "period_kind": "ytd_or_other"
-     },
+     "old": null,
      "new": {
       "value": 26468000000,
       "start": "2026-07-01",
@@ -949,8 +923,7 @@
       "period_kind": "quarter"
      },
      "classes": [
-      "old_misaligned",
-      "old_ytd_period"
+      "only_new"
      ],
      "archive_rows": 148,
      "archive_has_new_fact": true,
@@ -1014,8 +987,8 @@
      "classes": [
       "only_new"
      ],
-     "archive_rows": 69,
-     "archive_has_new_fact": false,
+     "archive_rows": 73,
+     "archive_has_new_fact": true,
      "archive_units": [
       "USD"
      ],
@@ -1992,7 +1965,7 @@
    }
   },
   "SPCX": {
-   "in_old": true,
+   "in_old": false,
    "in_new": true,
    "new_available": true,
    "new_metrics_status": {
@@ -2002,17 +1975,7 @@
    },
    "metrics": {
     "revenue": {
-     "old": {
-      "value": 27083000000,
-      "start": "2026-01-01",
-      "end": "2026-09-30",
-      "filed": "2026-10-22",
-      "concept": "RevenueFromContractWithCustomerExcludingAssessedTax",
-      "unit": "USD",
-      "form": "10-Q",
-      "accn": "0001628280-26-066880",
-      "period_kind": "ytd_or_other"
-     },
+     "old": null,
      "new": {
       "value": 14575000000,
       "start": "2026-07-01",
@@ -2025,7 +1988,7 @@
       "period_kind": "quarter"
      },
      "classes": [
-      "old_ytd_period"
+      "only_new"
      ],
      "archive_rows": 8,
      "archive_has_new_fact": true,
@@ -2037,17 +2000,7 @@
      ]
     },
     "net_income": {
-     "old": {
-      "value": -413000000,
-      "start": "2026-01-01",
-      "end": "2026-09-30",
-      "filed": "2026-10-22",
-      "concept": "NetIncomeLoss",
-      "unit": "USD",
-      "form": "10-Q",
-      "accn": "0001628280-26-066880",
-      "period_kind": "ytd_or_other"
-     },
+     "old": null,
      "new": {
       "value": 4404000000,
       "start": "2026-07-01",
@@ -2060,7 +2013,7 @@
       "period_kind": "quarter"
      },
      "classes": [
-      "old_ytd_period"
+      "only_new"
      ],
      "archive_rows": 8,
      "archive_has_new_fact": true,
@@ -2312,10 +2265,10 @@
  "read_only": true,
  "production_use": false,
  "note": "audit only: neither source nor any consumer is changed; anomaly_review values are held for review, not declared false",
- "content_sha256": "4c29827aa8264b14168d256e034b48fc024a49415451e9e679e97f2df3e07f60",
+ "content_sha256": "7b8a521de7981feab997471a88bd37ea4b737915f9616311fbef958e3bdf5479",
  "shadow_v2_vs_new": {
   "status": "compared",
-  "shadow_generated_at": "2026-10-31T02:50:51Z",
+  "shadow_generated_at": "2026-11-03T02:12:03Z",
   "shadow_counts": {
    "symbols": 25,
    "ok": 24,

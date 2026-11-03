@@ -139,7 +139,7 @@ def run(root, group="genuine_forward", sessions=None, h=20, stamp=True):
         rows.append((r, o, st, hit))
         P(f"| {r['symbol']} | {r['session']} | {r['payload']['decision']} | {r['matures'].get(str(a.h))} | {st} | "
           f"{(o or {}).get('reason') or ''} | {(o or {}).get('start_ref', '')[:8]} | {(o or {}).get('matures_on', '')} | "
-          f"{(o or {}).get('bench_end_ref', '')[:8]} | {'' if not o or o.get('excess_vs_qqq') is None else f'{o['excess_vs_qqq']:+.4f}'} | "
+          f"{(o or {}).get('bench_end_ref', '')[:8]} | {'' if not o or o.get('excess_vs_qqq') is None else format(o['excess_vs_qqq'], '+.4f')} | "
           f"{hit} | {(o or {}).get('contract_hash', '')} | {ep_start.get(r['event_id'])} |")
 
     # ---------- §2 denominators, incl./excl. QQQ+QQQM ----------

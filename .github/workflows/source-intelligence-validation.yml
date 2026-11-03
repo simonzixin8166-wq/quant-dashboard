@@ -275,9 +275,6 @@ jobs:
       - name: Build V6.15 Author Intelligence
         run: python scripts/v615_author_intelligence.py
 
-      - name: Build V6.15 Auto Thesis drafts
-        run: python scripts/v615_auto_thesis_engine.py
-
       - name: Build V6.14 Source Reading Memory
         run: python scripts/source_reading_memory.py
 
@@ -349,6 +346,11 @@ jobs:
 
       - name: Build V6.4 Event & Peer Evidence Layer
         run: python scripts/event_evidence_engine.py
+
+      # Auto Thesis reads official_evidence.json and event_evidence.json, so it runs after both are rebuilt in this
+      # run (before 10/28 it ran first and always used the previous run's SEC evidence; #133 6458368830 §E).
+      - name: Build V6.15 Auto Thesis drafts
+        run: python scripts/v615_auto_thesis_engine.py
 
       - name: Archive SEC and Event evidence canonically
         run: python scripts/evidence_archive.py

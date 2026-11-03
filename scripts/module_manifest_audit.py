@@ -34,6 +34,7 @@ OUT_MD = ROOT / "research" / "audit" / "MODULE_MANIFEST.md"
 
 R, D, L, M, V = "research", "decision", "learning", "monitor", "display"
 ROLES = {  # reader → (role, reason)
+    "daily_skip_gate.py": (M, "skips only a late duplicate US-close Daily when the session is already published and trusted"),
     "daily_research_job.py": (R, "append-only shadow hypotheses, revisits, maturity"),
     "macro_event_watch.py": (V, "H-01/H-02 homepage macro-event reminder artifact (Shadow, no decisions)"),
     "option_chain_snapshot.py": (M, "OFI-A1: closing option-chain/OI archive to the private ledger; public status is aggregate only (no signals)"),

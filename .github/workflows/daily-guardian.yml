@@ -6,12 +6,14 @@ name: Daily Guardian
 # recovered Daily still produces forward-attested observations.
 on:
   schedule:
-    - cron: '50 22 * * 1-5'
-    - cron: '20 23 * * 1-5'
-    - cron: '40 0 * * 2-6'
-    - cron: '20 1 * * 2-6'
-    - cron: '40 2 * * 2-6'
-    - cron: '20 3 * * 2-6'
+    # Close-recovery window after the grace period. Under EST (Nov-Mar) grace ends 22:30 UTC, so the
+    # 21:47 session slot can no longer dispatch (11/2: ran 22:28, waited, later slots never fired).
+    # Denser slots 22:35-03:50 UTC (~20 min apart) so a throttled/dropped cron is not the only chance;
+    # dispatches stay capped at MAX_DISPATCH per session, extra slots only evaluate (~20 s each).
+    - cron: '35,50 22 * * 1-5'
+    - cron: '5,20,35,50 23 * * 1-5'
+    - cron: '10,25,40,55 0-2 * * 2-6'
+    - cron: '20,50 3 * * 2-6'
     - cron: '20 12 * * 2-6'
     # US session: keep Server Action Watch fresh (its own cron is heavily throttled)
     - cron: '47 13-21 * * 1-5'

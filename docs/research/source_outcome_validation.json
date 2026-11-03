@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "generated_at": "2026-11-03T03:55:12.094005+00:00",
+  "generated_at": "2026-11-03T16:19:16.814098+00:00",
   "methodology": {
     "executed_action_baseline": "first trading session open strictly after source date when no reliable intraday timestamp exists",
     "planned_entry_baseline": "explicit stock-entry plans begin only on the first later session whose low touches the stated level; each tranche is validated separately",
@@ -16,14 +16,14 @@
     "attribution_limit": "third-party examples are excluded; unconfirmed source context is visible but excluded from aggregate method memory"
   },
   "counts": {
-    "events": 210,
+    "events": 211,
     "author_owned": 87,
-    "unconfirmed": 123,
+    "unconfirmed": 124,
     "triggered_author_owned": 84,
     "untriggered_plans": 3,
     "mature60": 35,
     "developing": 49,
-    "symbols": 32
+    "symbols": 33
   },
   "missing_history": {},
   "by_action": {
@@ -376,6 +376,55 @@
     }
   },
   "events": [
+    {
+      "event_id": "7cf96c01506fec2ffb82:2:GOOGL:0",
+      "author": "老李玩钱",
+      "title": "11月必买3支股票",
+      "url": "https://www.youtube.com/watch?v=1nXl0sFPiE4",
+      "published_at": "2026-11-02",
+      "symbol": "GOOGL",
+      "operation": {
+        "symbols": [
+          "GOOGL"
+        ],
+        "actions": [
+          "hold"
+        ],
+        "attribution": "unconfirmed_author_context",
+        "attribution_confidence": "needs_review"
+      },
+      "actions": [
+        "hold"
+      ],
+      "attribution": "unconfirmed_author_context",
+      "attribution_confidence": "needs_review",
+      "baseline_kind": "next_session",
+      "baseline_assumption": "next trading session open because source date has no reliable intraday timestamp",
+      "planned_level": null,
+      "triggered": true,
+      "baseline_date": "2026-11-03",
+      "baseline_price": 280.1600036621094,
+      "price_provenance": {
+        "price_source": "yfinance_validation_cache",
+        "adjustment_basis": "yfinance_auto_adjust_false_native_ohlc",
+        "baseline_source": "yfinance_validation_cache",
+        "horizon_source": "yfinance_validation_cache",
+        "same_source": true
+      },
+      "outcomes": {
+        "5": null,
+        "20": null,
+        "60": null
+      },
+      "alignment": {
+        "direction": "bullish",
+        "5": null,
+        "20": null,
+        "60": null
+      },
+      "level_checks": {},
+      "status": "developing"
+    },
     {
       "event_id": "6f2e051684510d2ab74e:0:INTC:0",
       "author": "三心三意",
@@ -962,13 +1011,20 @@
         "same_source": true
       },
       "outcomes": {
-        "5": null,
+        "5": {
+          "date": "2026-11-02",
+          "return": -0.06325042634587019,
+          "mae": -0.06813879451116733,
+          "mfe": 0.11251580278128959,
+          "benchmark_return": -0.03672951527940915,
+          "excess_vs_qqq": -0.02652091106646104
+        },
         "20": null,
         "60": null
       },
       "alignment": {
         "direction": "bullish",
-        "5": null,
+        "5": "not_aligned",
         "20": null,
         "60": null
       },
@@ -1127,13 +1183,20 @@
         "same_source": true
       },
       "outcomes": {
-        "5": null,
+        "5": {
+          "date": "2026-11-02",
+          "return": -0.03464868547883926,
+          "mae": -0.04793073420401439,
+          "mfe": 0.23946099026014922,
+          "benchmark_return": -0.03672951527940915,
+          "excess_vs_qqq": 0.0020808298005698944
+        },
         "20": null,
         "60": null
       },
       "alignment": {
         "direction": "bullish",
-        "5": null,
+        "5": "not_aligned",
         "20": null,
         "60": null
       },
@@ -14150,7 +14213,7 @@
   ],
   "history_sources": {
     "core_stooq_symbols": 41,
-    "source_validation_cache_symbols": 20,
+    "source_validation_cache_symbols": 21,
     "principle": "STOOQ core wins at whole-symbol level; baseline and every horizon for an event use the same target-symbol source. yfinance remains validation-only fallback."
   }
 }

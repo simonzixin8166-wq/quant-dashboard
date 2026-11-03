@@ -1,6 +1,6 @@
 {
  "version": "6.11-p2",
- "generated_at": "2026-11-02T22:11:37.346633Z",
+ "generated_at": "2026-11-03T02:13:35.427521Z",
  "module": "v6.11-gold-dca",
  "freshness": {
   "live_max_age_minutes": 20,
@@ -18,10 +18,8 @@
    "已进入第3档 跌破历史低点后风险复核；BUY 条件未齐备"
   ],
   "blockers": [
-   "市场休市/报价非盘中，不生成新 BUY",
    "宏观风险数据缺失（DXY/实际利率），无法排除 PAUSE",
-   "宏观/价格风险已出现 1 项，等待复核",
-   "止跌/趋势未确认：仍在创新低；收盘 3,948 < 5日均线 3,994"
+   "止跌/趋势未确认：仍在创新低；收盘 3,891 < 5日均线 4,011"
   ],
   "next_band": {
    "min": 3650,
@@ -34,41 +32,41 @@
    "rule": "BUY 仅在可信现货日线下生成；估算/代理日线最多 WATCH"
   },
   "quote": {
-   "price": 3947.7,
+   "price": 3946.1,
    "basis": "spot",
    "source": "gold-api.com 现货",
-   "as_of": "2026-11-02T22:11:25Z",
-   "freshness": "CLOSED",
+   "as_of": "2026-11-03T02:13:25Z",
+   "freshness": "LIVE",
    "age_minutes": 0.2,
-   "market_open": false,
+   "market_open": true,
    "errors": null
   },
   "fx": {
-   "usdcny": 6.6374,
-   "as_of": "2026-11-02T21:32:40Z",
+   "usdcny": 6.6684,
+   "as_of": "2026-11-03T02:13:40Z",
    "source": "Yahoo CNY=X"
   },
-  "cny_per_gram": 842.43,
+  "cny_per_gram": 846.02,
   "band_cny_per_gram": [
    {
     "usd": 4050,
-    "cny_per_gram": 864.26
+    "cny_per_gram": 868.3
    },
    {
     "usd": 4000,
-    "cny_per_gram": 853.59
+    "cny_per_gram": 857.58
    },
    {
     "usd": 3950,
-    "cny_per_gram": 842.92
+    "cny_per_gram": 846.86
    },
    {
     "usd": 3850,
-    "cny_per_gram": 821.58
+    "cny_per_gram": 825.42
    },
    {
     "usd": 3650,
-    "cny_per_gram": 778.9
+    "cny_per_gram": 782.54
    }
   ],
   "year_stats": {
@@ -95,13 +93,13 @@
     "cny_per_gram": 864.34
    },
    "low_estimate_after_verified": {
-    "value": 3870.4,
+    "value": 3871.1,
     "date": "2026-10-30",
     "basis": "spot_estimate_from_futures",
     "note": "期货基差估算，未经核实",
     "usdcny": 6.661,
     "usdcny_date": "2026-10-30",
-    "cny_per_gram": 828.87
+    "cny_per_gram": 829.02
    },
    "coverage": {
     "from": "2026-01-02",
@@ -109,8 +107,8 @@
     "sessions": 210
    },
    "low_is_full_year_confirmed": false,
-   "drawdown_from_high_pct": -29.45,
-   "above_low_pct": -0.29
+   "drawdown_from_high_pct": -29.48,
+   "above_low_pct": -0.33
   },
   "etf_quotes": {
    "GLDM": {
@@ -147,10 +145,10 @@
     "checks": [
      {
       "id": "gold_close_below",
-      "met": true,
+      "met": false,
       "value": [
-       3889.99985334375,
-       3947.70004865625
+       4023.2000003437497,
+       3890.7000003437497
       ],
       "rule": "连续2个交易日收在 $4,000 以下"
      },
@@ -163,16 +161,16 @@
      {
       "id": "dxy_rise",
       "met": false,
-      "value_pct": -0.15,
+      "value_pct": -0.14,
       "rule": "DXY 5 日涨幅 > 1.5%"
      }
     ],
-    "met": 1,
+    "met": 0,
     "unknown": 1,
     "pause": false,
-    "complete": false,
+    "complete": true,
     "ry_change_bp_5d": null,
-    "dxy_change_pct_5d": -0.15
+    "dxy_change_pct_5d": -0.14
    },
    "deep_review": {
     "triggered": false,
@@ -181,12 +179,12 @@
     "etf_flows": "unavailable_free_source",
     "weeks": [
      {
-      "date": "2026-10-30",
-      "close": 3890.0
+      "date": "2026-10-23",
+      "close": 3999.7
      },
      {
-      "date": "2026-11-02",
-      "close": 3947.7
+      "date": "2026-10-30",
+      "close": 3890.7
      }
     ]
    },
@@ -194,16 +192,16 @@
     "ok": false,
     "stabilized": false,
     "trend": false,
-    "sma5": 3993.72,
-    "detail": "仍在创新低；收盘 3,948 < 5日均线 3,994",
-    "as_of": "2026-11-02"
+    "sma5": 4010.78,
+    "detail": "仍在创新低；收盘 3,891 < 5日均线 4,011",
+    "as_of": "2026-10-30"
    }
   },
   "inputs": {
    "daily": {
-    "source": "COMEX期货日线 − 实时基差 +8.9（现货估算）",
+    "source": "COMEX期货日线 − 实时基差 +8.2（现货估算）",
     "basis": "spot_estimate_from_futures",
-    "futures_spot_basis": 8.9,
+    "futures_spot_basis": 8.2,
     "last_date": "2026-11-02",
     "fresh": true
    },
@@ -215,7 +213,7 @@
    "dxy": {
     "source": "Yahoo DX-Y.NYB",
     "last_date": "2026-11-02",
-    "last": 101.81
+    "last": 101.82
    },
    "macro_fresh": false,
    "etf_flows": "unavailable_free_source"

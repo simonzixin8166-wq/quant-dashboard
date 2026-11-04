@@ -72,6 +72,38 @@ for name, path, extra, rep, create, expect in cases:
     assert rc == 1 and expect in out, (name, rc, out[-400:])
     print(f"PASS negative: {name} -> blocked ({expect})")
 
+# kr-0.3.2 round 3 (GPT 6625522839 D2): the import graph follows relative imports, nested packages, package
+# __init__.py and `scripts.` prefixed imports; a local-looking import that resolves to nothing fails closed.
+import shutil  # noqa: E402
+SCR = ROOT / "scripts"
+FORBID = "SRC = 'research/index/build_audit.jsonl'\n"
+graph_cases = [
+    ("relative import inside a package", {"zz_rel_pkg/__init__.py": "from .inner import SRC\n", "zz_rel_pkg/inner.py": FORBID},
+     "\nimport zz_rel_pkg\n", "zz_rel_pkg/inner.py"),
+    ("nested package submodule", {"zz_pkg/__init__.py": "", "zz_pkg/sub/__init__.py": "", "zz_pkg/sub/deep.py": FORBID},
+     "\nfrom zz_pkg.sub import deep\n", "zz_pkg/sub/deep.py"),
+    ("package __init__ side effect", {"zz_pkg2/__init__.py": FORBID}, "\nfrom zz_pkg2 import SRC\n", "zz_pkg2/__init__.py"),
+    ("scripts.-prefixed import", {"zz_mod.py": FORBID}, "\nfrom scripts.zz_mod import SRC\n", "zz_mod.py"),
+    ("unresolvable local import", {}, "\nimport zz_missing_module_xyz\n", "unresolved_import"),
+]
+for name, files, extra, expect in graph_cases:
+    made = []
+    try:
+        for rel, body in files.items():
+            f = SCR / rel
+            for d in reversed(f.relative_to(SCR).parents[:-1]):
+                if not (SCR / d).exists():
+                    (SCR / d).mkdir(); made.append(SCR / d)
+            f.write_text(body, encoding="utf-8"); made.append(f)
+        with planted(TARGET, extra=extra):
+            rc, out = run()
+    finally:
+        for m in sorted(made, key=lambda x: -len(x.parts)):
+            shutil.rmtree(m) if m.is_dir() else m.unlink(missing_ok=True)
+    assert rc == 1 and expect in out, (name, rc, out[-600:])
+    assert not any((SCR / r.split("/")[0]).exists() for r in files), "probe files left behind"
+    print(f"PASS negative: {name} -> blocked ({expect})")
+
 # indirect shell invocation: a workflow line `bash scripts/x.sh` pulls x.sh into the entry list
 wf = ROOT / ".github" / "workflows" / "zz-probe-tmp.yml"
 sh = ROOT / "scripts" / "zz_probe_tmp.sh"

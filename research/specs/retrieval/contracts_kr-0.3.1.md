@@ -276,3 +276,22 @@ Not allowed at any stage before a blind PASS and Owner approval:
   before `git commit` in every workflow that pushes, and before artifact uploads where it can apply. A hit or a
   scanner error stops the push / upload. `privacy-canary-gate.yml` proves each path is blocked by a planted canary.
   Coverage and the workflows that are not covered yet are listed in the PR and in #133.
+
+### 6.3 kr-0.3.2 round 3 (GPT #133 6625522839: B2 schema, D2 import graph, D4 uploads)
+- **B2.** The registry schema is exact: top-level keys, `kinds` (non-empty unique strings, each an approval-capable
+  kind), `categories` (known scanner categories), `granted_at` (a real YYYY-MM-DD date), `decision`, `approval_id`
+  format and integer evidence ids; a malformed or unreadable registry fails closed. `approval_ok()` no longer matches
+  a string `kinds` by substring. A test-only registry with one retrieval approval passes the same online Owner-evidence
+  check (#133 6625522839); the real registry still holds no retrieval approval and real data stays 0 eligible.
+- **D2.** Imports are resolved against the repo root, `scripts/` and `tests/` as modules, packages (`__init__.py`)
+  and submodules; relative imports resolve against the importing file; a local-looking import that resolves to
+  nothing (not stdlib, not one of the pip-installed packages pandas / numpy / yfinance / arch /
+  pandas_market_calendars) fails as `unresolved_import`. Counts: 5 dynamic-import helper sites (4 used, 1 unused),
+  6 pinned call-site lines, 11 resolved target files.
+- **D4.** Every artifact upload is guarded: monthly-evidence-audit and research-evidence-update scan `research/`
+  before upload and again after download, before staging; autonomous-qa no longer uploads screenshots and scans its
+  text report; trend-pulse scans its files; claude-audit-package uploads only if the zip equals the tracked tree of
+  the public main commit it names (its `tests/fixtures/privacy_canary/*` are public test fixtures, not production
+  canaries). Workflow-level negatives run each real guard step against a planted canary.
+- **D3 limits (unchanged, GPT PASS WITH LIMITATIONS).** Pattern-based: no zero-miss guarantee for free text; images,
+  fonts, PDF, audio/video need human review pinned by sha256, and a new or changed binary never inherits a review.

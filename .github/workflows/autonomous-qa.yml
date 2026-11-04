@@ -172,8 +172,17 @@ jobs:
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           QA_EMAIL: ${{ secrets.QA_EMAIL }}
         run: node scripts/autonomous_site_qa.mjs
-      - name: Upload sanitized QA report and public screenshots
+      # kr-0.3.2 D4 (GPT #133 6625522839): screenshots cannot be text-scanned and are not reviewed per run, so they are
+      # no longer uploaded; the text report is scanned and uploaded only if the scan passes.
+      - name: Privacy guard before upload (kr-0.3.2 D4)
+        id: privacy_guard
         if: always()
+        run: |
+          mkdir -p qa-artifacts
+          find qa-artifacts -type f \( -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.webp' \) -delete
+          python3 scripts/privacy_canary_scan.py qa-artifacts
+      - name: Upload sanitized QA report (no screenshots)
+        if: always() && steps.privacy_guard.outcome == 'success'
         uses: actions/upload-artifact@v4
         with:
           name: autonomous-qa-${{ github.run_number }}

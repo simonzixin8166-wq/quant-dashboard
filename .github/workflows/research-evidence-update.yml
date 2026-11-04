@@ -156,6 +156,9 @@ jobs:
             echo "::notice title=REU lost-update guard::keeping main's version of: $(echo $changed | tr '\n' ' ')"
             echo "$changed" | xargs -r git checkout HEAD --
           fi
+      - name: Privacy guard after download, before staging (kr-0.3.2 D4)
+        id: privacy_guard_download
+        run: python3 scripts/privacy_canary_scan.py research
       - name: Commit allowlist precheck
         run: python scripts/research_boundary_guard.py --assert-worktree-research-only
       - name: Commit research artifacts only

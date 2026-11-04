@@ -72,7 +72,9 @@ def approval_ok(approval_id, kind: str, registry: dict, scope: str) -> bool:
         return False
     for a in (registry or {}).get("approvals", []):
         if a.get("approval_id") == approval_id:
-            return a.get("status") == "active" and a.get("scope") == scope and kind in (a.get("kinds") or [])
+            kinds = a.get("kinds")
+            return (a.get("status") == "active" and a.get("scope") == scope and isinstance(kinds, list)
+                    and all(isinstance(k, str) for k in kinds) and kind in kinds)
     return False
 
 

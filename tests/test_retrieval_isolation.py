@@ -62,18 +62,79 @@ def workflow_scripts(text: str) -> set:
     return found
 
 
+# kr-0.3.2 round 3 (GPT 6625522839 D2): import graph. Absolute names are resolved against every import root the
+# entry scripts use (repo root, scripts/, tests/), as module files, packages (__init__.py) and submodules
+# (`from pkg import sub`); relative imports resolve against the importing file's package. A name that resolves to
+# nothing local and is neither stdlib nor a reviewed third-party package is recorded as unresolved and fails the gate.
+IMPORT_ROOTS = (ROOT, ROOT / "scripts", ROOT / "tests")
+THIRD_PARTY = {"pandas", "numpy", "yfinance", "arch", "pandas_market_calendars"}  # the only packages workflows pip-install
+STDLIB = set(sys.stdlib_module_names) | {"__future__"}
+UNRESOLVED: list = []
+IMPORT_RX = re.compile(r"^[ \t]*(?:from[ \t]+(\.*)([\w.]*)[ \t]+import[ \t]+\(?([\w., \t*]+)|import[ \t]+([\w., \t]+))", re.M)
+
+
+def _module_files(base: Path, dotted: str) -> list:
+    parts = [x for x in dotted.split(".") if x]
+    if not parts:
+        return [base / "__init__.py"] if (base / "__init__.py").exists() else []
+    out = []
+    for i in range(len(parts), 0, -1):  # a.b.c -> a/b/c.py | a/b/c/__init__.py, then the parents' __init__ / module
+        stem = base.joinpath(*parts[:i])
+        for c in (stem.with_suffix(".py"), stem / "__init__.py"):
+            if c.exists():
+                out.append(c)
+        if out:
+            break
+    return out
+
+
+def resolve_import(path: Path, level: int, module: str, names: list) -> tuple:
+    """(local files, unresolved flag). names = the imported names of `from module import names` (submodules)."""
+    if level:
+        base = path.parent
+        for _ in range(level - 1):
+            base = base.parent
+        roots = [base]
+    else:
+        top = module.split(".")[0]
+        if top in STDLIB or top in THIRD_PARTY:
+            return [], False
+        roots = list(IMPORT_ROOTS)
+    files = []
+    for r in roots:
+        files += _module_files(r, module)
+        for n in names:  # from pkg import submodule
+            if n != "*":
+                sub = r.joinpath(*[x for x in module.split(".") if x], n)
+                files += [c for c in (sub.with_suffix(".py"), sub / "__init__.py") if c.exists()]
+    return sorted(set(files)), not files
+
+
 def local_imports(path: Path, seen: set) -> None:
     if path in seen or not path.exists() or path.suffix != ".py":
         return
     seen.add(path)
-    for m in re.finditer(r"^\s*(?:from\s+([\w.]+)\s+import|import\s+([\w., ]+))", path.read_text(encoding="utf-8", errors="replace"), re.M):
-        names = [m.group(1)] if m.group(1) else [n.strip().split(" as ")[0] for n in m.group(2).split(",")]
-        for n in names:
-            cand = ROOT / "scripts" / (n.split(".")[0] + ".py")
-            local_imports(cand, seen)
+    text = path.read_text(encoding="utf-8", errors="replace")
+    for m in IMPORT_RX.finditer(text):
+        if m.group(4):
+            pairs = [(0, n.strip().split(" as ")[0].strip(), []) for n in m.group(4).split(",") if n.strip()]
+        else:
+            names = [n.strip().split(" as ")[0].strip() for n in m.group(3).split(",") if n.strip()]
+            pairs = [(len(m.group(1)), m.group(2), names)]
+        for level, module, names in pairs:
+            files, unresolved = resolve_import(path, level, module, names)
+            if unresolved:
+                UNRESOLVED.append((str(path.relative_to(ROOT)), ("." * level) + module))
+            for f in files:
+                local_imports(f, seen)
+            for f in files:  # importing pkg.sub also runs pkg/__init__.py
+                for parent in f.parents:
+                    if parent in (ROOT, ROOT.parent) or not str(parent).startswith(str(ROOT)):
+                        break
+                    if (parent / "__init__.py").exists():
+                        local_imports(parent / "__init__.py", seen)
     # kr-0.3.2 D2: any string literal naming an existing scripts/*.py is followed too (covers importlib /
     # spec_from_file_location / runpy targets built from literals). Over-approximation: more files scanned, never fewer.
-    text = path.read_text(encoding="utf-8", errors="replace")
     for lit in re.findall(r"[\"']([\w./-]+?)(?:\.py)?[\"']", text):
         stem = Path(lit).name
         cand = ROOT / "scripts" / (stem + ".py")
@@ -202,6 +263,7 @@ def exclusion_problems() -> list:
 
 
 def main(argv) -> int:
+    UNRESOLVED.clear()
     groups = entries()
     hits = []
     for g, files in groups.items():
@@ -214,6 +276,9 @@ def main(argv) -> int:
             for pat in SQUASHED:
                 if pat in sq and not any(h[1] == str(p.relative_to(ROOT)) for h in hits):
                     hits.append((g, str(p.relative_to(ROOT)), f"squashed:{pat}"))
+    # kr-0.3.2 round 3: local-looking imports that resolve to nothing fail closed
+    for f, mod in sorted(set(UNRESOLVED)):
+        hits.append(("unresolved_import", f, mod))
     # make targets named in workflows must resolve to a reviewed Makefile; none exists, so any target fails closed
     for w in groups["workflows"]:
         for t in re.findall(r"\bmake\s+([\w-]+)", w.read_text(encoding="utf-8")):
@@ -251,7 +316,8 @@ def main(argv) -> int:
             print(f"::error title=Retrieval isolation::{h}")
         return 1
     print(f"PASS retrieval isolation: {listing['counts']} entry files, 0 references to {FORBIDDEN} "
-          f"(raw and squashed), {len(dyn)} dynamic-import sites all reviewed, docs/ holds no index")
+          f"(raw and squashed), {len(dyn)} dynamic-import helper sites all reviewed "
+          f"({sum(len(r['call_sites']) for r in rev['reviewed'])} pinned call-site lines), 0 unresolved local imports, docs/ holds no index")
     return 0
 
 

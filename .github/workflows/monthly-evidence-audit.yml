@@ -62,6 +62,9 @@ jobs:
         with:
           name: monthly-evidence-audit-output
           path: research/
+      - name: Privacy guard after download, before staging (kr-0.3.2 D4)
+        id: privacy_guard_download
+        run: python3 scripts/privacy_canary_scan.py research
       - name: Commit allowlist precheck
         run: python scripts/research_boundary_guard.py --assert-worktree-research-only
       - name: Commit monthly audit only

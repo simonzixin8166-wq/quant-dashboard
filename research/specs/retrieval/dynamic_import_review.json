@@ -1,7 +1,7 @@
 {
  "version": "kr-0.3.2",
  "rule": "Every dynamic import / exec / eval / spec_from_file_location site in a production entry must be listed with its helper line, every call site, every line the target argument comes from, and the resolved target files, each pinned by line sha256. The gate fails if any pinned line changes, if the helper gains an unlisted call, if a target file named here is not literally present in its arg-source lines or does not exist, or if an 'unused' helper is called. Runtime-built targets (environment, input, concatenation) cannot be pinned and therefore fail.",
- "scope_note": "All five sites are in tests/ files that workflows run as checks; none is in a script that writes production output. tests/test_v610a_playbook_engine.py defines load_module but never calls it (used=false, not counted as an executed dynamic import).",
+ "scope_note": "5 dynamic-import helper sites (4 used, 1 unused) with 6 pinned call-site lines and 11 resolved target files, all in tests/ files that workflows run as checks; none is in a script that writes production output. tests/test_v610a_playbook_engine.py defines load_module but never calls it (used=false, not counted as an executed dynamic import).",
  "static_boundaries": [
   "JS/TS: only literal import()/require targets are resolved; module graphs of docs/ assets are not followed (all docs/*.js files are scanned directly as front-end entries)",
   "composite / reusable GitHub Actions (uses: ./.github/actions/... or other repos) are not expanded; none exist in this repo today",
@@ -156,5 +156,13 @@
    "targets": [],
    "reviewer": "Claude (implementer) 2026-11-04; GPT independent review #133 6624784358 confirmed targets (helper lines); call sites/arg sources pinned in kr-0.3.2"
   }
- ]
+ ],
+ "counts": {
+  "helper_sites": 5,
+  "helpers_used": 4,
+  "helpers_unused": 1,
+  "call_site_lines": 6,
+  "resolved_target_files": 11,
+  "note": "a call-site line can hold more than one call (test_author_claim_gate.py:13 loads 5 modules in one generator; test_forward_evidence_forensics.py:11 has 2 calls)"
+ }
 }

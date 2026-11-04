@@ -158,8 +158,7 @@ assert pcs.scan_paths([ROOT / "research"], pcs.load_allowlist()) == [], "researc
 # 13) D4 wiring: every workflow that commits to the repo runs the --staged guard before its first `git commit`;
 # the artifact uploads that are covered are gated on the guard; the uncovered ones are listed explicitly.
 WF = ROOT / ".github" / "workflows"
-NOT_COVERED_UPLOADS = {"autonomous-qa.yml": "uploads PNG screenshots (images cannot be text-scanned)",
-                       "claude-audit-package.yml": "uploads a zip of the public repo itself, which contains the planted test canaries"}
+NOT_COVERED_UPLOADS = {}  # round 3: every upload is guarded (claude-audit-package by an exact tracked-tree check)
 committers = []
 for w in sorted(WF.glob("*.yml")):
     t = w.read_text(encoding="utf-8")
@@ -171,3 +170,87 @@ for w in sorted(WF.glob("*.yml")):
         assert "steps.privacy_guard.outcome == 'success'" in t, f"{w.name}: upload not gated by the privacy guard"
 assert len(committers) == 11, committers
 print(f"PASS D4 wiring: {len(committers)} committing workflows guarded before commit; uploads gated or listed as not covered ({len(NOT_COVERED_UPLOADS)}); research/ clean")
+
+
+# 14) round 3 (GPT 6625522839 D4): workflow-level negatives. The REAL guard step text is extracted from each workflow
+# and run against a planted canary at that workflow's actual upload / download path; it must exit non-zero, and the
+# upload (or staging) step must come after it and depend on it.
+import subprocess  # noqa: E402
+
+
+def steps_of(wf_text: str) -> list:
+    """[(name, id, if, run)] for every `- name:` step, run = literal block or single line."""
+    out, lines = [], wf_text.splitlines()
+    i = 0
+    while i < len(lines):
+        m = re.match(r"^(\s*)- name: (.*)$", lines[i])
+        if not m:
+            i += 1
+            continue
+        ind, name, sid, cond, run = len(m.group(1)), m.group(2).strip(), None, None, None
+        j = i + 1
+        while j < len(lines) and not re.match(rf"^\s{{{ind}}}- ", lines[j]) and (not lines[j].strip() or len(lines[j]) - len(lines[j].lstrip()) > ind):
+            l = lines[j].strip()
+            if l.startswith("id:"):
+                sid = l[3:].strip()
+            elif l.startswith("if:"):
+                cond = l[3:].strip()
+            elif l.startswith("run: |"):
+                k, body, bind = j + 1, [], len(lines[j]) - len(lines[j].lstrip()) + 2
+                while k < len(lines) and (not lines[k].strip() or len(lines[k]) - len(lines[k].lstrip()) >= bind):
+                    body.append(lines[k][bind:]); k += 1
+                run = "\n".join(body)
+            elif l.startswith("run:"):
+                run = l[4:].strip()
+            j += 1
+        out.append((name, sid, cond, run))
+        i = j
+    return out
+
+
+import re  # noqa: E402
+CAN = "CANARY-7f3a9c21-4b6e-4d2a-9e11-0c55aa77bb01"
+for wf, guard_id, plant, gated in [
+        ("monthly-evidence-audit.yml", "privacy_guard", "research/x/out.json", "Package monthly research artifacts"),
+        ("research-evidence-update.yml", "privacy_guard", "research/x/out.json", "Package research artifacts"),
+        ("monthly-evidence-audit.yml", "privacy_guard_download", "research/x/out.json", "Commit monthly audit only"),
+        ("research-evidence-update.yml", "privacy_guard_download", "research/x/out.json", "Commit research artifacts only"),
+        ("autonomous-qa.yml", "privacy_guard", "qa-artifacts/report.json", "Upload sanitized QA report (no screenshots)"),
+        ("trend-pulse-backtest.yml", "privacy_guard", "docs/research/trend_pulse_backtest.json", "Upload research artifact")]:
+    st = steps_of((WF / wf).read_text(encoding="utf-8"))
+    names = [x[0] for x in st]
+    g = next(i for i, x in enumerate(st) if x[1] == guard_id)
+    u = names.index(gated)
+    assert g < u, (wf, guard_id, "guard must run before", gated)
+    if guard_id == "privacy_guard":
+        assert f"steps.{guard_id}.outcome == 'success'" in (st[u][2] or ""), (wf, gated, st[u][2])
+    for planted_value, want_rc in ((CAN, 1), ("ok", 0)):
+        work = Path(tempfile.mkdtemp())
+        (work / "scripts").mkdir()
+        (work / "scripts" / "privacy_canary_scan.py").write_bytes((ROOT / "scripts" / "privacy_canary_scan.py").read_bytes())
+        f = work / plant
+        f.parent.mkdir(parents=True, exist_ok=True)
+        f.write_text(json.dumps({"a": [{"note": planted_value}]}), encoding="utf-8")
+        if wf == "autonomous-qa.yml":
+            (work / "qa-artifacts" / "desktop-home.png").write_bytes(b"\x89PNG\r\n\x1a\n")  # removed before the scan
+        r = subprocess.run(["bash", "-e", "-c", st[g][3]], cwd=work, capture_output=True, text=True)
+        assert (r.returncode != 0) == bool(want_rc), (wf, guard_id, planted_value, r.returncode, r.stdout[-300:], r.stderr[-300:])
+        if wf == "autonomous-qa.yml":
+            assert not (work / "qa-artifacts" / "desktop-home.png").exists(), "screenshots must not be uploaded"
+print("PASS workflow-level negatives: monthly / research-evidence (upload + post-download), autonomous-qa and trend-pulse "
+      "guards block a planted canary and pass clean output; uploads depend on the guard")
+
+# 15) claude-audit-package: the upload is gated on an exact "package == tracked tree of the named commit" check
+st = steps_of((WF / "claude-audit-package.yml").read_text(encoding="utf-8"))
+byname = {x[0]: x for x in st}
+create, verify = byname["Create complete main ZIP"][3], byname["Verify the package is exactly the public tracked tree"][3]
+assert "steps.privacy_guard.outcome == 'success'" in (byname["Upload Claude audit package"][2] or "")
+work = Path(tempfile.mkdtemp()) / "repo"
+subprocess.run(["git", "clone", "-q", "--no-hardlinks", str(ROOT), str(work)], check=True)
+ok = subprocess.run(["bash", "-e", "-c", create + "\n" + verify], cwd=work, capture_output=True, text=True)
+assert ok.returncode == 0, ok.stdout[-400:] + ok.stderr[-400:]
+(work / "zz_untracked_runtime.json").write_text('{"private": true}', encoding="utf-8")
+subprocess.run(["zip", "-q", "MyAlpha_View_main_Claude_Audit.zip", "zz_untracked_runtime.json"], cwd=work, check=True)
+bad = subprocess.run(["bash", "-e", "-c", verify], cwd=work, capture_output=True, text=True)
+assert bad.returncode != 0, "an extra (untracked) file in the audit package was not detected"
+print("PASS claude-audit-package: package equals the tracked tree; an extra file blocks the upload")

@@ -4,7 +4,8 @@
 Runs inside Learning Quality Weekly so the "outcome -> attribution" step of the learning loop no longer needs a
 Claude session. Cohort = every ledger session whose h=20 outcomes are all final (matured / unavailable / invalid).
 
-Writes, only when the content changed:
+Every run appends one line to research/reports/attribution/runs.jsonl (status GENERATED / UNCHANGED / NOT RUN / CHECK,
+run time, input hashes), so "nothing changed" is never confused with "did not run". Writes, only when the content changed:
   docs/research/forward_attribution_weekly.json   summary (denominators, misses by primary cause, coverage)
   research/reports/attribution/forward_h20_latest.md   full row-by-row report
 
@@ -14,6 +15,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -24,6 +26,8 @@ import forward_cohort_report as fcr  # noqa: E402
 
 OUT_JSON = ROOT / "docs" / "research" / "forward_attribution_weekly.json"
 OUT_MD = ROOT / "research" / "reports" / "attribution" / "forward_h20_latest.md"
+RUNS = ROOT / "research" / "reports" / "attribution" / "runs.jsonl"   # append-only, one line per weekly run
+INPUTS = ("forward_observations.jsonl", "forward_outcomes.jsonl")
 
 
 def build(root: Path = ROOT, now: datetime | None = None) -> tuple[dict, str]:
@@ -54,9 +58,40 @@ def write_if_changed(summary: dict, md: str, out_json: Path = OUT_JSON, out_md: 
     return True
 
 
+def run_status(summary: dict, changed: bool) -> str:
+    """GPT #133 6594346990 §4: tell 'nothing changed' apart from 'did not run' and from a failed check."""
+    acc = summary.get("engineering_acceptance")
+    if acc in ("NOT RUN", "CHECK"):
+        return acc
+    return "GENERATED" if changed else "UNCHANGED"
+
+
+def run_record(summary: dict, changed: bool, root: Path = ROOT, now: datetime | None = None) -> dict:
+    arch = root / "research" / "archive"
+    return {"run_at": (now or datetime.now(timezone.utc)).isoformat(timespec="seconds"),
+            "status": run_status(summary, changed),
+            "github_run_id": os.getenv("GITHUB_RUN_ID"),
+            "content_sha": summary.get("content_sha"),
+            "sessions": [summary["sessions"][0], summary["sessions"][-1]] if summary.get("sessions") else [],
+            "rows": summary.get("rows"), "misses": summary.get("misses"),
+            "issues": summary.get("issues") or [],
+            "inputs_sha256_16": {n: hashlib.sha256((arch / n).read_bytes()).hexdigest()[:16] if (arch / n).exists() else None
+                                 for n in INPUTS},
+            "attribution_version": summary.get("attribution_version"), "contract_hash": summary.get("contract_hash")}
+
+
+def append_run(rec: dict, runs: Path = RUNS) -> None:
+    runs.parent.mkdir(parents=True, exist_ok=True)
+    with runs.open("a", encoding="utf-8") as fh:
+        fh.write(json.dumps(rec, ensure_ascii=False, sort_keys=True) + "\n")
+
+
 def main() -> int:
     summary, md = build()
     changed = write_if_changed(summary, md)
+    rec = run_record(summary, changed)
+    append_run(rec)
+    print(f"::notice title=Forward attribution run::status={rec['status']} inputs={rec['inputs_sha256_16']}")
     print(f"::notice title=Forward attribution::{json.dumps({k: summary[k] for k in ('engineering_acceptance', 'rows', 'misses', 'unattributed_R0', 'attribution_coverage')}, ensure_ascii=False)} changed={changed}")
     if summary["engineering_acceptance"] == "CHECK":
         print(f"::warning title=Forward attribution::{'; '.join(summary['issues'])}")

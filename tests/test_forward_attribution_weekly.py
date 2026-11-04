@@ -37,3 +37,16 @@ assert again["content_sha"] == summary["content_sha"]
 assert faw.write_if_changed(again, md2, j, m) is False
 assert json.loads(j.read_text(encoding="utf-8"))["generated_at"].startswith("2026-11-03")
 print("PASS weekly attribution: cohort selection, NOT RUN when nothing matured, write-only-on-change")
+
+# 4) every run leaves a record: GENERATED / UNCHANGED / NOT RUN / CHECK, with input hashes (GPT #133 6594346990 §4)
+assert faw.run_status({"engineering_acceptance": "NOT RUN"}, True) == "NOT RUN"
+assert faw.run_status({"engineering_acceptance": "CHECK"}, False) == "CHECK"
+assert faw.run_status({"engineering_acceptance": "PASS"}, True) == "GENERATED"
+assert faw.run_status({"engineering_acceptance": "PASS"}, False) == "UNCHANGED"
+runs = tmp / "runs.jsonl"
+for when, chg in ((datetime(2026, 11, 9, tzinfo=timezone.utc), True), (datetime(2026, 11, 16, tzinfo=timezone.utc), False)):
+    faw.append_run(faw.run_record({**summary, "engineering_acceptance": "PASS"}, chg, ROOT, when), runs)
+recs = [json.loads(x) for x in runs.read_text(encoding="utf-8").splitlines()]
+assert [r["status"] for r in recs] == ["GENERATED", "UNCHANGED"] and recs[1]["run_at"].startswith("2026-11-16")
+assert all(len(v) == 16 for v in recs[0]["inputs_sha256_16"].values())
+print("PASS weekly attribution run record (status + input hashes, append-only)")

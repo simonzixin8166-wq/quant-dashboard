@@ -20,7 +20,7 @@ Requirements: git, Python 3.11 (standard library only, no pip packages), network
 ```bash
 mkdir retrieval-check && cd retrieval-check                      # every command below runs in this directory
 git clone https://github.com/simonzixin8166-wq/quant-dashboard.git pr
-git -C pr checkout specs/retrieval-v0.2.1                        # branch of PR #315 (script + manifest under test)
+git -C pr checkout main                                           # after this PR merges (before: branch specs/retrieval-recompute-gate)
 git clone https://github.com/simonzixin8166-wq/quant-dashboard.git qd
 git -C qd checkout 8ae72dfb30a079b3790258cb59f0fdc36cf9c14b       # pinned input, detached HEAD
 git clone https://github.com/simonzixin8166-wq/wxc-bot.git wx

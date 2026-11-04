@@ -3,16 +3,16 @@
   "window": {
     "definition": "current persistent Source Store keys minus previous successful funnel-state keys",
     "previous_key_count": 2978,
-    "current_key_count": 2978
+    "current_key_count": 2979
   },
   "status": "ok",
-  "new_sources_total": 0,
+  "new_sources_total": 1,
   "terminal_reason_counts": {
     "backfill": 0,
     "rekeyed_duplicate": 0,
     "identity_ambiguous": 0,
     "late_discovery": 0,
-    "admission_integrity_rejected": 0,
+    "admission_integrity_rejected": 1,
     "no_operations": 0,
     "operation_missing_symbol": 0,
     "no_testable_proposition": 0,
@@ -21,31 +21,36 @@
     "reason_not_recorded": 0
   },
   "terminal_reason_share": {
-    "backfill": null,
-    "rekeyed_duplicate": null,
-    "identity_ambiguous": null,
-    "late_discovery": null,
-    "admission_integrity_rejected": null,
-    "no_operations": null,
-    "operation_missing_symbol": null,
-    "no_testable_proposition": null,
-    "testable_rule_without_registry_rule": null,
-    "rule_formed": null,
-    "reason_not_recorded": null
+    "backfill": 0.0,
+    "rekeyed_duplicate": 0.0,
+    "identity_ambiguous": 0.0,
+    "late_discovery": 0.0,
+    "admission_integrity_rejected": 1.0,
+    "no_operations": 0.0,
+    "operation_missing_symbol": 0.0,
+    "no_testable_proposition": 0.0,
+    "testable_rule_without_registry_rule": 0.0,
+    "rule_formed": 0.0,
+    "reason_not_recorded": 0.0
   },
   "conservation": {
-    "terminal_total": 0,
-    "expected_total": 0,
+    "terminal_total": 1,
+    "expected_total": 1,
     "pass": true
   },
   "downstream_counts": {
-    "admission_sources_with_operations": {},
+    "admission_sources_with_operations": {
+      "timestamp_unverified": {
+        "sources": 1,
+        "sources_with_operations": 0
+      }
+    },
     "no_operations_context_split": {
       "with_symbols_or_topics": 0,
       "without_symbols_or_topics": 0
     },
     "operations_total": 0,
-    "propositions_total": 0,
+    "propositions_total": 21,
     "new_forward_rules_total": 0,
     "independent_authors": 0,
     "largest_author_rule_count": 0,
@@ -59,12 +64,19 @@
     "cumulative": 88,
     "review_required": false
   },
-  "assignments": [],
+  "assignments": [
+    {
+      "source_key": "c1092655de9949fb1bb6",
+      "source_id": "c1092655de9949fb1bb6",
+      "admission_class": "timestamp_unverified",
+      "terminal_reason": "admission_integrity_rejected"
+    }
+  ],
   "guardrails": [
     "Diagnostic only; this artifact is never a Promotion, Readiness, Planner, Agent, or trading input.",
     "Source-level terminal reasons conserve new source identities; downstream counts are intentionally non-conserving.",
     "No realized performance or outcome fields are read by this funnel."
   ],
-  "generated_at": "2026-11-04T02:15:53.035738+00:00",
-  "snapshot_id": "7cfd0be9dc041c6ebbc1337547589505a7f1d34e94575aaa494d2dd9ac8f2a9f"
+  "generated_at": "2026-11-04T08:48:59.103873+00:00",
+  "snapshot_id": "4a4531a607d3ef3c41f7c8cd986ed62bc971fd585b302f8dafa25abf166fdb0f"
 }

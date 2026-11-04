@@ -1,0 +1,512 @@
+{
+ "version": "kr-0.3.1-eligibility",
+ "owner_approval_field": "owner_production_approval_id",
+ "rule": "production_eligibility=true only if the kind is approval-capable AND every required flag is present, non-null, of the expected type and equal to the expected value AND no conflict rule fires AND owner_production_approval_id is a non-empty string. Otherwise false with exactly one reason code, first match in this order: type_never_eligible, missing_flag, null_flag, unknown_value, flag_conflict, value_mismatch, no_owner_approval.",
+ "kinds": {
+  "forward_observation": {
+   "file": "research/archive/forward_observations.jsonl",
+   "approval_capable": true,
+   "required": {
+    "attested_forward": true
+   },
+   "conflicts": [
+    "market_as_of != session"
+   ]
+  },
+  "forward_observation_promoted": {
+   "file": "research/archive/forward_observations_promoted.jsonl",
+   "approval_capable": false,
+   "why": "separate group; never production"
+  },
+  "forward_outcome": {
+   "file": "research/archive/forward_outcomes.jsonl",
+   "approval_capable": true,
+   "required": {
+    "eligible": true,
+    "status": "matured"
+   },
+   "conflicts": [
+    "eligible == true and status != 'matured'",
+    "group != 'genuine_forward'"
+   ]
+  },
+  "rule": {
+   "file": "docs/research/source_rule_lifecycle.json#rules",
+   "approval_capable": true,
+   "required": {
+    "eligible_for_production": true,
+    "scoreable_as_method_performance": true
+   },
+   "conflicts": [
+    "eligible_for_production == true and scoreable_as_method_performance == false"
+   ]
+  },
+  "auto_research": {
+   "file": "research/knowledge/auto_research_journal.jsonl",
+   "approval_capable": true,
+   "required": {
+    "production_use": true,
+    "shadow": false
+   },
+   "conflicts": [
+    "production_use == true and shadow == true"
+   ]
+  },
+  "shadow_case": {
+   "file": "research/knowledge/shadow_research_cases.jsonl",
+   "approval_capable": true,
+   "required": {
+    "production_use": true,
+    "shadow": false
+   },
+   "conflicts": [
+    "production_use == true and shadow == true"
+   ]
+  },
+  "source_post": {
+   "file": "wxc-bot state/research_feed.json; research/store/source_store.json",
+   "approval_capable": false,
+   "why": "author opinion, experimental_unvalidated"
+  },
+  "proposition": {
+   "file": "docs/research/source_reading_memory.json",
+   "approval_capable": false,
+   "why": "extracted author claim"
+  },
+  "sec_filing": {
+   "file": "research/archive/sec_filings/",
+   "approval_capable": false,
+   "why": "official text is evidence, not a decision input"
+  },
+  "fundamental_outcome": {
+   "file": "research/archive/fundamental_outcomes.jsonl",
+   "approval_capable": false,
+   "why": "historical, production_effect none"
+  },
+  "event_outcome": {
+   "file": "research/archive/event_outcomes.jsonl",
+   "approval_capable": false,
+   "why": "historical, production_effect none"
+  },
+  "market_state_outcome": {
+   "file": "research/archive/market_state_outcomes.jsonl",
+   "approval_capable": false,
+   "why": "descriptive"
+  },
+  "macro_observation": {
+   "file": "research/archive/macro_regime_observations.jsonl",
+   "approval_capable": false,
+   "why": "descriptive"
+  },
+  "source_outcome_validation": {
+   "file": "docs/research/source_outcome_validation.json",
+   "approval_capable": false,
+   "why": "legacy descriptive"
+  },
+  "contradiction": {
+   "file": "research/history/contradictions.json",
+   "approval_capable": false,
+   "why": "descriptive, no time field"
+  },
+  "method_memory": {
+   "file": "docs/research/method_memory.json",
+   "approval_capable": false,
+   "why": "legacy_descriptive_only"
+  },
+  "situation_memory": {
+   "file": "docs/research/learning_engine.json#situation_memory",
+   "approval_capable": false,
+   "why": "descriptive"
+  },
+  "historical_replay": {
+   "file": "docs/research/historical_journal.json",
+   "approval_capable": false,
+   "why": "historical, never forward"
+  },
+  "incident": {
+   "file": "research/archive/operational_incidents.jsonl",
+   "approval_capable": false,
+   "why": "operations fact"
+  }
+ },
+ "cases": [
+  {
+   "kind": "forward_observation",
+   "case": "legal",
+   "row": {
+    "attested_forward": true,
+    "session": "2026-10-08",
+    "market_as_of": "2026-10-08",
+    "owner_production_approval_id": "OWNER-2027-01"
+   },
+   "expected": true,
+   "reason": null
+  },
+  {
+   "kind": "forward_observation",
+   "case": "no_approval",
+   "row": {
+    "attested_forward": true,
+    "session": "2026-10-08",
+    "market_as_of": "2026-10-08"
+   },
+   "expected": false,
+   "reason": "no_owner_approval"
+  },
+  {
+   "kind": "forward_observation",
+   "case": "missing",
+   "row": {
+    "session": "2026-10-08",
+    "market_as_of": "2026-10-08",
+    "owner_production_approval_id": "x"
+   },
+   "expected": false,
+   "reason": "missing_flag"
+  },
+  {
+   "kind": "forward_observation",
+   "case": "null",
+   "row": {
+    "attested_forward": null,
+    "session": "2026-10-08",
+    "market_as_of": "2026-10-08",
+    "owner_production_approval_id": "x"
+   },
+   "expected": false,
+   "reason": "null_flag"
+  },
+  {
+   "kind": "forward_observation",
+   "case": "unknown_value",
+   "row": {
+    "attested_forward": "yes",
+    "session": "2026-10-08",
+    "market_as_of": "2026-10-08",
+    "owner_production_approval_id": "x"
+   },
+   "expected": false,
+   "reason": "unknown_value"
+  },
+  {
+   "kind": "forward_observation",
+   "case": "conflict",
+   "row": {
+    "attested_forward": true,
+    "session": "2026-10-08",
+    "market_as_of": "2026-10-07",
+    "owner_production_approval_id": "x"
+   },
+   "expected": false,
+   "reason": "flag_conflict"
+  },
+  {
+   "kind": "forward_outcome",
+   "case": "legal",
+   "row": {
+    "eligible": true,
+    "status": "matured",
+    "group": "genuine_forward",
+    "owner_production_approval_id": "x"
+   },
+   "expected": true,
+   "reason": null
+  },
+  {
+   "kind": "forward_outcome",
+   "case": "missing",
+   "row": {
+    "status": "matured",
+    "group": "genuine_forward",
+    "owner_production_approval_id": "x"
+   },
+   "expected": false,
+   "reason": "missing_flag"
+  },
+  {
+   "kind": "forward_outcome",
+   "case": "conflict_status",
+   "row": {
+    "eligible": true,
+    "status": "pending",
+    "group": "genuine_forward",
+    "owner_production_approval_id": "x"
+   },
+   "expected": false,
+   "reason": "flag_conflict"
+  },
+  {
+   "kind": "forward_outcome",
+   "case": "conflict_promoted",
+   "row": {
+    "eligible": true,
+    "status": "matured",
+    "group": "promoted",
+    "owner_production_approval_id": "x"
+   },
+   "expected": false,
+   "reason": "flag_conflict"
+  },
+  {
+   "kind": "rule",
+   "case": "legal",
+   "row": {
+    "eligible_for_production": true,
+    "scoreable_as_method_performance": true,
+    "owner_production_approval_id": "x"
+   },
+   "expected": true,
+   "reason": null
+  },
+  {
+   "kind": "rule",
+   "case": "missing",
+   "row": {
+    "eligible_for_production": true,
+    "owner_production_approval_id": "x"
+   },
+   "expected": false,
+   "reason": "missing_flag"
+  },
+  {
+   "kind": "rule",
+   "case": "conflict",
+   "row": {
+    "eligible_for_production": true,
+    "scoreable_as_method_performance": false,
+    "owner_production_approval_id": "x"
+   },
+   "expected": false,
+   "reason": "flag_conflict"
+  },
+  {
+   "kind": "rule",
+   "case": "current_reality",
+   "row": {
+    "eligible_for_production": false,
+    "scoreable_as_method_performance": false
+   },
+   "expected": false,
+   "reason": "value_mismatch"
+  },
+  {
+   "kind": "auto_research",
+   "case": "legal",
+   "row": {
+    "production_use": true,
+    "shadow": false,
+    "owner_production_approval_id": "x"
+   },
+   "expected": true,
+   "reason": null
+  },
+  {
+   "kind": "auto_research",
+   "case": "missing",
+   "row": {
+    "shadow": false,
+    "owner_production_approval_id": "x"
+   },
+   "expected": false,
+   "reason": "missing_flag"
+  },
+  {
+   "kind": "auto_research",
+   "case": "conflict",
+   "row": {
+    "production_use": true,
+    "shadow": true,
+    "owner_production_approval_id": "x"
+   },
+   "expected": false,
+   "reason": "flag_conflict"
+  },
+  {
+   "kind": "auto_research",
+   "case": "current_reality",
+   "row": {
+    "production_use": false,
+    "shadow": true
+   },
+   "expected": false,
+   "reason": "value_mismatch"
+  },
+  {
+   "kind": "shadow_case",
+   "case": "legal",
+   "row": {
+    "production_use": true,
+    "shadow": false,
+    "owner_production_approval_id": "x"
+   },
+   "expected": true,
+   "reason": null
+  },
+  {
+   "kind": "shadow_case",
+   "case": "missing",
+   "row": {
+    "shadow": false,
+    "owner_production_approval_id": "x"
+   },
+   "expected": false,
+   "reason": "missing_flag"
+  },
+  {
+   "kind": "shadow_case",
+   "case": "conflict",
+   "row": {
+    "production_use": true,
+    "shadow": true,
+    "owner_production_approval_id": "x"
+   },
+   "expected": false,
+   "reason": "flag_conflict"
+  },
+  {
+   "kind": "shadow_case",
+   "case": "current_reality",
+   "row": {
+    "production_use": false,
+    "shadow": true
+   },
+   "expected": false,
+   "reason": "value_mismatch"
+  },
+  {
+   "kind": "forward_observation_promoted",
+   "case": "never",
+   "row": {
+    "owner_production_approval_id": "x"
+   },
+   "expected": false,
+   "reason": "type_never_eligible"
+  },
+  {
+   "kind": "source_post",
+   "case": "never",
+   "row": {
+    "owner_production_approval_id": "x"
+   },
+   "expected": false,
+   "reason": "type_never_eligible"
+  },
+  {
+   "kind": "proposition",
+   "case": "never",
+   "row": {
+    "owner_production_approval_id": "x"
+   },
+   "expected": false,
+   "reason": "type_never_eligible"
+  },
+  {
+   "kind": "sec_filing",
+   "case": "never",
+   "row": {
+    "owner_production_approval_id": "x"
+   },
+   "expected": false,
+   "reason": "type_never_eligible"
+  },
+  {
+   "kind": "fundamental_outcome",
+   "case": "never",
+   "row": {
+    "owner_production_approval_id": "x"
+   },
+   "expected": false,
+   "reason": "type_never_eligible"
+  },
+  {
+   "kind": "event_outcome",
+   "case": "never",
+   "row": {
+    "owner_production_approval_id": "x"
+   },
+   "expected": false,
+   "reason": "type_never_eligible"
+  },
+  {
+   "kind": "market_state_outcome",
+   "case": "never",
+   "row": {
+    "owner_production_approval_id": "x"
+   },
+   "expected": false,
+   "reason": "type_never_eligible"
+  },
+  {
+   "kind": "macro_observation",
+   "case": "never",
+   "row": {
+    "owner_production_approval_id": "x"
+   },
+   "expected": false,
+   "reason": "type_never_eligible"
+  },
+  {
+   "kind": "source_outcome_validation",
+   "case": "never",
+   "row": {
+    "owner_production_approval_id": "x"
+   },
+   "expected": false,
+   "reason": "type_never_eligible"
+  },
+  {
+   "kind": "contradiction",
+   "case": "never",
+   "row": {
+    "owner_production_approval_id": "x"
+   },
+   "expected": false,
+   "reason": "type_never_eligible"
+  },
+  {
+   "kind": "method_memory",
+   "case": "never",
+   "row": {
+    "owner_production_approval_id": "x"
+   },
+   "expected": false,
+   "reason": "type_never_eligible"
+  },
+  {
+   "kind": "situation_memory",
+   "case": "never",
+   "row": {
+    "owner_production_approval_id": "x"
+   },
+   "expected": false,
+   "reason": "type_never_eligible"
+  },
+  {
+   "kind": "historical_replay",
+   "case": "never",
+   "row": {
+    "owner_production_approval_id": "x"
+   },
+   "expected": false,
+   "reason": "type_never_eligible"
+  },
+  {
+   "kind": "incident",
+   "case": "never",
+   "row": {
+    "owner_production_approval_id": "x"
+   },
+   "expected": false,
+   "reason": "type_never_eligible"
+  },
+  {
+   "kind": "unregistered_kind",
+   "case": "unknown_kind",
+   "row": {
+    "owner_production_approval_id": "x"
+   },
+   "expected": false,
+   "reason": "type_never_eligible"
+  }
+ ]
+}

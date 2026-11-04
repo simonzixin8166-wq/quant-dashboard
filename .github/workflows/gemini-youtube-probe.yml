@@ -98,6 +98,7 @@ jobs:
           - Distinguish explicit spoken/onscreen statements from your own visual inference.
           - Include timestamps whenever you can identify them from the video.
           - This is historical research only. Never output a trading recommendation for the platform.
+          - Do not describe anyone's personal account, balance or holdings shown on screen (screen-shared brokerage pages etc.).
           """
           body={
             "model":"gemini-3.8-flash",
@@ -136,6 +137,9 @@ jobs:
           if safety.get("historical_only") is not True or safety.get("forward_evidence_eligible") is not False or safety.get("promotion_eligible") is not False or safety.get("production_action") is not None:
               raise SystemExit("Gemini output violated MyAlpha research-only safety contract")
 
+          # Owner 2026-11-04 (#133, kr-0.3.2 D4): screen-derived descriptions are not stored. They can describe a third
+          # party's on-screen brokerage account; only their count is kept.
+          dropped=len(parsed.pop("visual_only_observations",None) or [])
           report={
             "version":"gemini-youtube-probe-1",
             "generated_at":datetime.now(timezone.utc).isoformat(),
@@ -150,6 +154,7 @@ jobs:
             },
             "mode":"historical_research_probe_only",
             "gemini_result":parsed,
+            "visual_only_observations_dropped":dropped,
             "myalpha_guardrails":{
               "historical_only":True,
               "forward_evidence_eligible":False,
@@ -176,6 +181,7 @@ jobs:
           assert p["myalpha_guardrails"]["trade_action"] is None
           assert isinstance(p["gemini_result"].get("symbols"),list)
           assert isinstance(p["gemini_result"].get("claims"),list)
+          assert "visual_only_observations" not in p["gemini_result"], "screen-derived descriptions must not be stored"
           print("PASS sanitized Gemini YouTube probe contract")
           PY
       - name: Commit sanitized probe result
@@ -183,6 +189,7 @@ jobs:
           git config user.name "github-actions"
           git config user.email "actions@github.com"
           git add research/reports/gemini_youtube_probe.json
+          python3 scripts/privacy_canary_scan.py --staged  # kr-0.3.2 D4: block the publish if anything staged leaks private data
           git commit -m "Record Gemini YouTube single-video probe" || exit 0
           git pull --rebase origin main
           git push origin HEAD:main

@@ -32,7 +32,11 @@ jobs:
         run: python scripts/run_research_step.py --name monthly_integrity_audit -- python scripts/v615_monthly_evidence_audit.py
       - name: Final compute allowlist
         run: python scripts/research_boundary_guard.py --assert-worktree-research-only
+      - name: Privacy guard before upload (kr-0.3.2 D4)
+        id: privacy_guard
+        run: python3 scripts/privacy_canary_scan.py research
       - name: Package monthly research artifacts
+        if: steps.privacy_guard.outcome == 'success'
         uses: actions/upload-artifact@v4
         with:
           name: monthly-evidence-audit-output
@@ -58,6 +62,9 @@ jobs:
         with:
           name: monthly-evidence-audit-output
           path: research/
+      - name: Privacy guard after download, before staging (kr-0.3.2 D4)
+        id: privacy_guard_download
+        run: python3 scripts/privacy_canary_scan.py research
       - name: Commit allowlist precheck
         run: python scripts/research_boundary_guard.py --assert-worktree-research-only
       - name: Commit monthly audit only
@@ -66,6 +73,7 @@ jobs:
           git config user.email "actions@github.com"
           git add research/
           python scripts/research_boundary_guard.py --assert-staged-research-only
+          python3 scripts/privacy_canary_scan.py --staged  # kr-0.3.2 D4: block the publish if anything staged leaks private data
           git commit -m "Monthly evidence audit $(date -u +%Y-%m)" || echo "No monthly audit changes"
           git pull --rebase origin main
           python scripts/research_boundary_guard.py --assert-staged-research-only

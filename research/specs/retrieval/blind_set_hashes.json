@@ -1,0 +1,16 @@
+{
+ "set": "blind",
+ "version": "blind_v1",
+ "status": "BLOCKED: not authored. The Owner or GPT must author it; Claude (implementer) must not.",
+ "authors_allowed": [
+  "Owner",
+  "GPT (independent reviewer)"
+ ],
+ "frozen_at": null,
+ "questions_sha256": null,
+ "answers_sha256": null,
+ "question_text_hashes": null,
+ "owner_authorization": null,
+ "custody": "questions and answers are kept outside both repos (Owner's private storage) until the scored run; only the hashes above and the per-question canonical-text hashes (for the disjointness check, never the text) are committed. At scoring the files are revealed and must reproduce questions_sha256 / answers_sha256 under blind_hash_spec.json. CI logs print hashes and counts only.",
+ "canonicalization": "research/specs/retrieval/blind_hash_spec.json"
+}

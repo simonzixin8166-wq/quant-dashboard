@@ -26,7 +26,23 @@ jobs:
           printf '%s\n' "$SHA" > CLAUDE_AUDIT_COMMIT.txt
           unzip -t MyAlpha_View_main_Claude_Audit.zip >/dev/null
 
+      # kr-0.3.2 D4 (GPT #133 6625522839): this package is `git archive` of the PUBLIC main branch only: tracked files,
+      # no secrets, no runtime outputs, no other artifacts. Its tests/fixtures/privacy_canary/* hold PUBLIC TEST
+      # canaries (not production canaries), so a content scan would always fail by design; instead the package is
+      # verified to contain exactly the tracked files of the commit it names, and nothing else.
+      - name: Verify the package is exactly the public tracked tree
+        id: privacy_guard
+        run: |
+          SHA="$(cat CLAUDE_AUDIT_COMMIT.txt)"
+          git ls-files -z | tr '\0' '\n' | sed "s|^|MyAlpha-View-main-${SHA}/|" | sort > expected.txt
+          unzip -Z1 MyAlpha_View_main_Claude_Audit.zip | grep -v '/$' | sort > actual.txt
+          diff -u expected.txt actual.txt
+          test "$(git rev-parse HEAD)" = "$SHA"
+          git status --porcelain --untracked-files=no | (! grep .)
+          echo "PASS package = git archive of public main ${SHA}: $(wc -l < actual.txt) tracked files, nothing else"
+
       - name: Upload Claude audit package
+        if: steps.privacy_guard.outcome == 'success'
         uses: actions/upload-artifact@v4
         with:
           name: MyAlpha-View-main-Claude-Audit

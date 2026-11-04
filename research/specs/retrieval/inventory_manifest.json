@@ -1,0 +1,537 @@
+{
+ "manifest_version": "kr-inventory-0.2.1",
+ "generated_at": "2026-11-04T02:08:50+00:00",
+ "script_sha256": "3047df8d25124a737531a2c87bc3116e813f80d2a072ea794cc19e5068d18b89",
+ "commits": {
+  "quant-dashboard": "8ae72dfb30a079b3790258cb59f0fdc36cf9c14b",
+  "wxc-bot": "f54bd0a7c8408de02cce5638cd6c870b7365ac45"
+ },
+ "excluded": [
+  "myalpha-ledger-private (Owner 6594477482)",
+  "Supabase tables",
+  "browser localStorage journal"
+ ],
+ "sources": [
+  {
+   "name": "wx_feed",
+   "repo": "wx",
+   "path": "state/research_feed.json",
+   "file_sha256": "fb4b42da23ac52225b079e1a151de715409411a8635fbe999546fde180e86eaa",
+   "records": 2863,
+   "id_field": "id",
+   "unique_ids": 2863,
+   "duplicate_id_rows": 0,
+   "time_field_coverage": {
+    "published_at": 0.9878,
+    "captured_at": 1.0
+   },
+   "replayable": true
+  },
+  {
+   "name": "source_store",
+   "repo": "qd",
+   "path": "research/store/source_store.json",
+   "file_sha256": "669207267369db57a5cd164c0a3ce520a5c0a7243645f2c743b2b4d93787d7d5",
+   "records": 2978,
+   "id_field": "id",
+   "unique_ids": 2978,
+   "duplicate_id_rows": 0,
+   "time_field_coverage": {
+    "published_at": 0.9882,
+    "first_fetched_at": 1.0,
+    "captured_at": 0.9604
+   },
+   "replayable": true
+  },
+  {
+   "name": "source_reading",
+   "repo": "qd",
+   "path": "docs/research/source_reading_memory.json",
+   "file_sha256": "483247c79bb28b0b39d0c58e895376199d3b69b07f8f787103d563dc80727a60",
+   "records": 2978,
+   "id_field": "source_id",
+   "unique_ids": 2978,
+   "duplicate_id_rows": 0,
+   "time_field_coverage": {
+    "published_at": 0.9882
+   },
+   "replayable": true
+  },
+  {
+   "name": "rule_lifecycle",
+   "repo": "qd",
+   "path": "docs/research/source_rule_lifecycle.json",
+   "file_sha256": "dda05bf1204fc3af8c2e56e495b15abbb3561ecf7f45c788b6017194ad65c73c",
+   "records": 62,
+   "id_field": "source_id",
+   "unique_ids": 34,
+   "duplicate_id_rows": 28,
+   "time_field_coverage": {
+    "published_at": 1.0
+   },
+   "replayable": true
+  },
+  {
+   "name": "forward_observations",
+   "repo": "qd",
+   "path": "research/archive/forward_observations.jsonl",
+   "file_sha256": "6776fdcb12e8ec35b73b26d2d384c9fa25a39cb41c9b245cf2e56fcecbbcfe06",
+   "records": 490,
+   "id_field": "event_id",
+   "unique_ids": 490,
+   "duplicate_id_rows": 0,
+   "time_field_coverage": {
+    "captured_at": 1.0,
+    "session": 1.0,
+    "market_as_of": 1.0
+   },
+   "replayable": true
+  },
+  {
+   "name": "forward_observations_promoted",
+   "repo": "qd",
+   "path": "research/archive/forward_observations_promoted.jsonl",
+   "file_sha256": "5a4294db2c199f15f88f50b53909b42b6114f1713531681d64496371e5ee2324",
+   "records": 130,
+   "id_field": "event_id",
+   "unique_ids": 130,
+   "duplicate_id_rows": 0,
+   "time_field_coverage": {
+    "published_at": 1.0,
+    "session": 1.0,
+    "market_as_of": 1.0
+   },
+   "replayable": true
+  },
+  {
+   "name": "forward_outcomes",
+   "repo": "qd",
+   "path": "research/archive/forward_outcomes.jsonl",
+   "file_sha256": "8a0b9121c6a5aa7be92abca51fcf6c697ecf0f5be93bab5bfa4d4188d55ebf6f",
+   "records": 106,
+   "id_field": "event_id",
+   "unique_ids": 106,
+   "duplicate_id_rows": 0,
+   "time_field_coverage": {
+    "session": 1.0,
+    "as_of": 1.0,
+    "scored_at": 1.0,
+    "matures_on": 1.0
+   },
+   "replayable": true
+  },
+  {
+   "name": "auto_research_journal",
+   "repo": "qd",
+   "path": "research/knowledge/auto_research_journal.jsonl",
+   "file_sha256": "8a524aad2d9b5f37a25aff84704affbb2445a3e3b4742bfc64060acb3e5c064d",
+   "records": 1293,
+   "id_field": "record_id",
+   "unique_ids": 1293,
+   "duplicate_id_rows": 0,
+   "time_field_coverage": {
+    "generated_at": 1.0,
+    "market_as_of": 1.0
+   },
+   "replayable": true
+  },
+  {
+   "name": "shadow_research_cases",
+   "repo": "qd",
+   "path": "research/knowledge/shadow_research_cases.jsonl",
+   "file_sha256": "bb28a66441538fe8352fec3c133a12a803a06765098b447aa2e008438bd53d3f",
+   "records": 3,
+   "id_field": "case_id",
+   "unique_ids": 3,
+   "duplicate_id_rows": 0,
+   "time_field_coverage": {
+    "created_at": 1.0
+   },
+   "replayable": true
+  },
+  {
+   "name": "fundamental_observations",
+   "repo": "qd",
+   "path": "research/archive/fundamental_observations.jsonl",
+   "file_sha256": "ab6452a0c978415355ba427a62ab0003de6f942e6bc69b5a04402979a143a93e",
+   "records": 867,
+   "id_field": "observation_id",
+   "unique_ids": 867,
+   "duplicate_id_rows": 0,
+   "time_field_coverage": {
+    "filed": 1.0
+   },
+   "replayable": true
+  },
+  {
+   "name": "fundamental_outcomes",
+   "repo": "qd",
+   "path": "research/archive/fundamental_outcomes.jsonl",
+   "file_sha256": "9014077082817735c0a619c5d211cb882890860a0ac3b183f86d908852e1399c",
+   "records": 1713,
+   "id_field": "observation_id",
+   "unique_ids": 860,
+   "duplicate_id_rows": 853,
+   "time_field_coverage": {
+    "filed": 1.0
+   },
+   "replayable": true
+  },
+  {
+   "name": "event_outcomes",
+   "repo": "qd",
+   "path": "research/archive/event_outcomes.jsonl",
+   "file_sha256": "2a707c21239a5845fcc561aadcb90b2df5f0209c02d74d2499d821a33cdab865",
+   "records": 1962,
+   "id_field": "outcome_id",
+   "unique_ids": 1962,
+   "duplicate_id_rows": 0,
+   "time_field_coverage": {
+    "published_at": 1.0
+   },
+   "replayable": true
+  },
+  {
+   "name": "market_state_outcomes",
+   "repo": "qd",
+   "path": "research/archive/market_state_outcomes.jsonl",
+   "file_sha256": "0ea85bf76759d46281cc077a5e793bc8ff019f5dc4d41d9347ab5a3922876cdf",
+   "records": 63,
+   "id_field": "outcome_id",
+   "unique_ids": 63,
+   "duplicate_id_rows": 0,
+   "time_field_coverage": {
+    "as_of": 1.0
+   },
+   "replayable": true
+  },
+  {
+   "name": "macro_regime_observations",
+   "repo": "qd",
+   "path": "research/archive/macro_regime_observations.jsonl",
+   "file_sha256": "ed8a41d2ba25346ecfa071ab5124ede07d34ea679045be1e586878ad2b0ca99b",
+   "records": 30,
+   "id_field": "observation_id",
+   "unique_ids": 30,
+   "duplicate_id_rows": 0,
+   "time_field_coverage": {
+    "as_of": 1.0,
+    "observed_at": 1.0
+   },
+   "replayable": true
+  },
+  {
+   "name": "operational_incidents",
+   "repo": "qd",
+   "path": "research/archive/operational_incidents.jsonl",
+   "file_sha256": "7fd677673452eb94ac6fe51bf34bc4aa8ff60c4aec6ab18bd1718746ae5c8a6a",
+   "records": 72,
+   "id_field": null,
+   "unique_ids": null,
+   "duplicate_id_rows": null,
+   "time_field_coverage": {
+    "event_at": 1.0
+   },
+   "replayable": false
+  },
+  {
+   "name": "source_outcome_validation",
+   "repo": "qd",
+   "path": "docs/research/source_outcome_validation.json",
+   "file_sha256": "22402db1ba3429ccc7da49b5a1451792db29cacb63fbec24149ddae52317f550",
+   "records": 214,
+   "id_field": "event_id",
+   "unique_ids": 214,
+   "duplicate_id_rows": 0,
+   "time_field_coverage": {
+    "published_at": 1.0
+   },
+   "replayable": true
+  },
+  {
+   "name": "contradictions",
+   "repo": "qd",
+   "path": "research/history/contradictions.json",
+   "file_sha256": "8bfefaa39af46fbe2ea47d46a4d7baab44248785b49b3984e86acf60cdf88864",
+   "records": 57,
+   "id_field": null,
+   "unique_ids": null,
+   "duplicate_id_rows": null,
+   "time_field_coverage": {},
+   "replayable": false
+  },
+  {
+   "name": "method_memory",
+   "repo": "qd",
+   "path": "docs/research/method_memory.json",
+   "file_sha256": "220d07e64bb5bd18033bc2206ec8473629c760abc92fd265afbc0d74e0f8a11a",
+   "records": 9,
+   "id_field": null,
+   "unique_ids": null,
+   "duplicate_id_rows": null,
+   "time_field_coverage": {},
+   "replayable": false
+  },
+  {
+   "name": "situation_memory",
+   "repo": "qd",
+   "path": "docs/research/learning_engine.json",
+   "file_sha256": "35e6df9437a25969e27a66ed9b11b9ca8468b4d19584e7fe89470d7437b502e8",
+   "records": 26,
+   "id_field": null,
+   "unique_ids": null,
+   "duplicate_id_rows": null,
+   "time_field_coverage": {},
+   "replayable": false
+  },
+  {
+   "name": "historical_journal",
+   "repo": "qd",
+   "path": "docs/research/historical_journal.json",
+   "file_sha256": "340541e562715e5ca7eae948afe98942f7c9997d6ede893da78fb728115ce68c",
+   "records": 600,
+   "id_field": null,
+   "unique_ids": null,
+   "duplicate_id_rows": null,
+   "time_field_coverage": {},
+   "replayable": false
+  }
+ ],
+ "directories": [
+  {
+   "path": "research/archive/sec_filings",
+   "files": 7,
+   "files_sha256": {
+    "research/archive/sec_filings/2026-05.jsonl": "9c2e2e36c58f3c45229b2adaac4edaf4f3e5407d6601adb8a7084ffa027b85a4",
+    "research/archive/sec_filings/2026-06.jsonl": "7950ce7b0825f890179e0603be9be706b3613fccc180bd35bfadb1dbc4ce19b8",
+    "research/archive/sec_filings/2026-07.jsonl": "e69780c137deafa3942baf4655962d5d4319b659a31261476e762edfec715973",
+    "research/archive/sec_filings/2026-08.jsonl": "39644011841267312aa98af654a40f4b0af32bdc7f891e42283238a6b8e9be29",
+    "research/archive/sec_filings/2026-09.jsonl": "992d3f2e5ae052c15c066931b67b618795ba038cfe5e0cb38c2ff5a3db6f48bb",
+    "research/archive/sec_filings/2026-10.jsonl": "b074ec2204209edd8d06eb8661bdb5ec7d3d1bdcf551d748dc55587fb50098cd",
+    "research/archive/sec_filings/2026-11.jsonl": "368800f5a8f0b00c660cff5d3ab168187220738c3f27e3d1cfc6e827a2adbd64"
+   }
+  },
+  {
+   "path": "research/archive/thesis_revisions",
+   "files": 30,
+   "files_sha256": {
+    "research/archive/thesis_revisions/AMD.jsonl": "5b8a98a5b1be909cbbe4ef51f5a66aafaea6b38e738b5a99647668a10ba39740",
+    "research/archive/thesis_revisions/AMZN.jsonl": "c98af4f60f109e7c55254c83e081bd9030b0988780ba3b880b4f91d6ac5f467a",
+    "research/archive/thesis_revisions/AVGO.jsonl": "970473af7a9ed427f248b6ae954e2be26fa92e9e7d767c6e02f20e7795ca612f",
+    "research/archive/thesis_revisions/CRWV.jsonl": "58ac2e596826798b75319fa44ae57bedd8863a9c154dd0b6dcc9b1697b7153b6",
+    "research/archive/thesis_revisions/DRAM.jsonl": "3b6f265b1e16e8966fffed52cde09a430c20cfcab6cba21003473dab7cb6691f",
+    "research/archive/thesis_revisions/GOOG.jsonl": "9c2d9752c29f7f10431862d7d43440009b1bef3575c8949d0c4efaf4da3453d1",
+    "research/archive/thesis_revisions/HOOD.jsonl": "4d983f500ea0ca1997645d4bcccce0b7d2f673e6e288a0ddd17d15d01509abdd",
+    "research/archive/thesis_revisions/INTC.jsonl": "3a974c89134f299584b0a6ed988c45a69ecdbae7c8eece6c6eb594be67baa099",
+    "research/archive/thesis_revisions/IREN.jsonl": "8f708fcd55f60620c440a96cf4069958e5ad195357fb2a0f8068bec901f6473d",
+    "research/archive/thesis_revisions/LITE.jsonl": "cab313603a740b33f0e0d50d96cec711af479e024ba5e97145ceaaed2917b67e",
+    "research/archive/thesis_revisions/META.jsonl": "8a95183a73a97f9104f7c27ed51b209a82a5c0a2686c2feee20563c380469b6f",
+    "research/archive/thesis_revisions/MRVL.jsonl": "ab4ddf219f3d6d50e42c7144c848f83f95dc79d65af7d71bde4ec2aa03de03fd",
+    "research/archive/thesis_revisions/MSFT.jsonl": "33f84b86a6dd02ea71f954c897046088a51bb61ea2f57b71751bee96e4ec0a22",
+    "research/archive/thesis_revisions/MU.jsonl": "0e4917dd46de67a0316cdf7be515b868502d41537868552493df435d4e9bcc63",
+    "research/archive/thesis_revisions/NBIS.jsonl": "52dc30f081504ff839cc48712473bce24c9d1ad3754bee12dbca59a080a582f3",
+    "research/archive/thesis_revisions/NOW.jsonl": "95db6b09f649a1fd3f9239d3c461e4331be882e5f75244098c533b6f3f8594f1",
+    "research/archive/thesis_revisions/NVDA.jsonl": "1d59a80bf9c22cea58647cc43f4138b467e969a9d95297c15d0ac4415d81d978",
+    "research/archive/thesis_revisions/ORCL.jsonl": "31a517d732aff24e1bccce11b2834a7ae38b3bc90ba998dd411955710ac627a6",
+    "research/archive/thesis_revisions/QLD.jsonl": "d3f564a0cb1ff798735a2c64339f1be1de6acbc128407d2b0c3e9a331773f15a",
+    "research/archive/thesis_revisions/QQQ.jsonl": "b3a450e490103dd920bcaaa02f843442ce1da0a4663f0147da4b4c317beb44e1",
+    "research/archive/thesis_revisions/QQQM.jsonl": "c7389eaa0fa04cdb7f4767ccf6acc92825112b26772d95901463bb9fbb5666ce",
+    "research/archive/thesis_revisions/SMH.jsonl": "55d662da1db04ed928063b666d3888e5881e8b354b2b210a96e2531643c63fc6",
+    "research/archive/thesis_revisions/SOFI.jsonl": "65cb39111c7ae385e320e23a7873454cc2c6e33c07c9c36e830014d443794cbf",
+    "research/archive/thesis_revisions/SPCX.jsonl": "424655771d0863e97bf4cde534d3a3f95c79be7d8f3e672affd1e73adbb3a228",
+    "research/archive/thesis_revisions/SPY.jsonl": "61443a38bded491630dfd1afc4ff44e986d465d5438897707eafdd2a310ef55b",
+    "research/archive/thesis_revisions/TQQQ.jsonl": "4b79c144ca9f919af81c510f8c1cc032d3704cf66fd9b9dda532b77e584fa5a1",
+    "research/archive/thesis_revisions/TSLA.jsonl": "83a1509412620cea28f951adf703af60fc5a4248136ba9e93c7ad08bd1afbe88",
+    "research/archive/thesis_revisions/TSM.jsonl": "93b3f08c067b0aeaf6230761d73243c7bba929c4838985f29b5636d469535619",
+    "research/archive/thesis_revisions/VGT.jsonl": "b20d675025c39f352ea53241fdf923a563ecc8a0326476f32d79f1d7f728a7d0",
+    "research/archive/thesis_revisions/VOO.jsonl": "8c75bae3326a13225bbf88eda4e61c22d4849ca861c9c820c7fe89e45d1a00b4"
+   }
+  },
+  {
+   "path": "research/archive/options_opportunity_observations",
+   "files": 2,
+   "files_sha256": {
+    "research/archive/options_opportunity_observations/2026-10.jsonl": "8cc31d364284137ad33d922165318148b8a2974f8283ced12170b72063aea9f9",
+    "research/archive/options_opportunity_observations/2026-11.jsonl": "17ed6123186cbd764acc9df78f4aab3e9169edbc8a837f1aa582fb034d85e12f"
+   }
+  },
+  {
+   "path": "data/history",
+   "files": 5,
+   "files_sha256": {
+    "data/history/corrections.jsonl": "3abed3a10dee3c038efa071bc79b93817c037a96f9757afbe9461b40d8c620c9",
+    "data/history/pack_provenance_MyAlpha_STOOQ_19symbols_20261009.json": "2fd9756060f76058d65ed65723e2ceebe9ec600852009c5133a901749fbf89e5",
+    "data/history/source_validation_history.zip": "09f25d10fd8e5dae50e1cff8f4b8726f13cd9c4e05dda124e281473a2321369f",
+    "data/history/spy_provenance.json": "c157bee671ed7e8bf60c12a3a688301648eb6a22275a9041b925158cb9b91c83",
+    "data/history/stooq_watchlist.zip": "959c0ebfeb858f9f63e0ed8e771f2ddbcc1c3615638998927f6a550e5117e3e0"
+   }
+  }
+ ],
+ "reconciliation": {
+  "feed_vs_store": {
+   "feed": 2863,
+   "store": 2978,
+   "only_in_store": 118,
+   "only_in_feed": 3,
+   "identity": "2978 = 2863 - 3 + 118",
+   "holds": true,
+   "only_in_store_by_kind": {
+    "blog|BrightLine|initial_migration": 19,
+    "blog|BrightLine|backfill_ingest": 99
+   },
+   "only_in_store_ids": [
+    "brightline--blog-wenxuecity-com-myblog-82458-202601-1601-html",
+    "brightline--blog-wenxuecity-com-myblog-82458-202601-2150-html",
+    "brightline--blog-wenxuecity-com-myblog-82458-202601-2177-html",
+    "brightline--blog-wenxuecity-com-myblog-82458-202601-2187-html",
+    "brightline--blog-wenxuecity-com-myblog-82458-202601-2513-html",
+    "brightline--blog-wenxuecity-com-myblog-82458-202601-2758-html",
+    "brightline--blog-wenxuecity-com-myblog-82458-202601-3907-html",
+    "brightline--blog-wenxuecity-com-myblog-82458-202601-4905-html",
+    "brightline--blog-wenxuecity-com-myblog-82458-202601-5705-html",
+    "brightline--blog-wenxuecity-com-myblog-82458-202601-6465-html",
+    "brightline--blog-wenxuecity-com-myblog-82458-202601-6938-html",
+    "brightline--blog-wenxuecity-com-myblog-82458-202601-7156-html",
+    "brightline--blog-wenxuecity-com-myblog-82458-202601-7668-html",
+    "brightline--blog-wenxuecity-com-myblog-82458-202601-8230-html",
+    "brightline--blog-wenxuecity-com-myblog-82458-202601-8889-html",
+    "brightline--blog-wenxuecity-com-myblog-82458-202601-8915-html",
+    "brightline--blog-wenxuecity-com-myblog-82458-202601-9055-html",
+    "brightline--blog-wenxuecity-com-myblog-82458-202601-9550-html",
+    "brightline--blog-wenxuecity-com-myblog-82458-202604-1597-html",
+    "brightline--blog-wenxuecity-com-myblog-82458-202604-2065-html",
+    "brightline--blog-wenxuecity-com-myblog-82458-202604-2308-html",
+    "brightline--blog-wenxuecity-com-myblog-82458-202604-6568-html",
+    "brightline--blog-wenxuecity-com-myblog-82458-202604-9562-html",
+    "brightline--blog-wenxuecity-com-myblog-82458-202605-4789-html",
+    "brightline--blog-wenxuecity-com-myblog-82458-202605-5296-html",
+    "brightline--blog-wenxuecity-com-myblog-82458-202605-7682-html",
+    "brightline--blog-wenxuecity-com-myblog-82458-202605-7698-html",
+    "brightline--blog-wenxuecity-com-myblog-82458-202605-8850-html",
+    "brightline--blog-wenxuecity-com-myblog-82458-202605-8868-html",
+    "brightline--blog-wenxuecity-com-myblog-82458-202605-9470-html",
+    "brightline--blog-wenxuecity-com-myblog-82458-202606-4319-html",
+    "brightline--blog-wenxuecity-com-myblog-82458-202606-5022-html",
+    "brightline--blog-wenxuecity-com-myblog-82458-202606-8509-html",
+    "brightline--blog-wenxuecity-com-myblog-82458-202606-9045-html",
+    "brightline--blog-wenxuecity-com-myblog-82458-202606-9079-html",
+    "brightline--blog-wenxuecity-com-myblog-82458-202607-8410-html",
+    "brightline--blog-wenxuecity-com-myblog-82458-202609-3770-html",
+    "brightline--blog-wenxuecity-com-myblog-82458-202609-9125-html",
+    "brightline-blog-wenxuecity-com-myblog-82458-202601-10147-html",
+    "brightline-blog-wenxuecity-com-myblog-82458-202601-10245-html",
+    "brightline-blog-wenxuecity-com-myblog-82458-202601-11246-html",
+    "brightline-blog-wenxuecity-com-myblog-82458-202601-11380-html",
+    "brightline-blog-wenxuecity-com-myblog-82458-202601-12183-html",
+    "brightline-blog-wenxuecity-com-myblog-82458-202601-12325-html",
+    "brightline-blog-wenxuecity-com-myblog-82458-202601-13135-html",
+    "brightline-blog-wenxuecity-com-myblog-82458-202601-13768-html",
+    "brightline-blog-wenxuecity-com-myblog-82458-202601-13934-html",
+    "brightline-blog-wenxuecity-com-myblog-82458-202601-13989-html",
+    "brightline-blog-wenxuecity-com-myblog-82458-202601-15235-html",
+    "brightline-blog-wenxuecity-com-myblog-82458-202601-15311-html",
+    "brightline-blog-wenxuecity-com-myblog-82458-202601-16824-html",
+    "brightline-blog-wenxuecity-com-myblog-82458-202601-17570-html",
+    "brightline-blog-wenxuecity-com-myblog-82458-202601-18328-html",
+    "brightline-blog-wenxuecity-com-myblog-82458-202601-20747-html",
+    "brightline-blog-wenxuecity-com-myblog-82458-202601-25373-html",
+    "brightline-blog-wenxuecity-com-myblog-82458-202602-10466-html",
+    "brightline-blog-wenxuecity-com-myblog-82458-202603-10908-html",
+    "brightline-blog-wenxuecity-com-myblog-82458-202603-12007-html",
+    "brightline-blog-wenxuecity-com-myblog-82458-202603-13404-html",
+    "brightline-blog-wenxuecity-com-myblog-82458-202603-15585-html",
+    "brightline-blog-wenxuecity-com-myblog-82458-202603-16712-html",
+    "brightline-blog-wenxuecity-com-myblog-82458-202603-17167-html",
+    "brightline-blog-wenxuecity-com-myblog-82458-202603-17178-html",
+    "brightline-blog-wenxuecity-com-myblog-82458-202603-17632-html",
+    "brightline-blog-wenxuecity-com-myblog-82458-202603-18622-html",
+    "brightline-blog-wenxuecity-com-myblog-82458-202603-19950-html",
+    "brightline-blog-wenxuecity-com-myblog-82458-202603-22507-html",
+    "brightline-blog-wenxuecity-com-myblog-82458-202603-22826-html",
+    "brightline-blog-wenxuecity-com-myblog-82458-202603-24121-html",
+    "brightline-blog-wenxuecity-com-myblog-82458-202604-11114-html",
+    "brightline-blog-wenxuecity-com-myblog-82458-202604-12428-html",
+    "brightline-blog-wenxuecity-com-myblog-82458-202604-12703-html",
+    "brightline-blog-wenxuecity-com-myblog-82458-202604-15204-html",
+    "brightline-blog-wenxuecity-com-myblog-82458-202604-15958-html",
+    "brightline-blog-wenxuecity-com-myblog-82458-202604-16141-html",
+    "brightline-blog-wenxuecity-com-myblog-82458-202604-16240-html",
+    "brightline-blog-wenxuecity-com-myblog-82458-202604-16633-html",
+    "brightline-blog-wenxuecity-com-myblog-82458-202604-17012-html",
+    "brightline-blog-wenxuecity-com-myblog-82458-202604-17209-html",
+    "brightline-blog-wenxuecity-com-myblog-82458-202604-31045-html",
+    "brightline-blog-wenxuecity-com-myblog-82458-202604-31576-html",
+    "brightline-blog-wenxuecity-com-myblog-82458-202605-10455-html",
+    "brightline-blog-wenxuecity-com-myblog-82458-202605-13819-html",
+    "brightline-blog-wenxuecity-com-myblog-82458-202605-14211-html",
+    "brightline-blog-wenxuecity-com-myblog-82458-202605-16902-html",
+    "brightline-blog-wenxuecity-com-myblog-82458-202605-18645-html",
+    "brightline-blog-wenxuecity-com-myblog-82458-202605-19753-html",
+    "brightline-blog-wenxuecity-com-myblog-82458-202606-10765-html",
+    "brightline-blog-wenxuecity-com-myblog-82458-202606-12009-html",
+    "brightline-blog-wenxuecity-com-myblog-82458-202606-12430-html",
+    "brightline-blog-wenxuecity-com-myblog-82458-202606-14019-html",
+    "brightline-blog-wenxuecity-com-myblog-82458-202606-16186-html",
+    "brightline-blog-wenxuecity-com-myblog-82458-202606-22729-html",
+    "brightline-blog-wenxuecity-com-myblog-82458-202607-14906-html",
+    "brightline-blog-wenxuecity-com-myblog-82458-202607-16358-html",
+    "brightline-blog-wenxuecity-com-myblog-82458-202607-16769-html",
+    "brightline-blog-wenxuecity-com-myblog-82458-202607-18322-html",
+    "brightline-blog-wenxuecity-com-myblog-82458-202607-20339-html",
+    "brightline-blog-wenxuecity-com-myblog-82458-202607-22473-html",
+    "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html",
+    "brightline-blog-wenxuecity-com-myblog-82458-202608-14260-html",
+    "brightline-blog-wenxuecity-com-myblog-82458-202608-16852-html",
+    "brightline-blog-wenxuecity-com-myblog-82458-202608-17894-html",
+    "brightline-blog-wenxuecity-com-myblog-82458-202608-22905-html",
+    "brightline-blog-wenxuecity-com-myblog-82458-202608-23519-html",
+    "brightline-blog-wenxuecity-com-myblog-82458-202608-24323-html",
+    "brightline-blog-wenxuecity-com-myblog-82458-202609-10218-html",
+    "brightline-blog-wenxuecity-com-myblog-82458-202609-11213-html",
+    "brightline-blog-wenxuecity-com-myblog-82458-202609-12834-html",
+    "brightline-blog-wenxuecity-com-myblog-82458-202609-14893-html",
+    "brightline-blog-wenxuecity-com-myblog-82458-202609-16614-html",
+    "brightline-blog-wenxuecity-com-myblog-82458-202609-19534-html",
+    "brightline-blog-wenxuecity-com-myblog-82458-202609-20217-html",
+    "brightline-blog-wenxuecity-com-myblog-82458-202609-20915-html",
+    "brightline-ps-blog-wenxuecity-com-myblog-82458-202601-19-html",
+    "brightline-s-blog-wenxuecity-com-myblog-82458-202604-221-html",
+    "brightline-s-blog-wenxuecity-com-myblog-82458-202604-985-html",
+    "brightline-s-blog-wenxuecity-com-myblog-82458-202605-385-html"
+   ],
+   "only_in_feed_ids": [
+    "224c716055a0e85d7f7a",
+    "a4e3214520b41adc3085",
+    "b74717b96b7740595a5b"
+   ]
+  },
+  "store_vs_reading": {
+   "reading_orphans": [],
+   "store_without_reading": 0,
+   "propositions": 7136
+  },
+  "outcomes_vs_observations": {
+   "outcomes": 106,
+   "orphan_outcomes": 0,
+   "by_group_h_status": {
+    "promoted|h20|matured": 106
+   },
+   "genuine_forward_outcomes": 0
+  },
+  "fundamental_one_to_many": {
+   "observations": 867,
+   "outcomes": 1713,
+   "distinct_observation_ids_in_outcomes": 860
+  },
+  "store_timestamp_confidence": {
+   "unverified": 2758,
+   "high": 185,
+   "missing": 35
+  },
+  "store_ingest_type": {
+   "backfill_ingest": 2066,
+   "live_ingest": 108,
+   "initial_migration": 804
+  }
+ }
+}

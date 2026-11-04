@@ -75,4 +75,5 @@ jobs:
           git config user.name "github-actions"; git config user.email "actions@github.com"
           git add research/knowledge/auto_research_journal.jsonl docs/research/auto_research_status.json docs/research/sec_fundamentals.json docs/research/weekly_research_report.json docs/research/auto_research_digest.json docs/research/macro_event_watch.json research/macro_events/
           if [ -f docs/research/module_failures.json ]; then git add docs/research/module_failures.json; fi
+          python3 scripts/privacy_canary_scan.py --staged  # kr-0.3.2 D4: block the publish if anything staged leaks private data
           git diff --cached --quiet || (git commit -m "auto research shadow journal" && git pull --rebase origin main && git push)

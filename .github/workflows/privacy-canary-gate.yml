@@ -1,0 +1,53 @@
+name: Privacy Canary Gate
+
+# kr-0.3.2 D4 (GPT #133 6621145320): blocking privacy / canary scan. Read-only, no secrets, no continue-on-error.
+# Any hit not on the Owner-approved exact-value allowlist fails the job; there is no warning-only mode.
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Scan published pages, retrieval specs and the research index (if present)
+        run: |
+          set -o pipefail
+          targets="docs research/specs/retrieval"
+          [ -d research/index ] && targets="$targets research/index"
+          python scripts/privacy_canary_scan.py $targets 2>&1 | tee scan.log
+      - name: Scan this run's own log and artifacts
+        if: always()
+        run: python scripts/privacy_canary_scan.py scan.log
+      - name: Scanner sha256
+        run: sha256sum scripts/privacy_canary_scan.py
+
+  planted-canary-must-fail:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: A canary planted into a temp copy makes the scanner exit non-zero
+        run: |
+          tmp=$(mktemp -d)
+          cp -r research/specs/retrieval "$tmp/retrieval"
+          printf '{"a":{"b":[{"note":"CANARY-%s"}]}}\n' "$(python -c 'import uuid;print(uuid.uuid4())')" > "$tmp/retrieval/planted.json"
+          set +e
+          python scripts/privacy_canary_scan.py "$tmp/retrieval" > planted.log 2>&1
+          rc=$?
+          set -e
+          cat planted.log
+          test "$rc" -eq 1 || { echo "::error title=Privacy canary::planted canary did not fail the scanner (rc=$rc)"; exit 1; }
+          grep -q "canary_token" planted.log
+          echo "PASS planted canary -> exit 1"
+      - name: Fixture unit test
+        run: python tests/test_privacy_canary_scan.py

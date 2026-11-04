@@ -98,6 +98,8 @@ ROLES = {  # reader → (role, reason)
     "v615_forward_intake_health.py": (M, "forward-intake integrity guard (reads validator timestamp only)"),
     "ohlcv_completeness_audit.py": (M, "P0-2 per-symbol OHLCV completeness evidence (read-only audit, no decisions)"),
     "retrieval_inventory.py": (M, "kr-0.2.1 read-only retrieval inventory (manifest only; no consumer, no decisions)"),
+    "retrieval_eligibility.py": (M, "kr-0.3.2 B2 eligibility evaluator + append-only rejection audit (research-only; no consumer, no decisions)"),
+    "privacy_canary_scan.py": (M, "kr-0.3.2 D3/D4 recursive privacy canary scanner (CI gate only; reads, never writes research data)"),
     "sec_v2_migration_audit.py": (M, "B4-03 pre-migration attribution audit (read-only; no consumer migrated)"),
     "weekly_change_summary.py": (M, "weekly fixed-field change summary; written/sent only on change (ops, no decisions)"),
     "update_fred_macro.py": (R, "FRED/ALFRED macro collector"),

@@ -218,3 +218,34 @@ Not allowed at any stage before a blind PASS and Owner approval:
 - private data in a public index;
 - paid APIs;
 - automatic trading.
+
+## 6. kr-0.3.2 delta (GPT #133 6621145320: B2, C3, D2, D3, D4 only; §1 unchanged byte for byte)
+
+- **§2.3 → B2 executable rejection audit.** `scripts/retrieval_eligibility.py` evaluates every row with the frozen
+  reason order of `eligibility_contract.json` and writes rejections to an append-only audit log (`open('a')`; a record
+  missing reason / kind / fields / source_file / source_sha is refused). The audit path is supplied by the caller; the
+  module hardcodes no index path. Test: `tests/test_retrieval_eligibility_audit.py` (real repo rows, append-only prefix
+  hash, all 7 reason codes, incomplete records refused).
+- **§3 → C3 question-set isolation.** `research/specs/retrieval/question_sets/` holds smoke (26, watchlist symbols
+  only) and development (empty) sets without answer fields. The blind set is represented only by
+  `blind_set_hashes.json` and stays **BLOCKED** until the Owner/GPT authors and freezes it outside the repo. Test:
+  `tests/test_question_set_isolation.py` (id + canonical-text-hash disjointness, planted blind-answer files by name and
+  by content are found).
+- **§4.4 → D2 isolation gate hardened.** Shell indirection (`bash/sh/source/./x.sh`, `python -m`, `python -c`), string
+  literals naming `scripts/*.py`, concatenated / `os.path.join` / `Path` pieces, unreviewed dynamic-import sites
+  (`dynamic_import_review.json`: file + line + line sha256) and any `make` target all fail the gate. Test:
+  `tests/test_retrieval_isolation_negative.py` (8 evasions planted into real entries, then restored byte for byte).
+  `privacy-canary-gate.yml` is research-only (it reads `research/index` only to scan it).
+- **§4.3 → D3/D4 recursive scanner and blocking gate.** `scripts/privacy_canary_scan.py` walks every JSON/JSONL value
+  and every text line; reports location, category and a redacted snippet only; exit 1 on any hit. Exact-value
+  allowlist `privacy_allowlist.json` (sha256 only) is honoured only for entries with `owner_approval`.
+  `.github/workflows/privacy-canary-gate.yml` scans `docs/`, `research/specs/retrieval`, `research/index` (if present)
+  and its own log, and a second job proves a planted canary exits 1.
+
+### 6.1 Boundaries of static scanning (not a runtime proof)
+- The isolation gate is a static, over-approximating text scan. It does not prove runtime behaviour: a path built
+  from runtime data (environment variables, network input, file contents) is not visible to it; that is why every
+  non-literal dynamic import / exec / eval site must be reviewed by hand and pinned by line hash.
+- The privacy scanner is pattern-based. It finds the listed categories; it cannot prove that no other private value
+  exists (e.g. a holding written only in prose without quantity and amount). Passing it is necessary, not sufficient.
+- Neither gate inspects GitHub artifacts uploaded by other workflows or third-party services.

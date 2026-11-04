@@ -1,0 +1,42 @@
+{
+ "version": "kr-0.3.2",
+ "rule": "A dynamic import / exec / eval / spec_from_file_location site in a production entry whose target is not a plain literal must be listed here with its exact line hash. Editing the line changes the hash and fails the gate until re-reviewed. Unlisted sites fail.",
+ "scope_note": "All five sites are in tests/ files that workflows run as checks; none is in a script that writes production output.",
+ "reviewed": [
+  {
+   "file": "tests/test_author_claim_gate.py",
+   "line": 10,
+   "line_sha256": "ec7aed543504c874984b56540d02162dc6baa00664cd4f57d9ade73c6defb72d",
+   "target_resolved_by_review": "helper mod(name) loads scripts/{name}.py; the names are the literals on line 13-14: evidence_attribution_engine, autonomous_research_executor, event_evidence_engine, official_evidence_engine, autonomous_research_planner (all in scripts/, all already followed via literals)",
+   "reviewer": "Claude (implementer) 2026-11-04; independent confirmation pending (GPT / Owner)"
+  },
+  {
+   "file": "tests/test_coverage_truth.py",
+   "line": 10,
+   "line_sha256": "63a0d93c9f719b045c287141af1e425b8d3e3b4ff8867c7791e1246fec046b60",
+   "target_resolved_by_review": "helper load(name, file) loads ROOT/scripts/<file>; calls on lines 13-14 pass literals data_learning_coverage_audit.py and source_intelligence_engine.py",
+   "reviewer": "Claude (implementer) 2026-11-04; independent confirmation pending (GPT / Owner)"
+  },
+  {
+   "file": "tests/test_forward_evidence_forensics.py",
+   "line": 9,
+   "line_sha256": "63a0d93c9f719b045c287141af1e425b8d3e3b4ff8867c7791e1246fec046b60",
+   "target_resolved_by_review": "helper load(name, file) loads ROOT/scripts/<file>; line 11 passes literals forward_evidence_forensics.py and forward_journal_audit.py",
+   "reviewer": "Claude (implementer) 2026-11-04; independent confirmation pending (GPT / Owner)"
+  },
+  {
+   "file": "tests/test_v570_evidence_attribution.py",
+   "line": 6,
+   "line_sha256": "9d73b99fcb7deaa68a0f667a660ee18e8416cf273011ebf8c84763d495c624c2",
+   "target_resolved_by_review": "engine_path is set on line 5 to the literal ROOT/'scripts/evidence_attribution_engine.py'",
+   "reviewer": "Claude (implementer) 2026-11-04; independent confirmation pending (GPT / Owner)"
+  },
+  {
+   "file": "tests/test_v610a_playbook_engine.py",
+   "line": 11,
+   "line_sha256": "664e90b0747d7f4ce4cc9558160bc8288fd171503c1cbc9d83d779a880d20ff1",
+   "target_resolved_by_review": "load_module(name, path) is defined but never called in this file (grep: only the def line); the test imports playbook_config, trading_calendar, private_ledger with plain imports",
+   "reviewer": "Claude (implementer) 2026-11-04; independent confirmation pending (GPT / Owner)"
+  }
+ ]
+}

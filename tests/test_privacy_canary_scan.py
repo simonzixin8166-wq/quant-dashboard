@@ -148,13 +148,18 @@ finally:
     pcs.scan_paths = orig
 print("PASS scanner error -> exit 1")
 
+# 13a) Owner 2026-11-04: Gemini screen-derived descriptions are not stored (they described a third party's on-screen
+# account); the probe drops them and its validator refuses them; the whole research/ tree scans clean
+gw = (WF_DIR := ROOT / ".github" / "workflows") / "gemini-youtube-probe.yml"
+gt = gw.read_text(encoding="utf-8")
+assert 'parsed.pop("visual_only_observations"' in gt and '"visual_only_observations" not in p["gemini_result"]' in gt
+assert pcs.scan_paths([ROOT / "research"], pcs.load_allowlist()) == [], "research/ must scan clean before its artifact upload"
+
 # 13) D4 wiring: every workflow that commits to the repo runs the --staged guard before its first `git commit`;
 # the artifact uploads that are covered are gated on the guard; the uncovered ones are listed explicitly.
 WF = ROOT / ".github" / "workflows"
 NOT_COVERED_UPLOADS = {"autonomous-qa.yml": "uploads PNG screenshots (images cannot be text-scanned)",
-                       "claude-audit-package.yml": "uploads a zip of the public repo itself, which contains the planted test canaries",
-                       "monthly-evidence-audit.yml": "compute->commit handoff artifact of research/ (pending Owner decision on gemini_youtube_probe.json)",
-                       "research-evidence-update.yml": "compute->commit handoff artifact of research/ (same pending decision)"}
+                       "claude-audit-package.yml": "uploads a zip of the public repo itself, which contains the planted test canaries"}
 committers = []
 for w in sorted(WF.glob("*.yml")):
     t = w.read_text(encoding="utf-8")
@@ -165,4 +170,4 @@ for w in sorted(WF.glob("*.yml")):
     if "upload-artifact" in t and w.name not in NOT_COVERED_UPLOADS and w.name != "privacy-canary-gate.yml":
         assert "steps.privacy_guard.outcome == 'success'" in t, f"{w.name}: upload not gated by the privacy guard"
 assert len(committers) == 11, committers
-print(f"PASS D4 wiring: {len(committers)} committing workflows guarded before commit; uploads gated or listed as not covered ({len(NOT_COVERED_UPLOADS)})")
+print(f"PASS D4 wiring: {len(committers)} committing workflows guarded before commit; uploads gated or listed as not covered ({len(NOT_COVERED_UPLOADS)}); research/ clean")

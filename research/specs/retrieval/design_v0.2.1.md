@@ -1,4 +1,4 @@
-# 统一知识检索 · 只读设计包 v0.2（2026-11-03）
+# 统一知识检索 · 只读设计包 v0.2.1（2026-11-04；正文为 v0.2，§2 已更新为当前口径，末尾附 v0.2.1 补充）
 
 状态：DESIGNED ONLY。不改生产、不改 schema、不新增数据源或付费服务。
 本版依据 GPT 审阅（#133 6594478717）修订 v0.1（6594443196）。Owner 已决定的边界（6594477482）作为前提：私有数据不进公开索引；验收题只用观察名单内的 26 只股票；实施放在续费后第一阶段。
@@ -23,43 +23,45 @@
 ## 1. 目的（不变）
 研究或回答问题时，能查到**当时可知**的过去判断、结果、来源和反证，并附来源和时间；查不到时给出明确的原因码。目标是把自动研究中"引用过去案例"的比例从 8/79 提高。
 
-## 2. 盘点清单（机器生成，可复核）
-文件 `claude/retrieval_inventory_manifest_2026-11-03.json`，由只读脚本生成，基于 quant-dashboard main `e6f4b897` 和 wxc-bot main。
+## 2. 盘点清单（机器生成，可复算）
+**当前唯一口径**是仓库文件 `research/specs/retrieval/inventory_manifest.json`，由 `scripts/retrieval_inventory.py` 在固定提交
+quant-dashboard `8ae72dfb30a079b3790258cb59f0fdc36cf9c14b` / wxc-bot `f54bd0a7c8408de02cce5638cd6c870b7365ac45` 上生成；复算步骤见同目录 `README.md`，CI 门禁 `retrieval-inventory-check` 逐字段比对。
+v0.1 / v0.2 评论（#133 6594443196、6594524162）中的数字来自 11/3 对 `e6f4b897` 的一次扫描，**已作废**；下表保留旧数字只为解释差异。
+例如命题数 7,129 → 7,136：两次扫描之间来源增加 1 条（2,977 → 2,978），这条新来源拆出 7 条命题，其余 2,977 条来源的命题数逐条核对未变。
+注意：上表中标为"JSONL 归档"的文件已核对旧行逐字节不变，是只追加的；`source_store.json`、`source_outcome_validation.json`、`contradictions.json` 等 JSON 快照或派生文件每天重新生成，旧记录的字段可能被更新或重算，所以检索必须按 manifest 中的文件哈希固定版本。
 
-| 资料 | 记录数 | 唯一 ID | 时间字段覆盖率 |
+| 资料 | 11/3 扫描（`e6f4b897`，历史数字，已作废） | **当前口径：manifest（`8ae72dfb`）** | 变化原因 |
 |---|---|---|---|
-| wxc-bot 原始 feed | 2,862 | id 2,862 | published_at 0.988；captured_at 1.0 |
-| 来源存储 | 2,977 | id 2,977 | published_at 0.988；first_fetched_at 1.0；captured_at 0.96 |
-| 阅读理解 | 2,977 条来源 → **7,129 条命题** | source_id 2,977 | published_at 0.988 |
-| 可检验规则 | 62 | — | published_at 1.0 |
-| genuine 前瞻观察 | 464 | event_id 464 | captured_at、session、market_as_of 均为 1.0 |
-| promoted 前瞻观察 | 130 | event_id 130 | session、market_as_of 均为 1.0 |
-| 前瞻结果 | 82（**全部 promoted、h=20、matured**；genuine 0） | event_id 82 | scored_at、matures_on 均为 1.0 |
-| 自动研究日志 | 1,210 | record_id 1,210 | generated_at、market_as_of 均为 1.0 |
-| 知识契约案例 | 3 | case_id 3 | created_at 1.0 |
-| 基本面观察 / 结果 | 867 / 1,713 | observation_id 867 / 860（一个观察对应多个窗口） | filed 1.0 |
-| 事件结果 | 1,842 | outcome_id 1,842 | published_at 1.0 |
-| 市场状态结果 / 宏观观察 | 58 / 29 | 58 / 29 | as_of 1.0 |
-| 运维事故 | 70 | — | event_at 1.0 |
-| **source outcome validation**（v0.1 遗漏） | 210 | event_id 210 | published_at 1.0 |
-| **矛盾记录**（v0.1 遗漏） | 54 | — | **无时间字段** |
-| 方法记忆 / 情境记忆 / 历史回放 | 9 / 26 / 600 | — | **无时间字段** |
-| SEC 文件、thesis 修订、期权观察、行情历史 | 7 / 30 / 2 / 5 个文件 | — | 待逐文件展开 |
+| wxc-bot 原始 feed | 2,862 | **2,863** | 新增 1 条 ID（JSON 快照文件，不是 JSONL 归档） |
+| 来源存储 | 2,977 | **2,978** | 新增 1 条 ID，没有删除；但 2,974 条已有记录的可变字段（如 `last_seen_at`）随每日运行更新——这是 JSON 快照，不是只追加 |
+| 阅读理解（来源数） | 2,977 | **2,978** | 新增 1 条来源；其余 2,977 条的命题数未变（已逐条核对） |
+| 阅读理解（命题数） | 7,129 | **7,136** | 新增的 1 条来源拆出 7 条命题；其余来源未变（已逐条核对） |
+| 可检验规则 | 62 | **62** | 无变化 |
+| genuine 前瞻观察 | 464 | **490** | 每日流程新增的记录：JSONL 归档，旧行逐字节未变（前缀哈希一致），只追加 |
+| promoted 前瞻观察 | 130 | **130** | 无变化 |
+| 前瞻结果（全部 promoted / h20 / matured；genuine 0） | 82 | **106** | 每日流程新增的记录：JSONL 归档，旧行逐字节未变（前缀哈希一致），只追加 |
+| 自动研究日志 | 1,210 | **1,293** | 每日流程新增的记录：JSONL 归档，旧行逐字节未变（前缀哈希一致），只追加 |
+| 知识契约案例 | 3 | **3** | 无变化 |
+| 基本面观察 | 867 | **867** | 无变化 |
+| 基本面结果 | 1,713 | **1,713** | 无变化 |
+| 事件结果 | 1,842 | **1,962** | 每日流程新增的记录：JSONL 归档，旧行逐字节未变（前缀哈希一致），只追加 |
+| 市场状态结果 | 58 | **63** | 每日流程新增的记录：JSONL 归档，旧行逐字节未变（前缀哈希一致），只追加 |
+| 宏观观察 | 29 | **30** | 每日流程新增的记录：JSONL 归档，旧行逐字节未变（前缀哈希一致），只追加 |
+| 运维事故 | 70 | **72** | 每日流程新增的记录：JSONL 归档，旧行逐字节未变（前缀哈希一致），只追加 |
+| source outcome validation | 210 | **214** | 每日重新生成的派生文件：4 条净增，另有 17 条旧记录内容被重算（不是只追加；检索须按 manifest 的文件哈希固定版本） |
+| 矛盾记录（无时间字段） | 54 | **57** | 每日重新生成的派生文件：3 条净增，另有 32 条旧记录内容被重算（不是只追加） |
+| 方法记忆（无时间字段） | 9 | **9** | 无变化 |
+| 情境记忆（无时间字段） | 26 | **26** | 无变化 |
+| 历史回放（无时间字段） | 600 | **600** | 无变化 |
 
-**2,862 与 2,977 的对账（按 ID）：**
-- 只在来源存储中：118 条，全部是 BrightLine 博客（backfill 99 + initial migration 19，来自 2026 静态存档和历史回填）。
-- 只在原始 feed 中：3 条论坛帖（bogbog 2、三心三意 1），尚未进入存储。
-- 2,977 = 2,862 − 3 + 118。
-- 命题 7,129 是在 2,977 条来源上做的一对多拆分。
+**feed 与 store 对账（当前口径，按 ID）：** 2978 = 2863 - 3 + 118，成立。只在 store 中的 118 条全部是 BrightLine 博客
+（backfill 99 + initial_migration 19）；只在 feed 中的 3 条是尚未入库的论坛帖。两份 ID 清单都在 manifest 的 `reconciliation.feed_vs_store` 中。
 
-**时间可信度：**
-- 来源存储的 `timestamp_confidence`：unverified 2,757、high 185、missing 35。
-- `ingest_type`：backfill 2,065、initial_migration 804、live 108。
-- 也就是说，大部分来源帖子的发布时间**未经验证**。严格回放时，只能按系统实际获取时间 `first_fetched_at` 判断"当时是否可知"。
+**时间可信度（当前口径）：** `timestamp_confidence` {'unverified': 2758, 'high': 185, 'missing': 35}；`ingest_type` {'backfill_ingest': 2066, 'live_ingest': 108, 'initial_migration': 804}。
+大部分来源的发布时间未经验证，严格回放只能按系统实际获取时间（`first_fetched_at`）判断"当时是否可知"。
 
-**不纳入公开索引的资料（Owner 决定）：** 浏览器决策日志、Supabase 操作记录、私有仓库持仓和账户。私有仓库标为 EXCLUDED，不是 MISSING。
-
-**无时间字段的类别**（矛盾记录、方法记忆、情境记忆、历史回放）在严格回放中只能返回 `time_unknown`，直到上游补充时间字段为止。
+**不纳入公开索引（Owner 决定）：** 浏览器决策日志、Supabase、私有仓库，标为 EXCLUDED，不是 MISSING。
+**无时间字段的类别**（矛盾记录、方法记忆、情境记忆、历史回放）在严格回放中返回 `time_unknown`。
 
 ## 3. 记录格式 kr-0.2
 
@@ -83,9 +85,9 @@
 ### 3.2 证据标签（4 个正交维度）
 | 维度 | 取值 |
 |---|---|
-| `temporal_class` | genuine_forward / promoted_forward / historical_replay / backfill / descriptive |
+| `temporal_class` | genuine_forward / promoted_forward / historical_replay / descriptive（v0.2.1 起；`backfill` 移到独立的 `ingestion_mode`，见 v0.2.1 §B） |
 | `source_authority` | official / primary_market_data / system_ledger / author_claim / secondary |
-| `validation_state` | unvalidated / shadow / matured / independently_validated |
+| `validation_state` | unvalidated / shadow / independently_validated（v0.2.1 起；`matured` 已移到独立的 `maturity_state`，见 v0.2.1 §B） |
 | `production_eligibility` | true / false；保留原文件中的状态字段，例如 `eligible_for_production`、`scoreable_as_method_performance`，不压扁 |
 
 ### 3.3 其他字段
@@ -205,15 +207,10 @@
 - 这两个维度互相独立，可以任意组合。例如：backfill + descriptive 是回填进来的旧帖子；live + genuine_forward 是每日账本。
 - **冲突时默认拒绝：** 原文件的生产资格字段（`eligible_for_production`、`scoreable_as_method_performance` 等）只要有一个是 false 或缺失，`production_eligibility` 就取 false。
 
-## C. 可复算盘点（项目文档 `claude/retrieval_inventory_manifest_2026-11-04.json`，sha256 前 16 位 `a004199db570bc8f`）
-- **固定提交：** quant-dashboard `8ae72dfb30a079b3790258cb59f0fdc36cf9c14b`；wxc-bot `f54bd0a7c8408de02cce5638cd6c870b7365ac45`。
-- **来源对账：** 2,978 = 2,863 − 3 + 118。清单逐条列出了"只在存储中"的 118 个 ID 和"只在 feed 中"的 3 个 ID。
-- **前瞻结果：** 现在是 106 条，全部为 promoted、h=20、matured。genuine 组 11/5 起才会有。
-- **盘点脚本**会随实施 PR 一起进入仓库，每次构建都重算并对账。
-- **实施时补充：**
-  - SEC、thesis、期权、行情历史按文件逐个展开；
-  - 统计 source / event / outcome 之间的孤儿记录、重复记录和一对多关系，并由 Owner 抽查；
-  - 无法取得时间字段的类别不计入"可回放"的分母。
+## C. 可复算盘点
+- 当前口径与复算方法见本文件 §2、`research/specs/retrieval/inventory_manifest.json` 和 `README.md`。项目空间中的旧清单（`claude/retrieval_inventory_manifest_2026-11-03.json` / `-11-04.json`）已作废，不再引用。
+- CI 门禁 `retrieval-inventory-check`：在固定提交上重跑脚本，并与 manifest 逐字段比对，除 `generated_at` 外任何差异都会让 CI 失败。
+- 实施时补充：SEC、thesis、期权、行情历史按文件逐个展开（manifest 已经记录了每个文件的 sha256）；无法取得时间字段的类别不计入"可回放"的分母。
 
 ## D. S6 评分口径（冻结前不调参）
 - **主指标："事实准确率"。** 盲测每题由评审按金标准判定：

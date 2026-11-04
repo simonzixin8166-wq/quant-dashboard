@@ -218,3 +218,80 @@ Not allowed at any stage before a blind PASS and Owner approval:
 - private data in a public index;
 - paid APIs;
 - automatic trading.
+
+## 6. kr-0.3.2 delta (GPT #133 6621145320: B2, C3, D2, D3, D4 only; §1 unchanged byte for byte)
+
+- **§2.3 → B2 executable rejection audit.** `scripts/retrieval_eligibility.py` evaluates every row with the frozen
+  reason order of `eligibility_contract.json` and writes rejections to an append-only audit log (`open('a')`; a record
+  missing reason / kind / fields / source_file / source_sha is refused). The audit path is supplied by the caller; the
+  module hardcodes no index path. Test: `tests/test_retrieval_eligibility_audit.py` (real repo rows, append-only prefix
+  hash, all 7 reason codes, incomplete records refused).
+- **§3 → C3 question-set isolation.** `research/specs/retrieval/question_sets/` holds smoke (26, watchlist symbols
+  only) and development (empty) sets without answer fields. The blind set is represented only by
+  `blind_set_hashes.json` and stays **BLOCKED** until the Owner/GPT authors and freezes it outside the repo. Test:
+  `tests/test_question_set_isolation.py` (id + canonical-text-hash disjointness, planted blind-answer files by name and
+  by content are found).
+- **§4.4 → D2 isolation gate hardened.** Shell indirection (`bash/sh/source/./x.sh`, `python -m`, `python -c`), string
+  literals naming `scripts/*.py`, concatenated / `os.path.join` / `Path` pieces, unreviewed dynamic-import sites
+  (`dynamic_import_review.json`: file + line + line sha256) and any `make` target all fail the gate. Test:
+  `tests/test_retrieval_isolation_negative.py` (8 evasions planted into real entries, then restored byte for byte).
+  `privacy-canary-gate.yml` is research-only (it reads `research/index` only to scan it).
+- **§4.3 → D3/D4 recursive scanner and blocking gate.** `scripts/privacy_canary_scan.py` walks every JSON/JSONL value
+  and every text line; reports location, category and a redacted snippet only; exit 1 on any hit. Exact-value
+  allowlist `privacy_allowlist.json` (sha256 only) is honoured only for entries with `owner_approval`.
+  `.github/workflows/privacy-canary-gate.yml` scans `docs/`, `research/specs/retrieval`, `research/index` (if present)
+  and its own log, and a second job proves a planted canary exits 1.
+
+### 6.1 Boundaries of static scanning (not a runtime proof)
+- The isolation gate is a static, over-approximating text scan. It does not prove runtime behaviour: a path built
+  from runtime data (environment variables, network input, file contents) is not visible to it; that is why every
+  non-literal dynamic import / exec / eval site must be reviewed by hand and pinned by line hash.
+- The privacy scanner is pattern-based. It finds the listed categories; it cannot prove that no other private value
+  exists (e.g. a holding written only in prose without quantity and amount). Passing it is necessary, not sufficient.
+- Neither gate inspects GitHub artifacts uploaded by other workflows or third-party services.
+
+### 6.2 kr-0.3.2 round 2 (GPT #133 6624784358)
+- **B2 approvals.** A non-empty `owner_production_approval_id` is no longer enough. The id must name an `active`
+  entry of `owner_approval_registry.json` whose scope is `retrieval_production_eligibility` and whose `kinds` include
+  the row's kind. Forged, unknown, revoked, wrong-scope and wrong-kind ids are rejected (`no_owner_approval`). The
+  registry holds no retrieval approval today, so every row stays rejected. The reason order now lives only in
+  `eligibility_contract.json#reason_order`; `evaluate()` runs one check per listed reason and refuses to run if the two
+  differ. Every registry approval must point to an Owner comment on #133 containing its marker;
+  `scripts/verify_owner_approvals.py` checks this in CI with the read-only token and fails closed on any error.
+- **C3.** Still BLOCKED until the Owner / GPT author and freeze the blind set outside the repo; Claude does not see
+  questions or answers. Leak detection now reads every UTF-8 file (Markdown, text, YAML, code, logs, JSON/JSONL) and,
+  once per-answer hashes are committed, any line whose canonical hash equals a blind answer.
+- **D2.** `privacy-canary-gate.yml` is a `security_qa_only_workflow`, pinned by sha256 in `isolation_exclusions.json`
+  and checked to stay read-only (no write permission, no secret except the read-only token, no upload / push / deploy).
+  `tests/test_retrieval_isolation_negative.py` is pinned the same way. Dynamic imports pin the helper line, every call
+  site, every argument-source line and the resolved targets; an unpinned call, a changed argument line, a reassigned
+  path variable or a call of an `unused` helper fails. Static boundaries are listed in `dynamic_import_review.json`.
+- **D3.** Output is file + location + category only. Every UTF-8 file is scanned regardless of suffix; ZIP archives are
+  unpacked recursively; unreadable / undecodable files, broken archives and missing paths fail as `unscannable`;
+  images / fonts / PDF must be pinned by sha256 in `privacy_binary_review.json` after a person looked at them.
+  New category `position_quantity` (first-person / account holding with a share or contract count, no amount needed).
+  The allowlist needs an exact schema and a matching active `privacy_allowlist` approval; it silences only its own
+  category and value.
+- **D4.** The same scanner runs as a publish guard (`--staged`: exactly what the next commit would publish) right
+  before `git commit` in every workflow that pushes, and before artifact uploads where it can apply. A hit or a
+  scanner error stops the push / upload. `privacy-canary-gate.yml` proves each path is blocked by a planted canary.
+  Coverage and the workflows that are not covered yet are listed in the PR and in #133.
+
+### 6.3 kr-0.3.2 round 3 (GPT #133 6625522839: B2 schema, D2 import graph, D4 uploads)
+- **B2.** The registry schema is exact: top-level keys, `kinds` (non-empty unique strings, each an approval-capable
+  kind), `categories` (known scanner categories), `granted_at` (a real YYYY-MM-DD date), `decision`, `approval_id`
+  format and integer evidence ids; a malformed or unreadable registry fails closed. `approval_ok()` no longer matches
+  a string `kinds` by substring. A test-only registry with one retrieval approval passes the same online Owner-evidence
+  check (#133 6625522839); the real registry still holds no retrieval approval and real data stays 0 eligible.
+- **D2.** Imports are resolved against the repo root, `scripts/` and `tests/` as modules, packages (`__init__.py`)
+  and submodules; relative imports resolve against the importing file; a local-looking import that resolves to
+  nothing (not stdlib, not one of the pip-installed packages pandas / numpy / yfinance / arch /
+  pandas_market_calendars) fails as `unresolved_import`. Counts: 5 dynamic-import helper sites (4 used, 1 unused),
+  6 pinned call-site lines, 11 resolved target files.
+- **D4.** Every artifact upload is guarded: monthly-evidence-audit and research-evidence-update scan `research/`
+  before upload and again after download, before staging; autonomous-qa no longer uploads screenshots and scans its
+  text report; trend-pulse scans its files; claude-audit-package uploads only if the zip equals the tracked tree of
+  the public main commit it names (its `tests/fixtures/privacy_canary/*` are public test fixtures, not production
+  canaries). Workflow-level negatives run each real guard step against a planted canary.
+- **D3 limits (unchanged, GPT PASS WITH LIMITATIONS).** Pattern-based: no zero-miss guarantee for free text; images,
+  fonts, PDF, audio/video need human review pinned by sha256, and a new or changed binary never inherits a review.

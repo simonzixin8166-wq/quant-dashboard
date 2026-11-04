@@ -8,6 +8,8 @@ on:
       - "research/specs/retrieval/**"
       - "scripts/retrieval_inventory.py"
       - "tests/check_retrieval_inventory.py"
+      - "tests/check_retrieval_history_diff.py"
+      - "scripts/retrieval_history_diff.py"
       - ".github/workflows/retrieval-inventory-check.yml"
   workflow_dispatch:
 
@@ -40,6 +42,7 @@ jobs:
         with:
           ref: ${{ steps.pins.outputs.qd }}
           path: qd
+          fetch-depth: 0   # the history diff reads the older pinned commit too
       - name: Check out wxc-bot at the pinned commit
         uses: actions/checkout@v4
         with:
@@ -51,3 +54,7 @@ jobs:
           echo "qd=$(git -C qd rev-parse HEAD) wx=$(git -C wx rev-parse HEAD)"
           sha256sum pr/research/specs/retrieval/inventory_manifest.json pr/scripts/retrieval_inventory.py
           python pr/tests/check_retrieval_inventory.py --qd qd --wx wx
+      - name: Recompute the record-level history diff (old vs new pinned commit) and compare
+        run: |
+          sha256sum pr/tests/check_retrieval_history_diff.py pr/scripts/retrieval_history_diff.py pr/research/specs/retrieval/history_diff_e6f4b897_8ae72dfb.json
+          python pr/tests/check_retrieval_history_diff.py --repo qd

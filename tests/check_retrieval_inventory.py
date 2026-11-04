@@ -59,6 +59,8 @@ def main(argv=None) -> int:
     per_field = {k: ("MATCH" if not [x for x in d if x[0] == k or x[0].startswith(k + ".") or x[0].startswith(k + "[")] else "DIFF")
                  for k in top}
     record = {"check": "retrieval-inventory", "run_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+              "command": " ".join([Path(sys.executable).name] + sys.argv),
+              "checker_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
               "python": platform.python_version(), "manifest_sha256": hashlib.sha256(committed_raw).hexdigest(),
               "script_sha256": fresh["script_sha256"], "commits_recomputed": fresh["commits"],
               "commits_in_manifest": committed.get("commits"), "ignored_fields": sorted(NONDETERMINISTIC),

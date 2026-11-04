@@ -27,15 +27,15 @@
 **当前唯一口径**是仓库文件 `research/specs/retrieval/inventory_manifest.json`，由 `scripts/retrieval_inventory.py` 在固定提交
 quant-dashboard `8ae72dfb30a079b3790258cb59f0fdc36cf9c14b` / wxc-bot `f54bd0a7c8408de02cce5638cd6c870b7365ac45` 上生成；复算步骤见同目录 `README.md`，CI 门禁 `retrieval-inventory-check` 逐字段比对。
 v0.1 / v0.2 评论（#133 6594443196、6594524162）中的数字来自 11/3 对 `e6f4b897` 的一次扫描，**已作废**；下表保留旧数字只为解释差异。
-例如命题数 7,129 → 7,136：两次扫描之间来源增加 1 条（2,977 → 2,978），这条新来源拆出 7 条命题，其余 2,977 条来源的命题数逐条核对未变。
+例如命题数 7,129 → 7,136：两次扫描之间来源增加 1 条（2,977 → 2,978），这条新来源拆出 7 条命题，其余来源的命题数没有变化。逐条差异由 `scripts/retrieval_history_diff.py` 复算，结果见 `history_diff_e6f4b897_8ae72dfb.json`（CI 门禁复核）。
 注意：上表中标为"JSONL 归档"的文件已核对旧行逐字节不变，是只追加的；`source_store.json`、`source_outcome_validation.json`、`contradictions.json` 等 JSON 快照或派生文件每天重新生成，旧记录的字段可能被更新或重算，所以检索必须按 manifest 中的文件哈希固定版本。
 
 | 资料 | 11/3 扫描（`e6f4b897`，历史数字，已作废） | **当前口径：manifest（`8ae72dfb`）** | 变化原因 |
 |---|---|---|---|
 | wxc-bot 原始 feed | 2,862 | **2,863** | 新增 1 条 ID（JSON 快照文件，不是 JSONL 归档） |
 | 来源存储 | 2,977 | **2,978** | 新增 1 条 ID，没有删除；但 2,974 条已有记录的可变字段（如 `last_seen_at`）随每日运行更新——这是 JSON 快照，不是只追加 |
-| 阅读理解（来源数） | 2,977 | **2,978** | 新增 1 条来源；其余 2,977 条的命题数未变（已逐条核对） |
-| 阅读理解（命题数） | 7,129 | **7,136** | 新增的 1 条来源拆出 7 条命题；其余来源未变（已逐条核对） |
+| 阅读理解（来源数） | 2,977 | **2,978** | 新增 1 条来源（`7cf96c01506fec2ffb82`），删除 0。另有 9 条旧来源的记录内容变了：9 条 `extractor_input_hash` 改变；8 条 `symbol_attribution`、3 条 `symbols` 只是列表顺序不同（集合相同）；命题内容逐条相同。见 `history_diff_e6f4b897_8ae72dfb.json` |
+| 阅读理解（命题数） | 7,129 | **7,136** | 新增来源拆出 7 条命题；其余 2,977 条来源的命题数为 0 处变化（`count_changed_in_common_sources=0`） |
 | 可检验规则 | 62 | **62** | 无变化 |
 | genuine 前瞻观察 | 464 | **490** | 每日流程新增的记录：JSONL 归档，旧行逐字节未变（前缀哈希一致），只追加 |
 | promoted 前瞻观察 | 130 | **130** | 无变化 |

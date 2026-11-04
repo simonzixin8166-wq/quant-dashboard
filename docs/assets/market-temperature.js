@@ -29,12 +29,14 @@
 
   function changeText(d) {
     if (!d.change_vs) return '首日记录，暂无比较';
+    if (d.change_vs.comparable === false) return `与 ${esc(d.change_vs.as_of)} 参与计算的分项不同（${esc(d.change_vs.reason || '')}），不做比较`;
     const v = d.change_vs.delta;
     return `${v > 0 ? '升温' : v < 0 ? '降温' : '持平'} ${v > 0 ? '+' : ''}${v}（对比 ${esc(d.change_vs.as_of)}）`;
   }
 
   function trendWord(d) {
     const v = d.change_vs ? d.change_vs.delta : null, fearSide = d.score < 45, greedSide = d.score >= 56;
+    if (d.change_vs && d.change_vs.comparable === false) return '分项不全，不比较';
     if (v === null || Math.abs(v) < 2) return '基本持平';  // integer readings: a 1-point move is noise
     if (fearSide) return v > 0 ? '正在缓和' : '正在加剧';
     if (greedSide) return v > 0 ? '正在升温' : '正在降温';
@@ -43,6 +45,7 @@
 
   function fromTo(d) {
     if (!d.change_vs) return `今日 ${esc(Math.round(d.score))}（首日记录）`;
+    if (d.change_vs.comparable === false) return `今日 ${esc(Math.round(d.score))}（${esc(d.components_available)}/6 项；${esc(d.change_vs.reason || '分项不同')}，不与 ${esc(String(d.change_vs.as_of).slice(5).replace('-', '/'))} 比较）`;
     const prev = d.score - d.change_vs.delta, v = d.change_vs.delta;
     return `${esc(String(d.change_vs.as_of).slice(5).replace('-', '/'))} ${esc(Math.round(prev))} → 今日 ${esc(Math.round(d.score))}（${v > 0 ? '+' : ''}${esc(v)}）`;
   }

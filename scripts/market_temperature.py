@@ -20,6 +20,9 @@ market reference date (latest SPY archive close) is marked stale/unavailable ins
 composite is an integer (no false precision) and reports how many components still use the fixed scale; each
 history row carries the method version. Forward-validation plan is pre-registered in
 docs/development/market_temperature_validation.md (fixed before any outcome is seen).
+v4 (2026-11-04, Owner): safe_haven uses the latest date SPY and TLT share and the common lag rule (v3 dropped it
+when TLT was one session behind, which lifted 11/03 from ~32 to 39); the change vs an earlier day is published only
+when both readings average the same set of components, otherwise change_vs.comparable=false with the reason.
 """
 from __future__ import annotations
 import io, json, sys, zipfile
@@ -35,7 +38,7 @@ OUT = ROOT / "docs" / "research" / "market_temperature.json"
 HIST = ROOT / "docs" / "research" / "market_temperature_history.json"
 MIN_COMPONENTS = 4
 MAX_LAG_SESSIONS = 2  # FRED HY OAS normally lags one session; more than two means the input is stale
-VERSION = 3
+VERSION = 4
 VALIDATION_PLAN = "docs/development/market_temperature_validation.md"
 BANDS = ((25, "极度恐惧"), (45, "恐惧"), (56, "中性"), (76, "贪婪"), (101, "极度贪婪"))
 NAMES = {"momentum": "价格动量", "strength": "股价强度", "breadth": "市场宽度",
@@ -174,12 +177,13 @@ def build(zbytes: bytes, breadth: dict, cross: dict, hist: list | None = None) -
                       None if v is None else {"vix": round(vix[-1][1], 2), "vs_ma50": round(v, 4)}, vs[-1][0] if vs else None,
                       "archive VIX vs 50-session average", "VIX history < 50 sessions"))
 
+    # v4 (2026-11-04): use the latest date SPY and TLT share, then apply the same lag rule as every other input.
+    # v3 dropped this component whenever TLT was one session behind SPY, which silently removed a fear reading.
     shs = safe_haven_series(spy, tlt)
-    same_day = bool(shs and spy and shs[-1][0] == spy[-1][0])
-    sh = shs[-1][1] if same_day else None
+    sh = shs[-1][1] if shs else None
     comps.append(comp("safe_haven", sh, None if sh is None else 50 + 500 * sh, [x for _, x in shs[:-1]], False,
-                      None if sh is None else round(sh, 4), shs[-1][0] if same_day else None,
-                      "archive SPY vs TLT 20-session return", "SPY/TLT history missing or dates differ"))
+                      None if sh is None else round(sh, 4), shs[-1][0] if shs else None,
+                      "archive SPY vs TLT 20-session return (latest common date)", "SPY/TLT history missing"))
 
     cw = (sig.get("credit_widening") or {}).get("value") or {}
     chg = cw.get("chg20") if isinstance(cw.get("chg20"), (int, float)) else None
@@ -227,11 +231,28 @@ def append_history(hist: list, out: dict) -> list:
     return sorted(keep + [row], key=lambda h: h["as_of"])
 
 
+def component_set(row_components) -> set:
+    """Keys that took part in a composite: a history row's non-null scores, or an output's ok components."""
+    if isinstance(row_components, dict):
+        return {k for k, v in row_components.items() if isinstance(v, (int, float))}
+    return {c["key"] for c in row_components or [] if c.get("status") == "ok"}
+
+
 def with_change(out: dict, hist: list) -> dict:
+    """Change vs ≤5 rows back, only when both readings average the same components (v4). A different set means the
+    move could come from a component entering or leaving the average, so no delta is published."""
     prev = [h for h in hist if h.get("as_of") and out.get("as_of") and h["as_of"] < out["as_of"]]
     if out.get("score") is not None and prev:
         p = prev[-min(5, len(prev))]
-        out["change_vs"] = {"as_of": p["as_of"], "delta": round(out["score"] - p["score"], 1)}
+        now_set, then_set = component_set(out.get("components")), component_set(p.get("components"))
+        if then_set and now_set != then_set:
+            gone, new = sorted(then_set - now_set), sorted(now_set - then_set)
+            parts = ([f"今日缺{'、'.join(NAMES.get(k, k) for k in gone)}"] if gone else []) + \
+                    ([f"今日多{'、'.join(NAMES.get(k, k) for k in new)}"] if new else [])
+            out["change_vs"] = {"as_of": p["as_of"], "delta": None, "comparable": False,
+                                "previous_score": p.get("score"), "reason": "；".join(parts)}
+        else:
+            out["change_vs"] = {"as_of": p["as_of"], "delta": round(out["score"] - p["score"], 1)}
     return out
 
 

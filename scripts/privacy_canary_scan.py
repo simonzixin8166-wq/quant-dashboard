@@ -33,7 +33,7 @@ that lists the same category and the same sha256 (CI verifies that approval agai
 scripts/verify_owner_approvals.py). An allowlisted value silences only hits of its own category.
 
   python scripts/privacy_canary_scan.py PATH [PATH ...]   # files or directories
-  python scripts/privacy_canary_scan.py --staged           # publish guard: what the next git commit would publish
+  python scripts/privacy_canary_scan.py --staged           # publish guard: the staged blobs the next git commit would publish
 """
 from __future__ import annotations
 
@@ -215,24 +215,71 @@ def scan_paths(paths, allow=None, rel_to: Path | None = ROOT, stats: dict | None
     return out
 
 
+def staged_entries() -> list:
+    """[(path, mode, blob_sha, status)] of what the next `git commit` would publish, from the INDEX (not the worktree)."""
+    import subprocess
+    raw = subprocess.run(["git", "diff", "--cached", "--raw", "-z", "--no-renames", "--diff-filter=ACMRT"],
+                         check=True, capture_output=True).stdout.decode("utf-8")
+    parts = [x for x in raw.split("\0")]
+    out, i = [], 0
+    while i < len(parts) - 1:
+        meta = parts[i]
+        if not meta.startswith(":"):
+            i += 1
+            continue
+        _, new_mode, _, new_sha, status = meta[1:].split(" ")[:5]
+        out.append((parts[i + 1], new_mode, new_sha, status[:1]))
+        i += 2
+    return out
+
+
+def scan_staged() -> int:
+    """kr-0.3.2 D4-1 (GPT #133 6626194723): scan the staged BLOBS that will be committed. Symlinks, submodules and any
+    mode other than a regular file fail closed, as does any git error."""
+    import subprocess
+    try:
+        entries = staged_entries()
+    except Exception as e:
+        print(f"::error title=Privacy canary::cannot list staged blobs ({type(e).__name__}); publish blocked")
+        return 1
+    if not entries:
+        print(json.dumps({"scanned": "staged index", "hits": 0, "note": "nothing staged"}))
+        return 0
+    allow, reviewed, stats, hits = load_allowlist(), load_binary_review(), new_stats(), []
+    try:
+        cat = subprocess.Popen(["git", "cat-file", "--batch"], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+        for path, mode, sha, status in entries:
+            if mode not in ("100644", "100755"):  # 120000 symlink, 160000 submodule, anything else: not scannable
+                hits.append({"location": path, "category": "unscannable"})
+                continue
+            cat.stdin.write((sha + "\n").encode()); cat.stdin.flush()
+            head = cat.stdout.readline().split()
+            if len(head) != 3 or head[1] != b"blob":
+                hits.append({"location": path, "category": "unscannable"})
+                continue
+            data = cat.stdout.read(int(head[2])); cat.stdout.read(1)
+            scan_bytes(data, path, Path(path).suffix, allow, hits, reviewed, stats)
+        cat.stdin.close(); cat.wait()
+    except Exception as e:
+        print(f"::error title=Privacy canary::scanner error {type(e).__name__}; publish blocked")
+        return 1
+    for h in hits[:200]:
+        print(f"::error title=Privacy canary::{h['category']} at {h['location']} (staged)")
+    cats = {}
+    for h in hits:
+        cats[h["category"]] = cats.get(h["category"], 0) + 1
+    print(json.dumps({"scanned": f"{len(entries)} staged blobs (index content)", "hits": len(hits), "by_category": cats,
+                      "coverage": stats, "scanner_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest()}))
+    return 1 if hits else 0
+
+
 def main(argv=None) -> int:
     argv = sys.argv[1:] if argv is None else argv
     if not argv:
         print("usage: privacy_canary_scan.py PATH [PATH ...] | --staged")
         return 2
     if argv == ["--staged"]:
-        # publish guard: scan exactly what the next `git commit` would publish (added / copied / modified / renamed)
-        import subprocess
-        try:
-            out = subprocess.run(["git", "diff", "--cached", "--name-only", "--diff-filter=ACMR", "-z"], check=True,
-                                 capture_output=True).stdout.decode("utf-8")
-        except Exception as e:
-            print(f"::error title=Privacy canary::cannot list staged files ({type(e).__name__}); publish blocked")
-            return 1
-        argv = [f for f in out.split("\0") if f]
-        if not argv:
-            print(json.dumps({"scanned": [], "hits": 0, "note": "nothing staged"}))
-            return 0
+        return scan_staged()
     stats = new_stats()
     try:
         hits = scan_paths(argv, stats=stats)

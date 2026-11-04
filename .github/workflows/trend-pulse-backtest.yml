@@ -58,7 +58,7 @@ jobs:
         if: always()
         run: |
           files=""
-          for f in docs/research/trend_pulse_backtest.json docs/research/trend_pulse_backtest.md docs/research/trend_pulse_events.csv; do
+          for f in docs/research/trend_pulse_backtest.json docs/research/trend_pulse_backtest.md docs/research/trend_pulse_events.csv docs/research/trend_pulse_summary.csv; do
             [ -f "$f" ] && files="$files $f"
           done
           [ -z "$files" ] || python3 scripts/privacy_canary_scan.py $files

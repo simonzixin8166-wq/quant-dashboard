@@ -166,7 +166,7 @@ for w in sorted(WF.glob("*.yml")):
         committers.append(w.name)
         g, c = t.find("privacy_canary_scan.py --staged"), t.find("git commit")
         assert 0 <= g < c, f"{w.name}: publish guard missing before git commit"
-    if "upload-artifact" in t and w.name not in NOT_COVERED_UPLOADS and w.name != "privacy-canary-gate.yml":
+    if ("upload-artifact" in t or "upload-pages-artifact" in t) and w.name not in NOT_COVERED_UPLOADS and w.name != "privacy-canary-gate.yml":
         assert "steps.privacy_guard.outcome == 'success'" in t, f"{w.name}: upload not gated by the privacy guard"
 assert len(committers) == 11, committers
 print(f"PASS D4 wiring: {len(committers)} committing workflows guarded before commit; uploads gated or listed as not covered ({len(NOT_COVERED_UPLOADS)}); research/ clean")
@@ -254,3 +254,81 @@ subprocess.run(["zip", "-q", "MyAlpha_View_main_Claude_Audit.zip", "zz_untracked
 bad = subprocess.run(["bash", "-e", "-c", verify], cwd=work, capture_output=True, text=True)
 assert bad.returncode != 0, "an extra (untracked) file in the audit package was not detected"
 print("PASS claude-audit-package: package equals the tracked tree; an extra file blocks the upload")
+
+
+# 16) GPT #133 6626194723 final D4 items
+# D4-1: --staged scans the INDEX blobs that will be committed, not the worktree; symlinks / type changes fail closed
+def git(repo, *a):
+    return subprocess.run(["git", *a], cwd=repo, check=True, capture_output=True, text=True)
+
+
+def guard(repo):
+    return subprocess.run([sys.executable, str(ROOT / "scripts" / "privacy_canary_scan.py"), "--staged"], cwd=repo,
+                          capture_output=True, text=True)
+
+
+repo = Path(tempfile.mkdtemp())
+git(repo, "init", "-q"); git(repo, "config", "user.email", "t@t"); git(repo, "config", "user.name", "t")
+(repo / "base.txt").write_text("base\n"); git(repo, "add", "base.txt"); git(repo, "commit", "-qm", "base")
+leak = repo / "docs" / "data.json"
+leak.parent.mkdir()
+leak.write_text(json.dumps({"x": CAN}), encoding="utf-8")
+git(repo, "add", "docs/data.json")
+leak.write_text('{"x": "clean worktree"}', encoding="utf-8")       # worktree cleaned AFTER staging the leak
+r = guard(repo)
+assert r.returncode == 1 and "canary_token at docs/data.json" in r.stdout, r.stdout + r.stderr
+assert CAN not in r.stdout + r.stderr
+git(repo, "add", "docs/data.json")                                   # now the index holds the clean version
+assert guard(repo).returncode == 0
+leak.write_text(json.dumps({"x": CAN}), encoding="utf-8")           # dirty worktree, clean index -> passes (index is what ships)
+assert guard(repo).returncode == 0
+git(repo, "checkout", "--", "docs/data.json")
+git(repo, "commit", "-qm", "clean")
+(repo / "link.json").symlink_to("docs/data.json"); git(repo, "add", "link.json")
+r = guard(repo)
+assert r.returncode == 1 and "unscannable at link.json" in r.stdout, r.stdout
+git(repo, "rm", "-q", "--cached", "link.json"); (repo / "link.json").unlink()
+(repo / "base.txt").unlink(); (repo / "base.txt").symlink_to("docs/data.json"); git(repo, "add", "base.txt")  # type change
+r = guard(repo)
+assert r.returncode == 1 and "unscannable at base.txt" in r.stdout, r.stdout
+print("PASS D4-1: --staged scans index blobs (leak staged then worktree cleaned -> blocked); symlink / type change fail closed")
+
+# D4-2: trend-pulse scans exactly the files it uploads; a canary only in trend_pulse_summary.csv blocks the upload
+tw = (WF / "trend-pulse-backtest.yml").read_text(encoding="utf-8")
+up_block = tw[tw.index("- name: Upload research artifact"):]
+uploaded = re.findall(r"^\s+(docs/research/\S+)$", up_block.split("\n      - ")[0], re.M)
+gsteps = {x[0]: x for x in steps_of(tw)}
+scanned = re.findall(r"docs/research/\S+?(?=[\s;])", gsteps["Privacy guard before upload (kr-0.3.2 D4)"][3])
+assert len(uploaded) == 4 and set(uploaded) == set(scanned), (uploaded, scanned)
+work = Path(tempfile.mkdtemp())
+(work / "scripts").mkdir()
+(work / "scripts" / "privacy_canary_scan.py").write_bytes((ROOT / "scripts" / "privacy_canary_scan.py").read_bytes())
+(work / "docs" / "research").mkdir(parents=True)
+for f in uploaded:
+    (work / f).write_text("ok\n", encoding="utf-8")
+(work / "docs/research/trend_pulse_summary.csv").write_text(f"symbol,note\nQQQ,{CAN}\n", encoding="utf-8")
+r = subprocess.run(["bash", "-e", "-c", gsteps["Privacy guard before upload (kr-0.3.2 D4)"][3]], cwd=work, capture_output=True, text=True)
+assert r.returncode != 0 and "trend_pulse_summary.csv" in r.stdout, r.stdout
+print("PASS D4-2: trend-pulse scan list == upload list (4 files); canary only in trend_pulse_summary.csv blocks the upload")
+
+# D4-3: wenxuecity publish-pages (runs only when vars.WXC_DEPLOY_PAGES == 'true') scans docs/ before upload + deploy
+ww = (WF / "wenxuecity.yml").read_text(encoding="utf-8")
+job = ww[ww.index("  publish-pages:"):]
+assert "vars.WXC_DEPLOY_PAGES == 'true'" in job.split("\n")[1], "publish-pages must be the WXC_DEPLOY_PAGES path"
+js = steps_of(job)
+names = [x[0] for x in js]
+gi = names.index("Privacy guard on the Pages publish directory (kr-0.3.2 D4)")
+ui, di = names.index("Upload Pages artifact"), names.index("Deploy Pages")
+assert gi < ui < di and all(js[i][2] == "steps.privacy_guard.outcome == 'success'" for i in (ui, di)), js
+pages_path = re.search(r"upload-pages-artifact@v\d+\n\s+with:\n\s+path:\s*(\S+)", job).group(1)
+assert js[gi][3].split()[-1] == pages_path == "docs", (js[gi][3], pages_path)
+for content, want_fail in ((CAN, True), ("ok", False)):
+    work = Path(tempfile.mkdtemp())
+    (work / "scripts").mkdir()
+    (work / "scripts" / "privacy_canary_scan.py").write_bytes((ROOT / "scripts" / "privacy_canary_scan.py").read_bytes())
+    (work / "docs" / "research").mkdir(parents=True)
+    (work / "docs" / "index.html").write_text("<html>ok</html>", encoding="utf-8")
+    (work / "docs" / "research" / "wenxuecity.json").write_text(json.dumps({"posts": [{"t": content}]}), encoding="utf-8")
+    r = subprocess.run(["bash", "-e", "-c", js[gi][3]], cwd=work, capture_output=True, text=True)
+    assert (r.returncode != 0) == want_fail, (content, r.returncode, r.stdout[-300:])
+print("PASS D4-3: WXC_DEPLOY_PAGES publish path scans docs/ before upload-pages-artifact and deploy-pages; a canary blocks both")

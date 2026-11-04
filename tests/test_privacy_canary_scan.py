@@ -52,3 +52,117 @@ tmp = Path(tempfile.mkdtemp()) / "allow.json"
 tmp.write_text(json.dumps({"entries": [{"value_sha256": hashlib.sha256(b"real.person@gmail.com").hexdigest(), "owner_approval": None}]}))
 assert any(h["category"] == "email" for h in pcs.scan_paths([FX / "positive_nested.json"], pcs.load_allowlist(tmp)))
 print("PASS CLI exit codes and allowlist requires owner_approval")
+
+# ---------------- kr-0.3.2 (GPT #133 6624784358 D3/D4) ----------------
+import io, zipfile  # noqa: E402
+T = Path(tempfile.mkdtemp())
+EMPTY_REVIEW = set()
+
+# 6) output carries only location + category: no part of the value, no length, no fingerprint
+assert all(set(h) == {"location", "category"} for h in hits), hits[:2]
+
+# 7) holdings without a dollar amount (quantity / option contracts / account) are found; prices and counts are not
+pq = T / "pq.md"
+pq.write_text("\n".join([
+    "我持有 300 股 QQQM，打算继续拿",            # 1 quantity, no amount
+    "my position: 5 NVDA 2027 calls",            # 2 option contracts
+    "the account holds 20 contracts of SPY puts",  # 3 account + contracts
+    "我的仓位 1,200 股 VGT",                      # 4
+    "QQQM 股价 252.1，成交 300 万股",              # 5 price / market volume: not a holding
+    "每张合约代表 100 股",                         # 6 contract definition: not a holding
+    "Holders of 13F filings reported 5,000 shares", # 7 third-party report: not first person
+]), encoding="utf-8")
+got = {h["location"].rsplit(":", 1)[1] for h in pcs.scan_paths([pq], NO_ALLOW, reviewed=EMPTY_REVIEW) if h["category"] in ("position_quantity", "position_amount")}
+assert got == {"1", "2", "3", "4"}, got
+print("PASS holdings without amounts: 4 first-person/account holdings found, 3 market/definition lines not flagged")
+
+# 8) fail closed: unreadable / undecodable / missing paths and broken ZIPs are hits, never silently skipped
+(T / "bad.txt").write_bytes(b"\xff\xfe\x00broken")
+(T / "broken.zip").write_bytes(b"PK\x03\x04garbage")
+fc = pcs.scan_paths([T / "bad.txt", T / "broken.zip", T / "does_not_exist"], NO_ALLOW, reviewed=EMPTY_REVIEW)
+assert [h["category"] for h in fc] == ["unscannable"] * 3, fc
+# any suffix is scanned (config, source, extension-less): no suffix list decides what is clean
+for name in ("x.py", "x.toml", "x.ini", "x.env", "x.sql", "Dockerfile", "x.ts", "x.yaml"):
+    (T / name).write_text("token CANARY-7f3a9c21-4b6e-4d2a-9e11-0c55aa77bb01\n", encoding="utf-8")
+    assert [h["category"] for h in pcs.scan_paths([T / name], NO_ALLOW, reviewed=EMPTY_REVIEW)] == ["canary_token"], name
+print("PASS fail-closed: undecodable / broken zip / missing path -> unscannable; 8 extra formats scanned")
+
+# 9) Actions-artifact style ZIPs are unpacked and scanned recursively (zip inside zip)
+inner = io.BytesIO()
+with zipfile.ZipFile(inner, "w") as z:
+    z.writestr("logs/run.log", "ok\nnote CANARY-7f3a9c21-4b6e-4d2a-9e11-0c55aa77bb01\n")
+outer = T / "artifact.zip"
+with zipfile.ZipFile(outer, "w") as z:
+    z.writestr("index/data.json", json.dumps({"a": [{"b": "acct no 1234-5678-9012"}]}))
+    z.writestr("nested.zip", inner.getvalue())
+az = pcs.scan_paths([outer], NO_ALLOW, reviewed=EMPTY_REVIEW)
+assert {h["category"] for h in az} == {"canary_token", "account_number"}, az
+assert any("artifact.zip!nested.zip!logs/run.log:2" in h["location"] for h in az), az
+print("PASS artifacts: ZIP members (and a ZIP inside a ZIP) scanned recursively")
+
+# 10) binaries cannot be text-scanned: an unreviewed image fails; the same bytes pass only once pinned by sha256
+img = T / "chart.png"
+img.write_bytes(b"\x89PNG\r\n\x1a\n" + b"\x00" * 64)
+assert [h["category"] for h in pcs.scan_paths([img], NO_ALLOW, reviewed=EMPTY_REVIEW)] == ["binary_unreviewed"]
+assert pcs.scan_paths([img], NO_ALLOW, reviewed={hashlib.sha256(img.read_bytes()).hexdigest()}) == []
+img.write_bytes(img.read_bytes() + b"\x01")  # changed after review -> fails again
+assert [h["category"] for h in pcs.scan_paths([img], NO_ALLOW, reviewed={hashlib.sha256(b'x').hexdigest()})] == ["binary_unreviewed"]
+print("PASS binaries: unreviewed / changed images fail; reviewed exact sha256 passes")
+
+# 11) allowlist: exact schema + an ACTIVE matching registry approval; silences only its own category and value
+H = hashlib.sha256(b"real.person@gmail.com").hexdigest()
+def allow_with(entry, approval):
+    a, r = T / "a.json", T / "r.json"
+    a.write_text(json.dumps({"entries": [entry]})); r.write_text(json.dumps({"approvals": [approval]}))
+    return pcs.load_allowlist(a, r)
+good_e = {"value_sha256": H, "category": "email", "approval_id": "OWNER-T", "purpose": "test"}
+good_a = {"approval_id": "OWNER-T", "scope": "privacy_allowlist", "status": "active", "categories": ["email"], "value_sha256": [H]}
+assert allow_with(good_e, good_a) == {H: "email"}
+for bad_e, bad_a, why in [
+        (dict(good_e, owner_approval={"x": 1}), good_a, "extra key"),
+        ({k: v for k, v in good_e.items() if k != "approval_id"}, good_a, "no approval id"),
+        (dict(good_e, approval_id="OWNER-OTHER"), good_a, "unknown approval"),
+        (good_e, dict(good_a, status="revoked"), "revoked"),
+        (good_e, dict(good_a, scope="retrieval_production_eligibility"), "wrong scope"),
+        (good_e, dict(good_a, categories=["account_number"]), "category not approved"),
+        (good_e, dict(good_a, value_sha256=[hashlib.sha256(b"other").hexdigest()]), "different value"),
+        (dict(good_e, value_sha256="*"), good_a, "wildcard")]:
+    assert allow_with(bad_e, bad_a) == {}, why
+al = allow_with(good_e, good_a)
+mixed = T / "mixed.md"
+mixed.write_text("contact real.person@gmail.com\nalso other.person@gmail.com\n", encoding="utf-8")
+left = pcs.scan_paths([mixed], al, reviewed=EMPTY_REVIEW)
+assert [h["location"].rsplit(":", 1)[1] for h in left] == ["2"], left  # only the approved exact value is silenced
+assert pcs.scan_paths([mixed], {H: "account_number"}, reviewed=EMPTY_REVIEW).__len__() == 2  # category must match too
+# the real allowlist resolves to exactly one value (the Owner feedback address), category email
+real_allow = pcs.load_allowlist()
+assert list(real_allow.values()) == ["email"] and len(real_allow) == 1, real_allow
+print("PASS allowlist: strict schema, active matching approval, same category, exact value only")
+
+# 12) a scanner crash is a failure, never a pass
+orig = pcs.scan_paths
+pcs.scan_paths = lambda *a, **k: (_ for _ in ()).throw(RuntimeError("boom"))
+try:
+    assert pcs.main([str(FX / "negative_public.json")]) == 1
+finally:
+    pcs.scan_paths = orig
+print("PASS scanner error -> exit 1")
+
+# 13) D4 wiring: every workflow that commits to the repo runs the --staged guard before its first `git commit`;
+# the artifact uploads that are covered are gated on the guard; the uncovered ones are listed explicitly.
+WF = ROOT / ".github" / "workflows"
+NOT_COVERED_UPLOADS = {"autonomous-qa.yml": "uploads PNG screenshots (images cannot be text-scanned)",
+                       "claude-audit-package.yml": "uploads a zip of the public repo itself, which contains the planted test canaries",
+                       "monthly-evidence-audit.yml": "compute->commit handoff artifact of research/ (pending Owner decision on gemini_youtube_probe.json)",
+                       "research-evidence-update.yml": "compute->commit handoff artifact of research/ (same pending decision)"}
+committers = []
+for w in sorted(WF.glob("*.yml")):
+    t = w.read_text(encoding="utf-8")
+    if "git commit" in t:
+        committers.append(w.name)
+        g, c = t.find("privacy_canary_scan.py --staged"), t.find("git commit")
+        assert 0 <= g < c, f"{w.name}: publish guard missing before git commit"
+    if "upload-artifact" in t and w.name not in NOT_COVERED_UPLOADS and w.name != "privacy-canary-gate.yml":
+        assert "steps.privacy_guard.outcome == 'success'" in t, f"{w.name}: upload not gated by the privacy guard"
+assert len(committers) == 11, committers
+print(f"PASS D4 wiring: {len(committers)} committing workflows guarded before commit; uploads gated or listed as not covered ({len(NOT_COVERED_UPLOADS)})")

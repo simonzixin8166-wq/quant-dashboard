@@ -1,7 +1,9 @@
 name: Privacy Canary Gate
 
-# kr-0.3.2 D4 (GPT #133 6621145320): blocking privacy / canary scan. Read-only, no secrets, no continue-on-error.
+# kr-0.3.2 D4 (GPT #133 6621145320, 6624784358): blocking privacy / canary scan. Read-only; the only secret is the
+# read-only GITHUB_TOKEN used to verify Owner approvals; no continue-on-error, no upload, no push, no deploy.
 # Any hit not on the Owner-approved exact-value allowlist fails the job; there is no warning-only mode.
+# security_qa_only_workflow: pinned by sha256 in research/specs/retrieval/isolation_exclusions.json.
 on:
   pull_request:
   workflow_dispatch:
@@ -29,6 +31,20 @@ jobs:
       - name: Scanner sha256
         run: sha256sum scripts/privacy_canary_scan.py
 
+  owner-approvals:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Every Owner approval is backed by an Owner comment on the named issue (fails closed on any error)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python scripts/verify_owner_approvals.py
+      - name: Offline verifier tests
+        run: python tests/test_verify_owner_approvals.py
+
   planted-canary-must-fail:
     runs-on: ubuntu-latest
     steps:
@@ -51,3 +67,42 @@ jobs:
           echo "PASS planted canary -> exit 1"
       - name: Fixture unit test
         run: python tests/test_privacy_canary_scan.py
+
+  publish-paths-blocked:
+    # each real publish path runs the same guard before it publishes; a canary planted into that path's output must
+    # stop the publish command. The marker file stands in for the real publish (repository update or artifact upload): it must never be created.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Pages output, research index output and an artifact zip each block their publish step
+        run: |
+          set -u
+          scanner="$PWD/scripts/privacy_canary_scan.py"
+          canary="CANARY-$(python -c 'import uuid;print(uuid.uuid4())')"
+          fail=0
+          for path in docs/research/planted.json research/index/planted.jsonl; do
+            work=$(mktemp -d); git clone -q --no-hardlinks . "$work/repo"; cd "$work/repo"
+            mkdir -p "$(dirname "$path")"; printf '{"x":[{"note":"%s"}]}\n' "$canary" > "$path"
+            git add -f "$path"
+            ( python "$scanner" --staged && echo published > "$work/PUBLISHED" ) > "$work/guard.log" 2>&1 || true
+            cd - >/dev/null
+            if [ -e "$work/PUBLISHED" ] || ! grep -q canary_token "$work/guard.log"; then
+              echo "::error title=Privacy canary::publish was not blocked for $path"; fail=1
+            else echo "PASS $path -> staged-commit guard blocked the publish"; fi
+          done
+          work=$(mktemp -d); mkdir -p "$work/art/logs"
+          printf 'line %s\n' "$canary" > "$work/art/logs/run.log"
+          (cd "$work" && python -c "import shutil;shutil.make_archive('artifact','zip','art')")
+          ( python "$scanner" "$work/artifact.zip" && echo uploaded > "$work/UPLOADED" ) > "$work/guard.log" 2>&1 || true
+          if [ -e "$work/UPLOADED" ] || ! grep -q canary_token "$work/guard.log"; then
+            echo "::error title=Privacy canary::artifact upload was not blocked"; fail=1
+          else echo "PASS artifact.zip -> pre-upload guard blocked the upload"; fi
+          # a clean staged change still publishes (the guard is not a blanket block)
+          work=$(mktemp -d); git clone -q --no-hardlinks . "$work/repo"; cd "$work/repo"
+          echo '{"ok": true}' > docs/research/clean_probe.json; git add docs/research/clean_probe.json
+          python "$scanner" --staged && echo published > "$work/PUBLISHED"; cd - >/dev/null
+          [ -e "$work/PUBLISHED" ] && echo "PASS clean change -> published" || { echo "::error::clean change was blocked"; fail=1; }
+          exit $fail

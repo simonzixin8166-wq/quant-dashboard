@@ -15,6 +15,7 @@ sys.path.insert(0, str(ROOT / "scripts"))
 import retrieval_eligibility as re_  # noqa: E402
 
 C = re_.load_contract()
+FX_REG = json.loads((ROOT / "tests/fixtures/retrieval/approval_registry_fixture.json").read_text(encoding="utf-8"))
 tmp = Path(tempfile.mkdtemp())
 audit = tmp / "build_audit.jsonl"
 log = re_.AuditLog(audit)
@@ -62,7 +63,7 @@ fx = tmp / "fixture_audit.jsonl"
 flog = re_.AuditLog(fx)
 seen = set()
 for c in C["cases"]:
-    ok, reason, fields = re_.evaluate(c["kind"], c["row"], C)
+    ok, reason, fields = re_.evaluate(c["kind"], c["row"], C, FX_REG)
     assert (ok, reason) == (c["expected"], c["reason"]), (c["kind"], c["case"], ok, reason)
     if not ok:
         flog.append({"reason": reason, "kind": c["kind"], "fields": fields, "source_file": "eligibility_contract.json#cases",
@@ -79,4 +80,29 @@ try:
     raise AssertionError("incomplete audit record was accepted")
 except ValueError:
     pass
+# 6) kr-0.3.2 (GPT 6624784358 B2): a non-empty approval string is not an approval. Forged / unknown / revoked /
+# wrong-scope / wrong-kind ids are all rejected (fixtures above); with the REAL registry (no retrieval approval today)
+# even the fully legal fixture rows are rejected, so the real state stays 0 eligible.
+REAL_REG = re_.load_registry()
+assert not [a for a in REAL_REG["approvals"] if a.get("scope") == C["approval_registry"]["scope"]], "unexpected retrieval approval"
+for c in C["cases"]:
+    if c["expected"]:
+        assert re_.evaluate(c["kind"], c["row"], C, REAL_REG) == (False, "no_owner_approval", [C["owner_approval_field"]]), c["kind"]
+        assert re_.evaluate(c["kind"], c["row"], C, FX_REG)[0] is True
+assert re_.evaluate("rule", {}, C, {"approvals": []})[1] == "missing_flag"
+assert re_.load_registry(tmp / "absent.json") == {"approvals": []}  # missing registry -> nothing qualifies
+bad_cases = {c["case"] for c in C["cases"] if c["case"].startswith("approval_")}
+assert bad_cases == {"approval_forged", "approval_unknown", "approval_revoked", "approval_scope_mismatch", "approval_kind_mismatch"}, bad_cases
+# reason order has one source: the contract. Dropping or adding a reason makes evaluate() refuse to run.
+broken = dict(C, reason_order=C["reason_order"][:-1])
+try:
+    re_.evaluate("rule", {}, broken, FX_REG)
+    raise AssertionError("evaluate ran with a reason_order that does not match its checks")
+except AssertionError as e:
+    assert "reason_order and checks differ" in str(e), e
+# swapping two reasons in the contract changes the result, i.e. the code follows the contract order
+row = {"eligible_for_production": None}
+swapped = dict(C, reason_order=["type_never_eligible", "null_flag", "missing_flag", "unknown_value", "flag_conflict", "value_mismatch", "no_owner_approval"])
+assert re_.evaluate("rule", row, C, FX_REG)[1] == "missing_flag" and re_.evaluate("rule", row, swapped, FX_REG)[1] == "null_flag"
+print("PASS approval registry: forged/unknown/revoked/scope/kind rejected; real registry -> 0 eligible; reason order from contract")
 print(f"PASS eligibility audit: {len(recs)} real rejections, 0 eligible; append-only; reasons {sorted(seen)}")

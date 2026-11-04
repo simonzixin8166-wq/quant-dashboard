@@ -50,6 +50,7 @@ jobs:
           if [ -f docs/research/weekly_change_summary.json ]; then git add docs/research/weekly_change_summary.json; fi
           if [ -f docs/research/forward_attribution_weekly.json ]; then git add docs/research/forward_attribution_weekly.json research/reports/attribution/forward_h20_latest.md; fi
           if [ -f research/reports/attribution/runs.jsonl ]; then git add research/reports/attribution/runs.jsonl; fi
+          python3 scripts/privacy_canary_scan.py --staged  # kr-0.3.2 D4: block the publish if anything staged leaks private data
           if ! git diff --cached --quiet; then
             git commit -m "update weekly learning quality report"
             git pull --rebase origin main

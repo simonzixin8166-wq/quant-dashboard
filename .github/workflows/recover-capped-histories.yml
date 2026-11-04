@@ -50,6 +50,7 @@ jobs:
           git config user.name "github-actions"
           git config user.email "actions@github.com"
           git add research/audit/step_boundary_log.json research/audit/destructive_history_recovery_report.json research/audit/step_boundary docs/data.json
+          python3 scripts/privacy_canary_scan.py --staged  # kr-0.3.2 D4: block the publish if anything staged leaks private data
           if ! git diff --cached --quiet; then
             git commit -m "recover previously capped research histories"
             git pull --rebase origin main

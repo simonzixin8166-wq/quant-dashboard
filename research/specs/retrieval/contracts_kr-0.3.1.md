@@ -249,3 +249,30 @@ Not allowed at any stage before a blind PASS and Owner approval:
 - The privacy scanner is pattern-based. It finds the listed categories; it cannot prove that no other private value
   exists (e.g. a holding written only in prose without quantity and amount). Passing it is necessary, not sufficient.
 - Neither gate inspects GitHub artifacts uploaded by other workflows or third-party services.
+
+### 6.2 kr-0.3.2 round 2 (GPT #133 6624784358)
+- **B2 approvals.** A non-empty `owner_production_approval_id` is no longer enough. The id must name an `active`
+  entry of `owner_approval_registry.json` whose scope is `retrieval_production_eligibility` and whose `kinds` include
+  the row's kind. Forged, unknown, revoked, wrong-scope and wrong-kind ids are rejected (`no_owner_approval`). The
+  registry holds no retrieval approval today, so every row stays rejected. The reason order now lives only in
+  `eligibility_contract.json#reason_order`; `evaluate()` runs one check per listed reason and refuses to run if the two
+  differ. Every registry approval must point to an Owner comment on #133 containing its marker;
+  `scripts/verify_owner_approvals.py` checks this in CI with the read-only token and fails closed on any error.
+- **C3.** Still BLOCKED until the Owner / GPT author and freeze the blind set outside the repo; Claude does not see
+  questions or answers. Leak detection now reads every UTF-8 file (Markdown, text, YAML, code, logs, JSON/JSONL) and,
+  once per-answer hashes are committed, any line whose canonical hash equals a blind answer.
+- **D2.** `privacy-canary-gate.yml` is a `security_qa_only_workflow`, pinned by sha256 in `isolation_exclusions.json`
+  and checked to stay read-only (no write permission, no secret except the read-only token, no upload / push / deploy).
+  `tests/test_retrieval_isolation_negative.py` is pinned the same way. Dynamic imports pin the helper line, every call
+  site, every argument-source line and the resolved targets; an unpinned call, a changed argument line, a reassigned
+  path variable or a call of an `unused` helper fails. Static boundaries are listed in `dynamic_import_review.json`.
+- **D3.** Output is file + location + category only. Every UTF-8 file is scanned regardless of suffix; ZIP archives are
+  unpacked recursively; unreadable / undecodable files, broken archives and missing paths fail as `unscannable`;
+  images / fonts / PDF must be pinned by sha256 in `privacy_binary_review.json` after a person looked at them.
+  New category `position_quantity` (first-person / account holding with a share or contract count, no amount needed).
+  The allowlist needs an exact schema and a matching active `privacy_allowlist` approval; it silences only its own
+  category and value.
+- **D4.** The same scanner runs as a publish guard (`--staged`: exactly what the next commit would publish) right
+  before `git commit` in every workflow that pushes, and before artifact uploads where it can apply. A hit or a
+  scanner error stops the push / upload. `privacy-canary-gate.yml` proves each path is blocked by a planted canary.
+  Coverage and the workflows that are not covered yet are listed in the PR and in #133.

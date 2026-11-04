@@ -20,8 +20,13 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 FORBIDDEN = [r"research/index", r"blind_set", r"knowledge_index", r"knowledge_query", r"retrieval_index"]
 # research-only workflows that may touch retrieval evidence; they never publish or decide anything
-# privacy-canary-gate.yml (kr-0.3.2 D4) only reads research/index to scan it for private data; read-only, no publish
-RESEARCH_ONLY_WORKFLOWS = {"retrieval-inventory-check.yml", "privacy-canary-gate.yml"}
+RESEARCH_ONLY_WORKFLOWS = {"retrieval-inventory-check.yml"}
+# kr-0.3.2 (GPT 6624784358 D2): security / QA-only workflows may read research/index only to scan it. Each one is pinned
+# by sha256 in isolation_exclusions.json and must stay read-only: no write permissions, no secrets other than the
+# read-only GITHUB_TOKEN, no artifact upload, no push / deploy / Pages. Any edit changes the hash and fails the gate
+# until it is reviewed again and the pin is updated.
+EXCLUSIONS = ROOT / "research" / "specs" / "retrieval" / "isolation_exclusions.json"
+SECURITY_QA_ONLY_WORKFLOWS = set(json.loads(EXCLUSIONS.read_text(encoding="utf-8"))["security_qa_only_workflow"]) if EXCLUSIONS.exists() else set()
 # the retrieval checkers themselves name the forbidden paths; they read no index and decide nothing
 CHECKERS = {"tests/test_retrieval_isolation.py", "tests/test_retrieval_contracts.py", "tests/test_question_set_isolation.py",
             "tests/test_retrieval_eligibility_audit.py", "tests/test_privacy_canary_scan.py", "scripts/privacy_canary_scan.py",
@@ -78,7 +83,7 @@ def local_imports(path: Path, seen: set) -> None:
 
 def entries() -> dict:
     wfs = sorted((ROOT / ".github" / "workflows").glob("*.yml"))
-    prod_wf = [w for w in wfs if w.name not in RESEARCH_ONLY_WORKFLOWS]
+    prod_wf = [w for w in wfs if w.name not in RESEARCH_ONLY_WORKFLOWS | SECURITY_QA_ONLY_WORKFLOWS]
     scripts = set()
     for w in prod_wf:
         scripts |= workflow_scripts(w.read_text(encoding="utf-8"))
@@ -128,6 +133,74 @@ def dynamic_lines(p: Path) -> list:
     return out
 
 
+def _line_sha(lines, n):
+    return hashlib.sha256(lines[n - 1].strip().encode("utf-8")).hexdigest() if 0 < n <= len(lines) else None
+
+
+def review_problems(rev: dict) -> list:
+    """Pinned helper, call sites and argument sources must be unchanged; targets must be literal and exist."""
+    out = []
+    for r in rev["reviewed"]:
+        f = ROOT / r["file"]
+        if not f.exists():
+            out.append((r["file"], "reviewed file missing"))
+            continue
+        lines = f.read_text(encoding="utf-8", errors="replace").splitlines()
+        for kind in ("helper",):
+            if _line_sha(lines, r[kind]["line"]) != r[kind]["line_sha256"]:
+                out.append((f"{r['file']}:{r[kind]['line']}", f"{kind} line changed"))
+        for kind in ("call_sites", "arg_sources"):
+            for x in r[kind]:
+                if _line_sha(lines, x["line"]) != x["line_sha256"]:
+                    out.append((f"{r['file']}:{x['line']}", f"{kind} line changed"))
+        name = r.get("helper_name")
+        if name:  # every call of the helper must be a pinned call site; an unused helper must stay uncalled
+            calls = [i for i, l in enumerate(lines, 1) if re.search(rf"(?<![\w.]){re.escape(name)}\(", l) and not re.match(rf"\s*def\s+{re.escape(name)}\(", l)]
+            pinned = {x["line"] for x in r["call_sites"]}
+            if not r["used"] and calls:
+                out.append((f"{r['file']}:{calls[0]}", "helper marked unused is called"))
+            for c in calls:
+                if r["used"] and c not in pinned:
+                    out.append((f"{r['file']}:{c}", "unpinned call of reviewed helper"))
+        if r.get("path_variable"):  # a path variable must be assigned exactly once, on a pinned arg-source line
+            assigns = [i for i, l in enumerate(lines, 1) if re.match(rf"\s*{re.escape(r['path_variable'])}\s*=", l)]
+            if assigns != [x["line"] for x in r["arg_sources"]]:
+                out.append((r["file"], f"{r['path_variable']} assigned outside the pinned line"))
+        src = " ".join(lines[x["line"] - 1] for x in r["arg_sources"] if 0 < x["line"] <= len(lines))
+        for t in r["targets"]:
+            stem = Path(t).name
+            if not (ROOT / t).exists() or not (stem in src or Path(t).stem in src):
+                out.append((r["file"], f"target {t} not a literal in the pinned argument lines or missing"))
+        if r["used"] and (not r["call_sites"] or not r["targets"]):
+            out.append((r["file"], "used helper without pinned call sites / targets"))
+    return out
+
+
+def exclusion_problems() -> list:
+    """Pinned sha256 of every excluded security/QA workflow and checker; workflows must stay read-only."""
+    out = []
+    if not EXCLUSIONS.exists():
+        return [("isolation_exclusions.json", "missing")]
+    ex = json.loads(EXCLUSIONS.read_text(encoding="utf-8"))
+    for name, pin in ex["security_qa_only_workflow"].items():
+        p = ROOT / ".github" / "workflows" / name
+        if not p.exists() or sha(p) != pin:
+            out.append((name, "security_qa_only_workflow changed: review again and update the pin"))
+            continue
+        t = p.read_text(encoding="utf-8")
+        perms = re.findall(r"^\s+([\w-]+):\s*(read|write|none)\s*$", t, re.M)
+        if any(v == "write" for _, v in perms) or "permissions:" not in t or re.search(r"permissions:\s*write-all", t):
+            out.append((name, "write permission"))
+        if re.search(r"secrets\.(?!GITHUB_TOKEN\b)", t):
+            out.append((name, "uses a secret other than the read-only GITHUB_TOKEN"))
+        if re.search(r"upload-artifact|deploy-pages|upload-pages-artifact|git\s+push|git\s+commit|gh-pages", t):
+            out.append((name, "uploads, pushes or deploys"))
+    for path, pin in ex["checker_pins"].items():
+        if not (ROOT / path).exists() or sha(ROOT / path) != pin:
+            out.append((path, "excluded checker changed: review again and update the pin"))
+    return out
+
+
 def main(argv) -> int:
     groups = entries()
     hits = []
@@ -146,17 +219,25 @@ def main(argv) -> int:
         for t in re.findall(r"\bmake\s+([\w-]+)", w.read_text(encoding="utf-8")):
             hits.append(("workflows", f"{w.relative_to(ROOT)}::make {t}", "unresolvable make target"))
     # dynamic imports / exec / eval with non-literal targets: must be in the reviewed list (file, line, line hash)
-    review = {(r["file"], r["line"], r["line_sha256"]) for r in json.loads(REVIEW.read_text(encoding="utf-8"))["reviewed"]}
+    rev = json.loads(REVIEW.read_text(encoding="utf-8"))
+    review = {(r["file"], r["helper"]["line"], r["helper"]["line_sha256"]) for r in rev["reviewed"]}
     dyn = [d for files in groups.values() for p in files for d in dynamic_lines(p)]
     unreviewed = [d for d in dyn if (d["file"], d["line"], d["line_sha256"]) not in review]
     for d in unreviewed:
         hits.append(("dynamic_import_unreviewed", f"{d['file']}:{d['line']}", d["line_sha256"][:12]))
+    for prob in review_problems(rev):
+        hits.append(("dynamic_import_review_mismatch", prob[0], prob[1]))
+    for prob in exclusion_problems():
+        hits.append(("exclusion_changed_or_unsafe", prob[0], prob[1]))
+    if list((ROOT / ".github" / "workflows").glob("*.yaml")) or (ROOT / ".github" / "actions").exists():
+        hits.append(("workflows", ".github", "*.yaml workflow or local composite action: not covered by this gate"))
     # structural: Pages publishes docs/ only; the research index must never exist under docs/
     for bad in ("docs/research/index", "docs/research/blind_set_hashes.json", "docs/index_retrieval"):
         if (ROOT / bad).exists():
             hits.append(("pages_publish_dir", bad, "research index under docs/"))
     listing = {"gate": "retrieval-isolation", "forbidden_patterns": FORBIDDEN,
-               "research_only_workflows_excluded": sorted(RESEARCH_ONLY_WORKFLOWS), "checkers_excluded": sorted(CHECKERS),
+               "research_only_workflows_excluded": sorted(RESEARCH_ONLY_WORKFLOWS),
+               "security_qa_only_workflows_excluded": sorted(SECURITY_QA_ONLY_WORKFLOWS), "checkers_excluded": sorted(CHECKERS),
                "counts": {g: len(v) for g, v in groups.items()},
                "entries": {g: {str(p.relative_to(ROOT)): sha(p) for p in v} for g, v in groups.items()},
                "dynamic_import_sites": len(dyn), "dynamic_import_reviewed": len(dyn) - len(unreviewed),

@@ -19,6 +19,9 @@ SPEC = ROOT / "research" / "specs" / "retrieval"
 # ---------- B: production eligibility ----------
 E = json.loads((SPEC / "eligibility_contract.json").read_text(encoding="utf-8"))
 APPROVAL = E["owner_approval_field"]
+REG = json.loads((ROOT / "tests/fixtures/retrieval/approval_registry_fixture.json").read_text(encoding="utf-8"))
+assert E["reason_order"] == ["type_never_eligible", "missing_flag", "null_flag", "unknown_value", "flag_conflict",
+                             "value_mismatch", "no_owner_approval"]
 
 
 def conflict(kind: str, row: dict) -> bool:
@@ -52,7 +55,9 @@ def eligibility(kind: str, row: dict):
     for f, want in req.items():
         if row[f] != want:
             return False, "value_mismatch"
-    if not isinstance(row.get(APPROVAL), str) or not row[APPROVAL].strip():
+    # kr-0.3.2: the id must name an active registry approval with this scope and kind (independent oracle)
+    a = next((x for x in REG["approvals"] if x.get("approval_id") == row.get(APPROVAL)), None)
+    if not (a and a.get("status") == "active" and a.get("scope") == E["approval_registry"]["scope"] and kind in a.get("kinds", [])):
         return False, "no_owner_approval"
     return True, None
 

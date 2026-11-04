@@ -1,42 +1,160 @@
 {
  "version": "kr-0.3.2",
- "rule": "A dynamic import / exec / eval / spec_from_file_location site in a production entry whose target is not a plain literal must be listed here with its exact line hash. Editing the line changes the hash and fails the gate until re-reviewed. Unlisted sites fail.",
- "scope_note": "All five sites are in tests/ files that workflows run as checks; none is in a script that writes production output.",
+ "rule": "Every dynamic import / exec / eval / spec_from_file_location site in a production entry must be listed with its helper line, every call site, every line the target argument comes from, and the resolved target files, each pinned by line sha256. The gate fails if any pinned line changes, if the helper gains an unlisted call, if a target file named here is not literally present in its arg-source lines or does not exist, or if an 'unused' helper is called. Runtime-built targets (environment, input, concatenation) cannot be pinned and therefore fail.",
+ "scope_note": "All five sites are in tests/ files that workflows run as checks; none is in a script that writes production output. tests/test_v610a_playbook_engine.py defines load_module but never calls it (used=false, not counted as an executed dynamic import).",
+ "static_boundaries": [
+  "JS/TS: only literal import()/require targets are resolved; module graphs of docs/ assets are not followed (all docs/*.js files are scanned directly as front-end entries)",
+  "composite / reusable GitHub Actions (uses: ./.github/actions/... or other repos) are not expanded; none exist in this repo today",
+  "only .github/workflows/*.yml are read; a *.yaml workflow would be missed — the gate fails if one exists",
+  "paths built from runtime data cannot be seen by any static scan; such dynamic sites must be pinned here or they fail"
+ ],
  "reviewed": [
   {
    "file": "tests/test_author_claim_gate.py",
-   "line": 10,
-   "line_sha256": "ec7aed543504c874984b56540d02162dc6baa00664cd4f57d9ade73c6defb72d",
-   "target_resolved_by_review": "helper mod(name) loads scripts/{name}.py; the names are the literals on line 13-14: evidence_attribution_engine, autonomous_research_executor, event_evidence_engine, official_evidence_engine, autonomous_research_planner (all in scripts/, all already followed via literals)",
-   "reviewer": "Claude (implementer) 2026-11-04; independent confirmation pending (GPT / Owner)"
+   "helper": {
+    "line": 10,
+    "line_sha256": "ec7aed543504c874984b56540d02162dc6baa00664cd4f57d9ade73c6defb72d"
+   },
+   "helper_name": "mod",
+   "used": true,
+   "call_sites": [
+    {
+     "line": 13,
+     "line_sha256": "0c445a1b407382e0d36786b5926623d74003804bd0b6ff8a0c06a05846737282"
+    },
+    {
+     "line": 51,
+     "line_sha256": "4887d18bdfe025c85022738cd10a603741dbb57c016e505112721c952aa2d55a"
+    }
+   ],
+   "arg_sources": [
+    {
+     "line": 13,
+     "line_sha256": "0c445a1b407382e0d36786b5926623d74003804bd0b6ff8a0c06a05846737282"
+    },
+    {
+     "line": 14,
+     "line_sha256": "9829ca75eb721033b43db3b8657cc9333f45e1506fdf304fe1c41ffd16ab39ed"
+    },
+    {
+     "line": 51,
+     "line_sha256": "4887d18bdfe025c85022738cd10a603741dbb57c016e505112721c952aa2d55a"
+    }
+   ],
+   "target_template": "scripts/{name}.py",
+   "targets": [
+    "scripts/evidence_attribution_engine.py",
+    "scripts/autonomous_research_executor.py",
+    "scripts/event_evidence_engine.py",
+    "scripts/official_evidence_engine.py",
+    "scripts/autonomous_research_planner.py",
+    "scripts/author_claim_contamination_audit.py"
+   ],
+   "reviewer": "Claude (implementer) 2026-11-04; GPT independent review #133 6624784358 confirmed targets (helper lines); call sites/arg sources pinned in kr-0.3.2",
+   "note": "kr-0.3.2: a 6th call (line 51, author_claim_contamination_audit) was found by the call-site check; kr-0.3.2 first review listed only lines 13-14"
   },
   {
    "file": "tests/test_coverage_truth.py",
-   "line": 10,
-   "line_sha256": "63a0d93c9f719b045c287141af1e425b8d3e3b4ff8867c7791e1246fec046b60",
-   "target_resolved_by_review": "helper load(name, file) loads ROOT/scripts/<file>; calls on lines 13-14 pass literals data_learning_coverage_audit.py and source_intelligence_engine.py",
-   "reviewer": "Claude (implementer) 2026-11-04; independent confirmation pending (GPT / Owner)"
+   "helper": {
+    "line": 10,
+    "line_sha256": "63a0d93c9f719b045c287141af1e425b8d3e3b4ff8867c7791e1246fec046b60"
+   },
+   "helper_name": "load",
+   "used": true,
+   "call_sites": [
+    {
+     "line": 13,
+     "line_sha256": "6bbe16fb8e692ae3c085a2e4b59620fff5dd7c9300714b27c936a685282fcdcd"
+    },
+    {
+     "line": 14,
+     "line_sha256": "0c9f6b8ae328a05bc09ec33e6dab06ebb9df7f581d54081b9fe114d4326ad596"
+    }
+   ],
+   "arg_sources": [
+    {
+     "line": 13,
+     "line_sha256": "6bbe16fb8e692ae3c085a2e4b59620fff5dd7c9300714b27c936a685282fcdcd"
+    },
+    {
+     "line": 14,
+     "line_sha256": "0c9f6b8ae328a05bc09ec33e6dab06ebb9df7f581d54081b9fe114d4326ad596"
+    }
+   ],
+   "target_template": "scripts/{file}",
+   "targets": [
+    "scripts/data_learning_coverage_audit.py",
+    "scripts/source_intelligence_engine.py"
+   ],
+   "reviewer": "Claude (implementer) 2026-11-04; GPT independent review #133 6624784358 confirmed targets (helper lines); call sites/arg sources pinned in kr-0.3.2"
   },
   {
    "file": "tests/test_forward_evidence_forensics.py",
-   "line": 9,
-   "line_sha256": "63a0d93c9f719b045c287141af1e425b8d3e3b4ff8867c7791e1246fec046b60",
-   "target_resolved_by_review": "helper load(name, file) loads ROOT/scripts/<file>; line 11 passes literals forward_evidence_forensics.py and forward_journal_audit.py",
-   "reviewer": "Claude (implementer) 2026-11-04; independent confirmation pending (GPT / Owner)"
+   "helper": {
+    "line": 9,
+    "line_sha256": "63a0d93c9f719b045c287141af1e425b8d3e3b4ff8867c7791e1246fec046b60"
+   },
+   "helper_name": "load",
+   "used": true,
+   "call_sites": [
+    {
+     "line": 11,
+     "line_sha256": "ed24ba1460cb11008cb3230fe4408726c94a5eb9f217a72f7430143e18059e5e"
+    }
+   ],
+   "arg_sources": [
+    {
+     "line": 11,
+     "line_sha256": "ed24ba1460cb11008cb3230fe4408726c94a5eb9f217a72f7430143e18059e5e"
+    }
+   ],
+   "target_template": "scripts/{file}",
+   "targets": [
+    "scripts/forward_evidence_forensics.py",
+    "scripts/forward_journal_audit.py"
+   ],
+   "reviewer": "Claude (implementer) 2026-11-04; GPT independent review #133 6624784358 confirmed targets (helper lines); call sites/arg sources pinned in kr-0.3.2"
   },
   {
    "file": "tests/test_v570_evidence_attribution.py",
-   "line": 6,
-   "line_sha256": "9d73b99fcb7deaa68a0f667a660ee18e8416cf273011ebf8c84763d495c624c2",
-   "target_resolved_by_review": "engine_path is set on line 5 to the literal ROOT/'scripts/evidence_attribution_engine.py'",
-   "reviewer": "Claude (implementer) 2026-11-04; independent confirmation pending (GPT / Owner)"
+   "helper": {
+    "line": 6,
+    "line_sha256": "9d73b99fcb7deaa68a0f667a660ee18e8416cf273011ebf8c84763d495c624c2"
+   },
+   "helper_name": null,
+   "path_variable": "engine_path",
+   "used": true,
+   "call_sites": [
+    {
+     "line": 6,
+     "line_sha256": "9d73b99fcb7deaa68a0f667a660ee18e8416cf273011ebf8c84763d495c624c2"
+    }
+   ],
+   "arg_sources": [
+    {
+     "line": 5,
+     "line_sha256": "122c3e346c3e6bf6a53ba74177c135e2e6bd0f5d1c160a5f26c9397dc62f3b83"
+    }
+   ],
+   "target_template": "literal",
+   "targets": [
+    "scripts/evidence_attribution_engine.py"
+   ],
+   "reviewer": "Claude (implementer) 2026-11-04; GPT independent review #133 6624784358 confirmed targets (helper lines); call sites/arg sources pinned in kr-0.3.2"
   },
   {
    "file": "tests/test_v610a_playbook_engine.py",
-   "line": 11,
-   "line_sha256": "664e90b0747d7f4ce4cc9558160bc8288fd171503c1cbc9d83d779a880d20ff1",
-   "target_resolved_by_review": "load_module(name, path) is defined but never called in this file (grep: only the def line); the test imports playbook_config, trading_calendar, private_ledger with plain imports",
-   "reviewer": "Claude (implementer) 2026-11-04; independent confirmation pending (GPT / Owner)"
+   "helper": {
+    "line": 11,
+    "line_sha256": "664e90b0747d7f4ce4cc9558160bc8288fd171503c1cbc9d83d779a880d20ff1"
+   },
+   "helper_name": "load_module",
+   "used": false,
+   "call_sites": [],
+   "arg_sources": [],
+   "target_template": "none (defined, never called)",
+   "targets": [],
+   "reviewer": "Claude (implementer) 2026-11-04; GPT independent review #133 6624784358 confirmed targets (helper lines); call sites/arg sources pinned in kr-0.3.2"
   }
  ]
 }

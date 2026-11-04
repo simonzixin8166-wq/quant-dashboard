@@ -1,0 +1,12 @@
+{
+ "version": "kr-0.3.2",
+ "rule": "Files excluded from the retrieval isolation gate, each pinned by sha256 (GPT #133 6624784358 D2). Any edit fails the gate until it is reviewed again and the pin below is updated in the same PR.",
+ "security_qa_only_workflow": {
+  "privacy-canary-gate.yml": "e2a2e3f6ebbe749b2ca637bf114073115880c6083b16dbf27c5d7b9851b12839"
+ },
+ "security_qa_only_workflow_review": "reads research/index only to scan it; permissions contents: read; no secrets except the read-only GITHUB_TOKEN; no artifact upload, push, deploy or Pages (checked by exclusion_problems())",
+ "checker_pins": {
+  "tests/test_retrieval_isolation_negative.py": "cc14fd92b3341f2eb13b6de6bdd6aa43629c3e67906c5e511c3a3c0866a0511a"
+ },
+ "checker_review": "tests/test_retrieval_isolation_negative.py plants evasions into a real entry file and a temporary workflow/script, runs the gate, and restores every byte in finally; it reads no index, ledger or private data and publishes nothing"
+}

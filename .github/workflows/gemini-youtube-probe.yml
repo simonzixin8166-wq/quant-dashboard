@@ -183,6 +183,7 @@ jobs:
           git config user.name "github-actions"
           git config user.email "actions@github.com"
           git add research/reports/gemini_youtube_probe.json
+          python3 scripts/privacy_canary_scan.py --staged  # kr-0.3.2 D4: block the publish if anything staged leaks private data
           git commit -m "Record Gemini YouTube single-video probe" || exit 0
           git pull --rebase origin main
           git push origin HEAD:main

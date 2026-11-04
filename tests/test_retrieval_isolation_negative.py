@@ -51,6 +51,21 @@ cases = [
     ("reviewed line edited", REVIEWED, None, ('spec=importlib.util.spec_from_file_location("ea",engine_path)',
                                               'spec=importlib.util.spec_from_file_location("ea",engine_path )'), False, "dynamic_import_unreviewed"),
 ]
+# kr-0.3.2 (GPT 6624784358 D2): call sites and argument sources are pinned too, not only the helper line
+COV = ROOT / "tests" / "test_coverage_truth.py"
+V610 = ROOT / "tests" / "test_v610a_playbook_engine.py"
+GATE_WF = ROOT / ".github" / "workflows" / "privacy-canary-gate.yml"
+cases += [
+    ("call-site argument replaced", COV, None, ('cov = load("cov_truth", "data_learning_coverage_audit.py")',
+                                                'cov = load("cov_truth", "retrieval_eligibility.py")'), False, "call_sites line changed"),
+    ("argument from environment", REVIEWED, None, ("engine_path=ROOT/'scripts/evidence_attribution_engine.py'",
+                                                   "engine_path=ROOT/__import__('os').environ['X']"), False, "arg_sources line changed"),
+    ("new call with concatenated path", COV, '\n_x = load("x", "retrieval" + "_x.py")\n', None, False, "unpinned call of reviewed helper"),
+    ("unused helper gets called", V610, '\n_m = load_module("m", ROOT / "scripts" / "x.py")\n', None, False, "helper marked unused is called"),
+    ("path variable reassigned", REVIEWED, "\nengine_path = ROOT / 'scripts' / 'other.py'\n", None, False, "assigned outside the pinned line"),
+    ("excluded security/QA workflow edited", GATE_WF, "\n# edited\n", None, False, "security_qa_only_workflow changed"),
+    ("yaml workflow outside the gate", ROOT / ".github" / "workflows" / "zz-probe.yaml", "name: x\non: push\n", None, True, "*.yaml workflow"),
+]
 for name, path, extra, rep, create, expect in cases:
     with planted(path, extra=extra, replace=rep, create=create):
         rc, out = run()

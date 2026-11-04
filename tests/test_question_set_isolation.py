@@ -64,33 +64,60 @@ def load_sets():
     return sets, blind_status
 
 
-def repo_has_blind_answers() -> list:
-    hits = []
-    for p in ROOT.rglob("*"):
+YAML_BLIND = re.compile(r"(?mi)^\s*[\"']?set[\"']?\s*[:=]\s*[\"']?blind[\"']?\s*,?\s*$")
+ANSWER_LINE = re.compile(r"(?mi)^\s*[-*]?\s*[\"']?(?:" + "|".join(sorted(ANSWER_KEYS)) + r")[\"']?\s*[:=]")
+
+
+def answer_hashes() -> set:
+    """Per-answer canonical text hashes, committed only after the blind set is frozen (none today)."""
+    b = json.loads(BLIND.read_text(encoding="utf-8"))
+    return set(b.get("answer_text_hashes") or [])
+
+
+def repo_has_blind_answers(root: Path = None) -> list:
+    """kr-0.3.2 (GPT 6624784358 C3): every UTF-8 file in the repo (Markdown, text, YAML, code, logs, JSON/JSONL), not
+    only JSON: (1) blind_answers* file names; (2) JSON/JSONL objects with set=blind carrying answer fields; (3) any
+    text file that marks itself set: blind and also has answer-key lines; (4) once answer hashes are committed, any
+    line whose canonical text hash equals a blind answer hash."""
+    root = root or ROOT
+    hits, ah = [], answer_hashes()
+    for p in root.rglob("*"):
         if ".git" in p.parts or not p.is_file():
             continue
-        if re.match(r"(?i)blind[_-]?answers", p.name):
-            hits.append(str(p.relative_to(ROOT)))
+        rel = str(p.relative_to(root))
+        if re.match(r"(?i)blind[_-]?answers?", p.name):
+            hits.append(rel)
             continue
-        if p.suffix not in {".json", ".jsonl"} or p.stat().st_size > 30_000_000:
+        if p.stat().st_size > 30_000_000 or p == BLIND:
             continue
         try:
             txt = p.read_text(encoding="utf-8")
-        except Exception:
+        except (UnicodeDecodeError, OSError):
+            continue  # binaries are covered by the privacy gate's binary review
+        if ah and any(text_hash(line) in ah for line in txt.splitlines() if line.strip()):
+            hits.append(rel)
             continue
-        if '"blind"' not in txt:
+        if "blind" not in txt:
             continue
-        docs = [json.loads(x) for x in txt.splitlines() if x.strip()] if p.suffix == ".jsonl" else [json.loads(txt)]
-        stack = list(docs)
-        while stack:
-            x = stack.pop()
-            if isinstance(x, dict):
-                if x.get("set") == "blind" and (ANSWER_KEYS & set(x) or any(isinstance(v, list) and v and isinstance(v[0], dict) and ANSWER_KEYS & set(v[0]) for v in x.values())):
-                    hits.append(str(p.relative_to(ROOT)))
-                    break
-                stack.extend(x.values())
-            elif isinstance(x, list):
-                stack.extend(x)
+        if p.suffix in (".json", ".jsonl"):
+            try:
+                docs = [json.loads(x) for x in txt.splitlines() if x.strip()] if p.suffix == ".jsonl" else [json.loads(txt)]
+            except ValueError:
+                docs = []
+            stack, found = list(docs), False
+            while stack and not found:
+                x = stack.pop()
+                if isinstance(x, dict):
+                    if x.get("set") == "blind" and (ANSWER_KEYS & set(x) or any(isinstance(v, list) and v and isinstance(v[0], dict) and ANSWER_KEYS & set(v[0]) for v in x.values())):
+                        found = True
+                    stack.extend(x.values())
+                elif isinstance(x, list):
+                    stack.extend(x)
+            if found:
+                hits.append(rel)
+                continue
+        if YAML_BLIND.search(txt) and ANSWER_LINE.search(txt):
+            hits.append(rel)
     return hits
 
 
@@ -113,8 +140,20 @@ if __name__ == "__main__":
         probe.mkdir(exist_ok=True)
         (probe / "blind_answers_v1.json").write_text("[]", encoding="utf-8")
         (probe / "leak.json").write_text(json.dumps({"set": "blind", "questions": [{"question_id": "B-1", "expect": "answer"}]}), encoding="utf-8")
+        (probe / "leak.md").write_text("# notes\nset: blind\n- question_id: B-2\n  expect: answer\n", encoding="utf-8")
+        (probe / "leak.yaml").write_text("set: 'blind'\nquestions:\n  - gold_answer: x\n", encoding="utf-8")
+        (probe / "leak.log").write_text("run 1\n\"set\": \"blind\",\n\"answer\": \"x\"\n", encoding="utf-8")
+        (probe / "ok.md").write_text("The blind set stays BLOCKED until it is authored outside the repo.\n", encoding="utf-8")
         found = repo_has_blind_answers()
-        assert any(f.endswith("blind_answers_v1.json") for f in found) and any(f.endswith("leak.json") for f in found), found
+        for leak in ("blind_answers_v1.json", "leak.json", "leak.md", "leak.yaml", "leak.log"):
+            assert any(f.endswith(leak) for f in found), (leak, found)
+        assert not any(f.endswith("ok.md") for f in found), found
+        # once per-answer hashes are committed, a pasted answer line in any file is found
+        real_ah = answer_hashes
+        answer_hashes = lambda: {text_hash("The secret answer is 42")}
+        (probe / "pasted.py").write_text("x = 1\n   the SECRET answer   is 42  \n", encoding="utf-8")
+        assert any(f.endswith("pasted.py") for f in repo_has_blind_answers()), "answer-hash leak not found"
+        answer_hashes = real_ah
     finally:
         for f in probe.glob("*"):
             f.unlink()
@@ -123,6 +162,6 @@ if __name__ == "__main__":
     print(json.dumps({"sets": {k: len(v) for k, v in sets.items()}, "blind_status": blind_status,
                       "collisions": 0, "blind_answer_files_in_repo": 0,
                       "smoke_text_hashes_sha256": hashlib.sha256("".join(h for _, h in sets.get("smoke_v1", [])).encode()).hexdigest(),
-                      "negative_tests": "text / id / blind-hash duplicates and planted blind-answer files (name + content) all detected"}, ensure_ascii=False))
+                      "negative_tests": "text / id / blind-hash duplicates; planted blind-answer leaks by name, JSON, Markdown, YAML, log and (once frozen) answer hash all detected"}, ensure_ascii=False))
     print(f"PASS question-set isolation (blind side {blind_status}: not authored yet, nothing to compare)")
     sys.exit(0)

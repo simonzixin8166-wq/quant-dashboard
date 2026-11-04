@@ -1,7 +1,7 @@
 {
- "version": "kr-0.3.1-eligibility",
+ "version": "kr-0.3.2",
  "owner_approval_field": "owner_production_approval_id",
- "rule": "production_eligibility=true only if the kind is approval-capable AND every required flag is present, non-null, of the expected type and equal to the expected value AND no conflict rule fires AND owner_production_approval_id is a non-empty string. Otherwise false with exactly one reason code, first match in this order: type_never_eligible, missing_flag, null_flag, unknown_value, flag_conflict, value_mismatch, no_owner_approval.",
+ "rule": "production_eligibility=true only if the kind is approval-capable AND every required flag is present, non-null, of the expected type and equal to the expected value AND no conflict rule fires AND owner_production_approval_id names an ACTIVE entry of the Owner approval registry whose scope is retrieval_production_eligibility and whose kinds include this kind (kr-0.3.2). Otherwise false with exactly one reason code, first match in reason_order.",
  "kinds": {
   "forward_observation": {
    "file": "research/archive/forward_observations.jsonl",
@@ -137,7 +137,7 @@
     "attested_forward": true,
     "session": "2026-10-08",
     "market_as_of": "2026-10-08",
-    "owner_production_approval_id": "OWNER-2027-01"
+    "owner_production_approval_id": "OWNER-FIXTURE-ACTIVE"
    },
    "expected": true,
    "reason": null
@@ -207,7 +207,7 @@
     "eligible": true,
     "status": "matured",
     "group": "genuine_forward",
-    "owner_production_approval_id": "x"
+    "owner_production_approval_id": "OWNER-FIXTURE-ACTIVE"
    },
    "expected": true,
    "reason": null
@@ -253,7 +253,7 @@
    "row": {
     "eligible_for_production": true,
     "scoreable_as_method_performance": true,
-    "owner_production_approval_id": "x"
+    "owner_production_approval_id": "OWNER-FIXTURE-ACTIVE"
    },
    "expected": true,
    "reason": null
@@ -295,7 +295,7 @@
    "row": {
     "production_use": true,
     "shadow": false,
-    "owner_production_approval_id": "x"
+    "owner_production_approval_id": "OWNER-FIXTURE-ACTIVE"
    },
    "expected": true,
    "reason": null
@@ -337,7 +337,7 @@
    "row": {
     "production_use": true,
     "shadow": false,
-    "owner_production_approval_id": "x"
+    "owner_production_approval_id": "OWNER-FIXTURE-ACTIVE"
    },
    "expected": true,
    "reason": null
@@ -507,6 +507,305 @@
    },
    "expected": false,
    "reason": "type_never_eligible"
+  },
+  {
+   "kind": "forward_observation",
+   "case": "approval_forged",
+   "row": {
+    "attested_forward": true,
+    "session": "2026-10-08",
+    "market_as_of": "2026-10-08",
+    "owner_production_approval_id": "x"
+   },
+   "expected": false,
+   "reason": "no_owner_approval"
+  },
+  {
+   "kind": "forward_observation",
+   "case": "approval_unknown",
+   "row": {
+    "attested_forward": true,
+    "session": "2026-10-08",
+    "market_as_of": "2026-10-08",
+    "owner_production_approval_id": "OWNER-2099-99"
+   },
+   "expected": false,
+   "reason": "no_owner_approval"
+  },
+  {
+   "kind": "forward_observation",
+   "case": "approval_revoked",
+   "row": {
+    "attested_forward": true,
+    "session": "2026-10-08",
+    "market_as_of": "2026-10-08",
+    "owner_production_approval_id": "OWNER-FIXTURE-REVOKED"
+   },
+   "expected": false,
+   "reason": "no_owner_approval"
+  },
+  {
+   "kind": "forward_observation",
+   "case": "approval_scope_mismatch",
+   "row": {
+    "attested_forward": true,
+    "session": "2026-10-08",
+    "market_as_of": "2026-10-08",
+    "owner_production_approval_id": "OWNER-FIXTURE-OTHER-SCOPE"
+   },
+   "expected": false,
+   "reason": "no_owner_approval"
+  },
+  {
+   "kind": "forward_observation",
+   "case": "approval_kind_mismatch",
+   "row": {
+    "attested_forward": true,
+    "session": "2026-10-08",
+    "market_as_of": "2026-10-08",
+    "owner_production_approval_id": "OWNER-FIXTURE-OTHER-KIND"
+   },
+   "expected": false,
+   "reason": "no_owner_approval"
+  },
+  {
+   "kind": "forward_outcome",
+   "case": "approval_forged",
+   "row": {
+    "eligible": true,
+    "status": "matured",
+    "group": "genuine_forward",
+    "owner_production_approval_id": "x"
+   },
+   "expected": false,
+   "reason": "no_owner_approval"
+  },
+  {
+   "kind": "forward_outcome",
+   "case": "approval_unknown",
+   "row": {
+    "eligible": true,
+    "status": "matured",
+    "group": "genuine_forward",
+    "owner_production_approval_id": "OWNER-2099-99"
+   },
+   "expected": false,
+   "reason": "no_owner_approval"
+  },
+  {
+   "kind": "forward_outcome",
+   "case": "approval_revoked",
+   "row": {
+    "eligible": true,
+    "status": "matured",
+    "group": "genuine_forward",
+    "owner_production_approval_id": "OWNER-FIXTURE-REVOKED"
+   },
+   "expected": false,
+   "reason": "no_owner_approval"
+  },
+  {
+   "kind": "forward_outcome",
+   "case": "approval_scope_mismatch",
+   "row": {
+    "eligible": true,
+    "status": "matured",
+    "group": "genuine_forward",
+    "owner_production_approval_id": "OWNER-FIXTURE-OTHER-SCOPE"
+   },
+   "expected": false,
+   "reason": "no_owner_approval"
+  },
+  {
+   "kind": "forward_outcome",
+   "case": "approval_kind_mismatch",
+   "row": {
+    "eligible": true,
+    "status": "matured",
+    "group": "genuine_forward",
+    "owner_production_approval_id": "OWNER-FIXTURE-OTHER-KIND"
+   },
+   "expected": false,
+   "reason": "no_owner_approval"
+  },
+  {
+   "kind": "rule",
+   "case": "approval_forged",
+   "row": {
+    "eligible_for_production": true,
+    "scoreable_as_method_performance": true,
+    "owner_production_approval_id": "x"
+   },
+   "expected": false,
+   "reason": "no_owner_approval"
+  },
+  {
+   "kind": "rule",
+   "case": "approval_unknown",
+   "row": {
+    "eligible_for_production": true,
+    "scoreable_as_method_performance": true,
+    "owner_production_approval_id": "OWNER-2099-99"
+   },
+   "expected": false,
+   "reason": "no_owner_approval"
+  },
+  {
+   "kind": "rule",
+   "case": "approval_revoked",
+   "row": {
+    "eligible_for_production": true,
+    "scoreable_as_method_performance": true,
+    "owner_production_approval_id": "OWNER-FIXTURE-REVOKED"
+   },
+   "expected": false,
+   "reason": "no_owner_approval"
+  },
+  {
+   "kind": "rule",
+   "case": "approval_scope_mismatch",
+   "row": {
+    "eligible_for_production": true,
+    "scoreable_as_method_performance": true,
+    "owner_production_approval_id": "OWNER-FIXTURE-OTHER-SCOPE"
+   },
+   "expected": false,
+   "reason": "no_owner_approval"
+  },
+  {
+   "kind": "rule",
+   "case": "approval_kind_mismatch",
+   "row": {
+    "eligible_for_production": true,
+    "scoreable_as_method_performance": true,
+    "owner_production_approval_id": "OWNER-FIXTURE-OTHER-KIND"
+   },
+   "expected": false,
+   "reason": "no_owner_approval"
+  },
+  {
+   "kind": "auto_research",
+   "case": "approval_forged",
+   "row": {
+    "production_use": true,
+    "shadow": false,
+    "owner_production_approval_id": "x"
+   },
+   "expected": false,
+   "reason": "no_owner_approval"
+  },
+  {
+   "kind": "auto_research",
+   "case": "approval_unknown",
+   "row": {
+    "production_use": true,
+    "shadow": false,
+    "owner_production_approval_id": "OWNER-2099-99"
+   },
+   "expected": false,
+   "reason": "no_owner_approval"
+  },
+  {
+   "kind": "auto_research",
+   "case": "approval_revoked",
+   "row": {
+    "production_use": true,
+    "shadow": false,
+    "owner_production_approval_id": "OWNER-FIXTURE-REVOKED"
+   },
+   "expected": false,
+   "reason": "no_owner_approval"
+  },
+  {
+   "kind": "auto_research",
+   "case": "approval_scope_mismatch",
+   "row": {
+    "production_use": true,
+    "shadow": false,
+    "owner_production_approval_id": "OWNER-FIXTURE-OTHER-SCOPE"
+   },
+   "expected": false,
+   "reason": "no_owner_approval"
+  },
+  {
+   "kind": "auto_research",
+   "case": "approval_kind_mismatch",
+   "row": {
+    "production_use": true,
+    "shadow": false,
+    "owner_production_approval_id": "OWNER-FIXTURE-OTHER-KIND"
+   },
+   "expected": false,
+   "reason": "no_owner_approval"
+  },
+  {
+   "kind": "shadow_case",
+   "case": "approval_forged",
+   "row": {
+    "production_use": true,
+    "shadow": false,
+    "owner_production_approval_id": "x"
+   },
+   "expected": false,
+   "reason": "no_owner_approval"
+  },
+  {
+   "kind": "shadow_case",
+   "case": "approval_unknown",
+   "row": {
+    "production_use": true,
+    "shadow": false,
+    "owner_production_approval_id": "OWNER-2099-99"
+   },
+   "expected": false,
+   "reason": "no_owner_approval"
+  },
+  {
+   "kind": "shadow_case",
+   "case": "approval_revoked",
+   "row": {
+    "production_use": true,
+    "shadow": false,
+    "owner_production_approval_id": "OWNER-FIXTURE-REVOKED"
+   },
+   "expected": false,
+   "reason": "no_owner_approval"
+  },
+  {
+   "kind": "shadow_case",
+   "case": "approval_scope_mismatch",
+   "row": {
+    "production_use": true,
+    "shadow": false,
+    "owner_production_approval_id": "OWNER-FIXTURE-OTHER-SCOPE"
+   },
+   "expected": false,
+   "reason": "no_owner_approval"
+  },
+  {
+   "kind": "shadow_case",
+   "case": "approval_kind_mismatch",
+   "row": {
+    "production_use": true,
+    "shadow": false,
+    "owner_production_approval_id": "OWNER-FIXTURE-OTHER-KIND"
+   },
+   "expected": false,
+   "reason": "no_owner_approval"
   }
- ]
+ ],
+ "reason_order": [
+  "type_never_eligible",
+  "missing_flag",
+  "null_flag",
+  "unknown_value",
+  "flag_conflict",
+  "value_mismatch",
+  "no_owner_approval"
+ ],
+ "approval_registry": {
+  "path": "research/specs/retrieval/owner_approval_registry.json",
+  "scope": "retrieval_production_eligibility",
+  "check": "the approval id must exist in the registry with status=active, scope=retrieval_production_eligibility and the row's kind listed in kinds; a non-empty string alone never qualifies (GPT #133 6624784358 B2)"
+ }
 }

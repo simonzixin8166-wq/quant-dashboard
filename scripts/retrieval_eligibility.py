@@ -4,7 +4,8 @@
 Research-only. Every row is evaluated against research/specs/retrieval/eligibility_contract.json; every rejection
 appends exactly one JSON line {reason, kind, fields, source_file, source_sha, row_id, audited_at} to the audit file.
 The audit file is opened in append mode only: it is never truncated, rewritten or deduplicated. Being listed in the
-inventory never makes a row eligible. Today no row carries owner_production_approval_id, so every row is rejected.
+inventory never makes a row eligible. Today the Owner approval registry holds no retrieval approval, so every row is rejected (a non-empty
+approval string alone never qualifies; kr-0.3.2).
 Nothing in production reads this module or its output (see tests/test_retrieval_isolation.py).
 
   python scripts/retrieval_eligibility.py --audit <index build audit .jsonl>   # caller-supplied path; this module names no index path
@@ -20,8 +21,9 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 CONTRACT = ROOT / "research" / "specs" / "retrieval" / "eligibility_contract.json"
-ORDER = ["type_never_eligible", "missing_flag", "null_flag", "unknown_value", "flag_conflict", "value_mismatch",
-         "no_owner_approval"]
+REGISTRY = ROOT / "research" / "specs" / "retrieval" / "owner_approval_registry.json"
+# kr-0.3.2: the reason order lives only in the contract (reason_order); evaluate() runs one check per reason, in that
+# order, through CHECKS below, so code and contract cannot drift apart.
 # kind -> (file, list key or None for JSONL, id field)
 REAL_SOURCES = {
     "forward_observation": ("research/archive/forward_observations.jsonl", None, "event_id"),
@@ -56,30 +58,52 @@ def _conflict(kind: str, row: dict) -> list:
     return []
 
 
-def evaluate(kind: str, row: dict, contract: dict) -> tuple[bool, str | None, list]:
-    """(eligible, reason, fields). First failing check in ORDER wins."""
+def load_registry(path: Path = REGISTRY) -> dict:
+    """Owner approvals, or an empty registry if the file is absent (fail closed: nothing qualifies)."""
+    if not Path(path).exists():
+        return {"approvals": []}
+    return json.loads(Path(path).read_text(encoding="utf-8"))
+
+
+def approval_ok(approval_id, kind: str, registry: dict, scope: str) -> bool:
+    """An approval qualifies only if it exists, is active, has the right scope and lists this kind.
+    A non-empty string by itself never qualifies (GPT #133 6624784358 B2)."""
+    if not isinstance(approval_id, str) or not approval_id.strip():
+        return False
+    for a in (registry or {}).get("approvals", []):
+        if a.get("approval_id") == approval_id:
+            return a.get("status") == "active" and a.get("scope") == scope and kind in (a.get("kinds") or [])
+    return False
+
+
+def _checks(kind, row, contract, registry):
     k = contract["kinds"].get(kind)
-    if not k or not k["approval_capable"]:
-        return False, "type_never_eligible", []
-    req = k["required"]
-    miss = [f for f in req if f not in row]
-    if miss:
-        return False, "missing_flag", miss
-    nul = [f for f in req if row[f] is None]
-    if nul:
-        return False, "null_flag", nul
-    bad = [f for f, want in req.items() if type(row[f]) is not type(want)]
-    if bad:
-        return False, "unknown_value", bad
-    c = _conflict(kind, row)
-    if c:
-        return False, "flag_conflict", c
-    mism = [f for f, want in req.items() if row[f] != want]
-    if mism:
-        return False, "value_mismatch", mism
+    req = (k or {}).get("required", {})
     appr = contract["owner_approval_field"]
-    if not isinstance(row.get(appr), str) or not row[appr].strip():
-        return False, "no_owner_approval", [appr]
+    scope = contract["approval_registry"]["scope"]
+    present = lambda: [f for f in req if f in row]
+    return {
+        "type_never_eligible": lambda: [] if (k and k["approval_capable"]) else ["kind"],
+        "missing_flag": lambda: [f for f in req if f not in row],
+        "null_flag": lambda: [f for f in present() if row[f] is None],
+        "unknown_value": lambda: [f for f in present() if row[f] is not None and type(row[f]) is not type(req[f])],
+        "flag_conflict": lambda: _conflict(kind, row),
+        "value_mismatch": lambda: [f for f in present() if row[f] != req[f]],
+        "no_owner_approval": lambda: [] if approval_ok(row.get(appr), kind, registry, scope) else [appr],
+    }
+
+
+def evaluate(kind: str, row: dict, contract: dict, registry: dict | None = None) -> tuple[bool, str | None, list]:
+    """(eligible, reason, fields). Runs the checks in contract['reason_order']; the first failing one wins.
+    registry=None loads the real Owner approval registry (today: no retrieval approvals, so nothing is eligible)."""
+    registry = load_registry() if registry is None else registry
+    checks = _checks(kind, row, contract, registry)
+    order = contract["reason_order"]
+    assert set(order) == set(checks), f"reason_order and checks differ: {set(order) ^ set(checks)}"
+    for reason in order:
+        fields = checks[reason]()
+        if fields:
+            return False, reason, ([] if reason == "type_never_eligible" else fields)
     return True, None, []
 
 
@@ -98,12 +122,14 @@ class AuditLog:
             fh.write(json.dumps(rec, ensure_ascii=False, sort_keys=True) + "\n")
 
 
-def audit_rows(kind: str, rows, source_file: str, source_sha: str, log: AuditLog, contract: dict, id_field=None) -> dict:
+def audit_rows(kind: str, rows, source_file: str, source_sha: str, log: AuditLog, contract: dict, id_field=None,
+               registry: dict | None = None) -> dict:
+    registry = load_registry() if registry is None else registry
     counts = {"rows": 0, "eligible": 0, "rejected": 0}
     now = datetime.now(timezone.utc).isoformat(timespec="seconds")
     for r in rows:
         counts["rows"] += 1
-        ok, reason, fields = evaluate(kind, r, contract)
+        ok, reason, fields = evaluate(kind, r, contract, registry)
         if ok:
             counts["eligible"] += 1
             continue

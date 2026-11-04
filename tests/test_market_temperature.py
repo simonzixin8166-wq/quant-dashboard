@@ -24,7 +24,7 @@ c = {x["key"]: x for x in out["components"]}
 assert out["components_available"] == 6 and out["score"] == 50.0 and out["label"] == "中性", out
 assert {k for k, x in c.items() if x["method"] == "percentile_252"} == {"momentum", "volatility", "safe_haven"}
 assert {k for k, x in c.items() if x["method"] == "fixed_scale"} == {"strength", "breadth", "credit"}
-assert out["version"] == 3 and out["fixed_scale_components"] == 3 and isinstance(out["score"], int) and out["validated"] is False and "不是 CNN" in out["note"]
+assert out["version"] == 4 and out["fixed_scale_components"] == 3 and isinstance(out["score"], int) and out["validated"] is False and "不是 CNN" in out["note"]
 
 # relative scale: a rising market whose latest gain is the smallest of the year reads as fear, not greed
 rising = [(d, 100.0 * 1.002 ** i) for i, d in enumerate(days[:-1])] + [(days[-1], 100.0 * 1.002 ** (len(days) - 2))]
@@ -66,5 +66,26 @@ o6 = mt.build(zip_of({"spy": flat(100.0), "vix": flat(20.0), "tlt": flat(90.0)})
               {"signals": [{"key": "credit_widening", "value": {"latest": 3.0, "date": days[-40], "chg20": 0.0}}]})
 assert o6["components_available"] == 3 and o6["score"] is None and o6["status"] == "unavailable"
 # history rows carry the method version so a method change is visible and reproducible
-assert mt.append_history([], o5)[0]["v"] == 3
+assert mt.append_history([], o5)[0]["v"] == 4
 print("market temperature v3: staleness + integer + version checks passed")
+
+# v4 (2026-11-04): TLT one session behind SPY no longer silently drops the safe-haven reading; it uses the latest
+# common date and the same lag rule as every other input. Far behind → stale (excluded and explained), never dropped.
+o7 = mt.build(zip_of({"spy": flat(100.0), "vix": flat(20.0), "tlt": flat(90.0)[:-1]}), breadth, cross)
+c7 = {x["key"]: x for x in o7["components"]}
+assert c7["safe_haven"]["status"] == "ok" and c7["safe_haven"]["as_of"] == days[-2] and o7["components_available"] == 6, c7["safe_haven"]
+o8 = mt.build(zip_of({"spy": flat(100.0), "vix": flat(20.0), "tlt": flat(90.0)[:-30]}), breadth, cross)
+c8 = {x["key"]: x for x in o8["components"]}
+assert c8["safe_haven"]["status"] == "stale" and "不计入" in c8["safe_haven"]["reason"] and o8["components_available"] == 5
+# v4: no delta across different component sets (the move could be a component leaving the average)
+h6 = mt.append_history([], dict(out, as_of="2026-10-15", score=32))
+o9 = mt.with_change(dict(o8, as_of="2026-10-16", score=39), h6)
+assert o9["change_vs"]["delta"] is None and o9["change_vs"]["comparable"] is False and "避险需求" in o9["change_vs"]["reason"], o9["change_vs"]
+assert o9["change_vs"]["previous_score"] == 32
+# same set → normal delta
+assert mt.with_change(dict(out, as_of="2026-10-16", score=39), h6)["change_vs"] == {"as_of": "2026-10-15", "delta": 7}
+# real 11/03 case: history row with safe_haven = 0.0 vs a reading without it → not comparable
+real_prev = [{"as_of": "2026-11-02", "score": 32, "components": {"momentum": 7.5, "strength": 89.2, "breadth": 67.7, "volatility": 6.7, "safe_haven": 0.0, "credit": 19.0}}]
+real_now = {"as_of": "2026-11-03", "score": 39, "components": [{"key": k, "status": "ok"} for k in ("momentum", "strength", "breadth", "volatility", "credit")] + [{"key": "safe_haven", "status": "unavailable"}]}
+assert mt.with_change(real_now, real_prev)["change_vs"]["comparable"] is False
+print("market temperature v4: safe-haven common-date + comparable-change checks passed")

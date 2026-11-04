@@ -25,6 +25,12 @@ assert.ok(T.vsVix({ score: 31, components: vc(18.4) }).includes('尚未恐慌') 
 assert.ok(T.vsVix({ score: 20, components: vc(32) }).includes('同时走弱'));
 assert.strictEqual(T.vsVix({ score: 31, components: [] }), '');
 assert.strictEqual(MT._test.changeText({}), '首日记录，暂无比较');
+// v4: different component sets → no delta, no trend word, the reason is shown
+const nc = { score: 39, components_available: 5, change_vs: { as_of: '2026-10-27', delta: null, comparable: false, reason: '今日缺避险需求', previous_score: 34 } };
+assert.strictEqual(T.trendWord(nc), '分项不全，不比较');
+assert.strictEqual(T.fromTo(nc), '今日 39（5/6 项；今日缺避险需求，不与 10/27 比较）');
+assert.ok(T.changeText(nc).includes('不做比较') && !T.changeText(nc).includes('升温'));
+assert.ok(MT.html({ ...d, ...nc }).includes('不与 10/27 比较') && !MT.html({ ...d, ...nc }).includes('正在缓和'));
 console.log('PASS market temperature UI');
 
 // MT-04 加仓分档: existing production ladder is the trigger; size hint + VIX>=25 confirmation only (#133 6283755497)

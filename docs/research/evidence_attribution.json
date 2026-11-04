@@ -1,6 +1,6 @@
 {
   "version": "5.7.0",
-  "generated_at": "2026-11-04T09:00:09.416071+00:00",
+  "generated_at": "2026-11-04T16:22:34.037811+00:00",
   "external_outcome_evidence_role": "legacy_descriptive_only",
   "as_of": "2026-11-04",
   "architecture": [
@@ -84,8 +84,8 @@
     "top": [
       {
         "symbol": "IREN",
-        "evidence_score": 62.8,
-        "status": "evidence-accumulating",
+        "evidence_score": 40.8,
+        "status": "monitor",
         "trend_state": {
           "state": "Confirmation Pending",
           "label_cn": "等待确认",
@@ -119,12 +119,6 @@
             "meaning": "分数绝对值较高表示趋势证据较集中，但高分不等于未来一定继续上涨或下跌。"
           },
           {
-            "type": "transition",
-            "strength": "high",
-            "evidence": "阶段从 趋势恶化 变化为 修复中",
-            "meaning": "状态变化通常比重复的同状态提醒更值得复查。"
-          },
-          {
             "type": "market_anomaly",
             "strength": "medium",
             "evidence": "覆盖池出现异常波动 +11.1%",
@@ -136,8 +130,8 @@
       },
       {
         "symbol": "TSLA",
-        "evidence_score": 54.4,
-        "status": "evidence-accumulating",
+        "evidence_score": 32.4,
+        "status": "monitor",
         "trend_state": {
           "state": "Trend Mature",
           "label_cn": "趋势成熟 / 高位钝化",
@@ -169,12 +163,6 @@
             "strength": "medium",
             "evidence": "Trend Pulse 分数 75",
             "meaning": "分数绝对值较高表示趋势证据较集中，但高分不等于未来一定继续上涨或下跌。"
-          },
-          {
-            "type": "transition",
-            "strength": "high",
-            "evidence": "阶段从 二次启动 变化为 高位钝化",
-            "meaning": "状态变化通常比重复的同状态提醒更值得复查。"
           }
         ],
         "next_confirmation": "若高位整理后重新二次启动可恢复积极状态；若转为退潮则进入风险复查。",
@@ -586,15 +574,35 @@
     "note": "V5.7 首版只用已有可验证数据形成技术/市场 Breadcrumb；不会假装已经抓取到 SEC/FDA/论坛等外部事实。"
   },
   "failure_attribution": {
-    "mature_samples_scanned": 467,
-    "review_samples": 178,
+    "mature_samples_scanned": 470,
+    "review_samples": 179,
     "tag_counts": {
+      "trend_false_positive": 56,
+      "large_adverse_move": 113,
       "missed_upside": 22,
-      "trend_false_positive": 55,
-      "large_adverse_move": 112,
-      "timeframe_confirmation_missing": 83
+      "timeframe_confirmation_missing": 84
     },
     "recent": [
+      {
+        "symbol": "XLK",
+        "date": "2026-10-06",
+        "source_stage": "趋势延续",
+        "weekly": "多头",
+        "score": 93.06,
+        "return_20": -0.12618814600576267,
+        "mae_20": -0.13752474643216273,
+        "mfe_20": -0.0030198019801981335,
+        "severity": "review",
+        "tags": [
+          "trend_false_positive",
+          "large_adverse_move"
+        ],
+        "attribution_hypotheses": [
+          "当时趋势状态偏多，但20个交易日结果明显为负：优先检查趋势确认是否过早。",
+          "入档后经历较大不利波动，风险识别和无效条件应被单独复盘。"
+        ],
+        "guardrail": "这是可检验的归因假设，不是已经证明的因果关系；只有重复成熟样本才允许影响 Learning Policy。"
+      },
       {
         "symbol": "VIX",
         "date": "2026-10-06",
@@ -732,6 +740,28 @@
         ],
         "attribution_hypotheses": [
           "日线偏强而周线未确认，多周期冲突可能是误判来源之一。"
+        ],
+        "guardrail": "这是可检验的归因假设，不是已经证明的因果关系；只有重复成熟样本才允许影响 Learning Policy。"
+      },
+      {
+        "symbol": "AAOI",
+        "date": "2026-10-06",
+        "source_stage": "趋势延续",
+        "weekly": "空头",
+        "score": 26.04,
+        "return_20": -0.5085279562023424,
+        "mae_20": -0.519821757836509,
+        "mfe_20": -0.058543331284572786,
+        "severity": "review",
+        "tags": [
+          "trend_false_positive",
+          "timeframe_confirmation_missing",
+          "large_adverse_move"
+        ],
+        "attribution_hypotheses": [
+          "当时趋势状态偏多，但20个交易日结果明显为负：优先检查趋势确认是否过早。",
+          "日线偏强而周线未确认，多周期冲突可能是误判来源之一。",
+          "入档后经历较大不利波动，风险识别和无效条件应被单独复盘。"
         ],
         "guardrail": "这是可检验的归因假设，不是已经证明的因果关系；只有重复成熟样本才允许影响 Learning Policy。"
       },
@@ -946,42 +976,6 @@
         ],
         "attribution_hypotheses": [
           "入档后经历较大不利波动，风险识别和无效条件应被单独复盘。"
-        ],
-        "guardrail": "这是可检验的归因假设，不是已经证明的因果关系；只有重复成熟样本才允许影响 Learning Policy。"
-      },
-      {
-        "symbol": "INTC",
-        "date": "2026-10-01",
-        "source_stage": "高位钝化",
-        "weekly": "多头",
-        "score": 82.88,
-        "return_20": -0.23275,
-        "mae_20": -0.2875833333333334,
-        "mfe_20": -0.0055833333333333846,
-        "severity": "review",
-        "tags": [
-          "large_adverse_move"
-        ],
-        "attribution_hypotheses": [
-          "入档后经历较大不利波动，风险识别和无效条件应被单独复盘。"
-        ],
-        "guardrail": "这是可检验的归因假设，不是已经证明的因果关系；只有重复成熟样本才允许影响 Learning Policy。"
-      },
-      {
-        "symbol": "TSLA",
-        "date": "2026-09-30",
-        "source_stage": "趋势恶化",
-        "weekly": "过渡",
-        "score": -6.65,
-        "return_20": 0.1555045913616504,
-        "mae_20": 0.016316882744789263,
-        "mfe_20": 0.16742350834467445,
-        "severity": "review",
-        "tags": [
-          "missed_upside"
-        ],
-        "attribution_hypotheses": [
-          "当时状态偏谨慎，但随后20日明显上涨：检查是否漏掉二次启动或修复后的确认。"
         ],
         "guardrail": "这是可检验的归因假设，不是已经证明的因果关系；只有重复成熟样本才允许影响 Learning Policy。"
       }
@@ -2328,6 +2322,29 @@
         "learning_eligible": false
       },
       {
+        "event_id": "b69e8e9034ba83ad2444:0:CRWV:0",
+        "author": "BrightLine",
+        "symbol": "CRWV",
+        "published_at": "2026-10-05",
+        "title": "IREN - 我写了一个论点，然后等市场来验证",
+        "url": "https://blog.wenxuecity.com/myblog/82458/202610/3062.html",
+        "attribution": "author_action",
+        "return_20": -0.39396671352166,
+        "mae_20": -0.442232883174822,
+        "mfe_20": 0.05114180998026496,
+        "excess_vs_qqq_20": -0.29501077171831125,
+        "alignment_20": "not_aligned",
+        "review_tags": [
+          "direction_not_aligned",
+          "large_adverse_move",
+          "underperformed_qqq"
+        ],
+        "maturity": "mature20",
+        "attribution_confidence": "high",
+        "verification_status": "unverified_author_self_report",
+        "learning_eligible": false
+      },
+      {
         "event_id": "4e9807fbebe47c32a5f4:0:MU:0",
         "author": "yifan99",
         "symbol": "MU",
@@ -2696,30 +2713,9 @@
         "attribution_confidence": "medium",
         "verification_status": "unverified_author_self_report",
         "learning_eligible": false
-      },
-      {
-        "event_id": "brightline--blog-wenxuecity-com-myblog-82458-202605-4789-html:2:GOOG:0",
-        "author": "BrightLine",
-        "symbol": "GOOG",
-        "published_at": "2026-05-08",
-        "title": "财富的逻辑：从搏一搏到敢再搏，再到工程化的复利 — 我的投资哲学、方法论与实战案例",
-        "url": "https://blog.wenxuecity.com/myblog/82458/202605/4789.html",
-        "attribution": "author_action",
-        "return_20": -0.0726919040671632,
-        "mae_20": -0.09293813509432036,
-        "mfe_20": 0.035270930917095544,
-        "excess_vs_qqq_20": -0.06913032965418953,
-        "alignment_20": "not_aligned",
-        "review_tags": [
-          "direction_not_aligned"
-        ],
-        "maturity": "mature20",
-        "attribution_confidence": "medium",
-        "verification_status": "unverified_author_self_report",
-        "learning_eligible": false
       }
     ],
-    "external_outcome_review_count": 26,
+    "external_outcome_review_count": 27,
     "external_note": "旧 Source Outcome 仅保留描述性复盘；不得进入 Evidence Foundation 方法成熟度、Planner 权重或 Promotion。"
   },
   "external_source_intelligence": {
@@ -3655,9 +3651,9 @@
     ],
     "outcome_validation": {
       "counts": {
-        "events": 214,
+        "events": 215,
         "author_owned": 87,
-        "unconfirmed": 127,
+        "unconfirmed": 128,
         "triggered_author_owned": 84,
         "untriggered_plans": 3,
         "mature60": 35,
@@ -3674,11 +3670,11 @@
             "alignment_rate": 0.5
           },
           "20": {
-            "n": 14,
-            "avg_return": 0.0007624618666705289,
-            "median_return": 0.06286129222278758,
-            "avg_excess_vs_qqq": -0.020786961492335807,
-            "alignment_rate": 0.5714285714285714
+            "n": 15,
+            "avg_return": -0.02555281649255151,
+            "median_return": 0.04320514050062352,
+            "avg_excess_vs_qqq": -0.03906854884073417,
+            "alignment_rate": 0.5333333333333333
           },
           "60": {
             "n": 12,
@@ -3897,9 +3893,9 @@
         }
       },
       "mature_learning": {
-        "events_scanned": 214,
-        "mature20": 48,
-        "review_candidates": 26,
+        "events_scanned": 215,
+        "mature20": 49,
+        "review_candidates": 27,
         "recent_reviews": [
           {
             "event_id": "b69e8e9034ba83ad2444:0:IREN:0",
@@ -3936,6 +3932,29 @@
             "mae_20": -0.46514187866927603,
             "mfe_20": 0.03174412915851277,
             "excess_vs_qqq_20": -0.3027074632847139,
+            "alignment_20": "not_aligned",
+            "review_tags": [
+              "direction_not_aligned",
+              "large_adverse_move",
+              "underperformed_qqq"
+            ],
+            "maturity": "mature20",
+            "attribution_confidence": "high",
+            "verification_status": "unverified_author_self_report",
+            "learning_eligible": false
+          },
+          {
+            "event_id": "b69e8e9034ba83ad2444:0:CRWV:0",
+            "author": "BrightLine",
+            "symbol": "CRWV",
+            "published_at": "2026-10-05",
+            "title": "IREN - 我写了一个论点，然后等市场来验证",
+            "url": "https://blog.wenxuecity.com/myblog/82458/202610/3062.html",
+            "attribution": "author_action",
+            "return_20": -0.39396671352166,
+            "mae_20": -0.442232883174822,
+            "mfe_20": 0.05114180998026496,
+            "excess_vs_qqq_20": -0.29501077171831125,
             "alignment_20": "not_aligned",
             "review_tags": [
               "direction_not_aligned",
@@ -4311,27 +4330,6 @@
               "direction_not_aligned",
               "large_adverse_move",
               "underperformed_qqq"
-            ],
-            "maturity": "mature20",
-            "attribution_confidence": "medium",
-            "verification_status": "unverified_author_self_report",
-            "learning_eligible": false
-          },
-          {
-            "event_id": "brightline--blog-wenxuecity-com-myblog-82458-202605-4789-html:2:GOOG:0",
-            "author": "BrightLine",
-            "symbol": "GOOG",
-            "published_at": "2026-05-08",
-            "title": "财富的逻辑：从搏一搏到敢再搏，再到工程化的复利 — 我的投资哲学、方法论与实战案例",
-            "url": "https://blog.wenxuecity.com/myblog/82458/202605/4789.html",
-            "attribution": "author_action",
-            "return_20": -0.0726919040671632,
-            "mae_20": -0.09293813509432036,
-            "mfe_20": 0.035270930917095544,
-            "excess_vs_qqq_20": -0.06913032965418953,
-            "alignment_20": "not_aligned",
-            "review_tags": [
-              "direction_not_aligned"
             ],
             "maturity": "mature20",
             "attribution_confidence": "medium",

@@ -1,15 +1,15 @@
 {
- "version": 3,
+ "version": 4,
  "method": "each component = percentile of today vs its trailing 252 readings; fixed linear scale (labelled) until 252 readings exist; inputs > 2 sessions behind the market date are excluded; composite rounded to an integer",
  "reference_date": "2026-11-03",
  "max_lag_sessions": 2,
  "fixed_scale_components": 3,
  "validation_plan": "docs/development/market_temperature_validation.md",
- "generated_at": "2026-11-04T01:05:28Z",
+ "generated_at": "2026-11-04T16:22:24Z",
  "as_of": "2026-11-03",
- "score": 39,
+ "score": 27,
  "label": "恐惧",
- "components_available": 5,
+ "components_available": 6,
  "components_total": 6,
  "components": [
   {
@@ -28,28 +28,28 @@
    "key": "strength",
    "name": "股价强度",
    "status": "ok",
-   "score": 89.2,
+   "score": 64.1,
    "method": "fixed_scale",
-   "raw": 0.078313,
+   "raw": 0.028112,
    "value": {
-    "new_high": 0.0823,
-    "new_low": 0.004
+    "new_high": 0.0301,
+    "new_low": 0.002
    },
-   "as_of": "2026-11-02",
+   "as_of": "2026-11-03",
    "source": "breadth_intelligence (S&P 500 net 52-week highs)",
-   "lag_sessions": 1
+   "lag_sessions": 0
   },
   {
    "key": "breadth",
    "name": "市场宽度",
    "status": "ok",
-   "score": 67.7,
+   "score": 67.1,
    "method": "fixed_scale",
-   "raw": 0.676707,
-   "value": 0.6767,
-   "as_of": "2026-11-02",
+   "raw": 0.670683,
+   "value": 0.6707,
+   "as_of": "2026-11-03",
    "source": "breadth_intelligence (S&P 500 above 50-day MA)",
-   "lag_sessions": 1
+   "lag_sessions": 0
   },
   {
    "key": "volatility",
@@ -69,24 +69,29 @@
   {
    "key": "safe_haven",
    "name": "避险需求",
-   "status": "unavailable",
-   "reason": "SPY/TLT history missing or dates differ",
-   "source": "archive SPY vs TLT 20-session return"
+   "status": "ok",
+   "score": 0.4,
+   "method": "percentile_252",
+   "raw": -0.081315,
+   "value": -0.0813,
+   "as_of": "2026-11-03",
+   "source": "archive SPY vs TLT 20-session return (latest common date)",
+   "lag_sessions": 0
   },
   {
    "key": "credit",
    "name": "信用风险",
    "status": "ok",
-   "score": 19.0,
+   "score": 13.0,
    "method": "fixed_scale",
-   "raw": 0.31,
+   "raw": 0.37,
    "value": {
-    "hy_oas": 3.43,
-    "chg20_pp": 0.31
+    "hy_oas": 3.4,
+    "chg20_pp": 0.37
    },
-   "as_of": "2026-11-02",
+   "as_of": "2026-11-03",
    "source": "FRED ICE BofA US High Yield OAS (via cross_asset_divergence)",
-   "lag_sessions": 1
+   "lag_sessions": 0
   }
  ],
  "status": "ok",
@@ -96,6 +101,6 @@
  "decision": "#133 2026-10-17 owner-approved; SENT-01 CNN stays link-out only",
  "change_vs": {
   "as_of": "2026-10-27",
-  "delta": 5
+  "delta": -7
  }
 }

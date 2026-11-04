@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "generated_at": "2026-11-04T09:00:09.139444+00:00",
+  "generated_at": "2026-11-04T16:22:33.726675+00:00",
   "methodology": {
     "executed_action_baseline": "first trading session open strictly after source date when no reliable intraday timestamp exists",
     "planned_entry_baseline": "explicit stock-entry plans begin only on the first later session whose low touches the stated level; each tranche is validated separately",
@@ -16,9 +16,9 @@
     "attribution_limit": "third-party examples are excluded; unconfirmed source context is visible but excluded from aggregate method memory"
   },
   "counts": {
-    "events": 214,
+    "events": 215,
     "author_owned": 87,
-    "unconfirmed": 127,
+    "unconfirmed": 128,
     "triggered_author_owned": 84,
     "untriggered_plans": 3,
     "mature60": 35,
@@ -36,11 +36,11 @@
         "alignment_rate": 0.5
       },
       "20": {
-        "n": 14,
-        "avg_return": 0.0007624618666705289,
-        "median_return": 0.06286129222278758,
-        "avg_excess_vs_qqq": -0.020786961492335807,
-        "alignment_rate": 0.5714285714285714
+        "n": 15,
+        "avg_return": -0.02555281649255151,
+        "median_return": 0.04320514050062352,
+        "avg_excess_vs_qqq": -0.03906854884073417,
+        "alignment_rate": 0.5333333333333333
       },
       "60": {
         "n": 12,
@@ -268,11 +268,11 @@
         "alignment_rate": 0.46153846153846156
       },
       "20": {
-        "n": 37,
-        "avg_return": 0.0020082729432063405,
-        "median_return": -0.017282153902128394,
-        "avg_excess_vs_qqq": -0.02329567507577545,
-        "alignment_rate": 0.46875
+        "n": 38,
+        "avg_return": -0.008412121437448034,
+        "median_return": -0.029649088875789376,
+        "avg_excess_vs_qqq": -0.03044607235584219,
+        "alignment_rate": 0.45454545454545453
       },
       "60": {
         "n": 29,
@@ -457,6 +457,60 @@
       "triggered": true,
       "baseline_date": "2026-11-03",
       "baseline_price": 207.96001,
+      "price_provenance": {
+        "price_source": "stooq_archive",
+        "adjustment_basis": "stooq_archive_native_series",
+        "baseline_source": "stooq_archive",
+        "horizon_source": "stooq_archive",
+        "same_source": true
+      },
+      "outcomes": {
+        "5": null,
+        "20": null,
+        "60": null
+      },
+      "alignment": {
+        "direction": "bullish",
+        "5": null,
+        "20": null,
+        "60": null
+      },
+      "level_checks": {},
+      "status": "developing"
+    },
+    {
+      "event_id": "7cf96c01506fec2ffb82:3:MU:0",
+      "author": "老李玩钱",
+      "title": "11月必买3支股票",
+      "url": "https://www.youtube.com/watch?v=1nXl0sFPiE4",
+      "published_at": "2026-11-02",
+      "symbol": "MU",
+      "operation": {
+        "symbols": [
+          "MU",
+          "AMD"
+        ],
+        "actions": [
+          "add",
+          "buy",
+          "hold"
+        ],
+        "attribution": "unconfirmed_author_context",
+        "attribution_confidence": "needs_review"
+      },
+      "actions": [
+        "add",
+        "buy",
+        "hold"
+      ],
+      "attribution": "unconfirmed_author_context",
+      "attribution_confidence": "needs_review",
+      "baseline_kind": "next_session",
+      "baseline_assumption": "next trading session open because source date has no reliable intraday timestamp",
+      "planned_level": null,
+      "triggered": true,
+      "baseline_date": "2026-11-03",
+      "baseline_price": 859.9299926757812,
       "price_provenance": {
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
@@ -5472,13 +5526,20 @@
           "benchmark_return": -0.022313054469536242,
           "excess_vs_qqq": -0.10021305143862558
         },
-        "20": null,
+        "20": {
+          "date": "2026-11-03",
+          "return": -0.39396671352166,
+          "mae": -0.442232883174822,
+          "mfe": 0.05114180998026496,
+          "benchmark_return": -0.09895594180334877,
+          "excess_vs_qqq": -0.29501077171831125
+        },
         "60": null
       },
       "alignment": {
         "direction": "bullish",
         "5": "not_aligned",
-        "20": null,
+        "20": "not_aligned",
         "60": null
       },
       "level_checks": {},

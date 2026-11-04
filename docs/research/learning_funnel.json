@@ -1,6 +1,6 @@
 {
  "version": "p3-12.1",
- "generated_at": "2026-11-04T01:06:52.483399+00:00",
+ "generated_at": "2026-11-04T16:23:15.025617+00:00",
  "layers": [
   "discovered",
   "canonical_persisted",
@@ -36,7 +36,7 @@
   "fundamental": {
    "learning_maturity": "unproven_no_forward_samples",
    "funnel_issues": [],
-   "discovered": 6063,
+   "discovered": 4463,
    "canonical_persisted": 867,
    "interpretable": 867,
    "candidate_claim_or_state": 422,
@@ -49,9 +49,9 @@
   "event": {
    "learning_maturity": "context_only",
    "funnel_issues": [],
-   "discovered": 2222,
-   "canonical_persisted": 2222,
-   "interpretable": 2222,
+   "discovered": 2261,
+   "canonical_persisted": 2261,
+   "interpretable": 2261,
    "candidate_claim_or_state": 0,
    "effective_forward_eligible": 0,
    "independently_matured": 0,
@@ -63,10 +63,10 @@
    "learning_maturity": "forward_collecting",
    "funnel_issues": [],
    "discovered": 6,
-   "canonical_persisted": 128,
-   "interpretable": 114,
+   "canonical_persisted": 134,
+   "interpretable": 120,
    "candidate_claim_or_state": 10,
-   "effective_forward_eligible": 114,
+   "effective_forward_eligible": 120,
    "independently_matured": 0,
    "benchmark_evaluated": null,
    "downstream_consumer_count": 1,
@@ -88,14 +88,14 @@
   "external_research": {
    "learning_maturity": "forward_collecting",
    "funnel_issues": [],
-   "discovered": 2978,
-   "canonical_persisted": 2978,
-   "interpretable": 718,
+   "discovered": 2979,
+   "canonical_persisted": 2979,
+   "interpretable": 719,
    "candidate_claim_or_state": 34,
    "effective_forward_eligible": 20,
    "independently_matured": 2,
    "benchmark_evaluated": null,
-   "downstream_consumer_count": 9,
+   "downstream_consumer_count": 12,
    "validated_learning_applied": null
   }
  },
@@ -164,13 +164,13 @@
     "reason": "no forward-validated method exists yet (genuine forward matured = 0); not provable"
    },
    "historical": {
-    "market_price_history_mature_60": 7701,
+    "market_price_history_mature_60": 7700,
     "note": "historical price-event replay; descriptive, not forward learning"
    }
   },
   "fundamental": {
    "discovered": {
-    "count": 6063,
+    "count": 4463,
     "definition": "XBRL facts captured (company_fundamental_memory archive)",
     "evidence": "docs/research/company_fundamental_memory.json",
     "dedup_key": "fact"
@@ -236,19 +236,19 @@
   },
   "event": {
    "discovered": {
-    "count": 2222,
+    "count": 2261,
     "definition": "news/event items archived",
     "evidence": "research/archive/events",
     "dedup_key": "uuid"
    },
    "canonical_persisted": {
-    "count": 2222,
+    "count": 2261,
     "definition": "append-only monthly event shards",
     "evidence": "research/archive/events",
     "dedup_key": "uuid"
    },
    "interpretable": {
-    "count": 2222,
+    "count": 2261,
     "definition": "items with title, url and event date",
     "evidence": "research/archive/events",
     "dedup_key": "uuid"
@@ -306,13 +306,13 @@
     "dedup_key": "symbol"
    },
    "canonical_persisted": {
-    "count": 128,
+    "count": 134,
     "definition": "opportunity observations persisted (incl. superseded)",
     "evidence": "research/archive/options_opportunity_observations",
     "dedup_key": "observation_id"
    },
    "interpretable": {
-    "count": 114,
+    "count": 120,
     "definition": "observations with aligned price/support inputs (not superseded)",
     "evidence": "research/archive/options_opportunity_observations",
     "dedup_key": "observation_id"
@@ -324,7 +324,7 @@
     "dedup_key": "symbol×state"
    },
    "effective_forward_eligible": {
-    "count": 114,
+    "count": 120,
     "definition": "aligned forward observations eligible for outcome tracking",
     "evidence": "docs/research/options_opportunity_outcome_memory.json",
     "dedup_key": "observation_id"
@@ -432,29 +432,29 @@
   },
   "external_research": {
    "discovered": {
-    "count": 2978,
+    "count": 2979,
     "definition": "distinct canonical source keys (forum/blog/YouTube)",
     "evidence": "research/store/source_store.json",
     "dedup_key": "source_key"
    },
    "canonical_persisted": {
-    "count": 2978,
+    "count": 2979,
     "definition": "Source Store records (append-only)",
     "evidence": "research/store/source_store.json",
     "dedup_key": "source_key"
    },
    "interpretable": {
-    "count": 718,
+    "count": 719,
     "definition": "records with body text available (excerpt ≤360 chars or full text ≥1000); title-only excluded",
     "evidence": "docs/data/source_intelligence.json",
     "dedup_key": "feed id",
     "text_depth": {
      "title_only": 2145,
-     "excerpt": 718,
+     "excerpt": 719,
      "full_text": 0,
-     "original_length_known": 718
+     "original_length_known": 719
     },
-    "records_processed_by_source_reading": 2978,
+    "records_processed_by_source_reading": 2979,
     "note": "processed ≠ understood: most forum rows reach Source Reading as title/excerpt only"
    },
    "candidate_claim_or_state": {
@@ -483,7 +483,7 @@
     "reason": "benchmark excess for forward source events not instrumented"
    },
    "downstream_consumer_count": {
-    "count": 9,
+    "count": 12,
     "definition": "distinct downstream scripts that READ this engine's state (readability, not proof of applied learning)",
     "evidence": "docs/research/data_learning_coverage_audit.json",
     "dedup_key": "consumer script",
@@ -493,6 +493,9 @@
      "candidate_rule_compiler.py",
      "learning_funnel_contract.py",
      "method_memory_engine.py",
+     "retrieval_eligibility.py",
+     "retrieval_history_diff.py",
+     "retrieval_inventory.py",
      "source_rule_lifecycle.py",
      "v615_method_attribution.py",
      "v615_rule_registry.py",

@@ -42,6 +42,10 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: python scripts/verify_owner_approvals.py
+      - name: Positive online path on a TEST-ONLY retrieval approval fixture (never read by a real run)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python scripts/verify_owner_approvals.py --registry tests/fixtures/retrieval/approval_registry_online_fixture.json
       - name: Offline verifier tests
         run: python tests/test_verify_owner_approvals.py
 

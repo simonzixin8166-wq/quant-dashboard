@@ -1,6 +1,6 @@
 {
  "version": "6.11-p2",
- "generated_at": "2026-11-04T16:25:42.627943Z",
+ "generated_at": "2026-11-04T18:40:22.413816Z",
  "module": "v6.11-gold-dca",
  "freshness": {
   "live_max_age_minutes": 20,
@@ -9,23 +9,19 @@
   "real_yield_max_age_days": 7
  },
  "gold": {
-  "state": "WATCH",
+  "state": "WAIT",
   "review_kind": null,
-  "zone": "core_watch",
-  "stage": 1,
-  "stage_budget_pct": 10,
+  "zone": "above_plan",
+  "stage": null,
+  "stage_budget_pct": null,
   "reasons": [
-   "已进入第1档 第一阶段观察及试仓；BUY 条件未齐备"
+   "高于观察区；等待 $3,950–4,050"
   ],
-  "blockers": [
-   "宏观风险数据缺失（DXY/实际利率），无法排除 PAUSE",
-   "宏观/价格风险已出现 1 项，等待复核",
-   "止跌/趋势未确认：两日未创新低；收盘 3,927 < 5日均线 3,965"
-  ],
+  "blockers": [],
   "next_band": {
-   "min": 3950,
-   "max": 4000,
-   "stage": 2
+   "min": 4000,
+   "max": 4050,
+   "stage": 1
   },
   "buy_data_gate": {
    "trusted_spot_daily": false,
@@ -33,41 +29,41 @@
    "rule": "BUY 仅在可信现货日线下生成；估算/代理日线最多 WATCH"
   },
   "quote": {
-   "price": 4041.5,
+   "price": 4062.1,
    "basis": "spot",
    "source": "gold-api.com 现货",
-   "as_of": "2026-11-04T16:25:29Z",
+   "as_of": "2026-11-04T18:39:59Z",
    "freshness": "LIVE",
-   "age_minutes": 0.2,
+   "age_minutes": 0.4,
    "market_open": true,
    "errors": null
   },
   "fx": {
-   "usdcny": 6.6621,
-   "as_of": "2026-11-04T16:20:45Z",
+   "usdcny": 6.6633,
+   "as_of": "2026-11-04T18:36:40Z",
    "source": "Yahoo CNY=X"
   },
-  "cny_per_gram": 865.65,
+  "cny_per_gram": 870.22,
   "band_cny_per_gram": [
    {
     "usd": 4050,
-    "cny_per_gram": 867.48
+    "cny_per_gram": 867.63
    },
    {
     "usd": 4000,
-    "cny_per_gram": 856.77
+    "cny_per_gram": 856.92
    },
    {
     "usd": 3950,
-    "cny_per_gram": 846.06
+    "cny_per_gram": 846.21
    },
    {
     "usd": 3850,
-    "cny_per_gram": 824.64
+    "cny_per_gram": 824.79
    },
    {
     "usd": 3650,
-    "cny_per_gram": 781.8
+    "cny_per_gram": 781.94
    }
   ],
   "year_stats": {
@@ -94,13 +90,13 @@
     "cny_per_gram": 864.34
    },
    "low_estimate_after_verified": {
-    "value": 3866.2,
+    "value": 3868.0,
     "date": "2026-10-30",
     "basis": "spot_estimate_from_futures",
     "note": "期货基差估算，未经核实",
     "usdcny": 6.661,
     "usdcny_date": "2026-10-30",
-    "cny_per_gram": 827.97
+    "cny_per_gram": 828.36
    },
    "coverage": {
     "from": "2026-01-02",
@@ -108,35 +104,35 @@
     "sessions": 212
    },
    "low_is_full_year_confirmed": false,
-   "drawdown_from_high_pct": -27.77,
-   "above_low_pct": 2.08
+   "drawdown_from_high_pct": -27.4,
+   "above_low_pct": 2.6
   },
   "etf_quotes": {
    "GLDM": {
-    "price": 79.89,
+    "price": 80.31,
     "currency": "USD",
-    "as_of": "2026-11-04T16:25:57Z",
+    "as_of": "2026-11-04T18:40:19Z",
     "source": "Yahoo GLDM",
     "delayed": true
    },
    "IAU": {
-    "price": 75.91,
+    "price": 76.31,
     "currency": "USD",
-    "as_of": "2026-11-04T16:26:03Z",
+    "as_of": "2026-11-04T18:40:05Z",
     "source": "Yahoo IAU",
     "delayed": true
    },
    "GLD": {
-    "price": 370.25,
+    "price": 372.15,
     "currency": "USD",
-    "as_of": "2026-11-04T16:26:01Z",
+    "as_of": "2026-11-04T18:40:42Z",
     "source": "Yahoo GLD",
     "delayed": true
    },
    "SGLN": {
-    "price": 5823.69,
+    "price": 5830.0,
     "currency": "GBp",
-    "as_of": "2026-11-04T16:05:29Z",
+    "as_of": "2026-11-04T16:35:19Z",
     "source": "Yahoo SGLN.L",
     "delayed": true
    }
@@ -148,8 +144,8 @@
       "id": "gold_close_below",
       "met": true,
       "value": [
-       3956.50009765625,
-       3927.29990234375
+       3958.30019565625,
+       3929.10000034375
       ],
       "rule": "连续2个交易日收在 $4,000 以下"
      },
@@ -162,7 +158,7 @@
      {
       "id": "dxy_rise",
       "met": false,
-      "value_pct": -0.59,
+      "value_pct": -0.65,
       "rule": "DXY 5 日涨幅 > 1.5%"
      }
     ],
@@ -171,7 +167,7 @@
     "pause": false,
     "complete": false,
     "ry_change_bp_5d": null,
-    "dxy_change_pct_5d": -0.59
+    "dxy_change_pct_5d": -0.65
    },
    "deep_review": {
     "triggered": false,
@@ -181,11 +177,11 @@
     "weeks": [
      {
       "date": "2026-10-30",
-      "close": 3885.8
+      "close": 3887.6
      },
      {
       "date": "2026-11-03",
-      "close": 3927.3
+      "close": 3929.1
      }
     ]
    },
@@ -193,16 +189,16 @@
     "ok": false,
     "stabilized": true,
     "trend": false,
-    "sma5": 3965.28,
-    "detail": "两日未创新低；收盘 3,927 < 5日均线 3,965",
+    "sma5": 3967.08,
+    "detail": "两日未创新低；收盘 3,929 < 5日均线 3,967",
     "as_of": "2026-11-03"
    }
   },
   "inputs": {
    "daily": {
-    "source": "COMEX期货日线 − 实时基差 +13.1（现货估算）",
+    "source": "COMEX期货日线 − 实时基差 +11.3（现货估算）",
     "basis": "spot_estimate_from_futures",
-    "futures_spot_basis": 13.1,
+    "futures_spot_basis": 11.3,
     "last_date": "2026-11-04",
     "fresh": true
    },
@@ -214,7 +210,7 @@
    "dxy": {
     "source": "Yahoo DX-Y.NYB",
     "last_date": "2026-11-04",
-    "last": 101.58
+    "last": 101.53
    },
    "macro_fresh": false,
    "etf_flows": "unavailable_free_source"
@@ -256,7 +252,7 @@
   },
   "events_this_run": [],
   "delivery": [],
-  "signal_id": "32fc3c0c337dacdb"
+  "signal_id": "06096994ab6661e4"
  },
  "dca_calendar": {
   "timezone": "Asia/Shanghai",
@@ -291,23 +287,23 @@
   ],
   "quotes": {
    "QQQM": {
-    "price": 284.63,
+    "price": 285.78,
     "currency": "USD",
-    "as_of": "2026-11-04T16:26:02Z",
+    "as_of": "2026-11-04T18:40:40Z",
     "source": "Yahoo QQQM",
     "delayed": true
    },
    "QLD": {
-    "price": 82.64,
+    "price": 83.35,
     "currency": "USD",
-    "as_of": "2026-11-04T16:25:54Z",
+    "as_of": "2026-11-04T18:40:44Z",
     "source": "Yahoo QLD",
     "delayed": true
    },
    "VGT": {
-    "price": 115.54,
+    "price": 115.99,
     "currency": "USD",
-    "as_of": "2026-11-04T16:25:55Z",
+    "as_of": "2026-11-04T18:40:33Z",
     "source": "Yahoo VGT",
     "delayed": true
    }
@@ -317,7 +313,7 @@
   "armed_watch": false,
   "armed_breakout": true,
   "buy_sent_stages": [],
-  "last_state": "WATCH",
+  "last_state": "WAIT",
   "last_review_kind": null
  },
  "guardrails": {
@@ -328,8 +324,8 @@
   "thresholds_are_initial_hypotheses": true
  },
  "learning": {
-  "journal_entries": 17,
-  "observation_eligible": 15,
+  "journal_entries": 18,
+  "observation_eligible": 16,
   "scoreable_predictions": 0,
   "mature_any": {
    "20d": 0,

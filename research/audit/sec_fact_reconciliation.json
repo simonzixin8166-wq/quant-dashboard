@@ -1,23 +1,27 @@
 {
- "generated_at": "2026-11-04T16:22:55Z",
+ "generated_at": "2026-11-05T01:14:47Z",
  "inputs": {
   "old": {
    "path": "docs/research/company_fundamental_memory.json",
-   "generated_at": "2026-11-04T16:22:41.557730+00:00"
+   "generated_at": "2026-11-05T01:14:34.394379+00:00"
   },
   "new": {
    "path": "docs/research/sec_fundamentals.json",
-   "generated_at": "2026-11-04T16:21:59Z"
+   "generated_at": "2026-11-05T01:13:46Z"
   },
   "archive": "research/archive/fundamentals"
  },
  "coverage": {
   "old_symbols": [
+   "AMZN",
    "IREN",
+   "LITE",
+   "MRVL",
    "MSFT",
    "NBIS",
    "ORCL",
-   "SOFI"
+   "SOFI",
+   "TSLA"
   ],
   "new_symbols": [
    "AAOI",
@@ -53,18 +57,21 @@
    "XLK"
   ],
   "overlap": [
+   "AMZN",
    "IREN",
+   "LITE",
+   "MRVL",
    "MSFT",
    "NBIS",
    "ORCL",
-   "SOFI"
+   "SOFI",
+   "TSLA"
   ],
   "only_old": [],
   "only_new": [
    "AAOI",
    "AAPL",
    "AMD",
-   "AMZN",
    "AVGO",
    "CRWV",
    "DIA",
@@ -74,15 +81,12 @@
    "HYG",
    "INTC",
    "IWM",
-   "LITE",
    "META",
-   "MRVL",
    "MU",
    "NOW",
    "NVDA",
    "SPCX",
    "TLT",
-   "TSLA",
    "TSM",
    "XLE",
    "XLF",
@@ -95,20 +99,22 @@
  },
  "class_tally": {
   "revenue": {
-   "only_new": 17,
+   "only_new": 13,
+   "old_ytd_period": 4,
    "neither": 9,
    "agree": 3,
-   "old_non_usd": 1,
-   "old_stale": 1,
-   "old_ytd_period": 1
+   "concept_switch": 1,
+   "old_stale": 2,
+   "old_non_usd": 1
   },
   "net_income": {
-   "only_new": 17,
+   "only_new": 13,
+   "old_misaligned": 2,
    "neither": 9,
    "agree": 3,
+   "old_ytd_period": 3,
    "old_non_usd": 1,
-   "old_stale": 1,
-   "old_ytd_period": 1
+   "old_stale": 1
   }
  },
  "focus_before_after": {
@@ -574,7 +580,7 @@
    }
   },
   "AMZN": {
-   "in_old": false,
+   "in_old": true,
    "in_new": true,
    "new_available": true,
    "new_metrics_status": {
@@ -584,7 +590,17 @@
    },
    "metrics": {
     "revenue": {
-     "old": null,
+     "old": {
+      "value": 584069000000,
+      "start": "2026-01-01",
+      "end": "2026-09-30",
+      "filed": "2026-10-30",
+      "concept": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "unit": "USD",
+      "form": "10-Q",
+      "accn": "0001018724-26-000040",
+      "period_kind": "ytd_or_other"
+     },
      "new": {
       "value": 201944000000,
       "start": "2026-07-01",
@@ -597,10 +613,10 @@
       "period_kind": "quarter"
      },
      "classes": [
-      "only_new"
+      "old_ytd_period"
      ],
-     "archive_rows": 128,
-     "archive_has_new_fact": false,
+     "archive_rows": 132,
+     "archive_has_new_fact": true,
      "archive_units": [
       "USD"
      ],
@@ -609,7 +625,17 @@
      ]
     },
     "net_income": {
-     "old": null,
+     "old": {
+      "value": 134779000000,
+      "start": "2025-10-01",
+      "end": "2026-09-30",
+      "filed": "2026-10-30",
+      "concept": "NetIncomeLoss",
+      "unit": "USD",
+      "form": "10-Q",
+      "accn": "0001018724-26-000040",
+      "period_kind": "year"
+     },
      "new": {
       "value": 20685000000,
       "start": "2026-07-01",
@@ -622,10 +648,10 @@
       "period_kind": "quarter"
      },
      "classes": [
-      "only_new"
+      "old_misaligned"
      ],
-     "archive_rows": 417,
-     "archive_has_new_fact": false,
+     "archive_rows": 423,
+     "archive_has_new_fact": true,
      "archive_units": [
       "USD"
      ],
@@ -1151,7 +1177,7 @@
    }
   },
   "LITE": {
-   "in_old": false,
+   "in_old": true,
    "in_new": true,
    "new_available": true,
    "new_metrics_status": {
@@ -1161,7 +1187,17 @@
    },
    "metrics": {
     "revenue": {
-     "old": null,
+     "old": {
+      "value": 3014000000,
+      "start": "2025-06-29",
+      "end": "2026-06-27",
+      "filed": "2026-08-17",
+      "concept": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "unit": "USD",
+      "form": "10-K",
+      "accn": "0001628280-26-057358",
+      "period_kind": "year"
+     },
      "new": {
       "value": 1262600000,
       "start": "2026-06-28",
@@ -1174,7 +1210,8 @@
       "period_kind": "quarter"
      },
      "classes": [
-      "only_new"
+      "concept_switch",
+      "old_stale"
      ],
      "archive_rows": 37,
      "archive_has_new_fact": false,
@@ -1186,7 +1223,17 @@
      ]
     },
     "net_income": {
-     "old": null,
+     "old": {
+      "value": 360300000,
+      "start": "2026-06-28",
+      "end": "2026-09-26",
+      "filed": "2026-11-03",
+      "concept": "NetIncomeLoss",
+      "unit": "USD",
+      "form": "10-Q",
+      "accn": "0001628280-26-069615",
+      "period_kind": "quarter"
+     },
      "new": {
       "value": 360300000,
       "start": "2026-06-28",
@@ -1199,10 +1246,10 @@
       "period_kind": "quarter"
      },
      "classes": [
-      "only_new"
+      "old_misaligned"
      ],
-     "archive_rows": 242,
-     "archive_has_new_fact": false,
+     "archive_rows": 244,
+     "archive_has_new_fact": true,
      "archive_units": [
       "USD"
      ],
@@ -1275,7 +1322,7 @@
    }
   },
   "MRVL": {
-   "in_old": false,
+   "in_old": true,
    "in_new": true,
    "new_available": true,
    "new_metrics_status": {
@@ -1285,7 +1332,17 @@
    },
    "metrics": {
     "revenue": {
-     "old": null,
+     "old": {
+      "value": 5157100000,
+      "start": "2026-02-01",
+      "end": "2026-08-01",
+      "filed": "2026-08-28",
+      "concept": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "unit": "USD",
+      "form": "10-Q",
+      "accn": "0001835632-26-000025",
+      "period_kind": "ytd_or_other"
+     },
      "new": {
       "value": 2739300000,
       "start": "2026-05-03",
@@ -1298,7 +1355,7 @@
       "period_kind": "quarter"
      },
      "classes": [
-      "only_new"
+      "old_ytd_period"
      ],
      "archive_rows": 71,
      "archive_has_new_fact": true,
@@ -1310,7 +1367,17 @@
      ]
     },
     "net_income": {
-     "old": null,
+     "old": {
+      "value": 342500000,
+      "start": "2026-02-01",
+      "end": "2026-08-01",
+      "filed": "2026-08-28",
+      "concept": "NetIncomeLoss",
+      "unit": "USD",
+      "form": "10-Q",
+      "accn": "0001835632-26-000025",
+      "period_kind": "ytd_or_other"
+     },
      "new": {
       "value": 308000000,
       "start": "2026-05-03",
@@ -1323,7 +1390,7 @@
       "period_kind": "quarter"
      },
      "classes": [
-      "only_new"
+      "old_ytd_period"
      ],
      "archive_rows": 103,
      "archive_has_new_fact": true,
@@ -1945,7 +2012,7 @@
    }
   },
   "TSLA": {
-   "in_old": false,
+   "in_old": true,
    "in_new": true,
    "new_available": true,
    "new_metrics_status": {
@@ -1955,7 +2022,17 @@
    },
    "metrics": {
     "revenue": {
-     "old": null,
+     "old": {
+      "value": 78669000000,
+      "start": "2026-01-01",
+      "end": "2026-09-30",
+      "filed": "2026-10-22",
+      "concept": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "unit": "USD",
+      "form": "10-Q",
+      "accn": "0001628280-26-066775",
+      "period_kind": "ytd_or_other"
+     },
      "new": {
       "value": 28046000000,
       "start": "2026-07-01",
@@ -1968,7 +2045,7 @@
       "period_kind": "quarter"
      },
      "classes": [
-      "only_new"
+      "old_ytd_period"
      ],
      "archive_rows": 49,
      "archive_has_new_fact": true,
@@ -1980,7 +2057,17 @@
      ]
     },
     "net_income": {
-     "old": null,
+     "old": {
+      "value": 2378000000,
+      "start": "2026-01-01",
+      "end": "2026-09-30",
+      "filed": "2026-10-22",
+      "concept": "NetIncomeLoss",
+      "unit": "USD",
+      "form": "10-Q",
+      "accn": "0001628280-26-066775",
+      "period_kind": "ytd_or_other"
+     },
      "new": {
       "value": 787000000,
       "start": "2026-07-01",
@@ -1993,7 +2080,7 @@
       "period_kind": "quarter"
      },
      "classes": [
-      "only_new"
+      "old_ytd_period"
      ],
      "archive_rows": 278,
      "archive_has_new_fact": true,
@@ -2133,14 +2220,14 @@
  "read_only": true,
  "production_use": false,
  "note": "audit only: neither source nor any consumer is changed; anomaly_review values are held for review, not declared false",
- "content_sha256": "ede213dd2ad40b0912201b280b2454018772dd0a18f28e646764545f7ecf1aab",
+ "content_sha256": "d0d6523f297bd96cccea0c5cbad2d51218a782ea531750c92a9799da5ba0f742",
  "shadow_v2_vs_new": {
   "status": "compared",
-  "shadow_generated_at": "2026-11-04T16:22:43Z",
+  "shadow_generated_at": "2026-11-05T01:14:36Z",
   "shadow_counts": {
    "symbols": 25,
    "ok": 24,
-   "archive_added": 32,
+   "archive_added": 0,
    "archive_total": 35125,
    "non_usd_skipped": 386,
    "ytd_or_other_rows": 7943,

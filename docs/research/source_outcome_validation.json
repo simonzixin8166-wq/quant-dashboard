@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "generated_at": "2026-11-04T16:22:33.726675+00:00",
+  "generated_at": "2026-11-05T01:14:24.233021+00:00",
   "methodology": {
     "executed_action_baseline": "first trading session open strictly after source date when no reliable intraday timestamp exists",
     "planned_entry_baseline": "explicit stock-entry plans begin only on the first later session whose low touches the stated level; each tranche is validated separately",
@@ -19,10 +19,10 @@
     "events": 215,
     "author_owned": 87,
     "unconfirmed": 128,
-    "triggered_author_owned": 84,
-    "untriggered_plans": 3,
+    "triggered_author_owned": 85,
+    "untriggered_plans": 2,
     "mature60": 35,
-    "developing": 49,
+    "developing": 50,
     "symbols": 33
   },
   "missing_history": {},
@@ -52,10 +52,10 @@
     },
     "buy": {
       "5": {
-        "n": 26,
-        "avg_return": -0.02723142811802495,
+        "n": 27,
+        "avg_return": -0.0255991760307521,
         "median_return": -0.02585883819726631,
-        "avg_excess_vs_qqq": -0.036979662072996626,
+        "avg_excess_vs_qqq": -0.03362601186593189,
         "alignment_rate": 0.25
       },
       "20": {
@@ -190,17 +190,17 @@
     },
     "sell": {
       "5": {
-        "n": 15,
-        "avg_return": -0.0694766163106547,
-        "median_return": -0.0922374474703398,
-        "avg_excess_vs_qqq": -0.06897987987622223,
+        "n": 16,
+        "avg_return": -0.06408186665134241,
+        "median_return": -0.07285580906278172,
+        "avg_excess_vs_qqq": -0.061320581539098896,
         "alignment_rate": 0.8888888888888888
       },
       "20": {
-        "n": 6,
-        "avg_return": 0.06844251681108358,
-        "median_return": -0.0028833807435199033,
-        "avg_excess_vs_qqq": 0.049612991155945675,
+        "n": 7,
+        "avg_return": -0.002982435854743099,
+        "median_return": -0.015761676844363803,
+        "avg_excess_vs_qqq": -0.007402211203455966,
         "alignment_rate": 1.0
       },
       "60": {
@@ -268,11 +268,11 @@
         "alignment_rate": 0.46153846153846156
       },
       "20": {
-        "n": 38,
-        "avg_return": -0.008412121437448034,
-        "median_return": -0.029649088875789376,
-        "avg_excess_vs_qqq": -0.03044607235584219,
-        "alignment_rate": 0.45454545454545453
+        "n": 39,
+        "avg_return": -0.01926135298648021,
+        "median_return": -0.04201602384945036,
+        "avg_excess_vs_qqq": -0.038626773714919724,
+        "alignment_rate": 0.47058823529411764
       },
       "60": {
         "n": 29,
@@ -330,10 +330,10 @@
     },
     "三心三意": {
       "5": {
-        "n": 2,
-        "avg_return": -0.18905811184463406,
-        "median_return": -0.18905811184463406,
-        "avg_excess_vs_qqq": -0.15944730683416264,
+        "n": 3,
+        "avg_return": -0.1204256151503087,
+        "median_return": -0.16567775838766596,
+        "avg_excess_vs_qqq": -0.08844190671685803,
         "alignment_rate": 1.0
       },
       "20": {
@@ -1635,13 +1635,20 @@
         "same_source": true
       },
       "outcomes": {
-        "5": null,
+        "5": {
+          "date": "2026-11-02",
+          "return": 0.01683937823834203,
+          "mae": -0.004404176702153539,
+          "mfe": 0.20033675277789031,
+          "benchmark_return": -0.03672951527940915,
+          "excess_vs_qqq": 0.05356889351775118
+        },
         "20": null,
         "60": null
       },
       "alignment": {
         "direction": "mixed",
-        "5": null,
+        "5": "not_scored",
         "20": null,
         "60": null
       },
@@ -4839,13 +4846,20 @@
           "benchmark_return": -0.0330993388901244,
           "excess_vs_qqq": -0.09494897707319994
         },
-        "20": null,
+        "20": {
+          "date": "2026-11-04",
+          "return": -0.43153215184970317,
+          "mae": -0.44976891040771094,
+          "mfe": 0.020369744769631826,
+          "benchmark_return": -0.08203872648983734,
+          "excess_vs_qqq": -0.34949342535986583
+        },
         "60": null
       },
       "alignment": {
         "direction": "bearish",
         "5": "aligned",
-        "20": null,
+        "20": "aligned",
         "60": null
       },
       "level_checks": {},
@@ -7212,8 +7226,8 @@
       "baseline_kind": "entry_2",
       "baseline_assumption": "explicit plan starts only when the stated stock-entry level is touched",
       "planned_level": 160.0,
-      "triggered": false,
-      "baseline_date": null,
+      "triggered": true,
+      "baseline_date": "2026-11-04",
       "baseline_price": 160.0,
       "price_provenance": {
         "price_source": "stooq_archive",
@@ -7253,12 +7267,13 @@
             "within_sessions": 20
           },
           "touch60": {
-            "touched": false,
+            "touched": true,
+            "date": "2026-11-04",
             "within_sessions": 60
           }
         }
       },
-      "status": "not_triggered"
+      "status": "developing"
     },
     {
       "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html:7:MRVL:0",
@@ -7330,7 +7345,8 @@
             "within_sessions": 20
           },
           "touch60": {
-            "touched": false,
+            "touched": true,
+            "date": "2026-11-04",
             "within_sessions": 60
           }
         }
@@ -14502,7 +14518,7 @@
     }
   ],
   "explanation": {
-    "untriggered_plans_note": "untriggered_plans (3) refers to conditional limit-price trading plans from author posts whose price thresholds have not been touched by the market yet. They are intentionally kept in observation status (triggered=false) and are NOT data processing or parsing failures."
+    "untriggered_plans_note": "untriggered_plans (2) refers to conditional limit-price trading plans from author posts whose price thresholds have not been touched by the market yet. They are intentionally kept in observation status (triggered=false) and are NOT data processing or parsing failures."
   },
   "guardrails": [
     "External-source outcomes are descriptive evidence, not rankings or automatic trade rules.",

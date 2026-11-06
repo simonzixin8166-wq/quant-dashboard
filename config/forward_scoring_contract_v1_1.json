@@ -1,0 +1,90 @@
+{
+ "contract_id": "fsc-1.1",
+ "based_on": {
+  "contract_id": "fsc-1.0",
+  "hash": "3eb0efc58e3eba8b"
+ },
+ "approval": "Owner 10/30 (#133 6512706287 §D, decision recorded in 6512756252 header); scope fixed by GPT 6513028156 §1.5 / 6537701769 §4.4",
+ "status": "parallel_view",
+ "effective_from": "set when the Owner approves switching the production scorecard; until then fsc-1.0 stays the official scorecard",
+ "purpose": "Same rules as fsc-1.0 except QQQ and QQQM are excluded from hit/miss. Derived from the fsc-1.0 outcome rows (no new outcome rows, no rescoring, fsc-1.0 history unchanged); reported side by side.",
+ "rules": {
+  "unit": "one ledger row (event_id) per horizon",
+  "ledgers": {
+   "genuine_forward": "research/archive/forward_observations.jsonl",
+   "promoted": "research/archive/forward_observations_promoted.jsonl"
+  },
+  "benchmark": "QQQ",
+  "horizons_sessions": [
+   20,
+   60,
+   120,
+   180
+  ],
+  "calendar": "NYSE sessions (scripts/trading_calendar.add_sessions)",
+  "primary_metric": "excess_vs_qqq = (close_h / close_0 - 1) - (QQQ_h / QQQ_0 - 1), closes taken only from the ledgers' own rows",
+  "classes": {
+   "修复候选": {
+    "expect": "outperform_qqq",
+    "hit_if": {
+     "metric": "excess_vs_qqq",
+     "op": ">",
+     "value": 0
+    }
+   },
+   "大跌机会候选": {
+    "expect": "outperform_qqq",
+    "hit_if": {
+     "metric": "excess_vs_qqq",
+     "op": ">",
+     "value": 0
+    }
+   },
+   "等待修复": {
+    "expect": "underperform_qqq",
+    "hit_if": {
+     "metric": "excess_vs_qqq",
+     "op": "<",
+     "value": 0
+    }
+   },
+   "高位观察": {
+    "expect": "not_outperform_qqq",
+    "hit_if": {
+     "metric": "excess_vs_qqq",
+     "op": "<=",
+     "value": 0
+    }
+   },
+   "继续观察": {
+    "expect": "no_prediction",
+    "hit_if": null
+   }
+  },
+  "unmapped_decision": "unscored_unmapped (counted, never a hit or miss)",
+  "missing_close": "unavailable (counted separately, never scored, never filled)",
+  "min_n_for_rate": 20,
+  "below_min_n": "report 'insufficient_sample' with n; no hit rate, no interval",
+  "report_separately": [
+   "ledger group (genuine_forward vs promoted)",
+   "horizon",
+   "decision class",
+   "eligible true/false"
+  ],
+  "never_pool": [
+   "genuine_forward with promoted",
+   "different horizons",
+   "different contract_id"
+  ],
+  "independence_view": "also report independent episodes: only the first row of each run of consecutive sessions with the same (symbol, decision) counts",
+  "descriptive_only": [
+   "share of rows with ret > 0",
+   "max adverse excursion over the window from the ledger's daily closes"
+  ],
+  "benchmark_identical_symbols": [
+   "QQQ",
+   "QQQM"
+  ],
+  "benchmark_identical_policy": "matured rows of these symbols are counted as 'benchmark_identical': never hit, never miss, never in a rate (their excess vs the QQQ benchmark is 0 or tracking error by construction)"
+ }
+}

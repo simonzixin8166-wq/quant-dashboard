@@ -41,6 +41,10 @@ ACTIONS = ROOT / "research" / "archive" / "corporate_actions.jsonl"
 OUT = ROOT / "docs" / "research" / "forward_scorecard.json"
 
 PINNED = ("fsc-1.0", "3eb0efc58e3eba8b")
+# fsc-1.1 (Owner 10/30): a PARALLEL VIEW derived from the fsc-1.0 outcome rows; it never writes outcome rows and
+# never replaces the official fsc-1.0 scorecard until the Owner approves the switch.
+PINNED_V11 = ("fsc-1.1", "e1fc145c3a3e4e33")
+CONTRACT_V11 = ROOT / "config" / "forward_scoring_contract_v1_1.json"
 SCORER_VERSION = "fol-1.0"
 LATE_GRACE_SESSIONS = 3          # a missing maturity close stays pending this long (owner-agreed, #133 6383888703)
 GAP_LIMIT = 0.40                 # |day-over-day| move above this with no recorded split -> split_unverified
@@ -98,6 +102,26 @@ def load_contract(path=CONTRACT):
     if (c.get("contract_id"), digest) != PINNED:
         raise ContractError(f"contract_mismatch:{c.get('contract_id')}:{digest}")
     return c, digest
+
+
+def load_contract_v11(path=None):
+    path = path or CONTRACT_V11
+    c = json.loads(Path(path).read_text(encoding="utf-8"))
+    digest = sha(json.dumps(c["rules"], ensure_ascii=False, sort_keys=True))
+    if (c.get("contract_id"), digest) != PINNED_V11 or (c.get("based_on") or {}).get("hash") != PINNED[1]:
+        raise ContractError(f"contract_mismatch:{c.get('contract_id')}:{digest}")
+    return c, digest
+
+
+def view_v11(current, contract_v11):
+    """fsc-1.1 view of fsc-1.0 outcome rows: benchmark-identical symbols leave hit/miss (copies; originals untouched)."""
+    excluded = set(contract_v11["rules"]["benchmark_identical_symbols"])
+    out = []
+    for o in current:
+        if o.get("symbol") in excluded and o.get("status") == "matured" and o.get("hit") in (True, False):
+            o = {**o, "hit": "benchmark_identical"}
+        out.append(o)
+    return out
 
 
 def hit_of(rules, decision, excess):
@@ -317,7 +341,8 @@ def scorecard(current, pending, as_of, contract, contract_hash, generated_at):
         out_cells.append({
             "group": g, "h": h, "decision": dec, "eligible": el, "matured": c["matured"],
             "unavailable": c["unavailable"], "invalid": c["invalid"], "abstain": c["abstain"],
-            "unscored_unmapped": c["unscored_unmapped"], "scored": scored, "hits": c["hit"],
+            "unscored_unmapped": c["unscored_unmapped"], "benchmark_identical": c["benchmark_identical"],
+            "scored": scored, "hits": c["hit"],
             "hit_rate": round(c["hit"] / scored, 4) if scored >= minimum else None,
             "status": "reportable_minimum_only" if scored >= minimum else "INSUFFICIENT",
             "independent_episodes": e["episodes"], "episode_scored": escored,
@@ -420,6 +445,16 @@ def main(argv=None):
         os.replace(tmp, OUTCOMES)
     sc = scorecard(current, pending, as_of, contract, digest, now)
     sc["split_lookup_failed"] = failed
+    # fsc-1.1 parallel view (fail-soft: a missing/mismatched v1.1 file never touches the official fsc-1.0 output)
+    try:
+        c11, d11 = load_contract_v11()
+        v = scorecard(view_v11(current, c11), pending, as_of, contract, digest, now)
+        sc["parallel_views"] = [{"contract_id": c11["contract_id"], "contract_hash": d11, "status": c11["status"],
+                                 "based_on": c11["based_on"], "excluded_symbols": c11["rules"]["benchmark_identical_symbols"],
+                                 "official": False, "cells": v["cells"]}]
+    except (OSError, ValueError, KeyError, ContractError) as exc:
+        sc["parallel_views"] = [{"contract_id": "fsc-1.1", "status": "unavailable", "reason": type(exc).__name__}]
+        print(f"::warning title=Forward outcomes::FSC_1_1_VIEW_UNAVAILABLE {exc}"[:300])
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(sc, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
     sup = sum(1 for x in add if x.get("supersedes"))

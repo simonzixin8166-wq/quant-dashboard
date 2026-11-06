@@ -1,0 +1,60 @@
+name: Retrieval Inventory Check
+
+# GPT #133 6620702390 §A.4: recompute the read-only retrieval inventory at the pinned commits and compare it field by
+# field with the committed manifest. Any difference except generated_at fails. No schedule, no writes, read-only token.
+on:
+  pull_request:
+    paths:
+      - "research/specs/retrieval/**"
+      - "scripts/retrieval_inventory.py"
+      - "tests/check_retrieval_inventory.py"
+      - "tests/check_retrieval_history_diff.py"
+      - "scripts/retrieval_history_diff.py"
+      - ".github/workflows/retrieval-inventory-check.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  recompute:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out this PR (script + manifest under test)
+        uses: actions/checkout@v4
+        with:
+          path: pr
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Read pinned commits from the manifest
+        id: pins
+        run: |
+          python - <<'PY' >> "$GITHUB_OUTPUT"
+          import json
+          c = json.load(open("pr/research/specs/retrieval/inventory_manifest.json"))["commits"]
+          print(f"qd={c['quant-dashboard']}")
+          print(f"wx={c['wxc-bot']}")
+          PY
+      - name: Check out quant-dashboard at the pinned commit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.pins.outputs.qd }}
+          path: qd
+          fetch-depth: 0   # the history diff reads the older pinned commit too
+      - name: Check out wxc-bot at the pinned commit
+        uses: actions/checkout@v4
+        with:
+          repository: simonzixin8166-wq/wxc-bot
+          ref: ${{ steps.pins.outputs.wx }}
+          path: wx
+      - name: Recompute and compare field by field
+        run: |
+          echo "qd=$(git -C qd rev-parse HEAD) wx=$(git -C wx rev-parse HEAD)"
+          sha256sum pr/research/specs/retrieval/inventory_manifest.json pr/scripts/retrieval_inventory.py
+          python pr/tests/check_retrieval_inventory.py --qd qd --wx wx
+      - name: Recompute the record-level history diff (old vs new pinned commit) and compare
+        run: |
+          sha256sum pr/tests/check_retrieval_history_diff.py pr/scripts/retrieval_history_diff.py pr/research/specs/retrieval/history_diff_e6f4b897_8ae72dfb.json
+          python pr/tests/check_retrieval_history_diff.py --repo qd

@@ -1,6 +1,6 @@
 {
   "version": "2.3",
-  "generated_at": "2026-10-31T02:51:26.982661+00:00",
+  "generated_at": "2026-11-06T01:53:00.525491+00:00",
   "principle": "Collection success is not learning success. Permanent storage and learning inputs must not be record-count capped; only per-run processing and UI presentation may be bounded.",
   "counts": {
     "learning_active": 7,
@@ -22,8 +22,8 @@
       ],
       "evidence": {
         "symbols": 41,
-        "events": 8118,
-        "mature_60": 7700
+        "events": 8120,
+        "mature_60": 7704
       },
       "downstream_reused": true,
       "reused_by": [
@@ -33,6 +33,7 @@
         "module_manifest_audit.py",
         "ohlcv_completeness_audit.py",
         "playbook_engine.py",
+        "retrieval_inventory.py",
         "weekly_change_summary.py"
       ]
     },
@@ -46,55 +47,65 @@
       "decision_context": true,
       "learning_status": "partial_learning",
       "gaps": [
+        "Upstream source coverage is not fully accounted; at least one discovered item is missing from feed/archive/pending/backlog or collector status is unavailable.",
         "Source coverage may be complete, but explicit YouTube pending/backlog/provider-blocked items still lack Q1/Q2 semantic learning; they are not counted as learned.",
         "Historical video archive is intentionally non-gating; this is a governance boundary, not a missing-learning error."
       ],
       "evidence": {
-        "source_records": 2940,
-        "source_reading_records": 2950,
-        "persistent_source_records": 2950,
+        "source_records": 2969,
+        "source_reading_records": 2979,
+        "persistent_source_records": 2979,
         "backlog": 0,
-        "collector_coverage_complete": true,
+        "collector_coverage_complete": false,
         "collector_semantic_complete": false,
         "collector": {
           "version": 2,
-          "generated_at": "2026-10-31T01:54:22.588781+00:00",
-          "complete": true,
-          "coverage_complete": true,
+          "generated_at": "2026-11-05T23:38:49.578972+00:00",
+          "complete": false,
+          "coverage_complete": false,
           "semantic_learning_complete": false,
           "forum": {
-            "complete": true,
+            "complete": false,
             "continuity_proven": true,
-            "anchor_id": "118676",
-            "previous_anchor_id": "118479",
-            "status": "complete"
+            "anchor_id": "118755",
+            "previous_anchor_id": "118676",
+            "status": "blocked"
           },
           "blogs": {
-            "complete": true,
+            "complete": false,
             "authors": {
               "BrightLine": {
-                "complete": true,
-                "scan_complete": true,
-                "missing_from_feed": 0,
-                "unique_article_ids": 13,
-                "feed_present_urls": 13,
-                "archive_failures": []
-              },
-              "yifan99": {
-                "complete": true,
-                "scan_complete": true,
+                "complete": false,
+                "scan_complete": false,
                 "missing_from_feed": 0,
                 "unique_article_ids": 0,
                 "feed_present_urls": 0,
-                "archive_failures": []
+                "archive_failures": [
+                  "2026-10",
+                  "2026-11"
+                ]
+              },
+              "yifan99": {
+                "complete": false,
+                "scan_complete": false,
+                "missing_from_feed": 0,
+                "unique_article_ids": 0,
+                "feed_present_urls": 0,
+                "archive_failures": [
+                  "2026-10",
+                  "2026-11"
+                ]
               },
               "麻你": {
-                "complete": true,
-                "scan_complete": true,
+                "complete": false,
+                "scan_complete": false,
                 "missing_from_feed": 0,
-                "unique_article_ids": 4,
-                "feed_present_urls": 4,
-                "archive_failures": []
+                "unique_article_ids": 0,
+                "feed_present_urls": 0,
+                "archive_failures": [
+                  "2026-10",
+                  "2026-11"
+                ]
               }
             }
           },
@@ -104,15 +115,15 @@
             "semantic_learning_complete": false,
             "discovery_complete": true,
             "accounting_balanced": true,
-            "seen": 201,
-            "feed_records": 40,
+            "seen": 211,
+            "feed_records": 46,
             "historical_archive_records": 23,
             "historical_semantic_learned": 6,
-            "pending": 106,
-            "historical_backlog": 54,
+            "pending": 109,
+            "historical_backlog": 55,
             "unaccounted": 0,
             "unaccounted_video_ids": [],
-            "unresolved_semantic": 160,
+            "unresolved_semantic": 164,
             "status": "ok"
           },
           "guardrails": [
@@ -122,8 +133,8 @@
           ],
           "fetch_status": "ok"
         },
-        "testable_rules": 61,
-        "eligible_triggered_events": 82
+        "testable_rules": 62,
+        "eligible_triggered_events": 85
       },
       "downstream_reused": true,
       "reused_by": [
@@ -132,6 +143,9 @@
         "candidate_rule_compiler.py",
         "learning_funnel_contract.py",
         "method_memory_engine.py",
+        "retrieval_eligibility.py",
+        "retrieval_history_diff.py",
+        "retrieval_inventory.py",
         "source_rule_lifecycle.py",
         "v615_method_attribution.py",
         "v615_rule_registry.py",
@@ -153,9 +167,9 @@
       "evidence": {
         "symbols": 14,
         "filings": 39,
-        "archive_total": 83,
-        "linked_direct_events": 35,
-        "mature_20": 20
+        "archive_total": 100,
+        "linked_direct_events": 23,
+        "mature_20": 9
       },
       "downstream_reused": true,
       "reused_by": [
@@ -163,6 +177,7 @@
         "company_fundamental_memory.py",
         "event_window_attribution.py",
         "evidence_archive.py",
+        "fundamental_outcome_context.py",
         "module_manifest_audit.py",
         "sec_facts_v2.py",
         "v615_auto_thesis_engine.py"
@@ -180,10 +195,10 @@
       "gaps": [],
       "evidence": {
         "symbols": 13,
-        "archive_total": 14047,
-        "archive_added": 0,
-        "filing_observations": 866,
-        "mature_outcomes": 1712,
+        "archive_total": 14339,
+        "archive_added": 71,
+        "filing_observations": 872,
+        "mature_outcomes": 1713,
         "horizons": {
           "20": {
             "n": 860,
@@ -193,11 +208,11 @@
             "avg_mfe_pct": 10.153198616746124
           },
           "60": {
-            "n": 852,
-            "avg_return_pct": 9.854833869628175,
-            "positive_rate": 0.6502347417840375,
-            "avg_mae_pct": -12.009233712312632,
-            "avg_mfe_pct": 22.554400282309363
+            "n": 853,
+            "avg_return_pct": 9.83192733565643,
+            "positive_rate": 0.64947245017585,
+            "avg_mae_pct": -12.02388916789395,
+            "avg_mfe_pct": 22.535070828867255
           }
         }
       },
@@ -218,21 +233,21 @@
       "gaps": [],
       "evidence": {
         "symbols": 16,
-        "news_items": 75,
-        "archive_total": 2445,
+        "news_items": 80,
+        "archive_total": 2987,
         "event_window_rows": 20,
-        "mature_outcomes": 1790,
+        "mature_outcomes": 2584,
         "benchmark": "SPY",
         "horizons": {
           "5": {
-            "n": 1785,
-            "avg_excess_return_pct": -2.9993824658561956,
-            "positive_excess_rate": 0.2649859943977591
+            "n": 2270,
+            "avg_excess_return_pct": -4.404008286247365,
+            "positive_excess_rate": 0.2488986784140969
           },
           "20": {
-            "n": 4,
-            "avg_excess_return_pct": -6.132630676352274,
-            "positive_excess_rate": 0.0
+            "n": 313,
+            "avg_excess_return_pct": -18.47131314276116,
+            "positive_excess_rate": 0.19488817891373802
           },
           "60": {
             "n": 1,
@@ -259,9 +274,9 @@
       "evidence": {
         "version": "5.4.0",
         "series": 15,
-        "observations": 27,
-        "outcomes": 18,
-        "scorecards": 6
+        "observations": 32,
+        "outcomes": 26,
+        "scorecards": 9
       },
       "downstream_reused": true,
       "reused_by": [
@@ -279,11 +294,11 @@
       "learning_status": "learning_active",
       "gaps": [],
       "evidence": {
-        "cross_asset_history": 22,
-        "breadth_history": 20,
-        "regime_history": 21,
-        "outcomes": 52,
-        "scorecards": 21
+        "cross_asset_history": 26,
+        "breadth_history": 23,
+        "regime_history": 25,
+        "outcomes": 75,
+        "scorecards": 23
       },
       "downstream_reused": true,
       "reused_by": [
@@ -296,11 +311,11 @@
       "persistent_history": "append_only_observation_and_outcome_archive",
       "structured_analysis": true,
       "reusable_memory": true,
-      "outcome_feedback": false,
+      "outcome_feedback": true,
       "decision_context": true,
       "learning_status": "partial_learning",
       "gaps": [
-        "Dated Support/GARCH observations are now retained; waiting for real 20-session outcomes to mature."
+        "Outcomes exist but no research/decision component reads them yet (L6 reuse missing); outcome count alone is not learning."
       ],
       "evidence": {
         "universe": [
@@ -311,9 +326,9 @@
           "NVDA",
           "TSLA"
         ],
-        "observations": 108,
-        "mature20": 0,
-        "garch_mae_pct_points": null
+        "observations": 132,
+        "mature20": 6,
+        "garch_mae_pct_points": 21.289383637674735
       },
       "downstream_reused": false,
       "reused_by": []
@@ -339,8 +354,8 @@
           "NVDA",
           "TSLA"
         ],
-        "research_observations": 108,
-        "research_matured": 78,
+        "research_observations": 126,
+        "research_matured": 114,
         "private_observations": 1,
         "private_mature_outcomes": 1
       },
@@ -362,9 +377,9 @@
         "Thesis revisions are now retained by evidence-hash change; outcome attribution and evidence-delta effectiveness are still partial."
       ],
       "evidence": {
-        "symbols": 18,
-        "revision_rows": 468,
-        "linked_direct_events": 35
+        "symbols": 10,
+        "revision_rows": 524,
+        "linked_direct_events": 23
       },
       "downstream_reused": false,
       "reused_by": []
@@ -418,11 +433,11 @@
         "mode": "silent_forward",
         "forward_clock_active": true,
         "mature_total": {
-          "5": 15,
+          "5": 18,
           "20": 0,
           "60": 0
         },
-        "mature_any": 15,
+        "mature_any": 18,
         "mature_verified_20_60_120": 0
       },
       "downstream_reused": true,
@@ -443,8 +458,8 @@
       "gaps": [],
       "evidence": {
         "overall": "running",
-        "open_incidents": 1,
-        "resolved_total": 33,
+        "open_incidents": 0,
+        "resolved_total": 39,
         "self_improvement_version": "7.2.1"
       },
       "downstream_reused": true,
@@ -506,6 +521,7 @@
       "domain": "blog_forum_video_sources",
       "status": "partial_learning",
       "gaps": [
+        "Upstream source coverage is not fully accounted; at least one discovered item is missing from feed/archive/pending/backlog or collector status is unavailable.",
         "Source coverage may be complete, but explicit YouTube pending/backlog/provider-blocked items still lack Q1/Q2 semantic learning; they are not counted as learned.",
         "Historical video archive is intentionally non-gating; this is a governance boundary, not a missing-learning error."
       ]
@@ -521,7 +537,7 @@
       "domain": "support_resistance_volatility",
       "status": "partial_learning",
       "gaps": [
-        "Dated Support/GARCH observations are now retained; waiting for real 20-session outcomes to mature."
+        "Outcomes exist but no research/decision component reads them yet (L6 reuse missing); outcome count alone is not learning."
       ]
     },
     {
@@ -569,15 +585,15 @@
   ],
   "reconciliation": {
     "upstream_collector_known": true,
-    "youtube_seen": 201,
-    "youtube_text_admitted": 46,
+    "youtube_seen": 211,
+    "youtube_text_admitted": 52,
     "youtube_semantically_learned": null,
     "youtube_semantic_note": "not inferred from admission; see wxc-bot state/youtube_learning_reconciliation.json",
-    "youtube_semantic_backlog": 160,
-    "captured": 2940,
-    "canonical": 2950,
-    "processed": 2950,
-    "text_enriched": 2950,
+    "youtube_semantic_backlog": 164,
+    "captured": 2969,
+    "canonical": 2979,
+    "processed": 2979,
+    "text_enriched": 2979,
     "source_offline": 0,
     "backlog": 0,
     "errors": 0,

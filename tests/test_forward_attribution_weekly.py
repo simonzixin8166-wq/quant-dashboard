@@ -1,0 +1,52 @@
+"""Weekly forward attribution (fea-0.2 / rfi-0.1): report-only, deterministic, writes only on change."""
+import json
+import sys
+import tempfile
+from datetime import datetime, timezone
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "scripts"))
+import forward_cohort_report as fcr  # noqa: E402
+import forward_attribution_weekly as faw  # noqa: E402
+
+# 1) attribution path on the frozen, fully matured promoted pilot (2026-09-29/30)
+out, issues, s = fcr.run(ROOT, "promoted", "2026-09-29,2026-09-30", 20, stamp=False)
+md = "\n".join(out)
+assert s["rows"] == 36 and not issues, (s["rows"], issues)
+assert "INCONSISTENT" not in md and "## 4. Attribution" in md
+assert s["misses"] == sum(s["misses_by_primary"].values())
+assert s["unattributed_R0"] == s["misses_by_primary"].get("R0", 0)
+assert 0 <= s["attribution_coverage"] <= 1
+assert s["production_effect"] == "none" and s["learning_state"] == "UNPROVEN" and s["final"] == "NO"
+assert "run at" not in md  # stamp=False -> deterministic content
+print("PASS cohort report run(): denominators consistent, attribution summary matches the table")
+
+# 2) weekly cohort selection: only sessions whose rows are all final; nothing matured -> NOT RUN, never PASS
+summary, md = faw.build(ROOT, datetime(2026, 11, 3, tzinfo=timezone.utc))
+if not summary["rows"]:
+    assert summary["engineering_acceptance"] == "NOT RUN" and summary["sessions"] == []
+assert summary["engineering_acceptance"] in {"NOT RUN", "PASS", "CHECK"}
+
+# 3) write only when content changed; generated_at alone never causes a rewrite
+tmp = Path(tempfile.mkdtemp())
+j, m = tmp / "a.json", tmp / "r" / "a.md"
+assert faw.write_if_changed(summary, md, j, m) is True
+again, md2 = faw.build(ROOT, datetime(2026, 11, 10, tzinfo=timezone.utc))
+assert again["content_sha"] == summary["content_sha"]
+assert faw.write_if_changed(again, md2, j, m) is False
+assert json.loads(j.read_text(encoding="utf-8"))["generated_at"].startswith("2026-11-03")
+print("PASS weekly attribution: cohort selection, NOT RUN when nothing matured, write-only-on-change")
+
+# 4) every run leaves a record: GENERATED / UNCHANGED / NOT RUN / CHECK, with input hashes (GPT #133 6594346990 §4)
+assert faw.run_status({"engineering_acceptance": "NOT RUN"}, True) == "NOT RUN"
+assert faw.run_status({"engineering_acceptance": "CHECK"}, False) == "CHECK"
+assert faw.run_status({"engineering_acceptance": "PASS"}, True) == "GENERATED"
+assert faw.run_status({"engineering_acceptance": "PASS"}, False) == "UNCHANGED"
+runs = tmp / "runs.jsonl"
+for when, chg in ((datetime(2026, 11, 9, tzinfo=timezone.utc), True), (datetime(2026, 11, 16, tzinfo=timezone.utc), False)):
+    faw.append_run(faw.run_record({**summary, "engineering_acceptance": "PASS"}, chg, ROOT, when), runs)
+recs = [json.loads(x) for x in runs.read_text(encoding="utf-8").splitlines()]
+assert [r["status"] for r in recs] == ["GENERATED", "UNCHANGED"] and recs[1]["run_at"].startswith("2026-11-16")
+assert all(len(v) == 16 for v in recs[0]["inputs_sha256_16"].values())
+print("PASS weekly attribution run record (status + input hashes, append-only)")

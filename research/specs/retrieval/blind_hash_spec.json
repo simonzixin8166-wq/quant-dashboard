@@ -1,0 +1,50 @@
+{
+ "version": "kr-0.3.1-blind-hash",
+ "canonical_form": [
+  "UTF-8 bytes; every string Unicode NFC; CRLF and CR converted to LF; no other whitespace change inside strings",
+  "file = one JSON array of objects, sorted by question_id (string ascending) before hashing; array order inside an object is kept as authored",
+  "serialization = json.dumps(items, ensure_ascii=False, sort_keys=True, separators=(',', ':')); no trailing newline",
+  "hash = SHA-256 of those bytes, lowercase hex",
+  "questions and answers are two separate files and two separate hashes; neither file may contain the other's fields"
+ ],
+ "example_questions": [
+  {
+   "question_id": "BQ-002",
+   "text": "以 2026-10-15 为时点，LITE 在 2026-10-08 的判断的 20 日结果是什么？",
+   "as_of": "2026-10-15T23:59:59Z",
+   "category": "time_travel"
+  },
+  {
+   "question_id": "BQ-001",
+   "text": "10/08 以来系统每天对 IREN 的判断",
+   "as_of": "2026-11-03T23:59:59Z",
+   "category": "recall"
+  }
+ ],
+ "example_answers": [
+  {
+   "question_id": "BQ-002",
+   "expect": "abstain",
+   "abstain_code": "time_filtered_out",
+   "required_doc_ids": [],
+   "forbidden_doc_ids": [
+    "forward_outcome:<event_id of LITE 2026-10-08>"
+   ],
+   "supporting": [],
+   "opposing": []
+  },
+  {
+   "question_id": "BQ-001",
+   "expect": "answer",
+   "required_doc_ids": [
+    "forward_observation:<18 event_ids>"
+   ],
+   "forbidden_doc_ids": [],
+   "supporting": [],
+   "opposing": []
+  }
+ ],
+ "example_questions_sha256": "c6a7df68e1e79ca18d37fea51ed5186f0e280bd85270ee7866c4dba5f8d0d837",
+ "example_answers_sha256": "cab2182ce3b968c082d66149aa5034e024b1f6ec9ba4259bfb492b0f029a6109",
+ "note": "examples are illustrative only and are NOT part of any blind set (the doc_id placeholders are deliberately unresolved)"
+}

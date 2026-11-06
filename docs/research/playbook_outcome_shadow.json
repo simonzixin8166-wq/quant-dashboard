@@ -1,53 +1,53 @@
 {
   "version": "6.12.1-shadow",
-  "generated_at": "2026-10-31T02:49:47.369965+00:00",
+  "generated_at": "2026-11-06T01:51:27.332684+00:00",
   "mode": "shadow_no_forward_ledger_write",
-  "market_date": "2026-10-30",
+  "market_date": "2026-11-05",
   "storage_configured": true,
-  "private_trigger_records": 76,
-  "eligible_forward_triggers": 22,
+  "private_trigger_records": 99,
+  "eligible_forward_triggers": 33,
   "ledger_read_problems": [],
   "mature_total": {
-    "5": 15,
+    "5": 18,
     "20": 0,
     "60": 0
   },
   "pending_total": {
-    "5": 7,
-    "20": 22,
-    "60": 22
+    "5": 15,
+    "20": 33,
+    "60": 33
   },
   "by_playbook": {
     "CP-02": {
-      "trigger_records": 7,
-      "baseline_pass": 7,
+      "trigger_records": 8,
+      "baseline_pass": 8,
       "baseline_mismatch": 0,
       "history_or_definition_missing": 0,
-      "late_detected": 0,
-      "timing_uncertain": 0,
+      "late_detected": 1,
+      "timing_uncertain": 1,
       "horizons": {
         "5": {
-          "mature": 5,
+          "mature": 6,
           "aligned": 2,
-          "not_aligned": 3,
+          "not_aligned": 4,
           "pending": 2
         },
         "20": {
           "mature": 0,
           "aligned": 0,
           "not_aligned": 0,
-          "pending": 7
+          "pending": 8
         },
         "60": {
           "mature": 0,
           "aligned": 0,
           "not_aligned": 0,
-          "pending": 7
+          "pending": 8
         }
       },
       "objective_groups": {
         "risk_restore": 6,
-        "risk_reduction": 1
+        "risk_reduction": 2
       },
       "by_state_detail": {
         "full_restore": {
@@ -109,91 +109,8 @@
           "baseline_mismatch": 0,
           "horizons": {
             "5": {
-              "mature": 2,
+              "mature": 3,
               "aligned": 1,
-              "not_aligned": 1,
-              "pending": 2
-            },
-            "20": {
-              "mature": 0,
-              "aligned": 0,
-              "not_aligned": 0,
-              "pending": 4
-            },
-            "60": {
-              "mature": 0,
-              "aligned": 0,
-              "not_aligned": 0,
-              "pending": 4
-            }
-          }
-        }
-      }
-    },
-    "CP-03": {
-      "trigger_records": 15,
-      "baseline_pass": 15,
-      "baseline_mismatch": 0,
-      "history_or_definition_missing": 0,
-      "late_detected": 0,
-      "timing_uncertain": 0,
-      "horizons": {
-        "5": {
-          "mature": 10,
-          "aligned": 5,
-          "not_aligned": 5,
-          "pending": 5
-        },
-        "20": {
-          "mature": 0,
-          "aligned": 0,
-          "not_aligned": 0,
-          "pending": 15
-        },
-        "60": {
-          "mature": 0,
-          "aligned": 0,
-          "not_aligned": 0,
-          "pending": 15
-        }
-      },
-      "objective_groups": {},
-      "by_state_detail": {
-        "candidate": {
-          "trigger_records": 9,
-          "late_detected": 0,
-          "timing_uncertain": 0,
-          "baseline_mismatch": 0,
-          "horizons": {
-            "5": {
-              "mature": 5,
-              "aligned": 2,
-              "not_aligned": 3,
-              "pending": 4
-            },
-            "20": {
-              "mature": 0,
-              "aligned": 0,
-              "not_aligned": 0,
-              "pending": 9
-            },
-            "60": {
-              "mature": 0,
-              "aligned": 0,
-              "not_aligned": 0,
-              "pending": 9
-            }
-          }
-        },
-        "strong": {
-          "trigger_records": 6,
-          "late_detected": 0,
-          "timing_uncertain": 0,
-          "baseline_mismatch": 0,
-          "horizons": {
-            "5": {
-              "mature": 5,
-              "aligned": 3,
               "not_aligned": 2,
               "pending": 1
             },
@@ -201,13 +118,179 @@
               "mature": 0,
               "aligned": 0,
               "not_aligned": 0,
-              "pending": 6
+              "pending": 4
             },
             "60": {
               "mature": 0,
               "aligned": 0,
               "not_aligned": 0,
-              "pending": 6
+              "pending": 4
+            }
+          }
+        },
+        "tier2": {
+          "trigger_records": 1,
+          "late_detected": 1,
+          "timing_uncertain": 1,
+          "baseline_mismatch": 0,
+          "horizons": {
+            "5": {
+              "mature": 0,
+              "aligned": 0,
+              "not_aligned": 0,
+              "pending": 1
+            },
+            "20": {
+              "mature": 0,
+              "aligned": 0,
+              "not_aligned": 0,
+              "pending": 1
+            },
+            "60": {
+              "mature": 0,
+              "aligned": 0,
+              "not_aligned": 0,
+              "pending": 1
+            }
+          }
+        }
+      }
+    },
+    "CP-03": {
+      "trigger_records": 22,
+      "baseline_pass": 22,
+      "baseline_mismatch": 0,
+      "history_or_definition_missing": 0,
+      "late_detected": 0,
+      "timing_uncertain": 0,
+      "horizons": {
+        "5": {
+          "mature": 12,
+          "aligned": 5,
+          "not_aligned": 7,
+          "pending": 10
+        },
+        "20": {
+          "mature": 0,
+          "aligned": 0,
+          "not_aligned": 0,
+          "pending": 22
+        },
+        "60": {
+          "mature": 0,
+          "aligned": 0,
+          "not_aligned": 0,
+          "pending": 22
+        }
+      },
+      "objective_groups": {},
+      "by_state_detail": {
+        "candidate": {
+          "trigger_records": 15,
+          "late_detected": 0,
+          "timing_uncertain": 0,
+          "baseline_mismatch": 0,
+          "horizons": {
+            "5": {
+              "mature": 6,
+              "aligned": 2,
+              "not_aligned": 4,
+              "pending": 9
+            },
+            "20": {
+              "mature": 0,
+              "aligned": 0,
+              "not_aligned": 0,
+              "pending": 15
+            },
+            "60": {
+              "mature": 0,
+              "aligned": 0,
+              "not_aligned": 0,
+              "pending": 15
+            }
+          }
+        },
+        "strong": {
+          "trigger_records": 7,
+          "late_detected": 0,
+          "timing_uncertain": 0,
+          "baseline_mismatch": 0,
+          "horizons": {
+            "5": {
+              "mature": 6,
+              "aligned": 3,
+              "not_aligned": 3,
+              "pending": 1
+            },
+            "20": {
+              "mature": 0,
+              "aligned": 0,
+              "not_aligned": 0,
+              "pending": 7
+            },
+            "60": {
+              "mature": 0,
+              "aligned": 0,
+              "not_aligned": 0,
+              "pending": 7
+            }
+          }
+        }
+      }
+    },
+    "CP-01": {
+      "trigger_records": 3,
+      "baseline_pass": 3,
+      "baseline_mismatch": 0,
+      "history_or_definition_missing": 0,
+      "late_detected": 0,
+      "timing_uncertain": 0,
+      "horizons": {
+        "5": {
+          "mature": 0,
+          "aligned": 0,
+          "not_aligned": 0,
+          "pending": 3
+        },
+        "20": {
+          "mature": 0,
+          "aligned": 0,
+          "not_aligned": 0,
+          "pending": 3
+        },
+        "60": {
+          "mature": 0,
+          "aligned": 0,
+          "not_aligned": 0,
+          "pending": 3
+        }
+      },
+      "objective_groups": {},
+      "by_state_detail": {
+        "tier1": {
+          "trigger_records": 3,
+          "late_detected": 0,
+          "timing_uncertain": 0,
+          "baseline_mismatch": 0,
+          "horizons": {
+            "5": {
+              "mature": 0,
+              "aligned": 0,
+              "not_aligned": 0,
+              "pending": 3
+            },
+            "20": {
+              "mature": 0,
+              "aligned": 0,
+              "not_aligned": 0,
+              "pending": 3
+            },
+            "60": {
+              "mature": 0,
+              "aligned": 0,
+              "not_aligned": 0,
+              "pending": 3
             }
           }
         }

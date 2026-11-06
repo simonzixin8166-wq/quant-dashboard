@@ -34,6 +34,7 @@ OUT_MD = ROOT / "research" / "audit" / "MODULE_MANIFEST.md"
 
 R, D, L, M, V = "research", "decision", "learning", "monitor", "display"
 ROLES = {  # reader → (role, reason)
+    "daily_skip_gate.py": (M, "skips only a late duplicate US-close Daily when the session is already published and trusted"),
     "daily_research_job.py": (R, "append-only shadow hypotheses, revisits, maturity"),
     "macro_event_watch.py": (V, "H-01/H-02 homepage macro-event reminder artifact (Shadow, no decisions)"),
     "option_chain_snapshot.py": (M, "OFI-A1: closing option-chain/OI archive to the private ledger; public status is aggregate only (no signals)"),
@@ -48,6 +49,7 @@ ROLES = {  # reader → (role, reason)
     "v615_auto_thesis_engine.py": (R, "thesis drafts from official + event evidence"),
     "cross_asset_divergence_engine.py": (R, "market-state research from FRED macro"),
     "breadth_intelligence_engine.py": (R, "breadth research state"),
+    "core_tier_alert.py": (D, "core-ETF drawdown tier reminder (Telegram + homepage banner); reminder only, no orders (#133 6516033003)"),
     "turning_point_checklist.py": (V, "TP-01 external-author turning-point observation list (#133 6235323449; validated=false, not a decision input)"),
     "market_temperature.py": (V, "descriptive 0–100 market temperature from breadth + cross-asset (#133 2026-10-17; not a decision input)"),
     "regime_combination_memory.py": (R, "joint cross-asset + breadth state"),
@@ -95,6 +97,10 @@ ROLES = {  # reader → (role, reason)
     "sec_fact_reconcile.py": (M, "SEC reconciliation audit"), "sec_facts_v2.py": (M, "B4-02 unified SEC Shadow fetcher (reads CIKs; no consumer)"), "author_claim_contamination_audit.py": (M, "author-claim gate impact audit + quarantine"), "p1_readiness_audit.py": (M, "B1/B2 readiness quality audit"), "symbol_registry.py": (M, "D-04 universes + missing-history manifest"), "module_manifest_audit.py": (M, "this audit"),
     "v615_forward_intake_health.py": (M, "forward-intake integrity guard (reads validator timestamp only)"),
     "ohlcv_completeness_audit.py": (M, "P0-2 per-symbol OHLCV completeness evidence (read-only audit, no decisions)"),
+    "retrieval_inventory.py": (M, "kr-0.2.1 read-only retrieval inventory (manifest only; no consumer, no decisions)"),
+    "retrieval_history_diff.py": (M, "kr history diff between two pinned commits (read-only evidence, no consumer)"),
+    "retrieval_eligibility.py": (M, "kr-0.3.2 B2 eligibility evaluator + append-only rejection audit (research-only; no consumer, no decisions)"),
+    "privacy_canary_scan.py": (M, "kr-0.3.2 D3/D4 recursive privacy canary scanner (CI gate only; reads, never writes research data)"),
     "sec_v2_migration_audit.py": (M, "B4-03 pre-migration attribution audit (read-only; no consumer migrated)"),
     "weekly_change_summary.py": (M, "weekly fixed-field change summary; written/sent only on change (ops, no decisions)"),
     "update_fred_macro.py": (R, "FRED/ALFRED macro collector"),

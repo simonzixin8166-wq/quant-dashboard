@@ -1,24 +1,76 @@
 {
   "version": "6.12.1",
-  "generated_at": "2026-10-31T02:49:52.071368+00:00",
+  "generated_at": "2026-11-06T01:51:30.552132+00:00",
   "mode": "shadow_research_only",
   "playbooks": {
-    "CP-02": {
-      "state": "forward_early",
+    "CP-01": {
+      "state": "forward_unproven",
       "forward_provenance": "forward_out_of_sample",
       "replay_provenance": "historical_replay_post_rule_design",
-      "trigger_records": 7,
-      "mature5": 5,
+      "trigger_records": 3,
+      "mature5": 0,
       "mature20": 0,
       "mature60": 0,
-      "aligned_rate5": 0.4,
+      "aligned_rate5": null,
       "aligned_rate20": null,
       "aligned_rate60": null,
       "baseline_mismatch": 0,
       "timing_uncertain": 0,
+      "replay_effective_n20": 149,
+      "replay_aligned_rate20": 0.6198069385405248,
+      "attribution": [],
+      "by_state_detail": {
+        "tier1": {
+          "trigger_records": 3,
+          "late_detected": 0,
+          "timing_uncertain": 0,
+          "baseline_mismatch": 0,
+          "horizons": {
+            "5": {
+              "mature": 0,
+              "aligned": 0,
+              "not_aligned": 0,
+              "pending": 3
+            },
+            "20": {
+              "mature": 0,
+              "aligned": 0,
+              "not_aligned": 0,
+              "pending": 3
+            },
+            "60": {
+              "mature": 0,
+              "aligned": 0,
+              "not_aligned": 0,
+              "pending": 3
+            }
+          }
+        }
+      }
+    },
+    "CP-02": {
+      "state": "forward_early",
+      "forward_provenance": "forward_out_of_sample",
+      "replay_provenance": "historical_replay_post_rule_design",
+      "trigger_records": 8,
+      "mature5": 6,
+      "mature20": 0,
+      "mature60": 0,
+      "aligned_rate5": 0.3333333333333333,
+      "aligned_rate20": null,
+      "aligned_rate60": null,
+      "baseline_mismatch": 0,
+      "timing_uncertain": 1,
       "replay_effective_n20": 560,
       "replay_aligned_rate20": 0.5314836120776286,
-      "attribution": [],
+      "attribution": [
+        {
+          "tag": "late_detection_timing",
+          "severity": "review",
+          "evidence_n": 1,
+          "hypothesis": "存在检测时点不确定样本；先隔离时点误差，不能把它当成规则本身失败。"
+        }
+      ],
       "by_state_detail": {
         "full_restore": {
           "trigger_records": 2,
@@ -79,10 +131,10 @@
           "baseline_mismatch": 0,
           "horizons": {
             "5": {
-              "mature": 2,
+              "mature": 3,
               "aligned": 1,
-              "not_aligned": 1,
-              "pending": 2
+              "not_aligned": 2,
+              "pending": 1
             },
             "20": {
               "mature": 0,
@@ -95,6 +147,32 @@
               "aligned": 0,
               "not_aligned": 0,
               "pending": 4
+            }
+          }
+        },
+        "tier2": {
+          "trigger_records": 1,
+          "late_detected": 1,
+          "timing_uncertain": 1,
+          "baseline_mismatch": 0,
+          "horizons": {
+            "5": {
+              "mature": 0,
+              "aligned": 0,
+              "not_aligned": 0,
+              "pending": 1
+            },
+            "20": {
+              "mature": 0,
+              "aligned": 0,
+              "not_aligned": 0,
+              "pending": 1
+            },
+            "60": {
+              "mature": 0,
+              "aligned": 0,
+              "not_aligned": 0,
+              "pending": 1
             }
           }
         }
@@ -104,11 +182,11 @@
       "state": "forward_early",
       "forward_provenance": "forward_out_of_sample",
       "replay_provenance": "historical_replay_post_rule_design",
-      "trigger_records": 15,
-      "mature5": 10,
+      "trigger_records": 22,
+      "mature5": 12,
       "mature20": 0,
       "mature60": 0,
-      "aligned_rate5": 0.5,
+      "aligned_rate5": 0.4166666666666667,
       "aligned_rate20": null,
       "aligned_rate60": null,
       "baseline_mismatch": 0,
@@ -118,54 +196,54 @@
       "attribution": [],
       "by_state_detail": {
         "candidate": {
-          "trigger_records": 9,
+          "trigger_records": 15,
           "late_detected": 0,
           "timing_uncertain": 0,
           "baseline_mismatch": 0,
           "horizons": {
             "5": {
-              "mature": 5,
+              "mature": 6,
               "aligned": 2,
-              "not_aligned": 3,
-              "pending": 4
+              "not_aligned": 4,
+              "pending": 9
             },
             "20": {
               "mature": 0,
               "aligned": 0,
               "not_aligned": 0,
-              "pending": 9
+              "pending": 15
             },
             "60": {
               "mature": 0,
               "aligned": 0,
               "not_aligned": 0,
-              "pending": 9
+              "pending": 15
             }
           }
         },
         "strong": {
-          "trigger_records": 6,
+          "trigger_records": 7,
           "late_detected": 0,
           "timing_uncertain": 0,
           "baseline_mismatch": 0,
           "horizons": {
             "5": {
-              "mature": 5,
+              "mature": 6,
               "aligned": 3,
-              "not_aligned": 2,
+              "not_aligned": 3,
               "pending": 1
             },
             "20": {
               "mature": 0,
               "aligned": 0,
               "not_aligned": 0,
-              "pending": 6
+              "pending": 7
             },
             "60": {
               "mature": 0,
               "aligned": 0,
               "not_aligned": 0,
-              "pending": 6
+              "pending": 7
             }
           }
         }
@@ -174,14 +252,14 @@
   },
   "challengers": [],
   "counts": {
-    "playbooks": 2,
+    "playbooks": 3,
     "challenger_candidates": 0,
     "forward_mature20": 0,
     "forward_mature60": 0,
-    "attribution_reviews": 0
+    "attribution_reviews": 1
   },
   "change_log": {
-    "previous_generated_at": "2026-10-30T23:25:01.379729+00:00",
+    "previous_generated_at": "2026-11-05T16:34:06.714685+00:00",
     "stateless_recompute": true,
     "automatic_promotion": false
   },

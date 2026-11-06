@@ -38,7 +38,36 @@ env:
   SEC_USER_AGENT: ${{ secrets.SEC_USER_AGENT }}
 
 jobs:
+  # Efficiency (#133 10/31): GitHub often starts the US-close cron 3-4 h late, after the Daily Guardian has
+  # already published that session. Only for that cron, skip the duplicate rebuild when the latest NYSE session
+  # is already published and trusted (scripts/daily_skip_gate.py; any doubt → run). Never gates the 08:15Z A/HK
+  # snapshot, workflow_dispatch (Guardian / manual) or push.
+  gate:
+    if: ${{ github.event_name == 'schedule' && github.event.schedule == '30 21 * * 1-5' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      skip: ${{ steps.gate.outputs.skip }}
+      reason: ${{ steps.gate.outputs.reason }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 1
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            scripts/trading_calendar.py
+            scripts/daily_skip_gate.py
+            docs/data.json
+            docs/research/server_action_status.json
+      - name: Skip a late duplicate US-close run?
+        id: gate
+        run: python3 scripts/daily_skip_gate.py
+
   update:
+    needs: gate
+    # !cancelled(): the gate job is skipped for dispatch / 08:15Z / push, and a failed gate fails open (run).
+    if: ${{ !cancelled() && needs.gate.outputs.skip != 'true' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -137,6 +166,21 @@ jobs:
       - name: Record Playbook engine failure without blocking website
         if: steps.playbook_engine.outcome == 'failure'
         run: python scripts/module_failure_marker.py playbook_engine
+
+      # Core-ETF drawdown tier alerts (Owner #133 6516033003 / 6537316711): one Telegram when a CP-01 asset comes
+      # within 2 pp of tier 1, enters a tier, or recovers out of one (once per line per drawdown cycle). Separate
+      # from MYALPHA_PLAYBOOK_ALERTS_ENABLED. Reminder only; never blocks the website or changes thresholds/positions.
+      - name: Core ETF tier alerts (reminder only)
+        id: core_tier_alert
+        continue-on-error: true
+        env:
+          MYALPHA_TG_BOT_TOKEN: ${{ secrets.MYALPHA_TG_BOT_TOKEN }}
+          MYALPHA_TG_CHAT_ID: ${{ secrets.MYALPHA_TG_CHAT_ID }}
+        run: python scripts/core_tier_alert.py
+
+      - name: Record core_tier_alert failure (visible in system status)
+        if: steps.core_tier_alert.outcome == 'failure'
+        run: python scripts/module_failure_marker.py core_tier_alert
 
       - name: Build V6.11 Outcome Foundation (shadow-only)
         id: playbook_outcomes
@@ -565,6 +609,7 @@ jobs:
             git diff --stat
             exit 1
           fi
+          python3 scripts/privacy_canary_scan.py --staged  # kr-0.3.2 D4: block the publish if anything staged leaks private data
           git commit -m "Daily update $(date -u +%Y-%m-%d)" || echo "No changes"
           git pull --rebase origin main
           git push origin HEAD:main

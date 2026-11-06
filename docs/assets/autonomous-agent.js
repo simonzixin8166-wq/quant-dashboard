@@ -389,7 +389,8 @@
     const bid=n(quote?.bid),ask=n(quote?.ask),mid=n(quote?.mid);
     const spread=bid!==null&&ask!==null&&mid!==null&&mid>0?(ask-bid)/mid:null;
     const delta=n(quote?.delta),iv=n(quote?.iv),spot=n(quote?.underlyingPrice);
-    const dte=Math.round((new Date(position.expiry+'T20:00:00Z')-new Date())/86400000);
+    const usCloseMs=d=>{for(const h of [20,21]){const t=Date.parse(`${d}T${h}:00:00Z`);if(Number(new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',hour:'2-digit',hourCycle:'h23'}).format(new Date(t)))===16)return t}return Date.parse(`${d}T21:00:00Z`)};
+    const dte=Math.round((usCloseMs(position.expiry)-Date.now())/86400000);
     return{mark,pnl,pnlPct,spread,delta,iv,spot,dte};
   }
 

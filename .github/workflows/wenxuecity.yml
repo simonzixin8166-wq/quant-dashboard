@@ -57,6 +57,7 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add docs/data/wenxuecity.json
+          python3 scripts/privacy_canary_scan.py --staged  # kr-0.3.2 D4: block the publish if anything staged leaks private data
           if git diff --cached --quiet; then
             echo 'changed=false' >> "$GITHUB_OUTPUT"
           else
@@ -87,8 +88,16 @@ jobs:
         with:
           ref: main
       - uses: actions/configure-pages@v5
-      - uses: actions/upload-pages-artifact@v3
+      # kr-0.3.2 D4-3 (GPT #133 6626194723): scan the exact directory Pages publishes; upload and deploy only if clean
+      - name: Privacy guard on the Pages publish directory (kr-0.3.2 D4)
+        id: privacy_guard
+        run: python3 scripts/privacy_canary_scan.py docs
+      - name: Upload Pages artifact
+        if: steps.privacy_guard.outcome == 'success'
+        uses: actions/upload-pages-artifact@v3
         with:
           path: docs
-      - uses: actions/deploy-pages@v4
+      - name: Deploy Pages
+        if: steps.privacy_guard.outcome == 'success'
+        uses: actions/deploy-pages@v4
         id: deployment

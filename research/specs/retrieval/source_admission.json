@@ -1,0 +1,38 @@
+{
+ "version": "kr-0.3.1-admission",
+ "rule": "a source enters the research index only if its classification is 'public' or 'research-safe'; any other value, a missing entry or a source not listed here is rejected and the build fails. Presence in the inventory manifest does NOT admit a source.",
+ "classes": {
+  "public": "our own pipeline output already published in the public repo or Pages; no third-party text beyond titles",
+  "research-safe": "public repo content that carries third-party titles, excerpts (<= 360 chars) or extracted claims; admitted under the no-full-text rule",
+  "excluded": "never indexed (Owner 6594477482)"
+ },
+ "sources": {
+  "wx_feed": "research-safe",
+  "source_store": "research-safe",
+  "source_reading": "research-safe",
+  "rule_lifecycle": "research-safe",
+  "forward_observations": "public",
+  "forward_observations_promoted": "public",
+  "forward_outcomes": "public",
+  "auto_research_journal": "research-safe",
+  "shadow_research_cases": "research-safe",
+  "fundamental_observations": "public",
+  "fundamental_outcomes": "public",
+  "event_outcomes": "research-safe",
+  "market_state_outcomes": "public",
+  "macro_regime_observations": "public",
+  "operational_incidents": "public",
+  "source_outcome_validation": "research-safe",
+  "contradictions": "research-safe",
+  "method_memory": "research-safe",
+  "situation_memory": "public",
+  "historical_journal": "public",
+  "sec_filings": "public",
+  "thesis_revisions": "research-safe",
+  "options_opportunity_observations": "public",
+  "data_history": "public",
+  "myalpha-ledger-private": "excluded",
+  "supabase": "excluded",
+  "browser_journal": "excluded"
+ }
+}

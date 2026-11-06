@@ -25,6 +25,9 @@ def repo(extra_dirty=None):
         (t / p).parent.mkdir(parents=True, exist_ok=True)
         (t / p).write_text("{}\n")
     run("git", "add", "-A"); run("git", "commit", "-qm", "base")
+    # kr-0.3.2 D4: the step runs the privacy publish guard; give the throw-away repo the real scanner (untracked)
+    (t / "scripts").mkdir(exist_ok=True)
+    (t / "scripts" / "privacy_canary_scan.py").write_bytes((ROOT / "scripts" / "privacy_canary_scan.py").read_bytes())
     (t / "docs/data.json").write_text('{"x": 1}\n')
     with (t / "data/history/corrections.jsonl").open("a") as f:      # what bootstrap_replay_history does
         f.write('{"symbol": "VIX", "date": "2026-10-14", "applied": true}\n')
@@ -44,4 +47,12 @@ bad = repo(extra_dirty="research/audit/other.json")
 r = subprocess.run(["bash", "-c", script], cwd=bad, capture_output=True, text=True)
 assert r.returncode == 1 and "research/audit/other.json" in r.stdout and "::error title=Daily commit::" in r.stdout
 assert (bad / "research/audit/other.json").read_text() == '{"changed": true}\n'   # nothing discarded or reset
-print("PASS daily commit staging")
+# kr-0.3.2 D4: a canary in the staged Daily output stops the step before `git commit` (nothing is published)
+leak = repo()
+(leak / "docs/data.json").write_text('{"note": "CANARY-7f3a9c21-4b6e-4d2a-9e11-0c55aa77bb01"}\n')
+head = subprocess.run(["git", "rev-parse", "HEAD"], cwd=leak, capture_output=True, text=True).stdout
+r = subprocess.run(["bash", "-c", script], cwd=leak, capture_output=True, text=True)
+assert r.returncode == 1 and "canary_token" in r.stdout, r.stdout + r.stderr
+assert subprocess.run(["git", "rev-parse", "HEAD"], cwd=leak, capture_output=True, text=True).stdout == head, "a leaking Daily output was committed"
+assert "CANARY-7f3a9c21" not in r.stdout + r.stderr  # the guard reports location + category only
+print("PASS daily commit staging (+ privacy publish guard blocks a planted canary before commit)")

@@ -47,6 +47,7 @@ jobs:
           node tests/vendor_guard.test.js
           node --check docs/assets/auto-research-row.js
           node tests/auto_research_row.test.js
+          node tests/us_close_dst.test.js
           node --check docs/assets/stock-positions.js
           node tests/pr254_round2_contracts.test.js
       - name: V6.11 investment watch regression
@@ -84,6 +85,14 @@ jobs:
           node tests/macro_event_row.test.js
           node tests/event_calendar_row.test.js
           python tests/test_module_manifest_audit.py
+          python tests/test_forward_attribution_weekly.py
+          python tests/test_retrieval_contracts.py
+          python tests/test_retrieval_isolation.py
+          python tests/test_retrieval_isolation_negative.py
+          python tests/test_retrieval_eligibility_audit.py
+          python tests/test_question_set_isolation.py
+          python tests/test_privacy_canary_scan.py
+          python tests/test_verify_owner_approvals.py
           python tests/test_sec_identity.py
           python tests/test_author_claim_gate.py
           python tests/test_author_claim_contract.py
@@ -132,9 +141,11 @@ jobs:
           python tests/test_v511_ui_visibility.py
           python tests/test_v500_investment_assistant.py
           python tests/test_trading_calendar_parity.py
+          python tests/test_daily_skip_gate.py
           python tests/test_market_temperature.py
           python tests/test_turning_point_checklist.py
           python tests/test_fsc_v11_parallel.py
+          python tests/test_core_tier_alert.py
           python tests/test_forward_scoring_contract.py
           python tests/test_err01_regressions.py
           node tests/market_temperature.test.js

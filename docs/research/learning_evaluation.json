@@ -1,6 +1,6 @@
 {
   "version": "6.13.2",
-  "generated_at": "2026-11-06T03:24:12.361007+00:00",
+  "generated_at": "2026-11-06T16:03:20.610859+00:00",
   "title": "Learning Evaluation · 自我评估中心",
   "learning_health": {
     "score": 79.0,
@@ -19,9 +19,9 @@
       "evidence_state": "strong_historical",
       "validation_state": "forward_unproven",
       "feedback_state": "research_priority_only",
-      "historical_mature_20": 7989,
-      "historical_mature_60": 7704,
-      "historical_mature_120": 7267,
+      "historical_mature_20": 7987,
+      "historical_mature_60": 7702,
+      "historical_mature_120": 7262,
       "forward_mature_20": 0,
       "forward_mature_60": 0,
       "current_situations": 26,
@@ -85,16 +85,16 @@
     "low_confidence": 1,
     "with_counter_evidence": 8,
     "with_unknowns": 8,
-    "open_tasks": 53,
-    "high_priority_tasks": 34,
+    "open_tasks": 55,
+    "high_priority_tasks": 37,
     "situation_memory": 26
   },
   "outcome_memory": {
     "symbols": 41,
-    "events": 8120,
-    "mature_20": 7989,
-    "mature_60": 7704,
-    "mature_120": 7267,
+    "events": 8117,
+    "mature_20": 7987,
+    "mature_60": 7702,
+    "mature_120": 7262,
     "role": "历史库提供先验与相似情境；实时前瞻结果用于验证系统当时判断是否可靠。"
   },
   "method_validation": {
@@ -173,11 +173,11 @@
   "evidence_gaps": [
     {
       "category": "官方/一手证据",
-      "count": 11,
+      "count": 12,
       "examples": [
         "公司IR官网全文仍待专用连接；当前已使用SEC官方披露与分级媒体事件线索",
-        "SEC官方证据暂不可用：unmapped",
-        "尚未完成本任务对应的最新SEC官方披露核验"
+        "已读取 5 条相关一般媒体线索，但暂无 Reuters/AP/新闻稿等高优先级事件源确认",
+        "SEC官方证据暂不可用：unmapped"
       ]
     },
     {
@@ -191,17 +191,25 @@
     },
     {
       "category": "行业/同业证据",
-      "count": 5,
+      "count": 4,
       "examples": [
         "行业同业联动样本暂不足"
       ]
     },
     {
       "category": "期权/私有结果",
-      "count": 2,
+      "count": 3,
       "examples": [
+        "LEAPS具体IV、Bid/Ask、期限结构需在期权链中单独核验",
         "ppo_hist_positive：现有 Source Reading 未找到同作者可用定义线索。",
         "macd_hist_positive：现有同作者资料只有概念/使用线索，尚无可审计公式或参数定义。"
+      ]
+    },
+    {
+      "category": "前瞻成熟样本",
+      "count": 1,
+      "examples": [
+        "博主关于不同情境下相对收益的判断属于待验证Source Hypothesis，需用MyAlpha历史样本继续验证"
       ]
     }
   ],
@@ -221,16 +229,16 @@
   },
   "lessons": [
     "本轮自动完成 8 项研究，其中高置信度 5 项；所有结论继续区分支持证据、反证和未知项。",
-    "历史库已有 7704 个60日成熟状态样本，可用于相似情境先验；实时前瞻样本仍单独验证。",
+    "历史库已有 7702 个60日成熟状态样本，可用于相似情境先验；实时前瞻样本仍单独验证。",
     "Method Memory 已吸收 2969 条来源记录，但直接方法验证仍需继续积累。",
-    "当前最大证据缺口是“官方/一手证据”（11 项），下一轮研究应优先补齐而不是猜测。",
+    "当前最大证据缺口是“官方/一手证据”（12 项），下一轮研究应优先补齐而不是猜测。",
     "当前外部方法仍没有足够直接归因样本，因此不能把博主观点晋级为正式策略。"
   ],
   "next_learning_focus": [
     {
       "priority": 1,
       "focus": "官方/一手证据",
-      "reason": "本轮出现 11 个未完成验证项。",
+      "reason": "本轮出现 12 个未完成验证项。",
       "action": "优先补证据并记录结果；不得用推测填补缺失事实。"
     },
     {
@@ -242,7 +250,7 @@
     {
       "priority": 3,
       "focus": "行业/同业证据",
-      "reason": "本轮出现 5 个未完成验证项。",
+      "reason": "本轮出现 4 个未完成验证项。",
       "action": "优先补证据并记录结果；不得用推测填补缺失事实。"
     },
     {
@@ -266,11 +274,11 @@
     "research_coverage": {
       "symbols_analyzed": 8,
       "auto_thesis_symbols": 17,
-      "open_planner_tasks": 53,
+      "open_planner_tasks": 55,
       "note": "研究覆盖率：代表系统已形成假设与结构化研究草稿的资产范围。"
     },
     "historical_reconstruction": {
-      "historical_mature_60": 7704,
+      "historical_mature_60": 7702,
       "note": "历史重建样本：仅作为先验与相似情境库，不属于前瞻实证成熟样本。"
     },
     "genuine_learning_outcomes": {

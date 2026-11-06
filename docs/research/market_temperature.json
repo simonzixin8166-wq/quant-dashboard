@@ -1,13 +1,13 @@
 {
  "version": 4,
  "method": "each component = percentile of today vs its trailing 252 readings; fixed linear scale (labelled) until 252 readings exist; inputs > 2 sessions behind the market date are excluded; composite rounded to an integer",
- "reference_date": "2026-11-04",
+ "reference_date": "2026-11-05",
  "max_lag_sessions": 2,
  "fixed_scale_components": 3,
  "validation_plan": "docs/development/market_temperature_validation.md",
- "generated_at": "2026-11-05T16:34:51Z",
- "as_of": "2026-11-04",
- "score": 42,
+ "generated_at": "2026-11-06T01:52:02Z",
+ "as_of": "2026-11-05",
+ "score": 34,
  "label": "恐惧",
  "components_available": 6,
  "components_total": 6,
@@ -16,11 +16,11 @@
    "key": "momentum",
    "name": "价格动量",
    "status": "ok",
-   "score": 14.7,
+   "score": 4.0,
    "method": "percentile_252",
-   "raw": 0.013256,
-   "value": 0.0133,
-   "as_of": "2026-11-04",
+   "raw": -0.031373,
+   "value": -0.0314,
+   "as_of": "2026-11-05",
    "source": "archive SPY close vs 125-session average",
    "lag_sessions": 0
   },
@@ -37,7 +37,7 @@
    },
    "as_of": "2026-11-04",
    "source": "breadth_intelligence (S&P 500 net 52-week highs)",
-   "lag_sessions": 0
+   "lag_sessions": 1
   },
   {
    "key": "breadth",
@@ -49,20 +49,20 @@
    "value": 0.7289,
    "as_of": "2026-11-04",
    "source": "breadth_intelligence (S&P 500 above 50-day MA)",
-   "lag_sessions": 0
+   "lag_sessions": 1
   },
   {
    "key": "volatility",
    "name": "波动率",
    "status": "ok",
-   "score": 38.5,
+   "score": 0.0,
    "method": "percentile_252",
-   "raw": 0.0113,
+   "raw": 0.687647,
    "value": {
-    "vix": 16.61,
-    "vs_ma50": 0.0113
+    "vix": 28.18,
+    "vs_ma50": 0.6876
    },
-   "as_of": "2026-11-04",
+   "as_of": "2026-11-05",
    "source": "archive VIX vs 50-session average",
    "lag_sessions": 0
   },
@@ -76,7 +76,7 @@
    "value": -0.0732,
    "as_of": "2026-11-04",
    "source": "archive SPY vs TLT 20-session return (latest common date)",
-   "lag_sessions": 0
+   "lag_sessions": 1
   },
   {
    "key": "credit",
@@ -91,7 +91,7 @@
    },
    "as_of": "2026-11-04",
    "source": "FRED ICE BofA US High Yield OAS (via cross_asset_divergence)",
-   "lag_sessions": 0
+   "lag_sessions": 1
   }
  ],
  "status": "ok",
@@ -100,7 +100,7 @@
  "cnn_link": "https://www.cnn.com/markets/fear-and-greed",
  "decision": "#133 2026-10-17 owner-approved; SENT-01 CNN stays link-out only",
  "change_vs": {
-  "as_of": "2026-10-28",
-  "delta": 4
+  "as_of": "2026-10-29",
+  "delta": -7
  }
 }

@@ -1,13 +1,13 @@
 {
   "version": "6.12.1",
-  "generated_at": "2026-11-06T16:01:32.709903+00:00",
+  "generated_at": "2026-11-07T00:31:57.646085+00:00",
   "mode": "shadow_research_only",
   "playbooks": {
     "CP-01": {
       "state": "forward_unproven",
       "forward_provenance": "forward_out_of_sample",
       "replay_provenance": "historical_replay_post_rule_design",
-      "trigger_records": 3,
+      "trigger_records": 4,
       "mature5": 0,
       "mature20": 0,
       "mature60": 0,
@@ -21,7 +21,7 @@
       "attribution": [],
       "by_state_detail": {
         "tier1": {
-          "trigger_records": 3,
+          "trigger_records": 4,
           "late_detected": 0,
           "timing_uncertain": 0,
           "baseline_mismatch": 0,
@@ -30,19 +30,19 @@
               "mature": 0,
               "aligned": 0,
               "not_aligned": 0,
-              "pending": 3
+              "pending": 4
             },
             "20": {
               "mature": 0,
               "aligned": 0,
               "not_aligned": 0,
-              "pending": 3
+              "pending": 4
             },
             "60": {
               "mature": 0,
               "aligned": 0,
               "not_aligned": 0,
-              "pending": 3
+              "pending": 4
             }
           }
         }
@@ -52,22 +52,22 @@
       "state": "forward_early",
       "forward_provenance": "forward_out_of_sample",
       "replay_provenance": "historical_replay_post_rule_design",
-      "trigger_records": 8,
-      "mature5": 6,
-      "mature20": 0,
+      "trigger_records": 9,
+      "mature5": 7,
+      "mature20": 1,
       "mature60": 0,
-      "aligned_rate5": 0.3333333333333333,
-      "aligned_rate20": null,
+      "aligned_rate5": 0.2857142857142857,
+      "aligned_rate20": 0.0,
       "aligned_rate60": null,
       "baseline_mismatch": 0,
-      "timing_uncertain": 1,
+      "timing_uncertain": 2,
       "replay_effective_n20": 560,
       "replay_aligned_rate20": 0.5314836120776286,
       "attribution": [
         {
           "tag": "late_detection_timing",
           "severity": "review",
-          "evidence_n": 1,
+          "evidence_n": 2,
           "hypothesis": "存在检测时点不确定样本；先隔离时点误差，不能把它当成规则本身失败。"
         }
       ],
@@ -85,10 +85,10 @@
               "pending": 0
             },
             "20": {
-              "mature": 0,
+              "mature": 1,
               "aligned": 0,
-              "not_aligned": 0,
-              "pending": 2
+              "not_aligned": 1,
+              "pending": 1
             },
             "60": {
               "mature": 0,
@@ -131,10 +131,10 @@
           "baseline_mismatch": 0,
           "horizons": {
             "5": {
-              "mature": 3,
+              "mature": 4,
               "aligned": 1,
-              "not_aligned": 2,
-              "pending": 1
+              "not_aligned": 3,
+              "pending": 0
             },
             "20": {
               "mature": 0,
@@ -175,6 +175,32 @@
               "pending": 1
             }
           }
+        },
+        "hard_exit": {
+          "trigger_records": 1,
+          "late_detected": 1,
+          "timing_uncertain": 1,
+          "baseline_mismatch": 0,
+          "horizons": {
+            "5": {
+              "mature": 0,
+              "aligned": 0,
+              "not_aligned": 0,
+              "pending": 1
+            },
+            "20": {
+              "mature": 0,
+              "aligned": 0,
+              "not_aligned": 0,
+              "pending": 1
+            },
+            "60": {
+              "mature": 0,
+              "aligned": 0,
+              "not_aligned": 0,
+              "pending": 1
+            }
+          }
         }
       }
     },
@@ -182,11 +208,11 @@
       "state": "forward_early",
       "forward_provenance": "forward_out_of_sample",
       "replay_provenance": "historical_replay_post_rule_design",
-      "trigger_records": 22,
-      "mature5": 12,
+      "trigger_records": 24,
+      "mature5": 15,
       "mature20": 0,
       "mature60": 0,
-      "aligned_rate5": 0.4166666666666667,
+      "aligned_rate5": 0.3333333333333333,
       "aligned_rate20": null,
       "aligned_rate60": null,
       "baseline_mismatch": 0,
@@ -196,28 +222,28 @@
       "attribution": [],
       "by_state_detail": {
         "candidate": {
-          "trigger_records": 15,
+          "trigger_records": 17,
           "late_detected": 0,
           "timing_uncertain": 0,
           "baseline_mismatch": 0,
           "horizons": {
             "5": {
-              "mature": 6,
+              "mature": 9,
               "aligned": 2,
-              "not_aligned": 4,
-              "pending": 9
+              "not_aligned": 7,
+              "pending": 8
             },
             "20": {
               "mature": 0,
               "aligned": 0,
               "not_aligned": 0,
-              "pending": 15
+              "pending": 17
             },
             "60": {
               "mature": 0,
               "aligned": 0,
               "not_aligned": 0,
-              "pending": 15
+              "pending": 17
             }
           }
         },
@@ -254,12 +280,12 @@
   "counts": {
     "playbooks": 3,
     "challenger_candidates": 0,
-    "forward_mature20": 0,
+    "forward_mature20": 1,
     "forward_mature60": 0,
     "attribution_reviews": 1
   },
   "change_log": {
-    "previous_generated_at": "2026-11-06T01:51:30.552132+00:00",
+    "previous_generated_at": "2026-11-06T16:01:32.709903+00:00",
     "stateless_recompute": true,
     "automatic_promotion": false
   },

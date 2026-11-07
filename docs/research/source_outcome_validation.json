@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "generated_at": "2026-11-06T16:02:31.892303+00:00",
+  "generated_at": "2026-11-07T00:32:43.527795+00:00",
   "methodology": {
     "executed_action_baseline": "first trading session open strictly after source date when no reliable intraday timestamp exists",
     "planned_entry_baseline": "explicit stock-entry plans begin only on the first later session whose low touches the stated level; each tranche is validated separately",
@@ -16,14 +16,14 @@
     "attribution_limit": "third-party examples are excluded; unconfirmed source context is visible but excluded from aggregate method memory"
   },
   "counts": {
-    "events": 215,
-    "author_owned": 87,
+    "events": 216,
+    "author_owned": 88,
     "unconfirmed": 128,
-    "triggered_author_owned": 85,
+    "triggered_author_owned": 86,
     "untriggered_plans": 2,
     "mature60": 35,
-    "developing": 50,
-    "symbols": 33
+    "developing": 51,
+    "symbols": 34
   },
   "missing_history": {},
   "by_action": {
@@ -121,11 +121,11 @@
     },
     "no_add": {
       "5": {
-        "n": 1,
-        "avg_return": 0.08317647058823519,
-        "median_return": 0.08317647058823519,
-        "avg_excess_vs_qqq": 0.08085044208349879,
-        "alignment_rate": 1.0
+        "n": 2,
+        "avg_return": -0.05641176470588238,
+        "median_return": -0.05641176470588238,
+        "avg_excess_vs_qqq": -0.02814696492069657,
+        "alignment_rate": 0.5
       },
       "20": {
         "n": 0,
@@ -144,11 +144,11 @@
     },
     "planned_buy": {
       "5": {
-        "n": 10,
-        "avg_return": -0.035834548958579716,
-        "median_return": -0.07258337998154679,
-        "avg_excess_vs_qqq": -0.020916599397383263,
-        "alignment_rate": 0.375
+        "n": 11,
+        "avg_return": -0.05039504450779974,
+        "median_return": -0.07915805785123964,
+        "avg_excess_vs_qqq": -0.031482760536247684,
+        "alignment_rate": 0.3333333333333333
       },
       "20": {
         "n": 4,
@@ -261,11 +261,11 @@
   "by_author": {
     "BrightLine": {
       "5": {
-        "n": 57,
-        "avg_return": -0.04131779876672226,
-        "median_return": -0.03802825953394462,
-        "avg_excess_vs_qqq": -0.03860090655167124,
-        "alignment_rate": 0.46153846153846156
+        "n": 58,
+        "avg_return": -0.043984733270744286,
+        "median_return": -0.04575121509458413,
+        "avg_excess_vs_qqq": -0.04029993181672677,
+        "alignment_rate": 0.4528301886792453
       },
       "20": {
         "n": 40,
@@ -826,6 +826,55 @@
       },
       "alignment": {
         "direction": "bearish",
+        "5": null,
+        "20": null,
+        "60": null
+      },
+      "level_checks": {},
+      "status": "developing"
+    },
+    {
+      "event_id": "65617fc7cac62e510fae:0:NFLX:0",
+      "author": "bogbog",
+      "title": "NFLX我都想加仓了，如果到40-50，我一定加。",
+      "url": "https://bbs.wenxuecity.com/cfzh/118333.html",
+      "published_at": "2026-10-30 07:34:22",
+      "symbol": "NFLX",
+      "operation": {
+        "symbols": [
+          "NFLX"
+        ],
+        "actions": [
+          "add"
+        ],
+        "attribution": "author_action",
+        "attribution_confidence": "high"
+      },
+      "actions": [
+        "add"
+      ],
+      "attribution": "author_action",
+      "attribution_confidence": "high",
+      "baseline_kind": "next_session",
+      "baseline_assumption": "next trading session open because source date has no reliable intraday timestamp",
+      "planned_level": null,
+      "triggered": true,
+      "baseline_date": "2026-11-02",
+      "baseline_price": 62.20000076293945,
+      "price_provenance": {
+        "price_source": "yfinance_validation_cache",
+        "adjustment_basis": "yfinance_auto_adjust_false_native_ohlc",
+        "baseline_source": "yfinance_validation_cache",
+        "horizon_source": "yfinance_validation_cache",
+        "same_source": true
+      },
+      "outcomes": {
+        "5": null,
+        "20": null,
+        "60": null
+      },
+      "alignment": {
+        "direction": "bullish",
         "5": null,
         "20": null,
         "60": null
@@ -4689,13 +4738,20 @@
           "benchmark_return": -0.05680685744212155,
           "excess_vs_qqq": -0.027618583498551952
         },
-        "20": null,
+        "20": {
+          "date": "2026-11-06",
+          "return": -0.2019668626402994,
+          "mae": -0.22410685195082847,
+          "mfe": 6.413682522699027e-05,
+          "benchmark_return": -0.1281642618851141,
+          "excess_vs_qqq": -0.0738026007551853
+        },
         "60": null
       },
       "alignment": {
         "direction": "bullish",
         "5": "not_aligned",
-        "20": null,
+        "20": "not_aligned",
         "60": null
       },
       "level_checks": {},
@@ -7948,13 +8004,20 @@
         "same_source": true
       },
       "outcomes": {
-        "5": null,
+        "5": {
+          "date": "2026-11-06",
+          "return": -0.19599999999999995,
+          "mae": -0.26128571428571423,
+          "mfe": -0.017571428571428682,
+          "benchmark_return": -0.058855628075108024,
+          "excess_vs_qqq": -0.13714437192489193
+        },
         "20": null,
         "60": null
       },
       "alignment": {
         "direction": "bullish",
-        "5": null,
+        "5": "not_aligned",
         "20": null,
         "60": null
       },

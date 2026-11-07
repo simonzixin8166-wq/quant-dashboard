@@ -1,14 +1,13 @@
 {
   "version": "6.14.5",
-  "generated_at": "2026-11-06T16:02:32.111696+00:00",
+  "generated_at": "2026-11-07T00:32:43.756600+00:00",
   "mode": "research_only_rule_lifecycle",
   "source_reading_version": "6.14.7",
   "source_outcome_version": 2,
   "counts": {
     "rules": 62,
     "by_state": {
-      "mapping_missing": 1,
-      "triggered_pending": 2,
+      "triggered_pending": 3,
       "mature_5": 17,
       "mature_20": 11,
       "option_outcome_unscored": 2,
@@ -16,12 +15,11 @@
     },
     "scoreable_stock_rules": 51,
     "option_unscored": 2,
-    "mapping_missing": 1
+    "mapping_missing": 0
   },
   "by_method": {
     "仓位与加减仓": {
-      "mapping_missing": 1,
-      "triggered_pending": 2,
+      "triggered_pending": 3,
       "mature_5": 17,
       "mature_20": 10,
       "option_outcome_unscored": 1,
@@ -53,13 +51,20 @@
           "add"
         ]
       },
-      "mapped_event_count": 0,
-      "mapped_event_ids": [],
+      "mapped_event_count": 1,
+      "mapped_event_ids": [
+        "65617fc7cac62e510fae:0:NFLX:0"
+      ],
       "scoreable_as_method_performance": false,
       "eligible_for_production": false,
-      "state": "mapping_missing",
-      "reason": "No Source Outcome event matched the exact source_id + operation_index key.",
+      "state": "triggered_pending",
+      "reason": "Stock-entry lifecycle derived from existing Source Outcome events.",
       "maturity": {
+        "5": 0,
+        "20": 0,
+        "60": 0
+      },
+      "scored_alignment": {
         "5": 0,
         "20": 0,
         "60": 0
@@ -1166,12 +1171,12 @@
       "state": "mature_5",
       "reason": "Stock-entry lifecycle derived from existing Source Outcome events.",
       "maturity": {
-        "5": 1,
+        "5": 2,
         "20": 0,
         "60": 0
       },
       "scored_alignment": {
-        "5": 1,
+        "5": 2,
         "20": 0,
         "60": 0
       },

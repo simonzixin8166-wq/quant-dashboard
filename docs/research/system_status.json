@@ -1,76 +1,78 @@
 {
   "version": 4,
-  "generated_at": "2026-11-07T00:33:41.128868+00:00",
-  "overall": "running",
+  "generated_at": "2026-11-07T02:45:09.808690+00:00",
+  "overall": "degraded",
   "overall_levels": "ok < running < degraded（非关键模块失败，行情与决策数据可用）< attention（关键失败，暂停行动结论）",
-  "degraded_reasons": [],
+  "degraded_reasons": [
+    "wxc-bot 盘后来源采集（research-close）最近一次运行失败；行情与决策数据不受影响"
+  ],
   "active_module_failures": {},
   "workflows": {
     "quant-dashboard": {
       "Daily Dashboard Update": {
-        "status": "in_progress",
-        "conclusion": null,
-        "event": "workflow_dispatch",
-        "created_at": "2026-11-07T00:23:19Z",
-        "updated_at": "2026-11-07T00:23:23Z",
-        "head_sha": "1613dbb0f5274b1c11f3b22199ebd64527426a1e",
-        "health": "running"
+        "status": "completed",
+        "conclusion": "success",
+        "event": "schedule",
+        "created_at": "2026-11-07T01:03:13Z",
+        "updated_at": "2026-11-07T01:03:20Z",
+        "head_sha": "92c09101b384eb193d0219be04854970380d3407",
+        "health": "ok"
       },
       "Autonomous QA & Security": {
         "status": "completed",
         "conclusion": "success",
         "event": "workflow_run",
-        "created_at": "2026-11-06T23:58:40Z",
-        "updated_at": "2026-11-07T00:00:33Z",
-        "head_sha": "1613dbb0f5274b1c11f3b22199ebd64527426a1e",
+        "created_at": "2026-11-07T01:03:57Z",
+        "updated_at": "2026-11-07T01:06:45Z",
+        "head_sha": "0e0585d57a46a5b466452a4ffaa64c9472b19abb",
         "health": "ok"
       },
       "Source Intelligence Validation": {
-        "status": "completed",
-        "conclusion": "success",
+        "status": "in_progress",
+        "conclusion": null,
         "event": "schedule",
-        "created_at": "2026-11-06T03:22:23Z",
-        "updated_at": "2026-11-06T03:24:40Z",
-        "head_sha": "a70c8fa1f617f646cbe00c15aa3b93d16366ed81",
-        "health": "ok"
+        "created_at": "2026-11-07T02:43:10Z",
+        "updated_at": "2026-11-07T02:43:13Z",
+        "head_sha": "e53c7f32ad5b9e2a47ade558a27df1f504056269",
+        "health": "running"
       },
       "Trend Pulse 5Y Backtest": {
         "status": "completed",
         "conclusion": "success",
         "event": "schedule",
-        "created_at": "2026-11-06T02:38:55Z",
-        "updated_at": "2026-11-06T02:39:51Z",
-        "head_sha": "db5a00bca02f36bb7b2d02aa5b1619125d45be58",
+        "created_at": "2026-11-07T02:06:24Z",
+        "updated_at": "2026-11-07T02:07:02Z",
+        "head_sha": "059597d27d687fb44ce1e68b2147efba77d38da2",
         "health": "ok"
       },
       "pages build and deployment": {
         "status": "completed",
         "conclusion": "success",
         "event": "dynamic",
-        "created_at": "2026-11-06T23:58:36Z",
-        "updated_at": "2026-11-06T23:59:17Z",
-        "head_sha": "1613dbb0f5274b1c11f3b22199ebd64527426a1e",
+        "created_at": "2026-11-07T02:07:01Z",
+        "updated_at": "2026-11-07T02:07:42Z",
+        "head_sha": "e53c7f32ad5b9e2a47ade558a27df1f504056269",
         "health": "ok"
       },
       "Playbook Independent Watchdog": {
         "status": "completed",
         "conclusion": "success",
         "event": "schedule",
-        "created_at": "2026-11-06T19:26:55Z",
-        "updated_at": "2026-11-06T19:27:05Z",
-        "head_sha": "0e72a7fd0058ec0cc6cdbb9866f6db4ff24d1d1a",
+        "created_at": "2026-11-07T00:57:03Z",
+        "updated_at": "2026-11-07T00:57:14Z",
+        "head_sha": "92c09101b384eb193d0219be04854970380d3407",
         "health": "ok"
       }
     },
     "wxc-bot": {
       "research-close": {
         "status": "completed",
-        "conclusion": "success",
+        "conclusion": "failure",
         "event": "schedule",
-        "created_at": "2026-11-06T19:56:24Z",
-        "updated_at": "2026-11-06T19:57:04Z",
-        "head_sha": "985e66ceb749921ea9bbe0d60b7a982ccb462d57",
-        "health": "ok"
+        "created_at": "2026-11-07T02:13:41Z",
+        "updated_at": "2026-11-07T02:14:15Z",
+        "head_sha": "a815de6a68a2ca018b22d9417f2fd6fff8cb77a5",
+        "health": "bad"
       },
       "tg-bot": {
         "status": "completed",
@@ -85,7 +87,7 @@
   },
   "artifacts": {
     "market_dashboard": {
-      "updated_at": "2026-11-07T00:31:06.699037+00:00",
+      "updated_at": "2026-11-07T02:43:24.171595+00:00",
       "available": true,
       "age_hours": 0.0,
       "max_age_hours": 72,
@@ -99,7 +101,7 @@
     "learning_engine": {
       "updated_at": "2026-11-07T00:32:35.426541+00:00",
       "available": true,
-      "age_hours": 0.0,
+      "age_hours": 2.2,
       "max_age_hours": 96,
       "freshness": "fresh",
       "decision_eligible": true,
@@ -108,14 +110,14 @@
     "autonomous_agent": {
       "updated_at": "2026-11-07T00:32:35.494378+00:00",
       "available": true,
-      "age_hours": 0.0,
+      "age_hours": 2.2,
       "max_age_hours": 96,
       "freshness": "fresh",
       "decision_eligible": true,
       "participation": "eligible"
     },
     "source_intelligence": {
-      "updated_at": "2026-11-07T00:32:36.524994+00:00",
+      "updated_at": "2026-11-07T02:44:02.777247+00:00",
       "available": true,
       "age_hours": 0.0,
       "max_age_hours": 120,
@@ -124,7 +126,7 @@
       "participation": "eligible"
     },
     "source_outcomes": {
-      "updated_at": "2026-11-07T00:32:43.527795+00:00",
+      "updated_at": "2026-11-07T02:44:13.803892+00:00",
       "available": true,
       "age_hours": 0.0,
       "max_age_hours": 168,
@@ -133,7 +135,7 @@
       "participation": "eligible"
     },
     "evidence_attribution": {
-      "updated_at": "2026-11-07T00:32:43.923748+00:00",
+      "updated_at": "2026-11-07T02:44:14.023796+00:00",
       "available": true,
       "age_hours": 0.0,
       "max_age_hours": 168,
@@ -142,7 +144,7 @@
       "participation": "eligible"
     },
     "method_memory": {
-      "updated_at": "2026-11-07T00:32:45.031549+00:00",
+      "updated_at": "2026-11-07T02:44:14.878480+00:00",
       "available": true,
       "age_hours": 0.0,
       "max_age_hours": 168,
@@ -151,7 +153,7 @@
       "participation": "eligible"
     },
     "research_planner": {
-      "updated_at": "2026-11-07T00:32:45.393893+00:00",
+      "updated_at": "2026-11-07T02:44:16.511160+00:00",
       "available": true,
       "age_hours": 0.0,
       "max_age_hours": 96,
@@ -160,7 +162,7 @@
       "participation": "eligible"
     },
     "research_execution": {
-      "updated_at": "2026-11-07T00:33:31.484282+00:00",
+      "updated_at": "2026-11-07T02:44:58.711965+00:00",
       "available": true,
       "age_hours": 0.0,
       "max_age_hours": 96,
@@ -169,7 +171,7 @@
       "participation": "eligible"
     },
     "official_evidence": {
-      "updated_at": "2026-11-07T00:32:45.481531+00:00",
+      "updated_at": "2026-11-07T02:44:16.585147+00:00",
       "available": true,
       "age_hours": 0.0,
       "max_age_hours": 168,
@@ -178,7 +180,7 @@
       "participation": "eligible"
     },
     "event_evidence": {
-      "updated_at": "2026-11-07T00:33:23.015658+00:00",
+      "updated_at": "2026-11-07T02:44:53.323609+00:00",
       "available": true,
       "age_hours": 0.0,
       "max_age_hours": 96,
@@ -187,7 +189,7 @@
       "participation": "eligible"
     },
     "event_window_attribution": {
-      "updated_at": "2026-11-07T00:33:31.304417+00:00",
+      "updated_at": "2026-11-07T02:44:58.567421+00:00",
       "available": true,
       "age_hours": 0.0,
       "max_age_hours": 168,
@@ -196,7 +198,7 @@
       "participation": "eligible"
     },
     "self_improvement": {
-      "updated_at": "2026-11-07T00:33:31.558038+00:00",
+      "updated_at": "2026-11-07T02:44:58.774188+00:00",
       "available": true,
       "age_hours": 0.0,
       "max_age_hours": 168,
@@ -205,7 +207,7 @@
       "participation": "eligible"
     },
     "module_intelligence": {
-      "updated_at": "2026-11-07T00:32:45.167606+00:00",
+      "updated_at": "2026-11-07T02:44:16.371314+00:00",
       "available": true,
       "age_hours": 0.0,
       "max_age_hours": 336,
@@ -214,7 +216,7 @@
       "participation": "eligible"
     },
     "cross_asset_divergence": {
-      "updated_at": "2026-11-07T00:32:31.490820+00:00",
+      "updated_at": "2026-11-07T02:44:15.005270+00:00",
       "available": true,
       "age_hours": 0.0,
       "max_age_hours": 96,
@@ -223,7 +225,7 @@
       "participation": "eligible"
     },
     "cross_asset_divergence_history": {
-      "updated_at": "2026-11-07T00:32:31.495606+00:00",
+      "updated_at": "2026-11-07T02:44:15.009343+00:00",
       "available": true,
       "age_hours": 0.0,
       "max_age_hours": 336,
@@ -232,7 +234,7 @@
       "participation": "eligible"
     },
     "breadth_intelligence": {
-      "updated_at": "2026-11-07T00:32:32.270530+00:00",
+      "updated_at": "2026-11-07T02:44:15.656053+00:00",
       "available": true,
       "age_hours": 0.0,
       "max_age_hours": 96,
@@ -241,7 +243,7 @@
       "participation": "eligible"
     },
     "breadth_intelligence_history": {
-      "updated_at": "2026-11-07T00:32:32.272412+00:00",
+      "updated_at": "2026-11-07T02:44:15.698808+00:00",
       "available": true,
       "age_hours": 0.0,
       "max_age_hours": 336,
@@ -250,7 +252,7 @@
       "participation": "eligible"
     },
     "regime_combination_memory": {
-      "updated_at": "2026-11-07T00:32:34.562285+00:00",
+      "updated_at": "2026-11-07T02:44:15.744989+00:00",
       "available": true,
       "age_hours": 0.0,
       "max_age_hours": 96,
@@ -259,7 +261,7 @@
       "participation": "eligible"
     },
     "regime_combination_history": {
-      "updated_at": "2026-11-07T00:32:34.563633+00:00",
+      "updated_at": "2026-11-07T02:44:15.746226+00:00",
       "available": true,
       "age_hours": 0.0,
       "max_age_hours": 336,
@@ -270,7 +272,7 @@
     "playbook_status": {
       "updated_at": "2026-11-07T00:31:47.428186+00:00",
       "available": true,
-      "age_hours": 0.0,
+      "age_hours": 2.2,
       "max_age_hours": 96,
       "freshness": "fresh",
       "decision_eligible": true,
@@ -279,7 +281,7 @@
     "ledger_anchor": {
       "updated_at": "2026-11-07T00:31:52.893002+00:00",
       "available": true,
-      "age_hours": 0.0,
+      "age_hours": 2.2,
       "max_age_hours": 96,
       "freshness": "fresh",
       "decision_eligible": true,
@@ -288,7 +290,7 @@
     "range_intelligence": {
       "updated_at": "2026-11-07T00:31:57.744527+00:00",
       "available": true,
-      "age_hours": 0.0,
+      "age_hours": 2.2,
       "max_age_hours": 96,
       "freshness": "fresh",
       "decision_eligible": false,
@@ -306,7 +308,7 @@
     "playbook_outcome_shadow": {
       "updated_at": "2026-11-07T00:31:53.274814+00:00",
       "available": true,
-      "age_hours": 0.0,
+      "age_hours": 2.2,
       "max_age_hours": 96,
       "freshness": "fresh",
       "decision_eligible": false,
@@ -315,7 +317,7 @@
     "walk_forward_replay": {
       "updated_at": "2026-11-07T00:31:54.633486+00:00",
       "available": true,
-      "age_hours": 0.0,
+      "age_hours": 2.2,
       "max_age_hours": 168,
       "freshness": "fresh",
       "decision_eligible": false,
@@ -324,7 +326,7 @@
     "controlled_learning_policy": {
       "updated_at": "2026-11-07T00:32:45.214540+00:00",
       "available": true,
-      "age_hours": 0.0,
+      "age_hours": 2.2,
       "max_age_hours": 168,
       "freshness": "fresh",
       "decision_eligible": false,
@@ -333,7 +335,7 @@
     "forward_learning_feedback": {
       "updated_at": "2026-11-07T00:31:57.646085+00:00",
       "available": true,
-      "age_hours": 0.0,
+      "age_hours": 2.2,
       "max_age_hours": 168,
       "freshness": "fresh",
       "decision_eligible": false,
@@ -342,14 +344,14 @@
     "challenger_experiments": {
       "updated_at": "2026-11-07T00:31:57.693768+00:00",
       "available": true,
-      "age_hours": 0.0,
+      "age_hours": 2.2,
       "max_age_hours": 168,
       "freshness": "fresh",
       "decision_eligible": false,
       "participation": "research_only"
     },
     "source_reading_memory": {
-      "updated_at": "2026-11-07T00:32:40.456275+00:00",
+      "updated_at": "2026-11-07T02:44:07.074710+00:00",
       "available": true,
       "age_hours": 0.0,
       "max_age_hours": 168,
@@ -360,14 +362,14 @@
     "source_rule_lifecycle": {
       "updated_at": "2026-11-07T00:32:43.756600+00:00",
       "available": true,
-      "age_hours": 0.0,
+      "age_hours": 2.2,
       "max_age_hours": 168,
       "freshness": "fresh",
       "decision_eligible": false,
       "participation": "research_only"
     },
     "support_volatility_intelligence": {
-      "updated_at": "2026-11-07T00:33:32.611837+00:00",
+      "updated_at": "2026-11-07T02:44:59.567077+00:00",
       "available": true,
       "age_hours": 0.0,
       "max_age_hours": 96,
@@ -376,7 +378,7 @@
       "participation": "research_only"
     },
     "options_opportunity_context": {
-      "updated_at": "2026-11-07T00:33:34.463021+00:00",
+      "updated_at": "2026-11-07T02:45:03.069361+00:00",
       "available": true,
       "age_hours": 0.0,
       "max_age_hours": 96,
@@ -389,7 +391,7 @@
     "artifact": {
       "updated_at": "2026-11-07T00:31:57.744527+00:00",
       "available": true,
-      "age_hours": 0.0,
+      "age_hours": 2.2,
       "max_age_hours": 96,
       "freshness": "fresh",
       "decision_eligible": false,
@@ -457,12 +459,12 @@
     "failure_marker": {}
   },
   "resource_guard": {
-    "mode": "normal",
+    "mode": "watch",
     "billing_meter": false,
     "free_first": true,
     "signals": {
       "running_workflows": 1,
-      "unhealthy_workflows": 0,
+      "unhealthy_workflows": 1,
       "stale_or_missing_artifacts": 0
     },
     "policies": {
@@ -478,7 +480,7 @@
         "core risk monitoring last"
       ]
     },
-    "reason": "current automation/data pressure is low"
+    "reason": "elevated automation/data pressure"
   },
   "decision_data_contract": {
     "critical_artifacts": [

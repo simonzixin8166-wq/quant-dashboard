@@ -1,6 +1,6 @@
 {
   "version": "6.9.0",
-  "generated_at": "2026-11-07T02:44:58.711965+00:00",
+  "generated_at": "2026-11-08T02:23:18.699306+00:00",
   "planner_version": "6.14.3",
   "results": [
     {
@@ -46,9 +46,54 @@
         "source_method_lionhill"
       ],
       "guardrail": "该研究结果不能自动下单；未知项不得由模型猜测补全。",
-      "analysis_runs": 3,
+      "analysis_runs": 4,
       "first_analyzed_at": "2026-11-06T16:03:19.787838+00:00",
-      "last_analyzed_at": "2026-11-07T02:44:58.711965+00:00"
+      "last_analyzed_at": "2026-11-08T02:23:18.699306+00:00"
+    },
+    {
+      "task_id": "be6aac625fd469",
+      "kind": "market_anomaly",
+      "key": "IREN",
+      "title": "IREN · 异动/趋势专项研究",
+      "priority": 88.0,
+      "research_status": "analyzed",
+      "supporting_evidence": [
+        "Trend Pulse / Situation 当前阶段：趋势恶化",
+        "Learning Engine 研究优先级：27/100",
+        "相同阶段60日历史样本：1597，中位收益 1.8%",
+        "Source Intelligence 有 3 条与 IREN 相关研究记录；最近 3 条已进入独立验证层",
+        "SEC官方披露：最近 10-Q，提交日 2026-11-05",
+        "SEC文档已抓取官方原文证据片段，可用于下一步事件核验",
+        "Trend Pulse 数据校验状态：双源校验通过"
+      ],
+      "counter_evidence": [],
+      "unknowns": [
+        "外部作者自述操作的到期复盘 5 条（未经核实，仅作背景，不计入反证或失败归因）",
+        "已读取 5 条相关一般媒体线索，但暂无 Reuters/AP/新闻稿等高优先级事件源确认",
+        "同业样本已读取但未形成一致共振：1 个，方向 mixed",
+        "公司IR官网全文仍待专用连接；当前已使用SEC官方披露与分级媒体事件线索"
+      ],
+      "evidence_score": 64,
+      "confidence": "medium",
+      "confidence_scope": "research_result",
+      "provisional_conclusion": "已有初步支持证据，但关键外部事实仍缺失，暂不升级为结论。",
+      "next_validation": [
+        "这次变化由公司事件、行业共振还是市场因素驱动？",
+        "支持原 Thesis 的证据是什么？",
+        "最强反证是什么？",
+        "明日需要验证什么？"
+      ],
+      "source_requirements": [
+        "market_data",
+        "trend_pulse",
+        "SEC/IR",
+        "company_news",
+        "industry_peers"
+      ],
+      "guardrail": "该研究结果不能自动下单；未知项不得由模型猜测补全。",
+      "analysis_runs": 1,
+      "first_analyzed_at": "2026-11-08T02:23:18.699306+00:00",
+      "last_analyzed_at": "2026-11-08T02:23:18.699306+00:00"
     },
     {
       "task_id": "970cd03ca29c6a",
@@ -90,32 +135,115 @@
         "industry_peers"
       ],
       "guardrail": "该研究结果不能自动下单；未知项不得由模型猜测补全。",
-      "analysis_runs": 5,
+      "analysis_runs": 6,
       "first_analyzed_at": "2026-11-06T01:52:51.369654+00:00",
-      "last_analyzed_at": "2026-11-07T02:44:58.711965+00:00"
+      "last_analyzed_at": "2026-11-08T02:23:18.699306+00:00"
     },
     {
-      "task_id": "71b1256b404fb6",
-      "kind": "market_anomaly",
-      "key": "TQQQ",
-      "title": "TQQQ · 异动/趋势专项研究",
-      "priority": 88.0,
+      "task_id": "9dd02d7dc13f4e",
+      "kind": "regime_combination",
+      "key": "US_REGIME",
+      "title": "美股 · 风险环境存在组合分化",
+      "priority": 82.0,
       "research_status": "analyzed",
       "supporting_evidence": [
-        "Trend Pulse / Situation 当前阶段：趋势恶化",
-        "Learning Engine 研究优先级：27/100",
-        "相同阶段60日历史样本：1597，中位收益 1.8%",
-        "Source Intelligence 有 4 条与 TQQQ 相关研究记录；最近 3 条已进入独立验证层",
-        "该标的是ETF/基金工具，单一公司SEC披露不适用；应使用成分股、基金文件和行业证据。",
-        "Trend Pulse 数据校验状态：双源校验通过",
-        "高优先级事件源：The Wall Street Journal · Volume Surges on Leveraged Nasdaq ETF"
+        "当前组合状态：CROSS_LOW|BREADTH_WEAKENING|VIX_STRESS",
+        "跨资产层：跨资产背离有限；风险信号 1",
+        "宽度层：市场宽度走弱；参与度评分 55.8",
+        "VIX=25.64，分区 stress"
       ],
       "counter_evidence": [],
       "unknowns": [
-        "行业同业联动样本暂不足",
+        "同组合 5 日成熟样本仍不足",
+        "同组合 20 日成熟样本仍不足",
+        "同组合 60 日成熟样本仍不足"
+      ],
+      "evidence_score": 38,
+      "confidence": "low",
+      "confidence_scope": "research_result",
+      "provisional_conclusion": "已有初步支持证据，但关键外部事实仍缺失，暂不升级为结论。",
+      "next_validation": [
+        "同类组合状态历史5/20/60日结果如何？",
+        "宽度还是利率/信用哪一侧先修复？",
+        "VIX是否从低波动补涨确认风险？",
+        "什么变化足以让组合状态降级？"
+      ],
+      "source_requirements": [
+        "regime_combination_memory",
+        "breadth_intelligence",
+        "cross_asset_divergence",
+        "SPY",
+        "VIX"
+      ],
+      "guardrail": "该研究结果不能自动下单；未知项不得由模型猜测补全。",
+      "analysis_runs": 1,
+      "first_analyzed_at": "2026-11-08T02:23:18.699306+00:00",
+      "last_analyzed_at": "2026-11-08T02:23:18.699306+00:00"
+    },
+    {
+      "task_id": "ff2fe8dce9c4c9",
+      "kind": "breadth_intelligence",
+      "key": "US_BREADTH",
+      "title": "美股 · 市场宽度走弱",
+      "priority": 78.0,
+      "research_status": "analyzed",
+      "supporting_evidence": [
+        "短期宽度继续恶化：20日宽度10日斜率 -9.8%",
+        "52周新高参与不足：仅 2.0% 成分股处于52周新高",
+        "市场参与度评分：55.8/100",
+        "宽度组合状态：B20_OK|B50_OK|B200_OK|SLOPE_DOWN|SPY_RSP_OK|QQQ_QQQE_OK|AD_POS|NH52_THIN",
+        "历史弱宽度 5 日成熟样本 10：平均SPY收益 -0.6%",
+        "历史弱宽度 20 日成熟样本 5：平均SPY收益 -3.5%"
+      ],
+      "counter_evidence": [],
+      "unknowns": [
+        "弱宽度 60 日成熟样本仍不足"
+      ],
+      "evidence_score": 82,
+      "confidence": "high",
+      "confidence_scope": "research_result",
+      "provisional_conclusion": "已有初步支持证据，但关键外部事实仍缺失，暂不升级为结论。",
+      "next_validation": [
+        "20/50日宽度是否连续修复？",
+        "RSP是否开始追上SPY？",
+        "QQQE是否开始追上QQQ？",
+        "长期200日宽度是否重回50%以上？"
+      ],
+      "source_requirements": [
+        "breadth_intelligence",
+        "market_breadth",
+        "SPY/RSP",
+        "QQQ/QQQE",
+        "cross_asset_divergence"
+      ],
+      "guardrail": "该研究结果不能自动下单；未知项不得由模型猜测补全。",
+      "analysis_runs": 1,
+      "first_analyzed_at": "2026-11-08T02:23:18.699306+00:00",
+      "last_analyzed_at": "2026-11-08T02:23:18.699306+00:00"
+    },
+    {
+      "task_id": "320b47e4133735",
+      "kind": "market_anomaly",
+      "key": "MSFT",
+      "title": "MSFT · 异动/趋势专项研究",
+      "priority": 74.0,
+      "research_status": "analyzed",
+      "supporting_evidence": [
+        "Trend Pulse / Situation 当前阶段：二次启动",
+        "Learning Engine 研究优先级：74/100",
+        "相同阶段60日历史样本：1533，中位收益 3.2%",
+        "Source Intelligence 有 7 条与 MSFT 相关研究记录；最近 3 条已进入独立验证层",
+        "SEC官方披露：最近 8-K，提交日 2026-11-05",
+        "SEC文档已抓取官方原文证据片段，可用于下一步事件核验",
+        "Trend Pulse 数据校验状态：双源校验通过"
+      ],
+      "counter_evidence": [],
+      "unknowns": [
+        "已读取 5 条相关一般媒体线索，但暂无 Reuters/AP/新闻稿等高优先级事件源确认",
+        "同业样本已读取但未形成一致共振：3 个，方向 mixed",
         "公司IR官网全文仍待专用连接；当前已使用SEC官方披露与分级媒体事件线索"
       ],
-      "evidence_score": 84,
+      "evidence_score": 74,
       "confidence": "high",
       "confidence_scope": "research_result",
       "provisional_conclusion": "已有初步支持证据，但关键外部事实仍缺失，暂不升级为结论。",
@@ -133,22 +261,22 @@
         "industry_peers"
       ],
       "guardrail": "该研究结果不能自动下单；未知项不得由模型猜测补全。",
-      "analysis_runs": 2,
-      "first_analyzed_at": "2026-11-07T00:33:31.484282+00:00",
-      "last_analyzed_at": "2026-11-07T02:44:58.711965+00:00"
+      "analysis_runs": 1,
+      "first_analyzed_at": "2026-11-08T02:23:18.699306+00:00",
+      "last_analyzed_at": "2026-11-08T02:23:18.699306+00:00"
     },
     {
-      "task_id": "94dfddb30f20e7",
+      "task_id": "fd2d86bb6ab01f",
       "kind": "market_anomaly",
-      "key": "QLD",
-      "title": "QLD · 异动/趋势专项研究",
-      "priority": 88.0,
+      "key": "SOFI",
+      "title": "SOFI · 异动/趋势专项研究",
+      "priority": 72.0,
       "research_status": "analyzed",
       "supporting_evidence": [
-        "Trend Pulse / Situation 当前阶段：趋势恶化",
-        "Learning Engine 研究优先级：27/100",
-        "相同阶段60日历史样本：1597，中位收益 1.8%",
-        "该标的是ETF/基金工具，单一公司SEC披露不适用；应使用成分股、基金文件和行业证据。",
+        "Trend Pulse / Situation 当前阶段：震荡观察",
+        "Learning Engine 研究优先级：50/100",
+        "SEC官方披露：最近 10-Q，提交日 2026-11-05",
+        "SEC文档已抓取官方原文证据片段，可用于下一步事件核验",
         "Trend Pulse 数据校验状态：双源校验通过"
       ],
       "counter_evidence": [],
@@ -176,139 +304,9 @@
         "industry_peers"
       ],
       "guardrail": "该研究结果不能自动下单；未知项不得由模型猜测补全。",
-      "analysis_runs": 2,
-      "first_analyzed_at": "2026-11-07T00:33:31.484282+00:00",
-      "last_analyzed_at": "2026-11-07T02:44:58.711965+00:00"
-    },
-    {
-      "task_id": "9294e1e77660c4",
-      "kind": "market_anomaly",
-      "key": "SMH",
-      "title": "SMH · 异动/趋势专项研究",
-      "priority": 88.0,
-      "research_status": "analyzed",
-      "supporting_evidence": [
-        "Trend Pulse / Situation 当前阶段：趋势恶化",
-        "Learning Engine 研究优先级：27/100",
-        "相同阶段60日历史样本：1597，中位收益 1.8%",
-        "Source Intelligence 有 10 条与 SMH 相关研究记录；最近 3 条已进入独立验证层",
-        "该标的是ETF/基金工具，单一公司SEC披露不适用；应使用成分股、基金文件和行业证据。",
-        "Trend Pulse 数据校验状态：双源校验通过"
-      ],
-      "counter_evidence": [],
-      "unknowns": [
-        "已读取 5 条相关一般媒体线索，但暂无 Reuters/AP/新闻稿等高优先级事件源确认",
-        "行业同业联动样本暂不足",
-        "公司IR官网全文仍待专用连接；当前已使用SEC官方披露与分级媒体事件线索"
-      ],
-      "evidence_score": 62,
-      "confidence": "medium",
-      "confidence_scope": "research_result",
-      "provisional_conclusion": "已有初步支持证据，但关键外部事实仍缺失，暂不升级为结论。",
-      "next_validation": [
-        "这次变化由公司事件、行业共振还是市场因素驱动？",
-        "支持原 Thesis 的证据是什么？",
-        "最强反证是什么？",
-        "明日需要验证什么？"
-      ],
-      "source_requirements": [
-        "market_data",
-        "trend_pulse",
-        "SEC/IR",
-        "company_news",
-        "industry_peers"
-      ],
-      "guardrail": "该研究结果不能自动下单；未知项不得由模型猜测补全。",
-      "analysis_runs": 2,
-      "first_analyzed_at": "2026-11-07T00:33:31.484282+00:00",
-      "last_analyzed_at": "2026-11-07T02:44:58.711965+00:00"
-    },
-    {
-      "task_id": "7cb6373aaddb29",
-      "kind": "market_anomaly",
-      "key": "AVGO",
-      "title": "AVGO · 异动/趋势专项研究",
-      "priority": 88.0,
-      "research_status": "analyzed",
-      "supporting_evidence": [
-        "Trend Pulse / Situation 当前阶段：趋势恶化",
-        "Learning Engine 研究优先级：27/100",
-        "相同阶段60日历史样本：1597，中位收益 1.8%",
-        "Source Intelligence 有 5 条与 AVGO 相关研究记录；最近 3 条已进入独立验证层",
-        "SEC官方披露：最近 8-K，提交日 2026-10-27",
-        "SEC文档已抓取官方原文证据片段，可用于下一步事件核验",
-        "Trend Pulse 数据校验状态：双源校验通过",
-        "高优先级事件源：Barrons.com · Elon Musk Says SpaceX Sales Are ‘Exploding’—and Forecasts Revenue Twice Wall Street’s Estimate"
-      ],
-      "counter_evidence": [],
-      "unknowns": [
-        "公司IR官网全文仍待专用连接；当前已使用SEC官方披露与分级媒体事件线索"
-      ],
-      "evidence_score": 100,
-      "confidence": "high",
-      "confidence_scope": "research_result",
-      "provisional_conclusion": "已有初步支持证据，但关键外部事实仍缺失，暂不升级为结论。",
-      "next_validation": [
-        "这次变化由公司事件、行业共振还是市场因素驱动？",
-        "支持原 Thesis 的证据是什么？",
-        "最强反证是什么？",
-        "明日需要验证什么？"
-      ],
-      "source_requirements": [
-        "market_data",
-        "trend_pulse",
-        "SEC/IR",
-        "company_news",
-        "industry_peers"
-      ],
-      "guardrail": "该研究结果不能自动下单；未知项不得由模型猜测补全。",
-      "analysis_runs": 2,
-      "first_analyzed_at": "2026-11-07T00:33:31.484282+00:00",
-      "last_analyzed_at": "2026-11-07T02:44:58.711965+00:00"
-    },
-    {
-      "task_id": "f99e71116d7597",
-      "kind": "market_anomaly",
-      "key": "HOOD",
-      "title": "HOOD · 异动/趋势专项研究",
-      "priority": 88.0,
-      "research_status": "analyzed",
-      "supporting_evidence": [
-        "Trend Pulse / Situation 当前阶段：趋势恶化",
-        "Learning Engine 研究优先级：27/100",
-        "相同阶段60日历史样本：1597，中位收益 1.8%",
-        "SEC官方披露：最近 10-Q，提交日 2026-10-28",
-        "SEC文档已抓取官方原文证据片段，可用于下一步事件核验",
-        "Trend Pulse 数据校验状态：双源校验通过",
-        "高优先级事件源：Barrons.com · What If the Only Companies That Let Their Stocks Be Tokenized Are Crypto Firms?"
-      ],
-      "counter_evidence": [],
-      "unknowns": [
-        "暂无可用外部研究记录",
-        "行业同业联动样本暂不足",
-        "公司IR官网全文仍待专用连接；当前已使用SEC官方披露与分级媒体事件线索"
-      ],
-      "evidence_score": 74,
-      "confidence": "high",
-      "confidence_scope": "research_result",
-      "provisional_conclusion": "已有初步支持证据，但关键外部事实仍缺失，暂不升级为结论。",
-      "next_validation": [
-        "这次变化由公司事件、行业共振还是市场因素驱动？",
-        "支持原 Thesis 的证据是什么？",
-        "最强反证是什么？",
-        "明日需要验证什么？"
-      ],
-      "source_requirements": [
-        "market_data",
-        "trend_pulse",
-        "SEC/IR",
-        "company_news",
-        "industry_peers"
-      ],
-      "guardrail": "该研究结果不能自动下单；未知项不得由模型猜测补全。",
       "analysis_runs": 1,
-      "first_analyzed_at": "2026-11-07T02:44:58.711965+00:00",
-      "last_analyzed_at": "2026-11-07T02:44:58.711965+00:00"
+      "first_analyzed_at": "2026-11-08T02:23:18.699306+00:00",
+      "last_analyzed_at": "2026-11-08T02:23:18.699306+00:00"
     },
     {
       "task_id": "f53d7e0ebf3c87",
@@ -354,16 +352,16 @@
         "market_history"
       ],
       "guardrail": "该研究结果不能自动下单；未知项不得由模型猜测补全。",
-      "analysis_runs": 9,
+      "analysis_runs": 10,
       "first_analyzed_at": "2026-11-04T16:23:04.300243+00:00",
-      "last_analyzed_at": "2026-11-07T02:44:58.711965+00:00"
+      "last_analyzed_at": "2026-11-08T02:23:18.699306+00:00"
     }
   ],
   "summary": {
     "analyzed": 8,
-    "high_confidence": 5,
+    "high_confidence": 4,
     "medium_confidence": 3,
-    "low_confidence": 0,
+    "low_confidence": 1,
     "with_counter_evidence": 2,
     "with_unknowns": 8
   },

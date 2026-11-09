@@ -1,8 +1,8 @@
 {
   "version": "5.7.0",
-  "generated_at": "2026-11-09T02:36:49.642126+00:00",
+  "generated_at": "2026-11-09T18:51:38.189259+00:00",
   "external_outcome_evidence_role": "legacy_descriptive_only",
-  "as_of": "2026-11-07",
+  "as_of": "2026-11-09",
   "architecture": [
     "plain_language_glossary",
     "trend_state_machine",
@@ -166,46 +166,6 @@
           }
         ],
         "next_confirmation": "若重新跌回修复/恶化状态或周线转弱，则确认失效。",
-        "source_scope": "当前仅使用已验证的行情、Trend Pulse、历史学习与覆盖池异动；尚未把论坛/SEC/FDA/公司新闻自动写入此评分。"
-      },
-      {
-        "symbol": "SOFI",
-        "evidence_score": 42.0,
-        "status": "monitor",
-        "trend_state": {
-          "state": "Confirmation Pending",
-          "label_cn": "等待确认",
-          "source_stage": "震荡观察",
-          "weekly": "过渡",
-          "explanation": "当前属于修复或震荡阶段，已有改善但尚未形成稳定趋势。",
-          "invalidation": "若修复失败并重新恶化，则继续防守；若启动并获得确认，则升级。",
-          "term_help": {
-            "cn": "等待确认",
-            "plain": "已经出现改善信号，但还需要连续收盘、关键价位或更高周期共同验证。",
-            "why": "避免只因为一天反弹或一次突破就过早把状态升级。"
-          }
-        },
-        "breadcrumbs": [
-          {
-            "type": "trend_state",
-            "strength": "medium",
-            "evidence": "Trend Pulse 当前阶段：震荡观察",
-            "meaning": "说明当前技术结构处于什么阶段；它是研究线索，不是单独买卖信号。"
-          },
-          {
-            "type": "timeframe",
-            "strength": "medium",
-            "evidence": "周线方向：过渡",
-            "meaning": "用更高周期检查日线信号是否得到确认，减少一次性反弹造成的误判。"
-          },
-          {
-            "type": "transition",
-            "strength": "high",
-            "evidence": "阶段从 趋势恶化 变化为 震荡观察",
-            "meaning": "状态变化通常比重复的同状态提醒更值得复查。"
-          }
-        ],
-        "next_confirmation": "若修复失败并重新恶化，则继续防守；若启动并获得确认，则升级。",
         "source_scope": "当前仅使用已验证的行情、Trend Pulse、历史学习与覆盖池异动；尚未把论坛/SEC/FDA/公司新闻自动写入此评分。"
       },
       {
@@ -574,6 +534,46 @@
             "type": "momentum",
             "strength": "medium",
             "evidence": "Trend Pulse 分数 -97",
+            "meaning": "分数绝对值较高表示趋势证据较集中，但高分不等于未来一定继续上涨或下跌。"
+          }
+        ],
+        "next_confirmation": "只有进入修复并完成新的确认流程，才考虑重新升级。",
+        "source_scope": "当前仅使用已验证的行情、Trend Pulse、历史学习与覆盖池异动；尚未把论坛/SEC/FDA/公司新闻自动写入此评分。"
+      },
+      {
+        "symbol": "AVGO",
+        "evidence_score": 30.0,
+        "status": "monitor",
+        "trend_state": {
+          "state": "Breakdown",
+          "label_cn": "结构破坏",
+          "source_stage": "趋势恶化",
+          "weekly": "空头",
+          "explanation": "趋势结构已经明显恶化，原来的多头假设必须重新验证。",
+          "invalidation": "只有进入修复并完成新的确认流程，才考虑重新升级。",
+          "term_help": {
+            "cn": "结构破坏",
+            "plain": "趋势和价格结构已经明显恶化，原来的多头假设需要重新验证。",
+            "why": "这不是自动卖出指令，而是要求重新检查投资逻辑、估值和风险暴露。"
+          }
+        },
+        "breadcrumbs": [
+          {
+            "type": "trend_state",
+            "strength": "medium",
+            "evidence": "Trend Pulse 当前阶段：趋势恶化",
+            "meaning": "说明当前技术结构处于什么阶段；它是研究线索，不是单独买卖信号。"
+          },
+          {
+            "type": "timeframe",
+            "strength": "medium",
+            "evidence": "周线方向：空头",
+            "meaning": "用更高周期检查日线信号是否得到确认，减少一次性反弹造成的误判。"
+          },
+          {
+            "type": "momentum",
+            "strength": "medium",
+            "evidence": "Trend Pulse 分数 -98",
             "meaning": "分数绝对值较高表示趋势证据较集中，但高分不等于未来一定继续上涨或下跌。"
           }
         ],
@@ -991,6 +991,74 @@
     "method": "20-session outcome attribution hypotheses; no causal claim",
     "external_failure_candidates": [
       {
+        "id": "96ea87e24a4a3ffdab8c",
+        "source": "wenxuecity",
+        "source_kind": "blog",
+        "author": "BrightLine",
+        "published_at": "2026-11-07",
+        "title": "恐惧不会让人更强，只会让人更累",
+        "url": "https://blog.wenxuecity.com/myblog/82458/202611/5366.html",
+        "excerpt": "有一篇讲纳瓦尔的文章流传很广，标题叫《强者最后都会走向一种状态：没有恐惧，生命剩下的就是玩》。这句话说得很到位，但我想补上一个经常被忽略的前提：没有恐惧，不是天生胆子大，而是输得起。先把最坏的结果兜住，剩下的才能当游戏来玩。\n黄仁勋：输得起，所以玩得起\n先说一个最好的例子。\n1990年代中期，英伟达离倒闭只有三十天，这是黄仁勋自己多次讲过的经历。那时候他输不起，公司没了，一切归零，能做的只有拼命活下来。\n真正的变化发生在1999年。英伟达上市，他那一年就成了亿万富翁。2025年英伟达市值刚冲过4万亿美元时，他在中国接受采访，说了一句很平淡的话：自己早就财务自由了，所谓富有，不过是钱够用了而已。\n这句话的分量在于，从那以后，英伟达无论是2008年跌掉八成，还是2022年腰斩，对他个人来说都不再是生死问题。最坏的结",
+        "content_chars": 3303,
+        "symbols": [
+          "NVDA"
+        ],
+        "primary_symbols": [],
+        "symbol_attribution": [
+          {
+            "symbol": "NVDA",
+            "role": "contextual_mention",
+            "confidence": "low",
+            "evidence_basis": [
+              "detected_in_source"
+            ]
+          }
+        ],
+        "topics": [
+          "风险管理",
+          "失败复盘",
+          "长期持有纪律"
+        ],
+        "actions": [
+          "hold"
+        ],
+        "operations": [
+          {
+            "symbols": [
+              "NVDA"
+            ],
+            "actions": [
+              "hold"
+            ],
+            "attribution": "unconfirmed_author_context",
+            "attribution_confidence": "needs_review"
+          }
+        ],
+        "portfolio_rules": [],
+        "lessons": [
+          "admit_wrong"
+        ],
+        "method_signals": [],
+        "failure_candidate": true,
+        "archive_only": false,
+        "deep_analysis": false,
+        "source_notice": "作者原始观点/操作记录，仅作研究来源；公开归档仅保留短摘录与原文链接，MyAlpha需独立验证后才形成本站判断。",
+        "source_role": null,
+        "transcript_status": null,
+        "content_quality": null,
+        "content_provider": null,
+        "content_provider_url": null,
+        "content_origin": null,
+        "timestamp_evidence": false,
+        "rule_candidate_allowed": null,
+        "captured_at": "2026-11-09T05:54:43Z",
+        "intake_class_hint": "live_candidate",
+        "capture_mode": "owner_forward_timely",
+        "myalpha_validation": "needs_independent_validation",
+        "verification_status": "unverified_author_self_report",
+        "learning_eligible": false
+      },
+      {
         "id": "0c097df04bcdaeb44879",
         "source": "youtube",
         "source_kind": "video",
@@ -1114,6 +1182,141 @@
         "captured_at": "2026-11-06T21:36:20Z",
         "intake_class_hint": null,
         "capture_mode": null,
+        "myalpha_validation": "needs_independent_validation",
+        "verification_status": "unverified_author_self_report",
+        "learning_eligible": false
+      },
+      {
+        "id": "f643328793fe75164d1e",
+        "source": "wenxuecity",
+        "source_kind": "blog",
+        "author": "BrightLine",
+        "published_at": "2026-11-04",
+        "title": "这是AI的1998年：第一次腰斩，不是最后一次",
+        "url": "https://blog.wenxuecity.com/myblog/82458/202611/2625.html",
+        "excerpt": "这几天连着写了几篇，都绕不开同一件事：AI交易被打得鼻青脸肿。\n看几个数字。NBIS从300左右跌到140上下，正好腰斩。CRWV一个月跌了四成多，现在40出头。IREN从60多块跌到22块，光是过去一个月就跌了44%。Intel从142的高点跌到58，跌掉六成。昨天德州州长选举，主张数据中心暂停令的民主党候选人赢了，neocloud又集体挨了一刀。\n但有意思的是，我在财报后买的谷歌和Meta，现在都已经赚钱了。谷歌是280附近买的，Meta是620附近买回来的（之前在750卖掉了一大部分）。同一个AI，一边是neocloud跌到怀疑人生，一边是巨头已经悄悄站稳。这本身就说明了一些问题。\n先把这一轮的鬼故事摆出来\n过去一个月，空头的故事是一层一层叠上去的。\n马斯克说200多家neocloud会像小鱼一样死掉。G",
+        "content_chars": 4217,
+        "symbols": [
+          "INTC",
+          "IREN",
+          "NBIS",
+          "CRWV",
+          "GOOG"
+        ],
+        "primary_symbols": [],
+        "symbol_attribution": [
+          {
+            "symbol": "INTC",
+            "role": "contextual_mention",
+            "confidence": "low",
+            "evidence_basis": [
+              "detected_in_source"
+            ]
+          },
+          {
+            "symbol": "IREN",
+            "role": "contextual_mention",
+            "confidence": "low",
+            "evidence_basis": [
+              "detected_in_source"
+            ]
+          },
+          {
+            "symbol": "NBIS",
+            "role": "contextual_mention",
+            "confidence": "low",
+            "evidence_basis": [
+              "detected_in_source"
+            ]
+          },
+          {
+            "symbol": "CRWV",
+            "role": "contextual_mention",
+            "confidence": "low",
+            "evidence_basis": [
+              "detected_in_source"
+            ]
+          },
+          {
+            "symbol": "GOOG",
+            "role": "contextual_mention",
+            "confidence": "low",
+            "evidence_basis": [
+              "detected_in_source"
+            ]
+          }
+        ],
+        "topics": [
+          "风险管理",
+          "失败复盘",
+          "长期持有纪律",
+          "INTC",
+          "IREN"
+        ],
+        "actions": [],
+        "operations": [],
+        "portfolio_rules": [],
+        "lessons": [
+          "admit_wrong"
+        ],
+        "method_signals": [],
+        "failure_candidate": true,
+        "archive_only": false,
+        "deep_analysis": false,
+        "source_notice": "作者原始观点/操作记录，仅作研究来源；公开归档仅保留短摘录与原文链接，MyAlpha需独立验证后才形成本站判断。",
+        "source_role": null,
+        "transcript_status": null,
+        "content_quality": null,
+        "content_provider": null,
+        "content_provider_url": null,
+        "content_origin": null,
+        "timestamp_evidence": false,
+        "rule_candidate_allowed": null,
+        "captured_at": "2026-11-09T05:54:43Z",
+        "intake_class_hint": "live_candidate",
+        "capture_mode": "owner_forward_timely",
+        "myalpha_validation": "needs_independent_validation",
+        "verification_status": "unverified_author_self_report",
+        "learning_eligible": false
+      },
+      {
+        "id": "695a6190d2e7c7eda628",
+        "source": "wenxuecity",
+        "source_kind": "blog",
+        "author": "BrightLine",
+        "published_at": "2026-11-01",
+        "title": "跌得比大盘多，照样睡得着",
+        "url": "https://blog.wenxuecity.com/myblog/82458/202611/405.html",
+        "excerpt": "彼得·林奇管麦哲伦基金13年，从1977到1990，年化回报29.2%。1977年投进去1美元，1990年变成27美元多。基金规模从1800万美元做到140多亿，13年里有11年跑赢标普500。\n但很少有人注意到他自己反复讲的另一组数字：这13年里，大盘跌幅超过10%的回调一共有9次，而麦哲伦每一次都跌得比大盘更多。九次，一次不落。他晚年接受采访时还开玩笑说，自己在这件事上非常稳定，九比九。\n一个历史上最好的基金经理，每次回调都跑输大盘。听起来像笑话，其实这就是答案本身。\n跌得多，是涨得多的门票\n林奇自己的解释很朴素：表现好的股票基金，在市场下跌时往往跌得比平均更多，但市场反弹时，它也涨得更猛。\n道理不复杂。买的是增长最快、弹性最大的公司，它们涨的时候比大盘快，跌的时候当然也比大盘快。想要上行的弹性，又想要下行",
+        "content_chars": 1233,
+        "symbols": [],
+        "primary_symbols": [],
+        "symbol_attribution": [],
+        "topics": [
+          "风险管理",
+          "失败复盘",
+          "长期持有纪律"
+        ],
+        "actions": [],
+        "operations": [],
+        "portfolio_rules": [],
+        "lessons": [],
+        "method_signals": [],
+        "failure_candidate": true,
+        "archive_only": false,
+        "deep_analysis": false,
+        "source_notice": "Owner 事后转发（超过 7 天或发布时间未知）：仅用于理解与历史检验，不计入前瞻验证。",
+        "source_role": null,
+        "transcript_status": null,
+        "content_quality": null,
+        "content_provider": null,
+        "content_provider_url": null,
+        "content_origin": null,
+        "timestamp_evidence": false,
+        "rule_candidate_allowed": null,
+        "captured_at": "2026-11-09T05:54:42Z",
+        "intake_class_hint": "backfill",
+        "capture_mode": "owner_forward_backfill",
         "myalpha_validation": "needs_independent_validation",
         "verification_status": "unverified_author_self_report",
         "learning_eligible": false
@@ -2136,209 +2339,6 @@
         "myalpha_validation": "needs_independent_validation",
         "verification_status": "unverified_author_self_report",
         "learning_eligible": false
-      },
-      {
-        "id": "f50b5f253e8f32dcede6",
-        "source": "wenxuecity",
-        "source_kind": "blog",
-        "author": "BrightLine",
-        "published_at": "2026-10-18",
-        "title": "该卖就卖：NBIS和CRWV赚了，IREN给我上了一课",
-        "url": "https://blog.wenxuecity.com/myblog/82458/202610/12256.html",
-        "excerpt": "周五NBIS一天跌了12%，收在165。我在165到170之间买回了以前仓位的四分之一。CRWV我最近在65也进了一笔。\n这两只票，我都是进进出出，每次都赚。但同一个板块里还有一只IREN，我太坚定了，一股没卖，眼看着利润灰飞烟灭，现在水下三千尺。\n今天就聊聊这三只票，聊聊交易，也聊聊我自己犯的错。\nNBIS：四个来回\n第一次，60块买，140块卖。那时候市场还在把它当成一家\"俄罗斯背景的小公司\"，没人相信它能做成全栈AI云。微软的合同一出来，两个多月翻了一倍多，我卖了。\n第二次，180块买，280块卖。微软、Meta的长单陆续落地，技术团队的实力被市场认可，股价冲得很猛。到了280，我觉得情绪已经跑在业绩前面了，又卖了。\n第三次，200块买，250块卖。这一次赚得最少，但也是最有纪律的一次：到了我事先定好的位",
-        "content_chars": 1598,
-        "symbols": [
-          "IREN",
-          "NVDA",
-          "NBIS",
-          "CRWV"
-        ],
-        "primary_symbols": [],
-        "symbol_attribution": [
-          {
-            "symbol": "IREN",
-            "role": "contextual_mention",
-            "confidence": "low",
-            "evidence_basis": [
-              "detected_in_source"
-            ]
-          },
-          {
-            "symbol": "NVDA",
-            "role": "contextual_mention",
-            "confidence": "low",
-            "evidence_basis": [
-              "detected_in_source"
-            ]
-          },
-          {
-            "symbol": "NBIS",
-            "role": "contextual_mention",
-            "confidence": "low",
-            "evidence_basis": [
-              "detected_in_source"
-            ]
-          },
-          {
-            "symbol": "CRWV",
-            "role": "contextual_mention",
-            "confidence": "low",
-            "evidence_basis": [
-              "detected_in_source"
-            ]
-          }
-        ],
-        "topics": [
-          "长期持有纪律",
-          "仓位与加减仓",
-          "失败复盘",
-          "IREN"
-        ],
-        "actions": [
-          "add"
-        ],
-        "operations": [
-          {
-            "symbols": [
-              "NBIS"
-            ],
-            "actions": [
-              "add"
-            ],
-            "attribution": "unconfirmed_author_context",
-            "attribution_confidence": "needs_review"
-          }
-        ],
-        "portfolio_rules": [],
-        "lessons": [
-          "admit_wrong"
-        ],
-        "method_signals": [],
-        "failure_candidate": true,
-        "archive_only": false,
-        "deep_analysis": false,
-        "source_notice": "作者原始观点/操作记录，仅作研究来源；公开归档仅保留短摘录与原文链接，MyAlpha需独立验证后才形成本站判断。",
-        "source_role": null,
-        "transcript_status": null,
-        "content_quality": null,
-        "content_provider": null,
-        "content_provider_url": null,
-        "content_origin": null,
-        "timestamp_evidence": false,
-        "rule_candidate_allowed": null,
-        "captured_at": "2026-10-18T16:34:14Z",
-        "intake_class_hint": "live_candidate",
-        "capture_mode": "scheduled_blog_scan_complete",
-        "myalpha_validation": "needs_independent_validation",
-        "verification_status": "unverified_author_self_report",
-        "learning_eligible": false
-      },
-      {
-        "id": "5e29de5e97414a3e9565",
-        "source": "wenxuecity",
-        "source_kind": "blog",
-        "author": "BrightLine",
-        "published_at": "2026-10-17",
-        "title": "一架私人飞机到底有多贵？",
-        "url": "https://blog.wenxuecity.com/myblog/82458/202610/12134.html",
-        "excerpt": "最近一位朋友买了一架飞机。\n一架二十年左右机龄的赛斯纳奖状君主（Citation Sovereign），成交价六百万美元出头。这个价钱，在湾区或者纽约，也就是一套像样的独栋房子。今天借这个真实案例，给大家科普一下私人飞机的买法、贷法、养法，以及最关键的：怎么让飞机自己养活自己，还帮主人省税。\n一、这是一架什么飞机\nCitation Sovereign 是赛斯纳的中型公务机，2000年代中期投入市场。客舱可坐8到9人，巡航速度约每小时850公里，航程约5,000公里。从中西部直飞落基山区，从东海岸直飞丹佛、达拉斯，美国本土绝大部分航线都是一脚油门的事。\n这款飞机当年的新机价格在1,700万美元左右。将近二十年后，六百来万成交，机况极好，交付后不需要任何维修。朋友第一次坐，就带着全家直飞山里度假。\n为什么二手公务机",
-        "content_chars": 1991,
-        "symbols": [],
-        "primary_symbols": [],
-        "symbol_attribution": [],
-        "topics": [
-          "估值与价格",
-          "风险管理",
-          "失败复盘",
-          "长期持有纪律"
-        ],
-        "actions": [],
-        "operations": [],
-        "portfolio_rules": [],
-        "lessons": [],
-        "method_signals": [],
-        "failure_candidate": true,
-        "archive_only": false,
-        "deep_analysis": false,
-        "source_notice": "作者原始观点/操作记录，仅作研究来源；公开归档仅保留短摘录与原文链接，MyAlpha需独立验证后才形成本站判断。",
-        "source_role": null,
-        "transcript_status": null,
-        "content_quality": null,
-        "content_provider": null,
-        "content_provider_url": null,
-        "content_origin": null,
-        "timestamp_evidence": false,
-        "rule_candidate_allowed": null,
-        "captured_at": "2026-10-18T16:34:14Z",
-        "intake_class_hint": "live_candidate",
-        "capture_mode": "scheduled_blog_scan_complete",
-        "myalpha_validation": "needs_independent_validation",
-        "verification_status": "unverified_author_self_report",
-        "learning_eligible": false
-      },
-      {
-        "id": "58d4925842bdecac53b4",
-        "source": "wenxuecity",
-        "source_kind": "blog",
-        "author": "BrightLine",
-        "published_at": "2026-10-16",
-        "title": "亏了钱，就吃便宜点的汉堡",
-        "url": "https://blog.wenxuecity.com/myblog/82458/202610/11318.html",
-        "excerpt": "这周我打开券商App的频率一点没少，该看还是看，就是看完的表情比上个月丰富一些。纳斯达克一周跌了约4.5%，6月以来最差；芯片指数从6月高点回撤了大约20%；全球前20大AI和半导体股票，一周蒸发了1万亿美元以上。我粗算了一下自己那份，数字挺大，但心跳没怎么变，大概是这几年被市场训练出来了。\n这时候我想起了巴菲特。\n纪录片《Becoming Warren Buffett》里，老爷子每天早上开车去麦当劳，早餐点什么看市场脸色：行情好，3.17美元的培根鸡蛋芝士饼干；行情一般，2.95美元的香肠鸡蛋芝士；行情差，2.61美元的两块香肠肉饼。太太提前把零钱数好，放在杯架上。\n我以前当笑话看，这周终于看懂了，这是一套完整的风控体系：止损五毛六，培根先砍，主食保住。\n按这个标准，我这周大概已经吃到香肠肉饼了。周五那天，我",
-        "content_chars": 1479,
-        "symbols": [
-          "CRWV",
-          "IREN"
-        ],
-        "primary_symbols": [],
-        "symbol_attribution": [
-          {
-            "symbol": "CRWV",
-            "role": "contextual_mention",
-            "confidence": "low",
-            "evidence_basis": [
-              "detected_in_source"
-            ]
-          },
-          {
-            "symbol": "IREN",
-            "role": "contextual_mention",
-            "confidence": "low",
-            "evidence_basis": [
-              "detected_in_source"
-            ]
-          }
-        ],
-        "topics": [
-          "风险管理",
-          "LEAPS",
-          "失败复盘",
-          "止损纪律",
-          "IREN"
-        ],
-        "actions": [],
-        "operations": [],
-        "portfolio_rules": [],
-        "lessons": [],
-        "method_signals": [],
-        "failure_candidate": true,
-        "archive_only": false,
-        "deep_analysis": false,
-        "source_notice": "作者原始观点/操作记录，仅作研究来源；公开归档仅保留短摘录与原文链接，MyAlpha需独立验证后才形成本站判断。",
-        "source_role": null,
-        "transcript_status": null,
-        "content_quality": null,
-        "content_provider": null,
-        "content_provider_url": null,
-        "content_origin": null,
-        "timestamp_evidence": false,
-        "rule_candidate_allowed": null,
-        "captured_at": "2026-10-17T16:27:14Z",
-        "intake_class_hint": "live_candidate",
-        "capture_mode": "scheduled_blog_scan_complete",
-        "myalpha_validation": "needs_independent_validation",
-        "verification_status": "unverified_author_self_report",
-        "learning_eligible": false
       }
     ],
     "author_claim_gate": {
@@ -2491,7 +2491,28 @@
         "learning_eligible": false
       },
       {
-        "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-22905-html:0:NOW:0",
+        "event_id": "5688ea16a60370ae4f02:0:NOW:0",
+        "author": "BrightLine",
+        "symbol": "NOW",
+        "published_at": "2026-08-28",
+        "title": "ServiceNow回来了，我在145卖掉一半",
+        "url": "https://blog.wenxuecity.com/myblog/82458/202608/22905.html",
+        "attribution": "author_action",
+        "return_20": -0.08544481981981988,
+        "mae_20": -0.10789695945945954,
+        "mfe_20": 0.052927927927927776,
+        "excess_vs_qqq_20": -0.11764695357822719,
+        "alignment_20": "aligned",
+        "review_tags": [
+          "underperformed_qqq"
+        ],
+        "maturity": "mature20",
+        "attribution_confidence": "high",
+        "verification_status": "unverified_author_self_report",
+        "learning_eligible": false
+      },
+      {
+        "event_id": "5688ea16a60370ae4f02:1:NOW:0",
         "author": "BrightLine",
         "symbol": "NOW",
         "published_at": "2026-08-28",
@@ -2508,12 +2529,12 @@
           "underperformed_qqq"
         ],
         "maturity": "mature20",
-        "attribution_confidence": "medium",
+        "attribution_confidence": "high",
         "verification_status": "unverified_author_self_report",
         "learning_eligible": false
       },
       {
-        "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html:0:NBIS:0",
+        "event_id": "9a165774b865bf813a81:0:NBIS:0",
         "author": "BrightLine",
         "symbol": "NBIS",
         "published_at": "2026-08-18",
@@ -2524,17 +2545,17 @@
         "mae_20": -0.16150137741046822,
         "mfe_20": 0.09650482093663926,
         "excess_vs_qqq_20": -0.05686532720912518,
-        "alignment_20": "not_scored",
+        "alignment_20": "aligned",
         "review_tags": [
           "large_adverse_move"
         ],
         "maturity": "mature20",
-        "attribution_confidence": "medium",
+        "attribution_confidence": "high",
         "verification_status": "unverified_author_self_report",
         "learning_eligible": false
       },
       {
-        "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html:0:CRWV:0",
+        "event_id": "9a165774b865bf813a81:0:CRWV:0",
         "author": "BrightLine",
         "symbol": "CRWV",
         "published_at": "2026-08-18",
@@ -2545,13 +2566,13 @@
         "mae_20": -0.16937281120662218,
         "mfe_20": 0.10994375464289496,
         "excess_vs_qqq_20": -0.1474701221192407,
-        "alignment_20": "not_scored",
+        "alignment_20": "aligned",
         "review_tags": [
           "large_adverse_move",
           "underperformed_qqq"
         ],
         "maturity": "mature20",
-        "attribution_confidence": "medium",
+        "attribution_confidence": "high",
         "verification_status": "unverified_author_self_report",
         "learning_eligible": false
       },
@@ -2767,32 +2788,9 @@
         "attribution_confidence": "medium",
         "verification_status": "unverified_author_self_report",
         "learning_eligible": false
-      },
-      {
-        "event_id": "brightline--blog-wenxuecity-com-myblog-82458-202605-4789-html:0:INTC:0",
-        "author": "BrightLine",
-        "symbol": "INTC",
-        "published_at": "2026-05-08",
-        "title": "财富的逻辑：从搏一搏到敢再搏，再到工程化的复利 — 我的投资哲学、方法论与实战案例",
-        "url": "https://blog.wenxuecity.com/myblog/82458/202605/4789.html",
-        "attribution": "author_action",
-        "return_20": -0.17542787286063566,
-        "mae_20": -0.24870110024449876,
-        "mfe_20": 0.014287897310513387,
-        "excess_vs_qqq_20": -0.171866298447662,
-        "alignment_20": "not_aligned",
-        "review_tags": [
-          "direction_not_aligned",
-          "large_adverse_move",
-          "underperformed_qqq"
-        ],
-        "maturity": "mature20",
-        "attribution_confidence": "medium",
-        "verification_status": "unverified_author_self_report",
-        "learning_eligible": false
       }
     ],
-    "external_outcome_review_count": 29,
+    "external_outcome_review_count": 30,
     "external_note": "旧 Source Outcome 仅保留描述性复盘；不得进入 Evidence Foundation 方法成熟度、Planner 权重或 Promotion。"
   },
   "external_source_intelligence": {
@@ -2961,14 +2959,13 @@
         "latest_title": "NBIS 确实是龙头股，但neoCloud 行业不一定是",
         "latest_url": "https://bbs.wenxuecity.com/cfzh/117420.html",
         "topics": [
+          "INTC",
           "IREN",
           "Sell Put",
           "仓位与加减仓",
-          "仓位管理",
           "估值与价格",
           "其他研究",
           "失败复盘",
-          "研究工具",
           "风险管理"
         ],
         "candidate_hypothesis": "外部来源对该标的形成重复研究线索，值得与现有基本面、估值、趋势和事件证据交叉验证。",
@@ -3140,7 +3137,7 @@
       },
       {
         "symbol": "IREN",
-        "source_records": 9,
+        "source_records": 10,
         "authors": [
           "BrightLine",
           "bogbog",
@@ -3149,6 +3146,7 @@
         "latest_title": "黄仁勋的买入价，和一次代际财富的机会",
         "latest_url": "https://blog.wenxuecity.com/myblog/82458/202610/10691.html",
         "topics": [
+          "INTC",
           "IREN",
           "LEAPS",
           "Sell Put",
@@ -3206,6 +3204,35 @@
       }
     ],
     "research_alerts": [
+      {
+        "author": "BrightLine",
+        "title": "恐惧不会让人更强，只会让人更累",
+        "url": "https://blog.wenxuecity.com/myblog/82458/202611/5366.html",
+        "published_at": "2026-11-07",
+        "symbols": [
+          "NVDA"
+        ],
+        "primary_symbols": [],
+        "symbol_attribution": [
+          {
+            "symbol": "NVDA",
+            "role": "contextual_mention",
+            "confidence": "low",
+            "evidence_basis": [
+              "detected_in_source"
+            ]
+          }
+        ],
+        "topics": [
+          "风险管理",
+          "失败复盘",
+          "长期持有纪律"
+        ],
+        "source_view": "出现明确操作：hold；涉及：NVDA；可进入失败复盘",
+        "myalpha_view": "先核对行情、估值、事件与现有 Thesis；外部作者观点不能单独触发买卖。",
+        "what_changes_view": "只有独立证据与后续结果支持，才允许升级为 Breadcrumb / Thesis 样本。",
+        "priority": 80
+      },
       {
         "author": "RhinoFinance / 视野环球财经",
         "title": "美股 异常资金推动滚雪球下跌！好消息，坏消息！计划内建仓一只股票！SOXX、QQQ、SPY、TSM、APP！",
@@ -3410,6 +3437,73 @@
         "priority": 80
       },
       {
+        "author": "BrightLine",
+        "title": "这是AI的1998年：第一次腰斩，不是最后一次",
+        "url": "https://blog.wenxuecity.com/myblog/82458/202611/2625.html",
+        "published_at": "2026-11-04",
+        "symbols": [
+          "INTC",
+          "IREN",
+          "NBIS",
+          "CRWV",
+          "GOOG"
+        ],
+        "primary_symbols": [],
+        "symbol_attribution": [
+          {
+            "symbol": "INTC",
+            "role": "contextual_mention",
+            "confidence": "low",
+            "evidence_basis": [
+              "detected_in_source"
+            ]
+          },
+          {
+            "symbol": "IREN",
+            "role": "contextual_mention",
+            "confidence": "low",
+            "evidence_basis": [
+              "detected_in_source"
+            ]
+          },
+          {
+            "symbol": "NBIS",
+            "role": "contextual_mention",
+            "confidence": "low",
+            "evidence_basis": [
+              "detected_in_source"
+            ]
+          },
+          {
+            "symbol": "CRWV",
+            "role": "contextual_mention",
+            "confidence": "low",
+            "evidence_basis": [
+              "detected_in_source"
+            ]
+          },
+          {
+            "symbol": "GOOG",
+            "role": "contextual_mention",
+            "confidence": "low",
+            "evidence_basis": [
+              "detected_in_source"
+            ]
+          }
+        ],
+        "topics": [
+          "风险管理",
+          "失败复盘",
+          "长期持有纪律",
+          "INTC",
+          "IREN"
+        ],
+        "source_view": "涉及：INTC / IREN / NBIS / CRWV / GOOG；可进入失败复盘",
+        "myalpha_view": "先核对行情、估值、事件与现有 Thesis；外部作者观点不能单独触发买卖。",
+        "what_changes_view": "只有独立证据与后续结果支持，才允许升级为 Breadcrumb / Thesis 样本。",
+        "priority": 80
+      },
+      {
         "author": "老李玩钱",
         "title": "11月必买3支股票",
         "url": "https://www.youtube.com/watch?v=1nXl0sFPiE4",
@@ -3451,6 +3545,24 @@
           "长期持有纪律"
         ],
         "source_view": "出现明确操作：买入/建仓 / buy / hold / add；涉及：NVDA / GOOG / AMD",
+        "myalpha_view": "先核对行情、估值、事件与现有 Thesis；外部作者观点不能单独触发买卖。",
+        "what_changes_view": "只有独立证据与后续结果支持，才允许升级为 Breadcrumb / Thesis 样本。",
+        "priority": 80
+      },
+      {
+        "author": "BrightLine",
+        "title": "跌得比大盘多，照样睡得着",
+        "url": "https://blog.wenxuecity.com/myblog/82458/202611/405.html",
+        "published_at": "2026-11-01",
+        "symbols": [],
+        "primary_symbols": [],
+        "symbol_attribution": [],
+        "topics": [
+          "风险管理",
+          "失败复盘",
+          "长期持有纪律"
+        ],
+        "source_view": "可进入失败复盘",
         "myalpha_view": "先核对行情、估值、事件与现有 Thesis；外部作者观点不能单独触发买卖。",
         "what_changes_view": "只有独立证据与后续结果支持，才允许升级为 Breadcrumb / Thesis 样本。",
         "priority": 80
@@ -3763,73 +3875,6 @@
         "myalpha_view": "先核对行情、估值、事件与现有 Thesis；外部作者观点不能单独触发买卖。",
         "what_changes_view": "只有独立证据与后续结果支持，才允许升级为 Breadcrumb / Thesis 样本。",
         "priority": 80
-      },
-      {
-        "author": "麻你",
-        "title": "今天vgt买在117.60，越跌越买，只买不卖",
-        "url": "https://bbs.wenxuecity.com/tzlc/2391902.html",
-        "published_at": "2026-10-30 07:19:37",
-        "symbols": [
-          "VGT"
-        ],
-        "primary_symbols": [
-          "VGT"
-        ],
-        "symbol_attribution": [
-          {
-            "symbol": "VGT",
-            "role": "primary_subject",
-            "confidence": "high",
-            "evidence_basis": [
-              "detected_in_source",
-              "unique_title_symbol",
-              "holding_language"
-            ]
-          }
-        ],
-        "topics": [
-          "仓位与加减仓",
-          "其他研究"
-        ],
-        "source_view": "出现明确操作：卖出/退出 / sell；主研究标的：VGT；涉及：VGT",
-        "myalpha_view": "先核对行情、估值、事件与现有 Thesis；外部作者观点不能单独触发买卖。",
-        "what_changes_view": "只有独立证据与后续结果支持，才允许升级为 Breadcrumb / Thesis 样本。",
-        "priority": 80
-      },
-      {
-        "author": "我是一只井底蛙",
-        "title": "有规矩就要遵守。不要短线炒成长线，炒股炒成股东。如果市场不好频繁止损也不是事，小亏可以积成大亏。我是",
-        "url": "https://bbs.wenxuecity.com/cfzh/118307.html",
-        "published_at": "2026-10-30 07:09:40",
-        "symbols": [],
-        "primary_symbols": [],
-        "symbol_attribution": [],
-        "topics": [
-          "风险管理",
-          "失败复盘",
-          "止损纪律"
-        ],
-        "source_view": "可进入失败复盘",
-        "myalpha_view": "先核对行情、估值、事件与现有 Thesis；外部作者观点不能单独触发买卖。",
-        "what_changes_view": "只有独立证据与后续结果支持，才允许升级为 Breadcrumb / Thesis 样本。",
-        "priority": 80
-      },
-      {
-        "author": "三心三意",
-        "title": "用短线仓位搞波动，其实也是一种减少总帐drawdown的变相对冲",
-        "url": "https://bbs.wenxuecity.com/cfzh/118282.html",
-        "published_at": "2026-10-30 06:02:32",
-        "symbols": [],
-        "primary_symbols": [],
-        "symbol_attribution": [],
-        "topics": [
-          "风险管理",
-          "仓位与加减仓"
-        ],
-        "source_view": "出现明确操作：对冲",
-        "myalpha_view": "先核对行情、估值、事件与现有 Thesis；外部作者观点不能单独触发买卖。",
-        "what_changes_view": "只有独立证据与后续结果支持，才允许升级为 Breadcrumb / Thesis 样本。",
-        "priority": 80
       }
     ],
     "authors": [
@@ -3846,13 +3891,13 @@
     ],
     "outcome_validation": {
       "counts": {
-        "events": 216,
+        "events": 218,
         "author_owned": 88,
-        "unconfirmed": 128,
-        "triggered_author_owned": 86,
-        "untriggered_plans": 2,
+        "unconfirmed": 130,
+        "triggered_author_owned": 87,
+        "untriggered_plans": 1,
         "mature60": 35,
-        "developing": 51,
+        "developing": 52,
         "symbols": 34
       },
       "by_action": {
@@ -3904,18 +3949,18 @@
         },
         "clear": {
           "5": {
-            "n": 4,
-            "avg_return": -0.05513054824267377,
-            "median_return": -0.054408176252074114,
-            "avg_excess_vs_qqq": -0.025519743232202352,
-            "alignment_rate": null
+            "n": 6,
+            "avg_return": -0.060948158822298114,
+            "median_return": -0.07002277388578676,
+            "avg_excess_vs_qqq": -0.03703395695803615,
+            "alignment_rate": 1.0
           },
           "20": {
-            "n": 0,
-            "avg_return": null,
-            "median_return": null,
-            "avg_excess_vs_qqq": null,
-            "alignment_rate": null
+            "n": 2,
+            "avg_return": -0.10698455998949291,
+            "median_return": -0.10698455998949291,
+            "avg_excess_vs_qqq": -0.10216772466418295,
+            "alignment_rate": 1.0
           },
           "60": {
             "n": 0,
@@ -3950,63 +3995,63 @@
         },
         "no_add": {
           "5": {
+            "n": 1,
+            "avg_return": 0.08317647058823519,
+            "median_return": 0.08317647058823519,
+            "avg_excess_vs_qqq": 0.08085044208349879,
+            "alignment_rate": 1.0
+          },
+          "20": {
+            "n": 0,
+            "avg_return": null,
+            "median_return": null,
+            "avg_excess_vs_qqq": null,
+            "alignment_rate": null
+          },
+          "60": {
+            "n": 0,
+            "avg_return": null,
+            "median_return": null,
+            "avg_excess_vs_qqq": null,
+            "alignment_rate": null
+          }
+        },
+        "no_direct_stock_buy": {
+          "5": {
+            "n": 1,
+            "avg_return": 0.004232364881142869,
+            "median_return": 0.004232364881142869,
+            "avg_excess_vs_qqq": 0.01675336045298592,
+            "alignment_rate": null
+          },
+          "20": {
+            "n": 1,
+            "avg_return": 0.15751707125591552,
+            "median_return": 0.15751707125591552,
+            "avg_excess_vs_qqq": 0.16233390658122548,
+            "alignment_rate": null
+          },
+          "60": {
+            "n": 0,
+            "avg_return": null,
+            "median_return": null,
+            "avg_excess_vs_qqq": null,
+            "alignment_rate": null
+          }
+        },
+        "planned_entry": {
+          "5": {
             "n": 2,
-            "avg_return": -0.05641176470588238,
-            "median_return": -0.05641176470588238,
-            "avg_excess_vs_qqq": -0.02814696492069657,
+            "avg_return": 0.06345238095238093,
+            "median_return": 0.06345238095238093,
+            "avg_excess_vs_qqq": 0.07379176621686023,
             "alignment_rate": 0.5
           },
           "20": {
-            "n": 0,
-            "avg_return": null,
-            "median_return": null,
-            "avg_excess_vs_qqq": null,
-            "alignment_rate": null
-          },
-          "60": {
-            "n": 0,
-            "avg_return": null,
-            "median_return": null,
-            "avg_excess_vs_qqq": null,
-            "alignment_rate": null
-          }
-        },
-        "planned_buy": {
-          "5": {
-            "n": 11,
-            "avg_return": -0.05039504450779974,
-            "median_return": -0.07915805785123964,
-            "avg_excess_vs_qqq": -0.031482760536247684,
-            "alignment_rate": 0.3333333333333333
-          },
-          "20": {
-            "n": 4,
-            "avg_return": 0.04911039857668206,
-            "median_return": 0.0651589187327824,
-            "avg_excess_vs_qqq": 0.04689105797143425,
-            "alignment_rate": 1.0
-          },
-          "60": {
-            "n": 0,
-            "avg_return": null,
-            "median_return": null,
-            "avg_excess_vs_qqq": null,
-            "alignment_rate": null
-          }
-        },
-        "planned_sell": {
-          "5": {
-            "n": 7,
-            "avg_return": -0.08120381743982774,
-            "median_return": -0.07915805785123964,
-            "avg_excess_vs_qqq": -0.06251428121300741,
-            "alignment_rate": 0.2
-          },
-          "20": {
-            "n": 3,
-            "avg_return": 0.0014805314355761008,
-            "median_return": -0.06168216253443515,
-            "avg_excess_vs_qqq": 0.0062973667608860655,
+            "n": 1,
+            "avg_return": 0.19199999999999995,
+            "median_return": 0.19199999999999995,
+            "avg_excess_vs_qqq": 0.1686721316030788,
             "alignment_rate": 1.0
           },
           "60": {
@@ -4019,17 +4064,17 @@
         },
         "sell": {
           "5": {
-            "n": 16,
-            "avg_return": -0.06408186665134241,
-            "median_return": -0.07285580906278172,
-            "avg_excess_vs_qqq": -0.061320581539098896,
-            "alignment_rate": 0.8888888888888888
+            "n": 21,
+            "avg_return": -0.06897951564462759,
+            "median_return": -0.0922374474703398,
+            "avg_excess_vs_qqq": -0.061838309728439365,
+            "alignment_rate": 0.6428571428571429
           },
           "20": {
-            "n": 8,
-            "avg_return": -0.060490144030309,
-            "median_return": -0.03864210915677907,
-            "avg_excess_vs_qqq": -0.05410260664920308,
+            "n": 9,
+            "avg_return": -0.029501159772973087,
+            "median_return": -0.015761676844363803,
+            "avg_excess_vs_qqq": -0.02328814484251117,
             "alignment_rate": 1.0
           },
           "60": {
@@ -4042,17 +4087,17 @@
         },
         "sell_put": {
           "5": {
-            "n": 1,
-            "avg_return": -0.02882793253742666,
-            "median_return": -0.02882793253742666,
-            "avg_excess_vs_qqq": -0.022521271126311193,
+            "n": 2,
+            "avg_return": -0.012297783828141895,
+            "median_return": -0.012297783828141895,
+            "avg_excess_vs_qqq": -0.002883955336662636,
             "alignment_rate": null
           },
           "20": {
-            "n": 1,
-            "avg_return": -0.060356263028235824,
-            "median_return": -0.060356263028235824,
-            "avg_excess_vs_qqq": -0.05679468861526216,
+            "n": 2,
+            "avg_return": 0.04858040411383985,
+            "median_return": 0.04858040411383985,
+            "avg_excess_vs_qqq": 0.052769608982981664,
             "alignment_rate": null
           },
           "60": {
@@ -4065,18 +4110,18 @@
         },
         "trim": {
           "5": {
-            "n": 9,
-            "avg_return": -0.07148668924519318,
+            "n": 11,
+            "avg_return": -0.07168608756089384,
             "median_return": -0.07403684565971957,
-            "avg_excess_vs_qqq": -0.049643932101173745,
-            "alignment_rate": 0.8
+            "avg_excess_vs_qqq": -0.05153819615727011,
+            "alignment_rate": 0.8571428571428571
           },
           "20": {
-            "n": 3,
-            "avg_return": 0.028382471013574644,
-            "median_return": -0.017282153902128394,
-            "avg_excess_vs_qqq": 0.03194404542654831,
-            "alignment_rate": 0.6666666666666666
+            "n": 5,
+            "avg_return": -0.02576434138765238,
+            "median_return": -0.06168216253443515,
+            "avg_excess_vs_qqq": -0.02170066260974419,
+            "alignment_rate": 0.8
           },
           "60": {
             "n": 3,
@@ -4085,12 +4130,35 @@
             "avg_excess_vs_qqq": -0.17029686691683088,
             "alignment_rate": 0.6666666666666666
           }
+        },
+        "trim_half": {
+          "5": {
+            "n": 3,
+            "avg_return": -0.06685269626397412,
+            "median_return": -0.06600870211185395,
+            "avg_excess_vs_qqq": -0.059992191858853704,
+            "alignment_rate": 1.0
+          },
+          "20": {
+            "n": 3,
+            "avg_return": -0.0998046465996019,
+            "median_return": -0.08544481981981988,
+            "avg_excess_vs_qqq": -0.10732746763553103,
+            "alignment_rate": 1.0
+          },
+          "60": {
+            "n": 0,
+            "avg_return": null,
+            "median_return": null,
+            "avg_excess_vs_qqq": null,
+            "alignment_rate": null
+          }
         }
       },
       "mature_learning": {
-        "events_scanned": 216,
-        "mature20": 51,
-        "review_candidates": 29,
+        "events_scanned": 218,
+        "mature20": 53,
+        "review_candidates": 30,
         "recent_reviews": [
           {
             "event_id": "091e103b50dfc7e60232:0:MRVL:0",
@@ -4229,7 +4297,28 @@
             "learning_eligible": false
           },
           {
-            "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-22905-html:0:NOW:0",
+            "event_id": "5688ea16a60370ae4f02:0:NOW:0",
+            "author": "BrightLine",
+            "symbol": "NOW",
+            "published_at": "2026-08-28",
+            "title": "ServiceNow回来了，我在145卖掉一半",
+            "url": "https://blog.wenxuecity.com/myblog/82458/202608/22905.html",
+            "attribution": "author_action",
+            "return_20": -0.08544481981981988,
+            "mae_20": -0.10789695945945954,
+            "mfe_20": 0.052927927927927776,
+            "excess_vs_qqq_20": -0.11764695357822719,
+            "alignment_20": "aligned",
+            "review_tags": [
+              "underperformed_qqq"
+            ],
+            "maturity": "mature20",
+            "attribution_confidence": "high",
+            "verification_status": "unverified_author_self_report",
+            "learning_eligible": false
+          },
+          {
+            "event_id": "5688ea16a60370ae4f02:1:NOW:0",
             "author": "BrightLine",
             "symbol": "NOW",
             "published_at": "2026-08-28",
@@ -4246,12 +4335,12 @@
               "underperformed_qqq"
             ],
             "maturity": "mature20",
-            "attribution_confidence": "medium",
+            "attribution_confidence": "high",
             "verification_status": "unverified_author_self_report",
             "learning_eligible": false
           },
           {
-            "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html:0:NBIS:0",
+            "event_id": "9a165774b865bf813a81:0:NBIS:0",
             "author": "BrightLine",
             "symbol": "NBIS",
             "published_at": "2026-08-18",
@@ -4262,17 +4351,17 @@
             "mae_20": -0.16150137741046822,
             "mfe_20": 0.09650482093663926,
             "excess_vs_qqq_20": -0.05686532720912518,
-            "alignment_20": "not_scored",
+            "alignment_20": "aligned",
             "review_tags": [
               "large_adverse_move"
             ],
             "maturity": "mature20",
-            "attribution_confidence": "medium",
+            "attribution_confidence": "high",
             "verification_status": "unverified_author_self_report",
             "learning_eligible": false
           },
           {
-            "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html:0:CRWV:0",
+            "event_id": "9a165774b865bf813a81:0:CRWV:0",
             "author": "BrightLine",
             "symbol": "CRWV",
             "published_at": "2026-08-18",
@@ -4283,13 +4372,13 @@
             "mae_20": -0.16937281120662218,
             "mfe_20": 0.10994375464289496,
             "excess_vs_qqq_20": -0.1474701221192407,
-            "alignment_20": "not_scored",
+            "alignment_20": "aligned",
             "review_tags": [
               "large_adverse_move",
               "underperformed_qqq"
             ],
             "maturity": "mature20",
-            "attribution_confidence": "medium",
+            "attribution_confidence": "high",
             "verification_status": "unverified_author_self_report",
             "learning_eligible": false
           },
@@ -4500,29 +4589,6 @@
             "alignment_20": "aligned",
             "review_tags": [
               "large_adverse_move"
-            ],
-            "maturity": "mature20",
-            "attribution_confidence": "medium",
-            "verification_status": "unverified_author_self_report",
-            "learning_eligible": false
-          },
-          {
-            "event_id": "brightline--blog-wenxuecity-com-myblog-82458-202605-4789-html:0:INTC:0",
-            "author": "BrightLine",
-            "symbol": "INTC",
-            "published_at": "2026-05-08",
-            "title": "财富的逻辑：从搏一搏到敢再搏，再到工程化的复利 — 我的投资哲学、方法论与实战案例",
-            "url": "https://blog.wenxuecity.com/myblog/82458/202605/4789.html",
-            "attribution": "author_action",
-            "return_20": -0.17542787286063566,
-            "mae_20": -0.24870110024449876,
-            "mfe_20": 0.014287897310513387,
-            "excess_vs_qqq_20": -0.171866298447662,
-            "alignment_20": "not_aligned",
-            "review_tags": [
-              "direction_not_aligned",
-              "large_adverse_move",
-              "underperformed_qqq"
             ],
             "maturity": "mature20",
             "attribution_confidence": "medium",

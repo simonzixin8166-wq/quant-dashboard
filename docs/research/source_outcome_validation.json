@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "generated_at": "2026-11-09T18:51:37.801548+00:00",
+  "generated_at": "2026-11-09T23:19:41.030208+00:00",
   "methodology": {
     "executed_action_baseline": "first trading session open strictly after source date when no reliable intraday timestamp exists",
     "planned_entry_baseline": "explicit stock-entry plans begin only on the first later session whose low touches the stated level; each tranche is validated separately",
@@ -16,9 +16,9 @@
     "attribution_limit": "third-party examples are excluded; unconfirmed source context is visible but excluded from aggregate method memory"
   },
   "counts": {
-    "events": 218,
+    "events": 219,
     "author_owned": 88,
-    "unconfirmed": 130,
+    "unconfirmed": 131,
     "triggered_author_owned": 87,
     "untriggered_plans": 1,
     "mature60": 35,
@@ -190,17 +190,17 @@
     },
     "sell": {
       "5": {
-        "n": 21,
-        "avg_return": -0.06897951564462759,
+        "n": 23,
+        "avg_return": -0.07311326173539508,
         "median_return": -0.0922374474703398,
-        "avg_excess_vs_qqq": -0.061838309728439365,
-        "alignment_rate": 0.6428571428571429
+        "avg_excess_vs_qqq": -0.0645964350219535,
+        "alignment_rate": 0.625
       },
       "20": {
-        "n": 9,
-        "avg_return": -0.029501159772973087,
-        "median_return": -0.015761676844363803,
-        "avg_excess_vs_qqq": -0.02328814484251117,
+        "n": 10,
+        "avg_return": -0.027742858468366372,
+        "median_return": -0.013839911785634873,
+        "avg_excess_vs_qqq": -0.012768597578003416,
         "alignment_rate": 1.0
       },
       "60": {
@@ -284,18 +284,18 @@
   "by_author": {
     "BrightLine": {
       "5": {
-        "n": 59,
-        "avg_return": -0.04078429650255685,
-        "median_return": -0.03802825953394462,
-        "avg_excess_vs_qqq": -0.038022883385583524,
-        "alignment_rate": 0.4909090909090909
+        "n": 61,
+        "avg_return": -0.0432673554922584,
+        "median_return": -0.05347417065522364,
+        "avg_excess_vs_qqq": -0.03984366591733002,
+        "alignment_rate": 0.49122807017543857
       },
       "20": {
-        "n": 42,
-        "avg_return": -0.027194395626092906,
-        "median_return": -0.04384139796241193,
-        "avg_excess_vs_qqq": -0.04387529992019771,
-        "alignment_rate": 0.5263157894736842
+        "n": 43,
+        "avg_return": -0.02683913402378625,
+        "median_return": -0.04201602384945036,
+        "avg_excess_vs_qqq": -0.040950122531296214,
+        "alignment_rate": 0.5384615384615384
       },
       "60": {
         "n": 29,
@@ -399,6 +399,55 @@
     }
   },
   "events": [
+    {
+      "event_id": "96ea87e24a4a3ffdab8c:0:NVDA:0",
+      "author": "BrightLine",
+      "title": "恐惧不会让人更强，只会让人更累",
+      "url": "https://blog.wenxuecity.com/myblog/82458/202611/5366.html",
+      "published_at": "2026-11-07",
+      "symbol": "NVDA",
+      "operation": {
+        "symbols": [
+          "NVDA"
+        ],
+        "actions": [
+          "hold"
+        ],
+        "attribution": "unconfirmed_author_context",
+        "attribution_confidence": "needs_review"
+      },
+      "actions": [
+        "hold"
+      ],
+      "attribution": "unconfirmed_author_context",
+      "attribution_confidence": "needs_review",
+      "baseline_kind": "next_session",
+      "baseline_assumption": "next trading session open because source date has no reliable intraday timestamp",
+      "planned_level": null,
+      "triggered": true,
+      "baseline_date": "2026-11-09",
+      "baseline_price": 173.039993,
+      "price_provenance": {
+        "price_source": "stooq_archive",
+        "adjustment_basis": "stooq_archive_native_series",
+        "baseline_source": "stooq_archive",
+        "horizon_source": "stooq_archive",
+        "same_source": true
+      },
+      "outcomes": {
+        "5": null,
+        "20": null,
+        "60": null
+      },
+      "alignment": {
+        "direction": "bullish",
+        "5": null,
+        "20": null,
+        "60": null
+      },
+      "level_checks": {},
+      "status": "developing"
+    },
     {
       "event_id": "7cf96c01506fec2ffb82:0:NVDA:0",
       "author": "老李玩钱",
@@ -695,13 +744,20 @@
         "same_source": true
       },
       "outcomes": {
-        "5": null,
+        "5": {
+          "date": "2026-11-09",
+          "return": -0.09192413582135206,
+          "mae": -0.20908534720097882,
+          "mfe": 0.005200367084735369,
+          "benchmark_return": -0.022960845084602055,
+          "excess_vs_qqq": -0.06896329073675
+        },
         "20": null,
         "60": null
       },
       "alignment": {
         "direction": "bearish",
-        "5": null,
+        "5": "aligned",
         "20": null,
         "60": null
       },
@@ -745,13 +801,20 @@
         "same_source": true
       },
       "outcomes": {
-        "5": null,
+        "5": {
+          "date": "2026-11-09",
+          "return": -0.004053657183073711,
+          "mae": -0.21257217688381824,
+          "mfe": 0.00887104687890039,
+          "benchmark_return": -0.022960845084602055,
+          "excess_vs_qqq": 0.018907187901528344
+        },
         "20": null,
         "60": null
       },
       "alignment": {
         "direction": "bearish",
-        "5": null,
+        "5": "aligned",
         "20": null,
         "60": null
       },
@@ -794,13 +857,20 @@
         "same_source": true
       },
       "outcomes": {
-        "5": null,
+        "5": {
+          "date": "2026-11-09",
+          "return": -0.09192413582135206,
+          "mae": -0.20908534720097882,
+          "mfe": 0.005200367084735369,
+          "benchmark_return": -0.022960845084602055,
+          "excess_vs_qqq": -0.06896329073675
+        },
         "20": null,
         "60": null
       },
       "alignment": {
         "direction": "bearish",
-        "5": null,
+        "5": "aligned",
         "20": null,
         "60": null
       },
@@ -843,13 +913,20 @@
         "same_source": true
       },
       "outcomes": {
-        "5": null,
+        "5": {
+          "date": "2026-11-09",
+          "return": -0.04750563518053841,
+          "mae": -0.09080083358142299,
+          "mfe": 0.0030196061753073877,
+          "benchmark_return": -0.022960845084602055,
+          "excess_vs_qqq": -0.024544790095936353
+        },
         "20": null,
         "60": null
       },
       "alignment": {
         "direction": "bearish",
-        "5": null,
+        "5": "aligned",
         "20": null,
         "60": null
       },
@@ -941,13 +1018,20 @@
         "same_source": true
       },
       "outcomes": {
-        "5": null,
+        "5": {
+          "date": "2026-11-09",
+          "return": -0.04750563518053841,
+          "mae": -0.09080083358142299,
+          "mfe": 0.0030196061753073877,
+          "benchmark_return": -0.022960845084602055,
+          "excess_vs_qqq": -0.024544790095936353
+        },
         "20": null,
         "60": null
       },
       "alignment": {
         "direction": "bearish",
-        "5": null,
+        "5": "aligned",
         "20": null,
         "60": null
       },
@@ -990,13 +1074,20 @@
         "same_source": true
       },
       "outcomes": {
-        "5": null,
+        "5": {
+          "date": "2026-11-09",
+          "return": -0.09192413582135206,
+          "mae": -0.20908534720097882,
+          "mfe": 0.005200367084735369,
+          "benchmark_return": -0.022960845084602055,
+          "excess_vs_qqq": -0.06896329073675
+        },
         "20": null,
         "60": null
       },
       "alignment": {
         "direction": "bearish",
-        "5": null,
+        "5": "aligned",
         "20": null,
         "60": null
       },
@@ -4075,13 +4166,20 @@
           "benchmark_return": -0.04179062012298418,
           "excess_vs_qqq": 0.0037623605890395595
         },
-        "20": null,
+        "20": {
+          "date": "2026-11-09",
+          "return": -0.011918146726905943,
+          "mae": -0.11620187962159578,
+          "mfe": 0.08264295451355053,
+          "benchmark_return": -0.09382547452947232,
+          "excess_vs_qqq": 0.08190732780256638
+        },
         "60": null
       },
       "alignment": {
         "direction": "bearish",
         "5": "aligned",
-        "20": null,
+        "20": "aligned",
         "60": null
       },
       "level_checks": {},
@@ -4131,13 +4229,20 @@
           "benchmark_return": -0.04179062012298418,
           "excess_vs_qqq": -0.009099092638787276
         },
-        "20": null,
+        "20": {
+          "date": "2026-11-09",
+          "return": -0.21886066541336946,
+          "mae": -0.2557163030647488,
+          "mfe": 0.0005683557032309938,
+          "benchmark_return": -0.09382547452947232,
+          "excess_vs_qqq": -0.12503519088389714
+        },
         "60": null
       },
       "alignment": {
         "direction": "bearish",
         "5": "aligned",
-        "20": null,
+        "20": "aligned",
         "60": null
       },
       "level_checks": {},
@@ -4243,13 +4348,20 @@
           "benchmark_return": -0.04179062012298418,
           "excess_vs_qqq": -0.06053088787545513
         },
-        "20": null,
+        "20": {
+          "date": "2026-11-09",
+          "return": -0.42089348419820527,
+          "mae": -0.4956106125634022,
+          "mfe": 0.0065353101833789395,
+          "benchmark_return": -0.09382547452947232,
+          "excess_vs_qqq": -0.32706800966873295
+        },
         "60": null
       },
       "alignment": {
         "direction": "bearish",
         "5": "aligned",
-        "20": null,
+        "20": "aligned",
         "60": null
       },
       "level_checks": {},
@@ -4355,13 +4467,20 @@
           "benchmark_return": -0.04179062012298418,
           "excess_vs_qqq": -0.06135475188950679
         },
-        "20": null,
+        "20": {
+          "date": "2026-11-09",
+          "return": -0.15226776711062562,
+          "mae": -0.329755110258782,
+          "mfe": 0.010451252820349977,
+          "benchmark_return": -0.09382547452947232,
+          "excess_vs_qqq": -0.0584422925811533
+        },
         "60": null
       },
       "alignment": {
         "direction": "bearish",
         "5": "aligned",
-        "20": null,
+        "20": "aligned",
         "60": null
       },
       "level_checks": {},
@@ -4412,13 +4531,20 @@
           "benchmark_return": -0.04179062012298418,
           "excess_vs_qqq": -0.015553680699577521
         },
-        "20": null,
+        "20": {
+          "date": "2026-11-09",
+          "return": -0.12275754014884455,
+          "mae": -0.16263219741480617,
+          "mfe": 0.0007050528789658284,
+          "benchmark_return": -0.09382547452947232,
+          "excess_vs_qqq": -0.028932065619372227
+        },
         "60": null
       },
       "alignment": {
         "direction": "bearish",
         "5": "aligned",
-        "20": null,
+        "20": "aligned",
         "60": null
       },
       "level_checks": {},
@@ -4526,13 +4652,20 @@
           "benchmark_return": -0.04179062012298418,
           "excess_vs_qqq": 0.040553896994741434
         },
-        "20": null,
+        "20": {
+          "date": "2026-11-09",
+          "return": -0.2939397631123738,
+          "mae": -0.3091239049585196,
+          "mfe": 0.09591869834995603,
+          "benchmark_return": -0.09382547452947232,
+          "excess_vs_qqq": -0.20011428858290148
+        },
         "60": null
       },
       "alignment": {
         "direction": "bullish",
         "5": "not_aligned",
-        "20": null,
+        "20": "not_aligned",
         "60": null
       },
       "level_checks": {},
@@ -4644,13 +4777,20 @@
           "benchmark_return": -0.04179062012298418,
           "excess_vs_qqq": -0.06053088787545513
         },
-        "20": null,
+        "20": {
+          "date": "2026-11-09",
+          "return": -0.42089348419820527,
+          "mae": -0.4956106125634022,
+          "mfe": 0.0065353101833789395,
+          "benchmark_return": -0.09382547452947232,
+          "excess_vs_qqq": -0.32706800966873295
+        },
         "60": null
       },
       "alignment": {
         "direction": "mixed",
         "5": "not_scored",
-        "20": null,
+        "20": "not_scored",
         "60": null
       },
       "level_checks": {},
@@ -4705,13 +4845,20 @@
           "benchmark_return": -0.04179062012298418,
           "excess_vs_qqq": -0.06135475188950679
         },
-        "20": null,
+        "20": {
+          "date": "2026-11-09",
+          "return": -0.15226776711062562,
+          "mae": -0.329755110258782,
+          "mfe": 0.010451252820349977,
+          "benchmark_return": -0.09382547452947232,
+          "excess_vs_qqq": -0.0584422925811533
+        },
         "60": null
       },
       "alignment": {
         "direction": "mixed",
         "5": "not_scored",
-        "20": null,
+        "20": "not_scored",
         "60": null
       },
       "level_checks": {},
@@ -7482,13 +7629,20 @@
         "same_source": true
       },
       "outcomes": {
-        "5": null,
+        "5": {
+          "date": "2026-11-09",
+          "return": -0.1411110555555556,
+          "mae": -0.26316666666666666,
+          "mfe": 0.0683610555555556,
+          "benchmark_return": -0.022960845084602055,
+          "excess_vs_qqq": -0.11815021047095353
+        },
         "20": null,
         "60": null
       },
       "alignment": {
         "direction": "bullish",
-        "5": null,
+        "5": "not_aligned",
         "20": null,
         "60": null
       },
@@ -8439,16 +8593,23 @@
           "benchmark_return": -0.014162587050954967,
           "excess_vs_qqq": -0.015896731782219176
         },
-        "60": null
+        "60": {
+          "date": "2026-11-09",
+          "return": -0.20610517429072905,
+          "mae": -0.24356264024349605,
+          "mfe": 0.0813801070849347,
+          "benchmark_return": -0.06315937392263671,
+          "excess_vs_qqq": -0.14294580036809235
+        }
       },
       "alignment": {
         "direction": "bullish",
         "5": "not_aligned",
         "20": "not_aligned",
-        "60": null
+        "60": "not_aligned"
       },
       "level_checks": {},
-      "status": "developing"
+      "status": "mature"
     },
     {
       "event_id": "63adbdfa71849d1c2b26:0:NBIS:0",
@@ -8503,16 +8664,23 @@
           "benchmark_return": -0.014162587050954967,
           "excess_vs_qqq": -0.10686923664654369
         },
-        "60": null
+        "60": {
+          "date": "2026-11-09",
+          "return": -0.44631463576936636,
+          "mae": -0.5565036990644694,
+          "mfe": 0.09926801581398981,
+          "benchmark_return": -0.06315937392263671,
+          "excess_vs_qqq": -0.38315526184672966
+        }
       },
       "alignment": {
         "direction": "bearish",
         "5": "aligned",
         "20": "aligned",
-        "60": null
+        "60": "aligned"
       },
       "level_checks": {},
-      "status": "developing"
+      "status": "mature"
     },
     {
       "event_id": "63adbdfa71849d1c2b26:0:CRWV:0",
@@ -8571,7 +8739,9 @@
           "date": "2026-11-06",
           "return": -0.5669217703390059,
           "mae": -0.6212432160625846,
-          "mfe": 0.09660257606869505
+          "mfe": 0.09660257606869505,
+          "benchmark_return": -0.06315937392263671,
+          "excess_vs_qqq": -0.5037623964163692
         }
       },
       "alignment": {

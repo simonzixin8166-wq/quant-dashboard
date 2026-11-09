@@ -38,7 +38,11 @@ use, and training never means automatic orders or changing production thresholds
 ## Principles (non-negotiable)
 - Trustworthy, traceable data: source, as_of, first_seen, hashes; missing data → explicit `unavailable`.
 - Zero new paid APIs / data / services unless the owner approves in advance.
-- No long-term storage of third-party full text; runtime use + short locators + hashes only.
+- Third-party content (owner, 2026-11-09): obtain it through compliant channels only (official RSS/API, public pages
+  per the site's rules at low frequency, transcripts, filings, owner forwards/saves). Full text may be kept long-term
+  ONLY in private repos for personal, non-commercial learning and backtesting, never published; public repos and
+  Pages keep short excerpts, locators and hashes. Never circumvent access controls or paywalls (no proxy/IP rotation,
+  UA spoofing, captcha solving, login-cookie scraping, or caches/archives of blocked content).
 - No automatic orders, no broker order API, no changes to production thresholds or the owner's allocation.
 - Private positions stay private and per account; never merged, never published.
 - Unverified claims stay shadow (`production_use=false`); author self-reported trades are only

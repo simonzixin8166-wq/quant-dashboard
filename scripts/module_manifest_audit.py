@@ -67,6 +67,7 @@ ROLES = {  # reader → (role, reason)
     "investment_watch_engine.py": (D, "gold staged-buying + DCA reminders"),
     "playbook_engine.py": (D, "playbook state + silent forward ledger"),
     "forward_observation_engine.py": (L, "fo-1.0 Genuine Forward ledger (scored at maturity)"),
+    "forward_attribution_weekly.py": (L, "weekly h=20 forward attribution (fea-0.2 / rfi-0.1, #313): explains matured outcomes, never re-scores, no production effect"),
     "macro_outcome_memory.py": (L, "macro regime → outcomes"), "market_state_outcome_scorecards.py": (L, "cross-asset/breadth/regime scorecards"),
     "company_fundamental_outcome_memory.py": (L, "filing events → outcomes"), "event_outcome_memory.py": (L, "news events → outcomes"),
     "support_volatility_outcome_memory.py": (L, "support/GARCH → outcomes"), "options_opportunity_outcome_memory.py": (L, "option triage → outcomes"),
@@ -114,6 +115,7 @@ PRODUCER_OVERRIDE = {
     "historical_journal.json": "local_history_agent.py", "playbook_status.json": "playbook_engine.py",
     "system_status.json": "system_status_center.py",
     "market_temperature_history.json": "market_temperature.py",  # written via HIST, not an OUT_VARS name
+    "forward_attribution_weekly.json": "forward_attribution_weekly.py",  # written via OUT_JSON (#313)
 }
 OUT_VARS = re.compile(r'^\s*(OUT|OUTPUT|PUBLIC|PUBLIC_OUT|STATUS_OUT|ANCHOR_OUT|AUTHOR_SIGNALS_OUT|HISTORY|STATUS)\s*=\s*(.+)$')
 LEARNING_KIND = re.compile(r"(outcome|memory|feedback|replay|scorecard|attribution|validation|lifecycle|self_improvement|challenger|policy|candidate_|backtest|learning_engine|historical_journal)")

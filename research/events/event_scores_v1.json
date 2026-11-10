@@ -1,19 +1,90 @@
 {
   "version": "6.15.8l",
-  "generated_at": "2026-11-07T01:50:07.614283+00:00",
+  "generated_at": "2026-11-10T04:04:10.219582+00:00",
   "spec_version": "1.7",
   "scoring_engine_version": "event_score@6.15.8l",
   "mode": "research_only_adapter",
   "counts": {
-    "events": 216,
+    "events": 219,
     "scoreable": 2,
     "primary_exclusion": {
-      "non_point_in_time_source": 212,
+      "non_point_in_time_source": 215,
       "missing_rule_id": 2
     },
     "conservation_ok": true
   },
   "events": [
+    {
+      "event_id": "96ea87e24a4a3ffdab8c:0:NVDA:0",
+      "rule_id": null,
+      "legacy_source_id": "96ea87e24a4a3ffdab8c",
+      "legacy_operation_index": 0,
+      "spec_version": "1.7",
+      "scoring_engine_version": "event_score@6.15.8l",
+      "author": "BrightLine",
+      "symbol": "NVDA",
+      "published_at": "2026-11-07",
+      "baseline_date": "2026-11-09",
+      "baseline_timestamp_utc": "2026-11-09T14:30:00+00:00",
+      "entry_type": "next_session",
+      "fill_status": "simulated_fill",
+      "fill_confidence": "high",
+      "fill_model": "simulated_next_session_open",
+      "entry_inference_source": "baseline_kind:next_session",
+      "entry_registry_version": "1.0",
+      "direction": "bullish",
+      "rule_structural_direction": null,
+      "triggered": true,
+      "scoreable": false,
+      "primary_exclusion_reason": "non_point_in_time_source",
+      "secondary_exclusion_reasons": [
+        "missing_rule_id"
+      ],
+      "exclusion_reasons": [
+        "missing_rule_id",
+        "non_point_in_time_source"
+      ],
+      "maturity": {
+        "5": false,
+        "20": false,
+        "60": false
+      },
+      "scores": {
+        "5": null,
+        "20": null,
+        "60": null
+      },
+      "data_quality": {
+        "status": "ok",
+        "source": "stooq_archive",
+        "price_source": "stooq_archive",
+        "adjustment_basis": "stooq_archive_native_series",
+        "same_source_only": true,
+        "price_series_hash": "59bcebf55b9612f702f9f5a4f269fef9898f8a8ad7fad2c8f401cc43c4ca3835",
+        "overlap_conflicts": []
+      },
+      "price_provenance": {
+        "price_source": "stooq_archive",
+        "adjustment_basis": "stooq_archive_native_series",
+        "baseline_source": "stooq_archive",
+        "horizon_source": "stooq_archive",
+        "same_source": true,
+        "provenance_origin": "source_outcome_artifact"
+      },
+      "source_provenance": {
+        "first_fetched_at": "2026-11-09T18:51:31.452049+00:00",
+        "ingest_type": "backfill_ingest",
+        "first_fetched_at_origin": "source_store_first_observation",
+        "admission_class": "late_discovery",
+        "admission_origin": "high_confidence_late_discovery_veto",
+        "identity_parent_source_key": null,
+        "published_at_semantics": "source_archive_publication_date",
+        "timestamp_confidence": "high",
+        "snapshot_hash": "91067d867ba313bb0708d37e50be0240ae37ed6c417e787de0bb4b9e2a0352b4"
+      },
+      "point_in_time_status": "source_not_genuine_forward",
+      "market_timestamp_cutoff": "strictly_before_baseline_timestamp_utc"
+    },
     {
       "event_id": "7cf96c01506fec2ffb82:0:NVDA:0",
       "rule_id": null,
@@ -60,7 +131,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "5ee4a01f84f9abbdc0ea636ce51fdbb9bb23a47e6bf4875039db206c08e8ab86",
+        "price_series_hash": "59bcebf55b9612f702f9f5a4f269fef9898f8a8ad7fad2c8f401cc43c4ca3835",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -131,7 +202,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "5ee4a01f84f9abbdc0ea636ce51fdbb9bb23a47e6bf4875039db206c08e8ab86",
+        "price_series_hash": "59bcebf55b9612f702f9f5a4f269fef9898f8a8ad7fad2c8f401cc43c4ca3835",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -202,7 +273,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "6e8c6c7a83355bcd2e51d16f848cf46e5e49404f477e045153cbd13b7ba3ed8f",
+        "price_series_hash": "92d77a22cef8efd84e75c3836b8965d95a50c7b90cc62c9b0cecfd266b2406bf",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -345,7 +416,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "cc4c4b9fbb60baf19bca75350afe9461297f0dcac00547510b002e8b678fae5e",
+        "price_series_hash": "dc3926042a227b98e68d436b5b11f865d46a469f3eec5343d6e4eec2db316dad",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -401,12 +472,27 @@
         "non_point_in_time_source"
       ],
       "maturity": {
-        "5": false,
+        "5": true,
         "20": false,
         "60": false
       },
       "scores": {
-        "5": null,
+        "5": {
+          "horizon_end_date": "2026-11-09",
+          "raw_return": -0.09192413582135206,
+          "direction_adjusted_return": 0.09192413582135206,
+          "benchmark_return": -0.022960845084602055,
+          "excess_vs_qqq": -0.06896329073675,
+          "unconditional_baseline_direction_adjusted_return": -0.02355399585192047,
+          "unconditional_baseline_direction_adjusted_mae": -0.09970075002752436,
+          "unconditional_baseline_n": 252,
+          "unconditional_lift": 0.11547813167327253,
+          "mae": -0.20908534720097882,
+          "mfe": 0.005200367084735369,
+          "direction_adjusted_mae": -0.005200367084735369,
+          "direction_adjusted_mfe": 0.20908534720097882,
+          "legacy_alignment": "aligned"
+        },
         "20": null,
         "60": null
       },
@@ -416,7 +502,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "74efe0042eb80a768ece6a31ec76851d0eafe5e0e389928667ebe2939c4d92ad",
+        "price_series_hash": "0b3ce288afa1c981063b21d7e9d610cb25d75adc4f8652aef5ae3916749917b9",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -472,12 +558,27 @@
         "non_point_in_time_source"
       ],
       "maturity": {
-        "5": false,
+        "5": true,
         "20": false,
         "60": false
       },
       "scores": {
-        "5": null,
+        "5": {
+          "horizon_end_date": "2026-11-09",
+          "raw_return": -0.004053657183073711,
+          "direction_adjusted_return": 0.004053657183073711,
+          "benchmark_return": -0.022960845084602055,
+          "excess_vs_qqq": 0.018907187901528344,
+          "unconditional_baseline_direction_adjusted_return": -0.022072389321862448,
+          "unconditional_baseline_direction_adjusted_mae": -0.08490401390634,
+          "unconditional_baseline_n": 252,
+          "unconditional_lift": 0.02612604650493616,
+          "mae": -0.21257217688381824,
+          "mfe": 0.00887104687890039,
+          "direction_adjusted_mae": -0.00887104687890039,
+          "direction_adjusted_mfe": 0.21257217688381824,
+          "legacy_alignment": "aligned"
+        },
         "20": null,
         "60": null
       },
@@ -487,7 +588,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "cc4c4b9fbb60baf19bca75350afe9461297f0dcac00547510b002e8b678fae5e",
+        "price_series_hash": "dc3926042a227b98e68d436b5b11f865d46a469f3eec5343d6e4eec2db316dad",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -543,12 +644,27 @@
         "non_point_in_time_source"
       ],
       "maturity": {
-        "5": false,
+        "5": true,
         "20": false,
         "60": false
       },
       "scores": {
-        "5": null,
+        "5": {
+          "horizon_end_date": "2026-11-09",
+          "raw_return": -0.09192413582135206,
+          "direction_adjusted_return": 0.09192413582135206,
+          "benchmark_return": -0.022960845084602055,
+          "excess_vs_qqq": -0.06896329073675,
+          "unconditional_baseline_direction_adjusted_return": -0.02355399585192047,
+          "unconditional_baseline_direction_adjusted_mae": -0.09970075002752436,
+          "unconditional_baseline_n": 252,
+          "unconditional_lift": 0.11547813167327253,
+          "mae": -0.20908534720097882,
+          "mfe": 0.005200367084735369,
+          "direction_adjusted_mae": -0.005200367084735369,
+          "direction_adjusted_mfe": 0.20908534720097882,
+          "legacy_alignment": "aligned"
+        },
         "20": null,
         "60": null
       },
@@ -558,7 +674,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "74efe0042eb80a768ece6a31ec76851d0eafe5e0e389928667ebe2939c4d92ad",
+        "price_series_hash": "0b3ce288afa1c981063b21d7e9d610cb25d75adc4f8652aef5ae3916749917b9",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -614,12 +730,27 @@
         "non_point_in_time_source"
       ],
       "maturity": {
-        "5": false,
+        "5": true,
         "20": false,
         "60": false
       },
       "scores": {
-        "5": null,
+        "5": {
+          "horizon_end_date": "2026-11-09",
+          "raw_return": -0.04750563518053841,
+          "direction_adjusted_return": 0.04750563518053841,
+          "benchmark_return": -0.022960845084602055,
+          "excess_vs_qqq": -0.024544790095936353,
+          "unconditional_baseline_direction_adjusted_return": -0.005093955621691287,
+          "unconditional_baseline_direction_adjusted_mae": -0.027684852725306883,
+          "unconditional_baseline_n": 252,
+          "unconditional_lift": 0.052599590802229694,
+          "mae": -0.09080083358142299,
+          "mfe": 0.0030196061753073877,
+          "direction_adjusted_mae": -0.0030196061753073877,
+          "direction_adjusted_mfe": 0.09080083358142299,
+          "legacy_alignment": "aligned"
+        },
         "20": null,
         "60": null
       },
@@ -629,7 +760,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "0622e8eb6d4aab00348e108615c45d264216a2c331a70ae9d3466f3ee103ce57",
+        "price_series_hash": "dd563b61b7273b796bd1eea972795afc60f000e79235ef8d8de4ac031dbdcbfd",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -757,12 +888,27 @@
         "non_point_in_time_source"
       ],
       "maturity": {
-        "5": false,
+        "5": true,
         "20": false,
         "60": false
       },
       "scores": {
-        "5": null,
+        "5": {
+          "horizon_end_date": "2026-11-09",
+          "raw_return": -0.04750563518053841,
+          "direction_adjusted_return": 0.04750563518053841,
+          "benchmark_return": -0.022960845084602055,
+          "excess_vs_qqq": -0.024544790095936353,
+          "unconditional_baseline_direction_adjusted_return": -0.005093955621691287,
+          "unconditional_baseline_direction_adjusted_mae": -0.027684852725306883,
+          "unconditional_baseline_n": 252,
+          "unconditional_lift": 0.052599590802229694,
+          "mae": -0.09080083358142299,
+          "mfe": 0.0030196061753073877,
+          "direction_adjusted_mae": -0.0030196061753073877,
+          "direction_adjusted_mfe": 0.09080083358142299,
+          "legacy_alignment": "aligned"
+        },
         "20": null,
         "60": null
       },
@@ -772,7 +918,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "0622e8eb6d4aab00348e108615c45d264216a2c331a70ae9d3466f3ee103ce57",
+        "price_series_hash": "dd563b61b7273b796bd1eea972795afc60f000e79235ef8d8de4ac031dbdcbfd",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -823,12 +969,27 @@
       "secondary_exclusion_reasons": [],
       "exclusion_reasons": [],
       "maturity": {
-        "5": false,
+        "5": true,
         "20": false,
         "60": false
       },
       "scores": {
-        "5": null,
+        "5": {
+          "horizon_end_date": "2026-11-09",
+          "raw_return": -0.09192413582135206,
+          "direction_adjusted_return": 0.09192413582135206,
+          "benchmark_return": -0.022960845084602055,
+          "excess_vs_qqq": -0.06896329073675,
+          "unconditional_baseline_direction_adjusted_return": -0.02355399585192047,
+          "unconditional_baseline_direction_adjusted_mae": -0.09970075002752436,
+          "unconditional_baseline_n": 252,
+          "unconditional_lift": 0.11547813167327253,
+          "mae": -0.20908534720097882,
+          "mfe": 0.005200367084735369,
+          "direction_adjusted_mae": -0.005200367084735369,
+          "direction_adjusted_mfe": 0.20908534720097882,
+          "legacy_alignment": "aligned"
+        },
         "20": null,
         "60": null
       },
@@ -838,7 +999,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "74efe0042eb80a768ece6a31ec76851d0eafe5e0e389928667ebe2939c4d92ad",
+        "price_series_hash": "0b3ce288afa1c981063b21d7e9d610cb25d75adc4f8652aef5ae3916749917b9",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -924,7 +1085,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "cc4c4b9fbb60baf19bca75350afe9461297f0dcac00547510b002e8b678fae5e",
+        "price_series_hash": "dc3926042a227b98e68d436b5b11f865d46a469f3eec5343d6e4eec2db316dad",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -1010,7 +1171,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "2e62caa2eacdfa5fecf3190cb4942d61880fe7e9e4ecde5846c0e73311484735",
+        "price_series_hash": "eb02cac4bf51d365f4a2569c061c9822a45266be5706fe786d5f655622e5aa5b",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -1096,7 +1257,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "171cc21d411e095fb55ffab186003925b80fd18bd80aade69a6a9403a0d9b7d0",
+        "price_series_hash": "bddfd6607256c5142e7325349e6704f2b7f23e2da7098636a136db54b689af6a",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -1182,7 +1343,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "171cc21d411e095fb55ffab186003925b80fd18bd80aade69a6a9403a0d9b7d0",
+        "price_series_hash": "bddfd6607256c5142e7325349e6704f2b7f23e2da7098636a136db54b689af6a",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -1268,7 +1429,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "176bad02f33b424dd58653beba3dddf2bfed997c16467933c8e8de2899eb8ccf",
+        "price_series_hash": "dce813dee4ae33886f97b1a6e1f92a8eda512c84a01cf4d0d87545e69921ef89",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -1354,7 +1515,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "6e8c6c7a83355bcd2e51d16f848cf46e5e49404f477e045153cbd13b7ba3ed8f",
+        "price_series_hash": "92d77a22cef8efd84e75c3836b8965d95a50c7b90cc62c9b0cecfd266b2406bf",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -1440,7 +1601,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "0ce4bf2f380d70dd13e2765f831b1dd3f04a4fb1fe2ee2b533bf0876c283d382",
+        "price_series_hash": "2fae4ecf6e1cebeaee8bea3922c3ffd5896341d1da62702b317f35b690517952",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -1526,7 +1687,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "9a1d72005f7f7eb157a653d5b098f0086a8868708a2cdd828ada4b302d32c8d3",
+        "price_series_hash": "f45d0616e79b322be4c9ba620f1ef1ba166b3a84fddfeea744c74540cad7d560",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -1612,7 +1773,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "47c82c00c1a0b167cfcc5cb018c6ee9d42e26c5b70e93e70a018a5707edfcb47",
+        "price_series_hash": "c17e8a9be06469ff2c55721f46a3865d477858b9abc0e24467504808a7e88e60",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -1698,7 +1859,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "0622e8eb6d4aab00348e108615c45d264216a2c331a70ae9d3466f3ee103ce57",
+        "price_series_hash": "dd563b61b7273b796bd1eea972795afc60f000e79235ef8d8de4ac031dbdcbfd",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -1784,7 +1945,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "0622e8eb6d4aab00348e108615c45d264216a2c331a70ae9d3466f3ee103ce57",
+        "price_series_hash": "dd563b61b7273b796bd1eea972795afc60f000e79235ef8d8de4ac031dbdcbfd",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -2046,7 +2207,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "0622e8eb6d4aab00348e108615c45d264216a2c331a70ae9d3466f3ee103ce57",
+        "price_series_hash": "dd563b61b7273b796bd1eea972795afc60f000e79235ef8d8de4ac031dbdcbfd",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -2132,7 +2293,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "0622e8eb6d4aab00348e108615c45d264216a2c331a70ae9d3466f3ee103ce57",
+        "price_series_hash": "dd563b61b7273b796bd1eea972795afc60f000e79235ef8d8de4ac031dbdcbfd",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -2218,7 +2379,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "0622e8eb6d4aab00348e108615c45d264216a2c331a70ae9d3466f3ee103ce57",
+        "price_series_hash": "dd563b61b7273b796bd1eea972795afc60f000e79235ef8d8de4ac031dbdcbfd",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -2391,7 +2552,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "5ee4a01f84f9abbdc0ea636ce51fdbb9bb23a47e6bf4875039db206c08e8ab86",
+        "price_series_hash": "59bcebf55b9612f702f9f5a4f269fef9898f8a8ad7fad2c8f401cc43c4ca3835",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -2477,7 +2638,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "74efe0042eb80a768ece6a31ec76851d0eafe5e0e389928667ebe2939c4d92ad",
+        "price_series_hash": "0b3ce288afa1c981063b21d7e9d610cb25d75adc4f8652aef5ae3916749917b9",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -2565,7 +2726,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "0ce4bf2f380d70dd13e2765f831b1dd3f04a4fb1fe2ee2b533bf0876c283d382",
+        "price_series_hash": "2fae4ecf6e1cebeaee8bea3922c3ffd5896341d1da62702b317f35b690517952",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -2651,7 +2812,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "2e62caa2eacdfa5fecf3190cb4942d61880fe7e9e4ecde5846c0e73311484735",
+        "price_series_hash": "eb02cac4bf51d365f4a2569c061c9822a45266be5706fe786d5f655622e5aa5b",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -2737,7 +2898,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "2e62caa2eacdfa5fecf3190cb4942d61880fe7e9e4ecde5846c0e73311484735",
+        "price_series_hash": "eb02cac4bf51d365f4a2569c061c9822a45266be5706fe786d5f655622e5aa5b",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -2823,7 +2984,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "176bad02f33b424dd58653beba3dddf2bfed997c16467933c8e8de2899eb8ccf",
+        "price_series_hash": "dce813dee4ae33886f97b1a6e1f92a8eda512c84a01cf4d0d87545e69921ef89",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -2909,7 +3070,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "95b58f20990ff0419ec9f5d4b86efed6d89dd4b7c5f51f291f8c4577f71658ed",
+        "price_series_hash": "254c8aefb0a71e6da69e3557a7e5fa8e5d7498ebd361e62b770205bb7430b4c2",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -2992,7 +3153,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "176bad02f33b424dd58653beba3dddf2bfed997c16467933c8e8de2899eb8ccf",
+        "price_series_hash": "dce813dee4ae33886f97b1a6e1f92a8eda512c84a01cf4d0d87545e69921ef89",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -3078,7 +3239,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "0622e8eb6d4aab00348e108615c45d264216a2c331a70ae9d3466f3ee103ce57",
+        "price_series_hash": "dd563b61b7273b796bd1eea972795afc60f000e79235ef8d8de4ac031dbdcbfd",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -3164,7 +3325,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "0622e8eb6d4aab00348e108615c45d264216a2c331a70ae9d3466f3ee103ce57",
+        "price_series_hash": "dd563b61b7273b796bd1eea972795afc60f000e79235ef8d8de4ac031dbdcbfd",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -3250,7 +3411,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "0622e8eb6d4aab00348e108615c45d264216a2c331a70ae9d3466f3ee103ce57",
+        "price_series_hash": "dd563b61b7273b796bd1eea972795afc60f000e79235ef8d8de4ac031dbdcbfd",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -3423,7 +3584,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "9133fa782bbeddd8c2bf66216643c02a02fb211a3af2ed787a587892a18a13d8",
+        "price_series_hash": "8085312f5421c4897107ed3e5f54c95ef072680e75c3aae4825c4dac5f12fcc8",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -3509,7 +3670,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "0622e8eb6d4aab00348e108615c45d264216a2c331a70ae9d3466f3ee103ce57",
+        "price_series_hash": "dd563b61b7273b796bd1eea972795afc60f000e79235ef8d8de4ac031dbdcbfd",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -3595,7 +3756,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "0622e8eb6d4aab00348e108615c45d264216a2c331a70ae9d3466f3ee103ce57",
+        "price_series_hash": "dd563b61b7273b796bd1eea972795afc60f000e79235ef8d8de4ac031dbdcbfd",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -3681,7 +3842,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "f07d65a262507941b2dd272ff83ba1d7525fa28b99edbb9ac8b0fa9ed01ae293",
+        "price_series_hash": "88da7ce2c9318f4d6b34d0d39769005d3611e9078ffd3a36f7d343ab8f5783cf",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -3767,7 +3928,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "406eb152d00ca9920fb4c828504cbbb4f0448bff1495aee894f56becc1dd6a77",
+        "price_series_hash": "ab12bd579ec48cfedacb63b733cbeb1aa520172e4a86f372fe50e9080654f8ca",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -3853,7 +4014,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "5ee4a01f84f9abbdc0ea636ce51fdbb9bb23a47e6bf4875039db206c08e8ab86",
+        "price_series_hash": "59bcebf55b9612f702f9f5a4f269fef9898f8a8ad7fad2c8f401cc43c4ca3835",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -3939,7 +4100,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "5ee4a01f84f9abbdc0ea636ce51fdbb9bb23a47e6bf4875039db206c08e8ab86",
+        "price_series_hash": "59bcebf55b9612f702f9f5a4f269fef9898f8a8ad7fad2c8f401cc43c4ca3835",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -4025,7 +4186,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "5ee4a01f84f9abbdc0ea636ce51fdbb9bb23a47e6bf4875039db206c08e8ab86",
+        "price_series_hash": "59bcebf55b9612f702f9f5a4f269fef9898f8a8ad7fad2c8f401cc43c4ca3835",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -4111,7 +4272,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "5ee4a01f84f9abbdc0ea636ce51fdbb9bb23a47e6bf4875039db206c08e8ab86",
+        "price_series_hash": "59bcebf55b9612f702f9f5a4f269fef9898f8a8ad7fad2c8f401cc43c4ca3835",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -4197,7 +4358,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "176bad02f33b424dd58653beba3dddf2bfed997c16467933c8e8de2899eb8ccf",
+        "price_series_hash": "dce813dee4ae33886f97b1a6e1f92a8eda512c84a01cf4d0d87545e69921ef89",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -4283,7 +4444,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "9a1d72005f7f7eb157a653d5b098f0086a8868708a2cdd828ada4b302d32c8d3",
+        "price_series_hash": "f45d0616e79b322be4c9ba620f1ef1ba166b3a84fddfeea744c74540cad7d560",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -4369,7 +4530,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "9a1d72005f7f7eb157a653d5b098f0086a8868708a2cdd828ada4b302d32c8d3",
+        "price_series_hash": "f45d0616e79b322be4c9ba620f1ef1ba166b3a84fddfeea744c74540cad7d560",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -4455,7 +4616,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "9a1d72005f7f7eb157a653d5b098f0086a8868708a2cdd828ada4b302d32c8d3",
+        "price_series_hash": "f45d0616e79b322be4c9ba620f1ef1ba166b3a84fddfeea744c74540cad7d560",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -4541,7 +4702,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "47c82c00c1a0b167cfcc5cb018c6ee9d42e26c5b70e93e70a018a5707edfcb47",
+        "price_series_hash": "c17e8a9be06469ff2c55721f46a3865d477858b9abc0e24467504808a7e88e60",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -4627,7 +4788,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "47c82c00c1a0b167cfcc5cb018c6ee9d42e26c5b70e93e70a018a5707edfcb47",
+        "price_series_hash": "c17e8a9be06469ff2c55721f46a3865d477858b9abc0e24467504808a7e88e60",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -4713,7 +4874,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "47c82c00c1a0b167cfcc5cb018c6ee9d42e26c5b70e93e70a018a5707edfcb47",
+        "price_series_hash": "c17e8a9be06469ff2c55721f46a3865d477858b9abc0e24467504808a7e88e60",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -4799,7 +4960,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "47c82c00c1a0b167cfcc5cb018c6ee9d42e26c5b70e93e70a018a5707edfcb47",
+        "price_series_hash": "c17e8a9be06469ff2c55721f46a3865d477858b9abc0e24467504808a7e88e60",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -4972,7 +5133,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "0302740585723189d386b91309d53a1c0b678f2ac7b6a83d88a1e40095783629",
+        "price_series_hash": "555ce71eb37fea7e8ee6b4f35a251514e8def83335c81f6877e7540a06e2334f",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -5058,7 +5219,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "7f2f9882d0a419ded9e79fb9b508aaf13e8a69c554a66dfafa44077a9e3bbfcc",
+        "price_series_hash": "fb54aa9e4d3fc534f86dc920b1ac813b03c2e3345ab91ae69dd93c26f5dedae1",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -5146,7 +5307,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "9397aab623a4b92b839dfbdfe83d2425773424218426380aa95f2d06daa7a24f",
+        "price_series_hash": "7cf4bdaeb61bc900f6d88d71b9d131daa8f29bdfc0c4e172b317893540082d5f",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -5234,7 +5395,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "5ee4a01f84f9abbdc0ea636ce51fdbb9bb23a47e6bf4875039db206c08e8ab86",
+        "price_series_hash": "59bcebf55b9612f702f9f5a4f269fef9898f8a8ad7fad2c8f401cc43c4ca3835",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -5322,7 +5483,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "74efe0042eb80a768ece6a31ec76851d0eafe5e0e389928667ebe2939c4d92ad",
+        "price_series_hash": "0b3ce288afa1c981063b21d7e9d610cb25d75adc4f8652aef5ae3916749917b9",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -5410,7 +5571,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "cc4c4b9fbb60baf19bca75350afe9461297f0dcac00547510b002e8b678fae5e",
+        "price_series_hash": "dc3926042a227b98e68d436b5b11f865d46a469f3eec5343d6e4eec2db316dad",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -5462,7 +5623,7 @@
       "exclusion_reasons": [],
       "maturity": {
         "5": true,
-        "20": false,
+        "20": true,
         "60": false
       },
       "scores": {
@@ -5482,7 +5643,22 @@
           "direction_adjusted_mfe": 0.08698152392727643,
           "legacy_alignment": "aligned"
         },
-        "20": null,
+        "20": {
+          "horizon_end_date": "2026-11-09",
+          "raw_return": -0.011918146726905943,
+          "direction_adjusted_return": 0.011918146726905943,
+          "benchmark_return": -0.09382547452947232,
+          "excess_vs_qqq": 0.08190732780256638,
+          "unconditional_baseline_direction_adjusted_return": 0.00521273699330273,
+          "unconditional_baseline_direction_adjusted_mae": -0.0883130488264812,
+          "unconditional_baseline_n": 252,
+          "unconditional_lift": 0.006705409733603213,
+          "mae": -0.11620187962159578,
+          "mfe": 0.08264295451355053,
+          "direction_adjusted_mae": -0.08264295451355053,
+          "direction_adjusted_mfe": 0.11620187962159578,
+          "legacy_alignment": "aligned"
+        },
         "60": null
       },
       "data_quality": {
@@ -5491,7 +5667,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "171cc21d411e095fb55ffab186003925b80fd18bd80aade69a6a9403a0d9b7d0",
+        "price_series_hash": "bddfd6607256c5142e7325349e6704f2b7f23e2da7098636a136db54b689af6a",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -5545,7 +5721,7 @@
       ],
       "maturity": {
         "5": true,
-        "20": false,
+        "20": true,
         "60": false
       },
       "scores": {
@@ -5565,7 +5741,22 @@
           "direction_adjusted_mfe": 0.06942679141345687,
           "legacy_alignment": "aligned"
         },
-        "20": null,
+        "20": {
+          "horizon_end_date": "2026-11-09",
+          "raw_return": -0.21886066541336946,
+          "direction_adjusted_return": 0.21886066541336946,
+          "benchmark_return": -0.09382547452947232,
+          "excess_vs_qqq": -0.12503519088389714,
+          "unconditional_baseline_direction_adjusted_return": -0.01962748192067605,
+          "unconditional_baseline_direction_adjusted_mae": -0.086940787081432,
+          "unconditional_baseline_n": 252,
+          "unconditional_lift": 0.2384881473340455,
+          "mae": -0.2557163030647488,
+          "mfe": 0.0005683557032309938,
+          "direction_adjusted_mae": -0.0005683557032309938,
+          "direction_adjusted_mfe": 0.2557163030647488,
+          "legacy_alignment": "aligned"
+        },
         "60": null
       },
       "data_quality": {
@@ -5574,7 +5765,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "5ee4a01f84f9abbdc0ea636ce51fdbb9bb23a47e6bf4875039db206c08e8ab86",
+        "price_series_hash": "59bcebf55b9612f702f9f5a4f269fef9898f8a8ad7fad2c8f401cc43c4ca3835",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -5718,7 +5909,7 @@
       ],
       "maturity": {
         "5": true,
-        "20": false,
+        "20": true,
         "60": false
       },
       "scores": {
@@ -5738,7 +5929,22 @@
           "direction_adjusted_mfe": 0.13002341006632856,
           "legacy_alignment": "aligned"
         },
-        "20": null,
+        "20": {
+          "horizon_end_date": "2026-11-09",
+          "raw_return": -0.42089348419820527,
+          "direction_adjusted_return": 0.42089348419820527,
+          "benchmark_return": -0.09382547452947232,
+          "excess_vs_qqq": -0.32706800966873295,
+          "unconditional_baseline_direction_adjusted_return": -0.1419416261023065,
+          "unconditional_baseline_direction_adjusted_mae": -0.2761995745823082,
+          "unconditional_baseline_n": 252,
+          "unconditional_lift": 0.5628351103005118,
+          "mae": -0.4956106125634022,
+          "mfe": 0.0065353101833789395,
+          "direction_adjusted_mae": -0.0065353101833789395,
+          "direction_adjusted_mfe": 0.4956106125634022,
+          "legacy_alignment": "aligned"
+        },
         "60": null
       },
       "data_quality": {
@@ -5747,7 +5953,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "74efe0042eb80a768ece6a31ec76851d0eafe5e0e389928667ebe2939c4d92ad",
+        "price_series_hash": "0b3ce288afa1c981063b21d7e9d610cb25d75adc4f8652aef5ae3916749917b9",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -5891,7 +6097,7 @@
       ],
       "maturity": {
         "5": true,
-        "20": false,
+        "20": true,
         "60": false
       },
       "scores": {
@@ -5911,7 +6117,22 @@
           "direction_adjusted_mfe": 0.12184750090589735,
           "legacy_alignment": "aligned"
         },
-        "20": null,
+        "20": {
+          "horizon_end_date": "2026-11-09",
+          "raw_return": -0.15226776711062562,
+          "direction_adjusted_return": 0.15226776711062562,
+          "benchmark_return": -0.09382547452947232,
+          "excess_vs_qqq": -0.0584422925811533,
+          "unconditional_baseline_direction_adjusted_return": -0.13421687377262462,
+          "unconditional_baseline_direction_adjusted_mae": -0.2365011041561331,
+          "unconditional_baseline_n": 252,
+          "unconditional_lift": 0.2864846408832502,
+          "mae": -0.329755110258782,
+          "mfe": 0.010451252820349977,
+          "direction_adjusted_mae": -0.010451252820349977,
+          "direction_adjusted_mfe": 0.329755110258782,
+          "legacy_alignment": "aligned"
+        },
         "60": null
       },
       "data_quality": {
@@ -5920,7 +6141,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "cc4c4b9fbb60baf19bca75350afe9461297f0dcac00547510b002e8b678fae5e",
+        "price_series_hash": "dc3926042a227b98e68d436b5b11f865d46a469f3eec5343d6e4eec2db316dad",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -5977,7 +6198,7 @@
       ],
       "maturity": {
         "5": true,
-        "20": false,
+        "20": true,
         "60": false
       },
       "scores": {
@@ -5997,7 +6218,22 @@
           "direction_adjusted_mfe": 0.07269878574226396,
           "legacy_alignment": "aligned"
         },
-        "20": null,
+        "20": {
+          "horizon_end_date": "2026-11-09",
+          "raw_return": -0.12275754014884455,
+          "direction_adjusted_return": 0.12275754014884455,
+          "benchmark_return": -0.09382547452947232,
+          "excess_vs_qqq": -0.028932065619372227,
+          "unconditional_baseline_direction_adjusted_return": -0.02643386213261692,
+          "unconditional_baseline_direction_adjusted_mae": -0.06211782531248641,
+          "unconditional_baseline_n": 252,
+          "unconditional_lift": 0.14919140228146147,
+          "mae": -0.16263219741480617,
+          "mfe": 0.0007050528789658284,
+          "direction_adjusted_mae": -0.0007050528789658284,
+          "direction_adjusted_mfe": 0.16263219741480617,
+          "legacy_alignment": "aligned"
+        },
         "60": null
       },
       "data_quality": {
@@ -6006,7 +6242,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "0622e8eb6d4aab00348e108615c45d264216a2c331a70ae9d3466f3ee103ce57",
+        "price_series_hash": "dd563b61b7273b796bd1eea972795afc60f000e79235ef8d8de4ac031dbdcbfd",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -6150,7 +6386,7 @@
       ],
       "maturity": {
         "5": true,
-        "20": false,
+        "20": true,
         "60": false
       },
       "scores": {
@@ -6170,7 +6406,22 @@
           "direction_adjusted_mfe": 0.05950257016354077,
           "legacy_alignment": "not_aligned"
         },
-        "20": null,
+        "20": {
+          "horizon_end_date": "2026-11-09",
+          "raw_return": -0.2939397631123738,
+          "direction_adjusted_return": -0.2939397631123738,
+          "benchmark_return": -0.09382547452947232,
+          "excess_vs_qqq": -0.20011428858290148,
+          "unconditional_baseline_direction_adjusted_return": -0.013687015944465366,
+          "unconditional_baseline_direction_adjusted_mae": -0.1213813370612214,
+          "unconditional_baseline_n": 252,
+          "unconditional_lift": -0.28025274716790843,
+          "mae": -0.3091239049585196,
+          "mfe": 0.09591869834995603,
+          "direction_adjusted_mae": -0.3091239049585196,
+          "direction_adjusted_mfe": 0.09591869834995603,
+          "legacy_alignment": "not_aligned"
+        },
         "60": null
       },
       "data_quality": {
@@ -6179,7 +6430,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "406eb152d00ca9920fb4c828504cbbb4f0448bff1495aee894f56becc1dd6a77",
+        "price_series_hash": "ab12bd579ec48cfedacb63b733cbeb1aa520172e4a86f372fe50e9080654f8ca",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -6325,7 +6576,7 @@
       ],
       "maturity": {
         "5": true,
-        "20": false,
+        "20": true,
         "60": false
       },
       "scores": {
@@ -6345,7 +6596,22 @@
           "direction_adjusted_mfe": null,
           "legacy_alignment": "not_scored"
         },
-        "20": null,
+        "20": {
+          "horizon_end_date": "2026-11-09",
+          "raw_return": -0.42089348419820527,
+          "direction_adjusted_return": null,
+          "benchmark_return": -0.09382547452947232,
+          "excess_vs_qqq": -0.32706800966873295,
+          "unconditional_baseline_direction_adjusted_return": null,
+          "unconditional_baseline_direction_adjusted_mae": null,
+          "unconditional_baseline_n": null,
+          "unconditional_lift": null,
+          "mae": -0.4956106125634022,
+          "mfe": 0.0065353101833789395,
+          "direction_adjusted_mae": null,
+          "direction_adjusted_mfe": null,
+          "legacy_alignment": "not_scored"
+        },
         "60": null
       },
       "data_quality": {
@@ -6354,7 +6620,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "74efe0042eb80a768ece6a31ec76851d0eafe5e0e389928667ebe2939c4d92ad",
+        "price_series_hash": "0b3ce288afa1c981063b21d7e9d610cb25d75adc4f8652aef5ae3916749917b9",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -6413,7 +6679,7 @@
       ],
       "maturity": {
         "5": true,
-        "20": false,
+        "20": true,
         "60": false
       },
       "scores": {
@@ -6433,7 +6699,22 @@
           "direction_adjusted_mfe": null,
           "legacy_alignment": "not_scored"
         },
-        "20": null,
+        "20": {
+          "horizon_end_date": "2026-11-09",
+          "raw_return": -0.15226776711062562,
+          "direction_adjusted_return": null,
+          "benchmark_return": -0.09382547452947232,
+          "excess_vs_qqq": -0.0584422925811533,
+          "unconditional_baseline_direction_adjusted_return": null,
+          "unconditional_baseline_direction_adjusted_mae": null,
+          "unconditional_baseline_n": null,
+          "unconditional_lift": null,
+          "mae": -0.329755110258782,
+          "mfe": 0.010451252820349977,
+          "direction_adjusted_mae": null,
+          "direction_adjusted_mfe": null,
+          "legacy_alignment": "not_scored"
+        },
         "60": null
       },
       "data_quality": {
@@ -6442,7 +6723,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "cc4c4b9fbb60baf19bca75350afe9461297f0dcac00547510b002e8b678fae5e",
+        "price_series_hash": "dc3926042a227b98e68d436b5b11f865d46a469f3eec5343d6e4eec2db316dad",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -6543,7 +6824,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "5ee4a01f84f9abbdc0ea636ce51fdbb9bb23a47e6bf4875039db206c08e8ab86",
+        "price_series_hash": "59bcebf55b9612f702f9f5a4f269fef9898f8a8ad7fad2c8f401cc43c4ca3835",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -6646,7 +6927,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "0622e8eb6d4aab00348e108615c45d264216a2c331a70ae9d3466f3ee103ce57",
+        "price_series_hash": "dd563b61b7273b796bd1eea972795afc60f000e79235ef8d8de4ac031dbdcbfd",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -6747,7 +7028,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "0622e8eb6d4aab00348e108615c45d264216a2c331a70ae9d3466f3ee103ce57",
+        "price_series_hash": "dd563b61b7273b796bd1eea972795afc60f000e79235ef8d8de4ac031dbdcbfd",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -6848,7 +7129,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "0c530949225af2f3f75cf29609f53f1dbc47733500ada7ed7a975110acfe8adb",
+        "price_series_hash": "5b5becacec3d53d3e2a3b3057391a5afaf2881f1e401577b07e735008547c764",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -6949,7 +7230,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "47c82c00c1a0b167cfcc5cb018c6ee9d42e26c5b70e93e70a018a5707edfcb47",
+        "price_series_hash": "c17e8a9be06469ff2c55721f46a3865d477858b9abc0e24467504808a7e88e60",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -7050,7 +7331,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "7f2b159307abe187f18b0e3264e593e31497161f7cf1dd40975389519f7d2b00",
+        "price_series_hash": "86140e17194f4e5db4587c276181d0623a807ec8874a14942baa1c0d4394fdcf",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -7151,7 +7432,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "0622e8eb6d4aab00348e108615c45d264216a2c331a70ae9d3466f3ee103ce57",
+        "price_series_hash": "dd563b61b7273b796bd1eea972795afc60f000e79235ef8d8de4ac031dbdcbfd",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -7252,7 +7533,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "95b58f20990ff0419ec9f5d4b86efed6d89dd4b7c5f51f291f8c4577f71658ed",
+        "price_series_hash": "254c8aefb0a71e6da69e3557a7e5fa8e5d7498ebd361e62b770205bb7430b4c2",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -7353,7 +7634,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "171cc21d411e095fb55ffab186003925b80fd18bd80aade69a6a9403a0d9b7d0",
+        "price_series_hash": "bddfd6607256c5142e7325349e6704f2b7f23e2da7098636a136db54b689af6a",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -7541,7 +7822,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "5ee4a01f84f9abbdc0ea636ce51fdbb9bb23a47e6bf4875039db206c08e8ab86",
+        "price_series_hash": "59bcebf55b9612f702f9f5a4f269fef9898f8a8ad7fad2c8f401cc43c4ca3835",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -7642,7 +7923,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "5ee4a01f84f9abbdc0ea636ce51fdbb9bb23a47e6bf4875039db206c08e8ab86",
+        "price_series_hash": "59bcebf55b9612f702f9f5a4f269fef9898f8a8ad7fad2c8f401cc43c4ca3835",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -7743,7 +8024,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "9a1d72005f7f7eb157a653d5b098f0086a8868708a2cdd828ada4b302d32c8d3",
+        "price_series_hash": "f45d0616e79b322be4c9ba620f1ef1ba166b3a84fddfeea744c74540cad7d560",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -7844,7 +8125,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "9a1d72005f7f7eb157a653d5b098f0086a8868708a2cdd828ada4b302d32c8d3",
+        "price_series_hash": "f45d0616e79b322be4c9ba620f1ef1ba166b3a84fddfeea744c74540cad7d560",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -7945,7 +8226,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "47c82c00c1a0b167cfcc5cb018c6ee9d42e26c5b70e93e70a018a5707edfcb47",
+        "price_series_hash": "c17e8a9be06469ff2c55721f46a3865d477858b9abc0e24467504808a7e88e60",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -8048,7 +8329,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "0622e8eb6d4aab00348e108615c45d264216a2c331a70ae9d3466f3ee103ce57",
+        "price_series_hash": "dd563b61b7273b796bd1eea972795afc60f000e79235ef8d8de4ac031dbdcbfd",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -8149,7 +8430,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "6e8c6c7a83355bcd2e51d16f848cf46e5e49404f477e045153cbd13b7ba3ed8f",
+        "price_series_hash": "92d77a22cef8efd84e75c3836b8965d95a50c7b90cc62c9b0cecfd266b2406bf",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -8250,7 +8531,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "0622e8eb6d4aab00348e108615c45d264216a2c331a70ae9d3466f3ee103ce57",
+        "price_series_hash": "dd563b61b7273b796bd1eea972795afc60f000e79235ef8d8de4ac031dbdcbfd",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -8351,7 +8632,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "0622e8eb6d4aab00348e108615c45d264216a2c331a70ae9d3466f3ee103ce57",
+        "price_series_hash": "dd563b61b7273b796bd1eea972795afc60f000e79235ef8d8de4ac031dbdcbfd",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -8452,7 +8733,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "0622e8eb6d4aab00348e108615c45d264216a2c331a70ae9d3466f3ee103ce57",
+        "price_series_hash": "dd563b61b7273b796bd1eea972795afc60f000e79235ef8d8de4ac031dbdcbfd",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -8642,7 +8923,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "6e8c6c7a83355bcd2e51d16f848cf46e5e49404f477e045153cbd13b7ba3ed8f",
+        "price_series_hash": "92d77a22cef8efd84e75c3836b8965d95a50c7b90cc62c9b0cecfd266b2406bf",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -8745,7 +9026,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "2d020ca7485c1f97b0ad0ae3e7b415576ccbcfbdb42a2b20895d28dca69c1718",
+        "price_series_hash": "6241570a0ac2e6420126d57628fa18613a5dfe3eede5226dd6c1629b9ec9eea3",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -8848,7 +9129,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "322457a3e1eade87cd7b0084c0fbfba066a0b037253946e26f0261157d7e57e5",
+        "price_series_hash": "58fdb2a1ec42ccb26f5e3a4f101d6f505ba184430a6ac5a1282d1b125a5423c5",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -8951,7 +9232,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "b4d586867d15d8e49cb7013011ec86c66bce1bf19e85c50aae9a6cad2926b31e",
+        "price_series_hash": "95d242225439af135aa1df2dbde6186d6b160511aca04b2cbec3cbdcc109b178",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -9052,7 +9333,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "b4d586867d15d8e49cb7013011ec86c66bce1bf19e85c50aae9a6cad2926b31e",
+        "price_series_hash": "95d242225439af135aa1df2dbde6186d6b160511aca04b2cbec3cbdcc109b178",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -9255,7 +9536,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "95b58f20990ff0419ec9f5d4b86efed6d89dd4b7c5f51f291f8c4577f71658ed",
+        "price_series_hash": "254c8aefb0a71e6da69e3557a7e5fa8e5d7498ebd361e62b770205bb7430b4c2",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -9281,9 +9562,9 @@
       "market_timestamp_cutoff": "strictly_before_baseline_timestamp_utc"
     },
     {
-      "event_id": "brightline--blog-wenxuecity-com-myblog-82458-202609-3770-html:0:INTC:0",
+      "event_id": "82af5e9a1eda2fdf67ff:0:INTC:0",
       "rule_id": null,
-      "legacy_source_id": "brightline--blog-wenxuecity-com-myblog-82458-202609-3770-html",
+      "legacy_source_id": "82af5e9a1eda2fdf67ff",
       "legacy_operation_index": 0,
       "spec_version": "1.7",
       "scoring_engine_version": "event_score@6.15.8l",
@@ -9356,7 +9637,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "74efe0042eb80a768ece6a31ec76851d0eafe5e0e389928667ebe2939c4d92ad",
+        "price_series_hash": "0b3ce288afa1c981063b21d7e9d610cb25d75adc4f8652aef5ae3916749917b9",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -9371,12 +9652,12 @@
         "first_fetched_at": "2026-10-04T11:37:19.980145+00:00",
         "ingest_type": "initial_migration",
         "first_fetched_at_origin": "source_store_first_observation",
-        "admission_class": "initial_migration",
-        "admission_origin": "legacy_persisted_record",
-        "identity_parent_source_key": null,
+        "admission_class": "rekeyed_duplicate",
+        "admission_origin": "historical_identity_match",
+        "identity_parent_source_key": "brightline--blog-wenxuecity-com-myblog-82458-202609-3770-html",
         "published_at_semantics": "source_archive_publication_date",
         "timestamp_confidence": "high",
-        "snapshot_hash": "f559d1ac37f1e11b76f6e9964bac1d99978aabb18650645c99a4b5badb046577"
+        "snapshot_hash": "6fd51bddc0cbc6d79853c61325a8ee1909c0fa20aea2567120e0c78f49368be4"
       },
       "point_in_time_status": "source_not_genuine_forward",
       "market_timestamp_cutoff": "strictly_before_baseline_timestamp_utc"
@@ -9457,7 +9738,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "5ee4a01f84f9abbdc0ea636ce51fdbb9bb23a47e6bf4875039db206c08e8ab86",
+        "price_series_hash": "59bcebf55b9612f702f9f5a4f269fef9898f8a8ad7fad2c8f401cc43c4ca3835",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -9558,7 +9839,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "6e8c6c7a83355bcd2e51d16f848cf46e5e49404f477e045153cbd13b7ba3ed8f",
+        "price_series_hash": "92d77a22cef8efd84e75c3836b8965d95a50c7b90cc62c9b0cecfd266b2406bf",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -9584,10 +9865,111 @@
       "market_timestamp_cutoff": "strictly_before_baseline_timestamp_utc"
     },
     {
-      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-22905-html:0:NOW:0",
+      "event_id": "5688ea16a60370ae4f02:0:NOW:0",
       "rule_id": null,
-      "legacy_source_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-22905-html",
+      "legacy_source_id": "5688ea16a60370ae4f02",
       "legacy_operation_index": 0,
+      "spec_version": "1.7",
+      "scoring_engine_version": "event_score@6.15.8l",
+      "author": "BrightLine",
+      "symbol": "NOW",
+      "published_at": "2026-08-28",
+      "baseline_date": "2026-08-31",
+      "baseline_timestamp_utc": "2026-08-31T13:30:00+00:00",
+      "entry_type": "next_session",
+      "fill_status": "simulated_fill",
+      "fill_confidence": "high",
+      "fill_model": "simulated_next_session_open",
+      "entry_inference_source": "baseline_kind:next_session",
+      "entry_registry_version": "1.0",
+      "direction": "bearish",
+      "rule_structural_direction": null,
+      "triggered": true,
+      "scoreable": false,
+      "primary_exclusion_reason": "non_point_in_time_source",
+      "secondary_exclusion_reasons": [
+        "missing_rule_id"
+      ],
+      "exclusion_reasons": [
+        "missing_rule_id",
+        "non_point_in_time_source"
+      ],
+      "maturity": {
+        "5": true,
+        "20": true,
+        "60": false
+      },
+      "scores": {
+        "5": {
+          "horizon_end_date": "2026-09-08",
+          "raw_return": -0.0553913288288288,
+          "direction_adjusted_return": 0.0553913288288288,
+          "benchmark_return": 0.004460477928324824,
+          "excess_vs_qqq": -0.059851806757153625,
+          "unconditional_baseline_direction_adjusted_return": 0.003192489421298744,
+          "unconditional_baseline_direction_adjusted_mae": -0.05971009090282188,
+          "unconditional_baseline_n": 252,
+          "unconditional_lift": 0.052198839407530055,
+          "mae": -0.06772029842342342,
+          "mfe": 0.052927927927927776,
+          "direction_adjusted_mae": -0.052927927927927776,
+          "direction_adjusted_mfe": 0.06772029842342342,
+          "legacy_alignment": "aligned"
+        },
+        "20": {
+          "horizon_end_date": "2026-09-29",
+          "raw_return": -0.08544481981981988,
+          "direction_adjusted_return": 0.08544481981981988,
+          "benchmark_return": 0.0322021337584073,
+          "excess_vs_qqq": -0.11764695357822719,
+          "unconditional_baseline_direction_adjusted_return": 0.01909523396390073,
+          "unconditional_baseline_direction_adjusted_mae": -0.11597796341409787,
+          "unconditional_baseline_n": 252,
+          "unconditional_lift": 0.06634958585591916,
+          "mae": -0.10789695945945954,
+          "mfe": 0.052927927927927776,
+          "direction_adjusted_mae": -0.052927927927927776,
+          "direction_adjusted_mfe": 0.10789695945945954,
+          "legacy_alignment": "aligned"
+        },
+        "60": null
+      },
+      "data_quality": {
+        "status": "ok",
+        "source": "stooq_archive",
+        "price_source": "stooq_archive",
+        "adjustment_basis": "stooq_archive_native_series",
+        "same_source_only": true,
+        "price_series_hash": "ab12bd579ec48cfedacb63b733cbeb1aa520172e4a86f372fe50e9080654f8ca",
+        "overlap_conflicts": []
+      },
+      "price_provenance": {
+        "price_source": "stooq_archive",
+        "adjustment_basis": "stooq_archive_native_series",
+        "baseline_source": "stooq_archive",
+        "horizon_source": "stooq_archive",
+        "same_source": true,
+        "provenance_origin": "source_outcome_artifact"
+      },
+      "source_provenance": {
+        "first_fetched_at": "2026-10-04T11:37:19.980145+00:00",
+        "ingest_type": "initial_migration",
+        "first_fetched_at_origin": "source_store_first_observation",
+        "admission_class": "rekeyed_duplicate",
+        "admission_origin": "historical_identity_match",
+        "identity_parent_source_key": "brightline-blog-wenxuecity-com-myblog-82458-202608-22905-html",
+        "published_at_semantics": "source_archive_publication_date",
+        "timestamp_confidence": "high",
+        "snapshot_hash": "e1143e0a94ff236e3c38fd91b2c583d352a6ce7488911beb3ac951592da5184a"
+      },
+      "point_in_time_status": "source_not_genuine_forward",
+      "market_timestamp_cutoff": "strictly_before_baseline_timestamp_utc"
+    },
+    {
+      "event_id": "5688ea16a60370ae4f02:1:NOW:0",
+      "rule_id": null,
+      "legacy_source_id": "5688ea16a60370ae4f02",
+      "legacy_operation_index": 1,
       "spec_version": "1.7",
       "scoring_engine_version": "event_score@6.15.8l",
       "author": "BrightLine",
@@ -9659,7 +10041,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "406eb152d00ca9920fb4c828504cbbb4f0448bff1495aee894f56becc1dd6a77",
+        "price_series_hash": "ab12bd579ec48cfedacb63b733cbeb1aa520172e4a86f372fe50e9080654f8ca",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -9674,12 +10056,12 @@
         "first_fetched_at": "2026-10-04T11:37:19.980145+00:00",
         "ingest_type": "initial_migration",
         "first_fetched_at_origin": "source_store_first_observation",
-        "admission_class": "initial_migration",
-        "admission_origin": "legacy_persisted_record",
-        "identity_parent_source_key": null,
+        "admission_class": "rekeyed_duplicate",
+        "admission_origin": "historical_identity_match",
+        "identity_parent_source_key": "brightline-blog-wenxuecity-com-myblog-82458-202608-22905-html",
         "published_at_semantics": "source_archive_publication_date",
         "timestamp_confidence": "high",
-        "snapshot_hash": "bfac467cbfab0b00cae537d4c4bb75caa71f94e5de17ff5b5892afa161d5a2e8"
+        "snapshot_hash": "e1143e0a94ff236e3c38fd91b2c583d352a6ce7488911beb3ac951592da5184a"
       },
       "point_in_time_status": "source_not_genuine_forward",
       "market_timestamp_cutoff": "strictly_before_baseline_timestamp_utc"
@@ -9760,7 +10142,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "0622e8eb6d4aab00348e108615c45d264216a2c331a70ae9d3466f3ee103ce57",
+        "price_series_hash": "dd563b61b7273b796bd1eea972795afc60f000e79235ef8d8de4ac031dbdcbfd",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -9861,7 +10243,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "0622e8eb6d4aab00348e108615c45d264216a2c331a70ae9d3466f3ee103ce57",
+        "price_series_hash": "dd563b61b7273b796bd1eea972795afc60f000e79235ef8d8de4ac031dbdcbfd",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -9962,7 +10344,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "0622e8eb6d4aab00348e108615c45d264216a2c331a70ae9d3466f3ee103ce57",
+        "price_series_hash": "dd563b61b7273b796bd1eea972795afc60f000e79235ef8d8de4ac031dbdcbfd",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -9988,49 +10370,77 @@
       "market_timestamp_cutoff": "strictly_before_baseline_timestamp_utc"
     },
     {
-      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html:6:QCOM:0",
+      "event_id": "9a165774b865bf813a81:6:QCOM:0",
       "rule_id": null,
-      "legacy_source_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html",
+      "legacy_source_id": "9a165774b865bf813a81",
       "legacy_operation_index": 6,
       "spec_version": "1.7",
       "scoring_engine_version": "event_score@6.15.8l",
       "author": "BrightLine",
       "symbol": "QCOM",
       "published_at": "2026-08-18",
-      "baseline_date": null,
-      "baseline_timestamp_utc": null,
-      "entry_type": "unknown",
-      "fill_status": "unknown",
-      "fill_confidence": "none",
-      "fill_model": "none",
-      "entry_inference_source": "no_frozen_match",
+      "baseline_date": "2026-08-19",
+      "baseline_timestamp_utc": "2026-08-19T13:30:00+00:00",
+      "entry_type": "next_session",
+      "fill_status": "simulated_fill",
+      "fill_confidence": "high",
+      "fill_model": "simulated_next_session_open",
+      "entry_inference_source": "baseline_kind:next_session",
       "entry_registry_version": "1.0",
-      "direction": "bullish",
+      "direction": "option_structure",
       "rule_structural_direction": null,
-      "triggered": false,
+      "triggered": true,
       "scoreable": false,
       "primary_exclusion_reason": "non_point_in_time_source",
       "secondary_exclusion_reasons": [
         "missing_rule_id",
-        "not_triggered",
-        "unknown_entry_semantics",
+        "missing_real_option_pnl",
         "cache_only_unscored"
       ],
       "exclusion_reasons": [
         "missing_rule_id",
-        "not_triggered",
-        "unknown_entry_semantics",
+        "missing_real_option_pnl",
         "cache_only_unscored",
         "non_point_in_time_source"
       ],
       "maturity": {
-        "5": false,
-        "20": false,
+        "5": true,
+        "20": true,
         "60": false
       },
       "scores": {
-        "5": null,
-        "20": null,
+        "5": {
+          "horizon_end_date": "2026-08-26",
+          "raw_return": 0.004232364881142869,
+          "direction_adjusted_return": null,
+          "benchmark_return": -0.012520995571843052,
+          "excess_vs_qqq": 0.01675336045298592,
+          "unconditional_baseline_direction_adjusted_return": null,
+          "unconditional_baseline_direction_adjusted_mae": null,
+          "unconditional_baseline_n": null,
+          "unconditional_lift": null,
+          "mae": -0.04171013373411947,
+          "mfe": 0.021284433826198157,
+          "direction_adjusted_mae": null,
+          "direction_adjusted_mfe": null,
+          "legacy_alignment": "not_scored_missing_option_pnl"
+        },
+        "20": {
+          "horizon_end_date": "2026-09-17",
+          "raw_return": 0.15751707125591552,
+          "direction_adjusted_return": null,
+          "benchmark_return": -0.004816835325309965,
+          "excess_vs_qqq": 0.16233390658122548,
+          "unconditional_baseline_direction_adjusted_return": null,
+          "unconditional_baseline_direction_adjusted_mae": null,
+          "unconditional_baseline_n": null,
+          "unconditional_lift": null,
+          "mae": -0.04171013373411947,
+          "mfe": 0.17714534195580134,
+          "direction_adjusted_mae": null,
+          "direction_adjusted_mfe": null,
+          "legacy_alignment": "not_scored_missing_option_pnl"
+        },
         "60": null
       },
       "data_quality": {
@@ -10053,20 +10463,20 @@
         "first_fetched_at": "2026-10-04T11:37:19.980145+00:00",
         "ingest_type": "initial_migration",
         "first_fetched_at_origin": "source_store_first_observation",
-        "admission_class": "initial_migration",
-        "admission_origin": "legacy_persisted_record",
-        "identity_parent_source_key": null,
+        "admission_class": "rekeyed_duplicate",
+        "admission_origin": "historical_identity_match",
+        "identity_parent_source_key": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html",
         "published_at_semantics": "source_archive_publication_date",
         "timestamp_confidence": "high",
-        "snapshot_hash": "ff5be3d84e773f965e91756072c0c0e4f608d446c45b285d81eed750fa69ec03"
+        "snapshot_hash": "6de6ab03a239572e5f9538e4ee679347dcf4618be6a80230651af9279ce33dc8"
       },
       "point_in_time_status": "source_not_genuine_forward",
       "market_timestamp_cutoff": "strictly_before_baseline_timestamp_utc"
     },
     {
-      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html:0:NBIS:0",
+      "event_id": "9a165774b865bf813a81:0:NBIS:0",
       "rule_id": null,
-      "legacy_source_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html",
+      "legacy_source_id": "9a165774b865bf813a81",
       "legacy_operation_index": 0,
       "spec_version": "1.7",
       "scoring_engine_version": "event_score@6.15.8l",
@@ -10081,18 +10491,16 @@
       "fill_model": "simulated_next_session_open",
       "entry_inference_source": "baseline_kind:next_session",
       "entry_registry_version": "1.0",
-      "direction": "unknown",
+      "direction": "bearish",
       "rule_structural_direction": null,
       "triggered": true,
       "scoreable": false,
       "primary_exclusion_reason": "non_point_in_time_source",
       "secondary_exclusion_reasons": [
-        "missing_rule_id",
-        "unsupported_direction"
+        "missing_rule_id"
       ],
       "exclusion_reasons": [
         "missing_rule_id",
-        "unsupported_direction",
         "non_point_in_time_source"
       ],
       "maturity": {
@@ -10104,34 +10512,34 @@
         "5": {
           "horizon_end_date": "2026-08-26",
           "raw_return": -0.07915805785123964,
-          "direction_adjusted_return": null,
+          "direction_adjusted_return": 0.07915805785123964,
           "benchmark_return": -0.012520995571843052,
           "excess_vs_qqq": -0.06663706227939659,
-          "unconditional_baseline_direction_adjusted_return": null,
-          "unconditional_baseline_direction_adjusted_mae": null,
-          "unconditional_baseline_n": null,
-          "unconditional_lift": null,
+          "unconditional_baseline_direction_adjusted_return": -0.035831961205998866,
+          "unconditional_baseline_direction_adjusted_mae": -0.14484092770312756,
+          "unconditional_baseline_n": 252,
+          "unconditional_lift": 0.1149900190572385,
           "mae": -0.13098054407713489,
           "mfe": 0.016701101928374706,
-          "direction_adjusted_mae": null,
-          "direction_adjusted_mfe": null,
-          "legacy_alignment": "not_scored"
+          "direction_adjusted_mae": -0.016701101928374706,
+          "direction_adjusted_mfe": 0.13098054407713489,
+          "legacy_alignment": "aligned"
         },
         "20": {
           "horizon_end_date": "2026-09-17",
           "raw_return": -0.06168216253443515,
-          "direction_adjusted_return": null,
+          "direction_adjusted_return": 0.06168216253443515,
           "benchmark_return": -0.004816835325309965,
           "excess_vs_qqq": -0.05686532720912518,
-          "unconditional_baseline_direction_adjusted_return": null,
-          "unconditional_baseline_direction_adjusted_mae": null,
-          "unconditional_baseline_n": null,
-          "unconditional_lift": null,
+          "unconditional_baseline_direction_adjusted_return": -0.13569350650247822,
+          "unconditional_baseline_direction_adjusted_mae": -0.315767883739709,
+          "unconditional_baseline_n": 252,
+          "unconditional_lift": 0.19737566903691336,
           "mae": -0.16150137741046822,
           "mfe": 0.09650482093663926,
-          "direction_adjusted_mae": null,
-          "direction_adjusted_mfe": null,
-          "legacy_alignment": "not_scored"
+          "direction_adjusted_mae": -0.09650482093663926,
+          "direction_adjusted_mfe": 0.16150137741046822,
+          "legacy_alignment": "aligned"
         },
         "60": null
       },
@@ -10141,7 +10549,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "176bad02f33b424dd58653beba3dddf2bfed997c16467933c8e8de2899eb8ccf",
+        "price_series_hash": "dce813dee4ae33886f97b1a6e1f92a8eda512c84a01cf4d0d87545e69921ef89",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -10156,20 +10564,20 @@
         "first_fetched_at": "2026-10-04T11:37:19.980145+00:00",
         "ingest_type": "initial_migration",
         "first_fetched_at_origin": "source_store_first_observation",
-        "admission_class": "initial_migration",
-        "admission_origin": "legacy_persisted_record",
-        "identity_parent_source_key": null,
+        "admission_class": "rekeyed_duplicate",
+        "admission_origin": "historical_identity_match",
+        "identity_parent_source_key": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html",
         "published_at_semantics": "source_archive_publication_date",
         "timestamp_confidence": "high",
-        "snapshot_hash": "ff5be3d84e773f965e91756072c0c0e4f608d446c45b285d81eed750fa69ec03"
+        "snapshot_hash": "6de6ab03a239572e5f9538e4ee679347dcf4618be6a80230651af9279ce33dc8"
       },
       "point_in_time_status": "source_not_genuine_forward",
       "market_timestamp_cutoff": "strictly_before_baseline_timestamp_utc"
     },
     {
-      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html:1:NBIS:1",
+      "event_id": "9a165774b865bf813a81:1:NBIS:1",
       "rule_id": null,
-      "legacy_source_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html",
+      "legacy_source_id": "9a165774b865bf813a81",
       "legacy_operation_index": 1,
       "spec_version": "1.7",
       "scoring_engine_version": "event_score@6.15.8l",
@@ -10229,7 +10637,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "176bad02f33b424dd58653beba3dddf2bfed997c16467933c8e8de2899eb8ccf",
+        "price_series_hash": "dce813dee4ae33886f97b1a6e1f92a8eda512c84a01cf4d0d87545e69921ef89",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -10244,20 +10652,20 @@
         "first_fetched_at": "2026-10-04T11:37:19.980145+00:00",
         "ingest_type": "initial_migration",
         "first_fetched_at_origin": "source_store_first_observation",
-        "admission_class": "initial_migration",
-        "admission_origin": "legacy_persisted_record",
-        "identity_parent_source_key": null,
+        "admission_class": "rekeyed_duplicate",
+        "admission_origin": "historical_identity_match",
+        "identity_parent_source_key": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html",
         "published_at_semantics": "source_archive_publication_date",
         "timestamp_confidence": "high",
-        "snapshot_hash": "ff5be3d84e773f965e91756072c0c0e4f608d446c45b285d81eed750fa69ec03"
+        "snapshot_hash": "6de6ab03a239572e5f9538e4ee679347dcf4618be6a80230651af9279ce33dc8"
       },
       "point_in_time_status": "source_not_genuine_forward",
       "market_timestamp_cutoff": "strictly_before_baseline_timestamp_utc"
     },
     {
-      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html:1:NBIS:0",
+      "event_id": "9a165774b865bf813a81:1:NBIS:0",
       "rule_id": null,
-      "legacy_source_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html",
+      "legacy_source_id": "9a165774b865bf813a81",
       "legacy_operation_index": 1,
       "spec_version": "1.7",
       "scoring_engine_version": "event_score@6.15.8l",
@@ -10317,7 +10725,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "176bad02f33b424dd58653beba3dddf2bfed997c16467933c8e8de2899eb8ccf",
+        "price_series_hash": "dce813dee4ae33886f97b1a6e1f92a8eda512c84a01cf4d0d87545e69921ef89",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -10332,20 +10740,20 @@
         "first_fetched_at": "2026-10-04T11:37:19.980145+00:00",
         "ingest_type": "initial_migration",
         "first_fetched_at_origin": "source_store_first_observation",
-        "admission_class": "initial_migration",
-        "admission_origin": "legacy_persisted_record",
-        "identity_parent_source_key": null,
+        "admission_class": "rekeyed_duplicate",
+        "admission_origin": "historical_identity_match",
+        "identity_parent_source_key": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html",
         "published_at_semantics": "source_archive_publication_date",
         "timestamp_confidence": "high",
-        "snapshot_hash": "ff5be3d84e773f965e91756072c0c0e4f608d446c45b285d81eed750fa69ec03"
+        "snapshot_hash": "6de6ab03a239572e5f9538e4ee679347dcf4618be6a80230651af9279ce33dc8"
       },
       "point_in_time_status": "source_not_genuine_forward",
       "market_timestamp_cutoff": "strictly_before_baseline_timestamp_utc"
     },
     {
-      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html:7:MRVL:1",
+      "event_id": "9a165774b865bf813a81:7:MRVL:1",
       "rule_id": null,
-      "legacy_source_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html",
+      "legacy_source_id": "9a165774b865bf813a81",
       "legacy_operation_index": 7,
       "spec_version": "1.7",
       "scoring_engine_version": "event_score@6.15.8l",
@@ -10390,7 +10798,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "0c530949225af2f3f75cf29609f53f1dbc47733500ada7ed7a975110acfe8adb",
+        "price_series_hash": "5b5becacec3d53d3e2a3b3057391a5afaf2881f1e401577b07e735008547c764",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -10405,20 +10813,20 @@
         "first_fetched_at": "2026-10-04T11:37:19.980145+00:00",
         "ingest_type": "initial_migration",
         "first_fetched_at_origin": "source_store_first_observation",
-        "admission_class": "initial_migration",
-        "admission_origin": "legacy_persisted_record",
-        "identity_parent_source_key": null,
+        "admission_class": "rekeyed_duplicate",
+        "admission_origin": "historical_identity_match",
+        "identity_parent_source_key": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html",
         "published_at_semantics": "source_archive_publication_date",
         "timestamp_confidence": "high",
-        "snapshot_hash": "ff5be3d84e773f965e91756072c0c0e4f608d446c45b285d81eed750fa69ec03"
+        "snapshot_hash": "6de6ab03a239572e5f9538e4ee679347dcf4618be6a80230651af9279ce33dc8"
       },
       "point_in_time_status": "source_not_genuine_forward",
       "market_timestamp_cutoff": "strictly_before_baseline_timestamp_utc"
     },
     {
-      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html:7:MRVL:0",
+      "event_id": "9a165774b865bf813a81:7:MRVL:0",
       "rule_id": null,
-      "legacy_source_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html",
+      "legacy_source_id": "9a165774b865bf813a81",
       "legacy_operation_index": 7,
       "spec_version": "1.7",
       "scoring_engine_version": "event_score@6.15.8l",
@@ -10448,12 +10856,27 @@
         "non_point_in_time_source"
       ],
       "maturity": {
-        "5": false,
+        "5": true,
         "20": false,
         "60": false
       },
       "scores": {
-        "5": null,
+        "5": {
+          "horizon_end_date": "2026-11-09",
+          "raw_return": -0.1411110555555556,
+          "direction_adjusted_return": -0.1411110555555556,
+          "benchmark_return": -0.022960845084602055,
+          "excess_vs_qqq": -0.11815021047095353,
+          "unconditional_baseline_direction_adjusted_return": 0.025466815300786604,
+          "unconditional_baseline_direction_adjusted_mae": -0.07169096075323753,
+          "unconditional_baseline_n": 252,
+          "unconditional_lift": -0.16657787085634218,
+          "mae": -0.26316666666666666,
+          "mfe": 0.0683610555555556,
+          "direction_adjusted_mae": -0.26316666666666666,
+          "direction_adjusted_mfe": 0.0683610555555556,
+          "legacy_alignment": "not_aligned"
+        },
         "20": null,
         "60": null
       },
@@ -10463,7 +10886,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "0c530949225af2f3f75cf29609f53f1dbc47733500ada7ed7a975110acfe8adb",
+        "price_series_hash": "5b5becacec3d53d3e2a3b3057391a5afaf2881f1e401577b07e735008547c764",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -10478,20 +10901,20 @@
         "first_fetched_at": "2026-10-04T11:37:19.980145+00:00",
         "ingest_type": "initial_migration",
         "first_fetched_at_origin": "source_store_first_observation",
-        "admission_class": "initial_migration",
-        "admission_origin": "legacy_persisted_record",
-        "identity_parent_source_key": null,
+        "admission_class": "rekeyed_duplicate",
+        "admission_origin": "historical_identity_match",
+        "identity_parent_source_key": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html",
         "published_at_semantics": "source_archive_publication_date",
         "timestamp_confidence": "high",
-        "snapshot_hash": "ff5be3d84e773f965e91756072c0c0e4f608d446c45b285d81eed750fa69ec03"
+        "snapshot_hash": "6de6ab03a239572e5f9538e4ee679347dcf4618be6a80230651af9279ce33dc8"
       },
       "point_in_time_status": "source_not_genuine_forward",
       "market_timestamp_cutoff": "strictly_before_baseline_timestamp_utc"
     },
     {
-      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html:5:META:1",
+      "event_id": "9a165774b865bf813a81:5:META:1",
       "rule_id": null,
-      "legacy_source_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html",
+      "legacy_source_id": "9a165774b865bf813a81",
       "legacy_operation_index": 5,
       "spec_version": "1.7",
       "scoring_engine_version": "event_score@6.15.8l",
@@ -10538,7 +10961,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "7f2f9882d0a419ded9e79fb9b508aaf13e8a69c554a66dfafa44077a9e3bbfcc",
+        "price_series_hash": "fb54aa9e4d3fc534f86dc920b1ac813b03c2e3345ab91ae69dd93c26f5dedae1",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -10553,20 +10976,20 @@
         "first_fetched_at": "2026-10-04T11:37:19.980145+00:00",
         "ingest_type": "initial_migration",
         "first_fetched_at_origin": "source_store_first_observation",
-        "admission_class": "initial_migration",
-        "admission_origin": "legacy_persisted_record",
-        "identity_parent_source_key": null,
+        "admission_class": "rekeyed_duplicate",
+        "admission_origin": "historical_identity_match",
+        "identity_parent_source_key": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html",
         "published_at_semantics": "source_archive_publication_date",
         "timestamp_confidence": "high",
-        "snapshot_hash": "ff5be3d84e773f965e91756072c0c0e4f608d446c45b285d81eed750fa69ec03"
+        "snapshot_hash": "6de6ab03a239572e5f9538e4ee679347dcf4618be6a80230651af9279ce33dc8"
       },
       "point_in_time_status": "source_not_genuine_forward",
       "market_timestamp_cutoff": "strictly_before_baseline_timestamp_utc"
     },
     {
-      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html:5:META:0",
+      "event_id": "9a165774b865bf813a81:5:META:0",
       "rule_id": null,
-      "legacy_source_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html",
+      "legacy_source_id": "9a165774b865bf813a81",
       "legacy_operation_index": 5,
       "spec_version": "1.7",
       "scoring_engine_version": "event_score@6.15.8l",
@@ -10641,7 +11064,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "7f2f9882d0a419ded9e79fb9b508aaf13e8a69c554a66dfafa44077a9e3bbfcc",
+        "price_series_hash": "fb54aa9e4d3fc534f86dc920b1ac813b03c2e3345ab91ae69dd93c26f5dedae1",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -10656,20 +11079,20 @@
         "first_fetched_at": "2026-10-04T11:37:19.980145+00:00",
         "ingest_type": "initial_migration",
         "first_fetched_at_origin": "source_store_first_observation",
-        "admission_class": "initial_migration",
-        "admission_origin": "legacy_persisted_record",
-        "identity_parent_source_key": null,
+        "admission_class": "rekeyed_duplicate",
+        "admission_origin": "historical_identity_match",
+        "identity_parent_source_key": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html",
         "published_at_semantics": "source_archive_publication_date",
         "timestamp_confidence": "high",
-        "snapshot_hash": "ff5be3d84e773f965e91756072c0c0e4f608d446c45b285d81eed750fa69ec03"
+        "snapshot_hash": "6de6ab03a239572e5f9538e4ee679347dcf4618be6a80230651af9279ce33dc8"
       },
       "point_in_time_status": "source_not_genuine_forward",
       "market_timestamp_cutoff": "strictly_before_baseline_timestamp_utc"
     },
     {
-      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html:3:IREN:1",
+      "event_id": "9a165774b865bf813a81:3:IREN:1",
       "rule_id": null,
-      "legacy_source_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html",
+      "legacy_source_id": "9a165774b865bf813a81",
       "legacy_operation_index": 3,
       "spec_version": "1.7",
       "scoring_engine_version": "event_score@6.15.8l",
@@ -10729,7 +11152,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "9a1d72005f7f7eb157a653d5b098f0086a8868708a2cdd828ada4b302d32c8d3",
+        "price_series_hash": "f45d0616e79b322be4c9ba620f1ef1ba166b3a84fddfeea744c74540cad7d560",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -10744,20 +11167,20 @@
         "first_fetched_at": "2026-10-04T11:37:19.980145+00:00",
         "ingest_type": "initial_migration",
         "first_fetched_at_origin": "source_store_first_observation",
-        "admission_class": "initial_migration",
-        "admission_origin": "legacy_persisted_record",
-        "identity_parent_source_key": null,
+        "admission_class": "rekeyed_duplicate",
+        "admission_origin": "historical_identity_match",
+        "identity_parent_source_key": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html",
         "published_at_semantics": "source_archive_publication_date",
         "timestamp_confidence": "high",
-        "snapshot_hash": "ff5be3d84e773f965e91756072c0c0e4f608d446c45b285d81eed750fa69ec03"
+        "snapshot_hash": "6de6ab03a239572e5f9538e4ee679347dcf4618be6a80230651af9279ce33dc8"
       },
       "point_in_time_status": "source_not_genuine_forward",
       "market_timestamp_cutoff": "strictly_before_baseline_timestamp_utc"
     },
     {
-      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html:3:IREN:0",
+      "event_id": "9a165774b865bf813a81:3:IREN:0",
       "rule_id": null,
-      "legacy_source_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html",
+      "legacy_source_id": "9a165774b865bf813a81",
       "legacy_operation_index": 3,
       "spec_version": "1.7",
       "scoring_engine_version": "event_score@6.15.8l",
@@ -10832,7 +11255,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "9a1d72005f7f7eb157a653d5b098f0086a8868708a2cdd828ada4b302d32c8d3",
+        "price_series_hash": "f45d0616e79b322be4c9ba620f1ef1ba166b3a84fddfeea744c74540cad7d560",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -10847,20 +11270,20 @@
         "first_fetched_at": "2026-10-04T11:37:19.980145+00:00",
         "ingest_type": "initial_migration",
         "first_fetched_at_origin": "source_store_first_observation",
-        "admission_class": "initial_migration",
-        "admission_origin": "legacy_persisted_record",
-        "identity_parent_source_key": null,
+        "admission_class": "rekeyed_duplicate",
+        "admission_origin": "historical_identity_match",
+        "identity_parent_source_key": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html",
         "published_at_semantics": "source_archive_publication_date",
         "timestamp_confidence": "high",
-        "snapshot_hash": "ff5be3d84e773f965e91756072c0c0e4f608d446c45b285d81eed750fa69ec03"
+        "snapshot_hash": "6de6ab03a239572e5f9538e4ee679347dcf4618be6a80230651af9279ce33dc8"
       },
       "point_in_time_status": "source_not_genuine_forward",
       "market_timestamp_cutoff": "strictly_before_baseline_timestamp_utc"
     },
     {
-      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html:4:INTC:1",
+      "event_id": "9a165774b865bf813a81:4:INTC:0",
       "rule_id": null,
-      "legacy_source_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html",
+      "legacy_source_id": "9a165774b865bf813a81",
       "legacy_operation_index": 4,
       "spec_version": "1.7",
       "scoring_engine_version": "event_score@6.15.8l",
@@ -10918,7 +11341,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "74efe0042eb80a768ece6a31ec76851d0eafe5e0e389928667ebe2939c4d92ad",
+        "price_series_hash": "0b3ce288afa1c981063b21d7e9d610cb25d75adc4f8652aef5ae3916749917b9",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -10933,106 +11356,20 @@
         "first_fetched_at": "2026-10-04T11:37:19.980145+00:00",
         "ingest_type": "initial_migration",
         "first_fetched_at_origin": "source_store_first_observation",
-        "admission_class": "initial_migration",
-        "admission_origin": "legacy_persisted_record",
-        "identity_parent_source_key": null,
+        "admission_class": "rekeyed_duplicate",
+        "admission_origin": "historical_identity_match",
+        "identity_parent_source_key": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html",
         "published_at_semantics": "source_archive_publication_date",
         "timestamp_confidence": "high",
-        "snapshot_hash": "ff5be3d84e773f965e91756072c0c0e4f608d446c45b285d81eed750fa69ec03"
+        "snapshot_hash": "6de6ab03a239572e5f9538e4ee679347dcf4618be6a80230651af9279ce33dc8"
       },
       "point_in_time_status": "source_not_genuine_forward",
       "market_timestamp_cutoff": "strictly_before_baseline_timestamp_utc"
     },
     {
-      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html:4:INTC:0",
+      "event_id": "9a165774b865bf813a81:0:CRWV:0",
       "rule_id": null,
-      "legacy_source_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html",
-      "legacy_operation_index": 4,
-      "spec_version": "1.7",
-      "scoring_engine_version": "event_score@6.15.8l",
-      "author": "BrightLine",
-      "symbol": "INTC",
-      "published_at": "2026-08-18",
-      "baseline_date": "2026-10-30",
-      "baseline_timestamp_utc": "2026-10-30T13:30:00+00:00",
-      "entry_type": "pullback_limit",
-      "fill_status": "simulated_touch_fill",
-      "fill_confidence": "medium",
-      "fill_model": "simulated_touch_fill",
-      "entry_inference_source": "condition_keyword:below",
-      "entry_registry_version": "1.0",
-      "direction": "bullish",
-      "rule_structural_direction": null,
-      "triggered": true,
-      "scoreable": false,
-      "primary_exclusion_reason": "non_point_in_time_source",
-      "secondary_exclusion_reasons": [
-        "missing_rule_id"
-      ],
-      "exclusion_reasons": [
-        "missing_rule_id",
-        "non_point_in_time_source"
-      ],
-      "maturity": {
-        "5": true,
-        "20": false,
-        "60": false
-      },
-      "scores": {
-        "5": {
-          "horizon_end_date": "2026-11-06",
-          "raw_return": -0.19599999999999995,
-          "direction_adjusted_return": -0.19599999999999995,
-          "benchmark_return": -0.058855628075108024,
-          "excess_vs_qqq": -0.13714437192489193,
-          "unconditional_baseline_direction_adjusted_return": 0.024845396045552384,
-          "unconditional_baseline_direction_adjusted_mae": -0.07227979517437648,
-          "unconditional_baseline_n": 252,
-          "unconditional_lift": -0.22084539604555234,
-          "mae": -0.26128571428571423,
-          "mfe": -0.017571428571428682,
-          "direction_adjusted_mae": -0.26128571428571423,
-          "direction_adjusted_mfe": -0.017571428571428682,
-          "legacy_alignment": "not_aligned"
-        },
-        "20": null,
-        "60": null
-      },
-      "data_quality": {
-        "status": "ok",
-        "source": "stooq_archive",
-        "price_source": "stooq_archive",
-        "adjustment_basis": "stooq_archive_native_series",
-        "same_source_only": true,
-        "price_series_hash": "74efe0042eb80a768ece6a31ec76851d0eafe5e0e389928667ebe2939c4d92ad",
-        "overlap_conflicts": []
-      },
-      "price_provenance": {
-        "price_source": "stooq_archive",
-        "adjustment_basis": "stooq_archive_native_series",
-        "baseline_source": "stooq_archive",
-        "horizon_source": "stooq_archive",
-        "same_source": true,
-        "provenance_origin": "source_outcome_artifact"
-      },
-      "source_provenance": {
-        "first_fetched_at": "2026-10-04T11:37:19.980145+00:00",
-        "ingest_type": "initial_migration",
-        "first_fetched_at_origin": "source_store_first_observation",
-        "admission_class": "initial_migration",
-        "admission_origin": "legacy_persisted_record",
-        "identity_parent_source_key": null,
-        "published_at_semantics": "source_archive_publication_date",
-        "timestamp_confidence": "high",
-        "snapshot_hash": "ff5be3d84e773f965e91756072c0c0e4f608d446c45b285d81eed750fa69ec03"
-      },
-      "point_in_time_status": "source_not_genuine_forward",
-      "market_timestamp_cutoff": "strictly_before_baseline_timestamp_utc"
-    },
-    {
-      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html:0:CRWV:0",
-      "rule_id": null,
-      "legacy_source_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html",
+      "legacy_source_id": "9a165774b865bf813a81",
       "legacy_operation_index": 0,
       "spec_version": "1.7",
       "scoring_engine_version": "event_score@6.15.8l",
@@ -11047,18 +11384,16 @@
       "fill_model": "simulated_next_session_open",
       "entry_inference_source": "baseline_kind:next_session",
       "entry_registry_version": "1.0",
-      "direction": "unknown",
+      "direction": "bearish",
       "rule_structural_direction": null,
       "triggered": true,
       "scoreable": false,
       "primary_exclusion_reason": "non_point_in_time_source",
       "secondary_exclusion_reasons": [
-        "missing_rule_id",
-        "unsupported_direction"
+        "missing_rule_id"
       ],
       "exclusion_reasons": [
         "missing_rule_id",
-        "unsupported_direction",
         "non_point_in_time_source"
       ],
       "maturity": {
@@ -11070,34 +11405,34 @@
         "5": {
           "horizon_end_date": "2026-08-26",
           "raw_return": -0.06600870211185395,
-          "direction_adjusted_return": null,
+          "direction_adjusted_return": 0.06600870211185395,
           "benchmark_return": -0.012520995571843052,
           "excess_vs_qqq": -0.05348770654001089,
-          "unconditional_baseline_direction_adjusted_return": null,
-          "unconditional_baseline_direction_adjusted_mae": null,
-          "unconditional_baseline_n": null,
-          "unconditional_lift": null,
+          "unconditional_baseline_direction_adjusted_return": -0.003996047511243589,
+          "unconditional_baseline_direction_adjusted_mae": -0.12199700450801115,
+          "unconditional_baseline_n": 252,
+          "unconditional_lift": 0.07000474962309754,
           "mae": -0.11673564682160675,
           "mfe": 0.0015960946619970606,
-          "direction_adjusted_mae": null,
-          "direction_adjusted_mfe": null,
-          "legacy_alignment": "not_scored"
+          "direction_adjusted_mae": -0.0015960946619970606,
+          "direction_adjusted_mfe": 0.11673564682160675,
+          "legacy_alignment": "aligned"
         },
         "20": {
           "horizon_end_date": "2026-09-17",
           "raw_return": -0.15228695744455067,
-          "direction_adjusted_return": null,
+          "direction_adjusted_return": 0.15228695744455067,
           "benchmark_return": -0.004816835325309965,
           "excess_vs_qqq": -0.1474701221192407,
-          "unconditional_baseline_direction_adjusted_return": null,
-          "unconditional_baseline_direction_adjusted_mae": null,
-          "unconditional_baseline_n": null,
-          "unconditional_lift": null,
+          "unconditional_baseline_direction_adjusted_return": -0.002205382002337631,
+          "unconditional_baseline_direction_adjusted_mae": -0.23390456115232133,
+          "unconditional_baseline_n": 252,
+          "unconditional_lift": 0.1544923394468883,
           "mae": -0.16937281120662218,
           "mfe": 0.10994375464289496,
-          "direction_adjusted_mae": null,
-          "direction_adjusted_mfe": null,
-          "legacy_alignment": "not_scored"
+          "direction_adjusted_mae": -0.10994375464289496,
+          "direction_adjusted_mfe": 0.16937281120662218,
+          "legacy_alignment": "aligned"
         },
         "60": null
       },
@@ -11107,7 +11442,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "47c82c00c1a0b167cfcc5cb018c6ee9d42e26c5b70e93e70a018a5707edfcb47",
+        "price_series_hash": "c17e8a9be06469ff2c55721f46a3865d477858b9abc0e24467504808a7e88e60",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -11122,20 +11457,20 @@
         "first_fetched_at": "2026-10-04T11:37:19.980145+00:00",
         "ingest_type": "initial_migration",
         "first_fetched_at_origin": "source_store_first_observation",
-        "admission_class": "initial_migration",
-        "admission_origin": "legacy_persisted_record",
-        "identity_parent_source_key": null,
+        "admission_class": "rekeyed_duplicate",
+        "admission_origin": "historical_identity_match",
+        "identity_parent_source_key": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html",
         "published_at_semantics": "source_archive_publication_date",
         "timestamp_confidence": "high",
-        "snapshot_hash": "ff5be3d84e773f965e91756072c0c0e4f608d446c45b285d81eed750fa69ec03"
+        "snapshot_hash": "6de6ab03a239572e5f9538e4ee679347dcf4618be6a80230651af9279ce33dc8"
       },
       "point_in_time_status": "source_not_genuine_forward",
       "market_timestamp_cutoff": "strictly_before_baseline_timestamp_utc"
     },
     {
-      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html:2:CRWV:1",
+      "event_id": "9a165774b865bf813a81:2:CRWV:1",
       "rule_id": null,
-      "legacy_source_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html",
+      "legacy_source_id": "9a165774b865bf813a81",
       "legacy_operation_index": 2,
       "spec_version": "1.7",
       "scoring_engine_version": "event_score@6.15.8l",
@@ -11195,7 +11530,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "47c82c00c1a0b167cfcc5cb018c6ee9d42e26c5b70e93e70a018a5707edfcb47",
+        "price_series_hash": "c17e8a9be06469ff2c55721f46a3865d477858b9abc0e24467504808a7e88e60",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -11210,20 +11545,20 @@
         "first_fetched_at": "2026-10-04T11:37:19.980145+00:00",
         "ingest_type": "initial_migration",
         "first_fetched_at_origin": "source_store_first_observation",
-        "admission_class": "initial_migration",
-        "admission_origin": "legacy_persisted_record",
-        "identity_parent_source_key": null,
+        "admission_class": "rekeyed_duplicate",
+        "admission_origin": "historical_identity_match",
+        "identity_parent_source_key": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html",
         "published_at_semantics": "source_archive_publication_date",
         "timestamp_confidence": "high",
-        "snapshot_hash": "ff5be3d84e773f965e91756072c0c0e4f608d446c45b285d81eed750fa69ec03"
+        "snapshot_hash": "6de6ab03a239572e5f9538e4ee679347dcf4618be6a80230651af9279ce33dc8"
       },
       "point_in_time_status": "source_not_genuine_forward",
       "market_timestamp_cutoff": "strictly_before_baseline_timestamp_utc"
     },
     {
-      "event_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html:2:CRWV:0",
+      "event_id": "9a165774b865bf813a81:2:CRWV:0",
       "rule_id": null,
-      "legacy_source_id": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html",
+      "legacy_source_id": "9a165774b865bf813a81",
       "legacy_operation_index": 2,
       "spec_version": "1.7",
       "scoring_engine_version": "event_score@6.15.8l",
@@ -11283,7 +11618,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "47c82c00c1a0b167cfcc5cb018c6ee9d42e26c5b70e93e70a018a5707edfcb47",
+        "price_series_hash": "c17e8a9be06469ff2c55721f46a3865d477858b9abc0e24467504808a7e88e60",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -11298,12 +11633,12 @@
         "first_fetched_at": "2026-10-04T11:37:19.980145+00:00",
         "ingest_type": "initial_migration",
         "first_fetched_at_origin": "source_store_first_observation",
-        "admission_class": "initial_migration",
-        "admission_origin": "legacy_persisted_record",
-        "identity_parent_source_key": null,
+        "admission_class": "rekeyed_duplicate",
+        "admission_origin": "historical_identity_match",
+        "identity_parent_source_key": "brightline-blog-wenxuecity-com-myblog-82458-202608-14095-html",
         "published_at_semantics": "source_archive_publication_date",
         "timestamp_confidence": "high",
-        "snapshot_hash": "ff5be3d84e773f965e91756072c0c0e4f608d446c45b285d81eed750fa69ec03"
+        "snapshot_hash": "6de6ab03a239572e5f9538e4ee679347dcf4618be6a80230651af9279ce33dc8"
       },
       "point_in_time_status": "source_not_genuine_forward",
       "market_timestamp_cutoff": "strictly_before_baseline_timestamp_utc"
@@ -11384,7 +11719,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "176bad02f33b424dd58653beba3dddf2bfed997c16467933c8e8de2899eb8ccf",
+        "price_series_hash": "dce813dee4ae33886f97b1a6e1f92a8eda512c84a01cf4d0d87545e69921ef89",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -11485,7 +11820,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "176bad02f33b424dd58653beba3dddf2bfed997c16467933c8e8de2899eb8ccf",
+        "price_series_hash": "dce813dee4ae33886f97b1a6e1f92a8eda512c84a01cf4d0d87545e69921ef89",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -11543,7 +11878,7 @@
       "maturity": {
         "5": true,
         "20": true,
-        "60": false
+        "60": true
       },
       "scores": {
         "5": {
@@ -11578,7 +11913,22 @@
           "direction_adjusted_mfe": 0.043122792206349514,
           "legacy_alignment": "not_aligned"
         },
-        "60": null
+        "60": {
+          "horizon_end_date": "2026-11-09",
+          "raw_return": -0.20610517429072905,
+          "direction_adjusted_return": -0.20610517429072905,
+          "benchmark_return": -0.06315937392263671,
+          "excess_vs_qqq": -0.14294580036809235,
+          "unconditional_baseline_direction_adjusted_return": 0.07749869296456148,
+          "unconditional_baseline_direction_adjusted_mae": -0.07256663963423134,
+          "unconditional_baseline_n": 252,
+          "unconditional_lift": -0.2836038672552905,
+          "mae": -0.24356264024349605,
+          "mfe": 0.0813801070849347,
+          "direction_adjusted_mae": -0.24356264024349605,
+          "direction_adjusted_mfe": 0.0813801070849347,
+          "legacy_alignment": "not_aligned"
+        }
       },
       "data_quality": {
         "status": "ok",
@@ -11586,7 +11936,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "5ee4a01f84f9abbdc0ea636ce51fdbb9bb23a47e6bf4875039db206c08e8ab86",
+        "price_series_hash": "59bcebf55b9612f702f9f5a4f269fef9898f8a8ad7fad2c8f401cc43c4ca3835",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -11607,6 +11957,238 @@
         "published_at_semantics": "upstream_published_at_unverified",
         "timestamp_confidence": "unverified",
         "snapshot_hash": "617d998df1bac8ae72f2ae4384a80e7f143ae5fb57c1f645c695f9d56b5e42cb"
+      },
+      "point_in_time_status": "source_not_genuine_forward",
+      "market_timestamp_cutoff": "strictly_before_baseline_timestamp_utc"
+    },
+    {
+      "event_id": "63adbdfa71849d1c2b26:0:NBIS:0",
+      "rule_id": null,
+      "legacy_source_id": "63adbdfa71849d1c2b26",
+      "legacy_operation_index": 0,
+      "spec_version": "1.7",
+      "scoring_engine_version": "event_score@6.15.8l",
+      "author": "BrightLine",
+      "symbol": "NBIS",
+      "published_at": "2026-08-12",
+      "baseline_date": "2026-08-13",
+      "baseline_timestamp_utc": "2026-08-13T13:30:00+00:00",
+      "entry_type": "next_session",
+      "fill_status": "simulated_fill",
+      "fill_confidence": "high",
+      "fill_model": "simulated_next_session_open",
+      "entry_inference_source": "baseline_kind:next_session",
+      "entry_registry_version": "1.0",
+      "direction": "bearish",
+      "rule_structural_direction": null,
+      "triggered": true,
+      "scoreable": false,
+      "primary_exclusion_reason": "non_point_in_time_source",
+      "secondary_exclusion_reasons": [
+        "missing_rule_id"
+      ],
+      "exclusion_reasons": [
+        "missing_rule_id",
+        "non_point_in_time_source"
+      ],
+      "maturity": {
+        "5": true,
+        "20": true,
+        "60": true
+      },
+      "scores": {
+        "5": {
+          "horizon_end_date": "2026-08-20",
+          "raw_return": -0.13841155517281867,
+          "direction_adjusted_return": 0.13841155517281867,
+          "benchmark_return": -0.019609735916706894,
+          "excess_vs_qqq": -0.11880181925611177,
+          "unconditional_baseline_direction_adjusted_return": -0.03308773967238104,
+          "unconditional_baseline_direction_adjusted_mae": -0.14186988419489102,
+          "unconditional_baseline_n": 252,
+          "unconditional_lift": 0.1714992948451997,
+          "mae": -0.17000039143539358,
+          "mfe": 0.09926801581398981,
+          "direction_adjusted_mae": -0.09926801581398981,
+          "direction_adjusted_mfe": 0.17000039143539358,
+          "legacy_alignment": "aligned"
+        },
+        "20": {
+          "horizon_end_date": "2026-09-11",
+          "raw_return": -0.12103182369749865,
+          "direction_adjusted_return": 0.12103182369749865,
+          "benchmark_return": -0.014162587050954967,
+          "excess_vs_qqq": -0.10686923664654369,
+          "unconditional_baseline_direction_adjusted_return": -0.13408334454278495,
+          "unconditional_baseline_direction_adjusted_mae": -0.31408869623693764,
+          "unconditional_baseline_n": 252,
+          "unconditional_lift": 0.2551151682402836,
+          "mae": -0.23748385329001442,
+          "mfe": 0.09926801581398981,
+          "direction_adjusted_mae": -0.09926801581398981,
+          "direction_adjusted_mfe": 0.23748385329001442,
+          "legacy_alignment": "aligned"
+        },
+        "60": {
+          "horizon_end_date": "2026-11-09",
+          "raw_return": -0.44631463576936636,
+          "direction_adjusted_return": 0.44631463576936636,
+          "benchmark_return": -0.06315937392263671,
+          "excess_vs_qqq": -0.38315526184672966,
+          "unconditional_baseline_direction_adjusted_return": -0.5404621644330049,
+          "unconditional_baseline_direction_adjusted_mae": -0.8665522390280288,
+          "unconditional_baseline_n": 252,
+          "unconditional_lift": 0.9867768002023712,
+          "mae": -0.5565036990644694,
+          "mfe": 0.09926801581398981,
+          "direction_adjusted_mae": -0.09926801581398981,
+          "direction_adjusted_mfe": 0.5565036990644694,
+          "legacy_alignment": "aligned"
+        }
+      },
+      "data_quality": {
+        "status": "ok",
+        "source": "stooq_archive",
+        "price_source": "stooq_archive",
+        "adjustment_basis": "stooq_archive_native_series",
+        "same_source_only": true,
+        "price_series_hash": "dce813dee4ae33886f97b1a6e1f92a8eda512c84a01cf4d0d87545e69921ef89",
+        "overlap_conflicts": []
+      },
+      "price_provenance": {
+        "price_source": "stooq_archive",
+        "adjustment_basis": "stooq_archive_native_series",
+        "baseline_source": "stooq_archive",
+        "horizon_source": "stooq_archive",
+        "same_source": true,
+        "provenance_origin": "source_outcome_artifact"
+      },
+      "source_provenance": {
+        "first_fetched_at": "2026-11-09T18:51:31.452049+00:00",
+        "ingest_type": "backfill_ingest",
+        "first_fetched_at_origin": "source_store_first_observation",
+        "admission_class": "backfill",
+        "admission_origin": "upstream_explicit_backfill_provenance",
+        "identity_parent_source_key": null,
+        "published_at_semantics": "source_archive_publication_date",
+        "timestamp_confidence": "high",
+        "snapshot_hash": "d1dfbc31736e8725ca05651783b0aacb6c2ea8e332a769830f5cb875c54fa6e4"
+      },
+      "point_in_time_status": "source_not_genuine_forward",
+      "market_timestamp_cutoff": "strictly_before_baseline_timestamp_utc"
+    },
+    {
+      "event_id": "63adbdfa71849d1c2b26:0:CRWV:0",
+      "rule_id": null,
+      "legacy_source_id": "63adbdfa71849d1c2b26",
+      "legacy_operation_index": 0,
+      "spec_version": "1.7",
+      "scoring_engine_version": "event_score@6.15.8l",
+      "author": "BrightLine",
+      "symbol": "CRWV",
+      "published_at": "2026-08-12",
+      "baseline_date": "2026-08-13",
+      "baseline_timestamp_utc": "2026-08-13T13:30:00+00:00",
+      "entry_type": "next_session",
+      "fill_status": "simulated_fill",
+      "fill_confidence": "high",
+      "fill_model": "simulated_next_session_open",
+      "entry_inference_source": "baseline_kind:next_session",
+      "entry_registry_version": "1.0",
+      "direction": "bearish",
+      "rule_structural_direction": null,
+      "triggered": true,
+      "scoreable": false,
+      "primary_exclusion_reason": "non_point_in_time_source",
+      "secondary_exclusion_reasons": [
+        "missing_rule_id"
+      ],
+      "exclusion_reasons": [
+        "missing_rule_id",
+        "non_point_in_time_source"
+      ],
+      "maturity": {
+        "5": true,
+        "20": true,
+        "60": true
+      },
+      "scores": {
+        "5": {
+          "horizon_end_date": "2026-08-20",
+          "raw_return": -0.1622176591375769,
+          "direction_adjusted_return": 0.1622176591375769,
+          "benchmark_return": -0.019609735916706894,
+          "excess_vs_qqq": -0.14260792322087001,
+          "unconditional_baseline_direction_adjusted_return": -0.0021659527837032877,
+          "unconditional_baseline_direction_adjusted_mae": -0.1218771191194417,
+          "unconditional_baseline_n": 252,
+          "unconditional_lift": 0.1643836119212802,
+          "mae": -0.1713645697218592,
+          "mfe": 0.09660257606869505,
+          "direction_adjusted_mae": -0.09660257606869505,
+          "direction_adjusted_mfe": 0.1713645697218592,
+          "legacy_alignment": "aligned"
+        },
+        "20": {
+          "horizon_end_date": "2026-09-11",
+          "raw_return": -0.1694045174537988,
+          "direction_adjusted_return": 0.1694045174537988,
+          "benchmark_return": -0.014162587050954967,
+          "excess_vs_qqq": -0.15524193040284384,
+          "unconditional_baseline_direction_adjusted_return": 0.006621169063537871,
+          "unconditional_baseline_direction_adjusted_mae": -0.22562273021301135,
+          "unconditional_baseline_n": 252,
+          "unconditional_lift": 0.16278334839026093,
+          "mae": -0.2623669964532388,
+          "mfe": 0.09660257606869505,
+          "direction_adjusted_mae": -0.09660257606869505,
+          "direction_adjusted_mfe": 0.2623669964532388,
+          "legacy_alignment": "aligned"
+        },
+        "60": {
+          "horizon_end_date": "2026-11-06",
+          "raw_return": -0.5669217703390059,
+          "direction_adjusted_return": 0.5669217703390059,
+          "benchmark_return": -0.06315937392263671,
+          "excess_vs_qqq": -0.5037623964163692,
+          "unconditional_baseline_direction_adjusted_return": 0.041726893072317486,
+          "unconditional_baseline_direction_adjusted_mae": -0.37821459362372134,
+          "unconditional_baseline_n": 252,
+          "unconditional_lift": 0.5251948772666885,
+          "mae": -0.6212432160625846,
+          "mfe": 0.09660257606869505,
+          "direction_adjusted_mae": -0.09660257606869505,
+          "direction_adjusted_mfe": 0.6212432160625846,
+          "legacy_alignment": "aligned"
+        }
+      },
+      "data_quality": {
+        "status": "ok",
+        "source": "stooq_archive",
+        "price_source": "stooq_archive",
+        "adjustment_basis": "stooq_archive_native_series",
+        "same_source_only": true,
+        "price_series_hash": "c17e8a9be06469ff2c55721f46a3865d477858b9abc0e24467504808a7e88e60",
+        "overlap_conflicts": []
+      },
+      "price_provenance": {
+        "price_source": "stooq_archive",
+        "adjustment_basis": "stooq_archive_native_series",
+        "baseline_source": "stooq_archive",
+        "horizon_source": "stooq_archive",
+        "same_source": true,
+        "provenance_origin": "source_outcome_artifact"
+      },
+      "source_provenance": {
+        "first_fetched_at": "2026-11-09T18:51:31.452049+00:00",
+        "ingest_type": "backfill_ingest",
+        "first_fetched_at_origin": "source_store_first_observation",
+        "admission_class": "backfill",
+        "admission_origin": "upstream_explicit_backfill_provenance",
+        "identity_parent_source_key": null,
+        "published_at_semantics": "source_archive_publication_date",
+        "timestamp_confidence": "high",
+        "snapshot_hash": "d1dfbc31736e8725ca05651783b0aacb6c2ea8e332a769830f5cb875c54fa6e4"
       },
       "point_in_time_status": "source_not_genuine_forward",
       "market_timestamp_cutoff": "strictly_before_baseline_timestamp_utc"
@@ -11702,7 +12284,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "6e8c6c7a83355bcd2e51d16f848cf46e5e49404f477e045153cbd13b7ba3ed8f",
+        "price_series_hash": "92d77a22cef8efd84e75c3836b8965d95a50c7b90cc62c9b0cecfd266b2406bf",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -12022,7 +12604,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "176bad02f33b424dd58653beba3dddf2bfed997c16467933c8e8de2899eb8ccf",
+        "price_series_hash": "dce813dee4ae33886f97b1a6e1f92a8eda512c84a01cf4d0d87545e69921ef89",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -12138,7 +12720,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "176bad02f33b424dd58653beba3dddf2bfed997c16467933c8e8de2899eb8ccf",
+        "price_series_hash": "dce813dee4ae33886f97b1a6e1f92a8eda512c84a01cf4d0d87545e69921ef89",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -12254,7 +12836,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "176bad02f33b424dd58653beba3dddf2bfed997c16467933c8e8de2899eb8ccf",
+        "price_series_hash": "dce813dee4ae33886f97b1a6e1f92a8eda512c84a01cf4d0d87545e69921ef89",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -12370,7 +12952,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "176bad02f33b424dd58653beba3dddf2bfed997c16467933c8e8de2899eb8ccf",
+        "price_series_hash": "dce813dee4ae33886f97b1a6e1f92a8eda512c84a01cf4d0d87545e69921ef89",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -12486,7 +13068,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "9a1d72005f7f7eb157a653d5b098f0086a8868708a2cdd828ada4b302d32c8d3",
+        "price_series_hash": "f45d0616e79b322be4c9ba620f1ef1ba166b3a84fddfeea744c74540cad7d560",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -12602,7 +13184,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "47c82c00c1a0b167cfcc5cb018c6ee9d42e26c5b70e93e70a018a5707edfcb47",
+        "price_series_hash": "c17e8a9be06469ff2c55721f46a3865d477858b9abc0e24467504808a7e88e60",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -12718,7 +13300,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "176bad02f33b424dd58653beba3dddf2bfed997c16467933c8e8de2899eb8ccf",
+        "price_series_hash": "dce813dee4ae33886f97b1a6e1f92a8eda512c84a01cf4d0d87545e69921ef89",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -12834,7 +13416,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "6e8c6c7a83355bcd2e51d16f848cf46e5e49404f477e045153cbd13b7ba3ed8f",
+        "price_series_hash": "92d77a22cef8efd84e75c3836b8965d95a50c7b90cc62c9b0cecfd266b2406bf",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -12950,7 +13532,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "0c530949225af2f3f75cf29609f53f1dbc47733500ada7ed7a975110acfe8adb",
+        "price_series_hash": "5b5becacec3d53d3e2a3b3057391a5afaf2881f1e401577b07e735008547c764",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -13066,7 +13648,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "7f2b159307abe187f18b0e3264e593e31497161f7cf1dd40975389519f7d2b00",
+        "price_series_hash": "86140e17194f4e5db4587c276181d0623a807ec8874a14942baa1c0d4394fdcf",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -13182,7 +13764,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "0622e8eb6d4aab00348e108615c45d264216a2c331a70ae9d3466f3ee103ce57",
+        "price_series_hash": "dd563b61b7273b796bd1eea972795afc60f000e79235ef8d8de4ac031dbdcbfd",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -13298,7 +13880,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "176bad02f33b424dd58653beba3dddf2bfed997c16467933c8e8de2899eb8ccf",
+        "price_series_hash": "dce813dee4ae33886f97b1a6e1f92a8eda512c84a01cf4d0d87545e69921ef89",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -13414,7 +13996,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "6e8c6c7a83355bcd2e51d16f848cf46e5e49404f477e045153cbd13b7ba3ed8f",
+        "price_series_hash": "92d77a22cef8efd84e75c3836b8965d95a50c7b90cc62c9b0cecfd266b2406bf",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -13530,7 +14112,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "171cc21d411e095fb55ffab186003925b80fd18bd80aade69a6a9403a0d9b7d0",
+        "price_series_hash": "bddfd6607256c5142e7325349e6704f2b7f23e2da7098636a136db54b689af6a",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -13646,7 +14228,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "171cc21d411e095fb55ffab186003925b80fd18bd80aade69a6a9403a0d9b7d0",
+        "price_series_hash": "bddfd6607256c5142e7325349e6704f2b7f23e2da7098636a136db54b689af6a",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -13762,7 +14344,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "171cc21d411e095fb55ffab186003925b80fd18bd80aade69a6a9403a0d9b7d0",
+        "price_series_hash": "bddfd6607256c5142e7325349e6704f2b7f23e2da7098636a136db54b689af6a",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -13878,7 +14460,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "171cc21d411e095fb55ffab186003925b80fd18bd80aade69a6a9403a0d9b7d0",
+        "price_series_hash": "bddfd6607256c5142e7325349e6704f2b7f23e2da7098636a136db54b689af6a",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -13994,7 +14576,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "171cc21d411e095fb55ffab186003925b80fd18bd80aade69a6a9403a0d9b7d0",
+        "price_series_hash": "bddfd6607256c5142e7325349e6704f2b7f23e2da7098636a136db54b689af6a",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -14110,7 +14692,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "5ee4a01f84f9abbdc0ea636ce51fdbb9bb23a47e6bf4875039db206c08e8ab86",
+        "price_series_hash": "59bcebf55b9612f702f9f5a4f269fef9898f8a8ad7fad2c8f401cc43c4ca3835",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -14226,7 +14808,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "6e8c6c7a83355bcd2e51d16f848cf46e5e49404f477e045153cbd13b7ba3ed8f",
+        "price_series_hash": "92d77a22cef8efd84e75c3836b8965d95a50c7b90cc62c9b0cecfd266b2406bf",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -14342,7 +14924,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "176bad02f33b424dd58653beba3dddf2bfed997c16467933c8e8de2899eb8ccf",
+        "price_series_hash": "dce813dee4ae33886f97b1a6e1f92a8eda512c84a01cf4d0d87545e69921ef89",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -14458,7 +15040,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "6e8c6c7a83355bcd2e51d16f848cf46e5e49404f477e045153cbd13b7ba3ed8f",
+        "price_series_hash": "92d77a22cef8efd84e75c3836b8965d95a50c7b90cc62c9b0cecfd266b2406bf",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -14574,7 +15156,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "5ee4a01f84f9abbdc0ea636ce51fdbb9bb23a47e6bf4875039db206c08e8ab86",
+        "price_series_hash": "59bcebf55b9612f702f9f5a4f269fef9898f8a8ad7fad2c8f401cc43c4ca3835",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -14792,7 +15374,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "0c530949225af2f3f75cf29609f53f1dbc47733500ada7ed7a975110acfe8adb",
+        "price_series_hash": "5b5becacec3d53d3e2a3b3057391a5afaf2881f1e401577b07e735008547c764",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -14908,7 +15490,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "5ee4a01f84f9abbdc0ea636ce51fdbb9bb23a47e6bf4875039db206c08e8ab86",
+        "price_series_hash": "59bcebf55b9612f702f9f5a4f269fef9898f8a8ad7fad2c8f401cc43c4ca3835",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -15024,7 +15606,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "171cc21d411e095fb55ffab186003925b80fd18bd80aade69a6a9403a0d9b7d0",
+        "price_series_hash": "bddfd6607256c5142e7325349e6704f2b7f23e2da7098636a136db54b689af6a",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -15140,7 +15722,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "171cc21d411e095fb55ffab186003925b80fd18bd80aade69a6a9403a0d9b7d0",
+        "price_series_hash": "bddfd6607256c5142e7325349e6704f2b7f23e2da7098636a136db54b689af6a",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -15256,7 +15838,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "5ee4a01f84f9abbdc0ea636ce51fdbb9bb23a47e6bf4875039db206c08e8ab86",
+        "price_series_hash": "59bcebf55b9612f702f9f5a4f269fef9898f8a8ad7fad2c8f401cc43c4ca3835",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -15374,7 +15956,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "cccbb82b69f6671525d3f9d768bfa25265f84f4473eed53a7fdf67b9545fc4d6",
+        "price_series_hash": "d58f8aedf6f95cfd0882b07167a5eb08b06490810e1b4265be2dcf22b9389126",
         "overlap_conflicts": [
           {
             "date": "2026-09-30",
@@ -15496,7 +16078,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "95b58f20990ff0419ec9f5d4b86efed6d89dd4b7c5f51f291f8c4577f71658ed",
+        "price_series_hash": "254c8aefb0a71e6da69e3557a7e5fa8e5d7498ebd361e62b770205bb7430b4c2",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -15612,7 +16194,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "9133fa782bbeddd8c2bf66216643c02a02fb211a3af2ed787a587892a18a13d8",
+        "price_series_hash": "8085312f5421c4897107ed3e5f54c95ef072680e75c3aae4825c4dac5f12fcc8",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -15728,7 +16310,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "171cc21d411e095fb55ffab186003925b80fd18bd80aade69a6a9403a0d9b7d0",
+        "price_series_hash": "bddfd6607256c5142e7325349e6704f2b7f23e2da7098636a136db54b689af6a",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -15844,7 +16426,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "171cc21d411e095fb55ffab186003925b80fd18bd80aade69a6a9403a0d9b7d0",
+        "price_series_hash": "bddfd6607256c5142e7325349e6704f2b7f23e2da7098636a136db54b689af6a",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -15960,7 +16542,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "176bad02f33b424dd58653beba3dddf2bfed997c16467933c8e8de2899eb8ccf",
+        "price_series_hash": "dce813dee4ae33886f97b1a6e1f92a8eda512c84a01cf4d0d87545e69921ef89",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -16078,7 +16660,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "6e8c6c7a83355bcd2e51d16f848cf46e5e49404f477e045153cbd13b7ba3ed8f",
+        "price_series_hash": "92d77a22cef8efd84e75c3836b8965d95a50c7b90cc62c9b0cecfd266b2406bf",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -16194,7 +16776,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "7f2f9882d0a419ded9e79fb9b508aaf13e8a69c554a66dfafa44077a9e3bbfcc",
+        "price_series_hash": "fb54aa9e4d3fc534f86dc920b1ac813b03c2e3345ab91ae69dd93c26f5dedae1",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -16310,7 +16892,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "7f2f9882d0a419ded9e79fb9b508aaf13e8a69c554a66dfafa44077a9e3bbfcc",
+        "price_series_hash": "fb54aa9e4d3fc534f86dc920b1ac813b03c2e3345ab91ae69dd93c26f5dedae1",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -16426,7 +17008,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "47c82c00c1a0b167cfcc5cb018c6ee9d42e26c5b70e93e70a018a5707edfcb47",
+        "price_series_hash": "c17e8a9be06469ff2c55721f46a3865d477858b9abc0e24467504808a7e88e60",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -16542,7 +17124,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "f07d65a262507941b2dd272ff83ba1d7525fa28b99edbb9ac8b0fa9ed01ae293",
+        "price_series_hash": "88da7ce2c9318f4d6b34d0d39769005d3611e9078ffd3a36f7d343ab8f5783cf",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -16658,7 +17240,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "9133fa782bbeddd8c2bf66216643c02a02fb211a3af2ed787a587892a18a13d8",
+        "price_series_hash": "8085312f5421c4897107ed3e5f54c95ef072680e75c3aae4825c4dac5f12fcc8",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -16774,7 +17356,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "9a1d72005f7f7eb157a653d5b098f0086a8868708a2cdd828ada4b302d32c8d3",
+        "price_series_hash": "f45d0616e79b322be4c9ba620f1ef1ba166b3a84fddfeea744c74540cad7d560",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -16890,7 +17472,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "9a1d72005f7f7eb157a653d5b098f0086a8868708a2cdd828ada4b302d32c8d3",
+        "price_series_hash": "f45d0616e79b322be4c9ba620f1ef1ba166b3a84fddfeea744c74540cad7d560",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -17006,7 +17588,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "9a1d72005f7f7eb157a653d5b098f0086a8868708a2cdd828ada4b302d32c8d3",
+        "price_series_hash": "f45d0616e79b322be4c9ba620f1ef1ba166b3a84fddfeea744c74540cad7d560",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -17122,7 +17704,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "9a1d72005f7f7eb157a653d5b098f0086a8868708a2cdd828ada4b302d32c8d3",
+        "price_series_hash": "f45d0616e79b322be4c9ba620f1ef1ba166b3a84fddfeea744c74540cad7d560",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -17238,7 +17820,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "9133fa782bbeddd8c2bf66216643c02a02fb211a3af2ed787a587892a18a13d8",
+        "price_series_hash": "8085312f5421c4897107ed3e5f54c95ef072680e75c3aae4825c4dac5f12fcc8",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -17354,7 +17936,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "5ee4a01f84f9abbdc0ea636ce51fdbb9bb23a47e6bf4875039db206c08e8ab86",
+        "price_series_hash": "59bcebf55b9612f702f9f5a4f269fef9898f8a8ad7fad2c8f401cc43c4ca3835",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -17470,7 +18052,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "171cc21d411e095fb55ffab186003925b80fd18bd80aade69a6a9403a0d9b7d0",
+        "price_series_hash": "bddfd6607256c5142e7325349e6704f2b7f23e2da7098636a136db54b689af6a",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -17586,7 +18168,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "171cc21d411e095fb55ffab186003925b80fd18bd80aade69a6a9403a0d9b7d0",
+        "price_series_hash": "bddfd6607256c5142e7325349e6704f2b7f23e2da7098636a136db54b689af6a",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -17702,7 +18284,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "171cc21d411e095fb55ffab186003925b80fd18bd80aade69a6a9403a0d9b7d0",
+        "price_series_hash": "bddfd6607256c5142e7325349e6704f2b7f23e2da7098636a136db54b689af6a",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -17820,7 +18402,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "171cc21d411e095fb55ffab186003925b80fd18bd80aade69a6a9403a0d9b7d0",
+        "price_series_hash": "bddfd6607256c5142e7325349e6704f2b7f23e2da7098636a136db54b689af6a",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -17936,7 +18518,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "176bad02f33b424dd58653beba3dddf2bfed997c16467933c8e8de2899eb8ccf",
+        "price_series_hash": "dce813dee4ae33886f97b1a6e1f92a8eda512c84a01cf4d0d87545e69921ef89",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -18052,7 +18634,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "9a1d72005f7f7eb157a653d5b098f0086a8868708a2cdd828ada4b302d32c8d3",
+        "price_series_hash": "f45d0616e79b322be4c9ba620f1ef1ba166b3a84fddfeea744c74540cad7d560",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -18168,7 +18750,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "74efe0042eb80a768ece6a31ec76851d0eafe5e0e389928667ebe2939c4d92ad",
+        "price_series_hash": "0b3ce288afa1c981063b21d7e9d610cb25d75adc4f8652aef5ae3916749917b9",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -18284,7 +18866,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "74efe0042eb80a768ece6a31ec76851d0eafe5e0e389928667ebe2939c4d92ad",
+        "price_series_hash": "0b3ce288afa1c981063b21d7e9d610cb25d75adc4f8652aef5ae3916749917b9",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -18400,7 +18982,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "74efe0042eb80a768ece6a31ec76851d0eafe5e0e389928667ebe2939c4d92ad",
+        "price_series_hash": "0b3ce288afa1c981063b21d7e9d610cb25d75adc4f8652aef5ae3916749917b9",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -18516,7 +19098,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "2d020ca7485c1f97b0ad0ae3e7b415576ccbcfbdb42a2b20895d28dca69c1718",
+        "price_series_hash": "6241570a0ac2e6420126d57628fa18613a5dfe3eede5226dd6c1629b9ec9eea3",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -18632,7 +19214,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "47c82c00c1a0b167cfcc5cb018c6ee9d42e26c5b70e93e70a018a5707edfcb47",
+        "price_series_hash": "c17e8a9be06469ff2c55721f46a3865d477858b9abc0e24467504808a7e88e60",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -18748,7 +19330,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "171cc21d411e095fb55ffab186003925b80fd18bd80aade69a6a9403a0d9b7d0",
+        "price_series_hash": "bddfd6607256c5142e7325349e6704f2b7f23e2da7098636a136db54b689af6a",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -18866,7 +19448,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "176bad02f33b424dd58653beba3dddf2bfed997c16467933c8e8de2899eb8ccf",
+        "price_series_hash": "dce813dee4ae33886f97b1a6e1f92a8eda512c84a01cf4d0d87545e69921ef89",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -18982,7 +19564,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "7f2f9882d0a419ded9e79fb9b508aaf13e8a69c554a66dfafa44077a9e3bbfcc",
+        "price_series_hash": "fb54aa9e4d3fc534f86dc920b1ac813b03c2e3345ab91ae69dd93c26f5dedae1",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -19098,7 +19680,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "74efe0042eb80a768ece6a31ec76851d0eafe5e0e389928667ebe2939c4d92ad",
+        "price_series_hash": "0b3ce288afa1c981063b21d7e9d610cb25d75adc4f8652aef5ae3916749917b9",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -19214,7 +19796,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "47c82c00c1a0b167cfcc5cb018c6ee9d42e26c5b70e93e70a018a5707edfcb47",
+        "price_series_hash": "c17e8a9be06469ff2c55721f46a3865d477858b9abc0e24467504808a7e88e60",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -19332,7 +19914,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "47c82c00c1a0b167cfcc5cb018c6ee9d42e26c5b70e93e70a018a5707edfcb47",
+        "price_series_hash": "c17e8a9be06469ff2c55721f46a3865d477858b9abc0e24467504808a7e88e60",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -19448,7 +20030,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "322457a3e1eade87cd7b0084c0fbfba066a0b037253946e26f0261157d7e57e5",
+        "price_series_hash": "58fdb2a1ec42ccb26f5e3a4f101d6f505ba184430a6ac5a1282d1b125a5423c5",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -19564,7 +20146,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "74efe0042eb80a768ece6a31ec76851d0eafe5e0e389928667ebe2939c4d92ad",
+        "price_series_hash": "0b3ce288afa1c981063b21d7e9d610cb25d75adc4f8652aef5ae3916749917b9",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -19680,7 +20262,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "406eb152d00ca9920fb4c828504cbbb4f0448bff1495aee894f56becc1dd6a77",
+        "price_series_hash": "ab12bd579ec48cfedacb63b733cbeb1aa520172e4a86f372fe50e9080654f8ca",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -19915,7 +20497,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "cccbb82b69f6671525d3f9d768bfa25265f84f4473eed53a7fdf67b9545fc4d6",
+        "price_series_hash": "d58f8aedf6f95cfd0882b07167a5eb08b06490810e1b4265be2dcf22b9389126",
         "overlap_conflicts": [
           {
             "date": "2026-09-30",
@@ -20037,7 +20619,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "9133fa782bbeddd8c2bf66216643c02a02fb211a3af2ed787a587892a18a13d8",
+        "price_series_hash": "8085312f5421c4897107ed3e5f54c95ef072680e75c3aae4825c4dac5f12fcc8",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -20153,7 +20735,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "9133fa782bbeddd8c2bf66216643c02a02fb211a3af2ed787a587892a18a13d8",
+        "price_series_hash": "8085312f5421c4897107ed3e5f54c95ef072680e75c3aae4825c4dac5f12fcc8",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -20271,7 +20853,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "cccbb82b69f6671525d3f9d768bfa25265f84f4473eed53a7fdf67b9545fc4d6",
+        "price_series_hash": "d58f8aedf6f95cfd0882b07167a5eb08b06490810e1b4265be2dcf22b9389126",
         "overlap_conflicts": [
           {
             "date": "2026-09-30",
@@ -20393,7 +20975,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "9133fa782bbeddd8c2bf66216643c02a02fb211a3af2ed787a587892a18a13d8",
+        "price_series_hash": "8085312f5421c4897107ed3e5f54c95ef072680e75c3aae4825c4dac5f12fcc8",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -20509,7 +21091,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "171cc21d411e095fb55ffab186003925b80fd18bd80aade69a6a9403a0d9b7d0",
+        "price_series_hash": "bddfd6607256c5142e7325349e6704f2b7f23e2da7098636a136db54b689af6a",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -20627,7 +21209,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "cccbb82b69f6671525d3f9d768bfa25265f84f4473eed53a7fdf67b9545fc4d6",
+        "price_series_hash": "d58f8aedf6f95cfd0882b07167a5eb08b06490810e1b4265be2dcf22b9389126",
         "overlap_conflicts": [
           {
             "date": "2026-09-30",
@@ -20751,7 +21333,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "cccbb82b69f6671525d3f9d768bfa25265f84f4473eed53a7fdf67b9545fc4d6",
+        "price_series_hash": "d58f8aedf6f95cfd0882b07167a5eb08b06490810e1b4265be2dcf22b9389126",
         "overlap_conflicts": [
           {
             "date": "2026-09-30",
@@ -20873,7 +21455,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "171cc21d411e095fb55ffab186003925b80fd18bd80aade69a6a9403a0d9b7d0",
+        "price_series_hash": "bddfd6607256c5142e7325349e6704f2b7f23e2da7098636a136db54b689af6a",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -20989,7 +21571,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "171cc21d411e095fb55ffab186003925b80fd18bd80aade69a6a9403a0d9b7d0",
+        "price_series_hash": "bddfd6607256c5142e7325349e6704f2b7f23e2da7098636a136db54b689af6a",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -21105,7 +21687,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "6e8c6c7a83355bcd2e51d16f848cf46e5e49404f477e045153cbd13b7ba3ed8f",
+        "price_series_hash": "92d77a22cef8efd84e75c3836b8965d95a50c7b90cc62c9b0cecfd266b2406bf",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -21221,7 +21803,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "176bad02f33b424dd58653beba3dddf2bfed997c16467933c8e8de2899eb8ccf",
+        "price_series_hash": "dce813dee4ae33886f97b1a6e1f92a8eda512c84a01cf4d0d87545e69921ef89",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -21337,7 +21919,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "7f2f9882d0a419ded9e79fb9b508aaf13e8a69c554a66dfafa44077a9e3bbfcc",
+        "price_series_hash": "fb54aa9e4d3fc534f86dc920b1ac813b03c2e3345ab91ae69dd93c26f5dedae1",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -21453,7 +22035,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "7f2f9882d0a419ded9e79fb9b508aaf13e8a69c554a66dfafa44077a9e3bbfcc",
+        "price_series_hash": "fb54aa9e4d3fc534f86dc920b1ac813b03c2e3345ab91ae69dd93c26f5dedae1",
         "overlap_conflicts": []
       },
       "price_provenance": {
@@ -21569,7 +22151,7 @@
         "price_source": "stooq_archive",
         "adjustment_basis": "stooq_archive_native_series",
         "same_source_only": true,
-        "price_series_hash": "9a1d72005f7f7eb157a653d5b098f0086a8868708a2cdd828ada4b302d32c8d3",
+        "price_series_hash": "f45d0616e79b322be4c9ba620f1ef1ba166b3a84fddfeea744c74540cad7d560",
         "overlap_conflicts": []
       },
       "price_provenance": {

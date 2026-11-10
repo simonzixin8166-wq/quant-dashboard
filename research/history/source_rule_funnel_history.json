@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "generated_at": "2026-11-07T01:49:56.921853+00:00",
+  "generated_at": "2026-11-10T04:03:52.570754+00:00",
   "records": [
     {
       "schema_version": "1.0",
@@ -2134,6 +2134,92 @@
       ],
       "generated_at": "2026-11-07T01:49:56.921853+00:00",
       "snapshot_id": "6e4894b94c352eb62579460769ae6475ecb4a95920c8836ea9f5b2484a4151d5"
+    },
+    {
+      "schema_version": "1.0",
+      "window": {
+        "definition": "current persistent Source Store keys minus previous successful funnel-state keys",
+        "previous_key_count": 2981,
+        "current_key_count": 3013
+      },
+      "status": "ok",
+      "new_sources_total": 32,
+      "terminal_reason_counts": {
+        "backfill": 13,
+        "rekeyed_duplicate": 14,
+        "identity_ambiguous": 0,
+        "late_discovery": 3,
+        "admission_integrity_rejected": 2,
+        "no_operations": 0,
+        "operation_missing_symbol": 0,
+        "no_testable_proposition": 0,
+        "testable_rule_without_registry_rule": 0,
+        "rule_formed": 0,
+        "reason_not_recorded": 0
+      },
+      "terminal_reason_share": {
+        "backfill": 0.40625,
+        "rekeyed_duplicate": 0.4375,
+        "identity_ambiguous": 0.0,
+        "late_discovery": 0.09375,
+        "admission_integrity_rejected": 0.0625,
+        "no_operations": 0.0,
+        "operation_missing_symbol": 0.0,
+        "no_testable_proposition": 0.0,
+        "testable_rule_without_registry_rule": 0.0,
+        "rule_formed": 0.0,
+        "reason_not_recorded": 0.0
+      },
+      "conservation": {
+        "terminal_total": 32,
+        "expected_total": 32,
+        "pass": true
+      },
+      "downstream_counts": {
+        "admission_sources_with_operations": {
+          "backfill": {
+            "sources": 13,
+            "sources_with_operations": 2
+          },
+          "late_discovery": {
+            "sources": 3,
+            "sources_with_operations": 1
+          },
+          "rekeyed_duplicate": {
+            "sources": 14,
+            "sources_with_operations": 3
+          },
+          "timestamp_unverified": {
+            "sources": 2,
+            "sources_with_operations": 0
+          }
+        },
+        "no_operations_context_split": {
+          "with_symbols_or_topics": 0,
+          "without_symbols_or_topics": 0
+        },
+        "operations_total": 15,
+        "propositions_total": 530,
+        "new_forward_rules_total": 0,
+        "independent_authors": 0,
+        "largest_author_rule_count": 0,
+        "largest_author_rule_share": null,
+        "cumulative_forward_rules": 2,
+        "cumulative_forward_authors": 1,
+        "cumulative_largest_author_rule_share": 1.0
+      },
+      "low_confidence_genuine_forward_sources": {
+        "new": 0,
+        "cumulative": 88,
+        "review_required": false
+      },
+      "guardrails": [
+        "Diagnostic only; this artifact is never a Promotion, Readiness, Planner, Agent, or trading input.",
+        "Source-level terminal reasons conserve new source identities; downstream counts are intentionally non-conserving.",
+        "No realized performance or outcome fields are read by this funnel."
+      ],
+      "generated_at": "2026-11-10T04:03:52.570754+00:00",
+      "snapshot_id": "6b414ec2637f520b829019d69982893c48f3990c6fa9c53a0116b5400355f50d"
     }
   ]
 }

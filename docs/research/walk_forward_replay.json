@@ -1,6 +1,6 @@
 {
   "version": "6.11.1",
-  "generated_at": "2026-11-10T16:31:37.944622+00:00",
+  "generated_at": "2026-11-11T01:03:54.350875+00:00",
   "mode": "research_only",
   "evidence_provenance": "historical_replay_post_rule_design",
   "forward_evidence_mixed": false,
@@ -44,7 +44,7 @@
     }
   },
   "summary": {
-    "raw_events": 1732,
+    "raw_events": 1733,
     "effective_clusters": 943,
     "replayable_playbooks": 3,
     "blocked_playbooks": 0,
@@ -1185,7 +1185,7 @@
     "CP-03:candidate": {
       "playbook_id": "CP-03",
       "state_detail": "candidate",
-      "raw_events": 542,
+      "raw_events": 543,
       "effective_clusters": 148,
       "independent_dates": [
         "2000-04-11",
@@ -1339,18 +1339,18 @@
       ],
       "horizons": {
         "5": {
-          "raw_n": 538,
+          "raw_n": 539,
           "effective_n": 148,
-          "aligned_rate": 0.5724907063197026,
+          "aligned_rate": 0.5714285714285714,
           "aligned_rate_ci95": {
-            "low": 0.5303184271255839,
-            "high": 0.6136351200425587
+            "low": 0.5292902479634065,
+            "high": 0.6125559554700601
           },
-          "avg_return": 0.004889571494053393,
-          "median_return": 0.0071312657899943455,
-          "avg_mae": -0.0379470896273223,
-          "avg_mfe": 0.040671778237210396,
-          "avg_excess_vs_qqq": 0.0011072569692894023
+          "avg_return": 0.004852153978395503,
+          "median_return": 0.006888841062380857,
+          "avg_mae": -0.037980188671074264,
+          "avg_mfe": 0.04064009806244419,
+          "avg_excess_vs_qqq": 0.0011052026891979563
         },
         "20": {
           "raw_n": 531,
@@ -1517,6 +1517,29 @@
   },
   "recent_replay_events": [
     {
+      "playbook_id": "CP-03",
+      "entity_key": "CP-03:VGT",
+      "symbol": "VGT",
+      "evaluation_asset": "VGT",
+      "event_date": "2026-11-10",
+      "state_detail": "candidate",
+      "expected_direction": "bullish",
+      "baseline_close": 110.52,
+      "rule_hash": "20aaf8cf9b5c9dfcc137305750b16ccd04a08f873a4a2ddb83d6ef6ffd99220d",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "risk_context": {
+        "trend_risk": false,
+        "vix_risk": false,
+        "vix_available": true
+      },
+      "outcomes": {
+        "5": null,
+        "20": null,
+        "60": null
+      }
+    },
+    {
       "playbook_id": "CP-01",
       "entity_key": "CP-01:VGT",
       "symbol": "VGT",
@@ -1673,7 +1696,15 @@
         "vix_available": true
       },
       "outcomes": {
-        "5": null,
+        "5": {
+          "maturity_date": "2026-11-10",
+          "return": -0.015278469445549225,
+          "mae": -0.055787474209630816,
+          "mfe": 0.023596164038225398,
+          "benchmark_return": -0.015278469445549225,
+          "excess_vs_benchmark": 0.0,
+          "aligned": false
+        },
         "20": null,
         "60": null
       }
@@ -6319,47 +6350,6 @@
           "mfe": 0.13815994191473924,
           "benchmark_return": 0.13484003823429425,
           "excess_vs_benchmark": -0.0015551092850150106,
-          "aligned": true
-        }
-      }
-    },
-    {
-      "playbook_id": "CP-01",
-      "entity_key": "CP-01:QLD",
-      "symbol": "QLD",
-      "event_date": "2025-03-13",
-      "state_detail": "tier1",
-      "previous_level": 0,
-      "baseline_close": 44.4012,
-      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
-      "evidence_provenance": "historical_replay_post_rule_design",
-      "scoreable": true,
-      "outcomes": {
-        "5": {
-          "maturity_date": "2025-03-20",
-          "return": 0.04440870967451316,
-          "mae": 0.01517976991612846,
-          "mfe": 0.07521193120906622,
-          "benchmark_return": 0.023316931933120122,
-          "excess_vs_benchmark": 0.021091777741393036,
-          "aligned": true
-        },
-        "20": {
-          "maturity_date": "2025-04-10",
-          "return": -0.11578741115104996,
-          "mae": -0.27220885922002114,
-          "mfe": 0.10961415457239898,
-          "benchmark_return": -0.04589612161413725,
-          "excess_vs_benchmark": -0.0698912895369127,
-          "aligned": false
-        },
-        "60": {
-          "maturity_date": "2025-06-12",
-          "return": 0.24192138951199516,
-          "mae": -0.27220885922002114,
-          "mfe": 0.2566529733430627,
-          "benchmark_return": 0.13484003823429425,
-          "excess_vs_benchmark": 0.10708135127770091,
           "aligned": true
         }
       }

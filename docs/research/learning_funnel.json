@@ -1,6 +1,6 @@
 {
  "version": "p3-12.1",
- "generated_at": "2026-11-10T16:33:33.673253+00:00",
+ "generated_at": "2026-11-11T01:05:42.296610+00:00",
  "layers": [
   "discovered",
   "canonical_persisted",
@@ -23,20 +23,20 @@
   "market": {
    "learning_maturity": "forward_collecting",
    "funnel_issues": [],
-   "discovered": 36,
-   "canonical_persisted": 36,
-   "interpretable": 36,
-   "candidate_claim_or_state": 10,
-   "effective_forward_eligible": 36,
-   "independently_matured": 25,
-   "benchmark_evaluated": 12,
+   "discovered": 37,
+   "canonical_persisted": 37,
+   "interpretable": 37,
+   "candidate_claim_or_state": 11,
+   "effective_forward_eligible": 37,
+   "independently_matured": 29,
+   "benchmark_evaluated": 13,
    "downstream_consumer_count": 1,
    "validated_learning_applied": null
   },
   "fundamental": {
    "learning_maturity": "unproven_no_forward_samples",
    "funnel_issues": [],
-   "discovered": 14071,
+   "discovered": 14143,
    "canonical_persisted": 872,
    "interpretable": 872,
    "candidate_claim_or_state": 426,
@@ -49,9 +49,9 @@
   "event": {
    "learning_maturity": "context_only",
    "funnel_issues": [],
-   "discovered": 2752,
-   "canonical_persisted": 2752,
-   "interpretable": 2752,
+   "discovered": 2791,
+   "canonical_persisted": 2791,
+   "interpretable": 2791,
    "candidate_claim_or_state": 0,
    "effective_forward_eligible": 0,
    "independently_matured": 0,
@@ -67,7 +67,7 @@
    "interpretable": 144,
    "candidate_claim_or_state": 10,
    "effective_forward_eligible": 144,
-   "independently_matured": 24,
+   "independently_matured": 30,
    "benchmark_evaluated": null,
    "downstream_consumer_count": 1,
    "validated_learning_applied": null
@@ -88,10 +88,10 @@
   "external_research": {
    "learning_maturity": "forward_collecting",
    "funnel_issues": [],
-   "discovered": 3013,
-   "canonical_persisted": 3013,
-   "interpretable": 753,
-   "candidate_claim_or_state": 35,
+   "discovered": 3489,
+   "canonical_persisted": 3489,
+   "interpretable": 1229,
+   "candidate_claim_or_state": 41,
    "effective_forward_eligible": 20,
    "independently_matured": 2,
    "benchmark_evaluated": null,
@@ -102,50 +102,50 @@
  "engines": {
   "market": {
    "discovered": {
-    "count": 36,
+    "count": 37,
     "definition": "macro/regime observations captured",
     "evidence": "research/archive/macro_regime_observations.jsonl",
     "dedup_key": "observation_id"
    },
    "canonical_persisted": {
-    "count": 36,
+    "count": 37,
     "definition": "append-only archived observations",
     "evidence": "research/archive/macro_regime_observations.jsonl",
     "dedup_key": "observation_id"
    },
    "interpretable": {
-    "count": 36,
+    "count": 37,
     "definition": "observations with a regime and acceptable input quality",
     "evidence": "research/archive/macro_regime_observations.jsonl",
     "dedup_key": "observation_id"
    },
    "candidate_claim_or_state": {
-    "count": 10,
+    "count": 11,
     "definition": "distinct regime state entries",
     "evidence": "research/archive/macro_regime_observations.jsonl",
     "dedup_key": "regime_key"
    },
    "effective_forward_eligible": {
-    "count": 36,
+    "count": 37,
     "definition": "point-in-time capable live observations (observed_at recorded)",
     "evidence": "research/archive/macro_regime_observations.jsonl",
     "dedup_key": "observation_id"
    },
    "independently_matured": {
-    "count": 25,
+    "count": 29,
     "definition": "matured (>= 20 sessions) SPY outcomes of live macro observations and live market-state snapshots",
     "evidence": "research/archive/macro_regime_outcomes.jsonl + research/archive/market_state_outcomes.jsonl",
     "dedup_key": "observation_id×horizon / outcome_id"
    },
    "benchmark_evaluated": {
-    "count": 12,
+    "count": 13,
     "definition": "SPY-benchmark scorecards built only from matured (>= 20 sessions) outcomes",
     "evidence": "docs/research/macro_outcome_memory.json + docs/research/market_state_outcome_scorecards.json",
     "dedup_key": "scorecard_id"
    },
    "early_reads": {
-    "market_state_outcomes_below_maturity": 66,
-    "macro_outcomes_below_maturity": 28,
+    "market_state_outcomes_below_maturity": 69,
+    "macro_outcomes_below_maturity": 29,
     "note": "horizons below 20 sessions; visible for monitoring, not matured learning"
    },
    "downstream_consumer_count": {
@@ -164,13 +164,13 @@
     "reason": "no forward-validated method exists yet (genuine forward matured = 0); not provable"
    },
    "historical": {
-    "market_price_history_mature_60": 7693,
+    "market_price_history_mature_60": 7698,
     "note": "historical price-event replay; descriptive, not forward learning"
    }
   },
   "fundamental": {
    "discovered": {
-    "count": 14071,
+    "count": 14143,
     "definition": "XBRL facts captured (company_fundamental_memory archive)",
     "evidence": "docs/research/company_fundamental_memory.json",
     "dedup_key": "fact"
@@ -229,26 +229,26 @@
     "reason": "no forward-validated method exists yet (genuine forward matured = 0); not provable"
    },
    "historical": {
-    "descriptive_outcome_rows": 1715,
+    "descriptive_outcome_rows": 1716,
     "descriptive_matured_observations": 861,
     "note": "historical XBRL filings → descriptive/history outcomes, not Forward Edge"
    }
   },
   "event": {
    "discovered": {
-    "count": 2752,
+    "count": 2791,
     "definition": "news/event items archived",
     "evidence": "research/archive/events",
     "dedup_key": "uuid"
    },
    "canonical_persisted": {
-    "count": 2752,
+    "count": 2791,
     "definition": "append-only monthly event shards",
     "evidence": "research/archive/events",
     "dedup_key": "uuid"
    },
    "interpretable": {
-    "count": 2752,
+    "count": 2791,
     "definition": "items with title, url and event date",
     "evidence": "research/archive/events",
     "dedup_key": "uuid"
@@ -278,8 +278,8 @@
     "dedup_key": "uuid"
    },
    "historical": {
-    "matured_outcome_rows_all_events": 3452,
-    "outcome_rows_not_forward_or_below_maturity": 3452,
+    "matured_outcome_rows_all_events": 3705,
+    "outcome_rows_not_forward_or_below_maturity": 3705,
     "note": "outcomes of backfilled/non-live events or horizons below the maturity floor are descriptive, never forward learning"
    },
    "downstream_consumer_count": {
@@ -330,13 +330,13 @@
     "dedup_key": "observation_id"
    },
    "independently_matured": {
-    "count": 24,
+    "count": 30,
     "definition": "observations with a matured 20-session outcome (one per observation)",
     "evidence": "docs/research/options_opportunity_outcome_memory.json",
     "dedup_key": "observation_id"
    },
    "early_reads": {
-    "outcomes_all_horizons": 138,
+    "outcomes_all_horizons": 150,
     "note": "includes horizons below 20 sessions; monitoring only, not matured learning"
    },
    "benchmark_evaluated": {
@@ -432,33 +432,33 @@
   },
   "external_research": {
    "discovered": {
-    "count": 3013,
+    "count": 3489,
     "definition": "distinct canonical source keys (forum/blog/YouTube)",
     "evidence": "research/store/source_store.json",
     "dedup_key": "source_key"
    },
    "canonical_persisted": {
-    "count": 3013,
+    "count": 3489,
     "definition": "Source Store records (append-only)",
     "evidence": "research/store/source_store.json",
     "dedup_key": "source_key"
    },
    "interpretable": {
-    "count": 753,
+    "count": 1229,
     "definition": "records with body text available (excerpt ≤360 chars or full text ≥1000); title-only excluded",
     "evidence": "docs/data/source_intelligence.json",
     "dedup_key": "feed id",
     "text_depth": {
      "title_only": 2145,
-     "excerpt": 753,
+     "excerpt": 1229,
      "full_text": 0,
-     "original_length_known": 753
+     "original_length_known": 1229
     },
-    "records_processed_by_source_reading": 3013,
+    "records_processed_by_source_reading": 3489,
     "note": "processed ≠ understood: most forum rows reach Source Reading as title/excerpt only"
    },
    "candidate_claim_or_state": {
-    "count": 35,
+    "count": 41,
     "definition": "records yielding a testable rule/claim",
     "evidence": "docs/research/source_reading_memory.json",
     "dedup_key": "source_key"
@@ -510,13 +510,13 @@
    },
    "historical": {
     "lifecycle_rules_mature_60": 29,
-    "lifecycle_rules_mature_20": 13,
+    "lifecycle_rules_mature_20": 14,
     "note": "author-rule outcomes on backfill/legacy sources: historical/descriptive, not Genuine Forward"
    }
   }
  },
  "tracks": {
   "learning_maturity": "COLLECTING",
-  "genuine_forward_matured_total": 51
+  "genuine_forward_matured_total": 61
  }
 }

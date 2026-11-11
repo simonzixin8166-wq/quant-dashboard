@@ -1,6 +1,6 @@
 {
   "version": "6.14.3",
-  "generated_at": "2026-11-11T02:44:50.835561+00:00",
+  "generated_at": "2026-11-11T16:16:39.974094+00:00",
   "mode": "autonomous_research_planner",
   "queue": [
     {
@@ -29,42 +29,9 @@
       "base_priority": 88.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-11-09T23:19:42.908334+00:00",
-      "run_count": 5,
+      "run_count": 6,
       "carry_forward": true,
-      "last_carried_at": "2026-11-11T02:44:50.835561+00:00",
-      "carry_reason": "persistent_backlog_not_regenerated_this_snapshot"
-    },
-    {
-      "task_id": "9dd02d7dc13f4e",
-      "kind": "regime_combination",
-      "key": "US_REGIME",
-      "title": "美股 · 风险环境存在组合分化",
-      "priority": 82.0,
-      "why_now": "当前组合状态 CROSS_LOW|BREADTH_WEAKENING|VIX_STRESS；需要验证跨资产压力与宽度收窄是否持续共振。",
-      "questions": [
-        "同类组合状态历史5/20/60日结果如何？",
-        "宽度还是利率/信用哪一侧先修复？",
-        "VIX是否从低波动补涨确认风险？",
-        "什么变化足以让组合状态降级？"
-      ],
-      "evidence_sources": [
-        "regime_combination_memory",
-        "breadth_intelligence",
-        "cross_asset_divergence",
-        "SPY",
-        "VIX"
-      ],
-      "status": "open",
-      "review_window_days": 5,
-      "guardrail": "研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。",
-      "state_id": "CROSS_LOW|BREADTH_WEAKENING|VIX_STRESS",
-      "regime_level": "medium",
-      "base_priority": 82.0,
-      "controlled_learning_delta": 0.0,
-      "first_seen_at": "2026-11-06T16:02:33.784906+00:00",
-      "run_count": 11,
-      "carry_forward": true,
-      "last_carried_at": "2026-11-11T02:44:50.835561+00:00",
+      "last_carried_at": "2026-11-11T16:16:39.974094+00:00",
       "carry_reason": "persistent_backlog_not_regenerated_this_snapshot"
     },
     {
@@ -103,43 +70,8 @@
       "base_priority": 78.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-10-30T23:26:42.310122+00:00",
-      "run_count": 33,
+      "run_count": 34,
       "carry_forward": false
-    },
-    {
-      "task_id": "ff2fe8dce9c4c9",
-      "kind": "breadth_intelligence",
-      "key": "US_BREADTH",
-      "title": "美股 · 市场宽度走弱",
-      "priority": 78.0,
-      "why_now": "市场参与度评分 56.1，风险信号 2 项。",
-      "questions": [
-        "20/50日宽度是否连续修复？",
-        "RSP是否开始追上SPY？",
-        "QQQE是否开始追上QQQ？",
-        "长期200日宽度是否重回50%以上？",
-        "宽度恶化是否与利率/信用压力共振？"
-      ],
-      "evidence_sources": [
-        "breadth_intelligence",
-        "market_breadth",
-        "SPY/RSP",
-        "QQQ/QQQE",
-        "cross_asset_divergence"
-      ],
-      "status": "open",
-      "review_window_days": 5,
-      "guardrail": "研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。",
-      "breadth_level": "weakening",
-      "participation_score": 56.1,
-      "combination_key": "B20_OK|B50_OK|B200_OK|SLOPE_DOWN|SPY_RSP_OK|QQQ_QQQE_OK|AD_POS|NH52_THIN",
-      "base_priority": 78.0,
-      "controlled_learning_delta": 0.0,
-      "first_seen_at": "2026-11-06T16:02:33.784906+00:00",
-      "run_count": 11,
-      "carry_forward": true,
-      "last_carried_at": "2026-11-11T02:44:50.835561+00:00",
-      "carry_reason": "persistent_backlog_not_regenerated_this_snapshot"
     },
     {
       "task_id": "320b47e4133735",
@@ -167,7 +99,7 @@
       "base_priority": 74.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-11-03T02:11:45.469457+00:00",
-      "run_count": 26,
+      "run_count": 27,
       "carry_forward": false
     },
     {
@@ -196,7 +128,7 @@
       "base_priority": 74.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-11-09T23:19:42.908334+00:00",
-      "run_count": 5,
+      "run_count": 6,
       "carry_forward": false
     },
     {
@@ -225,65 +157,7 @@
       "base_priority": 72.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-10-27T23:24:03.400821+00:00",
-      "run_count": 50,
-      "carry_forward": false
-    },
-    {
-      "task_id": "970cd03ca29c6a",
-      "kind": "market_anomaly",
-      "key": "AMD",
-      "title": "AMD · 异动/趋势专项研究",
-      "priority": 72.0,
-      "why_now": "Trend Pulse 阶段从 趋势恶化 变为 修复中",
-      "questions": [
-        "这次变化由公司事件、行业共振还是市场因素驱动？",
-        "支持原 Thesis 的证据是什么？",
-        "最强反证是什么？",
-        "明日需要验证什么？"
-      ],
-      "evidence_sources": [
-        "market_data",
-        "trend_pulse",
-        "SEC/IR",
-        "company_news",
-        "industry_peers"
-      ],
-      "status": "open",
-      "review_window_days": 2,
-      "guardrail": "研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。",
-      "base_priority": 72.0,
-      "controlled_learning_delta": 0.0,
-      "first_seen_at": "2026-11-06T01:52:13.302124+00:00",
-      "run_count": 13,
-      "carry_forward": false
-    },
-    {
-      "task_id": "18388d1182a7d7",
-      "kind": "market_anomaly",
-      "key": "SPCX",
-      "title": "SPCX · 异动/趋势专项研究",
-      "priority": 72.0,
-      "why_now": "Trend Pulse 阶段从 趋势恶化 变为 修复中",
-      "questions": [
-        "这次变化由公司事件、行业共振还是市场因素驱动？",
-        "支持原 Thesis 的证据是什么？",
-        "最强反证是什么？",
-        "明日需要验证什么？"
-      ],
-      "evidence_sources": [
-        "market_data",
-        "trend_pulse",
-        "SEC/IR",
-        "company_news",
-        "industry_peers"
-      ],
-      "status": "open",
-      "review_window_days": 2,
-      "guardrail": "研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。",
-      "base_priority": 72.0,
-      "controlled_learning_delta": 0.0,
-      "first_seen_at": "2026-11-06T01:52:13.302124+00:00",
-      "run_count": 13,
+      "run_count": 51,
       "carry_forward": false
     },
     {
@@ -312,8 +186,10 @@
       "base_priority": 72.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-11-09T23:19:42.908334+00:00",
-      "run_count": 5,
-      "carry_forward": false
+      "run_count": 6,
+      "carry_forward": true,
+      "last_carried_at": "2026-11-11T16:16:39.974094+00:00",
+      "carry_reason": "persistent_backlog_not_regenerated_this_snapshot"
     },
     {
       "task_id": "1e0c0f5a640215",
@@ -341,9 +217,9 @@
       "base_priority": 72.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-11-09T23:19:42.908334+00:00",
-      "run_count": 5,
+      "run_count": 6,
       "carry_forward": true,
-      "last_carried_at": "2026-11-11T02:44:50.835561+00:00",
+      "last_carried_at": "2026-11-11T16:16:39.974094+00:00",
       "carry_reason": "persistent_backlog_not_regenerated_this_snapshot"
     },
     {
@@ -372,9 +248,9 @@
       "base_priority": 72.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-11-09T23:19:42.908334+00:00",
-      "run_count": 5,
+      "run_count": 6,
       "carry_forward": true,
-      "last_carried_at": "2026-11-11T02:44:50.835561+00:00",
+      "last_carried_at": "2026-11-11T16:16:39.974094+00:00",
       "carry_reason": "persistent_backlog_not_regenerated_this_snapshot"
     },
     {
@@ -403,9 +279,9 @@
       "base_priority": 72.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-11-09T23:19:42.908334+00:00",
-      "run_count": 5,
+      "run_count": 6,
       "carry_forward": true,
-      "last_carried_at": "2026-11-11T02:44:50.835561+00:00",
+      "last_carried_at": "2026-11-11T16:16:39.974094+00:00",
       "carry_reason": "persistent_backlog_not_regenerated_this_snapshot"
     },
     {
@@ -434,7 +310,7 @@
       "base_priority": 72.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-11-11T01:04:44.023083+00:00",
-      "run_count": 2,
+      "run_count": 3,
       "carry_forward": false
     },
     {
@@ -463,7 +339,7 @@
       "base_priority": 72.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-11-11T01:04:44.023083+00:00",
-      "run_count": 2,
+      "run_count": 3,
       "carry_forward": false
     },
     {
@@ -534,7 +410,7 @@
       "base_priority": 70.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-10-07T04:39:21.812896+00:00",
-      "run_count": 253,
+      "run_count": 254,
       "carry_forward": false
     },
     {
@@ -588,7 +464,7 @@
       "base_priority": 70.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-10-08T06:30:16.979713+00:00",
-      "run_count": 174,
+      "run_count": 175,
       "carry_forward": false
     },
     {
@@ -642,7 +518,7 @@
       "base_priority": 70.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-10-08T06:30:16.979713+00:00",
-      "run_count": 174,
+      "run_count": 175,
       "carry_forward": false
     },
     {
@@ -672,7 +548,7 @@
       "base_priority": 68.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-10-04T09:04:25.868710+00:00",
-      "run_count": 379,
+      "run_count": 380,
       "carry_forward": false
     },
     {
@@ -702,7 +578,7 @@
       "base_priority": 68.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-10-04T13:28:51.827833+00:00",
-      "run_count": 370,
+      "run_count": 371,
       "carry_forward": false
     },
     {
@@ -732,7 +608,7 @@
       "base_priority": 68.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-10-07T10:59:08.076671+00:00",
-      "run_count": 205,
+      "run_count": 206,
       "carry_forward": false
     },
     {
@@ -763,7 +639,7 @@
       "base_priority": 67.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-10-04T05:19:17.255231+00:00",
-      "run_count": 393,
+      "run_count": 394,
       "carry_forward": false
     },
     {
@@ -825,7 +701,7 @@
       "base_priority": 64.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-10-07T04:05:09.798011+00:00",
-      "run_count": 267,
+      "run_count": 268,
       "carry_forward": false
     },
     {
@@ -877,7 +753,7 @@
       "base_priority": 64.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-10-07T04:39:21.812876+00:00",
-      "run_count": 253,
+      "run_count": 254,
       "carry_forward": false
     },
     {
@@ -936,7 +812,7 @@
       "base_priority": 64.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-10-14T00:07:18.103260+00:00",
-      "run_count": 111,
+      "run_count": 112,
       "carry_forward": false
     },
     {
@@ -967,7 +843,7 @@
       "base_priority": 62.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-10-04T05:19:17.255245+00:00",
-      "run_count": 393,
+      "run_count": 394,
       "carry_forward": false
     },
     {
@@ -998,7 +874,7 @@
       "base_priority": 62.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-10-04T05:19:17.255248+00:00",
-      "run_count": 393,
+      "run_count": 394,
       "carry_forward": false
     },
     {
@@ -1026,9 +902,9 @@
       "base_priority": 60.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-11-09T23:19:42.908334+00:00",
-      "run_count": 5,
+      "run_count": 6,
       "carry_forward": true,
-      "last_carried_at": "2026-11-11T02:44:50.835561+00:00",
+      "last_carried_at": "2026-11-11T16:16:39.974094+00:00",
       "carry_reason": "persistent_backlog_not_regenerated_this_snapshot"
     },
     {
@@ -1056,9 +932,9 @@
       "base_priority": 60.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-11-09T23:19:42.908334+00:00",
-      "run_count": 5,
+      "run_count": 6,
       "carry_forward": true,
-      "last_carried_at": "2026-11-11T02:44:50.835561+00:00",
+      "last_carried_at": "2026-11-11T16:16:39.974094+00:00",
       "carry_reason": "persistent_backlog_not_regenerated_this_snapshot"
     },
     {
@@ -1086,9 +962,9 @@
       "base_priority": 60.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-11-09T23:19:42.908334+00:00",
-      "run_count": 5,
+      "run_count": 6,
       "carry_forward": true,
-      "last_carried_at": "2026-11-11T02:44:50.835561+00:00",
+      "last_carried_at": "2026-11-11T16:16:39.974094+00:00",
       "carry_reason": "persistent_backlog_not_regenerated_this_snapshot"
     },
     {
@@ -1116,9 +992,9 @@
       "base_priority": 60.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-11-09T23:19:42.908334+00:00",
-      "run_count": 5,
+      "run_count": 6,
       "carry_forward": true,
-      "last_carried_at": "2026-11-11T02:44:50.835561+00:00",
+      "last_carried_at": "2026-11-11T16:16:39.974094+00:00",
       "carry_reason": "persistent_backlog_not_regenerated_this_snapshot"
     },
     {
@@ -1146,9 +1022,9 @@
       "base_priority": 60.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-11-09T23:19:42.908334+00:00",
-      "run_count": 5,
+      "run_count": 6,
       "carry_forward": true,
-      "last_carried_at": "2026-11-11T02:44:50.835561+00:00",
+      "last_carried_at": "2026-11-11T16:16:39.974094+00:00",
       "carry_reason": "persistent_backlog_not_regenerated_this_snapshot"
     },
     {
@@ -1176,7 +1052,7 @@
       "base_priority": 58.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-10-02T12:50:25.083840+00:00",
-      "run_count": 432,
+      "run_count": 433,
       "carry_forward": false
     },
     {
@@ -1204,7 +1080,7 @@
       "base_priority": 58.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-10-02T12:50:25.083849+00:00",
-      "run_count": 432,
+      "run_count": 433,
       "carry_forward": false
     },
     {
@@ -1232,7 +1108,7 @@
       "base_priority": 58.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-10-02T12:50:25.083852+00:00",
-      "run_count": 432,
+      "run_count": 433,
       "carry_forward": false
     }
   ],
@@ -1263,42 +1139,9 @@
       "base_priority": 88.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-11-09T23:19:42.908334+00:00",
-      "run_count": 5,
+      "run_count": 6,
       "carry_forward": true,
-      "last_carried_at": "2026-11-11T02:44:50.835561+00:00",
-      "carry_reason": "persistent_backlog_not_regenerated_this_snapshot"
-    },
-    {
-      "task_id": "9dd02d7dc13f4e",
-      "kind": "regime_combination",
-      "key": "US_REGIME",
-      "title": "美股 · 风险环境存在组合分化",
-      "priority": 82.0,
-      "why_now": "当前组合状态 CROSS_LOW|BREADTH_WEAKENING|VIX_STRESS；需要验证跨资产压力与宽度收窄是否持续共振。",
-      "questions": [
-        "同类组合状态历史5/20/60日结果如何？",
-        "宽度还是利率/信用哪一侧先修复？",
-        "VIX是否从低波动补涨确认风险？",
-        "什么变化足以让组合状态降级？"
-      ],
-      "evidence_sources": [
-        "regime_combination_memory",
-        "breadth_intelligence",
-        "cross_asset_divergence",
-        "SPY",
-        "VIX"
-      ],
-      "status": "open",
-      "review_window_days": 5,
-      "guardrail": "研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。",
-      "state_id": "CROSS_LOW|BREADTH_WEAKENING|VIX_STRESS",
-      "regime_level": "medium",
-      "base_priority": 82.0,
-      "controlled_learning_delta": 0.0,
-      "first_seen_at": "2026-11-06T16:02:33.784906+00:00",
-      "run_count": 11,
-      "carry_forward": true,
-      "last_carried_at": "2026-11-11T02:44:50.835561+00:00",
+      "last_carried_at": "2026-11-11T16:16:39.974094+00:00",
       "carry_reason": "persistent_backlog_not_regenerated_this_snapshot"
     },
     {
@@ -1337,43 +1180,8 @@
       "base_priority": 78.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-10-30T23:26:42.310122+00:00",
-      "run_count": 33,
+      "run_count": 34,
       "carry_forward": false
-    },
-    {
-      "task_id": "ff2fe8dce9c4c9",
-      "kind": "breadth_intelligence",
-      "key": "US_BREADTH",
-      "title": "美股 · 市场宽度走弱",
-      "priority": 78.0,
-      "why_now": "市场参与度评分 56.1，风险信号 2 项。",
-      "questions": [
-        "20/50日宽度是否连续修复？",
-        "RSP是否开始追上SPY？",
-        "QQQE是否开始追上QQQ？",
-        "长期200日宽度是否重回50%以上？",
-        "宽度恶化是否与利率/信用压力共振？"
-      ],
-      "evidence_sources": [
-        "breadth_intelligence",
-        "market_breadth",
-        "SPY/RSP",
-        "QQQ/QQQE",
-        "cross_asset_divergence"
-      ],
-      "status": "open",
-      "review_window_days": 5,
-      "guardrail": "研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。",
-      "breadth_level": "weakening",
-      "participation_score": 56.1,
-      "combination_key": "B20_OK|B50_OK|B200_OK|SLOPE_DOWN|SPY_RSP_OK|QQQ_QQQE_OK|AD_POS|NH52_THIN",
-      "base_priority": 78.0,
-      "controlled_learning_delta": 0.0,
-      "first_seen_at": "2026-11-06T16:02:33.784906+00:00",
-      "run_count": 11,
-      "carry_forward": true,
-      "last_carried_at": "2026-11-11T02:44:50.835561+00:00",
-      "carry_reason": "persistent_backlog_not_regenerated_this_snapshot"
     },
     {
       "task_id": "320b47e4133735",
@@ -1401,7 +1209,7 @@
       "base_priority": 74.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-11-03T02:11:45.469457+00:00",
-      "run_count": 26,
+      "run_count": 27,
       "carry_forward": false
     },
     {
@@ -1430,7 +1238,7 @@
       "base_priority": 74.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-11-09T23:19:42.908334+00:00",
-      "run_count": 5,
+      "run_count": 6,
       "carry_forward": false
     },
     {
@@ -1459,65 +1267,7 @@
       "base_priority": 72.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-10-27T23:24:03.400821+00:00",
-      "run_count": 50,
-      "carry_forward": false
-    },
-    {
-      "task_id": "970cd03ca29c6a",
-      "kind": "market_anomaly",
-      "key": "AMD",
-      "title": "AMD · 异动/趋势专项研究",
-      "priority": 72.0,
-      "why_now": "Trend Pulse 阶段从 趋势恶化 变为 修复中",
-      "questions": [
-        "这次变化由公司事件、行业共振还是市场因素驱动？",
-        "支持原 Thesis 的证据是什么？",
-        "最强反证是什么？",
-        "明日需要验证什么？"
-      ],
-      "evidence_sources": [
-        "market_data",
-        "trend_pulse",
-        "SEC/IR",
-        "company_news",
-        "industry_peers"
-      ],
-      "status": "open",
-      "review_window_days": 2,
-      "guardrail": "研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。",
-      "base_priority": 72.0,
-      "controlled_learning_delta": 0.0,
-      "first_seen_at": "2026-11-06T01:52:13.302124+00:00",
-      "run_count": 13,
-      "carry_forward": false
-    },
-    {
-      "task_id": "18388d1182a7d7",
-      "kind": "market_anomaly",
-      "key": "SPCX",
-      "title": "SPCX · 异动/趋势专项研究",
-      "priority": 72.0,
-      "why_now": "Trend Pulse 阶段从 趋势恶化 变为 修复中",
-      "questions": [
-        "这次变化由公司事件、行业共振还是市场因素驱动？",
-        "支持原 Thesis 的证据是什么？",
-        "最强反证是什么？",
-        "明日需要验证什么？"
-      ],
-      "evidence_sources": [
-        "market_data",
-        "trend_pulse",
-        "SEC/IR",
-        "company_news",
-        "industry_peers"
-      ],
-      "status": "open",
-      "review_window_days": 2,
-      "guardrail": "研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。",
-      "base_priority": 72.0,
-      "controlled_learning_delta": 0.0,
-      "first_seen_at": "2026-11-06T01:52:13.302124+00:00",
-      "run_count": 13,
+      "run_count": 51,
       "carry_forward": false
     },
     {
@@ -1546,16 +1296,140 @@
       "base_priority": 72.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-11-09T23:19:42.908334+00:00",
-      "run_count": 5,
+      "run_count": 6,
+      "carry_forward": true,
+      "last_carried_at": "2026-11-11T16:16:39.974094+00:00",
+      "carry_reason": "persistent_backlog_not_regenerated_this_snapshot"
+    },
+    {
+      "task_id": "1e0c0f5a640215",
+      "kind": "market_anomaly",
+      "key": "TSLA",
+      "title": "TSLA · 异动/趋势专项研究",
+      "priority": 72.0,
+      "why_now": "单日涨跌 +5.5%，达到重点复查阈值",
+      "questions": [
+        "这次变化由公司事件、行业共振还是市场因素驱动？",
+        "支持原 Thesis 的证据是什么？",
+        "最强反证是什么？",
+        "明日需要验证什么？"
+      ],
+      "evidence_sources": [
+        "market_data",
+        "trend_pulse",
+        "SEC/IR",
+        "company_news",
+        "industry_peers"
+      ],
+      "status": "open",
+      "review_window_days": 2,
+      "guardrail": "研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。",
+      "base_priority": 72.0,
+      "controlled_learning_delta": 0.0,
+      "first_seen_at": "2026-11-09T23:19:42.908334+00:00",
+      "run_count": 6,
+      "carry_forward": true,
+      "last_carried_at": "2026-11-11T16:16:39.974094+00:00",
+      "carry_reason": "persistent_backlog_not_regenerated_this_snapshot"
+    },
+    {
+      "task_id": "94dfddb30f20e7",
+      "kind": "market_anomaly",
+      "key": "QLD",
+      "title": "QLD · 异动/趋势专项研究",
+      "priority": 72.0,
+      "why_now": "单日涨跌 +6.8%，达到重点复查阈值",
+      "questions": [
+        "这次变化由公司事件、行业共振还是市场因素驱动？",
+        "支持原 Thesis 的证据是什么？",
+        "最强反证是什么？",
+        "明日需要验证什么？"
+      ],
+      "evidence_sources": [
+        "market_data",
+        "trend_pulse",
+        "SEC/IR",
+        "company_news",
+        "industry_peers"
+      ],
+      "status": "open",
+      "review_window_days": 2,
+      "guardrail": "研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。",
+      "base_priority": 72.0,
+      "controlled_learning_delta": 0.0,
+      "first_seen_at": "2026-11-09T23:19:42.908334+00:00",
+      "run_count": 6,
+      "carry_forward": true,
+      "last_carried_at": "2026-11-11T16:16:39.974094+00:00",
+      "carry_reason": "persistent_backlog_not_regenerated_this_snapshot"
+    },
+    {
+      "task_id": "9294e1e77660c4",
+      "kind": "market_anomaly",
+      "key": "SMH",
+      "title": "SMH · 异动/趋势专项研究",
+      "priority": 72.0,
+      "why_now": "单日涨跌 +5.1%，达到重点复查阈值",
+      "questions": [
+        "这次变化由公司事件、行业共振还是市场因素驱动？",
+        "支持原 Thesis 的证据是什么？",
+        "最强反证是什么？",
+        "明日需要验证什么？"
+      ],
+      "evidence_sources": [
+        "market_data",
+        "trend_pulse",
+        "SEC/IR",
+        "company_news",
+        "industry_peers"
+      ],
+      "status": "open",
+      "review_window_days": 2,
+      "guardrail": "研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。",
+      "base_priority": 72.0,
+      "controlled_learning_delta": 0.0,
+      "first_seen_at": "2026-11-09T23:19:42.908334+00:00",
+      "run_count": 6,
+      "carry_forward": true,
+      "last_carried_at": "2026-11-11T16:16:39.974094+00:00",
+      "carry_reason": "persistent_backlog_not_regenerated_this_snapshot"
+    },
+    {
+      "task_id": "be6aac625fd469",
+      "kind": "market_anomaly",
+      "key": "IREN",
+      "title": "IREN · 异动/趋势专项研究",
+      "priority": 72.0,
+      "why_now": "单日涨跌 -7.8%，达到重点复查阈值",
+      "questions": [
+        "这次变化由公司事件、行业共振还是市场因素驱动？",
+        "支持原 Thesis 的证据是什么？",
+        "最强反证是什么？",
+        "明日需要验证什么？"
+      ],
+      "evidence_sources": [
+        "market_data",
+        "trend_pulse",
+        "SEC/IR",
+        "company_news",
+        "industry_peers"
+      ],
+      "status": "open",
+      "review_window_days": 2,
+      "guardrail": "研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。",
+      "base_priority": 72.0,
+      "controlled_learning_delta": 0.0,
+      "first_seen_at": "2026-11-11T01:04:44.023083+00:00",
+      "run_count": 3,
       "carry_forward": false
     }
   ],
   "counts": {
-    "open": 35,
-    "high_priority": 18,
-    "persistent": 35,
-    "carried_backlog": 11,
-    "expired_backlog": 0
+    "open": 31,
+    "high_priority": 14,
+    "persistent": 31,
+    "carried_backlog": 10,
+    "expired_backlog": 4
   },
   "planner_policy": {
     "objective": "优先研究可能改变 Thesis、风险暴露或方法可信度的问题。",

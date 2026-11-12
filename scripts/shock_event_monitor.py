@@ -89,8 +89,12 @@ def parse_chart(payload, sym):
             session = "pre"
         elif end and t_last >= end:
             session = "post"
-        rmp = meta.get("regularMarketPrice")
+        rmp, rmt = meta.get("regularMarketPrice"), meta.get("regularMarketTime")
         regular_close = float(rmp) if session == "post" and rmp else None
+        if session == "pre" and rmp and rmt and start and rmt < start:
+            # before the open the 1d chart still spans the previous session, so chartPreviousClose is the close
+            # two sessions back; the last regular close is regularMarketPrice (production bug 2026-11-12)
+            prev = float(rmp)
         total = last / prev - 1
         ext = (last / regular_close - 1) if regular_close else (total if session == "pre" else 0.0)
         day = (regular_close / prev - 1) if regular_close else (None if session == "pre" else total)
@@ -107,6 +111,22 @@ def parse_chart(payload, sym):
                 "move_day": None if day is None else round(day, 4)}
     except Exception as exc:
         return {"symbol": sym, "status": "unavailable", "reason": type(exc).__name__}
+
+
+def anchor(q, data):
+    """Re-measure a quote from the Daily close of its reference session (docs/data.json) when the dates match."""
+    if q.get("status") != "ok" or not q.get("ref_session"):
+        return q
+    for group in ("core", "index", "stocks"):
+        row = ((data or {}).get(group) or {}).get(q["symbol"]) or {}
+        if row.get("date") == q["ref_session"] and isinstance(row.get("close"), (int, float)) and row["close"] > 0:
+            ref = float(row["close"])
+            q = dict(q, ref_price=round(ref, 4), anchor="daily_close")
+            q["move_total"] = round(q["last"] / ref - 1, 4)
+            if q.get("session") == "pre":
+                q["move_ext"] = q["move_total"]
+            return q
+    return dict(q, anchor="chart_meta")
 
 
 def fetch_quote(sym):
@@ -248,7 +268,7 @@ SESSION_ZH = {"pre": "盘前", "post": "盘后", "regular": "盘中"}
 LINE_ZH = {"near": "接近一级", "t1": "一级", "t2": "二级", "t3": "三级"}
 
 
-def advice(ev, impact, events_ahead):
+def advice(ev, impact, events_ahead, others=()):
     tips = []
     hit = [r for r in impact if r.get("status") == "ok" and r.get("reached")]
     if hit:
@@ -260,10 +280,12 @@ def advice(ev, impact, events_ahead):
         tips.append(f"核心仓位：{s or '数据不可用'}。按原计划定投，不因单一事件改变节奏。")
     if ev["kind"] == "company":
         titles = " ".join(x["title"].lower() for x in ev["news"]["items"])
-        if any(g in titles for g in GOVERNANCE):
+        if ev["news_trigger"] and any(g in titles for g in GOVERNANCE):
             tips.append(f"{ev['subject']}：管理层或治理事件，结果未定。不建议因下跌加仓，也不建议恐慌卖出；等公司或董事会正式公告。")
         else:
             tips.append(f"{ev['subject']}：原因未经核实前，不据此调整仓位；先看是否有公司公告或官方消息。")
+            if others:
+                tips.append(f"同期 {'、'.join(others)} 也有事件，两者可能相关（未核实）。")
         if events_ahead:
             tips.append(f"{ev['subject']}：{events_ahead[0]['date']} 有{events_ahead[0].get('title_zh') or '已排期事件'}"
                         "（日期以公司公告为准），两个不确定性叠加。")
@@ -309,6 +331,24 @@ def open_event(ledger, subject, ref):
             if gap <= MERGE_SESSIONS:
                 return r
     return None
+
+
+CORRECTABLE = ("quote", "core_impact", "advice", "severity", "price_trigger", "reaction")
+
+
+def apply_corrections(e, rows):
+    """Public view of an event after its append-only correction rows (the original event row is never rewritten)."""
+    if not rows:
+        return e
+    e = dict(e)
+    for c in sorted(rows, key=lambda r: r.get("at", "")):
+        for k in CORRECTABLE:
+            if k in c:
+                e[k] = c[k]
+        if c.get("retracted"):
+            e["retracted"] = True
+        e.setdefault("corrections", []).append({"at": c.get("at"), "reason_zh": c.get("reason_zh")})
+    return e
 
 
 def telegram_text(e):
@@ -358,7 +398,7 @@ def run(now=None, quote=fetch_quote, news=fetch_news, daily=fetch_daily, send=No
     symbols = list(cfg["stocks"]) + cfg["market"] + [cfg["vix"]] + [s for s in cfg["core"] if s not in cfg["market"]]
     quotes, headlines = {}, {}
     for s in symbols:
-        quotes[s] = quote(s)
+        quotes[s] = anchor(quote(s), data)
         time.sleep(pause)
     for s in cfg["stocks"]:
         headlines[s] = news(s)
@@ -367,7 +407,8 @@ def run(now=None, quote=fetch_quote, news=fetch_news, daily=fetch_daily, send=No
     state = load(state_path, {}) or {}
     impact = core_impact(cfg, quotes, data, tiers)
     new_rows, touched = [], []
-    for ev in detect(quotes, headlines, cfg, now):
+    found = detect(quotes, headlines, cfg, now)
+    for ev in found:
         q = ev.get("quote") or quotes.get("QQQ") or {}
         ref = q.get("ref_session") or tc.previous_session(now).isoformat()
         prior = open_event(ledger + new_rows, ev["subject"], ref)
@@ -391,7 +432,7 @@ def run(now=None, quote=fetch_quote, news=fetch_news, daily=fetch_daily, send=No
              "market_movers": ev.get("market_movers"), "vix_trigger": ev.get("vix_trigger"),
              "reaction": reaction(cfg, quotes), "core_impact": impact, "upcoming": ahead,
              "production_use": False}
-        e["advice"] = advice(ev, impact, ahead)
+        e["advice"] = advice(ev, impact, ahead, [x["subject"] for x in found if x["subject"] not in (ev["subject"], "MARKET")])
         if ev["kind"] == "company" and any(a["date"] in (ref, now.date().isoformat()) for a in ahead):
             e["scheduled"] = "earnings"
         new_rows.append(e)
@@ -418,6 +459,7 @@ def run(now=None, quote=fetch_quote, news=fetch_news, daily=fetch_daily, send=No
             outcomes.setdefault(r["event_id"], []).append(r)
     public = []
     for e in sorted(events.values(), key=lambda r: r["first_seen"], reverse=True)[:PUBLIC_EVENTS]:
+        e = apply_corrections(e, [r for r in ledger if r.get("type") == "correction" and r.get("event_id") == e["event_id"]])
         public.append(dict(e, outcomes=sorted(outcomes.get(e["event_id"], []), key=lambda r: r["n"]),
                            delivery=(state.get(e["event_id"]) or {}).get("status")))
     unavailable = sorted(s for s, q in quotes.items() if q.get("status") != "ok")

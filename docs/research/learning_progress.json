@@ -1,0 +1,345 @@
+{
+ "version": "learning-progress-1.0",
+ "generated_at": "2026-11-12T11:41:27+00:00",
+ "learning_state": "UNPROVEN",
+ "final": "NO",
+ "measures": {
+  "understanding": {
+   "status": "ok",
+   "unit_zh": "帖子 × 股票代码",
+   "test_sets": {
+    "s2_v5_test": {
+     "label_zh": "S2 v5 冻结测试集",
+     "posts": 85,
+     "gold_pairs": 70,
+     "gold_file": "wxc-bot research/gold/claims_gold_test_v5.jsonl",
+     "gold_sha256_prefix": "23a0c9c6",
+     "frozen_at": "2026-11-10"
+    }
+   },
+   "rows": [
+    {
+     "extractor": "ce-4",
+     "role": "production",
+     "set": "s2_v5_test",
+     "set_label_zh": "S2 v5 冻结测试集",
+     "status": "complete",
+     "answered_posts": null,
+     "precision": {
+      "k": 27,
+      "n": 37,
+      "value": 0.73,
+      "ci95": [
+       0.57,
+       0.85
+      ]
+     },
+     "recall": {
+      "k": 27,
+      "n": 70,
+      "value": 0.386,
+      "ci95": [
+       0.28,
+       0.5
+      ]
+     },
+     "measured_at": "2026-11-10",
+     "evidence": "wxc-bot research/gold/claims_gold_test_v5_extractor_scores.json",
+     "note_zh": null
+    },
+    {
+     "extractor": "ce-6",
+     "role": "shadow",
+     "set": "s2_v5_test",
+     "set_label_zh": "S2 v5 冻结测试集",
+     "status": "complete",
+     "answered_posts": null,
+     "precision": {
+      "k": 29,
+      "n": 39,
+      "value": 0.744,
+      "ci95": [
+       0.59,
+       0.85
+      ]
+     },
+     "recall": {
+      "k": 29,
+      "n": 70,
+      "value": 0.414,
+      "ci95": [
+       0.31,
+       0.53
+      ]
+     },
+     "measured_at": "2026-11-10",
+     "evidence": "wxc-bot research/gold/claims_gold_test_v5_extractor_scores.json",
+     "note_zh": null
+    },
+    {
+     "extractor": "gemini-claims-0.2",
+     "role": "challenger",
+     "set": "s2_v5_test",
+     "set_label_zh": "S2 v5 冻结测试集",
+     "status": "partial",
+     "answered_posts": 34,
+     "precision": {
+      "k": 40,
+      "n": 40,
+      "value": 1.0,
+      "ci95": [
+       0.91,
+       1.0
+      ]
+     },
+     "recall": {
+      "k": 40,
+      "n": 52,
+      "value": 0.769,
+      "ci95": [
+       0.64,
+       0.86
+      ]
+     },
+     "measured_at": "2026-11-12",
+     "evidence": "wxc-bot Actions gemini-claims (resume run, day 2)",
+     "note_zh": "只答了 34/85 篇，分母是这 34 篇里的 52 对；未答完前不作结论。"
+    }
+   ],
+   "production": {
+    "extractor": "ce-4",
+    "role": "production",
+    "set": "s2_v5_test",
+    "set_label_zh": "S2 v5 冻结测试集",
+    "status": "complete",
+    "answered_posts": null,
+    "precision": {
+     "k": 27,
+     "n": 37,
+     "value": 0.73,
+     "ci95": [
+      0.57,
+      0.85
+     ]
+    },
+    "recall": {
+     "k": 27,
+     "n": 70,
+     "value": 0.386,
+     "ci95": [
+      0.28,
+      0.5
+     ]
+    },
+    "measured_at": "2026-11-10",
+    "evidence": "wxc-bot research/gold/claims_gold_test_v5_extractor_scores.json",
+    "note_zh": null
+   },
+   "dev_only": [
+    {
+     "extractor": "ce-7",
+     "role": "forum_shadow",
+     "set": "forum_dev_v1",
+     "precision": 0.81,
+     "recall": 0.75,
+     "note_zh": "在论坛开发集上调规则得到，偏乐观；等论坛测试集验证。"
+    }
+   ],
+   "note_zh": "理解能力只记录在冻结、未见过的测试集上测过的成绩；每个抽取器版本只测一次。开发集成绩偏乐观，单独标注，不当作证据。更新方式：每次正式测完后由 PR 追加，不由日常流程改写。"
+  },
+  "judgments": {
+   "status": "ok",
+   "sessions": 25,
+   "observations": 646,
+   "first_session": "2026-10-08",
+   "latest_session": "2026-11-11",
+   "continuity": "ok",
+   "gaps": 0,
+   "matured_20": 126,
+   "abstain_20": 33,
+   "independent_episodes_20": 67,
+   "note_zh": "判断由系统规则在开盘前自动记录（只追加）；“继续观察”是弃权，不计分。不是复述作者观点。"
+  },
+  "experience": {
+   "status": "ok",
+   "as_of_session": "2026-11-11",
+   "h20": {
+    "matured": 126,
+    "scored": 93,
+    "hits": 65,
+    "hit_rate": {
+     "k": 65,
+     "n": 93,
+     "value": 0.699,
+     "ci95": [
+      0.6,
+      0.78
+     ]
+    },
+    "episode_scored": 51
+   },
+   "horizons": {
+    "20": {
+     "matured": 126,
+     "earliest_maturity": "2026-11-05"
+    },
+    "60": {
+     "matured": 0,
+     "earliest_maturity": "2027-01-05"
+    },
+    "120": {
+     "matured": 0,
+     "earliest_maturity": "2027-04-02"
+    }
+   },
+   "categories": [
+    {
+     "decision": "修复候选",
+     "eligible": false,
+     "scored": 13,
+     "hits": 8,
+     "abstain": 0,
+     "status": "INSUFFICIENT"
+    },
+    {
+     "decision": "修复候选",
+     "eligible": true,
+     "scored": 7,
+     "hits": 3,
+     "abstain": 0,
+     "status": "INSUFFICIENT"
+    },
+    {
+     "decision": "大跌机会候选",
+     "eligible": true,
+     "scored": 6,
+     "hits": 5,
+     "abstain": 0,
+     "status": "INSUFFICIENT"
+    },
+    {
+     "decision": "等待修复",
+     "eligible": false,
+     "scored": 45,
+     "hits": 34,
+     "abstain": 0,
+     "status": "reportable_minimum_only"
+    },
+    {
+     "decision": "等待修复",
+     "eligible": true,
+     "scored": 1,
+     "hits": 0,
+     "abstain": 0,
+     "status": "INSUFFICIENT"
+    },
+    {
+     "decision": "继续观察",
+     "eligible": false,
+     "scored": 0,
+     "hits": 0,
+     "abstain": 32,
+     "status": "INSUFFICIENT"
+    },
+    {
+     "decision": "继续观察",
+     "eligible": true,
+     "scored": 0,
+     "hits": 0,
+     "abstain": 1,
+     "status": "INSUFFICIENT"
+    },
+    {
+     "decision": "高位观察",
+     "eligible": false,
+     "scored": 3,
+     "hits": 2,
+     "abstain": 0,
+     "status": "INSUFFICIENT"
+    },
+    {
+     "decision": "高位观察",
+     "eligible": true,
+     "scored": 18,
+     "hits": 13,
+     "abstain": 0,
+     "status": "INSUFFICIENT"
+    }
+   ],
+   "categories_reportable": 1,
+   "categories_total": 9,
+   "promoted_separate": {
+    "scored": 88,
+    "hits": 47,
+    "note_zh": "Owner 批准的历史重建样本，不是真实前瞻，不合并进上面的分母。"
+   },
+   "note_zh": "n≥20 只是最低报告门槛，不代表已证明有预测能力；命中率需要按类别、独立样本和到期周数看。"
+  },
+  "reliability": {
+   "status": "ok",
+   "weeks_recorded": 2,
+   "min_weeks": 4,
+   "trend_state": "INSUFFICIENT",
+   "series": [
+    {
+     "hits_20": 25,
+     "matured_20": 48,
+     "observations": 568,
+     "production_extractor": null,
+     "production_recall": null,
+     "scored_20": 34,
+     "session": "2026-11-06",
+     "source": "git:4d73b29c"
+    },
+    {
+     "hits_20": 38,
+     "matured_20": 74,
+     "observations": 594,
+     "production_extractor": null,
+     "production_recall": null,
+     "scored_20": 51,
+     "session": "2026-11-09",
+     "source": "git:32c377e5"
+    },
+    {
+     "hits_20": 47,
+     "matured_20": 100,
+     "observations": 620,
+     "production_extractor": null,
+     "production_recall": null,
+     "scored_20": 67,
+     "session": "2026-11-10",
+     "source": "git:9c54b2c9"
+    },
+    {
+     "hits_20": 65,
+     "matured_20": 126,
+     "observations": 646,
+     "production_extractor": null,
+     "production_recall": null,
+     "scored_20": 93,
+     "session": "2026-11-11",
+     "source": "git:b433c447"
+    }
+   ],
+   "note_zh": "至少 4 周的记录才描述趋势；描述趋势也不等于证明能力提升。",
+   "attribution": {
+    "sessions": [
+     "2026-10-08",
+     "2026-10-09"
+    ],
+    "scored": 34,
+    "misses": 9,
+    "misses_by_primary": {
+     "E1": 4,
+     "E2": 1,
+     "M2": 2,
+     "R3": 2
+    },
+    "coverage": 1.0,
+    "investment_validity": "INSUFFICIENT"
+   }
+  }
+ },
+ "principle_zh": "四项衡量都带分母；缺数据显示“不可用”；开发集不当证据；历史重建不并入真实前瞻；只报告，不升级学习状态。"
+}

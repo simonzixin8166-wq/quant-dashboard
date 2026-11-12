@@ -1,0 +1,131 @@
+{
+ "version": "shock-watch-1.0",
+ "approved": "Owner 2026-11-12: unexpected events that move the market are recorded, analysed in time and given advice; checks twice a day (before the US open and after the close).",
+ "note_zh": "突发事件监测的发现规则（研究用，不是生产交易阈值）。只用免费的公开行情和新闻标题；不下单，不改核心分级阈值。",
+ "stocks": {
+  "NVDA": [
+   "nvidia",
+   "jensen huang",
+   "英伟达",
+   "黄仁勋"
+  ],
+  "AAPL": [
+   "apple",
+   "tim cook",
+   "苹果"
+  ],
+  "MSFT": [
+   "microsoft",
+   "satya nadella",
+   "微软"
+  ],
+  "AMZN": [
+   "amazon",
+   "andy jassy",
+   "亚马逊"
+  ],
+  "AVGO": [
+   "broadcom",
+   "hock tan",
+   "博通"
+  ],
+  "META": [
+   "meta platforms",
+   "zuckerberg",
+   "facebook"
+  ],
+  "GOOGL": [
+   "alphabet",
+   "google",
+   "sundar pichai",
+   "谷歌"
+  ],
+  "TSLA": [
+   "tesla",
+   "elon musk",
+   "特斯拉"
+  ],
+  "TSM": [
+   "tsmc",
+   "taiwan semiconductor",
+   "台积电"
+  ],
+  "AMD": [
+   "advanced micro devices",
+   "lisa su",
+   "amd"
+  ]
+ },
+ "market": [
+  "QQQ",
+  "SPY",
+  "VGT",
+  "SMH"
+ ],
+ "vix": "^VIX",
+ "core": [
+  "QQQM",
+  "VGT",
+  "QLD"
+ ],
+ "core_proxy": {
+  "QQQM": "QQQ"
+ },
+ "thresholds": {
+  "stock_move": 0.05,
+  "market_move": 0.02,
+  "vix_jump": 0.2,
+  "vix_level": 30,
+  "news_publishers": 3,
+  "news_window_hours": 24
+ },
+ "keywords": [
+  "oust",
+  "ousted",
+  "resign",
+  "resigns",
+  "resignation",
+  "steps down",
+  "fired",
+  "probe",
+  "investigation",
+  "investigate",
+  "subpoena",
+  "sec",
+  "doj",
+  "fraud",
+  "lawsuit",
+  "indicted",
+  "scandal",
+  "affair",
+  "sanction",
+  "export ban",
+  "export control",
+  "tariff",
+  "ban",
+  "halt",
+  "halted",
+  "recall",
+  "outage",
+  "hack",
+  "breach",
+  "bankrupt",
+  "downgrade",
+  "guidance cut",
+  "profit warning",
+  "罢免",
+  "辞职",
+  "调查",
+  "丑闻",
+  "制裁",
+  "禁令",
+  "停牌",
+  "下调"
+ ],
+ "follow_up_sessions": [
+  1,
+  5,
+  20
+ ],
+ "keywords_note_zh": "只保留治理、监管、法律、经营事故类关键词；单纯描述股价涨跌的词由价格规则判断，不靠标题。"
+}

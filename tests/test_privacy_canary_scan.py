@@ -168,7 +168,7 @@ for w in sorted(WF.glob("*.yml")):
         assert 0 <= g < c, f"{w.name}: publish guard missing before git commit"
     if ("upload-artifact" in t or "upload-pages-artifact" in t) and w.name not in NOT_COVERED_UPLOADS and w.name != "privacy-canary-gate.yml":
         assert "steps.privacy_guard.outcome == 'success'" in t, f"{w.name}: upload not gated by the privacy guard"
-assert len(committers) == 11, committers
+assert len(committers) == 12, committers  # + shock-event-watch.yml (Owner 2026-11-12)
 print(f"PASS D4 wiring: {len(committers)} committing workflows guarded before commit; uploads gated or listed as not covered ({len(NOT_COVERED_UPLOADS)}); research/ clean")
 
 

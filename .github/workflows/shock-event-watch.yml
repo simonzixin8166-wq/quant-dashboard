@@ -1,0 +1,46 @@
+name: Shock Event Watch
+
+# Owner 2026-11-12 (after the Nvidia CEO event): unexpected events that move the market are recorded, analysed
+# in time and given advice; checks twice a day (Owner chose "每天两次"). Weekdays before the US open (12:47 UTC =
+# 07:47 ET in winter / 08:47 ET in summer) and after the close (21:13 UTC). One Telegram message per event.
+# Free public data only; reminder and research hints only: no orders, no tier/threshold/allocation change.
+on:
+  schedule:
+    - cron: '47 12 * * 1-5'
+    - cron: '13 21 * * 1-5'
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: shock-event-watch
+  cancel-in-progress: false
+
+jobs:
+  watch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Shock event monitor (record, analyse, advise; reminder only)
+        id: shock
+        continue-on-error: true
+        env:
+          MYALPHA_TG_BOT_TOKEN: ${{ secrets.MYALPHA_TG_BOT_TOKEN }}
+          MYALPHA_TG_CHAT_ID: ${{ secrets.MYALPHA_TG_CHAT_ID }}
+        run: python scripts/shock_event_monitor.py
+      - name: Record shock monitor failure (visible in system status)
+        if: steps.shock.outcome == 'failure'
+        run: python scripts/module_failure_marker.py shock_event_monitor
+      - name: Save shock events only
+        run: |
+          git config user.name "github-actions"; git config user.email "actions@github.com"
+          for f in research/archive/shock_events.jsonl research/store/shock_event_state.json docs/research/shock_events.json docs/research/module_failures.json; do
+            if [ -f "$f" ]; then git add "$f"; fi
+          done
+          python3 scripts/privacy_canary_scan.py --staged
+          git diff --cached --quiet || (git commit -m "shock event watch" && git pull --rebase origin main && git push)

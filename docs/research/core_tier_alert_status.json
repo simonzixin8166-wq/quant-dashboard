@@ -1,26 +1,27 @@
 {
  "version": "cta-1.0",
- "generated_at": "2026-11-11T16:15:37.393010+00:00",
+ "generated_at": "2026-11-12T02:09:53.663296+00:00",
  "policy": "reminder_only_no_orders",
  "near_pp": 0.02,
  "leave_buffer_pp": 0.02,
- "expected_session": "2026-11-10",
+ "expected_session": "2026-11-11",
  "symbols": {
   "QQQM": {
    "cycle_ath": 314.11498997190324,
    "sent": [
     "enter:near",
-    "enter:t1"
+    "enter:t1",
+    "leave:t1"
    ],
-   "zone": "near",
+   "zone": "normal",
    "cycle_id": "QQQM@314.1150",
    "judgment": "evaluated",
    "reason": "ok",
-   "as_of": "2026-11-10",
-   "expected_session": "2026-11-10",
-   "close": 277.87,
-   "drawdown": -0.11538766453057048,
-   "ath_implied": 314.1149957540951,
+   "as_of": "2026-11-11",
+   "expected_session": "2026-11-11",
+   "close": 284.23001,
+   "drawdown": -0.09514025174586027,
+   "ath_implied": 314.1149891443407,
    "ath_validation": "PASS",
    "price_basis": "validated ATH (Yahoo high), close",
    "thresholds": {
@@ -40,17 +41,18 @@
    "cycle_ath": 134.83832754619172,
    "sent": [
     "enter:near",
-    "enter:t1"
+    "enter:t1",
+    "leave:t1"
    ],
-   "zone": "t1",
+   "zone": "normal",
    "cycle_id": "VGT@134.8383",
    "judgment": "evaluated",
    "reason": "ok",
-   "as_of": "2026-11-10",
-   "expected_session": "2026-11-10",
-   "close": 110.52,
-   "drawdown": -0.15414056677302435,
-   "ath_implied": 130.6600076307754,
+   "as_of": "2026-11-11",
+   "expected_session": "2026-11-11",
+   "close": 113.72,
+   "drawdown": -0.1296494869632301,
+   "ath_implied": 130.6600022595674,
    "ath_validation": "PASS",
    "price_basis": "validated ATH (Yahoo high), close",
    "thresholds": {
@@ -70,17 +72,18 @@
    "cycle_ath": 108.53087506611764,
    "sent": [
     "enter:near",
-    "enter:t1"
+    "enter:t1",
+    "leave:t1"
    ],
-   "zone": "near",
+   "zone": "normal",
    "cycle_id": "QLD@108.5309",
    "judgment": "evaluated",
    "reason": "ok",
-   "as_of": "2026-11-10",
-   "expected_session": "2026-11-10",
-   "close": 78.2,
-   "drawdown": -0.230466494443463,
-   "ath_implied": 101.62000671230645,
+   "as_of": "2026-11-11",
+   "expected_session": "2026-11-11",
+   "close": 81.83,
+   "drawdown": -0.1947451326573889,
+   "ath_implied": 101.62000047269986,
    "ath_validation": "PASS",
    "price_basis": "validated ATH (Yahoo high), close",
    "thresholds": {
@@ -218,6 +221,39 @@
    "at": "2026-11-10T16:31:33.492865+00:00",
    "key": "QLD@108.5309|enter:t1",
    "delivery": "sent"
+  },
+  {
+   "symbol": "QQQM",
+   "kind": "leave",
+   "line": "t1",
+   "cycle_id": "QQQM@314.1150",
+   "drawdown": -0.09514025174586027,
+   "as_of": "2026-11-11",
+   "at": "2026-11-12T02:09:53.663296+00:00",
+   "key": "QQQM@314.1150|leave:t1",
+   "delivery": "sent"
+  },
+  {
+   "symbol": "VGT",
+   "kind": "leave",
+   "line": "t1",
+   "cycle_id": "VGT@134.8383",
+   "drawdown": -0.1296494869632301,
+   "as_of": "2026-11-11",
+   "at": "2026-11-12T02:09:53.663296+00:00",
+   "key": "VGT@134.8383|leave:t1",
+   "delivery": "sent"
+  },
+  {
+   "symbol": "QLD",
+   "kind": "leave",
+   "line": "t1",
+   "cycle_id": "QLD@108.5309",
+   "drawdown": -0.1947451326573889,
+   "as_of": "2026-11-11",
+   "at": "2026-11-12T02:09:53.663296+00:00",
+   "key": "QLD@108.5309|leave:t1",
+   "delivery": "sent"
   }
  ],
  "outbox": [
@@ -308,7 +344,35 @@
    "attempts": 1,
    "status": "sent",
    "last_delivery": "sent"
+  },
+  {
+   "key": "QQQM@314.1150|leave:t1",
+   "text": "MyAlpha｜核心ETF回撤分档：QQQM 回升，已离开一级加仓线\n当前回撤（距历史最高）-9.5%；一级阈值 12%，对应价格 ≈ 276.42。一/二/三级 = 12%/18%/25%。数据日期 2026-11-11，数据可信。\n这是提醒，不是买卖指令；是否加仓由你决定。",
+   "created_at": "2026-11-12T02:09:53.663296+00:00",
+   "attempts": 1,
+   "status": "sent",
+   "last_delivery": "sent"
+  },
+  {
+   "key": "VGT@134.8383|leave:t1",
+   "text": "MyAlpha｜核心ETF回撤分档：VGT 回升，已离开一级加仓线\n当前回撤（距历史最高）-13.0%；一级阈值 15%，对应价格 ≈ 111.06。一/二/三级 = 15%/20%/30%。数据日期 2026-11-11，数据可信。\n这是提醒，不是买卖指令；是否加仓由你决定。",
+   "created_at": "2026-11-12T02:09:53.663296+00:00",
+   "attempts": 1,
+   "status": "sent",
+   "last_delivery": "sent"
+  },
+  {
+   "key": "QLD@108.5309|leave:t1",
+   "text": "MyAlpha｜核心ETF回撤分档：QLD 回升，已离开一级加仓线\n当前回撤（距历史最高）-19.5%；一级阈值 25%，对应价格 ≈ 76.22。一/二/三级 = 25%/35%/50%。数据日期 2026-11-11，数据可信。\n这是提醒，不是买卖指令；是否加仓由你决定。",
+   "created_at": "2026-11-12T02:09:53.663296+00:00",
+   "attempts": 1,
+   "status": "sent",
+   "last_delivery": "sent"
   }
  ],
- "last_deliveries": []
+ "last_deliveries": [
+  "sent",
+  "sent",
+  "sent"
+ ]
 }

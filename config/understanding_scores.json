@@ -1,0 +1,31 @@
+{
+  "version": "understanding-scores-1.0",
+  "note_zh": "理解能力只记录在冻结、未见过的测试集上测过的成绩；每个抽取器版本只测一次。开发集成绩偏乐观，单独标注，不当作证据。更新方式：每次正式测完后由 PR 追加，不由日常流程改写。",
+  "unit_zh": "帖子 × 股票代码",
+  "test_sets": {
+    "s2_v5_test": {
+      "label_zh": "S2 v5 冻结测试集",
+      "posts": 85,
+      "gold_pairs": 70,
+      "gold_file": "wxc-bot research/gold/claims_gold_test_v5.jsonl",
+      "gold_sha256_prefix": "23a0c9c6",
+      "frozen_at": "2026-11-10"
+    }
+  },
+  "results": [
+    {"extractor": "ce-4", "role": "production", "set": "s2_v5_test", "status": "complete",
+     "pred_pairs": 37, "matched": 27, "gold_pairs": 70, "direction_agree": 25,
+     "measured_at": "2026-11-10", "evidence": "wxc-bot research/gold/claims_gold_test_v5_extractor_scores.json"},
+    {"extractor": "ce-6", "role": "shadow", "set": "s2_v5_test", "status": "complete",
+     "pred_pairs": 39, "matched": 29, "gold_pairs": 70, "direction_agree": 26,
+     "measured_at": "2026-11-10", "evidence": "wxc-bot research/gold/claims_gold_test_v5_extractor_scores.json"},
+    {"extractor": "gemini-claims-0.2", "role": "challenger", "set": "s2_v5_test", "status": "partial",
+     "answered_posts": 34, "pred_pairs": 40, "matched": 40, "gold_pairs": 52,
+     "measured_at": "2026-11-12", "evidence": "wxc-bot Actions gemini-claims (resume run, day 2)",
+     "note_zh": "只答了 34/85 篇，分母是这 34 篇里的 52 对；未答完前不作结论。"}
+  ],
+  "dev_only": [
+    {"extractor": "ce-7", "role": "forum_shadow", "set": "forum_dev_v1", "precision": 0.81, "recall": 0.75,
+     "note_zh": "在论坛开发集上调规则得到，偏乐观；等论坛测试集验证。"}
+  ]
+}

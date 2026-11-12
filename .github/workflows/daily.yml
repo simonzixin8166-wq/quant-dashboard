@@ -135,6 +135,15 @@ jobs:
         if: steps.forward_outcomes.outcome == 'failure'
         run: python scripts/module_failure_marker.py forward_outcomes
 
+      - name: Learning progress (four measures with denominators; report only, append-only history)
+        id: learning_progress
+        continue-on-error: true
+        run: python scripts/learning_progress.py
+
+      - name: Record learning_progress failure (visible in system status)
+        if: steps.learning_progress.outcome == 'failure'
+        run: python scripts/module_failure_marker.py learning_progress
+
       - name: Bootstrap / refresh Replay history dependencies
         id: replay_history_bootstrap
         continue-on-error: true
@@ -558,6 +567,7 @@ jobs:
           python tests/test_v615_auto_thesis_engine.py
           python tests/test_forward_observation_engine.py
           python tests/test_forward_outcome_ledger.py
+          python tests/test_learning_progress.py
           python tests/test_event_calendar.py
           python tests/test_thesis_revision_memory.py
           python tests/test_v610a_playbook_engine.py

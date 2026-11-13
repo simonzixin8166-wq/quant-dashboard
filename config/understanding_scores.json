@@ -13,19 +13,53 @@
     }
   },
   "results": [
-    {"extractor": "ce-4", "role": "production", "set": "s2_v5_test", "status": "complete",
-     "pred_pairs": 37, "matched": 27, "gold_pairs": 70, "direction_agree": 25,
-     "measured_at": "2026-11-10", "evidence": "wxc-bot research/gold/claims_gold_test_v5_extractor_scores.json"},
-    {"extractor": "ce-6", "role": "shadow", "set": "s2_v5_test", "status": "complete",
-     "pred_pairs": 39, "matched": 29, "gold_pairs": 70, "direction_agree": 26,
-     "measured_at": "2026-11-10", "evidence": "wxc-bot research/gold/claims_gold_test_v5_extractor_scores.json"},
-    {"extractor": "gemini-claims-0.2", "role": "challenger", "set": "s2_v5_test", "status": "partial",
-     "answered_posts": 34, "pred_pairs": 40, "matched": 40, "gold_pairs": 52,
-     "measured_at": "2026-11-12", "evidence": "wxc-bot Actions gemini-claims (resume run, day 2)",
-     "note_zh": "只答了 34/85 篇，分母是这 34 篇里的 52 对；未答完前不作结论。"}
+    {
+      "extractor": "ce-4",
+      "role": "production",
+      "set": "s2_v5_test",
+      "status": "complete",
+      "pred_pairs": 37,
+      "matched": 27,
+      "gold_pairs": 70,
+      "direction_agree": 25,
+      "measured_at": "2026-11-10",
+      "evidence": "wxc-bot research/gold/claims_gold_test_v5_extractor_scores.json"
+    },
+    {
+      "extractor": "ce-6",
+      "role": "shadow",
+      "set": "s2_v5_test",
+      "status": "complete",
+      "pred_pairs": 39,
+      "matched": 29,
+      "gold_pairs": 70,
+      "direction_agree": 26,
+      "measured_at": "2026-11-10",
+      "evidence": "wxc-bot research/gold/claims_gold_test_v5_extractor_scores.json"
+    },
+    {
+      "extractor": "gemini-claims-0.2",
+      "role": "challenger",
+      "set": "s2_v5_test",
+      "status": "partial",
+      "answered_posts": 45,
+      "pred_pairs": 45,
+      "matched": 45,
+      "gold_pairs": 59,
+      "measured_at": "2026-11-13",
+      "evidence": "wxc-bot Actions gemini-claims run 43352700857 (resume, day 3; stopped by free-tier 429)",
+      "note_zh": "只答了 45/85 篇，分母是这 45 篇里的 59 对；未答完前不作结论。每天免费额度约能答 11–17 篇长文。",
+      "direction_agree": 45
+    }
   ],
   "dev_only": [
-    {"extractor": "ce-7", "role": "forum_shadow", "set": "forum_dev_v1", "precision": 0.81, "recall": 0.75,
-     "note_zh": "在论坛开发集上调规则得到，偏乐观；等论坛测试集验证。"}
+    {
+      "extractor": "ce-7",
+      "role": "forum_shadow",
+      "set": "forum_dev_v1",
+      "precision": 0.81,
+      "recall": 0.75,
+      "note_zh": "在论坛开发集上调规则得到，偏乐观；等论坛测试集验证。"
+    }
   ]
 }

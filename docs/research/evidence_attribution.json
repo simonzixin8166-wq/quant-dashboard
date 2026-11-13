@@ -1,6 +1,6 @@
 {
   "version": "5.7.0",
-  "generated_at": "2026-11-13T03:22:50.463808+00:00",
+  "generated_at": "2026-11-13T16:24:26.974145+00:00",
   "external_outcome_evidence_role": "legacy_descriptive_only",
   "as_of": "2026-11-13",
   "architecture": [
@@ -580,15 +580,33 @@
     "note": "V5.7 首版只用已有可验证数据形成技术/市场 Breadcrumb；不会假装已经抓取到 SEC/FDA/论坛等外部事实。"
   },
   "failure_attribution": {
-    "mature_samples_scanned": 480,
+    "mature_samples_scanned": 479,
     "review_samples": 194,
     "tag_counts": {
-      "large_adverse_move": 126,
-      "trend_false_positive": 61,
       "timeframe_confirmation_missing": 84,
+      "large_adverse_move": 125,
+      "trend_false_positive": 62,
       "missed_upside": 22
     },
     "recent": [
+      {
+        "symbol": "TLT",
+        "date": "2026-10-15",
+        "source_stage": "趋势启动",
+        "weekly": "空头",
+        "score": 8.82,
+        "return_20": -0.003126172266898486,
+        "mae_20": -0.006377418137370694,
+        "mfe_20": 0.024884304531614054,
+        "severity": "review",
+        "tags": [
+          "timeframe_confirmation_missing"
+        ],
+        "attribution_hypotheses": [
+          "日线偏强而周线未确认，多周期冲突可能是误判来源之一。"
+        ],
+        "guardrail": "这是可检验的归因假设，不是已经证明的因果关系；只有重复成熟样本才允许影响 Learning Policy。"
+      },
       {
         "symbol": "SPCX",
         "date": "2026-10-15",
@@ -603,6 +621,26 @@
           "large_adverse_move"
         ],
         "attribution_hypotheses": [
+          "入档后经历较大不利波动，风险识别和无效条件应被单独复盘。"
+        ],
+        "guardrail": "这是可检验的归因假设，不是已经证明的因果关系；只有重复成熟样本才允许影响 Learning Policy。"
+      },
+      {
+        "symbol": "META",
+        "date": "2026-10-15",
+        "source_stage": "趋势延续",
+        "weekly": "多头",
+        "score": 68.93,
+        "return_20": -0.15353185721789298,
+        "mae_20": -0.17868384033032814,
+        "mfe_20": -0.03717824234782219,
+        "severity": "review",
+        "tags": [
+          "trend_false_positive",
+          "large_adverse_move"
+        ],
+        "attribution_hypotheses": [
+          "当时趋势状态偏多，但20个交易日结果明显为负：优先检查趋势确认是否过早。",
           "入档后经历较大不利波动，风险识别和无效条件应被单独复盘。"
         ],
         "guardrail": "这是可检验的归因假设，不是已经证明的因果关系；只有重复成熟样本才允许影响 Learning Policy。"
@@ -906,42 +944,6 @@
         "return_20": -0.23647660818713445,
         "mae_20": -0.32364769188596487,
         "mfe_20": -0.010964912280701733,
-        "severity": "review",
-        "tags": [
-          "large_adverse_move"
-        ],
-        "attribution_hypotheses": [
-          "入档后经历较大不利波动，风险识别和无效条件应被单独复盘。"
-        ],
-        "guardrail": "这是可检验的归因假设，不是已经证明的因果关系；只有重复成熟样本才允许影响 Learning Policy。"
-      },
-      {
-        "symbol": "AAOI",
-        "date": "2026-10-12",
-        "source_stage": "趋势恶化",
-        "weekly": "过渡",
-        "score": -44.69,
-        "return_20": -0.48251888839691703,
-        "mae_20": -0.5342669919793603,
-        "mfe_20": -0.028804146971479705,
-        "severity": "review",
-        "tags": [
-          "large_adverse_move"
-        ],
-        "attribution_hypotheses": [
-          "入档后经历较大不利波动，风险识别和无效条件应被单独复盘。"
-        ],
-        "guardrail": "这是可检验的归因假设，不是已经证明的因果关系；只有重复成熟样本才允许影响 Learning Policy。"
-      },
-      {
-        "symbol": "INTC",
-        "date": "2026-10-09",
-        "source_stage": "趋势恶化",
-        "weekly": "多头",
-        "score": -25.48,
-        "return_20": -0.46246418338108886,
-        "mae_20": -0.5009551098376314,
-        "mfe_20": -0.018051575931232078,
         "severity": "review",
         "tags": [
           "large_adverse_move"
@@ -2493,6 +2495,28 @@
         "learning_eligible": false
       },
       {
+        "event_id": "9a165774b865bf813a81:2:CRWV:1",
+        "author": "BrightLine",
+        "symbol": "CRWV",
+        "published_at": "2026-08-18",
+        "title": "子弹与耐心：8·18 AI板块大跌手记。",
+        "url": "https://blog.wenxuecity.com/myblog/82458/202608/14095.html",
+        "attribution": "author_plan",
+        "return_20": -0.0870967988044985,
+        "mae_20": -0.34548384143460187,
+        "mfe_20": 0.12516132477791087,
+        "excess_vs_qqq_20": -0.044817193456511584,
+        "alignment_20": "not_aligned",
+        "review_tags": [
+          "direction_not_aligned",
+          "large_adverse_move"
+        ],
+        "maturity": "mature20",
+        "attribution_confidence": "medium",
+        "verification_status": "unverified_author_self_report",
+        "learning_eligible": false
+      },
+      {
         "event_id": "9a165774b865bf813a81:2:CRWV:0",
         "author": "BrightLine",
         "symbol": "CRWV",
@@ -2535,30 +2559,9 @@
         "attribution_confidence": "high",
         "verification_status": "unverified_author_self_report",
         "learning_eligible": false
-      },
-      {
-        "event_id": "c86f0c70f65e76dfa62b:0:NBIS:0",
-        "author": "bogbog",
-        "symbol": "NBIS",
-        "published_at": "2026-07-15 16:41:48",
-        "title": "我今天加仓了MU & NBIS,  有可能更低，但是又在我愿意买的价格范围内我就又加了",
-        "url": "https://bbs.wenxuecity.com/cfzh/97063.html",
-        "attribution": "author_action",
-        "return_20": 0.33942545034399463,
-        "mae_20": -0.2342839136599968,
-        "mfe_20": 0.44929362953626373,
-        "excess_vs_qqq_20": 0.3112516887395227,
-        "alignment_20": "aligned",
-        "review_tags": [
-          "large_adverse_move"
-        ],
-        "maturity": "mature20",
-        "attribution_confidence": "high",
-        "verification_status": "unverified_author_self_report",
-        "learning_eligible": false
       }
     ],
-    "external_outcome_review_count": 38,
+    "external_outcome_review_count": 39,
     "external_note": "旧 Source Outcome 仅保留描述性复盘；不得进入 Evidence Foundation 方法成熟度、Planner 权重或 Promotion。"
   },
   "external_source_intelligence": {
@@ -2966,6 +2969,74 @@
       }
     ],
     "research_alerts": [
+      {
+        "author": "RhinoFinance / 视野环球财经",
+        "title": "美股 黄仁勋辞职，散户抄底！NVDA持仓计划补充！QQQ空头3年新高，对冲基金低仓位，会配合追涨吗？",
+        "url": "https://www.youtube.com/watch?v=f4X4h28Z44A",
+        "published_at": "2026-11-13",
+        "symbols": [
+          "AMD",
+          "AVGO",
+          "NVDA",
+          "QQQ",
+          "SPY"
+        ],
+        "primary_symbols": [],
+        "symbol_attribution": [
+          {
+            "symbol": "AMD",
+            "role": "contextual_mention",
+            "confidence": "low",
+            "evidence_basis": [
+              "detected_in_source"
+            ]
+          },
+          {
+            "symbol": "AVGO",
+            "role": "contextual_mention",
+            "confidence": "low",
+            "evidence_basis": [
+              "detected_in_source"
+            ]
+          },
+          {
+            "symbol": "NVDA",
+            "role": "holding_mention",
+            "confidence": "medium",
+            "evidence_basis": [
+              "detected_in_source",
+              "holding_language"
+            ]
+          },
+          {
+            "symbol": "QQQ",
+            "role": "holding_mention",
+            "confidence": "medium",
+            "evidence_basis": [
+              "detected_in_source",
+              "holding_language"
+            ]
+          },
+          {
+            "symbol": "SPY",
+            "role": "contextual_mention",
+            "confidence": "low",
+            "evidence_basis": [
+              "detected_in_source"
+            ]
+          }
+        ],
+        "topics": [
+          "风险管理",
+          "仓位与加减仓",
+          "AI研究方法",
+          "趋势确认"
+        ],
+        "source_view": "出现明确操作：买入/建仓 / 卖出/退出 / 对冲；涉及：AMD / AVGO / NVDA / QQQ / SPY",
+        "myalpha_view": "先核对行情、估值、事件与现有 Thesis；外部作者观点不能单独触发买卖。",
+        "what_changes_view": "只有独立证据与后续结果支持，才允许升级为 Breadcrumb / Thesis 样本。",
+        "priority": 80
+      },
       {
         "author": "bogbog",
         "title": "以后我股市亏钱了，我来给大家算命好了， 绝对优惠。 先打个广告请求三心版主别删， 哈哈哈哈， 逗大家玩~~",
@@ -3454,37 +3525,6 @@
         "myalpha_view": "先核对行情、估值、事件与现有 Thesis；外部作者观点不能单独触发买卖。",
         "what_changes_view": "只有独立证据与后续结果支持，才允许升级为 Breadcrumb / Thesis 样本。",
         "priority": 80
-      },
-      {
-        "author": "三心三意",
-        "title": "这怎么会是FOMO？最简单的右侧交易就是买入QQQ（但以200D 为止损点）",
-        "url": "https://bbs.wenxuecity.com/cfzh/122346.html",
-        "published_at": "2026-11-11 05:31:00",
-        "symbols": [
-          "QQQ"
-        ],
-        "primary_symbols": [
-          "QQQ"
-        ],
-        "symbol_attribution": [
-          {
-            "symbol": "QQQ",
-            "role": "primary_subject",
-            "confidence": "high",
-            "evidence_basis": [
-              "detected_in_source",
-              "unique_title_symbol"
-            ]
-          }
-        ],
-        "topics": [
-          "风险管理",
-          "止损纪律"
-        ],
-        "source_view": "出现明确操作：买入/建仓 / buy；主研究标的：QQQ；涉及：QQQ",
-        "myalpha_view": "先核对行情、估值、事件与现有 Thesis；外部作者观点不能单独触发买卖。",
-        "what_changes_view": "只有独立证据与后续结果支持，才允许升级为 Breadcrumb / Thesis 样本。",
-        "priority": 80
       }
     ],
     "authors": [
@@ -3508,8 +3548,8 @@
         "unconfirmed": 162,
         "triggered_author_owned": 93,
         "untriggered_plans": 1,
-        "mature60": 35,
-        "developing": 58,
+        "mature60": 37,
+        "developing": 56,
         "symbols": 35
       },
       "by_action": {
@@ -3575,11 +3615,11 @@
             "alignment_rate": 1.0
           },
           "60": {
-            "n": 0,
-            "avg_return": null,
-            "median_return": null,
+            "n": 1,
+            "avg_return": -0.39934205163832015,
+            "median_return": -0.39934205163832015,
             "avg_excess_vs_qqq": null,
-            "alignment_rate": null
+            "alignment_rate": 1.0
           }
         },
         "hold": {
@@ -3683,16 +3723,16 @@
             "alignment_rate": 0.6470588235294118
           },
           "20": {
-            "n": 12,
-            "avg_return": -0.06270793710390125,
-            "median_return": -0.03864210915677907,
-            "avg_excess_vs_qqq": -0.04132894047814548,
-            "alignment_rate": 0.7142857142857143
+            "n": 13,
+            "avg_return": -0.06458400338856257,
+            "median_return": -0.061522541469194336,
+            "avg_excess_vs_qqq": -0.04159726763032749,
+            "alignment_rate": 0.625
           },
           "60": {
-            "n": 3,
-            "avg_return": -0.1671653102828582,
-            "median_return": -0.28619302949061665,
+            "n": 4,
+            "avg_return": -0.09697666782305323,
+            "median_return": -0.08630188496712748,
             "avg_excess_vs_qqq": -0.16904877539009852,
             "alignment_rate": 1.0
           }
@@ -3736,11 +3776,11 @@
             "alignment_rate": 0.8333333333333334
           },
           "60": {
-            "n": 3,
-            "avg_return": -0.16425767552091897,
-            "median_return": -0.23826102481699696,
+            "n": 4,
+            "avg_return": -0.22302876955026926,
+            "median_return": -0.2741241452991661,
             "avg_excess_vs_qqq": -0.17029686691683088,
-            "alignment_rate": 0.6666666666666666
+            "alignment_rate": 0.75
           }
         },
         "trim_half": {
@@ -3759,18 +3799,18 @@
             "alignment_rate": 1.0
           },
           "60": {
-            "n": 0,
-            "avg_return": null,
-            "median_return": null,
+            "n": 1,
+            "avg_return": -0.39934205163832015,
+            "median_return": -0.39934205163832015,
             "avg_excess_vs_qqq": null,
-            "alignment_rate": null
+            "alignment_rate": 1.0
           }
         }
       },
       "mature_learning": {
         "events_scanned": 256,
-        "mature20": 62,
-        "review_candidates": 38,
+        "mature20": 63,
+        "review_candidates": 39,
         "recent_reviews": [
           {
             "event_id": "b4091864de5d6847b786:0:AAOI:0",
@@ -4149,6 +4189,28 @@
             "learning_eligible": false
           },
           {
+            "event_id": "9a165774b865bf813a81:2:CRWV:1",
+            "author": "BrightLine",
+            "symbol": "CRWV",
+            "published_at": "2026-08-18",
+            "title": "子弹与耐心：8·18 AI板块大跌手记。",
+            "url": "https://blog.wenxuecity.com/myblog/82458/202608/14095.html",
+            "attribution": "author_plan",
+            "return_20": -0.0870967988044985,
+            "mae_20": -0.34548384143460187,
+            "mfe_20": 0.12516132477791087,
+            "excess_vs_qqq_20": -0.044817193456511584,
+            "alignment_20": "not_aligned",
+            "review_tags": [
+              "direction_not_aligned",
+              "large_adverse_move"
+            ],
+            "maturity": "mature20",
+            "attribution_confidence": "medium",
+            "verification_status": "unverified_author_self_report",
+            "learning_eligible": false
+          },
+          {
             "event_id": "9a165774b865bf813a81:2:CRWV:0",
             "author": "BrightLine",
             "symbol": "CRWV",
@@ -4183,27 +4245,6 @@
             "mae_20": -0.16677394220671438,
             "mfe_20": 0.17001479273236453,
             "excess_vs_qqq_20": 0.10302056166473261,
-            "alignment_20": "aligned",
-            "review_tags": [
-              "large_adverse_move"
-            ],
-            "maturity": "mature20",
-            "attribution_confidence": "high",
-            "verification_status": "unverified_author_self_report",
-            "learning_eligible": false
-          },
-          {
-            "event_id": "c86f0c70f65e76dfa62b:0:NBIS:0",
-            "author": "bogbog",
-            "symbol": "NBIS",
-            "published_at": "2026-07-15 16:41:48",
-            "title": "我今天加仓了MU & NBIS,  有可能更低，但是又在我愿意买的价格范围内我就又加了",
-            "url": "https://bbs.wenxuecity.com/cfzh/97063.html",
-            "attribution": "author_action",
-            "return_20": 0.33942545034399463,
-            "mae_20": -0.2342839136599968,
-            "mfe_20": 0.44929362953626373,
-            "excess_vs_qqq_20": 0.3112516887395227,
             "alignment_20": "aligned",
             "review_tags": [
               "large_adverse_move"

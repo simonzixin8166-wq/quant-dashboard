@@ -5,9 +5,9 @@
  "max_lag_sessions": 2,
  "fixed_scale_components": 3,
  "validation_plan": "docs/development/market_temperature_validation.md",
- "generated_at": "2026-11-13T02:21:54Z",
+ "generated_at": "2026-11-13T16:24:14Z",
  "as_of": "2026-11-12",
- "score": 41,
+ "score": 42,
  "label": "恐惧",
  "components_available": 6,
  "components_total": 6,
@@ -28,28 +28,28 @@
    "key": "strength",
    "name": "股价强度",
    "status": "ok",
-   "score": 85.1,
+   "score": 64.1,
    "method": "fixed_scale",
-   "raw": 0.070281,
+   "raw": 0.028112,
    "value": {
-    "new_high": 0.0723,
-    "new_low": 0.002
+    "new_high": 0.0341,
+    "new_low": 0.006
    },
-   "as_of": "2026-11-11",
+   "as_of": "2026-11-12",
    "source": "breadth_intelligence (S&P 500 net 52-week highs)",
-   "lag_sessions": 1
+   "lag_sessions": 0
   },
   {
    "key": "breadth",
    "name": "市场宽度",
    "status": "ok",
-   "score": 73.3,
+   "score": 71.5,
    "method": "fixed_scale",
-   "raw": 0.732932,
-   "value": 0.7329,
-   "as_of": "2026-11-11",
+   "raw": 0.714859,
+   "value": 0.7149,
+   "as_of": "2026-11-12",
    "source": "breadth_intelligence (S&P 500 above 50-day MA)",
-   "lag_sessions": 1
+   "lag_sessions": 0
   },
   {
    "key": "volatility",
@@ -70,28 +70,28 @@
    "key": "safe_haven",
    "name": "避险需求",
    "status": "ok",
-   "score": 8.7,
+   "score": 21.8,
    "method": "percentile_252",
-   "raw": -0.038453,
-   "value": -0.0385,
-   "as_of": "2026-11-11",
+   "raw": -0.015882,
+   "value": -0.0159,
+   "as_of": "2026-11-12",
    "source": "archive SPY vs TLT 20-session return (latest common date)",
-   "lag_sessions": 1
+   "lag_sessions": 0
   },
   {
    "key": "credit",
    "name": "信用风险",
    "status": "ok",
-   "score": 36.0,
+   "score": 55.0,
    "method": "fixed_scale",
-   "raw": 0.14,
+   "raw": -0.05,
    "value": {
-    "hy_oas": 3.3,
-    "chg20_pp": 0.14
+    "hy_oas": 3.2,
+    "chg20_pp": -0.05
    },
-   "as_of": "2026-11-11",
+   "as_of": "2026-11-12",
    "source": "FRED ICE BofA US High Yield OAS (via cross_asset_divergence)",
-   "lag_sessions": 1
+   "lag_sessions": 0
   }
  ],
  "status": "ok",
@@ -101,6 +101,6 @@
  "decision": "#133 2026-10-17 owner-approved; SENT-01 CNN stays link-out only",
  "change_vs": {
   "as_of": "2026-11-05",
-  "delta": 17
+  "delta": 18
  }
 }

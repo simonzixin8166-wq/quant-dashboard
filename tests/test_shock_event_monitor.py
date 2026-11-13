@@ -39,6 +39,9 @@ NOW = datetime(2026, 11, 12, 12, 45, tzinfo=timezone.utc)
 moves = {"NVDA": 160.0 / 173.73, "QQQ": 0.992, "SPY": 0.996, "VGT": 0.985, "SMH": 0.985, "QQQM": 0.992, "QLD": 0.984}
 
 
+BASE = {"QQQM": 284.23, "VGT": 113.72, "QLD": 81.83}
+
+
 def quote(sym):
     if sym == "^VIX":
         return {"symbol": sym, "status": "ok", "last": 19.0, "move_total": 0.06, "move_ext": 0.06, "session": "pre",
@@ -46,7 +49,8 @@ def quote(sym):
     if sym == "AMD":
         return {"symbol": sym, "status": "unavailable", "reason": "HTTPError"}
     m = moves.get(sym, 1.0)
-    return {"symbol": sym, "status": "ok", "prev_close": 100.0, "ref_price": 100.0, "last": round(100 * m, 4),
+    base = BASE.get(sym, 100.0)
+    return {"symbol": sym, "status": "ok", "prev_close": base, "ref_price": base, "last": round(base * m, 4),
             "move_total": round(m - 1, 4), "move_ext": round(m - 1, 4), "move_day": None, "session": "pre",
             "ref_session": "2026-11-11", "last_time": "2026-11-12T12:40:00+00:00"}
 
@@ -133,3 +137,48 @@ print("PASS quiet day writes nothing; market event; failed delivery retried at m
 # keyword matching uses word boundaries for English ("ban" does not match "bank")
 assert sm._kw_hit("Nvidia bank partner", ["ban"]) is None and sm._kw_hit("board weighs ousting CEO", ["oust"]) == "oust" and sm._kw_hit("US export ban hits Nvidia", ["export ban"])
 print("PASS keyword boundaries")
+
+# --- production bug 2026-11-12: before the open the 1d chart spans the previous session, so chartPreviousClose is
+# the close two sessions back (NVDA 168.80 = 11/10) while regularMarketPrice is the last close (173.73 = 11/11).
+Y_START = int(datetime(2026, 11, 11, 14, 30, tzinfo=timezone.utc).timestamp())
+pm = {"chart": {"result": [{"meta": {"chartPreviousClose": 168.796, "regularMarketPrice": 173.73,
+                                     "regularMarketTime": Y_START + 6 * 3600 + 1800,
+                                     "currentTradingPeriod": {"regular": {"start": REG_START, "end": REG_END}}},
+                            "timestamp": [Y_START, Y_START + 23000, PRE],
+                            "indicators": {"quote": [{"close": [170.0, 173.7, 160.82]}]}}]}}
+qp = sm.parse_chart(pm, "NVDA")
+assert qp["session"] == "pre" and qp["prev_close"] == 173.73 and qp["move_total"] == round(160.82 / 173.73 - 1, 4), qp
+print("PASS premarket reference is the last regular close, not chartPreviousClose (11/12 bug)")
+
+# anchor: the Daily close of the reference session wins over chart metadata; a different date is left alone
+raw = {"symbol": "QQQM", "status": "ok", "last": 281.2, "move_total": 0.012, "move_ext": 0.012, "session": "pre",
+       "ref_session": "2026-11-11"}
+a = sm.anchor(raw, data)
+assert a["anchor"] == "daily_close" and a["ref_price"] == 284.23 and a["move_total"] == round(281.2 / 284.23 - 1, 4)
+assert sm.anchor(dict(raw, ref_session="2026-11-10"), data)["move_total"] == 0.012
+print("PASS anchor to the Daily close of the reference session")
+
+# a peer's headline (AMD up on Nvidia news) is not a governance event for the peer
+ev_amd = {"subject": "AMD", "kind": "company", "news_trigger": False,
+          "news": {"items": [{"title": "AMD, Broadcom gain after reports say Nvidia board preparing to oust Huang"}]}}
+tips = " ".join(sm.advice(ev_amd, [], [], others=["NVDA"]))
+assert "管理层或治理事件" not in tips and "NVDA" in tips and "可能相关" in tips
+print("PASS peer headline gives no governance advice; links to the concurrent event")
+
+# corrections are append-only rows; the public view applies them and hides retracted events
+e0 = {"event_id": "AMD@x", "quote": {"move_total": 0.085}, "advice": ["old"]}
+c = [{"type": "correction", "event_id": "AMD@x", "at": "t", "retracted": True, "reason_zh": "参考收盘价取错",
+      "quote": {"move_total": 0.011}}]
+v = sm.apply_corrections(e0, c)
+assert v["retracted"] and v["quote"]["move_total"] == 0.011 and v["advice"] == ["old"] and e0["quote"]["move_total"] == 0.085
+assert v["corrections"][0]["reason_zh"] == "参考收盘价取错"
+js = (ROOT / "docs/assets/shock-event-row.js").read_text(encoding="utf-8")
+assert "!e.retracted" in js and "更正" in js
+print("PASS corrections applied in the public view; retracted events hidden on the homepage")
+
+# a headline naming several watched companies is a peer reaction, not the cluster of any one of them
+peer = [{"title": "AMD, Broadcom gain after reports say Nvidia board preparing to oust Huang", "publisher": p,
+         "published_at": "2026-11-12T10:00:00+00:00"} for p in ("A", "B", "C")]
+assert not sm.news_cluster("AVGO", cfg["stocks"]["AVGO"], peer, cfg, NOW)["hit"]
+assert not sm.news_cluster("NVDA", cfg["stocks"]["NVDA"], peer, cfg, NOW)["hit"]
+print("PASS peer headlines naming several companies never trigger a cluster (AVGO 11/12)")

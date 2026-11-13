@@ -15,7 +15,8 @@
   {
    "advice": [
     "核心仓位：VGT 估算回撤 13.7%，已到接近一级线。按原有分级计划执行，正式提醒以收盘数据为准，不因单一事件改变节奏。",
-    "AVGO：管理层或治理事件，结果未定。不建议因下跌加仓，也不建议恐慌卖出；等公司或董事会正式公告。",
+    "AVGO：原因未经核实前，不据此调整仓位；先看是否有公司公告或官方消息。",
+    "同期 NVDA 也有事件，两者可能相关（未核实）。",
     "期权：事件期间隐含波动率通常上升、跳空风险大，不建议在结果明确前新开 AVGO 期权仓位。",
     "研究提示，不是买卖指令；是否操作由你决定。"
    ],
@@ -104,17 +105,14 @@
    "kind": "company",
    "market_movers": null,
    "news_trigger": true,
-   "price_trigger": false,
+   "price_trigger": true,
    "production_use": false,
    "quote": {
-    "last": 362.15,
-    "last_time": "2026-11-12T20:28:37+00:00",
-    "move_day": 0.049,
-    "move_ext": 0.0,
-    "move_total": 0.049,
-    "prev_close": 345.22,
-    "ref_price": 345.22,
-    "session": "regular",
+    "last": 366.1062,
+    "last_time": "2026-11-13T00:59:17+00:00",
+    "move_ext": 0.0048,
+    "move_total": 0.0605,
+    "session": "post",
     "status": "ok"
    },
    "reaction": {
@@ -176,11 +174,17 @@
    "version": "shock-1.0",
    "vix_trigger": null,
    "outcomes": [],
-   "delivery": "sent"
+   "delivery": "sent",
+   "corrections": [
+    {
+     "at": "2026-11-13T02:30:00+00:00",
+     "reason_zh": "新闻触发来自同时点名多家公司的同行标题（“AMD、博通因英伟达董事会消息上涨”），不是博通自己的治理事件（已修复）；价格方面盘后累计 +6.1%，事件成立。"
+    }
+   ]
   },
   {
    "advice": [
-    "核心仓位：QQQM 距接近一级线还差 1.6%；VGT 距接近一级线还差 1.1%；QLD 距接近一级线还差 5.4%。按原计划定投，不因单一事件改变节奏。",
+    "核心仓位：QQQM 估算回撤 10.5%，已到接近一级线；VGT 估算回撤 14.4%，已到接近一级线。按原有分级计划执行，正式提醒以收盘数据为准，不因单一事件改变节奏。",
     "NVDA：管理层或治理事件，结果未定。不建议因下跌加仓，也不建议恐慌卖出；等公司或董事会正式公告。",
     "NVDA：2026-11-17 有NVDA 财报（日期以公司公告为准），两个不确定性叠加。",
     "期权：事件期间隐含波动率通常上升、跳空风险大，不建议在结果明确前新开 NVDA 期权仓位。",
@@ -189,12 +193,12 @@
    "core_impact": [
     {
      "close_drawdown": -0.0951,
-     "est_drawdown": -0.0843,
+     "est_drawdown": -0.1048,
      "estimated": true,
-     "move": 0.012,
-     "next_line": "near",
+     "move": -0.0107,
+     "next_line": "t1",
      "price_source": "QQQM",
-     "reached": null,
+     "reached": "near",
      "status": "ok",
      "symbol": "QQQM",
      "thresholds": {
@@ -203,16 +207,16 @@
       "t2": 0.18,
       "t3": 0.25
      },
-     "to_next_line": 0.0157
+     "to_next_line": 0.0152
     },
     {
      "close_drawdown": -0.1296,
-     "est_drawdown": -0.1193,
+     "est_drawdown": -0.144,
      "estimated": true,
-     "move": 0.0119,
-     "next_line": "near",
+     "move": -0.0165,
+     "next_line": "t1",
      "price_source": "VGT",
-     "reached": null,
+     "reached": "near",
      "status": "ok",
      "symbol": "VGT",
      "thresholds": {
@@ -221,13 +225,13 @@
       "t2": 0.2,
       "t3": 0.3
      },
-     "to_next_line": 0.0107
+     "to_next_line": 0.006
     },
     {
      "close_drawdown": -0.1947,
-     "est_drawdown": -0.1756,
+     "est_drawdown": -0.2121,
      "estimated": true,
-     "move": 0.0238,
+     "move": -0.0216,
      "next_line": "near",
      "price_source": "QLD",
      "reached": null,
@@ -239,7 +243,7 @@
       "t2": 0.35,
       "t3": 0.5
      },
-     "to_next_line": 0.0544
+     "to_next_line": 0.0179
     }
    ],
    "event_id": "NVDA@2026-11-11",
@@ -278,59 +282,60 @@
    "kind": "company",
    "market_movers": null,
    "news_trigger": true,
-   "price_trigger": false,
+   "price_trigger": true,
    "production_use": false,
    "quote": {
+    "anchor": "daily_close",
     "last": 160.82,
     "last_time": "2026-11-12T13:05:12+00:00",
     "move_day": null,
-    "move_ext": -0.0473,
-    "move_total": -0.0473,
-    "prev_close": 168.796,
-    "ref_price": 168.796,
+    "move_ext": -0.0743,
+    "move_total": -0.0743,
+    "prev_close": 173.73,
+    "ref_price": 173.73,
     "session": "pre",
     "status": "ok"
    },
    "reaction": {
     "QLD": {
      "last": 80.0596,
-     "move_ext": 0.0238,
-     "move_total": 0.0238,
+     "move_ext": -0.0216,
+     "move_total": -0.0216,
      "session": "pre",
      "status": "ok"
     },
     "QQQ": {
      "last": 682.84,
-     "move_ext": 0.012,
-     "move_total": 0.012,
+     "move_ext": -0.0109,
+     "move_total": -0.0109,
      "session": "pre",
      "status": "ok"
     },
     "QQQM": {
      "last": 281.2,
-     "move_ext": 0.012,
-     "move_total": 0.012,
+     "move_ext": -0.0107,
+     "move_total": -0.0107,
      "session": "pre",
      "status": "ok"
     },
     "SMH": {
      "last": 492.0,
-     "move_ext": 0.0173,
-     "move_total": 0.0173,
+     "move_ext": -0.0295,
+     "move_total": -0.0295,
      "session": "pre",
      "status": "ok"
     },
     "SPY": {
      "last": 756.0051,
-     "move_ext": 0.0081,
-     "move_total": 0.0081,
+     "move_ext": -0.005,
+     "move_total": -0.005,
      "session": "pre",
      "status": "ok"
     },
     "VGT": {
      "last": 111.84,
-     "move_ext": 0.0119,
-     "move_total": 0.0119,
+     "move_ext": -0.0165,
+     "move_total": -0.0165,
      "session": "pre",
      "status": "ok"
     },
@@ -343,7 +348,7 @@
     }
    },
    "ref_session": "2026-11-11",
-   "severity": "medium",
+   "severity": "high",
    "subject": "NVDA",
    "type": "event",
    "upcoming": [
@@ -356,24 +361,31 @@
    "version": "shock-1.0",
    "vix_trigger": null,
    "outcomes": [],
-   "delivery": "sent"
+   "delivery": "sent",
+   "corrections": [
+    {
+     "at": "2026-11-12T13:20:00+00:00",
+     "reason_zh": "首次运行的参考收盘价取错：盘前图表的 chartPreviousClose 是 11/10 收盘，应以 11/11 收盘为准（已修复）。"
+    }
+   ]
   },
   {
    "advice": [
-    "核心仓位：QQQM 距接近一级线还差 1.6%；VGT 距接近一级线还差 1.1%；QLD 距接近一级线还差 5.4%。按原计划定投，不因单一事件改变节奏。",
-    "AMD：管理层或治理事件，结果未定。不建议因下跌加仓，也不建议恐慌卖出；等公司或董事会正式公告。",
+    "核心仓位：QQQM 估算回撤 10.5%，已到接近一级线；VGT 估算回撤 14.4%，已到接近一级线。按原有分级计划执行，正式提醒以收盘数据为准，不因单一事件改变节奏。",
+    "AMD：原因未经核实前，不据此调整仓位；先看是否有公司公告或官方消息。",
+    "同期 NVDA 也有事件，两者可能相关（未核实）。",
     "期权：事件期间隐含波动率通常上升、跳空风险大，不建议在结果明确前新开 AMD 期权仓位。",
     "研究提示，不是买卖指令；是否操作由你决定。"
    ],
    "core_impact": [
     {
      "close_drawdown": -0.0951,
-     "est_drawdown": -0.0843,
+     "est_drawdown": -0.1048,
      "estimated": true,
-     "move": 0.012,
-     "next_line": "near",
+     "move": -0.0107,
+     "next_line": "t1",
      "price_source": "QQQM",
-     "reached": null,
+     "reached": "near",
      "status": "ok",
      "symbol": "QQQM",
      "thresholds": {
@@ -382,16 +394,16 @@
       "t2": 0.18,
       "t3": 0.25
      },
-     "to_next_line": 0.0157
+     "to_next_line": 0.0152
     },
     {
      "close_drawdown": -0.1296,
-     "est_drawdown": -0.1193,
+     "est_drawdown": -0.144,
      "estimated": true,
-     "move": 0.0119,
-     "next_line": "near",
+     "move": -0.0165,
+     "next_line": "t1",
      "price_source": "VGT",
-     "reached": null,
+     "reached": "near",
      "status": "ok",
      "symbol": "VGT",
      "thresholds": {
@@ -400,13 +412,13 @@
       "t2": 0.2,
       "t3": 0.3
      },
-     "to_next_line": 0.0107
+     "to_next_line": 0.006
     },
     {
      "close_drawdown": -0.1947,
-     "est_drawdown": -0.1756,
+     "est_drawdown": -0.2121,
      "estimated": true,
-     "move": 0.0238,
+     "move": -0.0216,
      "next_line": "near",
      "price_source": "QLD",
      "reached": null,
@@ -418,7 +430,7 @@
       "t2": 0.35,
       "t3": 0.5
      },
-     "to_next_line": 0.0544
+     "to_next_line": 0.0179
     }
    ],
    "event_id": "AMD@2026-11-11",
@@ -439,56 +451,56 @@
    "price_trigger": true,
    "production_use": false,
    "quote": {
-    "last": 559.1425,
-    "last_time": "2026-11-12T13:05:05+00:00",
-    "move_day": null,
-    "move_ext": 0.0853,
-    "move_total": 0.0853,
-    "prev_close": 515.21,
-    "ref_price": 515.21,
-    "session": "pre",
+    "anchor": "daily_close",
+    "last": 583.005,
+    "last_time": "2026-11-12T20:28:41+00:00",
+    "move_ext": 0.0,
+    "move_total": 0.0544,
+    "prev_close": 552.90002,
+    "ref_price": 552.90002,
+    "session": "regular",
     "status": "ok"
    },
    "reaction": {
     "QLD": {
      "last": 80.0596,
-     "move_ext": 0.0238,
-     "move_total": 0.0238,
+     "move_ext": -0.0216,
+     "move_total": -0.0216,
      "session": "pre",
      "status": "ok"
     },
     "QQQ": {
      "last": 682.84,
-     "move_ext": 0.012,
-     "move_total": 0.012,
+     "move_ext": -0.0109,
+     "move_total": -0.0109,
      "session": "pre",
      "status": "ok"
     },
     "QQQM": {
      "last": 281.2,
-     "move_ext": 0.012,
-     "move_total": 0.012,
+     "move_ext": -0.0107,
+     "move_total": -0.0107,
      "session": "pre",
      "status": "ok"
     },
     "SMH": {
      "last": 492.0,
-     "move_ext": 0.0173,
-     "move_total": 0.0173,
+     "move_ext": -0.0295,
+     "move_total": -0.0295,
      "session": "pre",
      "status": "ok"
     },
     "SPY": {
      "last": 756.0051,
-     "move_ext": 0.0081,
-     "move_total": 0.0081,
+     "move_ext": -0.005,
+     "move_total": -0.005,
      "session": "pre",
      "status": "ok"
     },
     "VGT": {
      "last": 111.84,
-     "move_ext": 0.0119,
-     "move_total": 0.0119,
+     "move_ext": -0.0165,
+     "move_total": -0.0165,
      "session": "pre",
      "status": "ok"
     },
@@ -508,7 +520,13 @@
    "version": "shock-1.0",
    "vix_trigger": null,
    "outcomes": [],
-   "delivery": "sent"
+   "delivery": "sent",
+   "corrections": [
+    {
+     "at": "2026-11-13T02:30:00+00:00",
+     "reason_zh": "首次触发（13:05Z 盘前 +8.5%）用错了参考收盘价，按 11/11 收盘实际只有 +1.1%；但 11/12 盘中 AMD 实际涨 +5.4%（583.01 / 552.90），事件成立，属于英伟达事件的同行受益，不是 AMD 自己的治理事件。"
+    }
+   ]
   }
  ],
  "learning_state": "UNPROVEN",

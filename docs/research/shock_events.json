@@ -1,16 +1,166 @@
 {
  "version": "shock-1.0",
- "generated_at": "2026-11-13T12:47:16+00:00",
+ "generated_at": "2026-11-13T16:26:35+00:00",
  "checked": {
   "quotes": 17,
   "unavailable": [],
   "news": 10
  },
- "new_events": [],
+ "new_events": [
+  "MARKET@2026-11-12"
+ ],
  "updated_events": [
+  "AMD@2026-11-11",
+  "AVGO@2026-11-11",
   "NVDA@2026-11-11"
  ],
  "events": [
+  {
+   "type": "event",
+   "event_id": "MARKET@2026-11-12",
+   "version": "shock-1.0",
+   "first_seen": "2026-11-13T16:26:35+00:00",
+   "subject": "MARKET",
+   "kind": "market",
+   "severity": "medium",
+   "ref_session": "2026-11-12",
+   "price_trigger": true,
+   "news_trigger": false,
+   "quote": {
+    "status": "ok",
+    "prev_close": 688.17,
+    "ref_price": 688.17,
+    "last": 674.4539,
+    "move_total": -0.0199,
+    "move_ext": 0.0,
+    "move_day": -0.0199,
+    "session": "regular",
+    "last_time": "2026-11-13T16:26:40+00:00"
+   },
+   "headlines": [],
+   "facts_status": "price_only",
+   "market_movers": [
+    "VGT",
+    "SMH"
+   ],
+   "vix_trigger": false,
+   "reaction": {
+    "QQQ": {
+     "status": "ok",
+     "last": 674.4539,
+     "move_total": -0.0199,
+     "move_ext": 0.0,
+     "session": "regular"
+    },
+    "SPY": {
+     "status": "ok",
+     "last": 750.07,
+     "move_total": -0.0093,
+     "move_ext": 0.0,
+     "session": "regular"
+    },
+    "VGT": {
+     "status": "ok",
+     "last": 110.09,
+     "move_total": -0.0265,
+     "move_ext": 0.0,
+     "session": "regular"
+    },
+    "SMH": {
+     "status": "ok",
+     "last": 478.405,
+     "move_total": -0.0465,
+     "move_ext": 0.0,
+     "session": "regular"
+    },
+    "^VIX": {
+     "status": "ok",
+     "last": 20.1,
+     "move_total": 0.0749,
+     "move_ext": 0.0,
+     "session": "regular"
+    },
+    "QQQM": {
+     "status": "ok",
+     "last": 277.72,
+     "move_total": -0.02,
+     "move_ext": 0.0,
+     "session": "regular"
+    },
+    "QLD": {
+     "status": "ok",
+     "last": 78.025,
+     "move_total": -0.0403,
+     "move_ext": 0.0,
+     "session": "regular"
+    }
+   },
+   "core_impact": [
+    {
+     "symbol": "QQQM",
+     "status": "ok",
+     "price_source": "QQQM",
+     "move": -0.02,
+     "est_drawdown": -0.1159,
+     "close_drawdown": -0.0978,
+     "reached": "near",
+     "next_line": "t1",
+     "to_next_line": 0.0041,
+     "thresholds": {
+      "near": 0.1,
+      "t1": 0.12,
+      "t2": 0.18,
+      "t3": 0.25
+     },
+     "estimated": true
+    },
+    {
+     "symbol": "VGT",
+     "status": "ok",
+     "price_source": "VGT",
+     "move": -0.0265,
+     "est_drawdown": -0.1574,
+     "close_drawdown": -0.1345,
+     "reached": "t1",
+     "next_line": "t2",
+     "to_next_line": 0.0426,
+     "thresholds": {
+      "near": 0.13,
+      "t1": 0.15,
+      "t2": 0.2,
+      "t3": 0.3
+     },
+     "estimated": true
+    },
+    {
+     "symbol": "QLD",
+     "status": "ok",
+     "price_source": "QLD",
+     "move": -0.0403,
+     "est_drawdown": -0.2322,
+     "close_drawdown": -0.2,
+     "reached": "near",
+     "next_line": "t1",
+     "to_next_line": 0.0178,
+     "thresholds": {
+      "near": 0.23,
+      "t1": 0.25,
+      "t2": 0.35,
+      "t3": 0.5
+     },
+     "estimated": true
+    }
+   ],
+   "upcoming": [],
+   "production_use": false,
+   "advice": [
+    "核心仓位：QQQM 估算回撤 11.6%，已到接近一级线；VGT 估算回撤 15.7%，已到一级线；QLD 估算回撤 23.2%，已到接近一级线。按原有分级计划执行，正式提醒以收盘数据为准，不因单一事件改变节奏。",
+    "市场层面波动：先看核心分级是否触发；QLD 是两倍杠杆，波动和回撤都更大。",
+    "研究提示，不是买卖指令；是否操作由你决定。"
+   ],
+   "outcomes": [],
+   "delivery": "sent"
+  },
   {
    "advice": [
     "核心仓位：VGT 估算回撤 13.7%，已到接近一级线。按原有分级计划执行，正式提醒以收盘数据为准，不因单一事件改变节奏。",
@@ -180,12 +330,12 @@
    ],
    "outcomes": [
     {
-     "type": "outcome",
+     "AVGO": 0.0554,
+     "QQQ": -0.0032,
      "event_id": "AVGO@2026-11-11",
      "n": 1,
      "session": "2026-11-12",
-     "AVGO": 0.0554,
-     "QQQ": -0.0032
+     "type": "outcome"
     }
    ],
    "delivery": "sent"
@@ -376,12 +526,12 @@
    ],
    "outcomes": [
     {
-     "type": "outcome",
+     "NVDA": -0.0434,
+     "QQQ": -0.0032,
      "event_id": "NVDA@2026-11-11",
      "n": 1,
      "session": "2026-11-12",
-     "NVDA": -0.0434,
-     "QQQ": -0.0032
+     "type": "outcome"
     }
    ],
    "delivery": "sent"
@@ -544,12 +694,12 @@
    ],
    "outcomes": [
     {
-     "type": "outcome",
+     "AMD": 0.0586,
+     "QQQ": -0.0032,
      "event_id": "AMD@2026-11-11",
      "n": 1,
      "session": "2026-11-12",
-     "AMD": 0.0586,
-     "QQQ": -0.0032
+     "type": "outcome"
     }
    ],
    "delivery": "sent"

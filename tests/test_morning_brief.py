@@ -77,3 +77,18 @@ print("PASS one brief per day; one update when the close arrives late")
 wf = (ROOT / ".github/workflows/morning-brief.yml").read_text(encoding="utf-8")
 assert "privacy_canary_scan.py --staged" in wf and "37 0 * * *" in wf
 print("PASS workflow wiring")
+
+# event chain: a run outside the Shanghai morning never sends (the 08:15 Daily finishes after midnight Shanghai)
+sent.clear()
+d3 = Path(tempfile.mkdtemp())
+kw3 = dict(kw, state_path=d3 / "s.json", out_path=d3 / "o.json")
+late = mb.run(now=datetime(2026, 11, 13, 16, 58, tzinfo=timezone.utc), data=data("2026-11-12"), **kw3)   # 00:58 SH
+early = mb.run(now=datetime(2026, 11, 12, 21, 50, tzinfo=timezone.utc), data=data("2026-11-12"), **kw3)  # 05:50 SH
+assert not sent and late["delivery"] == "outside_window_early" and early["delivery"] == "outside_window_early"
+assert mb.window(datetime(2026, 11, 13, 4, 30, tzinfo=timezone.utc)) == "late"                          # 12:30 SH
+assert "workflow_run" in wf and "Daily Dashboard Update" in wf and "--wait" in wf
+import daily_guardian as dg  # noqa: E402
+assert dg.CHAINED_AFTER_DAILY == ("shock-event-watch.yml", "morning-brief.yml")
+sw = (ROOT / ".github/workflows/shock-event-watch.yml").read_text(encoding="utf-8")
+assert "workflow_run" in sw and "Daily Dashboard Update" in sw
+print("PASS event chain: brief and shock watch follow every Daily; Guardian chains its own dispatch; morning window")

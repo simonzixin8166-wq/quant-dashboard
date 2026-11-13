@@ -4,6 +4,11 @@ name: Morning Brief
 # pipelines already publish (no new data source, no Claude session). 08:37 Shanghai; the 10:37 run sends an
 # update only when the 08:37 brief went out before the US close had been processed. Reminder only: no orders.
 on:
+  # event chain (Owner 2026-11-13): GitHub delays crons by hours, so the brief also follows every completed
+  # Daily; morning_brief.py sends only 07:00-12:00 Shanghai and at most once (+1 update) per day.
+  workflow_run:
+    workflows: ["Daily Dashboard Update"]
+    types: [completed]
   schedule:
     - cron: '37 0 * * *'
     - cron: '37 2 * * *'
@@ -19,7 +24,8 @@ concurrency:
 jobs:
   brief:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+    timeout-minutes: 190
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -31,7 +37,7 @@ jobs:
         env:
           MYALPHA_TG_BOT_TOKEN: ${{ secrets.MYALPHA_TG_BOT_TOKEN }}
           MYALPHA_TG_CHAT_ID: ${{ secrets.MYALPHA_TG_CHAT_ID }}
-        run: python scripts/morning_brief.py
+        run: python scripts/morning_brief.py ${{ github.event_name != 'schedule' && '--wait' || '' }}
       - name: Record morning brief failure (visible in system status)
         if: steps.brief.outcome == 'failure'
         run: python scripts/module_failure_marker.py morning_brief

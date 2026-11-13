@@ -95,6 +95,7 @@ def send_telegram(text: str) -> str:
 
 
 SERVER_MAX_AGE_MIN = 75
+CHAINED_AFTER_DAILY = ("shock-event-watch.yml", "morning-brief.yml")
 SERVER_MARK = "server-guardian"
 # A guard-dispatched Daily is created by GITHUB_TOKEN, so its completion fires no workflow_run and Server Action
 # Watch (which reacts to Daily) never runs; the guardian's own catch-up crons are throttled (10/28: 23:47 -> 01:17Z
@@ -207,6 +208,14 @@ def main():
                {"ref": "main", "inputs": {"run_reason": f"{SERVER_MARK} after-daily {d['expected']}"}})
             print(f"::warning title=Daily guardian::SERVER_REFRESH_AFTER_DAILY dispatched Server Action Watch for {d['expected']}")
             refreshed = True
+            # event chain (Owner 2026-11-13): a guard-dispatched Daily fires no workflow_run, so start the
+            # post-close shock check and the morning brief here (both idempotent)
+            for wf in CHAINED_AFTER_DAILY:
+                try:
+                    gh("POST", f"actions/workflows/{wf}/dispatches", {"ref": "main"})
+                    print(f"::notice title=Daily guardian::CHAIN_AFTER_DAILY dispatched {wf}")
+                except Exception as exc:
+                    print(f"::warning title=Daily guardian::CHAIN_AFTER_DAILY {wf} failed ({type(exc).__name__})")
     elif d["action"] == "give_up":
         print(f"::error title=Daily guardian::DAILY_STILL_STALE {d['expected']} after {MAX_DISPATCH} guard dispatches; explicit GAP, no backfill")
         try:

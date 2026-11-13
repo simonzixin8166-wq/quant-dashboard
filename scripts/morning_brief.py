@@ -38,6 +38,8 @@ VERSION = "brief-1.0"
 CORE = ("QQQM", "VGT", "QLD")
 LINE_ZH = {"near": "接近一级", "t1": "一级", "t2": "二级", "t3": "三级"}
 DISCLAIMER = "以上是提醒和研究提示，不是买卖指令；是否操作由你决定。"
+SEND_FROM, SEND_UNTIL = 7, 12      # Shanghai hours: a chained run outside the morning never sends
+MAX_WAIT_H = 3                     # a chained run before 07:00 waits at most this long
 
 
 def load(path, default=None):
@@ -197,8 +199,18 @@ def notify(text):
     return send_telegram(text)
 
 
+def window(now):
+    """'open' inside the Shanghai morning, else 'early' (before SEND_FROM) or 'late'."""
+    h = now.astimezone(SH).hour
+    return "open" if SEND_FROM <= h < SEND_UNTIL else ("early" if h < SEND_FROM else "late")
+
+
 def run(now=None, send=notify, state_path=STATE, out_path=OUT, force=False, **inputs):
+    now = now or datetime.now(timezone.utc)
     brief = build(now=now, **inputs)
+    if not force and window(now) != "open":
+        brief["delivery"] = f"outside_window_{window(now)}"
+        return brief
     state = load(state_path, {}) or {}
     day = brief["local_date"]
     prev = state.get(day) or {}
@@ -219,6 +231,14 @@ def run(now=None, send=notify, state_path=STATE, out_path=OUT, force=False, **in
 
 
 def main():
+    if "--wait" in sys.argv:   # chained after Daily: wait for the morning when the close arrived before 07:00
+        import time
+        now = datetime.now(timezone.utc)
+        start = now.astimezone(SH).replace(hour=SEND_FROM, minute=0, second=0, microsecond=0)
+        gap = (start - now.astimezone(SH)).total_seconds()
+        if window(now) == "early" and 0 < gap <= MAX_WAIT_H * 3600:
+            print(f"waiting {gap / 60:.0f} min until {SEND_FROM:02d}:00 Shanghai")
+            time.sleep(gap)
     b = run(force="--force" in sys.argv, send=(lambda t: "dry_run") if "--dry-run" in sys.argv else notify)
     print(b["text"])
     print(f"\ndelivery={b['delivery']} fresh={b['fresh']}")

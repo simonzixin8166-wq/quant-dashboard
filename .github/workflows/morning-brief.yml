@@ -1,0 +1,45 @@
+name: Morning Brief
+
+# Owner 2026-11-13: "每天早上给一份简报". One Telegram brief per Shanghai morning, built only from files the
+# pipelines already publish (no new data source, no Claude session). 08:37 Shanghai; the 10:37 run sends an
+# update only when the 08:37 brief went out before the US close had been processed. Reminder only: no orders.
+on:
+  schedule:
+    - cron: '37 0 * * *'
+    - cron: '37 2 * * *'
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: morning-brief
+  cancel-in-progress: false
+
+jobs:
+  brief:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Morning brief (Telegram, once per day)
+        id: brief
+        continue-on-error: true
+        env:
+          MYALPHA_TG_BOT_TOKEN: ${{ secrets.MYALPHA_TG_BOT_TOKEN }}
+          MYALPHA_TG_CHAT_ID: ${{ secrets.MYALPHA_TG_CHAT_ID }}
+        run: python scripts/morning_brief.py
+      - name: Record morning brief failure (visible in system status)
+        if: steps.brief.outcome == 'failure'
+        run: python scripts/module_failure_marker.py morning_brief
+      - name: Save brief only
+        run: |
+          git config user.name "github-actions"; git config user.email "actions@github.com"
+          for f in docs/research/morning_brief.json research/store/morning_brief_state.json docs/research/module_failures.json; do
+            if [ -f "$f" ]; then git add "$f"; fi
+          done
+          python3 scripts/privacy_canary_scan.py --staged
+          git diff --cached --quiet || (git commit -m "morning brief" && git pull --rebase origin main && git push)

@@ -36,6 +36,7 @@ R, D, L, M, V = "research", "decision", "learning", "monitor", "display"
 ROLES = {  # reader → (role, reason)
     "daily_skip_gate.py": (M, "skips only a late duplicate US-close Daily when the session is already published and trusted"),
     "daily_research_job.py": (R, "append-only shadow hypotheses, revisits, maturity"),
+    "morning_brief.py": (V, "Owner 2026-11-13: one Telegram morning brief from published files; reminder only, never a decision input"),
     "shock_event_monitor.py": (V, "Owner 2026-11-12: shock events recorded, analysed and advised twice a day; Telegram reminder only, never a decision input or order"),
     "learning_progress.py": (V, "four-measures learning progress panel with denominators; report only, never upgrades the learning state"),
     "macro_event_watch.py": (V, "H-01/H-02 homepage macro-event reminder artifact (Shadow, no decisions)"),

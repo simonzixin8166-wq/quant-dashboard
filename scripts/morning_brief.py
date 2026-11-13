@@ -86,7 +86,7 @@ def core_lines(data, tiers_all):
     return lines
 
 
-def shock_lines(shock, now):
+def shock_lines(shock, now, data=None):
     rows = []
     for e in (shock or {}).get("events") or []:
         if e.get("retracted"):
@@ -110,7 +110,12 @@ def shock_lines(shock, now):
         ahead = (e.get("upcoming") or [None])[0]
         if ahead:
             note += f"；{ahead['date'][5:].replace('-', '/')} {ahead.get('title_zh') or '已排期事件'}"
-        rows.append(f"[{tag}] {head} {pct(q.get('move_total'))}：{note}")
+        move = pct(q.get("move_total"))
+        last = ((data or {}).get("stocks") or {}).get(e["subject"]) or {}
+        # the close of the session the event was first seen in (or later) says more than the trigger price
+        if e.get("kind") == "company" and last.get("day_chg") is not None and last.get("date", "") >= e["first_seen"][:10]:
+            move = f"{last['date'][5:].replace('-', '/')} 收盘 {pct(last['day_chg'])}（发现时 {move}）"
+        rows.append(f"[{tag}] {head} {move}：{note}")
     rows.sort(key=lambda r: not r.startswith("[高]"))
     return rows[:4]
 
@@ -170,7 +175,7 @@ def build(now=None, data=None, tiers=None, shock=None, calendar=None, learn=None
     sections = [f"MyAlpha 早报 · {local:%m/%d} {'一二三四五六日'[local.weekday()]}"]
     sections += mkt
     sections.append("核心：" + "；".join(core_lines(data, tiers)))
-    sh = shock_lines(shock, now)
+    sh = shock_lines(shock, now, data)
     sections.append("突发事件：" + ("无" if not sh else ""))
     sections += [f"· {x}" for x in sh]
     nxt = us_today if tc.is_session(us_today) else tc.next_session(us_today)

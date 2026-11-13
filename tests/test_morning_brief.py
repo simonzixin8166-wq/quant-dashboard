@@ -19,7 +19,7 @@ def row(d, close, dd, chg=0.01):
 
 
 def data(d):
-    return {"index": {"QQQ": row(d, 680, -0.108, -0.015), "SMH": row(d, 490, -0.27, -0.03)},
+    return {"stocks": {"NVDA": row(d, 166.19, -0.3, -0.0434)}, "index": {"QQQ": row(d, 680, -0.108, -0.015), "SMH": row(d, 490, -0.27, -0.03)},
             "market_indicators": {"ixic": row(d, 25000, -0.1, -0.012), "spx": row(d, 7550, -0.03, -0.006),
                                   "vix": {"date": d, "close": 20.4, "day_chg": 0.11}},
             "core": {"QQQM": row(d, 280.1, -0.1083), "VGT": row(d, 111.0, -0.152), "QLD": row(d, 79.0, -0.2226)}}
@@ -51,7 +51,7 @@ assert "QQQM 回撤 10.8%（已到接近一级线，距一级 1.2%）" in t and 
 assert "QLD 回撤 22.3%（正常区，距一级 2.7%）" in t
 lines = t.splitlines()
 i = lines.index("突发事件：")
-assert lines[i + 1].startswith("· [高] NVDA -7.4%：管理层/治理事件") and "11/17 NVDA 财报" in lines[i + 1]
+assert lines[i + 1].startswith("· [高] NVDA 11/12 收盘 -4.3%（发现时 -7.4%）：管理层/治理事件") and "11/17 NVDA 财报" in lines[i + 1]
 assert "AMD +5.4%：同行联动，可能与 NVDA 事件相关" in t and " X " not in t and "OLD" not in t
 assert "今天 美国 PPI（北京 11/13 21:30）" in t and "11/17" not in t.split("日程")[1].split("\n")[0]
 assert "Gemini 进行中 51/85" in t and "生产召回率 27/70" in t and "系统：正常" in t and t.endswith(mb.DISCLAIMER)
@@ -59,6 +59,7 @@ print("PASS content: tiers, shock events (high first, retracted/old skipped), Sh
 
 stale = mb.build(now=NOW, data=data("2026-11-11"), **common)
 assert not stale["fresh"] and "⚠ 美股 2026-11-12 收盘数据尚未更新（最新 2026-11-11）" in stale["text"] and "数据未到" in stale["text"]
+assert "NVDA 11/11 收盘" not in stale["text"] and "NVDA -7.4%" in stale["text"], "a close before the event is not shown"
 print("PASS late close is said plainly, never filled in")
 
 d = Path(tempfile.mkdtemp())

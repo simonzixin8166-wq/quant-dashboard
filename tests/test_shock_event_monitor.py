@@ -175,3 +175,10 @@ assert v["corrections"][0]["reason_zh"] == "参考收盘价取错"
 js = (ROOT / "docs/assets/shock-event-row.js").read_text(encoding="utf-8")
 assert "!e.retracted" in js and "更正" in js
 print("PASS corrections applied in the public view; retracted events hidden on the homepage")
+
+# a headline naming several watched companies is a peer reaction, not the cluster of any one of them
+peer = [{"title": "AMD, Broadcom gain after reports say Nvidia board preparing to oust Huang", "publisher": p,
+         "published_at": "2026-11-12T10:00:00+00:00"} for p in ("A", "B", "C")]
+assert not sm.news_cluster("AVGO", cfg["stocks"]["AVGO"], peer, cfg, NOW)["hit"]
+assert not sm.news_cluster("NVDA", cfg["stocks"]["NVDA"], peer, cfg, NOW)["hit"]
+print("PASS peer headlines naming several companies never trigger a cluster (AVGO 11/12)")

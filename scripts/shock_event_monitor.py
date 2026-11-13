@@ -178,7 +178,14 @@ def _kw_hit(title, keywords):
     return None
 
 
+def _names(title, cfg):
+    t = title.lower()
+    return {s for s, al in cfg["stocks"].items() if any(a.lower() in t for a in al) or re.search(r"\b" + s + r"\b", title)}
+
+
 def news_cluster(sym, aliases, news, cfg, now):
+    """Headlines naming two or more watched companies ("AMD, Broadcom gain after Nvidia board ...") are peer
+    reactions: they never count toward one company's cluster (production false trigger AVGO 2026-11-12)."""
     th = cfg["thresholds"]
     since = now - timedelta(hours=th["news_window_hours"])
     hits, publishers = [], set()
@@ -190,7 +197,7 @@ def news_cluster(sym, aliases, news, cfg, now):
         title = x["title"]
         about = any(a.lower() in title.lower() for a in aliases) or re.search(r"\b" + sym + r"\b", title) is not None
         kw = _kw_hit(title, cfg["keywords"])
-        if when >= since and about and kw:
+        if when >= since and about and kw and len(_names(title, cfg)) <= 1:
             hits.append(dict(x, keyword=kw))
             publishers.add((x.get("publisher") or "").strip().lower())
     return {"hit": len(publishers) >= th["news_publishers"], "publishers": len(publishers), "items": hits}

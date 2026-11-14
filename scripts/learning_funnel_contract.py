@@ -108,6 +108,21 @@ def market():
     ms_mat = [r for r in ms_rows if int(r.get("horizon_sessions") or 0) >= MATURE_MIN_SESSIONS]
     mo_rows = jsonl(R / "archive" / "macro_regime_outcomes.jsonl")
     mo_mat = [r for r in mo_rows if int(r.get("horizon_sessions") or 0) >= MATURE_MIN_SESSIONS]
+    # One unit for both forward layers: a distinct tracked item (a macro observation or a market-state snapshot).
+    # Counting outcome rows (item x horizon) against items let matured exceed eligible once snapshot outcomes
+    # matured (Daily 2026-11-13 failed closed on 44 > 39). Every snapshot with an outcome was tracked, so it is
+    # eligible even after its history file rolls it off.
+    def snap_id(kind, as_of, state):
+        return f"{kind}|{str(as_of)[:10]}|{state}"
+    snaps = {snap_id(r.get("kind"), r.get("as_of"), r.get("state")) for r in ms_rows}
+    for kind, name in (("cross_asset", "cross_asset_divergence_history.json"), ("breadth", "breadth_intelligence_history.json"),
+                       ("regime", "regime_combination_history.json")):
+        for row in (load(D / name).get("records") or []):
+            st = row.get("state_id") or row.get("combination_key") or row.get("level") or row.get("label")
+            if row.get("as_of") and row.get("anchor_spy"):
+                snaps.add(snap_id(kind, row.get("as_of"), st))
+    mo_items = {r.get("observation_id") for r in mo_mat if r.get("observation_id")}
+    ms_items = {snap_id(r.get("kind"), r.get("as_of"), r.get("state")) for r in ms_mat}
     mo_cards = [c for c in (mo_doc.get("scorecards") or []) if int(c.get("horizon_sessions") or 0) >= MATURE_MIN_SESSIONS]
     ms_cards = [c for c in (sc_doc.get("scorecards") or []) if int(c.get("horizon_sessions") or 0) >= MATURE_MIN_SESSIONS]
     return {
@@ -117,11 +132,13 @@ def market():
                                "observations with a regime and acceptable input quality", ev, "observation_id"),
         "candidate_claim_or_state": layer(len({r.get("regime_key") for r in obs.values() if r.get("regime_key")}),
                                           "distinct regime state entries", ev, "regime_key"),
-        "effective_forward_eligible": layer(len(pit), "point-in-time capable live observations (observed_at recorded)", ev, "observation_id"),
-        "independently_matured": layer(len(mo_mat) + len(ms_mat),
-                                       f"matured (>= {MATURE_MIN_SESSIONS} sessions) SPY outcomes of live macro observations and live market-state snapshots",
+        "effective_forward_eligible": layer(len({r.get("observation_id") for r in pit} | mo_items) + len(snaps),
+                                            "point-in-time capable live macro observations (observed_at recorded) + live market-state snapshots tracked for outcomes",
+                                            ev + " + " + rel(R / "archive" / "market_state_outcomes.jsonl"), "observation_id / kind|as_of|state"),
+        "independently_matured": layer(len(mo_items) + len(ms_items),
+                                       f"distinct live macro observations and market-state snapshots with a matured (>= {MATURE_MIN_SESSIONS} sessions) SPY outcome",
                                        rel(R / "archive" / "macro_regime_outcomes.jsonl") + " + " + rel(R / "archive" / "market_state_outcomes.jsonl"),
-                                       "observation_id×horizon / outcome_id"),
+                                       "observation_id / kind|as_of|state"),
         "benchmark_evaluated": layer(len(mo_cards) + len(ms_cards),
                                      f"SPY-benchmark scorecards built only from matured (>= {MATURE_MIN_SESSIONS} sessions) outcomes",
                                      rel(D / "macro_outcome_memory.json") + " + " + rel(D / "market_state_outcome_scorecards.json"), "scorecard_id"),

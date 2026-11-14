@@ -79,3 +79,19 @@ assert out["engines"]["options"]["independently_matured"]["dedup_key"] == "obser
 for _name in out["engines"]:
     assert lf.check(_name, out["engines"][_name]) == [], _name
 print("PASS P3-12 learning funnel contract")
+
+# 2026-11-13 regression: matured market items are a subset of eligible ones by construction (same unit),
+# so new matured snapshot outcomes can never push independently_matured above effective_forward_eligible.
+_orig = lf.jsonl
+def _more(path):
+    rows = list(_orig(path))
+    if str(path).endswith("market_state_outcomes.jsonl"):
+        rows += [{"kind": "breadth", "as_of": f"2026-09-{d:02d}", "state": "x", "horizon_sessions": 20} for d in range(1, 29)]
+        rows += [dict(r, horizon_sessions=60) for r in rows if int(r.get("horizon_sessions") or 0) == 20]
+    return rows
+lf.jsonl = _more
+mk = lf.market()
+assert mk["independently_matured"]["count"] <= mk["effective_forward_eligible"]["count"], mk
+assert not lf.check("market", mk), lf.check("market", mk)
+lf.jsonl = _orig
+print("PASS market funnel units: matured items never exceed eligible items")

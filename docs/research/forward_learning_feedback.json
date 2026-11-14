@@ -1,6 +1,6 @@
 {
   "version": "6.12.1",
-  "generated_at": "2026-11-13T16:23:30.128107+00:00",
+  "generated_at": "2026-11-14T02:12:23.501123+00:00",
   "mode": "shadow_research_only",
   "playbooks": {
     "CP-01": {
@@ -8,7 +8,7 @@
       "forward_provenance": "forward_out_of_sample",
       "replay_provenance": "historical_replay_post_rule_design",
       "trigger_records": 5,
-      "mature5": 3,
+      "mature5": 4,
       "mature20": 0,
       "mature60": 0,
       "aligned_rate5": 1.0,
@@ -27,10 +27,10 @@
           "baseline_mismatch": 0,
           "horizons": {
             "5": {
-              "mature": 3,
-              "aligned": 3,
+              "mature": 4,
+              "aligned": 4,
               "not_aligned": 0,
-              "pending": 2
+              "pending": 1
             },
             "20": {
               "mature": 0,
@@ -49,26 +49,32 @@
       }
     },
     "CP-02": {
-      "state": "forward_early",
+      "state": "forward_challenging",
       "forward_provenance": "forward_out_of_sample",
       "replay_provenance": "historical_replay_post_rule_design",
       "trigger_records": 9,
-      "mature5": 8,
-      "mature20": 2,
+      "mature5": 9,
+      "mature20": 3,
       "mature60": 0,
-      "aligned_rate5": 0.375,
-      "aligned_rate20": 0.0,
+      "aligned_rate5": 0.3333333333333333,
+      "aligned_rate20": 0.3333333333333333,
       "aligned_rate60": null,
       "baseline_mismatch": 0,
       "timing_uncertain": 2,
-      "replay_effective_n20": 560,
-      "replay_aligned_rate20": 0.5314836120776286,
+      "replay_effective_n20": 561,
+      "replay_aligned_rate20": 0.5321462162725138,
       "attribution": [
         {
           "tag": "late_detection_timing",
           "severity": "review",
           "evidence_n": 2,
           "hypothesis": "存在检测时点不确定样本；先隔离时点误差，不能把它当成规则本身失败。"
+        },
+        {
+          "tag": "forward_direction_challenging",
+          "severity": "review",
+          "evidence_n": 3,
+          "hypothesis": "20日 Forward 方向一致率偏低；需要检查触发条件是否过宽、状态持续时间或环境依赖。"
         }
       ],
       "by_state_detail": {
@@ -111,10 +117,10 @@
               "pending": 0
             },
             "20": {
-              "mature": 0,
-              "aligned": 0,
+              "mature": 1,
+              "aligned": 1,
               "not_aligned": 0,
-              "pending": 1
+              "pending": 0
             },
             "60": {
               "mature": 0,
@@ -183,10 +189,10 @@
           "baseline_mismatch": 0,
           "horizons": {
             "5": {
-              "mature": 0,
+              "mature": 1,
               "aligned": 0,
-              "not_aligned": 0,
-              "pending": 1
+              "not_aligned": 1,
+              "pending": 0
             },
             "20": {
               "mature": 0,
@@ -205,21 +211,34 @@
       }
     },
     "CP-03": {
-      "state": "forward_early",
+      "state": "forward_challenging",
       "forward_provenance": "forward_out_of_sample",
       "replay_provenance": "historical_replay_post_rule_design",
       "trigger_records": 25,
-      "mature5": 22,
-      "mature20": 2,
+      "mature5": 24,
+      "mature20": 4,
       "mature60": 0,
-      "aligned_rate5": 0.36363636363636365,
+      "aligned_rate5": 0.4166666666666667,
       "aligned_rate20": 0.0,
       "aligned_rate60": null,
       "baseline_mismatch": 0,
       "timing_uncertain": 0,
-      "replay_effective_n20": 226,
-      "replay_aligned_rate20": 0.6021340351183114,
-      "attribution": [],
+      "replay_effective_n20": 227,
+      "replay_aligned_rate20": 0.5999748877506229,
+      "attribution": [
+        {
+          "tag": "forward_direction_challenging",
+          "severity": "review",
+          "evidence_n": 4,
+          "hypothesis": "20日 Forward 方向一致率偏低；需要检查触发条件是否过宽、状态持续时间或环境依赖。"
+        },
+        {
+          "tag": "replay_forward_divergence",
+          "severity": "review",
+          "evidence_n": 4,
+          "hypothesis": "Forward 与历史 Replay 的20日方向一致率出现明显偏离；优先检查市场环境差异、样本聚类与状态定义，不自动改阈值。"
+        }
+      ],
       "by_state_detail": {
         "candidate": {
           "trigger_records": 18,
@@ -228,16 +247,16 @@
           "baseline_mismatch": 0,
           "horizons": {
             "5": {
-              "mature": 15,
-              "aligned": 5,
+              "mature": 17,
+              "aligned": 7,
               "not_aligned": 10,
-              "pending": 3
+              "pending": 1
             },
             "20": {
-              "mature": 2,
+              "mature": 3,
               "aligned": 0,
-              "not_aligned": 2,
-              "pending": 16
+              "not_aligned": 3,
+              "pending": 15
             },
             "60": {
               "mature": 0,
@@ -260,10 +279,10 @@
               "pending": 0
             },
             "20": {
-              "mature": 0,
+              "mature": 1,
               "aligned": 0,
-              "not_aligned": 0,
-              "pending": 7
+              "not_aligned": 1,
+              "pending": 6
             },
             "60": {
               "mature": 0,
@@ -276,16 +295,63 @@
       }
     }
   },
-  "challengers": [],
+  "challengers": [
+    {
+      "challenger_id": "097d3d4d732b0f",
+      "playbook_id": "CP-02",
+      "state": "shadow_candidate",
+      "reason_tags": [
+        "late_detection_timing",
+        "forward_direction_challenging"
+      ],
+      "proposal_scope": "diagnostic_only",
+      "allowed_actions": [
+        "compare alternative environment filters",
+        "compare state-duration / cooldown variants",
+        "compare stricter confirmation in historical replay"
+      ],
+      "forbidden_actions": [
+        "change production threshold",
+        "change Hard Exit",
+        "change position size",
+        "place order",
+        "automatic promotion"
+      ],
+      "human_review_required": true
+    },
+    {
+      "challenger_id": "6f78b455c0b657",
+      "playbook_id": "CP-03",
+      "state": "shadow_candidate",
+      "reason_tags": [
+        "forward_direction_challenging",
+        "replay_forward_divergence"
+      ],
+      "proposal_scope": "diagnostic_only",
+      "allowed_actions": [
+        "compare alternative environment filters",
+        "compare state-duration / cooldown variants",
+        "compare stricter confirmation in historical replay"
+      ],
+      "forbidden_actions": [
+        "change production threshold",
+        "change Hard Exit",
+        "change position size",
+        "place order",
+        "automatic promotion"
+      ],
+      "human_review_required": true
+    }
+  ],
   "counts": {
     "playbooks": 3,
-    "challenger_candidates": 0,
-    "forward_mature20": 4,
+    "challenger_candidates": 2,
+    "forward_mature20": 7,
     "forward_mature60": 0,
-    "attribution_reviews": 1
+    "attribution_reviews": 4
   },
   "change_log": {
-    "previous_generated_at": "2026-11-13T02:21:25.316064+00:00",
+    "previous_generated_at": "2026-11-13T16:23:30.128107+00:00",
     "stateless_recompute": true,
     "automatic_promotion": false
   },

@@ -1,6 +1,6 @@
 {
   "version": "6.13.2",
-  "generated_at": "2026-11-13T16:24:28.149203+00:00",
+  "generated_at": "2026-11-14T02:13:04.156309+00:00",
   "mode": "controlled_research_only",
   "production_mutation": false,
   "automatic_orders": false,
@@ -8,8 +8,8 @@
   "task_kind_priority_delta": {},
   "playbook_validation_priority_bonus": {
     "CP-01": 5,
-    "CP-02": 2,
-    "CP-03": 2
+    "CP-02": 7,
+    "CP-03": 7
   },
   "replay_evidence": {
     "CP-01": {
@@ -20,32 +20,32 @@
     },
     "CP-02": {
       "effective_n": 565,
-      "alignment20_effective_weighted": 0.5314836120776286,
+      "alignment20_effective_weighted": 0.5321462162725138,
       "state": "replay_mixed",
       "provenance": "historical_replay_post_rule_design"
     },
     "CP-03": {
       "effective_n": 228,
-      "alignment20_effective_weighted": 0.6021340351183114,
-      "state": "replay_supportive",
+      "alignment20_effective_weighted": 0.5999748877506229,
+      "state": "replay_mixed",
       "provenance": "historical_replay_post_rule_design"
     }
   },
   "forward_evidence": {
     "CP-02": {
-      "mature5": 8,
-      "aligned5_rate": 0.375,
+      "mature5": 9,
+      "aligned5_rate": 0.3333333333333333,
       "state": "forward_challenging",
       "provenance": "forward_out_of_sample"
     },
     "CP-03": {
-      "mature5": 22,
-      "aligned5_rate": 0.36363636363636365,
-      "state": "forward_challenging",
+      "mature5": 24,
+      "aligned5_rate": 0.4166666666666667,
+      "state": "forward_mixed",
       "provenance": "forward_out_of_sample"
     },
     "CP-01": {
-      "mature5": 3,
+      "mature5": 4,
       "aligned5_rate": 1.0,
       "state": "forward_early",
       "provenance": "forward_out_of_sample"
@@ -121,21 +121,32 @@
     "mode": "shadow_research_only",
     "counts": {
       "playbooks": 3,
-      "challenger_candidates": 0,
-      "forward_mature20": 4,
+      "challenger_candidates": 2,
+      "forward_mature20": 7,
       "forward_mature60": 0,
-      "attribution_reviews": 1
+      "attribution_reviews": 4
     },
     "playbook_states": {
       "CP-01": "forward_early",
-      "CP-02": "forward_early",
-      "CP-03": "forward_early"
+      "CP-02": "forward_challenging",
+      "CP-03": "forward_challenging"
     },
-    "challenger_candidates": [],
+    "challenger_candidates": [
+      {
+        "challenger_id": "097d3d4d732b0f",
+        "playbook_id": "CP-02",
+        "state": "shadow_candidate"
+      },
+      {
+        "challenger_id": "6f78b455c0b657",
+        "playbook_id": "CP-03",
+        "state": "shadow_candidate"
+      }
+    ],
     "automatic_promotion": false
   },
   "change_log": {
-    "previous_generated_at": "2026-11-13T02:22:08.133445+00:00",
+    "previous_generated_at": "2026-11-13T16:24:28.149203+00:00",
     "recomputed_from_current_evidence": true,
     "cumulative_same_day_learning": false,
     "rollback": "delete/ignore controlled_learning_policy.json to return all controlled deltas to zero"

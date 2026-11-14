@@ -1,8 +1,8 @@
 {
   "version": "5.7.0",
-  "generated_at": "2026-11-13T16:24:26.974145+00:00",
+  "generated_at": "2026-11-14T02:13:03.067828+00:00",
   "external_outcome_evidence_role": "legacy_descriptive_only",
-  "as_of": "2026-11-13",
+  "as_of": "2026-11-14",
   "architecture": [
     "plain_language_glossary",
     "trend_state_machine",
@@ -83,6 +83,58 @@
     "method": "evidence accumulation v1",
     "top": [
       {
+        "symbol": "NBIS",
+        "evidence_score": 62.0,
+        "status": "evidence-accumulating",
+        "trend_state": {
+          "state": "Breakdown",
+          "label_cn": "结构破坏",
+          "source_stage": "趋势恶化",
+          "weekly": "空头",
+          "explanation": "趋势结构已经明显恶化，原来的多头假设必须重新验证。",
+          "invalidation": "只有进入修复并完成新的确认流程，才考虑重新升级。",
+          "term_help": {
+            "cn": "结构破坏",
+            "plain": "趋势和价格结构已经明显恶化，原来的多头假设需要重新验证。",
+            "why": "这不是自动卖出指令，而是要求重新检查投资逻辑、估值和风险暴露。"
+          }
+        },
+        "breadcrumbs": [
+          {
+            "type": "trend_state",
+            "strength": "medium",
+            "evidence": "Trend Pulse 当前阶段：趋势恶化",
+            "meaning": "说明当前技术结构处于什么阶段；它是研究线索，不是单独买卖信号。"
+          },
+          {
+            "type": "timeframe",
+            "strength": "medium",
+            "evidence": "周线方向：空头",
+            "meaning": "用更高周期检查日线信号是否得到确认，减少一次性反弹造成的误判。"
+          },
+          {
+            "type": "momentum",
+            "strength": "medium",
+            "evidence": "Trend Pulse 分数 -100",
+            "meaning": "分数绝对值较高表示趋势证据较集中，但高分不等于未来一定继续上涨或下跌。"
+          },
+          {
+            "type": "transition",
+            "strength": "high",
+            "evidence": "阶段从 修复中 变化为 趋势恶化",
+            "meaning": "状态变化通常比重复的同状态提醒更值得复查。"
+          },
+          {
+            "type": "market_anomaly",
+            "strength": "medium",
+            "evidence": "覆盖池出现异常波动 -9.9%",
+            "meaning": "异常波动只触发原因调查；在事件来源确认前不能当成追涨或抄底理由。"
+          }
+        ],
+        "next_confirmation": "只有进入修复并完成新的确认流程，才考虑重新升级。",
+        "source_scope": "当前仅使用已验证的行情、Trend Pulse、历史学习与覆盖池异动；尚未把论坛/SEC/FDA/公司新闻自动写入此评分。"
+      },
+      {
         "symbol": "AMZN",
         "evidence_score": 61.6,
         "status": "evidence-accumulating",
@@ -129,7 +181,7 @@
         "source_scope": "当前仅使用已验证的行情、Trend Pulse、历史学习与覆盖池异动；尚未把论坛/SEC/FDA/公司新闻自动写入此评分。"
       },
       {
-        "symbol": "NBIS",
+        "symbol": "LITE",
         "evidence_score": 52.8,
         "status": "evidence-accumulating",
         "trend_state": {
@@ -161,34 +213,166 @@
           {
             "type": "momentum",
             "strength": "medium",
-            "evidence": "Trend Pulse 分数 -80",
+            "evidence": "Trend Pulse 分数 -93",
             "meaning": "分数绝对值较高表示趋势证据较集中，但高分不等于未来一定继续上涨或下跌。"
           },
           {
-            "type": "market_anomaly",
+            "type": "transition",
             "strength": "high",
-            "evidence": "覆盖池出现异常波动 -16.8%",
-            "meaning": "异常波动只触发原因调查；在事件来源确认前不能当成追涨或抄底理由。"
+            "evidence": "阶段从 趋势恶化 变化为 修复中",
+            "meaning": "状态变化通常比重复的同状态提醒更值得复查。"
           }
         ],
         "next_confirmation": "若修复失败并重新恶化，则继续防守；若启动并获得确认，则升级。",
         "source_scope": "当前仅使用已验证的行情、Trend Pulse、历史学习与覆盖池异动；尚未把论坛/SEC/FDA/公司新闻自动写入此评分。"
       },
       {
-        "symbol": "AMD",
-        "evidence_score": 51.6,
+        "symbol": "HOOD",
+        "evidence_score": 52.0,
+        "status": "evidence-accumulating",
+        "trend_state": {
+          "state": "Breakdown",
+          "label_cn": "结构破坏",
+          "source_stage": "趋势恶化",
+          "weekly": "空头",
+          "explanation": "趋势结构已经明显恶化，原来的多头假设必须重新验证。",
+          "invalidation": "只有进入修复并完成新的确认流程，才考虑重新升级。",
+          "term_help": {
+            "cn": "结构破坏",
+            "plain": "趋势和价格结构已经明显恶化，原来的多头假设需要重新验证。",
+            "why": "这不是自动卖出指令，而是要求重新检查投资逻辑、估值和风险暴露。"
+          }
+        },
+        "breadcrumbs": [
+          {
+            "type": "trend_state",
+            "strength": "medium",
+            "evidence": "Trend Pulse 当前阶段：趋势恶化",
+            "meaning": "说明当前技术结构处于什么阶段；它是研究线索，不是单独买卖信号。"
+          },
+          {
+            "type": "timeframe",
+            "strength": "medium",
+            "evidence": "周线方向：空头",
+            "meaning": "用更高周期检查日线信号是否得到确认，减少一次性反弹造成的误判。"
+          },
+          {
+            "type": "momentum",
+            "strength": "medium",
+            "evidence": "Trend Pulse 分数 -99",
+            "meaning": "分数绝对值较高表示趋势证据较集中，但高分不等于未来一定继续上涨或下跌。"
+          },
+          {
+            "type": "transition",
+            "strength": "high",
+            "evidence": "阶段从 修复中 变化为 趋势恶化",
+            "meaning": "状态变化通常比重复的同状态提醒更值得复查。"
+          }
+        ],
+        "next_confirmation": "只有进入修复并完成新的确认流程，才考虑重新升级。",
+        "source_scope": "当前仅使用已验证的行情、Trend Pulse、历史学习与覆盖池异动；尚未把论坛/SEC/FDA/公司新闻自动写入此评分。"
+      },
+      {
+        "symbol": "SMH",
+        "evidence_score": 52.0,
+        "status": "evidence-accumulating",
+        "trend_state": {
+          "state": "Breakdown",
+          "label_cn": "结构破坏",
+          "source_stage": "趋势恶化",
+          "weekly": "空头",
+          "explanation": "趋势结构已经明显恶化，原来的多头假设必须重新验证。",
+          "invalidation": "只有进入修复并完成新的确认流程，才考虑重新升级。",
+          "term_help": {
+            "cn": "结构破坏",
+            "plain": "趋势和价格结构已经明显恶化，原来的多头假设需要重新验证。",
+            "why": "这不是自动卖出指令，而是要求重新检查投资逻辑、估值和风险暴露。"
+          }
+        },
+        "breadcrumbs": [
+          {
+            "type": "trend_state",
+            "strength": "medium",
+            "evidence": "Trend Pulse 当前阶段：趋势恶化",
+            "meaning": "说明当前技术结构处于什么阶段；它是研究线索，不是单独买卖信号。"
+          },
+          {
+            "type": "timeframe",
+            "strength": "medium",
+            "evidence": "周线方向：空头",
+            "meaning": "用更高周期检查日线信号是否得到确认，减少一次性反弹造成的误判。"
+          },
+          {
+            "type": "momentum",
+            "strength": "medium",
+            "evidence": "Trend Pulse 分数 -99",
+            "meaning": "分数绝对值较高表示趋势证据较集中，但高分不等于未来一定继续上涨或下跌。"
+          },
+          {
+            "type": "transition",
+            "strength": "high",
+            "evidence": "阶段从 修复中 变化为 趋势恶化",
+            "meaning": "状态变化通常比重复的同状态提醒更值得复查。"
+          }
+        ],
+        "next_confirmation": "只有进入修复并完成新的确认流程，才考虑重新升级。",
+        "source_scope": "当前仅使用已验证的行情、Trend Pulse、历史学习与覆盖池异动；尚未把论坛/SEC/FDA/公司新闻自动写入此评分。"
+      },
+      {
+        "symbol": "AVGO",
+        "evidence_score": 46.8,
         "status": "evidence-accumulating",
         "trend_state": {
           "state": "Confirmed Trend",
           "label_cn": "趋势已确认",
-          "source_stage": "二次启动",
-          "weekly": "多头",
-          "explanation": "趋势重新启动且周线同向，属于比首次启动更完整的多周期确认。",
-          "invalidation": "若重新跌回修复/恶化状态或周线转弱，则确认失效。",
+          "source_stage": "趋势延续",
+          "weekly": "过渡",
+          "explanation": "当前处于趋势延续阶段，结构和动量仍支持原方向。",
+          "invalidation": "若进入趋势退潮或恶化，需要重新评估趋势持续性。",
           "term_help": {
             "cn": "趋势已确认",
             "plain": "价格结构、动量和较高周期大体同向，趋势证据比早期转换阶段更完整。",
             "why": "确认提高趋势可信度，但仍不代表没有回撤风险。"
+          }
+        },
+        "breadcrumbs": [
+          {
+            "type": "trend_state",
+            "strength": "medium",
+            "evidence": "Trend Pulse 当前阶段：趋势延续",
+            "meaning": "说明当前技术结构处于什么阶段；它是研究线索，不是单独买卖信号。"
+          },
+          {
+            "type": "timeframe",
+            "strength": "medium",
+            "evidence": "周线方向：过渡",
+            "meaning": "用更高周期检查日线信号是否得到确认，减少一次性反弹造成的误判。"
+          },
+          {
+            "type": "transition",
+            "strength": "high",
+            "evidence": "阶段从 趋势启动 变化为 趋势延续",
+            "meaning": "状态变化通常比重复的同状态提醒更值得复查。"
+          }
+        ],
+        "next_confirmation": "若进入趋势退潮或恶化，需要重新评估趋势持续性。",
+        "source_scope": "当前仅使用已验证的行情、Trend Pulse、历史学习与覆盖池异动；尚未把论坛/SEC/FDA/公司新闻自动写入此评分。"
+      },
+      {
+        "symbol": "AMD",
+        "evidence_score": 37.6,
+        "status": "monitor",
+        "trend_state": {
+          "state": "Confirmation Pending",
+          "label_cn": "等待确认",
+          "source_stage": "二次启动",
+          "weekly": "过渡",
+          "explanation": "日线出现二次启动，但周线尚未同向，先等待多周期确认。",
+          "invalidation": "若日线再次回落，则视为二次启动未完成确认。",
+          "term_help": {
+            "cn": "等待确认",
+            "plain": "已经出现改善信号，但还需要连续收盘、关键价位或更高周期共同验证。",
+            "why": "避免只因为一天反弹或一次突破就过早把状态升级。"
           }
         },
         "breadcrumbs": [
@@ -200,58 +384,18 @@
           },
           {
             "type": "timeframe",
-            "strength": "high",
-            "evidence": "周线方向：多头",
-            "meaning": "用更高周期检查日线信号是否得到确认，减少一次性反弹造成的误判。"
-          },
-          {
-            "type": "research_priority",
-            "strength": "medium",
-            "evidence": "研究优先级 74/100",
-            "meaning": "代表应优先花时间研究，不是买入概率或收益率预测。"
-          }
-        ],
-        "next_confirmation": "若重新跌回修复/恶化状态或周线转弱，则确认失效。",
-        "source_scope": "当前仅使用已验证的行情、Trend Pulse、历史学习与覆盖池异动；尚未把论坛/SEC/FDA/公司新闻自动写入此评分。"
-      },
-      {
-        "symbol": "VGT",
-        "evidence_score": 32.8,
-        "status": "monitor",
-        "trend_state": {
-          "state": "Confirmation Pending",
-          "label_cn": "等待确认",
-          "source_stage": "修复中",
-          "weekly": "过渡",
-          "explanation": "当前属于修复或震荡阶段，已有改善但尚未形成稳定趋势。",
-          "invalidation": "若修复失败并重新恶化，则继续防守；若启动并获得确认，则升级。",
-          "term_help": {
-            "cn": "等待确认",
-            "plain": "已经出现改善信号，但还需要连续收盘、关键价位或更高周期共同验证。",
-            "why": "避免只因为一天反弹或一次突破就过早把状态升级。"
-          }
-        },
-        "breadcrumbs": [
-          {
-            "type": "trend_state",
-            "strength": "medium",
-            "evidence": "Trend Pulse 当前阶段：修复中",
-            "meaning": "说明当前技术结构处于什么阶段；它是研究线索，不是单独买卖信号。"
-          },
-          {
-            "type": "timeframe",
             "strength": "medium",
             "evidence": "周线方向：过渡",
             "meaning": "用更高周期检查日线信号是否得到确认，减少一次性反弹造成的误判。"
           },
           {
-            "type": "momentum",
+            "type": "market_anomaly",
             "strength": "medium",
-            "evidence": "Trend Pulse 分数 -88",
-            "meaning": "分数绝对值较高表示趋势证据较集中，但高分不等于未来一定继续上涨或下跌。"
+            "evidence": "覆盖池出现异常波动 -8.8%",
+            "meaning": "异常波动只触发原因调查；在事件来源确认前不能当成追涨或抄底理由。"
           }
         ],
-        "next_confirmation": "若修复失败并重新恶化，则继续防守；若启动并获得确认，则升级。",
+        "next_confirmation": "若日线再次回落，则视为二次启动未完成确认。",
         "source_scope": "当前仅使用已验证的行情、Trend Pulse、历史学习与覆盖池异动；尚未把论坛/SEC/FDA/公司新闻自动写入此评分。"
       },
       {
@@ -327,7 +471,7 @@
           {
             "type": "momentum",
             "strength": "medium",
-            "evidence": "Trend Pulse 分数 -73",
+            "evidence": "Trend Pulse 分数 -74",
             "meaning": "分数绝对值较高表示趋势证据较集中，但高分不等于未来一定继续上涨或下跌。"
           }
         ],
@@ -367,7 +511,7 @@
           {
             "type": "momentum",
             "strength": "medium",
-            "evidence": "Trend Pulse 分数 -83",
+            "evidence": "Trend Pulse 分数 -84",
             "meaning": "分数绝对值较高表示趋势证据较集中，但高分不等于未来一定继续上涨或下跌。"
           }
         ],
@@ -447,127 +591,7 @@
           {
             "type": "momentum",
             "strength": "medium",
-            "evidence": "Trend Pulse 分数 -72",
-            "meaning": "分数绝对值较高表示趋势证据较集中，但高分不等于未来一定继续上涨或下跌。"
-          }
-        ],
-        "next_confirmation": "若修复失败并重新恶化，则继续防守；若启动并获得确认，则升级。",
-        "source_scope": "当前仅使用已验证的行情、Trend Pulse、历史学习与覆盖池异动；尚未把论坛/SEC/FDA/公司新闻自动写入此评分。"
-      },
-      {
-        "symbol": "GOOG",
-        "evidence_score": 30.8,
-        "status": "monitor",
-        "trend_state": {
-          "state": "Confirmation Pending",
-          "label_cn": "等待确认",
-          "source_stage": "修复中",
-          "weekly": "空头",
-          "explanation": "当前属于修复或震荡阶段，已有改善但尚未形成稳定趋势。",
-          "invalidation": "若修复失败并重新恶化，则继续防守；若启动并获得确认，则升级。",
-          "term_help": {
-            "cn": "等待确认",
-            "plain": "已经出现改善信号，但还需要连续收盘、关键价位或更高周期共同验证。",
-            "why": "避免只因为一天反弹或一次突破就过早把状态升级。"
-          }
-        },
-        "breadcrumbs": [
-          {
-            "type": "trend_state",
-            "strength": "medium",
-            "evidence": "Trend Pulse 当前阶段：修复中",
-            "meaning": "说明当前技术结构处于什么阶段；它是研究线索，不是单独买卖信号。"
-          },
-          {
-            "type": "timeframe",
-            "strength": "medium",
-            "evidence": "周线方向：空头",
-            "meaning": "用更高周期检查日线信号是否得到确认，减少一次性反弹造成的误判。"
-          },
-          {
-            "type": "momentum",
-            "strength": "medium",
-            "evidence": "Trend Pulse 分数 -66",
-            "meaning": "分数绝对值较高表示趋势证据较集中，但高分不等于未来一定继续上涨或下跌。"
-          }
-        ],
-        "next_confirmation": "若修复失败并重新恶化，则继续防守；若启动并获得确认，则升级。",
-        "source_scope": "当前仅使用已验证的行情、Trend Pulse、历史学习与覆盖池异动；尚未把论坛/SEC/FDA/公司新闻自动写入此评分。"
-      },
-      {
-        "symbol": "HOOD",
-        "evidence_score": 30.8,
-        "status": "monitor",
-        "trend_state": {
-          "state": "Confirmation Pending",
-          "label_cn": "等待确认",
-          "source_stage": "修复中",
-          "weekly": "空头",
-          "explanation": "当前属于修复或震荡阶段，已有改善但尚未形成稳定趋势。",
-          "invalidation": "若修复失败并重新恶化，则继续防守；若启动并获得确认，则升级。",
-          "term_help": {
-            "cn": "等待确认",
-            "plain": "已经出现改善信号，但还需要连续收盘、关键价位或更高周期共同验证。",
-            "why": "避免只因为一天反弹或一次突破就过早把状态升级。"
-          }
-        },
-        "breadcrumbs": [
-          {
-            "type": "trend_state",
-            "strength": "medium",
-            "evidence": "Trend Pulse 当前阶段：修复中",
-            "meaning": "说明当前技术结构处于什么阶段；它是研究线索，不是单独买卖信号。"
-          },
-          {
-            "type": "timeframe",
-            "strength": "medium",
-            "evidence": "周线方向：空头",
-            "meaning": "用更高周期检查日线信号是否得到确认，减少一次性反弹造成的误判。"
-          },
-          {
-            "type": "momentum",
-            "strength": "medium",
-            "evidence": "Trend Pulse 分数 -98",
-            "meaning": "分数绝对值较高表示趋势证据较集中，但高分不等于未来一定继续上涨或下跌。"
-          }
-        ],
-        "next_confirmation": "若修复失败并重新恶化，则继续防守；若启动并获得确认，则升级。",
-        "source_scope": "当前仅使用已验证的行情、Trend Pulse、历史学习与覆盖池异动；尚未把论坛/SEC/FDA/公司新闻自动写入此评分。"
-      },
-      {
-        "symbol": "DRAM",
-        "evidence_score": 30.8,
-        "status": "monitor",
-        "trend_state": {
-          "state": "Confirmation Pending",
-          "label_cn": "等待确认",
-          "source_stage": "修复中",
-          "weekly": "空头",
-          "explanation": "当前属于修复或震荡阶段，已有改善但尚未形成稳定趋势。",
-          "invalidation": "若修复失败并重新恶化，则继续防守；若启动并获得确认，则升级。",
-          "term_help": {
-            "cn": "等待确认",
-            "plain": "已经出现改善信号，但还需要连续收盘、关键价位或更高周期共同验证。",
-            "why": "避免只因为一天反弹或一次突破就过早把状态升级。"
-          }
-        },
-        "breadcrumbs": [
-          {
-            "type": "trend_state",
-            "strength": "medium",
-            "evidence": "Trend Pulse 当前阶段：修复中",
-            "meaning": "说明当前技术结构处于什么阶段；它是研究线索，不是单独买卖信号。"
-          },
-          {
-            "type": "timeframe",
-            "strength": "medium",
-            "evidence": "周线方向：空头",
-            "meaning": "用更高周期检查日线信号是否得到确认，减少一次性反弹造成的误判。"
-          },
-          {
-            "type": "momentum",
-            "strength": "medium",
-            "evidence": "Trend Pulse 分数 -96",
+            "evidence": "Trend Pulse 分数 -73",
             "meaning": "分数绝对值较高表示趋势证据较集中，但高分不等于未来一定继续上涨或下跌。"
           }
         ],
@@ -580,15 +604,33 @@
     "note": "V5.7 首版只用已有可验证数据形成技术/市场 Breadcrumb；不会假装已经抓取到 SEC/FDA/论坛等外部事实。"
   },
   "failure_attribution": {
-    "mature_samples_scanned": 479,
-    "review_samples": 194,
+    "mature_samples_scanned": 470,
+    "review_samples": 191,
     "tag_counts": {
+      "large_adverse_move": 122,
       "timeframe_confirmation_missing": 84,
-      "large_adverse_move": 125,
       "trend_false_positive": 62,
       "missed_upside": 22
     },
     "recent": [
+      {
+        "symbol": "MRVL",
+        "date": "2026-10-16",
+        "source_stage": "趋势恶化",
+        "weekly": "多头",
+        "score": -28.52,
+        "return_20": -0.3119431593732169,
+        "mae_20": -0.4138173199315279,
+        "mfe_20": 0.10455159548786375,
+        "severity": "review",
+        "tags": [
+          "large_adverse_move"
+        ],
+        "attribution_hypotheses": [
+          "入档后经历较大不利波动，风险识别和无效条件应被单独复盘。"
+        ],
+        "guardrail": "这是可检验的归因假设，不是已经证明的因果关系；只有重复成熟样本才允许影响 Learning Policy。"
+      },
       {
         "symbol": "TLT",
         "date": "2026-10-15",
@@ -926,24 +968,6 @@
         "return_20": -0.17526521895912317,
         "mae_20": -0.2424067791740433,
         "mfe_20": -0.004856241304526998,
-        "severity": "review",
-        "tags": [
-          "large_adverse_move"
-        ],
-        "attribution_hypotheses": [
-          "入档后经历较大不利波动，风险识别和无效条件应被单独复盘。"
-        ],
-        "guardrail": "这是可检验的归因假设，不是已经证明的因果关系；只有重复成熟样本才允许影响 Learning Policy。"
-      },
-      {
-        "symbol": "DRAM",
-        "date": "2026-10-12",
-        "source_stage": "趋势恶化",
-        "weekly": "多头",
-        "score": -23.02,
-        "return_20": -0.23647660818713445,
-        "mae_20": -0.32364769188596487,
-        "mfe_20": -0.010964912280701733,
         "severity": "review",
         "tags": [
           "large_adverse_move"
@@ -2119,6 +2143,164 @@
     },
     "external_outcome_reviews": [
       {
+        "event_id": "8f9aaa67bf996d2b25a1:2:NVDA:0",
+        "author": "BrightLine",
+        "symbol": "NVDA",
+        "published_at": "2026-10-15",
+        "title": "黄仁勋的买入价，和一次代际财富的机会",
+        "url": "https://blog.wenxuecity.com/myblog/82458/202610/10691.html",
+        "attribution": "author_action",
+        "return_20": -0.24801436091614337,
+        "mae_20": -0.3128925009235315,
+        "mfe_20": 0.025997414111562644,
+        "excess_vs_qqq_20": -0.1851215271663592,
+        "alignment_20": "not_aligned",
+        "review_tags": [
+          "direction_not_aligned",
+          "large_adverse_move",
+          "underperformed_qqq"
+        ],
+        "maturity": "mature20",
+        "attribution_confidence": "high",
+        "verification_status": "unverified_author_self_report",
+        "learning_eligible": false
+      },
+      {
+        "event_id": "8f9aaa67bf996d2b25a1:3:NVDA:0",
+        "author": "BrightLine",
+        "symbol": "NVDA",
+        "published_at": "2026-10-15",
+        "title": "黄仁勋的买入价，和一次代际财富的机会",
+        "url": "https://blog.wenxuecity.com/myblog/82458/202610/10691.html",
+        "attribution": "author_action",
+        "return_20": -0.24801436091614337,
+        "mae_20": -0.3128925009235315,
+        "mfe_20": 0.025997414111562644,
+        "excess_vs_qqq_20": -0.1851215271663592,
+        "alignment_20": "not_aligned",
+        "review_tags": [
+          "direction_not_aligned",
+          "large_adverse_move",
+          "underperformed_qqq"
+        ],
+        "maturity": "mature20",
+        "attribution_confidence": "high",
+        "verification_status": "unverified_author_self_report",
+        "learning_eligible": false
+      },
+      {
+        "event_id": "8f9aaa67bf996d2b25a1:4:NVDA:0",
+        "author": "BrightLine",
+        "symbol": "NVDA",
+        "published_at": "2026-10-15",
+        "title": "黄仁勋的买入价，和一次代际财富的机会",
+        "url": "https://blog.wenxuecity.com/myblog/82458/202610/10691.html",
+        "attribution": "author_action",
+        "return_20": -0.24801436091614337,
+        "mae_20": -0.3128925009235315,
+        "mfe_20": 0.025997414111562644,
+        "excess_vs_qqq_20": -0.1851215271663592,
+        "alignment_20": "not_aligned",
+        "review_tags": [
+          "direction_not_aligned",
+          "large_adverse_move",
+          "underperformed_qqq"
+        ],
+        "maturity": "mature20",
+        "attribution_confidence": "high",
+        "verification_status": "unverified_author_self_report",
+        "learning_eligible": false
+      },
+      {
+        "event_id": "8f9aaa67bf996d2b25a1:1:NBIS:0",
+        "author": "BrightLine",
+        "symbol": "NBIS",
+        "published_at": "2026-10-15",
+        "title": "黄仁勋的买入价，和一次代际财富的机会",
+        "url": "https://blog.wenxuecity.com/myblog/82458/202610/10691.html",
+        "attribution": "author_action",
+        "return_20": -0.36037975382237675,
+        "mae_20": -0.398355136060054,
+        "mfe_20": 0.008665949108572102,
+        "excess_vs_qqq_20": -0.2974869200725926,
+        "alignment_20": "aligned",
+        "review_tags": [
+          "large_adverse_move",
+          "underperformed_qqq"
+        ],
+        "maturity": "mature20",
+        "attribution_confidence": "high",
+        "verification_status": "unverified_author_self_report",
+        "learning_eligible": false
+      },
+      {
+        "event_id": "8f9aaa67bf996d2b25a1:0:IREN:0",
+        "author": "BrightLine",
+        "symbol": "IREN",
+        "published_at": "2026-10-15",
+        "title": "黄仁勋的买入价，和一次代际财富的机会",
+        "url": "https://blog.wenxuecity.com/myblog/82458/202610/10691.html",
+        "attribution": "author_action",
+        "return_20": -0.37773972602739714,
+        "mae_20": -0.4125,
+        "mfe_20": 0.002397260273972579,
+        "excess_vs_qqq_20": -0.314846892277613,
+        "alignment_20": "aligned",
+        "review_tags": [
+          "large_adverse_move",
+          "underperformed_qqq"
+        ],
+        "maturity": "mature20",
+        "attribution_confidence": "high",
+        "verification_status": "unverified_author_self_report",
+        "learning_eligible": false
+      },
+      {
+        "event_id": "8f9aaa67bf996d2b25a1:1:IREN:0",
+        "author": "BrightLine",
+        "symbol": "IREN",
+        "published_at": "2026-10-15",
+        "title": "黄仁勋的买入价，和一次代际财富的机会",
+        "url": "https://blog.wenxuecity.com/myblog/82458/202610/10691.html",
+        "attribution": "author_action",
+        "return_20": -0.37773972602739714,
+        "mae_20": -0.4125,
+        "mfe_20": 0.002397260273972579,
+        "excess_vs_qqq_20": -0.314846892277613,
+        "alignment_20": "aligned",
+        "review_tags": [
+          "large_adverse_move",
+          "underperformed_qqq"
+        ],
+        "maturity": "mature20",
+        "attribution_confidence": "high",
+        "verification_status": "unverified_author_self_report",
+        "learning_eligible": false
+      },
+      {
+        "event_id": "8f9aaa67bf996d2b25a1:4:IREN:0",
+        "author": "BrightLine",
+        "symbol": "IREN",
+        "published_at": "2026-10-15",
+        "title": "黄仁勋的买入价，和一次代际财富的机会",
+        "url": "https://blog.wenxuecity.com/myblog/82458/202610/10691.html",
+        "attribution": "author_action",
+        "return_20": -0.37773972602739714,
+        "mae_20": -0.4125,
+        "mfe_20": 0.002397260273972579,
+        "excess_vs_qqq_20": -0.314846892277613,
+        "alignment_20": "not_aligned",
+        "review_tags": [
+          "direction_not_aligned",
+          "large_adverse_move",
+          "underperformed_qqq"
+        ],
+        "maturity": "mature20",
+        "attribution_confidence": "high",
+        "verification_status": "unverified_author_self_report",
+        "learning_eligible": false
+      },
+      {
         "event_id": "b4091864de5d6847b786:0:AAOI:0",
         "author": "三心三意",
         "symbol": "AAOI",
@@ -2404,164 +2586,9 @@
         "attribution_confidence": "high",
         "verification_status": "unverified_author_self_report",
         "learning_eligible": false
-      },
-      {
-        "event_id": "9a165774b865bf813a81:0:NBIS:0",
-        "author": "BrightLine",
-        "symbol": "NBIS",
-        "published_at": "2026-08-18",
-        "title": "子弹与耐心：8·18 AI板块大跌手记。",
-        "url": "https://blog.wenxuecity.com/myblog/82458/202608/14095.html",
-        "attribution": "author_action",
-        "return_20": -0.06168216253443515,
-        "mae_20": -0.16150137741046822,
-        "mfe_20": 0.09650482093663926,
-        "excess_vs_qqq_20": -0.05686532720912518,
-        "alignment_20": "aligned",
-        "review_tags": [
-          "large_adverse_move"
-        ],
-        "maturity": "mature20",
-        "attribution_confidence": "high",
-        "verification_status": "unverified_author_self_report",
-        "learning_eligible": false
-      },
-      {
-        "event_id": "9a165774b865bf813a81:1:NBIS:0",
-        "author": "BrightLine",
-        "symbol": "NBIS",
-        "published_at": "2026-08-18",
-        "title": "子弹与耐心：8·18 AI板块大跌手记。",
-        "url": "https://blog.wenxuecity.com/myblog/82458/202608/14095.html",
-        "attribution": "author_plan",
-        "return_20": -0.28533333333333344,
-        "mae_20": -0.3705555555555555,
-        "mfe_20": 0.0518333333333334,
-        "excess_vs_qqq_20": -0.24305372798534652,
-        "alignment_20": "not_aligned",
-        "review_tags": [
-          "direction_not_aligned",
-          "large_adverse_move",
-          "underperformed_qqq"
-        ],
-        "maturity": "mature20",
-        "attribution_confidence": "medium",
-        "verification_status": "unverified_author_self_report",
-        "learning_eligible": false
-      },
-      {
-        "event_id": "9a165774b865bf813a81:3:IREN:1",
-        "author": "BrightLine",
-        "symbol": "IREN",
-        "published_at": "2026-08-18",
-        "title": "子弹与耐心：8·18 AI板块大跌手记。",
-        "url": "https://blog.wenxuecity.com/myblog/82458/202608/14095.html",
-        "attribution": "author_plan",
-        "return_20": -0.3506666666666667,
-        "mae_20": -0.4281666666666666,
-        "mfe_20": 0.015333333333333421,
-        "excess_vs_qqq_20": -0.30838706131867977,
-        "alignment_20": "not_aligned",
-        "review_tags": [
-          "direction_not_aligned",
-          "large_adverse_move",
-          "underperformed_qqq"
-        ],
-        "maturity": "mature20",
-        "attribution_confidence": "medium",
-        "verification_status": "unverified_author_self_report",
-        "learning_eligible": false
-      },
-      {
-        "event_id": "9a165774b865bf813a81:0:CRWV:0",
-        "author": "BrightLine",
-        "symbol": "CRWV",
-        "published_at": "2026-08-18",
-        "title": "子弹与耐心：8·18 AI板块大跌手记。",
-        "url": "https://blog.wenxuecity.com/myblog/82458/202608/14095.html",
-        "attribution": "author_action",
-        "return_20": -0.15228695744455067,
-        "mae_20": -0.16937281120662218,
-        "mfe_20": 0.10994375464289496,
-        "excess_vs_qqq_20": -0.1474701221192407,
-        "alignment_20": "aligned",
-        "review_tags": [
-          "large_adverse_move",
-          "underperformed_qqq"
-        ],
-        "maturity": "mature20",
-        "attribution_confidence": "high",
-        "verification_status": "unverified_author_self_report",
-        "learning_eligible": false
-      },
-      {
-        "event_id": "9a165774b865bf813a81:2:CRWV:1",
-        "author": "BrightLine",
-        "symbol": "CRWV",
-        "published_at": "2026-08-18",
-        "title": "子弹与耐心：8·18 AI板块大跌手记。",
-        "url": "https://blog.wenxuecity.com/myblog/82458/202608/14095.html",
-        "attribution": "author_plan",
-        "return_20": -0.0870967988044985,
-        "mae_20": -0.34548384143460187,
-        "mfe_20": 0.12516132477791087,
-        "excess_vs_qqq_20": -0.044817193456511584,
-        "alignment_20": "not_aligned",
-        "review_tags": [
-          "direction_not_aligned",
-          "large_adverse_move"
-        ],
-        "maturity": "mature20",
-        "attribution_confidence": "medium",
-        "verification_status": "unverified_author_self_report",
-        "learning_eligible": false
-      },
-      {
-        "event_id": "9a165774b865bf813a81:2:CRWV:0",
-        "author": "BrightLine",
-        "symbol": "CRWV",
-        "published_at": "2026-08-18",
-        "title": "子弹与耐心：8·18 AI板块大跌手记。",
-        "url": "https://blog.wenxuecity.com/myblog/82458/202608/14095.html",
-        "attribution": "author_plan",
-        "return_20": -0.18973332722981773,
-        "mae_20": -0.45893330891927087,
-        "mfe_20": -0.034000040690104205,
-        "excess_vs_qqq_20": -0.12520758197236515,
-        "alignment_20": "not_aligned",
-        "review_tags": [
-          "direction_not_aligned",
-          "large_adverse_move",
-          "underperformed_qqq"
-        ],
-        "maturity": "mature20",
-        "attribution_confidence": "medium",
-        "verification_status": "unverified_author_self_report",
-        "learning_eligible": false
-      },
-      {
-        "event_id": "3d512f18166afbbf6b5d:0:MU:0",
-        "author": "bogbog",
-        "symbol": "MU",
-        "published_at": "2026-07-17 03:13:19",
-        "title": "我刚刚又加仓了MU@807  & RKLB @64",
-        "url": "https://bbs.wenxuecity.com/cfzh/97437.html",
-        "attribution": "author_action",
-        "return_20": 0.14248450150750358,
-        "mae_20": -0.16677394220671438,
-        "mfe_20": 0.17001479273236453,
-        "excess_vs_qqq_20": 0.10302056166473261,
-        "alignment_20": "aligned",
-        "review_tags": [
-          "large_adverse_move"
-        ],
-        "maturity": "mature20",
-        "attribution_confidence": "high",
-        "verification_status": "unverified_author_self_report",
-        "learning_eligible": false
       }
     ],
-    "external_outcome_review_count": 39,
+    "external_outcome_review_count": 46,
     "external_note": "旧 Source Outcome 仅保留描述性复盘；不得进入 Evidence Foundation 方法成熟度、Planner 权重或 Promotion。"
   },
   "external_source_intelligence": {
@@ -3543,23 +3570,23 @@
     ],
     "outcome_validation": {
       "counts": {
-        "events": 256,
-        "author_owned": 94,
-        "unconfirmed": 162,
-        "triggered_author_owned": 93,
+        "events": 265,
+        "author_owned": 100,
+        "unconfirmed": 165,
+        "triggered_author_owned": 99,
         "untriggered_plans": 1,
-        "mature60": 37,
-        "developing": 56,
+        "mature60": 38,
+        "developing": 61,
         "symbols": 35
       },
       "by_action": {
         "add": {
           "5": {
-            "n": 22,
-            "avg_return": -0.020146205820662632,
-            "median_return": -0.028438070629010048,
-            "avg_excess_vs_qqq": -0.0161045313616639,
-            "alignment_rate": 0.5
+            "n": 24,
+            "avg_return": -0.013756539518130264,
+            "median_return": -0.026635593762809384,
+            "avg_excess_vs_qqq": -0.010458227952038041,
+            "alignment_rate": 0.55
           },
           "20": {
             "n": 19,
@@ -3585,11 +3612,11 @@
             "alignment_rate": 0.25
           },
           "20": {
-            "n": 18,
-            "avg_return": 0.04293653818610695,
-            "median_return": -0.0028833807435199033,
-            "avg_excess_vs_qqq": 0.00344265744296782,
-            "alignment_rate": 0.46153846153846156
+            "n": 22,
+            "avg_return": -0.01586023279208646,
+            "median_return": -0.01635625108965455,
+            "avg_excess_vs_qqq": -0.036738347263785,
+            "alignment_rate": 0.35294117647058826
           },
           "60": {
             "n": 12,
@@ -3615,10 +3642,10 @@
             "alignment_rate": 1.0
           },
           "60": {
-            "n": 1,
-            "avg_return": -0.39934205163832015,
-            "median_return": -0.39934205163832015,
-            "avg_excess_vs_qqq": null,
+            "n": 2,
+            "avg_return": -0.4502736428990499,
+            "median_return": -0.4502736428990499,
+            "avg_excess_vs_qqq": -0.39405410903544824,
             "alignment_rate": 1.0
           }
         },
@@ -3723,17 +3750,17 @@
             "alignment_rate": 0.6470588235294118
           },
           "20": {
-            "n": 13,
-            "avg_return": -0.06458400338856257,
-            "median_return": -0.061522541469194336,
-            "avg_excess_vs_qqq": -0.04159726763032749,
-            "alignment_rate": 0.625
+            "n": 16,
+            "avg_return": -0.12221570312053029,
+            "median_return": -0.12213419028696776,
+            "avg_excess_vs_qqq": -0.09174657398887973,
+            "alignment_rate": 0.7272727272727273
           },
           "60": {
             "n": 4,
             "avg_return": -0.09697666782305323,
             "median_return": -0.08630188496712748,
-            "avg_excess_vs_qqq": -0.16904877539009852,
+            "avg_excess_vs_qqq": -0.08433438318758305,
             "alignment_rate": 1.0
           }
         },
@@ -3776,11 +3803,11 @@
             "alignment_rate": 0.8333333333333334
           },
           "60": {
-            "n": 4,
-            "avg_return": -0.22302876955026926,
-            "median_return": -0.2741241452991661,
-            "avg_excess_vs_qqq": -0.17029686691683088,
-            "alignment_rate": 0.75
+            "n": 5,
+            "avg_return": -0.27866406247217135,
+            "median_return": -0.3099872657813353,
+            "avg_excess_vs_qqq": -0.2597997637642778,
+            "alignment_rate": 0.8
           }
         },
         "trim_half": {
@@ -3799,19 +3826,177 @@
             "alignment_rate": 1.0
           },
           "60": {
-            "n": 1,
-            "avg_return": -0.39934205163832015,
-            "median_return": -0.39934205163832015,
-            "avg_excess_vs_qqq": null,
+            "n": 2,
+            "avg_return": -0.4502736428990499,
+            "median_return": -0.4502736428990499,
+            "avg_excess_vs_qqq": -0.39405410903544824,
             "alignment_rate": 1.0
           }
         }
       },
       "mature_learning": {
-        "events_scanned": 256,
-        "mature20": 63,
-        "review_candidates": 39,
+        "events_scanned": 265,
+        "mature20": 70,
+        "review_candidates": 46,
         "recent_reviews": [
+          {
+            "event_id": "8f9aaa67bf996d2b25a1:2:NVDA:0",
+            "author": "BrightLine",
+            "symbol": "NVDA",
+            "published_at": "2026-10-15",
+            "title": "黄仁勋的买入价，和一次代际财富的机会",
+            "url": "https://blog.wenxuecity.com/myblog/82458/202610/10691.html",
+            "attribution": "author_action",
+            "return_20": -0.24801436091614337,
+            "mae_20": -0.3128925009235315,
+            "mfe_20": 0.025997414111562644,
+            "excess_vs_qqq_20": -0.1851215271663592,
+            "alignment_20": "not_aligned",
+            "review_tags": [
+              "direction_not_aligned",
+              "large_adverse_move",
+              "underperformed_qqq"
+            ],
+            "maturity": "mature20",
+            "attribution_confidence": "high",
+            "verification_status": "unverified_author_self_report",
+            "learning_eligible": false
+          },
+          {
+            "event_id": "8f9aaa67bf996d2b25a1:3:NVDA:0",
+            "author": "BrightLine",
+            "symbol": "NVDA",
+            "published_at": "2026-10-15",
+            "title": "黄仁勋的买入价，和一次代际财富的机会",
+            "url": "https://blog.wenxuecity.com/myblog/82458/202610/10691.html",
+            "attribution": "author_action",
+            "return_20": -0.24801436091614337,
+            "mae_20": -0.3128925009235315,
+            "mfe_20": 0.025997414111562644,
+            "excess_vs_qqq_20": -0.1851215271663592,
+            "alignment_20": "not_aligned",
+            "review_tags": [
+              "direction_not_aligned",
+              "large_adverse_move",
+              "underperformed_qqq"
+            ],
+            "maturity": "mature20",
+            "attribution_confidence": "high",
+            "verification_status": "unverified_author_self_report",
+            "learning_eligible": false
+          },
+          {
+            "event_id": "8f9aaa67bf996d2b25a1:4:NVDA:0",
+            "author": "BrightLine",
+            "symbol": "NVDA",
+            "published_at": "2026-10-15",
+            "title": "黄仁勋的买入价，和一次代际财富的机会",
+            "url": "https://blog.wenxuecity.com/myblog/82458/202610/10691.html",
+            "attribution": "author_action",
+            "return_20": -0.24801436091614337,
+            "mae_20": -0.3128925009235315,
+            "mfe_20": 0.025997414111562644,
+            "excess_vs_qqq_20": -0.1851215271663592,
+            "alignment_20": "not_aligned",
+            "review_tags": [
+              "direction_not_aligned",
+              "large_adverse_move",
+              "underperformed_qqq"
+            ],
+            "maturity": "mature20",
+            "attribution_confidence": "high",
+            "verification_status": "unverified_author_self_report",
+            "learning_eligible": false
+          },
+          {
+            "event_id": "8f9aaa67bf996d2b25a1:1:NBIS:0",
+            "author": "BrightLine",
+            "symbol": "NBIS",
+            "published_at": "2026-10-15",
+            "title": "黄仁勋的买入价，和一次代际财富的机会",
+            "url": "https://blog.wenxuecity.com/myblog/82458/202610/10691.html",
+            "attribution": "author_action",
+            "return_20": -0.36037975382237675,
+            "mae_20": -0.398355136060054,
+            "mfe_20": 0.008665949108572102,
+            "excess_vs_qqq_20": -0.2974869200725926,
+            "alignment_20": "aligned",
+            "review_tags": [
+              "large_adverse_move",
+              "underperformed_qqq"
+            ],
+            "maturity": "mature20",
+            "attribution_confidence": "high",
+            "verification_status": "unverified_author_self_report",
+            "learning_eligible": false
+          },
+          {
+            "event_id": "8f9aaa67bf996d2b25a1:0:IREN:0",
+            "author": "BrightLine",
+            "symbol": "IREN",
+            "published_at": "2026-10-15",
+            "title": "黄仁勋的买入价，和一次代际财富的机会",
+            "url": "https://blog.wenxuecity.com/myblog/82458/202610/10691.html",
+            "attribution": "author_action",
+            "return_20": -0.37773972602739714,
+            "mae_20": -0.4125,
+            "mfe_20": 0.002397260273972579,
+            "excess_vs_qqq_20": -0.314846892277613,
+            "alignment_20": "aligned",
+            "review_tags": [
+              "large_adverse_move",
+              "underperformed_qqq"
+            ],
+            "maturity": "mature20",
+            "attribution_confidence": "high",
+            "verification_status": "unverified_author_self_report",
+            "learning_eligible": false
+          },
+          {
+            "event_id": "8f9aaa67bf996d2b25a1:1:IREN:0",
+            "author": "BrightLine",
+            "symbol": "IREN",
+            "published_at": "2026-10-15",
+            "title": "黄仁勋的买入价，和一次代际财富的机会",
+            "url": "https://blog.wenxuecity.com/myblog/82458/202610/10691.html",
+            "attribution": "author_action",
+            "return_20": -0.37773972602739714,
+            "mae_20": -0.4125,
+            "mfe_20": 0.002397260273972579,
+            "excess_vs_qqq_20": -0.314846892277613,
+            "alignment_20": "aligned",
+            "review_tags": [
+              "large_adverse_move",
+              "underperformed_qqq"
+            ],
+            "maturity": "mature20",
+            "attribution_confidence": "high",
+            "verification_status": "unverified_author_self_report",
+            "learning_eligible": false
+          },
+          {
+            "event_id": "8f9aaa67bf996d2b25a1:4:IREN:0",
+            "author": "BrightLine",
+            "symbol": "IREN",
+            "published_at": "2026-10-15",
+            "title": "黄仁勋的买入价，和一次代际财富的机会",
+            "url": "https://blog.wenxuecity.com/myblog/82458/202610/10691.html",
+            "attribution": "author_action",
+            "return_20": -0.37773972602739714,
+            "mae_20": -0.4125,
+            "mfe_20": 0.002397260273972579,
+            "excess_vs_qqq_20": -0.314846892277613,
+            "alignment_20": "not_aligned",
+            "review_tags": [
+              "direction_not_aligned",
+              "large_adverse_move",
+              "underperformed_qqq"
+            ],
+            "maturity": "mature20",
+            "attribution_confidence": "high",
+            "verification_status": "unverified_author_self_report",
+            "learning_eligible": false
+          },
           {
             "event_id": "b4091864de5d6847b786:0:AAOI:0",
             "author": "三心三意",
@@ -4093,161 +4278,6 @@
             "review_tags": [
               "direction_not_aligned",
               "underperformed_qqq"
-            ],
-            "maturity": "mature20",
-            "attribution_confidence": "high",
-            "verification_status": "unverified_author_self_report",
-            "learning_eligible": false
-          },
-          {
-            "event_id": "9a165774b865bf813a81:0:NBIS:0",
-            "author": "BrightLine",
-            "symbol": "NBIS",
-            "published_at": "2026-08-18",
-            "title": "子弹与耐心：8·18 AI板块大跌手记。",
-            "url": "https://blog.wenxuecity.com/myblog/82458/202608/14095.html",
-            "attribution": "author_action",
-            "return_20": -0.06168216253443515,
-            "mae_20": -0.16150137741046822,
-            "mfe_20": 0.09650482093663926,
-            "excess_vs_qqq_20": -0.05686532720912518,
-            "alignment_20": "aligned",
-            "review_tags": [
-              "large_adverse_move"
-            ],
-            "maturity": "mature20",
-            "attribution_confidence": "high",
-            "verification_status": "unverified_author_self_report",
-            "learning_eligible": false
-          },
-          {
-            "event_id": "9a165774b865bf813a81:1:NBIS:0",
-            "author": "BrightLine",
-            "symbol": "NBIS",
-            "published_at": "2026-08-18",
-            "title": "子弹与耐心：8·18 AI板块大跌手记。",
-            "url": "https://blog.wenxuecity.com/myblog/82458/202608/14095.html",
-            "attribution": "author_plan",
-            "return_20": -0.28533333333333344,
-            "mae_20": -0.3705555555555555,
-            "mfe_20": 0.0518333333333334,
-            "excess_vs_qqq_20": -0.24305372798534652,
-            "alignment_20": "not_aligned",
-            "review_tags": [
-              "direction_not_aligned",
-              "large_adverse_move",
-              "underperformed_qqq"
-            ],
-            "maturity": "mature20",
-            "attribution_confidence": "medium",
-            "verification_status": "unverified_author_self_report",
-            "learning_eligible": false
-          },
-          {
-            "event_id": "9a165774b865bf813a81:3:IREN:1",
-            "author": "BrightLine",
-            "symbol": "IREN",
-            "published_at": "2026-08-18",
-            "title": "子弹与耐心：8·18 AI板块大跌手记。",
-            "url": "https://blog.wenxuecity.com/myblog/82458/202608/14095.html",
-            "attribution": "author_plan",
-            "return_20": -0.3506666666666667,
-            "mae_20": -0.4281666666666666,
-            "mfe_20": 0.015333333333333421,
-            "excess_vs_qqq_20": -0.30838706131867977,
-            "alignment_20": "not_aligned",
-            "review_tags": [
-              "direction_not_aligned",
-              "large_adverse_move",
-              "underperformed_qqq"
-            ],
-            "maturity": "mature20",
-            "attribution_confidence": "medium",
-            "verification_status": "unverified_author_self_report",
-            "learning_eligible": false
-          },
-          {
-            "event_id": "9a165774b865bf813a81:0:CRWV:0",
-            "author": "BrightLine",
-            "symbol": "CRWV",
-            "published_at": "2026-08-18",
-            "title": "子弹与耐心：8·18 AI板块大跌手记。",
-            "url": "https://blog.wenxuecity.com/myblog/82458/202608/14095.html",
-            "attribution": "author_action",
-            "return_20": -0.15228695744455067,
-            "mae_20": -0.16937281120662218,
-            "mfe_20": 0.10994375464289496,
-            "excess_vs_qqq_20": -0.1474701221192407,
-            "alignment_20": "aligned",
-            "review_tags": [
-              "large_adverse_move",
-              "underperformed_qqq"
-            ],
-            "maturity": "mature20",
-            "attribution_confidence": "high",
-            "verification_status": "unverified_author_self_report",
-            "learning_eligible": false
-          },
-          {
-            "event_id": "9a165774b865bf813a81:2:CRWV:1",
-            "author": "BrightLine",
-            "symbol": "CRWV",
-            "published_at": "2026-08-18",
-            "title": "子弹与耐心：8·18 AI板块大跌手记。",
-            "url": "https://blog.wenxuecity.com/myblog/82458/202608/14095.html",
-            "attribution": "author_plan",
-            "return_20": -0.0870967988044985,
-            "mae_20": -0.34548384143460187,
-            "mfe_20": 0.12516132477791087,
-            "excess_vs_qqq_20": -0.044817193456511584,
-            "alignment_20": "not_aligned",
-            "review_tags": [
-              "direction_not_aligned",
-              "large_adverse_move"
-            ],
-            "maturity": "mature20",
-            "attribution_confidence": "medium",
-            "verification_status": "unverified_author_self_report",
-            "learning_eligible": false
-          },
-          {
-            "event_id": "9a165774b865bf813a81:2:CRWV:0",
-            "author": "BrightLine",
-            "symbol": "CRWV",
-            "published_at": "2026-08-18",
-            "title": "子弹与耐心：8·18 AI板块大跌手记。",
-            "url": "https://blog.wenxuecity.com/myblog/82458/202608/14095.html",
-            "attribution": "author_plan",
-            "return_20": -0.18973332722981773,
-            "mae_20": -0.45893330891927087,
-            "mfe_20": -0.034000040690104205,
-            "excess_vs_qqq_20": -0.12520758197236515,
-            "alignment_20": "not_aligned",
-            "review_tags": [
-              "direction_not_aligned",
-              "large_adverse_move",
-              "underperformed_qqq"
-            ],
-            "maturity": "mature20",
-            "attribution_confidence": "medium",
-            "verification_status": "unverified_author_self_report",
-            "learning_eligible": false
-          },
-          {
-            "event_id": "3d512f18166afbbf6b5d:0:MU:0",
-            "author": "bogbog",
-            "symbol": "MU",
-            "published_at": "2026-07-17 03:13:19",
-            "title": "我刚刚又加仓了MU@807  & RKLB @64",
-            "url": "https://bbs.wenxuecity.com/cfzh/97437.html",
-            "attribution": "author_action",
-            "return_20": 0.14248450150750358,
-            "mae_20": -0.16677394220671438,
-            "mfe_20": 0.17001479273236453,
-            "excess_vs_qqq_20": 0.10302056166473261,
-            "alignment_20": "aligned",
-            "review_tags": [
-              "large_adverse_move"
             ],
             "maturity": "mature20",
             "attribution_confidence": "high",

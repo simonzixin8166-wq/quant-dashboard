@@ -1,0 +1,2082 @@
+{
+ "version": "threshold-ledger-1.0",
+ "generated_at": "2026-11-15T08:35:11+00:00",
+ "policy": "record_and_review_only_no_orders_no_threshold_change",
+ "rule": "core_tier_state.advance: once per line per cycle; leave at line - 2 pp; near = t1 - 2 pp; ATH = running max high",
+ "live_from": "2026-11-02",
+ "symbols": {
+  "QLD": {
+   "thresholds": {
+    "near": 0.23,
+    "t1": 0.25,
+    "t2": 0.35,
+    "t3": 0.5
+   },
+   "current": {
+    "date": "2026-11-13",
+    "close": 79.3,
+    "ath": 101.61,
+    "drawdown": -0.219565,
+    "zone": "normal",
+    "zone_zh": "正常",
+    "next_line": "near",
+    "gaps": {
+     "near": {
+      "line": 0.23,
+      "price": 78.24,
+      "gap_pp": 1.04
+     },
+     "t1": {
+      "line": 0.25,
+      "price": 76.21,
+      "gap_pp": 3.04
+     },
+     "t2": {
+      "line": 0.35,
+      "price": 66.05,
+      "gap_pp": 13.04
+     },
+     "t3": {
+      "line": 0.5,
+      "price": 50.8,
+      "gap_pp": 28.04
+     }
+    }
+   },
+   "live": {
+    "from": "2026-11-02",
+    "transitions": [
+     {
+      "date": "2026-11-05",
+      "kind": "enter",
+      "line": "near",
+      "line_value": 0.23,
+      "close": 72.27,
+      "ath": 101.61,
+      "cycle_ath": 101.61,
+      "drawdown": -0.288751,
+      "line_price": 78.24
+     },
+     {
+      "date": "2026-11-05",
+      "kind": "enter",
+      "line": "t1",
+      "line_value": 0.25,
+      "close": 72.27,
+      "ath": 101.61,
+      "cycle_ath": 101.61,
+      "drawdown": -0.288751,
+      "line_price": 76.21
+     },
+     {
+      "date": "2026-11-09",
+      "kind": "leave",
+      "line": "t1",
+      "line_value": 0.25,
+      "close": 79.15,
+      "ath": 101.61,
+      "cycle_ath": 101.61,
+      "drawdown": -0.221041,
+      "line_price": 76.21
+     }
+    ],
+    "episodes": [
+     {
+      "line": "near",
+      "line_value": 0.23,
+      "enter_date": "2026-11-05",
+      "enter_close": 72.27,
+      "enter_drawdown": -0.288751,
+      "cycle_ath": 101.61,
+      "sessions_in_zone": 3,
+      "sessions_to_end": 7,
+      "deepest_drawdown": -0.288751,
+      "deepest_date": "2026-11-05",
+      "deepest_close": 72.27,
+      "end": "open",
+      "end_date": null,
+      "ret_5": 0.124948,
+      "mae_5": 0.018542,
+      "ret_20": null,
+      "mae_20": null,
+      "ret_60": null,
+      "mae_60": null
+     },
+     {
+      "line": "t1",
+      "line_value": 0.25,
+      "enter_date": "2026-11-05",
+      "enter_close": 72.27,
+      "enter_drawdown": -0.288751,
+      "cycle_ath": 101.61,
+      "sessions_in_zone": 2,
+      "sessions_to_end": 2,
+      "deepest_drawdown": -0.288751,
+      "deepest_date": "2026-11-05",
+      "deepest_close": 72.27,
+      "end": "left",
+      "end_date": "2026-11-09",
+      "ret_5": 0.124948,
+      "mae_5": 0.018542,
+      "ret_20": null,
+      "mae_20": null,
+      "ret_60": null,
+      "mae_60": null
+     }
+    ],
+    "touches": {
+     "near": {
+      "cross_in": 2,
+      "cross_out": 2,
+      "events": [
+       {
+        "date": "2026-11-05",
+        "kind": "cross_in",
+        "drawdown": -0.288751,
+        "close": 72.27,
+        "line_price": 78.24
+       },
+       {
+        "date": "2026-11-09",
+        "kind": "cross_out",
+        "drawdown": -0.221041,
+        "close": 79.15,
+        "line_price": 78.24
+       },
+       {
+        "date": "2026-11-10",
+        "kind": "cross_in",
+        "drawdown": -0.230391,
+        "close": 78.2,
+        "line_price": 78.24
+       },
+       {
+        "date": "2026-11-11",
+        "kind": "cross_out",
+        "drawdown": -0.194666,
+        "close": 81.83,
+        "line_price": 78.24
+       }
+      ],
+      "near_misses": [],
+      "historical_cross_in": 50
+     },
+     "t1": {
+      "cross_in": 1,
+      "cross_out": 1,
+      "events": [
+       {
+        "date": "2026-11-05",
+        "kind": "cross_in",
+        "drawdown": -0.288751,
+        "close": 72.27,
+        "line_price": 76.21
+       },
+       {
+        "date": "2026-11-09",
+        "kind": "cross_out",
+        "drawdown": -0.221041,
+        "close": 79.15,
+        "line_price": 76.21
+       }
+      ],
+      "near_misses": [],
+      "historical_cross_in": 44
+     },
+     "t2": {
+      "cross_in": 0,
+      "cross_out": 0,
+      "events": [],
+      "near_misses": [],
+      "historical_cross_in": 29
+     },
+     "t3": {
+      "cross_in": 0,
+      "cross_out": 0,
+      "events": [],
+      "near_misses": [],
+      "historical_cross_in": 22
+     }
+    },
+    "sessions_by_zone": {
+     "normal": 7,
+     "t1": 2,
+     "near": 1
+    },
+    "counts": {
+     "enter:near": 1,
+     "enter:t1": 1,
+     "leave:t1": 1
+    }
+   },
+   "historical_replay": {
+    "from": "2006-06-21",
+    "to": "2026-07-29",
+    "stats": {
+     "near": {
+      "entries": 12,
+      "years": [
+       "2008",
+       "2012",
+       "2015",
+       "2016",
+       "2018",
+       "2020",
+       "2022",
+       "2024",
+       "2025",
+       "2026"
+      ],
+      "median_sessions_in_zone": 10.5,
+      "median_deepest_drawdown": -0.29205,
+      "deepest_ever": -0.8319,
+      "n_5": 12,
+      "median_ret_5": 0.057972,
+      "positive_5": "11/12",
+      "median_mae_5": -0.027548,
+      "n_20": 12,
+      "median_ret_20": 0.037565,
+      "positive_20": "6/12",
+      "median_mae_20": -0.066775,
+      "n_60": 12,
+      "median_ret_60": 0.202133,
+      "positive_60": "9/12",
+      "median_mae_60": -0.084476
+     },
+     "t1": {
+      "entries": 9,
+      "years": [
+       "2008",
+       "2015",
+       "2016",
+       "2018",
+       "2020",
+       "2022",
+       "2024",
+       "2025",
+       "2026"
+      ],
+      "median_sessions_in_zone": 2.0,
+      "median_deepest_drawdown": -0.269933,
+      "deepest_ever": -0.46283,
+      "n_5": 9,
+      "median_ret_5": 0.016126,
+      "positive_5": "7/9",
+      "median_mae_5": -0.06083,
+      "n_20": 9,
+      "median_ret_20": -0.065326,
+      "positive_20": "4/9",
+      "median_mae_20": -0.098704,
+      "n_60": 9,
+      "median_ret_60": 0.158642,
+      "positive_60": "7/9",
+      "median_mae_60": -0.198996
+     },
+     "t2": {
+      "entries": 5,
+      "years": [
+       "2008",
+       "2018",
+       "2020",
+       "2022",
+       "2025"
+      ],
+      "median_sessions_in_zone": 7.0,
+      "median_deepest_drawdown": -0.42917,
+      "deepest_ever": -0.519186,
+      "n_5": 5,
+      "median_ret_5": 0.012585,
+      "positive_5": "4/5",
+      "median_mae_5": -0.110136,
+      "n_20": 5,
+      "median_ret_20": 0.130672,
+      "positive_20": "4/5",
+      "median_mae_20": -0.110136,
+      "n_60": 5,
+      "median_ret_60": 0.374472,
+      "positive_60": "4/5",
+      "median_mae_60": -0.144998
+     },
+     "t3": {
+      "entries": 3,
+      "years": [
+       "2008",
+       "2020",
+       "2022"
+      ],
+      "median_sessions_in_zone": 1.0,
+      "median_deepest_drawdown": -0.515426,
+      "deepest_ever": -0.517453,
+      "n_5": 3,
+      "median_ret_5": -0.002732,
+      "positive_5": "1/3",
+      "median_mae_5": -0.047142,
+      "n_20": 3,
+      "median_ret_20": 0.039065,
+      "positive_20": "2/3",
+      "median_mae_20": -0.084244,
+      "n_60": 3,
+      "median_ret_60": 0.171319,
+      "positive_60": "2/3",
+      "median_mae_60": -0.165543
+     }
+    },
+    "episodes": 29,
+    "note_zh": "历史重建，不是前瞻证据；只作描述，不作规则依据"
+   }
+  },
+  "QQQ": {
+   "thresholds": {
+    "near": 0.1,
+    "t1": 0.12,
+    "t2": 0.18,
+    "t3": 0.25
+   },
+   "current": {
+    "date": "2026-11-13",
+    "close": 679.89,
+    "ath": 762.86,
+    "drawdown": -0.108762,
+    "zone": "near",
+    "zone_zh": "接近一级",
+    "next_line": "t1",
+    "gaps": {
+     "near": {
+      "line": 0.1,
+      "price": 686.57,
+      "gap_pp": -0.88
+     },
+     "t1": {
+      "line": 0.12,
+      "price": 671.32,
+      "gap_pp": 1.12
+     },
+     "t2": {
+      "line": 0.18,
+      "price": 625.55,
+      "gap_pp": 7.12
+     },
+     "t3": {
+      "line": 0.25,
+      "price": 572.14,
+      "gap_pp": 14.12
+     }
+    }
+   },
+   "live": {
+    "from": "2026-11-02",
+    "transitions": [
+     {
+      "date": "2026-11-02",
+      "kind": "enter",
+      "line": "near",
+      "line_value": 0.1,
+      "close": 681.090027,
+      "ath": 762.86,
+      "cycle_ath": 762.86,
+      "drawdown": -0.107189,
+      "line_price": 686.57
+     },
+     {
+      "date": "2026-11-05",
+      "kind": "enter",
+      "line": "t1",
+      "line_value": 0.12,
+      "close": 647.049988,
+      "ath": 762.86,
+      "cycle_ath": 762.86,
+      "drawdown": -0.15181,
+      "line_price": 671.32
+     },
+     {
+      "date": "2026-11-11",
+      "kind": "leave",
+      "line": "t1",
+      "line_value": 0.12,
+      "close": 690.38,
+      "ath": 762.86,
+      "cycle_ath": 762.86,
+      "drawdown": -0.095011,
+      "line_price": 671.32
+     }
+    ],
+    "episodes": [
+     {
+      "line": "near",
+      "line_value": 0.1,
+      "enter_date": "2026-11-02",
+      "enter_close": 681.09,
+      "enter_drawdown": -0.107189,
+      "cycle_ath": 762.86,
+      "sessions_in_zone": 7,
+      "sessions_to_end": 10,
+      "deepest_drawdown": -0.15181,
+      "deepest_date": "2026-11-05",
+      "deepest_close": 647.05,
+      "end": "open",
+      "end_date": null,
+      "ret_5": -0.002555,
+      "mae_5": -0.049979,
+      "ret_20": null,
+      "mae_20": null,
+      "ret_60": null,
+      "mae_60": null
+     },
+     {
+      "line": "t1",
+      "line_value": 0.12,
+      "enter_date": "2026-11-05",
+      "enter_close": 647.05,
+      "enter_drawdown": -0.15181,
+      "cycle_ath": 762.86,
+      "sessions_in_zone": 2,
+      "sessions_to_end": 4,
+      "deepest_drawdown": -0.15181,
+      "deepest_date": "2026-11-05",
+      "deepest_close": 647.05,
+      "end": "left",
+      "end_date": "2026-11-11",
+      "ret_5": 0.06355,
+      "mae_5": 0.010741,
+      "ret_20": null,
+      "mae_20": null,
+      "ret_60": null,
+      "mae_60": null
+     }
+    ],
+    "touches": {
+     "near": {
+      "cross_in": 3,
+      "cross_out": 2,
+      "events": [
+       {
+        "date": "2026-11-02",
+        "kind": "cross_in",
+        "drawdown": -0.107189,
+        "close": 681.09,
+        "line_price": 686.57
+       },
+       {
+        "date": "2026-11-04",
+        "kind": "cross_out",
+        "drawdown": -0.092953,
+        "close": 691.95,
+        "line_price": 686.57
+       },
+       {
+        "date": "2026-11-05",
+        "kind": "cross_in",
+        "drawdown": -0.15181,
+        "close": 647.05,
+        "line_price": 686.57
+       },
+       {
+        "date": "2026-11-11",
+        "kind": "cross_out",
+        "drawdown": -0.095011,
+        "close": 690.38,
+        "line_price": 686.57
+       },
+       {
+        "date": "2026-11-13",
+        "kind": "cross_in",
+        "drawdown": -0.108762,
+        "close": 679.89,
+        "line_price": 686.57
+       }
+      ],
+      "near_misses": [
+       {
+        "date": "2026-11-11",
+        "gap_pp": 0.5,
+        "close": 690.38
+       },
+       {
+        "date": "2026-11-12",
+        "gap_pp": 0.21,
+        "close": 688.17
+       }
+      ],
+      "historical_cross_in": 66
+     },
+     "t1": {
+      "cross_in": 1,
+      "cross_out": 1,
+      "events": [
+       {
+        "date": "2026-11-05",
+        "kind": "cross_in",
+        "drawdown": -0.15181,
+        "close": 647.05,
+        "line_price": 671.32
+       },
+       {
+        "date": "2026-11-09",
+        "kind": "cross_out",
+        "drawdown": -0.10947,
+        "close": 679.35,
+        "line_price": 671.32
+       }
+      ],
+      "near_misses": [
+       {
+        "date": "2026-11-10",
+        "gap_pp": 0.46,
+        "close": 674.81
+       }
+      ],
+      "historical_cross_in": 41
+     },
+     "t2": {
+      "cross_in": 0,
+      "cross_out": 0,
+      "events": [],
+      "near_misses": [],
+      "historical_cross_in": 16
+     },
+     "t3": {
+      "cross_in": 0,
+      "cross_out": 0,
+      "events": [],
+      "near_misses": [],
+      "historical_cross_in": 26
+     }
+    },
+    "sessions_by_zone": {
+     "near": 5,
+     "normal": 3,
+     "t1": 2
+    },
+    "counts": {
+     "enter:near": 1,
+     "enter:t1": 1,
+     "leave:t1": 1
+    }
+   },
+   "historical_replay": {
+    "from": "1999-03-10",
+    "to": "2026-07-29",
+    "stats": {
+     "near": {
+      "entries": 21,
+      "years": [
+       "1999",
+       "2000",
+       "2015",
+       "2016",
+       "2018",
+       "2019",
+       "2020",
+       "2021",
+       "2022",
+       "2024",
+       "2025",
+       "2026"
+      ],
+      "median_sessions_in_zone": 5.0,
+      "median_deepest_drawdown": -0.128373,
+      "deepest_ever": -0.833578,
+      "n_5": 21,
+      "median_ret_5": 0.028864,
+      "positive_5": "17/21",
+      "median_mae_5": -0.029133,
+      "n_20": 21,
+      "median_ret_20": 0.061327,
+      "positive_20": "14/21",
+      "median_mae_20": -0.049648,
+      "n_60": 21,
+      "median_ret_60": 0.099444,
+      "positive_60": "17/21",
+      "median_mae_60": -0.056376
+     },
+     "t1": {
+      "entries": 13,
+      "years": [
+       "1999",
+       "2000",
+       "2015",
+       "2016",
+       "2018",
+       "2020",
+       "2022",
+       "2024",
+       "2025",
+       "2026"
+      ],
+      "median_sessions_in_zone": 2.0,
+      "median_deepest_drawdown": -0.133992,
+      "deepest_ever": -0.833578,
+      "n_5": 13,
+      "median_ret_5": 0.035224,
+      "positive_5": "12/13",
+      "median_mae_5": -0.013326,
+      "n_20": 13,
+      "median_ret_20": 0.059914,
+      "positive_20": "8/13",
+      "median_mae_20": -0.023911,
+      "n_60": 13,
+      "median_ret_60": 0.135186,
+      "positive_60": "11/13",
+      "median_mae_60": -0.023911
+     },
+     "t2": {
+      "entries": 5,
+      "years": [
+       "2000",
+       "2018",
+       "2020",
+       "2022",
+       "2025"
+      ],
+      "median_sessions_in_zone": 3.0,
+      "median_deepest_drawdown": -0.229526,
+      "deepest_ever": -0.379305,
+      "n_5": 5,
+      "median_ret_5": 0.007391,
+      "positive_5": "3/5",
+      "median_mae_5": -0.055375,
+      "n_20": 5,
+      "median_ret_20": 0.06639,
+      "positive_20": "4/5",
+      "median_mae_20": -0.055375,
+      "n_60": 5,
+      "median_ret_60": 0.185794,
+      "positive_60": "3/5",
+      "median_mae_60": -0.133973
+     },
+     "t3": {
+      "entries": 3,
+      "years": [
+       "2000",
+       "2020",
+       "2022"
+      ],
+      "median_sessions_in_zone": 7.0,
+      "median_deepest_drawdown": -0.295446,
+      "deepest_ever": -0.33319,
+      "n_5": 3,
+      "median_ret_5": 0.001959,
+      "positive_5": "2/3",
+      "median_mae_5": -0.059318,
+      "n_20": 3,
+      "median_ret_20": 0.042812,
+      "positive_20": "2/3",
+      "median_mae_20": -0.067771,
+      "n_60": 3,
+      "median_ret_60": 0.093807,
+      "positive_60": "3/3",
+      "median_mae_60": -0.093787
+     }
+    },
+    "episodes": 42,
+    "note_zh": "历史重建，不是前瞻证据；只作描述，不作规则依据"
+   }
+  },
+  "QQQM": {
+   "thresholds": {
+    "near": 0.1,
+    "t1": 0.12,
+    "t2": 0.18,
+    "t3": 0.25
+   },
+   "current": {
+    "date": "2026-11-13",
+    "close": 279.97,
+    "ath": 314.115,
+    "drawdown": -0.108702,
+    "zone": "near",
+    "zone_zh": "接近一级",
+    "next_line": "t1",
+    "gaps": {
+     "near": {
+      "line": 0.1,
+      "price": 282.7,
+      "gap_pp": -0.87
+     },
+     "t1": {
+      "line": 0.12,
+      "price": 276.42,
+      "gap_pp": 1.13
+     },
+     "t2": {
+      "line": 0.18,
+      "price": 257.57,
+      "gap_pp": 7.13
+     },
+     "t3": {
+      "line": 0.25,
+      "price": 235.59,
+      "gap_pp": 14.13
+     }
+    }
+   },
+   "live": {
+    "from": "2026-11-02",
+    "transitions": [
+     {
+      "date": "2026-11-02",
+      "kind": "enter",
+      "line": "near",
+      "line_value": 0.1,
+      "close": 280.48999,
+      "ath": 314.115,
+      "cycle_ath": 314.115,
+      "drawdown": -0.107047,
+      "line_price": 282.7
+     },
+     {
+      "date": "2026-11-05",
+      "kind": "enter",
+      "line": "t1",
+      "line_value": 0.12,
+      "close": 266.85001,
+      "ath": 314.115,
+      "cycle_ath": 314.115,
+      "drawdown": -0.15047,
+      "line_price": 276.42
+     },
+     {
+      "date": "2026-11-11",
+      "kind": "leave",
+      "line": "t1",
+      "line_value": 0.12,
+      "close": 284.23001,
+      "ath": 314.115,
+      "cycle_ath": 314.115,
+      "drawdown": -0.09514,
+      "line_price": 276.42
+     }
+    ],
+    "episodes": [
+     {
+      "line": "near",
+      "line_value": 0.1,
+      "enter_date": "2026-11-02",
+      "enter_close": 280.49,
+      "enter_drawdown": -0.107047,
+      "cycle_ath": 314.115,
+      "sessions_in_zone": 7,
+      "sessions_to_end": 10,
+      "deepest_drawdown": -0.15047,
+      "deepest_date": "2026-11-05",
+      "deepest_close": 266.85,
+      "end": "open",
+      "end_date": null,
+      "ret_5": -0.003458,
+      "mae_5": -0.04977,
+      "ret_20": null,
+      "mae_20": null,
+      "ret_60": null,
+      "mae_60": null
+     },
+     {
+      "line": "t1",
+      "line_value": 0.12,
+      "enter_date": "2026-11-05",
+      "enter_close": 266.85,
+      "enter_drawdown": -0.15047,
+      "cycle_ath": 314.115,
+      "sessions_in_zone": 2,
+      "sessions_to_end": 4,
+      "deepest_drawdown": -0.15047,
+      "deepest_date": "2026-11-05",
+      "deepest_close": 266.85,
+      "end": "left",
+      "end_date": "2026-11-11",
+      "ret_5": 0.061982,
+      "mae_5": 0.009181,
+      "ret_20": null,
+      "mae_20": null,
+      "ret_60": null,
+      "mae_60": null
+     }
+    ],
+    "touches": {
+     "near": {
+      "cross_in": 3,
+      "cross_out": 2,
+      "events": [
+       {
+        "date": "2026-11-02",
+        "kind": "cross_in",
+        "drawdown": -0.107047,
+        "close": 280.49,
+        "line_price": 282.7
+       },
+       {
+        "date": "2026-11-04",
+        "kind": "cross_out",
+        "drawdown": -0.092944,
+        "close": 284.92,
+        "line_price": 282.7
+       },
+       {
+        "date": "2026-11-05",
+        "kind": "cross_in",
+        "drawdown": -0.15047,
+        "close": 266.85,
+        "line_price": 282.7
+       },
+       {
+        "date": "2026-11-11",
+        "kind": "cross_out",
+        "drawdown": -0.09514,
+        "close": 284.23,
+        "line_price": 282.7
+       },
+       {
+        "date": "2026-11-13",
+        "kind": "cross_in",
+        "drawdown": -0.108702,
+        "close": 279.97,
+        "line_price": 282.7
+       }
+      ],
+      "near_misses": [
+       {
+        "date": "2026-11-11",
+        "gap_pp": 0.49,
+        "close": 284.23
+       },
+       {
+        "date": "2026-11-12",
+        "gap_pp": 0.22,
+        "close": 283.39
+       }
+      ],
+      "historical_cross_in": 19
+     },
+     "t1": {
+      "cross_in": 1,
+      "cross_out": 1,
+      "events": [
+       {
+        "date": "2026-11-05",
+        "kind": "cross_in",
+        "drawdown": -0.15047,
+        "close": 266.85,
+        "line_price": 276.42
+       },
+       {
+        "date": "2026-11-09",
+        "kind": "cross_out",
+        "drawdown": -0.110135,
+        "close": 279.52,
+        "line_price": 276.42
+       }
+      ],
+      "near_misses": [
+       {
+        "date": "2026-11-10",
+        "gap_pp": 0.46,
+        "close": 277.86
+       }
+      ],
+      "historical_cross_in": 15
+     },
+     "t2": {
+      "cross_in": 0,
+      "cross_out": 0,
+      "events": [],
+      "near_misses": [],
+      "historical_cross_in": 7
+     },
+     "t3": {
+      "cross_in": 0,
+      "cross_out": 0,
+      "events": [],
+      "near_misses": [],
+      "historical_cross_in": 9
+     }
+    },
+    "sessions_by_zone": {
+     "near": 5,
+     "normal": 3,
+     "t1": 2
+    },
+    "counts": {
+     "enter:near": 1,
+     "enter:t1": 1,
+     "leave:t1": 1
+    }
+   },
+   "historical_replay": {
+    "from": "2020-10-14",
+    "to": "2026-07-29",
+    "stats": {
+     "near": {
+      "entries": 6,
+      "years": [
+       "2021",
+       "2022",
+       "2024",
+       "2025",
+       "2026"
+      ],
+      "median_sessions_in_zone": 5.0,
+      "median_deepest_drawdown": -0.129987,
+      "deepest_ever": -0.358798,
+      "n_5": 6,
+      "median_ret_5": 0.033102,
+      "positive_5": "5/6",
+      "median_mae_5": -0.017596,
+      "n_20": 6,
+      "median_ret_20": 0.065521,
+      "positive_20": "4/6",
+      "median_mae_20": -0.038575,
+      "n_60": 6,
+      "median_ret_60": 0.102103,
+      "positive_60": "5/6",
+      "median_mae_60": -0.038575
+     },
+     "t1": {
+      "entries": 4,
+      "years": [
+       "2022",
+       "2024",
+       "2025",
+       "2026"
+      ],
+      "median_sessions_in_zone": 3.5,
+      "median_deepest_drawdown": -0.135248,
+      "deepest_ever": -0.163249,
+      "n_5": 4,
+      "median_ret_5": 0.027962,
+      "positive_5": "4/4",
+      "median_mae_5": -0.00896,
+      "n_20": 4,
+      "median_ret_20": 0.015623,
+      "positive_20": "2/4",
+      "median_mae_20": -0.026561,
+      "n_60": 4,
+      "median_ret_60": 0.132261,
+      "positive_60": "3/4",
+      "median_mae_60": -0.050204
+     },
+     "t2": {
+      "entries": 2,
+      "years": [
+       "2022",
+       "2025"
+      ],
+      "median_sessions_in_zone": 2.0,
+      "median_deepest_drawdown": -0.211293,
+      "deepest_ever": -0.230147,
+      "n_5": 2,
+      "median_ret_5": 0.063751,
+      "positive_5": "2/2",
+      "median_mae_5": -0.041485,
+      "n_20": 2,
+      "median_ret_20": 0.109018,
+      "positive_20": "2/2",
+      "median_mae_20": -0.042523,
+      "n_60": 2,
+      "median_ret_60": 0.090583,
+      "positive_60": "1/2",
+      "median_mae_60": -0.091306
+     },
+     "t3": {
+      "entries": 1,
+      "years": [
+       "2022"
+      ],
+      "median_sessions_in_zone": 13.0,
+      "median_deepest_drawdown": -0.294629,
+      "deepest_ever": -0.294629,
+      "n_5": 1,
+      "median_ret_5": 0.003921,
+      "positive_5": "1/1",
+      "median_mae_5": -0.042083,
+      "n_20": 1,
+      "median_ret_20": 0.041599,
+      "positive_20": "1/1",
+      "median_mae_20": -0.058014,
+      "n_60": 1,
+      "median_ret_60": 0.092846,
+      "positive_60": "1/1",
+      "median_mae_60": -0.094782
+     }
+    },
+    "episodes": 13,
+    "note_zh": "历史重建，不是前瞻证据；只作描述，不作规则依据"
+   }
+  },
+  "TQQQ": {
+   "thresholds": {
+    "near": 0.38,
+    "t1": 0.4,
+    "t2": 0.5,
+    "t3": 0.7
+   },
+   "current": {
+    "date": "2026-11-13",
+    "close": 57.68,
+    "ath": 88.09,
+    "drawdown": -0.345215,
+    "zone": "normal",
+    "zone_zh": "正常",
+    "next_line": "near",
+    "gaps": {
+     "near": {
+      "line": 0.38,
+      "price": 54.62,
+      "gap_pp": 3.48
+     },
+     "t1": {
+      "line": 0.4,
+      "price": 52.85,
+      "gap_pp": 5.48
+     },
+     "t2": {
+      "line": 0.5,
+      "price": 44.04,
+      "gap_pp": 15.48
+     },
+     "t3": {
+      "line": 0.7,
+      "price": 26.43,
+      "gap_pp": 35.48
+     }
+    }
+   },
+   "live": {
+    "from": "2026-11-02",
+    "transitions": [
+     {
+      "date": "2026-11-05",
+      "kind": "enter",
+      "line": "near",
+      "line_value": 0.38,
+      "close": 50.465,
+      "ath": 88.09,
+      "cycle_ath": 88.09,
+      "drawdown": -0.42712,
+      "line_price": 54.62
+     },
+     {
+      "date": "2026-11-05",
+      "kind": "enter",
+      "line": "t1",
+      "line_value": 0.4,
+      "close": 50.465,
+      "ath": 88.09,
+      "cycle_ath": 88.09,
+      "drawdown": -0.42712,
+      "line_price": 52.85
+     },
+     {
+      "date": "2026-11-09",
+      "kind": "leave",
+      "line": "t1",
+      "line_value": 0.4,
+      "close": 57.58,
+      "ath": 88.09,
+      "cycle_ath": 88.09,
+      "drawdown": -0.34635,
+      "line_price": 52.85
+     }
+    ],
+    "episodes": [
+     {
+      "line": "near",
+      "line_value": 0.38,
+      "enter_date": "2026-11-05",
+      "enter_close": 50.465,
+      "enter_drawdown": -0.42712,
+      "cycle_ath": 88.09,
+      "sessions_in_zone": 2,
+      "sessions_to_end": 7,
+      "deepest_drawdown": -0.42712,
+      "deepest_date": "2026-11-05",
+      "deepest_close": 50.465,
+      "end": "open",
+      "end_date": null,
+      "ret_5": 0.186565,
+      "mae_5": 0.024571,
+      "ret_20": null,
+      "mae_20": null,
+      "ret_60": null,
+      "mae_60": null
+     },
+     {
+      "line": "t1",
+      "line_value": 0.4,
+      "enter_date": "2026-11-05",
+      "enter_close": 50.465,
+      "enter_drawdown": -0.42712,
+      "cycle_ath": 88.09,
+      "sessions_in_zone": 2,
+      "sessions_to_end": 2,
+      "deepest_drawdown": -0.42712,
+      "deepest_date": "2026-11-05",
+      "deepest_close": 50.465,
+      "end": "left",
+      "end_date": "2026-11-09",
+      "ret_5": 0.186565,
+      "mae_5": 0.024571,
+      "ret_20": null,
+      "mae_20": null,
+      "ret_60": null,
+      "mae_60": null
+     }
+    ],
+    "touches": {
+     "near": {
+      "cross_in": 1,
+      "cross_out": 1,
+      "events": [
+       {
+        "date": "2026-11-05",
+        "kind": "cross_in",
+        "drawdown": -0.42712,
+        "close": 50.465,
+        "line_price": 54.62
+       },
+       {
+        "date": "2026-11-09",
+        "kind": "cross_out",
+        "drawdown": -0.34635,
+        "close": 57.58,
+        "line_price": 54.62
+       }
+      ],
+      "near_misses": [],
+      "historical_cross_in": 30
+     },
+     "t1": {
+      "cross_in": 1,
+      "cross_out": 1,
+      "events": [
+       {
+        "date": "2026-11-05",
+        "kind": "cross_in",
+        "drawdown": -0.42712,
+        "close": 50.465,
+        "line_price": 52.85
+       },
+       {
+        "date": "2026-11-09",
+        "kind": "cross_out",
+        "drawdown": -0.34635,
+        "close": 57.58,
+        "line_price": 52.85
+       }
+      ],
+      "near_misses": [],
+      "historical_cross_in": 26
+     },
+     "t2": {
+      "cross_in": 0,
+      "cross_out": 0,
+      "events": [],
+      "near_misses": [],
+      "historical_cross_in": 13
+     },
+     "t3": {
+      "cross_in": 0,
+      "cross_out": 0,
+      "events": [],
+      "near_misses": [],
+      "historical_cross_in": 13
+     }
+    },
+    "sessions_by_zone": {
+     "normal": 8,
+     "t1": 2
+    },
+    "counts": {
+     "enter:near": 1,
+     "enter:t1": 1,
+     "leave:t1": 1
+    }
+   },
+   "historical_replay": {
+    "from": "2010-02-11",
+    "to": "2025-05-02",
+    "stats": {
+     "near": {
+      "entries": 7,
+      "years": [
+       "2010",
+       "2011",
+       "2016",
+       "2018",
+       "2020",
+       "2022",
+       "2025"
+      ],
+      "median_sessions_in_zone": 25.0,
+      "median_deepest_drawdown": -0.585244,
+      "deepest_ever": -0.823735,
+      "n_5": 7,
+      "median_ret_5": 0.019603,
+      "positive_5": "4/7",
+      "median_mae_5": -0.101054,
+      "n_20": 7,
+      "median_ret_20": -0.109935,
+      "positive_20": "3/7",
+      "median_mae_20": -0.149991,
+      "n_60": 7,
+      "median_ret_60": 0.284464,
+      "positive_60": "6/7",
+      "median_mae_60": -0.301923
+     },
+     "t1": {
+      "entries": 7,
+      "years": [
+       "2010",
+       "2011",
+       "2016",
+       "2018",
+       "2020",
+       "2022",
+       "2025"
+      ],
+      "median_sessions_in_zone": 4.0,
+      "median_deepest_drawdown": -0.437609,
+      "deepest_ever": -0.701094,
+      "n_5": 7,
+      "median_ret_5": 0.101812,
+      "positive_5": "4/7",
+      "median_mae_5": -0.067696,
+      "n_20": 7,
+      "median_ret_20": 0.116216,
+      "positive_20": "4/7",
+      "median_mae_20": -0.155493,
+      "n_60": 7,
+      "median_ret_60": 0.284464,
+      "positive_60": "6/7",
+      "median_mae_60": -0.257089
+     },
+     "t2": {
+      "entries": 4,
+      "years": [
+       "2018",
+       "2020",
+       "2022",
+       "2025"
+      ],
+      "median_sessions_in_zone": 5.0,
+      "median_deepest_drawdown": -0.585493,
+      "deepest_ever": -0.701094,
+      "n_5": 4,
+      "median_ret_5": 0.079235,
+      "positive_5": "2/4",
+      "median_mae_5": -0.15682,
+      "n_20": 4,
+      "median_ret_20": 0.203856,
+      "positive_20": "4/4",
+      "median_mae_20": -0.15682,
+      "n_60": 4,
+      "median_ret_60": 0.788507,
+      "positive_60": "3/4",
+      "median_mae_60": -0.222236
+     },
+     "t3": {
+      "entries": 2,
+      "years": [
+       "2020",
+       "2022"
+      ],
+      "median_sessions_in_zone": 2.0,
+      "median_deepest_drawdown": -0.703841,
+      "deepest_ever": -0.706588,
+      "n_5": 2,
+      "median_ret_5": 0.233146,
+      "positive_5": "2/2",
+      "median_mae_5": -0.080551,
+      "n_20": 2,
+      "median_ret_20": 0.355048,
+      "positive_20": "1/2",
+      "median_mae_20": -0.155716,
+      "n_60": 2,
+      "median_ret_60": 0.983615,
+      "positive_60": "2/2",
+      "median_mae_60": -0.155716
+     }
+    },
+    "episodes": 20,
+    "note_zh": "历史重建，不是前瞻证据；只作描述，不作规则依据"
+   }
+  },
+  "VGT": {
+   "thresholds": {
+    "near": 0.13,
+    "t1": 0.15,
+    "t2": 0.2,
+    "t3": 0.3
+   },
+   "current": {
+    "date": "2026-11-13",
+    "close": 111.13,
+    "ath": 130.66,
+    "drawdown": -0.149472,
+    "zone": "near",
+    "zone_zh": "接近一级",
+    "next_line": "t1",
+    "gaps": {
+     "near": {
+      "line": 0.13,
+      "price": 113.67,
+      "gap_pp": -1.95
+     },
+     "t1": {
+      "line": 0.15,
+      "price": 111.06,
+      "gap_pp": 0.05
+     },
+     "t2": {
+      "line": 0.2,
+      "price": 104.53,
+      "gap_pp": 5.05
+     },
+     "t3": {
+      "line": 0.3,
+      "price": 91.46,
+      "gap_pp": 15.05
+     }
+    }
+   },
+   "live": {
+    "from": "2026-11-02",
+    "transitions": [
+     {
+      "date": "2026-11-05",
+      "kind": "enter",
+      "line": "near",
+      "line_value": 0.13,
+      "close": 107.059998,
+      "ath": 130.66,
+      "cycle_ath": 130.66,
+      "drawdown": -0.180621,
+      "line_price": 113.67
+     },
+     {
+      "date": "2026-11-05",
+      "kind": "enter",
+      "line": "t1",
+      "line_value": 0.15,
+      "close": 107.059998,
+      "ath": 130.66,
+      "cycle_ath": 130.66,
+      "drawdown": -0.180621,
+      "line_price": 111.06
+     },
+     {
+      "date": "2026-11-11",
+      "kind": "leave",
+      "line": "t1",
+      "line_value": 0.15,
+      "close": 113.72,
+      "ath": 130.66,
+      "cycle_ath": 130.66,
+      "drawdown": -0.129649,
+      "line_price": 111.06
+     }
+    ],
+    "episodes": [
+     {
+      "line": "near",
+      "line_value": 0.13,
+      "enter_date": "2026-11-05",
+      "enter_close": 107.06,
+      "enter_drawdown": -0.180621,
+      "cycle_ath": 130.66,
+      "sessions_in_zone": 6,
+      "sessions_to_end": 7,
+      "deepest_drawdown": -0.180621,
+      "deepest_date": "2026-11-05",
+      "deepest_close": 107.06,
+      "end": "open",
+      "end_date": null,
+      "ret_5": 0.056324,
+      "mae_5": 0.007566,
+      "ret_20": null,
+      "mae_20": null,
+      "ret_60": null,
+      "mae_60": null
+     },
+     {
+      "line": "t1",
+      "line_value": 0.15,
+      "enter_date": "2026-11-05",
+      "enter_close": 107.06,
+      "enter_drawdown": -0.180621,
+      "cycle_ath": 130.66,
+      "sessions_in_zone": 3,
+      "sessions_to_end": 4,
+      "deepest_drawdown": -0.180621,
+      "deepest_date": "2026-11-05",
+      "deepest_close": 107.06,
+      "end": "left",
+      "end_date": "2026-11-11",
+      "ret_5": 0.056324,
+      "mae_5": 0.007566,
+      "ret_20": null,
+      "mae_20": null,
+      "ret_60": null,
+      "mae_60": null
+     }
+    ],
+    "touches": {
+     "near": {
+      "cross_in": 2,
+      "cross_out": 1,
+      "events": [
+       {
+        "date": "2026-11-05",
+        "kind": "cross_in",
+        "drawdown": -0.180621,
+        "close": 107.06,
+        "line_price": 113.67
+       },
+       {
+        "date": "2026-11-11",
+        "kind": "cross_out",
+        "drawdown": -0.129649,
+        "close": 113.72,
+        "line_price": 113.67
+       },
+       {
+        "date": "2026-11-12",
+        "kind": "cross_in",
+        "drawdown": -0.134471,
+        "close": 113.09,
+        "line_price": 113.67
+       }
+      ],
+      "near_misses": [
+       {
+        "date": "2026-11-02",
+        "gap_pp": 0.12,
+        "close": 113.83
+       },
+       {
+        "date": "2026-11-11",
+        "gap_pp": 0.04,
+        "close": 113.72
+       }
+      ],
+      "historical_cross_in": 48
+     },
+     "t1": {
+      "cross_in": 2,
+      "cross_out": 2,
+      "events": [
+       {
+        "date": "2026-11-05",
+        "kind": "cross_in",
+        "drawdown": -0.180621,
+        "close": 107.06,
+        "line_price": 111.06
+       },
+       {
+        "date": "2026-11-09",
+        "kind": "cross_out",
+        "drawdown": -0.142966,
+        "close": 111.98,
+        "line_price": 111.06
+       },
+       {
+        "date": "2026-11-10",
+        "kind": "cross_in",
+        "drawdown": -0.154141,
+        "close": 110.52,
+        "line_price": 111.06
+       },
+       {
+        "date": "2026-11-11",
+        "kind": "cross_out",
+        "drawdown": -0.129649,
+        "close": 113.72,
+        "line_price": 111.06
+       }
+      ],
+      "near_misses": [
+       {
+        "date": "2026-11-13",
+        "gap_pp": 0.05,
+        "close": 111.13
+       }
+      ],
+      "historical_cross_in": 46
+     },
+     "t2": {
+      "cross_in": 0,
+      "cross_out": 0,
+      "events": [],
+      "near_misses": [],
+      "historical_cross_in": 45
+     },
+     "t3": {
+      "cross_in": 0,
+      "cross_out": 0,
+      "events": [],
+      "near_misses": [],
+      "historical_cross_in": 12
+     }
+    },
+    "sessions_by_zone": {
+     "normal": 4,
+     "t1": 3,
+     "near": 3
+    },
+    "counts": {
+     "enter:near": 1,
+     "enter:t1": 1,
+     "leave:t1": 1
+    }
+   },
+   "historical_replay": {
+    "from": "2005-02-25",
+    "to": "2026-07-29",
+    "stats": {
+     "near": {
+      "entries": 15,
+      "years": [
+       "2006",
+       "2008",
+       "2011",
+       "2012",
+       "2015",
+       "2016",
+       "2018",
+       "2020",
+       "2022",
+       "2023",
+       "2024",
+       "2025",
+       "2026"
+      ],
+      "median_sessions_in_zone": 12.0,
+      "median_deepest_drawdown": -0.169663,
+      "deepest_ever": -0.548195,
+      "n_5": 15,
+      "median_ret_5": 0.031437,
+      "positive_5": "14/15",
+      "median_mae_5": -0.013908,
+      "n_20": 15,
+      "median_ret_20": 0.022323,
+      "positive_20": "9/15",
+      "median_mae_20": -0.029428,
+      "n_60": 15,
+      "median_ret_60": 0.114859,
+      "positive_60": "13/15",
+      "median_mae_60": -0.044559
+     },
+     "t1": {
+      "entries": 10,
+      "years": [
+       "2006",
+       "2008",
+       "2011",
+       "2016",
+       "2018",
+       "2020",
+       "2022",
+       "2024",
+       "2025",
+       "2026"
+      ],
+      "median_sessions_in_zone": 3.0,
+      "median_deepest_drawdown": -0.16219,
+      "deepest_ever": -0.319754,
+      "n_5": 10,
+      "median_ret_5": 0.038383,
+      "positive_5": "9/10",
+      "median_mae_5": -0.011606,
+      "n_20": 10,
+      "median_ret_20": 0.004072,
+      "positive_20": "5/10",
+      "median_mae_20": -0.029217,
+      "n_60": 10,
+      "median_ret_60": 0.112533,
+      "positive_60": "8/10",
+      "median_mae_60": -0.055597
+     },
+     "t2": {
+      "entries": 5,
+      "years": [
+       "2008",
+       "2018",
+       "2020",
+       "2022",
+       "2025"
+      ],
+      "median_sessions_in_zone": 3.0,
+      "median_deepest_drawdown": -0.214635,
+      "deepest_ever": -0.274051,
+      "n_5": 5,
+      "median_ret_5": 0.021117,
+      "positive_5": "3/5",
+      "median_mae_5": -0.051469,
+      "n_20": 5,
+      "median_ret_20": 0.060158,
+      "positive_20": "5/5",
+      "median_mae_20": -0.051469,
+      "n_60": 5,
+      "median_ret_60": 0.22997,
+      "positive_60": "4/5",
+      "median_mae_60": -0.106885
+     },
+     "t3": {
+      "entries": 3,
+      "years": [
+       "2008",
+       "2020",
+       "2022"
+      ],
+      "median_sessions_in_zone": 4.0,
+      "median_deepest_drawdown": -0.322357,
+      "deepest_ever": -0.548195,
+      "n_5": 3,
+      "median_ret_5": -0.023859,
+      "positive_5": "1/3",
+      "median_mae_5": -0.055613,
+      "n_20": 3,
+      "median_ret_20": 0.033609,
+      "positive_20": "2/3",
+      "median_mae_20": -0.055613,
+      "n_60": 3,
+      "median_ret_60": 0.081879,
+      "positive_60": "2/3",
+      "median_mae_60": -0.055613
+     }
+    },
+    "episodes": 33,
+    "note_zh": "历史重建，不是前瞻证据；只作描述，不作规则依据"
+   }
+  },
+  "VOO": {
+   "thresholds": {
+    "near": 0.055,
+    "t1": 0.075,
+    "t2": 0.1,
+    "t3": 0.15
+   },
+   "current": {
+    "date": "2026-11-13",
+    "close": 693.38,
+    "ath": 718.46,
+    "drawdown": -0.034908,
+    "zone": "normal",
+    "zone_zh": "正常",
+    "next_line": "near",
+    "gaps": {
+     "near": {
+      "line": 0.055,
+      "price": 678.94,
+      "gap_pp": 2.01
+     },
+     "t1": {
+      "line": 0.075,
+      "price": 664.58,
+      "gap_pp": 4.01
+     },
+     "t2": {
+      "line": 0.1,
+      "price": 646.61,
+      "gap_pp": 6.51
+     },
+     "t3": {
+      "line": 0.15,
+      "price": 610.69,
+      "gap_pp": 11.51
+     }
+    }
+   },
+   "live": {
+    "from": "2026-11-02",
+    "transitions": [
+     {
+      "date": "2026-11-05",
+      "kind": "enter",
+      "line": "near",
+      "line_value": 0.055,
+      "close": 673.96997,
+      "ath": 718.46,
+      "cycle_ath": 718.46,
+      "drawdown": -0.061924,
+      "line_price": 678.94
+     }
+    ],
+    "episodes": [
+     {
+      "line": "near",
+      "line_value": 0.055,
+      "enter_date": "2026-11-05",
+      "enter_close": 673.97,
+      "enter_drawdown": -0.061924,
+      "cycle_ath": 718.46,
+      "sessions_in_zone": 2,
+      "sessions_to_end": 7,
+      "deepest_drawdown": -0.061924,
+      "deepest_date": "2026-11-05",
+      "deepest_close": 673.97,
+      "end": "open",
+      "end_date": null,
+      "ret_5": 0.032687,
+      "mae_5": 0.001973,
+      "ret_20": null,
+      "mae_20": null,
+      "ret_60": null,
+      "mae_60": null
+     }
+    ],
+    "touches": {
+     "near": {
+      "cross_in": 1,
+      "cross_out": 1,
+      "events": [
+       {
+        "date": "2026-11-05",
+        "kind": "cross_in",
+        "drawdown": -0.061924,
+        "close": 673.97,
+        "line_price": 678.94
+       },
+       {
+        "date": "2026-11-09",
+        "kind": "cross_out",
+        "drawdown": -0.03701,
+        "close": 691.87,
+        "line_price": 678.94
+       }
+      ],
+      "near_misses": [],
+      "historical_cross_in": 57
+     },
+     "t1": {
+      "cross_in": 0,
+      "cross_out": 0,
+      "events": [],
+      "near_misses": [],
+      "historical_cross_in": 54
+     },
+     "t2": {
+      "cross_in": 0,
+      "cross_out": 0,
+      "events": [],
+      "near_misses": [],
+      "historical_cross_in": 34
+     },
+     "t3": {
+      "cross_in": 0,
+      "cross_out": 0,
+      "events": [],
+      "near_misses": [],
+      "historical_cross_in": 27
+     }
+    },
+    "sessions_by_zone": {
+     "normal": 8,
+     "near": 2
+    },
+    "counts": {
+     "enter:near": 1
+    }
+   },
+   "historical_replay": {
+    "from": "2010-09-14",
+    "to": "2026-04-08",
+    "stats": {
+     "near": {
+      "entries": 20,
+      "years": [
+       "2011",
+       "2012",
+       "2013",
+       "2014",
+       "2015",
+       "2016",
+       "2018",
+       "2019",
+       "2020",
+       "2022",
+       "2024",
+       "2025",
+       "2026"
+      ],
+      "median_sessions_in_zone": 10.0,
+      "median_deepest_drawdown": -0.089977,
+      "deepest_ever": -0.341403,
+      "n_5": 20,
+      "median_ret_5": 0.006697,
+      "positive_5": "11/20",
+      "median_mae_5": -0.019363,
+      "n_20": 20,
+      "median_ret_20": 0.036984,
+      "positive_20": "16/20",
+      "median_mae_20": -0.034454,
+      "n_60": 20,
+      "median_ret_60": 0.061943,
+      "positive_60": "16/20",
+      "median_mae_60": -0.039517
+     },
+     "t1": {
+      "entries": 13,
+      "years": [
+       "2011",
+       "2012",
+       "2014",
+       "2015",
+       "2018",
+       "2020",
+       "2022",
+       "2024",
+       "2025",
+       "2026"
+      ],
+      "median_sessions_in_zone": 6.0,
+      "median_deepest_drawdown": -0.100084,
+      "deepest_ever": -0.341403,
+      "n_5": 13,
+      "median_ret_5": 0.020489,
+      "positive_5": "11/13",
+      "median_mae_5": -0.019573,
+      "n_20": 13,
+      "median_ret_20": 0.030581,
+      "positive_20": "8/13",
+      "median_mae_20": -0.022035,
+      "n_60": 13,
+      "median_ret_60": 0.082016,
+      "positive_60": "10/13",
+      "median_mae_60": -0.02748
+     },
+     "t2": {
+      "entries": 7,
+      "years": [
+       "2011",
+       "2015",
+       "2018",
+       "2020",
+       "2022",
+       "2025"
+      ],
+      "median_sessions_in_zone": 1.0,
+      "median_deepest_drawdown": -0.101346,
+      "deepest_ever": -0.191787,
+      "n_5": 7,
+      "median_ret_5": 0.035423,
+      "positive_5": "6/7",
+      "median_mae_5": -0.013265,
+      "n_20": 7,
+      "median_ret_20": 0.014705,
+      "positive_20": "5/7",
+      "median_mae_20": -0.048024,
+      "n_60": 7,
+      "median_ret_60": 0.040008,
+      "positive_60": "5/7",
+      "median_mae_60": -0.102001
+     },
+     "t3": {
+      "entries": 5,
+      "years": [
+       "2011",
+       "2018",
+       "2020",
+       "2022",
+       "2025"
+      ],
+      "median_sessions_in_zone": 6.0,
+      "median_deepest_drawdown": -0.190062,
+      "deepest_ever": -0.341403,
+      "n_5": 5,
+      "median_ret_5": 0.009366,
+      "positive_5": "4/5",
+      "median_mae_5": -0.047891,
+      "n_20": 5,
+      "median_ret_20": 0.044461,
+      "positive_20": "4/5",
+      "median_mae_20": -0.047891,
+      "n_60": 5,
+      "median_ret_60": 0.14382,
+      "positive_60": "5/5",
+      "median_mae_60": -0.048806
+     }
+    },
+    "episodes": 45,
+    "note_zh": "历史重建，不是前瞻证据；只作描述，不作规则依据"
+   }
+  }
+ },
+ "alert_reconciliation": {
+  "scope": [
+   "QLD",
+   "QQQM",
+   "VGT"
+  ],
+  "alerts": 14,
+  "matched": 9,
+  "unsupported_by_prices": [
+   {
+    "symbol": "VGT",
+    "as_of": "2026-11-09",
+    "alert": "enter:near",
+    "alert_drawdown": -0.169524,
+    "alert_cycle_id": "VGT@134.8383",
+    "sent_at": "2026-11-10T16:31:33.492865+00:00",
+    "price_drawdown": -0.142966,
+    "price_ath": 130.66,
+    "price_zone": "near"
+   },
+   {
+    "symbol": "VGT",
+    "as_of": "2026-11-09",
+    "alert": "enter:t1",
+    "alert_drawdown": -0.169524,
+    "alert_cycle_id": "VGT@134.8383",
+    "sent_at": "2026-11-10T16:31:33.492865+00:00",
+    "price_drawdown": -0.142966,
+    "price_ath": 130.66,
+    "price_zone": "near"
+   },
+   {
+    "symbol": "QLD",
+    "as_of": "2026-11-09",
+    "alert": "enter:near",
+    "alert_drawdown": -0.270714,
+    "alert_cycle_id": "QLD@108.5309",
+    "sent_at": "2026-11-10T16:31:33.492865+00:00",
+    "price_drawdown": -0.221041,
+    "price_ath": 101.61,
+    "price_zone": "normal"
+   },
+   {
+    "symbol": "QLD",
+    "as_of": "2026-11-09",
+    "alert": "enter:t1",
+    "alert_drawdown": -0.270714,
+    "alert_cycle_id": "QLD@108.5309",
+    "sent_at": "2026-11-10T16:31:33.492865+00:00",
+    "price_drawdown": -0.221041,
+    "price_ath": 101.61,
+    "price_zone": "normal"
+   },
+   {
+    "symbol": "QLD",
+    "as_of": "2026-11-11",
+    "alert": "leave:t1",
+    "alert_drawdown": -0.194745,
+    "alert_cycle_id": "QLD@108.5309",
+    "sent_at": "2026-11-12T02:09:53.663296+00:00",
+    "price_drawdown": -0.194666,
+    "price_ath": 101.61,
+    "price_zone": "normal"
+   }
+  ],
+  "transitions_without_alert": [],
+  "delay_hours_after_close": {
+   "n": 14,
+   "median": 5.2,
+   "max": 19.5
+  }
+ },
+ "transitions_no_longer_supported": [],
+ "published_mismatches": [],
+ "shock_events": {
+  "events": 5,
+  "retracted": 0,
+  "corrected": 3,
+  "by_subject": {
+   "NVDA": 1,
+   "AMD": 1,
+   "AVGO": 1,
+   "MARKET": 1,
+   "MSFT": 1
+  },
+  "by_severity": {
+   "medium": 4,
+   "high": 1
+  },
+  "price_triggers": 4,
+  "news_triggers": 3,
+  "vix_triggers": 0,
+  "list": [
+   {
+    "event_id": "NVDA@2026-11-11",
+    "subject": "NVDA",
+    "ref_session": "2026-11-11",
+    "severity": "high",
+    "price_trigger": true,
+    "news_trigger": true,
+    "first_seen": "2026-11-12T13:05:13+00:00",
+    "retracted": false,
+    "corrections": 1
+   },
+   {
+    "event_id": "AMD@2026-11-11",
+    "subject": "AMD",
+    "ref_session": "2026-11-11",
+    "severity": "medium",
+    "price_trigger": true,
+    "news_trigger": false,
+    "first_seen": "2026-11-12T13:05:13+00:00",
+    "retracted": false,
+    "corrections": 1
+   },
+   {
+    "event_id": "AVGO@2026-11-11",
+    "subject": "AVGO",
+    "ref_session": "2026-11-11",
+    "severity": "medium",
+    "price_trigger": true,
+    "news_trigger": true,
+    "first_seen": "2026-11-12T20:28:36+00:00",
+    "retracted": false,
+    "corrections": 1
+   },
+   {
+    "event_id": "MARKET@2026-11-12",
+    "subject": "MARKET",
+    "ref_session": "2026-11-12",
+    "severity": "medium",
+    "price_trigger": true,
+    "news_trigger": false,
+    "first_seen": "2026-11-13T16:26:35+00:00",
+    "retracted": false,
+    "corrections": 0
+   },
+   {
+    "event_id": "MSFT@2026-11-12",
+    "subject": "MSFT",
+    "ref_session": "2026-11-12",
+    "severity": "medium",
+    "price_trigger": false,
+    "news_trigger": true,
+    "first_seen": "2026-11-13T20:04:25+00:00",
+    "retracted": false,
+    "corrections": 0
+   }
+  ]
+ },
+ "turning_point_checklist": {
+  "sessions": 18,
+  "trigger_sessions": 0,
+  "max_met": 2,
+  "met_sessions_by_condition": {
+   "sentiment": 5,
+   "easing": 1
+  },
+  "first_met": {
+   "sentiment": "2026-10-27",
+   "easing": "2026-11-13"
+  },
+  "latest": {
+   "market_date": "2026-11-13",
+   "met": 2,
+   "near": 1,
+   "qqq_close": 679.89001,
+   "recorded_at": "2026-11-14T02:12:51.510866+00:00",
+   "statuses": {
+    "earnings": "near",
+    "easing": "met",
+    "sentiment": "met",
+    "yield_10y": "not_met"
+   },
+   "trigger": false,
+   "v": 1
+  }
+ },
+ "note_zh": "阈值记录与复盘：只记录和描述，不改阈值、不下单。实时期从 2026-11-02 起；之前是历史重建，单独统计。"
+}

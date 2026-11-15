@@ -64,6 +64,35 @@ def new_cycle_check(prev_ath, ath):
     return "new" if ath <= float(prev_ath) * (1 + MAX_ATH_STEP) else "suspect"
 
 
+ATH_TOL = 0.005   # implied ATH vs the cycle ATH / the window high
+
+
+def ath_consistency(prev_ath, ath, window_high):
+    """None if the implied ATH (close / (1 + drawdown)) is consistent, else a cannot-judge reason.
+    An ATH never falls, and a new one must show up in the window high. Daily 2026-11-10 16:34 published VGT/QLD
+    rows with an 11/09 close but the 11/06 drawdown: the implied ATH jumped +3% / +7% without any new high, a new
+    cycle started and 'entered tier 1' was re-sent although the true drawdowns were 14.3% / 22.1%."""
+    if ath is None or prev_ath is None:
+        return None
+    prev = float(prev_ath)
+    if ath < prev * (1 - ATH_TOL):
+        try:
+            wh = float(window_high)
+        except (TypeError, ValueError):
+            return "drawdown_inconsistent(ath_fell)"
+        if abs(ath / wh - 1) <= ATH_TOL and prev > wh * (1 + ATH_TOL):
+            return "repair"      # the stored cycle ATH never traded (artefact); the row agrees with the window high
+        return "drawdown_inconsistent(ath_fell)"
+    if ath > prev * (1 + ATH_TOL):
+        try:
+            wh = float(window_high)
+        except (TypeError, ValueError):
+            return "drawdown_inconsistent(new_ath_unconfirmed)"
+        if wh < ath * (1 - ATH_TOL):
+            return "drawdown_inconsistent(new_ath_not_in_window_high)"
+    return None
+
+
 def advance(prev, loss, ath, tiers):
     """prev = {'cycle_ath': float|None, 'sent': [...]} per asset; 'sent' holds one 'enter:<line>' / 'leave:<line>'
     flag per line for the current cycle. Returns (new_state, events) with events like ('enter','t1') /

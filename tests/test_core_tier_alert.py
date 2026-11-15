@@ -32,9 +32,11 @@ assert [e[1] for e in ev] == ["near", "t1", "t2", "t3"]
 config = json.loads((ROOT / "config" / "playbooks.public.json").read_text())
 assets = next(p["assets"] for p in config["playbooks"] if p["playbook_id"] == "CP-01")
 def core(dd_qqqm, valid="PASS"):
-    return {"core": {s: {"date": "2026-11-02", "close": 100.0, "strategy_drawdown": -0.05, "ath_is_true": True,
-                         "ath_validation": "PASS"} for s in assets} | {"QQQM": {"date": "2026-11-02", "close": 100.0,
-                         "strategy_drawdown": dd_qqqm, "ath_is_true": True, "ath_validation": valid}}}
+    # consistent rows: one ATH (100) in the window high, close = ATH * (1 + drawdown)
+    return {"core": {s: {"date": "2026-11-02", "close": 95.0, "strategy_drawdown": -0.05, "ath_is_true": True,
+                         "ath_validation": "PASS", "ytd_high": 100.0} for s in assets} | {"QQQM": {"date": "2026-11-02",
+                         "close": round(100.0 * (1 + dd_qqqm), 6), "strategy_drawdown": dd_qqqm, "ath_is_true": True,
+                         "ath_validation": valid, "ytd_high": 100.0}}}
 ok = {"data_trust": {"ok": True, "market_as_of": "2026-11-02", "expected_market_date": "2026-11-02"}}
 # 2026-11-03 00:30Z = 11/02 19:30 ET, after the close -> expected session 2026-11-02
 msgs = []
@@ -137,3 +139,37 @@ for r in rows:
 assert (cnt.get(("enter", "t1")), cnt.get(("enter", "t2")), cnt.get(("enter", "t3"))) == (7, 4, 2), cnt
 assert sum(cnt.values()) <= 40, cnt   # about 4 alerts a year, not daily noise
 print("PASS core tier alerts: near 2pp, suspect ATH, row checks, idempotent outbox + retry, once per line per cycle, recovery alert, cannot-judge, no amounts, 10y replay 7/4/2")
+
+# --- 2026-11-10 production bug: Daily 16:34Z published VGT/QLD rows with the 11/09 close but the 11/06 drawdown.
+# The implied ATH jumped (VGT 130.66 -> 134.84, QLD 101.62 -> 108.53) with no new high, a new cycle started and
+# 'entered tier 1' was re-sent although the true drawdowns were 14.3% / 22.1%.
+assert cts.ath_consistency(130.66, 111.98 / (1 - 0.16952396), 130.66) == "drawdown_inconsistent(new_ath_not_in_window_high)"
+assert cts.ath_consistency(101.62, 79.15 / (1 - 0.27071444), 101.62) == "drawdown_inconsistent(new_ath_not_in_window_high)"
+assert cts.ath_consistency(130.66, 130.70, 130.70) is None            # a genuine new high shows in the window high
+assert cts.ath_consistency(130.66, 130.66, 130.66) is None and cts.ath_consistency(None, 134.8, 130.66) is None
+assert cts.ath_consistency(130.66, 120.0, 130.66) == "drawdown_inconsistent(ath_fell)"
+# repair: the stored cycle ATH (the artefact 134.84) never traded; the row agrees with the window high
+assert cts.ath_consistency(134.8383, 130.66, 130.66) == "repair"
+vgt = {"date": "2026-11-13", "close": 111.18, "prev_close": 111.5, "strategy_drawdown": 111.18 / 130.66 - 1,
+       "ath_is_true": True, "ath_validation": "PASS", "ytd_high": 130.66}
+data = {"core": {s: dict(vgt) for s in assets}}
+ok13 = {"data_trust": {"ok": True, "market_as_of": "2026-11-13", "expected_market_date": "2026-11-13"}}
+prev = {"version": cta.VERSION, "symbols": {s: {"cycle_ath": 134.8383, "cycle_id": f"{s}@134.8383", "zone": "normal",
+                                                "sent": ["enter:near", "enter:t1", "leave:t1"]} for s in assets}}
+m2 = []
+r = cta.build(datetime(2026, 11, 14, 2, 0, tzinfo=timezone.utc), lambda t: m2.append(t) or "sent", data, config, ok13, prev)
+v = r["symbols"]["VGT"]
+assert v["judgment"] == "evaluated" and abs(v["cycle_ath"] - 130.66) < 0.01 and v["cycle_id"] == "VGT@130.6600", v
+assert v["sent"] == ["enter:near", "enter:t1", "leave:t1"] and not m2, m2      # repaired silently, nothing re-sent
+# the bad 11/10 row itself (prev cycle at the true ATH) -> cannot judge, no tier alert
+bad_row = {"date": "2026-11-09", "close": 111.98, "prev_close": 108.51, "strategy_drawdown": -0.16952396,
+           "ath_is_true": True, "ath_validation": "PASS", "ytd_high": 130.66}
+okb = {"data_trust": {"ok": True, "market_as_of": "2026-11-09", "expected_market_date": "2026-11-09"}}
+prevb = {"version": cta.VERSION, "symbols": {s: {"cycle_ath": 130.66, "cycle_id": f"{s}@130.6600", "zone": "t1",
+                                                 "sent": ["enter:near", "enter:t1"]} for s in assets}}
+m3 = []
+rb = cta.build(datetime(2026, 11, 10, 16, 31, tzinfo=timezone.utc), lambda t: m3.append(t) or "sent",
+               {"core": {s: dict(bad_row) for s in assets}}, config, okb, prevb)
+assert rb["symbols"]["VGT"]["judgment"] == "cannot_judge" and "inconsistent" in rb["symbols"]["VGT"]["reason"]
+assert not any("进入一级" in m for m in m3) and all("暂不能判断" in m for m in m3), m3
+print("PASS 11/10 regression: stale drawdown with a fresh close is cannot-judge; artefact cycle ATH repaired silently")

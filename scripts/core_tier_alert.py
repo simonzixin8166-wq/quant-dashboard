@@ -110,6 +110,13 @@ def build(now=None, send=notify, data=None, config=None, server=None, previous=N
             loss, ath, reason = cts.row_inputs(row, tiers)
             if loss is not None and cts.new_cycle_check(before.get("cycle_ath"), ath) == "suspect":
                 loss, reason = None, "ath_jump_unverified"
+            elif loss is not None:
+                why = cts.ath_consistency(before.get("cycle_ath"), ath, row.get("ytd_high"))
+                if why == "repair":
+                    # keep the alerts already sent (they were delivered); only the cycle ATH is corrected
+                    before = {**before, "cycle_ath": ath, "repaired_from": before.get("cycle_ath")}
+                elif why:
+                    loss, reason = None, why
         audit = {"as_of": as_of, "expected_session": expected, "close": row.get("close"),
                  "drawdown": row.get("strategy_drawdown"), "ath_implied": ath,
                  "ath_validation": row.get("ath_validation"), "price_basis": "validated ATH (Yahoo high), close"}

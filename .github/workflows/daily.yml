@@ -191,6 +191,17 @@ jobs:
         if: steps.core_tier_alert.outcome == 'failure'
         run: python scripts/module_failure_marker.py core_tier_alert
 
+      # Threshold ledger (Owner 2026-11-15): append-only record of every core-ETF line crossing (values, dates,
+      # counts, follow-ups) and a descriptive review reconciled against the alerts actually sent. Record only.
+      - name: Threshold ledger and review (record only)
+        id: threshold_ledger
+        continue-on-error: true
+        run: python scripts/threshold_ledger.py
+
+      - name: Record threshold_ledger failure (visible in system status)
+        if: steps.threshold_ledger.outcome == 'failure'
+        run: python scripts/module_failure_marker.py threshold_ledger
+
       - name: Build V6.11 Outcome Foundation (shadow-only)
         id: playbook_outcomes
         continue-on-error: true
@@ -568,6 +579,7 @@ jobs:
           python tests/test_forward_observation_engine.py
           python tests/test_forward_outcome_ledger.py
           python tests/test_learning_progress.py
+          python tests/test_threshold_ledger.py
           python tests/test_event_calendar.py
           python tests/test_thesis_revision_memory.py
           python tests/test_v610a_playbook_engine.py

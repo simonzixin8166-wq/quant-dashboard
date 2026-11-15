@@ -1,6 +1,6 @@
 {
   "version": "5.3.0",
-  "generated_at": "2026-11-14T02:32:39.510653+00:00",
+  "generated_at": "2026-11-15T01:59:44.028809+00:00",
   "source": "user-supplied STOOQ OHLCV + daily dashboard append",
   "method": "causal Trend Pulse state-entry event study; 5y window; 10-session same-state cooldown",
   "guardrails": [
@@ -12,9 +12,9 @@
   "coverage": [
     {
       "symbol": "AAOI",
-      "rows": 3303,
+      "rows": 3304,
       "first_date": "2013-09-26",
-      "last_date": "2026-11-12",
+      "last_date": "2026-11-13",
       "eligible": true,
       "latest_score": -100.0,
       "latest_stage": "趋势恶化"
@@ -57,11 +57,11 @@
     },
     {
       "symbol": "CRWV",
-      "rows": 410,
+      "rows": 411,
       "first_date": "2025-03-28",
-      "last_date": "2026-11-12",
+      "last_date": "2026-11-13",
       "eligible": true,
-      "latest_score": -77.0,
+      "latest_score": -78.45,
       "latest_stage": "修复中"
     },
     {
@@ -156,11 +156,11 @@
     },
     {
       "symbol": "META",
-      "rows": 3643,
+      "rows": 3644,
       "first_date": "2012-05-18",
-      "last_date": "2026-11-12",
+      "last_date": "2026-11-13",
       "eligible": true,
-      "latest_score": -49.41,
+      "latest_score": -49.96,
       "latest_stage": "修复中"
     },
     {
@@ -201,11 +201,11 @@
     },
     {
       "symbol": "NOW",
-      "rows": 3614,
+      "rows": 3615,
       "first_date": "2012-06-29",
-      "last_date": "2026-11-12",
+      "last_date": "2026-11-13",
       "eligible": true,
-      "latest_score": -73.0,
+      "latest_score": -86.05,
       "latest_stage": "趋势恶化"
     },
     {
@@ -382,42 +382,495 @@
   ],
   "update": {
     "expected_session": "2026-11-13",
-    "appended": [],
+    "appended": [
+      {
+        "symbol": "AAOI",
+        "date": "2026-11-13",
+        "close": 49.88999938964844,
+        "source": "Yahoo (yfinance) fallback"
+      },
+      {
+        "symbol": "CRWV",
+        "date": "2026-11-13",
+        "close": 53.130001068115234,
+        "source": "Yahoo (yfinance) fallback"
+      },
+      {
+        "symbol": "META",
+        "date": "2026-11-13",
+        "close": 641.6900024414062,
+        "source": "Yahoo (yfinance) fallback"
+      },
+      {
+        "symbol": "NOW",
+        "date": "2026-11-13",
+        "close": 102.25,
+        "source": "Yahoo (yfinance) fallback"
+      }
+    ],
     "unchanged": [
-      "AMD",
-      "AMZN",
       "AVGO",
-      "DRAM",
-      "GOOG",
-      "HOOD",
-      "INTC",
-      "IREN",
-      "LITE",
-      "MRVL",
-      "MSFT",
-      "NBIS",
-      "NVDA",
-      "ORCL",
-      "QLD",
-      "QQQ",
-      "QQQM",
-      "SMH",
-      "SOFI",
-      "SPCX",
-      "SPY",
-      "TQQQ",
-      "TSLA",
-      "TSM",
-      "VGT",
-      "VOO"
+      "ORCL"
     ],
-    "quarantined": [],
-    "missing": [
-      "AAOI",
-      "CRWV",
-      "META",
-      "NOW"
+    "quarantined": [
+      {
+        "symbol": "AMD",
+        "date": "2026-11-13",
+        "old": [
+          566.66998,
+          571.125,
+          520.01001,
+          534.059998
+        ],
+        "new": [
+          566.78998,
+          571.14001,
+          520.01001,
+          534.059998
+        ],
+        "action": "quarantined; correct only via data/history/corrections.jsonl with an independent source",
+        "reason": "conflict",
+        "source": "docs/data.json stocks.AMD"
+      },
+      {
+        "symbol": "AMZN",
+        "date": "2026-11-13",
+        "old": [
+          269.55499,
+          269.94,
+          263.91,
+          266.66
+        ],
+        "new": [
+          269.56,
+          270.049988,
+          263.91,
+          266.66
+        ],
+        "action": "quarantined; correct only via data/history/corrections.jsonl with an independent source",
+        "reason": "conflict",
+        "source": "docs/data.json stocks.AMZN"
+      },
+      {
+        "symbol": "DRAM",
+        "date": "2026-11-13",
+        "old": [
+          42.89,
+          43.32,
+          41.049999,
+          42.41
+        ],
+        "new": [
+          42.89,
+          43.32,
+          41.049999,
+          42.4
+        ],
+        "action": "quarantined; correct only via data/history/corrections.jsonl with an independent source",
+        "reason": "conflict",
+        "source": "docs/data.json stocks.DRAM"
+      },
+      {
+        "symbol": "GOOG",
+        "date": "2026-11-13",
+        "old": [
+          299.86499,
+          301.62,
+          290.34,
+          292.51999
+        ],
+        "new": [
+          299.89499,
+          301.62,
+          290.34,
+          292.51999
+        ],
+        "action": "quarantined; correct only via data/history/corrections.jsonl with an independent source",
+        "reason": "conflict",
+        "source": "docs/data.json stocks.GOOG"
+      },
+      {
+        "symbol": "HOOD",
+        "date": "2026-11-13",
+        "old": [
+          79.795,
+          79.96,
+          76.61,
+          77.86
+        ],
+        "new": [
+          79.7,
+          79.96,
+          76.61,
+          77.86
+        ],
+        "action": "quarantined; correct only via data/history/corrections.jsonl with an independent source",
+        "reason": "conflict",
+        "source": "docs/data.json stocks.HOOD"
+      },
+      {
+        "symbol": "INTC",
+        "date": "2026-11-13",
+        "old": [
+          60.655,
+          61.3422,
+          57.0,
+          59.66
+        ],
+        "new": [
+          60.66,
+          61.34,
+          57.0,
+          59.66
+        ],
+        "action": "quarantined; correct only via data/history/corrections.jsonl with an independent source",
+        "reason": "conflict",
+        "source": "docs/data.json stocks.INTC"
+      },
+      {
+        "symbol": "IREN",
+        "date": "2026-11-13",
+        "old": [
+          19.105,
+          19.105,
+          17.39,
+          18.17
+        ],
+        "new": [
+          19.12,
+          19.13,
+          17.39,
+          18.17
+        ],
+        "action": "quarantined; correct only via data/history/corrections.jsonl with an independent source",
+        "reason": "conflict",
+        "source": "docs/data.json stocks.IREN"
+      },
+      {
+        "symbol": "LITE",
+        "date": "2026-11-13",
+        "old": [
+          613.0,
+          623.99988,
+          569.0,
+          596.62
+        ],
+        "new": [
+          613.0,
+          624.0,
+          569.0,
+          596.62
+        ],
+        "action": "quarantined; correct only via data/history/corrections.jsonl with an independent source",
+        "reason": "conflict",
+        "source": "docs/data.json stocks.LITE"
+      },
+      {
+        "symbol": "MRVL",
+        "date": "2026-11-13",
+        "old": [
+          161.89999,
+          163.89,
+          149.17,
+          156.75999
+        ],
+        "new": [
+          161.60001,
+          163.89,
+          149.17,
+          156.75999
+        ],
+        "action": "quarantined; correct only via data/history/corrections.jsonl with an independent source",
+        "reason": "conflict",
+        "source": "docs/data.json stocks.MRVL"
+      },
+      {
+        "symbol": "MSFT",
+        "date": "2026-11-13",
+        "old": [
+          519.90997,
+          526.41998,
+          513.82001,
+          523.88
+        ],
+        "new": [
+          519.75,
+          526.41998,
+          513.82001,
+          523.88
+        ],
+        "action": "quarantined; correct only via data/history/corrections.jsonl with an independent source",
+        "reason": "conflict",
+        "source": "docs/data.json stocks.MSFT"
+      },
+      {
+        "symbol": "NBIS",
+        "date": "2026-11-13",
+        "old": [
+          123.52,
+          123.97,
+          109.0,
+          115.88
+        ],
+        "new": [
+          123.55,
+          123.97,
+          109.0,
+          115.88
+        ],
+        "action": "quarantined; correct only via data/history/corrections.jsonl with an independent source",
+        "reason": "conflict",
+        "source": "docs/data.json stocks.NBIS"
+      },
+      {
+        "symbol": "NVDA",
+        "date": "2026-11-13",
+        "old": [
+          169.89,
+          170.0,
+          158.39,
+          162.85001
+        ],
+        "new": [
+          169.91,
+          170.0,
+          158.39,
+          162.85001
+        ],
+        "action": "quarantined; correct only via data/history/corrections.jsonl with an independent source",
+        "reason": "conflict",
+        "source": "docs/data.json stocks.NVDA"
+      },
+      {
+        "symbol": "QLD",
+        "date": "2026-11-13",
+        "old": [
+          81.3,
+          81.35,
+          77.4,
+          79.3
+        ],
+        "new": [
+          81.38,
+          81.39,
+          77.38,
+          79.3
+        ],
+        "action": "quarantined; correct only via data/history/corrections.jsonl with an independent source",
+        "reason": "conflict",
+        "source": "docs/data.json stocks.QLD"
+      },
+      {
+        "symbol": "QQQ",
+        "date": "2026-11-13",
+        "old": [
+          688.51001,
+          688.75,
+          671.71002,
+          679.89001
+        ],
+        "new": [
+          688.53998,
+          688.75,
+          671.67999,
+          679.89001
+        ],
+        "action": "quarantined; correct only via data/history/corrections.jsonl with an independent source",
+        "reason": "conflict",
+        "source": "docs/data.json stocks.QQQ"
+      },
+      {
+        "symbol": "QQQM",
+        "date": "2026-11-13",
+        "old": [
+          283.57999,
+          283.62,
+          276.60999,
+          279.97
+        ],
+        "new": [
+          283.54999,
+          283.62,
+          276.60001,
+          279.97
+        ],
+        "action": "quarantined; correct only via data/history/corrections.jsonl with an independent source",
+        "reason": "conflict",
+        "source": "docs/data.json stocks.QQQM"
+      },
+      {
+        "symbol": "SMH",
+        "date": "2026-11-13",
+        "old": [
+          499.26199,
+          500.26749,
+          473.26001,
+          486.75
+        ],
+        "new": [
+          499.92999,
+          500.26999,
+          473.26001,
+          486.75
+        ],
+        "action": "quarantined; correct only via data/history/corrections.jsonl with an independent source",
+        "reason": "conflict",
+        "source": "docs/data.json stocks.SMH"
+      },
+      {
+        "symbol": "SOFI",
+        "date": "2026-11-13",
+        "old": [
+          15.652,
+          15.7499,
+          15.08,
+          15.42
+        ],
+        "new": [
+          15.675,
+          15.75,
+          15.08,
+          15.42
+        ],
+        "action": "quarantined; correct only via data/history/corrections.jsonl with an independent source",
+        "reason": "conflict",
+        "source": "docs/data.json stocks.SOFI"
+      },
+      {
+        "symbol": "SPCX",
+        "date": "2026-11-13",
+        "old": [
+          140.172,
+          142.24001,
+          136.64011,
+          139.11
+        ],
+        "new": [
+          140.17,
+          142.24001,
+          136.64,
+          139.11
+        ],
+        "action": "quarantined; correct only via data/history/corrections.jsonl with an independent source",
+        "reason": "conflict",
+        "source": "docs/data.json stocks.SPCX"
+      },
+      {
+        "symbol": "SPY",
+        "date": "2026-11-13",
+        "old": [
+          760.070007,
+          760.12,
+          745.20001,
+          754.25
+        ],
+        "new": [
+          760.070007,
+          760.12,
+          747.88,
+          754.37
+        ],
+        "action": "quarantined; correct only via data/history/corrections.jsonl with an independent source",
+        "reason": "conflict",
+        "source": "docs/data.json stocks.SPY"
+      },
+      {
+        "symbol": "TQQQ",
+        "date": "2026-11-13",
+        "old": [
+          59.9,
+          59.97,
+          55.53,
+          57.68
+        ],
+        "new": [
+          59.92,
+          59.97,
+          55.52,
+          57.68
+        ],
+        "action": "quarantined; correct only via data/history/corrections.jsonl with an independent source",
+        "reason": "conflict",
+        "source": "docs/data.json stocks.TQQQ"
+      },
+      {
+        "symbol": "TSLA",
+        "date": "2026-11-13",
+        "old": [
+          401.936,
+          404.39999,
+          385.8302,
+          390.22
+        ],
+        "new": [
+          401.67999,
+          404.39999,
+          385.82999,
+          390.22
+        ],
+        "action": "quarantined; correct only via data/history/corrections.jsonl with an independent source",
+        "reason": "conflict",
+        "source": "docs/data.json stocks.TSLA"
+      },
+      {
+        "symbol": "TSM",
+        "date": "2026-11-13",
+        "old": [
+          407.60001,
+          408.084991,
+          391.5,
+          398.73001
+        ],
+        "new": [
+          407.60001,
+          408.089996,
+          391.5,
+          398.73001
+        ],
+        "action": "quarantined; correct only via data/history/corrections.jsonl with an independent source",
+        "reason": "conflict",
+        "source": "docs/data.json stocks.TSM"
+      },
+      {
+        "symbol": "VGT",
+        "date": "2026-11-13",
+        "old": [
+          113.135,
+          113.21,
+          109.52,
+          111.13
+        ],
+        "new": [
+          113.14,
+          113.21,
+          109.52,
+          111.18
+        ],
+        "action": "quarantined; correct only via data/history/corrections.jsonl with an independent source",
+        "reason": "conflict",
+        "source": "docs/data.json stocks.VGT"
+      },
+      {
+        "symbol": "VOO",
+        "date": "2026-11-13",
+        "old": [
+          698.65997,
+          698.81,
+          687.52002,
+          693.38
+        ],
+        "new": [
+          698.65997,
+          698.81,
+          687.5,
+          693.38
+        ],
+        "action": "quarantined; correct only via data/history/corrections.jsonl with an independent source",
+        "reason": "conflict",
+        "source": "docs/data.json stocks.VOO"
+      }
     ],
+    "missing": [],
     "close_only": [],
     "not_final": [],
     "sources": {
@@ -447,10 +900,10 @@
       "TSM": "docs/data.json stocks.TSM",
       "VGT": "docs/data.json stocks.VGT",
       "VOO": "docs/data.json stocks.VOO",
-      "AAOI": "stale: no finalized full-OHLC bar after the archive from any free source",
-      "CRWV": "stale: no finalized full-OHLC bar after the archive from any free source",
-      "META": "stale: no finalized full-OHLC bar after the archive from any free source",
-      "NOW": "stale: no finalized full-OHLC bar after the archive from any free source"
+      "AAOI": "Yahoo (yfinance) fallback",
+      "CRWV": "Yahoo (yfinance) fallback",
+      "META": "Yahoo (yfinance) fallback",
+      "NOW": "Yahoo (yfinance) fallback"
     },
     "fallback_diagnostics": {
       "provider": "Yahoo (yfinance download, period=10d, interval=1d)",
@@ -460,27 +913,23 @@
       "per_symbol": {
         "AAOI": {
           "raw_last_date": "2026-11-13",
-          "rows": 9,
-          "last_complete_date": "2026-11-12",
-          "outcome": "no_bar_after_archive (raw_last=2026-11-13, complete_last=2026-11-12)"
+          "rows": 10,
+          "last_complete_date": "2026-11-13"
         },
         "CRWV": {
           "raw_last_date": "2026-11-13",
-          "rows": 9,
-          "last_complete_date": "2026-11-12",
-          "outcome": "no_bar_after_archive (raw_last=2026-11-13, complete_last=2026-11-12)"
+          "rows": 10,
+          "last_complete_date": "2026-11-13"
         },
         "META": {
           "raw_last_date": "2026-11-13",
-          "rows": 9,
-          "last_complete_date": "2026-11-12",
-          "outcome": "no_bar_after_archive (raw_last=2026-11-13, complete_last=2026-11-12)"
+          "rows": 10,
+          "last_complete_date": "2026-11-13"
         },
         "NOW": {
           "raw_last_date": "2026-11-13",
-          "rows": 9,
-          "last_complete_date": "2026-11-12",
-          "outcome": "no_bar_after_archive (raw_last=2026-11-13, complete_last=2026-11-12)"
+          "rows": 10,
+          "last_complete_date": "2026-11-13"
         }
       },
       "raw_empty": false
@@ -488,10 +937,10 @@
   },
   "summary": {
     "symbols": 41,
-    "events": 8107,
-    "mature_20": 7977,
+    "events": 8106,
+    "mature_20": 7976,
     "mature_60": 7695,
-    "mature_120": 7250
+    "mature_120": 7251
   },
   "profiles": {
     "趋势启动": {
@@ -542,13 +991,13 @@
           "excess_vs_qqq_avg": 0.009109713127536008
         },
         "60": {
-          "n": 1534,
-          "avg": 0.0778698765594308,
-          "median": 0.03145071734020033,
-          "positive_rate": 0.6082138200782269,
-          "mae_avg": -0.10744651586018528,
-          "mfe_avg": 0.20480546809974476,
-          "excess_vs_qqq_avg": 0.04529208649147231
+          "n": 1535,
+          "avg": 0.07741943664756702,
+          "median": 0.03140065922719493,
+          "positive_rate": 0.6078175895765472,
+          "mae_avg": -0.10779136711259318,
+          "mfe_avg": 0.20467739332533977,
+          "excess_vs_qqq_avg": 0.044891052352771195
         },
         "120": {
           "n": 1448,
@@ -605,31 +1054,31 @@
     "修复中": {
       "horizons": {
         "20": {
-          "n": 1276,
-          "avg": 0.024317114227822265,
-          "median": 0.00838816678427845,
-          "positive_rate": 0.5470219435736677,
-          "mae_avg": -0.07498005980771988,
-          "mfe_avg": 0.10279838617107494,
-          "excess_vs_qqq_avg": 0.012721729989302892
+          "n": 1275,
+          "avg": 0.02435091148188242,
+          "median": 0.008541652925268872,
+          "positive_rate": 0.5474509803921569,
+          "mae_avg": -0.07496052605573124,
+          "mfe_avg": 0.10286366613744177,
+          "excess_vs_qqq_avg": 0.012741583634526914
         },
         "60": {
-          "n": 1245,
-          "avg": 0.07429013614511051,
-          "median": 0.025852652020876388,
-          "positive_rate": 0.557429718875502,
-          "mae_avg": -0.12536025472363033,
-          "mfe_avg": 0.23500091505396178,
-          "excess_vs_qqq_avg": 0.03926253505423102
+          "n": 1244,
+          "avg": 0.07460663026955654,
+          "median": 0.026053518156136102,
+          "positive_rate": 0.5578778135048231,
+          "mae_avg": -0.12517637832356374,
+          "mfe_avg": 0.23517409390122912,
+          "excess_vs_qqq_avg": 0.03949484516871915
         },
         "120": {
-          "n": 1166,
-          "avg": 0.19047171833970644,
-          "median": 0.069487830025321,
-          "positive_rate": 0.6243567753001715,
-          "mae_avg": -0.16479863523287988,
-          "mfe_avg": 0.41198537160070486,
-          "excess_vs_qqq_avg": 0.10366856718300428
+          "n": 1167,
+          "avg": 0.19026730314863494,
+          "median": 0.06946538161088323,
+          "positive_rate": 0.6246786632390745,
+          "mae_avg": -0.16484647000303276,
+          "mfe_avg": 0.41200001173400874,
+          "excess_vs_qqq_avg": 0.1034729453502749
         }
       },
       "evidence": {
@@ -751,7 +1200,7 @@
     "AAOI": {
       "events": 198,
       "mature_20": 196,
-      "mature_60": 188,
+      "mature_60": 189,
       "mature_120": 181
     },
     "AAPL": {
@@ -782,7 +1231,7 @@
       "events": 69,
       "mature_20": 66,
       "mature_60": 56,
-      "mature_120": 44
+      "mature_120": 45
     },
     "DIA": {
       "events": 211,
@@ -845,9 +1294,9 @@
       "mature_120": 183
     },
     "META": {
-      "events": 224,
-      "mature_20": 222,
-      "mature_60": 215,
+      "events": 223,
+      "mature_20": 221,
+      "mature_60": 214,
       "mature_120": 204
     },
     "MRVL": {
@@ -8732,7 +9181,14 @@
           "qqq_return": 0.014797518743054905,
           "excess_vs_qqq": -0.20015770464545612
         },
-        "60": null,
+        "60": {
+          "date": "2026-11-13",
+          "return": -0.6135553881514451,
+          "mae": -0.6367931883063638,
+          "mfe": 0.008210689388071346,
+          "qqq_return": -0.04366110587540262,
+          "excess_vs_qqq": -0.5698942822760424
+        },
         "120": null
       }
     },

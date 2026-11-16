@@ -91,4 +91,7 @@ import daily_guardian as dg  # noqa: E402
 assert dg.CHAINED_AFTER_DAILY == ("shock-event-watch.yml", "morning-brief.yml")
 sw = (ROOT / ".github/workflows/shock-event-watch.yml").read_text(encoding="utf-8")
 assert "workflow_run" in sw and "Daily Dashboard Update" in sw
+# both run right after Daily outside the production-writer lock: a raced push is retried, never dropped (11/15 02:03Z)
+for t in (wf, sw):
+    assert "for attempt in 1 2 3 4 5" in t and 'test "$pushed" -eq 1' in t and "&& git push)" not in t
 print("PASS event chain: brief and shock watch follow every Daily; Guardian chains its own dispatch; morning window")

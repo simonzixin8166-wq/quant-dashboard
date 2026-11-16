@@ -10,6 +10,15 @@
       "gold_file": "wxc-bot research/gold/claims_gold_test_v5.jsonl",
       "gold_sha256_prefix": "23a0c9c6",
       "frozen_at": "2026-11-10"
+    },
+    "forum_test_v1": {
+      "label_zh": "论坛测试集 v1（回帖与主帖）",
+      "posts": 150,
+      "gold_pairs": 48,
+      "gold_file": "wxc-bot research/forum/claims_gold_forum_test_v1.jsonl",
+      "gold_sha256_prefix": "af4ed9a2",
+      "frozen_at": "2026-11-16",
+      "unit_zh": "发言 × 股票代码"
     }
   },
   "results": [
@@ -50,6 +59,31 @@
       "evidence": "wxc-bot Actions gemini-claims run 43792619436 (resume, day 6; 15 calls, stopped by free-tier 429)",
       "note_zh": "已答 82/85 篇；70 个 gold 对全部在已答帖子里，未答的 3 篇没有作者主张，召回率 52/70 已定型；剩余帖子只可能让精确率下降。答完前不作切换结论。",
       "direction_agree": 52
+    },
+    {
+      "extractor": "ce-4",
+      "role": "production",
+      "set": "forum_test_v1",
+      "status": "complete",
+      "pred_pairs": 9,
+      "matched": 8,
+      "gold_pairs": 48,
+      "direction_agree": 7,
+      "measured_at": "2026-11-16",
+      "evidence": "wxc-bot research/forum/forum_test_v1_extractor_scores.json"
+    },
+    {
+      "extractor": "ce-7",
+      "role": "forum_shadow",
+      "set": "forum_test_v1",
+      "status": "complete",
+      "pred_pairs": 16,
+      "matched": 13,
+      "gold_pairs": 48,
+      "direction_agree": 12,
+      "measured_at": "2026-11-16",
+      "evidence": "wxc-bot research/forum/forum_test_v1_extractor_scores.json",
+      "note_zh": "claim_extractor.py sha256 f44bdb331f64737e（与规格一致）。开发集召回 0.75，测试集 0.27：开发集偏乐观。"
     }
   ],
   "dev_only": [
@@ -59,7 +93,7 @@
       "set": "forum_dev_v1",
       "precision": 0.81,
       "recall": 0.75,
-      "note_zh": "在论坛开发集上调规则得到，偏乐观；等论坛测试集验证。"
+      "note_zh": "在论坛开发集上调规则得到，偏乐观；论坛测试集 v1（2026-11-16）实测召回 13/48 = 0.27。"
     }
   ]
 }

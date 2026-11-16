@@ -501,14 +501,22 @@ def analyze(symbol, rows, today, tiers=None, is_stock=False, ath_metric=None):
     ytd_rows = [r for r in rows if r["datetime"].startswith(str(today.year))]
     ytd_high = max([float(r["high"]) for r in ytd_rows]) if ytd_rows else latest_close
     
-    ath_is_true, strategy_drawdown, ath_validation = False, None, "UNAVAILABLE"
-    if ath_metric and ath_metric.get("valid"):
-        strategy_drawdown = ath_metric.get("drawdown")
-        ath_is_true = True
-        ath_validation = "CHECK" if ath_metric.get("extreme") else "PASS"
-
     window_high = max([float(r["high"]) for r in rows if r.get("high") is not None]) if rows else None
     window_drawdown = (latest_close / window_high - 1.0) if window_high and latest_close else None
+
+    # The drawdown is measured on THIS row's close against the validated ATH (never the ATH source's own last
+    # close): on 2026-11-10 the Yahoo max-range close was still 11/06 while the row close was 11/09, the pair
+    # implied a false ATH and core tier alerts re-sent "entered tier 1" (#332). A newer high in the window wins.
+    ath_is_true, strategy_drawdown, ath_validation, ath_value = False, None, "UNAVAILABLE", None
+    if ath_metric and ath_metric.get("valid"):
+        try:
+            ath_value = max(float(ath_metric["ath"]), float(window_high or 0))
+        except (KeyError, TypeError, ValueError):
+            ath_value = None
+        if ath_value and ath_value > 0 and latest_close > 0:
+            strategy_drawdown = min(0.0, latest_close / ath_value - 1.0)
+            ath_is_true = True
+            ath_validation = "CHECK" if strategy_drawdown <= -0.75 else "PASS"
 
     level, level_label = 0, None
     if not is_stock and ath_is_true and strategy_drawdown is not None and tiers and ath_validation != "CHECK":
@@ -520,6 +528,9 @@ def analyze(symbol, rows, today, tiers=None, is_stock=False, ath_metric=None):
         "rsi": calc_rsi(closes, 14), "dist_200ma": pct_change(latest_close, sum(closes[:200])/200 if len(closes)>=200 else None),
         "ath_is_true": ath_is_true, "ath_validation": ath_validation, "strategy_drawdown": strategy_drawdown, "window_drawdown": window_drawdown,
     }
+    if ath_value is not None:
+        out["ath_value"] = ath_value
+        out["ath_source_close"] = (ath_metric or {}).get("close")
     if is_stock: out.update({"open": float(rows[0]["open"]), "high": float(rows[0]["high"]), "low": float(rows[0]["low"]), "volume": float(rows[0].get("volume") or 0)})
     else: out.update({"drawdown": strategy_drawdown if ath_is_true else window_drawdown, "tiers": tiers, "level": level, "level_label": level_label})
     return out

@@ -48,4 +48,16 @@ jobs:
             if [ -f "$f" ]; then git add "$f"; fi
           done
           python3 scripts/privacy_canary_scan.py --staged
-          git diff --cached --quiet || (git commit -m "shock event watch" && git pull --rebase origin main && git push)
+          if ! git diff --cached --quiet; then
+            git commit -m "shock event watch"
+            # Runs right after Daily together with other writers (own concurrency group): retry a raced push
+            # (2026-11-15 02:03Z shock run lost its rows to "cannot lock ref" while morning brief pushed).
+            pushed=0
+            for attempt in 1 2 3 4 5; do
+              git pull --rebase origin main
+              if git push origin HEAD:main; then pushed=1; break; fi
+              echo "push raced with main (attempt $attempt/5); retrying"
+              sleep $((attempt * 3))
+            done
+            test "$pushed" -eq 1
+          fi

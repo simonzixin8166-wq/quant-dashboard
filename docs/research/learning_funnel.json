@@ -1,6 +1,6 @@
 {
  "version": "p3-12.1",
- "generated_at": "2026-11-15T02:01:54.562722+00:00",
+ "generated_at": "2026-11-16T18:37:25.480275+00:00",
  "layers": [
   "discovered",
   "canonical_persisted",
@@ -23,11 +23,11 @@
   "market": {
    "learning_maturity": "forward_collecting",
    "funnel_issues": [],
-   "discovered": 41,
-   "canonical_persisted": 41,
-   "interpretable": 41,
+   "discovered": 42,
+   "canonical_persisted": 42,
+   "interpretable": 42,
    "candidate_claim_or_state": 12,
-   "effective_forward_eligible": 134,
+   "effective_forward_eligible": 135,
    "independently_matured": 44,
    "benchmark_evaluated": 20,
    "downstream_consumer_count": 1,
@@ -36,7 +36,7 @@
   "fundamental": {
    "learning_maturity": "unproven_no_forward_samples",
    "funnel_issues": [],
-   "discovered": 7379,
+   "discovered": 5323,
    "canonical_persisted": 872,
    "interpretable": 872,
    "candidate_claim_or_state": 426,
@@ -49,9 +49,9 @@
   "event": {
    "learning_maturity": "context_only",
    "funnel_issues": [],
-   "discovered": 3185,
-   "canonical_persisted": 3185,
-   "interpretable": 3185,
+   "discovered": 3228,
+   "canonical_persisted": 3228,
+   "interpretable": 3228,
    "candidate_claim_or_state": 0,
    "effective_forward_eligible": 0,
    "independently_matured": 0,
@@ -88,11 +88,11 @@
   "external_research": {
    "learning_maturity": "forward_collecting",
    "funnel_issues": [],
-   "discovered": 3898,
-   "canonical_persisted": 3898,
-   "interpretable": 1638,
-   "candidate_claim_or_state": 47,
-   "effective_forward_eligible": 21,
+   "discovered": 3942,
+   "canonical_persisted": 3942,
+   "interpretable": 1682,
+   "candidate_claim_or_state": 48,
+   "effective_forward_eligible": 22,
    "independently_matured": 2,
    "benchmark_evaluated": null,
    "downstream_consumer_count": 12,
@@ -102,19 +102,19 @@
  "engines": {
   "market": {
    "discovered": {
-    "count": 41,
+    "count": 42,
     "definition": "macro/regime observations captured",
     "evidence": "research/archive/macro_regime_observations.jsonl",
     "dedup_key": "observation_id"
    },
    "canonical_persisted": {
-    "count": 41,
+    "count": 42,
     "definition": "append-only archived observations",
     "evidence": "research/archive/macro_regime_observations.jsonl",
     "dedup_key": "observation_id"
    },
    "interpretable": {
-    "count": 41,
+    "count": 42,
     "definition": "observations with a regime and acceptable input quality",
     "evidence": "research/archive/macro_regime_observations.jsonl",
     "dedup_key": "observation_id"
@@ -126,7 +126,7 @@
     "dedup_key": "regime_key"
    },
    "effective_forward_eligible": {
-    "count": 134,
+    "count": 135,
     "definition": "point-in-time capable live macro observations (observed_at recorded) + live market-state snapshots tracked for outcomes",
     "evidence": "research/archive/macro_regime_observations.jsonl + research/archive/market_state_outcomes.jsonl",
     "dedup_key": "observation_id / kind|as_of|state"
@@ -170,7 +170,7 @@
   },
   "fundamental": {
    "discovered": {
-    "count": 7379,
+    "count": 5323,
     "definition": "XBRL facts captured (company_fundamental_memory archive)",
     "evidence": "docs/research/company_fundamental_memory.json",
     "dedup_key": "fact"
@@ -236,19 +236,19 @@
   },
   "event": {
    "discovered": {
-    "count": 3185,
+    "count": 3228,
     "definition": "news/event items archived",
     "evidence": "research/archive/events",
     "dedup_key": "uuid"
    },
    "canonical_persisted": {
-    "count": 3185,
+    "count": 3228,
     "definition": "append-only monthly event shards",
     "evidence": "research/archive/events",
     "dedup_key": "uuid"
    },
    "interpretable": {
-    "count": 3185,
+    "count": 3228,
     "definition": "items with title, url and event date",
     "evidence": "research/archive/events",
     "dedup_key": "uuid"
@@ -432,39 +432,39 @@
   },
   "external_research": {
    "discovered": {
-    "count": 3898,
+    "count": 3942,
     "definition": "distinct canonical source keys (forum/blog/YouTube)",
     "evidence": "research/store/source_store.json",
     "dedup_key": "source_key"
    },
    "canonical_persisted": {
-    "count": 3898,
+    "count": 3942,
     "definition": "Source Store records (append-only)",
     "evidence": "research/store/source_store.json",
     "dedup_key": "source_key"
    },
    "interpretable": {
-    "count": 1638,
+    "count": 1682,
     "definition": "records with body text available (excerpt ≤360 chars or full text ≥1000); title-only excluded",
     "evidence": "docs/data/source_intelligence.json",
     "dedup_key": "feed id",
     "text_depth": {
      "title_only": 2145,
-     "excerpt": 1638,
+     "excerpt": 1682,
      "full_text": 0,
-     "original_length_known": 1638
+     "original_length_known": 1682
     },
-    "records_processed_by_source_reading": 3898,
+    "records_processed_by_source_reading": 3942,
     "note": "processed ≠ understood: most forum rows reach Source Reading as title/excerpt only"
    },
    "candidate_claim_or_state": {
-    "count": 47,
+    "count": 48,
     "definition": "records yielding a testable rule/claim",
     "evidence": "docs/research/source_reading_memory.json",
     "dedup_key": "source_key"
    },
    "effective_forward_eligible": {
-    "count": 21,
+    "count": 22,
     "definition": "genuine forward sources (timestamp-verified live capture)",
     "evidence": "research/store/source_store.json",
     "dedup_key": "source_key"

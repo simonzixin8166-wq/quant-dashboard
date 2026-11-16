@@ -1,6 +1,6 @@
 {
   "version": "5.3.0",
-  "generated_at": "2026-11-15T01:59:44.028809+00:00",
+  "generated_at": "2026-11-16T18:35:19.328487+00:00",
   "source": "user-supplied STOOQ OHLCV + daily dashboard append",
   "method": "causal Trend Pulse state-entry event study; 5y window; 10-session same-state cooldown",
   "guardrails": [
@@ -382,32 +382,7 @@
   ],
   "update": {
     "expected_session": "2026-11-13",
-    "appended": [
-      {
-        "symbol": "AAOI",
-        "date": "2026-11-13",
-        "close": 49.88999938964844,
-        "source": "Yahoo (yfinance) fallback"
-      },
-      {
-        "symbol": "CRWV",
-        "date": "2026-11-13",
-        "close": 53.130001068115234,
-        "source": "Yahoo (yfinance) fallback"
-      },
-      {
-        "symbol": "META",
-        "date": "2026-11-13",
-        "close": 641.6900024414062,
-        "source": "Yahoo (yfinance) fallback"
-      },
-      {
-        "symbol": "NOW",
-        "date": "2026-11-13",
-        "close": 102.25,
-        "source": "Yahoo (yfinance) fallback"
-      }
-    ],
+    "appended": [],
     "unchanged": [
       "AVGO",
       "ORCL"
@@ -899,40 +874,14 @@
       "TSLA": "docs/data.json stocks.TSLA",
       "TSM": "docs/data.json stocks.TSM",
       "VGT": "docs/data.json stocks.VGT",
-      "VOO": "docs/data.json stocks.VOO",
-      "AAOI": "Yahoo (yfinance) fallback",
-      "CRWV": "Yahoo (yfinance) fallback",
-      "META": "Yahoo (yfinance) fallback",
-      "NOW": "Yahoo (yfinance) fallback"
+      "VOO": "docs/data.json stocks.VOO"
     },
     "fallback_diagnostics": {
-      "provider": "Yahoo (yfinance download, period=10d, interval=1d)",
-      "requests": 1,
-      "requested_symbols": 4,
+      "provider": "injected fetcher (test/other)",
+      "requests": 0,
+      "requested_symbols": 0,
       "error": null,
-      "per_symbol": {
-        "AAOI": {
-          "raw_last_date": "2026-11-13",
-          "rows": 10,
-          "last_complete_date": "2026-11-13"
-        },
-        "CRWV": {
-          "raw_last_date": "2026-11-13",
-          "rows": 10,
-          "last_complete_date": "2026-11-13"
-        },
-        "META": {
-          "raw_last_date": "2026-11-13",
-          "rows": 10,
-          "last_complete_date": "2026-11-13"
-        },
-        "NOW": {
-          "raw_last_date": "2026-11-13",
-          "rows": 10,
-          "last_complete_date": "2026-11-13"
-        }
-      },
-      "raw_empty": false
+      "per_symbol": {}
     }
   },
   "summary": {

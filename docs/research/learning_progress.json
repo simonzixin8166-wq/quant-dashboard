@@ -1,6 +1,6 @@
 {
  "version": "learning-progress-1.0",
- "generated_at": "2026-11-15T01:59:22+00:00",
+ "generated_at": "2026-11-16T18:35:01+00:00",
  "learning_state": "UNPROVEN",
  "final": "NO",
  "measures": {
@@ -15,6 +15,15 @@
      "gold_file": "wxc-bot research/gold/claims_gold_test_v5.jsonl",
      "gold_sha256_prefix": "23a0c9c6",
      "frozen_at": "2026-11-10"
+    },
+    "forum_test_v1": {
+     "label_zh": "论坛测试集 v1（回帖与主帖）",
+     "posts": 150,
+     "gold_pairs": 48,
+     "gold_file": "wxc-bot research/forum/claims_gold_forum_test_v1.jsonl",
+     "gold_sha256_prefix": "af4ed9a2",
+     "frozen_at": "2026-11-16",
+     "unit_zh": "发言 × 股票代码"
     }
    },
    "rows": [
@@ -81,8 +90,8 @@
      "role": "challenger",
      "set": "s2_v5_test",
      "set_label_zh": "S2 v5 冻结测试集",
-     "status": "partial",
-     "answered_posts": 60,
+     "status": "complete",
+     "answered_posts": null,
      "precision": {
       "k": 52,
       "n": 54,
@@ -101,9 +110,96 @@
        0.83
       ]
      },
-     "measured_at": "2026-11-14",
-     "evidence": "wxc-bot Actions gemini-claims run 43546722180 (resume, day 4; stopped by free-tier 429)",
-     "note_zh": "已答 60/85 篇；70 个 gold 对全部落在已答的帖子里，未答的 25 篇没有作者主张，所以召回率 52/70 已基本定型，只有精确率还可能因误报下降。答完前不作切换结论。"
+     "measured_at": "2026-11-16",
+     "evidence": "wxc-bot Actions gemini-claims run 43829128133 (resume, day 7; 85/85 answered, 3 calls)",
+     "note_zh": "85/85 篇全部答完（7 天续跑，免费额度）。精确率 52/54，召回率 52/70。是否切换生产由 Owner 决定，不自动切换。"
+    },
+    {
+     "extractor": "ce-4",
+     "role": "production",
+     "set": "forum_test_v1",
+     "set_label_zh": "论坛测试集 v1（回帖与主帖）",
+     "status": "complete",
+     "answered_posts": null,
+     "precision": {
+      "k": 8,
+      "n": 9,
+      "value": 0.889,
+      "ci95": [
+       0.56,
+       0.98
+      ]
+     },
+     "recall": {
+      "k": 8,
+      "n": 48,
+      "value": 0.167,
+      "ci95": [
+       0.09,
+       0.3
+      ]
+     },
+     "measured_at": "2026-11-16",
+     "evidence": "wxc-bot research/forum/forum_test_v1_extractor_scores.json",
+     "note_zh": null
+    },
+    {
+     "extractor": "ce-7",
+     "role": "forum_shadow",
+     "set": "forum_test_v1",
+     "set_label_zh": "论坛测试集 v1（回帖与主帖）",
+     "status": "complete",
+     "answered_posts": null,
+     "precision": {
+      "k": 13,
+      "n": 16,
+      "value": 0.812,
+      "ci95": [
+       0.57,
+       0.93
+      ]
+     },
+     "recall": {
+      "k": 13,
+      "n": 48,
+      "value": 0.271,
+      "ci95": [
+       0.17,
+       0.41
+      ]
+     },
+     "measured_at": "2026-11-16",
+     "evidence": "wxc-bot research/forum/forum_test_v1_extractor_scores.json",
+     "note_zh": "claim_extractor.py sha256 f44bdb331f64737e（与规格一致）。开发集召回 0.75，测试集 0.27：开发集偏乐观。"
+    },
+    {
+     "extractor": "gemini-claims-0.2",
+     "role": "challenger",
+     "set": "forum_test_v1",
+     "set_label_zh": "论坛测试集 v1（回帖与主帖）",
+     "status": "complete",
+     "answered_posts": null,
+     "precision": {
+      "k": 31,
+      "n": 36,
+      "value": 0.861,
+      "ci95": [
+       0.71,
+       0.94
+      ]
+     },
+     "recall": {
+      "k": 31,
+      "n": 48,
+      "value": 0.646,
+      "ci95": [
+       0.5,
+       0.77
+      ]
+     },
+     "measured_at": "2026-11-16",
+     "evidence": "wxc-bot Actions gemini-claims run 43829618501 (forum_test, 150/150 answered in one run, 19 batched calls)",
+     "note_zh": "论坛测试集只测一次。模型与提示词与 v5 相同（gemini_claims.py 仅新增 forum_test 集合）。"
     }
    ],
    "production": {
@@ -142,7 +238,7 @@
      "set": "forum_dev_v1",
      "precision": 0.81,
      "recall": 0.75,
-     "note_zh": "在论坛开发集上调规则得到，偏乐观；等论坛测试集验证。"
+     "note_zh": "在论坛开发集上调规则得到，偏乐观；论坛测试集 v1（2026-11-16）实测召回 13/48 = 0.27。"
     }
    ],
    "note_zh": "理解能力只记录在冻结、未见过的测试集上测过的成绩；每个抽取器版本只测一次。开发集成绩偏乐观，单独标注，不当作证据。更新方式：每次正式测完后由 PR 追加，不由日常流程改写。"
@@ -344,15 +440,22 @@
    "attribution": {
     "sessions": [
      "2026-10-08",
-     "2026-10-09"
+     "2026-10-09",
+     "2026-10-12",
+     "2026-10-13",
+     "2026-10-14",
+     "2026-10-15",
+     "2026-10-16"
     ],
-    "scored": 34,
-    "misses": 9,
+    "scored": 141,
+    "misses": 46,
     "misses_by_primary": {
-     "E1": 4,
-     "E2": 1,
-     "M2": 2,
-     "R3": 2
+     "E1": 15,
+     "E2": 2,
+     "M1": 3,
+     "M2": 7,
+     "R3": 11,
+     "R4": 8
     },
     "coverage": 1.0,
     "investment_validity": "INSUFFICIENT"

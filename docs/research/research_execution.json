@@ -1,6 +1,6 @@
 {
   "version": "6.9.0",
-  "generated_at": "2026-11-16T18:37:13.202530+00:00",
+  "generated_at": "2026-11-16T21:30:13.348969+00:00",
   "planner_version": "6.14.3",
   "results": [
     {
@@ -11,22 +11,21 @@
       "priority": 82.0,
       "research_status": "analyzed",
       "supporting_evidence": [
-        "当前组合状态：CROSS_LOW|BREADTH_MIXED|VIX_LOW",
-        "跨资产层：跨资产背离有限；风险信号 1",
-        "宽度层：市场参与分化；参与度评分 69.3",
-        "同组合 5 日成熟样本 6：平均收益 -2.1%，最差 -4.7%"
+        "当前组合状态：CROSS_LOW|BREADTH_WEAKENING|VIX_ALERT",
+        "跨资产层：跨资产背离有限；风险信号 2",
+        "宽度层：市场宽度走弱；参与度评分 52.4",
+        "VIX=23.13，分区 alert"
       ],
-      "counter_evidence": [
-        "VIX=19.30，分区 low；波动率尚未确认风险升级"
-      ],
+      "counter_evidence": [],
       "unknowns": [
+        "同组合 5 日成熟样本仍不足",
         "同组合 20 日成熟样本仍不足",
         "同组合 60 日成熟样本仍不足"
       ],
-      "evidence_score": 56,
-      "confidence": "medium",
+      "evidence_score": 38,
+      "confidence": "low",
       "confidence_scope": "research_result",
-      "provisional_conclusion": "证据存在分歧，保持研究状态并优先验证反证。",
+      "provisional_conclusion": "已有初步支持证据，但关键外部事实仍缺失，暂不升级为结论。",
       "next_validation": [
         "同类组合状态历史5/20/60日结果如何？",
         "宽度还是利率/信用哪一侧先修复？",
@@ -41,9 +40,9 @@
         "VIX"
       ],
       "guardrail": "该研究结果不能自动下单；未知项不得由模型猜测补全。",
-      "analysis_runs": 10,
+      "analysis_runs": 11,
       "first_analyzed_at": "2026-11-13T16:25:22.585998+00:00",
-      "last_analyzed_at": "2026-11-16T18:37:13.202530+00:00"
+      "last_analyzed_at": "2026-11-16T21:30:13.348969+00:00"
     },
     {
       "task_id": "152b739c30c6e6",
@@ -53,10 +52,10 @@
       "priority": 78.0,
       "research_status": "analyzed",
       "supporting_evidence": [
-        "QQQ距近252日高点 -10.5%",
-        "TQQQ X2现有正式规则：防守 · 空仓 / 保持上一收盘目标",
-        "QQQ LEAPS Radar：观察",
-        "QQQ 252日回撤：-10.5%",
+        "QQQ距近252日高点 -12.9%",
+        "TQQQ X2现有正式规则：防守 · 空仓 / 二级降险：目标降至0%",
+        "QQQ LEAPS Radar：候选",
+        "QQQ 252日回撤：-12.9%",
         "回调情境状态：10%+回调但仍震荡 · 等待形态选择",
         "Source Hypothesis：lionhill / 狮山巡礼 · 市场大调整时：TQQQ还是QQQ LEAPS，仅作待验证方法来源"
       ],
@@ -87,9 +86,9 @@
         "source_method_lionhill"
       ],
       "guardrail": "该研究结果不能自动下单；未知项不得由模型猜测补全。",
-      "analysis_runs": 9,
+      "analysis_runs": 10,
       "first_analyzed_at": "2026-11-14T02:13:39.872773+00:00",
-      "last_analyzed_at": "2026-11-16T18:37:13.202530+00:00"
+      "last_analyzed_at": "2026-11-16T21:30:13.348969+00:00"
     },
     {
       "task_id": "ff2fe8dce9c4c9",
@@ -99,17 +98,18 @@
       "priority": 78.0,
       "research_status": "analyzed",
       "supporting_evidence": [
-        "52周新高参与不足：仅 6.4% 成分股处于52周新高",
-        "市场参与度评分：69.3/100",
+        "短期宽度继续恶化：20日宽度10日斜率 -17.1%",
+        "52周新高参与不足：仅 7.2% 成分股处于52周新高",
+        "市场参与度评分：52.4/100",
         "宽度组合状态：B20_OK|B50_OK|B200_OK|SLOPE_DOWN|SPY_RSP_OK|QQQ_QQQE_OK|AD_POS|NH52_THIN",
         "历史弱宽度 5 日成熟样本 12：平均SPY收益 +0.0%",
-        "历史弱宽度 20 日成熟样本 9：平均SPY收益 -3.1%"
+        "历史弱宽度 20 日成熟样本 10：平均SPY收益 -3.1%"
       ],
       "counter_evidence": [],
       "unknowns": [
         "弱宽度 60 日成熟样本仍不足"
       ],
-      "evidence_score": 70,
+      "evidence_score": 82,
       "confidence": "high",
       "confidence_scope": "research_result",
       "provisional_conclusion": "已有初步支持证据，但关键外部事实仍缺失，暂不升级为结论。",
@@ -127,100 +127,9 @@
         "cross_asset_divergence"
       ],
       "guardrail": "该研究结果不能自动下单；未知项不得由模型猜测补全。",
-      "analysis_runs": 10,
+      "analysis_runs": 11,
       "first_analyzed_at": "2026-11-13T16:25:22.585998+00:00",
-      "last_analyzed_at": "2026-11-16T18:37:13.202530+00:00"
-    },
-    {
-      "task_id": "640ad43f52044f",
-      "kind": "market_anomaly",
-      "key": "AMZN",
-      "title": "AMZN · 异动/趋势专项研究",
-      "priority": 74.0,
-      "research_status": "analyzed",
-      "supporting_evidence": [
-        "Trend Pulse / Situation 当前阶段：二次启动",
-        "Learning Engine 研究优先级：74/100",
-        "相同阶段60日历史样本：1535，中位收益 3.1%",
-        "Source Intelligence 有 1 条与 AMZN 相关研究记录；最近 1 条已进入独立验证层",
-        "SEC官方披露：最近 10-Q，提交日 2026-10-30",
-        "SEC文档已抓取官方原文证据片段，可用于下一步事件核验"
-      ],
-      "counter_evidence": [
-        "Trend Pulse 数据校验状态：有限校验"
-      ],
-      "unknowns": [
-        "已读取 5 条相关一般媒体线索，但暂无 Reuters/AP/新闻稿等高优先级事件源确认",
-        "行业同业联动样本暂不足",
-        "公司IR官网全文仍待专用连接；当前已使用SEC官方披露与分级媒体事件线索"
-      ],
-      "evidence_score": 70,
-      "confidence": "high",
-      "confidence_scope": "research_result",
-      "provisional_conclusion": "证据存在分歧，保持研究状态并优先验证反证。",
-      "next_validation": [
-        "这次变化由公司事件、行业共振还是市场因素驱动？",
-        "支持原 Thesis 的证据是什么？",
-        "最强反证是什么？",
-        "明日需要验证什么？"
-      ],
-      "source_requirements": [
-        "market_data",
-        "trend_pulse",
-        "SEC/IR",
-        "company_news",
-        "industry_peers"
-      ],
-      "guardrail": "该研究结果不能自动下单；未知项不得由模型猜测补全。",
-      "analysis_runs": 13,
-      "first_analyzed_at": "2026-11-13T02:10:59.519763+00:00",
-      "last_analyzed_at": "2026-11-16T18:37:13.202530+00:00"
-    },
-    {
-      "task_id": "23345e714a50c1",
-      "kind": "market_anomaly",
-      "key": "NBIS",
-      "title": "NBIS · 异动/趋势专项研究",
-      "priority": 72.0,
-      "research_status": "analyzed",
-      "supporting_evidence": [
-        "Trend Pulse / Situation 当前阶段：趋势恶化",
-        "Learning Engine 研究优先级：27/100",
-        "相同阶段60日历史样本：1600，中位收益 1.8%",
-        "Source Intelligence 有 8 条与 NBIS 相关研究记录；最近 3 条已进入独立验证层",
-        "SEC官方披露：最近 6-K，提交日 2026-11-12",
-        "SEC文档已抓取官方原文证据片段，可用于下一步事件核验",
-        "高优先级事件源：Barrons.com · Nebius Has a Spending Problem. Demand Isn’t an Issue, Say Analysts.",
-        "同业联动：2 个可比标的，方向 broad_negative，平均日变动 -4.4%"
-      ],
-      "counter_evidence": [
-        "Trend Pulse 数据校验状态：有限校验"
-      ],
-      "unknowns": [
-        "外部作者自述操作的到期复盘 1 条（未经核实，仅作背景，不计入反证或失败归因）",
-        "公司IR官网全文仍待专用连接；当前已使用SEC官方披露与分级媒体事件线索"
-      ],
-      "evidence_score": 100,
-      "confidence": "high",
-      "confidence_scope": "research_result",
-      "provisional_conclusion": "证据存在分歧，保持研究状态并优先验证反证。",
-      "next_validation": [
-        "这次变化由公司事件、行业共振还是市场因素驱动？",
-        "支持原 Thesis 的证据是什么？",
-        "最强反证是什么？",
-        "明日需要验证什么？"
-      ],
-      "source_requirements": [
-        "market_data",
-        "trend_pulse",
-        "SEC/IR",
-        "company_news",
-        "industry_peers"
-      ],
-      "guardrail": "该研究结果不能自动下单；未知项不得由模型猜测补全。",
-      "analysis_runs": 1,
-      "first_analyzed_at": "2026-11-16T18:37:13.202530+00:00",
-      "last_analyzed_at": "2026-11-16T18:37:13.202530+00:00"
+      "last_analyzed_at": "2026-11-16T21:30:13.348969+00:00"
     },
     {
       "task_id": "be6aac625fd469",
@@ -230,26 +139,25 @@
       "priority": 72.0,
       "research_status": "analyzed",
       "supporting_evidence": [
-        "Trend Pulse / Situation 当前阶段：修复中",
-        "Learning Engine 研究优先级：52/100",
-        "相同阶段60日历史样本：1244，中位收益 2.6%",
+        "Trend Pulse / Situation 当前阶段：趋势恶化",
+        "Learning Engine 研究优先级：27/100",
+        "相同阶段60日历史样本：1603，中位收益 1.7%",
         "Source Intelligence 有 2 条与 IREN 相关研究记录；最近 2 条已进入独立验证层",
         "SEC官方披露：最近 10-Q，提交日 2026-11-05",
         "SEC文档已抓取官方原文证据片段，可用于下一步事件核验",
+        "Trend Pulse 数据校验状态：双源校验通过",
         "高优先级事件源：Associated Press · BC-Most Active Stocks"
       ],
-      "counter_evidence": [
-        "Trend Pulse 数据校验状态：有限校验"
-      ],
+      "counter_evidence": [],
       "unknowns": [
         "外部作者自述操作的到期复盘 5 条（未经核实，仅作背景，不计入反证或失败归因）",
         "同业样本已读取但未形成一致共振：1 个，方向 mixed",
         "公司IR官网全文仍待专用连接；当前已使用SEC官方披露与分级媒体事件线索"
       ],
-      "evidence_score": 82,
+      "evidence_score": 86,
       "confidence": "high",
       "confidence_scope": "research_result",
-      "provisional_conclusion": "证据存在分歧，保持研究状态并优先验证反证。",
+      "provisional_conclusion": "已有初步支持证据，但关键外部事实仍缺失，暂不升级为结论。",
       "next_validation": [
         "这次变化由公司事件、行业共振还是市场因素驱动？",
         "支持原 Thesis 的证据是什么？",
@@ -264,9 +172,9 @@
         "industry_peers"
       ],
       "guardrail": "该研究结果不能自动下单；未知项不得由模型猜测补全。",
-      "analysis_runs": 9,
+      "analysis_runs": 10,
       "first_analyzed_at": "2026-11-14T02:13:39.872773+00:00",
-      "last_analyzed_at": "2026-11-16T18:37:13.202530+00:00"
+      "last_analyzed_at": "2026-11-16T21:30:13.348969+00:00"
     },
     {
       "task_id": "970cd03ca29c6a",
@@ -276,26 +184,68 @@
       "priority": 72.0,
       "research_status": "analyzed",
       "supporting_evidence": [
-        "Trend Pulse / Situation 当前阶段：二次启动",
-        "Learning Engine 研究优先级：69/100",
-        "相同阶段60日历史样本：1535，中位收益 3.1%",
+        "Trend Pulse / Situation 当前阶段：修复中",
+        "Learning Engine 研究优先级：57/100",
+        "相同阶段60日历史样本：1244，中位收益 2.6%",
         "Source Intelligence 有 46 条与 AMD 相关研究记录；最近 3 条已进入独立验证层",
         "SEC官方披露：最近 10-Q，提交日 2026-11-04",
-        "SEC文档已抓取官方原文证据片段，可用于下一步事件核验"
+        "SEC文档已抓取官方原文证据片段，可用于下一步事件核验",
+        "Trend Pulse 数据校验状态：双源校验通过"
       ],
-      "counter_evidence": [
-        "Trend Pulse 数据校验状态：有限校验"
-      ],
+      "counter_evidence": [],
       "unknowns": [
         "外部作者自述操作的到期复盘 1 条（未经核实，仅作背景，不计入反证或失败归因）",
         "已读取 5 条相关一般媒体线索，但暂无 Reuters/AP/新闻稿等高优先级事件源确认",
         "行业同业联动样本暂不足",
         "公司IR官网全文仍待专用连接；当前已使用SEC官方披露与分级媒体事件线索"
       ],
-      "evidence_score": 60,
+      "evidence_score": 64,
       "confidence": "medium",
       "confidence_scope": "research_result",
-      "provisional_conclusion": "证据存在分歧，保持研究状态并优先验证反证。",
+      "provisional_conclusion": "已有初步支持证据，但关键外部事实仍缺失，暂不升级为结论。",
+      "next_validation": [
+        "这次变化由公司事件、行业共振还是市场因素驱动？",
+        "支持原 Thesis 的证据是什么？",
+        "最强反证是什么？",
+        "明日需要验证什么？"
+      ],
+      "source_requirements": [
+        "market_data",
+        "trend_pulse",
+        "SEC/IR",
+        "company_news",
+        "industry_peers"
+      ],
+      "guardrail": "该研究结果不能自动下单；未知项不得由模型猜测补全。",
+      "analysis_runs": 15,
+      "first_analyzed_at": "2026-11-12T16:57:00.388553+00:00",
+      "last_analyzed_at": "2026-11-16T21:30:13.348969+00:00"
+    },
+    {
+      "task_id": "640ad43f52044f",
+      "kind": "market_anomaly",
+      "key": "AMZN",
+      "title": "AMZN · 异动/趋势专项研究",
+      "priority": 72.0,
+      "research_status": "analyzed",
+      "supporting_evidence": [
+        "Trend Pulse / Situation 当前阶段：震荡观察",
+        "Learning Engine 研究优先级：55/100",
+        "Source Intelligence 有 1 条与 AMZN 相关研究记录；最近 1 条已进入独立验证层",
+        "SEC官方披露：最近 10-Q，提交日 2026-10-30",
+        "SEC文档已抓取官方原文证据片段，可用于下一步事件核验",
+        "Trend Pulse 数据校验状态：双源校验通过",
+        "高优先级事件源：PR Newswire · AI Changed the Agency Game. Avenue7Media® Rebrands as Ave7® and Introduces ave7LIFT® to Lead What's Next."
+      ],
+      "counter_evidence": [],
+      "unknowns": [
+        "行业同业联动样本暂不足",
+        "公司IR官网全文仍待专用连接；当前已使用SEC官方披露与分级媒体事件线索"
+      ],
+      "evidence_score": 84,
+      "confidence": "high",
+      "confidence_scope": "research_result",
+      "provisional_conclusion": "已有初步支持证据，但关键外部事实仍缺失，暂不升级为结论。",
       "next_validation": [
         "这次变化由公司事件、行业共振还是市场因素驱动？",
         "支持原 Thesis 的证据是什么？",
@@ -311,29 +261,78 @@
       ],
       "guardrail": "该研究结果不能自动下单；未知项不得由模型猜测补全。",
       "analysis_runs": 14,
-      "first_analyzed_at": "2026-11-12T16:57:00.388553+00:00",
-      "last_analyzed_at": "2026-11-16T18:37:13.202530+00:00"
+      "first_analyzed_at": "2026-11-13T02:10:59.519763+00:00",
+      "last_analyzed_at": "2026-11-16T21:30:13.348969+00:00"
     },
     {
-      "task_id": "083d4dd5df2285",
+      "task_id": "f99e71116d7597",
+      "kind": "market_anomaly",
+      "key": "HOOD",
+      "title": "HOOD · 异动/趋势专项研究",
+      "priority": 72.0,
+      "research_status": "analyzed",
+      "supporting_evidence": [
+        "Trend Pulse / Situation 当前阶段：修复中",
+        "Learning Engine 研究优先级：52/100",
+        "相同阶段60日历史样本：1244，中位收益 2.6%",
+        "SEC官方披露：最近 10-Q，提交日 2026-10-28",
+        "SEC文档已抓取官方原文证据片段，可用于下一步事件核验",
+        "Trend Pulse 数据校验状态：双源校验通过"
+      ],
+      "counter_evidence": [],
+      "unknowns": [
+        "暂无可用外部研究记录",
+        "已读取 5 条相关一般媒体线索，但暂无 Reuters/AP/新闻稿等高优先级事件源确认",
+        "行业同业联动样本暂不足",
+        "公司IR官网全文仍待专用连接；当前已使用SEC官方披露与分级媒体事件线索"
+      ],
+      "evidence_score": 52,
+      "confidence": "medium",
+      "confidence_scope": "research_result",
+      "provisional_conclusion": "已有初步支持证据，但关键外部事实仍缺失，暂不升级为结论。",
+      "next_validation": [
+        "这次变化由公司事件、行业共振还是市场因素驱动？",
+        "支持原 Thesis 的证据是什么？",
+        "最强反证是什么？",
+        "明日需要验证什么？"
+      ],
+      "source_requirements": [
+        "market_data",
+        "trend_pulse",
+        "SEC/IR",
+        "company_news",
+        "industry_peers"
+      ],
+      "guardrail": "该研究结果不能自动下单；未知项不得由模型猜测补全。",
+      "analysis_runs": 1,
+      "first_analyzed_at": "2026-11-16T21:30:13.348969+00:00",
+      "last_analyzed_at": "2026-11-16T21:30:13.348969+00:00"
+    },
+    {
+      "task_id": "f53d7e0ebf3c87",
       "kind": "prose_candidate_definition",
-      "key": "4d4fcf28f8e4ef3ac9",
-      "title": "AMZN · 候选方法定义补全",
+      "key": "fc85aed85b96b1dcc2",
+      "title": "SNDK · 候选方法定义补全",
       "priority": 70.0,
       "research_status": "analyzed",
       "supporting_evidence": [
-        "yifan99 · Amazon，要突破了？ · AMZN：已形成来源叙述候选规则。",
-        "原文证据：TCDS终于回到0",
+        "yifan99 · WDC和STX的TCDS变化 与SNDK比要弱得多 · SNDK：已形成来源叙述候选规则。",
+        "当前可机器复现条件：price_above_ma50",
+        "来源状态语义：CONFIRMATION（仅来源语义，不是生产信号）",
+        "原文证据：从图中可以看到，WDC经历了前期的大幅上涨、6月底的高位回落，以及随后数月的震荡整理。近期出现了几个值得关注的变化： TCDS： 从负值区域快速回升，重新进入正值区域，提示短期动能正在改善。 MACD： 柱状图由负转正，反映下跌动能减弱、上涨动能开始恢复。",
+        "原文证据：趋势确认： 短期指标率先改善，但中长期趋势尚未完全同步。 这与此前GOOG、AMZN的情况有些相似：价格还在整理，TCDS却开始提前反映方向的变化。 不过，TCDS转正只是早期信号，并不等于上涨趋势已经确认。如果后续股价能够突破MA50和Supertrend压力，同时TCDS持续保持正值，才意味着多周期趋势进一步改善。",
+        "原文证据：MACD： 柱状图由负转正，反映下跌动能减弱、上涨动能开始恢复。",
         "tcds_cross_zero：自动回查同作者资料发现 4 条相关线索，其中 1 条疑似包含定义/参数信息。",
-        "定义线索 · Amazon，要突破了？：Amazon DeepWave：价格、MA21/MA50、Supertrend、TCDS-D/MACD 与 PPO",
-        "定义线索 · Amazon，要突破了？：TCDS终于回到0"
+        "定义线索 · Amazon，要突破了？：Amazon DeepWave：价格、MA21/MA50、Supertrend、TCDS-D/MACD 与 PPO"
       ],
       "counter_evidence": [
-        "以下条件定义尚未核实，禁止用通用指标或猜测参数替代：tcds_cross_zero",
+        "以下条件定义尚未核实，禁止用通用指标或猜测参数替代：tcds_cross_zero / ppo_hist_positive / macd_hist_positive",
         "prose candidate_rule 不进入 Rule Registry、Promotion 或正式 Action；只有后续独立编译和验证后的新结构规则才有资格继续晋升。"
       ],
       "unknowns": [
         "tcds_cross_zero：存在疑似定义线索，但需逐项核实公式、参数、周期和原文语义后才能编译。",
+        "ppo_hist_positive：现有 Source Reading 未找到同作者可用定义线索。",
+        "macd_hist_positive：现有同作者资料只有概念/使用线索，尚无可审计公式或参数定义。",
         "任何缺失定义必须从作者原始材料或可审计定义中补齐，不能用通用指标默认参数替代。"
       ],
       "evidence_score": 65,
@@ -354,16 +353,16 @@
       ],
       "guardrail": "该研究结果不能自动下单；未知项不得由模型猜测补全。",
       "analysis_runs": 1,
-      "first_analyzed_at": "2026-11-16T18:37:13.202530+00:00",
-      "last_analyzed_at": "2026-11-16T18:37:13.202530+00:00"
+      "first_analyzed_at": "2026-11-16T21:30:13.348969+00:00",
+      "last_analyzed_at": "2026-11-16T21:30:13.348969+00:00"
     }
   ],
   "summary": {
     "analyzed": 8,
-    "high_confidence": 5,
+    "high_confidence": 4,
     "medium_confidence": 3,
-    "low_confidence": 0,
-    "with_counter_evidence": 7,
+    "low_confidence": 1,
+    "with_counter_evidence": 2,
     "with_unknowns": 8
   },
   "policy": {

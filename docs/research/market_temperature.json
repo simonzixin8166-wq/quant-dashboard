@@ -1,14 +1,14 @@
 {
  "version": 4,
  "method": "each component = percentile of today vs its trailing 252 readings; fixed linear scale (labelled) until 252 readings exist; inputs > 2 sessions behind the market date are excluded; composite rounded to an integer",
- "reference_date": "2026-11-13",
+ "reference_date": "2026-11-16",
  "max_lag_sessions": 2,
  "fixed_scale_components": 3,
  "validation_plan": "docs/development/market_temperature_validation.md",
- "generated_at": "2026-11-16T18:36:10Z",
- "as_of": "2026-11-13",
- "score": 46,
- "label": "中性",
+ "generated_at": "2026-11-16T21:29:07Z",
+ "as_of": "2026-11-16",
+ "score": 38,
+ "label": "恐惧",
  "components_available": 6,
  "components_total": 6,
  "components": [
@@ -16,11 +16,11 @@
    "key": "momentum",
    "name": "价格动量",
    "status": "ok",
-   "score": 9.5,
+   "score": 6.7,
    "method": "percentile_252",
-   "raw": -0.003959,
-   "value": -0.004,
-   "as_of": "2026-11-13",
+   "raw": -0.022789,
+   "value": -0.0228,
+   "as_of": "2026-11-16",
    "source": "archive SPY close vs 125-session average",
    "lag_sessions": 0
   },
@@ -28,14 +28,14 @@
    "key": "strength",
    "name": "股价强度",
    "status": "ok",
-   "score": 79.1,
+   "score": 76.1,
    "method": "fixed_scale",
-   "raw": 0.058233,
+   "raw": 0.052209,
    "value": {
-    "new_high": 0.0643,
-    "new_low": 0.006
+    "new_high": 0.0723,
+    "new_low": 0.0201
    },
-   "as_of": "2026-11-13",
+   "as_of": "2026-11-16",
    "source": "breadth_intelligence (S&P 500 net 52-week highs)",
    "lag_sessions": 0
   },
@@ -43,11 +43,11 @@
    "key": "breadth",
    "name": "市场宽度",
    "status": "ok",
-   "score": 72.7,
+   "score": 66.1,
    "method": "fixed_scale",
-   "raw": 0.726908,
-   "value": 0.7269,
-   "as_of": "2026-11-13",
+   "raw": 0.660643,
+   "value": 0.6606,
+   "as_of": "2026-11-16",
    "source": "breadth_intelligence (S&P 500 above 50-day MA)",
    "lag_sessions": 0
   },
@@ -55,14 +55,14 @@
    "key": "volatility",
    "name": "波动率",
    "status": "ok",
-   "score": 23.4,
+   "score": 6.7,
    "method": "percentile_252",
-   "raw": 0.114756,
+   "raw": 0.316754,
    "value": {
-    "vix": 19.3,
-    "vs_ma50": 0.1148
+    "vix": 23.0,
+    "vs_ma50": 0.3168
    },
-   "as_of": "2026-11-13",
+   "as_of": "2026-11-16",
    "source": "archive VIX vs 50-session average",
    "lag_sessions": 0
   },
@@ -70,11 +70,11 @@
    "key": "safe_haven",
    "name": "避险需求",
    "status": "ok",
-   "score": 31.3,
+   "score": 11.9,
    "method": "percentile_252",
-   "raw": -0.003422,
-   "value": -0.0034,
-   "as_of": "2026-11-13",
+   "raw": -0.033489,
+   "value": -0.0335,
+   "as_of": "2026-11-16",
    "source": "archive SPY vs TLT 20-session return (latest common date)",
    "lag_sessions": 0
   },
@@ -91,7 +91,7 @@
    },
    "as_of": "2026-11-13",
    "source": "FRED ICE BofA US High Yield OAS (via cross_asset_divergence)",
-   "lag_sessions": 0
+   "lag_sessions": 1
   }
  ],
  "status": "ok",
@@ -100,7 +100,7 @@
  "cnn_link": "https://www.cnn.com/markets/fear-and-greed",
  "decision": "#133 2026-10-17 owner-approved; SENT-01 CNN stays link-out only",
  "change_vs": {
-  "as_of": "2026-11-06",
-  "delta": 22
+  "as_of": "2026-11-09",
+  "delta": 4
  }
 }

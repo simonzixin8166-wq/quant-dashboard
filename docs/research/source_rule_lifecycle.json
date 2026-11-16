@@ -1,30 +1,30 @@
 {
   "version": "6.14.5",
-  "generated_at": "2026-11-16T18:36:24.705428+00:00",
+  "generated_at": "2026-11-16T21:29:19.948246+00:00",
   "mode": "research_only_rule_lifecycle",
   "source_reading_version": "6.14.7",
   "source_outcome_version": 2,
   "counts": {
     "rules": 77,
     "by_state": {
-      "mapping_missing": 4,
-      "triggered_pending": 9,
-      "mature_5": 11,
+      "triggered_pending": 11,
+      "mature_5": 12,
       "mature_20": 20,
       "mature_60": 31,
-      "option_outcome_unscored": 2
+      "option_outcome_unscored": 2,
+      "mapping_missing": 1
     },
-    "scoreable_stock_rules": 57,
+    "scoreable_stock_rules": 58,
     "option_unscored": 2,
-    "mapping_missing": 4
+    "mapping_missing": 1
   },
   "by_method": {
     "仓位与加减仓": {
-      "mapping_missing": 4,
-      "triggered_pending": 9,
-      "mature_5": 11,
+      "triggered_pending": 11,
+      "mature_5": 12,
       "mature_20": 19,
-      "mature_60": 26
+      "mature_60": 26,
+      "mapping_missing": 1
     },
     "Sell Put": {
       "option_outcome_unscored": 2
@@ -52,13 +52,21 @@
           "sell"
         ]
       },
-      "mapped_event_count": 0,
-      "mapped_event_ids": [],
+      "mapped_event_count": 2,
+      "mapped_event_ids": [
+        "26e89a8b9ab90238a438:0:NVDA:0",
+        "26e89a8b9ab90238a438:0:AMD:0"
+      ],
       "scoreable_as_method_performance": false,
       "eligible_for_production": false,
-      "state": "mapping_missing",
-      "reason": "No Source Outcome event matched the exact source_id + operation_index key.",
+      "state": "triggered_pending",
+      "reason": "Stock-entry lifecycle derived from existing Source Outcome events.",
       "maturity": {
+        "5": 0,
+        "20": 0,
+        "60": 0
+      },
+      "scored_alignment": {
         "5": 0,
         "20": 0,
         "60": 0
@@ -83,13 +91,20 @@
           "sell"
         ]
       },
-      "mapped_event_count": 0,
-      "mapped_event_ids": [],
+      "mapped_event_count": 1,
+      "mapped_event_ids": [
+        "5bfc3dc7e8d209663bf1:0:NBIS:0"
+      ],
       "scoreable_as_method_performance": false,
       "eligible_for_production": false,
-      "state": "mapping_missing",
-      "reason": "No Source Outcome event matched the exact source_id + operation_index key.",
+      "state": "triggered_pending",
+      "reason": "Stock-entry lifecycle derived from existing Source Outcome events.",
       "maturity": {
+        "5": 0,
+        "20": 0,
+        "60": 0
+      },
+      "scored_alignment": {
         "5": 0,
         "20": 0,
         "60": 0
@@ -114,13 +129,21 @@
           "add"
         ]
       },
-      "mapped_event_count": 0,
-      "mapped_event_ids": [],
+      "mapped_event_count": 2,
+      "mapped_event_ids": [
+        "86d0bfca7348abab28e7:0:NBIS:0",
+        "86d0bfca7348abab28e7:0:AMD:0"
+      ],
       "scoreable_as_method_performance": false,
       "eligible_for_production": false,
-      "state": "mapping_missing",
-      "reason": "No Source Outcome event matched the exact source_id + operation_index key.",
+      "state": "triggered_pending",
+      "reason": "Stock-entry lifecycle derived from existing Source Outcome events.",
       "maturity": {
+        "5": 0,
+        "20": 0,
+        "60": 0
+      },
+      "scored_alignment": {
         "5": 0,
         "20": 0,
         "60": 0
@@ -379,17 +402,17 @@
       "mapped_event_ids": [
         "2d242b259d1d76ced817:0:LITE:0"
       ],
-      "scoreable_as_method_performance": false,
+      "scoreable_as_method_performance": true,
       "eligible_for_production": false,
-      "state": "triggered_pending",
+      "state": "mature_5",
       "reason": "Stock-entry lifecycle derived from existing Source Outcome events.",
       "maturity": {
-        "5": 0,
+        "5": 1,
         "20": 0,
         "60": 0
       },
       "scored_alignment": {
-        "5": 0,
+        "5": 1,
         "20": 0,
         "60": 0
       },

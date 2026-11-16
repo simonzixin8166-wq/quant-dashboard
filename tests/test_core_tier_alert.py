@@ -1,7 +1,7 @@
 """Core-ETF tier alerts (Owner #133 6516033003 / 6537316711): once per line per drawdown cycle, near = 2 pp,
 recovery out of a tier alerts once, cannot-judge never fires a trigger, no positions/amounts in output."""
 import json, sys
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
@@ -82,6 +82,22 @@ assert 'data-core-tier-banner="t1"' in b2 and "已进入一级加仓线" in b2 a
 assert fb.core_tier_banner_html(core(-0.13, valid="CHECK")["core"]) == ""        # unvalidated ATH: no banner
 src = (ROOT / "scripts" / "fetch_and_build.py").read_text(encoding="utf-8")
 assert src.count("{core_tier_banner_html(data.get('core'))}") == 1
+
+# root cause of the 11/10 wrong alerts: the drawdown is measured on the row's own close against the ATH, never
+# taken from the ATH source's (older) close. VGT 11/09 row close 111.98, Yahoo max-range close still 11/06 108.51.
+def _rows(closes, highs):
+    return [{"datetime": f"2026-11-{9 - i:02d}", "close": c, "high": h, "open": c, "low": c} for i, (c, h) in enumerate(zip(closes, highs))]
+VT = {"t1": 0.15, "t2": 0.20, "t3": 0.30}
+stale = {"valid": True, "ath": 130.66, "close": 108.51, "drawdown": 108.51 / 130.66 - 1, "extreme": False}
+a = fb.analyze("VGT", _rows([111.98, 108.0, 108.51], [112.4, 109.0, 110.0]), date(2026, 11, 10), VT, ath_metric=stale)
+assert abs(a["strategy_drawdown"] - (111.98 / 130.66 - 1)) < 1e-9 and a["level"] == 0, a   # 14.3%: not tier 1
+assert abs(cts.ath_of(a["close"], a["strategy_drawdown"]) - 130.66) < 1e-6 and a["ath_source_close"] == 108.51
+# a newer high inside the window wins over a stale ATH source; drawdown never positive
+b = fb.analyze("VGT", _rows([131.0, 130.0], [131.5, 130.2]), date(2026, 11, 10), VT, ath_metric=stale)
+assert b["ath_value"] == 131.5 and -0.01 < b["strategy_drawdown"] <= 0
+# invalid / missing ATH source: unvalidated, never a guessed drawdown
+c = fb.analyze("VGT", _rows([111.98, 108.0], [112.4, 109.0]), date(2026, 11, 10), VT, ath_metric={"valid": False})
+assert c["ath_is_true"] is False and c["strategy_drawdown"] is None and c["level"] == 0
 
 # --- GPT 6537701769 §1/§2 rigor ---------------------------------------------------------------
 # leaving a line never re-arms its 'enter' alert within the cycle (second dip in the same cycle: page only)

@@ -1,6 +1,6 @@
 {
  "version": "6.11-p2",
- "generated_at": "2026-11-17T21:05:21.934494Z",
+ "generated_at": "2026-11-17T21:32:09.186169Z",
  "module": "v6.11-gold-dca",
  "freshness": {
   "live_max_age_minutes": 20,
@@ -29,12 +29,12 @@
    "rule": "BUY 仅在可信现货日线下生成；估算/代理日线最多 WATCH"
   },
   "quote": {
-   "price": 3852.97,
+   "price": 3855.65,
    "basis": "spot",
    "source": "gold-api.com 现货",
-   "as_of": "2026-11-17T21:04:59Z",
+   "as_of": "2026-11-17T21:31:59Z",
    "freshness": "LIVE",
-   "age_minutes": 0.4,
+   "age_minutes": 0.2,
    "market_open": true,
    "errors": null
   },
@@ -43,7 +43,7 @@
    "as_of": "2026-11-17T19:41:05Z",
    "source": "Yahoo CNY=X"
   },
-  "cny_per_gram": 825.74,
+  "cny_per_gram": 826.32,
   "band_cny_per_gram": [
    {
     "usd": 4050,
@@ -90,7 +90,7 @@
     "cny_per_gram": 864.34
    },
    "low_estimate_after_verified": {
-    "value": 3838.07,
+    "value": 3838.05,
     "date": "2026-11-16",
     "basis": "spot_estimate_from_futures",
     "note": "期货基差估算，未经核实",
@@ -104,12 +104,12 @@
     "sessions": 221
    },
    "low_is_full_year_confirmed": false,
-   "drawdown_from_high_pct": -31.14,
-   "above_low_pct": -2.69
+   "drawdown_from_high_pct": -31.09,
+   "above_low_pct": -2.62
   },
   "etf_quotes": {
    "GLDM": {
-    "price": 76.09,
+    "price": 76.1,
     "currency": "USD",
     "as_of": "2026-11-17T21:00:00Z",
     "source": "Yahoo GLDM",
@@ -118,14 +118,14 @@
    "IAU": {
     "price": 72.27,
     "currency": "USD",
-    "as_of": "2026-11-17T20:59:59Z",
+    "as_of": "2026-11-17T21:00:00Z",
     "source": "Yahoo IAU",
     "delayed": true
    },
    "GLD": {
-    "price": 352.46,
+    "price": 352.48,
     "currency": "USD",
-    "as_of": "2026-11-17T20:59:59Z",
+    "as_of": "2026-11-17T21:00:00Z",
     "source": "Yahoo GLD",
     "delayed": true
    },
@@ -144,21 +144,21 @@
       "id": "gold_close_below",
       "met": true,
       "value": [
-       3889.170019828125,
-       3855.869971
+       3889.149950828125,
+       3855.849902
       ],
       "rule": "连续2个交易日收在 $4,000 以下"
      },
      {
       "id": "real_yield_rise",
       "met": true,
-      "value_bp": 31.0,
+      "value_bp": 29.0,
       "rule": "10Y 实际收益率 5 日上升 ≥ 20bp"
      },
      {
       "id": "dxy_rise",
       "met": false,
-      "value_pct": 1.24,
+      "value_pct": 1.25,
       "rule": "DXY 5 日涨幅 > 1.5%"
      }
     ],
@@ -166,8 +166,8 @@
     "unknown": 0,
     "pause": true,
     "complete": true,
-    "ry_change_bp_5d": 31.0,
-    "dxy_change_pct_5d": 1.24
+    "ry_change_bp_5d": 29.0,
+    "dxy_change_pct_5d": 1.25
    },
    "deep_review": {
     "triggered": false,
@@ -177,11 +177,11 @@
     "weeks": [
      {
       "date": "2026-11-13",
-      "close": 3889.17
+      "close": 3889.15
      },
      {
       "date": "2026-11-16",
-      "close": 3855.87
+      "close": 3855.85
      }
     ]
    },
@@ -189,28 +189,28 @@
     "ok": false,
     "stabilized": false,
     "trend": false,
-    "sma5": 3933.93,
+    "sma5": 3933.91,
     "detail": "仍在创新低；收盘 3,856 < 5日均线 3,934",
     "as_of": "2026-11-16"
    }
   },
   "inputs": {
    "daily": {
-    "source": "COMEX期货日线 − 实时基差 -2.9（现货估算）",
+    "source": "COMEX期货日线 − 实时基差 -2.8（现货估算）",
     "basis": "spot_estimate_from_futures",
-    "futures_spot_basis": -2.87,
+    "futures_spot_basis": -2.85,
     "last_date": "2026-11-17",
     "fresh": true
    },
    "real_yield": {
     "source": "FRED DFII10 (10Y TIPS)",
-    "last_date": "2026-11-13",
-    "last": 2.91
+    "last_date": "2026-11-16",
+    "last": 2.92
    },
    "dxy": {
     "source": "Yahoo DX-Y.NYB",
     "last_date": "2026-11-17",
-    "last": 103.5
+    "last": 103.51
    },
    "macro_fresh": true,
    "etf_flows": "unavailable_free_source"
@@ -294,16 +294,16 @@
     "delayed": true
    },
    "QLD": {
-    "price": 73.95,
+    "price": 73.98,
     "currency": "USD",
     "as_of": "2026-11-17T21:00:00Z",
     "source": "Yahoo QLD",
     "delayed": true
    },
    "VGT": {
-    "price": 106.75,
+    "price": 106.81,
     "currency": "USD",
-    "as_of": "2026-11-17T20:59:58Z",
+    "as_of": "2026-11-17T21:00:00Z",
     "source": "Yahoo VGT",
     "delayed": true
    }

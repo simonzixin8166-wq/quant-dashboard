@@ -1,17 +1,17 @@
 {
   "version": "6.12.1",
-  "generated_at": "2026-11-17T17:43:48.968951+00:00",
+  "generated_at": "2026-11-17T21:28:45.021942+00:00",
   "mode": "shadow_research_only",
   "playbooks": {
     "CP-01": {
       "state": "forward_early",
       "forward_provenance": "forward_out_of_sample",
       "replay_provenance": "historical_replay_post_rule_design",
-      "trigger_records": 8,
-      "mature5": 4,
+      "trigger_records": 11,
+      "mature5": 5,
       "mature20": 0,
       "mature60": 0,
-      "aligned_rate5": 1.0,
+      "aligned_rate5": 0.8,
       "aligned_rate20": null,
       "aligned_rate60": null,
       "baseline_mismatch": 0,
@@ -21,28 +21,28 @@
       "attribution": [],
       "by_state_detail": {
         "tier1": {
-          "trigger_records": 8,
+          "trigger_records": 11,
           "late_detected": 0,
           "timing_uncertain": 0,
           "baseline_mismatch": 0,
           "horizons": {
             "5": {
-              "mature": 4,
+              "mature": 5,
               "aligned": 4,
-              "not_aligned": 0,
-              "pending": 4
+              "not_aligned": 1,
+              "pending": 6
             },
             "20": {
               "mature": 0,
               "aligned": 0,
               "not_aligned": 0,
-              "pending": 8
+              "pending": 11
             },
             "60": {
               "mature": 0,
               "aligned": 0,
               "not_aligned": 0,
-              "pending": 8
+              "pending": 11
             }
           }
         }
@@ -52,7 +52,7 @@
       "state": "forward_challenging",
       "forward_provenance": "forward_out_of_sample",
       "replay_provenance": "historical_replay_post_rule_design",
-      "trigger_records": 10,
+      "trigger_records": 11,
       "mature5": 9,
       "mature20": 3,
       "mature60": 0,
@@ -183,7 +183,7 @@
           }
         },
         "hard_exit": {
-          "trigger_records": 1,
+          "trigger_records": 2,
           "late_detected": 1,
           "timing_uncertain": 1,
           "baseline_mismatch": 0,
@@ -192,19 +192,19 @@
               "mature": 1,
               "aligned": 0,
               "not_aligned": 1,
-              "pending": 0
+              "pending": 1
             },
             "20": {
               "mature": 0,
               "aligned": 0,
               "not_aligned": 0,
-              "pending": 1
+              "pending": 2
             },
             "60": {
               "mature": 0,
               "aligned": 0,
               "not_aligned": 0,
-              "pending": 1
+              "pending": 2
             }
           }
         }
@@ -214,11 +214,11 @@
       "state": "forward_challenging",
       "forward_provenance": "forward_out_of_sample",
       "replay_provenance": "historical_replay_post_rule_design",
-      "trigger_records": 28,
-      "mature5": 24,
-      "mature20": 4,
+      "trigger_records": 31,
+      "mature5": 25,
+      "mature20": 5,
       "mature60": 0,
-      "aligned_rate5": 0.4166666666666667,
+      "aligned_rate5": 0.4,
       "aligned_rate20": 0.0,
       "aligned_rate60": null,
       "baseline_mismatch": 0,
@@ -229,45 +229,45 @@
         {
           "tag": "forward_direction_challenging",
           "severity": "review",
-          "evidence_n": 4,
+          "evidence_n": 5,
           "hypothesis": "20日 Forward 方向一致率偏低；需要检查触发条件是否过宽、状态持续时间或环境依赖。"
         },
         {
           "tag": "replay_forward_divergence",
           "severity": "review",
-          "evidence_n": 4,
+          "evidence_n": 5,
           "hypothesis": "Forward 与历史 Replay 的20日方向一致率出现明显偏离；优先检查市场环境差异、样本聚类与状态定义，不自动改阈值。"
         }
       ],
       "by_state_detail": {
         "candidate": {
-          "trigger_records": 21,
+          "trigger_records": 23,
           "late_detected": 0,
           "timing_uncertain": 0,
           "baseline_mismatch": 0,
           "horizons": {
             "5": {
-              "mature": 17,
+              "mature": 18,
               "aligned": 7,
-              "not_aligned": 10,
-              "pending": 4
+              "not_aligned": 11,
+              "pending": 5
             },
             "20": {
               "mature": 3,
               "aligned": 0,
               "not_aligned": 3,
-              "pending": 18
+              "pending": 20
             },
             "60": {
               "mature": 0,
               "aligned": 0,
               "not_aligned": 0,
-              "pending": 21
+              "pending": 23
             }
           }
         },
         "strong": {
-          "trigger_records": 7,
+          "trigger_records": 8,
           "late_detected": 0,
           "timing_uncertain": 0,
           "baseline_mismatch": 0,
@@ -276,19 +276,19 @@
               "mature": 7,
               "aligned": 3,
               "not_aligned": 4,
-              "pending": 0
+              "pending": 1
             },
             "20": {
-              "mature": 1,
+              "mature": 2,
               "aligned": 0,
-              "not_aligned": 1,
+              "not_aligned": 2,
               "pending": 6
             },
             "60": {
               "mature": 0,
               "aligned": 0,
               "not_aligned": 0,
-              "pending": 7
+              "pending": 8
             }
           }
         }
@@ -346,12 +346,12 @@
   "counts": {
     "playbooks": 3,
     "challenger_candidates": 2,
-    "forward_mature20": 7,
+    "forward_mature20": 8,
     "forward_mature60": 0,
     "attribution_reviews": 4
   },
   "change_log": {
-    "previous_generated_at": "2026-11-16T21:28:28.749827+00:00",
+    "previous_generated_at": "2026-11-17T17:43:48.968951+00:00",
     "stateless_recompute": true,
     "automatic_promotion": false
   },

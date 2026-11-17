@@ -1,19 +1,57 @@
 {
- "generated_at": "2026-11-17T21:17:10Z",
+ "generated_at": "2026-11-17T21:29:15Z",
  "latest_session": "2026-11-17",
  "counts": {
-  "new": 0,
-  "invalidated": 0,
+  "new": 6,
+  "invalidated": 6,
   "abstained": 40,
-  "revisited_cross_day": 0,
-  "still_valid": 0,
+  "revisited_cross_day": 38,
+  "still_valid": 26,
   "superseded_cross_day": 0,
-  "review_due": 0,
+  "review_due": 6,
   "active": 38
  },
  "count_rules": "distinct symbols for the latest session; same-session generator-upgrade supersedes excluded",
- "new_symbols": [],
- "invalidated": [],
+ "new_symbols": [
+  "AMD",
+  "DIA",
+  "MSFT",
+  "SPY",
+  "VOO",
+  "XLE"
+ ],
+ "invalidated": [
+  {
+   "symbol": "AMD",
+   "hypothesis_id": "AMD-2026-11-16-auto-research-6-h",
+   "trigger": "neutral → bearish review below MA50"
+  },
+  {
+   "symbol": "DIA",
+   "hypothesis_id": "DIA-2026-11-16-auto-research-6-h",
+   "trigger": "neutral → bearish review below MA50"
+  },
+  {
+   "symbol": "MSFT",
+   "hypothesis_id": "MSFT-2026-11-16-auto-research-6-h",
+   "trigger": "neutral → bearish review below MA50"
+  },
+  {
+   "symbol": "SPY",
+   "hypothesis_id": "SPY-2026-11-16-auto-research-6-h",
+   "trigger": "neutral → bearish review below MA50"
+  },
+  {
+   "symbol": "VOO",
+   "hypothesis_id": "VOO-2026-11-16-auto-research-6-h",
+   "trigger": "neutral → bearish review below MA50"
+  },
+  {
+   "symbol": "XLE",
+   "hypothesis_id": "XLE-2026-11-16-auto-research-6-h",
+   "trigger": "neutral → bearish review below MA50"
+  }
+ ],
  "abstained": [
   {
    "symbol": "AAOI",
@@ -177,8 +215,8 @@
   }
  ],
  "last_run": {
-  "at": "2026-11-17T21:16:57Z",
-  "run_id": "44178061642",
+  "at": "2026-11-17T21:29:05Z",
+  "run_id": "44178743820",
   "generator_version": "auto-research-6",
   "market_as_of": "2026-11-17"
  },
@@ -445,25 +483,25 @@
   {
    "symbol": "AMD",
    "stance": "neutral",
-   "hypothesis_id": "AMD-2026-11-16-auto-research-6-h",
-   "market_as_of": "2026-11-16",
-   "research_date": "2026-11-16",
-   "generated_at": "2026-11-16T21:28:52Z",
+   "hypothesis_id": "AMD-2026-11-17-auto-research-6-h",
+   "market_as_of": "2026-11-17",
+   "research_date": "2026-11-17",
+   "generated_at": "2026-11-17T21:29:05Z",
    "generator_version": "auto-research-6",
-   "decision_reason": "rule_view=neutral: close 504.30 vs MA50 552.47 / MA200 422.60, weekly 过渡, dist MA200 +19.3%, pulse 修复中; +2 / -2 signed evidence; fundamentals +1/-0 (shown separately; stance from trend rules)",
+   "decision_reason": "rule_view=neutral: close 503.31 vs MA50 552.98 / MA200 423.93, weekly 过渡, dist MA200 +18.7%, pulse 修复中; +2 / -4 signed evidence; fundamentals +1/-0 (shown separately; stance from trend rules)",
    "research_hint": "Hold/Watch (research: no new thesis; not an order)",
    "supporting": [
     {
      "name": "close_vs_ma200",
      "group": "trend",
-     "note": "close above MA200 422.60",
+     "note": "close above MA200 423.93",
      "source": "stooq archive",
-     "as_of": "2026-11-16"
+     "as_of": "2026-11-17"
     },
     {
      "name": "sec_revenue_yoy",
      "group": "fundamental",
-     "note": "quarterly revenue 13,377M for 2026-06-28–2026-09-26 (Q3 FY2026), +44.7% YoY; filed 2026-11-04; freshness current (period end 51d ago)",
+     "note": "quarterly revenue 13,377M for 2026-06-28–2026-09-26 (Q3 FY2026), +44.7% YoY; filed 2026-11-04; freshness current (period end 52d ago)",
      "source": "SEC XBRL RevenueFromContractWithCustomerExcludingAssessedTax 10-Q accn 0000002488-26-000191",
      "as_of": "2026-09-26",
      "available_at": "2026-11-04"
@@ -473,16 +511,30 @@
     {
      "name": "close_vs_ma50",
      "group": "trend",
-     "note": "close 504.30 below MA50 552.47",
+     "note": "close 503.31 below MA50 552.98",
      "source": "stooq archive",
-     "as_of": "2026-11-16"
+     "as_of": "2026-11-17"
     },
     {
      "name": "stretched_vs_ma200",
      "group": "trend",
-     "note": "19.3% above MA200 (>15%)",
+     "note": "18.7% above MA200 (>15%)",
      "source": "stooq archive",
+     "as_of": "2026-11-17"
+    },
+    {
+     "name": "real_yield_20d_change",
+     "group": "macro",
+     "note": "10Y real yield 2.92 (+0.18 in 20 obs) — headwind for long-duration growth",
+     "source": "FRED DFII10 (point-in-time)",
      "as_of": "2026-11-16"
+    },
+    {
+     "name": "vix",
+     "group": "macro",
+     "note": "stress",
+     "source": "docs/data.json market_indicators",
+     "as_of": "2026-11-17"
     }
    ],
    "opposing_note": null,
@@ -490,7 +542,7 @@
     "neutral → bearish review below MA50",
     "neutral → bullish review above 60-session high"
    ],
-   "next_review": "2026-12-15",
+   "next_review": "2026-12-16",
    "inputs": [
     "author_claims",
     "fred_macro",
@@ -504,44 +556,37 @@
    ],
    "pre_sec_gate": false,
    "annotations": [],
-   "new_this_session": false,
+   "new_this_session": true,
    "experience_basis": {
     "contract": "experience-basis-1",
-    "evidence_id": "AMD-2026-11-16-auto-research-6-h",
-    "record_sha256": "96fb492a7a8a",
+    "evidence_id": "AMD-2026-11-17-auto-research-6-h",
+    "record_sha256": "6285e218d223",
     "symbol": "AMD",
-    "session": "2026-11-16",
+    "session": "2026-11-17",
     "generator_version": "auto-research-6",
     "informational_only": true,
     "used_in_decision": false,
     "shadow": true,
     "status": "used",
     "precedents": {
-     "n": 6,
+     "n": 2,
      "supports": 0,
      "conflicts": 0,
-     "median_return_60": -0.1426535195043951,
+     "median_return_60": -0.04816866768001604,
      "maturity": "60-session windows closed on/before the memory date and the research session",
      "examples": [
       {
-       "case_id": "LITE:2026-08-07:二次启动",
-       "date": "2026-08-07",
-       "stage": "二次启动",
-       "return_60": -0.23115807093027163,
+       "case_id": "TSM:2026-08-04:修复中",
+       "date": "2026-08-04",
+       "stage": "修复中",
+       "return_60": 0.03509360692283714,
        "supports_or_conflicts": "context"
       },
       {
-       "case_id": "IWM:2026-08-03:二次启动",
-       "date": "2026-08-03",
-       "stage": "二次启动",
-       "return_60": -0.054148968078518545,
-       "supports_or_conflicts": "context"
-      },
-      {
-       "case_id": "XLE:2026-07-14:二次启动",
-       "date": "2026-07-14",
-       "stage": "二次启动",
-       "return_60": 0.1125548726953467,
+       "case_id": "NBIS:2026-07-21:修复中",
+       "date": "2026-07-21",
+       "stage": "修复中",
+       "return_60": -0.13143094228286922,
        "supports_or_conflicts": "context"
       }
      ]
@@ -572,22 +617,22 @@
     ],
     "memory_inputs": {
      "evidence": {
-      "as_of": "2026-11-16",
-      "sha256": "71837f00e299",
+      "as_of": "2026-11-17",
+      "sha256": "86f31c829dcf",
       "source": "docs/research/evidence_attribution.json"
      },
      "learning": {
-      "as_of": "2026-11-16",
-      "sha256": "8cb64f14b5a8",
+      "as_of": "2026-11-17",
+      "sha256": "a14bb10da4ac",
       "source": "docs/research/learning_engine.json"
      },
      "method": {
-      "as_of": "2026-11-16T18:36:26.080003+00:00",
-      "sha256": "ea3ccf333807",
+      "as_of": "2026-11-17T17:44:40.009127+00:00",
+      "sha256": "961144eebfb3",
       "source": "docs/research/method_memory.json"
      }
     },
-    "excluded_n": 4
+    "excluded_n": 8
    }
   },
   {
@@ -1025,38 +1070,56 @@
   },
   {
    "symbol": "DIA",
-   "stance": "neutral",
-   "hypothesis_id": "DIA-2026-11-16-auto-research-6-h",
-   "market_as_of": "2026-11-16",
-   "research_date": "2026-11-16",
-   "generated_at": "2026-11-16T21:28:52Z",
+   "stance": "bearish",
+   "hypothesis_id": "DIA-2026-11-17-auto-research-6-h",
+   "market_as_of": "2026-11-17",
+   "research_date": "2026-11-17",
+   "generated_at": "2026-11-17T21:29:05Z",
    "generator_version": "auto-research-6",
-   "decision_reason": "rule_view=neutral: close 515.68 vs MA50 518.89 / MA200 507.58, weekly None, dist MA200 +1.6%, pulse None; +1 / -1 signed evidence; fundamentals unavailable (shown separately; stance from trend rules)",
-   "research_hint": "Hold/Watch (research: no new thesis; not an order)",
+   "decision_reason": "rule_view=bearish: close 507.31 vs MA50 518.48 / MA200 507.64, weekly None, dist MA200 -0.1%, pulse None; +0 / -3 signed evidence; fundamentals unavailable (shown separately; stance from trend rules)",
+   "research_hint": "Watch (research: downside risk; not an order)",
    "supporting": [
-    {
-     "name": "close_vs_ma200",
-     "group": "trend",
-     "note": "close above MA200 507.58",
-     "source": "stooq archive",
-     "as_of": "2026-11-16"
-    }
-   ],
-   "opposing": [
     {
      "name": "close_vs_ma50",
      "group": "trend",
-     "note": "close 515.68 below MA50 518.89",
+     "note": "close 507.31 below MA50 518.48",
      "source": "stooq archive",
-     "as_of": "2026-11-16"
+     "as_of": "2026-11-17"
+    },
+    {
+     "name": "close_vs_ma200",
+     "group": "trend",
+     "note": "close below MA200 507.64",
+     "source": "stooq archive",
+     "as_of": "2026-11-17"
+    },
+    {
+     "name": "vix",
+     "group": "macro",
+     "note": "stress",
+     "source": "docs/data.json market_indicators",
+     "as_of": "2026-11-17"
     }
    ],
-   "opposing_note": null,
+   "opposing": [],
+   "opposing_note": {
+    "checks_run": [
+     "trend vs MA50/MA200",
+     "weekly trend",
+     "RSI",
+     "stretch vs MA200",
+     "VIX"
+    ],
+    "not_checked_or_unavailable": [
+     "valuation (not in free pipeline)"
+    ],
+    "why_empty": "no counter-evidence to 'bearish' among the checks that ran; this is not evidence that no risk exists"
+   },
    "invalidation": [
-    "neutral → bearish review below MA50",
-    "neutral → bullish review above 60-session high"
+    "close back above MA50",
+    "break of 60-session high"
    ],
-   "next_review": "2026-12-15",
+   "next_review": "2026-12-16",
    "inputs": [
     "author_claims",
     "fred_macro",
@@ -1071,13 +1134,13 @@
    ],
    "pre_sec_gate": false,
    "annotations": [],
-   "new_this_session": false,
+   "new_this_session": true,
    "experience_basis": {
     "contract": "experience-basis-1",
-    "evidence_id": "DIA-2026-11-16-auto-research-6-h",
-    "record_sha256": "4fce49000eb1",
+    "evidence_id": "DIA-2026-11-17-auto-research-6-h",
+    "record_sha256": "a0a626e1120c",
     "symbol": "DIA",
-    "session": "2026-11-16",
+    "session": "2026-11-17",
     "generator_version": "auto-research-6",
     "informational_only": true,
     "used_in_decision": false,
@@ -1103,18 +1166,18 @@
     },
     "memory_inputs": {
      "evidence": {
-      "as_of": "2026-11-16",
-      "sha256": "71837f00e299",
+      "as_of": "2026-11-17",
+      "sha256": "86f31c829dcf",
       "source": "docs/research/evidence_attribution.json"
      },
      "learning": {
-      "as_of": "2026-11-16",
-      "sha256": "8cb64f14b5a8",
+      "as_of": "2026-11-17",
+      "sha256": "a14bb10da4ac",
       "source": "docs/research/learning_engine.json"
      },
      "method": {
-      "as_of": "2026-11-16T18:36:26.080003+00:00",
-      "sha256": "ea3ccf333807",
+      "as_of": "2026-11-17T17:44:40.009127+00:00",
+      "sha256": "961144eebfb3",
       "source": "docs/research/method_memory.json"
      }
     },
@@ -2428,25 +2491,25 @@
   {
    "symbol": "MSFT",
    "stance": "neutral",
-   "hypothesis_id": "MSFT-2026-11-16-auto-research-6-h",
-   "market_as_of": "2026-11-16",
-   "research_date": "2026-11-16",
-   "generated_at": "2026-11-16T21:28:52Z",
+   "hypothesis_id": "MSFT-2026-11-17-auto-research-6-h",
+   "market_as_of": "2026-11-17",
+   "research_date": "2026-11-17",
+   "generated_at": "2026-11-17T21:29:05Z",
    "generator_version": "auto-research-6",
-   "decision_reason": "rule_view=neutral: close 518.23 vs MA50 519.14 / MA200 441.45, weekly 过渡, dist MA200 +17.4%, pulse 震荡观察; +2 / -2 signed evidence; fundamentals +1/-0 (shown separately; stance from trend rules)",
+   "decision_reason": "rule_view=neutral: close 506.32 vs MA50 519.27 / MA200 441.83, weekly 过渡, dist MA200 +14.6%, pulse 震荡观察; +2 / -3 signed evidence; fundamentals +1/-0 (shown separately; stance from trend rules)",
    "research_hint": "Hold/Watch (research: no new thesis; not an order)",
    "supporting": [
     {
      "name": "close_vs_ma200",
      "group": "trend",
-     "note": "close above MA200 441.45",
+     "note": "close above MA200 441.83",
      "source": "stooq archive",
-     "as_of": "2026-11-16"
+     "as_of": "2026-11-17"
     },
     {
      "name": "sec_revenue_yoy",
      "group": "fundamental",
-     "note": "quarterly revenue 92,279M for 2026-07-01–2026-09-30 (Q1 FY2027), +18.8% YoY; filed 2026-10-28; freshness current (period end 47d ago)",
+     "note": "quarterly revenue 92,279M for 2026-07-01–2026-09-30 (Q1 FY2027), +18.8% YoY; filed 2026-10-28; freshness current (period end 48d ago)",
      "source": "SEC XBRL RevenueFromContractWithCustomerExcludingAssessedTax 10-Q accn 0001193125-26-436133",
      "as_of": "2026-09-30",
      "available_at": "2026-10-28"
@@ -2456,16 +2519,23 @@
     {
      "name": "close_vs_ma50",
      "group": "trend",
-     "note": "close 518.23 below MA50 519.14",
+     "note": "close 506.32 below MA50 519.27",
      "source": "stooq archive",
+     "as_of": "2026-11-17"
+    },
+    {
+     "name": "real_yield_20d_change",
+     "group": "macro",
+     "note": "10Y real yield 2.92 (+0.18 in 20 obs) — headwind for long-duration growth",
+     "source": "FRED DFII10 (point-in-time)",
      "as_of": "2026-11-16"
     },
     {
-     "name": "stretched_vs_ma200",
-     "group": "trend",
-     "note": "17.4% above MA200 (>15%)",
-     "source": "stooq archive",
-     "as_of": "2026-11-16"
+     "name": "vix",
+     "group": "macro",
+     "note": "stress",
+     "source": "docs/data.json market_indicators",
+     "as_of": "2026-11-17"
     }
    ],
    "opposing_note": null,
@@ -2473,7 +2543,7 @@
     "neutral → bearish review below MA50",
     "neutral → bullish review above 60-session high"
    ],
-   "next_review": "2026-12-15",
+   "next_review": "2026-12-16",
    "inputs": [
     "author_claims",
     "fred_macro",
@@ -2487,13 +2557,13 @@
    ],
    "pre_sec_gate": false,
    "annotations": [],
-   "new_this_session": false,
+   "new_this_session": true,
    "experience_basis": {
     "contract": "experience-basis-1",
-    "evidence_id": "MSFT-2026-11-16-auto-research-6-h",
-    "record_sha256": "7962c6461985",
+    "evidence_id": "MSFT-2026-11-17-auto-research-6-h",
+    "record_sha256": "a6fa00adb828",
     "symbol": "MSFT",
-    "session": "2026-11-16",
+    "session": "2026-11-17",
     "generator_version": "auto-research-6",
     "informational_only": true,
     "used_in_decision": false,
@@ -2531,18 +2601,18 @@
     ],
     "memory_inputs": {
      "evidence": {
-      "as_of": "2026-11-16",
-      "sha256": "71837f00e299",
+      "as_of": "2026-11-17",
+      "sha256": "86f31c829dcf",
       "source": "docs/research/evidence_attribution.json"
      },
      "learning": {
-      "as_of": "2026-11-16",
-      "sha256": "8cb64f14b5a8",
+      "as_of": "2026-11-17",
+      "sha256": "a14bb10da4ac",
       "source": "docs/research/learning_engine.json"
      },
      "method": {
-      "as_of": "2026-11-16T18:36:26.080003+00:00",
-      "sha256": "ea3ccf333807",
+      "as_of": "2026-11-17T17:44:40.009127+00:00",
+      "sha256": "961144eebfb3",
       "source": "docs/research/method_memory.json"
      }
     },
@@ -3859,29 +3929,36 @@
   {
    "symbol": "SPY",
    "stance": "neutral",
-   "hypothesis_id": "SPY-2026-11-16-auto-research-6-h",
-   "market_as_of": "2026-11-16",
-   "research_date": "2026-11-16",
-   "generated_at": "2026-11-16T21:28:52Z",
+   "hypothesis_id": "SPY-2026-11-17-auto-research-6-h",
+   "market_as_of": "2026-11-17",
+   "research_date": "2026-11-17",
+   "generated_at": "2026-11-17T21:29:05Z",
    "generator_version": "auto-research-6",
-   "decision_reason": "rule_view=neutral: close 740.04 vs MA50 763.82 / MA200 732.16, weekly 过渡, dist MA200 +1.1%, pulse 趋势恶化; +1 / -1 signed evidence; fundamentals unavailable (shown separately; stance from trend rules)",
+   "decision_reason": "rule_view=neutral: close 732.43 vs MA50 763.15 / MA200 732.34, weekly 过渡, dist MA200 +0.0%, pulse 趋势恶化; +1 / -2 signed evidence; fundamentals unavailable (shown separately; stance from trend rules)",
    "research_hint": "Hold/Watch (research: no new thesis; not an order)",
    "supporting": [
     {
      "name": "close_vs_ma200",
      "group": "trend",
-     "note": "close above MA200 732.16",
+     "note": "close above MA200 732.34",
      "source": "stooq archive",
-     "as_of": "2026-11-16"
+     "as_of": "2026-11-17"
     }
    ],
    "opposing": [
     {
      "name": "close_vs_ma50",
      "group": "trend",
-     "note": "close 740.04 below MA50 763.82",
+     "note": "close 732.43 below MA50 763.15",
      "source": "stooq archive",
-     "as_of": "2026-11-16"
+     "as_of": "2026-11-17"
+    },
+    {
+     "name": "vix",
+     "group": "macro",
+     "note": "stress",
+     "source": "docs/data.json market_indicators",
+     "as_of": "2026-11-17"
     }
    ],
    "opposing_note": null,
@@ -3889,7 +3966,7 @@
     "neutral → bearish review below MA50",
     "neutral → bullish review above 60-session high"
    ],
-   "next_review": "2026-12-15",
+   "next_review": "2026-12-16",
    "inputs": [
     "author_claims",
     "fred_macro",
@@ -3904,13 +3981,13 @@
    ],
    "pre_sec_gate": false,
    "annotations": [],
-   "new_this_session": false,
+   "new_this_session": true,
    "experience_basis": {
     "contract": "experience-basis-1",
-    "evidence_id": "SPY-2026-11-16-auto-research-6-h",
-    "record_sha256": "ae1217c1e784",
+    "evidence_id": "SPY-2026-11-17-auto-research-6-h",
+    "record_sha256": "bb55753580eb",
     "symbol": "SPY",
-    "session": "2026-11-16",
+    "session": "2026-11-17",
     "generator_version": "auto-research-6",
     "informational_only": true,
     "used_in_decision": false,
@@ -3920,21 +3997,21 @@
      "n": 2,
      "supports": 0,
      "conflicts": 0,
-     "median_return_60": -0.10933281583489785,
+     "median_return_60": 0.2197787652683727,
      "maturity": "60-session windows closed on/before the memory date and the research session",
      "examples": [
       {
-       "case_id": "TQQQ:2026-08-03:修复中",
-       "date": "2026-08-03",
-       "stage": "修复中",
-       "return_60": 0.04532080572424646,
+       "case_id": "AAOI:2026-07-28:趋势恶化",
+       "date": "2026-07-28",
+       "stage": "趋势恶化",
+       "return_60": -0.12275925011545019,
        "supports_or_conflicts": "context"
       },
       {
-       "case_id": "IREN:2026-07-21:修复中",
-       "date": "2026-07-21",
-       "stage": "修复中",
-       "return_60": -0.26398643739404215,
+       "case_id": "LITE:2026-07-16:趋势恶化",
+       "date": "2026-07-16",
+       "stage": "趋势恶化",
+       "return_60": 0.5623167806521956,
        "supports_or_conflicts": "context"
       }
      ]
@@ -3951,18 +4028,18 @@
     },
     "memory_inputs": {
      "evidence": {
-      "as_of": "2026-11-16",
-      "sha256": "71837f00e299",
+      "as_of": "2026-11-17",
+      "sha256": "86f31c829dcf",
       "source": "docs/research/evidence_attribution.json"
      },
      "learning": {
-      "as_of": "2026-11-16",
-      "sha256": "8cb64f14b5a8",
+      "as_of": "2026-11-17",
+      "sha256": "a14bb10da4ac",
       "source": "docs/research/learning_engine.json"
      },
      "method": {
-      "as_of": "2026-11-16T18:36:26.080003+00:00",
-      "sha256": "ea3ccf333807",
+      "as_of": "2026-11-17T17:44:40.009127+00:00",
+      "sha256": "961144eebfb3",
       "source": "docs/research/method_memory.json"
      }
     },
@@ -4622,29 +4699,43 @@
   {
    "symbol": "VOO",
    "stance": "neutral",
-   "hypothesis_id": "VOO-2026-11-16-auto-research-6-h",
-   "market_as_of": "2026-11-16",
-   "research_date": "2026-11-16",
-   "generated_at": "2026-11-16T21:28:52Z",
+   "hypothesis_id": "VOO-2026-11-17-auto-research-6-h",
+   "market_as_of": "2026-11-17",
+   "research_date": "2026-11-17",
+   "generated_at": "2026-11-17T21:29:05Z",
    "generator_version": "auto-research-6",
-   "decision_reason": "rule_view=neutral: close 680.36 vs MA50 702.58 / MA200 672.93, weekly 过渡, dist MA200 +1.1%, pulse 趋势恶化; +1 / -1 signed evidence; fundamentals unavailable (shown separately; stance from trend rules)",
+   "decision_reason": "rule_view=neutral: close 673.13 vs MA50 701.88 / MA200 673.11, weekly 空头, dist MA200 +0.0%, pulse 趋势恶化; +1 / -3 signed evidence; fundamentals unavailable (shown separately; stance from trend rules)",
    "research_hint": "Hold/Watch (research: no new thesis; not an order)",
    "supporting": [
     {
      "name": "close_vs_ma200",
      "group": "trend",
-     "note": "close above MA200 672.93",
+     "note": "close above MA200 673.11",
      "source": "stooq archive",
-     "as_of": "2026-11-16"
+     "as_of": "2026-11-17"
     }
    ],
    "opposing": [
     {
      "name": "close_vs_ma50",
      "group": "trend",
-     "note": "close 680.36 below MA50 702.58",
+     "note": "close 673.13 below MA50 701.88",
      "source": "stooq archive",
-     "as_of": "2026-11-16"
+     "as_of": "2026-11-17"
+    },
+    {
+     "name": "weekly_trend",
+     "group": "trend",
+     "note": "weekly 空头, structure LH/LL",
+     "source": "trend_pulse",
+     "as_of": "2026-11-17"
+    },
+    {
+     "name": "vix",
+     "group": "macro",
+     "note": "stress",
+     "source": "docs/data.json market_indicators",
+     "as_of": "2026-11-17"
     }
    ],
    "opposing_note": null,
@@ -4652,7 +4743,7 @@
     "neutral → bearish review below MA50",
     "neutral → bullish review above 60-session high"
    ],
-   "next_review": "2026-12-15",
+   "next_review": "2026-12-16",
    "inputs": [
     "author_claims",
     "fred_macro",
@@ -4667,37 +4758,30 @@
    ],
    "pre_sec_gate": false,
    "annotations": [],
-   "new_this_session": false,
+   "new_this_session": true,
    "experience_basis": {
     "contract": "experience-basis-1",
-    "evidence_id": "VOO-2026-11-16-auto-research-6-h",
-    "record_sha256": "c8eae06bc4a9",
+    "evidence_id": "VOO-2026-11-17-auto-research-6-h",
+    "record_sha256": "0041be2b04aa",
     "symbol": "VOO",
-    "session": "2026-11-16",
+    "session": "2026-11-17",
     "generator_version": "auto-research-6",
     "informational_only": true,
     "used_in_decision": false,
     "shadow": true,
     "status": "used",
     "precedents": {
-     "n": 2,
+     "n": 1,
      "supports": 0,
      "conflicts": 0,
-     "median_return_60": -0.10933281583489785,
+     "median_return_60": -0.12275925011545019,
      "maturity": "60-session windows closed on/before the memory date and the research session",
      "examples": [
       {
-       "case_id": "TQQQ:2026-08-03:修复中",
-       "date": "2026-08-03",
-       "stage": "修复中",
-       "return_60": 0.04532080572424646,
-       "supports_or_conflicts": "context"
-      },
-      {
-       "case_id": "IREN:2026-07-21:修复中",
-       "date": "2026-07-21",
-       "stage": "修复中",
-       "return_60": -0.26398643739404215,
+       "case_id": "AAOI:2026-07-28:趋势恶化",
+       "date": "2026-07-28",
+       "stage": "趋势恶化",
+       "return_60": -0.12275925011545019,
        "supports_or_conflicts": "context"
       }
      ]
@@ -4714,50 +4798,57 @@
     },
     "memory_inputs": {
      "evidence": {
-      "as_of": "2026-11-16",
-      "sha256": "71837f00e299",
+      "as_of": "2026-11-17",
+      "sha256": "86f31c829dcf",
       "source": "docs/research/evidence_attribution.json"
      },
      "learning": {
-      "as_of": "2026-11-16",
-      "sha256": "8cb64f14b5a8",
+      "as_of": "2026-11-17",
+      "sha256": "a14bb10da4ac",
       "source": "docs/research/learning_engine.json"
      },
      "method": {
-      "as_of": "2026-11-16T18:36:26.080003+00:00",
-      "sha256": "ea3ccf333807",
+      "as_of": "2026-11-17T17:44:40.009127+00:00",
+      "sha256": "961144eebfb3",
       "source": "docs/research/method_memory.json"
      }
     },
-    "excluded_n": 8
+    "excluded_n": 9
    }
   },
   {
    "symbol": "XLE",
    "stance": "neutral",
-   "hypothesis_id": "XLE-2026-11-16-auto-research-6-h",
-   "market_as_of": "2026-11-16",
-   "research_date": "2026-11-16",
-   "generated_at": "2026-11-16T21:28:52Z",
+   "hypothesis_id": "XLE-2026-11-17-auto-research-6-h",
+   "market_as_of": "2026-11-17",
+   "research_date": "2026-11-17",
+   "generated_at": "2026-11-17T21:29:05Z",
    "generator_version": "auto-research-6",
-   "decision_reason": "rule_view=neutral: close 63.72 vs MA50 64.98 / MA200 59.54, weekly None, dist MA200 +7.0%, pulse None; +1 / -1 signed evidence; fundamentals unavailable (shown separately; stance from trend rules)",
+   "decision_reason": "rule_view=neutral: close 63.36 vs MA50 64.95 / MA200 59.60, weekly None, dist MA200 +6.3%, pulse None; +1 / -2 signed evidence; fundamentals unavailable (shown separately; stance from trend rules)",
    "research_hint": "Hold/Watch (research: no new thesis; not an order)",
    "supporting": [
     {
      "name": "close_vs_ma200",
      "group": "trend",
-     "note": "close above MA200 59.54",
+     "note": "close above MA200 59.60",
      "source": "stooq archive",
-     "as_of": "2026-11-16"
+     "as_of": "2026-11-17"
     }
    ],
    "opposing": [
     {
      "name": "close_vs_ma50",
      "group": "trend",
-     "note": "close 63.72 below MA50 64.98",
+     "note": "close 63.36 below MA50 64.95",
      "source": "stooq archive",
-     "as_of": "2026-11-16"
+     "as_of": "2026-11-17"
+    },
+    {
+     "name": "vix",
+     "group": "macro",
+     "note": "stress",
+     "source": "docs/data.json market_indicators",
+     "as_of": "2026-11-17"
     }
    ],
    "opposing_note": null,
@@ -4765,7 +4856,7 @@
     "neutral → bearish review below MA50",
     "neutral → bullish review above 60-session high"
    ],
-   "next_review": "2026-12-15",
+   "next_review": "2026-12-16",
    "inputs": [
     "author_claims",
     "fred_macro",
@@ -4780,13 +4871,13 @@
    ],
    "pre_sec_gate": false,
    "annotations": [],
-   "new_this_session": false,
+   "new_this_session": true,
    "experience_basis": {
     "contract": "experience-basis-1",
-    "evidence_id": "XLE-2026-11-16-auto-research-6-h",
-    "record_sha256": "f742f2c0ea0a",
+    "evidence_id": "XLE-2026-11-17-auto-research-6-h",
+    "record_sha256": "26cda051614d",
     "symbol": "XLE",
-    "session": "2026-11-16",
+    "session": "2026-11-17",
     "generator_version": "auto-research-6",
     "informational_only": true,
     "used_in_decision": false,
@@ -4812,18 +4903,18 @@
     },
     "memory_inputs": {
      "evidence": {
-      "as_of": "2026-11-16",
-      "sha256": "71837f00e299",
+      "as_of": "2026-11-17",
+      "sha256": "86f31c829dcf",
       "source": "docs/research/evidence_attribution.json"
      },
      "learning": {
-      "as_of": "2026-11-16",
-      "sha256": "8cb64f14b5a8",
+      "as_of": "2026-11-17",
+      "sha256": "a14bb10da4ac",
       "source": "docs/research/learning_engine.json"
      },
      "method": {
-      "as_of": "2026-11-16T18:36:26.080003+00:00",
-      "sha256": "ea3ccf333807",
+      "as_of": "2026-11-17T17:44:40.009127+00:00",
+      "sha256": "961144eebfb3",
       "source": "docs/research/method_memory.json"
      }
     },
@@ -5056,7 +5147,7 @@
   "used": 25,
   "none": 12,
   "unavailable_or_unknown": 1,
-  "precedent_items": 65,
+  "precedent_items": 60,
   "with_historical_reliability": 19,
   "reliability_symbol_n_ge_min": 0,
   "used_in_decision": 0,

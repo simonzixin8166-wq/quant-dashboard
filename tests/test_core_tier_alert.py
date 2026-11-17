@@ -18,7 +18,12 @@ st, seen = {}, []
 for loss in (0.06, 0.101, 0.121, 0.118, 0.123, 0.119, 0.185, 0.17, 0.155, 0.09, 0.125):
     st, ev = cts.advance(st, loss, 100.0, T)
     seen += ev
-assert seen == [("enter", "near"), ("enter", "t1"), ("enter", "t2"), ("leave", "t2"), ("leave", "t1")], seen
+assert seen == [("enter", "near"), ("enter", "t1"), ("enter", "t2"), ("leave", "t2"), ("leave", "t1"), ("reenter", "t1")], seen
+# Owner 2026-11-17: re-entry alerts once per fall-through; it re-arms leave, and wobbling inside the 2 pp buffer is quiet
+st, ev = cts.advance(st, 0.126, 100.0, T); assert ev == []
+st, ev = cts.advance(st, 0.11, 100.0, T); assert ev == []                       # 1 pp above the line: not a leave
+st, ev = cts.advance(st, 0.095, 100.0, T); assert ev == [("leave", "t1")]
+st, ev = cts.advance(st, 0.13, 100.0, T); assert ev == [("reenter", "t1")]
 # a new all-time high re-arms every line
 st, ev = cts.advance(st, 0.0, 101.0, T)
 assert ev == [] and st["sent"] == []
@@ -104,7 +109,7 @@ assert c["ath_is_true"] is False and c["strategy_drawdown"] is None and c["level
 st, ev1 = cts.advance({}, 0.13, 100.0, T)
 st, ev2 = cts.advance(st, 0.09, 100.0, T)
 st, ev3 = cts.advance(st, 0.14, 100.0, T)
-assert ("leave", "t1") in ev2 and ev3 == [] and st["zone"] == "t1"
+assert ("leave", "t1") in ev2 and ev3 == [("reenter", "t1")] and st["zone"] == "t1"   # Owner 2026-11-17
 # new cycle only on a plausible validated new ATH; a jump (split / adjustment artefact) is 'suspect'
 assert cts.new_cycle_check(100.0, 100.005) == "same" and cts.new_cycle_check(100.0, 103.0) == "new"
 assert cts.new_cycle_check(100.0, 200.0) == "suspect" and cts.new_cycle_check(None, 50.0) == "new"
@@ -153,8 +158,11 @@ for r in rows:
         for k, line in ev:
             cnt[(k, line)] = cnt.get((k, line), 0) + 1
 assert (cnt.get(("enter", "t1")), cnt.get(("enter", "t2")), cnt.get(("enter", "t3"))) == (7, 4, 2), cnt
-assert sum(cnt.values()) <= 40, cnt   # about 4 alerts a year, not daily noise
-print("PASS core tier alerts: near 2pp, suspect ATH, row checks, idempotent outbox + retry, once per line per cycle, recovery alert, cannot-judge, no amounts, 10y replay 7/4/2")
+# Owner 2026-11-17 added re-entry alerts: re-entries t1/t2/t3 = 9/4/3, all alerts 70 in 10 years (~7 a year);
+# the 2 pp leave buffer still keeps it far from daily noise
+assert (cnt.get(("reenter", "t1")), cnt.get(("reenter", "t2")), cnt.get(("reenter", "t3"))) == (9, 4, 3), cnt
+assert sum(cnt.values()) <= 80, cnt
+print("PASS core tier alerts: near 2pp, suspect ATH, row checks, idempotent outbox + retry, first entry, leave and re-entry (2 pp buffer), cannot-judge, no amounts, 10y replay 7/4/2")
 
 # --- 2026-11-10 production bug: Daily 16:34Z published VGT/QLD rows with the 11/09 close but the 11/06 drawdown.
 # The implied ATH jumped (VGT 130.66 -> 134.84, QLD 101.62 -> 108.53) with no new high, a new cycle started and
@@ -176,7 +184,10 @@ m2 = []
 r = cta.build(datetime(2026, 11, 14, 2, 0, tzinfo=timezone.utc), lambda t: m2.append(t) or "sent", data, config, ok13, prev)
 v = r["symbols"]["VGT"]
 assert v["judgment"] == "evaluated" and abs(v["cycle_ath"] - 130.66) < 0.01 and v["cycle_id"] == "VGT@130.6600", v
-assert v["sent"] == ["enter:near", "enter:t1", "leave:t1"] and not m2, m2      # repaired silently, nothing re-sent
+assert v["sent"] == ["enter:near", "enter:t1", "leave:t1"], v                 # VGT (14.9% < 15%) repaired silently
+assert not any("：VGT" in m for m in m2), m2
+# the same 14.9% is beyond QQQM's 12% line after its leave: a re-entry alert (Owner 2026-11-17), keyed by session
+assert any("QQQM 再次跌破一级" in m for m in m2) and r["events"][-1]["key"].endswith("|reenter:t1|2026-11-13")
 # the bad 11/10 row itself (prev cycle at the true ATH) -> cannot judge, no tier alert
 bad_row = {"date": "2026-11-09", "close": 111.98, "prev_close": 108.51, "strategy_drawdown": -0.16952396,
            "ath_is_true": True, "ath_validation": "PASS", "ytd_high": 130.66}

@@ -5,9 +5,10 @@ Zones from calm to deep: normal < near < t1 < t2 < t3.
   near  = within NEAR_PP (2 percentage points) of tier 1 (Owner 10/31)
   t1-t3 = the existing CORE_TIERS thresholds on the validated ATH drawdown (unchanged; read from config)
 
-Alerts are once per tier per drawdown cycle (a cycle starts at a new all-time high):
-  enter X  - the first close at or beyond line X in this cycle
-  leave X  - after X was entered, the first close back above line X by LEAVE_BUFFER_PP (2 pp)
+Alerts per drawdown cycle (a cycle starts at a new all-time high):
+  enter X   - the first close at or beyond line X in this cycle
+  leave X   - after X was entered, the first close back above line X by LEAVE_BUFFER_PP (2 pp)
+  reenter X - after leaving X, a close at or beyond X again (Owner 2026-11-17); then leave can alert again
 A replay of 10 years (QQQ tiers 12/18/25%) gives enter t1/t2/t3 = 7/4/2, the same tier episodes as the history
 table, about 4 alerts a year (max 10); a plain 0.5 pp hysteresis gave 12 a year (max 29), too noisy.
 The homepage banner shows the current zone (no memory). Reminder only: no orders, no threshold or allocation change.
@@ -96,8 +97,10 @@ def ath_consistency(prev_ath, ath, window_high):
 def advance(prev, loss, ath, tiers):
     """prev = {'cycle_ath': float|None, 'sent': [...]} per asset; 'sent' holds one 'enter:<line>' / 'leave:<line>'
     flag per line for the current cycle. Returns (new_state, events) with events like ('enter','t1') /
-    ('leave','t1'). Leaving a line never re-arms its 'enter' alert in the same cycle; only a confirmed new ATH
-    (new_cycle_check == 'new') starts a new cycle and re-arms every line."""
+    ('leave','t1') / ('reenter','t1'). The first close beyond a line alerts 'enter'; a close back above it by
+    LEAVE_BUFFER_PP alerts 'leave'; falling through it again afterwards alerts 'reenter' (Owner 2026-11-17) and
+    re-arms 'leave'. The 2 pp buffer keeps a line from alerting on every small wiggle. A confirmed new ATH
+    (new_cycle_check == 'new') starts a new cycle and clears every flag."""
     prev = prev or {}
     cyc = prev.get("cycle_ath")
     sent = set(prev.get("sent") or [])
@@ -108,6 +111,10 @@ def advance(prev, loss, ath, tiers):
     for s in ("near", "t1", "t2", "t3"):
         if loss >= th[s] and f"enter:{s}" not in sent:
             sent.add(f"enter:{s}"); events.append(("enter", s))
+        elif loss >= th[s] and f"leave:{s}" in sent:
+            # Owner 2026-11-17: after leaving a line (2 pp above it), falling back through it alerts again
+            # ("reenter"); the leave flag is cleared so a later recovery alerts again too.
+            sent.discard(f"leave:{s}"); events.append(("reenter", s))
     for s in ("t3", "t2", "t1"):
         if f"enter:{s}" in sent and f"leave:{s}" not in sent and loss < th[s] - LEAVE_BUFFER_PP:
             sent.add(f"leave:{s}"); events.append(("leave", s))

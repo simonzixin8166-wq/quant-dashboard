@@ -388,7 +388,7 @@ def build(prices, tiers_cfg, status, shocks, turning, stored_daily, stored_event
                    and r.get("symbol") in trans_by)
     review = {
         "version": VERSION, "generated_at": now_iso, "policy": "record_and_review_only_no_orders_no_threshold_change",
-        "rule": "core_tier_state.advance: once per line per cycle; leave at line - 2 pp; near = t1 - 2 pp; ATH = running max high",
+        "rule": "core_tier_state.advance: enter once per cycle, leave at line - 2 pp, re-enter after a leave (Owner 2026-11-17); near = t1 - 2 pp; ATH = running max high",
         "live_from": LIVE_FROM, "symbols": syms,
         "alert_reconciliation": reconcile(alerts, trans_by, days_by, set(alerted) or set(published)),
         "transitions_no_longer_supported": stale,

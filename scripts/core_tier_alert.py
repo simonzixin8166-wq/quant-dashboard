@@ -52,6 +52,8 @@ def message(sym, kind, line, row, tiers, as_of):
         ref = "t1"
     elif kind == "enter":
         head, ref = f"{sym} 进入{cts.LABEL_ZH[line]}加仓线", line
+    elif kind == "reenter":
+        head, ref = f"{sym} 再次跌破{cts.LABEL_ZH[line]}加仓线（本轮回撤中此前已回升离开）", line
     else:
         head, ref = f"{sym} 回升，已离开{cts.LABEL_ZH[line]}加仓线", line
     return (f"MyAlpha｜核心ETF回撤分档：{head}\n"
@@ -132,7 +134,9 @@ def build(now=None, send=notify, data=None, config=None, server=None, previous=N
             state, evs = cts.advance(before, loss, ath, tiers)
             cid = cts.cycle_id(sym, state["cycle_ath"])
             for kind, line in evs:
-                emit(f"{cid}|{kind}:{line}", message(sym, kind, line, row, tiers, as_of),
+                # first enter keeps its cycle key; leave / reenter can repeat in a cycle, so their key carries the session
+                key = f"{cid}|{kind}:{line}" if kind == "enter" else f"{cid}|{kind}:{line}|{as_of}"
+                emit(key, message(sym, kind, line, row, tiers, as_of),
                      {"symbol": sym, "kind": kind, "line": line, "cycle_id": cid,
                       "drawdown": row.get("strategy_drawdown"), "as_of": as_of})
             rec = {**state, "cycle_id": cid, "judgment": "evaluated", "reason": "ok", **audit,

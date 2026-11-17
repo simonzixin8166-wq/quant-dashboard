@@ -30,13 +30,14 @@ def bars_from(closes, start="2026-10-01"):
 
 
 # 100 high, falls to 84 (t1), recovers to 86.5 (above 85 but not by 2 pp), back to 84.5, recovers to 88 (leave t1),
-# dips to 84 again (re-touch: no alert, same cycle), then a new high 101 (new cycle), then 86.5 (near again).
+# dips to 84 again (re-entry alert, Owner 2026-11-17), 92 (leave again), a new high 101 (new cycle), 86.5 (near).
 closes = [100, 95, 90, 86, 84, 86.5, 84.5, 88, 84, 92, 101, 86.5] + [87] * 60
 bars = bars_from(closes)
 days, trans = tl.replay(bars, TIERS)
 got = [(t["date"], t["kind"], t["line"]) for t in trans]
 D = [b[0] for b in bars]
-assert got == [(D[3], "enter", "near"), (D[4], "enter", "t1"), (D[7], "leave", "t1"), (D[11], "enter", "near")], got
+assert got == [(D[3], "enter", "near"), (D[4], "enter", "t1"), (D[7], "leave", "t1"), (D[8], "reenter", "t1"),
+               (D[9], "leave", "t1"), (D[11], "enter", "near")], got
 assert all(t["line_value"] in (0.13, 0.15) for t in trans)
 assert trans[1]["line_price"] == 85.0 and trans[1]["drawdown"] == -0.16
 
@@ -78,13 +79,13 @@ try:
     assert sum(1 for r in tr if r["basis"] == "historical_replay") == 2               # 2015: near + t1
     v = rv["symbols"]["VGT"]
     assert v["historical_replay"]["stats"]["t1"]["entries"] == 1 and v["historical_replay"]["to"] < "2016"
-    assert v["live"]["counts"] == {"enter:near": 2, "enter:t1": 1, "leave:t1": 1}
+    assert v["live"]["counts"] == {"enter:near": 2, "enter:t1": 1, "leave:t1": 2, "reenter:t1": 1}
     rec = rv["alert_reconciliation"]
     assert rec["matched"] == 1 and len(rec["unsupported_by_prices"]) == 1
     u = rec["unsupported_by_prices"][0]
     assert u["as_of"] == D[6] and u["alert_cycle_id"] == "VGT@104.0000" and u["price_ath"] == 100.0
     assert {(m["date"], m["transition"]) for m in rec["transitions_without_alert"]} == \
-        {(D[3], "enter:near"), (D[7], "leave:t1"), (D[11], "enter:near")}
+        {(D[3], "enter:near"), (D[7], "leave:t1"), (D[8], "reenter:t1"), (D[9], "leave:t1"), (D[11], "enter:near")}
     assert rec["delay_hours_after_close"]["n"] == 2
     assert v["current"]["zone"] == "near" and v["current"]["next_line"] == "t1"
 

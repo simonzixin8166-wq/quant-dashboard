@@ -5,9 +5,9 @@
  "max_lag_sessions": 2,
  "fixed_scale_components": 3,
  "validation_plan": "docs/development/market_temperature_validation.md",
- "generated_at": "2026-11-16T21:29:07Z",
+ "generated_at": "2026-11-17T17:44:23Z",
  "as_of": "2026-11-16",
- "score": 38,
+ "score": 35,
  "label": "恐惧",
  "components_available": 6,
  "components_total": 6,
@@ -55,12 +55,12 @@
    "key": "volatility",
    "name": "波动率",
    "status": "ok",
-   "score": 6.7,
+   "score": 7.1,
    "method": "percentile_252",
-   "raw": 0.316754,
+   "raw": 0.311736,
    "value": {
-    "vix": 23.0,
-    "vs_ma50": 0.3168
+    "vix": 22.91,
+    "vs_ma50": 0.3117
    },
    "as_of": "2026-11-16",
    "source": "archive VIX vs 50-session average",
@@ -82,16 +82,16 @@
    "key": "credit",
    "name": "信用风险",
    "status": "ok",
-   "score": 58.0,
+   "score": 45.0,
    "method": "fixed_scale",
-   "raw": -0.08,
+   "raw": 0.05,
    "value": {
-    "hy_oas": 3.23,
-    "chg20_pp": -0.08
+    "hy_oas": 3.34,
+    "chg20_pp": 0.05
    },
-   "as_of": "2026-11-13",
+   "as_of": "2026-11-16",
    "source": "FRED ICE BofA US High Yield OAS (via cross_asset_divergence)",
-   "lag_sessions": 1
+   "lag_sessions": 0
   }
  ],
  "status": "ok",
@@ -101,6 +101,6 @@
  "decision": "#133 2026-10-17 owner-approved; SENT-01 CNN stays link-out only",
  "change_vs": {
   "as_of": "2026-11-09",
-  "delta": 4
+  "delta": 1
  }
 }

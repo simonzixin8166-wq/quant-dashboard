@@ -1,6 +1,6 @@
 {
  "version": "p3-12.1",
- "generated_at": "2026-11-16T21:30:25.184278+00:00",
+ "generated_at": "2026-11-17T17:45:37.402115+00:00",
  "layers": [
   "discovered",
   "canonical_persisted",
@@ -23,11 +23,11 @@
   "market": {
    "learning_maturity": "forward_collecting",
    "funnel_issues": [],
-   "discovered": 42,
-   "canonical_persisted": 42,
-   "interpretable": 42,
+   "discovered": 43,
+   "canonical_persisted": 43,
+   "interpretable": 43,
    "candidate_claim_or_state": 12,
-   "effective_forward_eligible": 138,
+   "effective_forward_eligible": 139,
    "independently_matured": 48,
    "benchmark_evaluated": 20,
    "downstream_consumer_count": 1,
@@ -36,7 +36,7 @@
   "fundamental": {
    "learning_maturity": "unproven_no_forward_samples",
    "funnel_issues": [],
-   "discovered": 13518,
+   "discovered": 11088,
    "canonical_persisted": 872,
    "interpretable": 872,
    "candidate_claim_or_state": 426,
@@ -49,9 +49,9 @@
   "event": {
    "learning_maturity": "context_only",
    "funnel_issues": [],
-   "discovered": 3283,
-   "canonical_persisted": 3283,
-   "interpretable": 3283,
+   "discovered": 3372,
+   "canonical_persisted": 3372,
+   "interpretable": 3372,
    "candidate_claim_or_state": 0,
    "effective_forward_eligible": 0,
    "independently_matured": 0,
@@ -93,7 +93,7 @@
    "interpretable": 1684,
    "candidate_claim_or_state": 48,
    "effective_forward_eligible": 22,
-   "independently_matured": 2,
+   "independently_matured": 4,
    "benchmark_evaluated": null,
    "downstream_consumer_count": 12,
    "validated_learning_applied": null
@@ -102,19 +102,19 @@
  "engines": {
   "market": {
    "discovered": {
-    "count": 42,
+    "count": 43,
     "definition": "macro/regime observations captured",
     "evidence": "research/archive/macro_regime_observations.jsonl",
     "dedup_key": "observation_id"
    },
    "canonical_persisted": {
-    "count": 42,
+    "count": 43,
     "definition": "append-only archived observations",
     "evidence": "research/archive/macro_regime_observations.jsonl",
     "dedup_key": "observation_id"
    },
    "interpretable": {
-    "count": 42,
+    "count": 43,
     "definition": "observations with a regime and acceptable input quality",
     "evidence": "research/archive/macro_regime_observations.jsonl",
     "dedup_key": "observation_id"
@@ -126,7 +126,7 @@
     "dedup_key": "regime_key"
    },
    "effective_forward_eligible": {
-    "count": 138,
+    "count": 139,
     "definition": "point-in-time capable live macro observations (observed_at recorded) + live market-state snapshots tracked for outcomes",
     "evidence": "research/archive/macro_regime_observations.jsonl + research/archive/market_state_outcomes.jsonl",
     "dedup_key": "observation_id / kind|as_of|state"
@@ -170,7 +170,7 @@
   },
   "fundamental": {
    "discovered": {
-    "count": 13518,
+    "count": 11088,
     "definition": "XBRL facts captured (company_fundamental_memory archive)",
     "evidence": "docs/research/company_fundamental_memory.json",
     "dedup_key": "fact"
@@ -236,19 +236,19 @@
   },
   "event": {
    "discovered": {
-    "count": 3283,
+    "count": 3372,
     "definition": "news/event items archived",
     "evidence": "research/archive/events",
     "dedup_key": "uuid"
    },
    "canonical_persisted": {
-    "count": 3283,
+    "count": 3372,
     "definition": "append-only monthly event shards",
     "evidence": "research/archive/events",
     "dedup_key": "uuid"
    },
    "interpretable": {
-    "count": 3283,
+    "count": 3372,
     "definition": "items with title, url and event date",
     "evidence": "research/archive/events",
     "dedup_key": "uuid"
@@ -470,7 +470,7 @@
     "dedup_key": "source_key"
    },
    "independently_matured": {
-    "count": 2,
+    "count": 4,
     "definition": "matured, scoreable genuine-forward events",
     "evidence": "research/reports/forward_intake_health.json",
     "dedup_key": "event_id"
@@ -517,6 +517,6 @@
  },
  "tracks": {
   "learning_maturity": "COLLECTING",
-  "genuine_forward_matured_total": 104
+  "genuine_forward_matured_total": 106
  }
 }

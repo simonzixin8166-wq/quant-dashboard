@@ -1,8 +1,8 @@
 {
  "version": "threshold-ledger-1.0",
- "generated_at": "2026-11-16T21:28:24+00:00",
+ "generated_at": "2026-11-17T17:43:43+00:00",
  "policy": "record_and_review_only_no_orders_no_threshold_change",
- "rule": "core_tier_state.advance: once per line per cycle; leave at line - 2 pp; near = t1 - 2 pp; ATH = running max high",
+ "rule": "core_tier_state.advance: enter once per cycle, leave at line - 2 pp, re-enter after a leave (Owner 2026-11-17); near = t1 - 2 pp; ATH = running max high",
  "live_from": "2026-11-02",
  "symbols": {
   "QLD": {
@@ -77,6 +77,17 @@
       "ath": 101.61,
       "cycle_ath": 101.61,
       "drawdown": -0.221041,
+      "line_price": 76.21
+     },
+     {
+      "date": "2026-11-16",
+      "kind": "reenter",
+      "line": "t1",
+      "line_value": 0.25,
+      "close": 75.1,
+      "ath": 101.61,
+      "cycle_ath": 101.61,
+      "drawdown": -0.2609,
       "line_price": 76.21
      }
     ],
@@ -220,7 +231,8 @@
     "counts": {
      "enter:near": 1,
      "enter:t1": 1,
-     "leave:t1": 1
+     "leave:t1": 1,
+     "reenter:t1": 1
     }
    },
    "historical_replay": {
@@ -412,6 +424,17 @@
       "cycle_ath": 762.86,
       "drawdown": -0.095011,
       "line_price": 671.32
+     },
+     {
+      "date": "2026-11-16",
+      "kind": "reenter",
+      "line": "t1",
+      "line_value": 0.12,
+      "close": 661.86,
+      "ath": 762.86,
+      "cycle_ath": 762.86,
+      "drawdown": -0.132396,
+      "line_price": 671.32
      }
     ],
     "episodes": [
@@ -571,7 +594,8 @@
     "counts": {
      "enter:near": 1,
      "enter:t1": 1,
-     "leave:t1": 1
+     "leave:t1": 1,
+     "reenter:t1": 1
     }
    },
    "historical_replay": {
@@ -766,6 +790,17 @@
       "cycle_ath": 314.115,
       "drawdown": -0.09514,
       "line_price": 276.42
+     },
+     {
+      "date": "2026-11-16",
+      "kind": "reenter",
+      "line": "t1",
+      "line_value": 0.12,
+      "close": 272.6,
+      "ath": 314.115,
+      "cycle_ath": 314.115,
+      "drawdown": -0.132165,
+      "line_price": 276.42
      }
     ],
     "episodes": [
@@ -925,7 +960,8 @@
     "counts": {
      "enter:near": 1,
      "enter:t1": 1,
-     "leave:t1": 1
+     "leave:t1": 1,
+     "reenter:t1": 1
     }
    },
    "historical_replay": {
@@ -1414,6 +1450,17 @@
       "cycle_ath": 130.66,
       "drawdown": -0.129649,
       "line_price": 111.06
+     },
+     {
+      "date": "2026-11-16",
+      "kind": "reenter",
+      "line": "t1",
+      "line_value": 0.15,
+      "close": 107.81,
+      "ath": 130.66,
+      "cycle_ath": 130.66,
+      "drawdown": -0.174881,
+      "line_price": 111.06
      }
     ],
     "episodes": [
@@ -1573,7 +1620,8 @@
     "counts": {
      "enter:near": 1,
      "enter:t1": 1,
-     "leave:t1": 1
+     "leave:t1": 1,
+     "reenter:t1": 1
     }
    },
    "historical_replay": {
@@ -1961,8 +2009,8 @@
    "QQQM",
    "VGT"
   ],
-  "alerts": 14,
-  "matched": 9,
+  "alerts": 17,
+  "matched": 12,
   "unsupported_by_prices": [
    {
     "symbol": "VGT",
@@ -2022,9 +2070,9 @@
   ],
   "transitions_without_alert": [],
   "delay_hours_after_close": {
-   "n": 14,
+   "n": 17,
    "median": 5.2,
-   "max": 19.5
+   "max": 20.7
   }
  },
  "transitions_no_longer_supported": [],
@@ -2118,27 +2166,27 @@
   ]
  },
  "turning_point_checklist": {
-  "sessions": 18,
+  "sessions": 19,
   "trigger_sessions": 0,
   "max_met": 2,
   "met_sessions_by_condition": {
    "sentiment": 5,
-   "easing": 1
+   "easing": 2
   },
   "first_met": {
    "sentiment": "2026-10-27",
    "easing": "2026-11-13"
   },
   "latest": {
-   "market_date": "2026-11-13",
-   "met": 2,
-   "near": 1,
-   "qqq_close": 679.89001,
-   "recorded_at": "2026-11-14T02:12:51.510866+00:00",
+   "market_date": "2026-11-16",
+   "met": 1,
+   "near": 2,
+   "qqq_close": 661.86,
+   "recorded_at": "2026-11-16T21:29:07.512677+00:00",
    "statuses": {
     "earnings": "near",
     "easing": "met",
-    "sentiment": "met",
+    "sentiment": "near",
     "yield_10y": "not_met"
    },
    "trigger": false,

@@ -1,8 +1,8 @@
 {
   "version": "5.7.0",
-  "generated_at": "2026-11-18T04:12:51.843576+00:00",
+  "generated_at": "2026-11-18T17:21:49.418798+00:00",
   "external_outcome_evidence_role": "legacy_descriptive_only",
-  "as_of": "2026-11-17",
+  "as_of": "2026-11-18",
   "architecture": [
     "plain_language_glossary",
     "trend_state_machine",
@@ -82,92 +82,6 @@
   "breadcrumb_engine": {
     "method": "evidence accumulation v1",
     "top": [
-      {
-        "symbol": "ORCL",
-        "evidence_score": 52.0,
-        "status": "evidence-accumulating",
-        "trend_state": {
-          "state": "Breakdown",
-          "label_cn": "结构破坏",
-          "source_stage": "趋势恶化",
-          "weekly": "空头",
-          "explanation": "趋势结构已经明显恶化，原来的多头假设必须重新验证。",
-          "invalidation": "只有进入修复并完成新的确认流程，才考虑重新升级。",
-          "term_help": {
-            "cn": "结构破坏",
-            "plain": "趋势和价格结构已经明显恶化，原来的多头假设需要重新验证。",
-            "why": "这不是自动卖出指令，而是要求重新检查投资逻辑、估值和风险暴露。"
-          }
-        },
-        "breadcrumbs": [
-          {
-            "type": "trend_state",
-            "strength": "medium",
-            "evidence": "Trend Pulse 当前阶段：趋势恶化",
-            "meaning": "说明当前技术结构处于什么阶段；它是研究线索，不是单独买卖信号。"
-          },
-          {
-            "type": "timeframe",
-            "strength": "medium",
-            "evidence": "周线方向：空头",
-            "meaning": "用更高周期检查日线信号是否得到确认，减少一次性反弹造成的误判。"
-          },
-          {
-            "type": "momentum",
-            "strength": "medium",
-            "evidence": "Trend Pulse 分数 -85",
-            "meaning": "分数绝对值较高表示趋势证据较集中，但高分不等于未来一定继续上涨或下跌。"
-          },
-          {
-            "type": "transition",
-            "strength": "high",
-            "evidence": "阶段从 修复中 变化为 趋势恶化",
-            "meaning": "状态变化通常比重复的同状态提醒更值得复查。"
-          }
-        ],
-        "next_confirmation": "只有进入修复并完成新的确认流程，才考虑重新升级。",
-        "source_scope": "当前仅使用已验证的行情、Trend Pulse、历史学习与覆盖池异动；尚未把论坛/SEC/FDA/公司新闻自动写入此评分。"
-      },
-      {
-        "symbol": "AVGO",
-        "evidence_score": 48.4,
-        "status": "evidence-accumulating",
-        "trend_state": {
-          "state": "Early Bull Transition",
-          "label_cn": "早期多头转换",
-          "source_stage": "趋势启动",
-          "weekly": "过渡",
-          "explanation": "短周期已经出现由弱转强，但趋势刚开始，仍需要更高周期和后续收盘确认。",
-          "invalidation": "若趋势分数重新显著转弱、关键结构失守或周线继续背离，则早期转换失败。",
-          "term_help": {
-            "cn": "早期多头转换",
-            "plain": "短周期已经明显转强，但更高周期或价格确认还没有完全跟上。",
-            "why": "它代表值得观察的早期阶段，不等于已经进入稳定主升趋势。"
-          }
-        },
-        "breadcrumbs": [
-          {
-            "type": "trend_state",
-            "strength": "medium",
-            "evidence": "Trend Pulse 当前阶段：趋势启动",
-            "meaning": "说明当前技术结构处于什么阶段；它是研究线索，不是单独买卖信号。"
-          },
-          {
-            "type": "timeframe",
-            "strength": "medium",
-            "evidence": "周线方向：过渡",
-            "meaning": "用更高周期检查日线信号是否得到确认，减少一次性反弹造成的误判。"
-          },
-          {
-            "type": "transition",
-            "strength": "high",
-            "evidence": "阶段从 修复中 变化为 趋势启动",
-            "meaning": "状态变化通常比重复的同状态提醒更值得复查。"
-          }
-        ],
-        "next_confirmation": "若趋势分数重新显著转弱、关键结构失守或周线继续背离，则早期转换失败。",
-        "source_scope": "当前仅使用已验证的行情、Trend Pulse、历史学习与覆盖池异动；尚未把论坛/SEC/FDA/公司新闻自动写入此评分。"
-      },
       {
         "symbol": "GOOG",
         "evidence_score": 30.8,
@@ -369,6 +283,46 @@
         "source_scope": "当前仅使用已验证的行情、Trend Pulse、历史学习与覆盖池异动；尚未把论坛/SEC/FDA/公司新闻自动写入此评分。"
       },
       {
+        "symbol": "ORCL",
+        "evidence_score": 30.0,
+        "status": "monitor",
+        "trend_state": {
+          "state": "Breakdown",
+          "label_cn": "结构破坏",
+          "source_stage": "趋势恶化",
+          "weekly": "空头",
+          "explanation": "趋势结构已经明显恶化，原来的多头假设必须重新验证。",
+          "invalidation": "只有进入修复并完成新的确认流程，才考虑重新升级。",
+          "term_help": {
+            "cn": "结构破坏",
+            "plain": "趋势和价格结构已经明显恶化，原来的多头假设需要重新验证。",
+            "why": "这不是自动卖出指令，而是要求重新检查投资逻辑、估值和风险暴露。"
+          }
+        },
+        "breadcrumbs": [
+          {
+            "type": "trend_state",
+            "strength": "medium",
+            "evidence": "Trend Pulse 当前阶段：趋势恶化",
+            "meaning": "说明当前技术结构处于什么阶段；它是研究线索，不是单独买卖信号。"
+          },
+          {
+            "type": "timeframe",
+            "strength": "medium",
+            "evidence": "周线方向：空头",
+            "meaning": "用更高周期检查日线信号是否得到确认，减少一次性反弹造成的误判。"
+          },
+          {
+            "type": "momentum",
+            "strength": "medium",
+            "evidence": "Trend Pulse 分数 -85",
+            "meaning": "分数绝对值较高表示趋势证据较集中，但高分不等于未来一定继续上涨或下跌。"
+          }
+        ],
+        "next_confirmation": "只有进入修复并完成新的确认流程，才考虑重新升级。",
+        "source_scope": "当前仅使用已验证的行情、Trend Pulse、历史学习与覆盖池异动；尚未把论坛/SEC/FDA/公司新闻自动写入此评分。"
+      },
+      {
         "symbol": "NVDA",
         "evidence_score": 30.0,
         "status": "monitor",
@@ -530,6 +484,46 @@
       },
       {
         "symbol": "NBIS",
+        "evidence_score": 30.0,
+        "status": "monitor",
+        "trend_state": {
+          "state": "Breakdown",
+          "label_cn": "结构破坏",
+          "source_stage": "趋势恶化",
+          "weekly": "空头",
+          "explanation": "趋势结构已经明显恶化，原来的多头假设必须重新验证。",
+          "invalidation": "只有进入修复并完成新的确认流程，才考虑重新升级。",
+          "term_help": {
+            "cn": "结构破坏",
+            "plain": "趋势和价格结构已经明显恶化，原来的多头假设需要重新验证。",
+            "why": "这不是自动卖出指令，而是要求重新检查投资逻辑、估值和风险暴露。"
+          }
+        },
+        "breadcrumbs": [
+          {
+            "type": "trend_state",
+            "strength": "medium",
+            "evidence": "Trend Pulse 当前阶段：趋势恶化",
+            "meaning": "说明当前技术结构处于什么阶段；它是研究线索，不是单独买卖信号。"
+          },
+          {
+            "type": "timeframe",
+            "strength": "medium",
+            "evidence": "周线方向：空头",
+            "meaning": "用更高周期检查日线信号是否得到确认，减少一次性反弹造成的误判。"
+          },
+          {
+            "type": "momentum",
+            "strength": "medium",
+            "evidence": "Trend Pulse 分数 -100",
+            "meaning": "分数绝对值较高表示趋势证据较集中，但高分不等于未来一定继续上涨或下跌。"
+          }
+        ],
+        "next_confirmation": "只有进入修复并完成新的确认流程，才考虑重新升级。",
+        "source_scope": "当前仅使用已验证的行情、Trend Pulse、历史学习与覆盖池异动；尚未把论坛/SEC/FDA/公司新闻自动写入此评分。"
+      },
+      {
+        "symbol": "HOOD",
         "evidence_score": 30.0,
         "status": "monitor",
         "trend_state": {
@@ -2876,6 +2870,55 @@
     ],
     "research_alerts": [
       {
+        "author": "RhinoFinance / 视野环球财经",
+        "title": "美股 NVDA提升采购、维持担保承诺！短拉存储、NeoCloud一把！标普SPY关键防守位置！",
+        "url": "https://www.youtube.com/watch?v=apOH0oyxUQM",
+        "published_at": "2026-11-18",
+        "symbols": [
+          "NVDA",
+          "QQQ",
+          "SPY"
+        ],
+        "primary_symbols": [],
+        "symbol_attribution": [
+          {
+            "symbol": "NVDA",
+            "role": "holding_mention",
+            "confidence": "medium",
+            "evidence_basis": [
+              "detected_in_source",
+              "holding_language"
+            ]
+          },
+          {
+            "symbol": "QQQ",
+            "role": "contextual_mention",
+            "confidence": "low",
+            "evidence_basis": [
+              "detected_in_source"
+            ]
+          },
+          {
+            "symbol": "SPY",
+            "role": "holding_mention",
+            "confidence": "medium",
+            "evidence_basis": [
+              "detected_in_source",
+              "holding_language"
+            ]
+          }
+        ],
+        "topics": [
+          "仓位与加减仓",
+          "趋势确认",
+          "AI研究方法"
+        ],
+        "source_view": "出现明确操作：卖出/退出；涉及：NVDA / QQQ / SPY",
+        "myalpha_view": "先核对行情、估值、事件与现有 Thesis；外部作者观点不能单独触发买卖。",
+        "what_changes_view": "只有独立证据与后续结果支持，才允许升级为 Breadcrumb / Thesis 样本。",
+        "priority": 80
+      },
+      {
         "author": "三心三意",
         "title": "所以即使英伟达的数据有水分，明年增速不是75%而是50%，很多半导体股价也是绝对可以买入了",
         "url": "https://bbs.wenxuecity.com/cfzh/124737.html",
@@ -3327,36 +3370,6 @@
           "其他研究"
         ],
         "source_view": "出现明确操作：买入/建仓 / buy；主研究标的：MSFT；涉及：MSFT",
-        "myalpha_view": "先核对行情、估值、事件与现有 Thesis；外部作者观点不能单独触发买卖。",
-        "what_changes_view": "只有独立证据与后续结果支持，才允许升级为 Breadcrumb / Thesis 样本。",
-        "priority": 80
-      },
-      {
-        "author": "bogbog",
-        "title": "买入asts, IREN, 这个只是玩玩，",
-        "url": "https://bbs.wenxuecity.com/cfzh/124032.html",
-        "published_at": "2026-11-16 06:22:00",
-        "symbols": [
-          "IREN"
-        ],
-        "primary_symbols": [
-          "IREN"
-        ],
-        "symbol_attribution": [
-          {
-            "symbol": "IREN",
-            "role": "primary_subject",
-            "confidence": "high",
-            "evidence_basis": [
-              "detected_in_source",
-              "unique_title_symbol"
-            ]
-          }
-        ],
-        "topics": [
-          "IREN"
-        ],
-        "source_view": "出现明确操作：买入/建仓 / buy；主研究标的：IREN；涉及：IREN",
         "myalpha_view": "先核对行情、估值、事件与现有 Thesis；外部作者观点不能单独触发买卖。",
         "what_changes_view": "只有独立证据与后续结果支持，才允许升级为 Breadcrumb / Thesis 样本。",
         "priority": 80

@@ -133,6 +133,14 @@ jobs:
           python3 scripts/privacy_canary_scan.py --staged  # kr-0.3.2 D4: block the publish if anything staged leaks private data
           if ! git diff --cached --quiet; then
             git commit -m "update server action status"
-            git pull --rebase origin main
-            git push origin HEAD:main
+            # Runs after Daily alongside shock-event-watch / morning-brief: retry a raced push
+            # (2026-11-16 and 11-17 runs lost the snapshot to "rejected (fetch first)" -> QA server_action FAIL).
+            pushed=0
+            for attempt in 1 2 3 4 5; do
+              git pull --rebase origin main
+              if git push origin HEAD:main; then pushed=1; break; fi
+              echo "push raced with main (attempt $attempt/5); retrying"
+              sleep $((attempt * 3))
+            done
+            test "$pushed" -eq 1
           fi

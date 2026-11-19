@@ -1,6 +1,6 @@
 {
  "version": "threshold-ledger-1.0",
- "generated_at": "2026-11-18T21:29:08+00:00",
+ "generated_at": "2026-11-19T17:28:43+00:00",
  "policy": "record_and_review_only_no_orders_no_threshold_change",
  "rule": "core_tier_state.advance: enter once per cycle, leave at line - 2 pp, re-enter after a leave (Owner 2026-11-17); near = t1 - 2 pp; ATH = running max high",
  "live_from": "2026-11-02",
@@ -2104,23 +2104,24 @@
  "transitions_no_longer_supported": [],
  "published_mismatches": [],
  "shock_events": {
-  "events": 9,
+  "events": 12,
   "retracted": 0,
   "corrected": 3,
   "by_subject": {
    "NVDA": 2,
+   "AMD": 2,
+   "AVGO": 2,
    "MARKET": 2,
-   "AMD": 1,
-   "AVGO": 1,
    "MSFT": 1,
    "TSM": 1,
-   "AAPL": 1
+   "AAPL": 1,
+   "AMZN": 1
   },
   "by_severity": {
-   "medium": 8,
+   "medium": 11,
    "high": 1
   },
-  "price_triggers": 6,
+  "price_triggers": 9,
   "news_triggers": 5,
   "vix_triggers": 0,
   "list": [
@@ -2222,31 +2223,64 @@
     "first_seen": "2026-11-18T02:52:15+00:00",
     "retracted": false,
     "corrections": 0
+   },
+   {
+    "event_id": "AMD@2026-11-17",
+    "subject": "AMD",
+    "ref_session": "2026-11-17",
+    "severity": "medium",
+    "price_trigger": true,
+    "news_trigger": false,
+    "first_seen": "2026-11-18T21:32:05+00:00",
+    "retracted": false,
+    "corrections": 0
+   },
+   {
+    "event_id": "AMZN@2026-11-17",
+    "subject": "AMZN",
+    "ref_session": "2026-11-17",
+    "severity": "medium",
+    "price_trigger": true,
+    "news_trigger": false,
+    "first_seen": "2026-11-19T02:31:17+00:00",
+    "retracted": false,
+    "corrections": 0
+   },
+   {
+    "event_id": "AVGO@2026-11-17",
+    "subject": "AVGO",
+    "ref_session": "2026-11-17",
+    "severity": "medium",
+    "price_trigger": true,
+    "news_trigger": false,
+    "first_seen": "2026-11-19T02:31:17+00:00",
+    "retracted": false,
+    "corrections": 0
    }
   ]
  },
  "turning_point_checklist": {
-  "sessions": 20,
+  "sessions": 21,
   "trigger_sessions": 0,
   "max_met": 2,
   "met_sessions_by_condition": {
    "sentiment": 6,
-   "easing": 3
+   "easing": 4
   },
   "first_met": {
    "sentiment": "2026-10-27",
    "easing": "2026-11-13"
   },
   "latest": {
-   "market_date": "2026-11-17",
-   "met": 2,
-   "near": 1,
-   "qqq_close": 657.06,
-   "recorded_at": "2026-11-17T21:29:16.328542+00:00",
+   "market_date": "2026-11-18",
+   "met": 1,
+   "near": 2,
+   "qqq_close": 659.53,
+   "recorded_at": "2026-11-18T21:29:52.325046+00:00",
    "statuses": {
     "earnings": "near",
     "easing": "met",
-    "sentiment": "met",
+    "sentiment": "near",
     "yield_10y": "not_met"
    },
    "trigger": false,

@@ -1,6 +1,6 @@
 {
  "version": "threshold-ledger-1.0",
- "generated_at": "2026-11-20T17:04:02+00:00",
+ "generated_at": "2026-11-20T21:29:01+00:00",
  "policy": "record_and_review_only_no_orders_no_threshold_change",
  "rule": "core_tier_state.advance: enter once per cycle, leave at line - 2 pp, re-enter after a leave (Owner 2026-11-17); near = t1 - 2 pp; ATH = running max high",
  "live_from": "2026-11-02",
@@ -13,33 +13,33 @@
     "t3": 0.5
    },
    "current": {
-    "date": "2026-11-19",
-    "close": 71.33,
+    "date": "2026-11-20",
+    "close": 63.62,
     "ath": 101.61,
-    "drawdown": -0.298002,
-    "zone": "t1",
-    "zone_zh": "一级",
-    "next_line": "t2",
+    "drawdown": -0.373881,
+    "zone": "t2",
+    "zone_zh": "二级",
+    "next_line": "t3",
     "gaps": {
      "near": {
       "line": 0.23,
       "price": 78.24,
-      "gap_pp": -6.8
+      "gap_pp": -14.39
      },
      "t1": {
       "line": 0.25,
       "price": 76.21,
-      "gap_pp": -4.8
+      "gap_pp": -12.39
      },
      "t2": {
       "line": 0.35,
       "price": 66.05,
-      "gap_pp": 5.2
+      "gap_pp": -2.39
      },
      "t3": {
       "line": 0.5,
       "price": 50.8,
-      "gap_pp": 20.2
+      "gap_pp": 12.61
      }
     }
    },
@@ -89,6 +89,17 @@
       "cycle_ath": 101.61,
       "drawdown": -0.2609,
       "line_price": 76.21
+     },
+     {
+      "date": "2026-11-20",
+      "kind": "enter",
+      "line": "t2",
+      "line_value": 0.35,
+      "close": 63.62,
+      "ath": 101.61,
+      "cycle_ath": 101.61,
+      "drawdown": -0.373881,
+      "line_price": 66.05
      }
     ],
     "episodes": [
@@ -99,11 +110,11 @@
       "enter_close": 72.27,
       "enter_drawdown": -0.288751,
       "cycle_ath": 101.61,
-      "sessions_in_zone": 7,
-      "sessions_to_end": 11,
-      "deepest_drawdown": -0.298002,
-      "deepest_date": "2026-11-19",
-      "deepest_close": 71.33,
+      "sessions_in_zone": 8,
+      "sessions_to_end": 12,
+      "deepest_drawdown": -0.373881,
+      "deepest_date": "2026-11-20",
+      "deepest_close": 63.62,
       "end": "open",
       "end_date": null,
       "ret_5": 0.124948,
@@ -129,6 +140,27 @@
       "end_date": "2026-11-09",
       "ret_5": 0.124948,
       "mae_5": 0.018542,
+      "ret_20": null,
+      "mae_20": null,
+      "ret_60": null,
+      "mae_60": null
+     },
+     {
+      "line": "t2",
+      "line_value": 0.35,
+      "enter_date": "2026-11-20",
+      "enter_close": 63.62,
+      "enter_drawdown": -0.373881,
+      "cycle_ath": 101.61,
+      "sessions_in_zone": 1,
+      "sessions_to_end": 1,
+      "deepest_drawdown": -0.373881,
+      "deepest_date": "2026-11-20",
+      "deepest_close": 63.62,
+      "end": "open",
+      "end_date": null,
+      "ret_5": null,
+      "mae_5": null,
       "ret_20": null,
       "mae_20": null,
       "ret_60": null,
@@ -209,9 +241,17 @@
       "historical_cross_in": 44
      },
      "t2": {
-      "cross_in": 0,
+      "cross_in": 1,
       "cross_out": 0,
-      "events": [],
+      "events": [
+       {
+        "date": "2026-11-20",
+        "kind": "cross_in",
+        "drawdown": -0.373881,
+        "close": 63.62,
+        "line_price": 66.05
+       }
+      ],
       "near_misses": [],
       "historical_cross_in": 29
      },
@@ -226,13 +266,15 @@
     "sessions_by_zone": {
      "normal": 7,
      "t1": 6,
-     "near": 1
+     "near": 1,
+     "t2": 1
     },
     "counts": {
      "enter:near": 1,
      "enter:t1": 1,
      "leave:t1": 1,
-     "reenter:t1": 1
+     "reenter:t1": 1,
+     "enter:t2": 1
     }
    },
    "historical_replay": {
@@ -359,33 +401,33 @@
     "t3": 0.25
    },
    "current": {
-    "date": "2026-11-19",
-    "close": 645.095,
+    "date": "2026-11-20",
+    "close": 609.75,
     "ath": 762.86,
-    "drawdown": -0.154373,
-    "zone": "t1",
-    "zone_zh": "一级",
-    "next_line": "t2",
+    "drawdown": -0.200705,
+    "zone": "t2",
+    "zone_zh": "二级",
+    "next_line": "t3",
     "gaps": {
      "near": {
       "line": 0.1,
       "price": 686.57,
-      "gap_pp": -5.44
+      "gap_pp": -10.07
      },
      "t1": {
       "line": 0.12,
       "price": 671.32,
-      "gap_pp": -3.44
+      "gap_pp": -8.07
      },
      "t2": {
       "line": 0.18,
       "price": 625.55,
-      "gap_pp": 2.56
+      "gap_pp": -2.07
      },
      "t3": {
       "line": 0.25,
       "price": 572.14,
-      "gap_pp": 9.56
+      "gap_pp": 4.93
      }
     }
    },
@@ -435,6 +477,17 @@
       "cycle_ath": 762.86,
       "drawdown": -0.132396,
       "line_price": 671.32
+     },
+     {
+      "date": "2026-11-20",
+      "kind": "enter",
+      "line": "t2",
+      "line_value": 0.18,
+      "close": 609.75,
+      "ath": 762.86,
+      "cycle_ath": 762.86,
+      "drawdown": -0.200705,
+      "line_price": 625.55
      }
     ],
     "episodes": [
@@ -445,11 +498,11 @@
       "enter_close": 681.09,
       "enter_drawdown": -0.107189,
       "cycle_ath": 762.86,
-      "sessions_in_zone": 11,
-      "sessions_to_end": 14,
-      "deepest_drawdown": -0.154373,
-      "deepest_date": "2026-11-19",
-      "deepest_close": 645.095,
+      "sessions_in_zone": 12,
+      "sessions_to_end": 15,
+      "deepest_drawdown": -0.200705,
+      "deepest_date": "2026-11-20",
+      "deepest_close": 609.75,
       "end": "open",
       "end_date": null,
       "ret_5": -0.002555,
@@ -475,6 +528,27 @@
       "end_date": "2026-11-11",
       "ret_5": 0.06355,
       "mae_5": 0.010741,
+      "ret_20": null,
+      "mae_20": null,
+      "ret_60": null,
+      "mae_60": null
+     },
+     {
+      "line": "t2",
+      "line_value": 0.18,
+      "enter_date": "2026-11-20",
+      "enter_close": 609.75,
+      "enter_drawdown": -0.200705,
+      "cycle_ath": 762.86,
+      "sessions_in_zone": 1,
+      "sessions_to_end": 1,
+      "deepest_drawdown": -0.200705,
+      "deepest_date": "2026-11-20",
+      "deepest_close": 609.75,
+      "end": "open",
+      "end_date": null,
+      "ret_5": null,
+      "mae_5": null,
       "ret_20": null,
       "mae_20": null,
       "ret_60": null,
@@ -572,9 +646,17 @@
       "historical_cross_in": 41
      },
      "t2": {
-      "cross_in": 0,
+      "cross_in": 1,
       "cross_out": 0,
-      "events": [],
+      "events": [
+       {
+        "date": "2026-11-20",
+        "kind": "cross_in",
+        "drawdown": -0.200705,
+        "close": 609.75,
+        "line_price": 625.55
+       }
+      ],
       "near_misses": [],
       "historical_cross_in": 16
      },
@@ -589,13 +671,15 @@
     "sessions_by_zone": {
      "near": 5,
      "normal": 3,
-     "t1": 6
+     "t1": 6,
+     "t2": 1
     },
     "counts": {
      "enter:near": 1,
      "enter:t1": 1,
      "leave:t1": 1,
-     "reenter:t1": 1
+     "reenter:t1": 1,
+     "enter:t2": 1
     }
    },
    "historical_replay": {
@@ -725,33 +809,33 @@
     "t3": 0.25
    },
    "current": {
-    "date": "2026-11-19",
-    "close": 265.66,
+    "date": "2026-11-20",
+    "close": 251.09,
     "ath": 314.115,
-    "drawdown": -0.154259,
-    "zone": "t1",
-    "zone_zh": "一级",
-    "next_line": "t2",
+    "drawdown": -0.200643,
+    "zone": "t2",
+    "zone_zh": "二级",
+    "next_line": "t3",
     "gaps": {
      "near": {
       "line": 0.1,
       "price": 282.7,
-      "gap_pp": -5.43
+      "gap_pp": -10.06
      },
      "t1": {
       "line": 0.12,
       "price": 276.42,
-      "gap_pp": -3.43
+      "gap_pp": -8.06
      },
      "t2": {
       "line": 0.18,
       "price": 257.57,
-      "gap_pp": 2.57
+      "gap_pp": -2.06
      },
      "t3": {
       "line": 0.25,
       "price": 235.59,
-      "gap_pp": 9.57
+      "gap_pp": 4.94
      }
     }
    },
@@ -801,6 +885,17 @@
       "cycle_ath": 314.115,
       "drawdown": -0.132165,
       "line_price": 276.42
+     },
+     {
+      "date": "2026-11-20",
+      "kind": "enter",
+      "line": "t2",
+      "line_value": 0.18,
+      "close": 251.09,
+      "ath": 314.115,
+      "cycle_ath": 314.115,
+      "drawdown": -0.200643,
+      "line_price": 257.57
      }
     ],
     "episodes": [
@@ -811,11 +906,11 @@
       "enter_close": 280.49,
       "enter_drawdown": -0.107047,
       "cycle_ath": 314.115,
-      "sessions_in_zone": 11,
-      "sessions_to_end": 14,
-      "deepest_drawdown": -0.154259,
-      "deepest_date": "2026-11-19",
-      "deepest_close": 265.66,
+      "sessions_in_zone": 12,
+      "sessions_to_end": 15,
+      "deepest_drawdown": -0.200643,
+      "deepest_date": "2026-11-20",
+      "deepest_close": 251.09,
       "end": "open",
       "end_date": null,
       "ret_5": -0.003458,
@@ -841,6 +936,27 @@
       "end_date": "2026-11-11",
       "ret_5": 0.061982,
       "mae_5": 0.009181,
+      "ret_20": null,
+      "mae_20": null,
+      "ret_60": null,
+      "mae_60": null
+     },
+     {
+      "line": "t2",
+      "line_value": 0.18,
+      "enter_date": "2026-11-20",
+      "enter_close": 251.09,
+      "enter_drawdown": -0.200643,
+      "cycle_ath": 314.115,
+      "sessions_in_zone": 1,
+      "sessions_to_end": 1,
+      "deepest_drawdown": -0.200643,
+      "deepest_date": "2026-11-20",
+      "deepest_close": 251.09,
+      "end": "open",
+      "end_date": null,
+      "ret_5": null,
+      "mae_5": null,
       "ret_20": null,
       "mae_20": null,
       "ret_60": null,
@@ -938,9 +1054,17 @@
       "historical_cross_in": 15
      },
      "t2": {
-      "cross_in": 0,
+      "cross_in": 1,
       "cross_out": 0,
-      "events": [],
+      "events": [
+       {
+        "date": "2026-11-20",
+        "kind": "cross_in",
+        "drawdown": -0.200643,
+        "close": 251.09,
+        "line_price": 257.57
+       }
+      ],
       "near_misses": [],
       "historical_cross_in": 7
      },
@@ -955,13 +1079,15 @@
     "sessions_by_zone": {
      "near": 5,
      "normal": 3,
-     "t1": 6
+     "t1": 6,
+     "t2": 1
     },
     "counts": {
      "enter:near": 1,
      "enter:t1": 1,
      "leave:t1": 1,
-     "reenter:t1": 1
+     "reenter:t1": 1,
+     "enter:t2": 1
     }
    },
    "historical_replay": {
@@ -1073,33 +1199,33 @@
     "t3": 0.7
    },
    "current": {
-    "date": "2026-11-19",
-    "close": 48.99,
+    "date": "2026-11-20",
+    "close": 41.01,
     "ath": 88.09,
-    "drawdown": -0.443864,
-    "zone": "t1",
-    "zone_zh": "一级",
-    "next_line": "t2",
+    "drawdown": -0.534453,
+    "zone": "t2",
+    "zone_zh": "二级",
+    "next_line": "t3",
     "gaps": {
      "near": {
       "line": 0.38,
       "price": 54.62,
-      "gap_pp": -6.39
+      "gap_pp": -15.45
      },
      "t1": {
       "line": 0.4,
       "price": 52.85,
-      "gap_pp": -4.39
+      "gap_pp": -13.45
      },
      "t2": {
       "line": 0.5,
       "price": 44.04,
-      "gap_pp": 5.61
+      "gap_pp": -3.45
      },
      "t3": {
       "line": 0.7,
       "price": 26.43,
-      "gap_pp": 25.61
+      "gap_pp": 16.55
      }
     }
    },
@@ -1149,6 +1275,17 @@
       "cycle_ath": 88.09,
       "drawdown": -0.411397,
       "line_price": 52.85
+     },
+     {
+      "date": "2026-11-20",
+      "kind": "enter",
+      "line": "t2",
+      "line_value": 0.5,
+      "close": 41.01,
+      "ath": 88.09,
+      "cycle_ath": 88.09,
+      "drawdown": -0.534453,
+      "line_price": 44.04
      }
     ],
     "episodes": [
@@ -1159,11 +1296,11 @@
       "enter_close": 50.465,
       "enter_drawdown": -0.42712,
       "cycle_ath": 88.09,
-      "sessions_in_zone": 6,
-      "sessions_to_end": 11,
-      "deepest_drawdown": -0.443864,
-      "deepest_date": "2026-11-19",
-      "deepest_close": 48.99,
+      "sessions_in_zone": 7,
+      "sessions_to_end": 12,
+      "deepest_drawdown": -0.534453,
+      "deepest_date": "2026-11-20",
+      "deepest_close": 41.01,
       "end": "open",
       "end_date": null,
       "ret_5": 0.186565,
@@ -1189,6 +1326,27 @@
       "end_date": "2026-11-09",
       "ret_5": 0.186565,
       "mae_5": 0.024571,
+      "ret_20": null,
+      "mae_20": null,
+      "ret_60": null,
+      "mae_60": null
+     },
+     {
+      "line": "t2",
+      "line_value": 0.5,
+      "enter_date": "2026-11-20",
+      "enter_close": 41.01,
+      "enter_drawdown": -0.534453,
+      "cycle_ath": 88.09,
+      "sessions_in_zone": 1,
+      "sessions_to_end": 1,
+      "deepest_drawdown": -0.534453,
+      "deepest_date": "2026-11-20",
+      "deepest_close": 41.01,
+      "end": "open",
+      "end_date": null,
+      "ret_5": null,
+      "mae_5": null,
       "ret_20": null,
       "mae_20": null,
       "ret_60": null,
@@ -1261,9 +1419,17 @@
       "historical_cross_in": 26
      },
      "t2": {
-      "cross_in": 0,
+      "cross_in": 1,
       "cross_out": 0,
-      "events": [],
+      "events": [
+       {
+        "date": "2026-11-20",
+        "kind": "cross_in",
+        "drawdown": -0.534453,
+        "close": 41.01,
+        "line_price": 44.04
+       }
+      ],
       "near_misses": [],
       "historical_cross_in": 13
      },
@@ -1278,13 +1444,15 @@
     "sessions_by_zone": {
      "normal": 8,
      "t1": 5,
-     "near": 1
+     "near": 1,
+     "t2": 1
     },
     "counts": {
      "enter:near": 1,
      "enter:t1": 1,
      "leave:t1": 1,
-     "reenter:t1": 1
+     "reenter:t1": 1,
+     "enter:t2": 1
     }
    },
    "historical_replay": {
@@ -1404,33 +1572,33 @@
     "t3": 0.3
    },
    "current": {
-    "date": "2026-11-19",
-    "close": 104.99,
+    "date": "2026-11-20",
+    "close": 97.77,
     "ath": 130.66,
-    "drawdown": -0.196464,
-    "zone": "t1",
-    "zone_zh": "一级",
-    "next_line": "t2",
+    "drawdown": -0.251722,
+    "zone": "t2",
+    "zone_zh": "二级",
+    "next_line": "t3",
     "gaps": {
      "near": {
       "line": 0.13,
       "price": 113.67,
-      "gap_pp": -6.65
+      "gap_pp": -12.17
      },
      "t1": {
       "line": 0.15,
       "price": 111.06,
-      "gap_pp": -4.65
+      "gap_pp": -10.17
      },
      "t2": {
       "line": 0.2,
       "price": 104.53,
-      "gap_pp": 0.35
+      "gap_pp": -5.17
      },
      "t3": {
       "line": 0.3,
       "price": 91.46,
-      "gap_pp": 10.35
+      "gap_pp": 4.83
      }
     }
    },
@@ -1480,6 +1648,17 @@
       "cycle_ath": 130.66,
       "drawdown": -0.174881,
       "line_price": 111.06
+     },
+     {
+      "date": "2026-11-20",
+      "kind": "enter",
+      "line": "t2",
+      "line_value": 0.2,
+      "close": 97.77,
+      "ath": 130.66,
+      "cycle_ath": 130.66,
+      "drawdown": -0.251722,
+      "line_price": 104.53
      }
     ],
     "episodes": [
@@ -1490,11 +1669,11 @@
       "enter_close": 107.06,
       "enter_drawdown": -0.180621,
       "cycle_ath": 130.66,
-      "sessions_in_zone": 10,
-      "sessions_to_end": 11,
-      "deepest_drawdown": -0.196464,
-      "deepest_date": "2026-11-19",
-      "deepest_close": 104.99,
+      "sessions_in_zone": 11,
+      "sessions_to_end": 12,
+      "deepest_drawdown": -0.251722,
+      "deepest_date": "2026-11-20",
+      "deepest_close": 97.77,
       "end": "open",
       "end_date": null,
       "ret_5": 0.056324,
@@ -1520,6 +1699,27 @@
       "end_date": "2026-11-11",
       "ret_5": 0.056324,
       "mae_5": 0.007566,
+      "ret_20": null,
+      "mae_20": null,
+      "ret_60": null,
+      "mae_60": null
+     },
+     {
+      "line": "t2",
+      "line_value": 0.2,
+      "enter_date": "2026-11-20",
+      "enter_close": 97.77,
+      "enter_drawdown": -0.251722,
+      "cycle_ath": 130.66,
+      "sessions_in_zone": 1,
+      "sessions_to_end": 1,
+      "deepest_drawdown": -0.251722,
+      "deepest_date": "2026-11-20",
+      "deepest_close": 97.77,
+      "end": "open",
+      "end_date": null,
+      "ret_5": null,
+      "mae_5": null,
       "ret_20": null,
       "mae_20": null,
       "ret_60": null,
@@ -1617,9 +1817,17 @@
       "historical_cross_in": 46
      },
      "t2": {
-      "cross_in": 0,
+      "cross_in": 1,
       "cross_out": 0,
-      "events": [],
+      "events": [
+       {
+        "date": "2026-11-20",
+        "kind": "cross_in",
+        "drawdown": -0.251722,
+        "close": 97.77,
+        "line_price": 104.53
+       }
+      ],
       "near_misses": [
        {
         "date": "2026-11-19",
@@ -1640,13 +1848,15 @@
     "sessions_by_zone": {
      "normal": 4,
      "t1": 7,
-     "near": 3
+     "near": 3,
+     "t2": 1
     },
     "counts": {
      "enter:near": 1,
      "enter:t1": 1,
      "leave:t1": 1,
-     "reenter:t1": 1
+     "reenter:t1": 1,
+     "enter:t2": 1
     }
    },
    "historical_replay": {
@@ -1777,33 +1987,33 @@
     "t3": 0.15
    },
    "current": {
-    "date": "2026-11-19",
-    "close": 657.83,
+    "date": "2026-11-20",
+    "close": 635.0,
     "ath": 718.46,
-    "drawdown": -0.084389,
-    "zone": "t1",
-    "zone_zh": "一级",
-    "next_line": "t2",
+    "drawdown": -0.116165,
+    "zone": "t2",
+    "zone_zh": "二级",
+    "next_line": "t3",
     "gaps": {
      "near": {
       "line": 0.055,
       "price": 678.94,
-      "gap_pp": -2.94
+      "gap_pp": -6.12
      },
      "t1": {
       "line": 0.075,
       "price": 664.58,
-      "gap_pp": -0.94
+      "gap_pp": -4.12
      },
      "t2": {
       "line": 0.1,
       "price": 646.61,
-      "gap_pp": 1.56
+      "gap_pp": -1.62
      },
      "t3": {
       "line": 0.15,
       "price": 610.69,
-      "gap_pp": 6.56
+      "gap_pp": 3.38
      }
     }
    },
@@ -1831,6 +2041,17 @@
       "cycle_ath": 718.46,
       "drawdown": -0.084389,
       "line_price": 664.58
+     },
+     {
+      "date": "2026-11-20",
+      "kind": "enter",
+      "line": "t2",
+      "line_value": 0.1,
+      "close": 635.0,
+      "ath": 718.46,
+      "cycle_ath": 718.46,
+      "drawdown": -0.116165,
+      "line_price": 646.61
      }
     ],
     "episodes": [
@@ -1841,11 +2062,11 @@
       "enter_close": 673.97,
       "enter_drawdown": -0.061924,
       "cycle_ath": 718.46,
-      "sessions_in_zone": 5,
-      "sessions_to_end": 11,
-      "deepest_drawdown": -0.084389,
-      "deepest_date": "2026-11-19",
-      "deepest_close": 657.83,
+      "sessions_in_zone": 6,
+      "sessions_to_end": 12,
+      "deepest_drawdown": -0.116165,
+      "deepest_date": "2026-11-20",
+      "deepest_close": 635.0,
       "end": "open",
       "end_date": null,
       "ret_5": 0.032687,
@@ -1862,11 +2083,32 @@
       "enter_close": 657.83,
       "enter_drawdown": -0.084389,
       "cycle_ath": 718.46,
+      "sessions_in_zone": 2,
+      "sessions_to_end": 2,
+      "deepest_drawdown": -0.116165,
+      "deepest_date": "2026-11-20",
+      "deepest_close": 635.0,
+      "end": "open",
+      "end_date": null,
+      "ret_5": null,
+      "mae_5": null,
+      "ret_20": null,
+      "mae_20": null,
+      "ret_60": null,
+      "mae_60": null
+     },
+     {
+      "line": "t2",
+      "line_value": 0.1,
+      "enter_date": "2026-11-20",
+      "enter_close": 635.0,
+      "enter_drawdown": -0.116165,
+      "cycle_ath": 718.46,
       "sessions_in_zone": 1,
       "sessions_to_end": 1,
-      "deepest_drawdown": -0.084389,
-      "deepest_date": "2026-11-19",
-      "deepest_close": 657.83,
+      "deepest_drawdown": -0.116165,
+      "deepest_date": "2026-11-20",
+      "deepest_close": 635.0,
       "end": "open",
       "end_date": null,
       "ret_5": null,
@@ -1929,9 +2171,17 @@
       "historical_cross_in": 54
      },
      "t2": {
-      "cross_in": 0,
+      "cross_in": 1,
       "cross_out": 0,
-      "events": [],
+      "events": [
+       {
+        "date": "2026-11-20",
+        "kind": "cross_in",
+        "drawdown": -0.116165,
+        "close": 635.0,
+        "line_price": 646.61
+       }
+      ],
       "near_misses": [],
       "historical_cross_in": 34
      },
@@ -1946,11 +2196,13 @@
     "sessions_by_zone": {
      "normal": 9,
      "near": 4,
-     "t1": 1
+     "t1": 1,
+     "t2": 1
     },
     "counts": {
      "enter:near": 1,
-     "enter:t1": 1
+     "enter:t1": 1,
+     "enter:t2": 1
     }
    },
    "historical_replay": {
@@ -2083,8 +2335,8 @@
    "QQQM",
    "VGT"
   ],
-  "alerts": 17,
-  "matched": 12,
+  "alerts": 20,
+  "matched": 15,
   "unsupported_by_prices": [
    {
     "symbol": "VGT",
@@ -2144,7 +2396,7 @@
   ],
   "transitions_without_alert": [],
   "delay_hours_after_close": {
-   "n": 17,
+   "n": 20,
    "median": 5.2,
    "max": 20.7
   }
@@ -2152,7 +2404,7 @@
  "transitions_no_longer_supported": [],
  "published_mismatches": [],
  "shock_events": {
-  "events": 13,
+  "events": 15,
   "retracted": 0,
   "corrected": 3,
   "by_subject": {
@@ -2163,13 +2415,15 @@
    "TSM": 2,
    "MSFT": 1,
    "AAPL": 1,
-   "AMZN": 1
+   "AMZN": 1,
+   "TSLA": 1,
+   "META": 1
   },
   "by_severity": {
-   "medium": 12,
+   "medium": 14,
    "high": 1
   },
-  "price_triggers": 10,
+  "price_triggers": 12,
   "news_triggers": 5,
   "vix_triggers": 0,
   "list": [
@@ -2313,6 +2567,28 @@
     "price_trigger": true,
     "news_trigger": false,
     "first_seen": "2026-11-20T12:47:19+00:00",
+    "retracted": false,
+    "corrections": 0
+   },
+   {
+    "event_id": "TSLA@2026-11-19",
+    "subject": "TSLA",
+    "ref_session": "2026-11-19",
+    "severity": "medium",
+    "price_trigger": true,
+    "news_trigger": false,
+    "first_seen": "2026-11-20T17:06:33+00:00",
+    "retracted": false,
+    "corrections": 0
+   },
+   {
+    "event_id": "META@2026-11-19",
+    "subject": "META",
+    "ref_session": "2026-11-19",
+    "severity": "medium",
+    "price_trigger": true,
+    "news_trigger": false,
+    "first_seen": "2026-11-20T20:44:55+00:00",
     "retracted": false,
     "corrections": 0
    }

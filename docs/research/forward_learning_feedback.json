@@ -1,13 +1,13 @@
 {
   "version": "6.12.1",
-  "generated_at": "2026-11-20T17:04:07.425127+00:00",
+  "generated_at": "2026-11-20T21:29:07.181752+00:00",
   "mode": "shadow_research_only",
   "playbooks": {
     "CP-01": {
       "state": "forward_early",
       "forward_provenance": "forward_out_of_sample",
       "replay_provenance": "historical_replay_post_rule_design",
-      "trigger_records": 17,
+      "trigger_records": 20,
       "mature5": 5,
       "mature20": 0,
       "mature60": 0,
@@ -45,6 +45,32 @@
               "pending": 17
             }
           }
+        },
+        "tier2": {
+          "trigger_records": 3,
+          "late_detected": 0,
+          "timing_uncertain": 0,
+          "baseline_mismatch": 0,
+          "horizons": {
+            "5": {
+              "mature": 0,
+              "aligned": 0,
+              "not_aligned": 0,
+              "pending": 3
+            },
+            "20": {
+              "mature": 0,
+              "aligned": 0,
+              "not_aligned": 0,
+              "pending": 3
+            },
+            "60": {
+              "mature": 0,
+              "aligned": 0,
+              "not_aligned": 0,
+              "pending": 3
+            }
+          }
         }
       }
     },
@@ -52,12 +78,12 @@
       "state": "forward_challenging",
       "forward_provenance": "forward_out_of_sample",
       "replay_provenance": "historical_replay_post_rule_design",
-      "trigger_records": 13,
+      "trigger_records": 14,
       "mature5": 9,
-      "mature20": 4,
+      "mature20": 5,
       "mature60": 0,
       "aligned_rate5": 0.3333333333333333,
-      "aligned_rate20": 0.25,
+      "aligned_rate20": 0.2,
       "aligned_rate60": null,
       "baseline_mismatch": 0,
       "timing_uncertain": 2,
@@ -73,13 +99,13 @@
         {
           "tag": "forward_direction_challenging",
           "severity": "review",
-          "evidence_n": 4,
+          "evidence_n": 5,
           "hypothesis": "20日 Forward 方向一致率偏低；需要检查触发条件是否过宽、状态持续时间或环境依赖。"
         },
         {
           "tag": "replay_forward_divergence",
           "severity": "review",
-          "evidence_n": 4,
+          "evidence_n": 5,
           "hypothesis": "Forward 与历史 Replay 的20日方向一致率出现明显偏离；优先检查市场环境差异、样本聚类与状态定义，不自动改阈值。"
         }
       ],
@@ -149,10 +175,10 @@
               "pending": 0
             },
             "20": {
-              "mature": 1,
+              "mature": 2,
               "aligned": 0,
-              "not_aligned": 1,
-              "pending": 3
+              "not_aligned": 2,
+              "pending": 2
             },
             "60": {
               "mature": 0,
@@ -189,7 +215,7 @@
           }
         },
         "hard_exit": {
-          "trigger_records": 4,
+          "trigger_records": 5,
           "late_detected": 1,
           "timing_uncertain": 1,
           "baseline_mismatch": 0,
@@ -198,19 +224,19 @@
               "mature": 1,
               "aligned": 0,
               "not_aligned": 1,
-              "pending": 3
+              "pending": 4
             },
             "20": {
               "mature": 0,
               "aligned": 0,
               "not_aligned": 0,
-              "pending": 4
+              "pending": 5
             },
             "60": {
               "mature": 0,
               "aligned": 0,
               "not_aligned": 0,
-              "pending": 4
+              "pending": 5
             }
           }
         }
@@ -220,9 +246,9 @@
       "state": "forward_challenging",
       "forward_provenance": "forward_out_of_sample",
       "replay_provenance": "historical_replay_post_rule_design",
-      "trigger_records": 36,
+      "trigger_records": 38,
       "mature5": 25,
-      "mature20": 8,
+      "mature20": 10,
       "mature60": 0,
       "aligned_rate5": 0.4,
       "aligned_rate20": 0.0,
@@ -235,19 +261,19 @@
         {
           "tag": "forward_direction_challenging",
           "severity": "review",
-          "evidence_n": 8,
+          "evidence_n": 10,
           "hypothesis": "20日 Forward 方向一致率偏低；需要检查触发条件是否过宽、状态持续时间或环境依赖。"
         },
         {
           "tag": "replay_forward_divergence",
           "severity": "review",
-          "evidence_n": 8,
+          "evidence_n": 10,
           "hypothesis": "Forward 与历史 Replay 的20日方向一致率出现明显偏离；优先检查市场环境差异、样本聚类与状态定义，不自动改阈值。"
         }
       ],
       "by_state_detail": {
         "candidate": {
-          "trigger_records": 26,
+          "trigger_records": 28,
           "late_detected": 0,
           "timing_uncertain": 0,
           "baseline_mismatch": 0,
@@ -256,19 +282,19 @@
               "mature": 18,
               "aligned": 7,
               "not_aligned": 11,
-              "pending": 8
+              "pending": 10
             },
             "20": {
-              "mature": 4,
+              "mature": 5,
               "aligned": 0,
-              "not_aligned": 4,
-              "pending": 22
+              "not_aligned": 5,
+              "pending": 23
             },
             "60": {
               "mature": 0,
               "aligned": 0,
               "not_aligned": 0,
-              "pending": 26
+              "pending": 28
             }
           }
         },
@@ -285,10 +311,10 @@
               "pending": 3
             },
             "20": {
-              "mature": 4,
+              "mature": 5,
               "aligned": 0,
-              "not_aligned": 4,
-              "pending": 6
+              "not_aligned": 5,
+              "pending": 5
             },
             "60": {
               "mature": 0,
@@ -353,12 +379,12 @@
   "counts": {
     "playbooks": 3,
     "challenger_candidates": 2,
-    "forward_mature20": 12,
+    "forward_mature20": 15,
     "forward_mature60": 0,
     "attribution_reviews": 5
   },
   "change_log": {
-    "previous_generated_at": "2026-11-19T21:28:27.306605+00:00",
+    "previous_generated_at": "2026-11-20T17:04:07.425127+00:00",
     "stateless_recompute": true,
     "automatic_promotion": false
   },

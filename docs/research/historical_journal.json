@@ -1,6 +1,6 @@
 {
   "version": "5.3.0",
-  "generated_at": "2026-11-19T21:28:18.639964+00:00",
+  "generated_at": "2026-11-20T17:03:56.746770+00:00",
   "source": "user-supplied STOOQ OHLCV + daily dashboard append",
   "method": "causal Trend Pulse state-entry event study; 5y window; 10-session same-state cooldown",
   "guardrails": [
@@ -340,7 +340,7 @@
       "first_date": "1990-01-02",
       "last_date": "2026-11-19",
       "eligible": true,
-      "latest_score": 97.14,
+      "latest_score": 97.06,
       "latest_stage": "二次启动"
     },
     {
@@ -382,250 +382,361 @@
   ],
   "update": {
     "expected_session": "2026-11-19",
-    "appended": [
-      {
-        "symbol": "AMD",
-        "date": "2026-11-19",
-        "close": 489.19,
-        "source": "docs/data.json stocks.AMD"
-      },
-      {
-        "symbol": "AMZN",
-        "date": "2026-11-19",
-        "close": 257.37,
-        "source": "docs/data.json stocks.AMZN"
-      },
+    "appended": [],
+    "unchanged": [
+      "AMD",
+      "AMZN",
+      "DRAM",
+      "INTC",
+      "MSFT",
+      "NBIS",
+      "SOFI",
+      "VGT"
+    ],
+    "quarantined": [
       {
         "symbol": "AVGO",
         "date": "2026-11-19",
-        "close": 346.64999,
+        "old": [
+          362.94,
+          369.26001,
+          345.14001,
+          346.64999
+        ],
+        "new": [
+          362.94,
+          369.26001,
+          345.0,
+          346.64999
+        ],
+        "action": "quarantined; correct only via data/history/corrections.jsonl with an independent source",
+        "reason": "conflict",
         "source": "docs/data.json stocks.AVGO"
-      },
-      {
-        "symbol": "DRAM",
-        "date": "2026-11-19",
-        "close": 38.43,
-        "source": "docs/data.json stocks.DRAM"
       },
       {
         "symbol": "GOOG",
         "date": "2026-11-19",
-        "close": 271.019989,
+        "old": [
+          290.82501,
+          292.20999,
+          270.76001,
+          271.019989
+        ],
+        "new": [
+          290.66,
+          292.20999,
+          270.76001,
+          271.019989
+        ],
+        "action": "quarantined; correct only via data/history/corrections.jsonl with an independent source",
+        "reason": "conflict",
         "source": "docs/data.json stocks.GOOG"
       },
       {
         "symbol": "HOOD",
         "date": "2026-11-19",
-        "close": 68.65,
+        "old": [
+          72.78,
+          74.040001,
+          68.56,
+          68.65
+        ],
+        "new": [
+          72.875,
+          74.040001,
+          68.56,
+          68.65
+        ],
+        "action": "quarantined; correct only via data/history/corrections.jsonl with an independent source",
+        "reason": "conflict",
         "source": "docs/data.json stocks.HOOD"
-      },
-      {
-        "symbol": "INTC",
-        "date": "2026-11-19",
-        "close": 55.72,
-        "source": "docs/data.json stocks.INTC"
       },
       {
         "symbol": "IREN",
         "date": "2026-11-19",
-        "close": 14.41,
+        "old": [
+          15.97,
+          16.66,
+          14.18,
+          14.41
+        ],
+        "new": [
+          16.0,
+          16.66,
+          14.18,
+          14.41
+        ],
+        "action": "quarantined; correct only via data/history/corrections.jsonl with an independent source",
+        "reason": "conflict",
         "source": "docs/data.json stocks.IREN"
       },
       {
         "symbol": "LITE",
         "date": "2026-11-19",
-        "close": 535.15002,
+        "old": [
+          574.685,
+          587.69,
+          531.01001,
+          535.15002
+        ],
+        "new": [
+          573.53998,
+          587.69,
+          531.01001,
+          535.15002
+        ],
+        "action": "quarantined; correct only via data/history/corrections.jsonl with an independent source",
+        "reason": "conflict",
         "source": "docs/data.json stocks.LITE"
       },
       {
         "symbol": "MRVL",
         "date": "2026-11-19",
-        "close": 138.47,
+        "old": [
+          151.2,
+          154.5146,
+          138.35001,
+          138.47
+        ],
+        "new": [
+          151.32001,
+          154.50999,
+          138.35001,
+          138.47
+        ],
+        "action": "quarantined; correct only via data/history/corrections.jsonl with an independent source",
+        "reason": "conflict",
         "source": "docs/data.json stocks.MRVL"
-      },
-      {
-        "symbol": "MSFT",
-        "date": "2026-11-19",
-        "close": 498.29999,
-        "source": "docs/data.json stocks.MSFT"
-      },
-      {
-        "symbol": "NBIS",
-        "date": "2026-11-19",
-        "close": 96.92,
-        "source": "docs/data.json stocks.NBIS"
       },
       {
         "symbol": "NVDA",
         "date": "2026-11-19",
-        "close": 145.98,
+        "old": [
+          152.92,
+          158.1301,
+          145.71001,
+          145.98
+        ],
+        "new": [
+          152.92,
+          158.13,
+          145.71001,
+          145.98
+        ],
+        "action": "quarantined; correct only via data/history/corrections.jsonl with an independent source",
+        "reason": "conflict",
         "source": "docs/data.json stocks.NVDA"
       },
       {
         "symbol": "ORCL",
         "date": "2026-11-19",
-        "close": 110.51,
+        "old": [
+          116.665,
+          118.5,
+          110.24,
+          110.51
+        ],
+        "new": [
+          116.67,
+          118.5,
+          110.24,
+          110.57
+        ],
+        "action": "quarantined; correct only via data/history/corrections.jsonl with an independent source",
+        "reason": "conflict",
         "source": "docs/data.json stocks.ORCL"
       },
       {
         "symbol": "QLD",
         "date": "2026-11-19",
-        "close": 71.33,
+        "old": [
+          77.14,
+          78.025,
+          71.09,
+          71.33
+        ],
+        "new": [
+          77.17,
+          78.050003,
+          71.080002,
+          71.26
+        ],
+        "action": "quarantined; correct only via data/history/corrections.jsonl with an independent source",
+        "reason": "conflict",
         "source": "docs/data.json stocks.QLD"
       },
       {
         "symbol": "QQQ",
         "date": "2026-11-19",
-        "close": 645.095,
+        "old": [
+          671.13,
+          676.0,
+          644.36,
+          645.095
+        ],
+        "new": [
+          671.090027,
+          676.48999,
+          644.34003,
+          645.039978
+        ],
+        "action": "quarantined; correct only via data/history/corrections.jsonl with an independent source",
+        "reason": "conflict",
         "source": "docs/data.json stocks.QQQ"
       },
       {
         "symbol": "QQQM",
         "date": "2026-11-19",
-        "close": 265.66,
+        "old": [
+          276.435,
+          278.0,
+          265.34,
+          265.66
+        ],
+        "new": [
+          276.38,
+          278.045013,
+          265.35999,
+          265.64001
+        ],
+        "action": "quarantined; correct only via data/history/corrections.jsonl with an independent source",
+        "reason": "conflict",
         "source": "docs/data.json stocks.QQQM"
       },
       {
         "symbol": "SMH",
         "date": "2026-11-19",
-        "close": 447.42,
+        "old": [
+          472.96,
+          479.88,
+          447.28,
+          447.42
+        ],
+        "new": [
+          473.049988,
+          479.95999,
+          447.20001,
+          447.48001
+        ],
+        "action": "quarantined; correct only via data/history/corrections.jsonl with an independent source",
+        "reason": "conflict",
         "source": "docs/data.json stocks.SMH"
-      },
-      {
-        "symbol": "SOFI",
-        "date": "2026-11-19",
-        "close": 13.53,
-        "source": "docs/data.json stocks.SOFI"
       },
       {
         "symbol": "SPCX",
         "date": "2026-11-19",
-        "close": 138.17,
+        "old": [
+          144.95,
+          147.265,
+          135.5,
+          138.17
+        ],
+        "new": [
+          144.91,
+          147.28999,
+          135.5,
+          138.42999
+        ],
+        "action": "quarantined; correct only via data/history/corrections.jsonl with an independent source",
+        "reason": "conflict",
         "source": "docs/data.json stocks.SPCX"
       },
       {
         "symbol": "SPY",
         "date": "2026-11-19",
-        "close": 715.87,
+        "old": [
+          737.46002,
+          739.8999,
+          715.65002,
+          715.87
+        ],
+        "new": [
+          737.46002,
+          739.90002,
+          715.65002,
+          715.87
+        ],
+        "action": "quarantined; correct only via data/history/corrections.jsonl with an independent source",
+        "reason": "conflict",
         "source": "docs/data.json stocks.SPY"
       },
       {
         "symbol": "TQQQ",
         "date": "2026-11-19",
-        "close": 48.99,
+        "old": [
+          55.2,
+          56.18,
+          48.82,
+          48.99
+        ],
+        "new": [
+          55.2,
+          56.19,
+          48.81,
+          49.0099983
+        ],
+        "action": "quarantined; correct only via data/history/corrections.jsonl with an independent source",
+        "reason": "conflict",
         "source": "docs/data.json stocks.TQQQ"
       },
       {
         "symbol": "TSLA",
         "date": "2026-11-19",
-        "close": 374.41,
+        "old": [
+          389.905,
+          393.59799,
+          370.81,
+          374.41
+        ],
+        "new": [
+          389.91,
+          393.60001,
+          370.81,
+          374.41
+        ],
+        "action": "quarantined; correct only via data/history/corrections.jsonl with an independent source",
+        "reason": "conflict",
         "source": "docs/data.json stocks.TSLA"
       },
       {
         "symbol": "TSM",
         "date": "2026-11-19",
-        "close": 352.089996,
+        "old": [
+          369.55499,
+          374.77051,
+          351.1362,
+          352.089996
+        ],
+        "new": [
+          369.56,
+          374.76999,
+          351.14001,
+          352.089996
+        ],
+        "action": "quarantined; correct only via data/history/corrections.jsonl with an independent source",
+        "reason": "conflict",
         "source": "docs/data.json stocks.TSM"
-      },
-      {
-        "symbol": "VGT",
-        "date": "2026-11-19",
-        "close": 104.99,
-        "source": "docs/data.json stocks.VGT"
       },
       {
         "symbol": "VOO",
         "date": "2026-11-19",
-        "close": 657.83,
+        "old": [
+          677.945,
+          680.0,
+          657.83,
+          657.83
+        ],
+        "new": [
+          677.94,
+          680.14001,
+          657.79999,
+          658.01001
+        ],
+        "action": "quarantined; correct only via data/history/corrections.jsonl with an independent source",
+        "reason": "conflict",
         "source": "docs/data.json stocks.VOO"
-      },
-      {
-        "symbol": "AAOI",
-        "date": "2026-11-19",
-        "close": 39.459999084472656,
-        "source": "Yahoo (yfinance) fallback"
-      },
-      {
-        "symbol": "AAPL",
-        "date": "2026-11-19",
-        "close": 349.2099914550781,
-        "source": "Yahoo (yfinance) fallback"
-      },
-      {
-        "symbol": "CRWV",
-        "date": "2026-11-19",
-        "close": 44.90999984741211,
-        "source": "Yahoo (yfinance) fallback"
-      },
-      {
-        "symbol": "DIA",
-        "date": "2026-11-19",
-        "close": 490.7900085449219,
-        "source": "Yahoo (yfinance) fallback"
-      },
-      {
-        "symbol": "GLD",
-        "date": "2026-11-19",
-        "close": 335.17999267578125,
-        "source": "Yahoo (yfinance) fallback"
-      },
-      {
-        "symbol": "HYG",
-        "date": "2026-11-19",
-        "close": 76.52999877929688,
-        "source": "Yahoo (yfinance) fallback"
-      },
-      {
-        "symbol": "IWM",
-        "date": "2026-11-19",
-        "close": 264.20001220703125,
-        "source": "Yahoo (yfinance) fallback"
-      },
-      {
-        "symbol": "META",
-        "date": "2026-11-19",
-        "close": 596.219970703125,
-        "source": "Yahoo (yfinance) fallback"
-      },
-      {
-        "symbol": "MU",
-        "date": "2026-11-19",
-        "close": 690.4400024414062,
-        "source": "Yahoo (yfinance) fallback"
-      },
-      {
-        "symbol": "NOW",
-        "date": "2026-11-19",
-        "close": 88.87000274658203,
-        "source": "Yahoo (yfinance) fallback"
-      },
-      {
-        "symbol": "TLT",
-        "date": "2026-11-19",
-        "close": 80.3499984741211,
-        "source": "Yahoo (yfinance) fallback"
-      },
-      {
-        "symbol": "XLE",
-        "date": "2026-11-19",
-        "close": 60.88999938964844,
-        "source": "Yahoo (yfinance) fallback"
-      },
-      {
-        "symbol": "XLF",
-        "date": "2026-11-19",
-        "close": 55.58000183105469,
-        "source": "Yahoo (yfinance) fallback"
-      },
-      {
-        "symbol": "XLK",
-        "date": "2026-11-19",
-        "close": 160.67999267578125,
-        "source": "Yahoo (yfinance) fallback"
       }
     ],
-    "unchanged": [],
-    "quarantined": [],
     "missing": [],
     "close_only": [],
     "not_final": [],
@@ -655,100 +766,14 @@
       "TSLA": "docs/data.json stocks.TSLA",
       "TSM": "docs/data.json stocks.TSM",
       "VGT": "docs/data.json stocks.VGT",
-      "VOO": "docs/data.json stocks.VOO",
-      "AAOI": "Yahoo (yfinance) fallback",
-      "AAPL": "Yahoo (yfinance) fallback",
-      "CRWV": "Yahoo (yfinance) fallback",
-      "DIA": "Yahoo (yfinance) fallback",
-      "GLD": "Yahoo (yfinance) fallback",
-      "HYG": "Yahoo (yfinance) fallback",
-      "IWM": "Yahoo (yfinance) fallback",
-      "META": "Yahoo (yfinance) fallback",
-      "MU": "Yahoo (yfinance) fallback",
-      "NOW": "Yahoo (yfinance) fallback",
-      "TLT": "Yahoo (yfinance) fallback",
-      "XLE": "Yahoo (yfinance) fallback",
-      "XLF": "Yahoo (yfinance) fallback",
-      "XLK": "Yahoo (yfinance) fallback"
+      "VOO": "docs/data.json stocks.VOO"
     },
     "fallback_diagnostics": {
-      "provider": "Yahoo (yfinance download, period=10d, interval=1d)",
-      "requests": 1,
-      "requested_symbols": 14,
+      "provider": "injected fetcher (test/other)",
+      "requests": 0,
+      "requested_symbols": 0,
       "error": null,
-      "per_symbol": {
-        "AAOI": {
-          "raw_last_date": "2026-11-19",
-          "rows": 10,
-          "last_complete_date": "2026-11-19"
-        },
-        "AAPL": {
-          "raw_last_date": "2026-11-19",
-          "rows": 10,
-          "last_complete_date": "2026-11-19"
-        },
-        "CRWV": {
-          "raw_last_date": "2026-11-19",
-          "rows": 10,
-          "last_complete_date": "2026-11-19"
-        },
-        "DIA": {
-          "raw_last_date": "2026-11-19",
-          "rows": 10,
-          "last_complete_date": "2026-11-19"
-        },
-        "GLD": {
-          "raw_last_date": "2026-11-19",
-          "rows": 10,
-          "last_complete_date": "2026-11-19"
-        },
-        "HYG": {
-          "raw_last_date": "2026-11-19",
-          "rows": 10,
-          "last_complete_date": "2026-11-19"
-        },
-        "IWM": {
-          "raw_last_date": "2026-11-19",
-          "rows": 10,
-          "last_complete_date": "2026-11-19"
-        },
-        "META": {
-          "raw_last_date": "2026-11-19",
-          "rows": 10,
-          "last_complete_date": "2026-11-19"
-        },
-        "MU": {
-          "raw_last_date": "2026-11-19",
-          "rows": 10,
-          "last_complete_date": "2026-11-19"
-        },
-        "NOW": {
-          "raw_last_date": "2026-11-19",
-          "rows": 10,
-          "last_complete_date": "2026-11-19"
-        },
-        "TLT": {
-          "raw_last_date": "2026-11-19",
-          "rows": 10,
-          "last_complete_date": "2026-11-19"
-        },
-        "XLE": {
-          "raw_last_date": "2026-11-19",
-          "rows": 10,
-          "last_complete_date": "2026-11-19"
-        },
-        "XLF": {
-          "raw_last_date": "2026-11-19",
-          "rows": 10,
-          "last_complete_date": "2026-11-19"
-        },
-        "XLK": {
-          "raw_last_date": "2026-11-19",
-          "rows": 10,
-          "last_complete_date": "2026-11-19"
-        }
-      },
-      "raw_empty": false
+      "per_symbol": {}
     }
   },
   "summary": {
@@ -988,12 +1013,12 @@
         },
         "60": {
           "n": 1607,
-          "avg": 0.07132723391212202,
+          "avg": 0.07132122988222353,
           "median": 0.017386219388701107,
           "positive_rate": 0.5407591785936527,
           "mae_avg": -0.12488994284146832,
-          "mfe_avg": 0.2245234713021679,
-          "excess_vs_qqq_avg": 0.0381398591462632
+          "mfe_avg": 0.22451746727226948,
+          "excess_vs_qqq_avg": 0.03813385511636471
         },
         "120": {
           "n": 1495,
@@ -8327,11 +8352,11 @@
         },
         "60": {
           "date": "2026-11-19",
-          "return": 0.9696760491304606,
+          "return": 0.9600275730835912,
           "mae": -0.0206754090973561,
-          "mfe": 0.9696760491304606,
+          "mfe": 0.9600275730835912,
           "qqq_return": -0.10541387583031714,
-          "excess_vs_qqq": 1.0750899249607777
+          "excess_vs_qqq": 1.0654414489139084
         },
         "120": null
       }

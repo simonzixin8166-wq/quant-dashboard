@@ -140,3 +140,10 @@ assert "serverMarketAsOf===expected" in qa and "&&serverCurrent" in qa
 assert sa.presence(0) == 0 and sa.presence(3) == 1 and sa.presence(None) == 0
 assert sa.presence_map({"persisted": 7, "attributed": 0}, ("persisted", "with_user_action", "attributed")) == {"persisted": 1, "with_user_action": 0, "attributed": 0}
 print("PASS Issue #134 server action snapshot freshness / fail-closed / privacy")
+
+# Daily-triggered QA waits (up to 10 min, non-fatal) for this session's server snapshot to deploy (11/19 21:31Z race)
+_qa = (Path(__file__).resolve().parents[1] / ".github/workflows/autonomous-qa.yml").read_text(encoding="utf-8")
+_w = _qa.index("Wait for the Server Action snapshot of this session")
+assert _qa.index("Compute independent expected market date") < _w < _qa.index("name: Browser autonomous QA")
+assert "workflow_run.name == 'Daily Dashboard Update'" in _qa[_w:_w + 400] and "continue-on-error: true" in _qa[_w:_w + 400]
+print("PASS Daily-triggered QA waits for the current server snapshot")

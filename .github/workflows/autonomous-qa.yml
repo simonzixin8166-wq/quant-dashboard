@@ -165,6 +165,31 @@ jobs:
         run: |
           echo "EXPECTED_MARKET_DATE=$(python scripts/trading_calendar.py)" >> "$GITHUB_ENV"
           echo "EXPECTED_MARKET_DATE_GRACE=$(python scripts/trading_calendar.py --grace)" >> "$GITHUB_ENV"
+      # A Daily-triggered run starts together with Server Action Watch (both follow Daily); give the server snapshot of
+      # this session up to 10 min to deploy before judging it (11/19 21:31Z: QA read the 11/18 snapshot 1 min early).
+      # On timeout QA still runs and fails closed as before.
+      - name: Wait for the Server Action snapshot of this session (Daily-triggered runs)
+        if: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.name == 'Daily Dashboard Update' }}
+        continue-on-error: true
+        run: |
+          python - <<'PY'
+          import json,os,time,urllib.request
+          want=os.environ.get("EXPECTED_MARKET_DATE","")
+          deadline=time.time()+600
+          while time.time()<deadline:
+              try:
+                  with urllib.request.urlopen("https://myalphaview.com/research/server_action_status.json?qa="+str(int(time.time())),timeout=20) as r:
+                      got=str((json.load(r).get("data_trust") or {}).get("market_as_of") or "")
+                  if want and got==want:
+                      print("Server Action snapshot current:",got);raise SystemExit(0)
+                  print("Waiting for Server Action snapshot:",got,"expected",want)
+              except SystemExit:
+                  raise
+              except Exception as e:
+                  print("Waiting for Server Action snapshot:",e)
+              time.sleep(20)
+          print("Server Action snapshot not current after 10 min; QA judges what is deployed")
+          PY
       - name: Browser autonomous QA
         env:
           BASE_URL: https://myalphaview.com

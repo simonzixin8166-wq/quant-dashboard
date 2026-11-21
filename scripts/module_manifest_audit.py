@@ -38,6 +38,7 @@ ROLES = {  # reader → (role, reason)
     "daily_research_job.py": (R, "append-only shadow hypotheses, revisits, maturity"),
     "morning_brief.py": (V, "Owner 2026-11-13: one Telegram morning brief from published files; reminder only, never a decision input"),
     "shock_event_monitor.py": (V, "Owner 2026-11-12: shock events recorded, analysed and advised twice a day; Telegram reminder only, never a decision input or order"),
+    "today_referee.py": (V, "S4-1 Owner 2026-11-21: shadow Today's Action referee (<=3 cards, watch, hold, page mode) from published files; reminder only, never orders, quantities or threshold changes"),
     "threshold_ledger.py": (V, "Owner 2026-11-15: append-only record of every core-ETF threshold crossing with values, dates and counts, plus a descriptive review; never changes a threshold or an alert"),
     "learning_progress.py": (V, "four-measures learning progress panel with denominators; report only, never upgrades the learning state"),
     "macro_event_watch.py": (V, "H-01/H-02 homepage macro-event reminder artifact (Shadow, no decisions)"),

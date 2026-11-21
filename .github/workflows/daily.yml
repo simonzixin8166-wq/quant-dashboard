@@ -202,6 +202,17 @@ jobs:
         if: steps.threshold_ledger.outcome == 'failure'
         run: python scripts/module_failure_marker.py threshold_ledger
 
+      # S4-1 Today's Action referee (Owner 2026-11-21, plan v0.2): condenses published conclusions into <=3 action
+      # cards + watch + hold + page mode. Shadow only until S4-3: nothing reads today_actions.json yet.
+      - name: Today's Action referee (shadow)
+        id: today_referee
+        continue-on-error: true
+        run: python scripts/today_referee.py
+
+      - name: Record today_referee failure (visible in system status)
+        if: steps.today_referee.outcome == 'failure'
+        run: python scripts/module_failure_marker.py today_referee
+
       - name: Build V6.11 Outcome Foundation (shadow-only)
         id: playbook_outcomes
         continue-on-error: true
@@ -580,6 +591,7 @@ jobs:
           python tests/test_forward_outcome_ledger.py
           python tests/test_learning_progress.py
           python tests/test_threshold_ledger.py
+          python tests/test_today_referee.py
           python tests/test_event_calendar.py
           python tests/test_thesis_revision_memory.py
           python tests/test_v610a_playbook_engine.py

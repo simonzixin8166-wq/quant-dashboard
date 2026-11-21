@@ -50,6 +50,19 @@ use, and training never means automatic orders or changing production thresholds
 - Historical reconstruction ≠ genuine forward; dev set ≠ frozen test; engineering QA PASS ≠ learning PASS.
 - Learning stays **UNPROVEN / FINAL=NO** until matured outcomes and reliable understanding prove otherwise.
 
+## Front end: clear results, jargon in the back end (owner, 2026-11-21)
+The owner is not a finance professional. The site must answer at a glance: is there anything to do today, what,
+and why.
+- The front page shows plain-language results first: today's actions (≤3, or "nothing to do today"), a one-line
+  hold summary, and folded watch items. Technical and financial terms (drawdown math, recall, CI, evidence ladder,
+  shadow, MAE…) stay in the back end and in expanded details, translated into plain Chinese on the page.
+- Two things are never cut for brevity. First, a one-sentence risk or uncertainty note when it matters. Second,
+  the evidence: it is folded behind the card, never deleted, and stays traceable.
+- Keep data and pages lean. Every artifact, module and tab must say which decision it serves; duplicates are
+  merged, and unused ones are retired or kept back-end only. Removals are listed for the owner and approved first.
+- Monthly review checks goal drift (does each change move the four measures?) and new redundancy.
+- A full site redesign follows once the data and module cleanup is done (after S4-3 and the inventory).
+
 ## Working rules
 - Small PRs → CI → merge → production verification; report progress on Issue #133 with PR / SHA /
   Actions run / evidence. Reuse existing pipelines (Daily, research-close, Guardian, QA) before adding new ones.

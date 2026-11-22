@@ -31,6 +31,10 @@ SERIES = {
     "BAMLH0A0HYM2": ("hy_spread", "US High Yield OAS"),
     "DTWEXBGS": ("broad_dollar", "Broad Dollar Index"),
     "VIXCLS": ("vix", "VIX"),
+    # Owner 2026-11-22 (back end only): signals named by the 2027 outlooks, read by scripts/outlook_claims.py
+    "DCOILBRENTEU": ("brent", "Brent Crude Oil"),
+    "BAMLC0A0CM": ("ig_spread", "US Corporate Investment Grade OAS"),
+    "DFEDTARU": ("fed_funds_upper", "Fed Funds Target Range Upper"),
 }
 
 

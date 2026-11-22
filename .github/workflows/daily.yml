@@ -336,6 +336,17 @@ jobs:
       - name: Record turning_point_checklist failure (visible in system status)
         if: steps.turning_point_checklist.outcome == 'failure'
         run: python scripts/module_failure_marker.py turning_point_checklist
+
+      # Owner 2026-11-22: external outlook claims ledger + watch (Brent / IG spread / 10y). Back end only, no page.
+      - name: Outlook claims ledger and watch (back end, record only)
+        id: outlook_claims
+        continue-on-error: true
+        run: python scripts/outlook_claims.py
+
+      - name: Record outlook_claims failure (visible in system status)
+        if: steps.outlook_claims.outcome == 'failure'
+        run: python scripts/module_failure_marker.py outlook_claims
+
       - name: Macro event outcomes + tranche Shadow + homepage event row (Shadow)
         id: macro_event_watch
         continue-on-error: true
@@ -592,6 +603,7 @@ jobs:
           python tests/test_learning_progress.py
           python tests/test_threshold_ledger.py
           python tests/test_today_referee.py
+          python tests/test_outlook_claims.py
           python tests/test_event_calendar.py
           python tests/test_thesis_revision_memory.py
           python tests/test_v610a_playbook_engine.py
@@ -627,6 +639,7 @@ jobs:
           git config user.email "actions@github.com"
           git add docs/ research/archive/ research/knowledge/ research/store/source_store.json data/history/stooq_watchlist.zip
           if [ -f research/audit/sec_fact_reconciliation.json ]; then git add research/audit/sec_fact_reconciliation.json; fi
+          if [ -d research/outlook ]; then git add research/outlook/; fi
           if [ -f docs/research/operational_incident_memory.json ]; then git add docs/research/operational_incident_memory.json; fi
           if [ -f research/store/operational_incident_state.json ]; then git add research/store/operational_incident_state.json; fi
           if [ -f research/archive/operational_incidents.jsonl ]; then git add research/archive/operational_incidents.jsonl; fi

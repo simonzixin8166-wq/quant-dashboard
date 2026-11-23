@@ -1,0 +1,111 @@
+{
+ "version": "drawdown-regime-0.1",
+ "generated_at": "2026-11-23T20:16:16+00:00",
+ "macro_as_of": "2026-11-23",
+ "type": "RATES_VALUATION",
+ "label_zh": "利率与估值回调型（类似 2022）",
+ "explain_zh": "信用和就业平稳，压力主要来自高利率压低科技股估值；历史上这类下跌可以很深，但不是体系崩溃。 信用利差 3.76%、失业率 4.1%、金融条件 -0.478、实际利率 2.88%、VIX 35.89。",
+ "checks": {
+  "credit": {
+   "series": "BAMLH0A0HYM2",
+   "label_zh": "高收益债利差",
+   "value": 3.76,
+   "level": "calm",
+   "rule_zh": "≥5% 警惕，≥7% 危机（2022 峰值约 5.8%，2008 约 21.8%）"
+  },
+  "jobs": {
+   "series": "UNRATE",
+   "label_zh": "失业率",
+   "value": 4.1,
+   "change_3m": 0.0,
+   "change_20m": 0.09999999999999964,
+   "level": "calm",
+   "rule_zh": "3 个月升 ≥0.3 点警惕，≥0.5 点（或 20 个月升 ≥1 点）危机"
+  },
+  "financial_conditions": {
+   "series": "NFCI",
+   "label_zh": "金融条件指数",
+   "value": -0.478,
+   "level": "calm",
+   "rule_zh": "≥0 偏紧警惕，≥0.5 明显收紧"
+  },
+  "real_yield": {
+   "series": "DFII10",
+   "label_zh": "10 年期实际利率",
+   "value": 2.88,
+   "change_20d": 0.1200000000000001,
+   "level": "stress",
+   "rule_zh": "≥1.5% 估值有压力，≥2.0%（或 20 天升 ≥0.5 点）压力大；这是 2022 型下跌的主因"
+  },
+  "fear": {
+   "series": "VIXCLS",
+   "date": "2026-11-20",
+   "label_zh": "恐慌指数 VIX",
+   "value": 35.89,
+   "level": "watch",
+   "rule_zh": "≥30 紧张，≥40 恐慌（只作温度参考，不单独决定类型）"
+  }
+ },
+ "drawdowns": {
+  "QQQM": {
+   "drawdown": -0.2002,
+   "zone": "t2",
+   "as_of": "2026-11-20"
+  },
+  "VGT": {
+   "drawdown": -0.2527,
+   "zone": "t2",
+   "as_of": "2026-11-20"
+  },
+  "QLD": {
+   "drawdown": -0.3749,
+   "zone": "t2",
+   "as_of": "2026-11-20"
+  }
+ },
+ "last_alerted_type": "RATES_VALUATION",
+ "alert": {
+  "sent_now": false,
+  "delivery": null
+ },
+ "analogs_context_only": [
+  {
+   "episode": "1929-1932",
+   "nasdaq_or_dow_peak_to_trough": "道指约 -89%",
+   "hy_spread_peak": null,
+   "unemployment_peak": "约 25%",
+   "note_zh": "银行倒闭、通缩，FRED 无同口径数据"
+  },
+  {
+   "episode": "2000-2002",
+   "nasdaq_or_dow_peak_to_trough": "纳指约 -78%",
+   "hy_spread_peak": "约 11%",
+   "unemployment_peak": "约 6.3%",
+   "note_zh": "科技估值泡沫破裂叠加衰退"
+  },
+  {
+   "episode": "2007-2009",
+   "nasdaq_or_dow_peak_to_trough": "纳指约 -56%",
+   "hy_spread_peak": "约 21.8%",
+   "unemployment_peak": "约 10%",
+   "note_zh": "信用体系危机"
+  },
+  {
+   "episode": "2020",
+   "nasdaq_or_dow_peak_to_trough": "纳指约 -30%",
+   "hy_spread_peak": "约 10.9%",
+   "unemployment_peak": "约 14.8%",
+   "note_zh": "疫情冲击，政策迅速托底"
+  },
+  {
+   "episode": "2022",
+   "nasdaq_or_dow_peak_to_trough": "纳指约 -35%",
+   "hy_spread_peak": "约 5.8%",
+   "unemployment_peak": "约 3.7%",
+   "note_zh": "加息与实际利率飙升，信用与就业平稳"
+  }
+ ],
+ "production_use": false,
+ "published": false,
+ "policy_zh": "只判断下跌的性质，不预测底部；不上网站、不改阈值、不改仓位、不下单。"
+}

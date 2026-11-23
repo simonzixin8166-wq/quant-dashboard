@@ -1,6 +1,6 @@
 {
  "version": "threshold-ledger-1.0",
- "generated_at": "2026-11-20T21:29:01+00:00",
+ "generated_at": "2026-11-23T20:15:18+00:00",
  "policy": "record_and_review_only_no_orders_no_threshold_change",
  "rule": "core_tier_state.advance: enter once per cycle, leave at line - 2 pp, re-enter after a leave (Owner 2026-11-17); near = t1 - 2 pp; ATH = running max high",
  "live_from": "2026-11-02",
@@ -2404,14 +2404,14 @@
  "transitions_no_longer_supported": [],
  "published_mismatches": [],
  "shock_events": {
-  "events": 15,
+  "events": 17,
   "retracted": 0,
   "corrected": 3,
   "by_subject": {
-   "NVDA": 2,
+   "NVDA": 3,
+   "MARKET": 3,
    "AMD": 2,
    "AVGO": 2,
-   "MARKET": 2,
    "TSM": 2,
    "MSFT": 1,
    "AAPL": 1,
@@ -2420,12 +2420,12 @@
    "META": 1
   },
   "by_severity": {
-   "medium": 14,
-   "high": 1
+   "medium": 15,
+   "high": 2
   },
-  "price_triggers": 12,
+  "price_triggers": 14,
   "news_triggers": 5,
-  "vix_triggers": 0,
+  "vix_triggers": 1,
   "list": [
    {
     "event_id": "NVDA@2026-11-11",
@@ -2591,27 +2591,49 @@
     "first_seen": "2026-11-20T20:44:55+00:00",
     "retracted": false,
     "corrections": 0
+   },
+   {
+    "event_id": "NVDA@2026-11-20",
+    "subject": "NVDA",
+    "ref_session": "2026-11-20",
+    "severity": "medium",
+    "price_trigger": true,
+    "news_trigger": false,
+    "first_seen": "2026-11-23T12:47:19+00:00",
+    "retracted": false,
+    "corrections": 0
+   },
+   {
+    "event_id": "MARKET@2026-11-20",
+    "subject": "MARKET",
+    "ref_session": "2026-11-20",
+    "severity": "high",
+    "price_trigger": true,
+    "news_trigger": false,
+    "first_seen": "2026-11-23T12:47:19+00:00",
+    "retracted": false,
+    "corrections": 0
    }
   ]
  },
  "turning_point_checklist": {
-  "sessions": 22,
+  "sessions": 23,
   "trigger_sessions": 0,
   "max_met": 2,
   "met_sessions_by_condition": {
    "sentiment": 6,
-   "easing": 5
+   "easing": 6
   },
   "first_met": {
    "sentiment": "2026-10-27",
    "easing": "2026-11-13"
   },
   "latest": {
-   "market_date": "2026-11-19",
+   "market_date": "2026-11-20",
    "met": 1,
    "near": 2,
-   "qqq_close": 645.095,
-   "recorded_at": "2026-11-19T21:29:13.276519+00:00",
+   "qqq_close": 609.75,
+   "recorded_at": "2026-11-20T21:29:46.935362+00:00",
    "statuses": {
     "earnings": "near",
     "easing": "met",

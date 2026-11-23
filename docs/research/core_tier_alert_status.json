@@ -1,26 +1,27 @@
 {
  "version": "cta-1.0",
- "generated_at": "2026-11-23T20:15:18.392357+00:00",
+ "generated_at": "2026-11-23T21:28:52.450490+00:00",
  "policy": "reminder_only_no_orders",
  "near_pp": 0.02,
  "leave_buffer_pp": 0.02,
- "expected_session": "2026-11-20",
+ "expected_session": "2026-11-23",
  "symbols": {
   "QQQM": {
    "cycle_ath": 314.11498997190324,
    "sent": [
     "enter:near",
     "enter:t1",
-    "enter:t2"
+    "enter:t2",
+    "leave:t2"
    ],
-   "zone": "t2",
+   "zone": "t1",
    "cycle_id": "QQQM@314.1150",
    "judgment": "evaluated",
    "reason": "ok",
-   "as_of": "2026-11-20",
-   "expected_session": "2026-11-20",
-   "close": 251.23,
-   "drawdown": -0.20019735507513903,
+   "as_of": "2026-11-23",
+   "expected_session": "2026-11-23",
+   "close": 268.04,
+   "drawdown": -0.14668192116522805,
    "ath_implied": 314.114990234375,
    "ath_validation": "PASS",
    "price_basis": "validated ATH (Yahoo high), close",
@@ -44,14 +45,14 @@
     "enter:t1",
     "enter:t2"
    ],
-   "zone": "t2",
+   "zone": "t1",
    "cycle_id": "VGT@130.6600",
    "judgment": "evaluated",
    "reason": "ok",
-   "as_of": "2026-11-20",
-   "expected_session": "2026-11-20",
-   "close": 97.64,
-   "drawdown": -0.2527169963005671,
+   "as_of": "2026-11-23",
+   "expected_session": "2026-11-23",
+   "close": 106.46,
+   "drawdown": -0.18521355413927054,
    "ath_implied": 130.66000366210938,
    "ath_validation": "PASS",
    "price_basis": "validated ATH (Yahoo high), close",
@@ -73,17 +74,18 @@
    "sent": [
     "enter:near",
     "enter:t1",
-    "enter:t2"
+    "enter:t2",
+    "leave:t2"
    ],
-   "zone": "t2",
+   "zone": "t1",
    "cycle_id": "QLD@101.6200",
    "judgment": "evaluated",
    "reason": "ok",
-   "as_of": "2026-11-20",
-   "expected_session": "2026-11-20",
-   "close": 63.52,
-   "drawdown": -0.37492621252525515,
-   "ath_implied": 101.62000274658203,
+   "as_of": "2026-11-23",
+   "expected_session": "2026-11-23",
+   "close": 71.97,
+   "drawdown": -0.2917732921196886,
+   "ath_implied": 101.62000274658205,
    "ath_validation": "PASS",
    "price_basis": "validated ATH (Yahoo high), close",
    "thresholds": {
@@ -320,6 +322,28 @@
    "at": "2026-11-20T21:29:00.067305+00:00",
    "key": "QLD@101.6200|enter:t2",
    "delivery": "sent"
+  },
+  {
+   "symbol": "QQQM",
+   "kind": "leave",
+   "line": "t2",
+   "cycle_id": "QQQM@314.1150",
+   "drawdown": -0.14668192116522805,
+   "as_of": "2026-11-23",
+   "at": "2026-11-23T21:28:52.450490+00:00",
+   "key": "QQQM@314.1150|leave:t2|2026-11-23",
+   "delivery": "sent"
+  },
+  {
+   "symbol": "QLD",
+   "kind": "leave",
+   "line": "t2",
+   "cycle_id": "QLD@101.6200",
+   "drawdown": -0.2917732921196886,
+   "as_of": "2026-11-23",
+   "at": "2026-11-23T21:28:52.450490+00:00",
+   "key": "QLD@101.6200|leave:t2|2026-11-23",
+   "delivery": "sent"
   }
  ],
  "outbox": [
@@ -482,7 +506,26 @@
    "attempts": 1,
    "status": "sent",
    "last_delivery": "sent"
+  },
+  {
+   "key": "QQQM@314.1150|leave:t2|2026-11-23",
+   "text": "MyAlpha｜核心ETF回撤分档：QQQM 回升，已离开二级加仓线\n当前回撤（距历史最高）-14.7%；二级阈值 18%，对应价格 ≈ 257.57。一/二/三级 = 12%/18%/25%。数据日期 2026-11-23，数据可信。\n这是提醒，不是买卖指令；是否加仓由你决定。",
+   "created_at": "2026-11-23T21:28:52.450490+00:00",
+   "attempts": 1,
+   "status": "sent",
+   "last_delivery": "sent"
+  },
+  {
+   "key": "QLD@101.6200|leave:t2|2026-11-23",
+   "text": "MyAlpha｜核心ETF回撤分档：QLD 回升，已离开二级加仓线\n当前回撤（距历史最高）-29.2%；二级阈值 35%，对应价格 ≈ 66.05。一/二/三级 = 25%/35%/50%。数据日期 2026-11-23，数据可信。\n这是提醒，不是买卖指令；是否加仓由你决定。",
+   "created_at": "2026-11-23T21:28:52.450490+00:00",
+   "attempts": 1,
+   "status": "sent",
+   "last_delivery": "sent"
   }
  ],
- "last_deliveries": []
+ "last_deliveries": [
+  "sent",
+  "sent"
+ ]
 }

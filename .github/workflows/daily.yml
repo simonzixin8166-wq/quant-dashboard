@@ -347,6 +347,20 @@ jobs:
         if: steps.outlook_claims.outcome == 'failure'
         run: python scripts/module_failure_marker.py outlook_claims
 
+      # Owner 2026-11-23: what kind of drawdown is this (2022-type rates/valuation vs 2008/1929-type systemic)?
+      # Back end only; one Telegram only when the type changes. Never a decision input, threshold change or order.
+      - name: Drawdown type check (back end, alert on type change only)
+        id: drawdown_regime
+        continue-on-error: true
+        env:
+          MYALPHA_TG_BOT_TOKEN: ${{ secrets.MYALPHA_TG_BOT_TOKEN }}
+          MYALPHA_TG_CHAT_ID: ${{ secrets.MYALPHA_TG_CHAT_ID }}
+        run: python scripts/drawdown_regime.py
+
+      - name: Record drawdown_regime failure (visible in system status)
+        if: steps.drawdown_regime.outcome == 'failure'
+        run: python scripts/module_failure_marker.py drawdown_regime
+
       - name: Macro event outcomes + tranche Shadow + homepage event row (Shadow)
         id: macro_event_watch
         continue-on-error: true
@@ -604,6 +618,7 @@ jobs:
           python tests/test_threshold_ledger.py
           python tests/test_today_referee.py
           python tests/test_outlook_claims.py
+          python tests/test_drawdown_regime.py
           python tests/test_event_calendar.py
           python tests/test_thesis_revision_memory.py
           python tests/test_v610a_playbook_engine.py
@@ -640,6 +655,7 @@ jobs:
           git add docs/ research/archive/ research/knowledge/ research/store/source_store.json data/history/stooq_watchlist.zip
           if [ -f research/audit/sec_fact_reconciliation.json ]; then git add research/audit/sec_fact_reconciliation.json; fi
           if [ -d research/outlook ]; then git add research/outlook/; fi
+          if [ -d research/regime ]; then git add research/regime/; fi
           if [ -f docs/research/operational_incident_memory.json ]; then git add docs/research/operational_incident_memory.json; fi
           if [ -f research/store/operational_incident_state.json ]; then git add research/store/operational_incident_state.json; fi
           if [ -f research/archive/operational_incidents.jsonl ]; then git add research/archive/operational_incidents.jsonl; fi

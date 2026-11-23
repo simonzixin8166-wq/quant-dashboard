@@ -30,6 +30,10 @@ assert C(hy=5.5) == "TURNING" and C(nf=0.1) == "TURNING" and C(d3=0.3) == "TURNI
 assert C(hy=7.2) == "SYSTEMIC" and C(hy=5.5, d3=0.6) == "SYSTEMIC" and C(nf=0.6, d3=0.6) == "SYSTEMIC"
 assert C(vix=45) == "RATES_VALUATION"                             # fear alone never sets the type
 assert dr.classify(dr.checks({"series": {}})) == "UNKNOWN"
+# FRED VIXCLS lags a session: a newer same-day close from market data wins, an older one never does
+f = dr.checks(macro("2026-11-19"), {"vix": {"date": "2026-11-20", "close": 37.06}})["fear"]
+assert f["value"] == 37.06 and f["series"] == "yahoo_close" and f["level"] == "watch"
+assert dr.checks(macro("2026-11-19"), {"vix": {"date": "2026-11-18", "close": 50}})["fear"]["series"] == "VIXCLS"
 print("PASS classify: 2022-type now; turning / systemic / ordinary / unknown")
 
 sent = []

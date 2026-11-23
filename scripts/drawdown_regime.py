@@ -28,6 +28,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 MACRO = ROOT / "docs" / "research" / "macro_context.json"
 TIERS = ROOT / "docs" / "research" / "core_tier_alert_status.json"
+MARKET = ROOT / "docs" / "data.json"     # same-day VIX close (Yahoo); FRED VIXCLS lags one session
 OUT = ROOT / "research" / "regime" / "drawdown_regime_status.json"
 HISTORY = ROOT / "research" / "regime" / "drawdown_regime_history.jsonl"
 VERSION = "drawdown-regime-0.1"
@@ -64,7 +65,7 @@ def _chg(series: dict, sid: str, h: str):
     return c if isinstance(c, (int, float)) else None
 
 
-def checks(macro: dict) -> dict:
+def checks(macro: dict, market: dict | None = None) -> dict:
     """Five signals, each calm / watch / stress (or unavailable), with the value it was judged on."""
     s = (macro or {}).get("series") or {}
     out = {}
@@ -87,8 +88,11 @@ def checks(macro: dict) -> dict:
                          "level": None if ry is None else ("stress" if ry >= 2.0 or (ry20 or 0) >= 0.5 else
                                                            "watch" if ry >= 1.5 else "calm"),
                          "rule_zh": "≥1.5% 估值有压力，≥2.0%（或 20 天升 ≥0.5 点）压力大；这是 2022 型下跌的主因"}
-    vx = _v(s, "VIXCLS")
-    out["fear"] = {"series": "VIXCLS", "label_zh": "恐慌指数 VIX", "value": vx,
+    vx, vsrc, vdate = _v(s, "VIXCLS"), "VIXCLS", ((s.get("VIXCLS") or {}).get("latest") or {}).get("date")
+    mv = (market or {}).get("vix") if isinstance(market, dict) else None
+    if isinstance(mv, dict) and isinstance(mv.get("close"), (int, float)) and str(mv.get("date") or "") > str(vdate or ""):
+        vx, vsrc, vdate = round(float(mv["close"]), 2), "yahoo_close", mv["date"]
+    out["fear"] = {"series": vsrc, "date": vdate, "label_zh": "恐慌指数 VIX", "value": vx,
                    "level": None if vx is None else ("stress" if vx >= 40 else "watch" if vx >= 30 else "calm"),
                    "rule_zh": "≥30 紧张，≥40 恐慌（只作温度参考，不单独决定类型）"}
     return out
@@ -165,8 +169,16 @@ def notify(text: str) -> str:
         return f"failed:{type(exc).__name__}"
 
 
-def run(macro: dict, now: datetime, send=notify) -> dict:
-    c = checks(macro)
+def market_vix() -> dict | None:
+    try:
+        d = json.loads(MARKET.read_text(encoding="utf-8"))
+        return {"vix": ((d.get("market_indicators") or {}).get("vix"))}
+    except Exception:  # noqa: BLE001
+        return None
+
+
+def run(macro: dict, now: datetime, send=notify, market: dict | None = None) -> dict:
+    c = checks(macro, market)
     kind = classify(c)
     as_of = (macro or {}).get("as_of") or now.date().isoformat()
     prev_status = json.loads(OUT.read_text(encoding="utf-8")) if OUT.exists() else {}
@@ -193,7 +205,7 @@ def run(macro: dict, now: datetime, send=notify) -> dict:
 
 def main() -> int:
     macro = json.loads(MACRO.read_text(encoding="utf-8")) if MACRO.exists() else {}
-    rep = run(macro, datetime.now(timezone.utc))
+    rep = run(macro, datetime.now(timezone.utc), market=market_vix())
     print(json.dumps({"type": rep["type"], "alert": rep["alert"],
                       "levels": {k: v["level"] for k, v in rep["checks"].items()}}, ensure_ascii=False))
     return 0

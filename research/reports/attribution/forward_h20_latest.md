@@ -1,7 +1,7 @@
-# Cohort report · genuine_forward · sessions 2026-10-08,2026-10-09,2026-10-12,2026-10-13,2026-10-14,2026-10-15,2026-10-16 · h=20
+# Cohort report · genuine_forward · sessions 2026-10-08,2026-10-09,2026-10-12,2026-10-13,2026-10-14,2026-10-15,2026-10-16,2026-10-19,2026-10-20,2026-10-21,2026-10-22,2026-10-23 · h=20
 - contract `fsc-1.0` hash `3eb0efc58e3eba8b`; attribution `fea-0.2`; independence `rfi-0.1`
-- script sha256 `dfd1a19da512bfa2`; inputs sha256: forward_observations.jsonl `21ace218ce71d81b`, forward_observations_promoted.jsonl `5a4294db2c199f15`, forward_outcomes.jsonl `a4af9842a7f55288`
-- ledger rows in cohort: **178**; outcomes found: 178; cohort sha `0a48f8ed4433b3d1`; outcomes sha `2aaa174b83042fd0`
+- script sha256 `dfd1a19da512bfa2`; inputs sha256: forward_observations.jsonl `c4aaf2552637e19c`, forward_observations_promoted.jsonl `5a4294db2c199f15`, forward_outcomes.jsonl `6fd3f63a3b666169`
+- ledger rows in cohort: **308**; outcomes found: 308; cohort sha `ac8e92e663b7bcff`; outcomes sha `7debe54fd7975f4b`
 
 ## 1. Row-by-row reconciliation
 | symbol | session | decision | matures | status | reason | start_ref | end | bench | excess | hit | contract | episode_start |
@@ -184,18 +184,148 @@
 | TSM | 2026-10-16 | 等待修复 | 2026-11-13 | matured |  | 3c13146a | 2026-11-13 | 29de293e | +0.0085 | False | 3eb0efc58e3eba8b | False |
 | VGT | 2026-10-16 | 等待修复 | 2026-11-13 | matured |  | 4ddd8597 | 2026-11-13 | 29de293e | -0.0227 | True | 3eb0efc58e3eba8b | False |
 | VOO | 2026-10-16 | 大跌机会候选 | 2026-11-13 | matured |  | fd51d87f | 2026-11-13 | 29de293e | +0.0304 | True | 3eb0efc58e3eba8b | True |
+| AMD | 2026-10-19 | 等待修复 | 2026-11-16 | matured |  | 3115e43b | 2026-11-16 | 41358fb1 | +0.0159 | False | 3eb0efc58e3eba8b | False |
+| AMZN | 2026-10-19 | 修复候选 | 2026-11-16 | matured |  | f2da682b | 2026-11-16 | 41358fb1 | +0.0609 | True | 3eb0efc58e3eba8b | True |
+| AVGO | 2026-10-19 | 等待修复 | 2026-11-16 | matured |  | 582a4d12 | 2026-11-16 | 41358fb1 | +0.0761 | False | 3eb0efc58e3eba8b | False |
+| DRAM | 2026-10-19 | 等待修复 | 2026-11-16 | matured |  | 21a2b2d0 | 2026-11-16 | 41358fb1 | -0.1088 | True | 3eb0efc58e3eba8b | False |
+| GOOG | 2026-10-19 | 等待修复 | 2026-11-16 | matured |  | 94617bf2 | 2026-11-16 | 41358fb1 | -0.0944 | True | 3eb0efc58e3eba8b | False |
+| HOOD | 2026-10-19 | 等待修复 | 2026-11-16 | matured |  | a4572ae8 | 2026-11-16 | 41358fb1 | -0.1746 | True | 3eb0efc58e3eba8b | False |
+| INTC | 2026-10-19 | 等待修复 | 2026-11-16 | matured |  | d7fa37b0 | 2026-11-16 | 41358fb1 | -0.3187 | True | 3eb0efc58e3eba8b | False |
+| IREN | 2026-10-19 | 等待修复 | 2026-11-16 | matured |  | cabafe9e | 2026-11-16 | 41358fb1 | -0.3307 | True | 3eb0efc58e3eba8b | False |
+| LITE | 2026-10-19 | 等待修复 | 2026-11-16 | matured |  | ea570b64 | 2026-11-16 | 41358fb1 | -0.2673 | True | 3eb0efc58e3eba8b | False |
+| MRVL | 2026-10-19 | 等待修复 | 2026-11-16 | matured |  | 77adee14 | 2026-11-16 | 41358fb1 | -0.3078 | True | 3eb0efc58e3eba8b | False |
+| MSFT | 2026-10-19 | 等待修复 | 2026-11-16 | matured |  | 4b0dab2e | 2026-11-16 | 41358fb1 | +0.0500 | False | 3eb0efc58e3eba8b | True |
+| NBIS | 2026-10-19 | 等待修复 | 2026-11-16 | matured |  | e83c1da4 | 2026-11-16 | 41358fb1 | -0.2921 | True | 3eb0efc58e3eba8b | False |
+| NVDA | 2026-10-19 | 等待修复 | 2026-11-16 | matured |  | 4a72cf35 | 2026-11-16 | 41358fb1 | -0.2021 | True | 3eb0efc58e3eba8b | False |
+| ORCL | 2026-10-19 | 等待修复 | 2026-11-16 | matured |  | a28b63c5 | 2026-11-16 | 41358fb1 | -0.0026 | True | 3eb0efc58e3eba8b | False |
+| QLD | 2026-10-19 | 等待修复 | 2026-11-16 | matured |  | b1b8a200 | 2026-11-16 | 41358fb1 | -0.0850 | True | 3eb0efc58e3eba8b | False |
+| QQQ | 2026-10-19 | 等待修复 | 2026-11-16 | matured |  | ebdb8377 | 2026-11-16 | 41358fb1 | +0.0000 | False | 3eb0efc58e3eba8b | False |
+| QQQM | 2026-10-19 | 等待修复 | 2026-11-16 | matured |  | a4a100ce | 2026-11-16 | 41358fb1 | +0.0003 | False | 3eb0efc58e3eba8b | False |
+| SMH | 2026-10-19 | 等待修复 | 2026-11-16 | matured |  | d21b2fff | 2026-11-16 | 41358fb1 | -0.0793 | True | 3eb0efc58e3eba8b | False |
+| SOFI | 2026-10-19 | 等待修复 | 2026-11-16 | matured |  | fa7ee343 | 2026-11-16 | 41358fb1 | +0.1171 | False | 3eb0efc58e3eba8b | False |
+| SPCX | 2026-10-19 | 等待修复 | 2026-11-16 | matured |  | 1bb8a482 | 2026-11-16 | 41358fb1 | +0.0069 | False | 3eb0efc58e3eba8b | False |
+| SPY | 2026-10-19 | 继续观察 | 2026-11-16 | matured |  | a6581910 | 2026-11-16 | 41358fb1 | +0.0442 | abstain | 3eb0efc58e3eba8b | True |
+| TQQQ | 2026-10-19 | 等待修复 | 2026-11-16 | matured |  | adc6d106 | 2026-11-16 | 41358fb1 | -0.1704 | True | 3eb0efc58e3eba8b | False |
+| TSLA | 2026-10-19 | 继续观察 | 2026-11-16 | matured |  | bbaf9b44 | 2026-11-16 | 41358fb1 | +0.1106 | abstain | 3eb0efc58e3eba8b | True |
+| TSM | 2026-10-19 | 等待修复 | 2026-11-16 | matured |  | 25810059 | 2026-11-16 | 41358fb1 | -0.0326 | True | 3eb0efc58e3eba8b | False |
+| VGT | 2026-10-19 | 等待修复 | 2026-11-16 | matured |  | 0611794e | 2026-11-16 | 41358fb1 | -0.0254 | True | 3eb0efc58e3eba8b | False |
+| VOO | 2026-10-19 | 继续观察 | 2026-11-16 | matured |  | 53523e78 | 2026-11-16 | 41358fb1 | +0.0442 | abstain | 3eb0efc58e3eba8b | True |
+| AMD | 2026-10-20 | 等待修复 | 2026-11-17 | matured |  | e3b26622 | 2026-11-17 | 309db2ae | +0.0255 | False | 3eb0efc58e3eba8b | False |
+| AMZN | 2026-10-20 | 修复候选 | 2026-11-17 | matured |  | 9766dba2 | 2026-11-17 | 309db2ae | +0.0662 | True | 3eb0efc58e3eba8b | False |
+| AVGO | 2026-10-20 | 等待修复 | 2026-11-17 | matured |  | 61c90969 | 2026-11-17 | 309db2ae | +0.1062 | False | 3eb0efc58e3eba8b | False |
+| DRAM | 2026-10-20 | 等待修复 | 2026-11-17 | matured |  | fcb5b864 | 2026-11-17 | 309db2ae | -0.1006 | True | 3eb0efc58e3eba8b | False |
+| GOOG | 2026-10-20 | 等待修复 | 2026-11-17 | matured |  | 9d120239 | 2026-11-17 | 309db2ae | -0.0906 | True | 3eb0efc58e3eba8b | False |
+| HOOD | 2026-10-20 | 等待修复 | 2026-11-17 | matured |  | f70c3458 | 2026-11-17 | 309db2ae | -0.2113 | True | 3eb0efc58e3eba8b | False |
+| INTC | 2026-10-20 | 等待修复 | 2026-11-17 | matured |  | 6e864dc6 | 2026-11-17 | 309db2ae | -0.3140 | True | 3eb0efc58e3eba8b | False |
+| IREN | 2026-10-20 | 等待修复 | 2026-11-17 | matured |  | b6e7ee77 | 2026-11-17 | 309db2ae | -0.3220 | True | 3eb0efc58e3eba8b | False |
+| LITE | 2026-10-20 | 等待修复 | 2026-11-17 | matured |  | d264b300 | 2026-11-17 | 309db2ae | -0.2349 | True | 3eb0efc58e3eba8b | False |
+| MRVL | 2026-10-20 | 等待修复 | 2026-11-17 | matured |  | f6dbf95b | 2026-11-17 | 309db2ae | -0.2968 | True | 3eb0efc58e3eba8b | False |
+| MSFT | 2026-10-20 | 等待修复 | 2026-11-17 | matured |  | 494f849c | 2026-11-17 | 309db2ae | +0.0362 | False | 3eb0efc58e3eba8b | False |
+| NBIS | 2026-10-20 | 等待修复 | 2026-11-17 | matured |  | cdc3960c | 2026-11-17 | 309db2ae | -0.2974 | True | 3eb0efc58e3eba8b | False |
+| NVDA | 2026-10-20 | 等待修复 | 2026-11-17 | matured |  | faf86437 | 2026-11-17 | 309db2ae | -0.1974 | True | 3eb0efc58e3eba8b | False |
+| ORCL | 2026-10-20 | 等待修复 | 2026-11-17 | matured |  | 6e900376 | 2026-11-17 | 309db2ae | -0.0384 | True | 3eb0efc58e3eba8b | False |
+| QLD | 2026-10-20 | 等待修复 | 2026-11-17 | matured |  | 0a4f534a | 2026-11-17 | 309db2ae | -0.0897 | True | 3eb0efc58e3eba8b | False |
+| QQQ | 2026-10-20 | 等待修复 | 2026-11-17 | matured |  | bdf470e2 | 2026-11-17 | 309db2ae | +0.0000 | False | 3eb0efc58e3eba8b | False |
+| QQQM | 2026-10-20 | 等待修复 | 2026-11-17 | matured |  | ff3938f9 | 2026-11-17 | 309db2ae | -0.0009 | True | 3eb0efc58e3eba8b | False |
+| SMH | 2026-10-20 | 等待修复 | 2026-11-17 | matured |  | aec179ea | 2026-11-17 | 309db2ae | -0.0736 | True | 3eb0efc58e3eba8b | False |
+| SOFI | 2026-10-20 | 等待修复 | 2026-11-17 | matured |  | 7d888aca | 2026-11-17 | 309db2ae | +0.0570 | False | 3eb0efc58e3eba8b | False |
+| SPCX | 2026-10-20 | 等待修复 | 2026-11-17 | matured |  | e12ce693 | 2026-11-17 | 309db2ae | +0.0419 | False | 3eb0efc58e3eba8b | False |
+| SPY | 2026-10-20 | 继续观察 | 2026-11-17 | matured |  | 45a72ffd | 2026-11-17 | 309db2ae | +0.0366 | abstain | 3eb0efc58e3eba8b | False |
+| TQQQ | 2026-10-20 | 等待修复 | 2026-11-17 | matured |  | dd4a3793 | 2026-11-17 | 309db2ae | -0.1789 | True | 3eb0efc58e3eba8b | False |
+| TSLA | 2026-10-20 | 继续观察 | 2026-11-17 | matured |  | 335fd8eb | 2026-11-17 | 309db2ae | +0.1015 | abstain | 3eb0efc58e3eba8b | False |
+| TSM | 2026-10-20 | 等待修复 | 2026-11-17 | matured |  | 22fb4727 | 2026-11-17 | 309db2ae | -0.0696 | True | 3eb0efc58e3eba8b | False |
+| VGT | 2026-10-20 | 等待修复 | 2026-11-17 | matured |  | f967018d | 2026-11-17 | 309db2ae | -0.0278 | True | 3eb0efc58e3eba8b | False |
+| VOO | 2026-10-20 | 继续观察 | 2026-11-17 | matured |  | a500cf28 | 2026-11-17 | 309db2ae | +0.0366 | abstain | 3eb0efc58e3eba8b | False |
+| AMD | 2026-10-21 | 等待修复 | 2026-11-18 | matured |  | e8f3f5d4 | 2026-11-18 | 2738c8fd | +0.0479 | False | 3eb0efc58e3eba8b | False |
+| AMZN | 2026-10-21 | 继续观察 | 2026-11-18 | matured |  | d5cabf72 | 2026-11-18 | 2738c8fd | +0.1107 | abstain | 3eb0efc58e3eba8b | True |
+| AVGO | 2026-10-21 | 等待修复 | 2026-11-18 | matured |  | 90f26512 | 2026-11-18 | 2738c8fd | +0.1388 | False | 3eb0efc58e3eba8b | False |
+| DRAM | 2026-10-21 | 等待修复 | 2026-11-18 | matured |  | eed2f37b | 2026-11-18 | 2738c8fd | -0.1135 | True | 3eb0efc58e3eba8b | False |
+| GOOG | 2026-10-21 | 等待修复 | 2026-11-18 | matured |  | fe638acd | 2026-11-18 | 2738c8fd | -0.0660 | True | 3eb0efc58e3eba8b | False |
+| HOOD | 2026-10-21 | 等待修复 | 2026-11-18 | matured |  | c672c29d | 2026-11-18 | 2738c8fd | -0.2308 | True | 3eb0efc58e3eba8b | False |
+| INTC | 2026-10-21 | 等待修复 | 2026-11-18 | matured |  | da976072 | 2026-11-18 | 2738c8fd | -0.3212 | True | 3eb0efc58e3eba8b | False |
+| IREN | 2026-10-21 | 等待修复 | 2026-11-18 | matured |  | 7125618c | 2026-11-18 | 2738c8fd | -0.3627 | True | 3eb0efc58e3eba8b | False |
+| LITE | 2026-10-21 | 等待修复 | 2026-11-18 | matured |  | 16213d8a | 2026-11-18 | 2738c8fd | -0.2620 | True | 3eb0efc58e3eba8b | False |
+| MRVL | 2026-10-21 | 等待修复 | 2026-11-18 | matured |  | 9b7b42c7 | 2026-11-18 | 2738c8fd | -0.3149 | True | 3eb0efc58e3eba8b | False |
+| MSFT | 2026-10-21 | 等待修复 | 2026-11-18 | matured |  | e8a97ddf | 2026-11-18 | 2738c8fd | +0.0443 | False | 3eb0efc58e3eba8b | False |
+| NBIS | 2026-10-21 | 等待修复 | 2026-11-18 | matured |  | 6894d65d | 2026-11-18 | 2738c8fd | -0.2860 | True | 3eb0efc58e3eba8b | False |
+| NVDA | 2026-10-21 | 等待修复 | 2026-11-18 | matured |  | 63302762 | 2026-11-18 | 2738c8fd | -0.2298 | True | 3eb0efc58e3eba8b | False |
+| ORCL | 2026-10-21 | 等待修复 | 2026-11-18 | matured |  | d30fa6e2 | 2026-11-18 | 2738c8fd | -0.0275 | True | 3eb0efc58e3eba8b | False |
+| QLD | 2026-10-21 | 等待修复 | 2026-11-18 | matured |  | e3baeb86 | 2026-11-18 | 2738c8fd | -0.0944 | True | 3eb0efc58e3eba8b | False |
+| QQQ | 2026-10-21 | 等待修复 | 2026-11-18 | matured |  | 32d75fcb | 2026-11-18 | 2738c8fd | +0.0000 | False | 3eb0efc58e3eba8b | False |
+| QQQM | 2026-10-21 | 等待修复 | 2026-11-18 | matured |  | 625b88f5 | 2026-11-18 | 2738c8fd | -0.0000 | True | 3eb0efc58e3eba8b | False |
+| SMH | 2026-10-21 | 等待修复 | 2026-11-18 | matured |  | 39638f64 | 2026-11-18 | 2738c8fd | -0.0839 | True | 3eb0efc58e3eba8b | False |
+| SOFI | 2026-10-21 | 修复候选 | 2026-11-18 | matured |  | 7a56cb10 | 2026-11-18 | 2738c8fd | +0.0362 | True | 3eb0efc58e3eba8b | True |
+| SPCX | 2026-10-21 | 修复候选 | 2026-11-18 | matured |  | f2025e62 | 2026-11-18 | 2738c8fd | -0.0088 | False | 3eb0efc58e3eba8b | True |
+| SPY | 2026-10-21 | 继续观察 | 2026-11-18 | matured |  | fa616797 | 2026-11-18 | 2738c8fd | +0.0352 | abstain | 3eb0efc58e3eba8b | False |
+| TQQQ | 2026-10-21 | 等待修复 | 2026-11-18 | matured |  | 87e12435 | 2026-11-18 | 2738c8fd | -0.1870 | True | 3eb0efc58e3eba8b | False |
+| TSLA | 2026-10-21 | 修复候选 | 2026-11-18 | matured |  | e656777d | 2026-11-18 | 2738c8fd | +0.0831 | True | 3eb0efc58e3eba8b | True |
+| TSM | 2026-10-21 | 等待修复 | 2026-11-18 | matured |  | 42d51d48 | 2026-11-18 | 2738c8fd | -0.0699 | True | 3eb0efc58e3eba8b | False |
+| VGT | 2026-10-21 | 等待修复 | 2026-11-18 | matured |  | 42866c5f | 2026-11-18 | 2738c8fd | -0.0339 | True | 3eb0efc58e3eba8b | False |
+| VOO | 2026-10-21 | 修复候选 | 2026-11-18 | matured |  | a74693de | 2026-11-18 | 2738c8fd | +0.0351 | True | 3eb0efc58e3eba8b | True |
+| AMD | 2026-10-22 | 等待修复 | 2026-11-19 | matured |  | a77e9414 | 2026-11-19 | d5e4858f | +0.0474 | False | 3eb0efc58e3eba8b | False |
+| AMZN | 2026-10-22 | 等待修复 | 2026-11-19 | matured |  | 3c8f97c6 | 2026-11-19 | d5e4858f | +0.1122 | False | 3eb0efc58e3eba8b | True |
+| AVGO | 2026-10-22 | 等待修复 | 2026-11-19 | matured |  | a34785da | 2026-11-19 | d5e4858f | +0.1567 | False | 3eb0efc58e3eba8b | False |
+| DRAM | 2026-10-22 | 等待修复 | 2026-11-19 | matured |  | ac8bbf51 | 2026-11-19 | d5e4858f | -0.0744 | True | 3eb0efc58e3eba8b | False |
+| GOOG | 2026-10-22 | 等待修复 | 2026-11-19 | matured |  | e1e9d591 | 2026-11-19 | d5e4858f | -0.0708 | True | 3eb0efc58e3eba8b | False |
+| HOOD | 2026-10-22 | 等待修复 | 2026-11-19 | matured |  | f819a8ff | 2026-11-19 | d5e4858f | -0.2049 | True | 3eb0efc58e3eba8b | False |
+| INTC | 2026-10-22 | 等待修复 | 2026-11-19 | matured |  | c5fee76c | 2026-11-19 | d5e4858f | -0.2639 | True | 3eb0efc58e3eba8b | False |
+| IREN | 2026-10-22 | 等待修复 | 2026-11-19 | matured |  | 3ec7200d | 2026-11-19 | d5e4858f | -0.3508 | True | 3eb0efc58e3eba8b | False |
+| LITE | 2026-10-22 | 等待修复 | 2026-11-19 | matured |  | bf54e477 | 2026-11-19 | d5e4858f | -0.2046 | True | 3eb0efc58e3eba8b | False |
+| MRVL | 2026-10-22 | 等待修复 | 2026-11-19 | matured |  | 7aff2926 | 2026-11-19 | d5e4858f | -0.2961 | True | 3eb0efc58e3eba8b | False |
+| MSFT | 2026-10-22 | 大跌机会候选 | 2026-11-19 | matured |  | 4a914c86 | 2026-11-19 | d5e4858f | +0.0406 | True | 3eb0efc58e3eba8b | True |
+| NBIS | 2026-10-22 | 等待修复 | 2026-11-19 | matured |  | e72e7e65 | 2026-11-19 | d5e4858f | -0.3068 | True | 3eb0efc58e3eba8b | False |
+| NVDA | 2026-10-22 | 等待修复 | 2026-11-19 | matured |  | 70239b47 | 2026-11-19 | d5e4858f | -0.2278 | True | 3eb0efc58e3eba8b | False |
+| ORCL | 2026-10-22 | 等待修复 | 2026-11-19 | matured |  | 5868b2ff | 2026-11-19 | d5e4858f | -0.0354 | True | 3eb0efc58e3eba8b | False |
+| QLD | 2026-10-22 | 等待修复 | 2026-11-19 | matured |  | b6164a8a | 2026-11-19 | d5e4858f | -0.0888 | True | 3eb0efc58e3eba8b | False |
+| QQQ | 2026-10-22 | 等待修复 | 2026-11-19 | matured |  | 0076c2af | 2026-11-19 | d5e4858f | +0.0000 | False | 3eb0efc58e3eba8b | False |
+| QQQM | 2026-10-22 | 等待修复 | 2026-11-19 | matured |  | d0194788 | 2026-11-19 | d5e4858f | -0.0001 | True | 3eb0efc58e3eba8b | False |
+| SMH | 2026-10-22 | 等待修复 | 2026-11-19 | matured |  | af1d4439 | 2026-11-19 | d5e4858f | -0.0608 | True | 3eb0efc58e3eba8b | False |
+| SOFI | 2026-10-22 | 等待修复 | 2026-11-19 | matured |  | 3ab65020 | 2026-11-19 | d5e4858f | +0.0003 | False | 3eb0efc58e3eba8b | True |
+| SPCX | 2026-10-22 | 等待修复 | 2026-11-19 | matured |  | 4ada9880 | 2026-11-19 | d5e4858f | +0.0389 | False | 3eb0efc58e3eba8b | True |
+| SPY | 2026-10-22 | 大跌机会候选 | 2026-11-19 | matured |  | 004abdc7 | 2026-11-19 | d5e4858f | +0.0213 | True | 3eb0efc58e3eba8b | True |
+| TQQQ | 2026-10-22 | 等待修复 | 2026-11-19 | matured |  | 91edebfa | 2026-11-19 | d5e4858f | -0.1781 | True | 3eb0efc58e3eba8b | False |
+| TSLA | 2026-10-22 | 修复候选 | 2026-11-19 | matured |  | ded0b635 | 2026-11-19 | d5e4858f | +0.0838 | True | 3eb0efc58e3eba8b | False |
+| TSM | 2026-10-22 | 等待修复 | 2026-11-19 | matured |  | fe56c859 | 2026-11-19 | d5e4858f | -0.0619 | True | 3eb0efc58e3eba8b | False |
+| VGT | 2026-10-22 | 等待修复 | 2026-11-19 | matured |  | 5b4bcc61 | 2026-11-19 | d5e4858f | -0.0305 | True | 3eb0efc58e3eba8b | False |
+| VOO | 2026-10-22 | 大跌机会候选 | 2026-11-19 | matured |  | 540ea14c | 2026-11-19 | d5e4858f | +0.0210 | True | 3eb0efc58e3eba8b | True |
+| AMD | 2026-10-23 | 等待修复 | 2026-11-20 | matured |  | 09e57608 | 2026-11-20 | 21d6df7c | -0.0446 | True | 3eb0efc58e3eba8b | False |
+| AMZN | 2026-10-23 | 等待修复 | 2026-11-20 | matured |  | 54475ee6 | 2026-11-20 | 21d6df7c | +0.1308 | False | 3eb0efc58e3eba8b | False |
+| AVGO | 2026-10-23 | 等待修复 | 2026-11-20 | matured |  | 3b50bbb9 | 2026-11-20 | 21d6df7c | +0.0802 | False | 3eb0efc58e3eba8b | False |
+| DRAM | 2026-10-23 | 等待修复 | 2026-11-20 | matured |  | eef25bb0 | 2026-11-20 | 21d6df7c | -0.1506 | True | 3eb0efc58e3eba8b | False |
+| GOOG | 2026-10-23 | 等待修复 | 2026-11-20 | matured |  | 638464dc | 2026-11-20 | 21d6df7c | -0.0332 | True | 3eb0efc58e3eba8b | False |
+| HOOD | 2026-10-23 | 等待修复 | 2026-11-20 | matured |  | 60337836 | 2026-11-20 | 21d6df7c | -0.2116 | True | 3eb0efc58e3eba8b | False |
+| INTC | 2026-10-23 | 等待修复 | 2026-11-20 | matured |  | 6af1554c | 2026-11-20 | 21d6df7c | -0.2752 | True | 3eb0efc58e3eba8b | False |
+| IREN | 2026-10-23 | 等待修复 | 2026-11-20 | matured |  | 010f096a | 2026-11-20 | 21d6df7c | -0.3910 | True | 3eb0efc58e3eba8b | False |
+| LITE | 2026-10-23 | 等待修复 | 2026-11-20 | matured |  | 7172d255 | 2026-11-20 | 21d6df7c | -0.2558 | True | 3eb0efc58e3eba8b | False |
+| MRVL | 2026-10-23 | 修复候选 | 2026-11-20 | matured |  | fa697a92 | 2026-11-20 | 21d6df7c | -0.3306 | False | 3eb0efc58e3eba8b | True |
+| MSFT | 2026-10-23 | 继续观察 | 2026-11-20 | matured |  | 245f993c | 2026-11-20 | 21d6df7c | +0.0599 | abstain | 3eb0efc58e3eba8b | True |
+| NBIS | 2026-10-23 | 等待修复 | 2026-11-20 | matured |  | b773b576 | 2026-11-20 | 21d6df7c | -0.3533 | True | 3eb0efc58e3eba8b | False |
+| NVDA | 2026-10-23 | 等待修复 | 2026-11-20 | matured |  | 263977a7 | 2026-11-20 | 21d6df7c | -0.2687 | True | 3eb0efc58e3eba8b | False |
+| ORCL | 2026-10-23 | 等待修复 | 2026-11-20 | matured |  | da17e489 | 2026-11-20 | 21d6df7c | -0.0636 | True | 3eb0efc58e3eba8b | False |
+| QLD | 2026-10-23 | 等待修复 | 2026-11-20 | matured |  | 112af4d7 | 2026-11-20 | 21d6df7c | -0.1272 | True | 3eb0efc58e3eba8b | False |
+| QQQ | 2026-10-23 | 等待修复 | 2026-11-20 | matured |  | c716769d | 2026-11-20 | 21d6df7c | +0.0000 | False | 3eb0efc58e3eba8b | False |
+| QQQM | 2026-10-23 | 等待修复 | 2026-11-20 | matured |  | 9270ad3b | 2026-11-20 | 21d6df7c | +0.0000 | False | 3eb0efc58e3eba8b | False |
+| SMH | 2026-10-23 | 等待修复 | 2026-11-20 | matured |  | a503ea05 | 2026-11-20 | 21d6df7c | -0.1064 | True | 3eb0efc58e3eba8b | False |
+| SOFI | 2026-10-23 | 修复候选 | 2026-11-20 | matured |  | b76a57e1 | 2026-11-20 | 21d6df7c | -0.0103 | False | 3eb0efc58e3eba8b | True |
+| SPCX | 2026-10-23 | 修复候选 | 2026-11-20 | matured |  | 2f565588 | 2026-11-20 | 21d6df7c | +0.0020 | True | 3eb0efc58e3eba8b | True |
+| SPY | 2026-10-23 | 继续观察 | 2026-11-20 | matured |  | 31ad3ebf | 2026-11-20 | 21d6df7c | +0.0431 | abstain | 3eb0efc58e3eba8b | True |
+| TQQQ | 2026-10-23 | 等待修复 | 2026-11-20 | matured |  | 70ee2080 | 2026-11-20 | 21d6df7c | -0.2470 | True | 3eb0efc58e3eba8b | False |
+| TSLA | 2026-10-23 | 修复候选 | 2026-11-20 | matured |  | 86e7707d | 2026-11-20 | 21d6df7c | +0.0645 | True | 3eb0efc58e3eba8b | False |
+| TSM | 2026-10-23 | 等待修复 | 2026-11-20 | matured |  | 6a3233b6 | 2026-11-20 | 21d6df7c | -0.1030 | True | 3eb0efc58e3eba8b | False |
+| VGT | 2026-10-23 | 等待修复 | 2026-11-20 | matured |  | 11e60c4f | 2026-11-20 | 21d6df7c | -0.0452 | True | 3eb0efc58e3eba8b | False |
+| VOO | 2026-10-23 | 继续观察 | 2026-11-20 | matured |  | eb7c7d14 | 2026-11-20 | 21d6df7c | +0.0434 | abstain | 3eb0efc58e3eba8b | True |
 
 ## 2. Denominators (mutually exclusive; scored = hit + miss; abstain/unavailable/invalid/pending never in a rate)
-- including QQQ/QQQM: rows 178 = pending 0 + invalid 0 + unavailable 0 + abstain 37 + scored 141 (hit 95 + miss 46) -> consistent
-- excluding QQQ/QQQM: rows 164 = pending 0 + invalid 0 + unavailable 0 + abstain 33 + scored 131 (hit 92 + miss 39) -> consistent
-  - 修复候选: {'rows': 21, 'scored': 21, 'hit': 11, 'miss': 10}; independent scored episodes 9, entry weeks 2 -> INSUFFICIENT (rfi-0.1: need >=20 independent episodes and >=4 weeks)
-  - 大跌机会候选: {'rows': 9, 'scored': 9, 'hit': 8, 'miss': 1}; independent scored episodes 7, entry weeks 1 -> INSUFFICIENT (rfi-0.1: need >=20 independent episodes and >=4 weeks)
-  - 等待修复: {'rows': 89, 'scored': 89, 'hit': 61, 'miss': 28}; independent scored episodes 24, entry weeks 2 -> INSUFFICIENT (rfi-0.1: need >=20 independent episodes and >=4 weeks)
-  - 继续观察: {'rows': 37, 'abstain': 37}; independent scored episodes 0, entry weeks 0 -> INSUFFICIENT (rfi-0.1: need >=20 independent episodes and >=4 weeks)
+- including QQQ/QQQM: rows 308 = pending 0 + invalid 0 + unavailable 0 + abstain 48 + scored 260 (hit 184 + miss 76) -> consistent
+- excluding QQQ/QQQM: rows 284 = pending 0 + invalid 0 + unavailable 0 + abstain 44 + scored 240 (hit 178 + miss 62) -> consistent
+  - 修复候选: {'rows': 32, 'scored': 32, 'hit': 19, 'miss': 13}; independent scored episodes 17, entry weeks 3 -> INSUFFICIENT (rfi-0.1: need >=20 independent episodes and >=4 weeks)
+  - 大跌机会候选: {'rows': 12, 'scored': 12, 'hit': 11, 'miss': 1}; independent scored episodes 9, entry weeks 2 -> INSUFFICIENT (rfi-0.1: need >=20 independent episodes and >=4 weeks)
+  - 等待修复: {'rows': 194, 'scored': 194, 'hit': 139, 'miss': 55}; independent scored episodes 28, entry weeks 3 -> INSUFFICIENT (rfi-0.1: need >=20 independent episodes and >=4 weeks)
+  - 继续观察: {'rows': 48, 'abstain': 48}; independent scored episodes 0, entry weeks 0 -> INSUFFICIENT (rfi-0.1: need >=20 independent episodes and >=4 weeks)
   - 高位观察: {'rows': 22, 'scored': 22, 'hit': 15, 'miss': 7}; independent scored episodes 11, entry weeks 2 -> INSUFFICIENT (rfi-0.1: need >=20 independent episodes and >=4 weeks)
 
 ## 3. Independence (rfi-0.1)
-- rows 178 -> episode starts 79 -> after same-index collapse 68; distinct entry sessions 7; regimes at entry {'normal': 126, 'fear': 52}
+- rows 308 -> episode starts 101 -> after same-index collapse 87; distinct entry sessions 12; regimes at entry {'normal': 230, 'fear': 78}
 
 ## 4. Attribution (fea-0.2; explains, never re-scores)
 | symbol | session | decision | hit | excess | primary | secondary | path 5/10/15 | event | mode_share | process_ok | informative | flags |
@@ -341,11 +471,130 @@
 | TSM | 2026-10-16 | 等待修复 | False | +0.0085 | M1(CONFIRMED) | R3 | ['+0.022', '+0.011', '-0.014'] | n/a | 0.8 | True | False |  |
 | VGT | 2026-10-16 | 等待修复 | True | -0.0227 | - |  | ['+0.010', '+0.011', '-0.011'] | n/a | 0.8 | True | True |  |
 | VOO | 2026-10-16 | 大跌机会候选 | True | +0.0304 | E2(CONFIRMED) |  | ['+0.003', '+0.017', '+0.039'] | n/a | 0.8 | True | True | broad_index_vs_broad_index |
+| AMD | 2026-10-19 | 等待修复 | False | +0.0159 | E1(CONFIRMED) | R4,R3 | ['-0.004', '-0.080', '-0.000'] | 2026-11-03:+0.0312 | 0.3 | True | True |  |
+| AMZN | 2026-10-19 | 修复候选 | True | +0.0609 | E2(CONFIRMED) |  | ['-0.042', '-0.012', '+0.071'] | unknown(no_filing_history) | 0.3 | True | True |  |
+| AVGO | 2026-10-19 | 等待修复 | False | +0.0761 | R3(CONFIRMED) |  | ['-0.008', '+0.015', '+0.009'] | none_in_window | 0.3 | True | True |  |
+| DRAM | 2026-10-19 | 等待修复 | True | -0.1088 | E2(CONFIRMED) |  | ['+0.009', '+0.010', '-0.081'] | unknown(no_filing_history) | 0.3 | True | True |  |
+| GOOG | 2026-10-19 | 等待修复 | True | -0.0944 | E1(CONFIRMED) |  | ['-0.068', '-0.131', '-0.105'] | 2026-10-28:-0.1007 | 0.3 | True | True |  |
+| HOOD | 2026-10-19 | 等待修复 | True | -0.1746 | - |  | ['-0.030', '-0.079', '-0.082'] | 2026-10-27:-0.0340 | 0.3 | True | True |  |
+| INTC | 2026-10-19 | 等待修复 | True | -0.3187 | E1(CONFIRMED) | E2 | ['-0.008', '-0.296', '-0.301'] | 2026-10-29:-0.2621 | 0.3 | True | True |  |
+| IREN | 2026-10-19 | 等待修复 | True | -0.3307 | - |  | ['-0.074', '-0.154', '-0.174'] | 2026-11-05:+0.0486 | 0.3 | True | True |  |
+| LITE | 2026-10-19 | 等待修复 | True | -0.2673 | E1(CONFIRMED) |  | ['-0.011', '-0.128', '-0.231'] | 2026-11-02:-0.1836 | 0.3 | True | True |  |
+| MRVL | 2026-10-19 | 等待修复 | True | -0.3078 | - |  | ['-0.005', '-0.225', '-0.294'] | 2026-11-02:-0.1167 | 0.3 | True | True |  |
+| MSFT | 2026-10-19 | 等待修复 | False | +0.0500 | E2(CONFIRMED) | R3 | ['+0.007', '+0.002', '+0.076'] | 2026-10-28:+0.0059 | 0.3 | True | True |  |
+| NBIS | 2026-10-19 | 等待修复 | True | -0.2921 | - |  | ['-0.091', '-0.118', '-0.115'] | unknown(no_filing_history) | 0.3 | True | True |  |
+| NVDA | 2026-10-19 | 等待修复 | True | -0.2021 | - |  | ['+0.004', '-0.017', '-0.123'] | none_in_window | 0.3 | True | True |  |
+| ORCL | 2026-10-19 | 等待修复 | True | -0.0026 | M1(CONFIRMED) |  | ['-0.019', '-0.028', '-0.021'] | n/a | 0.3 | True | False |  |
+| QLD | 2026-10-19 | 等待修复 | True | -0.0850 | E2(CONFIRMED) |  | ['-0.011', '-0.054', '-0.064'] | n/a | 0.3 | True | True | broad_index_vs_broad_index |
+| QQQ | 2026-10-19 | 等待修复 | False | +0.0000 | M2(CONFIRMED) | M1,R3 | ['+0.000', '+0.000', '+0.000'] | n/a | 0.3 | True | False |  |
+| QQQM | 2026-10-19 | 等待修复 | False | +0.0003 | M2(CONFIRMED) | M1,R3 | ['+0.000', '+0.000', '-0.001'] | n/a | 0.3 | True | False |  |
+| SMH | 2026-10-19 | 等待修复 | True | -0.0793 | E2(CONFIRMED) |  | ['-0.004', '-0.021', '-0.057'] | n/a | 0.3 | True | True |  |
+| SOFI | 2026-10-19 | 等待修复 | False | +0.1171 | E1(CONFIRMED) | R3 | ['+0.020', '+0.213', '+0.226'] | 2026-10-27:+0.1665 | 0.3 | True | True |  |
+| SPCX | 2026-10-19 | 等待修复 | False | +0.0069 | M1(CONFIRMED) | R3 | ['+0.001', '-0.026', '+0.015'] | n/a | 0.3 | True | False |  |
+| TQQQ | 2026-10-19 | 等待修复 | True | -0.1704 | E2(CONFIRMED) |  | ['-0.023', '-0.106', '-0.131'] | n/a | 0.3 | True | True | broad_index_vs_broad_index |
+| TSM | 2026-10-19 | 等待修复 | True | -0.0326 | E2(CONFIRMED) |  | ['+0.018', '+0.001', '-0.021'] | unknown(no_filing_history) | 0.3 | True | True |  |
+| VGT | 2026-10-19 | 等待修复 | True | -0.0254 | - |  | ['+0.014', '-0.002', '-0.015'] | n/a | 0.3 | True | True |  |
+| AMD | 2026-10-20 | 等待修复 | False | +0.0255 | E1(CONFIRMED) | R3 | ['+0.043', '-0.050', '+0.023'] | 2026-11-03:+0.0312 | 0.35 | True | True |  |
+| AMZN | 2026-10-20 | 修复候选 | True | +0.0662 | E2(CONFIRMED) |  | ['-0.041', '-0.001', '+0.091'] | unknown(no_filing_history) | 0.35 | True | True |  |
+| AVGO | 2026-10-20 | 等待修复 | False | +0.1062 | R3(CONFIRMED) |  | ['+0.019', '+0.038', '+0.052'] | none_in_window | 0.35 | True | True |  |
+| DRAM | 2026-10-20 | 等待修复 | True | -0.1006 | E2(CONFIRMED) |  | ['+0.053', '+0.043', '-0.089'] | unknown(no_filing_history) | 0.35 | True | True |  |
+| GOOG | 2026-10-20 | 等待修复 | True | -0.0906 | E1(CONFIRMED) |  | ['-0.063', '-0.128', '-0.094'] | 2026-10-28:-0.1007 | 0.35 | True | True |  |
+| HOOD | 2026-10-20 | 等待修复 | True | -0.2113 | - |  | ['-0.042', '-0.083', '-0.112'] | 2026-10-27:-0.0340 | 0.35 | True | True |  |
+| INTC | 2026-10-20 | 等待修复 | True | -0.3140 | E1(CONFIRMED) | E2 | ['+0.017', '-0.295', '-0.306'] | 2026-10-29:-0.2621 | 0.35 | True | True |  |
+| IREN | 2026-10-20 | 等待修复 | True | -0.3220 | - |  | ['+0.026', '-0.036', '-0.199'] | 2026-11-05:+0.0486 | 0.35 | True | True |  |
+| LITE | 2026-10-20 | 等待修复 | True | -0.2349 | E1(CONFIRMED) | E2 | ['+0.048', '-0.128', '-0.229'] | 2026-11-02:-0.1836 | 0.35 | True | True |  |
+| MRVL | 2026-10-20 | 等待修复 | True | -0.2968 | - |  | ['+0.008', '-0.240', '-0.298'] | 2026-11-02:-0.1167 | 0.35 | True | True |  |
+| MSFT | 2026-10-20 | 等待修复 | False | +0.0362 | E2(CONFIRMED) | R3 | ['-0.006', '+0.024', '+0.062'] | 2026-10-28:+0.0059 | 0.35 | True | True |  |
+| NBIS | 2026-10-20 | 等待修复 | True | -0.2974 | - |  | ['-0.011', '-0.071', '-0.159'] | unknown(no_filing_history) | 0.35 | True | True |  |
+| NVDA | 2026-10-20 | 等待修复 | True | -0.1974 | - |  | ['+0.002', '-0.000', '-0.160'] | 2026-11-17:+0.0031 | 0.35 | True | True |  |
+| ORCL | 2026-10-20 | 等待修复 | True | -0.0384 | E2(CONFIRMED) |  | ['-0.010', '+0.007', '-0.041'] | none_in_window | 0.35 | True | True |  |
+| QLD | 2026-10-20 | 等待修复 | True | -0.0897 | E2(CONFIRMED) |  | ['+0.003', '-0.047', '-0.067'] | n/a | 0.35 | True | True | broad_index_vs_broad_index |
+| QQQ | 2026-10-20 | 等待修复 | False | +0.0000 | M2(CONFIRMED) | M1,R3 | ['+0.000', '+0.000', '+0.000'] | n/a | 0.35 | True | False |  |
+| QQQM | 2026-10-20 | 等待修复 | True | -0.0009 | M2(CONFIRMED) | M1 | ['-0.001', '-0.000', '-0.000'] | n/a | 0.35 | True | False |  |
+| SMH | 2026-10-20 | 等待修复 | True | -0.0736 | E2(CONFIRMED) |  | ['+0.016', '-0.006', '-0.055'] | n/a | 0.35 | True | True |  |
+| SOFI | 2026-10-20 | 等待修复 | False | +0.0570 | E1(CONFIRMED) | R3 | ['+0.112', '+0.187', '+0.175'] | 2026-10-27:+0.1665 | 0.35 | True | True |  |
+| SPCX | 2026-10-20 | 等待修复 | False | +0.0419 | E1(CONFIRMED) | R3 | ['-0.001', '+0.000', '+0.027'] | 2026-10-20:+0.0659 | 0.35 | True | True |  |
+| TQQQ | 2026-10-20 | 等待修复 | True | -0.1789 | E2(CONFIRMED) |  | ['+0.004', '-0.095', '-0.137'] | n/a | 0.35 | True | True | broad_index_vs_broad_index |
+| TSM | 2026-10-20 | 等待修复 | True | -0.0696 | E2(CONFIRMED) |  | ['+0.023', '-0.003', '-0.008'] | unknown(no_filing_history) | 0.35 | True | True |  |
+| VGT | 2026-10-20 | 等待修复 | True | -0.0278 | - |  | ['+0.016', '+0.004', '-0.021'] | n/a | 0.35 | True | True |  |
+| AMD | 2026-10-21 | 等待修复 | False | +0.0479 | E1(CONFIRMED) | R3 | ['+0.046', '-0.070', '+0.048'] | 2026-11-03:+0.0312 | 0.35 | True | True |  |
+| AVGO | 2026-10-21 | 等待修复 | False | +0.1388 | R3(CONFIRMED) |  | ['+0.041', '+0.009', '+0.070'] | none_in_window | 0.35 | True | True |  |
+| DRAM | 2026-10-21 | 等待修复 | True | -0.1135 | E2(CONFIRMED) |  | ['+0.100', '-0.037', '-0.040'] | unknown(no_filing_history) | 0.35 | True | True |  |
+| GOOG | 2026-10-21 | 等待修复 | True | -0.0660 | E1(CONFIRMED) |  | ['-0.028', '-0.086', '-0.074'] | 2026-10-28:-0.1007 | 0.35 | True | True |  |
+| HOOD | 2026-10-21 | 等待修复 | True | -0.2308 | - |  | ['-0.104', '-0.097', '-0.122'] | 2026-10-27:-0.0340 | 0.35 | True | True |  |
+| INTC | 2026-10-21 | 等待修复 | True | -0.3212 | E1(CONFIRMED) | E2 | ['+0.027', '-0.327', '-0.280'] | 2026-10-29:-0.2621 | 0.35 | True | True |  |
+| IREN | 2026-10-21 | 等待修复 | True | -0.3627 | - |  | ['+0.035', '-0.174', '-0.203'] | 2026-11-05:+0.0486 | 0.35 | True | True |  |
+| LITE | 2026-10-21 | 等待修复 | True | -0.2620 | E1(CONFIRMED) |  | ['+0.074', '-0.217', '-0.190'] | 2026-11-02:-0.1836 | 0.35 | True | True |  |
+| MRVL | 2026-10-21 | 等待修复 | True | -0.3149 | - |  | ['+0.028', '-0.301', '-0.262'] | 2026-11-02:-0.1167 | 0.35 | True | True |  |
+| MSFT | 2026-10-21 | 等待修复 | False | +0.0443 | E2(CONFIRMED) | R3 | ['-0.004', '+0.089', '+0.026'] | 2026-10-28:+0.0059 | 0.35 | True | True |  |
+| NBIS | 2026-10-21 | 等待修复 | True | -0.2860 | - |  | ['+0.062', '-0.129', '-0.050'] | unknown(no_filing_history) | 0.35 | True | True |  |
+| NVDA | 2026-10-21 | 等待修复 | True | -0.2298 | - |  | ['-0.030', '-0.052', '-0.169'] | 2026-11-17:-0.0303 | 0.35 | True | True |  |
+| ORCL | 2026-10-21 | 等待修复 | True | -0.0275 | E2(CONFIRMED) |  | ['+0.119', '+0.004', '+0.042'] | none_in_window | 0.35 | True | True |  |
+| QLD | 2026-10-21 | 等待修复 | True | -0.0944 | E2(CONFIRMED) |  | ['-0.001', '-0.049', '-0.057'] | n/a | 0.35 | True | True | broad_index_vs_broad_index |
+| QQQ | 2026-10-21 | 等待修复 | False | +0.0000 | M2(CONFIRMED) | M1,R3 | ['+0.000', '+0.000', '+0.000'] | n/a | 0.35 | True | False |  |
+| QQQM | 2026-10-21 | 等待修复 | True | -0.0000 | M2(CONFIRMED) | M1 | ['-0.000', '-0.000', '-0.000'] | n/a | 0.35 | True | False |  |
+| SMH | 2026-10-21 | 等待修复 | True | -0.0839 | E2(CONFIRMED) |  | ['+0.019', '-0.048', '-0.041'] | n/a | 0.35 | True | True |  |
+| SOFI | 2026-10-21 | 修复候选 | True | +0.0362 | E1(CONFIRMED) |  | ['+0.149', '+0.212', '+0.140'] | 2026-10-27:+0.1665 | 0.35 | True | True |  |
+| SPCX | 2026-10-21 | 修复候选 | False | -0.0088 | M1(CONFIRMED) | R3 | ['-0.089', '-0.101', '-0.074'] | n/a | 0.35 | True | False |  |
+| TQQQ | 2026-10-21 | 等待修复 | True | -0.1870 | E2(CONFIRMED) |  | ['-0.004', '-0.097', '-0.120'] | n/a | 0.35 | True | True | broad_index_vs_broad_index |
+| TSLA | 2026-10-21 | 修复候选 | True | +0.0831 | - |  | ['+0.045', '+0.043', '+0.059'] | 2026-10-21:-0.0022 | 0.35 | True | True |  |
+| TSM | 2026-10-21 | 等待修复 | True | -0.0699 | E2(CONFIRMED) |  | ['+0.017', '-0.038', '+0.005'] | unknown(no_filing_history) | 0.35 | True | True |  |
+| VGT | 2026-10-21 | 等待修复 | True | -0.0339 | - |  | ['+0.010', '-0.009', '-0.022'] | n/a | 0.35 | True | True |  |
+| VOO | 2026-10-21 | 修复候选 | True | +0.0351 | E2(CONFIRMED) |  | ['-0.002', '+0.038', '+0.031'] | n/a | 0.35 | True | True | broad_index_vs_broad_index |
+| AMD | 2026-10-22 | 等待修复 | False | +0.0474 | E1(CONFIRMED) | R3 | ['+0.100', '-0.122', '+0.175'] | 2026-11-03:+0.0312 | 0.7 | True | True |  |
+| AMZN | 2026-10-22 | 等待修复 | False | +0.1122 | R3(CONFIRMED) |  | ['-0.042', '+0.121', '+0.091'] | unknown(no_filing_history) | 0.7 | True | True |  |
+| AVGO | 2026-10-22 | 等待修复 | False | +0.1567 | R3(CONFIRMED) |  | ['+0.052', '-0.017', '+0.150'] | none_in_window | 0.7 | True | True |  |
+| DRAM | 2026-10-22 | 等待修复 | True | -0.0744 | E2(CONFIRMED) |  | ['+0.117', '-0.108', '-0.021'] | unknown(no_filing_history) | 0.7 | True | True |  |
+| GOOG | 2026-10-22 | 等待修复 | True | -0.0708 | E1(CONFIRMED) |  | ['-0.135', '-0.040', '-0.056'] | 2026-10-28:-0.1007 | 0.7 | True | True |  |
+| HOOD | 2026-10-22 | 等待修复 | True | -0.2049 | - |  | ['-0.067', '-0.107', '-0.135'] | 2026-10-27:-0.0340 | 0.7 | True | True |  |
+| INTC | 2026-10-22 | 等待修复 | True | -0.2639 | E1(CONFIRMED) | E2 | ['+0.062', '-0.307', '-0.261'] | 2026-10-29:-0.2621 | 0.7 | True | True |  |
+| IREN | 2026-10-22 | 等待修复 | True | -0.3508 | - |  | ['+0.014', '-0.212', '-0.213'] | 2026-11-05:+0.0486 | 0.7 | True | True |  |
+| LITE | 2026-10-22 | 等待修复 | True | -0.2046 | E1(CONFIRMED) | E2 | ['+0.206', '-0.241', '-0.147'] | 2026-11-02:-0.1836 | 0.7 | True | True |  |
+| MRVL | 2026-10-22 | 等待修复 | True | -0.2961 | - |  | ['-0.038', '-0.321', '-0.241'] | 2026-11-02:-0.1167 | 0.7 | True | True |  |
+| MSFT | 2026-10-22 | 大跌机会候选 | True | +0.0406 | E2(CONFIRMED) |  | ['+0.002', '+0.110', '+0.027'] | 2026-10-28:+0.0059 | 0.7 | True | True |  |
+| NBIS | 2026-10-22 | 等待修复 | True | -0.3068 | - |  | ['+0.065', '-0.162', '-0.169'] | unknown(no_filing_history) | 0.7 | True | True |  |
+| NVDA | 2026-10-22 | 等待修复 | True | -0.2278 | - |  | ['-0.009', '-0.063', '-0.194'] | 2026-11-17:-0.0303 | 0.7 | True | True |  |
+| ORCL | 2026-10-22 | 等待修复 | True | -0.0354 | E2(CONFIRMED) |  | ['+0.096', '-0.001', '+0.036'] | none_in_window | 0.7 | True | True |  |
+| QLD | 2026-10-22 | 等待修复 | True | -0.0888 | E2(CONFIRMED) |  | ['+0.013', '-0.081', '-0.034'] | n/a | 0.7 | True | True | broad_index_vs_broad_index |
+| QQQ | 2026-10-22 | 等待修复 | False | +0.0000 | M2(CONFIRMED) | M1,R3 | ['+0.000', '+0.000', '+0.000'] | n/a | 0.7 | True | False |  |
+| QQQM | 2026-10-22 | 等待修复 | True | -0.0001 | M2(CONFIRMED) | M1 | ['-0.000', '+0.001', '-0.000'] | n/a | 0.7 | True | False |  |
+| SMH | 2026-10-22 | 等待修复 | True | -0.0608 | E2(CONFIRMED) |  | ['+0.058', '-0.063', '-0.018'] | n/a | 0.7 | True | True |  |
+| SOFI | 2026-10-22 | 等待修复 | False | +0.0003 | M1(CONFIRMED) | R3 | ['+0.177', '+0.167', '+0.081'] | n/a | 0.7 | True | False |  |
+| SPCX | 2026-10-22 | 等待修复 | False | +0.0389 | R4(CONFIRMED) | R3 | ['-0.021', '-0.064', '-0.010'] | none_in_window | 0.7 | True | True |  |
+| SPY | 2026-10-22 | 大跌机会候选 | True | +0.0213 | E2(CONFIRMED) |  | ['-0.008', '+0.041', '+0.014'] | n/a | 0.7 | True | True | broad_index_vs_broad_index |
+| TQQQ | 2026-10-22 | 等待修复 | True | -0.1781 | E2(CONFIRMED) |  | ['+0.027', '-0.159', '-0.075'] | n/a | 0.7 | True | True | broad_index_vs_broad_index |
+| TSLA | 2026-10-22 | 修复候选 | True | +0.0838 | - |  | ['+0.061', '-0.001', '+0.084'] | none_in_window | 0.7 | True | True |  |
+| TSM | 2026-10-22 | 等待修复 | True | -0.0619 | E2(CONFIRMED) |  | ['+0.032', '-0.062', '+0.007'] | unknown(no_filing_history) | 0.7 | True | True |  |
+| VGT | 2026-10-22 | 等待修复 | True | -0.0305 | - |  | ['+0.015', '-0.016', '-0.023'] | n/a | 0.7 | True | True |  |
+| VOO | 2026-10-22 | 大跌机会候选 | True | +0.0210 | E2(CONFIRMED) |  | ['-0.008', '+0.041', '+0.014'] | n/a | 0.7 | True | True | broad_index_vs_broad_index |
+| AMD | 2026-10-23 | 等待修复 | True | -0.0446 | E2(CONFIRMED) |  | ['-0.003', '-0.063', '+0.068'] | 2026-11-03:+0.0312 | 0.4 | True | True |  |
+| AMZN | 2026-10-23 | 等待修复 | False | +0.1308 | R3(CONFIRMED) |  | ['-0.011', '+0.114', '+0.110'] | unknown(no_filing_history) | 0.4 | True | True |  |
+| AVGO | 2026-10-23 | 等待修复 | False | +0.0802 | R3(CONFIRMED) |  | ['+0.034', '-0.018', '+0.114'] | none_in_window | 0.4 | True | True |  |
+| DRAM | 2026-10-23 | 等待修复 | True | -0.1506 | E2(CONFIRMED) |  | ['+0.040', '-0.097', '-0.064'] | unknown(no_filing_history) | 0.4 | True | True |  |
+| GOOG | 2026-10-23 | 等待修复 | True | -0.0332 | E1(CONFIRMED) |  | ['-0.103', '-0.037', '-0.043'] | 2026-10-28:-0.1007 | 0.4 | True | True |  |
+| HOOD | 2026-10-23 | 等待修复 | True | -0.2116 | - |  | ['-0.087', '-0.080', '-0.146'] | 2026-10-27:-0.0340 | 0.4 | True | True |  |
+| INTC | 2026-10-23 | 等待修复 | True | -0.2752 | E1(CONFIRMED) | E2 | ['-0.223', '-0.284', '-0.279'] | 2026-10-29:-0.2621 | 0.4 | True | True |  |
+| IREN | 2026-10-23 | 等待修复 | True | -0.3910 | - |  | ['-0.018', '-0.063', '-0.236'] | 2026-11-05:+0.0486 | 0.4 | True | True |  |
+| LITE | 2026-10-23 | 等待修复 | True | -0.2558 | E1(CONFIRMED) |  | ['+0.132', '-0.219', '-0.176'] | 2026-11-02:-0.1836 | 0.4 | True | True |  |
+| MRVL | 2026-10-23 | 修复候选 | False | -0.3306 | R3(CONFIRMED) |  | ['-0.121', '-0.314', '-0.279'] | 2026-11-02:-0.1167 | 0.4 | True | True |  |
+| NBIS | 2026-10-23 | 等待修复 | True | -0.3533 | - |  | ['-0.010', '-0.116', '-0.235'] | unknown(no_filing_history) | 0.4 | True | True |  |
+| NVDA | 2026-10-23 | 等待修复 | True | -0.2687 | - |  | ['-0.010', '-0.047', '-0.193'] | 2026-11-17:-0.0303 | 0.4 | True | True |  |
+| ORCL | 2026-10-23 | 等待修复 | True | -0.0636 | - |  | ['+0.056', '-0.011', '+0.028'] | none_in_window | 0.4 | True | True |  |
+| QLD | 2026-10-23 | 等待修复 | True | -0.1272 | - |  | ['-0.022', '-0.071', '-0.045'] | n/a | 0.4 | True | True | broad_index_vs_broad_index |
+| QQQ | 2026-10-23 | 等待修复 | False | +0.0000 | M2(CONFIRMED) | M1,R3 | ['+0.000', '+0.000', '+0.000'] | n/a | 0.4 | True | False |  |
+| QQQM | 2026-10-23 | 等待修复 | False | +0.0000 | M2(CONFIRMED) | M1,R3 | ['-0.000', '+0.000', '+0.000'] | n/a | 0.4 | True | False |  |
+| SMH | 2026-10-23 | 等待修复 | True | -0.1064 | - |  | ['+0.011', '-0.051', '-0.042'] | n/a | 0.4 | True | True |  |
+| SOFI | 2026-10-23 | 修复候选 | False | -0.0103 | E2(CONFIRMED) | R4,R3 | ['+0.166', '+0.178', '+0.090'] | 2026-10-27:+0.1665 | 0.4 | True | True |  |
+| SPCX | 2026-10-23 | 修复候选 | True | +0.0020 | M1(CONFIRMED) |  | ['-0.067', '-0.021', '-0.022'] | n/a | 0.4 | True | False |  |
+| TQQQ | 2026-10-23 | 等待修复 | True | -0.2470 | E2(CONFIRMED) |  | ['-0.045', '-0.143', '-0.095'] | n/a | 0.4 | True | True | broad_index_vs_broad_index |
+| TSLA | 2026-10-23 | 修复候选 | True | +0.0645 | - |  | ['+0.094', '+0.031', '+0.083'] | none_in_window | 0.4 | True | True |  |
+| TSM | 2026-10-23 | 等待修复 | True | -0.1030 | - |  | ['-0.010', '-0.034', '-0.012'] | unknown(no_filing_history) | 0.4 | True | True |  |
+| VGT | 2026-10-23 | 等待修复 | True | -0.0452 | - |  | ['+0.001', '-0.021', '-0.033'] | n/a | 0.4 | True | True |  |
 
-- misses by primary: {'E1': 15, 'M2': 7, 'R3': 11, 'E2': 2, 'M1': 3, 'R4': 8}
-- hits by primary: {'-': 44, 'E2': 35, 'M2': 3, 'E1': 10, 'M1': 3}
-- unattributed_rate (R0 / misses): 0/46; attribution_coverage: 46/46
-- informative_hit 89, uninformative_hit 6; informative_miss 36, uninformative_miss 10
+- misses by primary: {'E1': 22, 'M2': 14, 'R3': 19, 'E2': 6, 'M1': 6, 'R4': 9}
+- hits by primary: {'-': 80, 'E2': 67, 'M2': 6, 'E1': 26, 'M1': 5}
+- unattributed_rate (R0 / misses): 0/76; attribution_coverage: 76/76
+- informative_hit 173, uninformative_hit 11; informative_miss 56, uninformative_miss 20
 
 ## 5. Verdict
 - engineering acceptance: **PASS**

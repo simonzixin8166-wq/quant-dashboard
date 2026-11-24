@@ -1,17 +1,17 @@
 {
   "version": "6.12.1",
-  "generated_at": "2026-11-24T19:37:05.875005+00:00",
+  "generated_at": "2026-11-24T21:29:11.361958+00:00",
   "mode": "shadow_research_only",
   "playbooks": {
     "CP-01": {
       "state": "forward_early",
       "forward_provenance": "forward_out_of_sample",
       "replay_provenance": "historical_replay_post_rule_design",
-      "trigger_records": 23,
-      "mature5": 8,
+      "trigger_records": 26,
+      "mature5": 11,
       "mature20": 0,
       "mature60": 0,
-      "aligned_rate5": 0.5,
+      "aligned_rate5": 0.36363636363636365,
       "aligned_rate20": null,
       "aligned_rate60": null,
       "baseline_mismatch": 0,
@@ -21,33 +21,33 @@
       "attribution": [],
       "by_state_detail": {
         "tier1": {
-          "trigger_records": 20,
+          "trigger_records": 22,
           "late_detected": 0,
           "timing_uncertain": 0,
           "baseline_mismatch": 0,
           "horizons": {
             "5": {
-              "mature": 8,
+              "mature": 11,
               "aligned": 4,
-              "not_aligned": 4,
-              "pending": 12
+              "not_aligned": 7,
+              "pending": 11
             },
             "20": {
               "mature": 0,
               "aligned": 0,
               "not_aligned": 0,
-              "pending": 20
+              "pending": 22
             },
             "60": {
               "mature": 0,
               "aligned": 0,
               "not_aligned": 0,
-              "pending": 20
+              "pending": 22
             }
           }
         },
         "tier2": {
-          "trigger_records": 3,
+          "trigger_records": 4,
           "late_detected": 0,
           "timing_uncertain": 0,
           "baseline_mismatch": 0,
@@ -56,19 +56,19 @@
               "mature": 0,
               "aligned": 0,
               "not_aligned": 0,
-              "pending": 3
+              "pending": 4
             },
             "20": {
               "mature": 0,
               "aligned": 0,
               "not_aligned": 0,
-              "pending": 3
+              "pending": 4
             },
             "60": {
               "mature": 0,
               "aligned": 0,
               "not_aligned": 0,
-              "pending": 3
+              "pending": 4
             }
           }
         }
@@ -78,11 +78,11 @@
       "state": "forward_challenging",
       "forward_provenance": "forward_out_of_sample",
       "replay_provenance": "historical_replay_post_rule_design",
-      "trigger_records": 15,
-      "mature5": 10,
+      "trigger_records": 16,
+      "mature5": 11,
       "mature20": 6,
       "mature60": 0,
-      "aligned_rate5": 0.4,
+      "aligned_rate5": 0.45454545454545453,
       "aligned_rate20": 0.16666666666666666,
       "aligned_rate60": null,
       "baseline_mismatch": 0,
@@ -215,14 +215,14 @@
           }
         },
         "hard_exit": {
-          "trigger_records": 6,
+          "trigger_records": 7,
           "late_detected": 1,
           "timing_uncertain": 1,
           "baseline_mismatch": 0,
           "horizons": {
             "5": {
-              "mature": 1,
-              "aligned": 0,
+              "mature": 2,
+              "aligned": 1,
               "not_aligned": 1,
               "pending": 5
             },
@@ -230,13 +230,13 @@
               "mature": 0,
               "aligned": 0,
               "not_aligned": 0,
-              "pending": 6
+              "pending": 7
             },
             "60": {
               "mature": 0,
               "aligned": 0,
               "not_aligned": 0,
-              "pending": 6
+              "pending": 7
             }
           }
         }
@@ -247,27 +247,27 @@
       "forward_provenance": "forward_out_of_sample",
       "replay_provenance": "historical_replay_post_rule_design",
       "trigger_records": 38,
-      "mature5": 28,
-      "mature20": 11,
+      "mature5": 31,
+      "mature20": 12,
       "mature60": 0,
-      "aligned_rate5": 0.35714285714285715,
+      "aligned_rate5": 0.3225806451612903,
       "aligned_rate20": 0.0,
       "aligned_rate60": null,
       "baseline_mismatch": 0,
       "timing_uncertain": 0,
       "replay_effective_n20": 227,
-      "replay_aligned_rate20": 0.599244155836524,
+      "replay_aligned_rate20": 0.5985161556305155,
       "attribution": [
         {
           "tag": "forward_direction_challenging",
           "severity": "review",
-          "evidence_n": 11,
+          "evidence_n": 12,
           "hypothesis": "20日 Forward 方向一致率偏低；需要检查触发条件是否过宽、状态持续时间或环境依赖。"
         },
         {
           "tag": "replay_forward_divergence",
           "severity": "review",
-          "evidence_n": 11,
+          "evidence_n": 12,
           "hypothesis": "Forward 与历史 Replay 的20日方向一致率出现明显偏离；优先检查市场环境差异、样本聚类与状态定义，不自动改阈值。"
         }
       ],
@@ -279,16 +279,16 @@
           "baseline_mismatch": 0,
           "horizons": {
             "5": {
-              "mature": 21,
+              "mature": 23,
               "aligned": 7,
-              "not_aligned": 14,
-              "pending": 7
+              "not_aligned": 16,
+              "pending": 5
             },
             "20": {
-              "mature": 5,
+              "mature": 6,
               "aligned": 0,
-              "not_aligned": 5,
-              "pending": 23
+              "not_aligned": 6,
+              "pending": 22
             },
             "60": {
               "mature": 0,
@@ -305,10 +305,10 @@
           "baseline_mismatch": 0,
           "horizons": {
             "5": {
-              "mature": 7,
+              "mature": 8,
               "aligned": 3,
-              "not_aligned": 4,
-              "pending": 3
+              "not_aligned": 5,
+              "pending": 2
             },
             "20": {
               "mature": 6,
@@ -379,12 +379,12 @@
   "counts": {
     "playbooks": 3,
     "challenger_candidates": 2,
-    "forward_mature20": 17,
+    "forward_mature20": 18,
     "forward_mature60": 0,
     "attribution_reviews": 5
   },
   "change_log": {
-    "previous_generated_at": "2026-11-23T21:28:58.904514+00:00",
+    "previous_generated_at": "2026-11-24T19:37:05.875005+00:00",
     "stateless_recompute": true,
     "automatic_promotion": false
   },

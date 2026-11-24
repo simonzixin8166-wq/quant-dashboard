@@ -1,6 +1,6 @@
 {
   "version": "6.14.3",
-  "generated_at": "2026-11-24T19:38:03.833993+00:00",
+  "generated_at": "2026-11-24T21:30:11.313751+00:00",
   "mode": "autonomous_research_planner",
   "queue": [
     {
@@ -29,7 +29,7 @@
       "review_window_days": 5,
       "guardrail": "研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。",
       "rebound_status": "risk",
-      "qqq_drawdown": -0.14299811453536804,
+      "qqq_drawdown": -0.16001895829183832,
       "source_method": {
         "author": "lionhill / 狮山巡礼",
         "title": "市场大调整时：TQQQ还是QQQ LEAPS",
@@ -39,16 +39,134 @@
       "base_priority": 92.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-10-30T23:26:42.310122+00:00",
-      "run_count": 75,
+      "run_count": 76,
+      "carry_forward": false
+    },
+    {
+      "task_id": "be6aac625fd469",
+      "kind": "market_anomaly",
+      "key": "IREN",
+      "title": "IREN · 异动/趋势专项研究",
+      "priority": 88.0,
+      "why_now": "单日涨跌 -11.6%，达到重大异动阈值",
+      "questions": [
+        "这次变化由公司事件、行业共振还是市场因素驱动？",
+        "支持原 Thesis 的证据是什么？",
+        "最强反证是什么？",
+        "明日需要验证什么？"
+      ],
+      "evidence_sources": [
+        "market_data",
+        "trend_pulse",
+        "SEC/IR",
+        "company_news",
+        "industry_peers"
+      ],
+      "status": "open",
+      "review_window_days": 2,
+      "guardrail": "研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。",
+      "base_priority": 88.0,
+      "controlled_learning_delta": 0.0,
+      "first_seen_at": "2026-11-19T21:29:27.410214+00:00",
+      "run_count": 15,
+      "carry_forward": false
+    },
+    {
+      "task_id": "23345e714a50c1",
+      "kind": "market_anomaly",
+      "key": "NBIS",
+      "title": "NBIS · 异动/趋势专项研究",
+      "priority": 88.0,
+      "why_now": "单日涨跌 -10.8%，达到重大异动阈值",
+      "questions": [
+        "这次变化由公司事件、行业共振还是市场因素驱动？",
+        "支持原 Thesis 的证据是什么？",
+        "最强反证是什么？",
+        "明日需要验证什么？"
+      ],
+      "evidence_sources": [
+        "market_data",
+        "trend_pulse",
+        "SEC/IR",
+        "company_news",
+        "industry_peers"
+      ],
+      "status": "open",
+      "review_window_days": 2,
+      "guardrail": "研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。",
+      "base_priority": 88.0,
+      "controlled_learning_delta": 0.0,
+      "first_seen_at": "2026-11-19T21:29:27.410214+00:00",
+      "run_count": 15,
+      "carry_forward": false
+    },
+    {
+      "task_id": "b528aa82a03ae2",
+      "kind": "market_anomaly",
+      "key": "LITE",
+      "title": "LITE · 异动/趋势专项研究",
+      "priority": 88.0,
+      "why_now": "单日涨跌 -10.5%，达到重大异动阈值；Trend Pulse 阶段从 修复中 变为 趋势恶化",
+      "questions": [
+        "这次变化由公司事件、行业共振还是市场因素驱动？",
+        "支持原 Thesis 的证据是什么？",
+        "最强反证是什么？",
+        "明日需要验证什么？"
+      ],
+      "evidence_sources": [
+        "market_data",
+        "trend_pulse",
+        "SEC/IR",
+        "company_news",
+        "industry_peers"
+      ],
+      "status": "open",
+      "review_window_days": 2,
+      "guardrail": "研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。",
+      "base_priority": 88.0,
+      "controlled_learning_delta": 0.0,
+      "first_seen_at": "2026-11-20T21:30:03.414797+00:00",
+      "run_count": 12,
+      "carry_forward": false
+    },
+    {
+      "task_id": "9dd02d7dc13f4e",
+      "kind": "regime_combination",
+      "key": "US_REGIME",
+      "title": "美股 · 风险环境存在组合分化",
+      "priority": 82.0,
+      "why_now": "当前组合状态 CROSS_LOW|BREADTH_WEAKENING|VIX_STRESS；需要验证跨资产压力与宽度收窄是否持续共振。",
+      "questions": [
+        "同类组合状态历史5/20/60日结果如何？",
+        "宽度还是利率/信用哪一侧先修复？",
+        "VIX是否从低波动补涨确认风险？",
+        "什么变化足以让组合状态降级？"
+      ],
+      "evidence_sources": [
+        "regime_combination_memory",
+        "breadth_intelligence",
+        "cross_asset_divergence",
+        "SPY",
+        "VIX"
+      ],
+      "status": "open",
+      "review_window_days": 5,
+      "guardrail": "研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。",
+      "state_id": "CROSS_LOW|BREADTH_WEAKENING|VIX_STRESS",
+      "regime_level": "medium",
+      "base_priority": 82.0,
+      "controlled_learning_delta": 0.0,
+      "first_seen_at": "2026-11-13T16:24:28.305679+00:00",
+      "run_count": 34,
       "carry_forward": false
     },
     {
       "task_id": "ff2fe8dce9c4c9",
       "kind": "breadth_intelligence",
       "key": "US_BREADTH",
-      "title": "美股 · 参与度脆弱 · 权重股主导",
-      "priority": 88.0,
-      "why_now": "市场参与度评分 25.9，风险信号 4 项。",
+      "title": "美股 · 市场宽度走弱",
+      "priority": 78.0,
+      "why_now": "市场参与度评分 33.2，风险信号 3 项。",
       "questions": [
         "20/50日宽度是否连续修复？",
         "RSP是否开始追上SPY？",
@@ -66,421 +184,13 @@
       "status": "open",
       "review_window_days": 5,
       "guardrail": "研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。",
-      "breadth_level": "fragile",
-      "participation_score": 25.9,
-      "combination_key": "B20_LOW|B50_OK|B200_OK|SLOPE_DOWN|SPY_RSP_OK|QQQ_QQQE_OK|AD_NEG|NH52_THIN",
-      "base_priority": 88.0,
+      "breadth_level": "weakening",
+      "participation_score": 33.2,
+      "combination_key": "B20_OK|B50_OK|B200_OK|SLOPE_DOWN|SPY_RSP_OK|QQQ_QQQE_OK|AD_NEG|NH52_THIN",
+      "base_priority": 78.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-11-13T16:24:28.305679+00:00",
-      "run_count": 33,
-      "carry_forward": false
-    },
-    {
-      "task_id": "be6aac625fd469",
-      "kind": "market_anomaly",
-      "key": "IREN",
-      "title": "IREN · 异动/趋势专项研究",
-      "priority": 88.0,
-      "why_now": "单日涨跌 +23.9%，达到重大异动阈值",
-      "questions": [
-        "这次变化由公司事件、行业共振还是市场因素驱动？",
-        "支持原 Thesis 的证据是什么？",
-        "最强反证是什么？",
-        "明日需要验证什么？"
-      ],
-      "evidence_sources": [
-        "market_data",
-        "trend_pulse",
-        "SEC/IR",
-        "company_news",
-        "industry_peers"
-      ],
-      "status": "open",
-      "review_window_days": 2,
-      "guardrail": "研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。",
-      "base_priority": 88.0,
-      "controlled_learning_delta": 0.0,
-      "first_seen_at": "2026-11-19T21:29:27.410214+00:00",
-      "run_count": 14,
-      "carry_forward": false
-    },
-    {
-      "task_id": "23345e714a50c1",
-      "kind": "market_anomaly",
-      "key": "NBIS",
-      "title": "NBIS · 异动/趋势专项研究",
-      "priority": 88.0,
-      "why_now": "单日涨跌 +20.3%，达到重大异动阈值",
-      "questions": [
-        "这次变化由公司事件、行业共振还是市场因素驱动？",
-        "支持原 Thesis 的证据是什么？",
-        "最强反证是什么？",
-        "明日需要验证什么？"
-      ],
-      "evidence_sources": [
-        "market_data",
-        "trend_pulse",
-        "SEC/IR",
-        "company_news",
-        "industry_peers"
-      ],
-      "status": "open",
-      "review_window_days": 2,
-      "guardrail": "研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。",
-      "base_priority": 88.0,
-      "controlled_learning_delta": 0.0,
-      "first_seen_at": "2026-11-19T21:29:27.410214+00:00",
-      "run_count": 14,
-      "carry_forward": false
-    },
-    {
-      "task_id": "71b1256b404fb6",
-      "kind": "market_anomaly",
-      "key": "TQQQ",
-      "title": "TQQQ · 异动/趋势专项研究",
-      "priority": 88.0,
-      "why_now": "单日涨跌 +19.2%，达到重大异动阈值",
-      "questions": [
-        "这次变化由公司事件、行业共振还是市场因素驱动？",
-        "支持原 Thesis 的证据是什么？",
-        "最强反证是什么？",
-        "明日需要验证什么？"
-      ],
-      "evidence_sources": [
-        "market_data",
-        "trend_pulse",
-        "SEC/IR",
-        "company_news",
-        "industry_peers"
-      ],
-      "status": "open",
-      "review_window_days": 2,
-      "guardrail": "研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。",
-      "base_priority": 88.0,
-      "controlled_learning_delta": 0.0,
-      "first_seen_at": "2026-11-19T21:29:27.410214+00:00",
-      "run_count": 14,
-      "carry_forward": false
-    },
-    {
-      "task_id": "1e0c0f5a640215",
-      "kind": "market_anomaly",
-      "key": "TSLA",
-      "title": "TSLA · 异动/趋势专项研究",
-      "priority": 88.0,
-      "why_now": "单日涨跌 +11.5%，达到重大异动阈值；V5.4 研究优先级 71/100",
-      "questions": [
-        "这次变化由公司事件、行业共振还是市场因素驱动？",
-        "支持原 Thesis 的证据是什么？",
-        "最强反证是什么？",
-        "明日需要验证什么？"
-      ],
-      "evidence_sources": [
-        "market_data",
-        "trend_pulse",
-        "SEC/IR",
-        "company_news",
-        "industry_peers"
-      ],
-      "status": "open",
-      "review_window_days": 2,
-      "guardrail": "研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。",
-      "base_priority": 88.0,
-      "controlled_learning_delta": 0.0,
-      "first_seen_at": "2026-11-20T21:30:03.414797+00:00",
-      "run_count": 11,
-      "carry_forward": false
-    },
-    {
-      "task_id": "715d52b0b1f0df",
-      "kind": "market_anomaly",
-      "key": "DRAM",
-      "title": "DRAM · 异动/趋势专项研究",
-      "priority": 88.0,
-      "why_now": "单日涨跌 +18.6%，达到重大异动阈值",
-      "questions": [
-        "这次变化由公司事件、行业共振还是市场因素驱动？",
-        "支持原 Thesis 的证据是什么？",
-        "最强反证是什么？",
-        "明日需要验证什么？"
-      ],
-      "evidence_sources": [
-        "market_data",
-        "trend_pulse",
-        "SEC/IR",
-        "company_news",
-        "industry_peers"
-      ],
-      "status": "open",
-      "review_window_days": 2,
-      "guardrail": "研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。",
-      "base_priority": 88.0,
-      "controlled_learning_delta": 0.0,
-      "first_seen_at": "2026-11-20T21:30:03.414797+00:00",
-      "run_count": 11,
-      "carry_forward": false
-    },
-    {
-      "task_id": "b528aa82a03ae2",
-      "kind": "market_anomaly",
-      "key": "LITE",
-      "title": "LITE · 异动/趋势专项研究",
-      "priority": 88.0,
-      "why_now": "单日涨跌 +18.2%，达到重大异动阈值",
-      "questions": [
-        "这次变化由公司事件、行业共振还是市场因素驱动？",
-        "支持原 Thesis 的证据是什么？",
-        "最强反证是什么？",
-        "明日需要验证什么？"
-      ],
-      "evidence_sources": [
-        "market_data",
-        "trend_pulse",
-        "SEC/IR",
-        "company_news",
-        "industry_peers"
-      ],
-      "status": "open",
-      "review_window_days": 2,
-      "guardrail": "研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。",
-      "base_priority": 88.0,
-      "controlled_learning_delta": 0.0,
-      "first_seen_at": "2026-11-20T21:30:03.414797+00:00",
-      "run_count": 11,
-      "carry_forward": false
-    },
-    {
-      "task_id": "b4e34072d842fe",
-      "kind": "market_anomaly",
-      "key": "INTC",
-      "title": "INTC · 异动/趋势专项研究",
-      "priority": 88.0,
-      "why_now": "单日涨跌 +16.3%，达到重大异动阈值",
-      "questions": [
-        "这次变化由公司事件、行业共振还是市场因素驱动？",
-        "支持原 Thesis 的证据是什么？",
-        "最强反证是什么？",
-        "明日需要验证什么？"
-      ],
-      "evidence_sources": [
-        "market_data",
-        "trend_pulse",
-        "SEC/IR",
-        "company_news",
-        "industry_peers"
-      ],
-      "status": "open",
-      "review_window_days": 2,
-      "guardrail": "研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。",
-      "base_priority": 88.0,
-      "controlled_learning_delta": 0.0,
-      "first_seen_at": "2026-11-20T21:30:03.414797+00:00",
-      "run_count": 11,
-      "carry_forward": false
-    },
-    {
-      "task_id": "f1d0463b84d88b",
-      "kind": "market_anomaly",
-      "key": "NVDA",
-      "title": "NVDA · 异动/趋势专项研究",
-      "priority": 88.0,
-      "why_now": "单日涨跌 +31.5%，达到重大异动阈值",
-      "questions": [
-        "这次变化由公司事件、行业共振还是市场因素驱动？",
-        "支持原 Thesis 的证据是什么？",
-        "最强反证是什么？",
-        "明日需要验证什么？"
-      ],
-      "evidence_sources": [
-        "market_data",
-        "trend_pulse",
-        "SEC/IR",
-        "company_news",
-        "industry_peers"
-      ],
-      "status": "open",
-      "review_window_days": 2,
-      "guardrail": "研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。",
-      "base_priority": 88.0,
-      "controlled_learning_delta": 0.0,
-      "first_seen_at": "2026-11-20T21:30:03.414797+00:00",
-      "run_count": 11,
-      "carry_forward": false
-    },
-    {
-      "task_id": "cc5c623eb18172",
-      "kind": "market_anomaly",
-      "key": "MRVL",
-      "title": "MRVL · 异动/趋势专项研究",
-      "priority": 88.0,
-      "why_now": "单日涨跌 +18.4%，达到重大异动阈值",
-      "questions": [
-        "这次变化由公司事件、行业共振还是市场因素驱动？",
-        "支持原 Thesis 的证据是什么？",
-        "最强反证是什么？",
-        "明日需要验证什么？"
-      ],
-      "evidence_sources": [
-        "market_data",
-        "trend_pulse",
-        "SEC/IR",
-        "company_news",
-        "industry_peers"
-      ],
-      "status": "open",
-      "review_window_days": 2,
-      "guardrail": "研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。",
-      "base_priority": 88.0,
-      "controlled_learning_delta": 0.0,
-      "first_seen_at": "2026-11-20T21:30:03.414797+00:00",
-      "run_count": 11,
-      "carry_forward": false
-    },
-    {
-      "task_id": "9294e1e77660c4",
-      "kind": "market_anomaly",
-      "key": "SMH",
-      "title": "SMH · 异动/趋势专项研究",
-      "priority": 88.0,
-      "why_now": "单日涨跌 +15.0%，达到重大异动阈值",
-      "questions": [
-        "这次变化由公司事件、行业共振还是市场因素驱动？",
-        "支持原 Thesis 的证据是什么？",
-        "最强反证是什么？",
-        "明日需要验证什么？"
-      ],
-      "evidence_sources": [
-        "market_data",
-        "trend_pulse",
-        "SEC/IR",
-        "company_news",
-        "industry_peers"
-      ],
-      "status": "open",
-      "review_window_days": 2,
-      "guardrail": "研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。",
-      "base_priority": 88.0,
-      "controlled_learning_delta": 0.0,
-      "first_seen_at": "2026-11-20T21:30:03.414797+00:00",
-      "run_count": 11,
-      "carry_forward": false
-    },
-    {
-      "task_id": "0a13ba17a98b2d",
-      "kind": "market_anomaly",
-      "key": "TSM",
-      "title": "TSM · 异动/趋势专项研究",
-      "priority": 88.0,
-      "why_now": "单日涨跌 +14.1%，达到重大异动阈值",
-      "questions": [
-        "这次变化由公司事件、行业共振还是市场因素驱动？",
-        "支持原 Thesis 的证据是什么？",
-        "最强反证是什么？",
-        "明日需要验证什么？"
-      ],
-      "evidence_sources": [
-        "market_data",
-        "trend_pulse",
-        "SEC/IR",
-        "company_news",
-        "industry_peers"
-      ],
-      "status": "open",
-      "review_window_days": 2,
-      "guardrail": "研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。",
-      "base_priority": 88.0,
-      "controlled_learning_delta": 0.0,
-      "first_seen_at": "2026-11-20T21:30:03.414797+00:00",
-      "run_count": 11,
-      "carry_forward": false
-    },
-    {
-      "task_id": "94dfddb30f20e7",
-      "kind": "market_anomaly",
-      "key": "QLD",
-      "title": "QLD · 异动/趋势专项研究",
-      "priority": 88.0,
-      "why_now": "单日涨跌 +13.2%，达到重大异动阈值",
-      "questions": [
-        "这次变化由公司事件、行业共振还是市场因素驱动？",
-        "支持原 Thesis 的证据是什么？",
-        "最强反证是什么？",
-        "明日需要验证什么？"
-      ],
-      "evidence_sources": [
-        "market_data",
-        "trend_pulse",
-        "SEC/IR",
-        "company_news",
-        "industry_peers"
-      ],
-      "status": "open",
-      "review_window_days": 2,
-      "guardrail": "研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。",
-      "base_priority": 88.0,
-      "controlled_learning_delta": 0.0,
-      "first_seen_at": "2026-11-20T21:30:03.414797+00:00",
-      "run_count": 11,
-      "carry_forward": false
-    },
-    {
-      "task_id": "64ea749d2c36e3",
-      "kind": "market_anomaly",
-      "key": "ORCL",
-      "title": "ORCL · 异动/趋势专项研究",
-      "priority": 88.0,
-      "why_now": "单日涨跌 +12.3%，达到重大异动阈值",
-      "questions": [
-        "这次变化由公司事件、行业共振还是市场因素驱动？",
-        "支持原 Thesis 的证据是什么？",
-        "最强反证是什么？",
-        "明日需要验证什么？"
-      ],
-      "evidence_sources": [
-        "market_data",
-        "trend_pulse",
-        "SEC/IR",
-        "company_news",
-        "industry_peers"
-      ],
-      "status": "open",
-      "review_window_days": 2,
-      "guardrail": "研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。",
-      "base_priority": 88.0,
-      "controlled_learning_delta": 0.0,
-      "first_seen_at": "2026-11-20T21:30:03.414797+00:00",
-      "run_count": 11,
-      "carry_forward": false
-    },
-    {
-      "task_id": "9dd02d7dc13f4e",
-      "kind": "regime_combination",
-      "key": "US_REGIME",
-      "title": "美股 · 风险环境存在组合分化",
-      "priority": 82.0,
-      "why_now": "当前组合状态 CROSS_LOW|BREADTH_FRAGILE|VIX_STRESS；需要验证跨资产压力与宽度收窄是否持续共振。",
-      "questions": [
-        "同类组合状态历史5/20/60日结果如何？",
-        "宽度还是利率/信用哪一侧先修复？",
-        "VIX是否从低波动补涨确认风险？",
-        "什么变化足以让组合状态降级？"
-      ],
-      "evidence_sources": [
-        "regime_combination_memory",
-        "breadth_intelligence",
-        "cross_asset_divergence",
-        "SPY",
-        "VIX"
-      ],
-      "status": "open",
-      "review_window_days": 5,
-      "guardrail": "研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。",
-      "state_id": "CROSS_LOW|BREADTH_FRAGILE|VIX_STRESS",
-      "regime_level": "medium",
-      "base_priority": 82.0,
-      "controlled_learning_delta": 0.0,
-      "first_seen_at": "2026-11-13T16:24:28.305679+00:00",
-      "run_count": 33,
+      "run_count": 34,
       "carry_forward": false
     },
     {
@@ -489,7 +199,7 @@
       "key": "AMD",
       "title": "AMD · 异动/趋势专项研究",
       "priority": 72.0,
-      "why_now": "单日涨跌 +6.8%，达到重点复查阈值",
+      "why_now": "单日涨跌 -8.9%，达到重点复查阈值",
       "questions": [
         "这次变化由公司事件、行业共振还是市场因素驱动？",
         "支持原 Thesis 的证据是什么？",
@@ -509,16 +219,45 @@
       "base_priority": 72.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-11-18T21:30:09.150999+00:00",
-      "run_count": 17,
+      "run_count": 18,
       "carry_forward": false
     },
     {
-      "task_id": "df209aa723b495",
+      "task_id": "71b1256b404fb6",
       "kind": "market_anomaly",
-      "key": "VGT",
-      "title": "VGT · 异动/趋势专项研究",
+      "key": "TQQQ",
+      "title": "TQQQ · 异动/趋势专项研究",
       "priority": 72.0,
-      "why_now": "单日涨跌 +9.0%，达到重点复查阈值",
+      "why_now": "单日涨跌 -5.9%，达到重点复查阈值",
+      "questions": [
+        "这次变化由公司事件、行业共振还是市场因素驱动？",
+        "支持原 Thesis 的证据是什么？",
+        "最强反证是什么？",
+        "明日需要验证什么？"
+      ],
+      "evidence_sources": [
+        "market_data",
+        "trend_pulse",
+        "SEC/IR",
+        "company_news",
+        "industry_peers"
+      ],
+      "status": "open",
+      "review_window_days": 2,
+      "guardrail": "研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。",
+      "base_priority": 72.0,
+      "controlled_learning_delta": 0.0,
+      "first_seen_at": "2026-11-19T21:29:27.410214+00:00",
+      "run_count": 15,
+      "carry_forward": false
+    },
+    {
+      "task_id": "b4e34072d842fe",
+      "kind": "market_anomaly",
+      "key": "INTC",
+      "title": "INTC · 异动/趋势专项研究",
+      "priority": 72.0,
+      "why_now": "单日涨跌 -8.0%，达到重点复查阈值",
       "questions": [
         "这次变化由公司事件、行业共振还是市场因素驱动？",
         "支持原 Thesis 的证据是什么？",
@@ -538,16 +277,16 @@
       "base_priority": 72.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-11-20T21:30:03.414797+00:00",
-      "run_count": 11,
+      "run_count": 12,
       "carry_forward": false
     },
     {
-      "task_id": "f99e71116d7597",
+      "task_id": "64ea749d2c36e3",
       "kind": "market_anomaly",
-      "key": "HOOD",
-      "title": "HOOD · 异动/趋势专项研究",
+      "key": "ORCL",
+      "title": "ORCL · 异动/趋势专项研究",
       "priority": 72.0,
-      "why_now": "单日涨跌 +8.4%，达到重点复查阈值",
+      "why_now": "Trend Pulse 阶段从 趋势恶化 变为 修复中",
       "questions": [
         "这次变化由公司事件、行业共振还是市场因素驱动？",
         "支持原 Thesis 的证据是什么？",
@@ -567,16 +306,16 @@
       "base_priority": 72.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-11-20T21:30:03.414797+00:00",
-      "run_count": 11,
+      "run_count": 12,
       "carry_forward": false
     },
     {
-      "task_id": "00d205f36a42f7",
+      "task_id": "1e0c0f5a640215",
       "kind": "market_anomaly",
-      "key": "QQQ",
-      "title": "QQQ · 异动/趋势专项研究",
+      "key": "TSLA",
+      "title": "TSLA · 异动/趋势专项研究",
       "priority": 72.0,
-      "why_now": "单日涨跌 +7.0%，达到重点复查阈值",
+      "why_now": "Trend Pulse 阶段从 趋势启动 变为 震荡观察",
       "questions": [
         "这次变化由公司事件、行业共振还是市场因素驱动？",
         "支持原 Thesis 的证据是什么？",
@@ -596,16 +335,16 @@
       "base_priority": 72.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-11-20T21:30:03.414797+00:00",
-      "run_count": 11,
+      "run_count": 12,
       "carry_forward": false
     },
     {
-      "task_id": "07edc8ca864c86",
+      "task_id": "cc5c623eb18172",
       "kind": "market_anomaly",
-      "key": "QQQM",
-      "title": "QQQM · 异动/趋势专项研究",
+      "key": "MRVL",
+      "title": "MRVL · 异动/趋势专项研究",
       "priority": 72.0,
-      "why_now": "单日涨跌 +6.7%，达到重点复查阈值",
+      "why_now": "单日涨跌 -9.1%，达到重点复查阈值",
       "questions": [
         "这次变化由公司事件、行业共振还是市场因素驱动？",
         "支持原 Thesis 的证据是什么？",
@@ -625,7 +364,123 @@
       "base_priority": 72.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-11-20T21:30:03.414797+00:00",
-      "run_count": 11,
+      "run_count": 12,
+      "carry_forward": false
+    },
+    {
+      "task_id": "715d52b0b1f0df",
+      "kind": "market_anomaly",
+      "key": "DRAM",
+      "title": "DRAM · 异动/趋势专项研究",
+      "priority": 72.0,
+      "why_now": "单日涨跌 -9.0%，达到重点复查阈值；Trend Pulse 阶段从 修复中 变为 趋势恶化",
+      "questions": [
+        "这次变化由公司事件、行业共振还是市场因素驱动？",
+        "支持原 Thesis 的证据是什么？",
+        "最强反证是什么？",
+        "明日需要验证什么？"
+      ],
+      "evidence_sources": [
+        "market_data",
+        "trend_pulse",
+        "SEC/IR",
+        "company_news",
+        "industry_peers"
+      ],
+      "status": "open",
+      "review_window_days": 2,
+      "guardrail": "研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。",
+      "base_priority": 72.0,
+      "controlled_learning_delta": 0.0,
+      "first_seen_at": "2026-11-20T21:30:03.414797+00:00",
+      "run_count": 12,
+      "carry_forward": false
+    },
+    {
+      "task_id": "9294e1e77660c4",
+      "kind": "market_anomaly",
+      "key": "SMH",
+      "title": "SMH · 异动/趋势专项研究",
+      "priority": 72.0,
+      "why_now": "单日涨跌 -7.1%，达到重点复查阈值",
+      "questions": [
+        "这次变化由公司事件、行业共振还是市场因素驱动？",
+        "支持原 Thesis 的证据是什么？",
+        "最强反证是什么？",
+        "明日需要验证什么？"
+      ],
+      "evidence_sources": [
+        "market_data",
+        "trend_pulse",
+        "SEC/IR",
+        "company_news",
+        "industry_peers"
+      ],
+      "status": "open",
+      "review_window_days": 2,
+      "guardrail": "研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。",
+      "base_priority": 72.0,
+      "controlled_learning_delta": 0.0,
+      "first_seen_at": "2026-11-20T21:30:03.414797+00:00",
+      "run_count": 12,
+      "carry_forward": false
+    },
+    {
+      "task_id": "f1d0463b84d88b",
+      "kind": "market_anomaly",
+      "key": "NVDA",
+      "title": "NVDA · 异动/趋势专项研究",
+      "priority": 72.0,
+      "why_now": "单日涨跌 -5.8%，达到重点复查阈值",
+      "questions": [
+        "这次变化由公司事件、行业共振还是市场因素驱动？",
+        "支持原 Thesis 的证据是什么？",
+        "最强反证是什么？",
+        "明日需要验证什么？"
+      ],
+      "evidence_sources": [
+        "market_data",
+        "trend_pulse",
+        "SEC/IR",
+        "company_news",
+        "industry_peers"
+      ],
+      "status": "open",
+      "review_window_days": 2,
+      "guardrail": "研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。",
+      "base_priority": 72.0,
+      "controlled_learning_delta": 0.0,
+      "first_seen_at": "2026-11-20T21:30:03.414797+00:00",
+      "run_count": 12,
+      "carry_forward": false
+    },
+    {
+      "task_id": "640ad43f52044f",
+      "kind": "market_anomaly",
+      "key": "AMZN",
+      "title": "AMZN · 异动/趋势专项研究",
+      "priority": 72.0,
+      "why_now": "Trend Pulse 阶段从 震荡观察 变为 趋势恶化",
+      "questions": [
+        "这次变化由公司事件、行业共振还是市场因素驱动？",
+        "支持原 Thesis 的证据是什么？",
+        "最强反证是什么？",
+        "明日需要验证什么？"
+      ],
+      "evidence_sources": [
+        "market_data",
+        "trend_pulse",
+        "SEC/IR",
+        "company_news",
+        "industry_peers"
+      ],
+      "status": "open",
+      "review_window_days": 2,
+      "guardrail": "研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。",
+      "base_priority": 72.0,
+      "controlled_learning_delta": 0.0,
+      "first_seen_at": "2026-11-23T21:29:56.563924+00:00",
+      "run_count": 4,
       "carry_forward": false
     },
     {
@@ -654,16 +509,18 @@
       "base_priority": 72.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-11-23T21:29:56.563924+00:00",
-      "run_count": 3,
-      "carry_forward": false
+      "run_count": 4,
+      "carry_forward": true,
+      "last_carried_at": "2026-11-24T21:30:11.313751+00:00",
+      "carry_reason": "persistent_backlog_not_regenerated_this_snapshot"
     },
     {
-      "task_id": "640ad43f52044f",
+      "task_id": "18388d1182a7d7",
       "kind": "market_anomaly",
-      "key": "AMZN",
-      "title": "AMZN · 异动/趋势专项研究",
+      "key": "SPCX",
+      "title": "SPCX · 异动/趋势专项研究",
       "priority": 72.0,
-      "why_now": "Trend Pulse 阶段从 趋势恶化 变为 震荡观察",
+      "why_now": "单日涨跌 -5.6%，达到重点复查阈值",
       "questions": [
         "这次变化由公司事件、行业共振还是市场因素驱动？",
         "支持原 Thesis 的证据是什么？",
@@ -682,11 +539,9 @@
       "guardrail": "研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。",
       "base_priority": 72.0,
       "controlled_learning_delta": 0.0,
-      "first_seen_at": "2026-11-23T21:29:56.563924+00:00",
-      "run_count": 3,
-      "carry_forward": true,
-      "last_carried_at": "2026-11-24T19:38:03.833993+00:00",
-      "carry_reason": "persistent_backlog_not_regenerated_this_snapshot"
+      "first_seen_at": "2026-11-24T21:30:11.313751+00:00",
+      "run_count": 1,
+      "carry_forward": false
     },
     {
       "task_id": "f53d7e0ebf3c87",
@@ -756,7 +611,7 @@
       "base_priority": 70.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-10-07T04:39:21.812896+00:00",
-      "run_count": 295,
+      "run_count": 296,
       "carry_forward": false
     },
     {
@@ -810,7 +665,7 @@
       "base_priority": 70.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-10-08T06:30:16.979713+00:00",
-      "run_count": 216,
+      "run_count": 217,
       "carry_forward": false
     },
     {
@@ -864,231 +719,7 @@
       "base_priority": 70.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-10-08T06:30:16.979713+00:00",
-      "run_count": 216,
-      "carry_forward": false
-    },
-    {
-      "task_id": "9c2f273cede54e",
-      "kind": "discovery",
-      "key": "NBIS",
-      "title": "NBIS · 新机会核验",
-      "priority": 70.0,
-      "why_now": "核对官方公司事件、新闻、成交量和行业联动；确认事件真实性后再决定是否升级。",
-      "questions": [
-        "是否存在官方公告或可靠新闻？",
-        "是否有行业联动？",
-        "异常是否持续？",
-        "有什么反证？"
-      ],
-      "evidence_sources": [
-        "SEC/IR",
-        "reliable_news",
-        "market_data",
-        "industry_peers"
-      ],
-      "status": "open",
-      "review_window_days": 2,
-      "guardrail": "研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。",
-      "base_priority": 70.0,
-      "controlled_learning_delta": 0.0,
-      "first_seen_at": "2026-11-19T21:29:27.410214+00:00",
-      "run_count": 14,
-      "carry_forward": false
-    },
-    {
-      "task_id": "cee1b3c7245ef4",
-      "kind": "discovery",
-      "key": "DRAM",
-      "title": "DRAM · 新机会核验",
-      "priority": 70.0,
-      "why_now": "核对官方公司事件、新闻、成交量和行业联动；确认事件真实性后再决定是否升级。",
-      "questions": [
-        "是否存在官方公告或可靠新闻？",
-        "是否有行业联动？",
-        "异常是否持续？",
-        "有什么反证？"
-      ],
-      "evidence_sources": [
-        "SEC/IR",
-        "reliable_news",
-        "market_data",
-        "industry_peers"
-      ],
-      "status": "open",
-      "review_window_days": 2,
-      "guardrail": "研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。",
-      "base_priority": 70.0,
-      "controlled_learning_delta": 0.0,
-      "first_seen_at": "2026-11-20T21:30:03.414797+00:00",
-      "run_count": 11,
-      "carry_forward": false
-    },
-    {
-      "task_id": "55dbd711eb2de1",
-      "kind": "discovery",
-      "key": "LITE",
-      "title": "LITE · 新机会核验",
-      "priority": 70.0,
-      "why_now": "核对官方公司事件、新闻、成交量和行业联动；确认事件真实性后再决定是否升级。",
-      "questions": [
-        "是否存在官方公告或可靠新闻？",
-        "是否有行业联动？",
-        "异常是否持续？",
-        "有什么反证？"
-      ],
-      "evidence_sources": [
-        "SEC/IR",
-        "reliable_news",
-        "market_data",
-        "industry_peers"
-      ],
-      "status": "open",
-      "review_window_days": 2,
-      "guardrail": "研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。",
-      "base_priority": 70.0,
-      "controlled_learning_delta": 0.0,
-      "first_seen_at": "2026-11-20T21:30:03.414797+00:00",
-      "run_count": 11,
-      "carry_forward": false
-    },
-    {
-      "task_id": "0ee32dc5859fac",
-      "kind": "discovery",
-      "key": "NVDA",
-      "title": "NVDA · 新机会核验",
-      "priority": 70.0,
-      "why_now": "核对官方公司事件、新闻、成交量和行业联动；确认事件真实性后再决定是否升级。",
-      "questions": [
-        "是否存在官方公告或可靠新闻？",
-        "是否有行业联动？",
-        "异常是否持续？",
-        "有什么反证？"
-      ],
-      "evidence_sources": [
-        "SEC/IR",
-        "reliable_news",
-        "market_data",
-        "industry_peers"
-      ],
-      "status": "open",
-      "review_window_days": 2,
-      "guardrail": "研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。",
-      "base_priority": 70.0,
-      "controlled_learning_delta": 0.0,
-      "first_seen_at": "2026-11-20T21:30:03.414797+00:00",
-      "run_count": 11,
-      "carry_forward": false
-    },
-    {
-      "task_id": "6c4c4d86f060a3",
-      "kind": "discovery",
-      "key": "IREN",
-      "title": "IREN · 新机会核验",
-      "priority": 70.0,
-      "why_now": "核对官方公司事件、新闻、成交量和行业联动；确认事件真实性后再决定是否升级。",
-      "questions": [
-        "是否存在官方公告或可靠新闻？",
-        "是否有行业联动？",
-        "异常是否持续？",
-        "有什么反证？"
-      ],
-      "evidence_sources": [
-        "SEC/IR",
-        "reliable_news",
-        "market_data",
-        "industry_peers"
-      ],
-      "status": "open",
-      "review_window_days": 2,
-      "guardrail": "研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。",
-      "base_priority": 70.0,
-      "controlled_learning_delta": 0.0,
-      "first_seen_at": "2026-11-20T21:30:03.414797+00:00",
-      "run_count": 11,
-      "carry_forward": false
-    },
-    {
-      "task_id": "38a80c53d61f2c",
-      "kind": "discovery",
-      "key": "TQQQ",
-      "title": "TQQQ · 新机会核验",
-      "priority": 70.0,
-      "why_now": "核对官方公司事件、新闻、成交量和行业联动；确认事件真实性后再决定是否升级。",
-      "questions": [
-        "是否存在官方公告或可靠新闻？",
-        "是否有行业联动？",
-        "异常是否持续？",
-        "有什么反证？"
-      ],
-      "evidence_sources": [
-        "SEC/IR",
-        "reliable_news",
-        "market_data",
-        "industry_peers"
-      ],
-      "status": "open",
-      "review_window_days": 2,
-      "guardrail": "研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。",
-      "base_priority": 70.0,
-      "controlled_learning_delta": 0.0,
-      "first_seen_at": "2026-11-20T21:30:03.414797+00:00",
-      "run_count": 11,
-      "carry_forward": false
-    },
-    {
-      "task_id": "0c22dbe8c21dc1",
-      "kind": "discovery",
-      "key": "MRVL",
-      "title": "MRVL · 新机会核验",
-      "priority": 70.0,
-      "why_now": "核对官方公司事件、新闻、成交量和行业联动；确认事件真实性后再决定是否升级。",
-      "questions": [
-        "是否存在官方公告或可靠新闻？",
-        "是否有行业联动？",
-        "异常是否持续？",
-        "有什么反证？"
-      ],
-      "evidence_sources": [
-        "SEC/IR",
-        "reliable_news",
-        "market_data",
-        "industry_peers"
-      ],
-      "status": "open",
-      "review_window_days": 2,
-      "guardrail": "研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。",
-      "base_priority": 70.0,
-      "controlled_learning_delta": 0.0,
-      "first_seen_at": "2026-11-20T21:30:03.414797+00:00",
-      "run_count": 11,
-      "carry_forward": false
-    },
-    {
-      "task_id": "c63aa44ec5a683",
-      "kind": "discovery",
-      "key": "SMH",
-      "title": "SMH · 新机会核验",
-      "priority": 70.0,
-      "why_now": "核对官方公司事件、新闻、成交量和行业联动；确认事件真实性后再决定是否升级。",
-      "questions": [
-        "是否存在官方公告或可靠新闻？",
-        "是否有行业联动？",
-        "异常是否持续？",
-        "有什么反证？"
-      ],
-      "evidence_sources": [
-        "SEC/IR",
-        "reliable_news",
-        "market_data",
-        "industry_peers"
-      ],
-      "status": "open",
-      "review_window_days": 2,
-      "guardrail": "研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。",
-      "base_priority": 70.0,
-      "controlled_learning_delta": 0.0,
-      "first_seen_at": "2026-11-20T21:30:03.414797+00:00",
-      "run_count": 11,
+      "run_count": 217,
       "carry_forward": false
     },
     {
@@ -1116,8 +747,10 @@
       "base_priority": 70.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-11-23T21:29:56.563924+00:00",
-      "run_count": 3,
-      "carry_forward": false
+      "run_count": 4,
+      "carry_forward": true,
+      "last_carried_at": "2026-11-24T21:30:11.313751+00:00",
+      "carry_reason": "persistent_backlog_not_regenerated_this_snapshot"
     },
     {
       "task_id": "3a4edf33159ab0",
@@ -1146,7 +779,7 @@
       "base_priority": 68.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-10-04T09:04:25.868710+00:00",
-      "run_count": 421,
+      "run_count": 422,
       "carry_forward": false
     },
     {
@@ -1176,7 +809,7 @@
       "base_priority": 68.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-10-04T13:28:51.827833+00:00",
-      "run_count": 412,
+      "run_count": 413,
       "carry_forward": false
     },
     {
@@ -1206,7 +839,7 @@
       "base_priority": 68.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-10-07T10:59:08.076671+00:00",
-      "run_count": 247,
+      "run_count": 248,
       "carry_forward": false
     },
     {
@@ -1215,7 +848,7 @@
       "key": "CP-02",
       "title": "CP-02 · Replay/Forward 证据验证",
       "priority": 67.0,
-      "why_now": "Replay有效样本 567；Forward 5日成熟样本 10。历史回放与真实前瞻必须继续分开验证。",
+      "why_now": "Replay有效样本 567；Forward 5日成熟样本 11。历史回放与真实前瞻必须继续分开验证。",
       "questions": [
         "Replay 与 Forward 的方向一致性是否一致？",
         "失败样本集中在哪些市场环境？",
@@ -1232,12 +865,12 @@
       "review_window_days": 20,
       "guardrail": "研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。",
       "replay_evidence_state": "replay_mixed",
-      "forward_evidence_state": "forward_challenging",
+      "forward_evidence_state": "forward_mixed",
       "controlled_priority_bonus": 7.0,
       "base_priority": 67.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-10-04T05:19:17.255245+00:00",
-      "run_count": 435,
+      "run_count": 436,
       "carry_forward": false
     },
     {
@@ -1246,7 +879,7 @@
       "key": "CP-03",
       "title": "CP-03 · Replay/Forward 证据验证",
       "priority": 67.0,
-      "why_now": "Replay有效样本 229；Forward 5日成熟样本 28。历史回放与真实前瞻必须继续分开验证。",
+      "why_now": "Replay有效样本 229；Forward 5日成熟样本 31。历史回放与真实前瞻必须继续分开验证。",
       "questions": [
         "Replay 与 Forward 的方向一致性是否一致？",
         "失败样本集中在哪些市场环境？",
@@ -1268,7 +901,7 @@
       "base_priority": 67.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-10-04T05:19:17.255248+00:00",
-      "run_count": 435,
+      "run_count": 436,
       "carry_forward": false
     },
     {
@@ -1330,7 +963,7 @@
       "base_priority": 64.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-10-07T04:05:09.798011+00:00",
-      "run_count": 309,
+      "run_count": 310,
       "carry_forward": false
     },
     {
@@ -1382,7 +1015,7 @@
       "base_priority": 64.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-10-07T04:39:21.812876+00:00",
-      "run_count": 295,
+      "run_count": 296,
       "carry_forward": false
     },
     {
@@ -1441,7 +1074,7 @@
       "base_priority": 64.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-10-14T00:07:18.103260+00:00",
-      "run_count": 153,
+      "run_count": 154,
       "carry_forward": false
     },
     {
@@ -1450,7 +1083,7 @@
       "key": "CP-01",
       "title": "CP-01 · Replay/Forward 证据验证",
       "priority": 62.0,
-      "why_now": "Replay有效样本 152；Forward 5日成熟样本 8。历史回放与真实前瞻必须继续分开验证。",
+      "why_now": "Replay有效样本 152；Forward 5日成熟样本 11。历史回放与真实前瞻必须继续分开验证。",
       "questions": [
         "Replay 与 Forward 的方向一致性是否一致？",
         "失败样本集中在哪些市场环境？",
@@ -1467,19 +1100,47 @@
       "review_window_days": 20,
       "guardrail": "研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。",
       "replay_evidence_state": "replay_supportive",
-      "forward_evidence_state": "forward_mixed",
+      "forward_evidence_state": "forward_challenging",
       "controlled_priority_bonus": 2.0,
       "base_priority": 62.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-10-04T05:19:17.255231+00:00",
-      "run_count": 435,
+      "run_count": 436,
       "carry_forward": false
     },
     {
-      "task_id": "b6f413e13b68cc",
+      "task_id": "9c2f273cede54e",
       "kind": "discovery",
-      "key": "QLD",
-      "title": "QLD · 新机会核验",
+      "key": "NBIS",
+      "title": "NBIS · 新机会核验",
+      "priority": 60.0,
+      "why_now": "核对官方公司事件、新闻、成交量和行业联动；确认事件真实性后再决定是否升级。",
+      "questions": [
+        "是否存在官方公告或可靠新闻？",
+        "是否有行业联动？",
+        "异常是否持续？",
+        "有什么反证？"
+      ],
+      "evidence_sources": [
+        "SEC/IR",
+        "reliable_news",
+        "market_data",
+        "industry_peers"
+      ],
+      "status": "open",
+      "review_window_days": 2,
+      "guardrail": "研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。",
+      "base_priority": 60.0,
+      "controlled_learning_delta": 0.0,
+      "first_seen_at": "2026-11-19T21:29:27.410214+00:00",
+      "run_count": 15,
+      "carry_forward": false
+    },
+    {
+      "task_id": "6c4c4d86f060a3",
+      "kind": "discovery",
+      "key": "IREN",
+      "title": "IREN · 新机会核验",
       "priority": 60.0,
       "why_now": "核对官方公司事件、新闻、成交量和行业联动；确认事件真实性后再决定是否升级。",
       "questions": [
@@ -1500,7 +1161,91 @@
       "base_priority": 60.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-11-20T21:30:03.414797+00:00",
-      "run_count": 11,
+      "run_count": 12,
+      "carry_forward": false
+    },
+    {
+      "task_id": "55dbd711eb2de1",
+      "kind": "discovery",
+      "key": "LITE",
+      "title": "LITE · 新机会核验",
+      "priority": 60.0,
+      "why_now": "核对官方公司事件、新闻、成交量和行业联动；确认事件真实性后再决定是否升级。",
+      "questions": [
+        "是否存在官方公告或可靠新闻？",
+        "是否有行业联动？",
+        "异常是否持续？",
+        "有什么反证？"
+      ],
+      "evidence_sources": [
+        "SEC/IR",
+        "reliable_news",
+        "market_data",
+        "industry_peers"
+      ],
+      "status": "open",
+      "review_window_days": 2,
+      "guardrail": "研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。",
+      "base_priority": 60.0,
+      "controlled_learning_delta": 0.0,
+      "first_seen_at": "2026-11-20T21:30:03.414797+00:00",
+      "run_count": 12,
+      "carry_forward": false
+    },
+    {
+      "task_id": "0c22dbe8c21dc1",
+      "kind": "discovery",
+      "key": "MRVL",
+      "title": "MRVL · 新机会核验",
+      "priority": 60.0,
+      "why_now": "核对官方公司事件、新闻、成交量和行业联动；确认事件真实性后再决定是否升级。",
+      "questions": [
+        "是否存在官方公告或可靠新闻？",
+        "是否有行业联动？",
+        "异常是否持续？",
+        "有什么反证？"
+      ],
+      "evidence_sources": [
+        "SEC/IR",
+        "reliable_news",
+        "market_data",
+        "industry_peers"
+      ],
+      "status": "open",
+      "review_window_days": 2,
+      "guardrail": "研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。",
+      "base_priority": 60.0,
+      "controlled_learning_delta": 0.0,
+      "first_seen_at": "2026-11-20T21:30:03.414797+00:00",
+      "run_count": 12,
+      "carry_forward": false
+    },
+    {
+      "task_id": "cee1b3c7245ef4",
+      "kind": "discovery",
+      "key": "DRAM",
+      "title": "DRAM · 新机会核验",
+      "priority": 60.0,
+      "why_now": "核对官方公司事件、新闻、成交量和行业联动；确认事件真实性后再决定是否升级。",
+      "questions": [
+        "是否存在官方公告或可靠新闻？",
+        "是否有行业联动？",
+        "异常是否持续？",
+        "有什么反证？"
+      ],
+      "evidence_sources": [
+        "SEC/IR",
+        "reliable_news",
+        "market_data",
+        "industry_peers"
+      ],
+      "status": "open",
+      "review_window_days": 2,
+      "guardrail": "研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。",
+      "base_priority": 60.0,
+      "controlled_learning_delta": 0.0,
+      "first_seen_at": "2026-11-20T21:30:03.414797+00:00",
+      "run_count": 12,
       "carry_forward": false
     },
     {
@@ -1528,8 +1273,10 @@
       "base_priority": 60.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-11-23T20:16:31.459737+00:00",
-      "run_count": 4,
-      "carry_forward": false
+      "run_count": 5,
+      "carry_forward": true,
+      "last_carried_at": "2026-11-24T21:30:11.313751+00:00",
+      "carry_reason": "persistent_backlog_not_regenerated_this_snapshot"
     },
     {
       "task_id": "6f8ea8bb5c1630",
@@ -1556,7 +1303,37 @@
       "base_priority": 60.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-11-23T21:29:56.563924+00:00",
-      "run_count": 3,
+      "run_count": 4,
+      "carry_forward": true,
+      "last_carried_at": "2026-11-24T21:30:11.313751+00:00",
+      "carry_reason": "persistent_backlog_not_regenerated_this_snapshot"
+    },
+    {
+      "task_id": "45fedafffa242b",
+      "kind": "discovery",
+      "key": "AMD",
+      "title": "AMD · 新机会核验",
+      "priority": 60.0,
+      "why_now": "核对官方公司事件、新闻、成交量和行业联动；确认事件真实性后再决定是否升级。",
+      "questions": [
+        "是否存在官方公告或可靠新闻？",
+        "是否有行业联动？",
+        "异常是否持续？",
+        "有什么反证？"
+      ],
+      "evidence_sources": [
+        "SEC/IR",
+        "reliable_news",
+        "market_data",
+        "industry_peers"
+      ],
+      "status": "open",
+      "review_window_days": 2,
+      "guardrail": "研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。",
+      "base_priority": 60.0,
+      "controlled_learning_delta": 0.0,
+      "first_seen_at": "2026-11-24T21:30:11.313751+00:00",
+      "run_count": 1,
       "carry_forward": false
     },
     {
@@ -1584,7 +1361,7 @@
       "base_priority": 58.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-10-02T12:50:25.083840+00:00",
-      "run_count": 474,
+      "run_count": 475,
       "carry_forward": false
     },
     {
@@ -1612,7 +1389,7 @@
       "base_priority": 58.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-10-02T12:50:25.083849+00:00",
-      "run_count": 474,
+      "run_count": 475,
       "carry_forward": false
     },
     {
@@ -1640,7 +1417,7 @@
       "base_priority": 58.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-10-02T12:50:25.083852+00:00",
-      "run_count": 474,
+      "run_count": 475,
       "carry_forward": false
     }
   ],
@@ -1671,7 +1448,7 @@
       "review_window_days": 5,
       "guardrail": "研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。",
       "rebound_status": "risk",
-      "qqq_drawdown": -0.14299811453536804,
+      "qqq_drawdown": -0.16001895829183832,
       "source_method": {
         "author": "lionhill / 狮山巡礼",
         "title": "市场大调整时：TQQQ还是QQQ LEAPS",
@@ -1681,16 +1458,134 @@
       "base_priority": 92.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-10-30T23:26:42.310122+00:00",
-      "run_count": 75,
+      "run_count": 76,
+      "carry_forward": false
+    },
+    {
+      "task_id": "be6aac625fd469",
+      "kind": "market_anomaly",
+      "key": "IREN",
+      "title": "IREN · 异动/趋势专项研究",
+      "priority": 88.0,
+      "why_now": "单日涨跌 -11.6%，达到重大异动阈值",
+      "questions": [
+        "这次变化由公司事件、行业共振还是市场因素驱动？",
+        "支持原 Thesis 的证据是什么？",
+        "最强反证是什么？",
+        "明日需要验证什么？"
+      ],
+      "evidence_sources": [
+        "market_data",
+        "trend_pulse",
+        "SEC/IR",
+        "company_news",
+        "industry_peers"
+      ],
+      "status": "open",
+      "review_window_days": 2,
+      "guardrail": "研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。",
+      "base_priority": 88.0,
+      "controlled_learning_delta": 0.0,
+      "first_seen_at": "2026-11-19T21:29:27.410214+00:00",
+      "run_count": 15,
+      "carry_forward": false
+    },
+    {
+      "task_id": "23345e714a50c1",
+      "kind": "market_anomaly",
+      "key": "NBIS",
+      "title": "NBIS · 异动/趋势专项研究",
+      "priority": 88.0,
+      "why_now": "单日涨跌 -10.8%，达到重大异动阈值",
+      "questions": [
+        "这次变化由公司事件、行业共振还是市场因素驱动？",
+        "支持原 Thesis 的证据是什么？",
+        "最强反证是什么？",
+        "明日需要验证什么？"
+      ],
+      "evidence_sources": [
+        "market_data",
+        "trend_pulse",
+        "SEC/IR",
+        "company_news",
+        "industry_peers"
+      ],
+      "status": "open",
+      "review_window_days": 2,
+      "guardrail": "研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。",
+      "base_priority": 88.0,
+      "controlled_learning_delta": 0.0,
+      "first_seen_at": "2026-11-19T21:29:27.410214+00:00",
+      "run_count": 15,
+      "carry_forward": false
+    },
+    {
+      "task_id": "b528aa82a03ae2",
+      "kind": "market_anomaly",
+      "key": "LITE",
+      "title": "LITE · 异动/趋势专项研究",
+      "priority": 88.0,
+      "why_now": "单日涨跌 -10.5%，达到重大异动阈值；Trend Pulse 阶段从 修复中 变为 趋势恶化",
+      "questions": [
+        "这次变化由公司事件、行业共振还是市场因素驱动？",
+        "支持原 Thesis 的证据是什么？",
+        "最强反证是什么？",
+        "明日需要验证什么？"
+      ],
+      "evidence_sources": [
+        "market_data",
+        "trend_pulse",
+        "SEC/IR",
+        "company_news",
+        "industry_peers"
+      ],
+      "status": "open",
+      "review_window_days": 2,
+      "guardrail": "研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。",
+      "base_priority": 88.0,
+      "controlled_learning_delta": 0.0,
+      "first_seen_at": "2026-11-20T21:30:03.414797+00:00",
+      "run_count": 12,
+      "carry_forward": false
+    },
+    {
+      "task_id": "9dd02d7dc13f4e",
+      "kind": "regime_combination",
+      "key": "US_REGIME",
+      "title": "美股 · 风险环境存在组合分化",
+      "priority": 82.0,
+      "why_now": "当前组合状态 CROSS_LOW|BREADTH_WEAKENING|VIX_STRESS；需要验证跨资产压力与宽度收窄是否持续共振。",
+      "questions": [
+        "同类组合状态历史5/20/60日结果如何？",
+        "宽度还是利率/信用哪一侧先修复？",
+        "VIX是否从低波动补涨确认风险？",
+        "什么变化足以让组合状态降级？"
+      ],
+      "evidence_sources": [
+        "regime_combination_memory",
+        "breadth_intelligence",
+        "cross_asset_divergence",
+        "SPY",
+        "VIX"
+      ],
+      "status": "open",
+      "review_window_days": 5,
+      "guardrail": "研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。",
+      "state_id": "CROSS_LOW|BREADTH_WEAKENING|VIX_STRESS",
+      "regime_level": "medium",
+      "base_priority": 82.0,
+      "controlled_learning_delta": 0.0,
+      "first_seen_at": "2026-11-13T16:24:28.305679+00:00",
+      "run_count": 34,
       "carry_forward": false
     },
     {
       "task_id": "ff2fe8dce9c4c9",
       "kind": "breadth_intelligence",
       "key": "US_BREADTH",
-      "title": "美股 · 参与度脆弱 · 权重股主导",
-      "priority": 88.0,
-      "why_now": "市场参与度评分 25.9，风险信号 4 项。",
+      "title": "美股 · 市场宽度走弱",
+      "priority": 78.0,
+      "why_now": "市场参与度评分 33.2，风险信号 3 项。",
       "questions": [
         "20/50日宽度是否连续修复？",
         "RSP是否开始追上SPY？",
@@ -1708,22 +1603,22 @@
       "status": "open",
       "review_window_days": 5,
       "guardrail": "研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。",
-      "breadth_level": "fragile",
-      "participation_score": 25.9,
-      "combination_key": "B20_LOW|B50_OK|B200_OK|SLOPE_DOWN|SPY_RSP_OK|QQQ_QQQE_OK|AD_NEG|NH52_THIN",
-      "base_priority": 88.0,
+      "breadth_level": "weakening",
+      "participation_score": 33.2,
+      "combination_key": "B20_OK|B50_OK|B200_OK|SLOPE_DOWN|SPY_RSP_OK|QQQ_QQQE_OK|AD_NEG|NH52_THIN",
+      "base_priority": 78.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-11-13T16:24:28.305679+00:00",
-      "run_count": 33,
+      "run_count": 34,
       "carry_forward": false
     },
     {
-      "task_id": "be6aac625fd469",
+      "task_id": "970cd03ca29c6a",
       "kind": "market_anomaly",
-      "key": "IREN",
-      "title": "IREN · 异动/趋势专项研究",
-      "priority": 88.0,
-      "why_now": "单日涨跌 +23.9%，达到重大异动阈值",
+      "key": "AMD",
+      "title": "AMD · 异动/趋势专项研究",
+      "priority": 72.0,
+      "why_now": "单日涨跌 -8.9%，达到重点复查阈值",
       "questions": [
         "这次变化由公司事件、行业共振还是市场因素驱动？",
         "支持原 Thesis 的证据是什么？",
@@ -1740,39 +1635,10 @@
       "status": "open",
       "review_window_days": 2,
       "guardrail": "研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。",
-      "base_priority": 88.0,
+      "base_priority": 72.0,
       "controlled_learning_delta": 0.0,
-      "first_seen_at": "2026-11-19T21:29:27.410214+00:00",
-      "run_count": 14,
-      "carry_forward": false
-    },
-    {
-      "task_id": "23345e714a50c1",
-      "kind": "market_anomaly",
-      "key": "NBIS",
-      "title": "NBIS · 异动/趋势专项研究",
-      "priority": 88.0,
-      "why_now": "单日涨跌 +20.3%，达到重大异动阈值",
-      "questions": [
-        "这次变化由公司事件、行业共振还是市场因素驱动？",
-        "支持原 Thesis 的证据是什么？",
-        "最强反证是什么？",
-        "明日需要验证什么？"
-      ],
-      "evidence_sources": [
-        "market_data",
-        "trend_pulse",
-        "SEC/IR",
-        "company_news",
-        "industry_peers"
-      ],
-      "status": "open",
-      "review_window_days": 2,
-      "guardrail": "研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。",
-      "base_priority": 88.0,
-      "controlled_learning_delta": 0.0,
-      "first_seen_at": "2026-11-19T21:29:27.410214+00:00",
-      "run_count": 14,
+      "first_seen_at": "2026-11-18T21:30:09.150999+00:00",
+      "run_count": 18,
       "carry_forward": false
     },
     {
@@ -1780,8 +1646,8 @@
       "kind": "market_anomaly",
       "key": "TQQQ",
       "title": "TQQQ · 异动/趋势专项研究",
-      "priority": 88.0,
-      "why_now": "单日涨跌 +19.2%，达到重大异动阈值",
+      "priority": 72.0,
+      "why_now": "单日涨跌 -5.9%，达到重点复查阈值",
       "questions": [
         "这次变化由公司事件、行业共振还是市场因素驱动？",
         "支持原 Thesis 的证据是什么？",
@@ -1798,97 +1664,10 @@
       "status": "open",
       "review_window_days": 2,
       "guardrail": "研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。",
-      "base_priority": 88.0,
+      "base_priority": 72.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-11-19T21:29:27.410214+00:00",
-      "run_count": 14,
-      "carry_forward": false
-    },
-    {
-      "task_id": "1e0c0f5a640215",
-      "kind": "market_anomaly",
-      "key": "TSLA",
-      "title": "TSLA · 异动/趋势专项研究",
-      "priority": 88.0,
-      "why_now": "单日涨跌 +11.5%，达到重大异动阈值；V5.4 研究优先级 71/100",
-      "questions": [
-        "这次变化由公司事件、行业共振还是市场因素驱动？",
-        "支持原 Thesis 的证据是什么？",
-        "最强反证是什么？",
-        "明日需要验证什么？"
-      ],
-      "evidence_sources": [
-        "market_data",
-        "trend_pulse",
-        "SEC/IR",
-        "company_news",
-        "industry_peers"
-      ],
-      "status": "open",
-      "review_window_days": 2,
-      "guardrail": "研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。",
-      "base_priority": 88.0,
-      "controlled_learning_delta": 0.0,
-      "first_seen_at": "2026-11-20T21:30:03.414797+00:00",
-      "run_count": 11,
-      "carry_forward": false
-    },
-    {
-      "task_id": "715d52b0b1f0df",
-      "kind": "market_anomaly",
-      "key": "DRAM",
-      "title": "DRAM · 异动/趋势专项研究",
-      "priority": 88.0,
-      "why_now": "单日涨跌 +18.6%，达到重大异动阈值",
-      "questions": [
-        "这次变化由公司事件、行业共振还是市场因素驱动？",
-        "支持原 Thesis 的证据是什么？",
-        "最强反证是什么？",
-        "明日需要验证什么？"
-      ],
-      "evidence_sources": [
-        "market_data",
-        "trend_pulse",
-        "SEC/IR",
-        "company_news",
-        "industry_peers"
-      ],
-      "status": "open",
-      "review_window_days": 2,
-      "guardrail": "研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。",
-      "base_priority": 88.0,
-      "controlled_learning_delta": 0.0,
-      "first_seen_at": "2026-11-20T21:30:03.414797+00:00",
-      "run_count": 11,
-      "carry_forward": false
-    },
-    {
-      "task_id": "b528aa82a03ae2",
-      "kind": "market_anomaly",
-      "key": "LITE",
-      "title": "LITE · 异动/趋势专项研究",
-      "priority": 88.0,
-      "why_now": "单日涨跌 +18.2%，达到重大异动阈值",
-      "questions": [
-        "这次变化由公司事件、行业共振还是市场因素驱动？",
-        "支持原 Thesis 的证据是什么？",
-        "最强反证是什么？",
-        "明日需要验证什么？"
-      ],
-      "evidence_sources": [
-        "market_data",
-        "trend_pulse",
-        "SEC/IR",
-        "company_news",
-        "industry_peers"
-      ],
-      "status": "open",
-      "review_window_days": 2,
-      "guardrail": "研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。",
-      "base_priority": 88.0,
-      "controlled_learning_delta": 0.0,
-      "first_seen_at": "2026-11-20T21:30:03.414797+00:00",
-      "run_count": 11,
+      "run_count": 15,
       "carry_forward": false
     },
     {
@@ -1896,8 +1675,8 @@
       "kind": "market_anomaly",
       "key": "INTC",
       "title": "INTC · 异动/趋势专项研究",
-      "priority": 88.0,
-      "why_now": "单日涨跌 +16.3%，达到重大异动阈值",
+      "priority": 72.0,
+      "why_now": "单日涨跌 -8.0%，达到重点复查阈值",
       "questions": [
         "这次变化由公司事件、行业共振还是市场因素驱动？",
         "支持原 Thesis 的证据是什么？",
@@ -1914,19 +1693,19 @@
       "status": "open",
       "review_window_days": 2,
       "guardrail": "研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。",
-      "base_priority": 88.0,
+      "base_priority": 72.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-11-20T21:30:03.414797+00:00",
-      "run_count": 11,
+      "run_count": 12,
       "carry_forward": false
     },
     {
-      "task_id": "f1d0463b84d88b",
+      "task_id": "64ea749d2c36e3",
       "kind": "market_anomaly",
-      "key": "NVDA",
-      "title": "NVDA · 异动/趋势专项研究",
-      "priority": 88.0,
-      "why_now": "单日涨跌 +31.5%，达到重大异动阈值",
+      "key": "ORCL",
+      "title": "ORCL · 异动/趋势专项研究",
+      "priority": 72.0,
+      "why_now": "Trend Pulse 阶段从 趋势恶化 变为 修复中",
       "questions": [
         "这次变化由公司事件、行业共振还是市场因素驱动？",
         "支持原 Thesis 的证据是什么？",
@@ -1943,19 +1722,19 @@
       "status": "open",
       "review_window_days": 2,
       "guardrail": "研究任务不是交易指令；结论必须同时记录支持证据、反证与未知项。",
-      "base_priority": 88.0,
+      "base_priority": 72.0,
       "controlled_learning_delta": 0.0,
       "first_seen_at": "2026-11-20T21:30:03.414797+00:00",
-      "run_count": 11,
+      "run_count": 12,
       "carry_forward": false
     }
   ],
   "counts": {
-    "open": 50,
-    "high_priority": 35,
-    "persistent": 50,
-    "carried_backlog": 1,
-    "expired_backlog": 0
+    "open": 42,
+    "high_priority": 22,
+    "persistent": 40,
+    "carried_backlog": 4,
+    "expired_backlog": 10
   },
   "planner_policy": {
     "objective": "优先研究可能改变 Thesis、风险暴露或方法可信度的问题。",

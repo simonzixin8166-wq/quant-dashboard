@@ -67,8 +67,17 @@ and why.
 - Small PRs → CI → merge → production verification; report progress on Issue #133 with PR / SHA /
   Actions run / evidence. Reuse existing pipelines (Daily, research-close, Guardian, QA) before adding new ones.
 - The long-term plan is #133 comment 6107376896 (milestones M1–M4); latest execution orders follow it.
-- Manual trigger only (owner decision #133 6184936851): the hourly #133 instruction watcher is off. A Claude
-  session starts work only when the owner notifies it; nothing polls #133 for instructions on a schedule.
+- Manual trigger for instructions (owner decision #133 6184936851): the hourly #133 instruction watcher is off;
+  nothing polls #133 for instructions on a schedule. One exception (owner, 2026-11-24, option B): a weekly deep
+  review runs on its own every Sunday 10:17 Beijing time. It checks the system's reasoning quality, reports the
+  four measures against last week, names the largest gaps to the goal with concrete proposals, and opens small
+  fix PRs; anything needing an Owner decision is listed, never done.
+- Act like an agent, not a ticket queue (owner, 2026-11-24): when work shows the system drifting from the goal or
+  missing an obvious next step, say so at once with a proposal; do not wait to be asked.
+- Learning loop (owner, 2026-11-24): the next milestone is a daily back-end loop on free Gemini: look (what changed)
+  -> think (falsifiable system views, abstain when unsure) -> check (score matured views, attribute errors) ->
+  summarise (only verified lessons kept; improvement proposals go to the Owner). Plan: Claude project
+  claude/agent_loop_plan_2026-11-24.md.
 - No duplicate sessions: after posting an acknowledgement, re-read #133. If an earlier Claude acknowledgement
   already cites the same instruction id, stop immediately (no PR, no further comments). Before starting, also
   check open PRs in both repos for in-flight work on the same item.

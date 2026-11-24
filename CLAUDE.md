@@ -72,6 +72,11 @@ and why.
   review runs on its own every Sunday 10:17 Beijing time. It checks the system's reasoning quality, reports the
   four measures against last week, names the largest gaps to the goal with concrete proposals, and opens small
   fix PRs; anything needing an Owner decision is listed, never done.
+- Primary sources first (owner, 2026-11-24): when Claude or any model searches the web for facts, query in English
+  and prefer first-hand sources (SEC filings, Fed/BLS/FRED, company IR, exchange data, Reuters, Bloomberg, WSJ,
+  CNBC original reports); Chinese re-compilations (财联社, 华尔街见闻, 36氪 …) are leads to verify, not evidence.
+  Summarise for the Owner in Chinese and cite the primary link. System understanding (Gemini) labels only the
+  text MyAlpha already holds and never web-searches; if web search is ever added, the same rule applies.
 - Act like an agent, not a ticket queue (owner, 2026-11-24): when work shows the system drifting from the goal or
   missing an obvious next step, say so at once with a proposal; do not wait to be asked.
 - Learning loop (owner, 2026-11-24): the next milestone is a daily back-end loop on free Gemini: look (what changed)

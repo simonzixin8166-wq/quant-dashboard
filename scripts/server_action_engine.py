@@ -240,6 +240,9 @@ def risk_for(p,q,events,now=None):
         try:stale=datetime.fromtimestamp(float(updated),timezone.utc)<quote_freshness_cutoff(now_dt)
         except Exception:stale=True
     if dte is None:return {"level":"unknown","reason":"expiry unavailable","dte":None}
+    # An expired contract has no live quote after its last session; it still needs settling, not "unknown"
+    # (11/23: a position past its 11/20 expiry turned every run into cannot_judge and failed QA).
+    if dte<0:return {"level":"l3","reason":"expired / settlement required","dte":dte}
     if q is None or spot is None or stale:return {"level":"unknown","reason":"quote unavailable or stale","dte":dte}
     typ=str(p.get("opt_type") or "").lower()
     itm=(spot<strike) if typ=="put" else (spot>strike)

@@ -17,6 +17,9 @@ r2=sa.risk_for(p(expiry="2000-01-01"),q,[])
 assert r2["level"]=="l3"
 r3=sa.risk_for(p(),None,[])
 assert r3["level"]=="unknown"
+# an expired contract without a quote (none is served after its last session) needs settling, not "unknown"
+r4=sa.risk_for(p(expiry="2000-01-01"),None,[])
+assert r4["level"]=="l3" and r4["reason"]=="expired / settlement required"
 
 # A valid closing quote must remain usable after hours/weekends; wall-clock age alone is not staleness.
 after_close=datetime(2026,10,6,22,0,tzinfo=timezone.utc)  # 18:00 ET

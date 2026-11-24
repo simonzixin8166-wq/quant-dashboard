@@ -1,8 +1,8 @@
 {
   "version": "5.7.0",
-  "generated_at": "2026-11-24T06:56:12.393127+00:00",
+  "generated_at": "2026-11-24T19:38:02.560132+00:00",
   "external_outcome_evidence_role": "legacy_descriptive_only",
-  "as_of": "2026-11-23",
+  "as_of": "2026-11-24",
   "architecture": [
     "plain_language_glossary",
     "trend_state_machine",
@@ -84,7 +84,7 @@
     "top": [
       {
         "symbol": "TSLA",
-        "evidence_score": 82.4,
+        "evidence_score": 60.4,
         "status": "evidence-accumulating",
         "trend_state": {
           "state": "Early Bull Transition",
@@ -113,12 +113,6 @@
             "meaning": "用更高周期检查日线信号是否得到确认，减少一次性反弹造成的误判。"
           },
           {
-            "type": "transition",
-            "strength": "high",
-            "evidence": "阶段从 趋势恶化 变化为 趋势启动",
-            "meaning": "状态变化通常比重复的同状态提醒更值得复查。"
-          },
-          {
             "type": "market_anomaly",
             "strength": "medium",
             "evidence": "覆盖池出现异常波动 +11.5%",
@@ -136,7 +130,7 @@
       },
       {
         "symbol": "LITE",
-        "evidence_score": 74.8,
+        "evidence_score": 52.8,
         "status": "evidence-accumulating",
         "trend_state": {
           "state": "Confirmation Pending",
@@ -171,12 +165,6 @@
             "meaning": "分数绝对值较高表示趋势证据较集中，但高分不等于未来一定继续上涨或下跌。"
           },
           {
-            "type": "transition",
-            "strength": "high",
-            "evidence": "阶段从 趋势恶化 变化为 修复中",
-            "meaning": "状态变化通常比重复的同状态提醒更值得复查。"
-          },
-          {
             "type": "market_anomaly",
             "strength": "high",
             "evidence": "覆盖池出现异常波动 +18.2%",
@@ -188,7 +176,7 @@
       },
       {
         "symbol": "DRAM",
-        "evidence_score": 74.8,
+        "evidence_score": 52.8,
         "status": "evidence-accumulating",
         "trend_state": {
           "state": "Confirmation Pending",
@@ -221,12 +209,6 @@
             "strength": "medium",
             "evidence": "Trend Pulse 分数 -96",
             "meaning": "分数绝对值较高表示趋势证据较集中，但高分不等于未来一定继续上涨或下跌。"
-          },
-          {
-            "type": "transition",
-            "strength": "high",
-            "evidence": "阶段从 趋势恶化 变化为 修复中",
-            "meaning": "状态变化通常比重复的同状态提醒更值得复查。"
           },
           {
             "type": "market_anomaly",
@@ -323,7 +305,7 @@
           {
             "type": "market_anomaly",
             "strength": "high",
-            "evidence": "覆盖池出现异常波动 +23.8%",
+            "evidence": "覆盖池出现异常波动 +23.9%",
             "meaning": "异常波动只触发原因调查；在事件来源确认前不能当成追涨或抄底理由。"
           }
         ],
@@ -363,13 +345,13 @@
           {
             "type": "momentum",
             "strength": "medium",
-            "evidence": "Trend Pulse 分数 -98",
+            "evidence": "Trend Pulse 分数 -99",
             "meaning": "分数绝对值较高表示趋势证据较集中，但高分不等于未来一定继续上涨或下跌。"
           },
           {
             "type": "market_anomaly",
             "strength": "high",
-            "evidence": "覆盖池出现异常波动 +31.6%",
+            "evidence": "覆盖池出现异常波动 +31.5%",
             "meaning": "异常波动只触发原因调查；在事件来源确认前不能当成追涨或抄底理由。"
           }
         ],
@@ -415,7 +397,7 @@
           {
             "type": "market_anomaly",
             "strength": "high",
-            "evidence": "覆盖池出现异常波动 +18.2%",
+            "evidence": "覆盖池出现异常波动 +18.4%",
             "meaning": "异常波动只触发原因调查；在事件来源确认前不能当成追涨或抄底理由。"
           }
         ],
@@ -461,7 +443,53 @@
           {
             "type": "market_anomaly",
             "strength": "high",
-            "evidence": "覆盖池出现异常波动 +20.1%",
+            "evidence": "覆盖池出现异常波动 +20.3%",
+            "meaning": "异常波动只触发原因调查；在事件来源确认前不能当成追涨或抄底理由。"
+          }
+        ],
+        "next_confirmation": "只有进入修复并完成新的确认流程，才考虑重新升级。",
+        "source_scope": "当前仅使用已验证的行情、Trend Pulse、历史学习与覆盖池异动；尚未把论坛/SEC/FDA/公司新闻自动写入此评分。"
+      },
+      {
+        "symbol": "SMH",
+        "evidence_score": 52.0,
+        "status": "evidence-accumulating",
+        "trend_state": {
+          "state": "Breakdown",
+          "label_cn": "结构破坏",
+          "source_stage": "趋势恶化",
+          "weekly": "空头",
+          "explanation": "趋势结构已经明显恶化，原来的多头假设必须重新验证。",
+          "invalidation": "只有进入修复并完成新的确认流程，才考虑重新升级。",
+          "term_help": {
+            "cn": "结构破坏",
+            "plain": "趋势和价格结构已经明显恶化，原来的多头假设需要重新验证。",
+            "why": "这不是自动卖出指令，而是要求重新检查投资逻辑、估值和风险暴露。"
+          }
+        },
+        "breadcrumbs": [
+          {
+            "type": "trend_state",
+            "strength": "medium",
+            "evidence": "Trend Pulse 当前阶段：趋势恶化",
+            "meaning": "说明当前技术结构处于什么阶段；它是研究线索，不是单独买卖信号。"
+          },
+          {
+            "type": "timeframe",
+            "strength": "medium",
+            "evidence": "周线方向：空头",
+            "meaning": "用更高周期检查日线信号是否得到确认，减少一次性反弹造成的误判。"
+          },
+          {
+            "type": "momentum",
+            "strength": "medium",
+            "evidence": "Trend Pulse 分数 -99",
+            "meaning": "分数绝对值较高表示趋势证据较集中，但高分不等于未来一定继续上涨或下跌。"
+          },
+          {
+            "type": "market_anomaly",
+            "strength": "high",
+            "evidence": "覆盖池出现异常波动 +15.0%",
             "meaning": "异常波动只触发原因调查；在事件来源确认前不能当成追涨或抄底理由。"
           }
         ],
@@ -507,51 +535,11 @@
           {
             "type": "market_anomaly",
             "strength": "high",
-            "evidence": "覆盖池出现异常波动 +19.3%",
+            "evidence": "覆盖池出现异常波动 +19.2%",
             "meaning": "异常波动只触发原因调查；在事件来源确认前不能当成追涨或抄底理由。"
           }
         ],
         "next_confirmation": "只有进入修复并完成新的确认流程，才考虑重新升级。",
-        "source_scope": "当前仅使用已验证的行情、Trend Pulse、历史学习与覆盖池异动；尚未把论坛/SEC/FDA/公司新闻自动写入此评分。"
-      },
-      {
-        "symbol": "AMZN",
-        "evidence_score": 44.0,
-        "status": "monitor",
-        "trend_state": {
-          "state": "Confirmation Pending",
-          "label_cn": "等待确认",
-          "source_stage": "震荡观察",
-          "weekly": "多头",
-          "explanation": "当前属于修复或震荡阶段，已有改善但尚未形成稳定趋势。",
-          "invalidation": "若修复失败并重新恶化，则继续防守；若启动并获得确认，则升级。",
-          "term_help": {
-            "cn": "等待确认",
-            "plain": "已经出现改善信号，但还需要连续收盘、关键价位或更高周期共同验证。",
-            "why": "避免只因为一天反弹或一次突破就过早把状态升级。"
-          }
-        },
-        "breadcrumbs": [
-          {
-            "type": "trend_state",
-            "strength": "medium",
-            "evidence": "Trend Pulse 当前阶段：震荡观察",
-            "meaning": "说明当前技术结构处于什么阶段；它是研究线索，不是单独买卖信号。"
-          },
-          {
-            "type": "timeframe",
-            "strength": "medium",
-            "evidence": "周线方向：多头",
-            "meaning": "用更高周期检查日线信号是否得到确认，减少一次性反弹造成的误判。"
-          },
-          {
-            "type": "transition",
-            "strength": "high",
-            "evidence": "阶段从 趋势恶化 变化为 震荡观察",
-            "meaning": "状态变化通常比重复的同状态提醒更值得复查。"
-          }
-        ],
-        "next_confirmation": "若修复失败并重新恶化，则继续防守；若启动并获得确认，则升级。",
         "source_scope": "当前仅使用已验证的行情、Trend Pulse、历史学习与覆盖池异动；尚未把论坛/SEC/FDA/公司新闻自动写入此评分。"
       },
       {
@@ -593,7 +581,7 @@
           {
             "type": "market_anomaly",
             "strength": "medium",
-            "evidence": "覆盖池出现异常波动 +14.0%",
+            "evidence": "覆盖池出现异常波动 +14.1%",
             "meaning": "异常波动只触发原因调查；在事件来源确认前不能当成追涨或抄底理由。"
           }
         ],
@@ -639,7 +627,7 @@
           {
             "type": "market_anomaly",
             "strength": "medium",
-            "evidence": "覆盖池出现异常波动 +13.3%",
+            "evidence": "覆盖池出现异常波动 +13.2%",
             "meaning": "异常波动只触发原因调查；在事件来源确认前不能当成追涨或抄底理由。"
           }
         ],

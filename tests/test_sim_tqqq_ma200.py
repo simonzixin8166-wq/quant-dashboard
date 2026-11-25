@@ -98,7 +98,9 @@ with tempfile.TemporaryDirectory() as tmp:
     assert all(a["summary"]["status"] == "running" for a in doc["accounts"].values())
     card = json.loads(sim.PUBLIC.read_text())
     assert card["paper_only"] and card["orders_placed"] is False and card["benchmark"]["value"] is not None
-    assert set(card["accounts"]) == {"original", "band2"} and "account" not in json.dumps(card["accounts"]["original"]).replace("accounts", "")
+    assert set(card["accounts"]) == {"original", "band2"}
+    import privacy_canary_scan as pcs                                                     # paper books never trip the canary
+    assert pcs.scan_paths([sim.OUT_DIR, sim.PUBLIC], pcs.load_allowlist()) == []
 src = (ROOT / "scripts" / "sim_tqqq_ma200.py").read_text(encoding="utf-8")
 assert "requests" not in src and "import ib" not in src and "schwab" not in src.lower()
 assert str(sim.LEDGER).find("/docs/") == -1                                              # the ledger stays back end

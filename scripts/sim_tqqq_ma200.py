@@ -247,16 +247,16 @@ def main() -> int:
     all_rows = [json.loads(x) for x in LEDGER.read_text(encoding="utf-8").splitlines()] if LEDGER.exists() else []
     accounts = {}
     for name, band in ACCOUNTS.items():
-        st, rows = run(qqq, tqqq, qopen, topen, ((prev.get("accounts") or {}).get(name) or {}).get("account"), now, band)
+        st, rows = run(qqq, tqqq, qopen, topen, ((prev.get("accounts") or {}).get(name) or {}).get("book"), now, band)
         for r in rows:
-            r["account"] = name
+            r["sim_book"] = name          # paper book name ("account" is reserved for real accounts by the canary)
         if rows:
             with LEDGER.open("a", encoding="utf-8") as f:
                 for r in rows:
                     f.write(json.dumps(r, ensure_ascii=False) + "\n")
         all_rows += rows
-        accounts[name] = {"band": band, "account": st,
-                          "summary": summary(st, [r for r in all_rows if r.get("account", "original") == name])}
+        accounts[name] = {"band": band, "book": st,
+                          "summary": summary(st, [r for r in all_rows if r.get("sim_book", "original") == name])}
     doc = {"version": VERSION, "generated_at": now.isoformat(timespec="seconds"), "accounts": accounts,
            "paper_only": True, "orders_placed": False,
            "policy_zh": "网友均线 + TQQQ 策略的纸面模拟（5,000 美元，两种换仓规则），不下单、不连券商，不影响系统任何提醒和阈值。"}

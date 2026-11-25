@@ -41,6 +41,22 @@ for when in (datetime(2026,11,27,19,0,tzinfo=timezone.utc), datetime(2026,11,28,
 assert sa.trading_calendar.close_minutes(date(2026,11,27))==780 and sa.trading_calendar.close_minutes(date(2026,11,25))==960
 assert sa.trading_calendar.early_closes(2026)=={date(2026,11,27),date(2026,12,24)}   # July 3, 2026 is the holiday
 assert date(2025,7,3) in sa.trading_calendar.early_closes(2025)
+# Owner 2026-11-25: any held option (even far OTM, tight spread) gets an l2 reminder in its last 5 sessions
+mon=datetime(2026,12,14,15,0,tzinfo=timezone.utc)          # Mon 12/14: 4 sessions ahead
+fresh={**q,"updated":[mon.timestamp()]}
+r5=sa.risk_for(p(expiry="2026-12-18"),fresh,[],now=mon)
+assert r5["level"]=="l2" and r5["reason"].startswith("expiry within 5 sessions"), r5
+fri=datetime(2026,12,11,15,0,tzinfo=timezone.utc)          # Fri 12/11: 5 sessions ahead (12/14-12/18) -> reminder starts
+assert sa.risk_for(p(expiry="2026-12-18"),{**q,"updated":[fri.timestamp()]},[],now=fri)["level"]=="l2"
+thu=datetime(2026,12,10,15,0,tzinfo=timezone.utc)          # Thu 12/10: 6 sessions ahead -> no reminder yet
+assert sa.risk_for(p(expiry="2026-12-18"),{**q,"updated":[thu.timestamp()]},[],now=thu)["level"]=="l1"
+# sent once: the fingerprint ignores the daily dte countdown for this reminder only
+a1={"status":"action_required","actions":[{"level":"l2","symbol":"T","expiry":"2026-12-18","reason":r5["reason"],"dte":4}]}
+a2={"status":"action_required","actions":[{**a1["actions"][0],"dte":3}]}
+assert sa.fingerprint(a1)==sa.fingerprint(a2)
+n1={"status":"action_required","actions":[{"level":"l2","symbol":"T","expiry":"2026-12-18","reason":"near assignment risk zone","dte":4}]}
+assert sa.fingerprint(n1)!=sa.fingerprint({"status":"action_required","actions":[{**n1["actions"][0],"dte":3}]})
+assert sa.expiry_sessions_left(date(2026,11,25),p(expiry="2026-11-30"))==2       # 11/27 (half day), 11/30
 assert sa.occ_symbol(p(expiry="2026-12-18",strike=65))=="TEST261218P00065000"
 
 src=(ROOT/"scripts"/"server_action_engine.py").read_text(encoding="utf-8")

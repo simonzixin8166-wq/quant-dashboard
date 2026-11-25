@@ -361,6 +361,17 @@ jobs:
         if: steps.drawdown_regime.outcome == 'failure'
         run: python scripts/module_failure_marker.py drawdown_regime
 
+      # Owner 2026-11-25: paper simulation (5,000 USD) of a forum member's QQQ/TQQQ 200-day strategy vs holding QQQ.
+      # Back end only: no order, no broker, not on the site, never a decision input or alert.
+      - name: Paper simulation, forum QQQ/TQQQ 200-day strategy (back end only)
+        id: sim_tqqq_ma200
+        continue-on-error: true
+        run: python scripts/sim_tqqq_ma200.py
+
+      - name: Record sim_tqqq_ma200 failure (visible in system status)
+        if: steps.sim_tqqq_ma200.outcome == 'failure'
+        run: python scripts/module_failure_marker.py sim_tqqq_ma200
+
       - name: Macro event outcomes + tranche Shadow + homepage event row (Shadow)
         id: macro_event_watch
         continue-on-error: true
@@ -619,6 +630,7 @@ jobs:
           python tests/test_today_referee.py
           python tests/test_outlook_claims.py
           python tests/test_drawdown_regime.py
+          python tests/test_sim_tqqq_ma200.py
           python tests/test_event_calendar.py
           python tests/test_thesis_revision_memory.py
           python tests/test_v610a_playbook_engine.py
@@ -656,6 +668,7 @@ jobs:
           if [ -f research/audit/sec_fact_reconciliation.json ]; then git add research/audit/sec_fact_reconciliation.json; fi
           if [ -d research/outlook ]; then git add research/outlook/; fi
           if [ -d research/regime ]; then git add research/regime/; fi
+          if [ -d research/sim ]; then git add research/sim/; fi
           if [ -f docs/research/operational_incident_memory.json ]; then git add docs/research/operational_incident_memory.json; fi
           if [ -f research/store/operational_incident_state.json ]; then git add research/store/operational_incident_state.json; fi
           if [ -f research/archive/operational_incidents.jsonl ]; then git add research/archive/operational_incidents.jsonl; fi

@@ -62,6 +62,18 @@ def holidays(year):
     rows.update(d for d in SPECIAL_CLOSURES if d.year==year)
     return rows
 
+def early_closes(year):
+    """NYSE 13:00 ET early closes: the day after Thanksgiving, and July 3 / Dec 24 when they are sessions."""
+    rows={_nth_weekday(year,11,3,4)+timedelta(days=1)}
+    for d in (date(year,7,3),date(year,12,24)):
+        if d.weekday()<5 and d not in holidays(year): rows.add(d)
+    return rows
+
+def close_minutes(value):
+    """Regular-session close in ET minutes after midnight: 780 (13:00) on an early close, else 960 (16:00)."""
+    d=value if isinstance(value,date) and not isinstance(value,datetime) else value.date()
+    return 780 if d in early_closes(d.year) else 960
+
 def is_session(value):
     d=value if isinstance(value,date) and not isinstance(value,datetime) else value.date()
     return d.weekday()<5 and d not in holidays(d.year)

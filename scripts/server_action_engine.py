@@ -215,13 +215,16 @@ def quote_freshness_cutoff(now=None):
     now=now or datetime.now(timezone.utc)
     local=now.astimezone(trading_calendar.ET)
     minutes=local.hour*60+local.minute
-    if trading_calendar.is_session(local.date()) and 570<=minutes<960:
+    close_today=trading_calendar.close_minutes(local.date())
+    if trading_calendar.is_session(local.date()) and 570<=minutes<close_today:
         return now-timedelta(minutes=45)
-    if trading_calendar.is_session(local.date()) and minutes>=960:
+    if trading_calendar.is_session(local.date()) and minutes>=close_today:
         session=local.date()
     else:
         session=trading_calendar.previous_session(local.date())
-    close_local=datetime(session.year,session.month,session.day,16,0,tzinfo=trading_calendar.ET)
+    # early-close days (13:00 ET, e.g. the day after Thanksgiving) end with a 13:00 closing quote
+    cm=trading_calendar.close_minutes(session)
+    close_local=datetime(session.year,session.month,session.day,cm//60,cm%60,tzinfo=trading_calendar.ET)
     return close_local.astimezone(timezone.utc)-timedelta(minutes=45)
 
 def risk_for(p,q,events,now=None):

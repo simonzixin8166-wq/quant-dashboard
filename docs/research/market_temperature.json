@@ -5,10 +5,10 @@
  "max_lag_sessions": 2,
  "fixed_scale_components": 3,
  "validation_plan": "docs/development/market_temperature_validation.md",
- "generated_at": "2026-11-24T21:29:54Z",
+ "generated_at": "2026-11-25T18:46:38Z",
  "as_of": "2026-11-24",
- "score": 26,
- "label": "恐惧",
+ "score": 23,
+ "label": "极度恐惧",
  "components_available": 6,
  "components_total": 6,
  "components": [
@@ -28,11 +28,11 @@
    "key": "strength",
    "name": "股价强度",
    "status": "ok",
-   "score": 69.1,
+   "score": 70.1,
    "method": "fixed_scale",
-   "raw": 0.038153,
+   "raw": 0.040241,
    "value": {
-    "new_high": 0.0422,
+    "new_high": 0.0443,
     "new_low": 0.004
    },
    "as_of": "2026-11-24",
@@ -43,10 +43,10 @@
    "key": "breadth",
    "name": "市场宽度",
    "status": "ok",
-   "score": 56.6,
+   "score": 56.7,
    "method": "fixed_scale",
-   "raw": 0.566265,
-   "value": 0.5663,
+   "raw": 0.567404,
+   "value": 0.5674,
    "as_of": "2026-11-24",
    "source": "breadth_intelligence (S&P 500 above 50-day MA)",
    "lag_sessions": 0
@@ -57,10 +57,10 @@
    "status": "ok",
    "score": 4.8,
    "method": "percentile_252",
-   "raw": 0.404572,
+   "raw": 0.401472,
    "value": {
-    "vix": 26.42,
-    "vs_ma50": 0.4046
+    "vix": 26.36,
+    "vs_ma50": 0.4015
    },
    "as_of": "2026-11-24",
    "source": "archive VIX vs 50-session average",
@@ -82,16 +82,16 @@
    "key": "credit",
    "name": "信用风险",
    "status": "ok",
-   "score": 17.0,
+   "score": 0.0,
    "method": "fixed_scale",
-   "raw": 0.33,
+   "raw": 0.54,
    "value": {
-    "hy_oas": 3.63,
-    "chg20_pp": 0.33
+    "hy_oas": 3.72,
+    "chg20_pp": 0.54
    },
-   "as_of": "2026-11-23",
+   "as_of": "2026-11-24",
    "source": "FRED ICE BofA US High Yield OAS (via cross_asset_divergence)",
-   "lag_sessions": 1
+   "lag_sessions": 0
   }
  ],
  "status": "ok",
@@ -101,6 +101,6 @@
  "decision": "#133 2026-10-17 owner-approved; SENT-01 CNN stays link-out only",
  "change_vs": {
   "as_of": "2026-11-17",
-  "delta": 1
+  "delta": -2
  }
 }

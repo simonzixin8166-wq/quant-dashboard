@@ -1,15 +1,15 @@
 {
  "version": "drawdown-regime-0.1",
- "generated_at": "2026-11-24T21:29:55+00:00",
- "macro_as_of": "2026-11-24",
+ "generated_at": "2026-11-25T18:46:39+00:00",
+ "macro_as_of": "2026-11-25",
  "type": "RATES_VALUATION",
  "label_zh": "利率与估值回调型（类似 2022）",
- "explain_zh": "信用和就业平稳，压力主要来自高利率压低科技股估值；历史上这类下跌可以很深，但不是体系崩溃。 信用利差 3.63%、失业率 4.1%、金融条件 -0.478、实际利率 2.79%、VIX 26.34。",
+ "explain_zh": "信用和就业平稳，压力主要来自高利率压低科技股估值；历史上这类下跌可以很深，但不是体系崩溃。 信用利差 3.72%、失业率 4.1%、金融条件 -0.444、实际利率 2.79%、VIX 26.36。",
  "checks": {
   "credit": {
    "series": "BAMLH0A0HYM2",
    "label_zh": "高收益债利差",
-   "value": 3.63,
+   "value": 3.72,
    "level": "calm",
    "rule_zh": "≥5% 警惕，≥7% 危机（2022 峰值约 5.8%，2008 约 21.8%）"
   },
@@ -25,7 +25,7 @@
   "financial_conditions": {
    "series": "NFCI",
    "label_zh": "金融条件指数",
-   "value": -0.478,
+   "value": -0.444,
    "level": "calm",
    "rule_zh": "≥0 偏紧警惕，≥0.5 明显收紧"
   },
@@ -38,10 +38,10 @@
    "rule_zh": "≥1.5% 估值有压力，≥2.0%（或 20 天升 ≥0.5 点）压力大；这是 2022 型下跌的主因"
   },
   "fear": {
-   "series": "yahoo_close",
+   "series": "VIXCLS",
    "date": "2026-11-24",
    "label_zh": "恐慌指数 VIX",
-   "value": 26.34,
+   "value": 26.36,
    "level": "calm",
    "rule_zh": "≥30 紧张，≥40 恐慌（只作温度参考，不单独决定类型）"
   }
@@ -53,12 +53,12 @@
    "as_of": "2026-11-24"
   },
   "VGT": {
-   "drawdown": -0.2093,
+   "drawdown": -0.2092,
    "zone": "t2",
    "as_of": "2026-11-24"
   },
   "QLD": {
-   "drawdown": -0.3201,
+   "drawdown": -0.3203,
    "zone": "t1",
    "as_of": "2026-11-24"
   }

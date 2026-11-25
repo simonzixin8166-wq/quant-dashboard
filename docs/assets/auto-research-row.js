@@ -142,8 +142,22 @@
     } catch (e) { /* the research row never fails because of the macro row */ }
   }
 
+  // Owner 2026-11-25: the 策略模拟（纸面）row is loaded the same way (static asset, no template change)
+  function loadSimCard() {
+    try {
+      if (document.getElementById('simCardScript')) return;
+      var me = document.querySelector('script[src*="auto-research-row.js"]');
+      var v = me && /[?&]v=([^&]+)/.exec(me.getAttribute('src')) ? /[?&]v=([^&]+)/.exec(me.getAttribute('src'))[1] : '';
+      var css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'assets/sim-card.css?v=' + v;
+      document.head.appendChild(css);
+      var s = document.createElement('script'); s.id = 'simCardScript'; s.src = 'assets/sim-card.js?v=' + v;
+      document.body.appendChild(s);
+    } catch (e) { /* the research row never fails because of the simulation row */ }
+  }
+
   function init() {
     loadMacroEventRow();
+    loadSimCard();
     var el = document.getElementById('autoResearchRow');
     if (!el || typeof fetch !== 'function') return;
     var marketAsOf = el.getAttribute('data-market-as-of') || '';

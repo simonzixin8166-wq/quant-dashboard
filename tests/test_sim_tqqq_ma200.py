@@ -60,6 +60,22 @@ st3, rows3 = sim.run(q2, t2, o2, dict(t2), st2, NOW)
 assert rows3 == [] and st3["last_day"] == days[223]
 print("PASS sim start: first signal from the deepest close since the cross, 5,000 USD invested at the next open")
 
+# band2 comparison account: a one-day poke above the average does not switch; 2% beyond it does
+q3 = {d: 100.0 for d in days[:220]}
+seq = [95, 100.5, 99, 101, 103, 102, 97.5, 97]          # below; +0.5% (no switch); -1%; +1%; +3% -> TQQQ; ...; -2.5% -> out
+for k, p in enumerate(seq):
+    q3[days[220 + k]] = p
+t3 = {d: 50.0 for d in q3}
+sim.SIGNAL_FROM = days[220]
+_, ro = sim.run(q3, t3, dict(q3), dict(t3), None, NOW, 0.0)
+_, rb = sim.run(q3, t3, dict(q3), dict(t3), None, NOW, 0.02)
+tgt = lambda rows, k: next(x for x in rows if x["date"] == days[220 + k])["next_open_target"]["tqqq"]  # noqa: E731
+assert tgt(ro, 1) == 1.0 and tgt(rb, 1) == 0.0          # +0.5%: original switches, band waits
+assert tgt(ro, 3) == 1.0 and tgt(rb, 3) == 0.0          # +1%
+assert tgt(rb, 4) == 1.0 and tgt(rb, 5) == 1.0          # +3% -> band switches, +2% stays (hysteresis)
+assert tgt(rb, 6) == 0.0                                # -2.5% -> band sells
+print("PASS sim band2: switches only 2% beyond the average, keeps its side inside the band")
+
 with tempfile.TemporaryDirectory() as tmp:
     tmp = Path(tmp)
     zp = tmp / "a.zip"
@@ -73,13 +89,19 @@ with tempfile.TemporaryDirectory() as tmp:
     sim.STATE, sim.LEDGER = sim.OUT_DIR / "s.json", sim.OUT_DIR / "l.jsonl"
     orig = sim.load_bars
     sim.load_bars = lambda archive=zp: orig(zp)
+    sim.PUBLIC = tmp / "docs" / "sim_tqqq_ma200.json"
+    sim.SIGNAL_FROM = days[222]
     assert sim.main() == 0 and sim.main() == 0
     doc = json.loads(sim.STATE.read_text())
-    assert doc["paper_only"] is True and doc["orders_placed"] is False and doc["published"] is False
-    assert len(sim.LEDGER.read_text().splitlines()) == 2 and doc["summary"]["status"] == "running"
+    assert doc["paper_only"] is True and doc["orders_placed"] is False and set(doc["accounts"]) == {"original", "band2"}
+    assert len(sim.LEDGER.read_text().splitlines()) == 4                                  # 2 rows x 2 accounts, once
+    assert all(a["summary"]["status"] == "running" for a in doc["accounts"].values())
+    card = json.loads(sim.PUBLIC.read_text())
+    assert card["paper_only"] and card["orders_placed"] is False and card["benchmark"]["value"] is not None
+    assert set(card["accounts"]) == {"original", "band2"} and "account" not in json.dumps(card["accounts"]["original"]).replace("accounts", "")
 src = (ROOT / "scripts" / "sim_tqqq_ma200.py").read_text(encoding="utf-8")
 assert "requests" not in src and "import ib" not in src and "schwab" not in src.lower()
-assert not str(sim.OUT_DIR).startswith(str(ROOT / "docs"))
+assert str(sim.LEDGER).find("/docs/") == -1                                              # the ledger stays back end
 daily = (ROOT / ".github" / "workflows" / "daily.yml").read_text(encoding="utf-8")
 assert "python scripts/sim_tqqq_ma200.py" in daily and "git add research/sim/" in daily
-print("PASS sim files: back end only (research/sim), paper only, wired into Daily after the archive refresh")
+print("PASS sim files: ledger back end, homepage card file with paper values only, wired into Daily")

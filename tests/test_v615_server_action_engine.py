@@ -1,6 +1,6 @@
 from pathlib import Path
 import importlib.util
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 
 ROOT=Path(__file__).resolve().parents[1]
 spec=importlib.util.spec_from_file_location("sa",ROOT/"scripts"/"server_action_engine.py")
@@ -33,6 +33,14 @@ assert sa.risk_for(p(),friday_close_quote,[],now=weekend)["level"]=="l1"
 live=datetime(2026,10,6,19,0,tzinfo=timezone.utc)  # 15:00 ET
 old_live_quote={**q,"updated":[datetime(2026,10,6,18,0,tzinfo=timezone.utc).timestamp()]}
 assert sa.risk_for(p(),old_live_quote,[],now=live)["level"]=="unknown"
+# early close (11/27/2026, day after Thanksgiving, 13:00 ET): the 12:45 closing quote stays usable that evening and
+# over the weekend; it was "stale" against a 16:00 close before
+early_quote={**q,"updated":[datetime(2026,11,27,17,50,tzinfo=timezone.utc).timestamp()]}   # 12:50 ET
+for when in (datetime(2026,11,27,19,0,tzinfo=timezone.utc), datetime(2026,11,28,15,0,tzinfo=timezone.utc)):
+    assert sa.risk_for(p(),early_quote,[],now=when)["level"]=="l1", when
+assert sa.trading_calendar.close_minutes(date(2026,11,27))==780 and sa.trading_calendar.close_minutes(date(2026,11,25))==960
+assert sa.trading_calendar.early_closes(2026)=={date(2026,11,27),date(2026,12,24)}   # July 3, 2026 is the holiday
+assert date(2025,7,3) in sa.trading_calendar.early_closes(2025)
 assert sa.occ_symbol(p(expiry="2026-12-18",strike=65))=="TEST261218P00065000"
 
 src=(ROOT/"scripts"/"server_action_engine.py").read_text(encoding="utf-8")

@@ -12,9 +12,11 @@ Rules (forum post bbs.wenxuecity.com/tzlc/2414333, 2026-11-24; ambiguous parts f
   QQQ close < average ("below"):
     no TQQQ; QQQ weight = 8% per full 1% below the average, measured at the deepest close since the cross,
     buy only, never sell, capped at 100%.
-Signals and fills use the same daily close; each trade costs 0.05% of the amount traded; cash earns nothing.
-Start: the first run after 2026-11-25 opens the account in the state the strategy would hold on that session
-(deepest close since the 11/13 cross), with 5,000 USD. A 5,000 USD QQQ buy-and-hold account starts the same day.
+Signals are taken at each session close and filled at the NEXT session's open (Owner 2026-11-25: buy at the next
+open); each trade costs 0.05% of the amount traded; cash earns nothing.
+Start (Owner 2026-11-25: "start today, from yesterday's close"): the first signal is the 2026-11-24 close, where the
+strategy holds 80% QQQ (deepest close since the 11/13 cross: -10.6% on 11/20); 5,000 USD is invested at the
+2026-11-25 open. A 5,000 USD QQQ buy-and-hold account is bought at the same open.
 
 Writes research/sim/tqqq_ma200_state.json and appends research/sim/tqqq_ma200_ledger.jsonl (one row per session).
 Data: data/history/stooq_watchlist.zip (qqq_us_d.csv, tqqq_us_d.csv), refreshed earlier in the Daily run.
@@ -37,19 +39,21 @@ STATE = OUT_DIR / "tqqq_ma200_state.json"
 LEDGER = OUT_DIR / "tqqq_ma200_ledger.jsonl"
 VERSION = "sim-tqqq-ma200-0.1"
 START_CASH = 5000.0
-START_FROM = "2026-11-25"
+SIGNAL_FROM = "2026-11-24"   # Owner 2026-11-25: start from today, using yesterday's close
 COST = 0.0005
 STEP_PER_PCT = 0.08
 TAKE_PROFIT = 1.15
 REENTRY_ABOVE_TP = 1.10
 
 
-def load_closes(archive: Path = ARCHIVE) -> tuple[dict, dict]:
+def load_bars(archive: Path = ARCHIVE) -> tuple[dict, dict, dict, dict]:
+    """(qqq_close, tqqq_close, qqq_open, tqqq_open) keyed by date."""
     with zipfile.ZipFile(archive) as z:
-        def one(name):
-            return {r["Date"]: float(r["Close"]) for r in csv.DictReader(io.TextIOWrapper(z.open(name), encoding="utf-8"))
-                    if r.get("Close") not in (None, "", "null")}
-        return one("qqq_us_d.csv"), one("tqqq_us_d.csv")
+        def one(name, col):
+            return {r["Date"]: float(r[col]) for r in csv.DictReader(io.TextIOWrapper(z.open(name), encoding="utf-8"))
+                    if r.get(col) not in (None, "", "null")}
+        return (one("qqq_us_d.csv", "Close"), one("tqqq_us_d.csv", "Close"),
+                one("qqq_us_d.csv", "Open"), one("tqqq_us_d.csv", "Open"))
 
 
 def sma200(qqq: dict, day: str):
@@ -81,7 +85,7 @@ def value(st: dict, q: float, t: float) -> float:
 
 
 def rebalance(st: dict, q: float, t: float, w_q: float, w_t: float) -> dict | None:
-    """Move to target weights at today's closes; returns the trade record or None when nothing changes."""
+    """Move to target weights at the given prices (the session open); returns the trade or None when nothing moves."""
     v = value(st, q, t)
     tq_now, tt_now = st["qqq_sh"] * q, st["tqqq_sh"] * t
     tq_new, tt_new = v * w_q, v * w_t
@@ -95,8 +99,8 @@ def rebalance(st: dict, q: float, t: float, w_q: float, w_t: float) -> dict | No
     return {"qqq_usd": round(tq_new - tq_now, 2), "tqqq_usd": round(tt_new - tt_now, 2), "cost": round(cost, 2)}
 
 
-def step(st: dict, day: str, q: float, t: float, s: float) -> tuple[str, dict | None]:
-    """Apply the rules for one session close. Returns (reason, trade)."""
+def signal(st: dict, q: float, s: float, qqq_weight_now: float, holds_tqqq: bool) -> tuple[str, float, float]:
+    """Rules at one session close -> (reason, target QQQ weight, target TQQQ weight) for the next session's open."""
     dev = q / s - 1
     st["prior_high"] = max(st.get("prior_high") or 0.0, q)
     if dev >= 0:
@@ -104,54 +108,84 @@ def step(st: dict, day: str, q: float, t: float, s: float) -> tuple[str, dict | 
         if st.get("tp_done"):
             if q > REENTRY_ABOVE_TP * st["tp_high"]:
                 st["tp_done"] = False
-                return "re-enter TQQQ: QQQ 10% above its take-profit close", rebalance(st, q, t, 0, 1)
-            return "after take-profit: wait in cash until QQQ is 10% above the take-profit close", rebalance(st, q, t, 0, 0)
-        if q >= TAKE_PROFIT * s and st["tqqq_sh"] > 0:
+                return "re-enter TQQQ: QQQ 10% above its take-profit close", 0.0, 1.0
+            return "after take-profit: wait in cash until QQQ is 10% above the take-profit close", 0.0, 0.0
+        if q >= TAKE_PROFIT * s and holds_tqqq:
             st.update(tp_done=True, tp_high=q)
-            return "take profit: QQQ >= 1.15 x 200-day average", rebalance(st, q, t, 0, 0)
-        return "above the 200-day average: hold TQQQ", rebalance(st, q, t, 0, 1)
+            return "take profit: QQQ >= 1.15 x 200-day average", 0.0, 0.0
+        return "above the 200-day average: hold TQQQ", 0.0, 1.0
     st["tp_done"] = False
     st["worst_dev"] = min(st.get("worst_dev") or 0.0, dev)
-    w = max(ratchet_weight(st["worst_dev"]), st["qqq_sh"] * q / max(value(st, q, t), 1e-9) if st["tqqq_sh"] == 0 else 0)
-    return (f"below the 200-day average: QQQ {w:.0%} (deepest {st['worst_dev']:.1%}, buy only)",
-            rebalance(st, q, t, w, 0))
+    w = ratchet_weight(st["worst_dev"])
+    if not holds_tqqq:
+        w = max(w, qqq_weight_now)         # buy only: never sell QQQ below the average
+    return f"below the 200-day average: QQQ {w:.0%} (deepest {st['worst_dev']:.1%}, buy only)", w, 0.0
 
 
-def run(qqq: dict, tqqq: dict, state: dict | None, now: datetime) -> tuple[dict, list[dict]]:
-    days = [d for d in sorted(qqq) if d >= START_FROM and d in tqqq]
+def run(qqq: dict, tqqq: dict, qopen: dict, topen: dict, state: dict | None, now: datetime) -> tuple[dict, list[dict]]:
+    """Signal at each close, filled at the next session's open (Owner 2026-11-25). The first signal is the
+    SIGNAL_FROM close; the account opens with 5,000 USD at the open of the session after it."""
+    days = [d for d in sorted(qqq) if d >= SIGNAL_FROM and d in tqqq]
     rows = []
     if not days:
         return state or {}, rows
     st = state
     if not st:
         d0 = days[0]
-        st = {"version": VERSION, "started": d0, "cash": START_CASH, "qqq_sh": 0.0, "tqqq_sh": 0.0,
-              "worst_dev": deepest_since_cross(qqq, d0), "tp_done": False, "tp_high": None,
-              "prior_high": max(v for d, v in qqq.items() if d <= d0),
-              "bench_qqq_sh": START_CASH / qqq[d0], "last_day": None, "trades": 0}
+        st = {"version": VERSION, "signal_from": d0, "started": None, "cash": START_CASH, "qqq_sh": 0.0, "tqqq_sh": 0.0,
+              "worst_dev": deepest_since_cross(qqq, d0) if qqq[d0] < (sma200(qqq, d0) or 0) else 0.0,
+              "tp_done": False, "tp_high": None, "prior_high": max(v for d, v in qqq.items() if d <= d0),
+              "bench_qqq_sh": None, "pending": None, "last_day": None, "trades": 0}
     for d in days:
         if st["last_day"] and d <= st["last_day"]:
             continue
         s = sma200(qqq, d)
         if s is None:
             continue
+        trade = None
+        if st["pending"] and d in qopen and d in topen:           # fill yesterday's signal at today's open
+            if st["started"] is None:
+                st["started"] = d
+                st["bench_qqq_sh"] = START_CASH * (1 - COST) / qopen[d]
+            pw_q, pw_t = st["pending"]["w_q"], st["pending"]["w_t"]
+            if pw_t == 0 and st["tqqq_sh"] == 0 and pw_q > 0:        # below the average: buy only, never trim QQQ
+                vo = value(st, qopen[d], topen[d])
+                pw_q = max(pw_q, st["qqq_sh"] * qopen[d] / vo if vo else 0.0)
+            trade = rebalance(st, qopen[d], topen[d], pw_q, pw_t)
+            st["trades"] += 1 if trade else 0
+            filled = st["pending"]
+        else:
+            filled = None
         q, t = qqq[d], tqqq[d]
-        reason, trade = step(st, d, q, t, s)
-        st["trades"] += 1 if trade else 0
+        v = value(st, q, t)
+        reason, w_q, w_t = signal(st, q, s, (st["qqq_sh"] * q / v) if v else 0.0, st["tqqq_sh"] > 0)
+        st["pending"] = {"signal_date": d, "w_q": w_q, "w_t": w_t, "reason": reason}
         st["last_day"] = d
-        v, b = value(st, q, t), st["bench_qqq_sh"] * q
-        rows.append({"date": d, "qqq": q, "tqqq": t, "sma200": round(s, 2), "dev": round(q / s - 1, 4),
-                     "holding": {"qqq_usd": round(st["qqq_sh"] * q, 2), "tqqq_usd": round(st["tqqq_sh"] * t, 2),
-                                 "cash_usd": round(st["cash"], 2)},
+        if st["started"] is None:
+            rows.append({"date": d, "kind": "first_signal", "qqq": q, "sma200": round(s, 2), "dev": round(q / s - 1, 4),
+                         "next_open_target": {"qqq": w_q, "tqqq": w_t}, "reason": reason,
+                         "recorded_at": now.isoformat(timespec="seconds")})
+            continue
+        b = st["bench_qqq_sh"] * q
+        rows.append({"date": d, "qqq": q, "tqqq": t, "qqq_open": qopen.get(d), "tqqq_open": topen.get(d),
+                     "sma200": round(s, 2), "dev": round(q / s - 1, 4),
+                     "filled_at_open": ({"signal_date": filled["signal_date"], "reason": filled["reason"], "trade": trade}
+                                        if filled else None),
+                     "holding_at_close": {"qqq_usd": round(st["qqq_sh"] * q, 2), "tqqq_usd": round(st["tqqq_sh"] * t, 2),
+                                          "cash_usd": round(st["cash"], 2)},
                      "value": round(v, 2), "return": round(v / START_CASH - 1, 4),
                      "benchmark_qqq_value": round(b, 2), "benchmark_return": round(b / START_CASH - 1, 4),
-                     "reason": reason, "trade": trade, "recorded_at": now.isoformat(timespec="seconds")})
+                     "next_open_target": {"qqq": w_q, "tqqq": w_t}, "reason": reason,
+                     "recorded_at": now.isoformat(timespec="seconds")})
     return st, rows
 
 
 def summary(st: dict, rows_all: list[dict]) -> dict:
     if not rows_all:
-        return {"status": "waiting for the first session on or after " + START_FROM}
+        return {"status": "waiting for the first signal close on or after " + SIGNAL_FROM}
+    rows_all = [r for r in rows_all if r.get("kind") != "first_signal"]
+    if not rows_all:
+        return {"status": "first signal recorded; the account opens at the next session's open"}
     vals = [r["value"] for r in rows_all]
     peak, mdd = vals[0], 0.0
     for v in vals:
@@ -160,14 +194,15 @@ def summary(st: dict, rows_all: list[dict]) -> dict:
     return {"status": "running", "started": st["started"], "as_of": last["date"], "sessions": len(rows_all),
             "value": last["value"], "return": last["return"], "max_drawdown": round(mdd, 4),
             "benchmark_qqq_value": last["benchmark_qqq_value"], "benchmark_return": last["benchmark_return"],
-            "holding": last["holding"], "trades": st["trades"], "last_reason": last["reason"]}
+            "holding_at_close": last["holding_at_close"], "trades": st["trades"], "next_open_target": last["next_open_target"],
+            "last_reason": last["reason"]}
 
 
 def main() -> int:
-    qqq, tqqq = load_closes()
+    qqq, tqqq, qopen, topen = load_bars()
     state = json.loads(STATE.read_text(encoding="utf-8")) if STATE.exists() else None
     now = datetime.now(timezone.utc)
-    st, rows = run(qqq, tqqq, state and state.get("account"), now)
+    st, rows = run(qqq, tqqq, qopen, topen, state and state.get("account"), now)
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     if rows:
         with LEDGER.open("a", encoding="utf-8") as f:

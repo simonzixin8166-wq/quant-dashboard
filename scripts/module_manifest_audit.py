@@ -39,6 +39,7 @@ ROLES = {  # reader → (role, reason)
     "morning_brief.py": (V, "Owner 2026-11-13: one Telegram morning brief from published files; reminder only, never a decision input"),
     "shock_event_monitor.py": (V, "Owner 2026-11-12: shock events recorded, analysed and advised twice a day; Telegram reminder only, never a decision input or order"),
     "outlook_claims.py": (V, "Owner 2026-11-22: back-end ledger of external outlook forecasts scored at maturity + FRED watch (Brent, IG spread, 10y); never published, never a decision input"),
+    "sim_tqqq_ma200.py": (V, "Owner 2026-11-25: paper simulation (5,000 USD) of a forum QQQ/TQQQ 200-day strategy vs holding QQQ; back end only, no order, never a decision input"),
     "drawdown_regime.py": (V, "Owner 2026-11-23: back-end drawdown type check (2022-type rates/valuation vs systemic) from five FRED series; one Telegram only when the type changes; never published, never a decision input"),
     "today_referee.py": (V, "S4-1 Owner 2026-11-21: shadow Today's Action referee (<=3 cards, watch, hold, page mode) from published files; reminder only, never orders, quantities or threshold changes"),
     "threshold_ledger.py": (V, "Owner 2026-11-15: append-only record of every core-ETF threshold crossing with values, dates and counts, plus a descriptive review; never changes a threshold or an alert"),

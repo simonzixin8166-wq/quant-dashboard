@@ -227,6 +227,14 @@ def quote_freshness_cutoff(now=None):
     close_local=datetime(session.year,session.month,session.day,cm//60,cm%60,tzinfo=trading_calendar.ET)
     return close_local.astimezone(timezone.utc)-timedelta(minutes=45)
 
+EXPIRY_NOTICE_SESSIONS=5   # Owner 2026-11-25: every held option gets one reminder in its last 5 sessions
+
+def expiry_sessions_left(today,p):
+    """Trading sessions from tomorrow through expiry (expiry day included); 99 when unknown."""
+    try:expiry=datetime.fromisoformat(str(p.get("expiry"))[:10]).date()
+    except Exception:return 99
+    return len(trading_calendar.sessions_between(today,expiry))
+
 def risk_for(p,q,events,now=None):
     now_dt=now or datetime.now(timezone.utc)
     today=now_dt.date()
@@ -255,6 +263,8 @@ def risk_for(p,q,events,now=None):
     if dte<0:level,reason="l3","expired / settlement required"
     elif dte<=7 and (itm or (dist is not None and dist<=.01)):level,reason="l3","near expiry and ATM/ITM"
     elif dte<=14 and (itm or (dist is not None and dist<=.05)):level,reason="l2","near assignment risk zone"
+    elif expiry_sessions_left(today,p)<=EXPIRY_NOTICE_SESSIONS:
+        level,reason="l2","expiry within 5 sessions: decide close / roll / let expire"
     elif spread is not None and spread>.15:level,reason="l2","wide bid/ask spread"
     elif events:level,reason="l2","major macro event inside 48h review window"
     return {"level":level,"reason":reason,"dte":dte,"spot":spot,"delta":delta,"spread":spread}
@@ -335,7 +345,9 @@ def fingerprint(result):
       "trust":stable_trust(result.get("trust")),
       "events":result.get("event_count_48h"),
       "actions":[
-        {k:a.get(k) for k in ("level","symbol","expiry","reason","dte")}
+        # the 5-session expiry reminder is sent once, not again each day as dte counts down
+        {k:(None if k=="dte" and str(a.get("reason") or "").startswith("expiry within") else a.get(k))
+         for k in ("level","symbol","expiry","reason","dte")}
         for a in result.get("actions") or []
       ],
     }

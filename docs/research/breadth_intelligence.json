@@ -1,27 +1,27 @@
 {
   "version": "6.8.0",
-  "generated_at": "2026-11-25T18:46:38.075872+00:00",
-  "as_of": "2026-11-24",
+  "generated_at": "2026-11-25T21:29:24.993250+00:00",
+  "as_of": "2026-11-25",
   "level": "weakening",
   "label": "市场宽度走弱",
-  "participation_score": 33.5,
-  "risk_hits": 3,
+  "participation_score": 39.9,
+  "risk_hits": 2,
   "high_hits": 0,
   "known_inputs": 8,
   "metrics": {
-    "b20": 0.4084507042253521,
-    "b50": 0.5674044265593562,
-    "b200": 0.5533199195171026,
-    "slope_10d": -0.3064087335256519,
-    "spy_minus_rsp_20d": -0.04974073725309447,
-    "qqq_minus_qqqe_20d": -0.03373377046672388,
-    "ad_net_pct": 0.40643863179074446,
-    "ad_line_20d": -0.4245392030900259,
-    "ad_line_60d": -1.1514468336121149,
-    "new_high_52w_pct": 0.04426559356136821,
-    "near_high_52w_pct": 0.11468812877263582,
-    "new_low_52w_pct": 0.004024144869215292,
-    "coverage": 497,
+    "b20": 0.4678714859437751,
+    "b50": 0.6024096385542169,
+    "b200": 0.5803212851405622,
+    "slope_10d": -0.26305220883534136,
+    "spy_minus_rsp_20d": -0.0641156736230456,
+    "qqq_minus_qqqe_20d": -0.04276506888882492,
+    "ad_net_pct": 0.4869215291750503,
+    "ad_line_20d": 0.07844658311313663,
+    "ad_line_60d": -0.3131196819471043,
+    "new_high_52w_pct": 0.060240963855421686,
+    "near_high_52w_pct": 0.14457831325301204,
+    "new_low_52w_pct": 0.002008032128514056,
+    "coverage": 498,
     "universe": 503
   },
   "signals": [
@@ -30,67 +30,67 @@
       "label": "20日参与度偏弱",
       "hit": false,
       "severity": "high",
-      "value": 0.4084507042253521,
-      "reason": "仅 41% 成分股站上20日线"
+      "value": 0.4678714859437751,
+      "reason": "仅 47% 成分股站上20日线"
     },
     {
       "key": "b50_weak",
       "label": "50日参与度偏弱",
       "hit": false,
       "severity": "high",
-      "value": 0.5674044265593562,
-      "reason": "仅 57% 成分股站上50日线"
+      "value": 0.6024096385542169,
+      "reason": "仅 60% 成分股站上50日线"
     },
     {
       "key": "b200_weak",
       "label": "长期参与度不足",
       "hit": false,
       "severity": "medium",
-      "value": 0.5533199195171026,
-      "reason": "55% 成分股站上200日线"
+      "value": 0.5803212851405622,
+      "reason": "58% 成分股站上200日线"
     },
     {
       "key": "breadth_falling",
       "label": "短期宽度继续恶化",
       "hit": true,
       "severity": "medium",
-      "value": -0.3064087335256519,
-      "reason": "20日宽度10日斜率 -30.6%"
+      "value": -0.26305220883534136,
+      "reason": "20日宽度10日斜率 -26.3%"
     },
     {
       "key": "sp500_concentration",
       "label": "SPY领先RSP",
       "hit": false,
       "severity": "high",
-      "value": -0.04974073725309447,
-      "reason": "20日SPY相对RSP领先 -5.0%"
+      "value": -0.0641156736230456,
+      "reason": "20日SPY相对RSP领先 -6.4%"
     },
     {
       "key": "nasdaq_concentration",
       "label": "QQQ领先QQQE",
       "hit": false,
       "severity": "medium",
-      "value": -0.03373377046672388,
-      "reason": "20日QQQ相对QQQE领先 -3.4%"
+      "value": -0.04276506888882492,
+      "reason": "20日QQQ相对QQQE领先 -4.3%"
     },
     {
       "key": "ad_pressure",
       "label": "A/D累计线偏弱",
-      "hit": true,
+      "hit": false,
       "severity": "medium",
-      "value": -0.4245392030900259,
-      "reason": "20日标准化A/D累计 -0.42"
+      "value": 0.07844658311313663,
+      "reason": "20日标准化A/D累计 +0.08"
     },
     {
       "key": "new_highs_thin",
       "label": "52周新高参与不足",
       "hit": true,
       "severity": "medium",
-      "value": 0.04426559356136821,
-      "reason": "仅 4.4% 成分股处于52周新高"
+      "value": 0.060240963855421686,
+      "reason": "仅 6.0% 成分股处于52周新高"
     }
   ],
-  "combination_key": "B20_OK|B50_OK|B200_OK|SLOPE_DOWN|SPY_RSP_OK|QQQ_QQQE_OK|AD_NEG|NH52_THIN",
+  "combination_key": "B20_OK|B50_OK|B200_OK|SLOPE_DOWN|SPY_RSP_OK|QQQ_QQQE_OK|AD_POS|NH52_THIN",
   "interpretation": [
     "指数上涨若伴随等权指数落后和成分股宽度下降，说明上涨参与度收窄。",
     "宽度恶化可提高风险研究优先级，但不能单独等同于顶部或卖出信号。",

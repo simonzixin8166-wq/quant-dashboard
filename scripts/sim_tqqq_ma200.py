@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Paper simulation of a forum member's QQQ/TQQQ 200-day-average strategy with 5,000 USD (Owner 2026-11-25).
 
-Back end only. No order is ever placed, no broker is contacted, nothing is published on the site, and nothing here
+No order is ever placed and no broker is contacted; the homepage shows only the paper result; nothing here
 feeds a MyAlpha decision, threshold or alert. It answers one question in real time: what would this strategy have
 done with 5,000 USD from 2026-11-25 on, compared with simply holding QQQ?
 
@@ -18,7 +18,9 @@ Start (Owner 2026-11-25: "start today, from yesterday's close"): the first signa
 strategy holds 80% QQQ (deepest close since the 11/13 cross: -10.6% on 11/20); 5,000 USD is invested at the
 2026-11-25 open. A 5,000 USD QQQ buy-and-hold account is bought at the same open.
 
-Writes research/sim/tqqq_ma200_state.json and appends research/sim/tqqq_ma200_ledger.jsonl (one row per session).
+Writes research/sim/tqqq_ma200_state.json, appends research/sim/tqqq_ma200_ledger.jsonl (one row per session and
+account) and, for the homepage card (Owner 2026-11-25), docs/research/sim_tqqq_ma200.json with paper values only.
+Two accounts: "original" (the forum rule) and "band2" (switch only 2% beyond the average).
 Data: data/history/stooq_watchlist.zip (qqq_us_d.csv, tqqq_us_d.csv), refreshed earlier in the Daily run.
 """
 from __future__ import annotations
@@ -99,11 +101,22 @@ def rebalance(st: dict, q: float, t: float, w_q: float, w_t: float) -> dict | No
     return {"qqq_usd": round(tq_new - tq_now, 2), "tqqq_usd": round(tt_new - tt_now, 2), "cost": round(cost, 2)}
 
 
-def signal(st: dict, q: float, s: float, qqq_weight_now: float, holds_tqqq: bool) -> tuple[str, float, float]:
-    """Rules at one session close -> (reason, target QQQ weight, target TQQQ weight) for the next session's open."""
+def signal(st: dict, q: float, s: float, qqq_weight_now: float, holds_tqqq: bool, band: float = 0.0
+           ) -> tuple[str, float, float]:
+    """Rules at one session close -> (reason, target QQQ weight, target TQQQ weight) for the next session's open.
+    band = 0 is the forum rule (cross the average); band = 0.02 is the comparison account: above only once QQQ is
+    2% over the average, below only once it is 2% under it (Owner 2026-11-25, fewer whipsaws)."""
     dev = q / s - 1
     st["prior_high"] = max(st.get("prior_high") or 0.0, q)
-    if dev >= 0:
+    mode = st.get("mode")
+    if mode != "above" and dev >= band:
+        mode = "above"
+    elif mode != "below" and dev < -band:
+        mode, st["worst_dev"] = "below", dev
+    elif mode is None:
+        mode = "above" if dev >= 0 else "below"
+    st["mode"] = mode
+    if mode == "above":
         st["worst_dev"] = 0.0
         if st.get("tp_done"):
             if q > REENTRY_ABOVE_TP * st["tp_high"]:
@@ -113,7 +126,7 @@ def signal(st: dict, q: float, s: float, qqq_weight_now: float, holds_tqqq: bool
         if q >= TAKE_PROFIT * s and holds_tqqq:
             st.update(tp_done=True, tp_high=q)
             return "take profit: QQQ >= 1.15 x 200-day average", 0.0, 0.0
-        return "above the 200-day average: hold TQQQ", 0.0, 1.0
+        return "above the 200-day average" + (f" (+{band:.0%} band)" if band else "") + ": hold TQQQ", 0.0, 1.0
     st["tp_done"] = False
     st["worst_dev"] = min(st.get("worst_dev") or 0.0, dev)
     w = ratchet_weight(st["worst_dev"])
@@ -122,7 +135,8 @@ def signal(st: dict, q: float, s: float, qqq_weight_now: float, holds_tqqq: bool
     return f"below the 200-day average: QQQ {w:.0%} (deepest {st['worst_dev']:.1%}, buy only)", w, 0.0
 
 
-def run(qqq: dict, tqqq: dict, qopen: dict, topen: dict, state: dict | None, now: datetime) -> tuple[dict, list[dict]]:
+def run(qqq: dict, tqqq: dict, qopen: dict, topen: dict, state: dict | None, now: datetime, band: float = 0.0
+        ) -> tuple[dict, list[dict]]:
     """Signal at each close, filled at the next session's open (Owner 2026-11-25). The first signal is the
     SIGNAL_FROM close; the account opens with 5,000 USD at the open of the session after it."""
     days = [d for d in sorted(qqq) if d >= SIGNAL_FROM and d in tqqq]
@@ -134,6 +148,7 @@ def run(qqq: dict, tqqq: dict, qopen: dict, topen: dict, state: dict | None, now
         d0 = days[0]
         st = {"version": VERSION, "signal_from": d0, "started": None, "cash": START_CASH, "qqq_sh": 0.0, "tqqq_sh": 0.0,
               "worst_dev": deepest_since_cross(qqq, d0) if qqq[d0] < (sma200(qqq, d0) or 0) else 0.0,
+              "mode": ("below" if qqq[d0] < (sma200(qqq, d0) or 0) else "above"), "band": band,
               "tp_done": False, "tp_high": None, "prior_high": max(v for d, v in qqq.items() if d <= d0),
               "bench_qqq_sh": None, "pending": None, "last_day": None, "trades": 0}
     for d in days:
@@ -158,7 +173,7 @@ def run(qqq: dict, tqqq: dict, qopen: dict, topen: dict, state: dict | None, now
             filled = None
         q, t = qqq[d], tqqq[d]
         v = value(st, q, t)
-        reason, w_q, w_t = signal(st, q, s, (st["qqq_sh"] * q / v) if v else 0.0, st["tqqq_sh"] > 0)
+        reason, w_q, w_t = signal(st, q, s, (st["qqq_sh"] * q / v) if v else 0.0, st["tqqq_sh"] > 0, band)
         st["pending"] = {"signal_date": d, "w_q": w_q, "w_t": w_t, "reason": reason}
         st["last_day"] = d
         if st["started"] is None:
@@ -198,22 +213,57 @@ def summary(st: dict, rows_all: list[dict]) -> dict:
             "last_reason": last["reason"]}
 
 
+ACCOUNTS = {"original": 0.0, "band2": 0.02}   # forum rule, and the +/-2% band comparison (Owner 2026-11-25)
+LABEL_ZH = {"original": "原规则（跨过均线就换）", "band2": "加 2% 缓冲（高于均线 2% 才换 TQQQ，低于 2% 才卖）"}
+PUBLIC = ROOT / "docs" / "research" / "sim_tqqq_ma200.json"
+
+
+def public_card(doc: dict) -> dict:
+    """What the homepage card shows: values, returns, holdings and the next open's target. Paper numbers only."""
+    acc = {}
+    for name, a in (doc.get("accounts") or {}).items():
+        sm = a.get("summary") or {}
+        acc[name] = {"label_zh": LABEL_ZH.get(name, name), "status": sm.get("status"), "as_of": sm.get("as_of"),
+                     "started": sm.get("started"), "value": sm.get("value"), "return": sm.get("return"),
+                     "max_drawdown": sm.get("max_drawdown"), "trades": sm.get("trades"),
+                     "holding_at_close": sm.get("holding_at_close"), "next_open_target": sm.get("next_open_target"),
+                     "last_reason": sm.get("last_reason")}
+    bench = next((a.get("summary") for a in (doc.get("accounts") or {}).values()
+                  if (a.get("summary") or {}).get("benchmark_qqq_value") is not None), {}) or {}
+    return {"version": VERSION, "generated_at": doc.get("generated_at"), "start_cash": START_CASH,
+            "accounts": acc, "benchmark": {"label_zh": "一直持有 QQQ", "value": bench.get("benchmark_qqq_value"),
+                                           "return": bench.get("benchmark_return")},
+            "rules_zh": ("QQQ 在 200 日均线之上持有 TQQQ（到均线 1.15 倍止盈，比止盈价再高 10% 买回）；"
+                         "跌破均线后每跌满 1% 买 8% QQQ，只买不卖。收盘出信号，第二天开盘成交，每笔 0.05% 成本。"),
+            "paper_only": True, "orders_placed": False,
+            "note_zh": "纸面模拟，不是买卖建议；不下单、不连券商，不影响系统任何提醒和阈值。"}
+
+
 def main() -> int:
     qqq, tqqq, qopen, topen = load_bars()
-    state = json.loads(STATE.read_text(encoding="utf-8")) if STATE.exists() else None
+    prev = json.loads(STATE.read_text(encoding="utf-8")) if STATE.exists() else {}
     now = datetime.now(timezone.utc)
-    st, rows = run(qqq, tqqq, qopen, topen, state and state.get("account"), now)
     OUT_DIR.mkdir(parents=True, exist_ok=True)
-    if rows:
-        with LEDGER.open("a", encoding="utf-8") as f:
-            for r in rows:
-                f.write(json.dumps(r, ensure_ascii=False) + "\n")
     all_rows = [json.loads(x) for x in LEDGER.read_text(encoding="utf-8").splitlines()] if LEDGER.exists() else []
-    doc = {"version": VERSION, "generated_at": now.isoformat(timespec="seconds"), "account": st,
-           "summary": summary(st, all_rows), "paper_only": True, "orders_placed": False, "published": False,
-           "policy_zh": "网友均线 + TQQQ 策略的纸面模拟（5,000 美元），不下单、不连券商、不上网站、不影响系统任何提醒和阈值。"}
+    accounts = {}
+    for name, band in ACCOUNTS.items():
+        st, rows = run(qqq, tqqq, qopen, topen, ((prev.get("accounts") or {}).get(name) or {}).get("book"), now, band)
+        for r in rows:
+            r["sim_book"] = name          # paper book name ("account" is reserved for real accounts by the canary)
+        if rows:
+            with LEDGER.open("a", encoding="utf-8") as f:
+                for r in rows:
+                    f.write(json.dumps(r, ensure_ascii=False) + "\n")
+        all_rows += rows
+        accounts[name] = {"band": band, "book": st,
+                          "summary": summary(st, [r for r in all_rows if r.get("sim_book", "original") == name])}
+    doc = {"version": VERSION, "generated_at": now.isoformat(timespec="seconds"), "accounts": accounts,
+           "paper_only": True, "orders_placed": False,
+           "policy_zh": "网友均线 + TQQQ 策略的纸面模拟（5,000 美元，两种换仓规则），不下单、不连券商，不影响系统任何提醒和阈值。"}
     STATE.write_text(json.dumps(doc, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
-    print(json.dumps(doc["summary"], ensure_ascii=False))
+    PUBLIC.parent.mkdir(parents=True, exist_ok=True)
+    PUBLIC.write_text(json.dumps(public_card(doc), ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+    print(json.dumps({k: v["summary"] for k, v in accounts.items()}, ensure_ascii=False))
     return 0
 
 

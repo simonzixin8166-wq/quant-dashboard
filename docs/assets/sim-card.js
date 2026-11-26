@@ -1,7 +1,7 @@
 /* 策略模拟（纸面）— one compact homepage row (Owner 2026-11-25).
- * Reads research/sim_tqqq_ma200.json and shows the two 5,000 USD paper accounts of the forum QQQ/TQQQ 200-day
- * strategy (original rule, +/-2% band) against holding QQQ; the detail (holdings, max drawdown, trades, the next
- * open's target, the rules) is collapsed. Paper numbers only: never an order, never a MyAlpha alert or threshold.
+ * Reads research/sim_tqqq_ma200.json and shows four 5,000 USD paper books from the same start (Owner 2026-11-26):
+ * the 200-day rule with a 2% band, YIFAN's 530 rule, the two combined, and holding QQQ; the detail (positions,
+ * fill log, max drawdown, the next open's target, the rules) is collapsed. Paper numbers only: never an order, never a MyAlpha alert or threshold.
  * Loaded from auto-research-row.js (no change to the Daily-generated index.html); inserted under the macro row. */
 (function (root) {
   function esc(s) {
@@ -23,17 +23,23 @@
     return 'QQQ ' + usd(h.qqq_usd) + ' · TQQQ ' + usd(h.tqqq_usd) + ' · 现金 ' + usd(h.cash_usd);
   }
 
+  var ORDER = ['band2', 'ema530', 'hybrid'];
+  function order(d) { return (d && d.order && d.order.length) ? d.order : ORDER; }
+
   function lineHtml(d) {
     if (!d || !d.accounts) return '<div class="sim-line"><span class="sim-title">策略模拟（纸面）</span><span class="sim-muted">暂无数据</span></div>';
-    var o = d.accounts.original || {}, b = d.accounts.band2 || {}, q = d.benchmark || {};
-    if (o.status !== 'running') {
-      return '<div class="sim-line"><span class="sim-title">策略模拟（纸面 5,000 美元）</span><span class="sim-muted">今晚收盘后开始记录（首个信号：80% QQQ，第二天开盘买入）</span></div>';
+    var keys = order(d), q = d.benchmark || {};
+    var first = d.accounts[keys[0]] || {};
+    if (first.status !== 'running') {
+      return '<div class="sim-line"><span class="sim-title">策略模拟（纸面，每个 5,000 美元）</span><span class="sim-muted">今晚收盘后开始记录（收盘出信号，第二天开盘成交）</span></div>';
     }
-    return '<div class="sim-line"><span class="sim-title">策略模拟（纸面 5,000 美元）</span>' +
-      '<span>原规则 <b>' + usd(o.value) + '</b> <em class="' + tone(o['return']) + '">' + pct(o['return']) + '</em></span>' +
-      '<span>加 2% 缓冲 <b>' + usd(b.value) + '</b> <em class="' + tone(b['return']) + '">' + pct(b['return']) + '</em></span>' +
-      '<span>持有 QQQ <b>' + usd(q.value) + '</b> <em class="' + tone(q['return']) + '">' + pct(q['return']) + '</em></span>' +
-      '<span class="sim-muted">截至 ' + esc(o.as_of) + '</span>' +
+    var items = keys.map(function (k) {
+      var a = d.accounts[k] || {};
+      return '<span>' + esc(a.label_zh || k) + ' <b>' + usd(a.value) + '</b> <em class="' + tone(a['return']) + '">' + pct(a['return']) + '</em></span>';
+    }).join('');
+    return '<div class="sim-line"><span class="sim-title">策略模拟（纸面，每个 5,000 美元）</span>' + items +
+      '<span>' + esc(q.label_zh || '一直持有 QQQ') + ' <b>' + usd(q.value) + '</b> <em class="' + tone(q['return']) + '">' + pct(q['return']) + '</em></span>' +
+      '<span class="sim-muted">截至 ' + esc(first.as_of) + '</span>' +
       '<button type="button" class="sim-toggle" aria-expanded="false">详情</button></div>';
   }
 
@@ -56,11 +62,18 @@
       '<div class="sim-table"><table><thead><tr><th>成交日期</th><th>方向</th><th>标的</th><th>股数</th><th>成交价（开盘）</th><th>成交金额</th><th>佣金</th><th>已实现盈亏</th></tr></thead><tbody>' + fills + '</tbody></table></div>';
   }
 
+  function benchHtml(q) {
+    return '<h4>' + esc(q.label_zh || '一直持有 QQQ') + '　市值 ' + money(q.value) + '　收益 ' + pct(q['return']) + '　最深回撤 ' + pct(q.max_drawdown) +
+      '</h4><p class="sim-muted">' + esc(q.started || '-') + ' 开盘一次性买入 QQQ ' + esc(q.qqq_shares == null ? '-' : q.qqq_shares) + ' 股，成交价 ' +
+      money(q.buy_price) + '，剩余现金 ' + money(q.cash_usd) + '，之后不再买卖。</p>';
+  }
+
   function detailHtml(d) {
     if (!d || !d.accounts) return '';
-    return ['original', 'band2'].map(function (k) { return bookHtml(d.accounts[k] || {}); }).join('') +
+    var keys = order(d);
+    return keys.map(function (k) { return bookHtml(d.accounts[k] || {}); }).join('') + benchHtml(d.benchmark || {}) +
       '<p class="sim-muted">规则：' + esc(d.rules_zh) + '</p><p class="sim-muted">' + esc(d.note_zh) +
-      ' 开始于 ' + esc((d.accounts.original || {}).started || '-') + '。</p>';
+      ' 开始于 ' + esc((d.accounts[keys[0]] || {}).started || '-') + '。</p>';
   }
 
   function render(el, d) {
@@ -87,7 +100,7 @@
       .catch(function () { render(el, null); });
   }
 
-  root.MAVSimCard = { _test: { lineHtml: lineHtml, detailHtml: detailHtml, target: target, esc: esc } };
+  root.MAVSimCard = { _test: { lineHtml: lineHtml, detailHtml: detailHtml, target: target, esc: esc, benchHtml: benchHtml } };
   if (typeof document !== 'undefined' && document.addEventListener) {
     // the macro row inserts itself asynchronously; wait a moment so this row lands under it
     var go = function () { setTimeout(init, 300); };

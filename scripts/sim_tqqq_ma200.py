@@ -24,7 +24,11 @@ strategy holds 80% QQQ (deepest close since the 11/13 cross: -10.6% on 11/20); 5
 
 Writes research/sim/tqqq_ma200_state.json, appends research/sim/tqqq_ma200_ledger.jsonl (one row per session and
 account) and, for the homepage card (Owner 2026-11-25), docs/research/sim_tqqq_ma200.json with paper values only.
-Two accounts: "original" (the forum rule) and "band2" (switch only 2% beyond the average).
+Books (Owner 2026-11-26): "band2" (the rule above with a +/-2% band), "ema530" (forum blogger YIFAN's rule: all-in
+TQQQ the open after EMA5 of the TQQQ close crosses above EMA30, all cash the open after it crosses below), "hybrid"
+(band2, except that below the average, while the 530 signal is on, it holds 50% TQQQ and 50% cash, and returns to the
+QQQ ladder after the 530 death cross; pre-registered 2026-11-26 before any forward data) and the QQQ buy-and-hold
+benchmark. The "original" book (no band) was retired on 2026-11-26.
 Data: data/history/stooq_watchlist.zip (qqq_us_d.csv, tqqq_us_d.csv), refreshed earlier in the Daily run.
 """
 from __future__ import annotations
@@ -43,13 +47,14 @@ ARCHIVE = ROOT / "data" / "history" / "stooq_watchlist.zip"
 OUT_DIR = ROOT / "research" / "sim"
 STATE = OUT_DIR / "tqqq_ma200_state.json"
 LEDGER = OUT_DIR / "tqqq_ma200_ledger.jsonl"
-VERSION = "sim-tqqq-ma200-0.2"   # 0.2: take-profit re-arms only below 1.15 x average (2026-11-26)
+VERSION = "sim-tqqq-ma200-0.3"   # 0.2: take-profit re-arms below 1.15 x average; 0.3: four books (2026-11-26)
 START_CASH = 5000.0
 SIGNAL_FROM = "2026-11-24"   # Owner 2026-11-25: start from today, using yesterday's close
 COST = 0.0005
 STEP_PER_PCT = 0.08
 TAKE_PROFIT = 1.15
 REENTRY_ABOVE_TP = 1.10
+HYBRID_TQQQ = 0.5      # hybrid book: TQQQ weight below the average while the 530 signal is on (pre-registered 2026-11-26)
 
 
 def load_bars(archive: Path = ARCHIVE) -> tuple[dict, dict, dict, dict]:
@@ -101,8 +106,8 @@ def _book(st: dict, sym: str) -> dict:
     return st.setdefault("positions", {}).setdefault(sym, {"shares": 0, "cost": 0.0})
 
 
-def rebalance(st: dict, q: float, t: float, w_q: float, w_t: float, day: str = "", buy_only_qqq: bool = False
-              ) -> list[dict]:
+def rebalance(st: dict, q: float, t: float, w_q: float, w_t: float, day: str = "", buy_only_qqq: bool = False,
+              keep_tqqq: bool = False) -> list[dict]:
     """Owner 2026-11-25: trade like an IBKR account. Whole shares at the session open, sells first, then buys with
     the cash on hand, IBKR Pro Fixed commission per order; average cost and realized P/L kept per symbol.
     Returns the fills (empty when nothing changes)."""
@@ -110,6 +115,8 @@ def rebalance(st: dict, q: float, t: float, w_q: float, w_t: float, day: str = "
     key = {"QQQ": "qqq_sh", "TQQQ": "tqqq_sh"}
     v = value(st, q, t)
     want = {"QQQ": int(v * w_q // q) if w_q > 0 else 0, "TQQQ": int(v * w_t // t) if w_t > 0 else 0}
+    if keep_tqqq:
+        want["TQQQ"] = int(st["tqqq_sh"])     # same partial TQQQ target as yesterday: no daily drift trades
     if buy_only_qqq:
         want["QQQ"] = max(want["QQQ"], int(st["qqq_sh"]))
     fills = []
@@ -199,12 +206,35 @@ def signal(st: dict, q: float, s: float, qqq_weight_now: float, holds_tqqq: bool
     return f"below the 200-day average: QQQ {w:.0%} (deepest {st['worst_dev']:.1%}, buy only)", w, 0.0
 
 
-def run(qqq: dict, tqqq: dict, qopen: dict, topen: dict, state: dict | None, now: datetime, band: float = 0.0
-        ) -> tuple[dict, list[dict]]:
+def ema_series(closes: dict, span: int) -> dict:
+    """EMA of the close, pandas ewm(span, adjust=False) (the blogger's script), over the whole history."""
+    a, e, out = 2 / (span + 1), None, {}
+    for d in sorted(closes):
+        e = closes[d] if e is None else a * closes[d] + (1 - a) * e
+        out[d] = e
+    return out
+
+
+def ema530_step(st: dict, e5: dict, e30: dict, d: str, prev: str | None) -> bool:
+    """YIFAN 530 (Owner 2026-11-26): ON after EMA5 crosses above EMA30 of the TQQQ close, OFF after it crosses below.
+    Only crosses switch it (as in the blogger's script), so a book starts OFF until the first golden cross."""
+    if prev is not None and d in e5 and prev in e5:
+        if e5[prev] <= e30[prev] and e5[d] > e30[d]:
+            st["e530_on"] = True
+        elif e5[prev] >= e30[prev] and e5[d] < e30[d]:
+            st["e530_on"] = False
+    return bool(st.get("e530_on"))
+
+
+def run(qqq: dict, tqqq: dict, qopen: dict, topen: dict, state: dict | None, now: datetime, band: float = 0.0,
+        kind: str = "ma200") -> tuple[dict, list[dict]]:
     """Signal at each close, filled at the next session's open (Owner 2026-11-25). The first signal is the
     SIGNAL_FROM close; the account opens with 5,000 USD at the open of the session after it."""
     days = [d for d in sorted(qqq) if d >= SIGNAL_FROM and d in tqqq]
     rows = []
+    tdays = sorted(tqqq)
+    prev_of = dict(zip(tdays[1:], tdays[:-1]))
+    e5, e30 = (ema_series(tqqq, 5), ema_series(tqqq, 30)) if kind != "ma200" else ({}, {})
     if not days:
         return state or {}, rows
     st = state
@@ -229,16 +259,29 @@ def run(qqq: dict, tqqq: dict, qopen: dict, topen: dict, state: dict | None, now
                 fee = commission(int((START_CASH - 1.0) // qopen[d]), qopen[d])
                 st["bench_qqq_sh"] = int((START_CASH - fee) // qopen[d])
                 st["bench_cash"] = round(START_CASH - st["bench_qqq_sh"] * qopen[d] - fee, 2)
+                st["bench_px"] = round(qopen[d], 2)
             pw_q, pw_t = st["pending"]["w_q"], st["pending"]["w_t"]
             buy_only = pw_t == 0 and st["tqqq_sh"] == 0 and pw_q > 0   # below the average: never trim QQQ
-            fills = rebalance(st, qopen[d], topen[d], pw_q, pw_t, d, buy_only)
+            keep = (kind == "hybrid" and 0 < pw_t < 1 and st["tqqq_sh"] > 0 and st.get("last_w_t") == pw_t)
+            fills = rebalance(st, qopen[d], topen[d], pw_q, pw_t, d, buy_only, keep)
+            st["last_w_t"] = pw_t
             st["trades"] += len(fills)
             filled = st["pending"]
         else:
             filled = None
         q, t = qqq[d], tqqq[d]
         v = value(st, q, t)
-        reason, w_q, w_t = signal(st, q, s, (st["qqq_sh"] * q / v) if v else 0.0, st["tqqq_sh"] > 0, band)
+        if kind == "ema530":
+            on = ema530_step(st, e5, e30, d, prev_of.get(d))
+            reason, w_q, w_t = (("530: EMA5 above EMA30 after a golden cross: hold TQQQ", 0.0, 1.0) if on else
+                                ("530: after a death cross (or before the first golden cross): cash", 0.0, 0.0))
+        else:
+            reason, w_q, w_t = signal(st, q, s, (st["qqq_sh"] * q / v) if v else 0.0, st["tqqq_sh"] > 0, band)
+            if kind == "hybrid":
+                on = ema530_step(st, e5, e30, d, prev_of.get(d))
+                if st.get("mode") == "below" and on:
+                    reason, w_q, w_t = ("hybrid: below the 200-day average but the 530 signal is on: 50% TQQQ, 50% cash",
+                                        0.0, HYBRID_TQQQ)
         st["pending"] = {"signal_date": d, "w_q": w_q, "w_t": w_t, "reason": reason}
         st["last_day"] = d
         if st["started"] is None:
@@ -268,14 +311,19 @@ def summary(st: dict, rows_all: list[dict]) -> dict:
     rows_all = [r for r in rows_all if r.get("kind") != "first_signal"]
     if not rows_all:
         return {"status": "first signal recorded; the account opens at the next session's open"}
-    vals = [r["value"] for r in rows_all]
-    peak, mdd = vals[0], 0.0
-    for v in vals:
-        peak = max(peak, v); mdd = min(mdd, v / peak - 1)
+    def _mdd(vals):
+        peak, m = vals[0], 0.0
+        for v in vals:
+            peak = max(peak, v); m = min(m, v / peak - 1)
+        return m
+    mdd = _mdd([r["value"] for r in rows_all])
     last = rows_all[-1]
     return {"status": "running", "started": st["started"], "as_of": last["date"], "sessions": len(rows_all),
             "value": last["value"], "return": last["return"], "max_drawdown": round(mdd, 4),
             "benchmark_qqq_value": last["benchmark_qqq_value"], "benchmark_return": last["benchmark_return"],
+            "benchmark_max_drawdown": round(_mdd([r["benchmark_qqq_value"] for r in rows_all]), 4),
+            "benchmark_qqq_shares": st.get("bench_qqq_sh"), "benchmark_buy_price": st.get("bench_px"),
+            "benchmark_cash": st.get("bench_cash"),
             "holding_at_close": last["holding_at_close"], "positions": last.get("positions", []),
             "cash_usd": last.get("cash_usd"), "realized_pnl": last.get("realized_pnl", 0.0),
             "fills": (st.get("fills") or [])[-30:],
@@ -283,8 +331,14 @@ def summary(st: dict, rows_all: list[dict]) -> dict:
             "last_reason": last["reason"]}
 
 
-ACCOUNTS = {"original": 0.0, "band2": 0.02}   # forum rule, and the +/-2% band comparison (Owner 2026-11-25)
-LABEL_ZH = {"original": "原规则（跨过均线就换）", "band2": "加 2% 缓冲（高于均线 2% 才换 TQQQ，低于 2% 才卖）"}
+# Owner 2026-11-26: four 5,000 USD books from the same start (signal 2026-11-24 close, filled at the 11/25 open):
+# band2 (our MA200 rule v0.2 with the +/-2% band), ema530 (YIFAN's 530 rule), hybrid (band2 + the 530 signal below the
+# average, pre-registered here before any forward data) and the QQQ buy-and-hold benchmark. The "original" book
+# (no band) was retired the same day; its ledger rows stay as written.
+ACCOUNTS = {"band2": (0.02, "ma200"), "ema530": (0.0, "ema530"), "hybrid": (0.02, "hybrid")}
+RETIRED = {"original": "2026-11-26"}
+LABEL_ZH = {"band2": "均线策略（加 2% 缓冲）", "ema530": "530 策略（5/30 日均线交叉）",
+            "hybrid": "均线 + 530 组合"}
 PUBLIC = ROOT / "docs" / "research" / "sim_tqqq_ma200.json"
 
 
@@ -303,13 +357,20 @@ def public_card(doc: dict) -> dict:
     bench = next((a.get("summary") for a in (doc.get("accounts") or {}).values()
                   if (a.get("summary") or {}).get("benchmark_qqq_value") is not None), {}) or {}
     return {"version": VERSION, "generated_at": doc.get("generated_at"), "start_cash": START_CASH,
-            "accounts": acc, "benchmark": {"label_zh": "一直持有 QQQ", "value": bench.get("benchmark_qqq_value"),
-                                           "return": bench.get("benchmark_return")},
-            "rules_zh": ("QQQ 在 200 日均线之上持有 TQQQ（到均线 1.15 倍止盈，比止盈价再高 10% 买回）；"
+            "accounts": acc, "order": list(ACCOUNTS),
+            "benchmark": {"label_zh": "一直持有 QQQ", "value": bench.get("benchmark_qqq_value"),
+                          "return": bench.get("benchmark_return"), "max_drawdown": bench.get("benchmark_max_drawdown"),
+                          "qqq_shares": bench.get("benchmark_qqq_shares"), "buy_price": bench.get("benchmark_buy_price"),
+                          "cash_usd": bench.get("benchmark_cash"), "started": bench.get("started"),
+                          "as_of": bench.get("as_of")},
+            "rules_zh": ("【均线策略】QQQ 在 200 日均线之上持有 TQQQ（到均线 1.15 倍止盈，比止盈价再高 10% 买回）；"
                          "跌破均线后每跌满 1% 买 8% QQQ，只买不卖。收盘出信号，第二天开盘价成交，按整股买卖，"
                          "佣金按 IBKR Pro 固定费率（每股 0.005 美元，每笔最低 1 美元）。"
                          "2026-11-26 修订：止盈后买回的 TQQQ，要等 QQQ 回落到均线 1.15 倍以下、再涨上来，才允许再次止盈"
-                         "（避免买回第二天就卖）；这条是看过回测后定的，评估时单独标出。"),
+                         "（避免买回第二天就卖）；这条是看过回测后定的，评估时单独标出。缓冲：高于均线 2% 才换 TQQQ，低于 2% 才转防守。"
+                         "【530 策略】TQQQ 收盘价的 5 日线上穿 30 日线（金叉）第二天开盘满仓 TQQQ，下穿（死叉）第二天开盘全部卖出持有现金。"
+                         "【组合】与均线策略相同；只在跌破均线期间，530 金叉时用一半资金买 TQQQ（其余现金），死叉后回到按跌幅分批买 QQQ。"
+                         "【对比】开始那天开盘一次性买入 QQQ，一直持有。"),
             "paper_only": True, "orders_placed": False,
             "note_zh": "纸面模拟，不是买卖建议；不下单、不连券商，不影响系统任何提醒和阈值。"}
 
@@ -321,8 +382,11 @@ def main() -> int:
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     all_rows = [json.loads(x) for x in LEDGER.read_text(encoding="utf-8").splitlines()] if LEDGER.exists() else []
     accounts = {}
-    for name, band in ACCOUNTS.items():
-        st, rows = run(qqq, tqqq, qopen, topen, ((prev.get("accounts") or {}).get(name) or {}).get("book"), now, band)
+    for name, (band, kind) in ACCOUNTS.items():
+        st, rows = run(qqq, tqqq, qopen, topen, ((prev.get("accounts") or {}).get(name) or {}).get("book"), now, band,
+                       kind)
+        if st.get("started") and not st.get("bench_px") and st["started"] in qopen:
+            st["bench_px"] = round(qopen[st["started"]], 2)
         for r in rows:
             r["sim_book"] = name          # paper book name ("account" is reserved for real accounts by the canary)
             r["paper_only"] = True        # privacy scan: the owner-approved paper-sim exception keys on this flag
@@ -331,11 +395,17 @@ def main() -> int:
                 for r in rows:
                     f.write(json.dumps(r, ensure_ascii=False) + "\n")
         all_rows += rows
-        accounts[name] = {"band": band, "book": st,
+        accounts[name] = {"band": band, "kind": kind, "book": st,
                           "summary": summary(st, [r for r in all_rows if r.get("sim_book", "original") == name])}
+    retired = dict(prev.get("retired_accounts") or {})
+    for name, day in RETIRED.items():
+        old = (prev.get("accounts") or {}).get(name)
+        if old and name not in retired:
+            retired[name] = {"retired_on": day, "last_summary": old.get("summary")}
     doc = {"version": VERSION, "generated_at": now.isoformat(timespec="seconds"), "accounts": accounts,
+           "retired_accounts": retired,
            "paper_only": True, "orders_placed": False,
-           "policy_zh": "网友均线 + TQQQ 策略的纸面模拟（5,000 美元，两种换仓规则），不下单、不连券商，不影响系统任何提醒和阈值。"}
+           "policy_zh": "四个 5,000 美元纸面账户（均线策略加 2% 缓冲、530 策略、两者组合、一直持有 QQQ），同一天开始，不下单、不连券商，不影响系统任何提醒和阈值。"}
     STATE.write_text(json.dumps(doc, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
     PUBLIC.parent.mkdir(parents=True, exist_ok=True)
     PUBLIC.write_text(json.dumps(public_card(doc), ensure_ascii=False, indent=1) + "\n", encoding="utf-8")

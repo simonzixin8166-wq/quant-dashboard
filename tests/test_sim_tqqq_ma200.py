@@ -103,6 +103,44 @@ assert tgt(rb, 4) == 1.0 and tgt(rb, 5) == 1.0          # +3% -> band switches, 
 assert tgt(rb, 6) == 0.0                                # -2.5% -> band sells
 print("PASS sim band2: switches only 2% beyond the average, keeps its side inside the band")
 
+# 530 book: all-in TQQQ the open after EMA5 crosses above EMA30 of the TQQQ close, all cash after it crosses below;
+# a book starts in cash until the first golden cross (the blogger's script acts only on crosses)
+t5 = {d: 50.0 for d in days[:220]}
+up = [50, 52, 55, 58, 60, 62, 61, 60, 57, 54, 52, 50, 49, 48, 50, 53, 56, 59]
+for k, p in enumerate(up):
+    t5[days[220 + k]] = float(p)
+q5 = {d: 100.0 for d in t5}
+sim.SIGNAL_FROM = days[219]
+st5, r5 = sim.run(q5, t5, dict(q5), dict(t5), None, NOW, 0.0, "ema530")
+e5s, e30s = sim.ema_series(t5, 5), sim.ema_series(t5, 30)
+gold = next(d for a, d in zip(days[219:], days[220:]) if e5s[a] <= e30s[a] and e5s[d] > e30s[d])
+dead = next(d for a, d in zip(days[219:], days[220:]) if d > gold and e5s[a] >= e30s[a] and e5s[d] < e30s[d])
+f5 = st5["fills"]
+nxt = lambda d: days[days.index(d) + 1]  # noqa: E731
+assert f5[0]["side"] == "BUY" and f5[0]["symbol"] == "TQQQ" and f5[0]["date"] == nxt(gold)
+assert f5[1]["side"] == "SELL" and f5[1]["date"] == nxt(dead) and all(x["symbol"] == "TQQQ" for x in f5)
+print("PASS sim 530: golden cross -> all TQQQ at the next open, death cross -> all cash at the next open, TQQQ only")
+
+# hybrid book: band2 above the average; below it, 50% TQQQ while the 530 signal is on, the QQQ ladder otherwise
+q6 = {d: 100.0 for d in days[:220]}
+t6 = {d: 50.0 for d in days[:220]}
+path6 = [100 - 0.5 * k for k in range(1, 25)] + [88 + 0.8 * k for k in range(1, 11)] + [95, 93, 91, 89, 87, 85]
+prev6 = 100.0                       # slow slide, a rally that stays under the average, then a fall; TQQQ moves 3x
+for k, p in enumerate(path6):
+    q6[days[220 + k]] = float(p)
+    t6[days[220 + k]] = t6[days[219 + k]] * (1 + 3 * (p / prev6 - 1)); prev6 = p
+sim.SIGNAL_FROM = days[220]
+st6, r6 = sim.run(q6, t6, dict(q6), dict(t6), None, NOW, 0.02, "hybrid")
+_, rb6 = sim.run(q6, t6, dict(q6), dict(t6), None, NOW, 0.02)
+on_rows = [x for x in r6 if x["reason"].startswith("hybrid:")]
+assert on_rows and all(x["next_open_target"] == {"qqq": 0.0, "tqqq": 0.5} for x in on_rows)
+assert not any(x["reason"].startswith("hybrid:") for x in rb6)                        # band2 never does this
+tq_buys = [x for x in st6["fills"] if x["symbol"] == "TQQQ" and x["side"] == "BUY"]
+assert len(tq_buys) == 1                                                              # no daily drift top-ups at 50%
+after = [x for x in r6 if x["date"] > on_rows[-1]["date"]]
+assert after and after[0]["next_open_target"]["tqqq"] == 0.0 and after[0]["next_open_target"]["qqq"] > 0
+print("PASS sim hybrid: below the average 50% TQQQ only while 530 is on (one buy, no drift trades), then back to the QQQ ladder")
+
 with tempfile.TemporaryDirectory() as tmp:
     tmp = Path(tmp)
     zp = tmp / "a.zip"
@@ -120,12 +158,13 @@ with tempfile.TemporaryDirectory() as tmp:
     sim.SIGNAL_FROM = days[222]
     assert sim.main() == 0 and sim.main() == 0
     doc = json.loads(sim.STATE.read_text())
-    assert doc["paper_only"] is True and doc["orders_placed"] is False and set(doc["accounts"]) == {"original", "band2"}
-    assert len(sim.LEDGER.read_text().splitlines()) == 4                                  # 2 rows x 2 accounts, once
+    assert doc["paper_only"] is True and doc["orders_placed"] is False and set(doc["accounts"]) == {"band2", "ema530", "hybrid"}
+    assert len(sim.LEDGER.read_text().splitlines()) == 6                                  # 2 rows x 3 books, once
     assert all(a["summary"]["status"] == "running" for a in doc["accounts"].values())
     card = json.loads(sim.PUBLIC.read_text())
     assert card["paper_only"] and card["orders_placed"] is False and card["benchmark"]["value"] is not None
-    assert set(card["accounts"]) == {"original", "band2"}
+    assert set(card["accounts"]) == {"band2", "ema530", "hybrid"} and card["order"] == ["band2", "ema530", "hybrid"]
+    assert card["benchmark"]["qqq_shares"] == int((5000 - 1.0) // 93.0) and card["benchmark"]["buy_price"] == 93.0
     import privacy_canary_scan as pcs
     # owner-approved exception (2026-11-26): only the three paper-sim files, only with paper_only=true, only the
     # position_field KEY rule; elsewhere (or without the flag) the same keys still fail, and other rules still apply

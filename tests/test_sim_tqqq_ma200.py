@@ -35,16 +35,26 @@ r = lambda k: by[days[k]]  # noqa: E731
 w = lambda k: r(k)["holding_at_close"]["qqq_usd"] / r(k)["value"]  # noqa: E731
 assert r(220)["kind"] == "first_signal" and r(220)["next_open_target"] == {"qqq": 0.0, "tqqq": 1.0}   # 101 > avg
 assert st["started"] == days[221] and r(221)["filled_at_open"]["signal_date"] == days[220]          # next open
-assert r(221)["filled_at_open"]["trade"]["tqqq_usd"] > 4990                                           # TQQQ bought at open
-assert r(222)["filled_at_open"]["trade"]["tqqq_usd"] < 0 and abs(w(222) - 0.08) < 0.01               # 99 close -> 8% next open
+f221 = r(221)["filled_at_open"]["fills"]
+assert len(f221) == 1 and f221[0]["side"] == "BUY" and f221[0]["symbol"] == "TQQQ" and f221[0]["price"] == round(to[days[221]], 2)
+assert f221[0]["shares"] * f221[0]["price"] + f221[0]["commission"] <= 5000 and f221[0]["commission"] == 1.0   # whole shares
+f222 = r(222)["filled_at_open"]["fills"]
+assert [x["side"] for x in f222][0] == "SELL" and f222[0]["symbol"] == "TQQQ" and "realized_pnl" in f222[0]    # sell first
+assert abs(w(222) - 0.08) < 0.03                                                                      # 99 close -> 8% next open
 assert abs(w(223) - 0.24) < 0.02                                                                      # 96 -> 24%
-assert abs(w(226) - 0.88) < 0.03                                                                      # 88 (day 225) -> 88% at 226 open
-assert r(227)["filled_at_open"]["trade"] is None or r(227)["filled_at_open"]["trade"]["qqq_usd"] >= 0  # bounce: buy only
+assert abs(w(226) - 0.88) < 0.04                                                                      # 88 (day 225) -> 88% at 226 open
+assert all(x["side"] == "BUY" for x in r(227)["filled_at_open"]["fills"])                             # bounce: buy only
 assert r(228)["holding_at_close"]["tqqq_usd"] > 0 and r(228)["holding_at_close"]["qqq_usd"] == 0      # 101 (227) -> TQQQ
 assert r(229)["reason"].startswith("take profit") and r(230)["holding_at_close"]["tqqq_usd"] == 0      # 120 -> cash next open
 assert r(231)["holding_at_close"]["tqqq_usd"] == 0 and r(232)["reason"].startswith("re-enter")          # 133 > 1.10 x 120
 assert r(233)["holding_at_close"]["tqqq_usd"] > 0 and r(235)["holding_at_close"]["tqqq_usd"] == 0      # 99 (234) -> out
-assert rows[-1]["benchmark_qqq_value"] == round(5000 * (1 - sim.COST) / qo[days[221]] * 98, 2)       # bought at 11/25 open
+bsh = int((5000 - 1.0) // qo[days[221]])
+assert rows[-1]["benchmark_qqq_value"] == round(bsh * 98 + (5000 - bsh * qo[days[221]] - 1.0), 2)  # whole shares at the open
+assert all(set(x) >= {"date", "side", "symbol", "shares", "price", "amount", "commission"} for x in st["fills"])
+assert all(isinstance(x["shares"], int) and x["shares"] > 0 for x in st["fills"])
+pos = rows[-1]["positions"]; assert all(set(p) >= {"symbol", "shares", "avg_cost", "price", "market_value", "unrealized_pnl"} for p in pos)
+assert sim.commission(6, 617.09) == 1.0 and sim.commission(400, 45.0) == 2.0 and sim.commission(1, 50.0) == 0.5   # IBKR fixed
+print("PASS sim IBKR-style: whole shares at the open, sells first, IBKR fixed commission, fill log, avg cost, realized P/L")
 print("PASS sim rules: signal at close, filled at the next open; TQQQ above, buy-only QQQ ratchet below, 1.15 take-profit, +10% re-entry")
 
 # real-world opening: first signal = deepest close since the cross; one row per session (idempotent)
@@ -55,7 +65,8 @@ o2 = dict(q2); o2[days[223]] = 93.0
 sim.SIGNAL_FROM = days[222]
 st2, rows2 = sim.run(q2, t2, o2, dict(t2), None, NOW)
 assert rows2[0]["kind"] == "first_signal" and rows2[0]["next_open_target"]["qqq"] == 0.8               # deepest -10.9%
-assert st2["started"] == days[223] and abs(rows2[1]["holding_at_close"]["qqq_usd"] - 4000 * 95 / 93 * (1 - sim.COST)) < 2
+assert st2["started"] == days[223] and rows2[1]["positions"][0]["shares"] == 43                       # floor(4000/93)
+assert rows2[1]["positions"][0]["avg_cost"] == round((43 * 93 + 1.0) / 43, 2)
 st3, rows3 = sim.run(q2, t2, o2, dict(t2), st2, NOW)
 assert rows3 == [] and st3["last_day"] == days[223]
 print("PASS sim start: first signal from the deepest close since the cross, 5,000 USD invested at the next open")
@@ -99,8 +110,21 @@ with tempfile.TemporaryDirectory() as tmp:
     card = json.loads(sim.PUBLIC.read_text())
     assert card["paper_only"] and card["orders_placed"] is False and card["benchmark"]["value"] is not None
     assert set(card["accounts"]) == {"original", "band2"}
-    import privacy_canary_scan as pcs                                                     # paper books never trip the canary
-    assert pcs.scan_paths([sim.OUT_DIR, sim.PUBLIC], pcs.load_allowlist()) == []
+    import privacy_canary_scan as pcs
+    # owner-approved exception (2026-11-26): only the three paper-sim files, only with paper_only=true, only the
+    # position_field KEY rule; elsewhere (or without the flag) the same keys still fail, and other rules still apply
+    allow = pcs.load_allowlist()
+    names = {"l.jsonl": "research/sim/tqqq_ma200_ledger.jsonl", "s.json": "research/sim/tqqq_ma200_state.json"}
+    for f in sim.OUT_DIR.iterdir():
+        out = []; pcs.scan_text(f.read_text(), names[f.name], f.suffix, allow, out); assert out == [], out
+    out = []; pcs.scan_text(sim.PUBLIC.read_text(), "docs/research/sim_tqqq_ma200.json", ".json", allow, out); assert out == []
+    out = []; pcs.scan_text(sim.PUBLIC.read_text(), "docs/research/other.json", ".json", allow, out)
+    assert out and all(h["category"] == "position_field" for h in out)                # same content, other file: blocked
+    unflagged = json.loads(sim.PUBLIC.read_text()); unflagged.pop("paper_only")
+    out = []; pcs.scan_text(json.dumps(unflagged), "docs/research/sim_tqqq_ma200.json", ".json", allow, out); assert out
+    leak = json.loads(sim.PUBLIC.read_text()); leak["note_zh"] = "联系 someone@realmail.net"
+    out = []; pcs.scan_text(json.dumps(leak), "docs/research/sim_tqqq_ma200.json", ".json", allow, out)
+    assert [h["category"] for h in out] == ["email"]                                    # other rules still apply
 src = (ROOT / "scripts" / "sim_tqqq_ma200.py").read_text(encoding="utf-8")
 assert "requests" not in src and "import ib" not in src and "schwab" not in src.lower()
 assert str(sim.LEDGER).find("/docs/") == -1                                              # the ledger stays back end

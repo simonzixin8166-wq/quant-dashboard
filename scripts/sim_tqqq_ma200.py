@@ -33,10 +33,12 @@ Data: data/history/stooq_watchlist.zip (qqq_us_d.csv, tqqq_us_d.csv), refreshed 
 """
 from __future__ import annotations
 
+import copy
 import csv
 import io
 import json
 import math
+import os
 import sys
 import zipfile
 from datetime import datetime, timezone
@@ -375,6 +377,49 @@ def public_card(doc: dict) -> dict:
             "note_zh": "纸面模拟，不是买卖建议；不下单、不连券商，不影响系统任何提醒和阈值。"}
 
 
+def planned_orders(st: dict, kind: str, q_close: float, t_close: float) -> list[dict]:
+    """What the next open would trade for this book, estimated at the latest close (same rebalance code, on a copy)."""
+    pend = st.get("pending") or {}
+    if not pend or not st.get("started"):
+        return []
+    tmp = copy.deepcopy(st)
+    pw_q, pw_t = pend["w_q"], pend["w_t"]
+    buy_only = pw_t == 0 and tmp["tqqq_sh"] == 0 and pw_q > 0
+    keep = (kind == "hybrid" and 0 < pw_t < 1 and tmp["tqqq_sh"] > 0 and tmp.get("last_w_t") == pw_t)
+    return rebalance(tmp, q_close, t_close, pw_q, pw_t, "", buy_only, keep)
+
+
+TARGET_ZH = lambda w_q, w_t: ("TQQQ %d%%" % round(w_t * 100) + ("，其余现金" if w_t < 1 else "") if w_t > 0 else  # noqa: E731
+                              "QQQ %d%%，其余现金" % round(w_q * 100) if w_q > 0 else "全部现金")
+
+
+def rehearsal_text(signal_day: str, plans: dict) -> str | None:
+    """Owner 2026-11-26: on a signal day, a Telegram rehearsal note: what each paper book does at the next open.
+    No reply is needed; the paper books execute by rule either way."""
+    lines = []
+    for name, (orders, pend) in plans.items():
+        if not orders:
+            continue
+        acts = "；".join(("买入" if o["side"] == "BUY" else "卖出") + f" {o['symbol']} 约 {o['shares']} 股" for o in orders)
+        lines.append(f"· {LABEL_ZH.get(name, name)}：{acts}（目标：{TARGET_ZH(pend['w_q'], pend['w_t'])}）")
+    if not lines:
+        return None
+    return ("MyAlpha｜策略模拟演练提醒（纸面，不是真实下单）\n"
+            f"{signal_day} 收盘出信号，下一个交易日开盘按开盘价成交：\n" + "\n".join(lines) + "\n"
+            "股数按信号日收盘价估算，实际以开盘价为准。不需要回复，模拟账户会按规则自动记账。"
+            "如果是真钱，你会在开盘前挂开盘单照做吗？")
+
+
+def notify(text: str) -> str:
+    if os.getenv("SIM_REHEARSAL_ALERTS_ENABLED", "1").strip().lower() in {"0", "false", "no", "off"}:
+        return "disabled"
+    try:
+        from daily_guardian import send_telegram
+        return send_telegram(text)
+    except Exception as exc:  # noqa: BLE001
+        return f"failed:{type(exc).__name__}"
+
+
 def main() -> int:
     qqq, tqqq, qopen, topen = load_bars()
     prev = json.loads(STATE.read_text(encoding="utf-8")) if STATE.exists() else {}
@@ -397,13 +442,22 @@ def main() -> int:
         all_rows += rows
         accounts[name] = {"band": band, "kind": kind, "book": st,
                           "summary": summary(st, [r for r in all_rows if r.get("sim_book", "original") == name])}
+    # Owner 2026-11-26: rehearsal reminder, once per signal day, only when some book trades at the next open
+    rehearsal = dict(prev.get("rehearsal") or {})
+    last_day = max((a["book"].get("last_day") or "" for a in accounts.values()), default="")
+    if last_day and last_day > (rehearsal.get("signal_day") or "") and last_day in qqq and last_day in tqqq:
+        plans = {n: (planned_orders(a["book"], a["kind"], qqq[last_day], tqqq[last_day]), a["book"].get("pending") or {})
+                 for n, a in accounts.items()}
+        text = rehearsal_text(last_day, plans)
+        rehearsal = {"signal_day": last_day, "status": notify(text) if text else "no_orders",
+                     "orders": {n: len(p[0]) for n, p in plans.items()}}
     retired = dict(prev.get("retired_accounts") or {})
     for name, day in RETIRED.items():
         old = (prev.get("accounts") or {}).get(name)
         if old and name not in retired:
             retired[name] = {"retired_on": day, "last_summary": old.get("summary")}
     doc = {"version": VERSION, "generated_at": now.isoformat(timespec="seconds"), "accounts": accounts,
-           "retired_accounts": retired,
+           "retired_accounts": retired, "rehearsal": rehearsal,
            "paper_only": True, "orders_placed": False,
            "policy_zh": "四个 5,000 美元纸面账户（均线策略加 2% 缓冲、530 策略、两者组合、一直持有 QQQ），同一天开始，不下单、不连券商，不影响系统任何提醒和阈值。"}
     STATE.write_text(json.dumps(doc, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")

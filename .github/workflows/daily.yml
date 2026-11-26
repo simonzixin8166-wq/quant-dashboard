@@ -361,11 +361,15 @@ jobs:
         if: steps.drawdown_regime.outcome == 'failure'
         run: python scripts/module_failure_marker.py drawdown_regime
 
-      # Owner 2026-11-25: paper simulation (5,000 USD) of a forum member's QQQ/TQQQ 200-day strategy vs holding QQQ.
-      # Back end only: no order, no broker, not on the site, never a decision input or alert.
-      - name: Paper simulation, forum QQQ/TQQQ 200-day strategy (back end only)
+      # Owner 2026-11-25/26: paper simulation, four 5,000 USD books (MA200 2% band, 530, combined, QQQ hold).
+      # No order, no broker, never a decision input. On a signal day it sends one Telegram rehearsal note
+      # (Owner 2026-11-26) saying what each paper book does at the next open.
+      - name: Paper simulation, four strategy books (no orders)
         id: sim_tqqq_ma200
         continue-on-error: true
+        env:
+          MYALPHA_TG_BOT_TOKEN: ${{ secrets.MYALPHA_TG_BOT_TOKEN }}
+          MYALPHA_TG_CHAT_ID: ${{ secrets.MYALPHA_TG_CHAT_ID }}
         run: python scripts/sim_tqqq_ma200.py
 
       - name: Record sim_tqqq_ma200 failure (visible in system status)

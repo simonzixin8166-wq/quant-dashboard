@@ -156,11 +156,14 @@ with tempfile.TemporaryDirectory() as tmp:
     sim.load_bars = lambda archive=zp: orig(zp)
     sim.PUBLIC = tmp / "docs" / "sim_tqqq_ma200.json"
     sim.SIGNAL_FROM = days[222]
+    sent = []
+    sim.notify = lambda text: (sent.append(text), "sent")[1]
     assert sim.main() == 0 and sim.main() == 0
     doc = json.loads(sim.STATE.read_text())
     assert doc["paper_only"] is True and doc["orders_placed"] is False and set(doc["accounts"]) == {"band2", "ema530", "hybrid"}
     assert len(sim.LEDGER.read_text().splitlines()) == 6                                  # 2 rows x 3 books, once
     assert all(a["summary"]["status"] == "running" for a in doc["accounts"].values())
+    assert doc["rehearsal"]["signal_day"] == days[223] and len(sent) <= 1               # once per signal day
     card = json.loads(sim.PUBLIC.read_text())
     assert card["paper_only"] and card["orders_placed"] is False and card["benchmark"]["value"] is not None
     assert set(card["accounts"]) == {"band2", "ema530", "hybrid"} and card["order"] == ["band2", "ema530", "hybrid"]
@@ -180,8 +183,20 @@ with tempfile.TemporaryDirectory() as tmp:
     leak = json.loads(sim.PUBLIC.read_text()); leak["note_zh"] = "联系 someone@realmail.net"
     out = []; pcs.scan_text(json.dumps(leak), "docs/research/sim_tqqq_ma200.json", ".json", allow, out)
     assert [h["category"] for h in out] == ["email"]                                    # other rules still apply
+# rehearsal reminder (Owner 2026-11-26): plain Chinese, only books that trade, estimate at the signal close
+txt = sim.rehearsal_text("2026-11-27", {"band2": ([{"side": "BUY", "symbol": "QQQ", "shares": 1}], {"w_q": 0.88, "w_t": 0}),
+                                         "ema530": ([], {"w_q": 0, "w_t": 0}),
+                                         "hybrid": ([{"side": "SELL", "symbol": "QQQ", "shares": 7},
+                                                     {"side": "BUY", "symbol": "TQQQ", "shares": 50}], {"w_q": 0, "w_t": 0.5})})
+assert "纸面" in txt and "买入 QQQ 约 1 股" in txt and "QQQ 88%，其余现金" in txt and "TQQQ 50%，其余现金" in txt
+assert "530 策略" not in txt and "不需要回复" in txt
+assert sim.rehearsal_text("2026-11-27", {"band2": ([], {"w_q": 0.8, "w_t": 0})}) is None
+st_p = {"started": "x", "pending": {"w_q": 0.0, "w_t": 1.0}, "cash": 5000.0, "qqq_sh": 0, "tqqq_sh": 0, "positions": {}, "fills": []}
+po = sim.planned_orders(st_p, "ma200", 100.0, 50.0)
+assert po and po[0]["side"] == "BUY" and po[0]["symbol"] == "TQQQ" and st_p["tqqq_sh"] == 0 and st_p["fills"] == []  # on a copy
+print("PASS sim rehearsal: Telegram note lists only books that trade at the next open, estimated, once per signal day")
 src = (ROOT / "scripts" / "sim_tqqq_ma200.py").read_text(encoding="utf-8")
-assert "requests" not in src and "import ib" not in src and "schwab" not in src.lower()
+assert "requests" not in src and "import ib" not in src and "schwab" not in src.lower() and "placeOrder" not in src
 assert str(sim.LEDGER).find("/docs/") == -1                                              # the ledger stays back end
 daily = (ROOT / ".github" / "workflows" / "daily.yml").read_text(encoding="utf-8")
 assert "python scripts/sim_tqqq_ma200.py" in daily and "git add research/sim/" in daily

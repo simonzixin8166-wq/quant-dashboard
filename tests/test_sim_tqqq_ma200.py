@@ -54,6 +54,22 @@ assert all(set(x) >= {"date", "side", "symbol", "shares", "price", "amount", "co
 assert all(isinstance(x["shares"], int) and x["shares"] > 0 for x in st["fills"])
 pos = rows[-1]["positions"]; assert all(set(p) >= {"symbol", "shares", "avg_cost", "price", "market_value", "unrealized_pnl"} for p in pos)
 assert sim.commission(6, 617.09) == 1.0 and sim.commission(400, 45.0) == 2.0 and sim.commission(1, 50.0) == 0.5   # IBKR fixed
+assert not r(233)["reason"].startswith("take profit")                                              # 134 right after the
+#   buy-back is still >= 1.15 x average, but the take-profit stays disarmed (Owner 2026-11-26)
+
+# take-profit re-arms only after QQQ closes back under 1.15 x average
+q4 = {d: 100.0 for d in days[:220]}
+seq4 = [101, 116, 128, 130, 110, 120]   # TQQQ; TP at 116; buy back at 128 (>1.1x116); 130 hold; 110 re-arm; 120 TP again
+for k, p in enumerate(seq4):
+    q4[days[220 + k]] = p
+t4 = {d: 50.0 for d in q4}
+sim.SIGNAL_FROM = days[220]
+_, r4 = sim.run(q4, t4, dict(q4), dict(t4), None, NOW)
+why = lambda k: next(x for x in r4 if x["date"] == days[220 + k])["reason"]  # noqa: E731
+assert why(1).startswith("take profit") and why(2).startswith("re-enter")
+assert why(3).startswith("above") and why(4).startswith("above") and why(5).startswith("take profit")
+print("PASS sim take-profit re-arm: no sell the day after a buy-back; armed again once under 1.15 x average")
+sim.SIGNAL_FROM = days[220]
 print("PASS sim IBKR-style: whole shares at the open, sells first, IBKR fixed commission, fill log, avg cost, realized P/L")
 print("PASS sim rules: signal at close, filled at the next open; TQQQ above, buy-only QQQ ratchet below, 1.15 take-profit, +10% re-entry")
 

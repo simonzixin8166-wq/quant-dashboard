@@ -9,6 +9,8 @@ Rules (forum post bbs.wenxuecity.com/tzlc/2414333, 2026-11-24; ambiguous parts f
   QQQ close >= its 200-day simple average ("above"):
     hold 100% TQQQ; take profit (all to cash) when QQQ close >= 1.15 x average; after a take-profit, buy TQQQ back
     without waiting for the next cycle once QQQ closes 10% above its take-profit close ("10%过前高再买").
+    Revision 2026-11-26 (Owner): after such a buy-back the take-profit is disarmed until QQQ closes below
+    1.15 x average again, so a buy-back is not sold at the very next close (5 of 11 buy-backs since 2010 were).
   QQQ close < average ("below"):
     no TQQQ; QQQ weight = 8% per full 1% below the average, measured at the deepest close since the cross,
     buy only, never sell, capped at 100%.
@@ -41,7 +43,7 @@ ARCHIVE = ROOT / "data" / "history" / "stooq_watchlist.zip"
 OUT_DIR = ROOT / "research" / "sim"
 STATE = OUT_DIR / "tqqq_ma200_state.json"
 LEDGER = OUT_DIR / "tqqq_ma200_ledger.jsonl"
-VERSION = "sim-tqqq-ma200-0.1"
+VERSION = "sim-tqqq-ma200-0.2"   # 0.2: take-profit re-arms only below 1.15 x average (2026-11-26)
 START_CASH = 5000.0
 SIGNAL_FROM = "2026-11-24"   # Owner 2026-11-25: start from today, using yesterday's close
 COST = 0.0005
@@ -166,6 +168,8 @@ def signal(st: dict, q: float, s: float, qqq_weight_now: float, holds_tqqq: bool
     band = 0 is the forum rule (cross the average); band = 0.02 is the comparison account: above only once QQQ is
     2% over the average, below only once it is 2% under it (Owner 2026-11-25, fewer whipsaws)."""
     dev = q / s - 1
+    if q < TAKE_PROFIT * s:
+        st["tp_armed"] = True              # Owner 2026-11-26: re-arm only after QQQ is back under 1.15 x average
     st["prior_high"] = max(st.get("prior_high") or 0.0, q)
     mode = st.get("mode")
     if mode != "above" and dev >= band:
@@ -180,9 +184,10 @@ def signal(st: dict, q: float, s: float, qqq_weight_now: float, holds_tqqq: bool
         if st.get("tp_done"):
             if q > REENTRY_ABOVE_TP * st["tp_high"]:
                 st["tp_done"] = False
+                st["tp_armed"] = False
                 return "re-enter TQQQ: QQQ 10% above its take-profit close", 0.0, 1.0
             return "after take-profit: wait in cash until QQQ is 10% above the take-profit close", 0.0, 0.0
-        if q >= TAKE_PROFIT * s and holds_tqqq:
+        if q >= TAKE_PROFIT * s and holds_tqqq and st.get("tp_armed", True):
             st.update(tp_done=True, tp_high=q)
             return "take profit: QQQ >= 1.15 x 200-day average", 0.0, 0.0
         return "above the 200-day average" + (f" (+{band:.0%} band)" if band else "") + ": hold TQQQ", 0.0, 1.0
@@ -302,7 +307,9 @@ def public_card(doc: dict) -> dict:
                                            "return": bench.get("benchmark_return")},
             "rules_zh": ("QQQ 在 200 日均线之上持有 TQQQ（到均线 1.15 倍止盈，比止盈价再高 10% 买回）；"
                          "跌破均线后每跌满 1% 买 8% QQQ，只买不卖。收盘出信号，第二天开盘价成交，按整股买卖，"
-                         "佣金按 IBKR Pro 固定费率（每股 0.005 美元，每笔最低 1 美元）。"),
+                         "佣金按 IBKR Pro 固定费率（每股 0.005 美元，每笔最低 1 美元）。"
+                         "2026-11-26 修订：止盈后买回的 TQQQ，要等 QQQ 回落到均线 1.15 倍以下、再涨上来，才允许再次止盈"
+                         "（避免买回第二天就卖）；这条是看过回测后定的，评估时单独标出。"),
             "paper_only": True, "orders_placed": False,
             "note_zh": "纸面模拟，不是买卖建议；不下单、不连券商，不影响系统任何提醒和阈值。"}
 

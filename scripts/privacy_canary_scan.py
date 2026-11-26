@@ -129,10 +129,32 @@ def walk(x, path: str, file: str, allow: set, out: list) -> None:
         scan_string(x, f"{file}::{path or '$'}", allow, out)
 
 
+# Owner-approved exception (2026-11-26): the 5,000 USD PAPER simulation of a forum strategy keeps IBKR-style fields
+# (shares, avg_cost, market_value, P/L). Only these exact files, and only a JSON document / JSONL line whose top level
+# says "paper_only": true, skip the position_field KEY rule. Every other rule (email, tokens, private ledger, Supabase,
+# holding phrases in text) still applies to them, and real positions never carry the flag.
+PAPER_SIM_FILES = ("research/sim/tqqq_ma200_state.json", "research/sim/tqqq_ma200_ledger.jsonl",
+                   "docs/research/sim_tqqq_ma200.json")
+
+
+def _paper_sim(name: str, doc) -> bool:
+    n = str(name).replace("\\", "/")
+    return isinstance(doc, dict) and doc.get("paper_only") is True and any(n.endswith(f) for f in PAPER_SIM_FILES)
+
+
+def _walk_doc(doc, path: str, name: str, allow, out: list) -> None:
+    if not _paper_sim(name, doc):
+        walk(doc, path, name, allow, out)
+        return
+    hits: list = []
+    walk(doc, path, name, allow, hits)
+    out.extend(h for h in hits if h.get("category") != "position_field")
+
+
 def scan_text(txt: str, name: str, suffix: str, allow, out: list) -> None:
     if suffix == ".json":
         try:
-            walk(json.loads(txt), "", name, allow, out)
+            _walk_doc(json.loads(txt), "", name, allow, out)
             return
         except ValueError:
             pass  # not valid JSON: scanned line by line below
@@ -141,7 +163,7 @@ def scan_text(txt: str, name: str, suffix: str, allow, out: list) -> None:
             if not line.strip():
                 continue
             try:
-                walk(json.loads(line), f"[line {i}]", name, allow, out)
+                _walk_doc(json.loads(line), f"[line {i}]", name, allow, out)
             except ValueError:
                 scan_string(line, f"{name}:{i}", allow, out)
         return

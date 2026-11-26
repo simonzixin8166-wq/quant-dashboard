@@ -37,15 +37,29 @@
       '<button type="button" class="sim-toggle" aria-expanded="false">详情</button></div>';
   }
 
+  function money(v) { return v == null ? '-' : '$' + Number(v).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+  var SIDE = { BUY: '买入', SELL: '卖出' };
+
+  function bookHtml(a) {
+    var pos = (a.positions || []).map(function (p) {
+      return '<tr><td>' + esc(p.symbol) + '</td><td>' + esc(p.shares) + '</td><td>' + money(p.avg_cost) + '</td><td>' + money(p.price) +
+        '</td><td>' + money(p.market_value) + '</td><td class="' + tone(p.unrealized_pnl) + '">' + money(p.unrealized_pnl) + ' (' + pct(p.unrealized_pct) + ')</td></tr>';
+    }).join('') || '<tr><td colspan="6" class="sim-muted">无持仓</td></tr>';
+    var fills = (a.fills || []).slice().reverse().map(function (f) {
+      return '<tr><td>' + esc(f.date) + '</td><td>' + esc(SIDE[f.side] || f.side) + '</td><td>' + esc(f.symbol) + '</td><td>' + esc(f.shares) +
+        '</td><td>' + money(f.price) + '</td><td>' + money(f.amount) + '</td><td>' + money(f.commission) + '</td><td>' +
+        (f.realized_pnl == null ? '-' : '<span class="' + tone(f.realized_pnl) + '">' + money(f.realized_pnl) + '</span>') + '</td></tr>';
+    }).join('') || '<tr><td colspan="8" class="sim-muted">暂无成交</td></tr>';
+    return '<h4>' + esc(a.label_zh) + '　市值 ' + money(a.value) + '　现金 ' + money(a.cash_usd) + '　已实现盈亏 ' + money(a.realized_pnl) +
+      '　最深回撤 ' + pct(a.max_drawdown) + '　下个开盘目标：' + esc(target(a.next_open_target)) + '</h4>' +
+      '<div class="sim-table"><table><thead><tr><th>标的</th><th>股数</th><th>平均成本</th><th>收盘价</th><th>市值</th><th>未实现盈亏</th></tr></thead><tbody>' + pos + '</tbody></table></div>' +
+      '<div class="sim-table"><table><thead><tr><th>成交日期</th><th>方向</th><th>标的</th><th>股数</th><th>成交价（开盘）</th><th>成交金额</th><th>佣金</th><th>已实现盈亏</th></tr></thead><tbody>' + fills + '</tbody></table></div>';
+  }
+
   function detailHtml(d) {
     if (!d || !d.accounts) return '';
-    var rows = ['original', 'band2'].map(function (k) {
-      var a = d.accounts[k] || {};
-      return '<tr><td>' + esc(a.label_zh) + '</td><td>' + holding(a.holding_at_close) + '</td><td>' + pct(a.max_drawdown) +
-        '</td><td>' + esc(a.trades == null ? '-' : a.trades) + '</td><td>' + esc(target(a.next_open_target)) + '</td></tr>';
-    }).join('');
-    return '<div class="sim-table"><table><thead><tr><th>账户</th><th>收盘持仓</th><th>最深回撤</th><th>交易次数</th><th>下个开盘目标</th></tr></thead><tbody>' +
-      rows + '</tbody></table></div><p class="sim-muted">规则：' + esc(d.rules_zh) + '</p><p class="sim-muted">' + esc(d.note_zh) +
+    return ['original', 'band2'].map(function (k) { return bookHtml(d.accounts[k] || {}); }).join('') +
+      '<p class="sim-muted">规则：' + esc(d.rules_zh) + '</p><p class="sim-muted">' + esc(d.note_zh) +
       ' 开始于 ' + esc((d.accounts.original || {}).started || '-') + '。</p>';
   }
 

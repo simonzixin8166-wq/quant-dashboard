@@ -13,7 +13,9 @@ Rules (forum post bbs.wenxuecity.com/tzlc/2414333, 2026-11-24; ambiguous parts f
     no TQQQ; QQQ weight = 8% per full 1% below the average, measured at the deepest close since the cross,
     buy only, never sell, capped at 100%.
 Signals are taken at each session close and filled at the NEXT session's open (Owner 2026-11-25: buy at the next
-open); each trade costs 0.05% of the amount traded; cash earns nothing.
+open). Owner 2026-11-25: trades are kept like an IBKR account: whole shares at the open price, IBKR Pro Fixed
+commission (0.005 USD/share, min 1 USD, max 1%), a fill record per order (date, side, symbol, shares, price,
+amount, commission, realized P/L on sells), positions with average cost; cash earns nothing.
 Start (Owner 2026-11-25: "start today, from yesterday's close"): the first signal is the 2026-11-24 close, where the
 strategy holds 80% QQQ (deepest close since the 11/13 cross: -10.6% on 11/20); 5,000 USD is invested at the
 2026-11-25 open. A 5,000 USD QQQ buy-and-hold account is bought at the same open.
@@ -86,19 +88,76 @@ def value(st: dict, q: float, t: float) -> float:
     return st["cash"] + st["qqq_sh"] * q + st["tqqq_sh"] * t
 
 
-def rebalance(st: dict, q: float, t: float, w_q: float, w_t: float) -> dict | None:
-    """Move to target weights at the given prices (the session open); returns the trade or None when nothing moves."""
+def commission(shares: int, price: float) -> float:
+    """IBKR Pro Fixed (US stocks/ETFs): 0.005 USD per share, minimum 1.00 USD, at most 1% of the trade value."""
+    if shares <= 0:
+        return 0.0
+    return round(min(max(1.0, 0.005 * shares), 0.01 * shares * price), 2)
+
+
+def _book(st: dict, sym: str) -> dict:
+    return st.setdefault("positions", {}).setdefault(sym, {"shares": 0, "cost": 0.0})
+
+
+def rebalance(st: dict, q: float, t: float, w_q: float, w_t: float, day: str = "", buy_only_qqq: bool = False
+              ) -> list[dict]:
+    """Owner 2026-11-25: trade like an IBKR account. Whole shares at the session open, sells first, then buys with
+    the cash on hand, IBKR Pro Fixed commission per order; average cost and realized P/L kept per symbol.
+    Returns the fills (empty when nothing changes)."""
+    prices = {"QQQ": q, "TQQQ": t}
+    key = {"QQQ": "qqq_sh", "TQQQ": "tqqq_sh"}
     v = value(st, q, t)
-    tq_now, tt_now = st["qqq_sh"] * q, st["tqqq_sh"] * t
-    tq_new, tt_new = v * w_q, v * w_t
-    turnover = abs(tq_new - tq_now) + abs(tt_new - tt_now)
-    if turnover < 1.0:
-        return None
-    cost = turnover * COST
-    v -= cost
-    tq_new, tt_new = v * w_q, v * w_t
-    st.update(qqq_sh=tq_new / q, tqqq_sh=tt_new / t, cash=v - tq_new - tt_new)
-    return {"qqq_usd": round(tq_new - tq_now, 2), "tqqq_usd": round(tt_new - tt_now, 2), "cost": round(cost, 2)}
+    want = {"QQQ": int(v * w_q // q) if w_q > 0 else 0, "TQQQ": int(v * w_t // t) if w_t > 0 else 0}
+    if buy_only_qqq:
+        want["QQQ"] = max(want["QQQ"], int(st["qqq_sh"]))
+    fills = []
+    for sym in ("QQQ", "TQQQ"):                                    # sells first
+        have = int(st[key[sym]])
+        n = have - want[sym]
+        if n > 0:
+            px, b = prices[sym], _book(st, sym)
+            fee = commission(n, px)
+            avg = b["cost"] / b["shares"] if b["shares"] else 0.0
+            pnl = round((px - avg) * n - fee, 2)
+            st["cash"] += n * px - fee
+            b["cost"] -= avg * n; b["shares"] -= n
+            st[key[sym]] = have - n
+            st["realized_pnl"] = round((st.get("realized_pnl") or 0.0) + pnl, 2)
+            fills.append({"date": day, "side": "SELL", "symbol": sym, "shares": n, "price": round(px, 2),
+                          "amount": round(n * px, 2), "commission": fee, "realized_pnl": pnl})
+    for sym in ("QQQ", "TQQQ"):                                    # then buys, within the cash on hand
+        have = int(st[key[sym]])
+        n = want[sym] - have
+        if n > 0:
+            px = prices[sym]
+            while n > 0 and n * px + commission(n, px) > st["cash"] + 1e-9:
+                n -= 1
+            if n <= 0:
+                continue
+            fee = commission(n, px)
+            st["cash"] -= n * px + fee
+            b = _book(st, sym)
+            b["shares"] += n; b["cost"] += n * px + fee
+            st[key[sym]] = have + n
+            fills.append({"date": day, "side": "BUY", "symbol": sym, "shares": n, "price": round(px, 2),
+                          "amount": round(n * px, 2), "commission": fee})
+    st["cash"] = round(st["cash"], 2)
+    st.setdefault("fills", []).extend(fills)
+    return fills
+
+
+def positions(st: dict, q: float, t: float) -> list[dict]:
+    """IBKR-style position lines at a close: shares, average cost, last price, market value, unrealized P/L."""
+    out = []
+    for sym, px in (("QQQ", q), ("TQQQ", t)):
+        b = (st.get("positions") or {}).get(sym) or {"shares": 0, "cost": 0.0}
+        if b["shares"] <= 0:
+            continue
+        avg = b["cost"] / b["shares"]
+        out.append({"symbol": sym, "shares": b["shares"], "avg_cost": round(avg, 2), "price": round(px, 2),
+                    "market_value": round(b["shares"] * px, 2), "unrealized_pnl": round(b["shares"] * (px - avg), 2),
+                    "unrealized_pct": round(px / avg - 1, 4)})
+    return out
 
 
 def signal(st: dict, q: float, s: float, qqq_weight_now: float, holds_tqqq: bool, band: float = 0.0
@@ -146,7 +205,8 @@ def run(qqq: dict, tqqq: dict, qopen: dict, topen: dict, state: dict | None, now
     st = state
     if not st:
         d0 = days[0]
-        st = {"version": VERSION, "signal_from": d0, "started": None, "cash": START_CASH, "qqq_sh": 0.0, "tqqq_sh": 0.0,
+        st = {"version": VERSION, "signal_from": d0, "started": None, "cash": START_CASH, "qqq_sh": 0, "tqqq_sh": 0,
+              "positions": {}, "fills": [], "realized_pnl": 0.0, "bench_cash": None,
               "worst_dev": deepest_since_cross(qqq, d0) if qqq[d0] < (sma200(qqq, d0) or 0) else 0.0,
               "mode": ("below" if qqq[d0] < (sma200(qqq, d0) or 0) else "above"), "band": band,
               "tp_done": False, "tp_high": None, "prior_high": max(v for d, v in qqq.items() if d <= d0),
@@ -157,17 +217,17 @@ def run(qqq: dict, tqqq: dict, qopen: dict, topen: dict, state: dict | None, now
         s = sma200(qqq, d)
         if s is None:
             continue
-        trade = None
+        fills = []
         if st["pending"] and d in qopen and d in topen:           # fill yesterday's signal at today's open
             if st["started"] is None:
                 st["started"] = d
-                st["bench_qqq_sh"] = START_CASH * (1 - COST) / qopen[d]
+                fee = commission(int((START_CASH - 1.0) // qopen[d]), qopen[d])
+                st["bench_qqq_sh"] = int((START_CASH - fee) // qopen[d])
+                st["bench_cash"] = round(START_CASH - st["bench_qqq_sh"] * qopen[d] - fee, 2)
             pw_q, pw_t = st["pending"]["w_q"], st["pending"]["w_t"]
-            if pw_t == 0 and st["tqqq_sh"] == 0 and pw_q > 0:        # below the average: buy only, never trim QQQ
-                vo = value(st, qopen[d], topen[d])
-                pw_q = max(pw_q, st["qqq_sh"] * qopen[d] / vo if vo else 0.0)
-            trade = rebalance(st, qopen[d], topen[d], pw_q, pw_t)
-            st["trades"] += 1 if trade else 0
+            buy_only = pw_t == 0 and st["tqqq_sh"] == 0 and pw_q > 0   # below the average: never trim QQQ
+            fills = rebalance(st, qopen[d], topen[d], pw_q, pw_t, d, buy_only)
+            st["trades"] += len(fills)
             filled = st["pending"]
         else:
             filled = None
@@ -181,13 +241,15 @@ def run(qqq: dict, tqqq: dict, qopen: dict, topen: dict, state: dict | None, now
                          "next_open_target": {"qqq": w_q, "tqqq": w_t}, "reason": reason,
                          "recorded_at": now.isoformat(timespec="seconds")})
             continue
-        b = st["bench_qqq_sh"] * q
+        b = st["bench_qqq_sh"] * q + (st.get("bench_cash") or 0.0)
         rows.append({"date": d, "qqq": q, "tqqq": t, "qqq_open": qopen.get(d), "tqqq_open": topen.get(d),
                      "sma200": round(s, 2), "dev": round(q / s - 1, 4),
-                     "filled_at_open": ({"signal_date": filled["signal_date"], "reason": filled["reason"], "trade": trade}
+                     "filled_at_open": ({"signal_date": filled["signal_date"], "reason": filled["reason"], "fills": fills}
                                         if filled else None),
+                     "positions": positions(st, q, t), "cash_usd": round(st["cash"], 2),
                      "holding_at_close": {"qqq_usd": round(st["qqq_sh"] * q, 2), "tqqq_usd": round(st["tqqq_sh"] * t, 2),
                                           "cash_usd": round(st["cash"], 2)},
+                     "realized_pnl": st.get("realized_pnl", 0.0),
                      "value": round(v, 2), "return": round(v / START_CASH - 1, 4),
                      "benchmark_qqq_value": round(b, 2), "benchmark_return": round(b / START_CASH - 1, 4),
                      "next_open_target": {"qqq": w_q, "tqqq": w_t}, "reason": reason,
@@ -209,7 +271,10 @@ def summary(st: dict, rows_all: list[dict]) -> dict:
     return {"status": "running", "started": st["started"], "as_of": last["date"], "sessions": len(rows_all),
             "value": last["value"], "return": last["return"], "max_drawdown": round(mdd, 4),
             "benchmark_qqq_value": last["benchmark_qqq_value"], "benchmark_return": last["benchmark_return"],
-            "holding_at_close": last["holding_at_close"], "trades": st["trades"], "next_open_target": last["next_open_target"],
+            "holding_at_close": last["holding_at_close"], "positions": last.get("positions", []),
+            "cash_usd": last.get("cash_usd"), "realized_pnl": last.get("realized_pnl", 0.0),
+            "fills": (st.get("fills") or [])[-30:],
+            "trades": st["trades"], "next_open_target": last["next_open_target"],
             "last_reason": last["reason"]}
 
 
@@ -227,6 +292,8 @@ def public_card(doc: dict) -> dict:
                      "started": sm.get("started"), "value": sm.get("value"), "return": sm.get("return"),
                      "max_drawdown": sm.get("max_drawdown"), "trades": sm.get("trades"),
                      "holding_at_close": sm.get("holding_at_close"), "next_open_target": sm.get("next_open_target"),
+                     "positions": sm.get("positions"), "cash_usd": sm.get("cash_usd"),
+                     "realized_pnl": sm.get("realized_pnl"), "fills": sm.get("fills"),
                      "last_reason": sm.get("last_reason")}
     bench = next((a.get("summary") for a in (doc.get("accounts") or {}).values()
                   if (a.get("summary") or {}).get("benchmark_qqq_value") is not None), {}) or {}
@@ -234,7 +301,8 @@ def public_card(doc: dict) -> dict:
             "accounts": acc, "benchmark": {"label_zh": "一直持有 QQQ", "value": bench.get("benchmark_qqq_value"),
                                            "return": bench.get("benchmark_return")},
             "rules_zh": ("QQQ 在 200 日均线之上持有 TQQQ（到均线 1.15 倍止盈，比止盈价再高 10% 买回）；"
-                         "跌破均线后每跌满 1% 买 8% QQQ，只买不卖。收盘出信号，第二天开盘成交，每笔 0.05% 成本。"),
+                         "跌破均线后每跌满 1% 买 8% QQQ，只买不卖。收盘出信号，第二天开盘价成交，按整股买卖，"
+                         "佣金按 IBKR Pro 固定费率（每股 0.005 美元，每笔最低 1 美元）。"),
             "paper_only": True, "orders_placed": False,
             "note_zh": "纸面模拟，不是买卖建议；不下单、不连券商，不影响系统任何提醒和阈值。"}
 
@@ -250,6 +318,7 @@ def main() -> int:
         st, rows = run(qqq, tqqq, qopen, topen, ((prev.get("accounts") or {}).get(name) or {}).get("book"), now, band)
         for r in rows:
             r["sim_book"] = name          # paper book name ("account" is reserved for real accounts by the canary)
+            r["paper_only"] = True        # privacy scan: the owner-approved paper-sim exception keys on this flag
         if rows:
             with LEDGER.open("a", encoding="utf-8") as f:
                 for r in rows:

@@ -90,6 +90,13 @@ and why.
   quote checks, contradictions) -> automatic re-check -> optional 1-minute Owner thumbs on 3-5 items a week ->
   verified examples library used as in-context examples -> weekly eval on dev + newly audited items -> shadow week
   -> promote or roll back.
+- Merging (owner, 2026-11-27: "尽可能减少人工参与"): Claude merges its own low-risk PRs once every required check is
+  green, then verifies production the next run and reports on #133 and in the weekly review. Low-risk = bug fixes
+  with tests, understanding prompts / example library (shadow first), data-quality guards, sim and research
+  back-end scripts, docs and tests. The Owner still merges: changes under `.github/workflows` (run flow, schedules,
+  secrets use), the privacy canary / guardrail / publication rules, anything touching trading rules, alert
+  thresholds, positions or allocation, switching the homepage default, and charter (CLAUDE.md) edits. Any doubt
+  -> Owner merges. A red check never merges; a bad merge is reverted and logged in lessons_learned.
 - Learning loop (owner, 2026-11-24): the next milestone is a daily back-end loop on free Gemini: look (what changed)
   -> think (falsifiable system views, abstain when unsure) -> check (score matured views, attribute errors) ->
   summarise (only verified lessons kept; improvement proposals go to the Owner). Plan: Claude project

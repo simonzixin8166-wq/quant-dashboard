@@ -34,6 +34,8 @@ assert dr.classify(dr.checks({"series": {}})) == "UNKNOWN"
 f = dr.checks(macro("2026-11-19"), {"vix": {"date": "2026-11-20", "close": 37.06}})["fear"]
 assert f["value"] == 37.06 and f["series"] == "yahoo_close" and f["level"] == "watch"
 assert dr.checks(macro("2026-11-19"), {"vix": {"date": "2026-11-18", "close": 50}})["fear"]["series"] == "VIXCLS"
+# a Yahoo bar dated on an exchange holiday (Thanksgiving 2026-11-26) is not a session close: FRED stays
+assert dr.checks(macro("2026-11-25"), {"vix": {"date": "2026-11-26", "close": 26.8}})["fear"]["series"] == "VIXCLS"
 print("PASS classify: 2022-type now; turning / systemic / ordinary / unknown")
 
 sent = []

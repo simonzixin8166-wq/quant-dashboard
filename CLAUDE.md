@@ -79,6 +79,17 @@ and why.
   text MyAlpha already holds and never web-searches; if web search is ever added, the same rule applies.
 - Act like an agent, not a ticket queue (owner, 2026-11-24): when work shows the system drifting from the goal or
   missing an obvious next step, say so at once with a proposal; do not wait to be asked.
+- Find and fix problems on its own (owner, 2026-11-27): MyAlpha should detect its own errors and fix them in the
+  back end, then report the result; the Owner should not have to find or hand-fix routine problems. Allowed without
+  asking first: changes that are evaluation-gated, reversible and away from trading, e.g. understanding prompts and
+  example library, data-quality guards, and bug fixes with tests. Each runs in shadow first, is promoted only if
+  its measured scores do not drop, and can be rolled back with one setting; results go into the weekly review.
+  Still Owner-approved first: trading rules, thresholds, positions, allocation, Secrets, cron, permissions,
+  repository variables, paid services, and promoting any system view into production use.
+  Understanding self-improvement loop (December): auto-collected hard cases (Gemini vs ce5 disagreement, failed
+  quote checks, contradictions) -> automatic re-check -> optional 1-minute Owner thumbs on 3-5 items a week ->
+  verified examples library used as in-context examples -> weekly eval on dev + newly audited items -> shadow week
+  -> promote or roll back.
 - Learning loop (owner, 2026-11-24): the next milestone is a daily back-end loop on free Gemini: look (what changed)
   -> think (falsifiable system views, abstain when unsure) -> check (score matured views, attribute errors) ->
   summarise (only verified lessons kept; improvement proposals go to the Owner). Plan: Claude project

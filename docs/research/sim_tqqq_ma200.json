@@ -1,19 +1,19 @@
 {
  "version": "sim-tqqq-ma200-0.3",
- "generated_at": "2026-11-27T18:17:57+00:00",
+ "generated_at": "2026-11-27T21:29:39+00:00",
  "start_cash": 5000.0,
  "accounts": {
   "band2": {
    "label_zh": "均线策略（加 2% 缓冲）",
    "status": "running",
-   "as_of": "2026-11-25",
+   "as_of": "2026-11-27",
    "started": "2026-11-25",
-   "value": 5100.01,
-   "return": 0.02,
+   "value": 5201.05,
+   "return": 0.0402,
    "max_drawdown": 0.0,
    "trades": 1,
    "holding_at_close": {
-    "qqq_usd": 3803.52,
+    "qqq_usd": 3904.56,
     "tqqq_usd": 0.0,
     "cash_usd": 1296.49
    },
@@ -26,10 +26,10 @@
      "symbol": "QQQ",
      "shares": 6,
      "avg_cost": 617.25,
-     "price": 633.92,
-     "market_value": 3803.52,
-     "unrealized_pnl": 100.01,
-     "unrealized_pct": 0.027
+     "price": 650.76,
+     "market_value": 3904.56,
+     "unrealized_pnl": 201.05,
+     "unrealized_pct": 0.0543
     }
    ],
    "cash_usd": 1296.49,
@@ -50,7 +50,7 @@
   "ema530": {
    "label_zh": "530 策略（5/30 日均线交叉）",
    "status": "running",
-   "as_of": "2026-11-25",
+   "as_of": "2026-11-27",
    "started": "2026-11-25",
    "value": 5000.0,
    "return": 0.0,
@@ -74,14 +74,14 @@
   "hybrid": {
    "label_zh": "均线 + 530 组合",
    "status": "running",
-   "as_of": "2026-11-25",
+   "as_of": "2026-11-27",
    "started": "2026-11-25",
-   "value": 5100.01,
-   "return": 0.02,
+   "value": 5201.05,
+   "return": 0.0402,
    "max_drawdown": 0.0,
    "trades": 1,
    "holding_at_close": {
-    "qqq_usd": 3803.52,
+    "qqq_usd": 3904.56,
     "tqqq_usd": 0.0,
     "cash_usd": 1296.49
    },
@@ -94,10 +94,10 @@
      "symbol": "QQQ",
      "shares": 6,
      "avg_cost": 617.25,
-     "price": 633.92,
-     "market_value": 3803.52,
-     "unrealized_pnl": 100.01,
-     "unrealized_pct": 0.027
+     "price": 650.76,
+     "market_value": 3904.56,
+     "unrealized_pnl": 201.05,
+     "unrealized_pct": 0.0543
     }
    ],
    "cash_usd": 1296.49,
@@ -123,14 +123,14 @@
  ],
  "benchmark": {
   "label_zh": "一直持有 QQQ",
-  "value": 5133.68,
-  "return": 0.0267,
+  "value": 5268.4,
+  "return": 0.0537,
   "max_drawdown": 0.0,
   "qqq_shares": 8,
   "buy_price": 617.09,
   "cash_usd": 62.32,
   "started": "2026-11-25",
-  "as_of": "2026-11-25"
+  "as_of": "2026-11-27"
  },
  "rules_zh": "【均线策略】QQQ 在 200 日均线之上持有 TQQQ（到均线 1.15 倍止盈，比止盈价再高 10% 买回）；跌破均线后每跌满 1% 买 8% QQQ，只买不卖。收盘出信号，第二天开盘价成交，按整股买卖，佣金按 IBKR Pro 固定费率（每股 0.005 美元，每笔最低 1 美元）。2026-11-26 修订：止盈后买回的 TQQQ，要等 QQQ 回落到均线 1.15 倍以下、再涨上来，才允许再次止盈（避免买回第二天就卖）；这条是看过回测后定的，评估时单独标出。缓冲：高于均线 2% 才换 TQQQ，低于 2% 才转防守。【530 策略】TQQQ 收盘价的 5 日线上穿 30 日线（金叉）第二天开盘满仓 TQQQ，下穿（死叉）第二天开盘全部卖出持有现金。【组合】与均线策略相同；只在跌破均线期间，530 金叉时用一半资金买 TQQQ（其余现金），死叉后回到按跌幅分批买 QQQ。【对比】开始那天开盘一次性买入 QQQ，一直持有。",
  "paper_only": true,

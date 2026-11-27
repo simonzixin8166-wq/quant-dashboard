@@ -1,6 +1,6 @@
 {
   "version": "6.11.1",
-  "generated_at": "2026-11-27T18:17:06.210844+00:00",
+  "generated_at": "2026-11-27T21:28:56.084046+00:00",
   "mode": "research_only",
   "evidence_provenance": "historical_replay_post_rule_design",
   "forward_evidence_mixed": false,
@@ -44,7 +44,7 @@
     }
   },
   "summary": {
-    "raw_events": 1753,
+    "raw_events": 1754,
     "effective_clusters": 948,
     "replayable_playbooks": 3,
     "blocked_playbooks": 0,
@@ -54,7 +54,7 @@
     "CP-01:tier1": {
       "playbook_id": "CP-01",
       "state_detail": "tier1",
-      "raw_events": 194,
+      "raw_events": 195,
       "effective_clusters": 75,
       "independent_dates": [
         "2006-06-13",
@@ -1343,18 +1343,18 @@
       ],
       "horizons": {
         "5": {
-          "raw_n": 546,
+          "raw_n": 548,
           "effective_n": 148,
-          "aligned_rate": 0.5695970695970696,
+          "aligned_rate": 0.5693430656934306,
           "aligned_rate_ci95": {
-            "low": 0.5277222242220467,
-            "high": 0.610499437278353
+            "low": 0.5275438776125649,
+            "high": 0.610176836888326
           },
-          "avg_return": 0.005107044724070627,
-          "median_return": 0.006785423317656303,
-          "avg_mae": -0.038117141232517734,
-          "avg_mfe": 0.040903320372066176,
-          "avg_excess_vs_qqq": 0.0011957922434489702
+          "avg_return": 0.005058535366817368,
+          "median_return": 0.0065919594526338,
+          "avg_mae": -0.03833352733168344,
+          "avg_mfe": 0.0408961918385358,
+          "avg_excess_vs_qqq": 0.0011295076477440815
         },
         "20": {
           "raw_n": 535,
@@ -1382,7 +1382,7 @@
           "median_return": 0.06888208767130521,
           "avg_mae": -0.10847663215100248,
           "avg_mfe": 0.14366977113703042,
-          "avg_excess_vs_qqq": 0.004402327344416631
+          "avg_excess_vs_qqq": 0.004121870685256198
         }
       }
     },
@@ -1521,6 +1521,23 @@
     }
   },
   "recent_replay_events": [
+    {
+      "playbook_id": "CP-01",
+      "entity_key": "CP-01:VGT",
+      "symbol": "VGT",
+      "event_date": "2026-11-27",
+      "state_detail": "tier1",
+      "previous_level": 2,
+      "baseline_close": 105.09,
+      "rule_hash": "d9b0fd2812a09d4709f4df173bf6d816f4dc58c89debde69866841ca7f391c5e",
+      "evidence_provenance": "historical_replay_post_rule_design",
+      "scoreable": true,
+      "outcomes": {
+        "5": null,
+        "20": null,
+        "60": null
+      }
+    },
     {
       "playbook_id": "CP-01",
       "entity_key": "CP-01:VGT",
@@ -1681,7 +1698,15 @@
         "vix_available": true
       },
       "outcomes": {
-        "5": null,
+        "5": {
+          "maturity_date": "2026-11-27",
+          "return": 0.0009524716639681685,
+          "mae": -0.07515001428707502,
+          "mfe": 0.03019335174778548,
+          "benchmark_return": 0.008781667816368133,
+          "excess_vs_benchmark": -0.007829196152399964,
+          "aligned": true
+        },
         "20": null,
         "60": null
       }
@@ -1704,7 +1729,15 @@
         "vix_available": true
       },
       "outcomes": {
-        "5": null,
+        "5": {
+          "maturity_date": "2026-11-27",
+          "return": -0.017321509990612882,
+          "mae": -0.11966385052076356,
+          "mfe": 0.047706852621697715,
+          "benchmark_return": 0.008781667816368133,
+          "excess_vs_benchmark": -0.026103177806981015,
+          "aligned": false
+        },
         "20": null,
         "60": null
       }
@@ -2769,8 +2802,8 @@
           "return": -0.22489999870142718,
           "mae": -0.27757598553837703,
           "mfe": 0.17286600704542887,
-          "benchmark_return": null,
-          "excess_vs_benchmark": null,
+          "benchmark_return": -0.08037984003165455,
+          "excess_vs_benchmark": -0.14452015866977264,
           "aligned": false
         }
       }
@@ -6044,53 +6077,6 @@
           "mfe": 0.39097050153434987,
           "benchmark_return": 0.3031442969692666,
           "excess_vs_benchmark": 0.08734441196085152,
-          "aligned": true
-        }
-      }
-    },
-    {
-      "playbook_id": "CP-03",
-      "entity_key": "CP-03:SMH",
-      "symbol": "SMH",
-      "evaluation_asset": "SMH",
-      "event_date": "2025-04-04",
-      "state_detail": "strong",
-      "expected_direction": "bullish",
-      "baseline_close": 180.8000030517578,
-      "rule_hash": "20aaf8cf9b5c9dfcc137305750b16ccd04a08f873a4a2ddb83d6ef6ffd99220d",
-      "evidence_provenance": "historical_replay_post_rule_design",
-      "scoreable": true,
-      "risk_context": {
-        "trend_risk": true,
-        "vix_risk": true,
-        "vix_available": true
-      },
-      "outcomes": {
-        "5": {
-          "maturity_date": "2025-04-11",
-          "return": 0.11344023318940133,
-          "mae": -0.05912611870004236,
-          "mfe": 0.17704642680604565,
-          "benchmark_return": 0.07507038588023751,
-          "excess_vs_benchmark": 0.03836984730916382,
-          "aligned": true
-        },
-        "20": {
-          "maturity_date": "2025-05-05",
-          "return": 0.203595115803489,
-          "mae": -0.05912611870004236,
-          "mfe": 0.2219026241150135,
-          "benchmark_return": 0.1496675893723236,
-          "excess_vs_benchmark": 0.053927526431165385,
-          "aligned": true
-        },
-        "60": {
-          "maturity_date": "2025-07-02",
-          "return": 0.5555862569288024,
-          "mae": -0.05912611870004236,
-          "mfe": 0.5592920833470829,
-          "benchmark_return": 0.3031442969692666,
-          "excess_vs_benchmark": 0.2524419599595358,
           "aligned": true
         }
       }

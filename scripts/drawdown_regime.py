@@ -90,7 +90,9 @@ def checks(macro: dict, market: dict | None = None) -> dict:
                          "rule_zh": "≥1.5% 估值有压力，≥2.0%（或 20 天升 ≥0.5 点）压力大；这是 2022 型下跌的主因"}
     vx, vsrc, vdate = _v(s, "VIXCLS"), "VIXCLS", ((s.get("VIXCLS") or {}).get("latest") or {}).get("date")
     mv = (market or {}).get("vix") if isinstance(market, dict) else None
-    if isinstance(mv, dict) and isinstance(mv.get("close"), (int, float)) and str(mv.get("date") or "") > str(vdate or ""):
+    # Yahoo can print a bar on an exchange holiday (e.g. Thanksgiving 2026-11-26); only a real NYSE session counts
+    if isinstance(mv, dict) and isinstance(mv.get("close"), (int, float)) and str(mv.get("date") or "") > str(vdate or "") \
+            and _is_session(mv.get("date")):
         vx, vsrc, vdate = round(float(mv["close"]), 2), "yahoo_close", mv["date"]
     out["fear"] = {"series": vsrc, "date": vdate, "label_zh": "恐慌指数 VIX", "value": vx,
                    "level": None if vx is None else ("stress" if vx >= 40 else "watch" if vx >= 30 else "calm"),
@@ -167,6 +169,16 @@ def notify(text: str) -> str:
         return send_telegram(text)
     except Exception as exc:  # noqa: BLE001
         return f"failed:{type(exc).__name__}"
+
+
+def _is_session(day) -> bool:
+    try:
+        sys.path.insert(0, str(Path(__file__).resolve().parent))
+        import trading_calendar
+        from datetime import date as _date
+        return bool(trading_calendar.is_session(_date.fromisoformat(str(day)[:10])))
+    except Exception:  # noqa: BLE001
+        return False
 
 
 def market_vix() -> dict | None:

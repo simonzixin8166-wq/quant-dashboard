@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "generated_at": "2026-11-27T21:29:50.749941+00:00",
+  "generated_at": "2026-11-28T04:42:49.274132+00:00",
   "methodology": {
     "executed_action_baseline": "first trading session open strictly after source date when no reliable intraday timestamp exists",
     "planned_entry_baseline": "explicit stock-entry plans begin only on the first later session whose low touches the stated level; each tranche is validated separately",
@@ -16,9 +16,9 @@
     "attribution_limit": "third-party examples are excluded; unconfirmed source context is visible but excluded from aggregate method memory"
   },
   "counts": {
-    "events": 318,
+    "events": 319,
     "author_owned": 116,
-    "unconfirmed": 202,
+    "unconfirmed": 203,
     "triggered_author_owned": 115,
     "untriggered_plans": 1,
     "mature60": 43,
@@ -1125,6 +1125,57 @@
         "adjustment_basis": "stooq_archive_native_series",
         "baseline_source": "stooq_archive",
         "horizon_source": "stooq_archive",
+        "same_source": true
+      },
+      "outcomes": {
+        "5": null,
+        "20": null,
+        "60": null
+      },
+      "alignment": {
+        "direction": "bullish",
+        "5": null,
+        "20": null,
+        "60": null
+      },
+      "level_checks": {},
+      "status": "developing"
+    },
+    {
+      "event_id": "99341a63fb3c86dba9ef:0:NFLX:0",
+      "author": "bogbog",
+      "title": "之前好像说过， 就是那些优质的公司，",
+      "url": "https://bbs.wenxuecity.com/cfzh/125935.html",
+      "published_at": "2026-11-20 14:12:00",
+      "symbol": "NFLX",
+      "operation": {
+        "symbols": [
+          "NVDA",
+          "NFLX",
+          "TSLA"
+        ],
+        "actions": [
+          "add"
+        ],
+        "attribution": "unconfirmed_author_context",
+        "attribution_confidence": "needs_review"
+      },
+      "actions": [
+        "add"
+      ],
+      "attribution": "unconfirmed_author_context",
+      "attribution_confidence": "needs_review",
+      "baseline_kind": "next_session",
+      "baseline_assumption": "next trading session open because source date has no reliable intraday timestamp",
+      "planned_level": null,
+      "triggered": true,
+      "baseline_date": "2026-11-23",
+      "baseline_price": 58.54999923706055,
+      "price_provenance": {
+        "price_source": "yfinance_validation_cache",
+        "adjustment_basis": "yfinance_auto_adjust_false_native_ohlc",
+        "baseline_source": "yfinance_validation_cache",
+        "horizon_source": "yfinance_validation_cache",
         "same_source": true
       },
       "outcomes": {
@@ -12780,8 +12831,8 @@
       "baseline_assumption": "next trading session open because source date has no reliable intraday timestamp",
       "planned_level": null,
       "triggered": true,
-      "baseline_date": "2026-09-22",
-      "baseline_price": 73.69000244140625,
+      "baseline_date": "2026-10-06",
+      "baseline_price": 67.51000213623047,
       "price_provenance": {
         "price_source": "yfinance_validation_cache",
         "adjustment_basis": "yfinance_auto_adjust_false_native_ohlc",
@@ -12791,26 +12842,26 @@
       },
       "outcomes": {
         "5": {
-          "date": "2026-09-29",
-          "return": -0.04600351848738171,
-          "mae": -0.06527351104124202,
-          "mfe": 0.000949921190189551,
-          "benchmark_return": -0.0037517881724202784,
-          "excess_vs_qqq": -0.04225173031496143
+          "date": "2026-10-13",
+          "return": 0.043697183452746646,
+          "mae": -0.002962591783557067,
+          "mfe": 0.06798987102130938,
+          "benchmark_return": -0.022313054469536242,
+          "excess_vs_qqq": 0.06601023792228289
         },
         "20": {
-          "date": "2026-10-20",
-          "return": -0.06785180939538837,
-          "mae": -0.09702810814213425,
-          "mfe": 0.000949921190189551,
-          "benchmark_return": -0.021296107857162183,
-          "excess_vs_qqq": -0.04655570153822619
+          "date": "2026-11-03",
+          "return": -0.06058367409071941,
+          "mae": -0.09065327437306692,
+          "mfe": 0.08235813039042816,
+          "benchmark_return": -0.09895594180334877,
+          "excess_vs_qqq": 0.03837226771262936
         },
         "60": null
       },
       "alignment": {
         "direction": "bullish",
-        "5": "not_aligned",
+        "5": "aligned",
         "20": "not_aligned",
         "60": null
       },
